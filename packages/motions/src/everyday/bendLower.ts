@@ -375,7 +375,7 @@ export namespace bendLower {
           },
         ),
       );
-      if (Number.isFinite(drop))
+      if (drop > -Infinity)
         placed = {
           ...placed,
           root: { ...placed.root, y: placed.root.y - drop },

@@ -79,8 +79,6 @@ export function typeTextPresses(
   ): IAutoMovieVector3 => transform.point({ x, y: height, z });
   return (side: AutoMovieHumanSide, seconds: number): IAutoMovieVector3 => {
     const ordered: readonly IPress[] = presses[side];
-    if (Number.isNaN(seconds))
-      return world(previous[side].x, previous[side].z, hover);
     let low: number = 0;
     let high: number = ordered.length;
     while (low < high) {

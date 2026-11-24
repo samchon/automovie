@@ -4,7 +4,7 @@ import type { IAutoMovieMotionTake } from "@automovie/interface";
  * Admit a parsed motion-take artifact before the host binds any saved
  * references.
  *
- * Accepts authored version 1 only. Checks exact record fields, nonblank paths,
+ * Accepts authored version 1 only. Checks exact record fields, unpadded paths,
  * lowercase SHA-256 digests, unique ledger keys, and finite nonnegative clocks.
  * The source module must appear in the file ledger and at least one versioned
  * provider must be named. Throws a path-specific diagnostic for a malformed

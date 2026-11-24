@@ -169,14 +169,6 @@ export namespace crabWalk {
         fix: "give a pelvis height inside the range",
       });
     const to: IAutoMovieVector3 = params.to;
-    if (![to.x, to.y, to.z].every(Number.isFinite))
-      throw new HumanRefusal({
-        kind: "parameter",
-        axis: "to",
-        value: "non-finite",
-        reason: "the crawl travels a finite distance",
-        fix: "give the travel in metres",
-      });
     const shape: IShape =
       SHAPES[params.backbend === true ? "backbend" : "plain"];
     // The trunk's extension, shared among its bones by the room each has.

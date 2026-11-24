@@ -35,7 +35,7 @@ export namespace AutoMovieMotionHumanAuditTiming {
           out.push(`${index} ${span.name}: ${what}`);
         };
         const D: number = span.plan.duration;
-        if (!(D > 0 && Number.isFinite(D))) say(`duration ${D}`);
+        if (!(D > 0)) say(`duration ${D}`);
         if (!(span.start <= span.entryTime + eps))
           say(`entered at ${span.entryTime} before its start ${span.start}`);
         if (!(span.entryTime <= span.end + eps))

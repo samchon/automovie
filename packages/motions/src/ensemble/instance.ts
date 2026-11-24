@@ -79,7 +79,7 @@ export namespace instance {
   ): IAutoMovieMotionHumanActionPlan {
     const p: IAutoMovieMotionHumanInstance.IParams = context.params;
     const shift: number = p.shift ?? 0;
-    if (!(p.duration > 0) || !(Number.isInteger(shift) && shift >= 0))
+    if (!(p.duration > 0) || !(shift % 1 === 0 && shift >= 0))
       throw new HumanRefusal({
         kind: "parameter",
         axis: p.duration > 0 ? "shift" : "duration",

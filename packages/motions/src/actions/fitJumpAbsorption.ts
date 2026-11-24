@@ -50,7 +50,7 @@ export function fitJumpAbsorption(
   const { absorbed, stood }: jumpLanding.ILanding = landing;
   const span: number = stood.y - absorbed.y;
   const authored: fitJumpAbsorption.IPath = { root: absorbed, acceleration: 0 };
-  if (!(span > 0) || !(seconds > 0) || !Number.isFinite(seconds))
+  if (!(span > 0) || !(seconds > 0))
     return authored;
 
   const read: ReturnType<typeof prepareHumanPoseResolution> =

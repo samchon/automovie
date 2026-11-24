@@ -324,8 +324,6 @@ export namespace pour {
       )?.share ?? NaN);
     if (
       !(
-        Number.isFinite(seconds) &&
-        Number.isFinite(end) &&
         start >= 0 &&
         end > start &&
         end <= plan.duration
@@ -356,19 +354,12 @@ export namespace pour {
 /** Admit finite quantities before arithmetic or planning. */
 function validateVolumes(params: IAutoMovieMotionHumanPour.IParams): void {
   if (
-    ![
-      params.sourceMl,
-      params.targetMl,
-      params.capacityMl,
-      params.transferMl,
-    ].every(Number.isFinite) ||
     !(
       params.transferMl > 0 &&
       params.transferMl <= params.sourceMl &&
       params.targetMl >= 0 &&
       params.capacityMl > 0 &&
-      params.targetMl <= params.capacityMl &&
-      Number.isFinite(params.sourceMl + params.targetMl)
+      params.targetMl <= params.capacityMl
     )
   )
     throw new HumanRefusal({

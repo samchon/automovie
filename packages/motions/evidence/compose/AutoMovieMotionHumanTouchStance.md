@@ -10,7 +10,7 @@ The wrist's distance beyond the kept share falls monotonically while the shoulde
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-The reach at a girdle and a heel angle, one rule for the least of either (`least`), the lean, the primitives.
+The reach at a girdle and a heel angle, one rule for the least of either (`least`), the lean, the primitives. The posture moves (`AutoMovieMotionHumanTouchStanceMoves`) and the primitives (`AutoMovieMotionHumanTouchStancePrimitives`) are their own files, read through named scopes.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 

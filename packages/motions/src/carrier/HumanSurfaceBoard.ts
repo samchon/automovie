@@ -325,10 +325,7 @@ export namespace HumanSurfaceBoard {
           (affordance: IAutoMovieAffordance): boolean =>
             affordance.id === id && affordance.kind === kind,
         );
-      if (
-        candidate === undefined ||
-        !Number.isFinite(Vector3.length(candidate.frame.translation))
-      )
+      if (candidate === undefined)
         return refuseBoard(
           id,
           "the prop needs a finite " + kind + " affordance",
@@ -344,12 +341,7 @@ export namespace HumanSurfaceBoard {
       UP,
     );
     if (
-      !(
-        Number.isFinite(width) &&
-        width > 0 &&
-        Number.isFinite(length) &&
-        length > 0
-      ) ||
+      !(width > 0 && length > 0) ||
       Vector3.distance(normal, UP) > 1e-6
     )
       return refuseBoard(

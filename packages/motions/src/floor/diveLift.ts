@@ -37,12 +37,13 @@ export function diveLift(prepared: diveLift.IPrepared): dive.Lift {
         side: AutoMovieHumanSide,
       ): number => {
         if (after[side] <= 0) return now[side];
+        const run: number = now[side] - before[side];
         const slope: number =
-          (over[side] - after[side]) / (now[side] - before[side]);
+          run === 0 ? 0 : (over[side] - after[side]) / run;
         // A roll that did not lower the ankle is stepped by the excess.
         return (
           now[side] +
-          after[side] / (Number.isFinite(slope) && slope > 0 ? slope : 1)
+          after[side] / (slope > 0 ? slope : 1)
         );
       };
       const next: dive.Lift = { left: step("left"), right: step("right") };

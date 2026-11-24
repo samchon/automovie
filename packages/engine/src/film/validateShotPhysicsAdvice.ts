@@ -30,14 +30,11 @@ export function validateShotPhysicsAdvice(
         code: "contract-mismatch",
         phase: "performance",
         path: `${path}.id`,
-        fact:
-          first === undefined
-            ? "The physics-advice id is blank."
-            : `Physics-advice id "${item.id}" duplicates $runtime.advice[${first}].id.`,
+        fact: `Physics-advice id "${item.id}" duplicates $runtime.advice[${first}].id.`,
         impact:
           "The selected D010 decision cannot be audited against one stable proposal.",
         recovery:
-          "Give every advice item one non-blank id that is unique in this shot.",
+          "Give every advice item one id that is unique in this shot.",
       });
     else ids.set(item.id, index);
 

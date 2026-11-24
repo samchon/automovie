@@ -300,18 +300,10 @@ interface ITurns {
 }
 
 /**
- * Process-wide transform tables by control count, with no population/byte limit
- * or eviction.
- */
-const TURNS: Map<number, ITurns> = new Map();
-
-/**
- * Read or permanently retain two N-by-N turn arrays for a control count; sample
+ * Compute the two N-by-N turn arrays for a control count, once per fit; sample
  * values and cutoff do not affect them.
  */
 function turnsOf(count: number): ITurns {
-  const found: ITurns | undefined = TURNS.get(count);
-  if (found !== undefined) return found;
   const cos: Float64Array = new Float64Array(count * count);
   const sin: Float64Array = new Float64Array(count * count);
   for (let q: number = 0; q < count; q++)
@@ -320,9 +312,7 @@ function turnsOf(count: number): ITurns {
       cos[q * count + k] = Math.cos(angle);
       sin[q * count + k] = Math.sin(angle);
     }
-  const turns: ITurns = { cos, sin };
-  TURNS.set(count, turns);
-  return turns;
+  return { cos, sin };
 }
 
 /** Weights of the inverse knot filter by distance. */

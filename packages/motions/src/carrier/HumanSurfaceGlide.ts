@@ -163,8 +163,6 @@ export namespace HumanSurfaceGlide {
       right: foot("right"),
     };
     if (
-      !Number.isFinite(travel) ||
-      !Number.isFinite(curvature) ||
       SIDES.some(
         (side: AutoMovieHumanSide): boolean =>
           1 - curvature * local[side].x <= 0,

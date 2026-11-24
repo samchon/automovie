@@ -99,10 +99,6 @@ export const simulateSoftBodyWithBoundaries: (
         );
     const capsules: Set<string> = new Set<string>();
     for (const capsule of boundary.capsules) {
-      if (capsule.id.trim().length === 0)
-        throw new Error(
-          `soft body "${domain.id}" moving boundary[${index}] capsule id must not be blank`,
-        );
       if (capsules.has(capsule.id))
         throw new Error(
           `soft body "${domain.id}" moving boundary[${index}] repeats capsule "${capsule.id}"`,

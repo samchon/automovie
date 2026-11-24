@@ -115,7 +115,7 @@ function planCrossAnkleOverKnee(
   const travel: number = TRAVEL * (context.tempo ?? 1);
   const release: number = travel + hold;
   const duration: number = release + travel;
-  if (!(Number.isFinite(duration) && travel > 0 && release < duration))
+  if (!(travel > 0 && release < duration))
     throw new HumanRefusal({
       kind: "parameter",
       axis: "hold",

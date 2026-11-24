@@ -24,11 +24,6 @@ export function assertPatternGeneratedModuleRefusals(
     message: string;
   }[] = [
     {
-      label: "blankId",
-      changes: { id: " " },
-      message: 'pattern zone "field" module id must be non-empty',
-    },
-    {
       label: "duplicateId",
       changes: { id: "same" },
       message: 'pattern zone "field" module id "same" must be unique',

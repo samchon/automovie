@@ -8,9 +8,9 @@
  * Convex polygons in a horizontal frame of their own, with the semantics of
  * IHMC's Euclid `ConvexPolygon2D`, which the ported balance modules read
  * (`physicalOneStepCaptureRegion`, `physicalFootstepAdjustor`): vertices
- * clockwise, an empty polygon's area and centroid not a number, a polygon of
- * one or two vertices of area zero with its vertices' mean as centroid, and a
- * point on an edge inside.
+ * clockwise, an empty polygon's area zero and centroid not a number, a polygon
+ * of one or two vertices of area zero with its vertices' mean as centroid, and
+ * a point on an edge inside.
  *
  * Points are `{ x, y }` in a right-handed frame with z up, as IHMC's sole and
  * mid-feet frames: x forward, y to the left. A world point maps into it by
@@ -117,14 +117,14 @@ export namespace physicalPlanarPolygon {
   }
 
   /**
-   * The area, square metres: not a number for no vertex, zero for one or two
-   * (Euclid `computeConvexPolygon2DArea`).
+   * The area, square metres: half the absolute shoelace sum (Euclid
+   * `computeConvexPolygon2DArea`), zero for fewer than three vertices, the
+   * empty sum included.
    *
    * @param polygon The clockwise polygon.
    * @returns The area.
    */
   export function area(polygon: readonly IPoint[]): number {
-    if (polygon.length === 0) return Number.NaN;
     if (polygon.length < 3) return 0;
     let sum: number = 0;
     for (let i: number = 0; i < polygon.length; i++) {
@@ -222,19 +222,14 @@ export namespace physicalPlanarPolygon {
    * boundary, negative inside (Euclid `signedDistance`).
    *
    * @param polygon The clockwise polygon.
-   * @param point The point; a coordinate that is not a number gives not a
-   *   number.
-   * @returns The signed distance.
+   * @param point The point.
+   * @returns The signed distance; not a number for an empty polygon.
    */
   export function signedDistance(
     polygon: readonly IPoint[],
     point: IPoint,
   ): number {
-    if (
-      polygon.length === 0 ||
-      !(Number.isFinite(point.x) && Number.isFinite(point.y))
-    )
-      return Number.NaN;
+    if (polygon.length === 0) return Number.NaN;
     if (polygon.length < 3) return segmentDistance(polygon, point);
     const distance: number = boundary(polygon, point).distance;
     return inside(polygon, point) ? -distance : distance;

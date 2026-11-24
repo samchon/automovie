@@ -27,7 +27,7 @@ import { triangleIndicesOf } from "./triangleIndicesOf";
  * a reused atlas-bearing member by translation and rotation only and build a
  * second one where the size differs.
  *
- * Throws on a blank or repeated part id and, naming the part, on a malformed
+ * Throws on a repeated part id and, naming the part, on a malformed
  * index buffer, before any member is placed. Parts are only read.
  *
  * @param parts Members in merge order.
@@ -38,8 +38,6 @@ export const mergeAutoMovieMeshParts = (
 ): IAutoMovieMeshAssembly => {
   const seen: Set<string> = new Set();
   for (const part of parts) {
-    if (part.id.trim().length === 0)
-      throw new Error("mesh part id must be non-empty");
     if (seen.has(part.id))
       throw new Error(`mesh part id "${part.id}" must be unique`);
     seen.add(part.id);

@@ -27,29 +27,6 @@ import { validatePlantingCluster } from "./validatePlantingCluster";
 import { validatePlantingDomain } from "./validatePlantingDomain";
 
 /**
- * Fixed schema kinds reused by installation admission; module-owned set is
- * never mutated by a pass.
- */
-const INSTALLATION_KINDS: Set<string> = new Set([
-  "potted",
-  "planter",
-  "green-wall",
-  "aquatic",
-  "other",
-]);
-
-/**
- * Fixed declared irrigation media; this membership check does not establish a
- * connected water service.
- */
-const IRRIGATION_MEDIA: Set<string> = new Set([
-  "potable",
-  "reclaimed",
-  "rainwater",
-  "pond",
-]);
-
-/**
  * Join planting recipes, clusters and installation references, then inspect
  * member canopy bounds in authored rooms.
  */
@@ -153,14 +130,7 @@ export const validatePlantingInstallations: (
   installations.forEach(
     (installation: IAutoMoviePlantingInstallation, index: number): void => {
       const path: string = `${root}.installations[${index}]`;
-      if (installation.id.trim().length === 0)
-        out.push(
-          "type",
-          `${path}.id`,
-          "planting installation id must be non-empty",
-          installation.id,
-        );
-      else if (seenInstallations.has(installation.id))
+      if (seenInstallations.has(installation.id))
         out.push(
           "type",
           `${path}.id`,
@@ -169,13 +139,6 @@ export const validatePlantingInstallations: (
         );
       seenInstallations.add(installation.id);
 
-      if (!INSTALLATION_KINDS.has(installation.kind))
-        out.push(
-          "type",
-          `${path}.kind`,
-          `planting installation kind must be one of ${[...INSTALLATION_KINDS].join(", ")}`,
-          installation.kind,
-        );
       if (installation.environment !== environment.id)
         out.push(
           "type",
@@ -247,13 +210,6 @@ export const validatePlantingInstallations: (
             `${path}.irrigation.demandLitresPerDay`,
             "irrigation demand must be finite and strictly positive",
             irrigation.demandLitresPerDay,
-          );
-        if (!IRRIGATION_MEDIA.has(irrigation.medium))
-          out.push(
-            "type",
-            `${path}.irrigation.medium`,
-            `irrigation medium must be one of ${[...IRRIGATION_MEDIA].join(", ")}`,
-            irrigation.medium,
           );
       }
       const aquatic: boolean = installation.kind === "aquatic";

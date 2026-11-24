@@ -50,12 +50,10 @@ export function resolveAutoMovieMeshPhysicalVertices(
     if (
       source === undefined ||
       source === null ||
-      typeof source.domain !== "string" ||
-      source.domain.trim().length === 0 ||
       !Number.isSafeInteger(source.id) ||
       source.id < 0
     )
-      refuse("sources need nonblank domains and nonnegative safe integer IDs");
+      refuse("sources need nonnegative safe integer IDs");
     keys.push(`source:${JSON.stringify([source.domain, source.id])}`);
   }
   const coordinates: { labels: string[]; vertices: number[] } =

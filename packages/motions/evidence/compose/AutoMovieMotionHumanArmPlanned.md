@@ -154,7 +154,7 @@ The arms' whole action is first laid as an animation system lays it (`AutoMovieM
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-Build the common laid course, then try independent paths for a pair with separate sites when the course fails on collision. One coupled certificate precedes the original fallback optimiser.
+Build the common laid course, then try independent paths for a pair with separate sites when the course fails on collision. One coupled certificate precedes the original fallback optimiser. The readings (`AutoMovieMotionHumanArmPlannedReads`), the waypoints and problem (`AutoMovieMotionHumanArmPlannedProblem`) and the solve with its playback (`AutoMovieMotionHumanArmPlannedSolve`) are their own files, read through named scopes.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 

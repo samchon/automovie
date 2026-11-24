@@ -4,7 +4,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { physicalRecoverySwing } from "./physicalRecoverySwing";
+import { physicalRecoveryLimbSwing } from "./physicalRecoveryLimbSwing";
 
 /**
  * Replay a support's actual controller ownership and accepted goal adjustment
@@ -59,7 +59,7 @@ export function samplePhysicalRecoverySupport(
       !!step &&
       seconds <
         (step.resolved?.seconds ??
-          (physicalRecoverySwing.of(state, bone)?.start === step.start
+          (physicalRecoveryLimbSwing(state, bone)?.start === step.start
             ? Infinity
             : step.end)),
     offset: { ...(!handed && last?.offset ? last.offset : root) },

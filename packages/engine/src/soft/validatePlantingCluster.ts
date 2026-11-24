@@ -26,15 +26,6 @@ export const validatePlantingCluster: (
   const out: IAutoMovieViolationCollector = new ViolationCollector();
   const root: string = "$input";
 
-  if (cluster.id.trim().length === 0)
-    out.push("type", `${root}.id`, "cluster id must be non-empty", cluster.id);
-  if (cluster.domain.trim().length === 0)
-    out.push(
-      "type",
-      `${root}.domain`,
-      "cluster must cite a planting recipe",
-      cluster.domain,
-    );
   integer(
     out,
     `${root}.count`,

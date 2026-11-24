@@ -32,7 +32,7 @@ import { positive } from "./positive";
  *
  * All openings are admitted before the lattice is built, so a refusal never
  * leaves a partial mesh. Refused: a nonpositive or non-finite wall size; an
- * opening with a blank or repeated id, a non-finite origin, a nonpositive size,
+ * opening with a repeated id, a non-finite origin, a nonpositive size,
  * or a rectangle outside the wall; two overlapping openings; openings meeting
  * only at a corner, which would pinch the wall to a line that needs a general
  * boolean this kernel does not have; and openings that remove the whole wall.
@@ -54,8 +54,6 @@ export const buildAutoMovieWall: (
   const ids: Set<string> = new Set();
   props.openings.forEach(
     (opening: IAutoMovieWallOpening, index: number): void => {
-      if (opening.id.trim().length === 0)
-        throw new Error(`wall opening[${index}] id must be non-empty`);
       if (ids.has(opening.id))
         throw new Error(`wall opening id "${opening.id}" must be unique`);
       ids.add(opening.id);

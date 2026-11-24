@@ -56,9 +56,9 @@ export function measureAutoMovieRenderTextureClosure(
   ];
   const owners: Set<string> = new Set<string>();
   for (const scope of scopes) {
-    if (scope.owner.trim().length === 0 || owners.has(scope.owner))
+    if (owners.has(scope.owner))
       throw new Error(
-        `Texture resident owner "${scope.owner}" must be nonblank and unique.`,
+        `Texture resident owner "${scope.owner}" must be unique.`,
       );
     owners.add(scope.owner);
   }
@@ -360,9 +360,9 @@ export function measureAutoMovieRenderTextureClosure(
   const runtimeOwners: Set<string> = new Set<string>();
   const builtinUses: Set<string> = new Set<string>();
   for (const runtime of props.residency?.runtimeTextures ?? []) {
-    if (runtime.owner.trim().length === 0 || runtimeOwners.has(runtime.owner))
+    if (runtimeOwners.has(runtime.owner))
       throw new Error(
-        `Runtime texture owner "${runtime.owner}" must be nonblank and unique.`,
+        `Runtime texture owner "${runtime.owner}" must be unique.`,
       );
     runtimeOwners.add(runtime.owner);
     const source: Omit<IAutoMovieRenderTextureSource, "asset"> =
@@ -468,9 +468,9 @@ export function measureAutoMovieRenderTextureClosure(
   const transmissionScopes: Set<string> = new Set<string>();
   const shadowRoles: Set<string> = new Set<string>();
   for (const target of props.residency?.renderTargets ?? []) {
-    if (target.owner.trim().length === 0 || targetOwners.has(target.owner))
+    if (targetOwners.has(target.owner))
       throw new Error(
-        `Render target owner "${target.owner}" must be nonblank and unique.`,
+        `Render target owner "${target.owner}" must be unique.`,
       );
     targetOwners.add(target.owner);
     if (target.transmissionScope !== undefined)
@@ -602,12 +602,9 @@ export function measureAutoMovieRenderTextureClosure(
     });
   const compositors: Set<string> = new Set<string>();
   for (const compositor of props.residency?.displayCompositors ?? []) {
-    if (
-      compositor.owner.trim().length === 0 ||
-      compositors.has(compositor.owner)
-    )
+    if (compositors.has(compositor.owner))
       throw new Error(
-        `Display compositor owner "${compositor.owner}" must be nonblank and unique.`,
+        `Display compositor owner "${compositor.owner}" must be unique.`,
       );
     compositors.add(compositor.owner);
     const copyBytes: number | null = measureAutoMovieTextureStorage({

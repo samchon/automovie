@@ -92,7 +92,7 @@ export function prepareSkateboardPhrase(
     context,
     params.on,
   );
-  if (!Number.isFinite(ground) || (lead !== "left" && lead !== "right"))
+  if (lead !== "left" && lead !== "right")
     HumanSurfaceBoard.refuseBoard(
       params.on,
       "a finite floor elevation and a leading foot are required",

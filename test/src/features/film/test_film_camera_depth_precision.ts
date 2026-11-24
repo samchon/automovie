@@ -126,7 +126,6 @@ export function test_film_camera_depth_precision(): void {
   );
 
   const invalid: ReturnType<typeof evaluate>[] = [
-    evaluate({ camera: " " }),
     evaluate({ time: Number.NaN }),
     evaluate({ time: -1 }),
     evaluate({ near: Number.NaN }),

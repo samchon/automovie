@@ -8,6 +8,7 @@ import type {
 
 import { Vector3 } from "../math/Vector3";
 import { physicalRecoverySwing } from "./physicalRecoverySwing";
+import { physicalRecoveryLimbSwing } from "./physicalRecoveryLimbSwing";
 import { physicalSupportPoint } from "./physicalSupportPoint";
 import { samplePhysicalRecoveryGoal } from "./samplePhysicalRecoveryGoal";
 
@@ -48,7 +49,7 @@ export function physicalRecoverySupportGoals(
         // A limb keeps its planted goal until it lifts; a second lifted swing
         // follows its own path (`physicalBalanceSwing`).
         const swing: IAutoMovieStepPlanner.IStep | undefined =
-          physicalRecoverySwing.of(state, limb.bone);
+          physicalRecoveryLimbSwing(state, limb.bone);
         const own: { height: number; hang: number } | undefined =
           physicalRecoverySwing(state).filter(
             (step: IAutoMovieStepPlanner.IStep): boolean =>

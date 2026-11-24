@@ -32,8 +32,6 @@ export const deriveAutoMovieSoundPropagation: (
     throw new Error("sound propagation emission frame lies outside the film");
   if (props.segmentEndFrame > props.totalFrames)
     throw new Error("sound propagation segment end lies outside the film");
-  if (props.profile.id.trim().length === 0)
-    throw new Error("sound propagation profile id must not be blank");
   assertFinitePositive(
     props.profile.speedOfSoundMetersPerSecond,
     "sound propagation speed",

@@ -86,8 +86,7 @@ function planSwipeTouchscreen(
   if (
     screen?.kind !== "surface" ||
     screen.width === undefined ||
-    !Number.isFinite(screen.width) ||
-    screen.width <= 0 ||
+    !(screen.width > 0) ||
     screen.rides !== undefined ||
     screen.frame.scale.x !== 1 ||
     screen.frame.scale.y !== 1 ||

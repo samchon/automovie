@@ -10,7 +10,7 @@ A moving effector goal is a trajectory problem solved once with branch continuit
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-The plan less its arm goal is the composer's base; the planned carry is its one primitive; the composed posture replaces the plan's.
+The plan less its arm goal is the composer's base (`courseArmGoalBase`); the planned carry is its one primitive; the composed posture replaces the plan's. A later course's rest is read by `courseArmGoalShownRests`.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 

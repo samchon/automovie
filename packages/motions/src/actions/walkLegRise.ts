@@ -121,7 +121,7 @@ export function walkLegRise(
     let stale: RiseStale = 0;
     for (let k: number = 0; k < 2 * HALVINGS && high - low > RESOLVED; k++) {
       const secant: number =
-        Number.isFinite(above) && Number.isFinite(below)
+        above < Infinity && below > -Infinity
           ? low + ((high - low) * above) / (above - below)
           : NaN;
       const middle: number =

@@ -259,15 +259,9 @@ export namespace HumanArmTrajectoryModel {
     allowed: (a: number, k: number, probe: number, shape: number) => number;
     /**
      * The same between a probe of one arm and a collider of the other
-     * (`S.colliders`), the collider's bone for a declared rest.
+     * (`S.colliders`, by index), a declared rest read on the collider's bone.
      */
-    between: (
-      a: number,
-      k: number,
-      probe: number,
-      shape: number,
-      bone: string,
-    ) => number;
+    between: (a: number, k: number, probe: number, shape: number) => number;
     /**
      * How much deeper than `between` a probe of one arm's segment may lie in
      * the other arm's collider shape (by index) at a waypoint when both

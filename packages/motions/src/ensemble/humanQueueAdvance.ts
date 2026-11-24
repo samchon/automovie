@@ -57,7 +57,7 @@ export function humanQueueAdvance(
     });
 
   const wait: number = request.wait ?? 0;
-  if (!Number.isFinite(wait) || wait < 0)
+  if (!(wait >= 0))
     throw new HumanRefusal({
       kind: "parameter",
       axis: "wait",
@@ -71,8 +71,7 @@ export function humanQueueAdvance(
   const dz: number = request.exit.z - origin.z;
   const distance: number = Math.hypot(dx, dz);
   if (
-    !Number.isFinite(distance) ||
-    distance <= LINE_TOLERANCE ||
+    !(distance > LINE_TOLERANCE) ||
     !(Math.abs(request.exit.y - origin.y) <= LINE_TOLERANCE)
   )
     throw new HumanRefusal({

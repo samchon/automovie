@@ -232,25 +232,13 @@ function prepareGroups(
   const byGroup: Map<string, IPreparedPart[]> = new Map();
   const ids: Set<string> = new Set();
   for (const part of parts) {
-    if (part.id.trim() === "" || ids.has(part.id))
-      throw new Error("Scene collision parts need distinct nonempty paths");
+    if (ids.has(part.id))
+      throw new Error("Scene collision parts need distinct paths");
     ids.add(part.id);
-    if (
-      part.region !== undefined &&
-      (part.group === undefined || part.region.trim() === "")
-    )
-      throw new Error("Scene collision regions need a named managed group");
+    if (part.region !== undefined && part.group === undefined)
+      throw new Error("Scene collision regions need a managed group");
 
     const group: Collision.IGroup | undefined = part.group;
-    if (
-      group !== undefined &&
-      (group.id.trim() === "" ||
-        (group.kind !== "rigid-assembly" &&
-          group.kind !== "managed-formation" &&
-          group.kind !== "deformable-body"))
-    )
-      throw new Error("Invalid managed scene collision group");
-
     const id: string = JSON.stringify(
       group === undefined ? ["part", part.id] : [group.kind, group.id],
     );
@@ -386,8 +374,6 @@ function activeAllowances(
   const active: Map<string, number> = new Map();
   for (const entry of entries) {
     if (
-      entry.first.trim() === "" ||
-      entry.second.trim() === "" ||
       entry.first === entry.second ||
       !Number.isFinite(entry.startSeconds) ||
       !Number.isFinite(entry.endSeconds) ||
@@ -396,9 +382,7 @@ function activeAllowances(
       entry.maxPenetration < 0 ||
       [entry.firstJoints, entry.secondJoints].some(
         (joints: readonly string[] | undefined): boolean =>
-          joints !== undefined &&
-          (joints.length === 0 ||
-            joints.some((joint: string): boolean => joint.trim() === "")),
+          joints !== undefined && joints.length === 0,
       )
     )
       throw new Error("Invalid named scene collision allowance");

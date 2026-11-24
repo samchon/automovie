@@ -268,7 +268,7 @@ export namespace HumanEnsemble {
         (m: IAutoMovieMotionHumanEnsemble.IMember): boolean =>
           among?.(m) ?? true,
       );
-    if (!(Number.isInteger(count) && count >= 0 && count <= admitted.length))
+    if (!(count % 1 === 0 && count >= 0 && count <= admitted.length))
       throw new HumanRefusal({
         kind: "parameter",
         axis: `${ensemble.input.id}.pick.${name}`,
@@ -352,7 +352,7 @@ export namespace HumanEnsemble {
     if (
       !(spec.share >= 0 && spec.share <= 1) ||
       spec.sizes.length === 0 ||
-      spec.sizes.some((s: number): boolean => !(Number.isInteger(s) && s >= 2))
+      spec.sizes.some((s: number): boolean => !(s % 1 === 0 && s >= 2))
     )
       throw new HumanRefusal({
         kind: "parameter",

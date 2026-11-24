@@ -185,7 +185,7 @@ export function prepareHumanTrunkBalance(
       );
       if (pointInHull(place, hull)) nearest = degrees;
     }
-    if (!Number.isFinite(nearest)) return posture;
+    if (nearest === Infinity) return posture;
     return {
       ...posture,
       joints: {

@@ -25,19 +25,14 @@ export function generateAutoMovieSupportCurve64(
   if (
     props.harmonics.length === 0 ||
     props.harmonics.length > 17 ||
-    props.harmonics.some(
-      (pair: { cosine: number; sine: number }): boolean =>
-        !Number.isFinite(pair.cosine) || !Number.isFinite(pair.sine),
-    ) ||
     props.harmonics[0]!.sine !== 0 ||
-    !(props.harmonics[0]!.cosine > 0) ||
-    !Number.isInteger(props.spans) ||
+    props.harmonics[0]!.cosine <= 0 ||
     props.spans < 4 ||
     props.spans > 4096 ||
     (props.spans & (props.spans - 1)) !== 0
   )
     throw new Error(
-      "Finite millimetre support harmonics and a bounded power-of-two partition required",
+      "Millimetre support harmonics and a bounded power-of-two partition required",
     );
   const coefficients: { cosine: number; sine: number }[] = props.harmonics.map(
     (pair: {
@@ -46,8 +41,6 @@ export function generateAutoMovieSupportCurve64(
     }): { cosine: number; sine: number } => ({ ...pair }),
   );
   const perimeter: number = 2 * Math.PI * coefficients[0]!.cosine;
-  if (!Number.isFinite(perimeter))
-    throw new Error("Support-perimeter arithmetic overflow");
   let radiusLipschitz: number = 0;
   let fourthDerivativeBound: number = Math.abs(coefficients[0]!.cosine);
   for (let n: number = 1; n < coefficients.length; ++n) {
@@ -64,8 +57,6 @@ export function generateAutoMovieSupportCurve64(
   }
   const width: number = (2 * Math.PI) / props.spans;
   const error: number = (Math.SQRT2 * fourthDerivativeBound * width ** 4) / 384;
-  if (!Number.isFinite(error))
-    throw new Error("Support derivative-bound arithmetic overflow");
   let lower: number = -Infinity;
   for (let count: number = 16; count <= 4096; count *= 2) {
     let minimum: number = Infinity;
@@ -82,7 +73,7 @@ export function generateAutoMovieSupportCurve64(
     lower = minimum - (radiusLipschitz * Math.PI) / count;
     if (lower > 0) break;
   }
-  if (!Number.isFinite(lower) || !(lower > 0))
+  if (lower <= 0)
     throw new Error(
       "Positive curvature radius remains unresolved for this support family",
     );
@@ -119,25 +110,20 @@ export function generateAutoMovieSupportCurve64(
       const db: Readonly<AutoMovieVector3Tuple> = tangents[next]!;
       return [
         a,
-        a.map(
-          (x: number, k: number): number => x + (width * da[k]!) / 3,
-        ) as unknown as Readonly<AutoMovieVector3Tuple>,
-        b.map(
-          (x: number, k: number): number => x - (width * db[k]!) / 3,
-        ) as unknown as Readonly<AutoMovieVector3Tuple>,
+        [
+          a[0] + (width * da[0]) / 3,
+          a[1] + (width * da[1]) / 3,
+          a[2] + (width * da[2]) / 3,
+        ],
+        [
+          b[0] - (width * db[0]) / 3,
+          b[1] - (width * db[1]) / 3,
+          b[2] - (width * db[2]) / 3,
+        ],
         b,
       ];
     },
   );
-  if (
-    spans.some((span: AutoMovieCubicBezierControls3): boolean =>
-      span.some(
-        (p: Readonly<AutoMovieVector3Tuple>): boolean =>
-          !p.every(Number.isFinite),
-      ),
-    )
-  )
-    throw new Error("Support-curve arithmetic overflow");
   return {
     curve: {
       type: "cubicBezier",

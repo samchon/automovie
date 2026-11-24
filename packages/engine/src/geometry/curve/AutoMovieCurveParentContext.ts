@@ -53,23 +53,11 @@ export class AutoMovieCurveParentContext {
   ) {
     for (const frame of localFrames) {
       if (
-        typeof frame.bone !== "string" ||
         !frame.bone ||
         this.frames.has(frame.bone) ||
         (frame.parent !== null && !this.frames.has(frame.parent))
       )
         throw new Error("Parents must precede unique bones");
-      if (
-        frame.rotation.length !== 3 ||
-        frame.rotation.some(
-          (r: Readonly<AutoMovieVector3Tuple>): boolean => r.length !== 3,
-        ) ||
-        frame.translationMm.length !== 3 ||
-        ![...frame.rotation.flat(), ...frame.translationMm].every(
-          Number.isFinite,
-        )
-      )
-        throw new Error("Finite rigid frames required");
       for (let i: number = 0; i < 3; i++)
         for (let j: number = 0; j < 3; j++) {
           const dot: number = frame.rotation[i]!.reduce(
@@ -109,20 +97,23 @@ export class AutoMovieCurveParentContext {
         parent === undefined
           ? local
           : Matrix4.multiply(this.matrices.get(parent.bone)!, local);
-      const rotation: AutoMovieMatrix3Tuple.ReadonlyRows = [0, 1, 2].map(
-        (i: number): Readonly<AutoMovieVector3Tuple> => [
-          world[i]!,
-          world[4 + i]!,
-          world[8 + i]!,
-        ],
-      ) as unknown as AutoMovieMatrix3Tuple.ReadonlyRows;
+      const row: (i: number) => Readonly<AutoMovieVector3Tuple> = (
+        i: number,
+      ): Readonly<AutoMovieVector3Tuple> => [
+        world[i]!,
+        world[4 + i]!,
+        world[8 + i]!,
+      ];
+      const rotation: AutoMovieMatrix3Tuple.ReadonlyRows = [
+        row(0),
+        row(1),
+        row(2),
+      ];
       const translation: Readonly<AutoMovieVector3Tuple> = [
         world[12]!,
         world[13]!,
         world[14]!,
       ];
-      if (![...rotation.flat(), ...translation].every(Number.isFinite))
-        throw new Error("Unresolved parent transform");
       this.frames.set(frame.bone, {
         bone: frame.bone,
         parent: frame.parent,
@@ -156,22 +147,15 @@ export class AutoMovieCurveParentContext {
   ): Readonly<AutoMovieVector3Tuple> {
     const frame: IAutoMovieCurveHierarchyFrame64 | undefined =
       this.frames.get(bone);
-    if (
-      frame === undefined ||
-      vector.length !== 3 ||
-      !vector.every(Number.isFinite)
-    )
-      throw new Error("Unknown bone or invalid direction");
-    const result: Readonly<AutoMovieVector3Tuple> = frame.rotation.map(
-      (row: Readonly<AutoMovieVector3Tuple>): number =>
-        row.reduce(
-          (s: number, x: number, k: number): number => s + x * vector[k]!,
-          0,
-        ),
-    ) as unknown as Readonly<AutoMovieVector3Tuple>;
-    if (!result.every(Number.isFinite))
-      throw new Error("Unresolved direction transform");
-    return result;
+    if (frame === undefined) throw new Error("Unknown bone");
+    const dot: (row: Readonly<AutoMovieVector3Tuple>) => number = (
+      row: Readonly<AutoMovieVector3Tuple>,
+    ): number => row[0] * vector[0] + row[1] * vector[1] + row[2] * vector[2];
+    return [
+      dot(frame.rotation[0]),
+      dot(frame.rotation[1]),
+      dot(frame.rotation[2]),
+    ];
   }
 
   /**
@@ -182,12 +166,7 @@ export class AutoMovieCurveParentContext {
     bone: string,
     point: Readonly<AutoMovieVector3Tuple>,
   ): Readonly<AutoMovieVector3Tuple> {
-    if (
-      !this.frames.has(bone) ||
-      point.length !== 3 ||
-      !point.every(Number.isFinite)
-    )
-      throw new Error("Unknown bone or invalid point");
+    if (!this.frames.has(bone)) throw new Error("Unknown bone");
     const pointWorld: IAutoMovieVector3 = Matrix4.transformPoint(
       this.matrices.get(bone)!,
       {
@@ -196,14 +175,7 @@ export class AutoMovieCurveParentContext {
         z: point[2],
       },
     );
-    const result: Readonly<AutoMovieVector3Tuple> = [
-      pointWorld.x,
-      pointWorld.y,
-      pointWorld.z,
-    ];
-    if (!result.every(Number.isFinite))
-      throw new Error("Unresolved point transform");
-    return result;
+    return [pointWorld.x, pointWorld.y, pointWorld.z];
   }
 
   /**
@@ -216,26 +188,13 @@ export class AutoMovieCurveParentContext {
   ): Readonly<AutoMovieVector3Tuple> {
     const frame: IAutoMovieCurveHierarchyFrame64 | undefined =
       this.frames.get(bone);
-    if (
-      frame === undefined ||
-      vector.length !== 3 ||
-      !vector.every(Number.isFinite)
-    )
-      throw new Error("Unknown bone or invalid direction");
-    const result: Readonly<AutoMovieVector3Tuple> = [0, 1, 2].map(
-      (k: number): number =>
-        frame.rotation.reduce(
-          (
-            s: number,
-            row: Readonly<AutoMovieVector3Tuple>,
-            i: number,
-          ): number => s + row[k]! * vector[i]!,
-          0,
-        ),
-    ) as unknown as Readonly<AutoMovieVector3Tuple>;
-    if (!result.every(Number.isFinite))
-      throw new Error("Unresolved inverse direction");
-    return result;
+    if (frame === undefined) throw new Error("Unknown bone");
+    const r: AutoMovieMatrix3Tuple.ReadonlyRows = frame.rotation;
+    return [
+      r[0][0] * vector[0] + r[1][0] * vector[1] + r[2][0] * vector[2],
+      r[0][1] * vector[0] + r[1][1] * vector[1] + r[2][1] * vector[2],
+      r[0][2] * vector[0] + r[1][2] * vector[1] + r[2][2] * vector[2],
+    ];
   }
 
   /**
@@ -249,12 +208,11 @@ export class AutoMovieCurveParentContext {
     const frame: IAutoMovieCurveHierarchyFrame64 | undefined =
       this.frames.get(bone);
     if (frame === undefined) throw new Error("Unknown bone");
-    return this.inverseDirection(
-      bone,
-      point.map(
-        (x: number, k: number): number => x - frame.translationMm[k]!,
-      ) as unknown as Readonly<AutoMovieVector3Tuple>,
-    );
+    return this.inverseDirection(bone, [
+      point[0] - frame.translationMm[0],
+      point[1] - frame.translationMm[1],
+      point[2] - frame.translationMm[2],
+    ]);
   }
 
   /**

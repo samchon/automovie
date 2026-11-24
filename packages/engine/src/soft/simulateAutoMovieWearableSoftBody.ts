@@ -177,7 +177,7 @@ export const simulateAutoMovieWearableSoftBody: (
 };
 
 /**
- * Index caller-owned frame subject references by nonblank unique ids; duplicate
+ * Index caller-owned frame subject references by unique ids; duplicate
  * admission preserves named frame diagnostics.
  */
 
@@ -195,9 +195,9 @@ const keyed: <Entry>(
   const output: Map<string, Entry> = new Map<string, Entry>();
   for (const entry of entries) {
     const id: string = key(entry);
-    if (id.trim().length === 0 || output.has(id))
+    if (output.has(id))
       throw new Error(
-        `wearable soft frame[${step}] ${label} ids must be non-blank and unique`,
+        `wearable soft frame[${step}] ${label} ids must be unique`,
       );
     output.set(id, entry);
   }

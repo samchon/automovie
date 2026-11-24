@@ -310,6 +310,36 @@ Reuses the placed solve.
 
 Returns a fresh placement.
 
+# src/posture/HumanPosturePreparation.ts#HumanPosturePreparation.articulated
+
+## @evidence contracts/development/common.md#meaningful-documentation
+
+States what the posture keeps, what it drops and how a neutral coordinate reads.
+
+## @evidence contracts/development/implementation.md#principled-implementation
+
+The placed solve's clinical angles on the placed root, heading and turn: forward kinematics of these joints reproduces the solve, so a reader needs no goal.
+
+## @evidence contracts/development/implementation.md#clear-and-simple-structure
+
+One read of the placed solve and one joint pass.
+
+## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
+
+The angles are the solve's own; no goal is re-solved and none is kept for a reader to solve again.
+
+## @evidence contracts/development/implementation.md#efficient-algorithms
+
+Linear in the joints beyond the placed solve.
+
+## @evidence contracts/development/implementation.md#reuse-equivalent-work
+
+Reads the placement's solve (``IPlaced.fit``).
+
+## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
+
+Returns a fresh posture.
+
 # src/posture/HumanPosturePreparation.ts#HumanPosturePreparation.rigid
 
 ## @evidence contracts/development/common.md#meaningful-documentation

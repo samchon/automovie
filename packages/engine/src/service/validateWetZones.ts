@@ -105,9 +105,7 @@ export const validateWetZones: (
   const seen: Set<string> = new Set<string>();
   network.zones.forEach((zone: IAutoMovieWetZone, index: number): void => {
     const path: string = `${root}.zones[${index}]`;
-    if (zone.id.trim().length === 0)
-      out.push("type", `${path}.id`, "wet zone id must be non-empty", zone.id);
-    else if (seen.has(zone.id))
+    if (seen.has(zone.id))
       out.push(
         "type",
         `${path}.id`,

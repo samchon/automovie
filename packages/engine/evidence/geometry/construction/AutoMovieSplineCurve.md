@@ -142,8 +142,8 @@ O(M+N^2) accumulation/direct transforms and O(N^2) transform tables avoid a dens
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 
-Within a fit both coordinates share normal eigenvalues and turns; across fits TURNS shares tables by N because those tables depend only on N, with no sample/cutoff/effect reuse.
+Within a fit both coordinates and the normal matrix share one turn table, computed once for that fit; nothing is kept across fits.
 
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
-Local O(N) solve arrays and 2N output have call/result lifetimes, but each new N permanently adds two N-by-N Float64Arrays (16N^2 payload bytes) to an unbounded process Map; no eviction or release exists.
+The two N-by-N turn tables, the O(N) solve arrays and the 2N output have call/result lifetimes; the fit retains nothing in module state.

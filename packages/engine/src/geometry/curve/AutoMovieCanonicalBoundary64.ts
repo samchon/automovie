@@ -208,8 +208,8 @@ export namespace AutoMovieCanonicalBoundary64 {
    * increasing canonical atom direction. Empty coverage and
    * conflicting/overfull incidence remain explicit diagnostics; they neither
    * throw nor certify source topology. Three global uses can describe
-   * coarse1+fine2 with exactly two uses per atom. Duplicate IDs, empty
-   * authority/ID, invalid walks and invalid intervals throw.
+   * coarse1+fine2 with exactly two uses per atom. Duplicate IDs and invalid
+   * intervals throw.
    */
   export function partition(
     uses: IAutoMovieCanonicalBoundary64.IPartitionUses,
@@ -221,17 +221,8 @@ export namespace AutoMovieCanonicalBoundary64 {
       > = new Map();
     for (const use of uses) {
       admit(use.start, use.end);
-      if (
-        typeof use.id !== "string" ||
-        !use.id ||
-        ids.has(use.id) ||
-        typeof use.authority !== "string" ||
-        !use.authority ||
-        (use.walk !== 1 && use.walk !== -1)
-      )
-        throw new Error(
-          "Boundary uses require unique nonempty IDs, authority and signed walks",
-        );
+      if (ids.has(use.id))
+        throw new Error("Boundary uses require unique IDs");
       ids.add(use.id);
       const events: Map<
         number,

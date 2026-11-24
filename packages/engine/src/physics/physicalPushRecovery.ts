@@ -210,14 +210,10 @@ export namespace physicalPushRecovery {
     let preferred: number = input.remaining;
     for (; preferred >= 0; preferred -= input.remaining / 10)
       if (
-        !Number.isNaN(
-          Polygon.area(
-            physicalOneStepCaptureRegion({
-              ...input.region,
-              remaining: preferred,
-            }),
-          ),
-        )
+        physicalOneStepCaptureRegion({
+          ...input.region,
+          remaining: preferred,
+        }).length > 0
       )
         break;
     return preferred;
@@ -229,8 +225,8 @@ export namespace physicalPushRecovery {
    * small, which counts toward safe, nor within `MINIMUM_TIME_TO_REPLAN` of
    * touchdown, nor again once projected.
    *
-   * @param input The state, the swing time left, seconds, not a number for one
-   *   second (l.239-240), the controller's update period and the reference
+   * @param input The state, the swing time left, seconds, one second when
+   *   unknown (l.239-240), the controller's update period and the reference
    *   controller's, seconds, the region's inputs, the footstep's position and
    *   the swing foot's outline placed at it, in the support sole's frame.
    * @returns The next state, the footstep's position, whether it moved, and the
@@ -238,7 +234,7 @@ export namespace physicalPushRecovery {
    */
   export function checkAndUpdate(input: {
     state: Readonly<IState>;
-    remaining: number;
+    remaining?: number;
     dt: number;
     period: number;
     region: Readonly<IRegion>;
@@ -250,9 +246,7 @@ export namespace physicalPushRecovery {
     adjusted: boolean;
     region: Polygon.IPoint[];
   } {
-    const remaining: number = Number.isNaN(input.remaining)
-      ? 1.0
-      : input.remaining;
+    const remaining: number = input.remaining ?? 1.0;
     const preferred: number = preferredSwingTime({
       remaining,
       dt: input.dt,

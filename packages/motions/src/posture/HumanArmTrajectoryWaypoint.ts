@@ -118,10 +118,6 @@ export function HumanArmTrajectoryWaypoint(
     colliders,
     touched,
     normals,
-    allowed: sites.map((): undefined => undefined),
-    between: sites.map((): undefined => undefined),
-    inside: sites.map((): Map<number, number> => new Map()),
-    flat: sites.map((): undefined => undefined),
     reachable: frames.map(
       (frame: IAutoMovieMotionHumanArmGeometry.IFrame, a: number): number[] =>
         S.reachable(frame, placed[a]!, T.REACH),
@@ -130,17 +126,16 @@ export function HumanArmTrajectoryWaypoint(
 }
 
 /**
- * What an arms' trajectory reads at one waypoint, built once per waypoint and
- * kept by every later reading of the same arms
- * (`HumanArmTrajectoryContext.of`).
+ * What an arms' trajectory reads at one waypoint, built once per waypoint by
+ * its context (`HumanArmTrajectoryContext`).
  */
 export namespace HumanArmTrajectoryWaypoint {
   /**
-   * What a context holds at one waypoint for every arm, built once and kept by
-   * every later reading of the same arms that has the waypoint
-   * (`HumanArmTrajectoryContext.of`): its frames and sites, which identify it,
-   * the arm resting there placed and its colliders, each site's touched
-   * collider and normal, and the memos of the allowances read there.
+   * What a context holds at one waypoint for every arm, built once with the
+   * context: its frames and sites, the arm resting there placed and its
+   * colliders, each site's touched collider and normal, and the shapes the arm
+   * can reach. The pair allowances read there are the context's own tables
+   * (`HumanArmTrajectoryAllowances`).
    */
   export interface IWaypoint {
     /** Each arm's frame. */
@@ -162,46 +157,9 @@ export namespace HumanArmTrajectoryWaypoint {
     /** Each arm's site's outward normal. */
     normals: (IAutoMovieVector3 | undefined)[];
     /**
-     * Each arm's probes' allowances against the frame's shapes (`allowed`), by
-     * pair: probe times the shapes plus shape, NaN until read; made at its
-     * first read.
-     */
-    allowed: (Float64Array | undefined)[];
-    /**
-     * Each arm's probes' allowances against the other arm's colliders
-     * (`between`), by pair: probe times the colliders plus collider, NaN until
-     * read; made at its first read.
-     */
-    between: (Float64Array | undefined)[];
-    /**
-     * The body's corners' allowances inside each arm's colliders (`inside`), by
-     * pair.
-     */
-    inside: Map<number, number>[];
-    /** Each arm's colliders, one entry per shape, once read. */
-    flat: (IAutoMovieMotionHumanArmGeometry.IFrame["colliders"] | undefined)[];
-    /**
      * Each arm's frame's shapes any placement of the arm can come within the
      * pairs' reach of, ascending (`HumanArmShapes.reachable`).
      */
     reachable: number[][];
-  }
-
-  /**
-   * A new allowance memo of one arm at a waypoint (`IWaypoint.allowed`,
-   * `IWaypoint.between`): one entry per probe, the axis probes and the frame's
-   * collider probes, and per shape read against, NaN until read.
-   *
-   * @param frame The arm's frame.
-   * @param shapes How many shapes its probes are read against.
-   * @returns The memo.
-   */
-  export function memo(
-    frame: IAutoMovieMotionHumanArmGeometry.IFrame,
-    shapes: number,
-  ): Float64Array {
-    return new Float64Array((G.SURFACE + frame.segments.length) * shapes).fill(
-      NaN,
-    );
   }
 }

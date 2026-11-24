@@ -39,7 +39,7 @@ export namespace AutoMovieMotionWave {
 
 /** Keep the same count condition and refusal text for both entry points. */
 function validate(cycles: number): void {
-  if (!(Number.isInteger(cycles) && cycles > 0))
+  if (!(cycles % 1 === 0 && cycles > 0))
     throw new Error("A movement repeats a positive whole number of times");
 }
 

@@ -1,8 +1,5 @@
-import { hingedArmSwivel } from "@automovie/engine";
 import type {
-  AutoMovieHumanLimb,
   AutoMovieHumanSide,
-  AutoMovieHumanoidBone,
   AutoMovieMotionHumanChannel,
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionEvent,
@@ -13,21 +10,15 @@ import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanPrimitive,
-  IAutoMoviePose,
-  IAutoMovieSwivelNear,
-  IAutoMovieSwivelSeed,
 } from "@automovie/interface";
 
-import { HumanArmClearance } from "../posture/HumanArmClearance";
-import { HumanLimbFit } from "../posture/HumanLimbFit";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { AutoMovieMotionClock } from "./AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "./AutoMovieMotionHumanArm";
-import { AutoMovieMotionHumanArmCourse } from "./AutoMovieMotionHumanArmCourse";
-import { AutoMovieMotionHumanChannel as HumanChannels } from "./AutoMovieMotionHumanChannel";
 import { AutoMovieMotionInterval } from "./AutoMovieMotionInterval";
 import { composeAutoMovieMotionHumanAction } from "./composeAutoMovieMotionHumanAction";
-import { courseLimbSwivels } from "./courseLimbSwivels";
+import { courseArmGoalBase } from "./courseArmGoalBase";
+import { courseArmGoalShownRests } from "./courseArmGoalShownRests";
 
 /**
  * A law's arm goal, written afresh at every second of its plan, planned instead
@@ -114,134 +105,19 @@ export function courseArmGoal(
   // planner reads each arm's goal at the seconds it reads the base at, so
   // until then the base reads the whole posture, shared with the goal.
   let laid: boolean = false;
-
-  // Once laid, an arm on its course (`AutoMovieMotionHumanArmCarry.carried`
-  // writes the planned trajectory there, not tracking a live goal) reads no
-  // goal, and the base deletes it: the base asks the law for every channel
-  // but those arms, so a law that honours the demand skips their goals
-  // (`IAutoMovieMotionHumanActionPlan.posture`'s `channels`): demand-driven
-  // evaluation of only the required parts, as an engine's animation graph
-  // evaluates only its required bones. One
-  // list per set of such arms, so the reads of a second share one posture.
-  const demands: Map<string, readonly AutoMovieMotionHumanChannel[]> =
-    new Map();
-  const demand = (
-    seconds: number,
-  ): readonly AutoMovieMotionHumanChannel[] | undefined => {
-    if (!laid) return undefined;
-    const unread: courseArmGoal.Limb[] = [];
-    for (const arm of arms) {
-      const span: IAutoMovieMotionHumanArmPlanned.ISpan =
-        arm.span ?? props.span;
-      if (
-        arm.tracked !== true &&
-        seconds > span.start &&
-        (seconds <= span.end || props.after === "angles")
-      )
-        unread.push(`${arm.side}Arm`);
-      // An arm whose carry writes this second off its course reads its goal
-      // (`AutoMovieMotionHumanArmCarry.carried`): the whole posture is read
-      // once for both, as before.
-      else if (seconds >= span.start - 1e-9 && seconds <= span.end + 1e-9)
-        return undefined;
-    }
-    if (unread.length === 0) return undefined;
-    const key: string = unread.join();
-    let found: readonly AutoMovieMotionHumanChannel[] | undefined =
-      demands.get(key);
-    if (found === undefined) {
-      found = HumanChannels.ORDER.filter(
-        (channel: AutoMovieMotionHumanChannel): boolean =>
-          !unread.some((limb: courseArmGoal.Limb): boolean => limb === channel),
-      );
-      demands.set(key, found);
-    }
-    return found;
-  };
-  const base: IAutoMovieMotionHumanActionPlan = {
-    ...plan,
-    posture: (
-      seconds: number,
-      _channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1],
-      resolution?: courseArmGoal.Resolution,
-      projection?: courseArmGoal.Projection,
-    ): IAutoMovieMotionHumanPosture => {
-      // A law whose goal reads another performer gives its posture without
-      // the coursed goals (`base`), so laying the course never evaluates the
-      // live goal, and the other performer is read only as `perceived` says.
-      const channels: readonly AutoMovieMotionHumanChannel[] | undefined =
-        demand(seconds);
-      const posture: IAutoMovieMotionHumanPosture =
-        props.base === undefined
-          ? read(seconds, resolution, projection, channels)
-          : props.base.posture(seconds, channels, resolution, projection);
-      const limbs: IAutoMovieMotionHumanPosture["limbs"] = {
-        ...posture.limbs,
-      };
-      let joints: IAutoMovieMotionHumanPosture["joints"] = posture.joints;
-      for (const arm of arms) {
-        const limb: courseArmGoal.Limb = `${arm.side}Arm`;
-        const span: IAutoMovieMotionHumanArmPlanned.ISpan =
-          arm.span ?? props.span;
-        // Before its course the arm is the plan's own: its goal stays, so a
-        // course that starts after the action does takes over from the arm
-        // the plan shows, never from a frozen rest.
-        if (seconds < span.start) continue;
-        if (seconds <= span.end) {
-          delete limbs[limb];
-          continue;
-        }
-
-        // After its course the arm keeps the angles the course ended with,
-        // carried by the body as it moves on (`after: "angles"`), or is the
-        // plan's own again, its goal fitted on the body as it moves on from
-        // the arm the course ended on: the posture's arm joints carry that
-        // arm, so the fit and the display's course of the goal both continue
-        // its swivel and branch (Tolani, Goswami and Badler 2000: the
-        // feasible swivel nearest the previous solution), never another
-        // elbow side for the same goal at the seam.
-        if (props.after === "angles") delete limbs[limb];
-        let angles: IAutoMovieMotionHumanPosture["joints"] | undefined = laid
-          ? kept.get(limb)
-          : returned.get(limb);
-        if (angles === undefined) {
-          // Until the composition is laid, another arm of the group whose
-          // span runs on is planned on this base past this arm's end, before
-          // the composition exists: the arm then stands where its course
-          // returns it, the plan's own arm at the span's end (its `back`),
-          // resolved once.
-          angles = {};
-          if (laid) {
-            const ended: IAutoMovieMotionHumanPosture["joints"] =
-              composed.posture(span.end).joints;
-            for (const bone of courseArmGoal.bones(arm.side))
-              if (ended[bone] !== undefined) angles[bone] = ended[bone];
-            kept.set(limb, angles);
-          } else {
-            const back: IAutoMoviePose = resolveHumanPosture(
-              props.context.body,
-              read(span.end),
-            );
-            const chain: ReadonlySet<AutoMovieHumanoidBone> =
-              new Set<AutoMovieHumanoidBone>(courseArmGoal.bones(arm.side));
-            for (const joint of back.joints)
-              if (chain.has(joint.bone))
-                angles[joint.bone] = [
-                  joint.flexion ?? 0,
-                  joint.abduction ?? 0,
-                  joint.twist ?? 0,
-                ];
-            returned.set(limb, angles);
-          }
-        }
-        joints = { ...joints, ...angles };
-      }
-      return { ...posture, limbs, joints };
-    },
-  };
+  const base: IAutoMovieMotionHumanActionPlan = courseArmGoalBase({
+    props,
+    plan,
+    arms,
+    kept,
+    returned,
+    read,
+    laid: (): boolean => laid,
+    composed: (): IAutoMovieMotionHumanActionPlan => composed,
+  });
   // What the display shows of the arms before their courses, which a course
-  // starting after its action leaves from (`shownRests`): read once per
-  // start the group's arms share.
+  // starting after its action leaves from (`courseArmGoalShownRests`): read
+  // once per start the group's arms share.
   const shownAt = (seconds: number): IAutoMovieMotionHumanPosture =>
     props.base === undefined ? read(seconds) : props.base.posture(seconds);
   const rests: Map<courseArmGoal.Limb, IAutoMovieMotionHumanArmAngles.IAngles> =
@@ -253,7 +129,7 @@ export function courseArmGoal(
   );
   for (const start of starts)
     if (start > 1e-9)
-      for (const [limb, rest] of shownRests(
+      for (const [limb, rest] of courseArmGoalShownRests(
         props.context,
         plan,
         shownAt,
@@ -299,8 +175,8 @@ export function courseArmGoal(
         span,
         // A course leaves from the arm the display shows as it takes over:
         // the entry's at the action's start, and the plan's own as the display
-        // shows it there for a course that starts later (`shownRests`), so
-        // the seam before the span meets it.
+        // shows it there for a course that starts later
+        // (`courseArmGoalShownRests`), so the seam before the span meets it.
         rest: rests.get(limb) ?? courseArmGoal.rest(props.context, arm),
         // A return ends on the plan's own arm at the span's end, which the
         // plan shows from there on, or whose angles the arm keeps after it
@@ -406,7 +282,7 @@ export namespace courseArmGoal {
      * The arm's angles a course starting with the action leaves from, and the
      * arm from which the display's course of the plan's own goal runs to a
      * course that starts later, which leaves from where that one shows the arm
-     * (`shownRests`); the arm as the action is entered when absent
+     * (`courseArmGoalShownRests`); the arm as the action is entered when absent
      * (`AutoMovieMotionHumanArm.entered`), the rest every course takes unless
      * its law states another.
      */
@@ -578,114 +454,4 @@ export namespace courseArmGoal {
 
   /** What a coursed arm does after its span (`IProps.after`). */
   export type After = "goal" | "angles";
-}
-
-/**
- * The arms a display shows as courses that start after their action take them
- * over, at one start: each course's rest there. Before its course an arm is the
- * plan's own. Where the plan writes it no goal at the display's last knot
- * before the start (the frame grid from the action's start and the plan's
- * events, `courseLimbSwivels`), the display shows its joints, read at the start
- * without the goal. Where it writes one, the display places the goal at the
- * swivel and branch of its course of the plan's goals, continued from the arms
- * the action is entered with (`readHumanSegmentLeaf.swivels`), and holds that
- * knot's swivel and branch until the course takes over
- * (`courseLimbSwivelKnots.between`). That course is laid here on the same knots
- * and the goal at the start placed at its last knot, so the rest is the arm
- * shown, not a cold fit of the goal, which may turn the upper arm and the
- * forearm another way for the same hand place.
- *
- * @param context The action's context: the body and the arms it is entered
- *   with.
- * @param plan The law's plan, whose events the display knots at.
- * @param shown The posture the display shows before the courses.
- * @param arms The arms whose courses start at `start`.
- * @param start The courses' start, seconds since the plan's start, positive.
- * @returns Each arm's rest.
- */
-function shownRests(
-  context: courseArmGoal.IContext,
-  plan: IAutoMovieMotionHumanActionPlan,
-  shown: (seconds: number) => IAutoMovieMotionHumanPosture,
-  arms: readonly courseArmGoal.IArm[],
-  start: number,
-): Map<courseArmGoal.Limb, IAutoMovieMotionHumanArmAngles.IAngles> {
-  const body: IAutoMovieMotionHumanBody = context.body;
-  const out: Map<courseArmGoal.Limb, IAutoMovieMotionHumanArmAngles.IAngles> =
-    new Map();
-  const limb = (arm: courseArmGoal.IArm): courseArmGoal.Limb =>
-    `${arm.side}Arm`;
-  const step: number = AutoMovieMotionHumanArmCourse.STEP;
-  const instants: number[] = plan.events
-    .map((event: IAutoMovieMotionEvent): number => event.share * plan.duration)
-    .filter((t: number): boolean => t > 0 && t < start - 1e-9);
-  let last: number = step * Math.floor((start - 1e-9) / step);
-  for (const t of instants) if (t > last) last = t;
-  const written: courseArmGoal.IArm[] = arms.filter(
-    (arm: courseArmGoal.IArm): boolean =>
-      shown(last).limbs[limb(arm)] !== undefined,
-  );
-  const at: IAutoMovieMotionHumanPosture = shown(start);
-
-  // An arm with no goal before its course: the plan's own joints.
-  if (written.length < arms.length) {
-    const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...at.limbs };
-    for (const arm of arms) delete limbs[limb(arm)];
-    const pose: IAutoMoviePose = resolveHumanPosture(body, { ...at, limbs });
-    for (const arm of arms)
-      if (!written.includes(arm))
-        out.set(limb(arm), AutoMovieMotionHumanArm.angles(pose, arm.side));
-  }
-  if (written.length === 0) return out;
-
-  // An arm on a goal before its course: the display's course of the goals,
-  // its first knot placed at the arms as entered (`rest`, on the plan's own
-  // posture at its start), read at its last knot before the start.
-  const first: IAutoMovieMotionHumanPosture = shown(0);
-  const bare: IAutoMovieMotionHumanPosture["limbs"] = { ...first.limbs };
-  for (const arm of written) delete bare[limb(arm)];
-  let entered: IAutoMoviePose = resolveHumanPosture(body, {
-    ...first,
-    limbs: bare,
-  });
-  for (const arm of written)
-    entered = HumanArmClearance.posed(
-      entered,
-      arm.side,
-      courseArmGoal.rest(context, arm),
-    );
-  const entry: Map<AutoMovieHumanLimb, IAutoMovieSwivelSeed> = new Map();
-  for (const arm of written) {
-    const seed: IAutoMovieSwivelSeed | null = HumanLimbFit.seed(
-      body,
-      entered,
-      limb(arm),
-    );
-    if (seed !== null) entry.set(limb(arm), seed);
-  }
-  const seeds: ReadonlyMap<AutoMovieHumanLimb, IAutoMovieSwivelSeed> =
-    courseLimbSwivels.swivels({
-      body,
-      posture: shown,
-      limbs: written.map(limb),
-      span: { start: 0, end: last },
-      instants,
-      entry,
-    })(last);
-  const near: Partial<Record<AutoMovieHumanLimb, IAutoMovieSwivelNear>> = {};
-  for (const [held, seed] of seeds)
-    near[held] = {
-      ...seed,
-      tolerance: hingedArmSwivel.RESOLUTION,
-      prescribed: true,
-    };
-  const pose: IAutoMoviePose = resolveHumanPosture.seeded(
-    body,
-    at,
-    undefined,
-    near,
-  ).pose;
-  for (const arm of written)
-    out.set(limb(arm), AutoMovieMotionHumanArm.angles(pose, arm.side));
-  return out;
 }

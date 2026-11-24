@@ -37,7 +37,7 @@ function planBindPartner(
       reason: "a binding links its region to exactly one other end",
       fix: "name either the partner's other region or a scene target",
     });
-  if (!(link.slack >= 0 && Number.isFinite(link.slack)))
+  if (!(link.slack >= 0))
     throw new HumanRefusal({
       kind: "parameter",
       axis: "link.slack",

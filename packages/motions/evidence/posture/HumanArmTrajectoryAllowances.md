@@ -10,7 +10,7 @@ A declared rest is a resting contact, no deeper than where the segments meet; an
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-The context's pair readers, moved verbatim from the context builder, read the scope the builder hands them.
+Every allowance table is filled once from the scope the context builder hands over; each reader only indexes its table.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
@@ -18,7 +18,7 @@ Every pair is read with its own reference depth and rest; nothing is relaxed.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
-Each waypoint's readings are kept in that waypoint's own arrays, so every probe and shape pair is read once per context.
+Each pair is computed once per context, in flat arrays indexed by waypoint, arm and pair. An axis sphere's distance is queried only against the shapes the resting arm can reach (`HumanArmShapes.reachable`), since every other shape is at least the pairs' reach beyond the sphere and its depth is zero. A grasp's hold depth is read only where a grasp closes or parts.
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 
@@ -26,7 +26,7 @@ Reuses the waypoints' placed arms and frames, the audit model's reference depths
 
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
-The readers and their per-waypoint arrays live with the context that holds them.
+The readers and their tables live with the context that holds them; nothing is filled after construction.
 
 # src/posture/HumanArmTrajectoryAllowances.ts#HumanArmTrajectoryAllowances.IScope
 

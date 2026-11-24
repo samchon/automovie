@@ -6,6 +6,7 @@ import type {
 
 import type { IAutoMoviePhysicalBalanceTrace } from "./IAutoMoviePhysicalBalanceTrace";
 import { physicalRecoverySwing } from "./physicalRecoverySwing";
+import { resolvePhysicalRecoveryStep } from "./resolvePhysicalRecoveryStep";
 
 /**
  * The balance controller's handoff phase (`advancePhysicalBalance`): authored
@@ -43,7 +44,7 @@ export function physicalBalanceHandoff(input: {
           steps: IAutoMoviePhysicalRecoveryState["steps"],
           step: IAutoMovieStepPlanner.IStep,
         ): IAutoMoviePhysicalRecoveryState["steps"] =>
-          physicalRecoverySwing.resolve(steps, step.bone, {
+          resolvePhysicalRecoveryStep(steps, step.bone, {
             seconds: input.seconds,
             status: "cancelled",
           }),

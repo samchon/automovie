@@ -32,8 +32,6 @@ export const validatePlantingDomain: (
   const out: IAutoMovieViolationCollector = new ViolationCollector();
   const root: string = "$input";
 
-  if (domain.id.trim().length === 0)
-    out.push("type", `${root}.id`, "planting id must be non-empty", domain.id);
   if (domain.version !== 1)
     out.push(
       "type",

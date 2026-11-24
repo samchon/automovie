@@ -123,7 +123,7 @@ export function wardrobeFoot(
     ),
     { x: 0, y: 1, z: 0 },
   );
-  if (!(depth > 0 && Number.isFinite(depth)))
+  if (!(depth > 0))
     throw wardrobeHands.refusal(
       "opening",
       opening.id,

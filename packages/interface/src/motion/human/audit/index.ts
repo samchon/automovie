@@ -11,6 +11,7 @@ export type { IAutoMovieMotionHumanAuditReturn } from "./IAutoMovieMotionHumanAu
 export type { IAutoMovieMotionHumanAuditSpin } from "./IAutoMovieMotionHumanAuditSpin";
 export type { IAutoMovieMotionHumanAuditStroke } from "./IAutoMovieMotionHumanAuditStroke";
 export type { IAutoMovieMotionHumanAuditTangle } from "./IAutoMovieMotionHumanAuditTangle";
+export type { IAutoMovieMotionHumanAuditTangleModel } from "./IAutoMovieMotionHumanAuditTangleModel";
 export type { IAutoMovieMotionHumanAuditTiming } from "./IAutoMovieMotionHumanAuditTiming";
 export type { IAutoMovieMotionHumanSignature } from "./IAutoMovieMotionHumanSignature";
 export type { IAutoMovieMotionHumanVerdicts } from "./IAutoMovieMotionHumanVerdicts";

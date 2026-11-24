@@ -37,10 +37,6 @@ export const importedNodeClipToAutoMovieMotion: (
 ) => IAutoMovieMotion = (
   props: IAutoMovieImportedNodeMotionProps,
 ): IAutoMovieMotion => {
-  if (props.motionId.trim().length === 0)
-    throw new Error("imported motion id must not be blank");
-  if (props.sourceSkeleton.id.trim().length === 0)
-    throw new Error("imported motion source skeleton id must not be blank");
   if (props.mapping.length === 0)
     throw new Error(
       "imported motion requires an explicit node-to-bone mapping",
@@ -77,8 +73,6 @@ export const importedNodeClipToAutoMovieMotion: (
   const nodeToBone: Map<string, AutoMovieHumanoidBone> = new Map();
   const mappedBones: Set<AutoMovieHumanoidBone> = new Set();
   for (const entry of props.mapping) {
-    if (entry.node.trim().length === 0)
-      throw new Error("imported motion mapping node must not be blank");
     if (nodeToBone.has(entry.node))
       throw new Error(`imported motion mapping repeats node "${entry.node}"`);
     if (mappedBones.has(entry.bone))

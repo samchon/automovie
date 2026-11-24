@@ -158,9 +158,6 @@ export function test_film_grammar_admission(): void {
       reestablishDistance: 20,
     }).length === 1,
   );
-  rejects("blank shot id", (input: IAutoMovieGrammarShotObservation): void => {
-    input.id = " ";
-  });
   rejects(
     "non-finite duration",
     (input: IAutoMovieGrammarShotObservation): void => {
@@ -215,12 +212,6 @@ export function test_film_grammar_admission(): void {
     },
   );
   rejects(
-    "blank subject id",
-    (input: IAutoMovieGrammarShotObservation): void => {
-      input.subjects[0]!.id = "";
-    },
-  );
-  rejects(
     "duplicate subject id",
     (input: IAutoMovieGrammarShotObservation): void => {
       input.subjects.push(structuredClone(input.subjects[0]!));
@@ -254,16 +245,6 @@ export function test_film_grammar_admission(): void {
     "non-finite subject radius",
     (input: IAutoMovieGrammarShotObservation): void => {
       input.subjects[0]!.radius = Number.NaN;
-    },
-  );
-  rejects(
-    "blank eyeline target",
-    (input: IAutoMovieGrammarShotObservation): void => {
-      input.subjects[0]!.eyeline = {
-        target: "",
-        start: point(1, 0, 0),
-        end: point(1, 0, 0),
-      };
     },
   );
   rejects(
@@ -321,7 +302,6 @@ export function test_film_grammar_admission(): void {
 /** Field and domain fragments independently identifying each malformed contract case. */
 function expectation(name: string): readonly string[] {
   const fields: Record<string, readonly string[]> = {
-    "blank shot id": ["shot.id", "non-blank"],
     "non-finite duration": [".duration", "finite and positive"],
     "zero duration": [".duration", "finite and positive"],
     "zero camera fov": ["camera.start.fovY", "finite and positive"],
@@ -331,14 +311,12 @@ function expectation(name: string): readonly string[] {
     "non-finite camera rotation": ["camera.start.rotation.w", "finite"],
     "missing camera rotation component": ["camera.start.rotation.w", "finite"],
     "missing subject coordinate": ["hero.end.z", "finite"],
-    "blank subject id": ["subjects.id", "non-blank"],
     "duplicate subject id": ["subject id", "duplicated"],
     "non-finite subject start": ["hero.start.x", "finite"],
     "non-finite subject end": ["hero.end.z", "finite"],
     "zero subject height": ["hero.height", "finite and positive"],
     "negative subject radius": ["hero.radius", "finite and non-negative"],
     "non-finite subject radius": ["hero.radius", "finite and non-negative"],
-    "blank eyeline target": ["hero.eyeline.target", "non-blank"],
     "non-finite eyeline start": ["hero.eyeline.start.x", "finite"],
     "non-finite eyeline end": ["hero.eyeline.end.y", "finite"],
     "missing primary subject": ["Primary subject", "absent"],

@@ -46,8 +46,6 @@ export const joinAutoMovieDialogueVisemes: (
       timeline: null,
     };
   const binding: IAutoMovieDialogueSpeakerBinding = bindings[0]!;
-  if (binding.actor.trim().length === 0)
-    throw new Error("dialogue actor binding must not be blank");
   if (props.visemes.length === 0)
     throw new Error(`dialogue line "${props.line.id}" has no viseme timing`);
   if (

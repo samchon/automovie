@@ -19,23 +19,6 @@ import { FLUID_MAX_STEPS } from "./constants/FLUID_MAX_STEPS";
 import { fluidCourantNumber } from "./fluidCourantNumber";
 
 /**
- * Closed boundary vocabulary read by the four edge checks; module-owned
- * constant-size lookup with no mutation after construction.
- */
-const BOUNDARY_KINDS: ReadonlySet<string> = new Set(["wall", "open"]);
-
-/**
- * Every solver edge, visited in diagnostic order without building per-domain
- * key lists.
- */
-const EDGES: readonly ["xMin", "xMax", "zMin", "zMax"] = [
-  "xMin",
-  "xMax",
-  "zMin",
-  "zMax",
-];
-
-/**
  * Validate a fluid domain's lattice, budgets, stability, and declared flows.
  *
  * For a structurally typed domain, checks schema/id, safe positive grid counts,
@@ -62,7 +45,6 @@ export const validateFluidDomain: (
   const out: IAutoMovieViolationCollector = new ViolationCollector();
   const root: string = "$input";
 
-  out.nonEmpty(`${root}.id`, domain.id, "fluid domain id");
   if (domain.version !== 1)
     out.push(
       "type",
@@ -167,15 +149,6 @@ export const validateFluidDomain: (
       solver.fixedStepSeconds,
       Number.isFinite(courant) ? courant - 1 : undefined,
     );
-
-  for (const edge of EDGES)
-    if (!BOUNDARY_KINDS.has(domain.boundaries[edge]))
-      out.push(
-        "type",
-        `${root}.boundaries.${edge}`,
-        `boundary must be "wall" or "open", but was ${String(domain.boundaries[edge])}`,
-        domain.boundaries[edge],
-      );
 
   length(out, `${root}.bed`, "bed", domain.bed.length, cells);
   length(out, `${root}.depth`, "depth", domain.depth.length, cells);
@@ -467,8 +440,7 @@ const identity: (
   id: string,
   seen: Set<string>,
 ): void => {
-  out.nonEmpty(`${path}.id`, id, `${label} id`);
-  if (seen.has(id) && id.trim().length !== 0)
+  if (seen.has(id))
     out.push("type", `${path}.id`, `${label} id "${id}" is duplicated`, id);
   seen.add(id);
 };

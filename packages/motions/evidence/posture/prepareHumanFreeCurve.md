@@ -10,7 +10,7 @@ Predictor-corrector continuation uses the existing near-basin hinged solver. A d
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-One correct/observe pair owns all actual fit and physical gates. interval retains canonical endpoint classification; boundary constructs canonical preceding anchors; solve selects that prepared interval then actually fits the current target. A usable phase-zero or midpoint anchor starts the hierarchy; absent both, the original one-sided cold-reference policy remains. Precision-limited or physically unusable cases use cold fitting.
+One correct/observe pair owns all actual fit and physical gates (`HumanFreeCurveFit`). interval and boundary (`HumanFreeCurveIntervals`) read the curve's interval records through a named scope; the curve keeps its origin, pivot and support state with solve and prepare. interval retains canonical endpoint classification; boundary constructs canonical preceding anchors; solve selects that prepared interval then actually fits the current target. A usable phase-zero or midpoint anchor starts the hierarchy; absent both, the original one-sided cold-reference policy remains. Precision-limited or physically unusable cases use cold fitting.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 

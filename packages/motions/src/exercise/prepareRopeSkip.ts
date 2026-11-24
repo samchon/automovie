@@ -65,7 +65,7 @@ export function prepareRopeSkip(
   } = input;
   if (
     ![length, radius, handleLength, handleDiameter].every(
-      (metres: number): boolean => Number.isFinite(metres) && metres > 0,
+      (metres: number): boolean => metres > 0,
     )
   )
     throw new HumanRefusal({
@@ -176,7 +176,6 @@ export function prepareRopeSkip(
     seconds: number,
   ): IAutoMovieMotionHumanRopeSkipPresentation.IFrame | undefined => {
     if (
-      !Number.isFinite(seconds) ||
       seconds + SEAM_SECONDS < segment.entryTime ||
       seconds > segment.end ||
       handoff <= seconds + SEAM_SECONDS
@@ -246,7 +245,7 @@ export function prepareRopeSkip(
     // and r is the perpendicular offset. The cable can bend at a tip.
     const width: number =
       (length + span) / 2 - (2 * Vector3.dot(offset, offset)) / (length - span);
-    if (!(Number.isFinite(width) && width > 0))
+    if (!(width > 0))
       refuse(subject, seconds, "the cable is too short for the visible orbit");
     const half: IAutoMovieVector3 = Vector3.scale(axis, width / 2);
     const a: IAutoMovieVector3 = Vector3.add(crossbar, half);

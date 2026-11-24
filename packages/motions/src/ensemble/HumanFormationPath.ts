@@ -81,13 +81,6 @@ export namespace HumanFormationPath {
       const dx: number = corners[i + 1]!.x - corners[i]!.x;
       const dz: number = corners[i + 1]!.z - corners[i]!.z;
       const length: number = Math.hypot(dx, dz);
-      if (!Number.isFinite(length))
-        refuse(
-          "frame.via",
-          i,
-          `corner ${i} or ${i + 1} is not finite`,
-          "give finite corners",
-        );
       if (length < 1e-9) continue;
       stretches.push({
         from: corners[i]!,
@@ -111,7 +104,7 @@ export namespace HumanFormationPath {
     const start: number = frame.start ?? 0;
     const profiled: IAutoMovieSpeedProfile.Stretch[] = [];
     if (typeof frame.speed === "number") {
-      if (!(Number.isFinite(frame.speed) && frame.speed > 0))
+      if (!(frame.speed > 0))
         refuse(
           "frame.speed",
           frame.speed,
@@ -129,7 +122,7 @@ export namespace HumanFormationPath {
       let t: number = start;
       let covered: number = 0;
       for (const mark of frame.speed.marks) {
-        if (!(Number.isFinite(mark.speed) && mark.speed >= 0))
+        if (!(mark.speed >= 0))
           refuse(
             "frame.speed.marks",
             mark.speed,

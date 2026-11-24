@@ -114,8 +114,8 @@ export namespace walkFoot {
     raised: number = 0,
     backward: boolean = false,
   ): (seconds: number) => IAutoMovieMotionHumanWalkFoot.IFoot {
-    const struck: boolean = Number.isFinite(strike);
-    const leaves: boolean = Number.isFinite(toeOff);
+    const struck: boolean = strike > -Infinity;
+    const leaves: boolean = toeOff < Infinity;
     const length: number = struck && leaves ? toeOff - strike : typical;
     const settle: number = PUSH_SHARE * length;
 

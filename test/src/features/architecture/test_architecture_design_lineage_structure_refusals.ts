@@ -21,8 +21,8 @@ import { hasViolation, namedFacts } from "../internal/predicates";
  *
  * Scenarios:
  * 1. The coherent fixture validates before the existing targeted structural and binding mutations are evaluated.
- * 2. A blank identity or a wrong schema version is refused.
- * 3. Subject identities must be unique, non-blank, graph-labelled, and carry either a well-formed digest or none at all.
+ * 2. A wrong schema version is refused.
+ * 3. Subject identities must be unique, graph-labelled, and carry either a well-formed digest or none at all.
  * 4. A lineage with no revision, a dangling revision parent, a malformed revision digest, a revision cycle, and a dangling head are all refused, while a revision history twenty thousand ancestors deep validates without exhausting the call stack.
  * 5. A phase requiring nothing that exists, requiring the same phase twice, or requiring itself around a cycle is refused.
  * 6. A lifecycle about an unknown subject, a second lifecycle for one subject, a dangling introducing or removing phase, and a subject with no lifecycle at all are refused.
@@ -52,25 +52,11 @@ export function test_architecture_design_lineage_structure_refusals(): void {
           validateDesignLineage({ lineage: renovationLineage() }).success,
       ],
       [
-        "a blank lineage id is refused",
-        (): boolean =>
-          refuses((draft: IAutoMovieDesignLineage): void => {
-            draft.id = "  ";
-          }, "$input.id"),
-      ],
-      [
         "an unknown schema version is refused",
         (): boolean =>
           refuses((draft: IAutoMovieDesignLineage): void => {
             (draft as { version: number }).version = 2;
           }, "$input.version"),
-      ],
-      [
-        "a blank subject id is refused",
-        (): boolean =>
-          refuses((draft: IAutoMovieDesignLineage): void => {
-            draft.subjects[0]!.id = "";
-          }, "$input.subjects[0].id"),
       ],
       [
         "a duplicated subject id is refused",
@@ -245,9 +231,7 @@ export function test_architecture_design_lineage_structure_refusals(): void {
     ]),
     {
       "the coherent renovation lineage validates": true,
-      "a blank lineage id is refused": true,
       "an unknown schema version is refused": true,
-      "a blank subject id is refused": true,
       "a duplicated subject id is refused": true,
       "a subject with no graph label is refused": true,
       "a malformed subject digest is refused": true,

@@ -73,18 +73,6 @@ export namespace HumanIceGlide {
     if (edge === undefined && step === undefined) return base;
     if (edge !== undefined) {
       HumanBound.within("edge.degrees", edge.degrees, -90, 90, "deg");
-      for (const side of SIDES) {
-        const pivot: IAutoMovieVector3 = edge.pivots[side];
-        if (![pivot.x, pivot.y, pivot.z].every(Number.isFinite))
-          throw new HumanRefusal({
-            kind: "parameter",
-            axis: `edge.pivots.${side}`,
-            value: pivot,
-            feasible: null,
-            reason: "the mounted runner's pivot must be finite",
-            fix: "use the selected runner edge in the foot's coordinates",
-          });
-      }
     }
     if (step !== undefined) {
       HumanBound.least("step.window[0]", step.window[0], 0, "s");

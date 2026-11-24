@@ -68,7 +68,7 @@ export function walkLevelSupport(
     ),
   );
   const height: number = HumanSupportFrame.floor(context.body, entry) - flat;
-  if (!Number.isFinite(height) || Math.abs(height) < 0.01) return plan(context);
+  if (Math.abs(height) < 0.01) return plan(context);
 
   const translate = (dy: number): IAutoMovieMotionHumanSupportCarry.ICarry => ({
     point: (p: IAutoMovieVector3): IAutoMovieVector3 => ({ ...p, y: p.y + dy }),

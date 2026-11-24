@@ -51,9 +51,7 @@ export function AutoMovieMotionHumanSharedCarry(
   }: IAutoMovieMotionHumanSharedCarry.IInput = input;
   const duration: number = to - from;
   if (
-    !Number.isFinite(from) ||
-    !Number.isFinite(to) ||
-    from < 0 ||
+    !(from >= 0) ||
     !(duration > 0 && duration <= MAX_DURATION)
   )
     throw new RangeError(

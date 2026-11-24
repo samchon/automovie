@@ -259,12 +259,12 @@ export namespace jumpAirborne {
     // whose pass at the very end made the bump 0/0. A pair whose feet change
     // sides across the line as well (a crossing landing) is the law's own
     // crossing, not a pass to open.
-    const passAt: number =
+    const passAt: number | undefined =
       g0 * g1 < 0 && Math.min(Math.abs(g0), Math.abs(g1)) > PASS_GAP
         ? g0 / (g0 - g1)
-        : Number.NaN;
+        : undefined;
     const passBump: number =
-      Number.isNaN(passAt) ||
+      passAt === undefined ||
       !(Vector3.dot(apart, rightward) > 0) ||
       !(Vector3.dot(apartEnd, rightward) > 0)
         ? 0

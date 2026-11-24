@@ -22,6 +22,7 @@ import type {
 import { stand } from "../actions/stand";
 import { standRelaxed } from "../actions/standRelaxed";
 import { standUpright } from "../actions/standUpright";
+import { AutoMovieMotionHumanAuditTangleModel } from "../audit/AutoMovieMotionHumanAuditTangleModel";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { HumanColliders } from "../posture/HumanColliders";
 import { humanLimbReads } from "../posture/humanLimbReads";
@@ -114,10 +115,11 @@ export function createHumanBody(
     poseResolution,
     chains,
   );
-  const record = (
-    upright: IAutoMovieMotionHumanBody["upright"],
-    relaxed: IAutoMovieMotionHumanBody["relaxed"],
-  ): IAutoMovieMotionHumanBody => {
+  const record = ({
+    upright,
+    relaxed,
+    tangle,
+  }: Pick<IAutoMovieMotionHumanBody, CreateHumanBodySolved>): IAutoMovieMotionHumanBody => {
     const hung: Map<AutoMovieHumanSide, IAutoMovieResolvedJointAngles | null> =
       new Map();
     const body: IAutoMovieMotionHumanBody = {
@@ -136,6 +138,7 @@ export function createHumanBody(
 
       // What each limb's fit reads of a pose is a value of the rig too.
       reads,
+      tangle,
       get colliderBones(): IAutoMovieMotionHumanBody["colliderBones"] {
         colliderBones ??= poseResolution.prepareBones(
           HumanColliders.bones(body),
@@ -166,15 +169,41 @@ export function createHumanBody(
 
   // Quiet standing is a property of the body, solved here once: the alignment
   // on the rig's rest column, then the relaxed hanging arms on the aligned
-  // stance, each solve reading only the record it is given.
+  // stance, then the tangle model on the solved stance, each solve reading
+  // only the record it is given and none reading what is solved after it.
+  const unsolved: Pick<IAutoMovieMotionHumanBody, CreateHumanBodySolved> = {
+    upright: REST_COLUMN,
+    relaxed: stand.RELAXED,
+    tangle: UNTANGLED,
+  };
   const upright: IAutoMovieMotionHumanBody["upright"] = standUpright.align(
-    record(REST_COLUMN, stand.RELAXED),
+    record(unsolved),
   );
   const relaxed: IAutoMovieMotionHumanBody["relaxed"] = standRelaxed.solve(
-    record(upright, stand.RELAXED),
+    record({ ...unsolved, upright }),
   );
-  return record(upright, relaxed);
+  const tangle: IAutoMovieMotionHumanBody["tangle"] =
+    AutoMovieMotionHumanAuditTangleModel.build(
+      record({ ...unsolved, upright, relaxed }),
+    );
+  return record({ upright, relaxed, tangle });
 }
+
+/** The body's fields solved in stages from the records before them. */
+type CreateHumanBodySolved = "upright" | "relaxed" | "tangle";
+
+/**
+ * The tangle model before it is built: no segment. No solve before the model's
+ * own reads a body's tangle model (`AutoMovieMotionHumanAuditTangleModel`).
+ */
+const UNTANGLED: IAutoMovieMotionHumanBody["tangle"] = {
+  parts: [],
+  related: [],
+  arms: { left: [], right: [] },
+  rest: [],
+  stance: [],
+  baseline: [],
+};
 
 /**
  * The rig's rest column, unaligned: the trunk, neck and head at their rest

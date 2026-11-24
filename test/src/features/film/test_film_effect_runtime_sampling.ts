@@ -124,12 +124,6 @@ export function test_film_effect_runtime_sampling(): void {
     "malformed identity, frame and distance are refused as input",
     [
       refusal((): IAutoMovieProductionFilmEffectSample[] =>
-        sample(0, undefined, [], { ...identity, production: " " }),
-      ),
-      refusal((): IAutoMovieProductionFilmEffectSample[] =>
-        sample(0, undefined, [], { ...identity, film: "" }),
-      ),
-      refusal((): IAutoMovieProductionFilmEffectSample[] =>
         sample(0, undefined, [], {
           ...identity,
           compileFingerprint: `sha256:${"C".repeat(64)}`,
@@ -154,7 +148,7 @@ export function test_film_effect_runtime_sampling(): void {
       refusal((): IAutoMovieProductionFilmEffectSample[] => sample(0, 0)),
     ],
     [
-      ...Array.from({ length: 10 }, (): string => "film-effect-input-invalid"),
+      ...Array.from({ length: 8 }, (): string => "film-effect-input-invalid"),
       "accepted",
     ],
   );
@@ -211,12 +205,6 @@ export function test_film_effect_runtime_sampling(): void {
     }),
     resealFilmEffect(mist, (draft: IAutoMovieCompiledFilmEffect): void => {
       (draft.effect as { version: number }).version = 2;
-    }),
-    resealFilmEffect(mist, (draft: IAutoMovieCompiledFilmEffect): void => {
-      draft.effect.id = " ";
-    }),
-    resealFilmEffect(mist, (draft: IAutoMovieCompiledFilmEffect): void => {
-      draft.effect.zone = "";
     }),
     resealFilmEffect(mist, (draft: IAutoMovieCompiledFilmEffect): void => {
       draft.effect.intensity = { from: 0.5, to: 0.25 };

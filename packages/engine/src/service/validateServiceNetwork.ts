@@ -49,7 +49,6 @@ export const validateServiceNetwork: (
   const out: IAutoMovieViolationCollector = new ViolationCollector();
   const root: string = "$input";
 
-  out.nonEmpty(`${root}.id`, network.id, "service network id");
   if (network.version !== 1)
     out.push(
       "type",
@@ -222,8 +221,8 @@ export const validateServiceNetwork: (
 };
 
 /**
- * Preserve the first id set while collecting every duplicate and blank-id
- * finding in source order.
+ * Preserve the first id set while collecting every duplicate-id finding in
+ * source order.
  */
 const collectIds: <T extends { id: string }>(
   records: readonly T[],
@@ -238,7 +237,6 @@ const collectIds: <T extends { id: string }>(
 ): Set<string> => {
   const ids: Set<string> = new Set<string>();
   records.forEach((record: T, index: number): void => {
-    out.nonEmpty(`${path}[${index}].id`, record.id, `${label} id`);
     if (ids.has(record.id))
       out.push(
         "type",

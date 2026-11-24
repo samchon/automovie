@@ -1,39 +1,24 @@
-import { hingedArmSwivel } from "@automovie/engine";
 import type {
-  AutoMovieHumanLimb,
   AutoMovieHumanSide,
-  IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionPlan,
-  IAutoMovieMotionHumanArmAngles,
   IAutoMovieMotionHumanArmPlanned,
   IAutoMovieMotionHumanArmTrajectory,
   IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanPosture,
-  IAutoMovieMotionHumanResolveHumanPosture,
-  IAutoMoviePose,
-  IAutoMovieSwivelNear,
-  IAutoMovieSwivelSeed,
 } from "@automovie/interface";
 
 import { HumanRefusal } from "../law/HumanRefusal";
-import { HumanArmClearance } from "../posture/HumanArmClearance";
 import { HumanArmGeometry } from "../posture/HumanArmGeometry";
 import { HumanArmSeed } from "../posture/HumanArmSeed";
-import { HumanArmTrajectory } from "../posture/HumanArmTrajectory";
+import type { HumanArmTrajectory } from "../posture/HumanArmTrajectory";
 import { HumanArmTrajectoryContext } from "../posture/HumanArmTrajectoryContext";
-import { HumanLimbFit } from "../posture/HumanLimbFit";
-import { certifyHumanArmTracks } from "../posture/certifyHumanArmTracks";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
-import { AutoMovieMotionHumanArmAimed } from "./AutoMovieMotionHumanArmAimed";
-import { AutoMovieMotionHumanArmAngles } from "./AutoMovieMotionHumanArmAngles";
 import { AutoMovieMotionHumanArmCourse } from "./AutoMovieMotionHumanArmCourse";
 import { AutoMovieMotionHumanArmObservation } from "./AutoMovieMotionHumanArmObservation";
-import { AutoMovieMotionHumanArmPlayed } from "./AutoMovieMotionHumanArmPlayed";
-import { AutoMovieMotionHumanArmRetimed } from "./AutoMovieMotionHumanArmRetimed";
-import { AutoMovieMotionHumanArmRide } from "./AutoMovieMotionHumanArmRide";
+import { AutoMovieMotionHumanArmPlannedProblem } from "./AutoMovieMotionHumanArmPlannedProblem";
+import { AutoMovieMotionHumanArmPlannedReads } from "./AutoMovieMotionHumanArmPlannedReads";
+import { AutoMovieMotionHumanArmPlannedSolve } from "./AutoMovieMotionHumanArmPlannedSolve";
 import { AutoMovieMotionHumanArmStated } from "./AutoMovieMotionHumanArmStated";
 
 /**
@@ -48,26 +33,6 @@ const SPACING: number = 0.08;
  * 3:18).
  */
 const PEAK: number = 0.55;
-/** The alternatives of `PlannedTravelSign`'s site. */
-type PlannedTravelSign = -1 | 1;
-
-/** The record of `IPlannedAtFound`'s site. */
-type IPlannedAtFound = {
-  posture: IAutoMovieMotionHumanPosture;
-  pose: IAutoMoviePose;
-};
-
-/** The record of `IPlannedAtResult`'s site. */
-type IPlannedAtResult = {
-  posture: IAutoMovieMotionHumanPosture;
-  pose: IAutoMoviePose;
-};
-
-/** The record of `IPlannedReadEntry`'s site. */
-type IPlannedReadEntry = {
-  posture: IAutoMovieMotionHumanPosture;
-  pose: IAutoMoviePose;
-};
 
 /** The alternatives of `PlannedPlan`'s site. */
 type PlannedPlan = "warm" | "last" | "stretches" | "tempo" | "ordinal";
@@ -320,416 +285,45 @@ export namespace AutoMovieMotionHumanArmPlanned {
       prepareHumanPoseResolution();
     const projection: ReturnType<typeof prepareHumanPostureProjection> =
       prepareHumanPostureProjection(body);
-    // Each phrase is an interval cut into pieces, its own end left to the
-    // next one; an empty interval (a hold that lasts to the end, a reach
-    // that starts on its site) has no piece, and the last phrase closes on
-    // its end itself.
-    const times: number[] = [];
-    const cut = (a: number, b: number, pieces: number, last: boolean): void => {
-      for (let i: number = 0; i < pieces; ++i)
-        times.push(a + ((b - a) * i) / pieces);
-      if (last) times.push(b);
-    };
-
-    // A posture with the planned arms left out.
-    const without = (
-      p: IAutoMovieMotionHumanPosture,
-    ): IAutoMovieMotionHumanPosture => {
-      if (
-        carries.every(
-          (carry: IAutoMovieMotionHumanArmPlanned.IPlanned): boolean =>
-            p.limbs[`${carry.side}Arm`] === undefined,
-        )
-      )
-        return p;
-      const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...p.limbs };
-      for (const c of carries) delete limbs[`${c.side}Arm`];
-      return { ...p, limbs };
-    };
-
-    // Each instant's posture so far and its pose with the planned arms left
-    // out, the base each arm is read against, and each arm's goal there as
-    // the plan perceives it, each read once however often the plan and its
-    // refinement ask (each arm's goal by AutoMovieMotionHumanArmAimed).
-    const read: Map<number, IPlannedReadEntry> = new Map();
-    // The instant resolved last and its limbs' seeds: an instant within a
-    // frame of it continues those fits instead of sweeping every swivel
-    // again, the frame-to-frame coherence an animation system's IK keeps
-    // (Aristidou et al. 2018, "Inverse kinematics techniques in computer
-    // graphics: a survey", Comput. Graph. Forum 37:35, section 7; the
-    // feasible swivel nearest the previous one, Tolani, Goswami and Badler
-    // 2000, section 3.2.4). An instant farther from it is solved cold.
-    let latest: ILatest | undefined;
-    const at = (t: number): IPlannedAtResult => {
-      let found: IPlannedAtFound | undefined = read.get(t);
-      if (found === undefined) {
-        const posture: IAutoMovieMotionHumanPosture = before(
-          t,
-          undefined,
-          resolution,
-          projection,
-        );
-        const near: IAutoMovieMotionHumanResolveHumanPosture.INear =
-          latest !== undefined && Math.abs(t - latest.seconds) <= CONTINUED
-            ? continuing(latest.seeds)
-            : {};
-        const solved: IAutoMovieMotionHumanResolveHumanPosture.ISeeded =
-          resolveHumanPosture.seeded(
-            body,
-            without(posture),
-            undefined,
-            near,
-            resolution,
-            undefined,
-            projection,
-          );
-        found = { posture, pose: solved.pose };
-        latest = { seconds: t, seeds: solved.seeds };
-        read.set(t, found);
-      }
-      return found;
-    };
-    const aimed: (a: number, t: number) => IAutoMovieHumanLimbGoal =
-      AutoMovieMotionHumanArmAimed(carries, at, resolution, projection);
-    const fits: Map<number, IAutoMovieMotionHumanArmAngles.IAngles>[] =
-      carries.map(
-        (): Map<number, IAutoMovieMotionHumanArmAngles.IAngles> => new Map(),
-      );
-
-    /**
-     * Travel and the initial guess share only completed fits of the same cached
-     * endpoint inputs.
-     */
-    const fitted = (
-      a: number,
-      t: number,
-    ): IAutoMovieMotionHumanArmAngles.IAngles => {
-      let found: IAutoMovieMotionHumanArmAngles.IAngles | undefined =
-        fits[a]!.get(t);
-      if (found === undefined) {
-        const p: IAutoMovieMotionHumanPosture = at(t).posture;
-        const c: IAutoMovieMotionHumanArmPlanned.IPlanned = carries[a]!;
-        // One planned arm stands alone on the base already resolved without
-        // it: the rest of the body is that base's, so only the arm is fitted
-        // (the limbs fit in order and nothing reads an arm fitted last).
-        // Two planned arms neither of which rides the other are each the
-        // same: the posture solve of one arm's goal, where the posture so
-        // far gives the other planned arm no goal, fits that one arm on the
-        // very base with the other arm as placed (`refitHumanPosture`). A
-        // riding pair, or a posture that already aims the other arm, keeps
-        // the posture solve.
-        const apart: boolean =
-          carries.length === 2 &&
-          carries.every(
-            (o: IAutoMovieMotionHumanArmPlanned.IPlanned): boolean =>
-              o.on === undefined,
-          ) &&
-          carries.every(
-            (o: IAutoMovieMotionHumanArmPlanned.IPlanned): boolean =>
-              o === c || p.limbs[`${o.side}Arm`] === undefined,
-          );
-        found = AutoMovieMotionHumanArmAngles.angles(
-          carries.length === 1
-            ? HumanLimbFit.fit(
-                body,
-                at(t).pose,
-                `${c.side}Arm`,
-                aimed(a, t),
-                ["left", "right"],
-                undefined,
-                undefined,
-                resolution,
-              ).pose
-            : apart
-              ? HumanLimbFit.fit(
-                  body,
-                  at(t).pose,
-                  `${c.side}Arm`,
-                  aimed(a, t),
-                  [c.side === "left" ? "right" : "left"],
-                  undefined,
-                  undefined,
-                  resolution,
-                ).pose
-              : resolveHumanPosture.seeded(
-                  body,
-                  {
-                    ...p,
-                    limbs: { ...p.limbs, [`${c.side}Arm`]: aimed(a, t) },
-                  },
-                  undefined,
-                  undefined,
-                  resolution,
-                  undefined,
-                  projection,
-                ).pose,
-          c.side,
-        );
-        fits[a]!.set(t, found);
-      }
-      return found;
-    };
-    const travel = (t: number, sign: PlannedTravelSign): number => {
-      let longest: number = 0;
-      const p: IAutoMovieMotionHumanPosture = at(t).posture;
-      carries.forEach(
-        (c: IAutoMovieMotionHumanArmPlanned.IPlanned, a: number): void => {
-          const fit: IAutoMovieMotionHumanArmAngles.IAngles = fitted(a, t);
-          const rest: IAutoMovieMotionHumanArmAngles.IAngles =
-            sign === 1 ? c.rest : (c.back ?? c.rest);
-          // The longest probe arc of the blend, read on the base without this
-          // arm: the planner's own where it plans one arm, solved here for two.
-          const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...p.limbs };
-          delete limbs[`${c.side}Arm`];
-          const base: IAutoMoviePose =
-            carries.length === 1
-              ? at(t).pose
-              : resolveHumanPosture.seeded(
-                  body,
-                  { ...p, limbs },
-                  undefined,
-                  undefined,
-                  resolution,
-                  undefined,
-                  projection,
-                ).pose;
-          longest = Math.max(
-            longest,
-            AutoMovieMotionHumanArmObservation.longest(
-              body,
-              base,
-              c.side,
-              rest,
-              fit,
-              resolution,
-            ),
-          );
-        },
-      );
-      return longest;
-    };
-    const spaced = (seconds: number, arc: number): number =>
-      Math.min(
-        Math.ceil(seconds / STEP),
-        Math.max(
-          Math.ceil(seconds * LEAST),
-          Math.min(Math.ceil(arc / SPACING), TRANSPORT),
-          1,
-        ),
-      );
-    // The optimiser's first waypoints, cut only when the laid course is not
-    // admitted.
-    const waypoints: () => void = (): void => {
-      cut(
-        span.start,
-        span.ready,
-        spaced(span.ready - span.start, travel(span.ready, 1)),
-        false,
-      );
-      cut(
-        span.ready,
-        span.relax,
-        span.relax > span.ready
-          ? Math.max(1, Math.ceil((span.relax - span.ready) * LEAST))
-          : 0,
-        false,
-      );
-      cut(
-        span.relax,
-        span.end,
-        spaced(span.end - span.relax, travel(span.relax, -1)),
-        true,
-      );
-      // An arm's own hold begins and ends on waypoints of its own, and every
-      // instant that carries a pose constraint (`ISpan.knots`) is a waypoint,
-      // as trajopt imposes a pose term at a timestep (github.com/joschu/
-      // trajopt, `src/trajopt/problem_description.cpp`; Schulman et al. 2014,
-      // section VII-B).
-      const own: number[] = [...(span.knots ?? [])];
-      for (const c of carries)
-        if (c.span !== undefined) own.push(c.span.ready, c.span.relax);
-      for (const t of own)
-        if (
-          t > span.start &&
-          t < span.end &&
-          !times.some((u: number): boolean => Math.abs(u - t) < 1e-9)
-        )
-          times.push(t);
-      times.sort((a: number, b: number): number => a - b);
-    };
-
-    // Each instant's base, one record however often the refinement reads it,
-    // so the frames built on it are built once (`HumanArmFrame.of`).
-    const bases: Map<number, HumanArmTrajectory.IProblem["bases"][number]> =
-      new Map();
-    // Each instant's finger state of each planned hand, set as its base is
-    // built: the hand is read by it there and shown with it
-    // (`AutoMovieMotionHumanArmPlayed`).
-    const fingers: Map<number, IAutoMovieMotionHumanPosture["joints"][]> =
-      new Map();
-    const base = (t: number): HumanArmTrajectory.IProblem["bases"][number] => {
-      let found: HumanArmTrajectory.IProblem["bases"][number] | undefined =
-        bases.get(t);
-      if (found === undefined) {
-        const goals: IAutoMovieHumanLimbGoal[] = carries.map(
-          (
-            _: IAutoMovieMotionHumanArmPlanned.IPlanned,
-            a: number,
-          ): IAutoMovieHumanLimbGoal => aimed(a, t),
-        );
-        const states: IAutoMovieMotionHumanPosture["joints"][] = carries.map(
-          (
-            c: IAutoMovieMotionHumanArmPlanned.IPlanned,
-            a: number,
-          ): IAutoMovieMotionHumanPosture["joints"] =>
-            AutoMovieMotionHumanArmPlayed.grasp(
-              body,
-              at(t).pose,
-              at(t).posture,
-              c.side,
-              (): IAutoMovieMotionHumanArmAngles.IAngles => fitted(a, t),
-            ),
-        );
-        fingers.set(t, states);
-        // On the hold the hand lies on what its goal lays it on: those
-        // segments are its contact there, and obstacles on the way. What no
-        // human body carries (a prop, an animal) is kept clear of too.
-        found = AutoMovieMotionHumanArmObservation.based(
-          carries.reduce(
-            (
-              pose: IAutoMoviePose,
-              c: IAutoMovieMotionHumanArmPlanned.IPlanned,
-              a: number,
-            ): IAutoMoviePose =>
-              HumanArmClearance.fingered(pose, c.side, states[a]!),
-            at(t).pose,
-          ),
-          goals,
-          carries.map((c: IAutoMovieMotionHumanArmPlanned.IPlanned): boolean =>
-            holding(c, t),
-          ),
-        );
-        bases.set(t, found);
-      }
-      return found;
-    };
-    // Each arm holds over its own span where it states one (a hold handed
-    // from one hand to the other), the group's otherwise.
-    const holding = (
-      c: IAutoMovieMotionHumanArmPlanned.IPlanned,
-      t: number,
-    ): boolean => {
-      const own: IAutoMovieMotionHumanArmPlanned.ISpan = c.span ?? span;
-      return t >= own.ready - 1e-9 && t <= own.relax + 1e-9;
-    };
-
-    // Each arm's own fit at the hold's start, the optimiser's seed's first
-    // start: fitted only once the laid course is refused, since an admitted
-    // course reads no guess.
-    let guesses: IAutoMovieMotionHumanArmAngles.IAngles[] | undefined;
-
-    // Each arm's site at an instant, read once however often the refinement
-    // reads the problem again: a refinement adds instants, and the site at
-    // an instant already read does not change. The same record each time
-    // also lets the solve keep what it built on it (`HumanArmTrajectoryContext.of`).
-    const sited: Map<number, HumanArmTrajectory.ISite | undefined>[] =
-      carries.map(
-        (): Map<number, HumanArmTrajectory.ISite | undefined> => new Map(),
-      );
-    const problem = (
-      waypoints: readonly number[],
-    ): HumanArmTrajectory.IProblem => ({
-      body,
-      times: waypoints,
-      ...(carries.some((arm) => arm.on !== undefined)
-        ? {
-            material: { at: base, bones: carries.map((arm) => arm.on) },
-          }
-        : {}),
-      share: carries[0]!.weight,
-      arms: carries.map(
-        (
-          c: IAutoMovieMotionHumanArmPlanned.IPlanned,
-          a: number,
-        ): HumanArmTrajectory.IArm => {
-          const rider: number =
-            c.on === undefined
-              ? -1
-              : carries.findIndex(
-                  (o: IAutoMovieMotionHumanArmPlanned.IPlanned): boolean =>
-                    o !== c && c.on!.startsWith(o.side),
-                );
-          // The site where the arm's goal puts it at an instant, on the hold.
-          const located = (t: number): HumanArmTrajectory.ISite | undefined => {
-            if (!holding(c, t)) return undefined;
-            const pose: IAutoMoviePose = at(t).pose;
-            const own: HumanArmTrajectory.ISite =
-              AutoMovieMotionHumanArmObservation.site(
-                body,
-                pose,
-                c,
-                aimed(a, t),
-                resolution,
-              );
-            if (rider < 0) return own;
-            const lead: IAutoMovieMotionHumanArmPlanned.IPlanned =
-              carries[rider]!;
-
-            // A grip on an object both hands hold rides the lead hand's own
-            // site, the hand as the plan puts it there: a closed chain
-            // through the plan, not the hand as posed when it is read.
-            if (c.grasp !== undefined && c.on!.endsWith("Hand")) {
-              const held: HumanArmTrajectory.ISite =
-                AutoMovieMotionHumanArmObservation.site(
-                  body,
-                  pose,
-                  lead,
-                  aimed(rider, t),
-                  resolution,
-                );
-              if (held.rotation !== undefined)
-                return {
-                  ...own,
-                  on: {
-                    ...AutoMovieMotionHumanArmRide.gripped(held, own),
-                    arm: rider,
-                  },
-                };
-            }
-            return {
-              ...own,
-              on: {
-                ...AutoMovieMotionHumanArmRide.riding(
-                  body,
-                  pose,
-                  lead.side,
-                  c.on!,
-                  own.point,
-                  own.rotation,
-                ),
-                arm: rider,
-              },
-            };
-          };
-          const read = (t: number): HumanArmTrajectory.ISite | undefined => {
-            if (!sited[a]!.has(t)) sited[a]!.set(t, located(t));
-            return sited[a]!.get(t);
-          };
-          return {
-            side: c.side,
-            rest: c.rest,
-            ...(c.back === undefined ? {} : { back: c.back }),
-            ...(c.rests === undefined ? {} : { rests: c.rests }),
-            ...(c.grasp === undefined ? {} : { grasp: c.grasp }),
-            sites: waypoints.map(read),
-            ...(guesses === undefined ? {} : { guess: guesses[a]! }),
-          };
-        },
-      ),
-      bases: waypoints.map(
-        (t: number): HumanArmTrajectory.IProblem["bases"][number] => base(t),
-      ),
-    });
+    const {
+      without,
+      read,
+      at,
+      aimed,
+      fitted,
+      travel,
+      bases,
+      fingers,
+      base,
+      holding,
+    }: AutoMovieMotionHumanArmPlannedReads.IReads =
+      AutoMovieMotionHumanArmPlannedReads({
+        body,
+        span,
+        carries,
+        before,
+        resolution,
+        projection,
+      });
+    const {
+      times,
+      waypoints,
+      problem,
+      guess,
+    }: AutoMovieMotionHumanArmPlannedProblem.IReaders =
+      AutoMovieMotionHumanArmPlannedProblem({
+        body,
+        span,
+        carries,
+        at,
+        aimed,
+        base,
+        holding,
+        travel,
+        resolution,
+        least: LEAST,
+        spacing: SPACING,
+      });
     // A still check (`stands`) solves the hold's one instant as the course's
     // own still problem (`HumanArmSeed.held`), on the course's own bases and
     // sites, from each arm's own fit there, and lays no course.
@@ -780,156 +374,25 @@ export namespace AutoMovieMotionHumanArmPlanned {
         },
         inheritedPace,
       );
-    let solved: IAutoMovieMotionHumanArmTrajectory.Trajectory[];
-    if (laid?.admitted === true) solved = laid.trajectories;
-    else {
-      // An earlier plan's solution of these arms, carried onto this span,
-      // starts the solve; this plan's own is left for the next. Both are
-      // keyed by the arms and the group's place among its plan's groups.
-      const key: string =
-        (plan?.ordinal === undefined ? "" : `${plan.ordinal}:`) +
-        carries
-          .map((c: IAutoMovieMotionHumanArmPlanned.IPlanned): string => c.side)
-          .join("+");
-      const earlier: IWarm | undefined = plan?.warm?.get(key);
-      const separate:
-        | IAutoMovieMotionHumanArmTrajectory.Trajectory[]
-        | undefined =
-        earlier === undefined &&
-        (laid?.refused === "probe" || laid?.refused === "swept") &&
-        carries.length === 2 &&
-        carries.every(
-          (carry: IAutoMovieMotionHumanArmPlanned.IPlanned): boolean =>
-            carry.on === undefined &&
-            carry.grasp === undefined &&
-            carry.perceived === undefined,
-        )
-          ? independent(laid)
-          : undefined;
-      if (separate !== undefined) solved = separate;
-      else {
-        // A hold from the first instant (`ready` at `start`) has no reach:
-        // the arm is already on its site as it enters, so its hold starts
-        // from the rest it enters in, not from a cold fit of another branch
-        // that no path of no time could join.
-        guesses = carries.map(
-          (
-            c: IAutoMovieMotionHumanArmPlanned.IPlanned,
-            a: number,
-          ): IAutoMovieMotionHumanArmAngles.IAngles =>
-            span.ready <= span.start ? c.rest : fitted(a, span.ready),
-        );
-        waypoints();
-        // A refusal for time hands on the path it was reached at: the replan
-        // at the slower time the refusal names starts from it (`warm`).
-        const told: HumanArmTrajectory.IMirrorTold = { flip: false };
-        let result: HumanArmTrajectory.ISolved;
-        try {
-          result = HumanArmTrajectory.solve(
-            problem,
-            times,
-            laid,
-            earlier === undefined
-              ? undefined
-              : AutoMovieMotionHumanArmRetimed(earlier, span),
-            plan?.stretches === true,
-            told,
-          );
-        } catch (error: unknown) {
-          if (plan !== undefined && told.state !== undefined)
-            (plan.last ??= new Map()).set(key, { span, state: told.state });
-          // The plan's replan reads which group refused (`within`).
-          if (scope?.refusal !== undefined) {
-            scope.refusal.group = key;
-            scope.refusal.error = error;
-          }
-          throw error;
-        }
-        if (plan !== undefined)
-          (plan.last ??= new Map()).set(key, { span, state: result.state });
-        solved = result.trajectories;
-      }
-    }
-    // Each hand plays the finger state its bases carried, between the
-    // instants the plan read (`AutoMovieMotionHumanArmPlayed.prepare`).
-    const instants: number[] = [...fingers.keys()].sort(
-      (x: number, y: number): number => x - y,
-    );
-    return new Map(
-      carries.map(
-        (
-          c: IAutoMovieMotionHumanArmPlanned.IPlanned,
-          a: number,
-        ): [AutoMovieHumanSide, IAutoMovieMotionHumanArmTrajectory.Played] => {
-          const played: (
-            seconds: number,
-          ) => IAutoMovieMotionHumanPosture["joints"] =
-            AutoMovieMotionHumanArmPlayed.prepare(
-              instants,
-              instants.map(
-                (t: number): IAutoMovieMotionHumanPosture["joints"] =>
-                  fingers.get(t)![a]!,
-              ),
-            );
-          const arm: IAutoMovieMotionHumanArmTrajectory.Trajectory = solved[a]!;
-          return [
-            c.side,
-            (seconds: number): IAutoMovieMotionHumanArmTrajectory.IPlayed => ({
-              ...arm(seconds),
-              digits: played(seconds),
-            }),
-          ];
-        },
-      ),
-    );
-
-    /**
-     * Try separate paths while keeping the coupled clock and borrowing
-     * completed inputs only.
-     */
-    function independent(
-      course: HumanArmTrajectory.IAdmitted,
-    ): IAutoMovieMotionHumanArmTrajectory.Trajectory[] | undefined {
-      const outside: symbol = Symbol();
-      const prior = (seconds: number): IAutoMovieMotionHumanPosture => {
-        // A completed base at this time proves both original goals were read.
-        if (!bases.has(seconds)) throw outside;
-        return without(read.get(seconds)!.posture);
-      };
-      try {
-        const tracks: IAutoMovieMotionHumanArmTrajectory.Trajectory[] =
-          carries.map(
-            (
-              carry: IAutoMovieMotionHumanArmPlanned.IPlanned,
-              arm: number,
-            ): IAutoMovieMotionHumanArmTrajectory.Trajectory =>
-              planned(
-                body,
-                span,
-                [
-                  {
-                    ...carry,
-                    goal: (
-                      _: IAutoMovieMotionHumanPosture,
-                      seconds: number,
-                    ): IAutoMovieHumanLimbGoal => {
-                      if (!bases.has(seconds)) throw outside;
-                      return aimed(arm, seconds);
-                    },
-                  },
-                ],
-                prior,
-                { tempo: plan?.tempo },
-                course.read.context.speed,
-              ).get(carry.side)!,
-          );
-        return certifyHumanArmTracks(course.read.context, tracks);
-      } catch (error: unknown) {
-        if (error === outside || error instanceof HumanRefusal)
-          return undefined;
-        throw error;
-      }
-    }
+    return AutoMovieMotionHumanArmPlannedSolve({
+      body,
+      span,
+      carries,
+      plan,
+      laid,
+      fitted,
+      aimed,
+      without,
+      read,
+      bases,
+      fingers,
+      times,
+      waypoints,
+      problem,
+      guess,
+      refusal: (): IRefusal | undefined => scope?.refusal,
+      planned,
+    });
   }
 
   /**
@@ -948,47 +411,3 @@ export namespace AutoMovieMotionHumanArmPlanned {
  * (`AutoMovieMotionHumanArmCourse.STEP`).
  */
 const STEP: number = AutoMovieMotionHumanArmCourse.STEP;
-
-/**
- * How far from the instant resolved last an instant's base continues its fits,
- * seconds: a frame of the grid and a half, so the next frame does and a
- * refinement's far instant does not.
- */
-const CONTINUED: number = 1.5 * STEP;
-
-/**
- * The instant whose base was resolved last and the seed each of its limbs' fits
- * chose.
- */
-interface ILatest {
-  /** Its second. */
-  seconds: number;
-
-  /** Each fitted limb's seed there. */
-  seeds: IAutoMovieMotionHumanResolveHumanPosture.ISeeded["seeds"];
-}
-
-/**
- * Each limb's fit a frame away continued from its seed, refined to the cold
- * sweep's own resolution; a limb with no seed is solved cold.
- */
-function continuing(
-  seeds: IAutoMovieMotionHumanResolveHumanPosture.ISeeded["seeds"],
-): IAutoMovieMotionHumanResolveHumanPosture.INear {
-  const out: Partial<Record<AutoMovieHumanLimb, IAutoMovieSwivelNear>> = {};
-  for (const [limb, seed] of Object.entries(seeds) as [
-    AutoMovieHumanLimb,
-    IAutoMovieSwivelSeed | null | undefined,
-  ][])
-    if (seed !== null && seed !== undefined)
-      out[limb] = { ...seed, tolerance: hingedArmSwivel.RESOLUTION };
-  return out;
-}
-
-/**
- * The intervals a reach or a return is first cut into at most, by its arc:
- * TrajOpt plans an arm's whole path on eleven timesteps, ten intervals
- * (Schulman et al. 2013, section VI); the solve adds knots where the played
- * trajectory's frame-grid reading asks (`HumanArmTrajectoryAdmission`).
- */
-const TRANSPORT: number = 10;

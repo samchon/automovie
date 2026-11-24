@@ -224,13 +224,13 @@ const toFinding = (group: IGroup): IAutoMovieInspectionDiagnostics.IFinding => {
       : `${worst.subject}${place(worst)} ${worst.check} ${reading(worst.value, unit)} over ${reading(worst.limit, unit)} at ${worst.seconds.toFixed(3)} s (${worst.where})`,
     witness: {
       // A non-finite angle reads infinitely out of range; a rank is finite.
-      rank: Number.isFinite(rank) ? rank : Number.MAX_VALUE,
+      rank: rank === Infinity ? Number.MAX_VALUE : rank,
       measurements: timing
         ? [{ name: "faults", value: rank, unit }]
         : [
             {
               name: worst.check,
-              value: Number.isFinite(worst.value) ? worst.value : "Infinity",
+              value: worst.value === Infinity ? "Infinity" : worst.value,
               limit: worst.limit,
               unit,
             },
@@ -248,7 +248,7 @@ const place = (finding: IAutoMovieMotionHumanVerdicts.IFinding): string =>
 const reading = (value: number, unit: string): string =>
   unit === "m"
     ? `${(value * 1000).toFixed(1)} mm`
-    : `${Number.isFinite(value) ? value.toFixed(3) : "infinite"} ${unit}`;
+    : `${value === Infinity ? "infinite" : value.toFixed(3)} ${unit}`;
 
 /** The entity path of one performer. */
 const pathOf = (

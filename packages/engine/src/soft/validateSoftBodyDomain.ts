@@ -34,8 +34,6 @@ export const validateSoftBodyDomain: (
   const out: IAutoMovieViolationCollector = new ViolationCollector();
   const root: string = "$input";
 
-  if (domain.id.trim().length === 0)
-    out.push("type", `${root}.id`, "soft body id must be non-empty", domain.id);
   if (domain.version !== 1)
     out.push(
       "type",
@@ -252,13 +250,6 @@ export const validateSoftBodyDomain: (
               collider.max[axis],
             );
       } else {
-        if (collider.actor.trim().length === 0)
-          out.push(
-            "type",
-            `${path}.actor`,
-            "body-capsule actor identity must be non-empty",
-            collider.actor,
-          );
         if (collider.capsule.from === collider.capsule.to)
           out.push(
             "range",

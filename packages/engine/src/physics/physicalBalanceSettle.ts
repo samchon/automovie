@@ -10,7 +10,7 @@ import { Vector3 } from "../math/Vector3";
 import { physicalBalanceBracing } from "./physicalBalanceBracing";
 import { physicalBalanceExhaustion } from "./physicalBalanceExhaustion";
 import type { physicalBalanceSense } from "./physicalBalanceSense";
-import { physicalRecoverySwing } from "./physicalRecoverySwing";
+import { physicalRecoveryLimbSwing } from "./physicalRecoveryLimbSwing";
 
 /**
  * The balance controller's settle phase (`advancePhysicalBalance`): the
@@ -44,7 +44,7 @@ export function physicalBalanceSettle(input: {
     input.goals,
   );
   for (const [bone, offset] of Object.entries(input.state.offsets))
-    if (!physicalRecoverySwing.of(input.state, bone))
+    if (!physicalRecoveryLimbSwing(input.state, bone))
       goals[bone] = Vector3.add(sense.authored(bone), offset);
   const exhaustion: IAutoMoviePhysicalBalanceExhaustion.IResult =
     physicalBalanceExhaustion({

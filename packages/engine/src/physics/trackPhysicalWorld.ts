@@ -31,7 +31,9 @@ import { physicalAuthoredCenter } from "./physicalAuthoredCenter";
 import { physicalGravityTorques } from "./physicalGravityTorques";
 import { physicalIcpController } from "./physicalIcpController";
 import { physicalJointEffort } from "./physicalJointEffort";
-import { physicalRecoverySwing } from "./physicalRecoverySwing";
+import { physicalRecoveryLifted } from "./physicalRecoveryLifted";
+import { physicalRecoveryLimbSwing } from "./physicalRecoveryLimbSwing";
+import { physicalRecoveryRequested } from "./physicalRecoveryRequested";
 import { physicalSpanPose } from "./physicalSpanPose";
 import { physicalStanceJointTarget } from "./physicalStanceJointTarget";
 import { physicalSupportPoint } from "./physicalSupportPoint";
@@ -371,9 +373,9 @@ export function trackPhysicalWorld(
           planted: balanceSupports
             .filter(
               (support: (typeof supports)[number]): boolean =>
-                !physicalRecoverySwing
-                  .lifted(assessment.state)
-                  .includes(support.bone),
+                !physicalRecoveryLifted(assessment.state).includes(
+                  support.bone,
+                ),
             )
             .map((support: (typeof supports)[number]): string => support.bone),
           state: assessment.state,
@@ -400,7 +402,7 @@ export function trackPhysicalWorld(
       goals: endpointGoals,
       segments: bound.segments.get(body.id)!,
       dt,
-      recoveryBones: physicalRecoverySwing.lifted(recovery[body.id]),
+      recoveryBones: physicalRecoveryLifted(recovery[body.id]),
       actuation,
       constrained: new Set(
         endpointSupports.map(
@@ -481,8 +483,8 @@ export function trackPhysicalWorld(
       gravity: gravity.root,
       actuation,
       supports,
-      recoveryBones: physicalRecoverySwing.lifted(recovery[body.id]),
-      requested: physicalRecoverySwing.requested(recovery[body.id]),
+      recoveryBones: physicalRecoveryLifted(recovery[body.id]),
+      requested: physicalRecoveryRequested(recovery[body.id]),
       step,
       seconds,
       dt,
@@ -541,7 +543,7 @@ export function trackPhysicalWorld(
       // holds the trunk at its intended world orientation over the actual
       // thigh (Yin, Loken and van de Panne 2007, Section 3.2); the rest keep
       // the goal posture refit to the present footholds.
-      const swinging: readonly string[] = physicalRecoverySwing.lifted(
+      const swinging: readonly string[] = physicalRecoveryLifted(
         recovery[body.id],
       );
       const stance:
@@ -637,7 +639,7 @@ export function trackPhysicalWorld(
             (limb.contacts?.includes(joint.child) ?? false)),
       );
       const swing: IAutoMovieStepPlanner.IStep | undefined = own
-        ? physicalRecoverySwing.of(recovery[body.id], own.bone)
+        ? physicalRecoveryLimbSwing(recovery[body.id], own.bone)
         : undefined;
       const targetVelocity: IAutoMovieVector3 = swing
         ? physicalSwingReference.rate({
@@ -651,7 +653,7 @@ export function trackPhysicalWorld(
           (
             limb: IAutoMoviePhysicalRecoveryPolicy["pattern"]["limbs"][number],
           ): boolean =>
-            (physicalRecoverySwing.of(recovery[body.id], limb.bone) !==
+            (physicalRecoveryLimbSwing(recovery[body.id], limb.bone) !==
               undefined ||
               recovery[body.id]?.offsets[limb.bone] !== undefined) &&
             limb.chain.includes(joint.child),

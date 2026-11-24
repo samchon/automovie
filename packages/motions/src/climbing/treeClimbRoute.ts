@@ -97,7 +97,7 @@ export namespace treeClimbRoute {
     toward: IAutoMovieVector3,
     top: number,
   ): IStance[] {
-    if (!(Number.isInteger(top) && top >= 0 && top < tree.branches.length))
+    if (!(top % 1 === 0 && top >= 0 && top < tree.branches.length))
       throw treeLimbs.refusal(
         "branch",
         top,

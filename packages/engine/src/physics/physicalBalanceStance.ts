@@ -10,7 +10,8 @@ import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { AutoMoviePhysicalBalance as Balance } from "./AutoMoviePhysicalBalance";
 import type { physicalBalanceSense } from "./physicalBalanceSense";
-import { physicalRecoverySwing } from "./physicalRecoverySwing";
+import { physicalRecoveryLifted } from "./physicalRecoveryLifted";
+import { physicalRecoveryLimbSwing } from "./physicalRecoveryLimbSwing";
 import { physicalStanceBalance } from "./physicalStanceBalance";
 
 /**
@@ -37,7 +38,7 @@ export function physicalBalanceStance(input: {
   sense: physicalBalanceSense.ISense;
 }): physicalBalanceStance.IStance {
   const { state, sense } = input;
-  const lifted: string[] = physicalRecoverySwing.lifted(state);
+  const lifted: string[] = physicalRecoveryLifted(state);
   const planted: IAutoMoviePhysicalSupportPatch[] = sense.limbs
     .filter(
       (limb: physicalBalanceSense.ILimb): boolean =>
@@ -152,7 +153,7 @@ export function physicalBalanceStance(input: {
       const anchor = state.seating?.[limb.bone]?.anchor;
       const goal: IAutoMovieRigidTransform | undefined =
         sense.targets[limb.bone];
-      if (!anchor || !goal || physicalRecoverySwing.of(state, limb.bone))
+      if (!anchor || !goal || physicalRecoveryLimbSwing(state, limb.bone))
         continue;
       sum = Vector3.add(
         sum,

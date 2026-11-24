@@ -20,8 +20,6 @@ export const deriveAutoMovieInteriorAcousticResponse: (
 ) => IAutoMovieProductionAcousticResponse = (
   props: IAutoMovieDeriveInteriorAcousticResponse.IProps,
 ): IAutoMovieProductionAcousticResponse => {
-  if (props.profile.id.trim().length === 0)
-    throw new Error("acoustic response profile id must not be blank");
   if (SHA256_DIGEST_PATTERN.test(props.inputRevision) === false)
     throw new Error(
       "acoustic response input revision must be a SHA-256 digest",

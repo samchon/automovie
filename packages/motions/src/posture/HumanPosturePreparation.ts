@@ -333,6 +333,37 @@ export namespace HumanPosturePreparation {
     };
   }
 
+  /**
+   * A placed posture as the articulation its solve reached: the placed root,
+   * heading and turn, every bone at the solve's clinical angles and no goal, so
+   * a reader evaluates it by forward kinematics alone instead of solving the
+   * placed goals again. A neutral (null) coordinate reads as zero.
+   *
+   * @param placed The placed posture and its solve.
+   * @returns A fresh joints-only posture.
+   */
+  export function articulated(placed: IPlaced): IAutoMovieMotionHumanPosture {
+    const solved: IAutoMovieMotionHumanResolveHumanPosture.ISeeded =
+      placed.fit();
+    const joints: IAutoMovieMotionHumanPosture["joints"] = {};
+    for (const joint of solved.pose.joints)
+      joints[joint.bone] = [
+        joint.flexion ?? 0,
+        joint.abduction ?? 0,
+        joint.twist ?? 0,
+      ];
+    const posture: IAutoMovieMotionHumanPosture = placed.posture;
+    return {
+      root: { ...posture.root },
+      yaw: posture.yaw,
+      pitch: posture.pitch,
+      roll: posture.roll,
+      joints,
+      limbs: {},
+      ...(posture.rotation === undefined ? {} : { rotation: posture.rotation }),
+    };
+  }
+
   /** Construct a fresh rigid placement of a prepared joint-only shape. */
   export function rigid(
     prepared: IPrepared,

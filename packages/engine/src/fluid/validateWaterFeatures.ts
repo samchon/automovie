@@ -17,29 +17,6 @@ import { ViolationCollector } from "../validation/ViolationCollector";
 import { validateFluidDomain } from "./validateFluidDomain";
 
 /**
- * Closed authoring labels for water bindings; the module owns this fixed lookup
- * and no solver behavior is selected by kind.
- */
-const FEATURE_KINDS: ReadonlySet<string> = new Set([
-  "pond",
-  "channel",
-  "fountain",
-  "waterfall",
-  "reservoir",
-  "other",
-]);
-
-/**
- * Accepted mode strings; lowerWaterFeature owns their clock interpretation,
- * while this fixed module lookup only admits vocabulary.
- */
-const FEATURE_MODES: ReadonlySet<string> = new Set([
-  "static",
-  "flowing",
-  "simulated",
-]);
-
-/**
  * Validate bindings between independent fluid domains and a building's water
  * features.
  *
@@ -132,8 +109,7 @@ export const validateWaterFeatures: (
   props.features.forEach(
     (feature: IAutoMovieWaterFeature, index: number): void => {
       const path: string = `${root}.features[${index}]`;
-      out.nonEmpty(`${path}.id`, feature.id, "water feature id");
-      if (seenFeatures.has(feature.id) && feature.id.trim().length !== 0)
+      if (seenFeatures.has(feature.id))
         out.push(
           "type",
           `${path}.id`,
@@ -142,36 +118,12 @@ export const validateWaterFeatures: (
         );
       seenFeatures.add(feature.id);
 
-      if (!FEATURE_KINDS.has(feature.kind))
-        out.push(
-          "type",
-          `${path}.kind`,
-          `water feature kind must be one of ${[...FEATURE_KINDS].join(", ")}`,
-          feature.kind,
-        );
-      if (!FEATURE_MODES.has(feature.mode))
-        out.push(
-          "type",
-          `${path}.mode`,
-          `water feature mode must be one of ${[...FEATURE_MODES].join(", ")}`,
-          feature.mode,
-        );
       if (feature.environment !== environment.id)
         out.push(
           "type",
           `${path}.environment`,
           `water feature must cite its owning built environment "${environment.id}"`,
           feature.environment,
-        );
-      // `null` is the renderer's own default and says so; a blank string is a
-      // citation of a material with no name, which a budget would then
-      // attribute to a material nobody can find.
-      if (feature.material !== null && feature.material.trim().length === 0)
-        out.push(
-          "type",
-          `${path}.material`,
-          "water feature material must be a material id or null for the default",
-          feature.material,
         );
 
       const space: IAutoMovieBuiltSpace | undefined = spaces.get(feature.space);

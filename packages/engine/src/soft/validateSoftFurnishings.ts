@@ -17,26 +17,6 @@ import { validateAutoMovieSoftFurnishingDomainOwnership } from "./validateAutoMo
 import { validateSoftBodyDomain } from "./validateSoftBodyDomain";
 
 /**
- * Fixed schema kind membership shared across validation calls without per-call
- * rebuilding.
- */
-const FURNISHING_KINDS: Set<string> = new Set([
-  "curtain",
-  "blind",
-  "rug",
-  "cushion",
-  "bed-linen",
-  "membrane",
-  "other",
-]);
-
-/**
- * Fixed lowering modes; selecting simulated here does not execute the unwired
- * live solver host.
- */
-const FURNISHING_MODES: Set<string> = new Set(["rest", "simulated"]);
-
-/**
  * Join typed furnishings to domains, supports and room volumes, then inspect
  * held rest particles.
  */
@@ -103,14 +83,7 @@ export const validateSoftFurnishings: (
   furnishings.forEach(
     (furnishing: IAutoMovieSoftFurnishing, index: number): void => {
       const path: string = `${root}.furnishings[${index}]`;
-      if (furnishing.id.trim().length === 0)
-        out.push(
-          "type",
-          `${path}.id`,
-          "soft furnishing id must be non-empty",
-          furnishing.id,
-        );
-      else if (seenFurnishings.has(furnishing.id))
+      if (seenFurnishings.has(furnishing.id))
         out.push(
           "type",
           `${path}.id`,
@@ -119,20 +92,6 @@ export const validateSoftFurnishings: (
         );
       seenFurnishings.add(furnishing.id);
 
-      if (!FURNISHING_KINDS.has(furnishing.kind))
-        out.push(
-          "type",
-          `${path}.kind`,
-          `soft furnishing kind must be one of ${[...FURNISHING_KINDS].join(", ")}`,
-          furnishing.kind,
-        );
-      if (!FURNISHING_MODES.has(furnishing.mode))
-        out.push(
-          "type",
-          `${path}.mode`,
-          `soft furnishing mode must be one of ${[...FURNISHING_MODES].join(", ")}`,
-          furnishing.mode,
-        );
       if (furnishing.environment !== environment.id)
         out.push(
           "type",

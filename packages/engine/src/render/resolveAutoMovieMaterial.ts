@@ -21,8 +21,6 @@ export const resolveAutoMovieMaterial: (
 ) => IAutoMovieMaterial = (
   props: IAutoMovieResolveMaterial.IProps,
 ): IAutoMovieMaterial => {
-  if (props.material.trim().length === 0)
-    throw new Error("material id must not be blank.");
   const candidates: { model: string; material: IAutoMovieMaterial }[] =
     props.models
       .flatMap(

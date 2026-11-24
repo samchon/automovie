@@ -11,7 +11,7 @@ import type {
 
 import { HumanRefusal } from "../law/HumanRefusal";
 import type { HumanPreparedPlayback } from "../perform/HumanPreparedPlayback";
-import type { HumanPosturePreparation } from "../posture/HumanPosturePreparation";
+import { HumanPosturePreparation } from "../posture/HumanPosturePreparation";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { jumpAirborne } from "./jumpAirborne";
 import { jumpAirborneTurning } from "./jumpAirborneTurning";
@@ -91,10 +91,14 @@ export function prepareJumpPosture(
       t,
     );
   };
-  /** The flight's posture at a second. */
+  /**
+   * The flight's posture at a second as the articulation its placed solve
+   * reached, so a reader of the plan evaluates it by forward kinematics alone.
+   */
   const flying: IAutoMovieMotionHumanActionPlan["posture"] = (
     ...args: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>
-  ): IAutoMovieMotionHumanPosture => placedAt(...args).posture;
+  ): IAutoMovieMotionHumanPosture =>
+    HumanPosturePreparation.articulated(placedAt(...args)) && placedAt(...args).posture;
   const posture: IAutoMovieMotionHumanActionPlan["posture"] = (
     seconds: number,
     _channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1],

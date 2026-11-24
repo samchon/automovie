@@ -60,18 +60,33 @@ export const mergeAutoMovieSubjectContributions: (
 ) => IAutoMovieSubjectContribution = (
   contributions: readonly IAutoMovieSubjectContribution[],
 ): IAutoMovieSubjectContribution => {
-  const merged: {
-    -readonly [K in keyof IAutoMovieSubjectContribution]: Array<
-      NonNullable<IAutoMovieSubjectContribution[K]>[number]
-    >;
-  } = {};
+  const merged: IMerged = {};
   for (const contribution of contributions)
     for (const key of CONTRIBUTION_KEYS) {
       const values: IAutoMovieSubjectContribution[keyof IAutoMovieSubjectContribution] =
         contribution[key];
       if (values === undefined || values.length === 0) continue;
-      const bucket: (typeof merged)[keyof typeof merged] = (merged[key] ??= []);
-      for (const value of values) bucket.push(value as never);
+      append(merged, key, values);
     }
   return merged;
 };
+
+/** The merged contribution under construction, each field a fresh array. */
+type IMerged = {
+  [K in keyof IAutoMovieSubjectContribution]?: NonNullable<
+    IAutoMovieSubjectContribution[K]
+  >[number][];
+};
+
+/**
+ * Append one contribution field's entries to the merged field of the same key,
+ * creating that field's array on its first entries.
+ */
+function append<K extends keyof IAutoMovieSubjectContribution>(
+  merged: IMerged,
+  key: K,
+  values: readonly NonNullable<IAutoMovieSubjectContribution[K]>[number][],
+): void {
+  const bucket: NonNullable<IMerged[K]> = (merged[key] ??= []);
+  bucket.push(...values);
+}

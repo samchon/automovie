@@ -214,7 +214,7 @@ export namespace lineWalk {
     // A sagging line: the walker's weight at the middle needs a tension
     // `W L / (4 sag)`, refused beyond the line's working load.
     const sag: number = p.sag ?? 0;
-    if (sag > 0 && Number.isFinite(half)) {
+    if (sag > 0 && half < Infinity) {
       const tension: number =
         (body.profile.mass * AutoMovieGravity.STANDARD * 2 * half) / (4 * sag);
       if (tension > LOAD) {
@@ -234,7 +234,7 @@ export namespace lineWalk {
     const point: (s: number) => IAutoMovieVector3 = (
       s: number,
     ): IAutoMovieVector3 => {
-      const u: number = Number.isFinite(half) ? (s + half) / (2 * half) : 0.5;
+      const u: number = half === Infinity ? 0.5 : (s + half) / (2 * half);
       return {
         ...Vector3.add(top, Vector3.scale(along, s)),
         y: top.y + ankle - 4 * sag * u * (1 - u),

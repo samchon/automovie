@@ -82,7 +82,7 @@ export namespace seatedHeelBounce {
     const { body, entry, params } = context;
     const { side, count: beats, cadence, amplitude } = params;
     const duration: number = beats / cadence;
-    if (!Number.isSafeInteger(beats) || beats < 1)
+    if (!(beats % 1 === 0 && beats >= 1))
       throw new HumanRefusal({
         kind: "parameter",
         axis: "count",
@@ -92,9 +92,7 @@ export namespace seatedHeelBounce {
       });
     if (
       !(
-        Number.isFinite(cadence) &&
         cadence > 0 &&
-        Number.isFinite(duration) &&
         duration > 0
       )
     )
@@ -272,7 +270,7 @@ export namespace seatedHeelBounce {
         Math.abs(sockets[2]!.point.y - toeWorld.y) <= HumanFoot.BEARING
       );
     };
-    if (!(amplitude > 0 && Number.isFinite(amplitude) && amplitude <= limit))
+    if (!(amplitude > 0 && amplitude <= limit))
       throw new HumanRefusal({
         kind: "parameter",
         axis: "amplitude",

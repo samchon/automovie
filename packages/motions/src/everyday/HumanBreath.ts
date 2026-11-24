@@ -350,7 +350,7 @@ function integral(bouts: readonly IBout[], lo: number, hi: number): number {
         (1 / HumanBreath.ONSET + 1 / bout.recovery),
     ];
     for (const t of own)
-      if (Number.isFinite(t) && t > lo && t < hi) knots.push(t);
+      if (t > lo && t < hi) knots.push(t);
   }
   knots.sort((a: number, b: number): number => a - b);
   let total: number = 0;

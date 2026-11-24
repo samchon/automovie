@@ -463,70 +463,13 @@ interface IHandedness {
   twistAxis: IAutoMovieVector3;
 }
 
-/** One basis's completed handedness and proof of when it can be reused. */
-interface IHandednessState {
-  /** The nine original component values for bases whose data can change. */
-  values: readonly number[];
-
-  /** The pure signed-axis metadata used by every extraction on this basis. */
-  read: IHandedness;
-
-  /** Whether the normalizer owns this exact immutable own-data basis. */
-  fixed: boolean;
-}
-
-/** Each basis's handedness, remembered with the components it was read from. */
-const HANDEDNESS: WeakMap<IAutoMovieJointAxes, IHandednessState> =
-  new WeakMap();
-
-/** A basis's nine components, flexion, abduction and twist, each x, y, z. */
-const componentsOf: (basis: IAutoMovieJointAxes) => number[] = (
-  basis: IAutoMovieJointAxes,
-): number[] => [
-  basis.flexion.x,
-  basis.flexion.y,
-  basis.flexion.z,
-  basis.abduction.x,
-  basis.abduction.y,
-  basis.abduction.z,
-  basis.twist.x,
-  basis.twist.y,
-  basis.twist.z,
-];
-
-/** Compare two completed scalar snapshots without rereading caller components. */
-function sameComponents(
-  values: readonly number[],
-  now: readonly number[],
-): boolean {
-  return (
-    Object.is(values[0], now[0]) &&
-    Object.is(values[1], now[1]) &&
-    Object.is(values[2], now[2]) &&
-    Object.is(values[3], now[3]) &&
-    Object.is(values[4], now[4]) &&
-    Object.is(values[5], now[5]) &&
-    Object.is(values[6], now[6]) &&
-    Object.is(values[7], now[7]) &&
-    Object.is(values[8], now[8])
-  );
-}
-
 /**
- * A basis's handedness and signed twist axis, read once per basis record when
- * its normalizer owns the immutable record, otherwise while exact comparisons
- * match the original values. Hundreds of limb-fit candidates therefore share
- * the same metadata without caching any inverse.
+ * A basis's handedness and signed twist axis, one cross product and one dot
+ * product read directly from the basis.
  */
 const handednessOf: (basis: IAutoMovieJointAxes) => IHandedness = (
   basis: IAutoMovieJointAxes,
 ): IHandedness => {
-  const known: IHandednessState | undefined = HANDEDNESS.get(basis);
-  if (known?.fixed === true) return known.read;
-  const now: number[] = componentsOf(basis);
-  if (known !== undefined && sameComponents(known.values, now))
-    return known.read;
-
   // Right-handedness of the basis: +1 when flex × abd = +twist. A left-handed
   // triple is made right-handed by extracting against −twist, then negating the
   // recovered twist (a rotation about −t by θ is one about t by −θ).
@@ -534,66 +477,19 @@ const handednessOf: (basis: IAutoMovieJointAxes) => IHandedness = (
     Vector3.dot(basis.twist, Vector3.cross(basis.flexion, basis.abduction)) >= 0
       ? 1
       : -1;
-  const read: IHandedness = {
-    handed,
-    twistAxis: Vector3.scale(basis.twist, handed),
-  };
-  HANDEDNESS.set(basis, {
-    values: now,
-    read,
-    fixed: normalizeJointAxes.owns(basis),
-  });
-  return read;
+  return { handed, twistAxis: Vector3.scale(basis.twist, handed) };
 };
-
-/** A private box copy and its invariant own-string-key count. */
-interface IBox {
-  /** The original constraint's copied fields, with only swingTwist set aside. */
-  constraint: IAutoMovieJointConstraint;
-
-  /**
-   * This private copy's own enumerable string-key count, unchanged after
-   * creation.
-   */
-  size: number;
-}
-
-/** Each gated constraint's copy without its swing-twist gate. */
-const BOXES: WeakMap<IAutoMovieJointConstraint, IBox> = new WeakMap();
-
-/** Collect original own keys/count before reading any compared member value. */
-function sameBox(known: IBox, constraint: IAutoMovieJointConstraint): boolean {
-  const keys: string[] = Object.keys(constraint);
-  return (
-    keys.length === known.size &&
-    keys.every(
-      (key: string): boolean =>
-        key === "swingTwist" ||
-        Object.is(
-          (known.constraint as unknown as Record<string, unknown>)[key],
-          (constraint as unknown as Record<string, unknown>)[key],
-        ),
-    )
-  );
-}
 
 /**
  * A constraint as the readings are ranked by: itself, or for one gated by swing
- * and twist a copy with that gate set aside, the copy remembered per constraint
- * and returned only while every other member is still the one it was copied
- * from.
+ * and twist a copy with that gate set aside.
  */
 const boxOf: (
   constraint: IAutoMovieJointConstraint,
 ) => IAutoMovieJointConstraint = (
   constraint: IAutoMovieJointConstraint,
-): IAutoMovieJointConstraint => {
-  if (constraint.swingTwist === undefined || constraint.swingTwist === null)
-    return constraint;
-  const known: IBox | undefined = BOXES.get(constraint);
-  if (known !== undefined && sameBox(known, constraint))
-    return known.constraint;
-  const box: IAutoMovieJointConstraint = { ...constraint, swingTwist: null };
-  BOXES.set(constraint, { constraint: box, size: Object.keys(box).length });
-  return box;
+): IAutoMovieJointConstraint =>
+  constraint.swingTwist === undefined || constraint.swingTwist === null
+    ? constraint
+    : { ...constraint, swingTwist: null };
 };

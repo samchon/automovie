@@ -24,7 +24,7 @@ export function measureSurfaceGlide(
   surface: IAutoMovieMotionHumanSurface.IGlidePlane,
 ): IAutoMovieMotionHumanSurface.IGlideMeasure {
   const normalLength: number = Vector3.length(surface.normal);
-  if (!Number.isFinite(normalLength) || normalLength === 0)
+  if (normalLength === 0)
     throw new RangeError("a glide measurement requires a surface normal");
   const normal: IAutoMovieVector3 = Vector3.scale(
     surface.normal,
@@ -36,7 +36,7 @@ export function measureSurfaceGlide(
       Vector3.scale(normal, Vector3.dot(forward, normal)),
     );
     const length: number = Vector3.length(projected);
-    if (!Number.isFinite(length) || length <= 1e-9)
+    if (!(length > 1e-9))
       throw new RangeError("the equipment must point along the glide plane");
     return Vector3.scale(projected, 1 / length);
   };

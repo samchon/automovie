@@ -142,9 +142,7 @@ export namespace AutoMovieMotionHumanAuditRange {
         if (joint.bone !== "leftFoot" && joint.bone !== "rightFoot") continue;
         if (joint.bone === "leftFoot" ? left : right) continue;
         const flexion: number = joint.flexion ?? 0;
-        const value: number = Number.isFinite(flexion)
-          ? flexion - ANKLE_DORSIFLEXION.unloaded
-          : Number.POSITIVE_INFINITY;
+        const value: number = flexion - ANKLE_DORSIFLEXION.unloaded;
         if (value <= 0) continue;
         faulted = true;
         if (value > out.overshoot.value)

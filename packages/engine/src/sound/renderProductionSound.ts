@@ -218,6 +218,7 @@ const mixEvent: (
   const right: number = Math.sqrt((1 + event.pan) * 0.5);
   const spectralGain: number = propagation?.highFrequencyGain ?? 1;
   let filtered: number = 0;
+  const stream: IAutoMovieRandom = noiseStream(event.seed);
   for (
     let index: number = 0;
     index < length && start + index < pcm.length / 2;
@@ -226,7 +227,7 @@ const mixEvent: (
     const t: number = index / plan.sampleRate;
     const normalized: number = index / Math.max(1, length - 1);
     const envelope: number = Math.exp(-5 * normalized);
-    const noise: number = seededNoise(event.seed, index);
+    const noise: number = seededNoise(stream, index);
     const base: number = productionSoundEventTone(
       event.kind,
       t,
@@ -277,6 +278,7 @@ const mixCue: (
   // sample: at half an hour that is the difference between a mix that costs its
   // buffer and one that costs several.
   const played: Float32Array | undefined = source;
+  const stream: IAutoMovieRandom = noiseStream(cue.seed);
   for (let index: number = 0; index < length; ++index) {
     const fade: number =
       Math.min(1, fadeIn === 0 ? 1 : index / fadeIn) *
@@ -303,10 +305,10 @@ const mixCue: (
             Math.sin(2 * Math.PI * 165 * t) * 0.12 +
             Math.sin(2 * Math.PI * 220 * t) * 0.08
           : cue.bus === "ambience"
-            ? seededNoise(cue.seed, at) * 0.09 +
+            ? seededNoise(stream, at) * 0.09 +
               Math.sin(2 * Math.PI * 48 * t) * 0.04
             : cue.bus === "effects"
-              ? seededNoise(cue.seed, at) * 0.16
+              ? seededNoise(stream, at) * 0.16
               : Math.sin(2 * Math.PI * 175 * t) * 0.08;
     }
     const scoreGain: number = scoreEnvelope?.[start + index] ?? 1;
@@ -399,22 +401,21 @@ const edgeEnvelope: (index: number, length: number, edge: number) => number = (
   edge: number,
 ): number => Math.min(1, index / edge, (length - index) / edge);
 
-/** Each cue seed's pinned counter-based stream, keyed once. */
-const noiseStreams: Map<number, IAutoMovieRandom> = new Map();
+/**
+ * The cue seed's pinned counter-based Philox stream (`createAutoMovieRandom`),
+ * prepared once per mixed cue or event; this seed stream is not content
+ * identity.
+ */
+const noiseStream: (seed: number) => IAutoMovieRandom = (
+  seed: number,
+): IAutoMovieRandom =>
+  createAutoMovieRandom(deriveAutoMovieSeed(String(seed), "noise"));
 
 /**
- * One stateless signed noise sample in (-1, 1): the cue seed's pinned Philox
- * stream (`createAutoMovieRandom`) read at the sample index; this seed stream
- * is not content identity.
+ * One stateless signed noise sample in (-1, 1): the prepared stream read at
+ * the sample index.
  */
-const seededNoise: (seed: number, index: number) => number = (
-  seed: number,
+const seededNoise: (stream: IAutoMovieRandom, index: number) => number = (
+  stream: IAutoMovieRandom,
   index: number,
-): number => {
-  let stream: IAutoMovieRandom | undefined = noiseStreams.get(seed);
-  if (stream === undefined) {
-    stream = createAutoMovieRandom(deriveAutoMovieSeed(String(seed), "noise"));
-    noiseStreams.set(seed, stream);
-  }
-  return (2 * stream.float(index) - 1) * 0.999999;
-};
+): number => (2 * stream.float(index) - 1) * 0.999999;

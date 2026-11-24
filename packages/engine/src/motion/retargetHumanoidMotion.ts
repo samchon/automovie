@@ -326,7 +326,7 @@ const validateBinding: (
   if (binding === undefined) return;
   for (const bone of requiredBones) {
     const mapped: string | undefined = binding.boneMap[bone];
-    if (mapped === undefined || mapped.trim().length === 0)
+    if (mapped === undefined)
       collector.push(
         "type",
         `$input.${label}.boneMap.${bone}`,

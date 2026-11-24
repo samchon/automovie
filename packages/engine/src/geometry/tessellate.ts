@@ -58,10 +58,6 @@ export const tessellate: (
         PRIMITIVE_SPHERE_RINGS,
         shape.height,
       );
-    default: {
-      const unknown: { type: unknown } = shape as unknown as { type: unknown };
-      throw new Error(`unknown primitive shape "${String(unknown.type)}"`);
-    }
   }
 };
 

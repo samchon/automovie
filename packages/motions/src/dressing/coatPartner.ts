@@ -59,7 +59,7 @@ function planCoatPartner(
       reason: "a performer puts on its own jacket with wardrobe",
       fix: "name another performer as the partner",
     });
-  if (!(params.hold > 0 && Number.isFinite(params.hold)))
+  if (!(params.hold > 0))
     throw wardrobeHands.refusal(
       "hold",
       params.hold,

@@ -113,7 +113,6 @@ export function appendServiceNetworkNodes(
 
     node.ports.forEach((port: IAutoMovieServicePort, at: number): void => {
       const portPath: string = `${path}.ports[${at}]`;
-      out.nonEmpty(`${portPath}.id`, port.id, "service port id");
       if (seenPorts.has(port.id))
         out.push(
           "type",

@@ -7,9 +7,9 @@ import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieBone,
+  IAutoMovieMotionHumanAuditTangleModel,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanColliders,
-  IAutoMoviePhysicalShape,
   IAutoMovieQuaternion,
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
@@ -40,70 +40,6 @@ export namespace AutoMovieMotionHumanAuditTangleModel {
    */
   export const BUILT: number = AutoMovieMotionHumanAuditSkin.BUILT;
 
-  /** One collider segment's probes and bounding sphere in its own frame. */
-  export interface IPart {
-    /** The bone that carries the segment. */
-    bone: AutoMovieHumanoidBone;
-
-    /** The segment's shapes. */
-    shapes: readonly IAutoMoviePhysicalShape[];
-
-    /** The probes: the shapes' corners, then points along the bone. */
-    probes: IAutoMovieVector3[];
-
-    /**
-     * How many of the probes, the first ones, are corners of the shapes; the
-     * rest lie on the bone's axis.
-     */
-    surface: number;
-
-    /** The bounding sphere's centre. */
-    centre: IAutoMovieVector3;
-
-    /** The bounding sphere's radius, metres. */
-    radius: number;
-
-    /**
-     * How far from the segment's own origin any of its probes, or any point of
-     * the bounding spheres of its shapes, lies, metres: a turn of the segment
-     * by an angle moves none of them farther than this times the chord of the
-     * angle, which bounds how fast a reading against it moves.
-     */
-    extent: number;
-
-    /**
-     * How far any of its probes lies outside its own shapes, metres: zero for
-     * corners on a shape's surface and points of the bone inside a shape. A
-     * link pair's certificate (`HumanLinkCertificate`) bounds every probe by
-     * its shapes' distance less this.
-     */
-    offset: number;
-  }
-
-  /** What is derived once per body. */
-  export interface IModel {
-    /** The segments, in the order the colliders are placed. */
-    parts: IPart[];
-
-    /** Whether two segments are one part or share a joint. */
-    related: boolean[][];
-
-    /**
-     * Whether each segment is of that side's arm: its upper arm, its forearm,
-     * or its hand with the fingers.
-     */
-    arms: Record<AutoMovieHumanSide, boolean[]>;
-
-    /** The segments placed in the rest T-pose. */
-    rest: IAutoMovieMotionHumanColliders.IPlaced[];
-
-    /** The segments placed in the quiet stance. */
-    stance: IAutoMovieMotionHumanColliders.IPlaced[];
-
-    /** The reference depths of each ordered pair's probes, by pair index. */
-    baseline: Map<number, Float64Array>;
-  }
-
   /**
    * The part of the body a bone belongs to when several bones are one part: a
    * hand with its fingers, a foot with its toes.
@@ -124,14 +60,15 @@ export namespace AutoMovieMotionHumanAuditTangleModel {
   }
 
   /**
-   * The body's model, built on first use.
+   * Build a body's model, once, when the body is made (`createHumanBody`);
+   * every reader reads the body's record (`IAutoMovieMotionHumanBody.tangle`).
    *
-   * @param body The body.
-   * @returns The model, the same one for every later call with this body.
+   * @param body The body's record with its quiet stance solved.
+   * @returns The model, every ordered pair's reference depths included.
    */
-  export function model(body: IAutoMovieMotionHumanBody): IModel {
-    const known: IModel | undefined = MODELS.get(body);
-    if (known !== undefined) return known;
+  export function build(
+    body: IAutoMovieMotionHumanBody,
+  ): IAutoMovieMotionHumanAuditTangleModel.IModel {
     const parent: Map<AutoMovieHumanoidBone, AutoMovieHumanoidBone | null> =
       new Map();
     const children: Map<AutoMovieHumanoidBone, AutoMovieHumanoidBone[]> =
@@ -149,8 +86,10 @@ export namespace AutoMovieMotionHumanAuditTangleModel {
         body,
         poseBones(body, { skeleton: body.skeleton.id, root: null, joints: [] }),
       );
-    const parts: IPart[] = rest.map(
-      (p: IAutoMovieMotionHumanColliders.IPlaced): IPart => {
+    const parts: IAutoMovieMotionHumanAuditTangleModel.IPart[] = rest.map(
+      (
+        p: IAutoMovieMotionHumanColliders.IPlaced,
+      ): IAutoMovieMotionHumanAuditTangleModel.IPart => {
         const probes: IAutoMovieVector3[] = [];
         for (const shape of p.shapes)
           for (const corner of HumanColliderCorners(shape))
@@ -238,7 +177,11 @@ export namespace AutoMovieMotionHumanAuditTangleModel {
     // The nearest ancestor of a bone that carries a collider: the joint its
     // collider meets, skipping bones (a clavicle) that have none.
     const collided: ReadonlySet<AutoMovieHumanoidBone> = new Set(
-      parts.map((p: IPart): AutoMovieHumanoidBone => p.bone),
+      parts.map(
+        (
+          p: IAutoMovieMotionHumanAuditTangleModel.IPart,
+        ): AutoMovieHumanoidBone => p.bone,
+      ),
     );
     const above: (
       bone: AutoMovieHumanoidBone,
@@ -254,13 +197,18 @@ export namespace AutoMovieMotionHumanAuditTangleModel {
     // carpus the wrist joins to the forearm: a flat hand on a flexed wrist
     // brings the thumb's metacarpal base into the forearm's distal end, so
     // such a digit shares the wrist with the forearm as the hand does.
-    const wrist: (digit: IPart, forearm: IPart) => boolean = (
-      digit: IPart,
-      forearm: IPart,
+    const wrist: (
+      digit: IAutoMovieMotionHumanAuditTangleModel.IPart,
+      forearm: IAutoMovieMotionHumanAuditTangleModel.IPart,
+    ) => boolean = (
+      digit: IAutoMovieMotionHumanAuditTangleModel.IPart,
+      forearm: IAutoMovieMotionHumanAuditTangleModel.IPart,
     ): boolean => {
-      const hand: IPart | undefined = parts.find(
-        (p: IPart): boolean => p.bone === group(digit.bone),
-      );
+      const hand: IAutoMovieMotionHumanAuditTangleModel.IPart | undefined =
+        parts.find(
+          (p: IAutoMovieMotionHumanAuditTangleModel.IPart): boolean =>
+            p.bone === group(digit.bone),
+        );
       return (
         hand !== undefined &&
         hand.bone !== digit.bone &&
@@ -268,16 +216,17 @@ export namespace AutoMovieMotionHumanAuditTangleModel {
         above(hand.bone) === forearm.bone
       );
     };
-    const related: boolean[][] = parts.map((a: IPart): boolean[] =>
-      parts.map(
-        (b: IPart): boolean =>
-          a.bone === b.bone ||
-          above(a.bone) === b.bone ||
-          above(b.bone) === a.bone ||
-          group(a.bone) === group(b.bone) ||
-          wrist(a, b) ||
-          wrist(b, a),
-      ),
+    const related: boolean[][] = parts.map(
+      (a: IAutoMovieMotionHumanAuditTangleModel.IPart): boolean[] =>
+        parts.map(
+          (b: IAutoMovieMotionHumanAuditTangleModel.IPart): boolean =>
+            a.bone === b.bone ||
+            above(a.bone) === b.bone ||
+            above(b.bone) === a.bone ||
+            group(a.bone) === group(b.bone) ||
+            wrist(a, b) ||
+            wrist(b, a),
+        ),
     );
     const stance: IAutoMovieMotionHumanColliders.IPlaced[] =
       HumanColliders.placed(
@@ -294,21 +243,19 @@ export namespace AutoMovieMotionHumanAuditTangleModel {
       side: AutoMovieHumanSide,
     ): boolean[] =>
       parts.map(
-        (p: IPart): boolean =>
+        (p: IAutoMovieMotionHumanAuditTangleModel.IPart): boolean =>
           p.bone === `${side}UpperArm` ||
           p.bone === `${side}LowerArm` ||
           group(p.bone) === `${side}Hand`,
       );
-    const built: IModel = {
+    return {
       parts,
       related,
       arms: { left: arm("left"), right: arm("right") },
       rest,
       stance,
-      baseline: new Map(),
+      baseline: baselines(parts, rest, stance),
     };
-    MODELS.set(body, built);
-    return built;
   }
 
   /**
@@ -320,7 +267,7 @@ export namespace AutoMovieMotionHumanAuditTangleModel {
    */
   export function centre(
     p: IAutoMovieMotionHumanColliders.IPlaced,
-    part: IPart,
+    part: IAutoMovieMotionHumanAuditTangleModel.IPart,
   ): IAutoMovieVector3 {
     return Vector3.add(
       p.pose.position,
@@ -352,35 +299,15 @@ export namespace AutoMovieMotionHumanAuditTangleModel {
    * @param m The body's model.
    * @param i The segment whose probes are read.
    * @param j The segment they are read in.
-   * @returns Metres per probe; `Infinity` for a corner of a pair whose
-   *   colliders overlap past the skin by their build.
+   * @returns Metres per probe, the model's own record; `Infinity` for a corner
+   *   of a pair whose colliders overlap past the skin by their build.
    */
-  export function reference(m: IModel, i: number, j: number): Float64Array {
-    const key: number = i * m.parts.length + j;
-    const probes: IAutoMovieVector3[] = m.parts[i]!.probes;
-    let baseline: Float64Array | undefined = m.baseline.get(key);
-    if (baseline === undefined) {
-      baseline = depths(probes, m.rest[i]!, m.rest[j]!);
-      const stance: Float64Array = depths(probes, m.stance[i]!, m.stance[j]!);
-      for (let k: number = 0; k < baseline.length; k++)
-        baseline[k] = Math.max(baseline[k]!, stance[k]!);
-
-      // Two surfaces that already overlap in a reference posture slide along
-      // each other as the body moves, so another corner comes to lie where
-      // the first one lay; the pair's deepest reference depth is what every
-      // corner of the segment may keep. Where that depth is more than the
-      // skin gives, the two colliders occupy one volume by their build and
-      // their corners say nothing of the motion. A point of the bone's axis
-      // keeps its own.
-      const surface: number = m.parts[i]!.surface;
-      let shared: number = 0;
-      for (let k: number = 0; k < surface; k++)
-        shared = Math.max(shared, baseline[k]!);
-      for (let k: number = 0; k < surface; k++)
-        baseline[k] = shared > BUILT ? Infinity : shared;
-      m.baseline.set(key, baseline);
-    }
-    return baseline;
+  export function reference(
+    m: IAutoMovieMotionHumanAuditTangleModel.IModel,
+    i: number,
+    j: number,
+  ): Float64Array {
+    return m.baseline[i * m.parts.length + j]!;
   }
 
   /**
@@ -401,7 +328,7 @@ export namespace AutoMovieMotionHumanAuditTangleModel {
    * @returns Metres per probe; zero or less where it lies no deeper.
    */
   export function beyond(
-    m: IModel,
+    m: IAutoMovieMotionHumanAuditTangleModel.IModel,
     placed: readonly IAutoMovieMotionHumanColliders.IPlaced[],
     i: number,
     j: number,
@@ -436,7 +363,7 @@ export namespace AutoMovieMotionHumanAuditTangleModel {
    * @returns Metres; zero when no probe lies deeper.
    */
   export function excess(
-    m: IModel,
+    m: IAutoMovieMotionHumanAuditTangleModel.IModel,
     placed: readonly IAutoMovieMotionHumanColliders.IPlaced[],
     i: number,
     j: number,
@@ -449,11 +376,52 @@ export namespace AutoMovieMotionHumanAuditTangleModel {
   }
 }
 
-/** The models of live bodies. */
-const MODELS: WeakMap<
-  IAutoMovieMotionHumanBody,
-  AutoMovieMotionHumanAuditTangleModel.IModel
-> = new WeakMap();
+/**
+ * Every ordered pair's reference depths, at `i * parts.length + j`: each probe
+ * of segment `i` at the deeper of its depths in segment `j` in the two
+ * reference postures. Two surfaces that already overlap in a reference posture
+ * slide along each other as the body moves, so another corner comes to lie
+ * where the first one lay; the pair's deepest reference depth is what every
+ * corner of the segment may keep. Where that depth is more than the skin gives,
+ * the two colliders occupy one volume by their build and their corners say
+ * nothing of the motion. A point of the bone's axis keeps its own.
+ *
+ * @param parts The segments.
+ * @param rest The segments placed in the rest T-pose.
+ * @param stance The segments placed in the quiet stance.
+ * @returns Metres per probe of each pair's first segment.
+ */
+function baselines(
+  parts: readonly IAutoMovieMotionHumanAuditTangleModel.IPart[],
+  rest: readonly IAutoMovieMotionHumanColliders.IPlaced[],
+  stance: readonly IAutoMovieMotionHumanColliders.IPlaced[],
+): Float64Array[] {
+  const out: Float64Array[] = new Array(parts.length * parts.length);
+  for (let j: number = 0; j < parts.length; j++) {
+    const atRest: ReturnType<typeof prepareAutoMovieMotionHumanAuditDepths> =
+      prepareAutoMovieMotionHumanAuditDepths(rest[j]!);
+    const standing: ReturnType<typeof prepareAutoMovieMotionHumanAuditDepths> =
+      prepareAutoMovieMotionHumanAuditDepths(stance[j]!);
+    for (let i: number = 0; i < parts.length; i++) {
+      const probes: IAutoMovieVector3[] = parts[i]!.probes;
+      const baseline: Float64Array = atRest(probes, rest[i]!);
+      const still: Float64Array = standing(probes, stance[i]!);
+      for (let k: number = 0; k < baseline.length; k++)
+        baseline[k] = Math.max(baseline[k]!, still[k]!);
+      const surface: number = parts[i]!.surface;
+      let shared: number = 0;
+      for (let k: number = 0; k < surface; k++)
+        shared = Math.max(shared, baseline[k]!);
+      for (let k: number = 0; k < surface; k++)
+        baseline[k] =
+          shared > AutoMovieMotionHumanAuditTangleModel.BUILT
+            ? Infinity
+            : shared;
+      out[i * parts.length + j] = baseline;
+    }
+  }
+  return out;
+}
 
 /** The fingers' part of a bone name. */
 const DIGIT: RegExp = /(Thumb|Index|Middle|Ring|Little)/u;

@@ -22,18 +22,14 @@ export function jumpLandingHeading(
 ): number {
   const somersault: number = params.rotation?.somersault ?? 0;
   const twist: number = params.rotation?.twist ?? 0;
-  if (
-    !Number.isInteger(somersault) ||
-    !Number.isFinite(somersault * 360) ||
-    !Number.isFinite(twist * 360)
-  )
+  // Only whole somersaults bring the up axis back upright.
+  if (somersault % 1 !== 0)
     throw new HumanRefusal({
       kind: "parameter",
       axis: "turns",
       value: params.rotation,
-      reason:
-        "a two-foot jump landing needs a finite twist and an upright terminal axis",
-      fix: "give complete somersault revolutions and a finite twist for a two-foot landing",
+      reason: "a two-foot jump landing needs an upright terminal axis",
+      fix: "give complete somersault revolutions for a two-foot landing",
     });
   const remainder: number = twist % 1;
   if (remainder === 0) return heading;

@@ -74,7 +74,7 @@ export function humanCrowdGroupFormation(
       reason: "walking group measurements cover two through four members",
       fix: "give a group of two through four members",
     });
-  if (!Number.isFinite(density) || density < 0)
+  if (!(density >= 0))
     throw new HumanRefusal({
       kind: "parameter",
       axis: "group.density",
@@ -83,7 +83,7 @@ export function humanCrowdGroupFormation(
       fix: "give a density in pedestrians per square metre",
     });
   for (const halfBreadth of halfBreadths)
-    if (!Number.isFinite(2 * halfBreadth) || halfBreadth <= 0)
+    if (!(halfBreadth > 0))
       throw new HumanRefusal({
         kind: "parameter",
         axis: "group.halfBreadths",

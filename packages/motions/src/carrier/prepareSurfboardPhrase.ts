@@ -152,7 +152,6 @@ export function prepareSurfboardPhrase(
   const trail: AutoMovieHumanSide = lead === "left" ? "right" : "left";
   const water: number = params.water ?? 0;
   if (
-    !Number.isFinite(water) ||
     (lead !== "left" && lead !== "right") ||
     (params.transfer !== "overlap" && params.transfer !== "flight")
   )

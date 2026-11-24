@@ -13,6 +13,7 @@ import type { IAutoMovieBone } from "../../../skeleton/IAutoMovieBone";
 import type { IAutoMovieSkeleton } from "../../../skeleton/IAutoMovieSkeleton";
 import type { IAutoMoviePrepareChainConstants } from "../../IAutoMoviePrepareChainConstants";
 import type { IAutoMovieMotionHumanStandUpright } from "../actions/IAutoMovieMotionHumanStandUpright";
+import type { IAutoMovieMotionHumanAuditTangleModel } from "../audit/IAutoMovieMotionHumanAuditTangleModel";
 import type { IAutoMovieMotionHumanLimbReads } from "../posture/IAutoMovieMotionHumanLimbReads";
 
 /**
@@ -88,6 +89,15 @@ export interface IAutoMovieMotionHumanBody {
    * attached to no bone.
    */
   reads: IAutoMovieMotionHumanLimbReads.IReads;
+
+  /**
+   * The model the tangle audit reads a pose against
+   * (`AutoMovieMotionHumanAuditTangleModel.build`): each collider segment's
+   * probes, the related pairs, the rest and quiet-stance placements and every
+   * ordered pair's reference depths, built once when the body is made from its
+   * quiet stance.
+   */
+  tangle: IAutoMovieMotionHumanAuditTangleModel.IModel;
 
   /**
    * The rig's bound demand of every bone a collider rides

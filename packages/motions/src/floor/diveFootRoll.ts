@@ -36,9 +36,11 @@ export function diveFootRoll(
     );
     const heading: number =
       HumanFoot.heading(foot.rotation) * Quaternion.DEG2RAD;
-    const along: IAutoMovieVector3 = Number.isFinite(heading)
-      ? { x: Math.sin(heading), y: 0, z: Math.cos(heading) }
-      : HumanFrame.forward(entry.yaw);
+    const along: IAutoMovieVector3 = {
+      x: Math.sin(heading),
+      y: 0,
+      z: Math.cos(heading),
+    };
     const axis: IAutoMovieVector3 = Vector3.cross(up, along);
     return (degrees: number): IAutoMovieMotionHumanFoot.IPlacement => {
       const rotation: IAutoMovieQuaternion = Quaternion.multiply(

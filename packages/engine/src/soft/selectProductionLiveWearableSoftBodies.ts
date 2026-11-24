@@ -13,25 +13,19 @@ export const selectProductionLiveWearableSoftBodies: <
   Domain extends Pick<IAutoMovieSoftBodyDomain, "id" | "anchors" | "colliders">,
 >(
   domains: readonly Domain[],
-  selected: unknown,
+  selected: readonly string[],
 ) => { domain: Domain; subjectIndex: number; maxSubjects: number }[] = <
   Domain extends Pick<IAutoMovieSoftBodyDomain, "id" | "anchors" | "colliders">,
 >(
   domains: readonly Domain[],
-  selected: unknown,
+  selected: readonly string[],
 ): Array<{ domain: Domain; subjectIndex: number; maxSubjects: number }> => {
   const ordered: string[] = readProductionLiveWearableSoftBodies(selected);
   const selectedSet: Set<string> = new Set(ordered);
   const available: Map<string, Domain> = new Map<string, Domain>();
   for (const domain of domains) {
-    if (
-      domain.id.trim().length === 0 ||
-      domain.id !== domain.id.trim() ||
-      available.has(domain.id)
-    )
-      throw new Error(
-        "Compiled soft-body domain ids must be non-blank, trimmed, and unique.",
-      );
+    if (available.has(domain.id))
+      throw new Error("Compiled soft-body domain ids must be unique.");
     available.set(domain.id, domain);
     if (
       productionSoftBodyUsesMovingBoundary(domain) &&

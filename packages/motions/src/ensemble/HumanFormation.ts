@@ -38,7 +38,7 @@ export function HumanFormation(
       const capacity: number = HumanFormation.capacity(block.layout);
       if (
         !(
-          Number.isInteger(block.count) &&
+          block.count % 1 === 0 &&
           block.count > 0 &&
           block.count <= capacity
         )
@@ -50,25 +50,12 @@ export function HumanFormation(
           feasible: {
             kind: "range",
             minimum: 1,
-            maximum: Number.isFinite(capacity) ? capacity : null,
+            maximum: capacity === Infinity ? null : capacity,
             unit: "",
           },
           reason: `block ${b} holds ${block.count} members, which its ${block.layout.kind} layout cannot place`,
           fix: "give the block a whole number of members its layout holds",
         });
-      for (const value of [
-        block.offset?.lateral ?? 0,
-        block.offset?.depth ?? 0,
-        block.facing ?? 0,
-      ])
-        if (!Number.isFinite(value))
-          throw new HumanRefusal({
-            kind: "parameter",
-            axis: `blocks[${b}]`,
-            value,
-            reason: `block ${b}'s offset or facing is not finite`,
-            fix: "give finite offsets and facings",
-          });
     },
   );
 
@@ -163,7 +150,7 @@ export namespace HumanFormation {
       ++b;
     }
     if (
-      !(Number.isInteger(index) && index >= 0) ||
+      !(index % 1 === 0 && index >= 0) ||
       b === formation.blocks.length
     )
       throw new RangeError(

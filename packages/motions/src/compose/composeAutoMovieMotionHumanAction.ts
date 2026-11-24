@@ -372,11 +372,8 @@ export function composeAutoMovieMotionHumanAction(
       postures = new Map();
       current.seconds = t;
       current.first = postures;
-    } else if (
-      current.seconds === t ||
-      (Number.isNaN(current.seconds) && Number.isNaN(t))
-    )
-      // The same second as a `Map` key is: equal, or both not a number.
+    } else if (current.seconds === t)
+      // The same second.
       postures = current.first;
     else {
       const later: Map<

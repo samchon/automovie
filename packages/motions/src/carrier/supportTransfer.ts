@@ -72,7 +72,7 @@ export function supportTransfer(
   const trailOff: number = 0.55;
   const trailOn: number = 0.82;
 
-  if (!Number.isFinite(duration) || duration < 1.2 || duration > 3)
+  if (!(duration >= 1.2 && duration <= 3))
     refuse(
       "seconds",
       duration,
@@ -134,13 +134,6 @@ export function supportTransfer(
     y: 0,
     z: params.landing?.z ?? 0,
   });
-  if (![at.x, at.y, at.z].every(Number.isFinite))
-    refuse(
-      "landing",
-      params.landing,
-      "The landing station is not finite",
-      "Give finite deck-local coordinates",
-    );
 
   const entryBones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
     poseBones(body, entry.pose);
@@ -404,10 +397,8 @@ function surface(
     found.frame.scale.z !== 1 ||
     found.width === undefined ||
     found.depth === undefined ||
-    !Number.isFinite(found.width) ||
-    !Number.isFinite(found.depth) ||
-    found.width <= 0 ||
-    found.depth <= 0
+    !(found.width > 0) ||
+    !(found.depth > 0)
   )
     refuse(
       axis,

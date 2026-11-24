@@ -47,7 +47,7 @@ interface IDeclaredNode {
  * bones. `validateModel` covers parts, materials, extents, body (#595) and
  * affordances (#604), with paths remapped onto `$input.model`.
  *
- * An imported appearance needs a non-blank `modelRef`, origin `"imported"`, a
+ * An imported appearance needs a `modelRef`, origin `"imported"`, a
  * non-null `asset`, and a sealed closure: unique non-blank asset paths with
  * `sha256:` digests of 64 lowercase hex digits, the rigid `gltf-static-v1`
  * profile on the closure and every LOD with no humanoid bones, unique LOD
@@ -57,7 +57,7 @@ interface IDeclaredNode {
  * the registry nor the files.
  *
  * The articulation contract (when present): at least one joint; joint node ids
- * unique and non-blank; parents resolving within the declared nodes (`null` is
+ * unique; parents resolving within the declared nodes (`null` is
  * the prop's root) without a cycle; each joint's optional `mesh` naming a part
  * of this prop's own model, and no part claimed by two joints; the binding
  * targeting the declared profile; every `boneMap` value naming a declared node;

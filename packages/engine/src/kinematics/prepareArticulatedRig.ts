@@ -46,26 +46,15 @@ interface IPrepared<Bone extends string> {
 export function prepareArticulatedRig<Bone extends string>(
   rig: IAutoMovieArticulatedRig<Bone>,
 ): IAutoMovieArticulatedRigReader<Bone> {
-  if (
-    typeof rig.id !== "string" ||
-    rig.id.length === 0 ||
-    rig.bones.length === 0
-  )
-    throw new RangeError("An articulated rig needs an id and bones");
+  if (rig.bones.length === 0)
+    throw new RangeError("An articulated rig needs bones");
   const nodes: Map<Bone, IPrepared<Bone>> = new Map();
   const children: Map<Bone | null, Bone[]> = new Map();
   for (const raw of rig.bones) {
     const bone: Bone = raw.bone;
     const parent: Bone | null = raw.parent;
-    if (
-      typeof bone !== "string" ||
-      bone.length === 0 ||
-      nodes.has(bone) ||
-      (parent !== null && (typeof parent !== "string" || parent.length === 0))
-    )
-      throw new RangeError(
-        "Articulated bone names must be unique nonempty strings",
-      );
+    if (nodes.has(bone))
+      throw new RangeError("Articulated bone names must be unique");
     const rest: IAutoMovieTransform = rigid(raw.rest);
     const axes: IAutoMovieJointAxes = normalizeJointAxes(
       {

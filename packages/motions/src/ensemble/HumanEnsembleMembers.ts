@@ -53,7 +53,7 @@ export namespace HumanEnsembleMembers {
         fix,
       });
     };
-    if (!(Number.isInteger(input.count) && input.count > 0))
+    if (!(input.count % 1 === 0 && input.count > 0))
       refuse(
         "count",
         input.count,
@@ -220,7 +220,7 @@ export namespace HumanEnsembleMembers {
                 ? flank(free, formation)
                 : free;
       if (
-        !(Number.isInteger(spec.count) && spec.count >= 0) ||
+        !(spec.count % 1 === 0 && spec.count >= 0) ||
         spec.count > candidates.length
       )
         refuse(

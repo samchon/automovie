@@ -42,10 +42,10 @@ const twoLayer: (
  *
  * 1. A clean two-layer stack with one exposed face produces no violation and
  *    anchors the defective neighboring declarations.
- * 2. Envelope fields are refused one at a time: blank id, unknown axis, unknown
+ * 2. Envelope fields are refused one at a time: unknown axis, unknown
  *    sense, non-finite offset, unknown face exposure, and an empty stack, whose
  *    single violation proves the finish rules stay silent with nothing to say.
- * 3. Layer identity is refused: a blank id, a duplicate id, and a blank role.
+ * 3. Layer identity is refused: a duplicate id and a blank role.
  * 4. Layer substance conflicts are refused: an unknown substance word, a negative
  *    thickness, a non-finite thickness, a zero-thickness solid, a
  *    zero-thickness cavity, a cavity carrying a substance, a cavity flagged as
@@ -84,11 +84,6 @@ export function test_architecture_material_assembly_defects(): void {
   TestValidator.equals(
     "each envelope field is refused on its own path",
     namedFacts([
-      [
-        "id",
-        (): boolean =>
-          hasViolation(judge(twoLayer({ id: "  " })), "type", "$input.id"),
-      ],
       [
         "axis",
         (): boolean =>
@@ -166,7 +161,6 @@ export function test_architecture_material_assembly_defects(): void {
       ],
     ]),
     {
-      id: true,
       axis: true,
       sense: true,
       offset: true,
@@ -180,20 +174,6 @@ export function test_architecture_material_assembly_defects(): void {
   TestValidator.equals(
     "layer identity is refused on its own path",
     namedFacts([
-      [
-        "blankId",
-        (): boolean =>
-          hasViolation(
-            judge(
-              assembly(
-                [layer(" ", 0.1), layer("skin", 0.01, { finish: true })],
-                { faces: { first: "concealed", last: "exposed" } },
-              ),
-            ),
-            "type",
-            "$input.layers[0].id",
-          ),
-      ],
       [
         "duplicateId",
         (): boolean =>
@@ -229,7 +209,7 @@ export function test_architecture_material_assembly_defects(): void {
           ),
       ],
     ]),
-    { blankId: true, duplicateId: true, blankRole: true },
+    { duplicateId: true, blankRole: true },
   );
 
   const withCore: (

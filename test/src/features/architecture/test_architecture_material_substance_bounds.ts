@@ -69,17 +69,6 @@ export function test_architecture_material_substance_bounds(): void {
     "blank text is refused, absent text is not",
     namedFacts([
       [
-        "blankId",
-        (): boolean =>
-          hasViolation(
-            validateAutoMovieMaterialSubstance({
-              substance: substance("   "),
-            }),
-            "type",
-            "$input.id",
-          ),
-      ],
-      [
         "blankClassification",
         (): boolean =>
           hasViolation(
@@ -93,19 +82,12 @@ export function test_architecture_material_substance_bounds(): void {
         (): boolean =>
           hasViolation(judge({ name: " " }), "type", "$input.name"),
       ],
-      [
-        "blankSurface",
-        (): boolean =>
-          hasViolation(judge({ surface: "" }), "type", "$input.surface"),
-      ],
       ["nullName", (): boolean => judge({ name: null }).success === true],
       ["nullSurface", (): boolean => judge({ surface: null }).success === true],
     ]),
     {
-      blankId: true,
       blankClassification: true,
       blankName: true,
-      blankSurface: true,
       nullName: true,
       nullSurface: true,
     },

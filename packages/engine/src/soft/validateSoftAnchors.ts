@@ -76,21 +76,6 @@ export const validateSoftAnchors: (
             "a moving anchor must leave its static world position null",
             anchor.position,
           );
-        if (anchor.binding.kind === "node") {
-          if (anchor.binding.node.trim().length === 0)
-            out.push(
-              "type",
-              `${path}.binding.node`,
-              "moving anchor node identity must be non-empty",
-              anchor.binding.node,
-            );
-        } else if (anchor.binding.actor.trim().length === 0)
-          out.push(
-            "type",
-            `${path}.binding.actor`,
-            "moving anchor actor identity must be non-empty",
-            anchor.binding.actor,
-          );
         vector(out, `${path}.binding.offset`, anchor.binding.offset);
       }
     },
