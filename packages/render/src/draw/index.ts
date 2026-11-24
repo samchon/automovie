@@ -18,6 +18,7 @@ export * from "./IAutoMovieDrawResult.js";
 export * from "./IAutoMovieDrawScene.js";
 export * from "./IAutoMovieDrawSubject.js";
 export * from "./installAutoMovieDraw.js";
+export * from "./isAutoMovieDrawFilmPicture.js";
 export * from "./isAutoMoviePlainBeautyRequest.js";
 export * from "./observeAutoMoviePlacedInspection.js";
 export * from "./placeAutoMovieDrawLayer.js";

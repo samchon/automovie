@@ -25,7 +25,7 @@ import type { IAutoMovieDrawProps } from "./IAutoMovieDrawProps.js";
 import type { IAutoMovieDrawScene } from "./IAutoMovieDrawScene.js";
 import type { IAutoMovieDrawSubject } from "./IAutoMovieDrawSubject.js";
 import { describeAutoMovieDrawScene } from "./describeAutoMovieDrawScene.js";
-import { isAutoMoviePlainBeautyRequest } from "./isAutoMoviePlainBeautyRequest.js";
+import { isAutoMovieDrawFilmPicture } from "./isAutoMovieDrawFilmPicture.js";
 import { observeAutoMoviePlacedInspection } from "./observeAutoMoviePlacedInspection.js";
 import { readAutoMovieDrawResult } from "./readAutoMovieDrawResult.js";
 import { selectAutoMovieDrawSubject } from "./selectAutoMovieDrawSubject.js";
@@ -282,10 +282,7 @@ async function drawCall(
     seconds: call.seconds,
     ...(alpha === undefined ? {} : { alpha }),
     transparent,
-    film:
-      (shade === "beauty" || shade === "graphics") &&
-      (delivery ||
-        isAutoMoviePlainBeautyRequest({ ...call.request, shade: "beauty" })),
+    film: isAutoMovieDrawFilmPicture(call),
     camera: cameraAt,
     prepare,
     restore: (): void => placement.restore(),

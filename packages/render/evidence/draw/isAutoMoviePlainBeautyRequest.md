@@ -6,7 +6,7 @@ A request asks for the film picture alone when it draws the beauty shade and cha
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-Kept out of the draw host so the host stays under the file size rule; the host is its only caller.
+Kept out of the draw host so the host stays under the file size rule; isAutoMovieDrawFilmPicture, the draw host's film-picture rule, and the Viewer's transition are its callers.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
