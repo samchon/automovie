@@ -10,7 +10,6 @@ import type {
 
 import { Vector3 } from "../math/Vector3";
 import { linearizePhysicalInterval } from "./linearizePhysicalInterval";
-import { memoizePhysicalTransformValue } from "./memoizePhysicalTransformValue";
 import { physicalShapeBounds } from "./physicalShapeBounds";
 import { physicalSupportPoint } from "./physicalSupportPoint";
 
@@ -18,7 +17,9 @@ import { physicalSupportPoint } from "./physicalSupportPoint";
 type Poses = Readonly<Record<string, IAutoMovieRigidTransform>>;
 
 /**
- * Keep an endpoint's existing XYZ promise and its explicitly declared real support plane in the same solve. Geometry, witnesses and original goals are borrowed only for this invocation.
+ * Keep an endpoint's existing XYZ promise and its explicitly declared real
+ * support plane in the same solve. Geometry, witnesses and original goals are
+ * borrowed only for this invocation.
  */
 export function physicalContactSupportRows(
   input: IAutoMoviePhysicalContactSupportRows.IInput,
@@ -35,19 +36,13 @@ export function physicalContactSupportRows(
           (
             shape: IAutoMoviePhysicalShape,
           ): IAutoMovieLinearizePhysicalTargetRows.IRows => {
-            const minimum: (poses: Poses) => number =
-              memoizePhysicalTransformValue(
-                (poses: Poses): IAutoMovieRigidTransform[] => [
-                  poses[segment.bone]!,
-                ],
-                (poses: Poses): number =>
-                  input.geometry.minimumY({
-                    body: input.body,
-                    bone: segment.bone,
-                    shape,
-                    pose: poses[segment.bone]!,
-                  }),
-              );
+            const minimum: (poses: Poses) => number = (poses: Poses): number =>
+              input.geometry.minimumY({
+                body: input.body,
+                bone: segment.bone,
+                shape,
+                pose: poses[segment.bone]!,
+              });
             return {
               bones: new Set([segment.bone]),
               measure: (poses: Poses): number[] => [
@@ -120,35 +115,30 @@ export function physicalContactSupportRows(
                 ),
             ),
           );
-        const measure: (poses: Poses) => number[] =
-          memoizePhysicalTransformValue(
-            (poses: Poses): IAutoMovieRigidTransform[] =>
-              [...names].map(
-                (bone: string): IAutoMovieRigidTransform => poses[bone]!,
-              ),
-            (poses: Poses): number[] => {
-              const difference: IAutoMovieVector3 = Vector3.subtract(
-                physicalSupportPoint(poses[support.bone]!, support.localPoint),
-                support.point,
-              );
-              if (!patch) return [difference.x, difference.y, difference.z];
-              const clearance: number = minimum(poses) - patch.floor;
-              return [
-                difference.x,
-                difference.y,
-                difference.z,
-                ...(patch.floorPoints ?? []).map(
-                  (point: {
-                    bone: string;
-                    localPoint: IAutoMovieVector3;
-                  }): number =>
-                    physicalSupportPoint(poses[point.bone]!, point.localPoint)
-                      .y - patch.floor,
-                ),
-                patch.floorPoints?.length ? Math.min(0, clearance) : clearance,
-              ];
-            },
+        const measure: (poses: Poses) => number[] = (
+          poses: Poses,
+        ): number[] => {
+          const difference: IAutoMovieVector3 = Vector3.subtract(
+            physicalSupportPoint(poses[support.bone]!, support.localPoint),
+            support.point,
           );
+          if (!patch) return [difference.x, difference.y, difference.z];
+          const clearance: number = minimum(poses) - patch.floor;
+          return [
+            difference.x,
+            difference.y,
+            difference.z,
+            ...(patch.floorPoints ?? []).map(
+              (point: {
+                bone: string;
+                localPoint: IAutoMovieVector3;
+              }): number =>
+                physicalSupportPoint(poses[point.bone]!, point.localPoint).y -
+                patch.floor,
+            ),
+            patch.floorPoints?.length ? Math.min(0, clearance) : clearance,
+          ];
+        };
         return {
           bones: names,
           measure,
@@ -158,7 +148,7 @@ export function physicalContactSupportRows(
               ? linearizePhysicalInterval(minimum(poses), patch.floor)
               : undefined;
             return (probe: Poses): number[] => {
-              const result: number[] = [...measure(probe)];
+              const result: number[] = measure(probe);
               if (floor) result[result.length - 1] = floor(minimum(probe))[0]!;
               return result;
             };

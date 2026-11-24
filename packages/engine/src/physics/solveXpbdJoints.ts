@@ -8,32 +8,39 @@ import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { prepareLinearSystem } from "../math/prepareLinearSystem";
 import type { AutoMovieXpbdBody } from "./AutoMovieXpbdBody";
-import type { AutoMovieXpbdJoint } from "./AutoMovieXpbdJoint";
+import { AutoMovieXpbdJoint } from "./AutoMovieXpbdJoint";
 import { AutoMovieXpbdMath } from "./AutoMovieXpbdMath";
+import type { AutoMovieXpbdWorld } from "./AutoMovieXpbdWorld";
 import { PhysicalRotationVector } from "./PhysicalRotationVector";
 import { limitPhysicalSwingTwist } from "./limitPhysicalSwingTwist";
+import { projectPhysicalJointRotation } from "./projectPhysicalJointRotation";
 import { solveXpbdArticulation } from "./solveXpbdArticulation";
-import type { AutoMovieXpbdWorld } from "./AutoMovieXpbdWorld";
 import type { solveXpbdContacts } from "./solveXpbdContacts";
 import type { solveXpbdSupportCascade } from "./solveXpbdSupportCascade";
-import { projectPhysicalJointRotation } from "./projectPhysicalJointRotation";
 
 /**
  * The joint phase of one extended position-based dynamics step (Mueller,
  * Macklin, Chentanez, Jeschke and Kim 2020, section 3.3 and 3.4).
  *
- * `positions` closes each joint's anchor gap with a hard point constraint solved as one 3x3 block, then turns the child toward the nearest admitted rotation of its anchor frame relative to the parent's, again as one block: the box of the profile's free
- * axes, locked axes held at zero (`projectPhysicalJointRotation`), and the
- * clinical swing-twist limit where the joint declares one (`limitPhysicalSwingTwist`). Solving each attachment's rows together removes the whole linearized error in one correction, whatever the inertia's anisotropy, where a scalar constraint along the error direction converges only over passes. `motors` drives each free axis's relative angular
- * velocity toward its motor's speed by the backward-Euler damper
- * `mu = h c (s - v')`, capped at the motor's torque times the substep,
- * over each whole articulation (`solveXpbdArticulation`) so a motor meets
- * the inertia of everything it moves; a joint outside the forest solves its
- * motors with its own attachment's velocity rows.
+ * `positions` closes each joint's anchor gap with a hard point constraint
+ * solved as one 3x3 block, then turns the child toward the nearest admitted
+ * rotation of its anchor frame relative to the parent's, again as one block:
+ * the box of the profile's free axes, locked axes held at zero
+ * (`projectPhysicalJointRotation`), and the clinical swing-twist limit where
+ * the joint declares one (`limitPhysicalSwingTwist`). Solving each attachment's
+ * rows together removes the whole linearized error in one correction, whatever
+ * the inertia's anisotropy, where a scalar constraint along the error direction
+ * converges only over passes. `motors` drives each free axis's relative angular
+ * velocity toward its motor's speed by the backward-Euler damper `mu = h c (s -
+ * v')`, capped at the motor's torque times the substep, over each whole
+ * articulation (`solveXpbdArticulation`) so a motor meets the inertia of
+ * everything it moves; a joint outside the forest solves its motors with its
+ * own attachment's velocity rows.
  */
 export namespace solveXpbdJoints {
   /**
    * One position pass over the joints.
+   *
    * @param joints The joints, in creation order.
    */
   export function positions(joints: readonly AutoMovieXpbdJoint[]): void {
@@ -81,23 +88,23 @@ export namespace solveXpbdJoints {
   }
 
   /**
-   * The velocity pass of the joints' motors. Every articulation's motors
-   * are solved at once over its tree (`solveXpbdArticulation`). A joint
-   * outside the forest (closing a loop, or with a kinematic child) has its
-   * motor rows solved together with its own attachment's three velocity
-   * rows: unknowns are the attachment impulse `p` and one angular impulse
-   * `mu_i` per motor axis `a_i`, the attachment rows ask the anchors'
-   * relative velocity to vanish, and each motor row is the backward-Euler
-   * damper `mu_i = h c_i (s_i - v_i')` on the axis's relative angular
-   * velocity after the impulse, `v_i' + mu_i / (h c_i) = s_i`. A motor whose
-   * impulse exceeds its cap `tau_i h` is held at the cap and the rest
-   * re-solved.
+   * The velocity pass of the joints' motors. Every articulation's motors are
+   * solved at once over its tree (`solveXpbdArticulation`). A joint outside the
+   * forest (closing a loop, or with a kinematic child) has its motor rows
+   * solved together with its own attachment's three velocity rows: unknowns are
+   * the attachment impulse `p` and one angular impulse `mu_i` per motor axis
+   * `a_i`, the attachment rows ask the anchors' relative velocity to vanish,
+   * and each motor row is the backward-Euler damper `mu_i = h c_i (s_i - v_i')`
+   * on the axis's relative angular velocity after the impulse, `v_i' + mu_i /
+   * (h c_i) = s_i`. A motor whose impulse exceeds its cap `tau_i h` is held at
+   * the cap and the rest re-solved.
    *
    * @param joints The joints, in creation order.
    * @param h The substep, seconds.
    * @param contacts The step's contacts, which hold each tree at its supports.
    * @param tasks The root tasks the trees' supports should meet, by root body.
-   * @param warm Each tree's warm start for its supports' cascade, by root body, kept across steps.
+   * @param warm Each tree's warm start for its supports' cascade, by root body,
+   *   kept across steps.
    */
   export function motors(
     joints: readonly AutoMovieXpbdJoint[],
@@ -156,7 +163,10 @@ export namespace solveXpbdJoints {
     }
   }
 
-  /** Hold every free motor whose impulse exceeds its cap at the cap; true when any was newly held. */
+  /**
+   * Hold every free motor whose impulse exceeds its cap on that impulse's
+   * direction at the cap; true when any was newly held.
+   */
   function clamp(
     rows: readonly IMotorRow[],
     solution: readonly number[],
@@ -164,8 +174,8 @@ export namespace solveXpbdJoints {
   ): boolean {
     let clamped: boolean = false;
     rows.forEach((row: IMotorRow, index: number): void => {
-      const cap: number = row.motor.maximumTorque * h;
       const mu: number = solution[3 + index]!;
+      const cap: number = AutoMovieXpbdJoint.cap(row.motor, mu, h);
       if (row.fixed === null && Math.abs(mu) > cap) {
         row.fixed = Math.sign(mu) * cap;
         clamped = true;
@@ -194,7 +204,10 @@ export namespace solveXpbdJoints {
     armC: IAutoMovieVector3;
   }
 
-  /** The anchors' relative velocity (child minus parent) and each axis's relative angular velocity. */
+  /**
+   * The anchors' relative velocity (child minus parent) and each axis's
+   * relative angular velocity.
+   */
   function measure(pair: IPair, rows: readonly IMotorRow[]): number[] {
     const u: IAutoMovieVector3 = Vector3.subtract(
       pair.child.velocityAtPoint(Vector3.add(pair.child.center, pair.armC)),
@@ -212,14 +225,23 @@ export namespace solveXpbdJoints {
     ];
   }
 
-  /** A block solution's impulses on the child: the attachment's at its anchor and the motors' summed angular one. */
+  /**
+   * A block solution's impulses on the child: the attachment's at its anchor
+   * and the motors' summed angular one.
+   */
   interface IImpulse {
     point: IAutoMovieVector3;
     angular: IAutoMovieVector3;
   }
 
-  /** Read the attachment impulse and the summed motor angular impulse from unknowns `x`. */
-  function impulses(rows: readonly IMotorRow[], x: readonly number[]): IImpulse {
+  /**
+   * Read the attachment impulse and the summed motor angular impulse from
+   * unknowns `x`.
+   */
+  function impulses(
+    rows: readonly IMotorRow[],
+    x: readonly number[],
+  ): IImpulse {
     let angular: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
     rows.forEach((row: IMotorRow, index: number): void => {
       angular = Vector3.add(angular, Vector3.scale(row.axis, x[3 + index]!));
@@ -228,9 +250,9 @@ export namespace solveXpbdJoints {
   }
 
   /**
-   * The change of the measured velocities under unknowns `x`: the
-   * attachment impulse on the child at its anchor, opposite on the parent,
-   * then one angular impulse per axis.
+   * The change of the measured velocities under unknowns `x`: the attachment
+   * impulse on the child at its anchor, opposite on the parent, then one
+   * angular impulse per axis.
    */
   function respond(
     pair: IPair,
@@ -256,7 +278,10 @@ export namespace solveXpbdJoints {
     angular: IAutoMovieVector3;
   }
 
-  /** One body's anchor velocity and angular velocity change under the impulses, taken with `sign`. */
+  /**
+   * One body's anchor velocity and angular velocity change under the impulses,
+   * taken with `sign`.
+   */
   function change(
     body: AutoMovieXpbdBody,
     arm: IAutoMovieVector3,
@@ -281,8 +306,8 @@ export namespace solveXpbdJoints {
   }
 
   /**
-   * Solve the joint's block: attachment rows `du = -u`, free motor rows
-   * `dv_i + mu_i / (h c_i) = s_i - v_i`, held motor rows `mu_i = fixed`.
+   * Solve the joint's block: attachment rows `du = -u`, free motor rows `dv_i +
+   * mu_i / (h c_i) = s_i - v_i`, held motor rows `mu_i = fixed`.
    */
   function solveBlock(
     pair: IPair,

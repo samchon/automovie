@@ -51,7 +51,10 @@ export namespace AutoMoviePhysicalJointChart {
    * zero), the one nearest the joint's ranges: the least summed distance of
    * each angle from its free axis's range, or from zero for a locked axis. A
    * middle angle past a quarter turn, which the extraction folds back, is then
-   * read as the rig composes it.
+   * read as the rig composes it. An angle and the same angle a whole turn
+   * either way are one rotation, so each is read at the turn nearest its
+   * range: a half turn on a range ending at -pi reads -pi, whichever sign the
+   * extraction's rounding gave it.
    *
    * @param joint The joint's chart and free axes.
    * @param rotation A unit quaternion.
@@ -65,21 +68,35 @@ export namespace AutoMoviePhysicalJointChart {
     if (joint.order === undefined)
       throw new Error("A joint without a chart has no chart angles");
     const order: readonly IAutoMoviePhysicalJointAxis["axis"][] = joint.order;
-    const first: number[] = angles(order, rotation);
-    const second: number[] = [
+    const excess = (value: number, at: number): number => {
+      const range: IRange | undefined = joint.axes.find(
+        (candidate: IRange): boolean => candidate.axis === order[at],
+      );
+      const low: number = range?.minimum ?? 0;
+      const high: number = range?.maximum ?? 0;
+      return Math.max(0, low - value, value - high);
+    };
+    const turn: number = 2 * Math.PI;
+    const nearestTurn = (values: readonly number[]): number[] =>
+      values.map((value: number, at: number): number =>
+        [value - turn, value + turn].reduce(
+          (best: number, candidate: number): number =>
+            excess(candidate, at) < excess(best, at) ? candidate : best,
+          value,
+        ),
+      );
+    const first: number[] = nearestTurn(angles(order, rotation));
+    const second: number[] = nearestTurn([
       wrap(first[0]! + Math.PI),
       wrap(Math.PI - first[1]!),
       wrap(first[2]! + Math.PI),
-    ];
+    ]);
     const distance = (values: readonly number[]): number =>
-      values.reduce((sum: number, value: number, at: number): number => {
-        const range: IRange | undefined = joint.axes.find(
-          (candidate: IRange): boolean => candidate.axis === order[at],
-        );
-        const low: number = range?.minimum ?? 0;
-        const high: number = range?.maximum ?? 0;
-        return sum + Math.max(0, low - value, value - high);
-      }, 0);
+      values.reduce(
+        (sum: number, value: number, at: number): number =>
+          sum + excess(value, at),
+        0,
+      );
     return distance(second) < distance(first) ? second : first;
   }
 

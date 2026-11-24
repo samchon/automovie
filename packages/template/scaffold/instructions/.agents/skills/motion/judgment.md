@@ -38,4 +38,4 @@ Record the time or frames, the failed requirement and the repair owner. Trace th
 
 Stage the passage on which the commission depends with its coarse cast, props and obstacles. Play it at delivery speed in the intended camera and edit, including its lead-in and consequence. Include a temporary line or sound cue if it determines the timing. Judge it under Questions.
 
-If the preview drops frames, use a timed export. Keep the pace judgment open until someone watches the passage at speed. Measure evaluation and capture cost for the [whole-film plan](../production/stage-caches.md) and check new performance conditions as they enter the film.
+If the preview drops frames, use a timed export. Keep the pace judgment open until someone watches the passage at speed. Measure evaluation and capture cost to plan the [whole-film render](../production/assembly.md#render) and check new performance conditions as they enter the film.

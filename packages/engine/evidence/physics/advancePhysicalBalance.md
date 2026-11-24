@@ -2,28 +2,28 @@
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-Gives the purpose (Advance one body's generic recovery controller from actual floor manifolds) as stated in this comment.
+States the controller's purpose, the phases it runs in order, that a two-support body runs IHMC's walking controller's touchdown and plan while a four-support body runs the quadruped's, that no phase writes its input, and that the caller's state becomes the last phase's.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-Implements the documented behavior (Advance one body's generic recovery controller from actual floor manifolds) directly over its typed inputs (`input`) as nested iteration of depth 2 (for-of over input.profile.segments; for-of over input.unavailable ?? []; some over supports), delegating to `collectPhysicalSupports`, `Object.create`, `Vector3.add`, `Vector3.scale`, `rigid.translation`; the premises are the units, frames and ranges stated in its parameter documentation, enforced only where the body performs no validation and relies on its callers. Beyond structural 0, 1 and 2 the body uses the literals 0.025, 0.1, whose basis this answer does not independently establish and a reviewer must confirm.
+A phase machine: each phase is a function from the recovery's state and the body's readings to the next state and its commands, run in the order handoff, touchdown, seating ramp, stance and plan, swing and settle. The order is the dependency order of the state each phase reads: a touchdown seats a landed foot before the ramp advances it, the plan reads the stance after both, and the swing drives what the plan lifted. The swing's drives are applied after the phases, which is equivalent to applying them inside the swing because nothing the phases read depends on the actuation they accumulate into. IHMC keeps its walking controller and its quadruped controller apart; the limb count of the support pattern selects which touchdown and plan run, and both lift a foot as its step begins, with no unloading (201903 `WalkingSingleSupportState` l.204-216, `QuadrupedFootControlModule.triggerStep` l.145-153).
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-One operation of 336 lines and 29 top-level statements that reuses `collectPhysicalSupports`, `Object.create`, `Vector3.add`, `Vector3.scale`, `rigid.translation` from their owners instead of copying them; it adds no option, layer or abstraction beyond its documented parameters.
+The function composes the phases and applies their commands; each decision lives in the phase that owns it, and the state's adoption into the caller's object is one helper, `adopt`, because the caller keeps one state object across substeps and checkpoints.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
-The body contains 0 `any`, 0 type assertion(s), 21 non-null assertion(s); these are the remaining shortcuts and are not justified here.
+There are no casts; one non-null assertion reads a drive's own segment, which the swing phase drove. No constant is introduced here.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
-Cost is driven by the sizes of `input`; the dominant cost is nested iteration of depth 2 (for-of over input.profile.segments; for-of over input.unavailable ?? []; some over supports), performed once per call with 36 allocation sites (literals and constructed values). No speedup is claimed and none is measured.
+Each phase is linear in the supporting limbs except the assessments, which scale with the support patches' points; the phases copy only the parts of the state they change, a few small objects per substep. The mass centre is read once, in the readings, and shared by every phase.
 
 ## @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work
 
-The operation coordinates no requests, phases or consumers and holds no cache: each call recomputes from its arguments and shares nothing, which is correct because its result depends only on them.
+Each call advances one substep from its own readings; the readings are shared across the phases of that call only, and nothing outlives it.
 
-## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
+## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
-The function acquires no handle, timer, listener or task and keeps no state between calls; its 36 allocation sites become the returned value or die with the call, so nothing grows.
+The caller owns the state; the function replaces its keys by the last phase's and retains nothing itself. The trace, when passed, grows by the phases' events of this substep only.

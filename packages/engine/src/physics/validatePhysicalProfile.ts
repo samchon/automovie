@@ -403,6 +403,10 @@ export function validatePhysicalProfile(
       );
       fail(positive(axis.maximumTorque), `${location}.maximumTorque`);
       fail(
+        axis.reverseTorque === undefined || positive(axis.reverseTorque),
+        `${location}.reverseTorque`,
+      );
+      fail(
         typeof axis.channel === "string" && axis.channel.trim().length > 0,
         `${location}.channel`,
       );

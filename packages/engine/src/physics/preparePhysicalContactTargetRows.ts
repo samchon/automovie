@@ -19,7 +19,6 @@ import { initialPhysicalContactTargets } from "./initialPhysicalContactTargets";
 import { isPhysicalProfilePairExcluded } from "./isPhysicalProfilePairExcluded";
 import { linearizePhysicalInterval } from "./linearizePhysicalInterval";
 import { linearizePhysicalSeparation } from "./linearizePhysicalSeparation";
-import { memoizePhysicalTransformValue } from "./memoizePhysicalTransformValue";
 import { physicalContactBindingRows } from "./physicalContactBindingRows";
 import { physicalContactSupportRows } from "./physicalContactSupportRows";
 import { physicalPointProjection } from "./physicalPointProjection";
@@ -46,7 +45,8 @@ type IPrepared = {
 };
 
 /**
- * Prepare one body's geometry constraints against either its local pose map or a common scene candidate.
+ * Prepare one body's geometry constraints against either its local pose map or
+ * a common scene candidate.
  */
 export function preparePhysicalContactTargetRows(
   input: Input,
@@ -137,24 +137,19 @@ export function preparePhysicalContactTargetRows(
           bound,
           scope?.local(poses) ?? poses,
         );
-      const measure: PoseRead<number[]> = remember(
-        [...names],
-        (poses: IAutoMoviePoses): number[] => {
-          const value: number = project(poses);
-          return [
-            ...(bound.minimum !== undefined
-              ? [Math.min(0, value - bound.minimum)]
-              : []),
-            ...(bound.maximum !== undefined
-              ? [Math.max(0, value - bound.maximum)]
-              : []),
-          ];
-        },
-        sameBody || peer?.key !== undefined
-          ? undefined
-          : (): IAutoMovieRigidTransform =>
-              input.actual[bound.reference.body]![bound.reference.bone]!,
-      );
+      const measure: PoseRead<number[]> = (
+        poses: IAutoMoviePoses,
+      ): number[] => {
+        const value: number = project(poses);
+        return [
+          ...(bound.minimum !== undefined
+            ? [Math.min(0, value - bound.minimum)]
+            : []),
+          ...(bound.maximum !== undefined
+            ? [Math.max(0, value - bound.maximum)]
+            : []),
+        ];
+      };
       return {
         id: bound.id,
         rows: {
@@ -177,17 +172,14 @@ export function preparePhysicalContactTargetRows(
   const self: Rows[] = pairs.map((pair: (typeof pairs)[number]): Rows => {
     const contact: PoseRead<
       ReturnType<IAutoMoviePreparePhysicalGeometry.IQueries["contact"]>
-    > = remember(
-      [pair.a.key, pair.b.key],
-      (
-        poses: IAutoMoviePoses,
-      ): ReturnType<IAutoMoviePreparePhysicalGeometry.IQueries["contact"]> =>
-        input.geometry.contact(
-          collider(pair.a, poses),
-          collider(pair.b, poses),
-          0,
-        ),
-    );
+    > = (
+      poses: IAutoMoviePoses,
+    ): ReturnType<IAutoMoviePreparePhysicalGeometry.IQueries["contact"]> =>
+      input.geometry.contact(
+        collider(pair.a, poses),
+        collider(pair.b, poses),
+        0,
+      );
     return {
       bones: new Set([pair.a.key, pair.b.key]),
       rigidInvariant: true,
@@ -290,22 +282,6 @@ export function preparePhysicalContactTargetRows(
             0,
           ),
   };
-
-  /** Reuse values by their actual scalar dependencies within this fit. */
-  function remember<Value>(
-    bones: readonly string[],
-    compute: PoseRead<Value>,
-    external?: () => IAutoMovieRigidTransform,
-  ): PoseRead<Value> {
-    const names: string[] = [...new Set(bones)];
-    return memoizePhysicalTransformValue(
-      (poses: IAutoMoviePoses): IAutoMovieRigidTransform[] => [
-        ...names.map((bone: string): IAutoMovieRigidTransform => poses[bone]!),
-        ...(external ? [external()] : []),
-      ],
-      compute,
-    );
-  }
 
   /** Borrow an admitted shape at the selected candidate bone pose. */
   function collider(

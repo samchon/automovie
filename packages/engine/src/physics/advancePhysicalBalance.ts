@@ -2,31 +2,28 @@ import type {
   IAutoMovieAdvancePhysicalBalance,
   IAutoMovieCollectPhysicalSupports,
   IAutoMovieContactReceipt,
-  IAutoMoviePhysicalBalance,
-  IAutoMoviePhysicalBalanceBracing,
-  IAutoMoviePhysicalBalanceExhaustion,
   IAutoMoviePhysicalProfile,
   IAutoMoviePhysicalRecoveryPolicy,
   IAutoMoviePhysicalRecoveryState,
-  IAutoMoviePhysicalSegment,
-  IAutoMoviePhysicalSupportPatch,
   IAutoMovieRigidTransform,
-  IAutoMovieSamplePhysicalRecoveryGoal,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Quaternion } from "../math/Quaternion";
-import { Vector3 } from "../math/Vector3";
-import { AutoMoviePhysicalBalance as Balance } from "./AutoMoviePhysicalBalance";
-import { AutoMoviePhysicalTracking as Tracking } from "./AutoMoviePhysicalTracking";
 import type { AutoMovieXpbdBody } from "./AutoMovieXpbdBody";
 import type { AutoMovieXpbdWorld } from "./AutoMovieXpbdWorld";
+import type { IAutoMoviePhysicalBalanceTrace } from "./IAutoMoviePhysicalBalanceTrace";
 import { accumulatePhysicalMotorTorques } from "./accumulatePhysicalMotorTorques";
 import { collectPhysicalSupports } from "./collectPhysicalSupports";
-import { physicalBalanceBracing } from "./physicalBalanceBracing";
-import { physicalBalanceExhaustion } from "./physicalBalanceExhaustion";
-import { physicalSupportPoint } from "./physicalSupportPoint";
-import { samplePhysicalRecoveryGoal } from "./samplePhysicalRecoveryGoal";
+import { physicalAuthoredCapture } from "./physicalAuthoredCapture";
+import { physicalBalanceHandoff } from "./physicalBalanceHandoff";
+import { physicalBalancePlan } from "./physicalBalancePlan";
+import { physicalBalanceRamp } from "./physicalBalanceRamp";
+import { physicalBalanceSense } from "./physicalBalanceSense";
+import { physicalBalanceSettle } from "./physicalBalanceSettle";
+import { physicalBalanceStance } from "./physicalBalanceStance";
+import { physicalBalanceSwing } from "./physicalBalanceSwing";
+import { physicalSupportSole } from "./physicalSupportSole";
+import type { preparePhysicalDisturbanceSpan } from "./preparePhysicalDisturbanceSpan";
 
 /**
  * Advance one body's generic recovery controller from actual floor manifolds.
@@ -34,6 +31,20 @@ import { samplePhysicalRecoveryGoal } from "./samplePhysicalRecoveryGoal";
  * use the shared support-swing interpolator and bounded endpoint motors; their
  * completed placements remain offsets on subsequent authored goals, so the
  * planner and physical support do not snap apart at landing.
+ *
+ * The controller is a machine of phases, each a function from the state and the
+ * body's readings (`physicalBalanceSense`) to the next state and its commands,
+ * none writing its input, run in this order: authored handoff
+ * (`physicalBalanceHandoff`), the stance feet's seating
+ * (`physicalBalanceRamp`), the stance (`physicalBalanceStance`), the plan
+ * (`physicalBalancePlan`), the swing (`physicalBalanceSwing`) and settling
+ * (`physicalBalanceSettle`). The swing's drives are applied here, and the
+ * caller's state becomes the last phase's.
+ *
+ * One machine serves every body whatever its contacts: the plan balances on the
+ * planted contacts' hull, and a step out of a fall is the disturbance's
+ * prepared response (`preparePhysicalDisturbanceSpan`), its inputs recorded
+ * here on the substep after a stated push.
  */
 export function advancePhysicalBalance(input: {
   /** Active solver, read before this step's integration. */ world: AutoMovieXpbdWorld;
@@ -56,340 +67,179 @@ export function advancePhysicalBalance(input: {
   /** Endpoint world velocities derived from the same sampled authored poses. */ velocities?: Readonly<
     Record<string, IAutoMovieVector3>
   >;
-  /** Authored reservations prohibit a new recovery swing on these endpoints; actual support contacts still count. */ unavailable?: readonly string[];
+  /**
+   * Authored reservations prohibit a new recovery swing on these endpoints;
+   * actual support contacts still count.
+   */ unavailable?: readonly string[];
   /** Current film second. */ seconds: number;
   /** Fixed seconds per step. */ dt: number;
   /** Positive downward gravity magnitude. */ gravity: number;
   /** Floor height, metres. */ floor: number;
-  /** Internal Cartesian endpoint demands accumulate into these bounded joint motor demands. */ actuation?: Map<
-    string,
-    IAutoMovieVector3
-  >;
+  /**
+   * Internal Cartesian endpoint demands accumulate into these bounded joint
+   * motor demands.
+   */ actuation?: Map<string, IAutoMovieVector3>;
   /** Reuse actual constraints and their independently measured load authority. */ supports?: readonly IAutoMovieCollectPhysicalSupports.ISupport[];
+  /**
+   * The authored pose's centre of mass, its velocity and acceleration, world; a
+   * body's disturbance response stands in for it.
+   */ command?: physicalBalanceSense.IInput["command"];
+  /** Where the phases record their events and readings, if anywhere. */ trace?: IAutoMoviePhysicalBalanceTrace[];
+  /**
+   * On the substep after a stated disturbance's first push, its later pushes,
+   * whose response the body prepares now.
+   */ disturbance?: { pushes: readonly preparePhysicalDisturbanceSpan.IPush[] };
 }): IAutoMovieAdvancePhysicalBalance.IResult {
   const supports: readonly IAutoMovieCollectPhysicalSupports.ISupport[] =
     input.supports ??
     collectPhysicalSupports({ ...input, pattern: input.policy.pattern });
-  const goals: Record<string, IAutoMovieVector3> = Object.create(null);
-  const state: IAutoMoviePhysicalRecoveryState = input.state;
-  let center: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
-  let velocity: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
-  for (const segment of input.profile.segments) {
-    const rigid: AutoMovieXpbdBody = input.segments.get(segment.bone)!;
-    center = Vector3.add(
-      center,
-      Vector3.scale(
-        Vector3.add(
-          rigid.translation(),
-          Quaternion.rotateVector(rigid.rotation(), segment.centerOfMass),
-        ),
-        segment.mass / input.profile.mass,
-      ),
-    );
-    velocity = Vector3.add(
-      velocity,
-      Vector3.scale(
-        rigid.velocityAtPoint(
-          Vector3.add(
-            rigid.translation(),
-            Quaternion.rotateVector(rigid.rotation(), segment.centerOfMass),
-          ),
-        ),
-        segment.mass / input.profile.mass,
-      ),
-    );
-  }
-  if (state.swing && input.unavailable?.includes(state.swing.bone)) {
-    // Authored motion now owns this endpoint. A recovery request cannot keep
-    // replacing an authored limb action or scheduled swing, nor count its cancellation as a fall.
-    resolveSwing("cancelled");
-    state.swing = undefined;
-    state.outsideSince = undefined;
-    state.failedLanding = undefined;
-    state.revision = (state.revision ?? 0) + 1;
-  }
-  for (const bone of input.unavailable ?? [])
-    if (state.offsets[bone]) {
-      delete state.offsets[bone];
-      (state.handoffs ??= []).push({ bone, seconds: input.seconds });
-      state.revision = (state.revision ?? 0) + 1;
-    }
-  if (state.swing && input.seconds >= state.swing.end) {
-    const bone: string = state.swing.bone;
-    const rigid: AutoMovieXpbdBody = input.segments.get(bone)!;
-    const position: IAutoMovieVector3 = actual(bone);
-    const reached: boolean =
-      Math.hypot(
-        position.x - state.swing.to.point[0],
-        position.z - state.swing.to.point[1],
-      ) <= (input.policy.landingTolerance ?? 0.025);
-    if (
-      !state.failedLanding &&
-      supports.some(
-        (support: (typeof supports)[number]): boolean =>
-          support.bone === bone && support.loaded,
-      ) &&
-      reached &&
-      Vector3.length(rigid.velocityAtPoint(position)) <=
-        (input.policy.landingSpeed ?? 1)
-    ) {
-      const intended: IAutoMovieVector3 = authored(bone);
-      state.offsets[bone] = Vector3.subtract(
-        { x: position.x, y: intended.y, z: position.z },
-        intended,
-      );
-      const root: IAutoMoviePhysicalSegment = input.profile.segments.find(
-        (segment: (typeof input.profile.segments)[number]): boolean =>
-          !input.profile.joints.some(
-            (joint: (typeof input.profile.joints)[number]): boolean =>
-              joint.child === segment.bone,
-          ),
-      )!;
-      const rootPosition: IAutoMovieVector3 = input.segments
-        .get(root.bone)!
-        .translation();
-      state.rootOffset = {
-        x: rootPosition.x - input.targets[root.bone]!.position.x,
-        y: 0,
-        z: rootPosition.z - input.targets[root.bone]!.position.z,
-      };
-      (state.landings ??= []).push({
-        bone,
-        seconds: input.seconds,
-        position: { ...position },
-        offset: { ...state.offsets[bone]! },
-        rootOffset: { ...state.rootOffset },
-      });
-      resolveSwing("landed");
-      state.outsideSince = undefined;
-      state.swing = undefined;
-      state.revision = (state.revision ?? 0) + 1;
-    } else if (
-      input.seconds >
-      state.swing.end + (input.policy.landingTimeout ?? input.policy.duration)
-    ) {
-      resolveSwing("failed");
-      state.failedLanding = true;
-      state.swing = undefined;
-      state.outsideSince = input.seconds;
-      state.revision = (state.revision ?? 0) + 1;
-    }
-  }
-  const planted: IAutoMoviePhysicalSupportPatch[] = supports.filter(
-    (support: (typeof supports)[number]): boolean =>
-      support.bone !== state.swing?.bone,
-  );
-  const plane: number =
-    planted.length > 0
-      ? Math.min(
-          ...planted.flatMap((support: (typeof planted)[number]): number[] =>
-            support.points.map(
-              (point: (typeof support.points)[number]): number => point.y,
-            ),
-          ),
-        )
-      : input.floor;
-  const assessment: IAutoMoviePhysicalBalance.IResult = Balance.assess({
-    center,
-    velocity,
+  const sense: physicalBalanceSense.ISense = physicalBalanceSense({
+    profile: input.profile,
+    segments: input.segments,
+    policy: input.policy,
+    targets: input.targets,
+    ...(input.velocities ? { velocities: input.velocities } : {}),
+    ...(input.unavailable ? { unavailable: input.unavailable } : {}),
+    seconds: input.seconds,
+    dt: input.dt,
     gravity: input.gravity,
-    floor: plane,
-    supports: planted,
-    pattern: input.policy.pattern,
-    maximumStep: input.policy.maximumStep,
-    margin: input.policy.margin,
-    unavailable: [
-      ...(input.unavailable ?? []),
-      ...(state.swing ? [state.swing.bone] : []),
-    ],
+    floor: input.floor,
+    supports,
+    ...(input.command ? { command: input.command } : {}),
   });
-  if (assessment.state === "supported" && !state.swing)
-    state.failedLanding = undefined;
-  state.last = state.failedLanding
-    ? "unrecoverable"
-    : state.swing
-      ? "recovery"
-      : assessment.state;
-  if (assessment.state === "supported") state.outsideSince = undefined;
-  else state.outsideSince ??= input.seconds;
-  const retry: boolean =
-    !!input.policy.bracing &&
-    center.y - input.floor >= input.policy.bracing.minimumCenterHeight;
-  if (
-    (!state.failedLanding || retry) &&
-    !state.swing &&
-    assessment.step &&
-    input.seconds - state.outsideSince! >= (input.policy.reactionSeconds ?? 0.1)
-  ) {
-    const bone: string = assessment.step.bone;
-    const from: IAutoMovieVector3 = actual(bone);
-    state.swing = {
-      bone,
-      kind: "swing",
-      start: input.seconds,
-      end: input.seconds + input.policy.duration,
-      from: { point: [from.x, from.z], yaw: 0, pitch: 0, clearance: 0 },
-      to: {
-        point: [assessment.step.target.x, assessment.step.target.z],
-        yaw: 0,
-        pitch: 0,
-        clearance: 0,
-      },
-    };
-    state.steps.push(structuredClone(state.swing));
-    state.failedLanding = undefined;
-    state.revision = (state.revision ?? 0) + 1;
-  }
-  if (state.swing) {
-    const rigid: AutoMovieXpbdBody = input.segments.get(state.swing.bone)!;
-    const motion: IAutoMovieSamplePhysicalRecoveryGoal.IResult =
-      samplePhysicalRecoveryGoal({
-        swing: state.swing,
-        point: authored(state.swing.bone),
-        velocity: input.velocities?.[state.swing.bone] ?? { x: 0, y: 0, z: 0 },
-        height: input.policy.height,
-        seconds: input.seconds,
-      });
-    goals[state.swing.bone] = motion.point;
-    const segment: IAutoMoviePhysicalSegment = input.profile.segments.find(
-      (candidate: (typeof input.profile.segments)[number]): boolean =>
-        candidate.bone === state.swing!.bone,
-    )!;
-    const position: IAutoMovieVector3 = actual(state.swing.bone);
+  const trace: { trace?: IAutoMoviePhysicalBalanceTrace[] } = input.trace
+    ? { trace: input.trace }
+    : {};
+  const handoff: IAutoMoviePhysicalRecoveryState = physicalBalanceHandoff({
+    state: input.state,
+    ...(input.unavailable ? { unavailable: input.unavailable } : {}),
+    seconds: input.seconds,
+    ...trace,
+  });
 
-    drive(
-      state.swing.bone,
-      rigid,
-      position,
-      Tracking.force(
-        Vector3.subtract(motion.point, position),
-        Vector3.subtract(rigid.velocityAtPoint(position), motion.velocity),
-        segment.mass,
-        input.policy.stiffness,
-        input.policy.damping,
-        input.policy.maximumForce,
-        input.dt,
-      ),
-    );
-  }
-  for (const [bone, offset] of Object.entries(state.offsets)) {
-    if (state.swing?.bone === bone) continue;
-    const rigid: AutoMovieXpbdBody = input.segments.get(bone)!;
-    const segment: IAutoMoviePhysicalSegment = input.profile.segments.find(
-      (candidate: (typeof input.profile.segments)[number]): boolean =>
-        candidate.bone === bone,
-    )!;
-    goals[bone] = Vector3.add(authored(bone), offset);
-    const position: IAutoMovieVector3 = actual(bone);
-    drive(
-      bone,
-      rigid,
-      position,
-      Tracking.force(
-        Vector3.subtract(goals[bone]!, position),
-        Vector3.subtract(
-          rigid.velocityAtPoint(position),
-          input.velocities?.[bone] ?? { x: 0, y: 0, z: 0 },
-        ),
-        segment.mass,
-        input.policy.stiffness,
-        input.policy.damping,
-        input.policy.maximumForce,
-        input.dt,
-      ),
-    );
-  }
-  const exhaustion: IAutoMoviePhysicalBalanceExhaustion.IResult =
-    physicalBalanceExhaustion({
-      unrecoverable: state.last === "unrecoverable",
-      lostSince: state.lostSince,
-      failedLanding: state.failedLanding,
-      seconds: input.seconds,
-      duration: input.policy.duration,
-    });
-  state.lostSince = exhaustion.lostSince;
-  if (state.rootOffset)
-    for (const limb of input.policy.pattern.limbs)
-      goals[limb.bone] ??= Vector3.add(
-        authored(limb.bone),
-        state.offsets[limb.bone] ?? { x: 0, y: 0, z: 0 },
-      );
-  const exhausted: boolean = exhaustion.exhausted;
-  if (input.policy.bracing) {
-    const effort: IAutoMoviePhysicalBalanceBracing.IResult =
-      physicalBalanceBracing({
-        assessment,
-        center,
-        floor: input.floor,
-        ...input.policy.bracing,
-        exhausted,
-      });
-    return {
-      rootStrength: effort.rootStrength,
-      rootShift: effort.shift,
-      state,
-      goals,
-    };
-  }
-  return { rootStrength: exhausted ? 0 : 1, state, goals };
+  // A stated disturbance's first push: the body's response prepared once from
+  // the state just after it, its inputs recorded for a resume
+  // (`preparePhysicalDisturbanceSpan`); the caller plays it.
+  const handed: IAutoMoviePhysicalRecoveryState = input.disturbance
+    ? { ...handoff, span: disturbance(handoff, sense, input.disturbance) }
+    : handoff;
 
-  /** Compare authored and solved placements at the same declared support endpoint. */
-  function authored(bone: string): IAutoMovieVector3 {
-    return physicalSupportPoint(
-      input.targets[bone]!,
-      input.policy.pattern.limbs.find(
-        (limb: (typeof input.policy.pattern.limbs)[number]): boolean =>
-          limb.bone === bone,
-      )!.localPoint,
-    );
-  }
+  const seated: IAutoMoviePhysicalRecoveryState = physicalBalanceRamp({
+    state: handed,
+    sense,
+  });
+  const stance: physicalBalanceStance.IStance = physicalBalanceStance({
+    state: seated,
+    sense,
+  });
+  const plan: physicalBalancePlan.IResult = physicalBalancePlan({
+    state: seated,
+    sense,
+    stance,
+    ...trace,
+  });
+  const swing: physicalBalanceSwing.IResult = physicalBalanceSwing({
+    state: plan.state,
+    sense,
+    ...trace,
+  });
 
-  /** Read the actual endpoint without changing a native body's bone-origin frame. */
-  function actual(bone: string): IAutoMovieVector3 {
-    const rigid: AutoMovieXpbdBody = input.segments.get(bone)!;
-    return physicalSupportPoint(
-      { position: rigid.translation(), rotation: rigid.rotation() },
-      input.policy.pattern.limbs.find(
-        (limb: (typeof input.policy.pattern.limbs)[number]): boolean =>
-          limb.bone === bone,
-      )!.localPoint,
-    );
-  }
-
-  /** Preserve actual controller ownership intervals for replay, audio and support audits. */
-  function resolveSwing(status: "landed" | "cancelled" | "failed"): void {
-    const step: (typeof state.steps)[number] | undefined = [...state.steps]
-      .reverse()
-      .find(
-        (candidate: (typeof state.steps)[number]): boolean =>
-          candidate.bone === state.swing!.bone &&
-          candidate.start === state.swing!.start,
-      );
-    if (step) step.resolved = { seconds: input.seconds, status };
-  }
-
-  /** Keep recovery forces on the declared actuator path, including internal actuation. */
-  function drive(
-    bone: string,
-    rigid: AutoMovieXpbdBody,
-    point: IAutoMovieVector3,
-    force: IAutoMovieVector3,
-  ): void {
+  // Keep recovery forces on the declared actuator path, including internal
+  // actuation.
+  for (const drive of swing.drives)
     if (input.actuation)
       accumulatePhysicalMotorTorques({
         profile: input.profile,
         segments: input.segments,
-        chain: input.policy.pattern.limbs.find(
-          (limb: (typeof input.policy.pattern.limbs)[number]): boolean =>
-            limb.bone === bone,
-        )!.chain,
-        carrier: bone,
-        point,
-        force,
+        chain: sense.limb(drive.bone).chain,
+        carrier: drive.bone,
+        point: drive.point,
+        force: drive.force,
         torque: { x: 0, y: 0, z: 0 },
         reverse: false,
         torques: input.actuation,
       });
-    else rigid.addForceAtPoint(force, point);
-  }
+    else
+      input.segments.get(drive.bone)!.addForceAtPoint(drive.force, drive.point);
+  const settled: physicalBalanceSettle.IResult = physicalBalanceSettle({
+    state: swing.state,
+    sense,
+    goals: { ...plan.goals, ...swing.goals },
+    assessment: plan.assessment,
+  });
+  adopt(input.state, settled.state);
+  return {
+    rootStrength: settled.rootStrength,
+    ...(settled.rootShift ? { rootShift: settled.rootShift } : {}),
+    state: input.state,
+    goals: settled.goals,
+    ...(swing.path ? { swing: swing.path } : {}),
+  };
+}
+
+/**
+ * A body's disturbance response's inputs from the state just after its first
+ * push: the centre of mass and its velocity, the pendulum's rate the plan holds
+ * (`physicalBalancePlan.omega`), the planted limbs as the planner reads them
+ * (`physicalSupportSole.foot`, each on its side), the authored capture point
+ * and rate (`physicalAuthoredCapture`), the later pushes and the policy's step
+ * range and reaction time.
+ */
+function disturbance(
+  state: IAutoMoviePhysicalRecoveryState,
+  sense: physicalBalanceSense.ISense,
+  stated: { pushes: readonly preparePhysicalDisturbanceSpan.IPush[] },
+): NonNullable<IAutoMoviePhysicalRecoveryState["span"]> {
+  const omega: number = state.omega ?? physicalBalancePlan.omega(sense, state);
+  const authored: physicalAuthoredCapture.IDesired = physicalAuthoredCapture(
+    sense,
+    state,
+    omega,
+  );
+  return {
+    seconds: sense.seconds,
+    center: { ...sense.center },
+    velocity: { ...sense.velocity },
+    omega,
+    mass: sense.profile.mass,
+    gravity: sense.gravity,
+    feet: sense.limbs.map(
+      (limb: physicalBalanceSense.ILimb): physicalSupportSole.IFoot =>
+        physicalSupportSole.foot(
+          sense,
+          state,
+          limb.bone,
+          physicalSupportSole.side(sense, limb.bone),
+        ),
+    ),
+    authored: {
+      position: { ...authored.position },
+      velocity: { ...authored.velocity },
+    },
+    pushes: stated.pushes.map((push: preparePhysicalDisturbanceSpan.IPush) => ({
+      seconds: push.seconds,
+      velocity: { ...push.velocity },
+    })),
+    maximumStep: sense.policy.maximumStep,
+    ...(sense.policy.reactionSeconds !== undefined
+      ? { reactionSeconds: sense.policy.reactionSeconds }
+      : {}),
+    floor: sense.floor,
+  };
+}
+
+/**
+ * Make the caller's state the phases' result. The caller keeps one state object
+ * across substeps and checkpoints, and the result shares it
+ * (`IAutoMovieAdvancePhysicalBalance`), while each phase returns a new state
+ * and never writes its input; the state's keys are replaced by the result's.
+ */
+function adopt(
+  target: IAutoMoviePhysicalRecoveryState,
+  next: IAutoMoviePhysicalRecoveryState,
+): void {
+  if (target === next) return;
+  for (const key of Object.keys(target))
+    if (!Object.hasOwn(next, key)) Reflect.deleteProperty(target, key);
+  Object.assign(target, next);
 }

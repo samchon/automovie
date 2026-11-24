@@ -18,6 +18,9 @@ export function checkpointPhysicalSimulation(
   ): string =>
     JSON.stringify({
       ...value,
+      // A longer or shorter film shares its earlier steps: the per-step
+      // comparison below finds where the two part.
+      duration: 0,
       impulses: [],
       bodies: value.bodies.map(
         (body: (typeof value.bodies)[number]): object => ({

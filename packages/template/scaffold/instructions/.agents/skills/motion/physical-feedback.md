@@ -22,7 +22,7 @@ Check the window's promised contacts, misses, falls and timing on the contacts t
 
 ### Preparing simulation
 
-Run the interval before frame sampling. Choose integration steps for stability and accuracy independently of display refresh. Keep the events and trajectory needed to reproduce the checked response. Prefix reuse requires matching inputs and a live solver checkpoint with its controller state. Use [stage caches](../production/stage-caches.md) for playback archives.
+Run the interval before frame sampling. Choose integration steps for stability and accuracy independently of display refresh. Keep the events and trajectory needed to reproduce the checked response. Prefix reuse requires matching inputs and a live solver checkpoint with its controller state. Precompute an adopted response with the README physics command and sample its archive as the README describes.
 
 Keep dimensions, mass or material assumptions, initial state, time sampling, transforms and constraints explicit where the chosen API needs them. Keep simple collision or control representations separate from display tessellation.
 

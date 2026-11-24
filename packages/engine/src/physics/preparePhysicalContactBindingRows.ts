@@ -17,7 +17,6 @@ import { Vector3 } from "../math/Vector3";
 import type { IPhysicalContactPoseReference } from "./IPhysicalContactPoseReference";
 import type { ResolvePhysicalContactPose } from "./ResolvePhysicalContactPose";
 import { linearizePhysicalSeparation } from "./linearizePhysicalSeparation";
-import { memoizePhysicalTransformValue } from "./memoizePhysicalTransformValue";
 import { physicalShapeSurfaceAnchor } from "./physicalShapeSurfaceAnchor";
 import { physicalSupportPoint } from "./physicalSupportPoint";
 
@@ -53,26 +52,15 @@ export function preparePhysicalContactBindingRows(
       const bones: Set<string> = new Set();
       if (sourcePose.key !== undefined) bones.add(sourcePose.key);
       if (receiver.key !== undefined) bones.add(receiver.key);
-      const references: (
-        poses: IAutoMoviePoses,
-      ) => IAutoMovieRigidTransform[] = (
-        poses: IAutoMoviePoses,
-      ): IAutoMovieRigidTransform[] => [
-        sourcePose.read(poses),
-        receiver.read(poses),
-      ];
       if (binding.kind === "separate") {
         const contact: (
           poses: IAutoMoviePoses,
-        ) => ReturnType<IAutoMoviePreparePhysicalGeometry.IQueries["contact"]> =
-          memoizePhysicalTransformValue(
-            references,
-            (
-              poses: IAutoMoviePoses,
-            ): ReturnType<
-              IAutoMoviePreparePhysicalGeometry.IQueries["contact"]
-            > => input.geometry.contact(first(poses), second(poses), 0),
-          );
+        ) => ReturnType<
+          IAutoMoviePreparePhysicalGeometry.IQueries["contact"]
+        > = (
+          poses: IAutoMoviePoses,
+        ): ReturnType<IAutoMoviePreparePhysicalGeometry.IQueries["contact"]> =>
+          input.geometry.contact(first(poses), second(poses), 0);
         return {
           id: binding.id,
           rows: {
@@ -134,29 +122,27 @@ export function preparePhysicalContactBindingRows(
         first(input.initial),
         anchor.point,
       );
-      const measure: (poses: IAutoMoviePoses) => number[] =
-        memoizePhysicalTransformValue(
-          references,
-          (poses: IAutoMoviePoses): number[] => {
-            const target: IAutoMovieRigidTransform = receiver.read(poses);
-            const endpoint: IAutoMovieVector3 = Vector3.subtract(
-              physicalSupportPoint(target, point),
-              Vector3.scale(
-                Quaternion.rotateVector(target.rotation, normal),
-                binding.compression,
-              ),
-            );
-            const goal: IAutoMovieVector3 = Vector3.add(
-              start,
-              Vector3.scale(Vector3.subtract(endpoint, start), binding.weight),
-            );
-            const difference: IAutoMovieVector3 = Vector3.subtract(
-              input.geometry.project(first(poses), goal),
-              goal,
-            );
-            return [difference.x, difference.y, difference.z];
-          },
+      const measure: (poses: IAutoMoviePoses) => number[] = (
+        poses: IAutoMoviePoses,
+      ): number[] => {
+        const target: IAutoMovieRigidTransform = receiver.read(poses);
+        const endpoint: IAutoMovieVector3 = Vector3.subtract(
+          physicalSupportPoint(target, point),
+          Vector3.scale(
+            Quaternion.rotateVector(target.rotation, normal),
+            binding.compression,
+          ),
         );
+        const goal: IAutoMovieVector3 = Vector3.add(
+          start,
+          Vector3.scale(Vector3.subtract(endpoint, start), binding.weight),
+        );
+        const difference: IAutoMovieVector3 = Vector3.subtract(
+          input.geometry.project(first(poses), goal),
+          goal,
+        );
+        return [difference.x, difference.y, difference.z];
+      };
       return {
         id: binding.id,
         rows: { bones, measure, linearize: (): typeof measure => measure },
@@ -188,7 +174,10 @@ export function preparePhysicalContactBindingRows(
   );
 }
 
-/** Admission owns selector validity; the call-local fitter borrows declared geometry. */
+/**
+ * Admission owns selector validity; the call-local fitter borrows declared
+ * geometry.
+ */
 function shape(
   profile: IAutoMoviePhysicalProfile,
   selector: { bone: string; shape: string },

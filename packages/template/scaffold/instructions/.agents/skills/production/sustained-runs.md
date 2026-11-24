@@ -12,7 +12,7 @@ Follow the director's [assignments](director.md#assignments). Assign one writer 
 
 Give additional authorized workers disjoint write scopes. Use reviewers who meet the production's [independence criteria](../review/independent-reading.md).
 
-Check processes, artifacts and errors before declaring a stall. Resume from the last valid output and [caches](stage-caches.md). Keep the failure on record. Start a new result when inputs change. Verify restarted work afresh.
+Check processes, artifacts and errors before declaring a stall. Resume from the last valid output. Keep the failure on record. Start a new result when inputs change. Verify restarted work afresh.
 
 When an installed package lacks a capability, tell the user and continue the independent work.
 

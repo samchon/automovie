@@ -2,11 +2,11 @@
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-Gives the purpose (Project a motor's requested relative angular velocity onto the linearized native twist-coordinate box for the next substep) as stated in this comment.
+Gives the purpose (Project a motor's requested relative angular velocity onto the linearized native coordinate box for the next substep), and why a chart joint's box is read in its chart, as stated in this comment.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-Implements the documented behavior (Project a motor's requested relative angular velocity onto the linearized native twist-coordinate box for the next substep) directly over its typed inputs (`current`, `axes`, `requested`, `dt`) as nested iteration of depth 3 (for-of over axes; for-of over ["x", "y", "z"] as const; some over axes), delegating to `Number.isFinite`, `Vector3.scale`, `Vector3.add`, `Vector3.cross`, `axes.some`; the premises are the units, frames and ranges stated in its parameter documentation, enforced only where the body throws (1 throw site). Beyond structural 0, 1 and 2 the body uses the literals 1e-12, 8, 1e-10, whose basis this answer does not independently establish and a reviewer must confirm.
+The motor and the solver read one limit in the same coordinates: a joint declaring a sequential chart is limited on its chart angles by `projectPhysicalJointRotation` and `measurePhysicalJointLimits`, so its box is read there through `AutoMoviePhysicalJointChart.nearest`, each free axis's rate held between the rates reaching its ends within the substep; a box read in independent twist coordinates would ask e / h every substep of a rotation the solver admits (Mueller et al. 2020, section 3.3, v = dx / h). `test_physical_joint_chart_velocity` and `test_physical_xpbd_light_chain` pin both. Otherwise it implements the documented behavior directly over its typed inputs (`current`, `axes`, `requested`, `dt`) as nested iteration of depth 3 (for-of over axes; for-of over ["x", "y", "z"] as const; some over axes), delegating to `Number.isFinite`, `Vector3.scale`, `Vector3.add`, `Vector3.cross`, `axes.some`; the premises are the units, frames and ranges stated in its parameter documentation, enforced only where the body throws (1 throw site). Beyond structural 0, 1 and 2 the body uses the literals 1e-12, 8, 1e-10, whose basis this answer does not independently establish and a reviewer must confirm.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
