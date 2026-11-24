@@ -466,13 +466,39 @@ export function preparePhysicalDisturbanceSpan(
               Math.min(ZULU.swingTime, placedAt.preferred),
             )
           : ZULU.swingTime;
+      // The footstep under the response's own capture point at touchdown:
+      // the single-support response laid once toward the projected footstep
+      // gives the capture point at its end, xi(T), and the footstep is that
+      // point projected into the region, the swing foot's place the
+      // capture point reaches, as the reference checks the footstep against
+      // the capture point through the swing (`WalkingSingleSupportState`
+      // l.136-163); the plan is laid again toward it.
+      const region: Polygon.IPoint[] = reachable(stance, swing, duration);
+      const trial: IState = follow([], {
+        phase: "single",
+        reference: segmented(
+          t,
+          plan(support, swing, placedAt.target, duration),
+        ),
+        support: supportOf(stance),
+        start: t,
+        end: t + duration,
+        xi: state.xi,
+        c: state.c,
+        omega,
+      });
+      const under: Tools.IFloor =
+        region.length >= 3
+          ? toWorld(Polygon.project(region, toLocal(trial.xi)))
+          : placedAt.target;
+      placedAt.target = under;
       step = {
         support,
         stance,
         swing,
-        target: placedAt.target,
+        target: under,
         touchdown: t + duration,
-        plan: plan(support, swing, placedAt.target, duration),
+        plan: plan(support, swing, under, duration),
         viable: placedAt.viable,
       };
       footstep = {
