@@ -1,3 +1,4 @@
+import { AutoMovieThreeKind } from "@automovie/render";
 import * as THREE from "three";
 
 import type { IViewerCameraStateSnapshot } from "./IViewerCameraStateSnapshot.js";
@@ -7,8 +8,7 @@ import type { IViewerCameraStateSnapshot } from "./IViewerCameraStateSnapshot.js
  * their public native lens/transform API, including film and view offsets.
  * Parented, manual-matrix and custom-projection cameras are explicitly refused:
  * another owner must transfer those relationships rather than guess them. A
- * degenerate or non-finite state is refused before the original camera is
- * mutated.
+ * degenerate state is refused before the original camera is mutated.
  */
 export function createViewerCameraState(camera: THREE.Camera): {
   capture: () => IViewerCameraStateSnapshot;
@@ -21,8 +21,8 @@ export function createViewerCameraState(camera: THREE.Camera): {
     | THREE.OrthographicCamera => {
     if (
       !(
-        camera instanceof THREE.PerspectiveCamera ||
-        camera instanceof THREE.OrthographicCamera
+        AutoMovieThreeKind.isPerspectiveCamera(camera) ||
+        AutoMovieThreeKind.isOrthographicCamera(camera)
       ) ||
       camera.parent !== null ||
       !camera.matrixAutoUpdate ||
@@ -58,29 +58,28 @@ export function createViewerCameraState(camera: THREE.Camera): {
         layers: owned.layers.mask,
         projection: owned.projectionMatrix.toArray(),
         view: owned.view === null ? null : { ...owned.view },
-        lens:
-          owned instanceof THREE.PerspectiveCamera
-            ? {
-                kind: "perspective",
-                fov: owned.fov,
-                aspect: owned.aspect,
-                near: owned.near,
-                far: owned.far,
-                zoom: owned.zoom,
-                filmGauge: owned.filmGauge,
-                filmOffset: owned.filmOffset,
-                focus: owned.focus,
-              }
-            : {
-                kind: "orthographic",
-                left: owned.left,
-                right: owned.right,
-                top: owned.top,
-                bottom: owned.bottom,
-                near: owned.near,
-                far: owned.far,
-                zoom: owned.zoom,
-              },
+        lens: AutoMovieThreeKind.isPerspectiveCamera(owned)
+          ? {
+              kind: "perspective",
+              fov: owned.fov,
+              aspect: owned.aspect,
+              near: owned.near,
+              far: owned.far,
+              zoom: owned.zoom,
+              filmGauge: owned.filmGauge,
+              filmOffset: owned.filmOffset,
+              focus: owned.focus,
+            }
+          : {
+              kind: "orthographic",
+              left: owned.left,
+              right: owned.right,
+              top: owned.top,
+              bottom: owned.bottom,
+              near: owned.near,
+              far: owned.far,
+              zoom: owned.zoom,
+            },
       };
     };
   const restore: (state: IViewerCameraStateSnapshot) => void = (
@@ -90,16 +89,6 @@ export function createViewerCameraState(camera: THREE.Camera): {
       supported();
     if (state.type !== owned.type)
       throw new Error("Camera transfer changed camera type.");
-    if (
-      ![
-        ...state.position,
-        ...state.quaternion,
-        ...state.scale,
-        ...state.up,
-        ...state.projection,
-      ].every(Number.isFinite)
-    )
-      throw new Error("Camera transfer has a non-finite pose/projection.");
     const determinant: number = new THREE.Matrix4()
       .fromArray(state.projection)
       .determinant();
@@ -108,32 +97,19 @@ export function createViewerCameraState(camera: THREE.Camera): {
       !(Math.hypot(...state.up) > 0) ||
       state.scale.some((value: number): boolean => value === 0) ||
       determinant === 0 ||
-      !Number.isFinite(determinant)
+      determinant === Infinity ||
+      determinant === -Infinity
     )
       throw new Error("Camera transfer has a degenerate pose/projection.");
-    if (
-      !Number.isInteger(state.layers) ||
-      state.layers < -2147483648 ||
-      state.layers > 4294967295
-    )
+    if (state.layers < -2147483648 || state.layers > 4294967295)
       throw new Error("Camera transfer has no valid layer mask.");
     const candidate: THREE.PerspectiveCamera | THREE.OrthographicCamera =
       owned.clone();
     const lens: IViewerCameraStateSnapshot["lens"] = state.lens;
-    if (candidate instanceof THREE.PerspectiveCamera) {
+    if (AutoMovieThreeKind.isPerspectiveCamera(candidate)) {
       if (lens.kind !== "perspective")
         throw new Error("Camera transfer changed projection type.");
       if (
-        ![
-          lens.fov,
-          lens.aspect,
-          lens.near,
-          lens.far,
-          lens.zoom,
-          lens.filmGauge,
-          lens.filmOffset,
-          lens.focus,
-        ].every(Number.isFinite) ||
         !(
           lens.fov > 0 &&
           lens.fov < 180 &&
@@ -160,15 +136,6 @@ export function createViewerCameraState(camera: THREE.Camera): {
       if (lens.kind !== "orthographic")
         throw new Error("Camera transfer changed projection type.");
       if (
-        ![
-          lens.left,
-          lens.right,
-          lens.top,
-          lens.bottom,
-          lens.near,
-          lens.far,
-          lens.zoom,
-        ].every(Number.isFinite) ||
         !(
           lens.right > lens.left &&
           lens.top > lens.bottom &&
@@ -191,17 +158,6 @@ export function createViewerCameraState(camera: THREE.Camera): {
     const view: IViewerCameraStateSnapshot["view"] = state.view;
     if (view !== null) {
       if (
-        ![
-          view.fullWidth,
-          view.fullHeight,
-          view.offsetX,
-          view.offsetY,
-          view.width,
-          view.height,
-        ].every(Number.isFinite)
-      )
-        throw new Error("Camera transfer has no finite view offset.");
-      if (
         !(
           view.fullWidth > 0 &&
           view.fullHeight > 0 &&
@@ -223,7 +179,7 @@ export function createViewerCameraState(camera: THREE.Camera): {
     // setViewOffset also writes Perspective.aspect. A later native resize may
     // legitimately have changed that lens while preserving the crop window.
     if (
-      candidate instanceof THREE.PerspectiveCamera &&
+      AutoMovieThreeKind.isPerspectiveCamera(candidate) &&
       lens.kind === "perspective"
     )
       candidate.aspect = lens.aspect;
@@ -245,19 +201,22 @@ export function createViewerCameraState(camera: THREE.Camera): {
     candidate.updateMatrixWorld(true);
     const worldDeterminant: number = candidate.matrixWorld.determinant();
     if (
-      !candidate.matrixWorld.elements.every(Number.isFinite) ||
+      candidate.matrixWorld.elements.some(
+        (value: number): boolean => value === Infinity || value === -Infinity,
+      ) ||
       worldDeterminant === 0 ||
-      !Number.isFinite(worldDeterminant)
+      worldDeterminant === Infinity ||
+      worldDeterminant === -Infinity
     )
       throw new Error("The transferred camera world transform is degenerate.");
     if (
-      owned instanceof THREE.PerspectiveCamera &&
-      candidate instanceof THREE.PerspectiveCamera
+      AutoMovieThreeKind.isPerspectiveCamera(owned) &&
+      AutoMovieThreeKind.isPerspectiveCamera(candidate)
     )
       owned.copy(candidate, false);
     else if (
-      owned instanceof THREE.OrthographicCamera &&
-      candidate instanceof THREE.OrthographicCamera
+      AutoMovieThreeKind.isOrthographicCamera(owned) &&
+      AutoMovieThreeKind.isOrthographicCamera(candidate)
     )
       owned.copy(candidate, false);
     else throw new Error("The validated camera projection changed type.");

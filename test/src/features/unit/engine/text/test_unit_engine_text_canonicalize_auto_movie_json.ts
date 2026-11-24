@@ -13,8 +13,8 @@ import { TestValidator } from "@nestia/e2e";
  * 1. Members sort by code unit: `{b:1,a:2}` is `{"a":2,"b":1}`.
  * 2. An undefined member is omitted, and an undefined array slot is `null`.
  * 3. Scalars and nested containers encode as in JSON.
- * 4. A class instance is a non-plain container, and a self-referencing object
- *    is cyclic.
+ * 4. A class instance is a non-plain container, and a self-referencing object is
+ *    cyclic.
  */
 export function test_unit_engine_text_canonicalize_auto_movie_json(): void {
   TestValidator.equals(

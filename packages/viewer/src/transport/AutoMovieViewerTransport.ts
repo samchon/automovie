@@ -52,12 +52,7 @@ export class AutoMovieViewerTransport {
    */
   public constructor(options: AutoMovieViewerTransport.IOptions) {
     const available: readonly [number, number] = options.available;
-    if (
-      !available.every(Number.isFinite) ||
-      available[0] < 0 ||
-      available[0] >= available[1] ||
-      !(options.fps > 0)
-    )
+    if (available[0] < 0 || available[0] >= available[1] || !(options.fps > 0))
       throw new Error("Invalid transport range or frame rate");
     this.options = options;
     this.available = Object.freeze([available[0], available[1]] as [
@@ -120,11 +115,7 @@ export class AutoMovieViewerTransport {
    * @param seconds The second.
    */
   public seek(seconds: number): void {
-    if (
-      !Number.isFinite(seconds) ||
-      seconds < this.available[0] ||
-      seconds > this.available[1]
-    )
+    if (seconds < this.available[0] || seconds > this.available[1])
       throw new Error(
         `Seek must remain inside [${this.available[0]},${this.available[1]}]`,
       );
@@ -178,13 +169,7 @@ export class AutoMovieViewerTransport {
    * @param end End second, after the start.
    */
   public setInterval(start: number, end: number): void {
-    if (
-      !Number.isFinite(start) ||
-      !Number.isFinite(end) ||
-      start < this.available[0] ||
-      end > this.available[1] ||
-      end <= start
-    )
+    if (start < this.available[0] || end > this.available[1] || end <= start)
       throw new Error(
         `Review interval must remain inside [${this.available[0]},${this.available[1]}]`,
       );

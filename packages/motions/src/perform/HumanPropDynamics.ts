@@ -18,21 +18,6 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-/** The record of `ISlideP`'s site. */
-type ISlideP = { to: number };
-
-/** The record of `ISlideTimesP`'s site. */
-type ISlideTimesP = {
-  to: number;
-  path: IAutoMovieIntegrateMotionTrajectory.ITrajectory;
-};
-
-/** The record of `ISlidePiecesItem`'s site. */
-type ISlidePiecesItem = {
-  to: number;
-  path: IAutoMovieIntegrateMotionTrajectory.ITrajectory;
-};
-
 /**
  * Props with mass and friction moved by the hands' force: a prop on the floor
  * slides under Newton's second law and Coulomb friction, a hinged prop turns
@@ -106,6 +91,7 @@ export namespace HumanPropDynamics {
       (seconds: number): number => drive.torque(seconds),
       0,
       duration,
+      drive.breaks,
     );
     const travel = (seconds: number): number => {
       const degrees: number = path.at(seconds).x[0]! * (180 / Math.PI);
@@ -196,6 +182,7 @@ export namespace HumanPropDynamics {
     const path: IAutoMovieIntegrateMotionTrajectory.ITrajectory = slide({
       from: drive.from,
       to: drive.to,
+      ...(drive.breaks === undefined ? {} : { breaks: drive.breaks }),
       mass,
       friction: body.friction,
       kinetic: body.kineticFriction,
@@ -232,7 +219,9 @@ export namespace HumanPropDynamics {
    * Nørsett and Wanner, Solving Ordinary Differential Equations I, section
    * II.6, located, not yet read). The stop is the root of one sliding step's
    * speed from the step's start, found by bisection down to the resolution of a
-   * double.
+   * double. A second the push itself jumps at (`ISlide.breaks`) is known
+   * beforehand, so the integration ends there and restarts from its state
+   * (`pieces`), the push read on each side of it as that side's limit.
    *
    * @param props The prop and the force.
    * @returns The trajectory of `[distance, speed]`, the integrator's step its
@@ -242,106 +231,89 @@ export namespace HumanPropDynamics {
     props: IAutoMovieMotionHumanPropDynamics.ISlide,
   ): IAutoMovieIntegrateMotionTrajectory.ITrajectory {
     const g: number = AutoMovieGravity.STANDARD;
-    const sliding = (
-      t: number,
-      x: readonly number[],
-    ): IAutoMovieIntegrateMotionTrajectory.IRate => ({
-      dx: [
-        x[1]!,
-        (props.force(t) - props.kinetic * props.mass * g) / props.mass,
-      ],
-    });
-    const law = (
-      t: number,
-      x: readonly number[],
-    ): IAutoMovieIntegrateMotionTrajectory.IRate =>
-      x[1]! <= 0 && props.force(t) <= props.friction * props.mass * g
-        ? { dx: [0, 0] }
-        : sliding(t, x);
-
-    // One sliding step from a knot to an instant inside its step.
-    const step = (
-      from: number,
-      x: readonly number[],
-      until: number,
-    ): IAutoMovieIntegrateMotionTrajectory.ITrajectory =>
-      integrateMotionTrajectory({
-        f: sliding,
-        x0: x,
-        t0: from,
-        t1: until,
-        h: until - from,
-      });
-    const pieces: ISlidePiecesItem[] = [];
-    let from: number = props.from;
+    const pieces: IPiece[] = [];
     let x0: readonly number[] = [0, 0];
-    for (;;) {
-      const path: IAutoMovieIntegrateMotionTrajectory.ITrajectory =
-        integrateMotionTrajectory({ f: law, x0, t0: from, t1: props.to });
-      const knot = (k: number): number => path.times[k]!;
-      let k: number = 1;
-      while (
-        k < path.knots &&
-        !(path.at(knot(k)).x[1]! <= 0 && path.at(knot(k - 1)).x[1]! > 0)
-      )
-        k++;
-      if (k === path.knots) {
-        pieces.push({ to: props.to, path });
-        break;
-      }
-
-      // The stop inside the step from knot k - 1 to knot k.
-      const a: number = knot(k - 1);
-      const start: readonly number[] = path.at(a).x;
-      let lo: number = a;
-      let hi: number = knot(k);
-      if (step(a, start, hi).at(hi).x[1]! < 0)
-        for (;;) {
-          const mid: number = (lo + hi) / 2;
-          if (!(mid > lo && mid < hi)) break;
-          if (step(a, start, mid).at(mid).x[1]! > 0) lo = mid;
-          else hi = mid;
+    for (const [start, end] of spans(props.from, props.to, props.breaks)) {
+      const force: (t: number) => number = (t: number): number =>
+        props.force(inside(t, start, end));
+      const sliding = (
+        t: number,
+        x: readonly number[],
+      ): IAutoMovieIntegrateMotionTrajectory.IRate => ({
+        dx: [x[1]!, (force(t) - props.kinetic * props.mass * g) / props.mass],
+      });
+      const law = (
+        t: number,
+        x: readonly number[],
+      ): IAutoMovieIntegrateMotionTrajectory.IRate =>
+        x[1]! <= 0 && force(t) <= props.friction * props.mass * g
+          ? { dx: [0, 0] }
+          : sliding(t, x);
+      // One sliding step from a knot to an instant inside its step.
+      const step = (
+        from: number,
+        x: readonly number[],
+        until: number,
+      ): IAutoMovieIntegrateMotionTrajectory.ITrajectory =>
+        integrateMotionTrajectory({
+          f: sliding,
+          x0: x,
+          t0: from,
+          t1: until,
+          h: until - from,
+        });
+      let from: number = start;
+      for (;;) {
+        const path: IAutoMovieIntegrateMotionTrajectory.ITrajectory =
+          integrateMotionTrajectory({ f: law, x0, t0: from, t1: end });
+        const knot = (k: number): number => path.times[k]!;
+        let k: number = 1;
+        while (
+          k < path.knots &&
+          !(path.at(knot(k)).x[1]! <= 0 && path.at(knot(k - 1)).x[1]! > 0)
+        )
+          k++;
+        if (k === path.knots) {
+          pieces.push({ to: end, path });
+          x0 = path.at(end).x;
+          break;
         }
-      const tail: IAutoMovieIntegrateMotionTrajectory.ITrajectory = step(
-        a,
-        start,
-        hi,
-      );
-      pieces.push({ to: a, path }, { to: hi, path: tail });
-      if (!(hi < props.to)) break;
-      from = hi;
-      x0 = [tail.at(hi).x[0]!, 0];
+        // The stop inside the step from knot k - 1 to knot k.
+        const a: number = knot(k - 1);
+        const begin: readonly number[] = path.at(a).x;
+        let lo: number = a;
+        let hi: number = knot(k);
+        if (step(a, begin, hi).at(hi).x[1]! < 0)
+          for (;;) {
+            const mid: number = (lo + hi) / 2;
+            if (!(mid > lo && mid < hi)) break;
+            if (step(a, begin, mid).at(mid).x[1]! > 0) lo = mid;
+            else hi = mid;
+          }
+        const tail: IAutoMovieIntegrateMotionTrajectory.ITrajectory = step(
+          a,
+          begin,
+          hi,
+        );
+        pieces.push({ to: a, path }, { to: hi, path: tail });
+        x0 = [tail.at(hi).x[0]!, 0];
+        if (!(hi < end)) break;
+        from = hi;
+      }
     }
-    const last: IAutoMovieIntegrateMotionTrajectory.ITrajectory =
-      pieces[pieces.length - 1]!.path;
-    // Each piece's knots within its own span, after the piece before it.
-    const times: number[] = pieces.flatMap(
-      (p: ISlideTimesP, i: number): number[] =>
-        p.path.times.filter(
-          (t: number): boolean =>
-            t <= p.to && (i === 0 || t > pieces[i - 1]!.to),
-        ),
-    );
-    return {
-      t0: props.from,
-      t1: props.to,
-      h: pieces[0]!.path.h,
-      knots: times.length,
-      times,
-      at: (time: number): IAutoMovieIntegrateMotionTrajectory.IState =>
-        (pieces.find((p: ISlideP): boolean => time <= p.to)?.path ?? last).at(
-          time,
-        ),
-    };
+    return joined(props.from, props.to, pieces);
   }
 
   /**
-   * A hinged prop's turn under a torque.
+   * A hinged prop's turn under a torque, the integration ended and restarted at
+   * each second the torque jumps at, the torque read on each side of it as that
+   * side's limit.
    *
    * @param inertia The moment of inertia about the hinge, kg m².
    * @param torque The torque about the hinge at a second, N m. Pure.
    * @param from Start, seconds.
    * @param to End, seconds.
+   * @param breaks The seconds the torque jumps at, none when absent.
    * @returns The trajectory of `[angle, angular speed]`, radians.
    */
   export function hinge(
@@ -349,20 +321,96 @@ export namespace HumanPropDynamics {
     torque: (seconds: number) => number,
     from: number,
     to: number,
+    breaks?: readonly number[],
   ): IAutoMovieIntegrateMotionTrajectory.ITrajectory {
-    return integrateMotionTrajectory({
-      f: (
-        t: number,
-        x: readonly number[],
-      ): IAutoMovieIntegrateMotionTrajectory.IRate => ({
-        dx: [x[1]!, torque(t) / inertia],
-      }),
-      x0: [0, 0],
-      t0: from,
-      t1: to,
-    });
+    const pieces: IPiece[] = [];
+    let x0: readonly number[] = [0, 0];
+    for (const [start, end] of spans(from, to, breaks)) {
+      const path: IAutoMovieIntegrateMotionTrajectory.ITrajectory =
+        integrateMotionTrajectory({
+          f: (
+            t: number,
+            x: readonly number[],
+          ): IAutoMovieIntegrateMotionTrajectory.IRate => ({
+            dx: [x[1]!, torque(inside(t, start, end)) / inertia],
+          }),
+          x0,
+          t0: start,
+          t1: end,
+        });
+      pieces.push({ to: end, path });
+      x0 = path.at(end).x;
+    }
+    return joined(from, to, pieces);
   }
 
+  /** One integrated stretch of a drive, read up to its last second. */
+  interface IPiece {
+    to: number;
+    path: IAutoMovieIntegrateMotionTrajectory.ITrajectory;
+  }
+
+  /**
+   * A drive's stretches between the seconds its input jumps at, those strictly
+   * inside it, ascending and distinct.
+   */
+  function spans(
+    from: number,
+    to: number,
+    breaks: readonly number[] = [],
+  ): [number, number][] {
+    const cuts: number[] = [
+      from,
+      ...[...breaks]
+        .filter((t: number): boolean => t > from && t < to)
+        .sort((a: number, b: number): number => a - b)
+        .filter(
+          (t: number, i: number, all: number[]): boolean =>
+            i === 0 || t > all[i - 1]!,
+        ),
+      to,
+    ];
+    return cuts
+      .slice(1)
+      .map((end: number, i: number): [number, number] => [cuts[i]!, end]);
+  }
+
+  /**
+   * A second held strictly inside a stretch, one rounding step in from each
+   * end, so an input that jumps at an end is read as this stretch's side of
+   * it.
+   */
+  function inside(t: number, start: number, end: number): number {
+    const ulp: (x: number) => number = (x: number): number =>
+      Math.max(Number.MIN_VALUE, Math.abs(x) * Number.EPSILON);
+    return Math.min(end - ulp(end), Math.max(start + ulp(start), t));
+  }
+
+  /** The stretches' trajectories as one, each piece's knots within its span. */
+  function joined(
+    from: number,
+    to: number,
+    pieces: readonly IPiece[],
+  ): IAutoMovieIntegrateMotionTrajectory.ITrajectory {
+    const last: IAutoMovieIntegrateMotionTrajectory.ITrajectory =
+      pieces[pieces.length - 1]!.path;
+    const times: number[] = pieces.flatMap((p: IPiece, i: number): number[] =>
+      p.path.times.filter(
+        (t: number): boolean => t <= p.to && (i === 0 || t > pieces[i - 1]!.to),
+      ),
+    );
+    return {
+      t0: from,
+      t1: to,
+      h: pieces[0]!.path.h,
+      knots: times.length,
+      times,
+      at: (time: number): IAutoMovieIntegrateMotionTrajectory.IState =>
+        (pieces.find((p: IPiece): boolean => time <= p.to)?.path ?? last).at(
+          time,
+        ),
+    };
+  }
   /**
    * The lean that balances a horizontal push's reaction, degrees forward, or
    * null when the body's weight cannot balance it.

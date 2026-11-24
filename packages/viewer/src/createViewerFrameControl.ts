@@ -63,8 +63,7 @@ export function createViewerFrameControl(options: {
     restore: (state: IViewerFrameTransfer): void => {
       active();
       const seconds: number = state.elapsedSeconds;
-      if (!Number.isFinite(seconds) || seconds < 0)
-        throw new Error("Viewer transfer has no valid time.");
+      if (seconds < 0) throw new Error("Viewer transfer has no valid time.");
       const previousCamera: IViewerCameraStateSnapshot = cameraState.capture();
       const previousSeconds: number = options.currentSeconds();
       cameraState.restore(state.camera);

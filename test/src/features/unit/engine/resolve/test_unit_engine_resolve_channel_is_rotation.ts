@@ -18,7 +18,15 @@ export function test_unit_engine_resolve_channel_is_rotation(): void {
   );
   TestValidator.predicate(
     "pointer channels",
-    channelIsRotation({ kind: "pointer", pointer: "/p", valueType: "quaternion" }) &&
-      !channelIsRotation({ kind: "pointer", pointer: "/p", valueType: "scalar" }),
+    channelIsRotation({
+      kind: "pointer",
+      pointer: "/p",
+      valueType: "quaternion",
+    }) &&
+      !channelIsRotation({
+        kind: "pointer",
+        pointer: "/p",
+        valueType: "scalar",
+      }),
   );
 }

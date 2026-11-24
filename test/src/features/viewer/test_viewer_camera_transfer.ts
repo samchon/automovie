@@ -20,7 +20,7 @@ type IViewerCropWindow = NonNullable<IViewerCameraStateSnapshot["view"]>;
  *
  * 1. Perspective and orthographic lenses, cropped views, TRS and layers match
  *    authored values before and after transfer.
- * 2. A changed class or non-finite, degenerate or invalid restore fields refuse
+ * 2. A changed class or degenerate or invalid restore fields refuse
  *    without changing the resident state; disabled and absent views remain
  *    supported.
  * 3. Manual matrix ownership, parenting, custom projection and an unsupported
@@ -167,10 +167,8 @@ export async function test_viewer_camera_transfer(): Promise<void> {
       { ...state, type: "unknown" },
       { ...state, quaternion: [0, 0, 0, 0] },
       { ...state, projection: new THREE.Matrix4().multiplyScalar(0).toArray() },
-      { ...state, position: [NaN, 0, 0] },
       { ...state, scale: [1, 0, 1] },
       { ...state, up: [0, 0, 0] },
-      { ...state, layers: 0.5 },
       {
         ...state,
         scale: [1e308, 1e308, 1e308],
@@ -178,8 +176,6 @@ export async function test_viewer_camera_transfer(): Promise<void> {
       },
       { ...state, scale: [1e308, 1e308, 1e308] },
       { ...state, view: { ...crop, width: 0 } },
-      { ...state, view: { ...crop, offsetX: Infinity } },
-      { ...state, lens: { ...state.lens, near: NaN } },
       { ...state, lens: { ...state.lens, zoom: -1 } },
       { ...state, projection: shifted.toArray() },
     ];

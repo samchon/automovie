@@ -9,6 +9,9 @@ import type {
   IAutoMoviePhysicalSimulationInput,
 } from "@automovie/interface";
 
+import { splitSolvedHumanAuditSpan } from "./splitSolvedHumanAuditSpan";
+import { subtractHumanAuditInterval } from "./subtractHumanAuditInterval";
+
 /**
  * A person's placed actions as the audit reads them where windows of the
  * performance were solved (`HumanPerformance.simulate`): inside a window, the
@@ -50,55 +53,16 @@ export function solvedHumanAuditSpans(
     read = read.flatMap(
       (
         span: IAutoMovieMotionHumanAuditMotion.ISpan,
-      ): IAutoMovieMotionHumanAuditMotion.ISpan[] => {
-        if (!(span.entryTime < owned.to && owned.from < span.end))
-          return [span];
-        const from: number = Math.max(span.entryTime, owned.from);
-        const to: number = Math.min(span.end, owned.to);
-        const share: (seconds: number) => number = (seconds: number): number =>
-          span.plan.duration > 0
-            ? Math.min(
-                1,
-                Math.max(0, (seconds - span.start) / span.plan.duration),
-              )
-            : 0;
-        const inside: IAutoMovieMotionHumanAuditMotion.ISpan = {
-          ...span,
-          entryTime: from,
-          end: to,
-          ...(owned.root ? { physical: false } : {}),
-          plan: {
-            ...span.plan,
-            contacts: [
-              ...span.plan.contacts.filter(
-                (window: IAutoMovieMotionHumanContactWindow): boolean =>
-                  !bones(window, body).some((bone: string): boolean =>
-                    owned.bones.has(bone),
-                  ),
-              ),
-              ...solved
-                .filter(
-                  (contact: IContact): boolean =>
-                    contact.from < to && from < contact.to,
-                )
-                .map(
-                  (contact: IContact): IAutoMovieMotionHumanContactWindow => ({
-                    part: contact.part,
-                    kind: "bear",
-                    from: share(Math.max(from, contact.from)),
-                    to: share(Math.min(to, contact.to)),
-                    support: contact.support,
-                  }),
-                ),
-            ],
-          },
-        };
-        return [
-          ...(span.entryTime < from ? [{ ...span, end: from }] : []),
-          inside,
-          ...(to < span.end ? [{ ...span, entryTime: to }] : []),
-        ];
-      },
+      ): IAutoMovieMotionHumanAuditMotion.ISpan[] =>
+        splitSolvedHumanAuditSpan(
+          span,
+          owned,
+          solved,
+          (window: IAutoMovieMotionHumanContactWindow): boolean =>
+            bones(window, body).some((bone: string): boolean =>
+              owned.bones.has(bone),
+            ),
+        ),
     );
   }
   return read;
@@ -221,11 +185,7 @@ export namespace solvedHumanAuditSpans {
         !segments.some((bone: string): boolean => taken.bones.has(bone))
       )
         continue;
-      pieces = pieces.flatMap(([a, b]: Interval): Interval[] => {
-        const before: Interval = [a, Math.min(b, taken.from)];
-        const after: Interval = [Math.max(a, taken.to), b];
-        return [before, after].filter(([c, d]: Interval): boolean => d > c);
-      });
+      pieces = subtractHumanAuditInterval(pieces, taken.from, taken.to);
     }
     return pieces;
   }
@@ -246,19 +206,7 @@ export namespace solvedHumanAuditSpans {
 }
 
 /** A solver contact episode of the person as a bearing window, film seconds. */
-interface IContact {
-  /** The person's part in contact. */
-  part: IAutoMovieMotionHumanContactWindow["part"];
-
-  /** What it bears on. */
-  support: IAutoMovieMotionHumanContactWindow.Support;
-
-  /** First film second. */
-  from: number;
-
-  /** Last film second. */
-  to: number;
-}
+type IContact = splitSolvedHumanAuditSpan.IContact;
 
 /**
  * The person's solver contact episodes with the floor and the props: what bears

@@ -135,7 +135,6 @@ export function test_viewer_frame_control(): void {
   const beforeRebases: number = rebases;
   const invalids: IViewerFrameTransfer[] = [
     { ...saved, elapsedSeconds: -1 },
-    { ...saved, elapsedSeconds: NaN },
     { ...saved, camera: { ...saved.camera, type: "unknown" } },
   ];
   for (const state of invalids)

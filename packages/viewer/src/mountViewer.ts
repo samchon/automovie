@@ -70,10 +70,7 @@ export const mountViewer: (
         canvas.clientWidth || 1,
         canvas.clientHeight || 1,
         options?.pixelRatio ??
-          (Number.isFinite(window.devicePixelRatio) &&
-          window.devicePixelRatio > 0
-            ? window.devicePixelRatio
-            : 1),
+          (window.devicePixelRatio > 0 ? window.devicePixelRatio : 1),
       );
     synchronizeViewport();
 

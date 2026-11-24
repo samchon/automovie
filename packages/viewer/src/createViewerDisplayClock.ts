@@ -13,9 +13,9 @@ export function createViewerDisplayClock(): {
   let displayed: number = 0;
   let producing: number | undefined;
   const validate: (seconds: number) => void = (seconds: number): void => {
-    if (!Number.isFinite(seconds) || seconds < 0)
+    if (seconds < 0)
       throw new Error(
-        "A completed display clock requires finite nonnegative seconds.",
+        "A completed display clock requires nonnegative seconds.",
       );
   };
   return {

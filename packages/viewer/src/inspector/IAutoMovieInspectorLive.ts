@@ -3,6 +3,7 @@ import type {
   IAutoMovieDrawScene,
   IAutoMovieInspectionHandle,
 } from "@automovie/render";
+import type * as THREE from "three";
 
 import type { AutoMovieInspectorBeauty } from "./AutoMovieInspectorBeauty.js";
 import type { AutoMovieInspectorPlayhead } from "./AutoMovieInspectorPlayhead.js";
@@ -19,6 +20,9 @@ export interface IAutoMovieInspectorLive {
 
   /** The host's renderer. */
   renderer: IAutoMovieInspectorSceneHost.IRenderer;
+
+  /** The host's renderer as a WebGL one, or null when it is not. */
+  compositor: THREE.WebGLRenderer | null;
 
   /** The beauty picture's film stages. */
   beauty: AutoMovieInspectorBeauty;

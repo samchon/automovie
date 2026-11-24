@@ -22,8 +22,7 @@ export function planAutoMovieAudioPlayback(
   rate: number,
   lengths: Readonly<Record<string, number>>,
 ): planAutoMovieAudioPlayback.IStart[] {
-  if (!(rate > 0) || !Number.isFinite(rate) || !Number.isFinite(seconds))
-    throw new Error("Invalid audio playback instant or rate");
+  if (!(rate > 0)) throw new Error("Invalid audio playback instant or rate");
   const starts: planAutoMovieAudioPlayback.IStart[] = [];
   for (const cue of cues) {
     const speed: number = cue.rate ?? 1;

@@ -27,11 +27,23 @@ const FRAME: IAutoMovieDrawingFrame = {
 export function test_unit_engine_drawing_plane_distance(): void {
   TestValidator.predicate(
     "signed along the normal",
-    nclose(autoMovieDrawingPlaneDistance(FRAME, { x: 9, y: 4, z: 2 }), 2, ROUNDING) &&
-      nclose(autoMovieDrawingPlaneDistance(FRAME, { x: 0, y: 0, z: -3 }), -3, ROUNDING),
+    nclose(
+      autoMovieDrawingPlaneDistance(FRAME, { x: 9, y: 4, z: 2 }),
+      2,
+      ROUNDING,
+    ) &&
+      nclose(
+        autoMovieDrawingPlaneDistance(FRAME, { x: 0, y: 0, z: -3 }),
+        -3,
+        ROUNDING,
+      ),
   );
   TestValidator.predicate(
     "in the plane",
-    nclose(autoMovieDrawingPlaneDistance(FRAME, { x: 5, y: -7, z: 0 }), 0, ROUNDING),
+    nclose(
+      autoMovieDrawingPlaneDistance(FRAME, { x: 5, y: -7, z: 0 }),
+      0,
+      ROUNDING,
+    ),
   );
 }

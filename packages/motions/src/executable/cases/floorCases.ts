@@ -9,6 +9,7 @@ import type {
 
 import { HumanChain } from "../../HumanChain";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
+import { floorCaseSpan } from "./floorCaseSpan";
 import { FamilyCaseKit } from "./FamilyCaseKit";
 import { everydayVerdicts } from "./everydayVerdicts";
 
@@ -212,8 +213,8 @@ export function floorCases(
             passed: slip.value <= 0.005,
             detail: `${(slip.value * 1000).toFixed(1)} mm (limit 5.0 mm), worst ${slip.where}`,
           },
-          span("planted palm height", height),
-          span("knee on the floor mid-stance", knee),
+          floorCaseSpan("planted palm height", height),
+          floorCaseSpan("knee on the floor mid-stance", knee),
           {
             name: "diagonal lift-offs within 10 % of a cycle",
             passed: lag <= 0.1 * period,
@@ -224,18 +225,4 @@ export function floorCases(
     }
   }
   return out;
-}
-/** The record of `ISpanRange`'s site. */
-type ISpanRange = { low: number; high: number };
-
-/**
- * A verdict that a measured range of heights lies within -10 to +15 mm of the
- * floor.
- */
-function span(name: string, range: ISpanRange): IMotionCaptureCase.IVerdict {
-  return {
-    name,
-    passed: range.low >= -0.01 && range.high <= 0.015,
-    detail: `${(range.low * 1000).toFixed(1)} to ${(range.high * 1000).toFixed(1)} mm (band -10.0 to 15.0 mm)`,
-  };
 }

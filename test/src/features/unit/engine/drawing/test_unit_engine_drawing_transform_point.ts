@@ -17,7 +17,9 @@ const ROUNDING: number = 1e-12;
  *    sends (1, 0, 0) to (0, 1, 5).
  */
 export function test_unit_engine_drawing_transform_point(): void {
-  const translation: number[] = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 2, 3, 1];
+  const translation: number[] = [
+    1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 2, 3, 1,
+  ];
   TestValidator.predicate(
     "a translation",
     vclose(

@@ -85,13 +85,16 @@ export async function test_inspector_scene_transition(): Promise<void> {
     cancelFrame: (): void => {
       frame = undefined;
     },
-    createRenderer: (): IAutoMovieInspectorSceneHost.IRenderer => ({
-      ...filmResponseRendererFields(),
-      localClippingEnabled: false,
-      setPixelRatio: (): void => {},
-      setSize: (): void => {},
-      dispose: (): void => {},
-      render: (_object: THREE.Object3D, _camera: THREE.Camera): void => {},
+    createRenderer: (): IAutoMovieInspectorSceneHost.ICreated => ({
+      compositor: null,
+      renderer: {
+        ...filmResponseRendererFields(),
+        localClippingEnabled: false,
+        setPixelRatio: (): void => {},
+        setSize: (): void => {},
+        dispose: (): void => {},
+        render: (_object: THREE.Object3D, _camera: THREE.Camera): void => {},
+      },
     }),
   };
   const errors: string[] = [];

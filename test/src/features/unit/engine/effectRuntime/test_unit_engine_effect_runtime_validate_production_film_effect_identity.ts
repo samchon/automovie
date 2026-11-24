@@ -1,8 +1,11 @@
-import { validateProductionFilmEffectIdentity } from "@automovie/engine";
+import {
+  AutoMovieFilmEffectRuntimeError,
+  validateProductionFilmEffectIdentity,
+} from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
-/** A SHA-256 digest of 64 lowercase hex digits. */
-const DIGEST: string = "a".repeat(64);
+/** A `sha256:` digest of 64 lowercase hex digits. */
+const DIGEST: string = `sha256:${"a".repeat(64)}`;
 
 /**
  * `validateProductionFilmEffectIdentity` accepts compile and edit fingerprints
@@ -10,7 +13,7 @@ const DIGEST: string = "a".repeat(64);
  *
  * Scenarios:
  *
- * 1. Two 64-digit hex fingerprints are accepted.
+ * 1. Two `sha256:` fingerprints of 64 hex digits are accepted.
  * 2. A 63-digit edit fingerprint is refused with the input-invalid code.
  */
 export function test_unit_engine_effect_runtime_validate_production_film_effect_identity(): void {
@@ -22,11 +25,10 @@ export function test_unit_engine_effect_runtime_validate_production_film_effect_
   try {
     validateProductionFilmEffectIdentity({
       compileFingerprint: DIGEST,
-      editFingerprint: "a".repeat(63),
+      editFingerprint: `sha256:${"a".repeat(63)}`,
     });
   } catch (error) {
-    code =
-      error instanceof Error && "code" in error ? String(error.code) : null;
+    code = error instanceof AutoMovieFilmEffectRuntimeError ? error.code : null;
   }
   TestValidator.equals("a short digest", code, "film-effect-input-invalid");
 }

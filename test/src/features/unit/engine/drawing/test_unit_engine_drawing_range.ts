@@ -15,9 +15,8 @@ export function test_unit_engine_drawing_range(): void {
     autoMovieDrawingRange([2, -1, 5]),
     { min: -1, max: 5 },
   );
-  TestValidator.equals(
-    "an empty sequence",
-    autoMovieDrawingRange([]),
-    { min: Infinity, max: -Infinity },
-  );
+  TestValidator.equals("an empty sequence", autoMovieDrawingRange([]), {
+    min: Infinity,
+    max: -Infinity,
+  });
 }

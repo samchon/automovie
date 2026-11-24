@@ -49,9 +49,9 @@ const ROUNDING: number = 1e-12;
  * 1. A stand placed over 1 to 3 s and settled a quarter in holds the pose at 1.5 s
  *    over three phases: the root at (0, 0.9, 0) facing +Z, period 2, no
  *    stride.
- * 2. A settled event at a short final stand's end still holds; 1.5 phases, a
- *    second outside every action, a walk, a stand on a prop and a stand
- *    followed at its settled instant are refused.
+ * 2. A settled event at a short final stand's end still holds; no phase, a second
+ *    outside every action, a walk, a stand on a prop and a stand followed at
+ *    its settled instant are refused.
  * 3. A walk with heel strikes at 0.2 (left), 0.7 (right) and 1.2 s (left) from 0.1
  *    s gives a 1 s, 1 m cycle whose four poses all stand at (0, 0.9, 0) facing
  *    +Z; from 0.8 s no stride is whole.
@@ -160,7 +160,7 @@ export async function test_unit_motions_ensemble_human_population(): Promise<voi
   TestValidator.equals(
     "standing refusals",
     [
-      refused(stand, 1.2, 1.5),
+      refused(stand, 1.2, 0),
       refused(stand, 3.5, 3),
       refused(
         performance([segment({ start: 1, end: 3, name: "walk" }, settled, 2)]),

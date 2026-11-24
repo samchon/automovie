@@ -1,6 +1,7 @@
 import {
   HUMANOID_JOINT_AXES,
   HUMANOID_REST_FRAME,
+  attachPhysicalProfileHulls,
   clampPose,
   indexSkeletonTopology,
   measureAutoMovieHumanoidBody,
@@ -133,7 +134,7 @@ export function createHumanBody(
     CreateHumanBodySolved
   >): IAutoMovieMotionHumanBody => ({
     skeleton,
-    profile,
+    profile: attachPhysicalProfileHulls(profile),
     measure,
     surfaces,
     topology,

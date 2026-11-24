@@ -9,7 +9,7 @@ import {
   createAutoMovieInspectionDiagnosticOverlay,
   observeAutoMoviePlacedInspection,
 } from "@automovie/render";
-import * as THREE from "three";
+import type * as THREE from "three";
 
 import { AutoMovieInspectorBeauty } from "./AutoMovieInspectorBeauty.js";
 import { AutoMovieInspectorDiagnosticLog } from "./AutoMovieInspectorDiagnosticLog.js";
@@ -164,7 +164,7 @@ export function mountAutoMovieInspectorScene(props: {
         readAutoMovieInspectorFacts({ instance, seconds });
       const { marks } = facts;
 
-      const renderer: IAutoMovieInspectorSceneHost.IRenderer =
+      const { renderer, compositor }: IAutoMovieInspectorSceneHost.ICreated =
         host.createRenderer();
       held.push((): void => renderer.dispose());
       const beauty: AutoMovieInspectorBeauty = new AutoMovieInspectorBeauty();
@@ -198,6 +198,7 @@ export function mountAutoMovieInspectorScene(props: {
       live = {
         instance,
         renderer,
+        compositor,
         beauty,
         transition,
         inspection,
@@ -268,8 +269,7 @@ export function mountAutoMovieInspectorScene(props: {
         name: props.name,
         instance: now.instance,
         request: now.applied.inspection,
-        compositor:
-          now.renderer instanceof THREE.WebGLRenderer ? now.renderer : null,
+        compositor: now.compositor,
         seconds: snapshot.seconds,
         paint: (): void =>
           beauty(now, filmCamera(now, snapshot.seconds), snapshot.seconds),
@@ -309,8 +309,8 @@ export function mountAutoMovieInspectorScene(props: {
           now.transition.byShot,
         );
       // The subject's render-target work, such as surface feeds, runs once on the placed scene's own materials before any shade applies, as the draw host runs it; only a WebGL renderer has render targets.
-      if (now.renderer instanceof THREE.WebGLRenderer)
-        instance.beforeDraw?.(now.renderer, snapshot.seconds);
+      if (now.compositor !== null)
+        instance.beforeDraw?.(now.compositor, snapshot.seconds);
       // Re-apply only an inspection that was restored for the scene's readers or changed; otherwise update its marks.
       if (
         readsAutoMovieInspectorPlacedScene(instance) &&

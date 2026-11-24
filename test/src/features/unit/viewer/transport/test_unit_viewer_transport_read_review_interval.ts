@@ -10,11 +10,15 @@ import { TestValidator } from "@nestia/e2e";
  *
  * 1. No parameter over [0, 10]: { 0, 10, 1 }.
  * 2. "?start=2&end=4&speed=0.5": { 2, 4, 0.5 }.
- * 3. An empty start, a start of "abc", an end past 10, start ≥ end, and speed 2
- *    refuse.
+ * 3. An empty start, a start of "abc", an overflowing end, an end past 10, a
+ *    start at the end and speed 2 refuse.
  */
 export function test_unit_viewer_transport_read_review_interval(): void {
-  const read = (query: string): { start: number; end: number; speed: number } =>
+  const read: (query: string) => {
+    start: number;
+    end: number;
+    speed: number;
+  } = (query: string): { start: number; end: number; speed: number } =>
     readAutoMovieReviewInterval(new URLSearchParams(query), [0, 10]);
   TestValidator.equals("the defaults", read(""), {
     start: 0,
@@ -29,6 +33,7 @@ export function test_unit_viewer_transport_read_review_interval(): void {
   for (const query of [
     "start=",
     "start=abc",
+    "end=1e999",
     "end=11",
     "start=5&end=5",
     "speed=2",

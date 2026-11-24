@@ -12,6 +12,7 @@ import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanEntryState,
   IAutoMovieMotionHumanPerformerReader,
+  IAutoMovieMotionHumanPlacedAction,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanProp,
   IAutoMovieMotionHumanPropReader,
@@ -34,9 +35,12 @@ import {
  * performer standing at rest at a floor point and heading, both feet planted on
  * the ground, holding nothing, at the take's start. Draws come from the
  * performer's own keyed streams (`HumanSkill.stream`), so a seed fixes them. A
- * world point is aimed at as itself; any other target, another performer, a
- * prop, a meeting or a placed action is refused, since a unit reads its law
- * alone.
+ * world point is aimed at as itself, another performer's region on that
+ * performer's plan and a prop's point on its frame. What a law reads beyond its
+ * own body is given as typed minimal inputs: the props, the partners and their
+ * plans, the props each hand holds at the entry, the placed actions by anchor
+ * and the meeting of a mutual action; anything not given is refused, since a
+ * unit reads its law alone.
  *
  * @param body The performer's body.
  * @param params The law's parameters.
@@ -126,8 +130,8 @@ export function motionActionContext<P extends object>(
         }),
       ),
       base: options.base ?? { kind: "standing" },
-      holds: {},
-      uses: {},
+      holds: options.holds ?? {},
+      uses: options.uses ?? {},
     },
     start: options.start ?? 0,
     aim: (target: IAutoMovieMotionTarget, seconds: number) => {
@@ -159,7 +163,8 @@ export function motionActionContext<P extends object>(
         normal: Quaternion.rotateVector(frame.rotation, local.normal),
       };
     },
-    action: (): never => refuse("placed action"),
+    action: (anchor: string): IAutoMovieMotionHumanPlacedAction =>
+      options.actions?.[anchor] ?? refuse(`placed action ${anchor}`),
     performer: (name: string): IAutoMovieMotionHumanPerformerReader =>
       performer(name),
     prop: (name: string): IAutoMovieMotionHumanPropReader => {
@@ -170,7 +175,12 @@ export function motionActionContext<P extends object>(
           prop.motion?.(seconds) ?? prop.frame,
       };
     },
-    meeting: (): never => refuse("meeting"),
+    meeting: (
+      ...args: Parameters<IAutoMovieMotionHumanActionContext["meeting"]>
+    ) =>
+      options.meeting === undefined
+        ? refuse("meeting")
+        : options.meeting(...args),
     cue: () => [],
     obstacles: () => [],
     random: (channel: string) =>
@@ -245,6 +255,21 @@ export namespace motionActionContext {
 
     /** The root's velocity at entry, m/s; at rest when absent. */
     velocity?: IAutoMovieVector3;
+
+    /** The prop each hand holds at the entry; none when absent. */
+    holds?: IAutoMovieMotionHumanEntryState["holds"];
+
+    /** How each held prop is used at the entry; none when absent. */
+    uses?: IAutoMovieMotionHumanEntryState["uses"];
+
+    /** The actions placed earlier, by anchor; none when absent. */
+    actions?: Readonly<Record<string, IAutoMovieMotionHumanPlacedAction>>;
+
+    /**
+     * The meeting of a mutual action, as the performance would compute it;
+     * refused when absent.
+     */
+    meeting?: IAutoMovieMotionHumanActionContext["meeting"];
 
     /** The chain seed; `"unit"` when absent. */
     seed?: string;

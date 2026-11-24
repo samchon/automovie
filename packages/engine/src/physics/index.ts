@@ -253,4 +253,5 @@ export * from "./validatePhysicalProfile";
 export * from "./warmPhysicalSupportTargets";
 export * from "./yieldPhysicalSimulation";
 export * from "./markAutoMovieSkeleton";
+export * from "./attachPhysicalProfileHulls";
 export * from "./createPhysicalHullShape";

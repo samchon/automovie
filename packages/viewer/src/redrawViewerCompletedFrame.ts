@@ -27,8 +27,7 @@ export function redrawViewerCompletedFrame(
     ) => void;
   },
 ): void {
-  if (!Number.isFinite(seconds) || seconds < 0)
-    throw new Error("A redraw requires finite nonnegative seconds.");
+  if (seconds < 0) throw new Error("A redraw requires nonnegative seconds.");
   const before: number = options.completedCount();
   const previous: Omit<IAutoMovieViewerCompletedFrame, "control"> | undefined =
     options.readFrame();

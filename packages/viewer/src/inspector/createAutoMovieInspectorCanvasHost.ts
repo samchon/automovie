@@ -17,8 +17,13 @@ export function createAutoMovieInspectorCanvasHost(
 ): IAutoMovieInspectorSceneHost {
   const view: Window = canvas.ownerDocument.defaultView ?? window;
   return {
-    createRenderer: (): IAutoMovieInspectorSceneHost.IRenderer =>
-      new THREE.WebGLRenderer({ canvas, antialias: true }),
+    createRenderer: (): IAutoMovieInspectorSceneHost.ICreated => {
+      const renderer: THREE.WebGLRenderer = new THREE.WebGLRenderer({
+        canvas,
+        antialias: true,
+      });
+      return { renderer, compositor: renderer };
+    },
     requestFrame: (callback: (nowMs: number) => void): number =>
       view.requestAnimationFrame(callback),
     cancelFrame: (handle: number): void => view.cancelAnimationFrame(handle),

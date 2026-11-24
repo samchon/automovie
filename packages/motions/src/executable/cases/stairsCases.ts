@@ -13,6 +13,7 @@ import { climbStairs } from "../../terrain/climbStairs";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
 import { FamilyCaseKit } from "./FamilyCaseKit";
 import { everydayVerdicts } from "./everydayVerdicts";
+import { stairsCaseBoxes } from "./stairsCaseBoxes";
 
 /** The record of `IStairsCasesStance`'s site. */
 type IStairsCasesStance = { value: number; where: string };
@@ -158,7 +159,7 @@ export function stairsCases(
           [FamilyCaseKit.event(performance, "arrived"), "arrived"],
         ]),
         performers: [FamilyCaseKit.figure(performance, who.man)],
-        boxes: boxes(flight),
+        boxes: stairsCaseBoxes(flight),
         verdicts,
       });
     }
@@ -166,31 +167,3 @@ export function stairsCases(
   return out;
 }
 
-/** The flight's treads, its top landing and, going down, the floor behind it. */
-function boxes(
-  flight: IAutoMovieMotionHumanClimbStairsFlight.IFlight,
-): NonNullable<IMotionCaptureCase["boxes"]> {
-  const out: NonNullable<IMotionCaptureCase["boxes"]> = [];
-  const sign: number = flight.direction === "up" ? 1 : -1;
-  const bottom: number = Math.min(0, sign * flight.count * flight.riser) - 0.02;
-  const box = (z0: number, z1: number, top: number): void => {
-    const lo: number = Math.min(top, bottom);
-    out.push({
-      centre: HumanFrame.point(flight.frame, {
-        x: 0,
-        y: (top + lo) / 2,
-        z: (z0 + z1) / 2,
-      }),
-      half: { x: 0.45, y: Math.max(0.005, (top - lo) / 2), z: (z1 - z0) / 2 },
-      color: 0x9aa4b0,
-    });
-  };
-  for (let i: number = 1; i <= flight.count; i++)
-    box(
-      flight.first + (i - 1) * flight.tread,
-      flight.first + (i === flight.count ? i + 1 : i) * flight.tread,
-      sign * i * flight.riser,
-    );
-  if (sign < 0) box(flight.first - 0.8, flight.first, 0);
-  return out;
-}

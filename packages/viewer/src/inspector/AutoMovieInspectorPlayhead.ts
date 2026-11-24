@@ -48,10 +48,10 @@ export class AutoMovieInspectorPlayhead {
    * Set the subject's duration when an instance is ready, keeping the second
    * within it.
    *
-   * It throws for a duration that is not a positive finite number.
+   * It throws for a duration that is not positive.
    */
   public setDuration(durationSeconds: number): void {
-    if (!(Number.isFinite(durationSeconds) && durationSeconds > 0))
+    if (!(durationSeconds > 0))
       throw new Error(
         `Inspector duration ${durationSeconds} is not a positive number of seconds`,
       );
@@ -83,12 +83,9 @@ export class AutoMovieInspectorPlayhead {
 
   /**
    * Show one second, clamped to `[0, durationSeconds]`; playing continues from
-   * it. Moving to another second counts as a jump. A second that is not finite
-   * is refused.
+   * it. Moving to another second counts as a jump.
    */
   public seek(seconds: number): void {
-    if (!Number.isFinite(seconds))
-      throw new Error(`Inspector second ${seconds} is not a number`);
     const clamped: number = Math.min(
       Math.max(seconds, 0),
       this.snapshot_.durationSeconds,
@@ -99,10 +96,10 @@ export class AutoMovieInspectorPlayhead {
 
   /**
    * Play `rate` subject seconds per wall second. It throws for a rate that is
-   * not positive and finite.
+   * not positive.
    */
   public setRate(rate: number): void {
-    if (!(Number.isFinite(rate) && rate > 0))
+    if (!(rate > 0))
       throw new Error(`Inspector rate ${rate} is not a positive number`);
     this.change({ rate });
   }
@@ -113,8 +110,7 @@ export class AutoMovieInspectorPlayhead {
    */
   public advance(wallSeconds: number): void {
     const now: AutoMovieInspectorPlayhead.ISnapshot = this.snapshot_;
-    if (!now.playing || !(Number.isFinite(wallSeconds) && wallSeconds > 0))
-      return;
+    if (!now.playing || !(wallSeconds > 0)) return;
     const seconds: number = now.seconds + wallSeconds * now.rate;
     this.change(
       seconds >= now.durationSeconds

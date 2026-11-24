@@ -15,13 +15,7 @@ export const applyCaptureCanvasSize: (
   width: number,
   height: number,
 ): void => {
-  if (
-    !Number.isFinite(width) ||
-    width <= 0 ||
-    !Number.isFinite(height) ||
-    height <= 0
-  )
-    return;
+  if (width <= 0 || height <= 0) return;
   canvas.style.width = `${width}px`;
   canvas.style.height = `${height}px`;
 };

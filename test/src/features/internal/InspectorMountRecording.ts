@@ -100,10 +100,10 @@ export namespace InspectorMountRecording {
     private next_: number = 1;
 
     /** Create and keep a recording renderer. */
-    public createRenderer(): Renderer {
+    public createRenderer(): IAutoMovieInspectorSceneHost.ICreated {
       const renderer: Renderer = new Renderer();
       this.renderers.push(renderer);
-      return renderer;
+      return { renderer, compositor: null };
     }
 
     /** Keep the callback until the test runs it. */

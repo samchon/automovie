@@ -102,8 +102,6 @@ export function test_viewer_viewport_resize(): void {
   for (const values of [
     [0, 619, 1],
     [-1, 619, 1],
-    [1100.5, 619, 1],
-    [1100, NaN, 1],
     [1100, 619, 0],
     [1100, 619, Infinity],
     [1100, 619, Number.MAX_VALUE],

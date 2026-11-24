@@ -52,6 +52,13 @@ export namespace IAutoMovieMotionHumanPropDynamics {
      * @returns Signed torque about the hinge axis.
      */
     torque(seconds: number): number;
+
+    /**
+     * The seconds since the drive started at which the torque jumps (switched
+     * on or off): the integration ends at each and restarts from its state,
+     * never stepping across it. None when absent.
+     */
+    breaks?: readonly number[];
   }
 
   /**
@@ -68,6 +75,13 @@ export namespace IAutoMovieMotionHumanPropDynamics {
      * nonnegative newtons.
      */
     force: ISlide["force"];
+
+    /**
+     * The film seconds at which the force jumps (a push let go): the
+     * integration ends at each and restarts from its state, never stepping
+     * across it. None when absent.
+     */
+    breaks?: readonly number[];
 
     /** First film second of the slide, when the prop is at rest. */
     from: number;
@@ -92,6 +106,13 @@ export namespace IAutoMovieMotionHumanPropDynamics {
      * it. Pure.
      */
     force: (seconds: number) => number;
+
+    /**
+     * The seconds at which the force jumps (a push let go): the integration
+     * ends at each and restarts from its state, never stepping across it. None
+     * when absent.
+     */
+    breaks?: readonly number[];
 
     /** Start, seconds. */
     from: number;

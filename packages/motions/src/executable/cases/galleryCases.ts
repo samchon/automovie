@@ -10,6 +10,7 @@ import type {
 } from "@automovie/interface";
 
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
+import { galleryCaseFist } from "./galleryCaseFist";
 import { MotionBodies } from "../MotionBodies";
 
 /** The record of `IGalleryCasesGalleryP`'s site. */
@@ -43,7 +44,7 @@ export function galleryCases(): IMotionCaptureCase[] {
       label: "L elbow 90 pron 90",
       joints: { leftUpperArm: [30, 0, 0], leftLowerArm: [90, 0, 90] },
     },
-    { label: "R fist", joints: fist("right") },
+    { label: "R fist", joints: galleryCaseFist("right") },
     {
       label: "R hip 90 knee 90",
       joints: { rightUpperLeg: [90, 0, 0], rightLowerLeg: [90, 0, 0] },
@@ -135,23 +136,6 @@ function zero(
   };
 }
 
-/** Every finger segment of one hand flexed into a fist. */
-function fist(
-  side: AutoMovieHumanSide,
-): Partial<Record<AutoMovieHumanoidBone, [number, number, number]>> {
-  const out: Partial<Record<AutoMovieHumanoidBone, [number, number, number]>> =
-    {};
-  for (const digit of ["Index", "Middle", "Ring", "Little"])
-    for (const k of ["Proximal", "Intermediate", "Distal"])
-      out[`${side}${digit}${k}` as AutoMovieHumanoidBone] = [
-        k === "Proximal" ? 85 : 95,
-        0,
-        0,
-      ];
-  out[`${side}ThumbProximal` as AutoMovieHumanoidBone] = [40, 0, 0];
-  out[`${side}ThumbDistal` as AutoMovieHumanoidBone] = [50, 0, 0];
-  return out;
-}
 /** The record of `IJointResult`'s site. */
 type IJointResult = { x: number; y: number; z: number };
 

@@ -1,10 +1,12 @@
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanColliders,
+  IAutoMoviePhysicalHullFaces,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { physicalHullFaces } from "@automovie/engine";
 import type { HumanArmGeometry } from "./HumanArmGeometry";
 
 /** The alternatives of `MirroredOthersResult`'s site. */
@@ -230,9 +232,19 @@ export namespace HumanArmMirror {
           position: flip(shape.transform.position),
           rotation: turn(shape.transform.rotation),
         },
-        ...(shape.kind === "hull" ? { points: flipped(shape.points) } : {}),
+        ...(shape.kind === "hull" ? reflectedHull(shape) : {}),
       }),
     ) as IShapes;
+  }
+
+  /** A hull shape's points mirrored with its hull, which is mirrored too. */
+  function reflectedHull(
+    shape: Extract<IShapes[number], { kind: "hull" }>,
+  ): { points: IAutoMovieVector3[]; hull?: IAutoMoviePhysicalHullFaces.IHull } {
+    const points: IAutoMovieVector3[] = flipped(shape.points);
+    return shape.hull === undefined
+      ? { points }
+      : { points, hull: physicalHullFaces.mirrorHull(points, shape.hull) };
   }
 
   /**

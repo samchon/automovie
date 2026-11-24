@@ -21,8 +21,7 @@ const FRAME: IAutoMovieDrawingFrame = {
  *
  * Scenarios:
  *
- * 1. A point 3 right and 2 up of the origin is at page (3, 2), whatever its
- *    depth.
+ * 1. A point 3 right and 2 up of the origin is at page (3, 2), whatever its depth.
  */
 export function test_unit_engine_drawing_project_point(): void {
   const page: { x: number; y: number } = projectAutoMovieDrawingPoint(FRAME, {

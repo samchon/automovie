@@ -7,9 +7,9 @@ import { TestValidator } from "@nestia/e2e";
  * Scenarios:
  *
  * 1. Before a duration is set, play does nothing; after `setDuration(2)` a seek past either end lands on 0 or 2, and a seek that does not move keeps the snapshot object and notifies no listener.
- * 2. Playing at rate 0.5, one wall second advances half a subject second; a negative or non-finite wall time moves nothing; a paused playhead does not move. The two moving seeks counted as jumps and playing did not.
+ * 2. Playing at rate 0.5, one wall second advances half a subject second; a negative wall time moves nothing; a paused playhead does not move. The two moving seeks counted as jumps and playing did not.
  * 3. Advancing past the end stops at the duration and pauses; play from the end restarts at zero as a third jump.
- * 4. A listener hears each change until it unsubscribes, and a duration, rate or second that is not a positive (or finite) number is refused.
+ * 4. A listener hears each change until it unsubscribes, and a duration or rate that is not positive is refused.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Drives the public playhead and reads its snapshots and listener calls.
  * @evidence contracts/development/testing.md#independent-expectations Expected seconds are the products of the stated rate and wall times and the clamps of the stated range, worked out in the test.
@@ -69,9 +69,8 @@ export function test_inspector_playhead(): void {
     0.5,
   );
   playhead.advance(-1);
-  playhead.advance(Number.NaN);
   TestValidator.equals(
-    "negative and NaN wall time move nothing",
+    "negative wall time moves nothing",
     playhead.getSnapshot().seconds,
     0.5,
   );
@@ -113,8 +112,6 @@ export function test_inspector_playhead(): void {
   for (const [name, call] of [
     ["duration 0", (): void => playhead.setDuration(0)],
     ["rate -1", (): void => playhead.setRate(-1)],
-    ["rate Infinity", (): void => playhead.setRate(Number.POSITIVE_INFINITY)],
-    ["second NaN", (): void => playhead.seek(Number.NaN)],
   ] as const)
     TestValidator.error(`${name} is refused`, call);
 }

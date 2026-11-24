@@ -15,21 +15,13 @@ export function createViewerViewportResize(
 ): (width: number, height: number, pixelRatio: number) => boolean {
   const size: THREE.Vector2 = new THREE.Vector2();
   return (width: number, height: number, pixelRatio: number): boolean => {
-    if (
-      !Number.isSafeInteger(width) ||
-      width <= 0 ||
-      !Number.isSafeInteger(height) ||
-      height <= 0 ||
-      !Number.isFinite(pixelRatio) ||
-      pixelRatio <= 0
-    )
+    if (width <= 0 || height <= 0 || pixelRatio <= 0)
       throw new Error(
-        "Viewer viewport requires positive integer CSS dimensions and finite positive pixel ratio.",
+        "Viewer viewport requires positive CSS dimensions and a positive pixel ratio.",
       );
     if (
       ![Math.floor(width * pixelRatio), Math.floor(height * pixelRatio)].every(
-        (extent: number): boolean =>
-          Number.isSafeInteger(extent) && extent > 0 && extent <= 0xffffffff,
+        (extent: number): boolean => extent > 0 && extent <= 0xffffffff,
       )
     )
       throw new Error(

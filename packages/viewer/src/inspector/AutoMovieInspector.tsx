@@ -231,7 +231,8 @@ export function AutoMovieInspector(
           ctrlKey: event.ctrlKey,
           metaKey: event.metaKey,
           altKey: event.altKey,
-          target: event.target instanceof Element ? event.target : null,
+          // The key goes to the focused element, which is the event's target.
+          target: event.currentTarget.ownerDocument.activeElement,
         },
         playhead,
         facts?.fps ?? null,
