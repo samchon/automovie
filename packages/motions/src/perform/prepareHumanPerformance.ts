@@ -8,6 +8,7 @@ import { HumanPerformanceGrips } from "./HumanPerformanceGrips";
 import { HumanPerformanceHits } from "./HumanPerformanceHits";
 import { HumanPerformanceHold } from "./HumanPerformanceHold";
 import { HumanPerformanceObject } from "./HumanPerformanceObject";
+import { HumanPerformanceRead } from "./HumanPerformanceRead";
 import { HumanPerformanceSoft } from "./HumanPerformanceSoft";
 import { HumanPreparedPlayback } from "./HumanPreparedPlayback";
 import { HumanPropFlight } from "./HumanPropFlight";
@@ -32,7 +33,9 @@ import { prepareHumanSegment } from "./prepareHumanSegment";
  * 4. Each action's display record (`prepareHumanSegment`) and the carries of the
  *    holds it ends, in the depth-first order of the people's reads
  *    (`prepareHumanPerformanceOrder`);
- * 5. The hit record (`HumanPerformanceHits.solve`) and each soft prop's lattice
+ * 5. Each hand span's grip socket where it closed (`IGrip.closure`), which the
+ *    holder's own posture reads its prop on;
+ * 6. The hit record (`HumanPerformanceHits.solve`) and each soft prop's lattice
  *    (`HumanPerformanceSoft.prepare`).
  *
  * @param self The resolved performance, every action placed.
@@ -83,6 +86,18 @@ export function prepareHumanPerformance(
           held.carry = HumanSegmentCarry.capture(person, held);
     },
   );
+
+  // Each hand span's grip socket where it closed, on the prepared display:
+  // what the holder's own posture reads the prop on.
+  for (const grips of self.grips.values())
+    for (const grip of grips)
+      if (grip.bone === undefined && grip.mount === undefined)
+        grip.closure = HumanPerformanceRead.hand(
+          self,
+          grip.subject,
+          grip.side,
+          grip.from,
+        );
 
   self.hits = HumanPerformanceHits.solve(self);
   for (const prop of self.props.values())

@@ -21,6 +21,7 @@ import type {
 
 import { prepareHumanSampledCourse } from "../actions/prepareHumanSampledCourse";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
+import { AutoMovieMotionHumanArmJointCourse } from "../compose/AutoMovieMotionHumanArmJointCourse";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { handGoals } from "../everyday/handGoals";
@@ -280,7 +281,11 @@ export namespace relayPass {
       };
     };
 
-    return {
+    // The pass's joint-space carry, solved at its branch points once the
+    // performance is prepared.
+    const carrier: AutoMovieMotionHumanArmJointCourse.ICarrier =
+      AutoMovieMotionHumanArmJointCourse.carrier(body);
+    const plan: IAutoMovieMotionHumanActionPlan = {
       duration,
       events: [
         { name: "ready", share: Math.max(0, at - REACH) / duration },
@@ -330,16 +335,29 @@ export namespace relayPass {
           lower: [a[3]!, a[4]!, a[5]!],
           hand: [a[6]!, a[7]!, a[8]!],
         };
-        return AutoMovieMotionHumanArm.carry(
-          body,
-          reaching,
-          { [side]: run },
-          w,
-          undefined,
+        return carrier.carry(
+          t,
+          { posture: reaching, sides: [side], held: { [side]: run }, share: w },
           resolution,
           projection,
         );
       },
     };
+    plan.prepare = (): void => {
+      base.prepare?.();
+      // The pass's branch points: each blend's ends and centre.
+      carrier.prepare(
+        [
+          Math.max(0, at - REACH),
+          Math.max(0, at - REACH / 2),
+          at,
+          relax,
+          Math.min(duration, relax + REACH / 2),
+          Math.min(duration, relax + REACH),
+        ],
+        plan.posture,
+      );
+    };
+    return plan;
   }
 }

@@ -115,13 +115,6 @@ export interface IAutoMovieMotionHumanPerformanceState {
    */
   readonly riding: Set<number>;
 
-  /**
-   * The hands being read now, by performer and film second: a re-entrant read
-   * is a posture reading the prop its own hand holds. Entries exist only while
-   * their read runs.
-   */
-  readonly holding: Map<string, Set<number>>;
-
   /** What stands in the performers' way. */
   readonly obstacles: readonly IAutoMovieMotionHumanObstacle[];
 
@@ -321,6 +314,13 @@ export namespace IAutoMovieMotionHumanPerformanceState {
      * start.
      */
     offset?: IAutoMovieRigidTransform;
+
+    /**
+     * A hand span's grip socket frame where the grip closed, solved when the
+     * performance is prepared: what the holder's own posture reads the prop
+     * on, so the read never re-enters the hand it is placing.
+     */
+    closure?: IAutoMovieRigidTransform;
 
     /**
      * The grip window's in-hand motion of the prop, composed on `offset` by the

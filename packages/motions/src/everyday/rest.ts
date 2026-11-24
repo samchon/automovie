@@ -398,7 +398,7 @@ export namespace rest {
         {
           posture: placed,
           sides,
-          held: (): typeof from => from,
+          held: from,
           share: s,
           ...(planned === undefined ? {} : { planned }),
         },
@@ -432,7 +432,8 @@ export namespace rest {
       ): IAutoMovieMotionHumanPosture => write(seconds, resolution, projection),
       prepare: (): void => {
         base.prepare?.();
-        carrier.prepare(arrive, (seconds: number): unknown =>
+        // The arrival's branch points: its ends and its centre.
+        carrier.prepare([0, arrive / 2, arrive], (seconds: number): unknown =>
           write(seconds, undefined, undefined),
         );
       },

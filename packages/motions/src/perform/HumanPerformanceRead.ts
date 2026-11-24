@@ -207,6 +207,9 @@ export namespace HumanPerformanceRead {
    * @param seconds Film seconds.
    * @param own The performer reading the prop and their own bones, for a prop
    *   they may carry.
+   * @param reader The performer whose posture reads the prop, if any: a prop
+   *   their own hand holds is read on the hand where its grip closed, never
+   *   through the hand being placed.
    * @returns Its frame.
    */
   export function prop(
@@ -214,13 +217,14 @@ export namespace HumanPerformanceRead {
     subject: string,
     seconds: number,
     own?: IPropOwn,
+    reader?: string,
   ): IAutoMovieRigidTransform {
     // A line running to the prop holds it within its length (`HumanPerformanceTether`).
     return HumanPerformanceTether.pull(
       self,
       subject,
       seconds,
-      HumanPerformanceHold.prop(self, subject, seconds, own),
+      HumanPerformanceHold.prop(self, subject, seconds, own, reader),
       (other: string, at: number): IAutoMovieRigidTransform =>
         prop(self, other, at),
     );

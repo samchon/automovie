@@ -4,6 +4,12 @@ import * as THREE from "three";
 import { AutoMovieSkinnedMesh } from "./AutoMovieSkinnedMesh.js";
 import { createAutoMovieSurfaceVertexAdapter } from "./createAutoMovieSurfaceVertexAdapter.js";
 
+/** The largest finite binary32 magnitude a GPU vertex attribute can hold. */
+const F32_MAX: number = 3.4028234663852886e38;
+
+/** Whether a binary64 value rounds past the binary32 range of a GPU buffer. */
+const exceedsF32 = (value: number): boolean => Math.abs(value) > F32_MAX;
+
 /**
  * Apply provider-local color and compression to actual vertices, with owned
  * resources.
@@ -27,11 +33,6 @@ export function createAutoMovieSurfaceAppearance(input: {
     mesh: THREE.Mesh,
   ) => { color: [number, number, number]; displacement: IAutoMovieVector3 };
 }): { update: (seconds: number) => void; dispose: () => void } {
-  if (
-    input.space !== undefined &&
-    !["bone-local", "posed-mesh"].includes(input.space)
-  )
-    throw new Error("Invalid surface appearance coordinate space");
   const meshes: Set<THREE.Mesh> = new Set();
   for (const surface of input.surfaces) {
     if (meshes.has(surface.mesh))
@@ -91,34 +92,34 @@ export function createAutoMovieSurfaceAppearance(input: {
         throw new Error("Surface appearance requires actual vertex positions");
       const adapter: ReturnType<typeof createAutoMovieSurfaceVertexAdapter> =
         createAutoMovieSurfaceVertexAdapter(surface.mesh);
-      const positions: Float32Array = Float32Array.from(
-        Array.from(
-          { length: position.count * 3 },
-          (_: unknown, index: number): number =>
-            index % 3 === 0
-              ? position.getX(Math.floor(index / 3))
-              : index % 3 === 1
-                ? position.getY(Math.floor(index / 3))
-                : position.getZ(Math.floor(index / 3)),
-        ),
+      const sourcePositions: number[] = Array.from(
+        { length: position.count * 3 },
+        (_: unknown, index: number): number =>
+          index % 3 === 0
+            ? position.getX(Math.floor(index / 3))
+            : index % 3 === 1
+              ? position.getY(Math.floor(index / 3))
+              : position.getZ(Math.floor(index / 3)),
       );
       const previousColor:
         | THREE.BufferAttribute
         | THREE.InterleavedBufferAttribute
         | undefined = originalGeometry.getAttribute("color");
-      const colors: Float32Array = Float32Array.from(
-        Array.from(
-          { length: position.count * 3 },
-          (_: unknown, index: number): number =>
-            !previousColor
-              ? 1
-              : index % 3 === 0
-                ? previousColor.getX(Math.floor(index / 3))
-                : index % 3 === 1
-                  ? previousColor.getY(Math.floor(index / 3))
-                  : previousColor.getZ(Math.floor(index / 3)),
-        ),
+      const sourceColors: number[] = Array.from(
+        { length: position.count * 3 },
+        (_: unknown, index: number): number =>
+          !previousColor
+            ? 1
+            : index % 3 === 0
+              ? previousColor.getX(Math.floor(index / 3))
+              : index % 3 === 1
+                ? previousColor.getY(Math.floor(index / 3))
+                : previousColor.getZ(Math.floor(index / 3)),
       );
+      if (sourcePositions.some(exceedsF32) || sourceColors.some(exceedsF32))
+        throw new Error("Surface source exceeds GPU f32 range");
+      const positions: Float32Array = Float32Array.from(sourcePositions);
+      const colors: Float32Array = Float32Array.from(sourceColors);
       const geometry: THREE.BufferGeometry = originalGeometry.clone();
       const materials: THREE.Material[] = source.map(
         (material: (typeof source)[number]): THREE.Material => {
@@ -195,8 +196,7 @@ export function createAutoMovieSurfaceAppearance(input: {
             seconds,
             record.mesh,
           );
-          if (!sample || sample.color.length !== 3 || !sample.displacement)
-            throw new Error(`Nonfinite surface response for ${record.bone}`);
+
           const delta: IAutoMovieVector3 =
             input.space === "posed-mesh" &&
             (sample.displacement.x !== 0 ||
@@ -212,6 +212,10 @@ export function createAutoMovieSurfaceAppearance(input: {
             record.colors[index * 3 + 1]! * sample.color[1],
             record.colors[index * 3 + 2]! * sample.color[2],
           ];
+          if (values.some(exceedsF32))
+            throw new Error(
+              `The surface vertex result for ${record.bone} exceeds GPU f32 range`,
+            );
           position.setXYZ(index, values[0]!, values[1]!, values[2]!);
           color.setXYZ(index, values[3]!, values[4]!, values[5]!);
           moved ||=

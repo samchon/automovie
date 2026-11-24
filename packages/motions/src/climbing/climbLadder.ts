@@ -410,7 +410,7 @@ export namespace climbLadder {
         {
           posture: gripped,
           sides: ["left", "right"],
-          held: (): typeof entryArms => entryArms,
+          held: entryArms,
           share: reachShare,
         },
         resolution,
@@ -444,7 +444,9 @@ export namespace climbLadder {
       planned.prepare;
     planned.prepare = (): void => {
       composed?.call(planned);
-      carrier.prepare(duration, exact);
+      // The first reach's branch points: its ends and its centre.
+      const handsOn: number = clock.at("handsOn");
+      carrier.prepare([0, handsOn / 2, handsOn], exact);
     };
     const mergeLegs: ReturnType<typeof HumanChannels.prepareMerge> =
       HumanChannels.prepareMerge(climb.channels);

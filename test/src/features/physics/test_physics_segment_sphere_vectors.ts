@@ -1,4 +1,4 @@
-import { projectileSphereHit, segmentSphere } from "@automovie/engine";
+import { segmentSphere } from "@automovie/engine";
 import { IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -9,15 +9,6 @@ const v: (x: number, y: number, z: number) => IAutoMovieVector3 = (
   y: number,
   z: number,
 ): IAutoMovieVector3 => ({ x, y, z });
-
-const throws: (task: () => void) => boolean = (task: () => void): boolean => {
-  try {
-    task();
-    return false;
-  } catch {
-    return true;
-  }
-};
 
 /**
  * Segment/sphere collision vectors must be finite before quadratic hit math.

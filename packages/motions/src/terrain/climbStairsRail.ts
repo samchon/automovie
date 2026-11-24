@@ -182,7 +182,7 @@ export function climbStairsRail(
       {
         posture: gripped,
         sides: [side],
-        held: (): typeof entry => entry,
+        held: entry,
         share: minimumJerk.share(weight),
         planned: bodyPose,
       },
@@ -237,7 +237,11 @@ export function climbStairsRail(
     posture,
     prepare: (): void => {
       stairs.prepare?.();
-      carrier.prepare(duration, posture);
+      // The grip's branch points: each transit's ends and centre.
+      carrier.prepare(
+        [0, transit / 2, transit, release, (release + duration) / 2, duration],
+        posture,
+      );
     },
     yields: stairs.yields?.filter(
       (channel) => channel !== arm && channel !== side + "Hand",

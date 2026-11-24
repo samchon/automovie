@@ -136,9 +136,6 @@ export class HumanPerformanceState {
    */
   public readonly riding: Set<number> = new Set();
 
-  /** The hands being read now, by performer and film second. */
-  public readonly holding: Map<string, Set<number>> = new Map();
-
   /** What stands in the performers' way. */
   public readonly obstacles: readonly IAutoMovieMotionHumanObstacle[];
 

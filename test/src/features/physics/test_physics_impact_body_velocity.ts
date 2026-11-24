@@ -21,15 +21,6 @@ const BODY: IAutoMovieImpactBodyState = {
   penetrability: 0.1,
 };
 
-const throws: (task: () => void) => boolean = (task: () => void): boolean => {
-  try {
-    task();
-    return false;
-  } catch {
-    return true;
-  }
-};
-
 /**
  * Impact velocity vectors feed the relative-velocity dot product, closing
  * speed, impulse, and post-impact velocities. A non-finite body velocity must

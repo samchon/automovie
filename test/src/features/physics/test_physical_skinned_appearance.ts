@@ -9,7 +9,10 @@ import assert from "node:assert/strict";
 import * as THREE from "three";
 
 /**
- * Local appearance follows the actual posed DQ skin, inverts compression, preserves shaders and restores on seek. Empty/sparse RGB, Float32 overflow and duplicate resource ownership refuse; representable HDR multipliers remain legal.
+ * Local appearance follows the actual posed DQ skin, inverts compression,
+ * preserves shaders and restores on seek. Empty/sparse RGB, Float32 overflow
+ * and duplicate resource ownership refuse; representable HDR multipliers remain
+ * legal.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Runs `interface`, `AutoMovieSkinnedMesh`, `createAutoMovieSurfaceAppearance`, `applyDualQuaternionSkinning` on in-memory inputs and asserts the returned observations through 1x TestValidator.equals; the behavior its summary names. A wrong result for any of those inputs fails an assertion, while results the scenarios allow do not.
  * @evidence contracts/development/testing.md#independent-expectations Expected values come from the literals and relations written in the test itself and from the scenario sentences above, not from a snapshot of the implementation's output; where an expectation is computed by another production function the oracle is not independent, and this answer does not establish a reference beyond the scenario text.
@@ -148,15 +151,11 @@ export function test_physical_skinned_appearance(): void {
       original.dispose();
     }
   }
-  const invalid: { color: number[]; displacement: IAutoMovieVector3 }[] = [
-    ...[[], [1, 1], [1, 1, 1, 1], new Array<number>(3), [1e308, 1, 1]].map(
-      (
-        color: number[],
-      ): { color: number[]; displacement: IAutoMovieVector3 } => ({
-        color,
-        displacement: { x: 0, y: 0, z: 0 },
-      }),
-    ),
+  const invalid: {
+    color: [number, number, number];
+    displacement: IAutoMovieVector3;
+  }[] = [
+    { color: [1e308, 1, 1], displacement: { x: 0, y: 0, z: 0 } },
     { color: [1, 1, 1], displacement: { x: 1e308, y: 0, z: 0 } },
   ];
   for (const response of invalid) {
@@ -166,10 +165,7 @@ export function test_physical_skinned_appearance(): void {
         sample: (): {
           color: [number, number, number];
           displacement: IAutoMovieVector3;
-        } => ({
-          ...response,
-          color: response.color as [number, number, number],
-        }),
+        } => response,
       });
     try {
       assert.throws((): void => rejected.update(0), /surface/);

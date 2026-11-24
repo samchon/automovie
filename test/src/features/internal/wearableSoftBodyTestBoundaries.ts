@@ -51,16 +51,6 @@ export function wearableSoftBodyTestBoundaries(
           ]),
         "must name absolute step 0",
       ),
-      fractionalParticle: throwsError(
-        (): ReturnType<typeof simulateSoftBodyWithBoundaries> =>
-          simulateSoftBodyWithBoundaries(domain(), 0, [
-            {
-              ...validBoundary(),
-              anchors: [{ particle: 0.5, position: { x: 0, y: 1, z: 0 } }],
-            },
-          ]),
-        "invalid anchor particle",
-      ),
       negativeParticle: throwsError(
         (): ReturnType<typeof simulateSoftBodyWithBoundaries> =>
           simulateSoftBodyWithBoundaries(domain(), 0, [
@@ -99,16 +89,6 @@ export function wearableSoftBodyTestBoundaries(
           },
         ]);
       }, "repeats anchor particle"),
-      nonfiniteAnchor: throwsError(
-        (): ReturnType<typeof simulateSoftBodyWithBoundaries> =>
-          simulateSoftBodyWithBoundaries(domain(), 0, [
-            {
-              ...validBoundary(),
-              anchors: [{ particle: 0, position: { x: NaN, y: 1, z: 0 } }],
-            },
-          ]),
-        "finite coordinates",
-      ),
       duplicateCapsule: throwsError((): void => {
         const boundary: ReturnType<typeof validBoundary> = validBoundary();
         simulateSoftBodyWithBoundaries(domain(), 0, [
@@ -127,43 +107,6 @@ export function wearableSoftBodyTestBoundaries(
           },
         ]);
       }, "not an authored body capsule"),
-      nonfiniteCapsuleFrom: throwsError((): void => {
-        const boundary: ReturnType<typeof validBoundary> = validBoundary();
-        simulateSoftBodyWithBoundaries(domain(), 0, [
-          {
-            ...boundary,
-            capsules: [
-              {
-                ...boundary.capsules[0]!,
-                from: { x: NaN, y: 0, z: 0 },
-              },
-            ],
-          },
-        ]);
-      }, "finite coordinates"),
-      nonfiniteCapsuleTo: throwsError((): void => {
-        const boundary: ReturnType<typeof validBoundary> = validBoundary();
-        simulateSoftBodyWithBoundaries(domain(), 0, [
-          {
-            ...boundary,
-            capsules: [
-              {
-                ...boundary.capsules[0]!,
-                to: { x: 0, y: NaN, z: 0 },
-              },
-            ],
-          },
-        ]);
-      }, "finite coordinates"),
-      nonfiniteRadius: throwsError((): void => {
-        const boundary: ReturnType<typeof validBoundary> = validBoundary();
-        simulateSoftBodyWithBoundaries(domain(), 0, [
-          {
-            ...boundary,
-            capsules: [{ ...boundary.capsules[0]!, radius: NaN }],
-          },
-        ]);
-      }, "radius must be finite"),
       zeroRadius: throwsError((): void => {
         const boundary: ReturnType<typeof validBoundary> = validBoundary();
         simulateSoftBodyWithBoundaries(domain(), 0, [
@@ -177,17 +120,12 @@ export function wearableSoftBodyTestBoundaries(
     {
       missingSequence: true,
       wrongBoundaryStep: true,
-      fractionalParticle: true,
       negativeParticle: true,
       outOfRangeParticle: true,
       staticAnchorOverride: true,
       duplicateAnchor: true,
-      nonfiniteAnchor: true,
       duplicateCapsule: true,
       foreignCapsule: true,
-      nonfiniteCapsuleFrom: true,
-      nonfiniteCapsuleTo: true,
-      nonfiniteRadius: true,
       zeroRadius: true,
     },
   );

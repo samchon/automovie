@@ -22,6 +22,7 @@ import { stand } from "../actions/stand";
 import { walk } from "../actions/walk";
 import { walkDelayed } from "../actions/walkDelayed";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
+import { AutoMovieMotionHumanArmJointCourse } from "../compose/AutoMovieMotionHumanArmJointCourse";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanTrunk } from "../compose/AutoMovieMotionHumanTrunk";
 import { HumanTrunk } from "../everyday/HumanTrunk";
@@ -392,7 +393,11 @@ export function pushSledPlan(
       return out;
     },
   );
-  return {
+  // The settle's joint-space carry, solved at its branch points once the
+  // performance is prepared.
+  const carrier: AutoMovieMotionHumanArmJointCourse.ICarrier =
+    AutoMovieMotionHumanArmJointCourse.carrier(body);
+  const plan: IAutoMovieMotionHumanActionPlan = {
     duration,
     events: [
       ...base.events,
@@ -449,15 +454,23 @@ export function pushSledPlan(
         lower: [a[k + 3]!, a[k + 4]!, a[k + 5]!],
         hand: [a[k + 6]!, a[k + 7]!, a[k + 8]!],
       });
-      return AutoMovieMotionHumanArm.carry(
-        body,
-        carrying,
-        { left: angles(0), right: angles(9) },
-        share,
-        undefined,
+      return carrier.carry(
+        t,
+        {
+          posture: carrying,
+          sides,
+          held: { left: angles(0), right: angles(9) },
+          share,
+        },
         resolution,
         projection,
       );
     },
   };
+  plan.prepare = (): void => {
+    base.prepare?.();
+    // The settle's branch points: its ends and its centre.
+    carrier.prepare([0, pushSled.SETTLE / 2, pushSled.SETTLE], plan.posture);
+  };
+  return plan;
 }

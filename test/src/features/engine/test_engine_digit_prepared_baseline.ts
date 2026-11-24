@@ -19,7 +19,6 @@ import { TestValidator } from "@nestia/e2e";
 
 import { joint } from "../internal/joint";
 import { nclose } from "../internal/nclose";
-import { throwsError } from "../internal/throwsError";
 import { vclose } from "../internal/vclose";
 
 /**

@@ -2,7 +2,6 @@ import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   AutoMovieMotionHumanChannel,
-  IAutoMovieMotionHumanArmAngles,
   IAutoMovieMotionHumanArmCarry,
   IAutoMovieMotionHumanArmClearance,
   IAutoMovieMotionHumanArmPlanned,
@@ -202,9 +201,7 @@ export namespace AutoMovieMotionHumanArmCarry {
       return {
         posture: chain !== undefined && weight > 0 ? chain(t, aimed) : aimed,
         sides: [props.side],
-        held: (): Partial<
-          Record<AutoMovieHumanSide, IAutoMovieMotionHumanArmAngles.IAngles>
-        > => ({ [props.side]: props.rest }),
+        held: { [props.side]: props.rest },
         share: weight,
       };
     };
@@ -256,11 +253,28 @@ export namespace AutoMovieMotionHumanArmCarry {
             planned(before),
             before,
           );
+        // The carry's branch points: its ends, the span's edges and the
+        // centre between each two.
+        const edges: number[] = [
+          ...new Set<number>(
+            [props.from, props.to, span?.start, span?.end].filter(
+              (at: number | undefined): at is number =>
+                at !== undefined && at >= props.from && at <= props.to,
+            ),
+          ),
+        ].sort((a: number, b: number): number => a - b);
+        const branches: number[] = edges.flatMap(
+          (at: number, i: number): number[] =>
+            i === 0 ? [at] : [(edges[i - 1]! + at) / 2, at],
+        );
         course = AutoMovieMotionHumanArmJointCourse(
           props.body,
-          props.to,
-          (at: number): AutoMovieMotionHumanArmJointCourse.IInput =>
-            input(before(at), at),
+          branches.map(
+            (at: number): AutoMovieMotionHumanArmJointCourse.IKnot => ({
+              seconds: at,
+              input: input(before(at), at),
+            }),
+          ),
         );
       },
       write: (
@@ -314,13 +328,13 @@ export namespace AutoMovieMotionHumanArmCarry {
               ? carry(
                   props.body,
                   carried.posture,
-                  carried.held(),
+                  carried.held,
                   carried.share,
                   undefined,
                   source,
                   projection,
                 )
-              : course(seconds, carried);
+              : course(seconds, carried.posture, carried.share);
         }
         // Off its plan at weight 0 the arm hangs at its rest, which the legs
         // and trunk the action moves may come into: it is let out as any

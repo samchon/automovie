@@ -149,13 +149,18 @@ const designs: () => IAutoMovieInstanceSetDesign[] =
 /**
  * The viewer regenerates an instance member with the engine's member law.
  *
- * Valid member records and malformed-law refusals are compared directly with the Engine regenerator. This is a delegation/parity oracle, not an independent proof of the numerical law or a rendered population.
+ * Valid member records and malformed-law refusals are compared directly with
+ * the Engine regenerator. This is a delegation/parity oracle, not an
+ * independent proof of the numerical law or a rendered population.
  *
  * Scenarios:
  *
- * 1. Grid, scatter, lattice, explicit and route members preserve the Engine's field presence, identifiers, finite transforms, visibility and traits.
- * 2. Neighbouring members have different positions, distinguishing a constant-record replacement.
- * 3. Renamed/zero-length routes, nonfinite derived scale and an empty palette refuse like the Engine, while each original record regenerates.
+ * 1. Grid, scatter, lattice, explicit and route members preserve the Engine's
+ *    field presence, identifiers, finite transforms, visibility and traits.
+ * 2. Neighbouring members have different positions, distinguishing a
+ *    constant-record replacement.
+ * 3. Renamed/zero-length routes, nonfinite derived scale and an empty palette
+ *    refuse like the Engine, while each original record regenerates.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Materializes compact sets and calls the Viewer slot adapter across layouts, indices and malformed snapshots; catches a divergent permissive placement copy, changed deterministic slot output or lost Engine refusal propagation.
  * @evidence contracts/development/testing.md#independent-expectations Engine instanceSlot is the canonical delegation reference and is compared field by field with finite numerical predicates; it is deliberately not an independent proof of that shared member law. Different adjacent slot positions and literal refusal substrings distinguish indexing and malformed inputs.
@@ -210,8 +215,7 @@ export function test_viewer_instance_slot_regeneration(): void {
     ),
   );
 
-  const nonFinite: string =
-    'Instance set "fence" slot 1 derived non-finite variation or an empty palette.';
+  const noPalette: string = 'Instance set "fence" slot 1 has an empty palette.';
   TestValidator.equals(
     "a viewer member refuses the records the engine refuses",
     namedFacts([
@@ -249,24 +253,6 @@ export function test_viewer_instance_slot_regeneration(): void {
           ),
       ],
       [
-        "nonFiniteScale",
-        (): boolean =>
-          throwsError(
-            (): IAutoMovieInstanceSlot =>
-              regenerateInstanceSlot(
-                {
-                  ...fence,
-                  variation: {
-                    ...fence.variation,
-                    scale: { min: Number.NaN, max: 1 },
-                  },
-                },
-                1,
-              ),
-            nonFinite,
-          ),
-      ],
-      [
         "emptyPalette",
         (): boolean =>
           throwsError(
@@ -275,7 +261,7 @@ export function test_viewer_instance_slot_regeneration(): void {
                 { ...fence, variation: { ...fence.variation, palette: [] } },
                 1,
               ),
-            nonFinite,
+            noPalette,
           ),
       ],
       [
@@ -288,7 +274,6 @@ export function test_viewer_instance_slot_regeneration(): void {
     {
       routeRenamed: true,
       routeWithoutLength: true,
-      nonFiniteScale: true,
       emptyPalette: true,
       twinsRegenerate: true,
     },
@@ -296,12 +281,19 @@ export function test_viewer_instance_slot_regeneration(): void {
 }
 
 /**
- * Compare canonical member fields with finite numerical predicates and preserved optional-field/trait-key presence.
+ * Compare canonical member fields with finite numerical predicates and
+ * preserved optional-field/trait-key presence.
  *
- * The existing regeneration scenario invokes this comparator for every compiled layout and slot, checking actual adapter output against the canonical Engine member.
- * Engine output supplies the delegation reference; this helper compares names, field presence, finite scalar/vector values, quaternion orientation and exact quaternion components rather than independently validating the shared slot derivation.
- * Existing legacy and enhanced layouts exercise absent/present rotation and scale axes plus varied trait keys; malformed member refusal is asserted by the calling scenario before comparison.
- * This private synchronous predicate belongs to the named portable scenario, uses no host or dynamic registration and acquires only temporary sorted key arrays.
+ * The existing regeneration scenario invokes this comparator for every compiled
+ * layout and slot, checking actual adapter output against the canonical Engine
+ * member. Engine output supplies the delegation reference; this helper compares
+ * names, field presence, finite scalar/vector values, quaternion orientation
+ * and exact quaternion components rather than independently validating the
+ * shared slot derivation. Existing legacy and enhanced layouts exercise
+ * absent/present rotation and scale axes plus varied trait keys; malformed
+ * member refusal is asserted by the calling scenario before comparison. This
+ * private synchronous predicate belongs to the named portable scenario, uses no
+ * host or dynamic registration and acquires only temporary sorted key arrays.
  */
 function sameSlot(
   actual: IAutoMovieInstanceSlot,

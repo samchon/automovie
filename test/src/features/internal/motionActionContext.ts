@@ -1,16 +1,26 @@
 import type {
   AutoMovieHumanSide,
+  IAutoMovieHumanoidSurfaces,
   IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanBase,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanEntryState,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanPropReader,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanSkill,
   IAutoMovieMotionTarget,
   IAutoMoviePose,
   IAutoMovieResolvedBone,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
+import {
+  Quaternion,
+  Vector3,
+  resolveAutoMovieHumanoidSurfaces,
+} from "@automovie/engine";
 import {
   HumanSkill,
   poseBones,
@@ -38,6 +48,7 @@ export function motionActionContext<P extends object>(
   params: P,
   options: motionActionContext.IOptions = {},
 ): IAutoMovieMotionHumanActionContext<P> {
+  type IPartner = motionActionContext.IPartner;
   const at: IAutoMovieVector3 = options.at ?? { x: 0, y: 0, z: 0 };
   const yaw: number = options.yaw ?? 0;
   const subject: string = options.subject ?? "a";
@@ -63,6 +74,27 @@ export function motionActionContext<P extends object>(
   };
   const refuse = (what: string): never => {
     throw new Error(`A unit context reads no ${what}`);
+  };
+  const props = (name: string): IAutoMovieMotionHumanProp =>
+    options.props?.find(
+      (prop: IAutoMovieMotionHumanProp): boolean => prop.subject === name,
+    ) ?? refuse(`prop ${name}`);
+  const performer = (name: string): IAutoMovieMotionHumanPerformerReader => {
+    const other: IPartner =
+      options.partners?.find((p: IPartner): boolean => p.subject === name) ??
+      refuse(`performer ${name}`);
+    const at = (seconds: number): IAutoMovieMotionHumanPosture =>
+      other.plan.posture(Math.min(other.plan.duration, Math.max(0, seconds)));
+    return {
+      body: other.body,
+      bones: (seconds: number) =>
+        poseBones(other.body, resolveHumanPosture(other.body, at(seconds))),
+      root: (seconds: number) => ({
+        position: at(seconds).root,
+        yaw: at(seconds).yaw,
+      }),
+      posture: at,
+    };
   };
   return {
     subject,
@@ -93,13 +125,46 @@ export function motionActionContext<P extends object>(
       uses: {},
     },
     start: options.start ?? 0,
-    aim: (target: IAutoMovieMotionTarget) =>
-      target.kind === "point" && target.frame === "world"
-        ? { point: target.at, normal: { x: 0, y: 1, z: 0 } }
-        : refuse(`${target.kind} target`),
+    aim: (target: IAutoMovieMotionTarget, seconds: number) => {
+      if (target.kind === "point" && target.frame === "world")
+        return { point: target.at, normal: { x: 0, y: 1, z: 0 } };
+      if (target.kind === "person") {
+        const other: IAutoMovieMotionHumanPerformerReader = performer(
+          target.subject,
+        );
+        const frame: IAutoMovieHumanoidSurfaces.IFrame =
+          other.body.surfaces.regions[target.region];
+        return resolveAutoMovieHumanoidSurfaces.pointNormal(
+          frame,
+          other.bones(seconds).get(frame.bone)!,
+        );
+      }
+      if (target.kind !== "prop") return refuse(`${target.kind} target`);
+      const prop: IAutoMovieMotionHumanProp = props(target.subject);
+      const frame: IAutoMovieRigidTransform =
+        prop.motion?.(seconds) ?? prop.frame;
+      const local: IAutoMovieMotionHumanProp["points"][string] | undefined =
+        prop.points[target.point];
+      if (local === undefined) return refuse(`point ${target.point}`);
+      return {
+        point: Vector3.add(
+          frame.position,
+          Quaternion.rotateVector(frame.rotation, local.point),
+        ),
+        normal: Quaternion.rotateVector(frame.rotation, local.normal),
+      };
+    },
     action: (): never => refuse("placed action"),
-    performer: (): never => refuse("other performer"),
-    prop: (): never => refuse("prop"),
+    performer: (name: string): IAutoMovieMotionHumanPerformerReader =>
+      performer(name),
+    prop: (name: string): IAutoMovieMotionHumanPropReader => {
+      const prop: IAutoMovieMotionHumanProp = props(name);
+      return {
+        prop,
+        frame: (seconds: number): IAutoMovieRigidTransform =>
+          prop.motion?.(seconds) ?? prop.frame,
+      };
+    },
     meeting: (): never => refuse("meeting"),
     cue: () => [],
     obstacles: () => [],
@@ -114,6 +179,42 @@ export function motionActionContext<P extends object>(
 
 /** The options of {@link motionActionContext}. */
 export namespace motionActionContext {
+  /**
+   * The context of an action entered where a plan ends: its last posture,
+   * on the base it declares (standing when it declares none).
+   *
+   * @param body The performer's body.
+   * @param before The plan the action follows.
+   * @param params The law's parameters.
+   * @param options The props and the seed, as {@link motionActionContext} takes
+   *   them.
+   * @returns The context.
+   */
+  export function after<P extends object>(
+    body: IAutoMovieMotionHumanBody,
+    before: IAutoMovieMotionHumanActionPlan,
+    params: P,
+    options: Omit<IOptions, "posture" | "base"> = {},
+  ): IAutoMovieMotionHumanActionContext<P> {
+    return motionActionContext(body, params, {
+      ...options,
+      posture: before.posture(before.duration),
+      base: before.base ?? { kind: "standing" },
+    });
+  }
+
+  /** Another performer: its subject, body and plan, read on the same clock. */
+  export interface IPartner {
+    /** Its subject. */
+    subject: string;
+
+    /** Its body. */
+    body: IAutoMovieMotionHumanBody;
+
+    /** What it does. */
+    plan: IAutoMovieMotionHumanActionPlan;
+  }
+
   /** Where and how the performer enters. */
   export interface IOptions {
     /** The floor point it stands at; the origin when absent. */
@@ -130,6 +231,12 @@ export namespace motionActionContext {
 
     /** Its subject; `"a"` when absent. */
     subject?: string;
+
+    /** The props in the scene, standing where their frames put them. */
+    props?: readonly IAutoMovieMotionHumanProp[];
+
+    /** The other performers, each by its subject, body and plan. */
+    partners?: readonly IPartner[];
 
     /** The chain seed; `"unit"` when absent. */
     seed?: string;

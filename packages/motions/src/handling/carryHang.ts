@@ -135,7 +135,7 @@ export namespace carryHang {
         projection,
       );
       if (sides.length === 0)
-        return { posture, sides: [], held: (): Held => ({}), share: 1 };
+        return { posture, sides: [], held: {}, share: 1 };
       const share: number = minimumJerk.share(Math.min(1, t / SETTLE));
       const trunk: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
         HumanTrunk.resolve(body, posture, undefined, resolution, shoulders);
@@ -184,9 +184,11 @@ export namespace carryHang {
         limbs,
       };
       if (share >= 1)
-        return { posture: carrying, sides, held: (): Held => ({}), share: 1 };
-      // The arms as the walk swings them, read where the carry leaves them.
-      const held = (): Held => {
+        return { posture: carrying, sides, held: {}, share: 1 };
+      // The arms as the walk swings them, read where the carry leaves them:
+      // at the course's knots, and at every second before it is solved.
+      if (course !== undefined) return { posture: carrying, sides, held: {}, share };
+      const swung = (): Held => {
         const walked: ReturnType<typeof resolveHumanPosture> =
           resolveHumanPosture.seeded(
             body,
@@ -208,7 +210,7 @@ export namespace carryHang {
           ),
         );
       };
-      return { posture: carrying, sides, held, share };
+      return { posture: carrying, sides, held: swung(), share };
     };
     return {
       duration,
@@ -263,20 +265,26 @@ export namespace carryHang {
           ? AutoMovieMotionHumanArm.carry(
               body,
               input.posture,
-              input.held(),
+              input.held,
               input.share,
               undefined,
               resolution,
               projection,
             )
-          : course(t, input);
+          : course(t, input.posture, input.share);
       },
       prepare: (): void => {
         base.prepare?.();
+        // The settle's branch points: its ends and its centre.
+        const settle: number = Math.min(duration, SETTLE);
         course = AutoMovieMotionHumanArmJointCourse(
           body,
-          Math.min(duration, SETTLE),
-          (t: number): AutoMovieMotionHumanArmJointCourse.IInput => inputs(t),
+          [0, settle / 2, settle].map(
+            (t: number): AutoMovieMotionHumanArmJointCourse.IKnot => ({
+              seconds: t,
+              input: inputs(t),
+            }),
+          ),
         );
       },
     };

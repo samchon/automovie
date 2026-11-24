@@ -74,6 +74,7 @@ export function HumanPerformancePlaceProp(
                   ),
               }
             : undefined,
+          own,
         ),
       launchAt: (seconds: number): IAutoMovieMotionPropLaunch | undefined =>
         HumanPropFlight.active(self, subject, seconds)?.published,

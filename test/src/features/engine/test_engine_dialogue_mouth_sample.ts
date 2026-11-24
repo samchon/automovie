@@ -6,7 +6,7 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { nclose, throwsError } from "../internal/predicates";
+import { nclose } from "../internal/predicates";
 
 /**
  * One actor's dialogue mouth is read from the film's mouth track at any second.

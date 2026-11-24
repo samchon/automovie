@@ -458,16 +458,18 @@ export namespace armWrestle {
                 )
               : posed,
           sides: ["right"],
-          held: (): Parameters<typeof AutoMovieMotionHumanArm.carry>[2] => ({
-            right: begin,
-          }),
+          held: { right: begin },
           share: envelope,
         });
       },
     };
     plan.prepare = (): void => {
       base.prepare?.();
-      carrier.prepare(duration, plan.posture);
+      // The envelope's branch points: each ramp's ends and centre.
+      carrier.prepare(
+        [0, arrive / 2, arrive, relax, relax + arrive / 2, Math.min(duration, relax + arrive)],
+        plan.posture,
+      );
     };
     return plan;
   }

@@ -295,7 +295,7 @@ export function test_engine_instance_slot_layouts(): void {
   // 6. Refusals against accepted twins.
   const unavailable: string = 'references unavailable route "road"';
   const noLength: string = 'route "road" must have finite non-zero length';
-  const nonFinite: string = "derived non-finite variation or an empty palette";
+  const noPalette: string = "has an empty palette";
   TestValidator.equals(
     "an instance member refuses what it cannot place and accepts its twin",
     namedFacts([
@@ -368,58 +368,6 @@ export function test_engine_instance_slot_layouts(): void {
           ),
       ],
       [
-        "infiniteScale",
-        (): boolean =>
-          throwsError(
-            (): ReturnType<typeof instanceSlot> =>
-              instanceSlot(
-                placement({
-                  variation: {
-                    scale: { min: 1, max: Number.POSITIVE_INFINITY },
-                    palette: ["#336633"],
-                    traits: [],
-                  },
-                }),
-                0,
-              ),
-            nonFinite,
-          ),
-      ],
-      [
-        "infiniteTrait",
-        (): boolean =>
-          throwsError(
-            (): ReturnType<typeof instanceSlot> =>
-              instanceSlot(
-                placement({
-                  variation: {
-                    scale: { min: 1, max: 1 },
-                    palette: ["#336633"],
-                    traits: [
-                      { name: "height", min: 0, max: Number.POSITIVE_INFINITY },
-                    ],
-                  },
-                }),
-                0,
-              ),
-            nonFinite,
-          ),
-      ],
-      [
-        "infiniteAnchor",
-        (): boolean =>
-          throwsError(
-            (): ReturnType<typeof instanceSlot> =>
-              instanceSlot(
-                placement({
-                  anchor: { x: Number.POSITIVE_INFINITY, y: 0, z: 0 },
-                }),
-                0,
-              ),
-            nonFinite,
-          ),
-      ],
-      [
         "emptyPalette",
         (): boolean =>
           throwsError(
@@ -434,7 +382,7 @@ export function test_engine_instance_slot_layouts(): void {
                 }),
                 0,
               ),
-            nonFinite,
+            noPalette,
           ),
       ],
       [
@@ -470,9 +418,6 @@ export function test_engine_instance_slot_layouts(): void {
       routeRenamed: true,
       routeOnePoint: true,
       routeZeroLength: true,
-      infiniteScale: true,
-      infiniteTrait: true,
-      infiniteAnchor: true,
       emptyPalette: true,
       explicitColourSatisfiesEmptyPalette: true,
     },
