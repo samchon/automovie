@@ -1,77 +1,59 @@
-# src/geometry/construction/AutoMovieLoftSectionOriginal.ts#AutoMovieLoftSectionOriginal
+# src/geometry/construction/AutoMovieLoftSectionOriginal.ts#AutoMovieLoftSectionOriginal.fault
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States that admission and interval selection are shared by the direct source and the chain geometry.
-
-## @evidence contracts/development/design.md#principled-representation
-
-An original section's support is the half-open physical station interval `[domain[0], domain[1])` in mm, starting no earlier than the chain's first station and ending before its last; `fault` admits it and `active` selects it. That the three capabilities agree with the retained law at the protected last station remains the producer's responsibility.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Two functions over `IAutoMovieLoftSectionConnect.IOriginal`, read by AutoMovieLoftSection, AutoMovieLoftPoint, AutoMovieLoftSectionConnect, AutoMovieLoftViewFullSource and AutoMovieViewLoft.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The namespace holds no state and no alternate source; a malformed original is refused by `fault`, not repaired.
-
-# src/geometry/construction/AutoMovieLoftSectionOriginal.ts#AutoMovieLoftSectionOriginal.fault
+States the shared admission for an exact regular section or an original prefix. Checks the name, station bounds in millimetres, the three required source capabilities and the two optional fixed-station readers.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-The new local law occupies an explicit bounded interval of an original direct source.
-
-## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
-
-A malformed source refuses admission. Bounds and function presence do not prove geometry or derivative correctness.
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States that the finite original prefix and its capability owners are checked. The refusal string and the null of an admitted source are left to the signature.
+A complete regular section must match both original station bounds exactly and own an uncapped domain. A prefix begins at or after the first station and ends before the last so the retained distal law owns the protected station.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-One predicate over the record's name, bounds and three capabilities, shared by the chain's admission, the full-source reader and the view loft.
+One guard checks the record and its capabilities. The declared section mode then selects its bound and cap checks. Chain admission, the direct-source reader and the view loft share the same function.
+
+## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
+
+Returns a named refusal when bounds, cap or capability declarations conflict. The actual producer owns agreement of the geometric values and derivatives at the protected station.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
-Constant time.
+Uses constant-size checks on two bounds and the names and presence of the capabilities.
 
 ## @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work
 
-A pure check coordinates no work.
+A synchronous scalar operation over its supplied inputs prepares no shared work.
 
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
-Retains nothing; returns a string or null.
+The reader returns a refusal string or null. The source record remains with its caller.
 
 # src/geometry/construction/AutoMovieLoftSectionOriginal.ts#AutoMovieLoftSectionOriginal.active
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States that the protected last station belongs to the retained distal law.
+States that complete regular domains include both exact ends and that the prefix's protected last station belongs to the retained distal law.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-The original law owns the stations from its first bound up to, not including, its protected last bound, where the retained distal law takes over; an absent original owns no station.
+Selects the admitted source on its closed interval in complete regular mode or on its half-open interval for a prefix. An absent original owns no station.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-One comparison shared by every reader that chooses between the original section and the retained law.
+One conditional interval comparison serves the direct-source and chain readers.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
-The comparisons are exact against the declared bounds; no tolerance widens the interval.
+The declared mode and exact physical station bounds determine selection.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
-Constant time.
+Uses a constant number of comparisons.
 
 ## @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work
 
-A pure comparison coordinates no work.
+A synchronous scalar operation over its supplied inputs prepares no shared work.
 
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
-Retains nothing.
+Only the Boolean result leaves the call.

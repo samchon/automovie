@@ -85,6 +85,12 @@ export namespace AutoMovieLoftPoint {
         ? AutoMovieLoftChain.coefficients(chain, s)
         : null;
     const f: IAutoMovieLoftSectionFrame = AutoMovieLoftChain.frame(chain, s);
+    const originalPoint:
+      | ((phase: number) => IAutoMovieLoftSectionPhase["p"])
+      | undefined =
+      original === undefined
+        ? undefined
+        : original.pointAt?.(s) ?? ((t: number) => original.point(s, t));
 
     // A lifted section leaves its plane along the frame normal by the
     // spline of its lift values, evaluated as the x block of a section
@@ -95,8 +101,8 @@ export namespace AutoMovieLoftPoint {
 
     return (t: number): [number, number, number] => {
       const p: readonly number[] =
-        original !== undefined
-          ? original.point(s, t)
+        originalPoint !== undefined
+          ? originalPoint(t)
           : source === null
             ? AutoMovieLoftChain.section(chain, c!, t)
             : source(t).p;

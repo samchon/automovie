@@ -61,7 +61,7 @@ export interface IAutoMovieViewPart {
   /** What owns the quarters' fullness at each station. */
   fullness: IAutoMovieViewPart.Fullness;
 
-  /** Optional immutable original section field on a bounded proximal span, sharing the ordinary source's downstream field and cap. */
+  /** Optional immutable bounded prefix or complete original uncapped regular section field. */
   originalSection?: IAutoMovieLoftSectionConnect.IOriginal;
 
   /**

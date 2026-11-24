@@ -139,7 +139,7 @@ Geometry/rows belong to the caller's closure; each returned total2 owns new vect
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-Reads the same original, endpoint and continuation laws under a checked immutable bracket scope.
+Reads the same original, endpoint and continuation laws under a checked immutable bracket scope. A supplied fixed-station total2 reader handles repeated phases of that exact original station.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 

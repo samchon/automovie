@@ -38,11 +38,11 @@ Native end selects weight one at that end, and all station coordinates use mm.
 
 ## @evidence contracts/development/design.md#principled-representation
 
-Its complete physical station and radian phase functions own the supported interval; the original distal section law owns the exact protected boundary.
+The three original capabilities own the supported physical station and radian phase interval. A prefix transfers its exact protected station to the distal section. A complete regular owner includes both exact uncapped ends.
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
-Direct reads and emitted chains share these three capabilities and one immutable interval.
+Direct reads and emitted chains share three capabilities and one immutable interval. Repeated phases may use the corresponding fixed-station point or total2 reader on the same original field.
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 
@@ -50,4 +50,4 @@ The point and derivatives are source functions. Compatibility rows neither suppl
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-Defines local units, immutable source lifetime and the protected endpoint convention.
+Defines local units, immutable source lifetime, the two endpoint conventions and equivalence of the fixed-station readers.

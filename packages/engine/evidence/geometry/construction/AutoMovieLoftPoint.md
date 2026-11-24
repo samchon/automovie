@@ -44,7 +44,7 @@ Reuses the station's frame and prepared arrays across every requested phase.
 
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
-The returned closure retains the immutable chain, including its source owners, and one station's prepared arrays/frame until its caller releases it; no cache is added here.
+The returned closure retains the immutable chain and one station's prepared arrays, frame and optional original point reader until its caller releases it.
 
 # src/geometry/construction/AutoMovieLoftPoint.ts#AutoMovieLoftPoint.point
 

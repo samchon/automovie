@@ -154,27 +154,35 @@ export namespace AutoMovieViewLoft {
       direct === null ? null : AutoMovieLoftViewRead.prepare(direct);
     const field = part.originalSection;
     if (field !== undefined) {
-      const fault = AutoMovieLoftSectionOriginal.fault(field, first, last);
+      const fault = AutoMovieLoftSectionOriginal.fault(
+        field,
+        first,
+        last,
+        closes.length !== 0,
+      );
       if (fault !== null || direct === null || closes.includes("bottom")) {
         report("original section", fault ?? "a bounded original section needs a direct regular proximal field and a retained native tail");
         return empty();
       }
-      if (direct.caps.some(({ pole, span }): boolean => span === null || field.domain[1] > pole - span)) {
-        report("original section", "the original section overlaps the original distal cap");
-        return empty();
-      }
-      const mark = field.domain[1], retained = directRead!.jets(mark);
-      if (typeof retained === "string") {
-        report("original section", retained);
-        return empty();
-      }
-      const tail = AutoMovieLoftSectionNative.jet(retained);
-      for (let k = 0; k < 2 * part.order; ++k) {
-        const phi = Math.PI * k / part.order;
-        const before = field.jet(mark, phi), after = tail(phi);
-        if (!sameJet(before, after)) {
-          report("original section", "the original section does not preserve its protected local 0/1/2 jets");
+      if (field.regular !== true) {
+        if (direct.caps.some(({ pole, span }): boolean => span === null || field.domain[1] > pole - span)) {
+          report("original section", "the original section overlaps the original distal cap");
           return empty();
+        }
+        const mark = field.domain[1], retained = directRead!.jets(mark);
+        if (typeof retained === "string") {
+          report("original section", retained);
+          return empty();
+        }
+        const tail = AutoMovieLoftSectionNative.jet(retained);
+        const before =
+          field.jetAt?.(mark) ?? ((phi: number) => field.jet(mark, phi));
+        for (let k = 0; k < 2 * part.order; ++k) {
+          const phi = Math.PI * k / part.order;
+          if (!sameJet(before(phi), tail(phi))) {
+            report("original section", "the original section does not preserve its protected local 0/1/2 jets");
+            return empty();
+          }
         }
       }
     }
@@ -479,8 +487,12 @@ export namespace AutoMovieViewLoft {
         }),
       ),
       ...original.map((row): Row => ({
-        station: row.station, frame: row.frame,
-        point: (phi) => row.field.point(row.station, phi), view: undefined,
+        station: row.station,
+        frame: row.frame,
+        point:
+          row.field.pointAt?.(row.station) ??
+          ((phi) => row.field.point(row.station, phi)),
+        view: undefined,
       })),
     ].sort((a: Row, b: Row): number => a.station - b.station);
     const layers: IAutoMovieLoftChain.ILayer[] = [];
@@ -596,7 +608,9 @@ export namespace AutoMovieViewLoft {
       ...(field === undefined ? {} : { original }),
       diagnostics,
       continuity:
-        chains.length === 0 ? CONTINUITY : { phase: "C1", station: "C1" },
+        chains.length === 0 && field?.regular !== true
+          ? CONTINUITY
+          : { phase: "C1", station: "C1" },
     };
   }
 }

@@ -36,7 +36,7 @@ Scalar preparation is linear in the source controls. Point0 can prepare one stat
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 
-The fixed-station Point0 reader shares its original section and frame across a phase sweep. Source structure is admitted once for either capability.
+The fixed-station Point0 reader shares its original section and frame across a phase sweep, using the original's fixed-station capability when supplied. Complete regular sections must match the full uncapped direct domain. Source structure is admitted once for either capability.
 
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 

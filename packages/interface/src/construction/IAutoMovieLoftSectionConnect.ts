@@ -7,24 +7,31 @@ import type { IAutoMovieLoftSectionSource } from "./IAutoMovieLoftSectionSource"
  * Declared generating laws on regular station intervals changed by continuation.
  */
 export namespace IAutoMovieLoftSectionConnect {
-  /**
-   * A bounded original local section generator before frame, lift and features.
-   */
+  /** Original local section generator before frame, lift and features. */
   export interface IOriginal {
     /** Stable name of this complete original material field. */
     readonly name: string;
 
-    /** Support in physical mm, including its first station. At the protected last station its 0/1/2 jets agree with the original tail. */
+    /** Physical mm. A bounded prefix hands its final 0/1/2 jets to the retained distal field. A regular owner includes both exact ends. */
     readonly domain: readonly [number, number];
+
+    /** Own the complete original uncapped station interval. Omission selects a bounded prefix with a protected distal field. */
+    readonly regular?: true;
 
     /** Local section plane position at physical mm and correspondence radians. */
     readonly point: (station: number, phase: number) => [number, number];
+
+    /** Prepare the same Point0 at one fixed physical station. */
+    readonly pointAt?: (station: number) => (phase: number) => [number, number];
 
     /** The same point and its first two phase derivatives, without requesting physical station derivatives. */
     readonly phase: (station: number, phase: number) => IAutoMovieLoftSectionPhase;
 
     /** The same local field's actual physical-station/radian total2. */
     readonly jet: (station: number, phase: number) => IAutoMovieLoftSectionJet;
+
+    /** Prepare the same total2 at one fixed physical station. */
+    readonly jetAt?: (station: number) => (phase: number) => IAutoMovieLoftSectionJet;
   }
 
   /**

@@ -64,7 +64,11 @@ export namespace AutoMovieLoftViewFullSource {
     const axis: IAutoMovieLoftViewFullSource.IInput["axis"] = input.axis;
     const original = input.originalSection;
     if (original !== undefined) {
-      const error = AutoMovieLoftSectionOriginal.fault(original, ...domain);
+      const error = AutoMovieLoftSectionOriginal.fault(
+        original,
+        ...domain,
+        source.caps.length !== 0,
+      );
       if (error !== null) throw new AutoMovieLoftAdmissionError(error);
     }
     const reliefs: NonNullable<IAutoMovieLoftViewFullSource.IInput["reliefs"]> =
@@ -125,7 +129,7 @@ export namespace AutoMovieLoftViewFullSource {
         local: pole
           ? null
           : external
-            ? (t) => original!.point(s, t)
+            ? original!.pointAt?.(s) ?? ((t) => original!.point(s, t))
             : AutoMovieLoftSectionNative.point(values!),
       };
     };

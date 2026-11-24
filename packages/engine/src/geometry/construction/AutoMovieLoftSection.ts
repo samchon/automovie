@@ -90,6 +90,7 @@ export namespace AutoMovieLoftSection {
           chain.originalSection,
           chain.layers[0]!.y,
           chain.nativeSource.data.domain[1],
+          chain.pole !== undefined || chain.opposite !== undefined,
         ) !== null)
     )
       return false;
@@ -204,8 +205,10 @@ export namespace AutoMovieLoftSection {
     binding: Binding,
     source?: ReturnType<typeof AutoMovieLoftViewRead.prepare>,
   ): ReturnType<IReader["jet"]> {
-    if (AutoMovieLoftSectionOriginal.active(chain.originalSection, station))
-      return (phi) => chain.originalSection!.jet(station, phi);
+    if (AutoMovieLoftSectionOriginal.active(chain.originalSection, station)) {
+      const original = chain.originalSection!;
+      return original.jetAt?.(station) ?? ((phi) => original.jet(station, phi));
+    }
     const selected: Owner | null = owner(chain, station, binding);
     if (selected === null) return null;
     if (selected.kind === "source")

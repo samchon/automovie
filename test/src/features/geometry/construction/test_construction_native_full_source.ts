@@ -36,6 +36,9 @@ type V = [number, number, number];
  *    keep the complete original Point0 before and after view-loft publication.
  * 6. A successful raw cap Point0 does not admit an original field overlapping
  *    that cap as an ordinary solid view loft.
+ * 7. A complete uncapped original field with radius 3 + s/4 supplies both
+ *    ends and the interior's positions and jets. Incomplete or tipped
+ *    intervals refuse both raw and realized consumers.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the public original reader on complete in-memory descriptors and separately compares its Point0/physical2 with actual ViewLoft/LoftChain/LoftJet consumers. Every scenario is collected before one verdict; no process, reference asset or renderer is used.
  * @evidence contracts/development/testing.md#independent-expectations A circle has elementary trigonometric derivatives. On the first cardinal-cubic span the sole central coefficient contributes x^3*y^3/36; expanding its shifted argument gives the explicit monomials below, differentiated algebraically without Relief.height/jet or finite differences. The cap uses radius 2sqrt(s).
@@ -182,6 +185,48 @@ export function test_construction_native_full_source(): void {
   const unavailable = AutoMovieViewLoft.create(overlap);
   if (unavailable.chain !== null || !unavailable.diagnostics.some((row) => row.contract === "original section"))
     failures.push("a direct Point0 promoted an original section overlapping a bottom cap to an admitted loft");
+
+  // One regular original field owns both terminal rings and the same unsampled interior.
+  const regular: NonNullable<IAutoMovieViewPart["originalSection"]> = {
+    name: part.name,
+    regular: true,
+    domain: [0, 4],
+    point: (s, phase) => [(3 + s / 4) * Math.cos(phase), (3 + s / 4) * Math.sin(phase)],
+    phase: (s, phase) => {
+      const p = regular.point(s, phase);
+      return { p, t: [-p[1], p[0]], tt: [-p[0], -p[1]] };
+    },
+    jet: (s, phase) => ({
+      ...regular.phase(s, phase),
+      s: [Math.cos(phase) / 4, Math.sin(phase) / 4],
+      ss: [0, 0],
+      st: [-Math.sin(phase) / 4, Math.cos(phase) / 4],
+    }),
+    pointAt: (s) => (phase) => regular.point(s, phase),
+    jetAt: (s) => (phase) => regular.jet(s, phase),
+  };
+  const complete = { ...part, reliefs: [], originalSection: regular };
+  const original = AutoMovieLoftViewFullSource.create(complete);
+  const authored = AutoMovieViewLoft.create(complete);
+  if (authored.chain === null || authored.surface === null || authored.continuity.phase !== "C1")
+    failures.push("the complete regular field did not become the loft's original owner");
+  else for (const station of [0, 1.5, 4]) {
+    const position: V = [(3 + station / 4) * Math.cos(t), station, (3 + station / 4) * Math.sin(t)];
+    const velocity: V = [Math.cos(t) / 4, 1, Math.sin(t) / 4];
+    check("complete direct Point0", original.pointAt(station)(t), position);
+    check("complete direct derivative", original.jet(station, t).u, velocity);
+    check("complete loft Point0", AutoMovieLoftChain.point(authored.chain, station, t), position);
+    check("complete loft derivative", authored.surface.jet(station, t).u, velocity);
+  }
+  for (const input of [
+    { ...complete, originalSection: { ...regular, domain: [0, 3] as const } },
+    { ...part, ...capInput, originalSection: regular },
+  ]) {
+    refuses("incompatible complete original scope", () => AutoMovieLoftViewFullSource.create(input));
+    if (AutoMovieViewLoft.create(input).chain !== null)
+      failures.push("a complete original field was admitted without both uncapped bounds");
+  }
+
   check("collapsed Point0", cap.point(0, t), [0, 0, 0]);
   refuses("collapsed pole2", (): unknown => cap.jet(0, t));
   const capJet: IAutoMovieSolidSurface.IJet = cap.jet(1, t);
