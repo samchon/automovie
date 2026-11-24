@@ -4,15 +4,16 @@ Apply visual debugging to form with the checks below.
 
 ## Measures
 
-Write the form's `IAutoMovieFormExpectation` before measuring it, and check the form against it with `checkAutoMovieFormExpectation` from `@automovie/engine`. The check also tries the form's box and convex hull, which a useful expectation rejects. When it reports either as loose, add the empty point or genus that tells the form from it, or list it in `matches` when the form is meant to equal it.
+Settle these by measurement before looking. Before measuring, write each one that has a field into the form's `IAutoMovieFormExpectation`:
 
-Settle these by measurement before looking:
-
-- overall dimensions against the real ones;
-- clearances and contacts between parts;
-- part and triangle counts;
+- overall dimensions against the real ones, as its `size`;
+- clearances and contacts between parts, as its `pairs`;
+- the number of separate pieces, as its `pieces`;
+- the triangle count;
 - open edges and edges that more than two triangles share;
 - reversed faces, triangles without area and a surface passing through itself.
+
+Check the form against the expectation with `checkAutoMovieFormExpectation` from `@automovie/engine`. The check also tries the form's box and convex hull, which a useful expectation rejects. When it reports either as loose, add the empty point or genus that tells the form from it, or list it in `matches` when the form is meant to equal it.
 
 ## Coverage
 

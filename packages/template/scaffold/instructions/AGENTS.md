@@ -27,7 +27,7 @@ Keep subjects simple and motion detailed.
 Realize the screenplay in code.
 
 - Take every outcome from the screenplay.
-- Comment each value with its source and how it realizes it.
+- [Comment each value](.agents/skills/development/modules.md#documenting-source) with its source and how it realizes it.
 - Compute physics only for the response, parts and moments the scene needs.
 
 Work from evidence and verify the result.
@@ -67,4 +67,4 @@ Use the [production workflow](.agents/skills/production/workflow.md#commissioned
 | [review](.agents/skills/review/SKILL.md) | Reviewing work, accepting deliveries or estimating requested quality |
 | [story](.agents/skills/story/SKILL.md) | Researching, planning, writing or repairing narrative |
 | [video](.agents/skills/video/SKILL.md) | Finishing the hint as a direct 3D film or a generated film |
-| [visual-debugging](.agents/skills/visual-debugging/SKILL.md) | Judging pictures or checking the viewer and capture |
+| [visual-debugging](.agents/skills/visual-debugging/SKILL.md) | Judging pictures or checking the inspector and capture |

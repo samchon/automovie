@@ -1,6 +1,6 @@
 # Finishing
 
-Before [assembly](../production/assembly.md), repair, upscale, conform and match each accepted take in order. Then composite clean renders over the takes or the assembled film. Keep derivatives beside the original under [media records](../production/media-records.md#records). Follow [film sound](../audio/film-sound.md) for sound.
+Before [assembly](../production/assembly.md), repair, upscale, conform and match each accepted take in the order of the finishing steps. Composite clean renders as compositing sets. Keep derivatives beside the original under [media records](../production/media-records.md#records). Follow [film sound](../audio/film-sound.md) for sound.
 
 ## Finishing steps
 
@@ -37,13 +37,15 @@ Read take color tags. Record one working color space in project context and assi
 
 Match neighboring takes in color and exposure by grading, never by regenerating. A shared grain or texture over the film hides their differing sharpness.
 
-### Compositing
+## Compositing
 
-Composite legible text, signs, screens and logos in post from their own clean render, because models garble lettering. For surface graphics, flat lettering included, that render is the `graphics` pass of the README render command's `--passes` option. Its RGBA frames carry the graphics' coverage as straight alpha, with whatever stands in front held out. Raised lettering is ordinary geometry and stays out of that pass, so lift it from the beauty pass through its node's mask region.
+Composite a clean render's graphics over the assembled film. Composite whole 3D subjects over their take, before assembly.
 
-Unlike the structural passes, the `graphics` pass goes through a transition as the picture does, so composite it over the delivered film frame for frame without cutting it at the transition.
+Composite legible text, signs, screens and logos in post from their own clean render, because models garble lettering. For surface graphics, flat lettering included, that render is the `graphics` guide pass of the README render command's `--passes` option. Composite it by the alpha convention its `record.json` names. Raised lettering is ordinary geometry and stays out of that pass, so lift it from the beauty pass through its node's mask region.
 
-To composite whole 3D subjects over a generated take, render the film over a transparent background with the README render command, which writes a straight-alpha `film.mov` with no audio. Use either render only under the [render report check](../production/media-records.md#render-reports) of its folder.
+The `graphics` pass goes through a transition as the picture does, so composite it frame for frame, without cutting it at the transition.
+
+To composite whole 3D subjects over a generated take, render the film with the README render command's `--background transparent` option. Use either render only under the [render report check](../production/media-records.md#render-reports) of its folder.
 
 ## Provenance and disclosure
 

@@ -6,7 +6,9 @@ A coarse form is the few primitives that tell a reader of the hint what a subjec
 
 Use two to four simple volumes in their real arrangement to distinguish the subject ([Biederman 1987](https://doi.org/10.1037/0033-295X.94.2.115)). Name it in the generation prompt.
 
-Add only parts a scene interacts with or moves separately. Define their affordances under entity work.
+Add only parts a scene interacts with or moves separately, at any size. Define their affordances under entity work.
+
+Keep any other part only where the scene's camera distance resolves its [form tier](crafting/construction.md#form-tiers).
 
 ## Size
 
@@ -14,7 +16,7 @@ Size the form from the subject's record.
 
 ## Primitives
 
-Use primitives or straight extrusions with only the sides needed at the scene's camera distance. Keep only the parts whose [detail level](crafting/construction.md#detail-levels) that distance resolves. The [segment budget](crafting/construction.md#segment-budget) does not apply to a model primitive, whose segment count is fixed. A correctly sized low-poly piece from [Sources](sources.md) also works.
+Use primitives or straight extrusions with only the sides needed at the scene's camera distance. A correctly sized low-poly piece from [Sources](sources.md) also works.
 
 Leave out bevels, surface relief, ornament, texture and any interior no camera sees. Entity work says how the facts a coarse form cannot show reach the film.
 

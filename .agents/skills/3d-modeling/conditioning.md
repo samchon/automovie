@@ -51,7 +51,7 @@ Correct a texture's baked light and shadow only where it shows wrong in the rend
 
 ### Reduction
 
-Reduce the mesh for its closest required view, keeping the [detail levels](crafting/construction.md#detail-levels) that view resolves. Merge duplicate vertices without losing texture seams. Reduce before rigging so weights bind to the final vertices.
+Reduce the mesh for its closest required view, keeping the [form tiers](crafting/construction.md#form-tiers) that view resolves. Merge duplicate vertices without losing texture seams. Reduce before rigging so weights bind to the final vertices.
 
 Reduce any other cost only when [measurement](../visual-debugging/rendering-cost.md) shows it limits the render:
 

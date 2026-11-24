@@ -1,6 +1,6 @@
 # Design
 
-Each exported type, interface, type alias and class answers this checklist and [common](common.md) in its [evidence document](../SKILL.md). Use evidence from the declaration and its consumers.
+The router that links this page names the types that answer this checklist, whether they also answer [common](common.md), and where each answers. Use evidence from the declaration and its consumers.
 
 ## Principled representation
 
