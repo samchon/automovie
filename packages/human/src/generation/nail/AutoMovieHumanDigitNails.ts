@@ -1,4 +1,4 @@
-import { AutoMovieLoftViewFullSource, bracketedRoot } from "@automovie/engine";
+import { AutoMovieLoftViewFullSource, AutoMovieSolidVector, bracketedRoot } from "@automovie/engine";
 import type {
   AutoMovieVector3Tuple,
   IAutoMovieConstructionJoin,
@@ -162,6 +162,7 @@ export namespace AutoMovieHumanDigitNails {
    * @param segment The actual last joint's frame in world millimetres.
    * @param original The digit's original direct view part before adding the
    *   nail.
+   * @param setup Optional measured nail boundary and attachment bed depth.
    * @evidence contracts/development/implementation.md#principled-implementation The original view reader owns the physical cap and samples for the existing nail law.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Reads one digit, one frame, and one immutable source.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Source bounds and the physical station map govern the aperture without treating a tessellation as a new source.
@@ -178,6 +179,7 @@ export namespace AutoMovieHumanDigitNails {
     }: IAutoMovieHumanDigitNails.IDigit,
     segment: IAutoMovieHumanNail.IFrame,
     original: IAutoMovieViewPart,
+    setup: IAutoMovieHumanNail.ISetup = {},
   ): IAutoMovieHumanDigitNails.IMade {
     if (original.name !== family.name)
       throw new Error(
@@ -196,11 +198,20 @@ export namespace AutoMovieHumanDigitNails {
           family.name +
           " source does not carry its completed distal pole",
       );
-    const row: IAutoMovieHumanDigitNails.IRow | undefined = ROWS.find(
+    const clinical: IAutoMovieHumanDigitNails.IRow | undefined = ROWS.find(
       (r): boolean => r.digit === digit,
     );
-    if (row === undefined)
+    if (clinical === undefined)
       throw new Error("nail: no proportion row for " + digit);
+    const margin = setup.groove === undefined ? null : measuredGroove(setup.groove, segment);
+    const row: IAutoMovieHumanDigitNails.IRow =
+      margin?.fold == null ? clinical : {
+        ...clinical,
+        proportions: {
+          ...clinical.proportions,
+          fold: Math.min(clinical.proportions.fold, margin.fold),
+        },
+      };
     const { plate, bed }: { plate: string; bed: string } = names(family.name);
 
     // Open the skin chart three physical mm before the last joint's rounded course station, or at the first admitted ring.
@@ -242,12 +253,14 @@ export namespace AutoMovieHumanDigitNails {
     // stands about 2 micrometres off the skin. Native length transport can change the net's physical spacing.
     const rows: number = Math.ceil((end - first) / SKIN.station) + 1;
     const pitch: number = (end - first) / (rows - 1);
-    const ring = (station: number): AutoMovieVector3Tuple[] =>
-      Array.from(
+    const ring = (station: number): AutoMovieVector3Tuple[] => {
+      const pointAt = surface.pointAt(station);
+      return Array.from(
         { length: SKIN.phases },
         (_: unknown, j: number): AutoMovieVector3Tuple =>
-          surface.point(station, (2 * Math.PI * j) / SKIN.phases),
+          pointAt((2 * Math.PI * j) / SKIN.phases),
       );
+    };
     const net: AutoMovieVector3Tuple[][] = Array.from(
       { length: rows },
       (_: unknown, i: number): AutoMovieVector3Tuple[] =>
@@ -306,6 +319,7 @@ export namespace AutoMovieHumanDigitNails {
       row.proportions,
       3 * CHORD_MM,
       TURN,
+      { ...setup, grooveRoom: margin?.side ?? setup.grooveRoom },
     );
     const { clipped, clippedAt, clippedIn } = nail.readings;
     const support: IAutoMovieHumanDigitNails.ISupport = {
@@ -318,6 +332,29 @@ export namespace AutoMovieHumanDigitNails {
       admitted: Number.isFinite(clipped) && clipped <= CLIP_MM,
     };
     return { row, original, nail, support };
+  }
+
+  /** The shared source edge locates its proximal ridge and lateral skin reach. */
+  function measuredGroove(
+    rows: NonNullable<IAutoMovieHumanNail.ISetup["groove"]>,
+    frame: IAutoMovieHumanNail.IFrame,
+  ): { fold: number | null; side: number | null } {
+    const { cross, sub, scale, add, dot } = AutoMovieSolidVector;
+    const lateral: AutoMovieVector3Tuple = cross(frame.distal, frame.dorsal);
+    const proximal: number[] = [], aside: number[] = [];
+    for (const { edge: [a,b], skin } of rows) {
+      const reach: AutoMovieVector3Tuple = sub(skin, scale(add(a,b), 0.5));
+      const along: number = dot(reach, frame.distal), across: number = Math.abs(dot(reach, lateral));
+      const dorsal: number = dot(reach, frame.dorsal);
+      if (across > Math.abs(along)) aside.push(across);
+      else if (along < 0 && dorsal > CLIP_MM) proximal.push(dorsal);
+    }
+    const median = (values: number[]): number | null => {
+      if (values.length === 0) return null;
+      values.sort((a,b): number => a-b);
+      return (values[Math.floor((values.length-1)/2)]! + values[Math.floor(values.length/2)]!) / 2;
+    };
+    return { fold: median(proximal), side: median(aside) };
   }
   /**
    * How far a digit's nail may turn about its long axis from its distal
@@ -469,6 +506,26 @@ export namespace AutoMovieHumanDigitNails {
     };
   }
 
+  /** Use the bed's physical cell to evaluate the plate source for attachment. */
+  export function attachmentPlate(
+    plate: IAutoMovieHumanConicLoft.IFamily,
+    bed: IAutoMovieLoftRelief,
+  ): IAutoMovieViewPart {
+    const last: number = plate.knots.at(-1)!;
+    const count: number = Math.ceil(last / bedPitch(bed)) + 1;
+    return AutoMovieHumanConicLoft.part(
+      plate,
+      Array.from({ length: count }, (_: unknown, i: number): number =>
+        i === count - 1 ? last : (last * i) / (count - 1),
+      ),
+    );
+  }
+
+  /** The station interval between two consecutive bed control sites. */
+  function bedPitch(bed: IAutoMovieLoftRelief): number {
+    return (bed.stations[1] - bed.stations[0]) / (bed.rows - 3);
+  }
+
   /**
    * Merge each plate onto its existing digit, using the bed's cell to sample
    * the join. Supply a naming function to also attach the reflected
@@ -493,9 +550,10 @@ export namespace AutoMovieHumanDigitNails {
     contact: (
       plate: IAutoMovieViewPart,
       digit: IAutoMovieViewPart,
-    ) => Pick<IAutoMovieConstructionJoin, "seed" | "tolerance" | "grazing"> & {
-      curveLength: number;
-    },
+    ) => Pick<IAutoMovieConstructionJoin, "seed" | "tolerance" | "grazing"> &
+      Partial<Pick<IAutoMovieConstructionJoin, "parameter" | "loop">> & {
+        curveLength: number;
+      },
     twin?: (name: string) => string,
   ): IAutoMovieConstructionNode {
     let node: IAutoMovieConstructionNode = root;
@@ -509,23 +567,14 @@ export namespace AutoMovieHumanDigitNails {
                 made.nail.plate,
                 twin!(made.nail.plate.name),
               );
-        const cell: number =
-          (made.nail.bed.stations[1] - made.nail.bed.stations[0]) /
-          (made.nail.bed.rows - 3);
-        const last: number = plate.knots[plate.knots.length - 1]!;
-        const count: number = Math.ceil(last / cell) + 1;
-        const plateSource: IAutoMovieViewPart = AutoMovieHumanConicLoft.part(
-          plate,
-          Array.from({ length: count }, (_: unknown, i: number): number =>
-            i === count - 1 ? last : (last * i) / (count - 1),
-          ),
-        );
+        const cell: number = bedPitch(made.nail.bed);
+        const plateSource: IAutoMovieViewPart = attachmentPlate(plate, made.nail.bed);
         const digitName: string =
           side > 0 ? made.original.name : twin!(made.original.name);
         const digit: IAutoMovieViewPart | undefined = sources.get(digitName);
         if (digit === undefined)
           throw new Error("nail: missing bedded digit " + digitName);
-        const { seed, tolerance, grazing, curveLength } = contact(
+        const { seed, tolerance, grazing, curveLength, parameter, loop } = contact(
           plateSource,
           digit,
         );
@@ -545,7 +594,8 @@ export namespace AutoMovieHumanDigitNails {
           host: node,
           part: { type: "source", name: plate.name, source: plate.name },
           seed,
-          parameter: { type: "arc" },
+          parameter: parameter ?? { type: "arc" },
+          ...(loop === undefined ? {} : { loop }),
           partWidth: {
             type: "curvature",
             share: 0.5,
