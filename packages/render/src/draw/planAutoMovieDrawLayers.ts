@@ -11,7 +11,7 @@ import type { IAutoMovieDrawScene } from "./IAutoMovieDrawScene.js";
  * they follow `IAutoMovieTransition` on the instants `playbackCursor` resolves.
  * The result is null for a subject without both, and for a second outside every
  * transition, where the one layer is the live entry at weight 1: such a picture
- * is drawn exactly as a subject without a sequence is.
+ * composites nothing, as a picture of a subject without a sequence does.
  *
  * It throws when a layer is an outgoing shot and the subject supplies no
  * `seekShot` to place it, naming the subject, the second, the entry and

@@ -336,8 +336,9 @@ export interface IFilmProduction {
    * reach, or after its end by up to a trail's reach, into the shot's handles;
    * beyond the shot's own ends the shot holds its end states as its clips
    * clamp. Required when the sequence has a transition: a picture inside one is
-   * refused without it. Without it, a sample or trail time outside a shot's
-   * span is placed by `seek` at the shot's nearest frame, so a cut's first
+   * refused without it, and so is a fitted view whose framing seconds include a
+   * second inside one. Without it, a sample or trail time outside a shot's span
+   * is placed by `seek` at the shot's nearest live second, so a cut's first
    * frame still shows nothing of the previous shot, with a shorter blur trail.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what the call places, on which two clocks, which members then describe it, the order the hosts place shots in, what they do with the picture, the times it can be asked for and when it is required.

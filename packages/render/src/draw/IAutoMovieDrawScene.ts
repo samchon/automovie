@@ -205,15 +205,17 @@ export interface IAutoMovieDrawScene {
    * ready.
    *
    * `time` is the entry's clock, `playbackEntryTime`, at `seconds`. Outside the
-   * entry's trimmed span, a sample before its in-point or a trail time past its
-   * out-point, it asks for the shot's handles, its source before the trim's
-   * start or after its end, and beyond the shot's own ends the shot holds what
-   * its clips clamp to. The hosts place a transition's layers in any order and
-   * the shot a picture shows last, so a fade's or a dissolve's first half reads
-   * every record on this placement rather than on a later `seek`.
+   * entry's trimmed span, a shutter sample or trail time before the in-point,
+   * or a trail time after the out-point, it asks for the shot's handles, its
+   * source before the trim's start or after its end, and beyond the shot's own
+   * ends the shot holds what its clips clamp to. The hosts place a transition's
+   * layers in any order and the shot a picture shows last, so a fade's or a
+   * dissolve's first half reads every record on this placement rather than on a
+   * later `seek`.
    *
    * Required when `sequence` has a transition: a picture inside one is refused
-   * without it, naming the subject, the entry and `seekShot`. Without it a
+   * without it, naming the subject, the entry and `seekShot`, and so is a
+   * fitted view whose framing seconds include a second inside one. Without it a
    * second outside an entry's live span is placed by `seek` at the nearest
    * second the entry is live at, its start or its last second before the next
    * entry, instead of its handle.

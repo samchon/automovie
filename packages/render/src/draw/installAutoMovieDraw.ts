@@ -91,8 +91,12 @@ const SUPERSAMPLE = 2 as const;
  * picture's, as the page sets it to its canvas. A picture outside every
  * transition is drawn exactly as a subject without a sequence is, except that a
  * shutter sample or a trail time outside the live entry's span, the film's
- * first frame included, places that entry rather than another shot: its handle
- * by `seekShot`, or without `seekShot` its nearest live second by `seek`.
+ * first frame included, places that entry rather than another shot, its handle
+ * by `seekShot` or without `seekShot` its nearest live second by `seek`, and
+ * that a fitted view's framing second inside a transition is placed as that
+ * transition's picture shows it, through `seekShot`. Without `seekShot`, such a
+ * framing second is refused like any picture inside a transition, which refuses
+ * the fitted view's every cell.
  *
  * `speak` hands a subject with `speak` the film's dialogue mouths; each
  * result's `mouths` are what the subject read for the drawn second.

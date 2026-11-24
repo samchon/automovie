@@ -48,9 +48,9 @@ interface IStep {
  *    drawing holds slot 1 and composites A at 0.25 and B at 0.75.
  * 4. A dissolve's first frame, 1 s: the live entry at weight 0 is neither placed
  *    nor drawn, and only A at weight 1 is composited.
- * 5. A fade's midpoint, 1.5 s: nothing is placed or drawn and the picture is the
- *    cleared canvas; its first quarter, 1.25 s, draws A alone, held in slot 0,
- *    composited at 0.5.
+ * 5. A fade's midpoint, 1.5 s: the picture places nothing, draws nothing and is
+ *    the cleared canvas; its first quarter, 1.25 s, draws A alone, held in slot
+ *    0, composited at 0.5.
  * 6. The `graphics` plate inside a dissolve's first half holds B's plate under the
  *    plate's render mode, its backdrop removed, composites both plates by their
  *    weights toward alpha 0, and restores the backdrop.

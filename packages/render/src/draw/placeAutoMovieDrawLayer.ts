@@ -14,8 +14,8 @@ import type { IAutoMovieDrawScene } from "./IAutoMovieDrawScene.js";
  * has. Otherwise, at an output second inside the entry's live span, from its
  * start to the next entry's, where `playbackEntryAt` resolves it, `seek` places
  * that entry on its own clock. At any other second, a transition's outgoing
- * tail, a shutter sample that trails back before the entry's start, the film's
- * first frame included, or a trail time past its span, `seekShot` places the
+ * tail, a shutter sample or trail time before the in-point, the film's first
+ * frame included, or a trail time after the out-point, `seekShot` places the
  * layer's shot at `playbackEntryTime` of its entry, with the output second for
  * the film-clock readings. Outside the trimmed span that time runs into the
  * entry's handles, the shot's own source before the trim's start or after its

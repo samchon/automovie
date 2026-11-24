@@ -25,13 +25,13 @@ import { replaceAutoMovieDrawInspection } from "./replaceAutoMovieDrawInspection
  * The draw page's placement of its subject: the current inspection, the framing
  * boxes of fitted views and the dialogue mouths handed to the subject.
  *
- * Every placement it makes is the shot the picture at that second shows most
- * of, planned by `planAutoMovieDrawPicture` and placed on its own entry clock
- * by `placeAutoMovieDrawLayer`: the drawn second, each trail time of it and
- * each framing second. So a trail at a cut's first frame traces only the
- * incoming shot, a trail of a transition's outgoing shot traces that shot, and
- * a fitted view in a dissolve's first half frames the outgoing shot the picture
- * shows.
+ * Every placement it makes is a shot planned by `planAutoMovieDrawPicture` and
+ * placed on its own entry clock by `placeAutoMovieDrawLayer`: the drawn second
+ * and each of its trail times as the shot the drawn second's picture shows, and
+ * each framing second as the shot its own picture shows. So a trail at a cut's
+ * first frame traces only the incoming shot, a trail of a transition's outgoing
+ * shot traces that shot, through its handles past its ends, and a fitted view
+ * in a dissolve's first half frames the outgoing shot the picture shows.
  *
  * `inspect` ends the current inspection before placement, so a subject may
  * replace its objects during a seek, samples each `trail` pattern of the

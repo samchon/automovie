@@ -230,7 +230,7 @@ A signature has no body; the subject that implements it answers.
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States what is placed, on which two clocks, what the subject reads at the output second and what every other reader then describes, the handle and pre-zero times it can be asked for, the order the hosts place a transition's shots in, and when it is required.
+States what is placed, on which two clocks, what the subject reads at the output second and what every other reader then describes, the times it can be asked for, into both handles and past either end of the shot, the order the hosts place a transition's shots in, and when it is required.
 
 ## @evidenceExclude contracts/development/implementation.md#principled-implementation
 

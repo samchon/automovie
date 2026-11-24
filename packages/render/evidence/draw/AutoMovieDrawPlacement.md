@@ -54,7 +54,7 @@ States what is returned and when it is absent.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-Returns the recorder's reads since the last clear, which `place` makes right before the drawn second's seek.
+Returns the recorder's reads since the last clear, which `place` makes right before the drawn second's placement.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
