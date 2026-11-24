@@ -1,6 +1,5 @@
 import type { IAutoMovieValidateTransformScalars } from "@automovie/interface";
 
-
 /**
  * Append scalar findings for a translation/rotation/scale record. Every
  * component must be finite, each scale axis strictly positive, and rotation's
@@ -15,7 +14,11 @@ export function validateTransformScalars(
   props: IAutoMovieValidateTransformScalars.IProps,
 ): void {
   const { transform, path, label, collector }: typeof props = props;
-  collector.unitQuaternion(`${path}.rotation`, transform.rotation, `${label} rotation`);
+  collector.unitQuaternion(
+    `${path}.rotation`,
+    transform.rotation,
+    `${label} rotation`,
+  );
   for (const axis of ["x", "y", "z"] as const) {
     const value: number = transform.scale[axis];
     if (value <= 0)

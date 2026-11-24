@@ -222,8 +222,7 @@ export function evaluateCameraClearance(
   const suppliedTimeSet: Set<number> = new Set(suppliedTimes);
   if (
     suppliedTimes.some(
-      (time: number): boolean =>
-        time < 0 || time > input.duration,
+      (time: number): boolean => time < 0 || time > input.duration,
     ) ||
     suppliedTimes.some(
       (time: number, index: number): boolean =>

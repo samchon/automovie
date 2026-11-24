@@ -141,8 +141,8 @@ function measureGrip(
 }
 
 /**
- * Admit a rigid frame's finite position and unit rotation,
- * appending each failure at its field path.
+ * Admit a rigid frame's finite position and unit rotation, appending each
+ * failure at its field path.
  */
 function validateFrame(
   frame: IAutoMovieRigidTransform,
@@ -150,7 +150,11 @@ function validateFrame(
   label: string,
   collector: ViolationCollector,
 ): void {
-  collector.unitQuaternion(`${path}.rotation`, frame.rotation, `${label} rotation`);
+  collector.unitQuaternion(
+    `${path}.rotation`,
+    frame.rotation,
+    `${label} rotation`,
+  );
 }
 
 /**

@@ -20,14 +20,14 @@ const AXIS_EPSILON: number = 1e-12;
  *
  * A frame states its own sheet: a known view, a whole page number from 1, a
  * null or non-blank level, a finite positive width and height, and an anchor
- * inside those bounds. Its scale readings need unique ids, a finite
- * positive `metersPerUnit`, a confidence in [0, 1] and a non-blank basis, and a
- * settled `scale` must name one of them; leaving it null is how an unknown
- * scale is recorded. `axisX`, `axisY`, `up` and a present `north` must be
- * finite non-zero directions, `axisX` and `axisY` must not be parallel, the
- * origin must be finite, and a present transform must have finite components, a
- * unit rotation and a positive scale. Every finding is pushed to `collector`
- * under `path`; nothing throws.
+ * inside those bounds. Its scale readings need unique ids, a finite positive
+ * `metersPerUnit`, a confidence in [0, 1] and a non-blank basis, and a settled
+ * `scale` must name one of them; leaving it null is how an unknown scale is
+ * recorded. `axisX`, `axisY`, `up` and a present `north` must be finite
+ * non-zero directions, `axisX` and `axisY` must not be parallel, the origin
+ * must be finite, and a present transform must have finite components, a unit
+ * rotation and a positive scale. Every finding is pushed to `collector` under
+ * `path`; nothing throws.
  *
  * @param frame Frame to validate.
  * @param path Violation path of the frame, such as `$input.frames[0]`.
@@ -77,10 +77,7 @@ export const validateDesignSourceFrame: (
     const limit: number =
       axis === "x" ? frame.bounds.width : frame.bounds.height;
     const value: number = frame.anchor[axis];
-    if (
-      value < 0 ||
-      (value > limit)
-    )
+    if (value < 0 || value > limit)
       collector.push(
         "range",
         `${path}.anchor.${axis}`,
@@ -97,9 +94,7 @@ export const validateDesignSourceFrame: (
   frame.scaleCandidates.forEach(
     (candidate: IAutoMovieDesignScaleCandidate, index: number): void => {
       const candidatePath: string = `${path}.scaleCandidates[${index}]`;
-      if (
-        candidate.metersPerUnit <= 0
-      )
+      if (candidate.metersPerUnit <= 0)
         collector.push(
           "range",
           `${candidatePath}.metersPerUnit`,

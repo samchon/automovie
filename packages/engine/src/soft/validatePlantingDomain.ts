@@ -263,14 +263,9 @@ export const validatePlantingDomain: (
   );
   // Guarded by the level range above: the worst case is counted by walking the
   // levels, so an out-of-range depth is refused before anything walks it.
-  if (
-    structure.levels >= 1 &&
-    structure.levels <= PLANTING_MAX_LEVELS
-  ) {
+  if (structure.levels >= 1 && structure.levels <= PLANTING_MAX_LEVELS) {
     const budget: IAutoMoviePlantingBudget = plantingBudget({ domain });
-    if (
-      budget.worstCaseBranches > domain.budget.maxBranches
-    )
+    if (budget.worstCaseBranches > domain.budget.maxBranches)
       out.push(
         "range",
         `${root}.budget.maxBranches`,
@@ -312,8 +307,6 @@ const direction: (
   value: IAutoMovieVector3,
 ): void => {
   vector(out, path, value);
-  if (
-    value.x * value.x + value.y * value.y + value.z * value.z === 0
-  )
+  if (value.x * value.x + value.y * value.y + value.z * value.z === 0)
     out.push("type", path, `${label} must be a non-zero vector`, value);
 };

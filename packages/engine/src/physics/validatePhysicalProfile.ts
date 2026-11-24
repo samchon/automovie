@@ -48,10 +48,7 @@ export function validatePhysicalProfile(
       `${path}.id`,
     );
     materials.add(material.id);
-    fail(
-      material.friction >= 0 && material.friction <= 1,
-      `${path}.friction`,
-    );
+    fail(material.friction >= 0 && material.friction <= 1, `${path}.friction`);
     fail(
       material.restitution >= 0 && material.restitution <= 1,
       `${path}.restitution`,

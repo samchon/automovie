@@ -77,8 +77,8 @@ const straight: (length: number) => IAutoMovieVector3[] = (
 ];
 
 /**
- * Check topology observation, topology/model admission and analytic volume.
- * The engine observers share mesh data and are not independent render oracles.
+ * Check topology observation, topology/model admission and analytic volume. The
+ * engine observers share mesh data and are not independent render oracles.
  *
  * The last one is what makes the metric UV atlas a claim rather than an
  * assumption: a builder whose output no model can carry is a builder whose
@@ -123,12 +123,13 @@ const frustum: (near: number, far: number, height: number) => number = (
  * Lofting polygon sections along a path with `meshAutoMovieSweep`: the variable
  * section, the taper, and the concave or hollow section.
  *
- * Straight prism and frustum expectations are closed-form. A 2 m square tapering to a 1 m square over 3 m
- * is a pyramid frustum of 7 m³; a square waisted to half width and back over 2
- * m is two frusta totaling 14/3 m³; an L section carried unchanged is a prism of its
- * own area. On a bent path the ring at each point is checked against the
- * rotation-minimizing frame of a planar curve, whose first axis stays normal to
- * the curve's plane, placed perpendicular to the path's tangent there.
+ * Straight prism and frustum expectations are closed-form. A 2 m square
+ * tapering to a 1 m square over 3 m is a pyramid frustum of 7 m³; a square
+ * waisted to half width and back over 2 m is two frusta totaling 14/3 m³; an L
+ * section carried unchanged is a prism of its own area. On a bent path the ring
+ * at each point is checked against the rotation-minimizing frame of a planar
+ * curve, whose first axis stays normal to the curve's plane, placed
+ * perpendicular to the path's tangent there.
  *
  * Scenarios:
  *
@@ -141,9 +142,9 @@ const frustum: (near: number, far: number, height: number) => number = (
  *    which between two stations is the linear blend: the midpoint of a 1 m and
  *    a 2 m half-width is a 1.5 m half-width corner in the buffer, and the
  *    volume is the two frusta that implies.
- * 4. One repeated convex section closes on a straight path, a right-angle bend
- *    and a path that turns in all three axes; the straight one is a prism of
- *    the section's area, and at the bend's corner the ring lies across the
+ * 4. One repeated convex section closes on a straight path, a right-angle bend and
+ *    a path that turns in all three axes; the straight one is a prism of the
+ *    section's area, and at the bend's corner the ring lies across the
  *    bisecting tangent with its first axis still normal to the bend's plane.
  * 5. Determinism: the same authored loft rebuilds with identical finite numeric
  *    components, structure, array order and ordered object keys.

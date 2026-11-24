@@ -55,7 +55,6 @@ export class AutoMovieStepPlanner {
     this.height = input.height;
     this.peakPitch = input.peakPitch ?? 0;
     for (const limb of limbs) {
-
       if (
         !limb.bone.trim() ||
         limb.chain.at(-1) !== limb.bone ||
@@ -94,7 +93,6 @@ export class AutoMovieStepPlanner {
     for (const [i, reservation] of busy.entries()) {
       if (
         !this.segments.has(reservation.bone) ||
-
         reservation.end <= reservation.start ||
         busy
           .slice(0, i)

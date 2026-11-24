@@ -112,8 +112,7 @@ export const validateMesh: (
     validateTupleBuffer(mesh.indices, 3, `${path}.indices`, collector);
     for (let i: number = 0; i < mesh.indices.length; ++i) {
       const index: number = mesh.indices[i]!;
-      const valid: boolean =
-        index >= 0 && index < vertexCount;
+      const valid: boolean = index >= 0 && index < vertexCount;
       if (!valid)
         collector.push(
           "range",
@@ -186,7 +185,6 @@ const validateTupleBuffer: (
       `buffer length must be a multiple of ${tupleSize}, but was ${buffer.length}`,
       buffer.length,
     );
-
 };
 
 /**
@@ -227,9 +225,8 @@ const validateBufferLength: (
 };
 
 /**
- * Require four references/weights per vertex, declared
- * unique joints, dense bounded weights/references and finite weight sums
- * within1e-6 of one.
+ * Require four references/weights per vertex, declared unique joints, dense
+ * bounded weights/references and finite weight sums within1e-6 of one.
  *
  * Shared length/range owners supply scalar diagnostics while this helper owns
  * skin packing.
@@ -299,8 +296,7 @@ const validateMeshSkin: (
 
   for (let i: number = 0; i < skin.boneIndices.length; ++i) {
     const index: number = skin.boneIndices[i]!;
-    const valid: boolean =
-      index >= 0 && index < skin.joints.length;
+    const valid: boolean = index >= 0 && index < skin.joints.length;
     if (!valid)
       collector.push(
         "range",
@@ -335,8 +331,8 @@ const validateMeshSkin: (
 /**
  * Require each morph target to carry a unique name, one finite delta triple per
  * vertex for positions and for non-null normals, and, when driven, a skeleton
- * bone, a nonempty finite strictly increasing curve
- * and a name no expression writes.
+ * bone, a nonempty finite strictly increasing curve and a name no expression
+ * writes.
  *
  * Expressions write preset and ARKit names after the pose, matching ignoring
  * case, so a driven target under such a name would lose its weight every

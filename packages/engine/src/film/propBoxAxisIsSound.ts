@@ -16,5 +16,4 @@ import { IAutoMoviePropBox } from "@automovie/interface";
 export const propBoxAxisIsSound = (
   box: IAutoMoviePropBox,
   axis: "x" | "y" | "z",
-): boolean =>
-  box.min[axis] < box.max[axis];
+): boolean => box.min[axis] < box.max[axis];

@@ -15,8 +15,8 @@ const ROUNDING: number = 1e-12;
  *
  * Scenarios:
  *
- * 1. Over 1 to 3 s: 0 before, ¼ at 1.5 s, 1 after; the minimum-jerk share of ¼
- *    is 0.103515625.
+ * 1. Over 1 to 3 s: 0 before, ¼ at 1.5 s, 1 after; the minimum-jerk share of ¼ is
+ *    0.103515625.
  * 2. A window of no length steps at its close.
  * 3. A named window of a clock (`reach` at 0.5 s to `hold` at 2.5 s) reads the
  *    same as its seconds.

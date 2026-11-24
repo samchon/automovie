@@ -41,17 +41,13 @@ export function evaluateAutoMovieStorySync(
   const entries: IStorySyncEntry[] = props.events.map(
     (entry: { shot: string; event: string }): IStorySyncEntry => {
       const realized: number | null = props.realized(entry.shot, entry.event);
-      const localSeconds: number | null =
-        realized === null
-          ? null
-          : realized;
+      const localSeconds: number | null = realized === null ? null : realized;
       const pin: IAutoMovieShotStoryTime | null = props.pin(entry.shot);
       const mapped: number | null =
         localSeconds === null || pin === null
           ? null
           : autoMovieStoryTime(pin, localSeconds);
-      const storySeconds: number | null =
-        mapped;
+      const storySeconds: number | null = mapped;
       return {
         point: {
           shot: entry.shot,

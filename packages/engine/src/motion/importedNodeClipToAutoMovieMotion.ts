@@ -259,7 +259,6 @@ const finiteUnitQuaternion: (
   node: string,
   time: number,
 ): IAutoMovieQuaternion => {
-
   const quaternion: IAutoMovieQuaternion = {
     x: value[0]!,
     y: value[1]!,

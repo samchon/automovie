@@ -16,7 +16,6 @@ export const cubicBezierEasing: (
   control: readonly [number, number, number, number],
   t: number,
 ): number => {
-
   const [x1, y1, x2, y2]: readonly [number, number, number, number] = control;
   const x: number = Math.min(1, Math.max(0, t));
   const bez: (a: number, b: number, s: number) => number = (

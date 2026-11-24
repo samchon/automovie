@@ -5,14 +5,15 @@ import type { IAutoMovieRandom } from "@automovie/interface";
  * with zero first and second derivatives at both ends.
  *
  * The signal is a sum of `terms` sines whose frequencies (uniform in `[0.3, 1]
- * * maxFrequency` hertz) and phases are drawn from the stream, each weighted `1
- * / sqrt(terms)`, the procedural-noise construction of Perlin and Goldberg's
- * Improv (SIGGRAPH 1996) used for idle and path variation. It is multiplied by
- * the window `w(u) = (16 u^2 (1 - u)^2)^2`, which is 1 at the middle and
- * vanishes with its first three derivatives at `u = 0` and `u = 1`, so
- * variation added to a motion leaves its contacts, its cut points and its
- * continuity untouched. The draws read stream indices `0 .. 2 terms - 1`, so
- * the same stream always yields the same signal.
+ *
+ * - MaxFrequency`hertz) and phases are drawn from the stream, each weighted`1 /
+ *   sqrt(terms)`, the procedural-noise construction of Perlin and Goldberg's
+ *   Improv (SIGGRAPH 1996) used for idle and path variation. It is multiplied
+ *   by the window `w(u) = (16 u^2 (1 - u)^2)^2`, which is 1 at the middle and
+ *   vanishes with its first three derivatives at `u = 0`and`u = 1`, so
+ *   variation added to a motion leaves its contacts, its cut points and its
+ *   continuity untouched. The draws read stream indices `0 .. 2 terms - 1`, so
+ *   the same stream always yields the same signal.
  *
  * @param random The stream, keyed by the caller's stable ids.
  * @param u Normalized time within the window, in [0, 1]; outside is zero.
@@ -116,11 +117,7 @@ interface ISpectrum {
 
 /** Keep the direct entry's parameter domain and first-read refusal text. */
 function admit(duration: number, maxFrequency: number, terms: number): void {
-  if (
-    !(duration > 0) ||
-    !(maxFrequency > 0) ||
-    !(terms > 0)
-  )
+  if (!(duration > 0) || !(maxFrequency > 0) || !(terms > 0))
     throw new Error(
       "Smooth noise needs a positive duration, frequency and term count",
     );

@@ -194,9 +194,7 @@ export function MotionTrajectoryDense(props: {
       r,
       rate.w!,
     );
-    return algebra === null
-      ? null
-      : { rate, algebra };
+    return algebra === null ? null : { rate, algebra };
   };
   const fit: (
     left: ISample,
@@ -343,4 +341,3 @@ export function MotionTrajectoryDense(props: {
   }
   return { step: v, error };
 }
-

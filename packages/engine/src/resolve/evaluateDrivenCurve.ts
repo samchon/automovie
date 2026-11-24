@@ -71,4 +71,3 @@ const validateDrivenCurvePoint: (
       `driven driver curve.points[${index}] point must be an object`,
     );
 };
-

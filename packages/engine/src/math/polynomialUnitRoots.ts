@@ -71,7 +71,6 @@ function horner(
  * membership).
  */
 function keep(roots: number[], root: number): void {
-  for (const kept of roots)
-    if (kept === root) return;
+  for (const kept of roots) if (kept === root) return;
   roots.push(root);
 }

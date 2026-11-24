@@ -58,11 +58,7 @@ export function admitAutoMovieQuadraticProgram(
     admitVector(row.weights, row.indices.length);
     for (let j: number = 0; j < row.indices.length; j++) {
       const id: number = row.indices[j]!;
-      if (
-        id < 0 ||
-        id >= variables ||
-        lastRow[id] === i
-      )
+      if (id < 0 || id >= variables || lastRow[id] === i)
         throw new Error("Quadratic row needs unique in-range integer indices.");
       lastRow[id] = i;
     }
@@ -87,9 +83,7 @@ function admitVector(values: readonly number[], length: number): void {
  * the numerical infinity sentinel.
  */
 function admitScalar(value: number): number {
-  if (
-    Math.abs(value) >= AUTOMOVIE_QUADRATIC_INFINITY
-  )
+  if (Math.abs(value) >= AUTOMOVIE_QUADRATIC_INFINITY)
     throw new Error(
       "Quadratic coefficients must be finite and smaller than 1e30.",
     );

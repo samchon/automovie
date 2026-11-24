@@ -215,10 +215,7 @@ export namespace Vector3 {
   const extremeScale: (largest: number) => number = (
     largest: number,
   ): number =>
-    largest > 0 &&
-    (largest < 2 ** -511 || largest > 2 ** 511)
-      ? largest
-      : 0;
+    largest > 0 && (largest < 2 ** -511 || largest > 2 ** 511) ? largest : 0;
 
   /**
    * The component-wise linear interpolation `a + (b - a) · t`, giving `a` at `t

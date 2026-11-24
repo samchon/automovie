@@ -49,10 +49,7 @@ export namespace AutoMovieAxisDirection {
         const scaledNorm: number = Math.hypot(...scaledVector);
 
         // Scaling an enormous tangent component must not erase a representable raw normal.
-        if (
-          scaledNorm > 0 ||
-          !(normalNorm > 0)
-        ) {
+        if (scaledNorm > 0 || !(normalNorm > 0)) {
           targetNorm = Math.hypot(...scaled);
           vector = scaledVector;
           normalNorm = scaledNorm;

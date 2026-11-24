@@ -60,82 +60,84 @@ export function appendSurfaceGraphicsArtifact(
         );
   const targets: Set<string> = new Set();
 
-  tracks.forEach((track: IAutoMovieSurfaceGraphicTrack, index: number): void => {
-    const path: string = `${root}[${index}]`;
-    const modelId: string | undefined = nodes.get(track.node);
-    if (modelId === undefined)
-      collector.push(
-        "type",
-        `${path}.node`,
-        "must name a staged prop node",
-        track.node,
-      );
-    const pair: string = JSON.stringify([track.node, track.surface]);
-    if (targets.has(pair))
-      collector.push(
-        "type",
-        `${path}.surface`,
-        "one surface graphic track per node and surface",
-        track.surface,
-      );
-    targets.add(pair);
-    if (modelId !== undefined && registry !== undefined)
-      appendSurface(
-        registry.get(modelId),
-        modelId,
-        track.surface,
-        `${path}.surface`,
-        collector,
-      );
-
-    const keysPath: string = `${path}.keys`;
-    if (track.keys.length === 0)
-      collector.push(
-        "type",
-        keysPath,
-        "must start with a key at shot time zero",
-        track.keys.length,
-      );
-    let previous: number = -Infinity;
-    track.keys.forEach(
-      (
-        key: IAutoMovieSurfaceGraphicTrack["keys"][number],
-        keyIndex: number,
-      ): void => {
-        const keyPath: string = `${keysPath}[${keyIndex}]`;
-        const time: number = key.time;
-        if (
-          (keyIndex === 0 && time !== 0) ||
-          time <= previous ||
-          time < 0 ||
-          time >= duration
-        )
-          collector.push(
-            "range",
-            `${keyPath}.time`,
-            "first time must be zero and times must strictly increase within [0, duration)",
-            time,
-          );
-        else previous = time;
-        appendSurfaceGraphicArtifact(
-          key.graphic,
-          `${keyPath}.graphic`,
-          collector,
-          {
-            fonts,
-            ...(cameras === undefined
-              ? {}
-              : {
-                  cameras: cameras.ids,
-                  ...(cameras.shot === undefined
-                    ? {}
-                    : { camera: cameras.shot }),
-                }),
-          },
+  tracks.forEach(
+    (track: IAutoMovieSurfaceGraphicTrack, index: number): void => {
+      const path: string = `${root}[${index}]`;
+      const modelId: string | undefined = nodes.get(track.node);
+      if (modelId === undefined)
+        collector.push(
+          "type",
+          `${path}.node`,
+          "must name a staged prop node",
+          track.node,
         );
-      },
-    );
-  });
+      const pair: string = JSON.stringify([track.node, track.surface]);
+      if (targets.has(pair))
+        collector.push(
+          "type",
+          `${path}.surface`,
+          "one surface graphic track per node and surface",
+          track.surface,
+        );
+      targets.add(pair);
+      if (modelId !== undefined && registry !== undefined)
+        appendSurface(
+          registry.get(modelId),
+          modelId,
+          track.surface,
+          `${path}.surface`,
+          collector,
+        );
+
+      const keysPath: string = `${path}.keys`;
+      if (track.keys.length === 0)
+        collector.push(
+          "type",
+          keysPath,
+          "must start with a key at shot time zero",
+          track.keys.length,
+        );
+      let previous: number = -Infinity;
+      track.keys.forEach(
+        (
+          key: IAutoMovieSurfaceGraphicTrack["keys"][number],
+          keyIndex: number,
+        ): void => {
+          const keyPath: string = `${keysPath}[${keyIndex}]`;
+          const time: number = key.time;
+          if (
+            (keyIndex === 0 && time !== 0) ||
+            time <= previous ||
+            time < 0 ||
+            time >= duration
+          )
+            collector.push(
+              "range",
+              `${keyPath}.time`,
+              "first time must be zero and times must strictly increase within [0, duration)",
+              time,
+            );
+          else previous = time;
+          appendSurfaceGraphicArtifact(
+            key.graphic,
+            `${keyPath}.graphic`,
+            collector,
+            {
+              fonts,
+              ...(cameras === undefined
+                ? {}
+                : {
+                    cameras: cameras.ids,
+                    ...(cameras.shot === undefined
+                      ? {}
+                      : { camera: cameras.shot }),
+                  }),
+            },
+          );
+        },
+      );
+    },
+  );
 }
 /**
  * Resolve a track's surface on its node's registered model: an unregistered

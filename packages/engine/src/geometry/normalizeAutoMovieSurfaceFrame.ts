@@ -32,7 +32,6 @@ import { Vector3 } from "../math/Vector3";
 export function normalizeAutoMovieSurfaceFrame(
   frame: IAutoMovieSurfaceFrame,
 ): IAutoMovieSweepFrame {
-
   const normal: IAutoMovieVector3 = Vector3.normalize(frame.normal);
   const candidate: IAutoMovieVector3 = Vector3.normalize(frame.forward);
   const side: IAutoMovieVector3 = Vector3.normalize(

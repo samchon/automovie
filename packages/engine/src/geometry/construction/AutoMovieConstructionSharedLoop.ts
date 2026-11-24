@@ -62,9 +62,7 @@ export namespace AutoMovieConstructionSharedLoop {
         contract: "shared loop",
         detail: `the loop needs a finite centre, positive semi-axes with the phase one under pi and, when shaped, ${node.count} shares`,
       };
-    if (
-      !(node.count >= 8 && node.count % 4 === 0)
-    )
+    if (!(node.count >= 8 && node.count % 4 === 0))
       return {
         contract: "shared loop",
         detail: `the count ${node.count} is not a multiple of 4 of at least 8`,

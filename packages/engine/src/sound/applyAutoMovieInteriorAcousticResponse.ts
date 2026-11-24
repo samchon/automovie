@@ -50,10 +50,7 @@ export const applyAutoMovieInteriorAcousticResponse: (
 
   const reverberation: number | null = props.response.reverberationTimeSeconds;
   const ratio: number | null = props.response.directToDiffuseRatio;
-  if (
-    reverberation === null ||
-    reverberation <= 0
-  )
+  if (reverberation === null || reverberation <= 0)
     throw new Error("same-room response needs a positive reverberation time");
   if (ratio === null || ratio <= 0)
     throw new Error(

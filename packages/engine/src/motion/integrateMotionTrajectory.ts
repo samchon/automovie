@@ -105,9 +105,7 @@ export function integrateMotionTrajectory(
   };
   if (props.tolerance !== undefined) {
     const { relative, absolute } = props.tolerance;
-    if (
-      !(relative >= 0 && absolute >= 0 && relative + absolute > 0)
-    )
+    if (!(relative >= 0 && absolute >= 0 && relative + absolute > 0))
       throw new Error(
         `integrateMotionTrajectory: the tolerance ${relative} relative and ${absolute} absolute is not finite, non-negative and non-zero`,
       );

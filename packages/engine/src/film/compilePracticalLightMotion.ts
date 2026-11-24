@@ -125,8 +125,6 @@ export function compilePracticalLightMotion(
     }
   }
 
-
-
   const tracks: IAutoMovieTrack[] = [
     practicalTrack(light.id, "position", times, positions, "linear"),
   ];

@@ -28,13 +28,14 @@ import { motionHumanBody } from "../../../internal/motionHumanBody";
  * Fit the performer through the actual depth of the named aperture.
  *
  * Scenarios:
+ *
  * 1. An average man and a small woman duck through a low opening.
- * 2. The same bodies travel side-on through openings narrower than their
- *    upright chest width.
- * 3. The same bodies get down, travel prone on alternating palms through
- *    a deep low hole, then rise and walk out.
- * 4. The upright default preserves the ordinary path and an impossible
- *    opening identifies the limiting dimension.
+ * 2. The same bodies travel side-on through openings narrower than their upright
+ *    chest width.
+ * 3. The same bodies get down, travel prone on alternating palms through a deep
+ *    low hole, then rise and walk out.
+ * 4. The upright default preserves the ordinary path and an impossible opening
+ *    identifies the limiting dimension.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the visible traversal modes, both bodies and the refusal.
  * @evidence contracts/development/testing.md#behavioral-verification Reads displayed colliders through the wall and actual palm positions at support, then follows the public chain to a standing exit.

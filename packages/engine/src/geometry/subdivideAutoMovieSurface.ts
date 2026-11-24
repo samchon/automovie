@@ -56,10 +56,7 @@ const MAX_LEVELS: number = 6;
 export function subdivideAutoMovieSurface(
   props: IAutoMovieSubdivideSurface.IProps,
 ): IAutoMovieSubdivisionSurface {
-  if (
-    props.levels < 1 ||
-    props.levels > MAX_LEVELS
-  )
+  if (props.levels < 1 || props.levels > MAX_LEVELS)
     throw new Error(
       `subdivision levels must be an integer from 1 to ${MAX_LEVELS}`,
     );

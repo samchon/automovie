@@ -22,8 +22,7 @@ export function samplePracticalSurfaceMaterial(
   part: string,
   time: number,
 ): string | undefined {
-  if (time < 0 || time >= shot.duration)
-    return undefined;
+  if (time < 0 || time >= shot.duration) return undefined;
   const track: IAutoMoviePracticalSurfaceTrack | undefined =
     shot.practicalSurfaces?.find(
       (entry: IAutoMoviePracticalSurfaceTrack): boolean =>

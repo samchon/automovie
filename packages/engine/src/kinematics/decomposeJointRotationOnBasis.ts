@@ -18,7 +18,6 @@ import { normalizeJointAxes } from "./normalizeJointAxes";
 /** Degrees per radian for the closed-form angle extraction. */
 const RAD2DEG: number = 180 / Math.PI;
 
-
 /**
  * The axis rotated by `q`, `readRotatedVector`'s expressions, into three cells
  * from `offset`.
@@ -76,7 +75,6 @@ type IClinicalReaders = Readonly<
  * stay active.
  */
 const GIMBAL_COSINE_EPSILON: number = Math.sqrt(Number.EPSILON);
-
 
 /**
  * {@link decomposeJointRotation} on a basis its caller already admitted and
@@ -433,8 +431,6 @@ function lift(
     into.overshoot = overshoot;
   return selected;
 }
-
-
 
 /** A basis's handedness and the twist axis an extraction reads against. */
 interface IHandedness {

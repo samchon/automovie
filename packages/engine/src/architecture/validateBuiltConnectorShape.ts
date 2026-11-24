@@ -4,7 +4,6 @@ import {
   type IAutoMovieConnectorGeometry,
   IAutoMovieConnectorSection,
   IAutoMovieQuaternion,
-  IAutoMovieVector3,
   type IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
@@ -124,10 +123,7 @@ export const validateBuiltConnectorShape: (
     ? builtConnectorGeometry(environment, connector.id)
     : null;
   if (connector.slope !== undefined) {
-    if (
-      connector.slope < 0 ||
-      connector.slope > Math.PI / 2
-    )
+    if (connector.slope < 0 || connector.slope > Math.PI / 2)
       collector.push(
         "range",
         `${path}.slope`,

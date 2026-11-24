@@ -2,24 +2,24 @@ import { HumanKnotTiming } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * TOPP-RA timing of a knot path (`HumanKnotTiming`) against closed-form
- * bounds on the minimum time and the limits it must keep.
+ * TOPP-RA timing of a knot path (`HumanKnotTiming`) against closed-form bounds
+ * on the minimum time and the limits it must keep.
  *
  * Scenarios:
  *
- * 1. Rest to rest over L = 1 under |q̈| ≤ 1 (the velocity limit inactive): no
- *    path is faster than the bang-bang 2 sqrt(L / a) = 2 s, and the path's own
+ * 1. Rest to rest over L = 1 under |q̈| ≤ 1 (the velocity limit inactive): no path
+ *    is faster than the bang-bang 2 sqrt(L / a) = 2 s, and the path's own
  *    minimum-jerk timing with peak acceleration (10 / sqrt 3) L / T² = 1 is
  *    feasible at T = sqrt(10 / sqrt 3) ≈ 2.4028 s, so the optimum lies between.
  *    Every gridpoint keeps |q̈| ≤ 1.
- * 2. Rest to rest over L = 1 under |q̇| ≤ 0.5 (the acceleration limit large):
- *    at least L / v = 2 s; the minimum-jerk timing with peak velocity 1.875 L /
- *    T = 0.5 is feasible at 3.75 s. Every gridpoint keeps |q̇| ≤ 0.5.
- * 3. Per-segment and per-knot limits: knots 0, 1, 2 with segment velocity
- *    limits 1 and 0.25 and a knot limit of 0.1 at the middle knot. The stations
- *    are the chords over their limits, 0, 1 and 5; the piece takes at least 1 /
- *    1 + 1 / 0.25 = 5 s; the second segment's gridpoints keep 0.25 and the
- *    middle knot keeps 0.1.
+ * 2. Rest to rest over L = 1 under |q̇| ≤ 0.5 (the acceleration limit large): at
+ *    least L / v = 2 s; the minimum-jerk timing with peak velocity 1.875 L / T
+ *    = 0.5 is feasible at 3.75 s. Every gridpoint keeps |q̇| ≤ 0.5.
+ * 3. Per-segment and per-knot limits: knots 0, 1, 2 with segment velocity limits 1
+ *    and 0.25 and a knot limit of 0.1 at the middle knot. The stations are the
+ *    chords over their limits, 0, 1 and 5; the piece takes at least 1 / 1 + 1 /
+ *    0.25 = 5 s; the second segment's gridpoints keep 0.25 and the middle knot
+ *    keeps 0.1.
  * 4. Two coincident knots are refused.
  */
 export function test_geometry_knot_timing(): void {
@@ -91,7 +91,10 @@ export function test_geometry_knot_timing(): void {
     slowed.gridpoints.every(
       (s: number, i: number): boolean =>
         s <= 1 ||
-        within(HumanKnotTiming.state(slowed, slowed.times[i]!).velocity[0]!, 0.25),
+        within(
+          HumanKnotTiming.state(slowed, slowed.times[i]!).velocity[0]!,
+          0.25,
+        ),
     ),
   );
 

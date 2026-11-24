@@ -18,8 +18,8 @@ import { validatePerformShotFraming } from "./validatePerformShotFraming";
  *
  * Each action, at `<base>[i]`, is checked for:
  *
- * - Its actor: an id or a non-empty list of distinct ids, each a staged
- *   node or camera, and a camera only for a `frame` action;
+ * - Its actor: an id or a non-empty list of distinct ids, each a staged node or
+ *   camera, and a camera only for a `frame` action;
  * - Its timing: a start inside `[0, duration]`, a positive finite duration or
  *   `"auto"`, a span inside the shot, an `"auto"` span that is not empty
  *   because it starts at the shot's end, and a positive integer `repeat`.
@@ -100,20 +100,14 @@ export function gatePerformShotActions(
         seconds: 0,
         formationsFramed: true,
       });
-    if (
-      action.focalLength !== undefined &&
-      (!(action.focalLength > 0))
-    )
+    if (action.focalLength !== undefined && !(action.focalLength > 0))
       context.out.push(
         "range",
         `${path}.focalLength`,
         `a focal length must be a finite number > 0 mm, but was ${describeInvalidValue(action.focalLength)}`,
         action.focalLength,
       );
-    if (
-      action.fNumber !== undefined &&
-      (!(action.fNumber > 0))
-    )
+    if (action.fNumber !== undefined && !(action.fNumber > 0))
       context.out.push(
         "range",
         `${path}.fNumber`,
@@ -227,9 +221,7 @@ function gateTiming(
         `action duration must be a finite number > 0 seconds or "auto", but was ${describeInvalidValue(action.duration)}`,
         action.duration,
       );
-    if (
-      action.start + action.duration > duration
-    )
+    if (action.start + action.duration > duration)
       context.out.push(
         "range",
         `${path}.duration`,
@@ -237,10 +229,7 @@ function gateTiming(
         action.duration,
       );
   }
-  if (
-    action.repeat !== undefined &&
-    (action.repeat < 1)
-  )
+  if (action.repeat !== undefined && action.repeat < 1)
     context.out.push(
       "range",
       `${path}.repeat`,

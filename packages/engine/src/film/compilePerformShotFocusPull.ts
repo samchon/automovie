@@ -35,8 +35,9 @@ export function compilePerformShotFocusPull(
   focusPull: NonNullable<IAutoMovieCameraIntent["focusPull"]>;
 } | null {
   const action: IAutoMoviePerformShotFrameJob["action"] = job.action;
-  const pull: NonNullable<IAutoMoviePerformShotFrameJob["action"]["focusPull"]> =
-    action.focusPull!;
+  const pull: NonNullable<
+    IAutoMoviePerformShotFrameJob["action"]["focusPull"]
+  > = action.focusPull!;
   const path: string = `${context.base}[${job.index}]`;
   const pullPath: string = `${path}.focusPull`;
 

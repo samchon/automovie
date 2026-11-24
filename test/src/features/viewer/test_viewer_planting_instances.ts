@@ -29,21 +29,42 @@ const FOLIAGE: {
 };
 
 /**
- * A planting cluster projects into native instanced batches whose stored matrices compose each member transform with its branch or leaf transform.
+ * A planting cluster projects into native instanced batches whose stored
+ * matrices compose each member transform with its branch or leaf transform.
  *
- * A nonempty bed with foliage has one branch batch and one leaf batch, with instance counts of members times the respective part population. This checks the compact representation rather than observing camera-dependent native draw submissions.
+ * A nonempty bed with foliage has one branch batch and one leaf batch, with
+ * instance counts of members times the respective part population. This checks
+ * the compact representation rather than observing camera-dependent native draw
+ * submissions.
  *
- * Independent matrix composition checks full translation, rotation and per-axis scale; a nonuniform parent can shear a rotated leaf, so the composed matrix is checked before relying on a decomposition. Float32 instance-buffer rounding determines the tolerance, while Engine inputs remain double precision; no GPU has been acquired here.
+ * Independent matrix composition checks full translation, rotation and per-axis
+ * scale; a nonuniform parent can shear a rotated leaf, so the composed matrix
+ * is checked before relying on a decomposition. Float32 instance-buffer
+ * rounding determines the tolerance, while Engine inputs remain double
+ * precision; no GPU has been acquired here.
  *
  * Scenarios:
  *
- * 1. The group holds exactly two instanced meshes, with instance counts equal to `members × branches` and `members × leaves`.
- * 2. The first branch instance decomposes to the first member's transform composed with the branch's own: the midpoint of the trunk, the rotation carrying `+y` onto the trunk axis, and the mean radius by the length.
- * 3. The first leaf matrix equals member times leaf, while the leaf's own matrix round-trips its derived transform. The composed matrix is checked directly because a rotated child beneath nonuniform parent scale can produce shear.
- * 4. Every instance matrix is finite and every batch reports a bounding sphere, so nothing is culled against an unset volume.
- * 5. A branch cut to nothing retains its instance slot with zero height and a defined axis.
- * 6. A bare structure with no foliage rule produces no leaf batch at all rather than an empty one, and disposing releases what the object created while leaving a borrowed material alone.
- * 7. A structure that never emerged draws nothing: the batch is hidden and its bounding sphere is a point, rather than the empty sphere of radius `-Infinity` that computing bounds over zero instances would leave for a camera to cull against.
+ * 1. The group holds exactly two instanced meshes, with instance counts equal to
+ *    `members × branches` and `members × leaves`.
+ * 2. The first branch instance decomposes to the first member's transform composed
+ *    with the branch's own: the midpoint of the trunk, the rotation carrying
+ *    `+y` onto the trunk axis, and the mean radius by the length.
+ * 3. The first leaf matrix equals member times leaf, while the leaf's own matrix
+ *    round-trips its derived transform. The composed matrix is checked directly
+ *    because a rotated child beneath nonuniform parent scale can produce
+ *    shear.
+ * 4. Every instance matrix is finite and every batch reports a bounding sphere, so
+ *    nothing is culled against an unset volume.
+ * 5. A branch cut to nothing retains its instance slot with zero height and a
+ *    defined axis.
+ * 6. A bare structure with no foliage rule produces no leaf batch at all rather
+ *    than an empty one, and disposing releases what the object created while
+ *    leaving a borrowed material alone.
+ * 7. A structure that never emerged draws nothing: the batch is hidden and its
+ *    bounding sphere is a point, rather than the empty sphere of radius
+ *    `-Infinity` that computing bounds over zero instances would leave for a
+ *    camera to cull against.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Builds actual branch/leaf batches, reads matrices/bounds/counts and retires returned owners; catches lost per-axis transforms, skipped pruned slots, invalid empty bounds and retirement of supplied materials.
  * @evidence contracts/development/testing.md#independent-expectations Independent matrix composition and hand-derived branch midpoint/radius/length define values within Float32 tolerance. Engine plant derivation supplies input rather than an independent botanical oracle, and dispose events count public attempts without certifying GPU release.

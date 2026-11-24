@@ -10,7 +10,6 @@ import {
   IAutoMoviePlanarPoint,
   type IAutoMovieValidateBuiltEnvironment,
   IAutoMovieValidation,
-  IAutoMovieVector3,
   type IAutoMovieViolationCollector,
 } from "@automovie/interface";
 

@@ -563,8 +563,6 @@ function clinicalValue(
   previous: number | null | undefined,
   convention: preparePoseJointResolution.IConvention,
 ): number | null {
-
-
   // A prior successful nonnull reading already admitted this immutable frame.
   if (
     (previous === undefined || previous === null) &&

@@ -47,11 +47,11 @@ const THICKNESS_EPSILON: number = 1e-9;
  *
  * A wrapping layer must belong to the run of wrapping layers starting at one
  * face; one behind a non-wrapping layer is refused. Ids must be unique within
- * the assembly, the axis, sense, exposures and substances must be
- * known words, the offset finite, and at least one layer present. Every finding
- * is reported at once with a `$input` path, and none throws. With `host`, the
- * summed thickness must equal the host's within 1e-9 m; with `substances`,
- * every non-cavity layer's material must name one of them by id.
+ * the assembly, the axis, sense, exposures and substances must be known words,
+ * the offset finite, and at least one layer present. Every finding is reported
+ * at once with a `$input` path, and none throws. With `host`, the summed
+ * thickness must equal the host's within 1e-9 m; with `substances`, every
+ * non-cavity layer's material must name one of them by id.
  *
  * @param props.assembly Layered build-up to judge.
  * @param props.substances Substances the layers may cite, or omitted.
@@ -180,8 +180,7 @@ export const validateAutoMovieMaterialAssembly: (
   );
   if (
     layers.every(
-      (layer: IAutoMovieMaterialLayer): boolean =>
-        layer.thickness >= 0,
+      (layer: IAutoMovieMaterialLayer): boolean => layer.thickness >= 0,
     )
   ) {
     const direction: number = assembly.sense === "positive" ? 1 : -1;
@@ -190,9 +189,7 @@ export const validateAutoMovieMaterialAssembly: (
   }
 
   if (props.host !== undefined) {
-    if (
-      props.host.thickness <= 0
-    )
+    if (props.host.thickness <= 0)
       collector.push(
         "range",
         `${root}.layers`,

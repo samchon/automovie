@@ -6,7 +6,8 @@ import { nclose } from "../internal/nclose";
 import { qclose, qunit } from "../internal/predicates";
 
 /**
- * Quaternion inversion reverses a Y quarter-turn and returns a unit rotation for the existing nonunit input.
+ * Quaternion inversion reverses a Y quarter-turn and returns a unit rotation
+ * for the existing nonunit input.
  *
  * Scenarios:
  *
@@ -17,10 +18,10 @@ import { qclose, qunit } from "../internal/predicates";
  *    (conjugate flips the vector part, keeps `w`).
  * 3. A non-unit input still yields a unit quaternion (the normalization keeps a
  *    near-unit rotation valid).
- * 4. A sole X component2^±500 or2^±600 inverts to literal(-1,0,0,0).
- *    These cover exact squared-norm certificate edges and extreme fallback.
- * 5. Exact zero retains the identity convention; a NaN component propagates
- *    NaN to every normalized component rather than manufacturing a rotation.
+ * 4. A sole X component2^±500 or2^±600 inverts to literal(-1,0,0,0). These cover
+ *    exact squared-norm certificate edges and extreme fallback.
+ * 5. Exact zero retains the identity convention; a NaN component propagates NaN to
+ *    every normalized component rather than manufacturing a rotation.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls inverse and multiplies its result with the original Y rotation, checking neutral composition, opposite angle and unit length for (1,2,3,4). Independent literal cardinal/zero/nonfinite outputs additionally catch conjugate-sign or unsafe normalization specialization errors without using another quaternion method as the expected answer.
  * @evidence contracts/development/testing.md#independent-expectations A rotation composed with its inverse is neutral and the inverse of a Y quarter-turn has angle -90 degrees. Unit magnitude is measured independently with hypot. Conjugating a positive sole X component gives exactly(-1,0,0,0) after normalization; powers2^±500 square to2^±1000, while2^±600 require scaling. Zero uses the declared identity convention and NaN propagates through norm/reciprocal/products. Earlier angle/product comparisons remain supplementary and cannot rule out a shared convention error.
@@ -52,11 +53,32 @@ export function test_math_quaternion_inverse(): void {
     qunit(Quaternion.inverse({ x: 1, y: 2, z: 3, w: 4 })),
   );
   for (const exponent of [-600, -500, 500, 600]) {
-    const actual: IAutoMovieQuaternion = Quaternion.inverse({ x: 2 ** exponent, y: 0, z: 0, w: 0 });
-    TestValidator.predicate(`scalar inverse normalization retains literal-X180 at2^${exponent}`,
-      qunit(actual) && nclose(actual.x, -1, 0) && nclose(actual.y, 0, 0) && nclose(actual.z, 0, 0) && nclose(actual.w, 0, 0));
+    const actual: IAutoMovieQuaternion = Quaternion.inverse({
+      x: 2 ** exponent,
+      y: 0,
+      z: 0,
+      w: 0,
+    });
+    TestValidator.predicate(
+      `scalar inverse normalization retains literal-X180 at2^${exponent}`,
+      qunit(actual) &&
+        nclose(actual.x, -1, 0) &&
+        nclose(actual.y, 0, 0) &&
+        nclose(actual.z, 0, 0) &&
+        nclose(actual.w, 0, 0),
+    );
   }
-  const zero: IAutoMovieQuaternion = Quaternion.inverse({ x: 0, y: 0, z: 0, w: 0 });
-  TestValidator.predicate("inverse normalization retains zero identity",
-    nclose(zero.x, 0, 0) && nclose(zero.y, 0, 0) && nclose(zero.z, 0, 0) && nclose(zero.w, 1, 0));
+  const zero: IAutoMovieQuaternion = Quaternion.inverse({
+    x: 0,
+    y: 0,
+    z: 0,
+    w: 0,
+  });
+  TestValidator.predicate(
+    "inverse normalization retains zero identity",
+    nclose(zero.x, 0, 0) &&
+      nclose(zero.y, 0, 0) &&
+      nclose(zero.z, 0, 0) &&
+      nclose(zero.w, 1, 0),
+  );
 }

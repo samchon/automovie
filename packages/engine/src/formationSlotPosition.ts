@@ -44,10 +44,7 @@ export const formationSlotPosition: (
   slot: number,
   reform: IAutoMovieFormationReform | null = null,
 ): IAutoMovieVector3 => {
-  if (
-    slot < 0 ||
-    slot >= formation.count
-  )
+  if (slot < 0 || slot >= formation.count)
     throw new RangeError(
       `Formation "${formation.id}" slot ${slot} is outside 0..${formation.count - 1}.`,
     );

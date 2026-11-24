@@ -62,10 +62,7 @@ export const plantStanceFeet: (
   if (tolerance < 0)
     throw new Error("contact tolerance must be finite and non-negative");
 
-  if (
-    props.sampleRate !== undefined &&
-    (props.sampleRate <= 0)
-  )
+  if (props.sampleRate !== undefined && props.sampleRate <= 0)
     throw new Error(
       `sampleRate must be a finite number > 0, but was ${props.sampleRate}`,
     );

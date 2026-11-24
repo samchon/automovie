@@ -94,9 +94,7 @@ export const resolveAutoMovieDaylightRequest: (
     throw new Error(
       "a workplane needs two non-parallel in-plane axes to have a normal",
     );
-  if (
-    request.diffuseSamples < 1
-  )
+  if (request.diffuseSamples < 1)
     throw new Error(
       `a daylight study needs a positive whole sky sample count, but was ${request.diffuseSamples}`,
     );

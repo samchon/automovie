@@ -187,10 +187,10 @@ export namespace IAutoMovieMotionHumanSegment {
     initial: IAutoMovieMotionHumanPosture;
 
     /**
-     * While the performance is prepared (`prepareHumanPerformance`), solve
-     * the person's action shown at a film second before it is read, so a
-     * reader is solved after what it reads: the depth-first topological order
-     * of the performance's dependencies. Absent outside the preparation.
+     * While the performance is prepared (`prepareHumanPerformance`), solve the
+     * person's action shown at a film second before it is read, so a reader is
+     * solved after what it reads: the depth-first topological order of the
+     * performance's dependencies. Absent outside the preparation.
      *
      * @param seconds Film seconds about to be read.
      */

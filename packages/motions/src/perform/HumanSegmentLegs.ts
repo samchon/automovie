@@ -1,6 +1,7 @@
 import type {
   AutoMovieHumanLimb,
   IAutoMovieJointPose,
+  IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanResolveHumanPosture,
   IAutoMovieMotionHumanSegment,
@@ -14,12 +15,27 @@ import type {
  * both legs' goals are one and the same, so every record a leg fit reads is,
  * and the legs' fit of one second is the fit of every other. The performance
  * fits the legs once at the window's start when it is prepared
- * (`IAutoMovieMotionHumanSegment.IPrepared.still`, {@link HumanSegmentLegs.still});
- * every leaf resolve in the window is then the same resolve with those records
- * given as the legs' joints and the legs' goals left out, so only the head, the
- * arms and the hands are fitted.
+ * (`IAutoMovieMotionHumanSegment.IPrepared.still`,
+ * {@link HumanSegmentLegs.still}); every leaf resolve in the window is then the
+ * same resolve with those records given as the legs' joints and the legs' goals
+ * left out, so only the head, the arms and the hands are fitted.
  */
 export namespace HumanSegmentLegs {
+  /** What a leaf's legs read of its person: what writes over the leaf. */
+  export type IPerson = Pick<
+    IAutoMovieMotionHumanSegment.IPerson,
+    "layers" | "overlays"
+  >;
+
+  /** What a leaf's legs read of its action: its time zero, window and kept fit. */
+  export interface ICarrier extends Pick<
+    IAutoMovieMotionHumanSegment,
+    "start" | "prepared"
+  > {
+    /** The plan's duration and legs-still window. */
+    plan: Pick<IAutoMovieMotionHumanActionPlan, "duration" | "legsStill">;
+  }
+
   /**
    * The leaf resolve of a posture at a film second.
    *
@@ -32,8 +48,8 @@ export namespace HumanSegmentLegs {
    * @returns The resolve's result.
    */
   export function resolved(
-    person: IAutoMovieMotionHumanSegment.IPerson,
-    carrier: IAutoMovieMotionHumanSegment | undefined,
+    person: IPerson,
+    carrier: ICarrier | undefined,
     seconds: number,
     under: IAutoMovieMotionHumanPosture,
     plain: boolean,
@@ -83,8 +99,8 @@ export namespace HumanSegmentLegs {
    * @returns Whether the window's fit applies.
    */
   export function within(
-    person: IAutoMovieMotionHumanSegment.IPerson,
-    carrier: IAutoMovieMotionHumanSegment,
+    person: IPerson,
+    carrier: ICarrier,
     seconds: number,
     under: IAutoMovieMotionHumanPosture,
     plain: boolean,
@@ -119,8 +135,9 @@ export namespace HumanSegmentLegs {
     pose: IAutoMoviePose,
     seeds: ReadonlyMap<string, IAutoMovieSwivelSeed | null>,
   ): IAutoMovieMotionHumanSegment.IStill {
-    const legs: Partial<Record<AutoMovieHumanLimb, IAutoMovieSwivelSeed | null>> =
-      {};
+    const legs: Partial<
+      Record<AutoMovieHumanLimb, IAutoMovieSwivelSeed | null>
+    > = {};
     for (const limb of ["leftLeg", "rightLeg"] as const) {
       const seed: IAutoMovieSwivelSeed | null | undefined = seeds.get(
         `leaf::${limb}`,

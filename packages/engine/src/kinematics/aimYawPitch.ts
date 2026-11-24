@@ -78,4 +78,3 @@ export const aimYawPitch: (
     pitchDeg: (Math.atan2(dy, horizontal) * 180) / Math.PI,
   };
 };
-

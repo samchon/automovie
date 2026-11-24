@@ -31,8 +31,6 @@ export function checkAutoMovieSweepFeature(
         `sweep feature ${index} must give every point either a radius or an offset`,
       );
     if (!relative && p.radius! <= 0)
-      throw new Error(
-        `sweep feature ${index} radius must be positive`,
-      );
+      throw new Error(`sweep feature ${index} radius must be positive`);
   });
 }

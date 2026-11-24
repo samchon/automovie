@@ -167,8 +167,7 @@ export function realizeAutoMovieBicubicAtlas64(
           chunk.triangleParameters?.length !== chunk.indices.length * 2) ||
         chunk.indices.some(
           (index: number): boolean =>
-            index < 0 ||
-            index >= vertexCount + chunk.positions.length / 3,
+            index < 0 || index >= vertexCount + chunk.positions.length / 3,
         )
       )
         throw new Error(

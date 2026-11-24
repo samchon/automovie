@@ -34,25 +34,24 @@ const cylinderProfile: IAutoMovieProfilePoint[] = [
  * The emitted atlas measures decreasing angular arc and meridian travel.
  *
  * Every expected number is the surface's own geometry rather than the builder's
- * output. A cylinder of radius 1 m has a circumference of exactly `2 * pi` m, so
- * the first ring must read that and the closing ring zero; its
- * meridian is 2 m of straight polyline, so the far ring must read 2. A cone's
- * meridian rising 1 m over 1 m of radius is `sqrt(2)` m of slant, not the 1 m
- * of either leg.
+ * output. A cylinder of radius 1 m has a circumference of exactly `2 * pi` m,
+ * so the first ring must read that and the closing ring zero; its meridian is 2
+ * m of straight polyline, so the far ring must read 2. A cone's meridian rising
+ * 1 m over 1 m of radius is `sqrt(2)` m of slant, not the 1 m of either leg.
  *
  * Scenarios:
  *
  * 1. A revolved surface carries one uv pair per vertex.
- * 2. The seam is an explicit cut over the true circumference: around runs
- *    against the build direction as `2 * pi - theta` so the atlas stays
- *    right-handed, which puts `2 * pi * r` on the first ring and zero on the
- *    duplicate closing ring. The sampled phases are deliberately unequal when the repeat does not
- *    divide that circumference.
+ * 2. The seam is an explicit cut over the true circumference: around runs against
+ *    the build direction as `2 * pi - theta` so the atlas stays right-handed,
+ *    which puts `2 * pi * r` on the first ring and zero on the duplicate
+ *    closing ring. The sampled phases are deliberately unequal when the repeat
+ *    does not divide that circumference.
  * 3. Along is the meridian's own length, so a 2 m tube spans 0 to 2, and one
  *    quarter of the way round the lattice reads `3 * pi / 2` m of arc because
  *    around counts down; both are metres and neither is in `[0, 1]`.
- * 4. A cone's slant is measured as slant: `sqrt(2)` for a meridian rising 1 m
- *    over 1 m, and its pole ring reads zero around at every segment, because a
+ * 4. A cone's slant is measured as slant: `sqrt(2)` for a meridian rising 1 m over
+ *    1 m, and its pole ring reads zero around at every segment, because a
  *    circle of no radius has no arc to travel. The six collapsed pole triangles
  *    remain the operator's declared degenerates while every UV stays finite;
  *    the open-tube twin has none.

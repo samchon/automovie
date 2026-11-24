@@ -69,10 +69,7 @@ export const admitSubdivisionCage = (
         throw new Error(
           `subdivision cage crease ${i} must join two cage vertices`,
         );
-      if (
-        crease.sharpness < 0 ||
-        crease.sharpness > 10
-      )
+      if (crease.sharpness < 0 || crease.sharpness > 10)
         throw new Error(
           `subdivision cage crease ${i} sharpness must be from 0 to 10`,
         );

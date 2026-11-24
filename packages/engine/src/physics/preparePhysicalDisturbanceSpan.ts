@@ -1476,8 +1476,7 @@ function reentry(
     else if (beta < 0) upper = Math.min(upper, -alpha / beta);
     else if (alpha < 0) upper = Number.NEGATIVE_INFINITY;
   }
-  if (lower > upper)
-    return Number.POSITIVE_INFINITY;
+  if (lower > upper) return Number.POSITIVE_INFINITY;
   return form.start + Math.log(lower) / omega;
 }
 

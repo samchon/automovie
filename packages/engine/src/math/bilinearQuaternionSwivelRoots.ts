@@ -18,10 +18,7 @@ export function bilinearQuaternionSwivelRoots(
   b: readonly [number, number, number, number],
   cross: number,
 ): readonly number[] | "all" | null {
-  if (
-    Math.abs(cross) >= 1
-  )
-    return null;
+  if (Math.abs(cross) >= 1) return null;
 
   // The Gram eigenvalues are 1 +/- cross. Refuse when coefficient rounding
   // can dominate its small eigenvalue instead of declaring a rank identity.

@@ -59,9 +59,7 @@ export function AutoMovieViewHermiteDerivativeRange(
     for (let i: number = 0; i + 1 < n; i++) {
       stage = "span " + i;
       const h: number = curve.xs[i + 1]! - curve.xs[i]!;
-      if (
-        !(h > 0)
-      )
+      if (!(h > 0))
         throw new Error("source interval is not finite and positive");
       const c: readonly number[] = curve.coefficients[i]!;
       if (c.length !== 5)

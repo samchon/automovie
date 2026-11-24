@@ -252,8 +252,7 @@ const aim: (
 ): IStationPose => {
   const offset: IAutoMovieVector3 = Vector3.subtract(target, position);
   const length: number = Vector3.length(offset);
-  if (length <= AUTOMOVIE_OBSERVATION_EPSILON)
-    return null;
+  if (length <= AUTOMOVIE_OBSERVATION_EPSILON) return null;
   return { position, direction: Vector3.scale(offset, 1 / length), target };
 };
 

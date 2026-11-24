@@ -164,9 +164,7 @@ export function decomposeAutoMovieSingularMatrix(
   }
   const relativeResidual: number =
     originalNorm === 0 ? 0 : errorNorm / originalNorm;
-  if (
-    relativeResidual > 8 * budget.orthogonalityTolerance
-  )
+  if (relativeResidual > 8 * budget.orthogonalityTolerance)
     throw new Error(
       "singular-matrix: measured reconstruction residual exceeds budget",
     );

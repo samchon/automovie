@@ -26,9 +26,7 @@ export const arrangeMotion: (
       throw new Error(
         `motion placement "${placement.motion.id}" must have keyframes`,
       );
-    if (
-      placement.motion.duration <= 0
-    )
+    if (placement.motion.duration <= 0)
       throw new Error(
         `motion placement "${placement.motion.id}" duration must be finite and positive`,
       );

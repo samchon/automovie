@@ -136,10 +136,7 @@ export function prepareJointRotationProjection(props: {
       immobile.push(axis);
       continue;
     }
-    if (
-      range.min > range.max
-    )
-      box = false;
+    if (range.min > range.max) box = false;
     fixed[axis] = range.min;
     if (range.max > range.min) mobile.push(axis);
   }

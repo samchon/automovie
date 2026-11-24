@@ -1,13 +1,13 @@
-import type {
-  IAutoMovieSolidMeshConstraints,
-  IAutoMovieSolidMeshPlan,
-} from "@automovie/interface";
 import {
   AutoMovieSolidMeshPlan,
   insertAutoMovieSolidMeshPoints,
   orientAutoMovieSolidChart as orient,
   triangulateAutoMovieSolidBoundary,
 } from "@automovie/engine";
+import type {
+  IAutoMovieSolidMeshConstraints,
+  IAutoMovieSolidMeshPlan,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -39,18 +39,20 @@ interface Case {
  * An index plan covers contact, hole and periodic residual regions once.
  *
  * Scenarios:
+ *
  * 1. A square with collinear boundary points, a collinear hole, redundant nested
  *    holes, an island with a hole and a fully removed source at three units.
- * 2. A hole sharing an outer interval or corner retains its prescribed region;
- *    no strict disjoint-ring assumption is applied to those input constraints.
+ * 2. A hole sharing an outer interval or corner retains its prescribed region; no
+ *    strict disjoint-ring assumption is applied to those input constraints.
  * 3. Two winding rails with unequal populations, a phase-seam hole and its
  *    three-period translation use explicit cover occurrences and original IDs.
  * 4. Every returned triangle is positive, elementary total area is unchanged,
- *    directed interior edges pair, inputs stay unchanged and outputs are owned.
- * 5. Unshared crossings, nonfinite coordinates, an unrepresentable strict
- *    centroid and an untriangulated kept band return named failures atomically.
- * 6. A point a few ulps off an unconstrained diagonal, a source constraint or
- *    a vertex is inserted with every original ID, and the near-diagonal plan
+ *    directed interior edges pair, inputs stay unchanged and outputs are
+ *    owned.
+ * 5. Unshared crossings, nonfinite coordinates, an unrepresentable strict centroid
+ *    and an untriangulated kept band return named failures atomically.
+ * 6. A point a few ulps off an unconstrained diagonal, a source constraint or a
+ *    vertex is inserted with every original ID, and the near-diagonal plan
  *    joins it to all four cocircular corners; a point exactly on a source
  *    constraint is refused with its inserted chart and located triangles.
  * 7. A curve meeting a straight constraint at a grazing angle, its last vertex
@@ -279,8 +281,10 @@ export function test_construction_mesh_plan(): void {
 }
 
 /**
- * A point a few units of the last place off a diagonal, a source constraint or a vertex is inserted where its exact signs locate it, never
- * snapped, welded or refused; a point exactly on a source constraint has no authoritative subdivision and is refused with its diagnostic.
+ * A point a few units of the last place off a diagonal, a source constraint or
+ * a vertex is inserted where its exact signs locate it, never snapped, welded
+ * or refused; a point exactly on a source constraint has no authoritative
+ * subdivision and is refused with its diagnostic.
  */
 function cavity(failures: string[]): void {
   const points: Map<number, readonly [number, number]> = new Map([
@@ -318,10 +322,10 @@ function cavity(failures: string[]): void {
   valid(failures, "near-diagonal insertion", points, boundary, inserted);
   if (
     typeof inserted !== "string" &&
-    (inserted.length !== 4 || !inserted.every(
-      (triangle: IAutoMovieSolidMeshPlan.ITriangle): boolean =>
+    (inserted.length !== 4 ||
+      !inserted.every((triangle: IAutoMovieSolidMeshPlan.ITriangle): boolean =>
         triangle.vertices.includes(4),
-    ))
+      ))
   )
     failures.push("near-diagonal cavity kept the unconstrained diagonal");
 
@@ -335,8 +339,9 @@ function cavity(failures: string[]): void {
   if (
     typeof plan === "string" ||
     plan.triangles.length !== 4 ||
-    !plan.triangles.every((triangle: IAutoMovieSolidMeshPlan.ITriangle): boolean =>
-      triangle.vertices.includes(4),
+    !plan.triangles.every(
+      (triangle: IAutoMovieSolidMeshPlan.ITriangle): boolean =>
+        triangle.vertices.includes(4),
     )
   )
     failures.push(
@@ -387,8 +392,10 @@ function cavity(failures: string[]): void {
 }
 
 /**
- * A valid triangulation of a square disk with every point: `2V - 4 - 2` triangles by Euler's relation for four boundary vertices, each
- * exactly positive, none holding another point in its closed chart triangle, and every source constraint a side.
+ * A valid triangulation of a square disk with every point: `2V - 4 - 2`
+ * triangles by Euler's relation for four boundary vertices, each exactly
+ * positive, none holding another point in its closed chart triangle, and every
+ * source constraint a side.
  */
 function valid(
   failures: string[],
@@ -402,24 +409,35 @@ function valid(
     return;
   }
   if (made.length !== 2 * points.size - 6)
-    failures.push(`${label}: ${made.length} triangles for ${points.size} points`);
+    failures.push(
+      `${label}: ${made.length} triangles for ${points.size} points`,
+    );
   for (const id of points.keys())
-    if (!made.some((triangle: IAutoMovieSolidMeshPlan.ITriangle): boolean => triangle.vertices.includes(id)))
+    if (
+      !made.some((triangle: IAutoMovieSolidMeshPlan.ITriangle): boolean =>
+        triangle.vertices.includes(id),
+      )
+    )
       failures.push(`${label}: original point ${id} lost`);
   for (const triangle of made) {
     const corners: (readonly [number, number])[] = triangle.vertices.map(
       (id: number): readonly [number, number] => points.get(id)!,
     );
     if (orient(corners[0]!, corners[1]!, corners[2]!) <= 0)
-      failures.push(`${label}: triangle ${triangle.vertices.join("/")} is not exactly positive`);
+      failures.push(
+        `${label}: triangle ${triangle.vertices.join("/")} is not exactly positive`,
+      );
     for (const [id, point] of points)
       if (
         !triangle.vertices.includes(id) &&
-        corners.every((corner: readonly [number, number], k: number): boolean =>
-          orient(corner, corners[(k + 1) % 3]!, point) >= 0,
+        corners.every(
+          (corner: readonly [number, number], k: number): boolean =>
+            orient(corner, corners[(k + 1) % 3]!, point) >= 0,
         )
       )
-        failures.push(`${label}: point ${id} lies in triangle ${triangle.vertices.join("/")}`);
+        failures.push(
+          `${label}: point ${id} lies in triangle ${triangle.vertices.join("/")}`,
+        );
   }
   for (const edge of constraints)
     if (
@@ -433,7 +451,10 @@ function valid(
       failures.push(`${label}: source constraint ${edge.a}->${edge.b} lost`);
 }
 
-/** The refusal carries the inserted point's authored ID and exact chart, and both located triangles meet it on the constraint 0-2. */
+/**
+ * The refusal carries the inserted point's authored ID and exact chart, and
+ * both located triangles meet it on the constraint 0-2.
+ */
 function insertionDiagnostic(
   failures: string[],
   refusal: string,
@@ -443,42 +464,59 @@ function insertionDiagnostic(
   const marker: string = "; diagnostic=";
   const at: number = refusal.indexOf(marker);
   if (at < 0) {
-    failures.push("source-constraint point: missing inserted point and located triangles");
+    failures.push(
+      "source-constraint point: missing inserted point and located triangles",
+    );
     return;
   }
   try {
     const observation: {
       inserted: { id: number; chart: [number, number] };
-      hits: { vertices: [number, number, number]; signs: [number, number, number] }[];
+      hits: {
+        vertices: [number, number, number];
+        signs: [number, number, number];
+      }[];
     } = JSON.parse(refusal.slice(at + marker.length));
     if (
       observation.inserted.id !== insertedId ||
       observation.inserted.chart[0] !== insertedChart[0] ||
       observation.inserted.chart[1] !== insertedChart[1]
     )
-      failures.push("source-constraint point: wrong inserted original ID or chart");
+      failures.push(
+        "source-constraint point: wrong inserted original ID or chart",
+      );
     if (
       observation.hits.length !== 2 ||
       !observation.hits.every(
-        (hit: { vertices: [number, number, number]; signs: [number, number, number] }): boolean => {
+        (hit: {
+          vertices: [number, number, number];
+          signs: [number, number, number];
+        }): boolean => {
           const side: number = hit.signs.indexOf(0);
-          const ends: number[] = [hit.vertices[side]!, hit.vertices[(side + 1) % 3]!].sort(
-            (x: number, y: number): number => x - y,
-          );
+          const ends: number[] = [
+            hit.vertices[side]!,
+            hit.vertices[(side + 1) % 3]!,
+          ].sort((x: number, y: number): number => x - y);
           return side >= 0 && ends[0] === 0 && ends[1] === 2;
         },
       )
     )
-      failures.push("source-constraint point: located triangles do not meet it on the constraint");
+      failures.push(
+        "source-constraint point: located triangles do not meet it on the constraint",
+      );
   } catch (error: unknown) {
-    failures.push("source-constraint point: unreadable diagnostic: " + String(error));
+    failures.push(
+      "source-constraint point: unreadable diagnostic: " + String(error),
+    );
   }
 }
 
 /**
- * A curve that meets a straight constraint at a grazing angle leaves its last vertex a few units of the last place off the line: the face
- * beside that short edge has no represented corridor, but the same face lies beside every other edge of its walk, which must serve. The
- * coordinates are f1's: the concha's cut meeting a grid line of the ear's band, 1e-14 off it at a phase of 16.37.
+ * A curve that meets a straight constraint at a grazing angle leaves its last
+ * vertex a few units of the last place off the line: the face beside that short
+ * edge has no represented corridor, but the same face lies beside every other
+ * edge of its walk, which must serve. The coordinates are f1's: the concha's
+ * cut meeting a grid line of the ear's band, 1e-14 off it at a phase of 16.37.
  */
 function grazing(failures: string[]): void {
   const line: number = 16.368318562268914;
@@ -579,7 +617,10 @@ function outputCover(failures: string[]): void {
     );
 }
 
-/** Eight independently authored points include a collinear midpoint on each side. */
+/**
+ * Eight independently authored points include a collinear midpoint on each
+ * side.
+ */
 function rectangle([x0, y0, x1, y1]: Box): (readonly [number, number])[] {
   return [
     [x0, y0],
@@ -723,7 +764,10 @@ function inspect(failures: string[], sample: Case, scale: number): void {
   }
 }
 
-/** Elementary axis-aligned source interval containment, independent of planner predicates. */
+/**
+ * Elementary axis-aligned source interval containment, independent of planner
+ * predicates.
+ */
 function boundary(
   points: ReadonlyMap<number, readonly [number, number]>,
   constraints: readonly IAutoMovieSolidMeshConstraints.ISegment[],
@@ -771,7 +815,10 @@ function boundary(
   return false;
 }
 
-/** No partial triangle population is accepted when the represented source premise fails. */
+/**
+ * No partial triangle population is accepted when the represented source
+ * premise fails.
+ */
 function refuse(
   failures: string[],
   label: string,

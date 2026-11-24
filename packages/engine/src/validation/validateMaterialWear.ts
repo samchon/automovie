@@ -21,10 +21,7 @@ export function validateMaterialWear(
   collector: IAutoMovieViolationCollector,
 ): void {
   if (wear === undefined) return;
-  if (
-    wear.seed < 0 ||
-    wear.seed > 4294967295
-  )
+  if (wear.seed < 0 || wear.seed > 4294967295)
     collector.push(
       "range",
       `${path}.seed`,

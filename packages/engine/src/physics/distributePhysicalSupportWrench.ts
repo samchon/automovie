@@ -179,10 +179,7 @@ export function distributePhysicalSupportWrench(
       linear: new Array<number>(size + 6 + 3 * supports.length).fill(0),
       rows,
     });
-  if (
-    result.status !== 1 ||
-    result.maximumViolation > 1e-6
-  )
+  if (result.status !== 1 || result.maximumViolation > 1e-6)
     throw new Error(
       `Support wrench solve failed: ${result.status}/${result.maximumViolation}`,
     );

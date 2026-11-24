@@ -21,9 +21,7 @@
  *   time is not finite.
  */
 export function carriedAcceleration(duration: number, elapsed: number): number {
-  if (
-    !(duration > 0)
-  )
+  if (!(duration > 0))
     throw new Error(
       "A carried acceleration needs a finite elapsed time and a positive duration",
     );

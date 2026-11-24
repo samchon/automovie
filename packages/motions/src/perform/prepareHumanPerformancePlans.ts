@@ -18,7 +18,7 @@ export function prepareHumanPerformancePlans(
   self: IAutoMovieMotionHumanPerformanceState,
 ): void {
   prepareHumanPerformanceOrder(
-    self,
+    self.people.values(),
     (
       person: IAutoMovieMotionHumanSegment.IPerson,
     ): readonly IAutoMovieMotionHumanSegment[] => [

@@ -40,7 +40,6 @@ export function prepareJointRotationFactor(
     frame: IAutoMovieAxisFrame | undefined,
     clinical: number | null,
   ): IAutoMovieQuaternion => {
-
     let angle: number;
     if (mutable) angle = toRigAngle(clinical, frame) ?? 0;
     else if (clinical === null) angle = 0;

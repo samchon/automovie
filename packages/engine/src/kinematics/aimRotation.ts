@@ -41,9 +41,9 @@ export function aimRotation(
 /** Aiming from one unchanged source direction. */
 export namespace aimRotation {
   /**
-   * Prepare the normalized source once and return the reader that turns it
-   * onto each target by the exact shortest-arc solve. A changed source
-   * requires another reader.
+   * Prepare the normalized source once and return the reader that turns it onto
+   * each target by the exact shortest-arc solve. A changed source requires
+   * another reader.
    */
   export function prepare(
     from: IAutoMovieVector3,

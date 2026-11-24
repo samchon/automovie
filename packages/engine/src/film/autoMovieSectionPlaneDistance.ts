@@ -28,9 +28,7 @@ export const autoMovieSectionPlaneDistance = (
     plane.normal.z,
   );
   if (length === 0)
-    throw new RangeError(
-      "Section plane normal must be a non-zero vector.",
-    );
+    throw new RangeError("Section plane normal must be a non-zero vector.");
 
   return (
     (plane.normal.x * (point.x - plane.point.x) +

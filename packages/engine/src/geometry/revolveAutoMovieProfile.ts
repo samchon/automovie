@@ -61,12 +61,15 @@ import { meshOf } from "./meshOf";
  * How far that shear goes decides what finish the surface can carry. The map is
  * exactly equiareal, its Jacobian determinant one everywhere, so the whole
  * distortion is pure shear of `2 * pi - theta` times `dr / ds`. Worst
- * anisotropy over a full turn is therefore `(sqrt(k * k + 4) + k) / (sqrt(k * k
- * + 4) - k)` at `k = 2 * pi * |dr / ds|`: 1.0 on a cylinder, 2.0 at 6.5 degrees
- * off the axis, 4.0 at 13.8 degrees, 21.5 on a 45-degree cone, and 41 where the
- * meridian runs level, which is what a dome's pole and a cone's tip approach. A
- * tile that reads square beside the seam is drawn into a ribbon a quarter turn
- * away, and the curve of constant `u` spirals instead of following a meridian.
+ * anisotropy over a full turn is therefore `(sqrt(k * k + 4) + k) / (sqrt(k *
+ * k
+ *
+ * - 4) - k)`at`k = 2 * pi * |dr / ds|`: 1.0 on a cylinder, 2.0 at 6.5 degrees off
+ *   the axis, 4.0 at 13.8 degrees, 21.5 on a 45-degree cone, and 41 where the
+ *   meridian runs level, which is what a dome's pole and a cone's tip approach.
+ *   A tile that reads square beside the seam is drawn into a ribbon a quarter
+ *   turn away, and the curve of constant `u` spirals instead of following a
+ *   meridian.
  *
  * That is the price of the metric statement rather than a defect awaiting
  * repair. Measuring true arc around forces `u` to be `theta * r` plus some

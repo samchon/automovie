@@ -48,10 +48,7 @@ export function assertAutoMovieCurveBoundary64(
     if (!Array.isArray(v) || v.length !== 3)
       throw new Error("Three-dimensional full derivative required");
     for (let i: number = 0; i < 3; i++)
-      if (
-        !Object.hasOwn(v, i) ||
-        typeof v[i] !== "number"
-      )
+      if (!Object.hasOwn(v, i) || typeof v[i] !== "number")
         throw new Error("Dense finite derivative vector required");
   };
   for (const span of boundary.fullJ) {

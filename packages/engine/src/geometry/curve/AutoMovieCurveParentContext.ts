@@ -287,8 +287,8 @@ export class AutoMovieCurveParentContext {
 }
 
 /**
- * Freeze a cloned boundary field by its declared structure: the section's
- * spans and their controls, its phase widths, the derivative field and the
+ * Freeze a cloned boundary field by its declared structure: the section's spans
+ * and their controls, its phase widths, the derivative field and the
  * longitudinal axis.
  */
 function freezeBoundary(value: IAutoMovieCurveBoundary64): void {

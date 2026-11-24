@@ -38,9 +38,7 @@ export function classifyAutoMovieSectionPlaneBox(
   props: IAutoMovieClassifySectionPlaneBox.IProps,
 ): AutoMovieSectionPlaneState {
   for (const axis of AXES)
-    if (
-      props.min[axis] > props.max[axis]
-    )
+    if (props.min[axis] > props.max[axis])
       throw new RangeError(
         `Section box ${axis} range [${props.min[axis]}, ${props.max[axis]}] must be finite with min not above max.`,
       );

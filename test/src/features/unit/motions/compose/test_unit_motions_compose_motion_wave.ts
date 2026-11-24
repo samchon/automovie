@@ -2,8 +2,8 @@ import { AutoMovieMotionWave } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../../internal/nclose";
-import { throwsError } from "../../../internal/throwsError";
 import { linearMotionClock } from "../../../internal/synthetic/linearMotionClock";
+import { throwsError } from "../../../internal/throwsError";
 
 /** Rounding of one sine and two quintics, unitless. */
 const ROUNDING: number = 1e-12;
@@ -13,8 +13,8 @@ const ROUNDING: number = 1e-12;
  * window, grown in and out over the first and last half cycle by minimum-jerk
  * shares.
  *
- * On a linear clock with the window from 0 to 2 s and two cycles, a half
- * cycle is u = ¼.
+ * On a linear clock with the window from 0 to 2 s and two cycles, a half cycle
+ * is u = ¼.
  *
  * Scenarios:
  *

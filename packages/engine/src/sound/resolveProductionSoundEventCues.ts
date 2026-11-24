@@ -92,10 +92,7 @@ export function resolveProductionSoundEventCues(
     for (const occurrence of occurrences) {
       const startFrame: number = occurrence.frame + offsetFrames;
       const endFrame: number = startFrame + source.durationFrames;
-      if (
-        startFrame < 0 ||
-        endFrame > props.timeline.totalFrames
-      )
+      if (startFrame < 0 || endFrame > props.timeline.totalFrames)
         throw new Error(
           `Event sound cue "${id}" at "${occurrence.id}" must fit inside the film.`,
         );

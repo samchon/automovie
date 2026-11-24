@@ -9,11 +9,16 @@ import { createProductionSoundAssetTestInputs } from "../internal/audio/createPr
 import { namedFacts, throwsError } from "../internal/predicates";
 
 /**
- * Only referenced decoded PCM must be finite; an empty generation and a Float32-overflowing mix refuse instead of claiming silence.
+ * Only referenced decoded PCM must be finite; an empty generation and a
+ * Float32-overflowing mix refuse instead of claiming silence.
  *
  * Scenarios:
- * 1. Referenced NaN/Infinity and empty supplied PCM refuse by source identity and index; unused invalid entries remain outside ingress.
- * 2. The three-sample finite source includes its near-Float32-limit value in the actual mix; gain 4 overflows at independently derived sample index 0 and refuses before limiting.
+ *
+ * 1. Referenced NaN/Infinity and empty supplied PCM refuse by source identity and
+ *    index; unused invalid entries remain outside ingress.
+ * 2. The three-sample finite source includes its near-Float32-limit value in the
+ *    actual mix; gain 4 overflows at independently derived sample index 0 and
+ *    refuses before limiting.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Mixes referenced and unreferenced supplied PCM and requires located refusals for non-finite, empty and Float32-overflowing adopted or generated samples.
  * @evidence contracts/development/testing.md#independent-expectations Literal NaN/Infinity, the empty buffer and gain-four overflow of a finite near-Float32-limit sample determine expected refusal identities/indices; observing the returned master as finite does not authenticate asset bytes.

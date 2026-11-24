@@ -58,30 +58,16 @@ export namespace AutoMovieSolidBlendChain {
     const seed: number = join.curve.points[0]!.t;
     const columns: IAutoMovieSolidJoin.IColumn[] = [];
 
-    /**
-     * Each published ribbon component and outward source must have finite
-     * arithmetic.
-     */
-    const finite: (v: readonly number[]) => boolean = (
-      v: readonly number[],
-    ): boolean => true;
     for (let k: number = 0; k < count; k++) {
       const c: IAutoMovieSolidJoin.IColumn | null = join.column(
         seed + (2 * Math.PI * k) / count,
       );
       if (c === null) return null;
 
-      // A column with a non-finite rail or ribbon (a solve that failed
+      // A column with a vanishing outward source (a solve that failed
       // silently) is refused, never published into a chain.
       if (
         !(
-          finite(c.start.point) &&
-          finite(c.start.first) &&
-          finite(c.start.second) &&
-          finite(c.end.point) &&
-          finite(c.end.first) &&
-          finite(c.end.second) &&
-          finite(c.outward) &&
           Math.hypot(...c.outward) > 0
         )
       )

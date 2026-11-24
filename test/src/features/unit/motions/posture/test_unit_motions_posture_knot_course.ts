@@ -21,14 +21,14 @@ const ROUNDING: number = 1e-9;
  *
  * Scenarios:
  *
- * 1. The span is from the first arrival to the last; before and in the first
- *    hold the curve is at the first knot, at rest.
- * 2. At 1 s the curve is at 0.20703125, and at the middle knot's second at 1
- *    with the quintic's peak velocity 15/8 · 2/2.
+ * 1. The span is from the first arrival to the last; before and in the first hold
+ *    the curve is at the first knot, at rest.
+ * 2. At 1 s the curve is at 0.20703125, and at the middle knot's second at 1 with
+ *    the quintic's peak velocity 15/8 · 2/2.
  * 3. After the end, the last knot at rest.
- * 4. An interior hold: knots 0, 1 and 2 arriving at 0, 1 and 2.25, the middle
- *    one held a quarter second; at 0.5 s the curve is ½ moving at 15/8, in the
- *    hold it is 1, and it ends at 2.25.
+ * 4. An interior hold: knots 0, 1 and 2 arriving at 0, 1 and 2.25, the middle one
+ *    held a quarter second; at 0.5 s the curve is ½ moving at 15/8, in the hold
+ *    it is 1, and it ends at 2.25.
  */
 export function test_unit_motions_posture_knot_course(): void {
   const course: prepareHumanKnotCourse.ICourse = prepareHumanKnotCourse(

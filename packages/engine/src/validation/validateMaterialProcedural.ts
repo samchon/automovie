@@ -17,10 +17,10 @@ const DIRECTIONAL: readonly IAutoMovieProceduralSurface["kind"][] = [
 ];
 
 /**
- * Admit one material's procedural surface: a safe-integer seed within [0,
- * 2³² − 1], a positive scale, two linear colours, two roughness values within
- * [0, 1], a nonnegative relief, an axis exactly when the kind is directional,
- * and a pattern piece's positive tile lengths.
+ * Admit one material's procedural surface: a safe-integer seed within [0, 2³² −
+ * 1], a positive scale, two linear colours, two roughness values within [0, 1],
+ * a nonnegative relief, an axis exactly when the kind is directional, and a
+ * pattern piece's positive tile lengths.
  *
  * A material that also binds `baseColorTexture` or `metallicRoughnessTexture`
  * is refused at `procedural`, since both would state its colour and roughness.
@@ -46,10 +46,7 @@ export const validateMaterialProcedural: (
       "a procedural surface states base colour and roughness, so the material may not also bind baseColorTexture or metallicRoughnessTexture",
       surface.kind,
     );
-  if (
-    surface.seed < 0 ||
-    surface.seed > 4294967295
-  )
+  if (surface.seed < 0 || surface.seed > 4294967295)
     collector.push(
       "range",
       `${path}.seed`,

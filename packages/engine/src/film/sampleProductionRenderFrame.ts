@@ -36,10 +36,7 @@ export function sampleProductionRenderFrame(
   timeline: IAutoMovieFilmTimeline,
   globalFrame: number,
 ): IAutoMovieProductionRenderFrame {
-  if (
-    globalFrame < 0 ||
-    globalFrame >= timeline.totalFrames
-  )
+  if (globalFrame < 0 || globalFrame >= timeline.totalFrames)
     throw new Error(
       `Film-global frame ${globalFrame} is outside 0..${timeline.totalFrames - 1}.`,
     );

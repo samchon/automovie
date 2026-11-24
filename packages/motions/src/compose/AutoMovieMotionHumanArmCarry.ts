@@ -22,6 +22,7 @@ import { AutoMovieMotionHumanArmCarrySpan } from "./AutoMovieMotionHumanArmCarry
 import { AutoMovieMotionHumanArmChain } from "./AutoMovieMotionHumanArmChain";
 import { AutoMovieMotionHumanArmFollow } from "./AutoMovieMotionHumanArmFollow";
 import { AutoMovieMotionHumanArmJointCarry } from "./AutoMovieMotionHumanArmJointCarry";
+import { AutoMovieMotionHumanArmJointCourse } from "./AutoMovieMotionHumanArmJointCourse";
 import { AutoMovieMotionHumanArmPlanned } from "./AutoMovieMotionHumanArmPlanned";
 import { AutoMovieMotionHumanArmPlayed } from "./AutoMovieMotionHumanArmPlayed";
 import { AutoMovieMotionHumanChannel as HumanChannels } from "./AutoMovieMotionHumanChannel";
@@ -167,6 +168,9 @@ export namespace AutoMovieMotionHumanArmCarry {
       | ReturnType<typeof AutoMovieMotionHumanArmChain.continued>
       | undefined;
     let handed: HumanArmSwing.Entered | undefined;
+    // The joint-space carry off the plan, solved at knots once the performance
+    // is placed (`AutoMovieMotionHumanArmJointCourse`).
+    let course: AutoMovieMotionHumanArmJointCourse.Course | undefined;
     const goaled = (
       at: IAutoMovieMotionHumanPosture,
       t: number,
@@ -179,6 +183,27 @@ export namespace AutoMovieMotionHumanArmCarry {
         [limb]: props.goal(at, t, resolution, projector),
       },
     });
+    // The carry's inputs at a second: the goaled posture so far, along the
+    // arm's course where it has no span, from its rest by its weight.
+    const input = (
+      at: IAutoMovieMotionHumanPosture,
+      t: number,
+      resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
+      projector?: Parameters<typeof resolveHumanPosture.seeded>[6],
+    ): AutoMovieMotionHumanArmJointCourse.IInput => {
+      const weight: number = props.weight(t);
+      const aimed: IAutoMovieMotionHumanPosture = goaled(
+        at,
+        t,
+        resolution,
+        projector,
+      );
+      return {
+        posture: chain !== undefined && weight > 0 ? chain(t, aimed) : aimed,
+        from: { [props.side]: props.rest },
+        share: weight,
+      };
+    };
     return {
       channels: [limb],
       // A planned arm plays its hand's fingers as its plan carries them
@@ -228,6 +253,12 @@ export namespace AutoMovieMotionHumanArmCarry {
             planned(before),
             before,
           );
+        course = AutoMovieMotionHumanArmJointCourse(
+          props.body,
+          props.to,
+          (at: number): AutoMovieMotionHumanArmJointCourse.IInput =>
+            input(before(at), at),
+        );
       },
       write: (
         posture: IAutoMovieMotionHumanPosture,
@@ -268,18 +299,26 @@ export namespace AutoMovieMotionHumanArmCarry {
           seconds >= span.start &&
           (seconds <= span.end || span.relax >= span.end);
         if (onPlan) out = placed(seconds);
-        else
-          out = carry(
-            props.body,
-            chain !== undefined && weight > 0
-              ? chain(seconds, goaled(posture, seconds, source, projection))
-              : goaled(posture, seconds, source, projection),
-            { [props.side]: props.rest },
-            weight,
-            undefined,
+        else {
+          const carried: AutoMovieMotionHumanArmJointCourse.IInput = input(
+            posture,
+            seconds,
             source,
             projection,
           );
+          out =
+            course === undefined
+              ? carry(
+                  props.body,
+                  carried.posture,
+                  carried.from,
+                  carried.share,
+                  undefined,
+                  source,
+                  projection,
+                )
+              : course(seconds, carried);
+        }
         // Off its plan at weight 0 the arm hangs at its rest, which the legs
         // and trunk the action moves may come into: it is let out as any
         // hanging arm is (`HumanArmSwing.of`), the same arm a planned span

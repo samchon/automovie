@@ -50,8 +50,8 @@ const UNIT_QUATERNION_TOLERANCE: number = 1e-6;
  * Referential integrity is the core check: every placement names a cast member,
  * every cast member is placed, ids are unique across actors, set pieces,
  * cameras and lights, a mount rides another placed actor, and a camera's
- * `lookAt` node is a placed actor, set piece or camera, the same table
- * the performance stage resolves positional targets against. Scalars are
+ * `lookAt` node is a placed actor, set piece or camera, the same table the
+ * performance stage resolves positional targets against. Scalars are
  * range-checked where a later stage could not use them: finite positions and
  * turns, a unit set rotation not combined with `facingDeg`, a positive finite
  * set scale, a field of view in `(0, 180)` degrees, `0 < near < far`, the
@@ -205,9 +205,7 @@ export function stageScene(
         piece.rotation.w,
       ];
       const length: number = Math.hypot(...components);
-      if (
-        Math.abs(length - 1) > UNIT_QUATERNION_TOLERANCE
-      )
+      if (Math.abs(length - 1) > UNIT_QUATERNION_TOLERANCE)
         out.push(
           "range",
           `${path}.rotation`,
@@ -220,9 +218,7 @@ export function stageScene(
       // axis mirrors the piece and reverses its orientation.
       const scale: IAutoMovieVector3 = setPieceScale(piece.scale);
       if (
-        ![scale.x, scale.y, scale.z].every(
-          (axis: number): boolean => axis > 0,
-        )
+        ![scale.x, scale.y, scale.z].every((axis: number): boolean => axis > 0)
       )
         out.push(
           "range",

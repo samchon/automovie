@@ -23,9 +23,11 @@ export function test_unit_motions_posture_mersenne_twister(): void {
   let last: number = second;
   for (let k: number = 3; k <= 10000; ++k)
     last = HumanMersenneTwister.next(state);
-  TestValidator.equals("the reference outputs", [first, second, last], [
-    3499211612, 581869302, 4123659995,
-  ]);
+  TestValidator.equals(
+    "the reference outputs",
+    [first, second, last],
+    [3499211612, 581869302, 4123659995],
+  );
 
   // 2. Two words make one double.
   const fresh: HumanMersenneTwister.IState = HumanMersenneTwister.create(5489);
@@ -38,9 +40,8 @@ export function test_unit_motions_posture_mersenne_twister(): void {
 
   // 3. Integers within bounds.
   const ints: HumanMersenneTwister.IState = HumanMersenneTwister.create(7);
-  const drawn: number[] = Array.from(
-    { length: 200 },
-    (): number => HumanMersenneTwister.uniformInt(ints, -2, 3),
+  const drawn: number[] = Array.from({ length: 200 }, (): number =>
+    HumanMersenneTwister.uniformInt(ints, -2, 3),
   );
   TestValidator.predicate(
     "every integer lies within its bounds",

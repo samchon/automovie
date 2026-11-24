@@ -133,9 +133,7 @@ export function polishAutoMovieQuadraticProgram(
   // Every sweep and working solve counts against this one budget, which is
   // what bounds both correction loops; an infinite count would bound
   // neither. The admission is the refinement owner's own rule for the count.
-  if (
-    options.maximumRefinements < 0
-  )
+  if (options.maximumRefinements < 0)
     throw new Error(
       "polishAutoMovieQuadraticProgram: maximumRefinements must be a nonnegative safe integer",
     );

@@ -131,11 +131,7 @@ export namespace AutoMovieLoftSectionConnect {
       throw new Error("The present native span list is malformed.");
     for (const span of chain.sectionSpans) {
       const [first, last]: readonly [number, number] = bounds(span);
-      if (
-        !(
-          last > first
-        )
-      )
+      if (!(last > first))
         throw new Error("A present native span has invalid physical bounds.");
       if (span.kind === "mixed") {
         if (
@@ -223,11 +219,7 @@ function create(
 ): IAutoMovieLoftSectionConnect.ISpan | string {
   const from: number = lower.y;
   const to: number = upper.y;
-  if (
-    !(
-      to > from
-    )
-  )
+  if (!(to > from))
     return "A continuation span needs increasing finite physical bounds.";
   if (first.kind === "basis" && last.kind === "basis")
     return { kind: "basis", from, to };

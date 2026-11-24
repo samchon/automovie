@@ -36,12 +36,7 @@ export namespace AutoMovieConstructionLocalScaleMinorant {
     if (lastField.length === 0)
       return refuse("input-field", null, "the field has no columns");
     for (let index: number = 0; index < lastField.length; ++index)
-      if (
-        !(
-          lastField[index]! > 0 &&
-          lastField[index]! <= 1
-        )
-      )
+      if (!(lastField[index]! > 0 && lastField[index]! <= 1))
         return refuse(
           "input-field",
           index,
@@ -56,12 +51,7 @@ export namespace AutoMovieConstructionLocalScaleMinorant {
     const caps: Map<number, IAutoMovieConstructionLocalScaleMinorant.ICap> =
       new Map<number, IAutoMovieConstructionLocalScaleMinorant.ICap>();
     for (const cap of forwardCaps) {
-      if (
-        !(
-          cap.index >= 0 &&
-          cap.index < lastField.length
-        )
-      )
+      if (!(cap.index >= 0 && cap.index < lastField.length))
         return refuse(
           "input-cap",
           null,

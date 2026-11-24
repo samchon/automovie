@@ -211,16 +211,16 @@ export function test_engine_gradient_noise(): void {
             throwsError(() => noise2(Number.NaN, 0), "x") &&
             throwsError(() => noise2(0, Infinity), "y") &&
             throwsError(() => noise3(0, 0, -Infinity), "z") &&
-            Number.isFinite(noise2(b2, -b2)) &&
+            Math.abs(noise2(b2, -b2)) <= 1 &&
             throwsError(() => noise2(b2 + 1, 0), ["x", String(b2)]) &&
             throwsError(() => noise2(0, -b2 - 1), ["y", String(b2)]) &&
-            Number.isFinite(noise3(b3, -b3, b3)) &&
+            Math.abs(noise3(b3, -b3, b3)) <= 1 &&
             throwsError(() => noise3(b3 + 1, 0, 0), ["x", String(b3)]) &&
             throwsError(() => noise3(0, -b3 - 1, 0), ["y", String(b3)]) &&
             throwsError(() => noise3(0, 0, b3 + 1), ["z", String(b3)]) &&
-            Number.isFinite(fractal2(b2 / 8, -b2 / 8)) &&
+            Math.abs(fractal2(b2 / 8, -b2 / 8)) <= 1 &&
             throwsError(() => fractal2(b2 / 8 + 1 / 8, 0), ["x", String(b2)]) &&
-            Number.isFinite(fractal3(b3 / 8, -b3 / 8, b3 / 8)) &&
+            Math.abs(fractal3(b3 / 8, -b3 / 8, b3 / 8)) <= 1 &&
             throwsError(
               () => fractal3(0, 0, b3 / 8 + 1 / 8),
               ["z", String(b3)],

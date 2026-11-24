@@ -1,6 +1,5 @@
 import {
   IAutoMovieBody,
-  IAutoMovieVector3,
   type IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
@@ -70,10 +69,7 @@ export const validateBody: (
           `drag ${field} must be a finite number > 0, but was ${body.drag[field]}`,
           body.drag[field],
         );
-  if (
-    body.contact?.embed !== undefined &&
-    !(body.contact.embed >= 0)
-  )
+  if (body.contact?.embed !== undefined && !(body.contact.embed >= 0))
     collector.push(
       "range",
       `${path}.contact.embed`,
@@ -88,10 +84,7 @@ export const validateBody: (
       1,
       "rolling resistance",
     );
-  if (
-    body.contact?.fracture !== undefined &&
-    !(body.contact.fracture > 0)
-  )
+  if (body.contact?.fracture !== undefined && !(body.contact.fracture > 0))
     collector.push(
       "range",
       `${path}.contact.fracture`,
@@ -124,5 +117,4 @@ export const validateBody: (
       90,
       "glance angle",
     );
-
 };

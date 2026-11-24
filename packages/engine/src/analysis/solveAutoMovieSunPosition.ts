@@ -208,18 +208,9 @@ const assertSite: (
       "latitude must be finite within [-90, 90] degrees",
     ],
 
-    [
-      pressure > 0,
-      "pressure must be finite and above zero",
-    ],
-    [
-      temperature > -273.15,
-      "temperature must be finite and above -273.15",
-    ],
-    [
-      utc.year >= -4712,
-      "utc.year must be an integer at or above -4712",
-    ],
+    [pressure > 0, "pressure must be finite and above zero"],
+    [temperature > -273.15, "temperature must be finite and above -273.15"],
+    [utc.year >= -4712, "utc.year must be an integer at or above -4712"],
     [integerWithin(utc.month, 1, 12), "utc.month must be an integer 1 to 12"],
     [
       integerWithin(utc.month, 1, 12) && integerWithin(utc.day, 1, length),

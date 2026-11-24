@@ -53,8 +53,8 @@ export const travelMotion: (
       }
       const globalT: number = c * base.duration + k.time;
       if (
-        (keyframes.length > 0 &&
-          globalT <= keyframes[keyframes.length - 1]!.time)
+        keyframes.length > 0 &&
+        globalT <= keyframes[keyframes.length - 1]!.time
       )
         throw new Error("travel keyframe times must advance finitely");
       const baseRoot: IAutoMovieTransform | null = k.pose.root;

@@ -188,4 +188,3 @@ const validateSpringColliders: (
       );
   });
 };
-

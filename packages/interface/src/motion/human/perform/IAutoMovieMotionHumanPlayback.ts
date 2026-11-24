@@ -53,8 +53,8 @@ export namespace IAutoMovieMotionHumanPlayback {
     where?: IAutoMovieMotionHumanRefusal.IWhere;
 
     /**
-     * Whether the phases may be read: from the start for phases without
-     * setup, and once the performance prepared them for the others.
+     * Whether the phases may be read: from the start for phases without setup,
+     * and once the performance prepared them for the others.
      */
     ready: boolean;
   }

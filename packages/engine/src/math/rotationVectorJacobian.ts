@@ -94,7 +94,6 @@ export namespace rotationVectorJacobian {
     }
   }
 
-
   /** Apply I+p[r]+q[r]^2 without allocating the two cross products. */
   function transform(
     r: IAutoMovieVector3,

@@ -139,9 +139,7 @@ export namespace AutoMovieViewSectionRange {
         ) as IAutoMovieViewSection.ISection["shoulders"],
       );
     const girths: [number, number] = [shaped(lo).girth, shaped(hi).girth];
-    return girths[0] < girths[1]
-      ? { shoulder: [lo, hi], girth: girths }
-      : null;
+    return girths[0] < girths[1] ? { shoulder: [lo, hi], girth: girths } : null;
   }
 
   /** Prepare and measure the identical numeric candidate before admission. */

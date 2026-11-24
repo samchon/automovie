@@ -134,11 +134,7 @@ export namespace AutoMovieViewOutline {
       parameters,
       knots.map((k: IAutoMovieViewPart.IKnot): number => k.value),
     );
-    for (let i: number = 0; i + 1 < parameters.length; i++) {
-      const h: number = parameters[i + 1]! - parameters[i]!;
-      const m0: number = spline.curvatures[i]!;
-      const m1: number = spline.curvatures[i + 1]!;
-    }
+
     const requested: boolean =
       outline.range !== undefined ||
       knots.some((k: IAutoMovieViewPart.IKnot): boolean => k.jet !== undefined);

@@ -1,6 +1,5 @@
 import {
   deriveAutoMovieSemanticMask,
-  inspectAutoMovieMeshTopology,
   measureAutoMovieRenderInventory,
   mergeAutoMovieMeshes,
   transformAutoMovieMesh,
@@ -32,14 +31,24 @@ import {
 } from "../internal/vertexColourFixture";
 
 /**
- * Relief weights survive numerical mesh operations and select a generated normal-map slope patch for weighted parts. The unit observes arrays, material variants and program text rather than GPU fragments.
+ * Relief weights survive numerical mesh operations and select a generated
+ * normal-map slope patch for weighted parts. The unit observes arrays, material
+ * variants and program text rather than GPU fragments.
  *
  * Scenarios:
- * 1. A weighted part receives a reliefWeight material variant, a bare sharing part retains the plain material and absence of a normal map leaves it unpatched.
- * 2. Generated programs pass the weight and scale normal-map slopes after their own scale but before a detail blend, including when that patch registered first.
+ *
+ * 1. A weighted part receives a reliefWeight material variant, a bare sharing part
+ *    retains the plain material and absence of a normal map leaves it
+ *    unpatched.
+ * 2. Generated programs pass the weight and scale normal-map slopes after their
+ *    own scale but before a detail blend, including when that patch registered
+ *    first.
  * 3. Instanced flattening gives a bare neighbour weights of one.
- * 4. Validation refuses wrong length, negative and nonfinite weights; merging pads bare neighbours with ones, transformation copies weights and topology counts a nonfinite entry.
- * 5. Render-budget arithmetic charges four bytes per weighted vertex, including padded bare vertices in a flattened mixed model.
+ * 4. Validation refuses wrong length, negative and nonfinite weights; merging pads
+ *    bare neighbours with ones, transformation copies weights and topology
+ *    counts a nonfinite entry.
+ * 5. Render-budget arithmetic charges four bytes per weighted vertex, including
+ *    padded bare vertices in a flattened mixed model.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Builds weighted/bare material variants, generates shader output, flattens/merges/transforms mesh values and measures inventory; catches missing relief attributes, wrong stage ordering, lost unit padding and omitted buffer-byte charges.
  * @evidence contracts/development/testing.md#independent-expectations Authored zero/half/one values, unit padding for bare vertices and four bytes per Float32 vertex define expectations; generated shader output checks supported tangent-stage composition without proving GLSL compilation or observed surface relief.
@@ -180,7 +189,6 @@ export function test_viewer_relief_weights(): void {
             [0, 0.5, 1],
           ),
       ],
-
     ]),
     {
       length: true,
@@ -257,12 +265,19 @@ export function test_viewer_relief_weights(): void {
 }
 
 /**
- * Compare expected per-vertex relief values without serializing floating-point arrays.
+ * Compare expected per-vertex relief values without serializing floating-point
+ * arrays.
  *
- * The existing relief scenario calls this finite predicate on actual flatten/merge/transform outputs, detecting changed length or weight values.
- * Calling cases supply the authored 0/half/one values and the contract's unit padding for bare vertices; exact finite scalar comparison catches copying or padding errors without deriving expectations from the output.
- * Covers the existing weighted and mixed bare-neighbour populations; malformed/negative/nonfinite admission remains owned by the scenario's validator cases.
- * This private portable predicate belongs to the named relief unit and acquires no host, resource or hidden case; it reads only the supplied arrays.
+ * The existing relief scenario calls this finite predicate on actual
+ * flatten/merge/transform outputs, detecting changed length or weight values.
+ * Calling cases supply the authored 0/half/one values and the contract's unit
+ * padding for bare vertices; exact finite scalar comparison catches copying or
+ * padding errors without deriving expectations from the output. Covers the
+ * existing weighted and mixed bare-neighbour populations;
+ * malformed/negative/nonfinite admission remains owned by the scenario's
+ * validator cases. This private portable predicate belongs to the named relief
+ * unit and acquires no host, resource or hidden case; it reads only the
+ * supplied arrays.
  */
 function sameWeights(
   actual: readonly number[] | undefined,

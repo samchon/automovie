@@ -108,11 +108,7 @@ export const rigAutoMovieSweep: (
     cell: readonly [number, number, number, number] = [0, 0, 0, 0],
   ): number {
     open();
-    if (
-      !cell.every(
-        (value: number): boolean => value >= 0,
-      )
-    )
+    if (!cell.every((value: number): boolean => value >= 0))
       throw new Error("a sweep probe cell must be finite and nonnegative");
     const step: number = surface.step;
     const a: number = Math.max(0, u - step);
@@ -202,9 +198,7 @@ export const rigAutoMovieSweep: (
         px += s * x[k]!;
         py += s * y[k]!;
       }
-      if (
-        (positive && px === 0 && py === 0)
-      )
+      if (positive && px === 0 && py === 0)
         throw new Error("scaled sweep sample is not representable");
       for (let c: number = 0; c < 3; ++c)
         out[at + c] =
@@ -261,10 +255,7 @@ export const rigAutoMovieSweep: (
         const ny: number = rz * ax - rx * az;
         const nz: number = rx * ay - ry * ax;
         const size: number = Math.hypot(nx, ny, nz);
-        if (
-          !(size > 0)
-        )
-          throw new Error("sweep probe is not representable");
+        if (!(size > 0)) throw new Error("sweep probe is not representable");
         const o: number = 6 * p;
         out[o] = nx / size;
         out[o + 1] = ny / size;

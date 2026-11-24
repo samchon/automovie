@@ -41,10 +41,7 @@ export function assertAutoMovieDeformedTriangles(
     writeAreaVector(target, a, b, c, after);
     const beforeLength: number = Math.hypot(before[0]!, before[1]!, before[2]!);
     const afterLength: number = Math.hypot(after[0]!, after[1]!, after[2]!);
-    if (
-      beforeLength === 0 ||
-      afterLength === 0
-    )
+    if (beforeLength === 0 || afterLength === 0)
       throw new Error(
         `Mesh deformation triangle ${triangle} needs finite nonzero source and output area.`,
       );

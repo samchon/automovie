@@ -29,11 +29,7 @@ export function measurePhysicalMotionConstraint(
     if (anchor.blend) {
       const other: IAutoMoviePhysicalSegmentState | undefined =
         states[anchor.blend.other];
-      if (
-        !other ||
-        anchor.blend.weight < 0 ||
-        anchor.blend.weight > 1
-      )
+      if (!other || anchor.blend.weight < 0 || anchor.blend.weight > 1)
         throw new Error("Invalid motion audit blended point");
       return Vector3.add(
         frame.position,
@@ -46,10 +42,7 @@ export function measurePhysicalMotionConstraint(
     if (anchor.ray) {
       const from: IAutoMoviePhysicalSegmentState | undefined =
         states[anchor.ray.from];
-      if (
-        !from ||
-        anchor.ray.distance < 0
-      )
+      if (!from || anchor.ray.distance < 0)
         throw new Error("Invalid motion audit ray");
       const delta: IAutoMovieVector3 = Vector3.subtract(
         frame.position,

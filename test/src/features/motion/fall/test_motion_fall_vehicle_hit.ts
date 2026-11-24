@@ -27,7 +27,10 @@ import { motionComplaints } from "../../internal/motionComplaints";
 import { motionHumanBody } from "../../internal/motionHumanBody";
 import { motionHumanRefusal } from "../../internal/motionHumanRefusal";
 
-/** A braking car's deceleration, metres per second squared: 0.7 g, a hard stop on dry asphalt. */
+/**
+ * A braking car's deceleration, metres per second squared: 0.7 g, a hard stop
+ * on dry asphalt.
+ */
 const BRAKE: number = 0.7 * 9.81;
 
 /** The hips' largest height over the road when lying, metres. */
@@ -56,29 +59,32 @@ interface ICourse {
   /** Its offset across the course on `X`, metres. */
   aside: number;
 
-  /** Where its origin starts braking on `Z`, metres; it never brakes when absent. */
+  /**
+   * Where its origin starts braking on `Z`, metres; it never brakes when
+   * absent.
+   */
   brake?: number;
 }
 
 /**
  * The vehicle hit and the near-miss dive (#3973).
  *
- * Scenarios, on the average man and the small woman, crossing in front of a
- * car coming along `+Z`:
+ * Scenarios, on the average man and the small woman, crossing in front of a car
+ * coming along `+Z`:
+ *
  * 1. A sedan at 8 m/s, braking hard once its middle has passed where the
- *    pedestrian stood, wraps a body whose centre of mass stands above the
- *    top of its front onto its bonnet, and projects one below it (Ravani et
- *    al.'s rule): a wrapped body's hips lie over the car, no further ahead
- *    of its front than the thigh's radius and within its width, above
- *    that top, at the separation; the body ends lying on the road ahead.
- * 2. A box-fronted truck taller than the hips projects the body forward;
- *    it ends lying ahead of where it stood.
- * 3. A car whose course passes wide of the pedestrian, and a car that never
- *    moves, are refused naming the vehicle.
- * 4. A pedestrian facing the oncoming sedan dives aside, leaving its width by its arrival, its every joint
- *    outside the car's half width at that instant; a car arriving at once is
- *    refused.
- * Every take passes the shipped verdicts.
+ *    pedestrian stood, wraps a body whose centre of mass stands above the top
+ *    of its front onto its bonnet, and projects one below it (Ravani et al.'s
+ *    rule): a wrapped body's hips lie over the car, no further ahead of its
+ *    front than the thigh's radius and within its width, above that top, at the
+ *    separation; the body ends lying on the road ahead.
+ * 2. A box-fronted truck taller than the hips projects the body forward; it ends
+ *    lying ahead of where it stood.
+ * 3. A car whose course passes wide of the pedestrian, and a car that never moves,
+ *    are refused naming the vehicle.
+ * 4. A pedestrian facing the oncoming sedan dives aside, leaving its width by its
+ *    arrival, its every joint outside the car's half width at that instant; a
+ *    car arriving at once is refused. Every take passes the shipped verdicts.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States each case, its bounds and the refusals.
  * @evidence contracts/development/testing.md#behavioral-verification Reads the displayed hips and joints at the plan's events against the car's own course and size, and every take through the shipped verdicts.

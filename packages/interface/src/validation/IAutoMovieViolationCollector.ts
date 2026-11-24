@@ -69,7 +69,6 @@ export interface IAutoMovieViolationCollector {
    */
   direction(path: string, value: IAutoMovieVector3, label: string): void;
 
-
   /**
    * Pushes a `range` violation at `path` unless a value is a finite number
    * strictly above zero; a missing value fails and is reported as `null`.

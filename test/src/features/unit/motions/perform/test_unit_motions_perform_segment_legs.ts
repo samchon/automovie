@@ -1,6 +1,7 @@
 import type {
   AutoMovieHumanLimb,
   IAutoMovieHumanLimbGoal,
+  IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanResolveHumanPosture,
   IAutoMovieMotionHumanSegment,
@@ -10,8 +11,11 @@ import type {
 import { HumanSegmentLegs } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
-import { syntheticHumanPerson } from "../../../internal/synthetic/syntheticHumanPerson";
-import { syntheticHumanSegment } from "../../../internal/synthetic/syntheticHumanSegment";
+import { syntheticHumanPlan } from "../../../internal/synthetic/syntheticHumanPlan";
+
+/** A curve with no seed. */
+const NONE = (): ReadonlyMap<AutoMovieHumanLimb, IAutoMovieSwivelSeed> =>
+  new Map();
 
 /**
  * `HumanSegmentLegs` keeps one leg fit over an action's legs-still window: the
@@ -23,30 +27,26 @@ import { syntheticHumanSegment } from "../../../internal/synthetic/syntheticHuma
  *
  * Scenarios:
  *
- * 1. `within` holds inside the window for a plain resolve with both legs
- *    goaled, and not outside it, for a continued resolve, or with one leg free.
+ * 1. `within` holds inside the window for a plain resolve with both legs goaled,
+ *    and not outside it, for a continued resolve, or with one leg free.
  * 2. `still` keeps the leg records of a pose and the leaf fits' leg seeds.
- * 3. `resolved` inside the window resolves the posture without leg goals, with
- *    the kept records as joints and the kept seeds added; outside it resolves
- *    the posture as given.
+ * 3. `resolved` inside the window resolves the posture without leg goals, with the
+ *    kept records as joints and the kept seeds added; outside it resolves the
+ *    posture as given.
  */
 export function test_unit_motions_perform_segment_legs(): void {
-  const carrier: IAutoMovieMotionHumanSegment = syntheticHumanSegment({
-    entryTime: 1,
-    end: 3,
+  const person: HumanSegmentLegs.IPerson = { layers: [], overlays: [] };
+  const plan: IAutoMovieMotionHumanActionPlan = syntheticHumanPlan({
     duration: 2,
     legsStill: [0.5, 1.5],
   });
-  const person: IAutoMovieMotionHumanSegment.IPerson = syntheticHumanPerson(
-    "ann",
-    [carrier],
-  );
+  const carrier: HumanSegmentLegs.ICarrier = { start: 1, plan };
   const goal: IAutoMovieHumanLimbGoal = {
     point: { x: 0, y: 0, z: 0 },
     bend: { x: 0, y: 0, z: 1 },
   };
   const under: IAutoMovieMotionHumanPosture = {
-    ...carrier.plan.posture(0),
+    ...plan.posture(0),
     limbs: { leftLeg: goal, rightLeg: goal, leftArm: goal },
   };
 
@@ -74,7 +74,7 @@ export function test_unit_motions_perform_segment_legs(): void {
       { bone: "leftUpperLeg", flexion: 20, abduction: 1, twist: 2 },
       { bone: "head", flexion: 5, abduction: 0, twist: 0 },
     ],
-  } as never;
+  };
   const kept: IAutoMovieMotionHumanSegment.IStill = HumanSegmentLegs.still(
     pose,
     new Map<string, IAutoMovieSwivelSeed | null>([
@@ -91,14 +91,15 @@ export function test_unit_motions_perform_segment_legs(): void {
   );
 
   // 3. A resolve inside and outside the window.
-  carrier.prepared = {
-    legs: (): ReadonlyMap<AutoMovieHumanLimb, IAutoMovieSwivelSeed> =>
-      new Map(),
-    swivels: (): ReadonlyMap<AutoMovieHumanLimb, IAutoMovieSwivelSeed> =>
-      new Map(),
-    anchors: [],
-    stops: new Map(),
-    still: kept,
+  const prepared: HumanSegmentLegs.ICarrier = {
+    ...carrier,
+    prepared: {
+      legs: NONE,
+      swivels: NONE,
+      anchors: [],
+      stops: new Map(),
+      still: kept,
+    },
   };
   const asked: IAutoMovieMotionHumanPosture[] = [];
   const resolve = (
@@ -108,8 +109,8 @@ export function test_unit_motions_perform_segment_legs(): void {
     return { pose, seeds: {}, values: {} };
   };
   const inside: IAutoMovieMotionHumanResolveHumanPosture.ISeeded =
-    HumanSegmentLegs.resolved(person, carrier, 2, under, true, resolve);
-  HumanSegmentLegs.resolved(person, carrier, 1.2, under, true, resolve);
+    HumanSegmentLegs.resolved(person, prepared, 2, under, true, resolve);
+  HumanSegmentLegs.resolved(person, prepared, 1.2, under, true, resolve);
   TestValidator.predicate(
     "the window keeps the prepared legs",
     asked[0]!.limbs.leftLeg === undefined &&

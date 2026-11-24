@@ -171,9 +171,7 @@ export function tessellateAutoMovieParametricAtlas64(
                   phase: Phase,
                 ): { t: number; phase: Phase; sample: BoundarySample } => {
                   const sample: BoundarySample = edge.sample(phase);
-                  if (
-                    !sample.key.trim()
-                  )
+                  if (!sample.key.trim())
                     throw new Error("Nonfinite or unnamed canonical point");
                   const previous: AutoMovieVector3Tuple | undefined =
                     canonical.get(sample.key);

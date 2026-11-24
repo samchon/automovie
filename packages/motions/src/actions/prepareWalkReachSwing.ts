@@ -46,27 +46,6 @@ interface IBounds {
   /** Swing share over which the ranges enter or leave. */
   fade: number;
 }
-/** The record of `IPrepareWalkReachSwingProbe`'s site. */
-type IPrepareWalkReachSwingProbe = {
-  ankle: IAutoMovieVector3;
-  rotation: IAutoMovieQuaternion;
-  low: number;
-};
-
-/** The record of `IPrepareWalkReachSwingAbove`'s site. */
-type IPrepareWalkReachSwingAbove = {
-  ankle: IAutoMovieVector3;
-  rotation: IAutoMovieQuaternion;
-  low: number;
-};
-
-/** The record of `IPrepareWalkReachSwingNext`'s site. */
-type IPrepareWalkReachSwingNext = {
-  ankle: IAutoMovieVector3;
-  rotation: IAutoMovieQuaternion;
-  low: number;
-};
-
 /** The record of `IPrepareWalkReachSwingRead`'s site. */
 type IPrepareWalkReachSwingRead = {
   ankle: IAutoMovieVector3;
@@ -94,7 +73,9 @@ type IPrepareWalkReachSwingPlaced = {
  * @param body The fixed body and leg lengths.
  * @param side The swinging foot.
  * @param bounds The walking reach owner's fixed joint/phase bounds.
- * @returns The swing constraint reader over a settled pelvis and foot.
+ * @returns The swing constraint reader over a settled pelvis and foot: given a
+ *   lift solved in preparation, it places the foot there and only raises it by
+ *   what still sinks under the clearance, with no search.
  */
 export function prepareWalkReachSwing(
   body: IAutoMovieMotionHumanBody,
@@ -105,7 +86,8 @@ export function prepareWalkReachSwing(
   foot: IAutoMovieMotionHumanWalkFoot.IFoot,
   share?: number,
   leaving?: IAutoMovieVector3,
-) => walkFoot.IEnd {
+  given?: number,
+) => prepareWalkReachSwing.IReached {
   const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
   const limit: number = Math.sqrt(
     m.thigh ** 2 +
@@ -125,7 +107,8 @@ export function prepareWalkReachSwing(
     foot: IAutoMovieMotionHumanWalkFoot.IFoot,
     share?: number,
     leaving?: IAutoMovieVector3,
-  ): walkFoot.IEnd => {
+    given?: number,
+  ): prepareWalkReachSwing.IReached => {
     const h: IAutoMovieVector3 = settled.hips[side];
 
     // A trunk tilt counts because extension is measured in the settled pelvis.
@@ -249,49 +232,18 @@ export function prepareWalkReachSwing(
       };
     };
 
-    // Lift by each pass's penetration while a pass at least halves it, as fast
-    // as a bisection step; a slower pass (a gain over a half, nearing one at a
-    // straight leg) hands over to a bisection on the lift, between the last
-    // lift and the lift to hip height, where the foot hangs clear of any floor.
-    let lift: number = 0;
-    let read: IPrepareWalkReachSwingRead = placed(0);
-    while (read.low < target - SETTLED) {
-      const next: IPrepareWalkReachSwingNext = placed(lift + target - read.low);
-      if (
-        next.low >= target - SETTLED ||
-        target - next.low <= (target - read.low) / 2
-      ) {
-        lift += target - read.low;
-        read = next;
-        continue;
-      }
-      let low: number = lift + target - read.low;
-      let high: number = Math.max(low, h.y - ankle.y);
-      let above: IPrepareWalkReachSwingAbove = placed(high);
-      while (high - low > SETTLED) {
-        const middle: number = (low + high) / 2;
-        const probe: IPrepareWalkReachSwingProbe = placed(middle);
-        if (probe.low >= target) {
-          high = middle;
-          above = probe;
-        } else if (probe.low >= target - SETTLED) {
-          above = probe;
-          break;
-        } else low = middle;
-      }
-      read =
-        above.low >= target - SETTLED
-          ? above
-          : {
-              ...above,
-              ankle: { ...above.ankle, y: above.ankle.y + target - above.low },
-              low: target,
-            };
-      break;
-    }
+    // The lift that puts the ranged foot's lowest point on its target
+    // (search), or the lift prepared for this instant raised by what still
+    // sinks (`raise`).
+    const read: IPrepareWalkReachSwingRead =
+      given === undefined
+        ? search(placed, target, h.y - ankle.y)
+        : raise(placed(given), target);
+    const raised: number = read.ankle.y - ankle.y;
     ankle = read.ankle;
     rotation = read.rotation;
-    if (share === undefined) return { ankle, rotation, toes: foot.toes };
+    if (share === undefined)
+      return { ankle, rotation, toes: foot.toes, lift: raised };
 
     // Stances outside the leg's reach are left and joined where they stand:
     // the reach ranges fade in from the departure and out into the landing.
@@ -390,7 +342,7 @@ export function prepareWalkReachSwing(
       const under: number = lowest({ ankle: joined, rotation: turned });
       if (under < target) joined = { ...joined, y: joined.y + target - under };
     }
-    return { ankle: joined, rotation: turned, toes: foot.toes };
+    return { ankle: joined, rotation: turned, toes: foot.toes, lift: raised };
   };
 
   /** The sole socket lowest in a placement, the heel winning a tie. */
@@ -408,5 +360,83 @@ export function prepareWalkReachSwing(
       }
     }
     return best;
+  }
+}
+
+/** A ranged foot at a lift: its ankle, rotation and lowest point's height. */
+type IPlacedFoot = IPrepareWalkReachSwingRead;
+
+/**
+ * The lift that puts a ranged foot's lowest point on its target: lift by each
+ * pass's penetration while a pass at least halves it, as fast as a bisection
+ * step; a slower pass (a gain over a half, nearing one at a straight leg) hands
+ * over to a bisection on the lift, between the last lift and the lift to hip
+ * height, where the foot hangs clear of any floor.
+ *
+ * @param placed The foot at a lift.
+ * @param target The lowest point's target height, metres.
+ * @param ceiling The lift to hip height, metres.
+ * @returns The foot at the lift found.
+ */
+function search(
+  placed: (lift: number) => IPlacedFoot,
+  target: number,
+  ceiling: number,
+): IPlacedFoot {
+  let lift: number = 0;
+  let read: IPlacedFoot = placed(0);
+  while (read.low < target - SETTLED) {
+    const next: IPlacedFoot = placed(lift + target - read.low);
+    if (
+      next.low >= target - SETTLED ||
+      target - next.low <= (target - read.low) / 2
+    ) {
+      lift += target - read.low;
+      read = next;
+      continue;
+    }
+    let low: number = lift + target - read.low;
+    let high: number = Math.max(low, ceiling);
+    let above: IPlacedFoot = placed(high);
+    while (high - low > SETTLED) {
+      const middle: number = (low + high) / 2;
+      const probe: IPlacedFoot = placed(middle);
+      if (probe.low >= target) {
+        high = middle;
+        above = probe;
+      } else if (probe.low >= target - SETTLED) {
+        above = probe;
+        break;
+      } else low = middle;
+    }
+    return raise(above, target);
+  }
+  return read;
+}
+
+/**
+ * A ranged foot raised by what its lowest point still sinks under its target,
+ * the closed-form last step of search.
+ *
+ * @param read The foot at a lift.
+ * @param target The lowest point's target height, metres.
+ * @returns The foot, its lowest point no lower than the target.
+ */
+function raise(read: IPlacedFoot, target: number): IPlacedFoot {
+  return read.low >= target - SETTLED
+    ? read
+    : {
+        ...read,
+        ankle: { ...read.ankle, y: read.ankle.y + target - read.low },
+        low: target,
+      };
+}
+
+/** The reader's result. */
+export namespace prepareWalkReachSwing {
+  /** A foot as reached, with the lift its search found or was given. */
+  export interface IReached extends walkFoot.IEnd {
+    /** How far the ankle was lifted to clear the floor, metres. */
+    lift: number;
   }
 }

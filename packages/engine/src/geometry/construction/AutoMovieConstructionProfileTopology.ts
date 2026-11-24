@@ -37,10 +37,7 @@ export namespace AutoMovieConstructionProfileTopology {
       for (const piece of loop.pieces) {
         const curve: IAutoMovieConstructionProfileSource.ICurve | undefined =
           source.curves.get(piece.source);
-        if (
-          curve?.period !== undefined &&
-          !(curve.period > 0)
-        )
+        if (curve?.period !== undefined && !(curve.period > 0))
           throw new AutoMovieLoftAdmissionError(
             `Original piece ${piece.id} has no finite positive declared period.`,
           );

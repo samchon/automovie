@@ -81,10 +81,7 @@ export namespace AutoMovieViewConic {
     const selected: Selection | null = selection(curve, phi);
     if (selected === null) return NaN;
     const { local, toEnd, arc, kind }: Selection = selected;
-    if (local === 0)
-      return arc.extents[0] > 0
-        ? arc.extents[0]
-        : NaN;
+    if (local === 0) return arc.extents[0] > 0 ? arc.extents[0] : NaN;
     return kind === "conic"
       ? AutoMovieConicArc.value(
           arc.extents[0],

@@ -96,10 +96,7 @@ export function admitAutoMovieContourIntervals64(
         }
         for (let slot: number = 0; slot < raw.length; slot++) {
           const id: number = raw[slot];
-          if (
-            id < 0 ||
-            id >= props.rings[k - 1 + side].length
-          ) {
+          if (id < 0 || id >= props.rings[k - 1 + side].length) {
             why.add(
               `Explicit contour group ${ordinal} has an invalid local loop at side ${side} slot ${slot}`,
             );

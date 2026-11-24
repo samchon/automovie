@@ -369,12 +369,7 @@ export const validateAutoMovieFormationGround: (
     );
     for (const cue of ownSlots)
       for (const slot of cue.slots) {
-        if (
-          members.has(slot) ||
-          slot < 0 ||
-          slot >= formation.count
-        )
-          continue;
+        if (members.has(slot) || slot < 0 || slot >= formation.count) continue;
         members.set(slot, {
           slot,
           point: formationSlotPosition(formation, slot),

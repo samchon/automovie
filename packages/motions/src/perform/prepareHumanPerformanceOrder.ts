@@ -1,72 +1,74 @@
-import type {
-  IAutoMovieMotionHumanPerformanceState,
-  IAutoMovieMotionHumanSegment,
-} from "@automovie/interface";
-
 /**
- * Solve every placed action of a performance once, each after what it reads:
- * a depth-first topological order of the performance's dependencies
- * (Tarjan 1976, "Edge-disjoint spanning trees and depth-first search", Acta
- * Informatica 6:171, the depth-first finishing order of a directed acyclic
- * graph). The dependencies are the reads themselves: while an action is
- * solved, a read of a person's displayed pose or posture at a film second
+ * Solve every placed action of a performance once, each after what it reads: a
+ * depth-first topological order of the performance's dependencies (Tarjan 1976,
+ * "Edge-disjoint spanning trees and depth-first search", Acta Informatica
+ * 6:171, the depth-first finishing order of a directed acyclic graph). The
+ * dependencies are the reads themselves: while an action is solved, a read of a
+ * person's displayed pose or posture at a film second
  * (`IAutoMovieMotionHumanSegment.IPerson.ready`) first solves that person's
  * actions entered by then, so an action is solved only after every action it
  * reads. A read that returns to an action being solved (a cycle of reads, two
  * people facing each other) reads it as it stands, the back edge a depth-first
  * order leaves; each action is solved exactly once.
  *
- * @param self The placed performance.
+ * @param people The performance's people.
  * @param actions The actions of a person to solve, in film order.
  * @param solve Solve one action.
  */
-export function prepareHumanPerformanceOrder(
-  self: IAutoMovieMotionHumanPerformanceState,
-  actions: (
-    person: IAutoMovieMotionHumanSegment.IPerson,
-  ) => readonly IAutoMovieMotionHumanSegment[],
-  solve: (
-    person: IAutoMovieMotionHumanSegment.IPerson,
-    segment: IAutoMovieMotionHumanSegment,
-  ) => void,
+export function prepareHumanPerformanceOrder<
+  Person extends prepareHumanPerformanceOrder.IPerson,
+  Action extends prepareHumanPerformanceOrder.IAction,
+>(
+  people: Iterable<Person>,
+  actions: (person: Person) => readonly Action[],
+  solve: (person: Person, action: Action) => void,
 ): void {
-  const people: readonly IAutoMovieMotionHumanSegment.IPerson[] = [
-    ...self.people.values(),
-  ];
-  const lists: Map<
-    IAutoMovieMotionHumanSegment.IPerson,
-    readonly IAutoMovieMotionHumanSegment[]
-  > = new Map(
-    people.map(
-      (
-        person: IAutoMovieMotionHumanSegment.IPerson,
-      ): [
-        IAutoMovieMotionHumanSegment.IPerson,
-        readonly IAutoMovieMotionHumanSegment[],
-      ] => [person, actions(person)],
-    ),
+  const all: readonly Person[] = [...people];
+  const lists: Map<Person, readonly Action[]> = new Map(
+    all.map((person: Person): [Person, readonly Action[]] => [
+      person,
+      actions(person),
+    ]),
   );
 
   // Visited actions: entered when their solve starts, so a read returning to
   // one being solved does not solve it again.
-  const visited: Set<IAutoMovieMotionHumanSegment> = new Set();
-  const visit = (
-    person: IAutoMovieMotionHumanSegment.IPerson,
-    segment: IAutoMovieMotionHumanSegment,
-  ): void => {
-    if (visited.has(segment)) return;
-    visited.add(segment);
-    solve(person, segment);
+  const visited: Set<Action> = new Set();
+  const visit = (person: Person, action: Action): void => {
+    if (visited.has(action)) return;
+    visited.add(action);
+    solve(person, action);
   };
-  for (const person of people)
+  for (const person of all)
     person.ready = (seconds: number): void => {
-      for (const segment of lists.get(person)!)
-        if (segment.entryTime <= seconds + 1e-9) visit(person, segment);
+      for (const action of lists.get(person)!)
+        if (action.entryTime <= seconds + 1e-9) visit(person, action);
     };
   try {
-    for (const person of people)
-      for (const segment of lists.get(person)!) visit(person, segment);
+    for (const person of all)
+      for (const action of lists.get(person)!) visit(person, action);
   } finally {
-    for (const person of people) delete person.ready;
+    for (const person of all) delete person.ready;
+  }
+}
+
+/** What {@link prepareHumanPerformanceOrder} reads of people and actions. */
+export namespace prepareHumanPerformanceOrder {
+  /**
+   * A person whose reads the order hooks
+   * (`IAutoMovieMotionHumanSegment.IPerson.ready`).
+   */
+  export interface IPerson {
+    /**
+     * Solve the person's actions shown at a film second before it is read; set
+     * only while the order runs.
+     */
+    ready?: (seconds: number) => void;
+  }
+
+  /** An action placed at a film second. */
+  export interface IAction {
+    /** Film second it becomes active. */
+    entryTime: number;
   }
 }

@@ -77,7 +77,6 @@ export function AutoMovieSolidJoinNormalCheck(
       if (previous !== null) {
         const alignment: number = dot(previous, n);
         if (!(alignment > 0)) {
-
           /**
            * Encode only this failed observation's three already evaluated
            * components.
@@ -133,7 +132,6 @@ export function AutoMovieSolidJoinNormalCheck(
               first: vector(firstVector),
               normal: vector(normal),
               norm: length,
-
             };
           };
           const classification: "negative-dot" | "zero-dot" =

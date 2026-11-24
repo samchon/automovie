@@ -65,7 +65,7 @@ export const autoMovieDrawingFrame = (
 
 /** Throw unless `value` is `null` or a finite number at or above zero. */
 const requireOptionalDepth = (value: number | null, label: string): void => {
-  if (value !== null && (value < 0))
+  if (value !== null && value < 0)
     throw new Error(
       `${label} must be null or a finite number at or above zero, but was ${value}`,
     );

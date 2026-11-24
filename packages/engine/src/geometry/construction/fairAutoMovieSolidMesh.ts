@@ -63,9 +63,7 @@ export function fairAutoMovieSolidMesh(
   for (const region of regions)
     if (
       region.vertices.length === 0 ||
-      region.vertices.some(
-        (v: number): boolean => !(v >= 0 && v < count),
-      ) ||
+      region.vertices.some((v: number): boolean => !(v >= 0 && v < count)) ||
       !(region.radius > 0)
     )
       throw new Error(

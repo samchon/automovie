@@ -36,7 +36,6 @@ export function resolveAutoMovieBoneRates(
   localBodyAngularRates: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieVector3>,
   root: resolveAutoMovieBoneRates.IRoot,
 ): Map<AutoMovieHumanoidBone, resolveAutoMovieBoneRates.IRate> | undefined {
-
   const resolved: Map<AutoMovieHumanoidBone, resolveAutoMovieBoneRates.IRate> =
     new Map();
   const walk: (
@@ -54,11 +53,7 @@ export function resolveAutoMovieBoneRates(
     const local: IAutoMovieVector3 | undefined = localBodyAngularRates.get(
       definition.bone,
     );
-    if (
-      local === undefined ||
-      bone.bone !== definition.bone
-    )
-      return false;
+    if (local === undefined || bone.bone !== definition.bone) return false;
 
     // A fixed offset moves with the parent only. The child's own rotation
     // affects its attached mass points later, not its joint origin here.
@@ -120,4 +115,3 @@ export namespace resolveAutoMovieBoneRates {
     position: IAutoMovieVector3;
   }
 }
-

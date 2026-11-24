@@ -5,10 +5,7 @@ import type {
   IAutoMoviePhysicalSimulationInput,
 } from "@automovie/interface";
 
-/**
- * Contact withdrawal names actual other-body geometry and a local-time
- * window.
- */
+/** Contact withdrawal names actual other-body geometry and a local-time window. */
 export function admitPhysicalReleasePolicy(
   input: IAutoMoviePhysicalSimulationInput.IInput,
   body: IAutoMoviePhysicalSimulationInput.IBody,

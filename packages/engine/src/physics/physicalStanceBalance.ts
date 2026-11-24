@@ -522,52 +522,52 @@ export namespace physicalStanceBalance {
       icp
         ? { pressure: icp.pressure, pivot: icp.pivot, clamped: !icp.converged }
         : allocate({
-              capture,
-              reference,
-              command,
-              offset: {
-                x: input.torque.z / lift,
-                y: 0,
-                z: -input.torque.x / lift,
-              },
-              shrunken: capped(polygon),
-              support: capped(bearable.hull),
-              // The bearing feet's hips deliver the ground's moment on the body
-              // with the room their feet's forces leave them (`hipRoom`): the
-              // pivot's offset along d turns the body about the axis across it,
-              // (d_z, 0, -d_x).
-              bound: (direction: IAutoMovieVector3): number =>
-                hipRoom({
-                  profile: body.profile,
-                  segments,
-                  stance: carried,
-                  axis: { x: direction.z, y: 0, z: -direction.x },
-                }) / lift,
-              ...(input.intended
-                ? {
-                    hip: (direction: IAutoMovieVector3): number | undefined => {
-                      const strategy = hip({
-                        profile: body.profile,
-                        segments,
-                        limbs,
-                        stance: input.stance,
-                        direction,
-                        intended: input.intended!,
-                      });
-                      if (!strategy) return undefined;
-                      // Bang-bang: out while the trunk can still be stopped within
-                      // the angle left, back once its turn would carry it past.
-                      const braking: boolean =
-                        strategy.rate > 0 &&
-                        (strategy.rate * strategy.rate * strategy.inertia) /
-                          (2 * strategy.torque) >=
-                          strategy.angle;
-                      if (!braking && !(strategy.angle > 0)) return undefined;
-                      return ((braking ? -1 : 1) * strategy.torque) / lift;
-                    },
-                  }
-                : {}),
-            });
+            capture,
+            reference,
+            command,
+            offset: {
+              x: input.torque.z / lift,
+              y: 0,
+              z: -input.torque.x / lift,
+            },
+            shrunken: capped(polygon),
+            support: capped(bearable.hull),
+            // The bearing feet's hips deliver the ground's moment on the body
+            // with the room their feet's forces leave them (`hipRoom`): the
+            // pivot's offset along d turns the body about the axis across it,
+            // (d_z, 0, -d_x).
+            bound: (direction: IAutoMovieVector3): number =>
+              hipRoom({
+                profile: body.profile,
+                segments,
+                stance: carried,
+                axis: { x: direction.z, y: 0, z: -direction.x },
+              }) / lift,
+            ...(input.intended
+              ? {
+                  hip: (direction: IAutoMovieVector3): number | undefined => {
+                    const strategy = hip({
+                      profile: body.profile,
+                      segments,
+                      limbs,
+                      stance: input.stance,
+                      direction,
+                      intended: input.intended!,
+                    });
+                    if (!strategy) return undefined;
+                    // Bang-bang: out while the trunk can still be stopped within
+                    // the angle left, back once its turn would carry it past.
+                    const braking: boolean =
+                      strategy.rate > 0 &&
+                      (strategy.rate * strategy.rate * strategy.inertia) /
+                        (2 * strategy.torque) >=
+                        strategy.angle;
+                    if (!braking && !(strategy.angle > 0)) return undefined;
+                    return ((braking ? -1 : 1) * strategy.torque) / lift;
+                  },
+                }
+              : {}),
+          });
     const aimed: IAutoMovieVector3 = Vector3.scale(
       {
         x: mass * omega * omega * (center.x - pivot.x),

@@ -25,13 +25,7 @@ export function evaluateAutoMovieHermiteGregory64(
   u: number,
   v: number,
 ): IAutoMovieEvaluateHermiteGregory64.IResult {
-  if (
-    edges.length !== 4 ||
-    u < 0 ||
-    u > 1 ||
-    v < 0 ||
-    v > 1
-  )
+  if (edges.length !== 4 || u < 0 || u > 1 || v < 0 || v > 1)
     throw new Error(
       "Four compatible boundary jet fields on the unit square required",
     );

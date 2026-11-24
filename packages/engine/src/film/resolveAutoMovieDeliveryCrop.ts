@@ -29,8 +29,7 @@ export function resolveAutoMovieDeliveryCrop(
   const resolved: IAutoMovieDeliveryCrop = crop ?? WHOLE_DELIVERY_CROP;
   if (
     [resolved.left, resolved.top, resolved.right, resolved.bottom].every(
-      (edge: number): boolean =>
-        edge >= 0 && edge <= 1,
+      (edge: number): boolean => edge >= 0 && edge <= 1,
     ) === false ||
     resolved.left >= resolved.right ||
     resolved.top >= resolved.bottom

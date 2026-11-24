@@ -110,10 +110,7 @@ export function AutoMovieConstructionNativeProfile(
   /** Caller lifetime bounds reuse to the latest immutable station only. */
   let latest: Station | undefined;
   const at: (station: number) => Station = (station: number): Station => {
-    if (
-      station < source.domain[0] ||
-      station > source.domain[1]
-    )
+    if (station < source.domain[0] || station > source.domain[1])
       throw new AutoMovieLoftAdmissionError(
         "Native profile query is outside its actual source domain.",
       );

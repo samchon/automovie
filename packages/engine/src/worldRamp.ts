@@ -12,10 +12,7 @@ export const worldRamp: (
   const dx: number = input.to.x - input.from.x;
   const dz: number = input.to.z - input.from.z;
   const lengthSquared: number = dx * dx + dz * dz;
-  if (
-    input.width <= 0 ||
-    lengthSquared <= 0
-  )
+  if (input.width <= 0 || lengthSquared <= 0)
     throw new Error(
       `World ramp "${input.id}" requires finite distinct endpoints, positive width, and finite baseHeight/rise.`,
     );

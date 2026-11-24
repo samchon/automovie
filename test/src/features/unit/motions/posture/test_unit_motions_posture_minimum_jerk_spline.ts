@@ -12,8 +12,8 @@ const ROUNDING: number = 1e-9;
  *
  * A via point that lies on the rest-to-rest path of the whole movement adds no
  * constraint, so the spline is that one quintic: from 0 to 2 over 2 s, the
- * middle point at 1 s has the quintic's velocity `15/8 · Δ / T` = 1.875 and,
- * by the path's odd symmetry about its middle, no acceleration.
+ * middle point at 1 s has the quintic's velocity `15/8 · Δ / T` = 1.875 and, by
+ * the path's odd symmetry about its middle, no acceleration.
  *
  * Scenarios:
  *

@@ -54,9 +54,7 @@ interface IGroup extends IRegion {
 export function measureAutoMovieSceneCollision(
   props: Collision.IProps,
 ): Collision.IResult {
-  if (
-    props.maxComparisons < 0
-  )
+  if (props.maxComparisons < 0)
     throw new Error("Invalid scene collision time or comparison budget");
 
   const allowances: Map<string, number> = activeAllowances(
@@ -399,7 +397,6 @@ function overlaps(a: IAutoMovieSubjectBox, b: IAutoMovieSubjectBox): boolean {
     b.min.z <= a.max.z
   );
 }
-
 
 /** Compare paths without environment-specific collation. */
 function comparePaths(a: string, b: string): number {

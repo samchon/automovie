@@ -224,7 +224,6 @@ const appendCubicLightValueBounds: (
   if (
     times.length === 0 ||
     values.length !== times.length * stride ||
-
     times.some(
       (time: number, index: number): boolean =>
         index > 0 && !(time > times[index - 1]!),
@@ -261,8 +260,7 @@ const appendCubicLightValueBounds: (
   if (LIGHT_CHANNEL_PROPERTIES[property].valueType === "quaternion") return;
 
   for (let segment: number = 0; segment + 1 < times.length; ++segment) {
-    const span: number =
-      times[segment + 1]! - times[segment]!;
+    const span: number = times[segment + 1]! - times[segment]!;
     for (let component: number = 0; component < width; ++component) {
       const leftBase: number = segment * stride;
       const rightBase: number = (segment + 1) * stride;

@@ -10,22 +10,22 @@ import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { projectileDragFlight } from "./projectileDragFlight";
 
-
 /** A projectile model faces +Z; a velocity attitude turns that onto the flight. */
 const FORWARD: IAutoMovieVector3 = { x: 0, y: 0, z: 1 };
 
 /** The identity rotation, a launch rotation left unstated. */
 const IDENTITY: IAutoMovieQuaternion = { x: 0, y: 0, z: 0, w: 1 };
 
-
 /**
  * Evaluate a {@link IAutoMovieProjectile} at time `t` seconds. Without drag, the
- * closed form with no integration error: `p = origin + v·t + ½·g·t²`, `v(t) = v
- * + g·t`. With drag, the integrated flight of {@link projectileDragFlight},
- * which holds the launch state before `t = 0`. With an attitude, the state also
- * carries the body's rotation: the model's `+Z` turned onto the velocity, the
- * launch rotation turned about the spin axis by the rate times `t`, or the
- * launch rotation kept.
+ * closed form with no integration error: `p = origin + v·t + ½·g·t²`, `v(t) =
+ * v
+ *
+ * - G·t`. With drag, the integrated flight of {@link projectileDragFlight}, which
+ *   holds the launch state before `t = 0`. With an attitude, the state also
+ *   carries the body's rotation: the model's `+Z`turned onto the velocity, the
+ *   launch rotation turned about the spin axis by the rate times`t`, or the
+ *   launch rotation kept.
  */
 export const projectileAt: (
   p: IAutoMovieProjectile,
@@ -34,7 +34,6 @@ export const projectileAt: (
   p: IAutoMovieProjectile,
   t: number,
 ): IAutoMovieProjectileState => {
-
   const state: IAutoMovieProjectileState =
     p.drag === undefined
       ? {

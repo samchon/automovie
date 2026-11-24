@@ -354,10 +354,7 @@ export function test_construction_source_conic(): void {
       r!,
       k!,
     );
-    if (
-      failed.failure === null ||
-      failed.quarters.length !== 0
-    )
+    if (failed.failure === null || failed.quarters.length !== 0)
       failures.push("invalid source became a usable curve");
   }
   const circleCurvatures: number[] = AutoMovieViewSection.curvatures(

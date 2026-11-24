@@ -343,9 +343,7 @@ export namespace AutoMovieSolidRailSolve {
         [d[1], j.v],
       ]),
     );
-    return speed > 0
-      ? [d[0] / speed, d[1] / speed]
-      : null;
+    return speed > 0 ? [d[0] / speed, d[1] / speed] : null;
   }
 
   /** Settle a positive-width normal section from a regional chart guess. */
@@ -389,9 +387,7 @@ export namespace AutoMovieSolidRailSolve {
         trial++ < 20
       )
         k /= 2;
-      if (
-        !AutoMovieSolidDomain.contains(surface, x[0] + k * dx[0])
-      )
+      if (!AutoMovieSolidDomain.contains(surface, x[0] + k * dx[0]))
         return null;
       x = [x[0] + k * dx[0], x[1] + k * dx[1]];
       if (done) return x;

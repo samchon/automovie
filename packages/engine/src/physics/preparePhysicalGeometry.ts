@@ -31,9 +31,7 @@ export async function preparePhysicalGeometry(): Promise<IAutoMoviePreparePhysic
       seconds: number,
       prediction: number = 0,
     ): IAutoMovieContactReceipt | null => {
-      if (
-        prediction < 0
-      )
+      if (prediction < 0)
         throw new Error("Invalid physical contact query time or prediction");
       const boundsA: IAutoMoviePhysicalShapeBounds.IResult =
         physicalShapeBounds(a.pose, a.shape);

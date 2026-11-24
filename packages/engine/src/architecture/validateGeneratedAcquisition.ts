@@ -23,11 +23,12 @@ import { SHA256_DIGEST_PATTERN } from "../validation/constants/SHA256_DIGEST_PAT
  * actual provider's seed domain remains outside this metadata gate.
  *
  * Provider and model must be non-blank, a present prompt non-blank, and both
- * digests lowercase `sha256:` hex. A supplied digest must equal outputDigest. Findings use `$input` paths; an irreproducible seed is a
- * non-blocking warning. Input slots, including holes, are visited by index and
- * checked for nonblank strings without resolving paths. Non-throwing collection
- * assumes the declared acquisition/container and string shapes; malformed
- * runtime containers can throw before findings are returned.
+ * digests lowercase `sha256:` hex. A supplied digest must equal outputDigest.
+ * Findings use `$input` paths; an irreproducible seed is a non-blocking
+ * warning. Input slots, including holes, are visited by index and checked for
+ * nonblank strings without resolving paths. Non-throwing collection assumes the
+ * declared acquisition/container and string shapes; malformed runtime
+ * containers can throw before findings are returned.
  *
  * @param props.acquisition Generation identity recorded for one set of bytes.
  * @param props.digest Digest the bytes must still have, or null when replaced.

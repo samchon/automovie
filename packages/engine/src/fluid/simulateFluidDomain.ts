@@ -257,7 +257,6 @@ export const simulateFluidDomain: (
         const updated: number = (depth[cell] * area + net) / area;
         depth[cell] = updated > 0 ? updated : 0;
       }
-
   }
 
   let volume: number = 0;
@@ -336,5 +335,3 @@ const active: (start: number, end: number | null, time: number) => boolean = (
   end: number | null,
   time: number,
 ): boolean => time >= start && (end === null || time < end);
-
-

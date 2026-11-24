@@ -98,9 +98,7 @@ export const validateAutoMovieEffects: (
       );
     if (
       [cue.intensity.from, cue.intensity.to].some(
-        (intensity: number): boolean =>
-          intensity < 0 ||
-          intensity > 1,
+        (intensity: number): boolean => intensity < 0 || intensity > 1,
       )
     )
       fail(`${field}.intensity`, "must stay inside the bounded 0..1 envelope");

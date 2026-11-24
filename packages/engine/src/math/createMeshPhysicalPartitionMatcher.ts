@@ -38,7 +38,6 @@ export function createMeshPhysicalPartitionMatcher(
     sources: (string | null)[];
     degenerate: number[];
   } => {
-
     const indices: number[] = triangleIndicesOf(
       input,
       "mesh physical partition",

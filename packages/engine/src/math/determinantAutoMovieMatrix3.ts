@@ -37,8 +37,7 @@ export function determinantAutoMovieMatrix3(matrix: readonly number[]): number {
       a !== 0 &&
       b !== 0 &&
       c !== 0 &&
-      (Math.abs(pair) < minimumNormal ||
-        Math.abs(product) < minimumNormal)
+      (Math.abs(pair) < minimumNormal || Math.abs(product) < minimumNormal)
     )
       filterSafe = false;
   }

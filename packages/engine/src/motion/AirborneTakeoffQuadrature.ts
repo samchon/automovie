@@ -97,11 +97,7 @@ export function AirborneTakeoffQuadrature(props: {
     /** Absolute componentwise Richardson error estimates. */
     error: number[];
   }
-  if (
-    !(
-      props.t1 > props.t0
-    )
-  )
+  if (!(props.t1 > props.t0))
     throw new Error(
       "AirborneTakeoffQuadrature needs a finite forward interval",
     );

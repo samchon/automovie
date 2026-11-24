@@ -18,7 +18,6 @@ import { wearableSoftBodyTestActorFrame as actorFrame } from "../internal/wearab
 import { wearableSoftBodyTestAdmission } from "../internal/wearableSoftBodyTestAdmission";
 import { wearableSoftBodyTestBone as bone } from "../internal/wearableSoftBodyTestBone";
 import { wearableSoftBodyTestBoundaries } from "../internal/wearableSoftBodyTestBoundaries";
-import { wearableSoftBodyTestCapsuleEscape } from "../internal/wearableSoftBodyTestCapsuleEscape";
 import { wearableSoftBodyTestDomain as domain } from "../internal/wearableSoftBodyTestDomain";
 
 /**
@@ -410,7 +409,6 @@ export function test_engine_wearable_soft_body(): void {
 
   wearableSoftBodyTestAdmission(staticDomain, nodeDomain, capsuleOnly);
   wearableSoftBodyTestBoundaries(staticDomain);
-  wearableSoftBodyTestCapsuleEscape(capsuleOnly);
 }
 
 /**

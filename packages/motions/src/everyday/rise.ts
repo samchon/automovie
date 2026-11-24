@@ -16,6 +16,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { prepareHumanPostureCorrection } from "../actions/prepareHumanPostureCorrection";
 import { stand } from "../actions/stand";
 import { standUpright } from "../actions/standUpright";
 import { HumanSupportFrame } from "../carrier/HumanSupportFrame";
@@ -442,19 +443,37 @@ export namespace rise {
       window?.by === "trunk"
         ? prepareBearingTrunkBalance(body, window, duration, contacts)
         : prepareGroundedBalance(body, window);
+    // The correction is solved at its knots on the rise's own posture and
+    // read from their course (`prepareHumanPostureCorrection`).
+    const corrected: (
+      posture: IAutoMovieMotionHumanPosture,
+      seconds: number,
+    ) => IAutoMovieMotionHumanPosture =
+      window === null
+        ? (posture: IAutoMovieMotionHumanPosture): IAutoMovieMotionHumanPosture =>
+            posture
+        : prepareHumanPostureCorrection(
+            rose,
+            window,
+            contacts.flatMap(
+              (contact: IAutoMovieMotionHumanContactWindow): number[] => [
+                contact.from * duration,
+                contact.to * duration,
+              ],
+            ),
+            (
+              posture: IAutoMovieMotionHumanPosture,
+              seconds: number,
+            ): IAutoMovieMotionHumanPosture => adjust(posture, seconds),
+          );
     return {
       duration,
       events,
       ...HumanPhysics.declared(context.params, window),
       contacts,
       base: { kind: "standing" },
-      posture: (
-        seconds,
-        _channels,
-        resolution,
-        projection,
-      ): IAutoMovieMotionHumanPosture =>
-        adjust(rose(seconds), seconds, undefined, resolution, projection),
+      posture: (seconds: number): IAutoMovieMotionHumanPosture =>
+        corrected(rose(seconds), seconds),
     };
   }
 }

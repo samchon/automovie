@@ -86,7 +86,7 @@ export const transformAutoMovieMesh: (
   };
   if (
     Math.abs(Math.hypot(rotation.x, rotation.y, rotation.z, rotation.w) - 1) >
-      UNIT_QUATERNION_EPSILON
+    UNIT_QUATERNION_EPSILON
   )
     throw new Error("mesh transform rotation must be a unit quaternion");
   const scale: IAutoMovieVector3 = transform.scale ?? { x: 1, y: 1, z: 1 };

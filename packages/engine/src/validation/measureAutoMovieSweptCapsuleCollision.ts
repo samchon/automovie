@@ -172,8 +172,7 @@ export function measureAutoMovieSweptCapsuleCollision(
 /** Check the finite, positive-radius geometry supplied by the source. */
 function admissible(span: Sweep.ISpan): boolean {
   return (
-    (span.basis === "displayed" || span.basis === "proxy") &&
-    span.radius > 0
+    (span.basis === "displayed" || span.basis === "proxy") && span.radius > 0
   );
 }
 

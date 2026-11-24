@@ -58,9 +58,7 @@ export const validateBuiltSpaceShell: (
     return;
   }
   const bad: number = shell.triangles.findIndex(
-    (index: number): boolean =>
-      index < 0 ||
-      index >= shell.vertices.length,
+    (index: number): boolean => index < 0 || index >= shell.vertices.length,
   );
   if (bad !== -1) {
     collector.push(

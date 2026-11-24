@@ -22,10 +22,7 @@ export function measureAutoMovieLipSyncLag(
   props: IAutoMovieMeasureLipSyncLag.IProps,
 ): IAutoMovieMeasureLipSyncLag.IResult {
   const length: number = props.mouth.length;
-  if (
-    props.level.length !== length ||
-    !(props.fps > 0)
-  )
+  if (props.level.length !== length || !(props.fps > 0))
     throw new Error(
       `A lip-sync measurement needs mouth and level series of one length and a positive rate, not ${length} and ${props.level.length} frames at ${props.fps} fps.`,
     );

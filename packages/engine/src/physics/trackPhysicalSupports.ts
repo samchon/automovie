@@ -231,7 +231,10 @@ export namespace trackPhysicalSupports {
     /** The solver substep, seconds. */
     dt: number;
 
-    /** The limbs an active recovery swing drives itself, a diagonal pair's both; they get no force here. */
+    /**
+     * The limbs an active recovery swing drives itself, a diagonal pair's both;
+     * they get no force here.
+     */
     recoveryBones?: readonly string[];
 
     /**

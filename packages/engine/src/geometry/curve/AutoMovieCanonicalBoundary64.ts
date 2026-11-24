@@ -221,8 +221,7 @@ export namespace AutoMovieCanonicalBoundary64 {
       > = new Map();
     for (const use of uses) {
       admit(use.start, use.end);
-      if (ids.has(use.id))
-        throw new Error("Boundary uses require unique IDs");
+      if (ids.has(use.id)) throw new Error("Boundary uses require unique IDs");
       ids.add(use.id);
       const events: Map<
         number,

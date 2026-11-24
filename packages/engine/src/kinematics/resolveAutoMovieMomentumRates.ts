@@ -67,12 +67,7 @@ export function resolveAutoMovieMomentumRates(
       throw new Error(
         `Instantaneous momentum needs the posed bone and rate ${segment.bone}`,
       );
-    if (
-      !(
-        part.mass >= 0 &&
-        Object.is(part.mass, segment.mass)
-      )
-    )
+    if (!(part.mass >= 0 && Object.is(part.mass, segment.mass)))
       throw new Error(
         `Instantaneous momentum needs this model's finite part mass for ${segment.bone}`,
       );
@@ -150,4 +145,3 @@ interface IPartRate {
   /** Its bone's unchanged angular velocity, common-frame radians per second. */
   angular: IAutoMovieVector3;
 }
-

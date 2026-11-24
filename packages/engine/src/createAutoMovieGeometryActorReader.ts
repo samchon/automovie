@@ -176,10 +176,7 @@ const actorPoseAt: (
   time: number,
   skeleton: IAutoMovieSkeleton | null,
 ): IAutoMoviePose => {
-  if (
-    time < 0 ||
-    time > compiled.shot.duration
-  )
+  if (time < 0 || time > compiled.shot.duration)
     throw new Error(
       `Actor sample time ${time} is outside shot "${compiled.shot.id}" duration 0..${compiled.shot.duration}. Choose a current in-range time.`,
     );

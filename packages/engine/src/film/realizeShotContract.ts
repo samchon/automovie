@@ -283,11 +283,7 @@ function compactFormationPasses(
   let start: number = 0;
   for (let index: number = 0; index < formation.chunks.length; ++index) {
     const chunk: IAutoMovieFormationChunk = formation.chunks[index]!;
-    if (
-      chunk.index !== index ||
-      chunk.start !== start ||
-      chunk.count <= 0
-    )
+    if (chunk.index !== index || chunk.start !== start || chunk.count <= 0)
       return false;
     start += chunk.count;
   }

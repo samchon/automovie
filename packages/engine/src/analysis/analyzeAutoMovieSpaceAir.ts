@@ -202,10 +202,7 @@ const validateAirRequest: (request: IAutoMovieSpaceAirRequest) => void = (
     throw new Error(
       `a ventilated space volume must be a finite number above zero, but was ${request.volume}`,
     );
-  if (
-    request.supplyFlow !== null &&
-    (request.supplyFlow < 0)
-  )
+  if (request.supplyFlow !== null && request.supplyFlow < 0)
     throw new Error(
       `a supply flow must be null or a finite number at or above zero, but was ${request.supplyFlow}`,
     );

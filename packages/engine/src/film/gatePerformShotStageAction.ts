@@ -77,7 +77,7 @@ export function gatePerformShotStageAction(
             );
         }
       const relative: boolean =
-        (action.to.kind === "direction" || action.to.kind === "offscreen");
+        action.to.kind === "direction" || action.to.kind === "offscreen";
       if (relative) return;
       const destination: IAutoMovieVector3 | null = resolvePerformShotTarget(
         context,
@@ -180,10 +180,7 @@ export function gatePerformShotStageAction(
           `a launch's projectile "${describeInvalidValue(action.projectile)}" cannot also be a launching actor`,
           action.projectile,
         );
-      if (
-        action.at.kind === "node" &&
-        action.at.node === action.projectile
-      )
+      if (action.at.kind === "node" && action.at.node === action.projectile)
         out.push(
           "type",
           `${path}.at`,
@@ -278,7 +275,11 @@ export function gatePerformShotStageAction(
       if (action.offset !== undefined) {
         const at: string = `${path}.offset`;
         const label: string = "attachment offset";
-        out.unitQuaternion(`${at}.rotation`, action.offset.rotation, `${label} rotation`);
+        out.unitQuaternion(
+          `${at}.rotation`,
+          action.offset.rotation,
+          `${label} rotation`,
+        );
       }
       for (const child of actors)
         if (child === action.parent)

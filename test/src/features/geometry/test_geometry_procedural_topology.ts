@@ -54,8 +54,8 @@ const summary: (
  *
  * The inspector counts edge incidence on the shared position grid and sums
  * signed tetrahedra for volume. Authored analytic volumes and explicit edge
- * populations provide expectations, but incidence closure alone does not
- * prove winding consistency, nonzero area or absence of self-intersection.
+ * populations provide expectations, but incidence closure alone does not prove
+ * winding consistency, nonzero area or absence of self-intersection.
  *
  * Scenarios:
  *
@@ -70,8 +70,8 @@ const summary: (
  * 4. A collapsed triangle is counted as degenerate and contributes no edges.
  * 5. Non-finite positions, normals, and uvs are all counted; an attribute-free
  *    mesh counts none of them.
- * 6. Corners a trillionth of a metre apart weld into one shared edge, leaving
- *    four boundary edges around the two-triangle patch.
+ * 6. Corners a trillionth of a metre apart weld into one shared edge, leaving four
+ *    boundary edges around the two-triangle patch.
  * 7. An empty mesh is not watertight, because no edges is not the same as no
  *    holes.
  * 8. Negative twins: an empty face list, a two-corner face, a non-finite corner, a
@@ -235,7 +235,6 @@ export function test_geometry_procedural_topology(): void {
       watertight: false,
     },
   );
-
 
   TestValidator.equals(
     "corners a picosecond of a metre apart weld into one shared edge",

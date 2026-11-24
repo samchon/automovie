@@ -20,10 +20,7 @@ export function measureAutoMovieGeometryDistance(
   const reader: IAutoMovieGeometryActorReader =
     createAutoMovieGeometryActorReader(props.compiled);
 
-  if (
-    request.time !== undefined &&
-    (request.time < 0)
-  )
+  if (request.time !== undefined && request.time < 0)
     throw new Error(
       `Distance sample time ${request.time} is invalid. Choose a finite non-negative shot time.`,
     );

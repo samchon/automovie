@@ -13,10 +13,7 @@ export function compileAutoMovieNormalizedPhases64(
   for (let i: number = 0; i < count; ++i) {
     const width: number = widths[i]!;
     const next: number = knots[i]! + width;
-    if (
-      width <= 0 ||
-      next <= knots[i]!
-    )
+    if (width <= 0 || next <= knots[i]!)
       throw new Error("Phase widths require a resolvable positive partition");
     knots.push(next);
   }

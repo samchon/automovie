@@ -6,9 +6,9 @@ import type {
 import { composeAutoMovieMotionHumanAction } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
-import { throwsError } from "../../../internal/throwsError";
 import { linearMotionClock } from "../../../internal/synthetic/linearMotionClock";
-import { syntheticHumanSegment } from "../../../internal/synthetic/syntheticHumanSegment";
+import { syntheticHumanPlan } from "../../../internal/synthetic/syntheticHumanPlan";
+import { throwsError } from "../../../internal/throwsError";
 
 /**
  * `composeAutoMovieMotionHumanAction` writes each primitive whose window holds
@@ -17,15 +17,15 @@ import { syntheticHumanSegment } from "../../../internal/synthetic/syntheticHuma
  * of other performers when the composed plan is prepared (`ready`, after the
  * base's own `prepare`).
  *
- * A neck nod over 0 to 1 s and a left elbow bend over 0.5 to 2 s on a 2 s
- * still base.
+ * A neck nod over 0 to 1 s and a left elbow bend over 0.5 to 2 s on a 2 s still
+ * base.
  *
  * Scenarios:
  *
  * 1. Composing plans each primitive once, the head before the arm, and readies
  *    none.
- * 2. At 0.75 s both write; at 1.5 s only the elbow; a channel no primitive
- *    claims keeps the base.
+ * 2. At 0.75 s both write; at 1.5 s only the elbow; a channel no primitive claims
+ *    keeps the base.
  * 3. The plan's `prepare` solves the base first, then readies each primitive in
  *    writing order; the claimed channels are the plan's.
  * 4. Two primitives on one channel at once, and a window past the action, are
@@ -34,7 +34,7 @@ import { syntheticHumanSegment } from "../../../internal/synthetic/syntheticHuma
 export function test_unit_motions_compose_human_action(): void {
   const calls: string[] = [];
   const base: IAutoMovieMotionHumanActionPlan = {
-    ...syntheticHumanSegment({ entryTime: 0, end: 2, duration: 2 }).plan,
+    ...syntheticHumanPlan({ duration: 2 }),
     prepare: (): void => {
       calls.push("base");
     },
@@ -108,22 +108,24 @@ export function test_unit_motions_compose_human_action(): void {
   // 4. Refusals.
   TestValidator.predicate(
     "a shared channel and an outside window are refused",
-    throwsError((): IAutoMovieMotionHumanActionPlan =>
-      composeAutoMovieMotionHumanAction({
-        base,
-        clock: linearMotionClock(2, []),
-        primitives: [
-          primitive("a", "head", 0, 1, "neck"),
-          primitive("b", "head", 0.5, 1.5, "neck"),
-        ],
-      }),
-    ) &&
-      throwsError((): IAutoMovieMotionHumanActionPlan =>
+    throwsError(
+      (): IAutoMovieMotionHumanActionPlan =>
         composeAutoMovieMotionHumanAction({
           base,
           clock: linearMotionClock(2, []),
-          primitives: [primitive("c", "head", 1, 3, "neck")],
+          primitives: [
+            primitive("a", "head", 0, 1, "neck"),
+            primitive("b", "head", 0.5, 1.5, "neck"),
+          ],
         }),
+    ) &&
+      throwsError(
+        (): IAutoMovieMotionHumanActionPlan =>
+          composeAutoMovieMotionHumanAction({
+            base,
+            clock: linearMotionClock(2, []),
+            primitives: [primitive("c", "head", 1, 3, "neck")],
+          }),
       ),
   );
 }

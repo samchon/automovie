@@ -284,7 +284,7 @@ export function fitHingedChainCandidate(
       : rig.reference(props.chain.lower),
   ];
   const anchor: number = rig?.referenceWeight() ?? props.referenceWeight ?? 1;
-  if (rig === undefined && (anchor < 0))
+  if (rig === undefined && anchor < 0)
     throw new Error(
       `fitChainToTarget referenceWeight must be finite and non-negative, but was ${anchor}`,
     );
@@ -427,10 +427,7 @@ export function fitHingedChainCandidate(
     legalOnly: boolean = false,
   ): IReading | null {
     const angles: IAngles | undefined =
-      rotatedOvershoot !== null &&
-      !full
-        ? undefined
-        : decomposed(upper);
+      rotatedOvershoot !== null && !full ? undefined : decomposed(upper);
     const u: IAutoMovieJointPose | undefined = angles?.joint;
     const known: IMid = midOf(lower);
 

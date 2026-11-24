@@ -14,6 +14,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { prepareHumanPostureCorrection } from "../actions/prepareHumanPostureCorrection";
 import { prepareSupportCorrection } from "../actions/prepareSupportCorrection";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanTarget } from "../compose/AutoMovieMotionHumanTarget";
@@ -295,6 +296,59 @@ export namespace legTouch {
             `${side}LowerLeg`,
           ])
         : prepareGroundedBalance(body, window, () => [standing]);
+
+    // The leg's posture before the correction at a second.
+    const rawAt = (
+      t: number,
+      source?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
+      nativeProjection?: Parameters<
+        IAutoMovieMotionHumanActionPlan["posture"]
+      >[3],
+    ): IAutoMovieMotionHumanPosture => {
+      const s: number =
+        t < reach
+          ? minimumJerk.share(t / reach)
+          : t <= relax
+            ? 1
+            : 1 - minimumJerk.share((t - relax) / reach);
+      return moved(
+        base.posture(t, undefined, source, nativeProjection),
+        Vector3.scale(shift, s),
+        {
+          point: Vector3.add(
+            Vector3.add(
+              foot.ankle,
+              Vector3.scale(Vector3.subtract(goal.point, foot.ankle), s),
+            ),
+            { x: 0, y: lift * Math.sin(Math.PI * s), z: 0 },
+          ),
+          ...(goal.rotation === undefined ? {} : { rotation: goal.rotation }),
+          // The hint rides the root, which is short of its full shift by 1 - s.
+          bend: Vector3.subtract(goal.bend, Vector3.scale(shift, 1 - s)),
+          ...(s === 0 ? { planted: true } : {}),
+        },
+      );
+    };
+
+    // The correction is solved at its knots, the reach's and the relax's
+    // ends among them, and read from their course
+    // (`prepareHumanPostureCorrection`).
+    const corrected: (
+      posture: IAutoMovieMotionHumanPosture,
+      seconds: number,
+    ) => IAutoMovieMotionHumanPosture =
+      window === null
+        ? (posture: IAutoMovieMotionHumanPosture): IAutoMovieMotionHumanPosture =>
+            posture
+        : prepareHumanPostureCorrection(
+            (t: number): IAutoMovieMotionHumanPosture => rawAt(t),
+            window,
+            [reach, relax],
+            (
+              posture: IAutoMovieMotionHumanPosture,
+              t: number,
+            ): IAutoMovieMotionHumanPosture => adjust(posture, t),
+          );
     return {
       duration,
       events,
@@ -309,30 +363,7 @@ export namespace legTouch {
         >[3],
       ): IAutoMovieMotionHumanPosture => {
         const t: number = Math.min(duration, Math.max(0, seconds));
-        const s: number =
-          t < reach
-            ? minimumJerk.share(t / reach)
-            : t <= relax
-              ? 1
-              : 1 - minimumJerk.share((t - relax) / reach);
-        const raw: IAutoMovieMotionHumanPosture = moved(
-          base.posture(t, undefined, source, nativeProjection),
-          Vector3.scale(shift, s),
-          {
-            point: Vector3.add(
-              Vector3.add(
-                foot.ankle,
-                Vector3.scale(Vector3.subtract(goal.point, foot.ankle), s),
-              ),
-              { x: 0, y: lift * Math.sin(Math.PI * s), z: 0 },
-            ),
-            ...(goal.rotation === undefined ? {} : { rotation: goal.rotation }),
-            // The hint rides the root, which is short of its full shift by 1 - s.
-            bend: Vector3.subtract(goal.bend, Vector3.scale(shift, 1 - s)),
-            ...(s === 0 ? { planted: true } : {}),
-          },
-        );
-        return adjust(raw, t, undefined, source, nativeProjection);
+        return corrected(rawAt(t, source, nativeProjection), t);
       },
     };
   }

@@ -58,8 +58,7 @@ export namespace EllipticFunctions {
    *   that does not converge in its nine terms (`SF_ERROR_OVERFLOW`).
    */
   export function jacobi(u: number, m: number): IJacobi {
-    if (m < 0 || m > 1)
-      throw new Error(`ellpj: m ${m} lies outside 0 to 1`);
+    if (m < 0 || m > 1) throw new Error(`ellpj: m ${m} lies outside 0 to 1`);
     if (m < 1e-9) {
       const t: number = Math.sin(u);
       const b: number = Math.cos(u);

@@ -271,7 +271,7 @@ export const compileAutoMovieSweep: (
     const x: number = p.x * k;
     const y: number = p.y * k;
     const length: number = Math.hypot(x, y);
-    if ((length === 0 && (p.x !== 0 || p.y !== 0)))
+    if (length === 0 && (p.x !== 0 || p.y !== 0))
       throw new Error("scaled sweep section radius is not positive and finite");
     return { x, y };
   }
@@ -299,9 +299,7 @@ export const compileAutoMovieSweep: (
   stations.forEach((s: IAutoMovieSweep.IStation, k: number): void => {
     if (s.rotation === undefined) return;
     const q: IAutoMovieQuaternion = s.rotation;
-    if (
-      Math.hypot(q.x, q.y, q.z, q.w) === 0
-    )
+    if (Math.hypot(q.x, q.y, q.z, q.w) === 0)
       throw new Error(
         "sweep station rotation must be a finite non-zero quaternion",
       );

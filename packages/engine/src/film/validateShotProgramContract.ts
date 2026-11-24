@@ -18,10 +18,10 @@ type IEventSample = IAutoMovieShotProgram["eventSamples"][number];
  * The staged scene id must equal the registered scene, and blocking and
  * performance must both carry the contract's beat and `durationSeconds`
  * exactly. Each actor program must name a distinct staged actor and a model,
- * with a finite speed above zero and a finite non-negative eye height;
- * only the first failing fact of an actor is reported. Event samples must cover
- * every contract event exactly once, each finite and inside its inclusive
- * window in shot-local seconds, and may name no undeclared event.
+ * with a finite speed above zero and a finite non-negative eye height; only the
+ * first failing fact of an actor is reported. Event samples must cover every
+ * contract event exactly once, each finite and inside its inclusive window in
+ * shot-local seconds, and may name no undeclared event.
  */
 export function validateShotProgramContract<Context>(
   shot: IAutoMovieDefinedShot<Context>,

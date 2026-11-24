@@ -201,7 +201,6 @@ namespace FamilyConicSkinInspection {
         topology: topology === undefined ? null : {
           triangles: topology.triangles,
           degenerate: topology.degenerate,
-          nonFinite: topology.nonFinite,
           boundaryEdges: topology.boundaryEdges,
           nonManifoldEdges: topology.nonManifoldEdges,
           watertight: topology.watertight,

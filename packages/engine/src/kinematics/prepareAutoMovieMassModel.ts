@@ -481,4 +481,3 @@ function copyVector(value: IAutoMovieVector3): IAutoMovieVector3 {
 function copyQuaternion(value: IAutoMovieQuaternion): IAutoMovieQuaternion {
   return { x: value.x, y: value.y, z: value.z, w: value.w };
 }
-

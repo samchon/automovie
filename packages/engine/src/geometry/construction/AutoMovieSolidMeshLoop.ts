@@ -46,11 +46,9 @@ export namespace AutoMovieSolidMeshLoop {
 
   /**
    * Compile the same classification for one synchronous face's unchanged
-   * inputs. Data-valued charts are copied lazily when their loop is first
-   * reached. Accessors, inherited entries and unsuitable data use the original
-   * live walk. Eligibility inspection invokes no ordinary object's getters;
-   * proxies with non-transparent reads or effectful descriptor traps are
-   * outside this premise.
+   * inputs. Each loop's chart, kept-side predicate, segment differences and
+   * chart box are prepared once here; a nonpositive period keeps the original
+   * live walk.
    */
   export function prepare(
     loops: readonly IAutoMovieSolidMesh.ILoop[],
@@ -65,98 +63,21 @@ export namespace AutoMovieSolidMeshLoop {
       loops.every((l: IAutoMovieSolidMesh.ILoop): boolean =>
         keeps(l, u, v, jet, margin, period),
       );
-    const states: (IState | undefined)[] = new Array<IState | undefined>(
-      loops.length,
+    if (period !== undefined && period <= 0) return raw;
+    const states: IState[] = loops.map(
+      (loop: IAutoMovieSolidMesh.ILoop): IState => state(loop, period),
     );
-    try {
-      for (let k: number = 0; k < loops.length; k++) {
-        const entry: PropertyDescriptor | undefined =
-          Object.getOwnPropertyDescriptor(loops, String(k));
-        if (entry === undefined) {
-          if (k in loops) return raw;
-          continue;
-        }
-        if (!("value" in entry)) return raw;
-        states[k] = {
-          input: entry.value as IAutoMovieSolidMesh.ILoop,
-          checked: false,
-        };
-      }
-    } catch {
-      return raw;
-    }
-    let eager: boolean = period !== undefined && period <= 0;
     return (
       u: number,
       v: number,
       jet: IAutoMovieSolidSurface.IJet,
       margin: number,
     ): boolean => {
-      if (eager) return raw(u, v, jet, margin);
-      let metric: IAutoMovieSolidSurface.IJet | undefined;
-      let E: number = 0;
-      let F: number = 0;
-      let G: number = 0;
+      const E: number = dot(jet.u, jet.u);
+      const F: number = dot(jet.u, jet.v);
+      const G: number = dot(jet.v, jet.v);
       for (const state of states) {
-        if (state === undefined) continue;
-        if (!state.checked) {
-          state.chart = snapshot(state.input);
-          state.checked = true;
-          if (state.chart !== null)
-            state.side = AutoMovieSolidCycle.prepare(state.chart, period);
-        }
-        if (state.chart === null) {
-          eager = true;
-          return raw(u, v, jet, margin);
-        }
-        if (!state.side!(u, v)) return false;
-        if (metric === undefined) {
-          if (
-            typeof u !== "number" ||
-            typeof v !== "number" ||
-            typeof margin !== "number" ||
-            !plainJet(jet)
-          ) {
-            eager = true;
-            return raw(u, v, jet, margin);
-          }
-          metric = jet;
-          E = dot(jet.u, jet.u);
-          F = dot(jet.u, jet.v);
-          G = dot(jet.v, jet.v);
-        }
-        if (state.deltas === undefined) {
-          const chart: [number, number][] = state.chart!.chart;
-          state.deltas = new Float64Array(2 * chart.length);
-          let low: number = Infinity;
-          let high: number = -Infinity;
-          let phase: number = chart[0]?.[1] ?? 0;
-          let first: number = phase;
-          let last: number = phase;
-          for (let k: number = 0; k < chart.length; k++) {
-            const a: [number, number] = chart[k]!;
-            const b: [number, number] = chart[(k + 1) % chart.length]!;
-            state.deltas[2 * k] = b[0] - a[0];
-            state.deltas[2 * k + 1] =
-              AutoMovieSolidCycle.shift(b[1], a[1], period) - a[1];
-            low = Math.min(low, a[0]);
-            high = Math.max(high, a[0]);
-            first = Math.min(first, phase);
-            last = Math.max(last, phase);
-            phase += state.deltas[2 * k + 1]!;
-          }
-          // The loop's phases unwrapped along its own walk: a box in phase
-          // exists only when they stay inside half a period, so every
-          // point's nearest lift is the one the segments read.
-          const narrow: boolean =
-            period === undefined || last - first < period / 2;
-          state.box = [
-            low,
-            high,
-            narrow ? (first + last) / 2 : 0,
-            narrow ? (last - first) / 2 : Infinity,
-          ];
-        }
+        if (!state.side(u, v)) return false;
 
         // A point farther from the loop's chart box than the margin, by a
         // lower bound of the metric, is farther from every segment: with
@@ -164,7 +85,7 @@ export namespace AutoMovieSolidMeshLoop {
         // (1 - |c|) (E du^2 + G dv^2)`, and any offset to the loop has
         // `|du|`, `|dv|` at least the gaps to the box. The scan is skipped
         // only on a strict excess, so a tie still reads every segment.
-        const box: [number, number, number, number] = state.box!;
+        const box: readonly [number, number, number, number] = state.box;
         const gapU: number = Math.max(0, box[0] - u, u - box[1]);
         // An unbounded half width leaves no phase gap.
         const gapV: number = Math.max(
@@ -181,8 +102,7 @@ export namespace AutoMovieSolidMeshLoop {
           continue;
         if (
           !(
-            distance(state.chart!, u, v, E, F, G, period, state.deltas) >=
-            margin
+            distance(state.chart, u, v, E, F, G, period, state.deltas) >= margin
           )
         )
           return false;
@@ -190,85 +110,70 @@ export namespace AutoMovieSolidMeshLoop {
       return true;
     };
   }
+
   /** The numerical fields the parity and metric readings consume. */
   type Chart = Pick<IAutoMovieSolidMesh.ILoop, "kind" | "chart">;
-  /** Scratch owned by one prepared face, never published into a body. */
+
+  /** One loop's readings prepared for a face, never published into a body. */
   interface IState {
-    /** Original input for live fallback. */ input: IAutoMovieSolidMesh.ILoop;
-    /** Whether snapshot eligibility was inspected. */ checked: boolean;
-    /** Copied numerical chart, or null for live fallback. */ chart?: Chart | null;
-    /** Existing kept-side predicate over that copy. */ side?: (
+    /** Copied numerical chart. */ chart: Chart;
+    /** Existing kept-side predicate over that copy. */ side: (
       u: number,
       v: number,
     ) => boolean;
-    /** Metric segment differences, dx/dy per edge. */ deltas?: Float64Array;
+    /** Metric segment differences, dx/dy per edge. */ deltas: Float64Array;
     /**
      * The copied chart's box: lowest and highest station, then the middle and
      * half width of its unwrapped phases, an Infinity half width when they span
      * half a period or more.
-     */ box?: [number, number, number, number];
+     */ box: readonly [number, number, number, number];
   }
 
-  /**
-   * Copy only own data-valued numerical fields, without invoking ordinary
-   * getters.
-   */
-  function snapshot(loop: IAutoMovieSolidMesh.ILoop): Chart | null {
-    try {
-      const kind: unknown = Object.getOwnPropertyDescriptor(
-        loop,
-        "kind",
-      )?.value;
-      const source: unknown = Object.getOwnPropertyDescriptor(
-        loop,
-        "chart",
-      )?.value;
-      if (
-        !(
-          kind === "hole" ||
-          kind === "island" ||
-          kind === "start" ||
-          kind === "end"
-        ) ||
-        !Array.isArray(source)
-      )
-        return null;
-      const chart: [number, number][] = [];
-      for (let k: number = 0; k < source.length; k++) {
-        const point: unknown = Object.getOwnPropertyDescriptor(
-          source,
-          String(k),
-        )?.value;
-        if (!Array.isArray(point)) return null;
-        const x: unknown = Object.getOwnPropertyDescriptor(point, "0")?.value;
-        const y: unknown = Object.getOwnPropertyDescriptor(point, "1")?.value;
-        if (typeof x !== "number" || typeof y !== "number") return null;
-        chart.push([x, y]);
-      }
-      return { kind, chart };
-    } catch {
-      return null;
+  /** Copy one loop's chart and prepare its side, differences and box. */
+  function state(
+    loop: IAutoMovieSolidMesh.ILoop,
+    period: number | undefined,
+  ): IState {
+    const chart: Chart = {
+      kind: loop.kind,
+      chart: loop.chart.map(([x, y]: [number, number]): [number, number] => [
+        x,
+        y,
+      ]),
+    };
+    const points: [number, number][] = chart.chart;
+    const deltas: Float64Array = new Float64Array(2 * points.length);
+    let low: number = Infinity;
+    let high: number = -Infinity;
+    let phase: number = points[0]?.[1] ?? 0;
+    let first: number = phase;
+    let last: number = phase;
+    for (let k: number = 0; k < points.length; k++) {
+      const a: [number, number] = points[k]!;
+      const b: [number, number] = points[(k + 1) % points.length]!;
+      deltas[2 * k] = b[0] - a[0];
+      deltas[2 * k + 1] = AutoMovieSolidCycle.shift(b[1], a[1], period) - a[1];
+      low = Math.min(low, a[0]);
+      high = Math.max(high, a[0]);
+      first = Math.min(first, phase);
+      last = Math.max(last, phase);
+      phase += deltas[2 * k + 1]!;
     }
-  }
-
-  /** Metric sharing applies only to stable ordinary numerical vector fields. */
-  function plainJet(jet: IAutoMovieSolidSurface.IJet): boolean {
-    try {
-      for (const name of ["u", "v"]) {
-        const axis: unknown = Object.getOwnPropertyDescriptor(jet, name)?.value;
-        if (!Array.isArray(axis)) return false;
-        for (let k: number = 0; k < 3; k++) {
-          const value: unknown = Object.getOwnPropertyDescriptor(
-            axis,
-            String(k),
-          )?.value;
-          if (typeof value !== "number") return false;
-        }
-      }
-      return true;
-    } catch {
-      return false;
-    }
+    // The loop's phases unwrapped along its own walk: a box in phase exists
+    // only when they stay inside half a period, so every point's nearest lift
+    // is the one the segments read.
+    const narrow: boolean = period === undefined || last - first < period / 2;
+    return {
+      chart,
+      side: AutoMovieSolidCycle.prepare(chart, period),
+      deltas,
+      box: [
+        low,
+        high,
+        narrow ? (first + last) / 2 : 0,
+        narrow ? (last - first) / 2 : Infinity,
+      ],
+    };
   }
 
   /**

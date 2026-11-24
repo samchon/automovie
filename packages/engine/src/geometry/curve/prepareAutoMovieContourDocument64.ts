@@ -19,7 +19,7 @@ export function prepareAutoMovieContourDocument64(
   if (
     input.sections.some(
       (section: IAutoMovieContourLoft64.ISection, i: number): boolean =>
-        (i > 0 && section.coordinateMm <= input.sections[i - 1]!.coordinateMm),
+        i > 0 && section.coordinateMm <= input.sections[i - 1]!.coordinateMm,
     )
   )
     throw new Error("Finite increasing section coordinates required");

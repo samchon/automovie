@@ -39,8 +39,10 @@ import { compareAutoMovieRenderIds } from "./render/compareAutoMovieRenderIds";
  *
  * One absolute `tolerance` (default 1e-6) is applied to every number compared,
  * whether a metre, a scale factor, a count or a seed, and to rotations as `1 -
+ *
  * |cos(half the angle between them)|`. Subjects are matched by id, and lists
- * come out in render-id order. `unchanged` is a summary: the total plus at most
+ *
+ * Come out in render-id order. `unchanged` is a summary: the total plus at most
  * `AUTOMOVIE_SUBJECT_MEMBER_SAMPLE_LIMIT` sampled ids. A negative or non-finite
  * tolerance throws a `RangeError`.
  *

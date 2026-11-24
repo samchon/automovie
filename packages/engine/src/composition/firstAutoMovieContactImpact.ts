@@ -297,9 +297,7 @@ export namespace firstAutoMovieContactImpact {
               throw new RangeError(
                 "Unknown initial contact departure certificate",
               );
-            if (
-              !(proof.seconds > from && proof.seconds <= until)
-            )
+            if (!(proof.seconds > from && proof.seconds <= until))
               throw new RangeError(
                 "Contact departure clearance is outside its search",
               );

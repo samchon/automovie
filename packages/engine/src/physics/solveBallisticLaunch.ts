@@ -6,7 +6,6 @@ import {
 import { Vector3 } from "../math/Vector3";
 import { AutoMovieGravity } from "./AutoMovieGravity";
 
-
 /**
  * Solve the **launch velocity** that lands a projectile fired from `origin` at
  * fixed `speed` onto `target` under a constant `gravity`: the inverse of the

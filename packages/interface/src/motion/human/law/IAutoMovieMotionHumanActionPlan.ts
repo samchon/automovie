@@ -165,13 +165,12 @@ export interface IAutoMovieMotionHumanActionPlan {
 
   /**
    * Solve what the posture reads of other performers, props and committed
-   * stops. While the schedule is resolved the posture reads them as the
-   * placed performance shows them; once every action is placed, every stop
-   * committed and every flight resolved, the performance calls this once on
-   * every plan in dependency order (a plan reading another performer is
-   * prepared after that performer's plan there), and from then on the posture
-   * evaluates only what this solved. `contacts` may be a getter over the same
-   * solution.
+   * stops. While the schedule is resolved the posture reads them as the placed
+   * performance shows them; once every action is placed, every stop committed
+   * and every flight resolved, the performance calls this once on every plan in
+   * dependency order (a plan reading another performer is prepared after that
+   * performer's plan there), and from then on the posture evaluates only what
+   * this solved. `contacts` may be a getter over the same solution.
    */
   prepare?(): void;
 

@@ -47,10 +47,7 @@ export function resolveAutoMovieMeshPhysicalVertices(
   const aliasCells: Map<string, string> = new Map<string, string>();
   for (let vertex: number = 0; vertex < metadata.vertices.length; vertex++) {
     const reference: number | null = metadata.vertices[vertex];
-    if (
-      reference !== null &&
-      (reference < 0 || reference >= keys.length)
-    )
+    if (reference !== null && (reference < 0 || reference >= keys.length))
       refuse(`vertices[${vertex}] must be null or a resident source reference`);
     const cell: string = coordinates.labels[coordinates.vertices[vertex]];
     const key: string =

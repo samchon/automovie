@@ -172,10 +172,7 @@ const groupShotIntervals = (
 ): Map<string, IAutoMovieShotEffectFilmInterval[]> => {
   const output: Map<string, IAutoMovieShotEffectFilmInterval[]> = new Map();
   for (const interval of intervals) {
-    if (
-      interval.startFrame < 0 ||
-      interval.endFrame <= interval.startFrame
-    )
+    if (interval.startFrame < 0 || interval.endFrame <= interval.startFrame)
       throw new AutoMovieFilmEffectRuntimeError(
         "film-effect-input-invalid",
         `Shot effect cue "${interval.cue}" has an invalid film-frame interval.`,

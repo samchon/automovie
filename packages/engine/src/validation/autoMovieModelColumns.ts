@@ -271,4 +271,3 @@ const columnOfShape: (
     };
   return null;
 };
-

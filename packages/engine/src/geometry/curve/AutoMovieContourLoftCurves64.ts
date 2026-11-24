@@ -144,9 +144,7 @@ export namespace AutoMovieContourLoftCurves64 {
   ): IAutoMovieContourLoftCurves64.Leaf[] {
     if (
       !(toleranceMm > 0) ||
-      !(
-        leaf.end > leaf.start
-      ) ||
+      !(leaf.end > leaf.start) ||
       leaf.depth < 0 ||
       (leaf.depth > 30 && leaf.original !== undefined)
     )
@@ -155,9 +153,7 @@ export namespace AutoMovieContourLoftCurves64 {
       );
     if (
       leaf.original !== undefined &&
-      (leaf.path === undefined ||
-        leaf.path < 0 ||
-        leaf.path >= 2 ** leaf.depth)
+      (leaf.path === undefined || leaf.path < 0 || leaf.path >= 2 ** leaf.depth)
     )
       throw new Error("Source half-path metadata is unresolved");
     const result: IAutoMovieContourLoftCurves64.Leaf[] = [];

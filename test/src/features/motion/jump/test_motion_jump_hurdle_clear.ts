@@ -24,25 +24,27 @@ import { motionHumanBody } from "../../internal/motionHumanBody";
 /** The planted-contact bound, metres (the campaign's 5 mm). */
 const PLANT: number = 0.005;
 
-/** The authored take-off distance before the hurdle, metres: inside McDonald and Dapena's 2.0 to 2.2 m. */
+/**
+ * The authored take-off distance before the hurdle, metres: inside McDonald and
+ * Dapena's 2.0 to 2.2 m.
+ */
 const BEFORE: number = 2.1;
 
 /**
  * Clear a hurdle out of a run and take the run on from the lead foot.
  *
  * Scenarios:
- * 1. The run is cut at a left footfall 2.1 m before a women's 400 m hurdle;
- *    the left foot holds its toes' joint within 5 mm until `takeoff`.
- * 2. Each swinging foot's sole passes the bar's middle plane above its top,
- *    and the hips are above the top at `clear`.
+ *
+ * 1. The run is cut at a left footfall 2.1 m before a women's 400 m hurdle; the
+ *    left foot holds its toes' joint within 5 mm until `takeoff`.
+ * 2. Each swinging foot's sole passes the bar's middle plane above its top, and
+ *    the hips are above the top at `clear`.
  * 3. The right (lead) foot lands beyond the bar and holds within 5 mm from
  *    `touchdown` into the following run's stance, and the run that follows
- *    keeps at least 70 % of the approach speed half a second on, with the
- *    hips moving less than 20 mm between millisecond samples across both
- *    cuts.
- * 4. A footfall 1.2 m before the hurdle is refused on `approach`; a men's
- *    110 m hurdle the run cannot lift the trail foot over is refused on
- *    `hurdle`.
+ *    keeps at least 70 % of the approach speed half a second on, with the hips
+ *    moving less than 20 mm between millisecond samples across both cuts.
+ * 4. A footfall 1.2 m before the hurdle is refused on `approach`; a men's 110 m
+ *    hurdle the run cannot lift the trail foot over is refused on `hurdle`.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the cut, the clearance, the landing, the continued run and the refusals with their bounds.
  * @evidence contracts/development/testing.md#behavioral-verification Composes run, clearance and run through the public chain over a real hurdle model and measures displayed feet and hips.
@@ -193,7 +195,10 @@ export function test_motion_jump_hurdle_clear(): void {
   );
 }
 
-/** A run down the runway past a hurdle, cut into its clearance and run on when a footfall is given. */
+/**
+ * A run down the runway past a hurdle, cut into its clearance and run on when a
+ * footfall is given.
+ */
 function stage(
   body: IAutoMovieMotionHumanBody,
   hurdle: ReturnType<typeof createHurdle>,

@@ -295,4 +295,3 @@ const assertAdmission: (subjectIndex: number, maxSubjects: number) => void = (
 };
 
 /** Refuse nonfinite target components without substituting a world origin. */
-

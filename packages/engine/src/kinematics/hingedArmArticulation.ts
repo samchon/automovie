@@ -452,9 +452,7 @@ export function hingedArmArticulation(
         if (legal(at)) return answer(at, at.shortfall);
       }
       const followed: IPlacedEdge | null =
-        target === null
-          ? null
-          : walkToward(probe, near.swivel, target);
+        target === null ? null : walkToward(probe, near.swivel, target);
       if (followed !== null)
         return answer(followed.candidate, followed.candidate.shortfall);
     }

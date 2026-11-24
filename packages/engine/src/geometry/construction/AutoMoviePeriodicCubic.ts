@@ -52,9 +52,7 @@ export namespace AutoMoviePeriodicCubic {
       number,
     ] => {
       try {
-        if (
-          m < 3
-        )
+        if (m < 3)
           throw new Error(
             "needs at least three finite controls and curvatures",
           );

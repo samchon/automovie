@@ -2,10 +2,12 @@ import type {
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanPosture,
 } from "@automovie/interface";
 
 import { prepareBearingTrunkBalance } from "../everyday/prepareBearingTrunkBalance";
 import { HumanPhysics } from "../law/HumanPhysics";
+import { prepareHumanPostureCorrection } from "./prepareHumanPostureCorrection";
 import { prepareSupportCorrection } from "./prepareSupportCorrection";
 
 /**
@@ -45,16 +47,31 @@ export function supportBalance<P extends HumanPhysics.IBalanced>(
           plan.contacts,
         )
       : prepareSupportCorrection(context.body, window, plan);
+  // The correction is solved at its knots on the plan's own posture and read
+  // from their course (`prepareHumanPostureCorrection`): the support changes
+  // where a contact window opens or closes.
+  const corrected: ReturnType<typeof prepareHumanPostureCorrection> =
+    prepareHumanPostureCorrection(
+      (seconds: number): IAutoMovieMotionHumanPosture => plan.posture(seconds),
+      window,
+      plan.contacts.flatMap(
+        (contact: IAutoMovieMotionHumanContactWindow): number[] => [
+          contact.from * plan.duration,
+          contact.to * plan.duration,
+        ],
+      ),
+      (
+        posture: IAutoMovieMotionHumanPosture,
+        seconds: number,
+      ): IAutoMovieMotionHumanPosture => adjust(posture, seconds),
+    );
   return {
     ...plan,
     ...HumanPhysics.declared(context.params, window),
     posture: (seconds, channels, resolution, projection) =>
-      adjust(
+      corrected(
         plan.posture(seconds, channels, resolution, projection),
         seconds,
-        undefined,
-        resolution,
-        projection,
       ),
   };
 }

@@ -26,7 +26,6 @@ export interface IAutoMovieMeshTopology {
    */
   degenerateTriangles: number[];
 
-
   /** Edges of non-degenerate triangles used by exactly one triangle. */
   boundaryEdges: number;
 

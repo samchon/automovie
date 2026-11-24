@@ -27,9 +27,7 @@ export const productionPhonemesToVisemes: (
   const output: IAutoMovieProductionViseme[] = [];
   props.chunks.forEach(
     (chunk: IAutoMovieProductionPhonemeChunk, index: number): void => {
-      if (
-        chunk.endSample <= chunk.startSample
-      )
+      if (chunk.endSample <= chunk.startSample)
         throw new Error(
           `Phoneme chunk ${index} must span an increasing sample interval, not ${chunk.startSample} to ${chunk.endSample}.`,
         );

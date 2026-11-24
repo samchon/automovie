@@ -163,9 +163,7 @@ export function emitAutoMovieSupportLoft64(
       const after: number = span.stations[interval.after].phase;
       const required: number =
         2 * interval.pairs.length * (interval.segments + 1);
-      if (
-        required + mesh.positions.length / 3 > input.maxVertices
-      )
+      if (required + mesh.positions.length / 3 > input.maxVertices)
         throw new Error(
           "support-vertex-budget-exhausted: no partial mesh transferred",
         );
@@ -224,8 +222,7 @@ export function emitAutoMovieSupportLoft64(
                 : before + ((after - before) * row) / interval.segments;
           const dy: number = B.scalar(derivative, phase);
           const length: number = Math.hypot(normal[0], dy, normal[1]);
-          if (!(length > 0))
-            throw new Error("nonfinite-support-normal");
+          if (!(length > 0)) throw new Error("nonfinite-support-normal");
           for (const vertex of [
             rows[row][edge],
             rows[row][(edge + 1) % interval.pairs.length],

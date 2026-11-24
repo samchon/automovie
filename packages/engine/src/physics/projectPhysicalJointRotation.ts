@@ -38,8 +38,7 @@ export function projectPhysicalJointRotation(
     rotation.z,
     rotation.w,
   );
-  if (norm === 0)
-    throw new Error("Invalid physical joint rotation");
+  if (norm === 0) throw new Error("Invalid physical joint rotation");
   if (joint.range !== undefined) {
     const gate: NonNullable<IAutoMoviePhysicalJoint["range"]> = joint.range;
     const unit: IAutoMovieRigidTransform["rotation"] = {

@@ -90,10 +90,7 @@ export function admitStageSupport(
           seen.add(surface);
           const available: number | undefined =
             surfaces.get(surface)!.surface.availableFrom;
-          if (
-            available !== undefined &&
-            (available < 0)
-          )
+          if (available !== undefined && available < 0)
             out.push(
               "range",
               field,

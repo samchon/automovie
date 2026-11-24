@@ -40,8 +40,7 @@ export const appendMeshTopology: (
     mesh.indices ??
     Array.from({ length: vertexCount }, (_: unknown, i: number): number => i);
   if (indices.length % 3 !== 0) return;
-  for (const index of indices)
-    if (index < 0 || index >= vertexCount) return;
+  for (const index of indices) if (index < 0 || index >= vertexCount) return;
 
   // Coordinate collapse is independent of physical edge incidence.
   // Legacy coordinates determine welding on every evaluation. Explicit aliases

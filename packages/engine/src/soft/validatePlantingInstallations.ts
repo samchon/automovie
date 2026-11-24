@@ -201,9 +201,7 @@ export const validatePlantingInstallations: (
             `irrigation port "${irrigation.port}" does not resolve in built environment "${environment.id}"`,
             irrigation.port,
           );
-        if (
-          irrigation.demandLitresPerDay <= 0
-        )
+        if (irrigation.demandLitresPerDay <= 0)
           out.push(
             "range",
             `${path}.irrigation.demandLitresPerDay`,

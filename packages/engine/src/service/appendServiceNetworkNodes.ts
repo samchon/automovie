@@ -92,11 +92,7 @@ export function appendServiceNetworkNodes(
     }
     if (node.maintenance !== null)
       for (const axis of ["x", "y", "z"] as const)
-        if (
-          !(
-            node.maintenance.max[axis] > node.maintenance.min[axis]
-          )
-        )
+        if (!(node.maintenance.max[axis] > node.maintenance.min[axis]))
           out.push(
             "range",
             `${path}.maintenance.max.${axis}`,

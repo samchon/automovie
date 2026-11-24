@@ -19,10 +19,7 @@ function point(
   v: number,
 ): AutoMovieVector3Tuple {
   const value: AutoMovieVector3Tuple = surface.jet(u, v).p;
-  if (
-    !Array.isArray(value) ||
-    value.length !== 3
-  )
+  if (!Array.isArray(value) || value.length !== 3)
     throw new Error(
       "A seam source must supply a complete finite original position.",
     );
@@ -63,8 +60,8 @@ export namespace AutoMovieSolidMeshTessellate {
       phases.length !== count ||
       phases.some(
         (value: number, k: number): boolean =>
-          (k > 0 &&
-            !(value > phases[k - 1]! && value - phases[k - 1]! < period / 2)),
+          k > 0 &&
+          !(value > phases[k - 1]! && value - phases[k - 1]! < period / 2),
       ) ||
       !(phases[count - 1]! - phases[0]! < period) ||
       !(phases[0]! + period - phases[count - 1]! < period / 2)

@@ -65,11 +65,7 @@ export class ViolationCollector {
     max: number,
     label: string = "value",
   ): void {
-    if (
-      typeof value !== "number" ||
-      value < min ||
-      value > max
-    )
+    if (typeof value !== "number" || value < min || value > max)
       this.push(
         "range",
         path,
@@ -113,7 +109,6 @@ export class ViolationCollector {
         value,
       );
   }
-
 
   /**
    * Pushes a `range` violation at `path` unless a value is a finite number

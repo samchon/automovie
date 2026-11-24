@@ -43,10 +43,7 @@ export async function encodePhysicalPlayback(
   const metadata: Uint8Array = new TextEncoder().encode(JSON.stringify(header));
   const offset: number = Math.ceil((8 + metadata.length) / 8) * 8;
   const length: number = offset + frames * segments.length * (13 * 8) + 32;
-  if (
-    maximumBytes <= 0 ||
-    length > maximumBytes
-  )
+  if (maximumBytes <= 0 || length > maximumBytes)
     throw new Error("Physical playback export byte budget exceeded");
   const bytes: Uint8Array<ArrayBuffer> = new Uint8Array(length);
   const view: DataView = new DataView(bytes.buffer);

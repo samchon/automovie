@@ -87,11 +87,7 @@ export namespace multiplyQuaternionInto {
     ): Result => {
       const av: number = a[active];
       const aw: number = a.w;
-      if (
-        a[second] !== 0 ||
-        a[third] !== 0
-      )
-        return read(a, b, visit, context);
+      if (a[second] !== 0 || a[third] !== 0) return read(a, b, visit, context);
       const wx: number = aw * b.x;
       const wy: number = aw * b.y;
       const wz: number = aw * b.z;
@@ -145,12 +141,7 @@ export namespace multiplyQuaternionInto {
       const aw: number = a.w;
       const bv: number = b[bk];
       const bw: number = b.w;
-      if (
-        a[bk] !== 0 ||
-        a[ck] !== 0 ||
-        b[ak] !== 0 ||
-        b[ck] !== 0
-      ) {
+      if (a[bk] !== 0 || a[ck] !== 0 || b[ak] !== 0 || b[ck] !== 0) {
         multiplyQuaternionInto(target, a, b);
         return;
       }

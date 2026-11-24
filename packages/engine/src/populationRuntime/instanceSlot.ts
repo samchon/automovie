@@ -51,10 +51,7 @@ export const instanceSlot: (
   instanceSet: IAutoMovieInstanceSetPlacement,
   slot: number,
 ): IAutoMovieInstanceSlot => {
-  if (
-    slot < 0 ||
-    slot >= instanceSet.count
-  )
+  if (slot < 0 || slot >= instanceSet.count)
     throw new RangeError(
       `Instance set "${instanceSet.id}" slot ${slot} is outside 0..${instanceSet.count - 1}.`,
     );

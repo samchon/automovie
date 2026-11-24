@@ -38,9 +38,7 @@ export const loadAutoMovieSweepSpine: (
     what: string,
   ): void => {
     if (v === undefined) return;
-    if (
-      Math.hypot(v.x, v.y, v.z) === 0
-    )
+    if (Math.hypot(v.x, v.y, v.z) === 0)
       throw new Error(
         `sweep spine ${what} tangent must be finite and not zero`,
       );

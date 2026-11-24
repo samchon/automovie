@@ -154,7 +154,6 @@ interface IFlat {
 /** Each hull's flat form, released with the hull. */
 const FLATS: WeakMap<IAutoMoviePhysicalHullFaces.IHull, IFlat> = new WeakMap();
 
-
 /** A hull's flat form, built once. */
 const flattened: (hull: IAutoMoviePhysicalHullFaces.IHull) => IFlat = (
   hull: IAutoMoviePhysicalHullFaces.IHull,
@@ -208,4 +207,3 @@ const flattened: (hull: IAutoMoviePhysicalHullFaces.IHull) => IFlat = (
   FLATS.set(hull, flat);
   return flat;
 };
-

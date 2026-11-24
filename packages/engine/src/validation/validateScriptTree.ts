@@ -218,10 +218,7 @@ export function validateScriptTree(
     }
     node.payload.dialogue.forEach(
       (line: (typeof node.payload.dialogue)[number], j: number): void => {
-        if (
-          line.anchor !== null &&
-          (line.anchor < 0)
-        )
+        if (line.anchor !== null && line.anchor < 0)
           out.push(
             "range",
             `${np}.dialogue[${j}].anchor`,

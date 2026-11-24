@@ -56,10 +56,7 @@ export function compileFormationStageMarks(
     if (ids.has(set.id))
       throw new RangeError("Formation stage mark set ids must be unique.");
     ids.add(set.id);
-    if (
-      set.start < end ||
-      set.end <= set.start
-    )
+    if (set.start < end || set.end <= set.start)
       throw new RangeError(
         `Stage marks "${set.id}" must have a positive interval starting at or after ${end}s.`,
       );

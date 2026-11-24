@@ -43,9 +43,7 @@ export function AutoMovieConstructionPortRadialRange(
     throw new Error(
       "Port radial range needs a finite clock, centre, positive axes/share and signed phase sense.",
     );
-  if (
-    !(station[0] < station[1] && phase[0] < phase[1])
-  )
+  if (!(station[0] < station[1] && phase[0] < phase[1]))
     throw new Error(
       "Port radial range needs finite increasing closed source and phase bounds.",
     );
@@ -63,14 +61,7 @@ export function AutoMovieConstructionPortRadialRange(
       clock,
       share,
     );
-    if (
-      !(
-        s >= station[0] &&
-        s <= station[1] &&
-        t >= phase[0] &&
-        t <= phase[1]
-      )
-    )
+    if (!(s >= station[0] && s <= station[1] && t >= phase[0] && t <= phase[1]))
       throw new Error(
         "Port radial range " + role + " fails literal source/phase admission.",
       );
@@ -141,10 +132,7 @@ export function AutoMovieConstructionPortRadialRange(
       : phaseLimit === null
         ? stationLimit
         : Math.min(stationLimit, phaseLimit);
-  if (
-    maximum === null ||
-    !(maximum > originalShare)
-  )
+  if (maximum === null || !(maximum > originalShare))
     throw new Error(
       "Port radial range has no representable positive outer endpoint beyond its original control.",
     );

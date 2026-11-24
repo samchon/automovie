@@ -250,7 +250,6 @@ export namespace AirborneTakeoffLinear {
     a: readonly number[][],
     b: readonly number[],
   ): number[] | null {
-
     const column: (c: number) => AutoMovieVector3Tuple = (
       c: number,
     ): AutoMovieVector3Tuple => [a[0]![c]!, a[1]![c]!, a[2]![c]!];

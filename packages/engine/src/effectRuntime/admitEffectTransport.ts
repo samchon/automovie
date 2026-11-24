@@ -11,10 +11,7 @@ export function admitEffectTransport(recipe: IAutoMovieEffectRecipe): void {
   )
     throw new Error("Invalid effect opacity envelope");
   const size: IAutoMovieEffectRecipe["particle"]["size"] = recipe.particle.size;
-  if (
-    size.end !== undefined &&
-    (!(size.end >= size.max && size.end <= 20))
-  )
+  if (size.end !== undefined && !(size.end >= size.max && size.end <= 20))
     throw new Error("Invalid effect final particle extent");
   const ballistic: IAutoMovieEffectRecipe["motion"]["ballistic"] =
     recipe.motion.ballistic;
@@ -25,14 +22,11 @@ export function admitEffectTransport(recipe: IAutoMovieEffectRecipe): void {
       (ballistic.stainSizeMultiplier <= 0 ||
         ballistic.stainSizeMultiplier > 16)) ||
     (ballistic.velocitySpread !== undefined &&
-      ([
-          ballistic.velocitySpread.x,
-          ballistic.velocitySpread.y,
-          ballistic.velocitySpread.z,
-        ].some(
-          (value: number): boolean =>
-            value < 0 || value > 50,
-        )))
+      [
+        ballistic.velocitySpread.x,
+        ballistic.velocitySpread.y,
+        ballistic.velocitySpread.z,
+      ].some((value: number): boolean => value < 0 || value > 50))
   )
     throw new Error("Invalid effect ballistic transport");
 }

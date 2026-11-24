@@ -170,9 +170,9 @@ const normalizeQuatArray: (q: number[]) => number[] = (
 };
 
 /**
- * The clip's own duration. Duration comes from the shared
- * contract ({@link clipDurationFault}), so the artifact gate that exists to
- * spare a consumer this throw refuses exactly what would reach it (#1353).
+ * The clip's own duration. Duration comes from the shared contract
+ * ({@link clipDurationFault}), so the artifact gate that exists to spare a
+ * consumer this throw refuses exactly what would reach it (#1353).
  */
 const validateSampleTime: (duration: number) => void = (
   duration: number,

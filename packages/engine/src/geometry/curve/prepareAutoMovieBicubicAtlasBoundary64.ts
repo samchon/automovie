@@ -47,10 +47,7 @@ export function prepareAutoMovieBicubicAtlasBoundary64(
       Array.from(
         { length: 4 },
         (_: unknown, k: number): number => authority.controlIds[k]!,
-      ).some(
-        (id: number): boolean =>
-          id < 0 || id >= input.controlsMm.length,
-      )
+      ).some((id: number): boolean => id < 0 || id >= input.controlsMm.length)
     )
       throw new Error(
         "A canonical cubic requires one name and four valid controls",
@@ -243,10 +240,10 @@ export function prepareAutoMovieBicubicAtlasBoundary64(
     const key: string = root(`control:${constraint.id}`),
       previous: AutoMovieVector3Tuple | undefined = positions.get(key);
     if (
-      (previous &&
-        constraint.point.some(
-          (value: number, axis: number): boolean => value !== previous[axis],
-        ))
+      previous &&
+      constraint.point.some(
+        (value: number, axis: number): boolean => value !== previous[axis],
+      )
     )
       conflicts.add(key);
     else positions.set(key, constraint.point);

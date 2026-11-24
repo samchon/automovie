@@ -379,7 +379,6 @@ const validateRestFrames: (
           "rest-frame sign must be 1 or -1",
           axisFrame.sign,
         );
-
     }
 };
 

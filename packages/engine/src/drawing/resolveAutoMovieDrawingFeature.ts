@@ -74,10 +74,7 @@ export const resolveAutoMovieDrawingFeature = (
   if (feature.kind === "axis") {
     // Integral on purpose: a fractional index names no axis, and would
     // otherwise produce a zero direction reported as a collapsed scale.
-    if (
-      feature.index < 0 ||
-      feature.index > 2
-    )
+    if (feature.index < 0 || feature.index > 2)
       return stale(
         `element "${element.id}" axis index must be 0, 1 or 2, but was ${feature.index}`,
       );
@@ -293,10 +290,7 @@ const check = (
       `element "${element}" now has ${count} ${label} features, but the target was authored against ${feature.count}`,
       count,
     );
-  if (
-    feature.index < 0 ||
-    feature.index >= count
-  )
+  if (feature.index < 0 || feature.index >= count)
     return stale(
       `element "${element}" ${label} index ${feature.index} is outside its ${count} ${label} features`,
       count,

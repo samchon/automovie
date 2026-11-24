@@ -92,7 +92,6 @@ export const validateLightPlacementShape: (
       light.position,
     );
 
-
   if (light.range !== undefined) {
     if (!falloff)
       out.push(
@@ -118,10 +117,7 @@ export const validateLightPlacementShape: (
         `only a spot light has a cone; ${withArticle(type)} light takes no coneAngle`,
         light.coneAngle,
       );
-    else if (
-      light.coneAngle <= 0 ||
-      light.coneAngle > 90
-    )
+    else if (light.coneAngle <= 0 || light.coneAngle > 90)
       out.push(
         "range",
         `${path}.coneAngle`,
@@ -231,9 +227,7 @@ const validateLightShadow: (
     );
   const shadow: IAutoMovieLightShadow = light.shadow;
   const mapSize: number = shadow.mapSize;
-  if (
-    mapSize <= 0
-  )
+  if (mapSize <= 0)
     out.push(
       "range",
       `${path}.shadow.mapSize`,

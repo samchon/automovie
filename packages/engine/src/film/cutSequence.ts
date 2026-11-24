@@ -30,16 +30,15 @@ type RequiredEvent = NonNullable<IAutoMovieEditPlan["requiredEvents"]>[number];
  * return every violation at once.
  *
  * The layout gates are editorial arithmetic. Built shot ids are unique; the
- * frame rate is finite
- * and positive; there is at least one entry; every entry names a built shot
- * whose duration is finite and positive; a trim has a finite positive duration
- * and a finite start, and lies inside `[0, shot.duration]`; the entry rate is
- * finite and positive with a representable positive output span; the first
- * entry has no transition; and a transition is finite and positive, no longer
- * than either neighbour's played span, and does not overlap the previous
- * entry's own incoming transition inside that entry. An event trim resolves two
- * exact, uniquely occurring built shot events to the same numeric source span
- * before these checks. Pacing and continuity rationale stay prose.
+ * frame rate is finite and positive; there is at least one entry; every entry
+ * names a built shot whose duration is finite and positive; a trim has a finite
+ * positive duration and a finite start, and lies inside `[0, shot.duration]`;
+ * the entry rate is finite and positive with a representable positive output
+ * span; the first entry has no transition; and a transition is finite and
+ * positive, no longer than either neighbour's played span, and does not overlap
+ * the previous entry's own incoming transition inside that entry. An event trim
+ * resolves two exact, uniquely occurring built shot events to the same numeric
+ * source span before these checks. Pacing and continuity rationale stay prose.
  *
  * `runtime` is in seconds: the sum of each entry's played output span (retained
  * source duration divided by the entry rate) minus each transition's duration,
@@ -170,8 +169,7 @@ export function cutSequence(
       }
       const shot: IAutoMovieShot = found.shot;
       const shotIndex: number = found.index;
-      const validShotDuration: boolean =
-        shot.duration > 0;
+      const validShotDuration: boolean = shot.duration > 0;
       if (!validShotDuration)
         out.push(
           "range",
@@ -297,9 +295,7 @@ export function cutSequence(
             "the first entry has nothing to transition from",
             entry.transition,
           );
-        else if (
-          !(entry.transition.duration > 0)
-        )
+        else if (!(entry.transition.duration > 0))
           out.push(
             "range",
             `$input.entries[${i}].transition.duration`,
@@ -350,7 +346,6 @@ export function cutSequence(
     },
   );
 
-
   if (out.items.length > 0) return { success: false, violations: out.items };
 
   const sequence: IAutoMovieSequence = {
@@ -377,10 +372,7 @@ export function cutSequence(
 
   const requiredEvents: readonly RequiredEvent[] | undefined =
     assemble.requiredEvents;
-  if (
-    requiredEvents !== undefined &&
-    requiredEvents.length > 0
-  ) {
+  if (requiredEvents !== undefined && requiredEvents.length > 0) {
     const counts: Map<number, Map<string, number>> = new Map();
     for (const event of sequenceEventTimeline(sequence, shots)) {
       const entryCounts: Map<string, number> =
@@ -392,8 +384,7 @@ export function cutSequence(
       const requirement: RequiredEvent = requiredEvents[index]!;
       const path: string = `$input.requiredEvents[${index}]`;
       const validEntry: boolean =
-        requirement.entry >= 0 &&
-        requirement.entry < sequence.shots.length;
+        requirement.entry >= 0 && requirement.entry < sequence.shots.length;
       if (!validEntry)
         out.push(
           "range",
@@ -416,10 +407,7 @@ export function cutSequence(
   }
   const requiredProps: IAutoMovieEditPlan["requiredPropContinuity"] =
     assemble.requiredPropContinuity;
-  if (
-    requiredProps !== undefined &&
-    requiredProps.length > 0
-  )
+  if (requiredProps !== undefined && requiredProps.length > 0)
     checkCutPropContinuity(
       sequence,
       requiredProps,

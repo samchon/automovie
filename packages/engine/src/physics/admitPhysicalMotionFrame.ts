@@ -18,7 +18,7 @@ export function admitPhysicalMotionFrame(
 ): void {
   if (
     Math.abs(frame.seconds - seconds) >
-      64 * Number.EPSILON * Math.max(1, Math.abs(seconds))
+    64 * Number.EPSILON * Math.max(1, Math.abs(seconds))
   )
     throw new Error("Invalid motion audit sampled clock");
   for (const body of bodies)

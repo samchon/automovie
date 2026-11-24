@@ -29,10 +29,7 @@ export namespace AutoMovieNativeCoordinate {
     half: 1 | -1,
     target: number,
   ): IAutoMovieNativeCoordinate.IResult {
-    if (
-      (component !== 0 && component !== 1) ||
-      (half !== 1 && half !== -1)
-    )
+    if ((component !== 0 && component !== 1) || (half !== 1 && half !== -1))
       fail(
         "Native coordinate inverse needs a finite target and a declared coordinate/half.",
       );
@@ -92,9 +89,7 @@ export namespace AutoMovieNativeCoordinate {
       32 *
       Number.EPSILON *
       Math.max(1, Math.abs(target), ...inputs.extents.map(Math.abs));
-    if (
-      !(Math.abs(best.residual) <= allowance)
-    )
+    if (!(Math.abs(best.residual) <= allowance))
       fail(
         "Native coordinate inverse has no admitted original-point residual.",
       );

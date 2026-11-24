@@ -54,9 +54,7 @@ function evaluateBox(
   reference: readonly [number, number],
   prepared?: IBoxState,
 ): [number, number][] | null {
-  if (
-    !admitRanges(ranges, prepared)
-  )
+  if (!admitRanges(ranges, prepared))
     throw new Error("Bilinear angle boxes require finite ordered inputs.");
   return pairsOf(
     enumerateBox(0, 0, 0, 0, ranges, 0, 0, prepared, { matrix, reference }),
@@ -189,8 +187,7 @@ function enumerateBox(
     const first: number = bounds?.first ?? Math.ceil((range.min - angle) / 360);
     const last: number = bounds?.last ?? Math.floor((range.max - angle) / 360);
     const turn: number = Math.round((anchor - angle) / 360);
-    const safe: boolean =
-      bounds?.safe ?? last <= Number.MAX_SAFE_INTEGER;
+    const safe: boolean = bounds?.safe ?? last <= Number.MAX_SAFE_INTEGER;
     if (
       prepared !== undefined &&
       (slot === 0 || slot === 1) &&
@@ -402,8 +399,7 @@ function admitRanges(
 ): boolean {
   if (prepared?.admitted !== undefined) return prepared.admitted;
   const admitted: boolean = !ranges.some(
-    (range: IAutoMovieAngleRange): boolean =>
-      range.min > range.max,
+    (range: IAutoMovieAngleRange): boolean => range.min > range.max,
   );
   if (prepared !== undefined) prepared.admitted = admitted;
   return admitted;
@@ -518,9 +514,7 @@ export namespace bilinearAngleBoxCandidates {
       referenceX: number,
       referenceY: number,
     ): number[] | null => {
-      if (
-        !admitRanges(ranges, prepared)
-      )
+      if (!admitRanges(ranges, prepared))
         throw new Error("Bilinear angle boxes require finite ordered inputs.");
       return enumerateBox(
         m00,

@@ -30,9 +30,7 @@ export function productionFrameBoundaryToGridTick(
     throw new Error(
       `Production frame boundary ${props.frame} must be a nonnegative safe integer.`,
     );
-  if (
-    props.ticksPerSecond <= 0
-  )
+  if (props.ticksPerSecond <= 0)
     throw new Error(
       `Destination clock ${props.ticksPerSecond} must be a positive safe integer.`,
     );

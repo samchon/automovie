@@ -7,9 +7,9 @@ import { TestValidator } from "@nestia/e2e";
  *
  * Scenarios:
  *
- * 1. Five knots, dwells at the first, the third and the last: the interior
- *    hold at the third splits the movement into knots 0–2 and 2–4; the first
- *    and last holds split nothing.
+ * 1. Five knots, dwells at the first, the third and the last: the interior hold at
+ *    the third splits the movement into knots 0–2 and 2–4; the first and last
+ *    holds split nothing.
  * 2. Without dwells, one piece over every knot.
  * 3. A single knot is a hold only, with no piece.
  */

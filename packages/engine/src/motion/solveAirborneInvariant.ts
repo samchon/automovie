@@ -63,7 +63,6 @@ export function solveAirborneInvariant(
     props.momentum,
   );
 
-
   const x: IAutoMovieVector3 = factor.apply({ x: 1, y: 0, z: 0 });
   const y: IAutoMovieVector3 = factor.apply({ x: 0, y: 1, z: 0 });
   const z: IAutoMovieVector3 = factor.apply({ x: 0, y: 0, z: 1 });
@@ -78,7 +77,6 @@ export function solveAirborneInvariant(
   if (!spherical && !principal && !stationary) return undefined;
   const directions: readonly IAutoMovieVector3[] = props.variations ?? [];
   if (!stationary && directions.length !== 0) return undefined;
-
 
   const rate: IAutoMovieVector3 = factor.solve(carried);
 
@@ -98,7 +96,6 @@ export function solveAirborneInvariant(
   }
   return flight(t0, t1, h, q0, rate, tangents);
 }
-
 
 /**
  * Own only completed numeric data; endpoint holds and zero rotations still

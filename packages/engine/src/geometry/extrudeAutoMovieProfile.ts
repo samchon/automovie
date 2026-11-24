@@ -57,7 +57,6 @@ export const extrudeAutoMovieProfile = (
 const profileHull = (
   profile: readonly IAutoMovieProfilePoint[],
 ): IAutoMovieProfilePoint[] => {
-
   const hull: IAutoMovieProfilePoint[] = convexHull2D(
     profile.map(
       (point: IAutoMovieProfilePoint): IAutoMovieVector3 => ({

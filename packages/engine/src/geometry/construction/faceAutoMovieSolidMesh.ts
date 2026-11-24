@@ -95,9 +95,7 @@ export function faceAutoMovieSolidMesh(
         (id: number, k: number): number =>
           prepared.chart.get(id)![1] + triangle.lifts[k]! * period,
       );
-      if (
-        Math.max(...phases) - Math.min(...phases) >= period / 2
-      )
+      if (Math.max(...phases) - Math.min(...phases) >= period / 2)
         return refuse(
           input,
           "indexed triangle has no unique sub-half-period cover",

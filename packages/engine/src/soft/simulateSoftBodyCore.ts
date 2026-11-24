@@ -271,7 +271,6 @@ export const simulateSoftBodyCore: (
       position[base + 2] = predicted[base + 2];
     }
 
-
     observer?.step(
       index + 1,
       position,
@@ -398,5 +397,3 @@ const windAcceleration: (
     wind.acceleration + wind.gustAcceleration * (4 * Math.abs(phase - 0.5) - 1)
   );
 };
-
-

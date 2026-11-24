@@ -17,8 +17,8 @@ import { validatePerformShotFraming } from "./validatePerformShotFraming";
  * when no `frame` action elected one, gate the blocking's coverage angles, and
  * gate every camera a move is compiled from.
  *
- * 1. Without an elected camera, the scene's first camera is live and locked off;
- *    a scene with no camera cannot be framed.
+ * 1. Without an elected camera, the scene's first camera is live and locked off; a
+ *    scene with no camera cannot be framed.
  * 2. Each coverage intent must name a staged camera that is neither the live
  *    camera nor one an earlier intent named, state a usable framing and move,
  *    and favour a subject that resolves; a coverage camera never becomes a
@@ -77,11 +77,7 @@ export function gatePerformShotCamera(
         coverageCameras.get(camera);
       const hero: boolean = frames.length > 0 && camera.id === liveCamera;
       if (job === undefined && !hero) return;
-      validateFramingCamera(
-        context,
-        camera,
-        `$staged.scene.cameras[${index}]`,
-      );
+      validateFramingCamera(context, camera, `$staged.scene.cameras[${index}]`);
     },
   );
   return { liveCamera, coverageJobs };

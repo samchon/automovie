@@ -30,9 +30,9 @@ import type { physicalPlanarPolygon as Polygon } from "./physicalPlanarPolygon";
  *   feed-forward is the perfect point itself (l.372-375).
  * - Error: xi - xi_d, dead-banded along itself (l.315-351); an error within the
  *   band, an exactly zero error under Zulu's zero band included, is zero, the
- *   band's limit there, where the reference divides 0 / 0. A zero error gives
- *   a zero feedback direction, so the program fails and the last solution
- *   stays, as in the reference.
+ *   band's limit there, where the reference divides 0 / 0. A zero error gives a
+ *   zero feedback direction, so the program fails and the last solution stays,
+ *   as in the reference.
  * - Gains: K = 1 + K_p along and across the plan's motion, carried into the
  *   caller's frame; a plan at rest takes the across gain both ways
  *   (`ICPControllerHelper` l.30-57). The CoP weight is the forward and lateral

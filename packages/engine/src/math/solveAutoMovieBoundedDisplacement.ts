@@ -35,10 +35,7 @@ import { solveAutoMovieQuadraticProgram } from "./solveAutoMovieQuadraticProgram
 export function solveAutoMovieBoundedDisplacement(
   input: IAutoMovieSolveBoundedDisplacement.IInput,
 ): IAutoMovieSolveBoundedDisplacement.IResult {
-  if (
-    input.tolerance <= 0 ||
-    input.maximumRounds <= 0
-  )
+  if (input.tolerance <= 0 || input.maximumRounds <= 0)
     throw new Error(
       "Displacement needs positive tolerance and integer round budget.",
     );

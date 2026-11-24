@@ -2,16 +2,16 @@ import { HumanQuinticSegment } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * The minimum-jerk quintic between two boundary states
- * (`HumanQuinticSegment`, Flash and Hogan 1985) against its closed forms.
+ * The minimum-jerk quintic between two boundary states (`HumanQuinticSegment`,
+ * Flash and Hogan 1985) against its closed forms.
  *
  * Scenarios:
  *
- * 1. Rest to rest from 0 to 1 in 1 s is Flash and Hogan's 10τ³ − 15τ⁴ + 6τ⁵:
- *    at τ = 0.5 the position is 0.5, the velocity 1.875 (15/8 of the mean),
- *    the acceleration 0; the jerk is 60 at the start.
- * 2. A segment with every boundary value nonzero (p 0 → 3, v 1 → −1, a 2 → 0.5,
- *    T = 2) reproduces its six boundary conditions at both ends.
+ * 1. Rest to rest from 0 to 1 in 1 s is Flash and Hogan's 10τ³ − 15τ⁴ + 6τ⁵: at τ
+ *    = 0.5 the position is 0.5, the velocity 1.875 (15/8 of the mean), the
+ *    acceleration 0; the jerk is 60 at the start.
+ * 2. A segment with every boundary value nonzero (p 0 → 3, v 1 → −1, a 2 → 0.5, T
+ *    = 2) reproduces its six boundary conditions at both ends.
  * 3. Instants outside the segment hold its ends.
  */
 export function test_geometry_quintic_segment(): void {
@@ -36,7 +36,10 @@ export function test_geometry_quintic_segment(): void {
   );
   TestValidator.predicate(
     "position agrees with the state",
-    close(HumanQuinticSegment.position(rest, 0.3)[0]!, 10 * 0.027 - 15 * 0.0081 + 6 * 0.00243),
+    close(
+      HumanQuinticSegment.position(rest, 0.3)[0]!,
+      10 * 0.027 - 15 * 0.0081 + 6 * 0.00243,
+    ),
   );
 
   // 2. General boundary states.

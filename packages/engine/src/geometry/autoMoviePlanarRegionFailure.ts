@@ -87,9 +87,7 @@ const ringFailure = (
   label: string,
 ): string | null => {
   if (ring.length < 3) return `${label} needs at least three points`;
-  for (let index: number = 0; index < ring.length; ++index) {
-    const point: IAutoMoviePlanarPoint = ring[index]!;
-  }
+
   const size: number = ring.length;
   for (let index: number = 0; index < size; ++index) {
     const point: IAutoMoviePlanarPoint = ring[index]!;

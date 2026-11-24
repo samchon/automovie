@@ -22,8 +22,8 @@ import { solveDenseActiveSet } from "./solveDenseActiveSet";
  * reference's warm-started active set (l.865-866) changes only the iterations;
  * `solveDenseActiveSet` solves it cold.
  *
- * A program the solver cannot solve gives null, as `solve()` returns false
- * then (l.871-882).
+ * A program the solver cannot solve gives null, as `solve()` returns false then
+ * (l.871-882).
  *
  * @param input The program's terms. Points and matrices are in the caller's
  *   horizontal frame, metres; weights are the reference's, the rate weights

@@ -25,16 +25,17 @@ type ICorner = Pick<IAutoMovieSurfaceCoordinate, "s" | "t">;
  * end count, so the band can be as tall as its neighbours' rows require.
  *
  * Blocks and straight columns alternate as evenly as rounding allows: of the `b
- * + K - 2b` items round the row, block `i` takes the item holding `(i + 1/2) n
- * / b`, rounded toward the row's middle, so a band reversed in `s` places its
- * blocks at mirrored items, except where an odd number of blocks meets an even
- * number of items. Each ring's points are evenly spaced, `k / F` and `j / K`,
- * so both weld onto evenly divided neighbours; a block's interior vertices lie
- * half-way between its second, third and fourth fine points and the midpoint of
- * its first coarse column, its middle coarse point and the midpoint of its
- * second coarse column. A 2-to-1 band has no straight columns and so no shear;
- * any other ratio shears its straight columns, the price of even rings. Equal
- * counts give a plain grid.
+ *
+ * - K - 2b`items round the row, block`i`takes the item holding`(i + 1/2) n / b`,
+ *   rounded toward the row's middle, so a band reversed in `s`places its blocks
+ *   at mirrored items, except where an odd number of blocks meets an even
+ *   number of items. Each ring's points are evenly spaced,`k / F`and`j / K`, so
+ *   both weld onto evenly divided neighbours; a block's interior vertices lie
+ *   half-way between its second, third and fourth fine points and the midpoint
+ *   of its first coarse column, its middle coarse point and the midpoint of its
+ *   second coarse column. A 2-to-1 band has no straight columns and so no
+ *   shear; any other ratio shears its straight columns, the price of even
+ *   rings. Equal counts give a plain grid.
  *
  * @param start Columns at `t` 0, a positive integer.
  * @param end Columns at `t` 1, a positive integer.

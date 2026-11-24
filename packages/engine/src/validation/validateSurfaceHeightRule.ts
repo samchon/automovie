@@ -29,10 +29,7 @@ export const validateSurfaceHeightRule: (
     "heightfield spacingZ",
     collector,
   );
-  if (
-    rule.columns < 2 ||
-    rule.rows < 2
-  )
+  if (rule.columns < 2 || rule.rows < 2)
     collector.push(
       "range",
       `${path}.columns`,
@@ -46,7 +43,6 @@ export const validateSurfaceHeightRule: (
       `a heightfield of ${rule.columns} by ${rule.rows} needs exactly ${rule.columns * rule.rows} row-major samples, but had ${rule.samples.length}`,
       rule.samples.length,
     );
-
 };
 
 /**

@@ -16,7 +16,8 @@ const ROUNDING: number = 1e-15;
  * Scenarios:
  *
  * 1. For the average man the lift is `(0.45 hand / 2)^2 / (2 thighRadius)`.
- * 2. It is a few millimetres: under a centimetre and over none.
+ * 2. The palm's half breadth lies within the thigh's radius, so the lift is under
+ *    half of it: h < r gives h^2 / (2 r) < h / 2.
  */
 export async function test_unit_motions_everyday_palm_sagitta(): Promise<void> {
   const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");
@@ -27,7 +28,7 @@ export async function test_unit_motions_everyday_palm_sagitta(): Promise<void> {
     nclose(lift, (half * half) / (2 * body.measure.thighRadius), ROUNDING),
   );
   TestValidator.predicate(
-    `a few millimetres (${lift} m)`,
-    lift > 0 && lift < 0.01,
+    `under half the half breadth (${lift} m)`,
+    half < body.measure.thighRadius && lift > 0 && lift < half / 2,
   );
 }

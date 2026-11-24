@@ -61,7 +61,8 @@ interface IPatternSpan {
  * {@link autoMoviePatternFindings}.
  *
  * Coordinates are the surface's planar (u, v) metres and angles are degrees. A
- * malformed declaration throws an `Error` naming the field: duplicate ids, non-finite or non-positive sizes, a non-convex region or exclusion,
+ * malformed declaration throws an `Error` naming the field: duplicate ids,
+ * non-finite or non-positive sizes, a non-convex region or exclusion,
  * overlapping zones or exclusions, ambiguous surviving occurrence ids, a zone
  * spanning more than `AUTOMOVIE_MAX_PATTERN_CELLS` lattice cells,
  * non-safe-integer derived lattice bounds, or a generated module reaching
@@ -160,10 +161,7 @@ const layZone: (
   );
   const cells: number =
     (columns.max - columns.min + 1) * (rows.max - rows.min + 1);
-  if (
-    cells < 1 ||
-    cells > AUTOMOVIE_MAX_PATTERN_CELLS
-  )
+  if (cells < 1 || cells > AUTOMOVIE_MAX_PATTERN_CELLS)
     throw new Error(
       `pattern zone "${zone.id}" spans ${cells} lattice cells, above the ${AUTOMOVIE_MAX_PATTERN_CELLS} cell limit`,
     );
@@ -241,10 +239,7 @@ const validatePattern: (
   atLeast(pattern.joint, 0, "pattern joint");
   atLeast(pattern.jointTolerance, 0, "pattern joint tolerance");
   atLeast(pattern.adjacency, 0, "pattern adjacency");
-  if (
-    pattern.minimumPiece <= 0 ||
-    pattern.minimumPiece > 1
-  )
+  if (pattern.minimumPiece <= 0 || pattern.minimumPiece > 1)
     throw new Error("pattern minimum piece must be a finite number in (0, 1]");
   if (pattern.grainToleranceDeg !== null)
     atLeast(pattern.grainToleranceDeg, 0, "pattern grain tolerance");
@@ -254,17 +249,15 @@ const validatePattern: (
     throw new Error("pattern variants must be a safe integer >= 1");
 
   const zoneIds: Set<string> = new Set();
-  pattern.zones.forEach(
-    (zone: IAutoMovieSurfacePatternZone): void => {
-      if (zoneIds.has(zone.id))
-        throw new Error(`pattern zone id "${zone.id}" must be unique`);
-      zoneIds.add(zone.id);
-      positive(zone.period.u, `pattern zone "${zone.id}" period u`);
-      positive(zone.period.v, `pattern zone "${zone.id}" period v`);
-      positive(zone.reach.u, `pattern zone "${zone.id}" reach u`);
-      positive(zone.reach.v, `pattern zone "${zone.id}" reach v`);
-    },
-  );
+  pattern.zones.forEach((zone: IAutoMovieSurfacePatternZone): void => {
+    if (zoneIds.has(zone.id))
+      throw new Error(`pattern zone id "${zone.id}" must be unique`);
+    zoneIds.add(zone.id);
+    positive(zone.period.u, `pattern zone "${zone.id}" period u`);
+    positive(zone.period.v, `pattern zone "${zone.id}" period v`);
+    positive(zone.reach.u, `pattern zone "${zone.id}" reach u`);
+    positive(zone.reach.v, `pattern zone "${zone.id}" reach v`);
+  });
 
   const exclusionIds: Set<string> = new Set();
   const exclusions: IAutoMoviePatternPoint[][] = pattern.exclusions.map(
@@ -352,9 +345,7 @@ const latticeRange: (
     min: Math.floor((min - reach - origin) / period),
     max: Math.ceil((max + reach - origin) / period),
   };
-  if (
-    range.min > range.max
-  )
+  if (range.min > range.max)
     throw new Error("pattern lattice bounds must be ordered safe integers");
   return range;
 };

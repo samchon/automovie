@@ -433,15 +433,16 @@ export function steerAutoMovieCrowd(
           source = pairs;
           at = first + 6;
           sign = -1;
-          own = pairs[first + 12] === Infinity
-            ? steerAutoMovieCrowdGeometry.capacity(
-                vx,
-                vz,
-                -pairs[first + 8]!,
-                -pairs[first + 9]!,
-                top,
-              )
-            : pairs[first + 12]!;
+          own =
+            pairs[first + 12] === Infinity
+              ? steerAutoMovieCrowdGeometry.capacity(
+                  vx,
+                  vz,
+                  -pairs[first + 8]!,
+                  -pairs[first + 9]!,
+                  top,
+                )
+              : pairs[first + 12]!;
           theirs = other > 0 ? pairs[first + 11]! : 0;
         } else {
           source = j > k ? pairs : scratch;

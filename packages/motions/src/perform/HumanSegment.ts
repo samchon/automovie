@@ -55,7 +55,7 @@ export namespace HumanSegment {
    * @returns The key.
    */
   export function weapon(
-    segment: IAutoMovieMotionHumanSegment,
+    segment: Pick<IAutoMovieMotionHumanSegment, "index">,
     id: string,
   ): string {
     return `${segment.index}:${id}`;
@@ -69,7 +69,7 @@ export namespace HumanSegment {
    * @returns Whether it drives the hand.
    */
   export function drives(
-    plan: IAutoMovieMotionHumanActionPlan,
+    plan: Pick<IAutoMovieMotionHumanActionPlan, "contacts" | "hands">,
     side: AutoMovieHumanSide,
   ): boolean {
     return (
@@ -130,7 +130,7 @@ export namespace HumanSegment {
    */
   export function share(
     at: ShareAt,
-    plan: IAutoMovieMotionHumanActionPlan,
+    plan: Pick<IAutoMovieMotionHumanActionPlan, "events">,
   ): number {
     if (typeof at === "number") return at;
     const event = plan.events.find((e) => e.name === at);
@@ -183,5 +183,4 @@ export namespace HumanSegment {
   ): IAutoMoviePose {
     return HumanSegmentPose.displayed(person, seconds, requested, prepared);
   }
-
 }

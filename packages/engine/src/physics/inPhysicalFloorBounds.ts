@@ -21,7 +21,6 @@ export function inPhysicalFloorBounds(
     shape,
   );
   return (
-
     bounds.min.x >= floor.min.x &&
     bounds.max.x <= floor.max.x &&
     bounds.min.z >= floor.min.z &&

@@ -188,7 +188,6 @@ function admitFollows(
     );
   const outputs: number[] = [];
   if (follows.table === undefined) {
-
     // A ratio on an endless leader gives an endless travel unless it is zero.
     if (lead.minimum === null || lead.maximum === null) {
       if (follows.ratio !== 0 && (own.minimum !== null || own.maximum !== null))
@@ -204,7 +203,7 @@ function admitFollows(
   } else {
     const table: [number, number][] = follows.table;
     let ordered: boolean = table.length >= 2;
-    table.forEach(([input, output]: [number, number], k: number): void => {
+    table.forEach(([input]: [number, number], k: number): void => {
       if (k > 0 && !(input > table[k - 1]![0])) {
         ordered = false;
         collector.push(

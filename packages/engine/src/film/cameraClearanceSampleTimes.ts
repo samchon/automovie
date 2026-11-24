@@ -141,8 +141,7 @@ function addSequenceBoundaries(
   for (let cycle: number = 0; cycle < cycles; cycle++)
     for (const time of sequence.times) {
       const absolute: number = cycle * sequence.duration + time;
-      if (absolute > 0 && absolute < shotDuration)
-        result.add(absolute);
+      if (absolute > 0 && absolute < shotDuration) result.add(absolute);
     }
 }
 

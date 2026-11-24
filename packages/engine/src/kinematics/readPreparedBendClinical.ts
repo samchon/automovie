@@ -156,11 +156,7 @@ function range(value: unknown, words: AutoMovieClinicalWords): boolean {
 
 /** Read an optional finite bound without coercion. */
 function optional(value: unknown, words: AutoMovieClinicalWords): boolean {
-  if (
-    value !== undefined &&
-    (typeof value !== "number")
-  )
-    return false;
+  if (value !== undefined && typeof value !== "number") return false;
   words.push(value);
   return true;
 }

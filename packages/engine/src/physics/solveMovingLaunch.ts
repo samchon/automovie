@@ -7,7 +7,6 @@ import { Vector3 } from "../math/Vector3";
 import { AutoMovieGravity } from "./AutoMovieGravity";
 import { solveBallisticLaunch } from "./solveBallisticLaunch";
 
-
 /**
  * Solve the launch that **leads a moving target**: the aim that lands the
  * projectile where the target _will be_, not where it is. `targetAt(t)` gives

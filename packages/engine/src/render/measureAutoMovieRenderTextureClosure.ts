@@ -469,9 +469,7 @@ export function measureAutoMovieRenderTextureClosure(
   const shadowRoles: Set<string> = new Set<string>();
   for (const target of props.residency?.renderTargets ?? []) {
     if (targetOwners.has(target.owner))
-      throw new Error(
-        `Render target owner "${target.owner}" must be unique.`,
-      );
+      throw new Error(`Render target owner "${target.owner}" must be unique.`);
     targetOwners.add(target.owner);
     if (target.transmissionScope !== undefined)
       transmissionScopes.add(target.transmissionScope);
@@ -645,11 +643,7 @@ const pmremBytes: (
 ) => number | null = (
   source: IAutoMovieRenderTextureSource | undefined,
 ): number | null => {
-  if (
-    source === undefined ||
-    source.width <= 0 ||
-    source.height <= 0
-  )
+  if (source === undefined || source.width <= 0 || source.height <= 0)
     return null;
   const cubeSize: number = Math.max(
     1,

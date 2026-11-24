@@ -23,8 +23,7 @@ export function authoredRotationCriticalTimes(
 ): Set<number> {
   const times: Set<number> = new Set();
   function keep(time: number): void {
-    if (time >= 0 && time <= shotDuration)
-      times.add(time);
+    if (time >= 0 && time <= shotDuration) times.add(time);
   }
   for (const clip of clips) {
     const phases: Set<number> = new Set();

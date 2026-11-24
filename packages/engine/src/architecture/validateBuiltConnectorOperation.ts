@@ -24,15 +24,15 @@ const CONNECTOR_DRIVES: readonly IAutoMovieConnectorState["drive"][] = [
  * Validate the travelling carriages, named states, and stops of one run.
  *
  * An operated connector must name the elements it is built from, and declare at
- * least one carriage and one state. Each carriage needs a unique id,
- * an element that resolves and is one of the run's elements or below one, and a
- * valid travel by {@link validateBuiltTravelMotion}; no element may be driven by
- * two members of the whole work, which `driven` records across every opening
- * and connector and is updated here. Each state needs a unique id and
- * a known drive, may drive in `reverse` only on a bidirectional run, and gives
- * every carriage exactly one value inside its travel; a carriage's `serves`
- * must be one of the run's stops, its endpoints or landings. The current state
- * must resolve. Findings are pushed under `path`; a run with no operation is
+ * least one carriage and one state. Each carriage needs a unique id, an element
+ * that resolves and is one of the run's elements or below one, and a valid
+ * travel by {@link validateBuiltTravelMotion}; no element may be driven by two
+ * members of the whole work, which `driven` records across every opening and
+ * connector and is updated here. Each state needs a unique id and a known
+ * drive, may drive in `reverse` only on a bidirectional run, and gives every
+ * carriage exactly one value inside its travel; a carriage's `serves` must be
+ * one of the run's stops, its endpoints or landings. The current state must
+ * resolve. Findings are pushed under `path`; a run with no operation is
  * skipped.
  *
  * @param props.connector Run whose operation is checked.

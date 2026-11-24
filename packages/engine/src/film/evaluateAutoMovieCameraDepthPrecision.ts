@@ -3,7 +3,6 @@ import {
   type IAutoMovieEvaluateCameraDepthPrecision,
 } from "@automovie/interface";
 
-
 /**
  * Measure the largest gap between adjacent representable depths that a camera's
  * standard perspective depth buffer leaves inside one required camera-space
@@ -18,15 +17,15 @@ import {
  * range that ends exactly on `near` needs only code 0, which decodes exactly,
  * so it reports codes 0 and 0 and a step of 0.
  *
- * The report echoes every input, and its
- * `status` is `invalid` for a negative or non-finite time, a
- * clip range that is not `0 < near < far` and finite, an inverted or non-finite
- * required range, a bit depth that is not a positive integer whose level count
- * is a safe integer, a maximum step that is not finite and positive, or a step
- * that does not evaluate to a finite non-negative number;
- * `outside-clipping-range` when the required range leaves `[near, far]`; and
- * otherwise `satisfied` when the step is at most the maximum, equality
- * included, else `insufficient-precision`. Only `satisfied` sets `passed`.
+ * The report echoes every input, and its `status` is `invalid` for a negative
+ * or non-finite time, a clip range that is not `0 < near < far` and finite, an
+ * inverted or non-finite required range, a bit depth that is not a positive
+ * integer whose level count is a safe integer, a maximum step that is not
+ * finite and positive, or a step that does not evaluate to a finite
+ * non-negative number; `outside-clipping-range` when the required range leaves
+ * `[near, far]`; and otherwise `satisfied` when the step is at most the
+ * maximum, equality included, else `insufficient-precision`. Only `satisfied`
+ * sets `passed`.
  */
 export function evaluateAutoMovieCameraDepthPrecision(
   props: IAutoMovieEvaluateCameraDepthPrecision.IProps,
@@ -83,8 +82,7 @@ export function evaluateAutoMovieCameraDepthPrecision(
   }
   const measuredStepMeters: number =
     depthAtCode(upperCode) - depthAtCode(lowerCode);
-  if (measuredStepMeters < 0)
-    return unmeasured("invalid");
+  if (measuredStepMeters < 0) return unmeasured("invalid");
   const passed: boolean =
     measuredStepMeters <= props.constraint.maximumStepMeters;
   return {

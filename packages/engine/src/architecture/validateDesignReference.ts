@@ -62,10 +62,10 @@ const PRIMITIVE_POINTS: ReadonlyMap<string, { min: number; max: number }> =
  * Observed points are in frame units and must lie within the frame's `bounds`
  * (0 to width, 0 to height); each primitive family has its own point-count
  * bounds, and only `text` and `level-marker` carry literal text. Frames are
- * judged by {@link validateDesignSourceFrame}. Every id is unique,
- * the digest is a lowercase `sha256:` hex digest, and the media is a supported
- * type. Findings are returned with `$input` paths and nothing throws; the asset
- * bytes behind `digest` are not read here.
+ * judged by {@link validateDesignSourceFrame}. Every id is unique, the digest is
+ * a lowercase `sha256:` hex digest, and the media is a supported type. Findings
+ * are returned with `$input` paths and nothing throws; the asset bytes behind
+ * `digest` are not read here.
  *
  * @param props.reference Observed design reference to validate.
  * @returns Success, or every violation found.
@@ -389,7 +389,6 @@ const validatePrimitive: (
   primitive.points.forEach(
     (point: IAutoMovieDesignPoint, pointIndex: number): void => {
       for (const axis of ["x", "y"] as const) {
-
         // A mark outside the sheet it was read from was not on the sheet. The
         // check is here rather than in the frame because the frame states its
         // own extent honestly; it is the reading that has to stay inside it.

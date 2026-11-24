@@ -25,8 +25,7 @@ export function tessellateAutoMovieContourPath64(
       polygon.pointsMm.length < 3 ||
       polygon.pointsMm.some(
         (point: Readonly<AutoMovieVector3Tuple>): boolean =>
-          point.length !== 3 ||
-          point[1] !== polygon.stationMm,
+          point.length !== 3 || point[1] !== polygon.stationMm,
       )
     )
       throw new Error("Unique finite Y-plane polygons are required");

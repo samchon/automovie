@@ -51,8 +51,7 @@ export namespace AutoMovieConstructionComposedEnd {
     const turn: number = 2 * Math.PI;
     if (sections.length < 2)
       return "an end is composed of at least two sections";
-    if (!(m >= 8))
-      return `the composition's ${m} samples are fewer than 8`;
+    if (!(m >= 8)) return `the composition's ${m} samples are fewer than 8`;
 
     // The plane's own axes: the world axis least along the normal, made square to it, and their cross product.
     const least: number = [0, 1, 2].reduce(

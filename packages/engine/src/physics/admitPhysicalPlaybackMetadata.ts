@@ -161,9 +161,7 @@ export function admitPhysicalPlaybackMetadata(
           ))) ||
       (state.seating !== undefined &&
         Object.values(state.seating).some(
-          (
-            seat: NonNullable<typeof state.seating>[string],
-          ): boolean =>
+          (seat: NonNullable<typeof state.seating>[string]): boolean =>
             [seat.bearing, seat.flat, seat.entry].some(
               (share: number | undefined): boolean =>
                 share !== undefined && (share < 0 || share > 1),

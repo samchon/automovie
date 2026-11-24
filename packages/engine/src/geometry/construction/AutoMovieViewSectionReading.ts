@@ -59,9 +59,9 @@ export namespace AutoMovieViewSectionReading {
         !Array.isArray(b.extents) ||
         a.extents.length !== 2 ||
         b.extents.length !== 2 ||
-        !same(a.extents[0], b.extents[0], true) ||
-        !same(a.extents[1], b.extents[1], true) ||
-        !same(a.shoulder, b.shoulder, true) ||
+        !same(a.extents[0], b.extents[0]) ||
+        !same(a.extents[1], b.extents[1]) ||
+        !same(a.shoulder, b.shoulder) ||
         !(
           b.extents[0] > 0 &&
           b.extents[1] > 0 &&
@@ -150,24 +150,9 @@ function failure(detail: string): IAutoMovieConicArcField.IFailure {
   return { kind: "failure", detail };
 }
 
-/**
- * Required source jets are finite; auxiliary branch tuples retain the original
- * primal-only rule.
- */
-function sourceJet(value: unknown, full: boolean): value is Source {
-  return (
-    Array.isArray(value) &&
-    value.length === 6 &&
-    value.every((entry: unknown): boolean => typeof entry === "number")
-  );
-}
-
-/**
- * Compare one explicit tuple primal with the numeric snapshot, preserving
- * required-jet admission.
- */
-function same(value: unknown, numeric: number, full: boolean = false): boolean {
-  return sourceJet(value, full) && value[0] === numeric;
+/** Compare one explicit tuple primal with the numeric snapshot. */
+function same(value: Source, numeric: number): boolean {
+  return value[0] === numeric;
 }
 
 /**

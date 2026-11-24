@@ -4,7 +4,6 @@ import type {
   IAutoMovieLoftWorldJetWorld,
 } from "@automovie/interface";
 
-import { AutoMovieLoftAdmissionError } from "./AutoMovieLoftAdmissionError";
 
 /**
  * Apply the existing frame product rule to a complete local total2.

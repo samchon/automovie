@@ -16,8 +16,7 @@ export function quaternionNormalizationDivisor(
     Math.abs(z),
     Math.abs(w),
   );
-  return largest > 0 &&
-    (largest < 2 ** -511 || largest > 2 ** 510)
+  return largest > 0 && (largest < 2 ** -511 || largest > 2 ** 510)
     ? largest
     : 1;
 }

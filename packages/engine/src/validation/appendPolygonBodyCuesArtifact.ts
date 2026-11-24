@@ -5,7 +5,6 @@ import type {
   IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
-
 /**
  * Append polygon body cue findings under `$input.polygonBodyCues`. Artifact
  * readers resolve placement IDs. Performance supplies a skeleton resolver to
@@ -86,10 +85,7 @@ export function appendPolygonBodyCuesArtifact(
         "must be finite source-shot seconds within [0, shot duration)",
         at,
       );
-    if (
-      duration < 0 ||
-      at + duration > shotDuration
-    )
+    if (duration < 0 || at + duration > shotDuration)
       collector.push(
         "range",
         `${path}.duration`,
@@ -97,7 +93,11 @@ export function appendPolygonBodyCuesArtifact(
         duration,
       );
 
-    collector.unitQuaternion(`${path}.rotation`, cue.rotation, "polygon body cue rotation");
+    collector.unitQuaternion(
+      `${path}.rotation`,
+      cue.rotation,
+      "polygon body cue rotation",
+    );
   });
 
   // Check directed ancestor paths after collecting all targets so either cue

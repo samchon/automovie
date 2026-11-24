@@ -49,10 +49,10 @@ export interface IAutoMovieMotionWeaponPath {
   tail?(seconds: number): IAutoMovieVector3;
 
   /**
-   * The chain of capsules along one limb this weapon is one of, when it is:
-   * the chain's axis ends at a film second and this capsule's place among
-   * them, so a reader of several capsules of one chain poses the limb once
-   * for a second. Absent for a weapon of its own.
+   * The chain of capsules along one limb this weapon is one of, when it is: the
+   * chain's axis ends at a film second and this capsule's place among them, so
+   * a reader of several capsules of one chain poses the limb once for a second.
+   * Absent for a weapon of its own.
    */
   chain?: IAutoMovieMotionWeaponPath.IChain;
 }

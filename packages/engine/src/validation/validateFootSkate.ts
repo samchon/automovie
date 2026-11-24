@@ -84,9 +84,7 @@ export const validateFootSkate: (
           `contact bone "${contact.bone}" is declared but not reachable from a root bone via forward kinematics`,
           contact.bone,
         );
-      if (
-        contact.end <= contact.start
-      )
+      if (contact.end <= contact.start)
         collector.push(
           "temporal",
           cp,

@@ -39,10 +39,7 @@ export function measureAutoMovieGeometryCamera(
       `Shot "${request.shot}" is not current compiled output. Compile it before a camera query.`,
     );
 
-  if (
-    request.time < 0 ||
-    request.time > compiled.shot.duration
-  )
+  if (request.time < 0 || request.time > compiled.shot.duration)
     throw new Error(
       `Camera sample time ${request.time} is outside shot "${request.shot}" duration 0..${compiled.shot.duration}. Choose a current in-range time.`,
     );

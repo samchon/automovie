@@ -44,10 +44,7 @@ export const interpolateAutoMovieSpline: (
       throw new Error(`spline interpolation knot ${k} does not increase`);
   }
   const period: number = props.period ?? 0;
-  if (
-    props.period !== undefined &&
-    (xs[0]! < 0 || !(xs[n - 1]! < period))
-  )
+  if (props.period !== undefined && (xs[0]! < 0 || !(xs[n - 1]! < period)))
     throw new Error("periodic knots must lie in [0, period)");
   const m: Float64Array = new Float64Array(n);
   const tension: number = AutoMovieSpline.fit(

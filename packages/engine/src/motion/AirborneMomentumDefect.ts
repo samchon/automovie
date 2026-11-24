@@ -46,13 +46,7 @@ export function AirborneMomentumDefect(
   angularVelocity: IAutoMovieVector3,
 ) => number {
   const { relative, absolute }: typeof tolerance = tolerance;
-  if (
-    !(
-      relative >= 0 &&
-      absolute >= 0 &&
-      relative + absolute > 0
-    )
-  )
+  if (!(relative >= 0 && absolute >= 0 && relative + absolute > 0))
     throw new Error(
       "Airborne momentum needs a finite nonnegative physical error budget",
     );
@@ -93,13 +87,7 @@ export function AirborneMomentumDefect(
         rotation,
       }: IAutoMovieIntegrateAirborneRotation.IInstant["inertia"] =
         instant!.inertia;
-      if (
-        !(
-          moments.x > 0 &&
-          moments.y > 0 &&
-          moments.z > 0
-        )
-      )
+      if (!(moments.x > 0 && moments.y > 0 && moments.z > 0))
         throw new Error(
           "Airborne momentum defect needs positive principal moments",
         );
@@ -392,4 +380,3 @@ function physicalScale(
     )
   );
 }
-

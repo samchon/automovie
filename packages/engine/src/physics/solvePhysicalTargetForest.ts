@@ -348,7 +348,10 @@ export function solvePhysicalTargetForest(
               IAutoMovieRigidTransform,
             ] => [
               bone,
-              { position: { ...pose.position }, rotation: { ...pose.rotation } },
+              {
+                position: { ...pose.position },
+                rotation: { ...pose.rotation },
+              },
             ],
           ),
         );

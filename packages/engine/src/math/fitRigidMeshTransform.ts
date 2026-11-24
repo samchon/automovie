@@ -40,10 +40,7 @@ export function fitRigidMeshTransform(
     reference.length % 3 !== 0 ||
     vertices.length === 0 ||
     new Set(vertices).size !== vertices.length ||
-    vertices.some(
-      (v: number): boolean =>
-        v < 0 || v * 3 >= reference.length,
-    )
+    vertices.some((v: number): boolean => v < 0 || v * 3 >= reference.length)
   )
     throw new Error(
       "Rigid fitting needs aligned XYZ and distinct resident vertices.",

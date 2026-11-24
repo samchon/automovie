@@ -3,7 +3,6 @@ import {
   IAutoMovieExplicitInstanceTransform,
   IAutoMovieInstanceSetDesign,
   IAutoMovieQuaternion,
-  IAutoMovieVector3,
   type IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
@@ -64,18 +63,6 @@ const validatePrototypeBounds: (
   path: string,
   collector: IAutoMovieViolationCollector,
 ): void => {
-  finiteVector(
-    bounds.min,
-    `${path}.min`,
-    "population prototype minimum",
-    collector,
-  );
-  finiteVector(
-    bounds.max,
-    `${path}.max`,
-    "population prototype maximum",
-    collector,
-  );
   for (const axis of AXES)
     ordered(
       bounds.min[axis],
@@ -101,7 +88,6 @@ const validateSet: (
     "population slot count",
     collector,
   );
-  finiteVector(set.anchor, `${path}.anchor`, "population anchor", collector);
   validateVariation(set.variation, `${path}.variation`, collector);
   validateLayout(set, `${path}.layout`, collector);
 };
@@ -219,12 +205,6 @@ const validateLayout: (
     layout.transforms.forEach(
       (transform: IAutoMovieExplicitInstanceTransform, index: number): void => {
         const at: string = `${path}.transforms[${index}]`;
-        finiteVector(
-          transform.translation,
-          `${at}.translation`,
-          "population slot translation",
-          collector,
-        );
         unitQuaternion(
           transform.rotation,
           `${at}.rotation`,
@@ -313,18 +293,6 @@ const positiveInteger: (
     );
 };
 
-const finiteVector: (
-  value: IAutoMovieVector3,
-  path: string,
-  label: string,
-  collector: IAutoMovieViolationCollector,
-) => void = (
-  value: IAutoMovieVector3,
-  path: string,
-  label: string,
-  collector: IAutoMovieViolationCollector,
-): void => {
-};
 
 /** Report a range whose finite minimum lies above its finite maximum. */
 const ordered: (

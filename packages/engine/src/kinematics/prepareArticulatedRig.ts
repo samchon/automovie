@@ -135,10 +135,10 @@ export function prepareArticulatedRig<Bone extends string>(
           const allowed: IAutoMovieAngleRange | null | undefined =
             node.limits?.[axis];
           if (
-            (node.limits !== null &&
-              (allowed === null
-                ? value !== 0
-                : value < allowed!.min || value > allowed!.max))
+            node.limits !== null &&
+            (allowed === null
+              ? value !== 0
+              : value < allowed!.min || value > allowed!.max)
           )
             throw new RangeError(
               `Articulated ${node.bone}.${axis} violates its declared range`,

@@ -28,10 +28,7 @@ export function test_unit_motions_posture_quintic_segment(): void {
     { position: [1], velocity: [0], acceleration: [0] },
     2,
   );
-  const middle: HumanQuinticSegment.IState = HumanQuinticSegment.state(
-    rest,
-    1,
-  );
+  const middle: HumanQuinticSegment.IState = HumanQuinticSegment.state(rest, 1);
   TestValidator.predicate(
     "the rest-to-rest middle state",
     nclose(middle.position[0]!, 0.5, ROUNDING) &&

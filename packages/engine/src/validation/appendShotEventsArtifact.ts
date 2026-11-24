@@ -1,7 +1,6 @@
 import type {
   IAutoMovieConstraintViolation,
   IAutoMovieInteractionEvent,
-  IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { pushViolation } from "./pushViolation";
@@ -34,10 +33,7 @@ export const appendShotEventsArtifact: (
     // shot end would produce a shot this validator refuses: validator/engine
     // drift in the direction #1097 warned about.
     const time: number = event.time;
-    if (
-      time < 0 ||
-      time > duration + EVENT_TIME_EPSILON
-    )
+    if (time < 0 || time > duration + EVENT_TIME_EPSILON)
       pushViolation(
         violations,
         "temporal",

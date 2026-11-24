@@ -98,9 +98,7 @@ export const appendCameraClearanceArtifact: (
             time,
           );
       });
-      if (
-        report.intervals !== Math.max(0, reportedSampleTimes.length - 1)
-      )
+      if (report.intervals !== Math.max(0, reportedSampleTimes.length - 1))
         pushViolation(
           violations,
           "range",
@@ -108,10 +106,7 @@ export const appendCameraClearanceArtifact: (
           "clearance interval count must exactly match the carried sample plan",
           report.intervals,
         );
-      if (
-        report.sampleRate > 0 &&
-        duration >= 0
-      ) {
+      if (report.sampleRate > 0 && duration >= 0) {
         const expectedIntervals: number | null = clearanceIntervalCount(
           duration,
           report.sampleRate,

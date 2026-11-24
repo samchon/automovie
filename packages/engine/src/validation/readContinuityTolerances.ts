@@ -27,8 +27,7 @@ export const readContinuityTolerances: (
   const pos: number = position ?? DEFAULT_POSITION_TOLERANCE;
   const facing: number = facingDeg ?? DEFAULT_FACING_TOLERANCE_DEG;
   const badPos: boolean = pos < 0;
-  const badFacing: boolean =
-    facing < 0 || facing > 180;
+  const badFacing: boolean = facing < 0 || facing > 180;
   if (badPos)
     collector.push(
       "range",

@@ -262,7 +262,6 @@ const appendCombinedStateDefects: (
 const cannotRepresentWorldTrs: (world: number[]) => boolean = (
   world: number[],
 ): boolean => {
-
   const decomposed: IAutoMovieMatrix4.IDecomposeResult =
     Matrix4.decompose(world);
   const recomposed: number[] = Matrix4.compose(

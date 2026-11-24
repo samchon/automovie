@@ -68,7 +68,6 @@ export const followPathMotion: (
   if (turnWindow < 0)
     throw new Error("path turn window must be finite and non-negative");
 
-
   const segments: ISegment[] = buildSegments(props.waypoints);
   const last: ISegment = segments[segments.length - 1]!;
   const length: number = last.from + last.length;

@@ -39,13 +39,9 @@ export function createAutoMovieQuadraticConstraintBasis(
     result.refusal = reason;
     return result;
   };
-  if (
-    bounds.length !== rows.length ||
-    free.length !== rows.length
-  )
+  if (bounds.length !== rows.length || free.length !== rows.length)
     return fail("working-basis-endpoints-incomplete");
-  if (variables < 0)
-    return fail("working-basis-dimension-not-representable");
+  if (variables < 0) return fail("working-basis-dimension-not-representable");
   try {
     result.particular = new Array<number>(variables).fill(0);
     const columns: number[][] = [],
@@ -94,9 +90,7 @@ export function createAutoMovieQuadraticConstraintBasis(
           );
       }
       const endpoint: number = bounds[at] / divisor;
-      if (
-        (bounds[at] !== 0 && endpoint === 0)
-      )
+      if (bounds[at] !== 0 && endpoint === 0)
         return fail("working-normal-normalization-not-representable");
       columns.push(column);
       ordinals.push(at);

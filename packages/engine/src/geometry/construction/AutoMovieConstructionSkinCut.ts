@@ -51,8 +51,7 @@ export namespace AutoMovieConstructionSkinCut {
     const turn: number = 2 * Math.PI;
     const m: number = input.samples;
     if (planes.length === 0) return "the cut has no plane";
-    if (!(m >= 8))
-      return `the cut's ${m} samples are fewer than 8`;
+    if (!(m >= 8)) return `the cut's ${m} samples are fewer than 8`;
     const ordered: number[] =
       into === 1 ? [...input.stations] : [...input.stations].reverse();
     if (ordered.length < 2) return "the face has fewer than two stations";

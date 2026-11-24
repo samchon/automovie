@@ -146,7 +146,10 @@ export function resolvePhysicalSupportRedundancy(
         -step,
       );
       input.pattern.limbs.forEach(
-        (limb: IAutoMovieFootfallPattern["limbs"][number], at: number): void => {
+        (
+          limb: IAutoMovieFootfallPattern["limbs"][number],
+          at: number,
+        ): void => {
           if (!touches(limb, moved)) return;
           const high: number[] = limbRows(plus, limb);
           const low: number[] = limbRows(minus, limb);

@@ -83,11 +83,7 @@ export function markAutoMovieContacts(
         step = steps[i];
         break;
       }
-    if (
-      step === undefined ||
-      !(step.impulse > 0) ||
-      step.separation > 0
-    )
+    if (step === undefined || !(step.impulse > 0) || step.separation > 0)
       continue;
     if (!(step.duration > 0))
       throw new Error(

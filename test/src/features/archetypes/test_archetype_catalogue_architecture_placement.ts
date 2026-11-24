@@ -32,12 +32,19 @@ import { vclose } from "../internal/vclose";
 const MM: number = 1e-3;
 
 /**
- * The named fixtures and barriers retain the physical geometry read by their scene contacts and the step-over action.
+ * The named fixtures and barriers retain the physical geometry read by their
+ * scene contacts and the step-over action.
  *
  * Scenarios:
- * 1. Place open kitchen, bathroom, service and street models as named props through the SDK, with rotated placements and a microwave on a counter.
- * 2. Compare a refrigerator shelf and handle, a shower seat, basin mixer and ATM and hydrant controls with their independent collider geometry or cited measurements.
- * 3. Cross a real crosstie and sandbag with two feet; refuse the Jersey and crowd barriers at the public obstacle boundary. Check that rope and rail keep distinct contact offers.
+ *
+ * 1. Place open kitchen, bathroom, service and street models as named props
+ *    through the SDK, with rotated placements and a microwave on a counter.
+ * 2. Compare a refrigerator shelf and handle, a shower seat, basin mixer and ATM
+ *    and hydrant controls with their independent collider geometry or cited
+ *    measurements.
+ * 3. Cross a real crosstie and sandbag with two feet; refuse the Jersey and crowd
+ *    barriers at the public obstacle boundary. Check that rope and rail keep
+ *    distinct contact offers.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the geometry, placed fixtures and action/refusal cases.
  * @evidence contracts/development/testing.md#behavioral-verification Uses the public prop seam and actual collider extents. Measures the actor's sole geometry across the occupied region.

@@ -38,11 +38,7 @@ export function solveResolvedRate(
   rowScale: readonly number[],
 ): solveResolvedRate.IResult {
   const size: number = jacobian.length;
-  if (
-    size === 0 ||
-    goalRate.length !== size ||
-    rowScale.length !== size
-  )
+  if (size === 0 || goalRate.length !== size || rowScale.length !== size)
     return { status: "unsupported" };
   for (let row: number = 0; row < size; ++row)
     if (jacobian[row]!.length !== size || rowScale[row]! <= 0)
@@ -195,8 +191,8 @@ export namespace solveResolvedRate {
     | ISolved
     | {
         /**
-         * Unsupported means invalid/non-square inputs; singular is the existing LU
-         * pivot gate; unrepresentable means arithmetic or diagnostics lost
+         * Unsupported means invalid/non-square inputs; singular is the existing
+         * LU pivot gate; unrepresentable means arithmetic or diagnostics lost
          * finite/nonzero data.
          */
         status: "unsupported" | "singular" | "unrepresentable";

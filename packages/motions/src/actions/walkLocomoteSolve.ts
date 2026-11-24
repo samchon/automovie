@@ -9,12 +9,29 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import type { HumanKnot } from "../posture/HumanKnot";
+import { prepareHumanKnotCourse } from "../posture/prepareHumanKnotCourse";
 import { walkFoot } from "./walkFoot";
 import { walkLocomoteGround } from "./walkLocomoteGround";
 import { walkLocomoteSwings } from "./walkLocomoteSwings";
 import { walkPosture } from "./walkPosture";
 import { walkReach } from "./walkReach";
 import { walkSwing } from "./walkSwing";
+
+/**
+ * The shares of a swing its lift is solved at: its two ends, the middle and
+ * the edges of the reach ranges' fades in and out (`walkReach.FADE`) with the
+ * middle of each fade, where the foot leaves and nears the floor.
+ */
+const LIFT_KNOTS: readonly number[] = [
+  0,
+  walkReach.FADE / 2,
+  walkReach.FADE,
+  0.5,
+  1 - walkReach.FADE,
+  1 - walkReach.FADE / 2,
+  1,
+];
 
 /** A leg's swing kept inside its ranges under a settled pelvis. */
 type Ranged = ReturnType<typeof walkReach.prepareSwing>;
@@ -100,6 +117,35 @@ export namespace walkLocomoteSolve {
           ),
         );
       }
+    // Each swing's floor-clearing lift, the one search of a swing's read,
+    // solved at the edges of the reach ranges' fades and the swing's middle
+    // and read between them from a knot course (`prepareHumanKnotCourse`);
+    // a read then raises the foot only by what still sinks (closed form).
+    const lifts: Map<string, prepareHumanKnotCourse.ICourse> = new Map();
+    for (const swing of swings) {
+      const shares: readonly number[] = LIFT_KNOTS;
+      lifts.set(
+        `${swing.side}:${swing.off}`,
+        prepareHumanKnotCourse(
+          shares.map((u: number): HumanKnot.IKnot => {
+            const t: number = swing.off + u * (swing.on - swing.off);
+            return {
+              position: [
+                ranged[swing.side](
+                  context.ground.settle(t, {
+                    left: steps.foot("left", t),
+                    right: steps.foot("right", t),
+                  }),
+                  context.reached(swing.side, swing)(u),
+                ).lift,
+              ],
+              dwell: 0,
+            };
+          }),
+          { kind: "fixed", times: [...shares] },
+        ),
+      );
+    }
     return (
       t: number,
       legs: readonly AutoMovieHumanSide[],
@@ -154,6 +200,10 @@ export namespace walkLocomoteSolve {
             ? swing.u
             : Math.min(swing.u, 0.5),
           gait.swing > 1 ? leaving(leavings, side, swing.off) : undefined,
+          Math.max(
+            0,
+            lifts.get(`${side}:${swing.off}`)?.position(swing.u)[0] ?? 0,
+          ),
         );
       }
       return { feet, hips, settled, reached };

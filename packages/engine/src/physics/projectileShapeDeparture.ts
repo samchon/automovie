@@ -237,7 +237,6 @@ function oneNorm(vector: IAutoMovieVector3): number {
   );
 }
 
-
 /** Round upward, making an unrepresentable enclosure inconclusive. */
 function upper(rounded: number): number {
   return rounded < Number.MAX_VALUE

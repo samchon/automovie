@@ -1,4 +1,7 @@
-import type { IAutoMovieMotionHumanSegment } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanSegment,
+} from "@automovie/interface";
 
 import { HumanSegmentSelection } from "./HumanSegmentSelection";
 
@@ -15,6 +18,30 @@ import { HumanSegmentSelection } from "./HumanSegmentSelection";
  */
 export namespace HumanSegmentStill {
   /**
+   * What the reading takes of an action: its placement, transition and plan's
+   * still window.
+   */
+  export interface ISegment extends Pick<
+    IAutoMovieMotionHumanSegment,
+    "entryTime" | "start" | "transition"
+  > {
+    /** The plan's duration and still window. */
+    plan: Pick<IAutoMovieMotionHumanActionPlan, "duration" | "still">;
+  }
+
+  /**
+   * What the reading takes of a person: what can move the pose, and the
+   * actions.
+   */
+  export interface IPerson extends Pick<
+    IAutoMovieMotionHumanSegment.IPerson,
+    "layers" | "overlays" | "holds" | "stops"
+  > {
+    /** The placed actions, in film order. */
+    segments: readonly ISegment[];
+  }
+
+  /**
    * Whether a person's shown pose is one and the same over an interval.
    *
    * @param person The person, with the stops of the moment installed.
@@ -22,11 +49,7 @@ export namespace HumanSegmentStill {
    * @param to Its end, film seconds.
    * @returns Whether the pose is constant there.
    */
-  export function within(
-    person: IAutoMovieMotionHumanSegment.IPerson,
-    from: number,
-    to: number,
-  ): boolean {
+  export function within(person: IPerson, from: number, to: number): boolean {
     if (
       person.layers.length !== 0 ||
       person.overlays.length !== 0 ||
@@ -34,13 +57,14 @@ export namespace HumanSegmentStill {
       person.stops.size !== 0
     )
       return false;
-    const active: IAutoMovieMotionHumanSegment | undefined =
-      HumanSegmentSelection.last(person.segments, from);
+    const active: ISegment | undefined = HumanSegmentSelection.last(
+      person.segments,
+      from,
+    );
     if (HumanSegmentSelection.last(person.segments, to) !== active)
       return false;
     if (active === undefined) return true;
-    const transition: IAutoMovieMotionHumanSegment["transition"] =
-      active.transition;
+    const transition: ISegment["transition"] = active.transition;
     if (
       transition !== undefined &&
       transition.kind !== "redirect" &&
@@ -67,11 +91,13 @@ export namespace HumanSegmentStill {
    *   still back to one.
    */
   export function representative(
-    person: IAutoMovieMotionHumanSegment.IPerson,
+    person: IPerson,
     seconds: number,
   ): number | undefined {
-    const active: IAutoMovieMotionHumanSegment | undefined =
-      HumanSegmentSelection.last(person.segments, seconds);
+    const active: ISegment | undefined = HumanSegmentSelection.last(
+      person.segments,
+      seconds,
+    );
     if (active === undefined) return undefined;
     const duration: number = active.plan.duration;
     const local: number = seconds - active.start;

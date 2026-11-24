@@ -80,7 +80,7 @@ export const meshAutoMovieSweep: (
       "sweep mesh rows must run from 0 to 1 with at least two rings",
     );
   rows.forEach((u: number, k: number): void => {
-    if ((k > 0 && !(u > rows[k - 1]!)))
+    if (k > 0 && !(u > rows[k - 1]!))
       throw new Error(
         `sweep mesh row ${k} must be finite and follow row ${k - 1}`,
       );

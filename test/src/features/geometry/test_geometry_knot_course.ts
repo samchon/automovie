@@ -7,13 +7,13 @@ import { TestValidator } from "@nestia/e2e";
  *
  * Scenarios:
  *
- * 1. Fixed timing, a hold of 0.5 s at 0, then 0 → 1 arriving at 1.5 s: the hold
- *    is at rest at 0, and the 1 s rest-to-rest piece is Flash and Hogan's
- *    quintic, 0.5 at its middle with velocity 1.875. Before the start and after
- *    the end the reader holds the end knots.
- * 2. Fixed timing through 0, 1, 0 at 0, 1, 2 s: the minimum-jerk path is
- *    symmetric about 1 s, so it reaches 1 there at zero velocity and takes the
- *    same value at 0.5 and 1.5 s.
+ * 1. Fixed timing, a hold of 0.5 s at 0, then 0 → 1 arriving at 1.5 s: the hold is
+ *    at rest at 0, and the 1 s rest-to-rest piece is Flash and Hogan's quintic,
+ *    0.5 at its middle with velocity 1.875. Before the start and after the end
+ *    the reader holds the end knots.
+ * 2. Fixed timing through 0, 1, 0 at 0, 1, 2 s: the minimum-jerk path is symmetric
+ *    about 1 s, so it reaches 1 there at zero velocity and takes the same value
+ *    at 0.5 and 1.5 s.
  * 3. Optimal timing 0 → 1 (hold 0.4 s) → 0 under |q̈| ≤ 1: each piece takes 2 to
  *    2.4028 s (`test_geometry_knot_timing`), so the curve ends between 4.4 and
  *    5.2056 s; within the hold it is at 1 at rest.

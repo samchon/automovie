@@ -31,9 +31,9 @@ import { positive } from "./positive";
  *
  * All openings are admitted before the lattice is built, so a refusal never
  * leaves a partial mesh. Refused: a nonpositive or non-finite wall size; an
- * opening with a repeated id, a non-finite origin, a nonpositive size,
- * or a rectangle outside the wall; two overlapping openings; openings meeting
- * only at a corner, which would pinch the wall to a line that needs a general
+ * opening with a repeated id, a non-finite origin, a nonpositive size, or a
+ * rectangle outside the wall; two overlapping openings; openings meeting only
+ * at a corner, which would pinch the wall to a line that needs a general
  * boolean this kernel does not have; and openings that remove the whole wall.
  * Opening records are only read.
  *

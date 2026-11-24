@@ -47,9 +47,7 @@ export function inertializeOffset(
   elapsed: number,
   through: boolean = false,
 ): IAutoMovieInertializeOffset.IState {
-  if (
-    !(duration > 0)
-  )
+  if (!(duration > 0))
     throw new Error(
       "Inertialization needs finite offsets and a positive duration",
     );

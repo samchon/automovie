@@ -130,10 +130,7 @@ const constraintSwingCandidates: (
   range: IAutoMovieAngleRange | null,
 ): number[] | null => {
   if (range === null) return [0];
-  if (
-    range.min > range.max
-  )
-    return null;
+  if (range.min > range.max) return null;
   const candidates: number[] =
     range.min === range.max ? [range.min] : [range.min, range.max];
   const fullTurn: number = Math.ceil(range.min / 720) * 720;

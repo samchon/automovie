@@ -161,8 +161,7 @@ export const validateAutoMovieFormationMotions: (
     ] as const) {
       if (
         [state.translation.x, state.translation.y, state.translation.z].some(
-          (number: number): boolean =>
-            Math.abs(number) > 1_000_000_000,
+          (number: number): boolean => Math.abs(number) > 1_000_000_000,
         ) ||
         Math.abs(state.facingOffsetDeg) > 360_000
       )
@@ -172,8 +171,7 @@ export const validateAutoMovieFormationMotions: (
         );
       if (
         [state.spacingScale.lateral, state.spacingScale.depth].some(
-          (number: number): boolean =>
-            number < 0.25 || number > 4,
+          (number: number): boolean => number < 0.25 || number > 4,
         )
       )
         fail(

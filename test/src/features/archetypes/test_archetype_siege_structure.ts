@@ -20,28 +20,34 @@ import { siegeStructureMass } from "../internal/siegeStructureMass";
 type Engine = ReturnType<typeof createSiegeEngine>;
 
 /**
- * Actual siege fittings remain joined to their declared controls through a throw.
+ * Actual siege fittings remain joined to their declared controls through a
+ * throw.
  *
  * Scenarios:
+ *
  * 1. Both kinds at four seeds retain their literal primary arm/axle figures,
- *    stated total mass, actual-solid composite allocation and shaft/post joins.
- * 2. Cocked, level, vertical, release and maximum-reach poses preserve actual
- *    arm length, open-cradle floor/wall joins and both real folded sling ends.
- *    Tarver's 5/8-inch cord is observed on actual primitives, not span metadata.
- * 3. The counterweight's actual short-end crossshaft follows the arm while its
- *    box stays plumb; the physical pin slides along its declared local X and
- *    its guide/trestle stays fixed and two beds and side guides support the
- *    pin's crosshead at zero, intermediate and full extraction. The windlass's actual grip follows its
- *    declared radial crank and existing turn ratio about the cross-post shaft.
+ *    stated total mass, actual-solid composite allocation and shaft/post
+ *    joins.
+ * 2. Cocked, level, vertical, release and maximum-reach poses preserve actual arm
+ *    length, open-cradle floor/wall joins and both real folded sling ends.
+ *    Tarver's 5/8-inch cord is observed on actual primitives, not span
+ *    metadata.
+ * 3. The counterweight's actual short-end crossshaft follows the arm while its box
+ *    stays plumb; the physical pin slides along its declared local X and its
+ *    guide/trestle stays fixed and two beds and side guides support the pin's
+ *    crosshead at zero, intermediate and full extraction. The windlass's actual
+ *    grip follows its declared radial crank and existing turn ratio about the
+ *    cross-post shaft.
  * 4. Every real solid clears floor zero over the complete declared arm/crank
- *    domains, including box corners and cylinder support stationary angles.
- *    The designed actual section places the pouch; the same armLength-based
- *    reduced launch law remains. Invalid pin/arm travel refuses.
+ *    domains, including box corners and cylinder support stationary angles. The
+ *    designed actual section places the pouch; the same armLength-based reduced
+ *    launch law remains. Invalid pin/arm travel refuses.
  * 5. Reverse-order poses, returned span-state mutation and a moving fitting's
  *    returned transform mutation leave source bytes and fresh replay intact.
  *
  * The cradle is the declared tip-carried approximation, not a reconstructed
- * hanging sling or a new independent sling/rope/structural-strength simulation.
+ * hanging sling or a new independent sling/rope/structural-strength
+ * simulation.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Defines both kinds, four seeds, complete endpoint/stationary support domains, literal SI source figures, actual primitive joins/controls, section design, actual-solid mass distribution and the separate unchanged reduced launch law with its sling/strength limits.
  * @evidence contracts/development/testing.md#behavioral-verification Calls real createSiegeEngine, articulate, span and throwAt, then reads actual rods/boxes and contacts. A marker-only axle, missing physical pouch/pin/winch, detached span end, wrong pivot/axis, stretched beam, tilted counterweight or modified launch/source is a failed positive case.
@@ -363,7 +369,10 @@ export function test_archetype_siege_structure(): void {
     return archetypeSpanObservation.ends(part(engine, id));
   }
 
-  /** Missing actual geometry is a failed scenario rather than an affordance substitute. */
+  /**
+   * Missing actual geometry is a failed scenario rather than an affordance
+   * substitute.
+   */
   function part(engine: Engine, id: string): IAutoMovieModelPart {
     const value: IAutoMovieModelPart | undefined = engine.parts.find(
       (candidate: IAutoMovieModelPart): boolean => candidate.id === id,
@@ -383,7 +392,10 @@ export function test_archetype_siege_structure(): void {
     return value.geometry.shape;
   }
 
-  /** Euclidean distances are independent of declared span length and launcher laws. */
+  /**
+   * Euclidean distances are independent of declared span length and launcher
+   * laws.
+   */
   function distance(a: IAutoMovieVector3, b: IAutoMovieVector3): number {
     return Math.hypot(a.x - b.x, a.y - b.y, a.z - b.z);
   }
@@ -405,7 +417,10 @@ export function test_archetype_siege_structure(): void {
     );
   }
 
-  /** Compare independent three-component SI observations at absolute precision 1e-9. */
+  /**
+   * Compare independent three-component SI observations at absolute precision
+   * 1e-9.
+   */
   function point(
     label: string,
     actual: IAutoMovieVector3,

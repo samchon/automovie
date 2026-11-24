@@ -12,13 +12,15 @@ import { subdivisionRingEigenbasis } from "./subdivisionRingEigenbasis";
  * Every edge must be smooth (0) or infinitely sharp (10); `stepSubdivisionRing`
  * spends any semi-sharp remainder first. A vertex with no sharp edge is smooth:
  * its limit is `(n^2 C + 4 sum E + sum D) / (n (n + 5))` and its tangents are
- * the cosine and sine masks with `A = 1 + cos(2 pi / n) + cos(pi / n) sqrt(2 (9
- * + cos(2 pi / n)))` on the edges and `cos(2 pi i / n) + cos(2 pi (i + 1) / n)`
- * on the diagonals (Halstead, Kass and DeRose 1993), giving one normal. A dart,
- * with one sharp edge, has another subdivision matrix, so its limit and
- * tangents come from that matrix's eigenvectors through
- * `subdivisionRingEigenbasis`. An interior vertex of valence two has no tangent
- * plane and is refused, as is any vanishing or non-finite normal.
+ * the cosine and sine masks with `A = 1 + cos(2 pi / n) + cos(pi / n) sqrt(2
+ * (9
+ *
+ * - Cos(2 pi / n)))`on the edges and`cos(2 pi i / n) + cos(2 pi (i + 1) / n)`on
+ *   the diagonals (Halstead, Kass and DeRose 1993), giving one normal. A dart,
+ *   with one sharp edge, has another subdivision matrix, so its limit and
+ *   tangents come from that matrix's eigenvectors
+ *   through`subdivisionRingEigenbasis`. An interior vertex of valence two has
+ *   no tangent plane and is refused, as is any vanishing or non-finite normal.
  *
  * With two sharp edges the vertex is on a crease, whose limit is the B-spline
  * point `(A + 4 C + B) / 6` of the crease neighbours. Each side's normal

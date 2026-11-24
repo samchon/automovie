@@ -459,9 +459,7 @@ function preparedWorkspace(
         near,
       };
       const admitted: boolean =
-        near.branch >= 0 &&
-        near.branch <= 1 &&
-        near.tolerance > 0;
+        near.branch >= 0 && near.branch <= 1 && near.tolerance > 0;
       let candidate: ReturnType<typeof fitHingedChainBend> = null;
       if (admitted) {
         // A new curve policy may omit an unused pole candidate, but it

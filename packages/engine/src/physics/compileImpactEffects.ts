@@ -55,10 +55,7 @@ export function compileImpactEffects(
           `Impact effect requires a measured or formula impulse for ${receipt.id}`,
         );
       if (impulse === 0 || receipt.seconds >= input.endSeconds) return [];
-      if (
-        receipt.separation > 0 ||
-        receipt.seconds < 0
-      )
+      if (receipt.separation > 0 || receipt.seconds < 0)
         throw new Error(`Impact effect refuses non-contact ${receipt.id}`);
       const recipe: IAutoMovieEffectRecipe = structuredClone(input.recipe);
       recipe.kind = "spray";

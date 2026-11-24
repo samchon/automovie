@@ -1,6 +1,7 @@
 import { hingedArmSwivel } from "@automovie/engine";
 import type {
   AutoMovieHumanLimb,
+  IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanSegment,
   IAutoMovieSwivelSeed,
 } from "@automovie/interface";
@@ -22,25 +23,26 @@ const ARMS: readonly AutoMovieHumanLimb[] = ["leftArm", "rightArm"];
  * the plan's clock, `1 / AutoMovieMotionHumanArmPlanned.LEAST` seconds apart:
  * the least waypoint spacing of a planned arm, between which a goal at a daily
  * reach's peak speed travels at most that plan's spacing. The anchors are
- * solved when the performance is prepared ({@link readHumanSegmentAnchors.prepare}).
- * A fit both anchors around a second give on one branch lies on the
- * minimum-jerk path through its run of anchors (Flash and Hogan 1985,
- * `HumanMinimumJerkSpline`: a quintic between each two whose position, velocity
- * and acceleration carry across each anchor), its forearm twist too where the
- * whole run gives one, so an anchor second shows its interval's limit; any
- * other fit takes the nearer anchor's seed (the other's where only it gives the
- * fit). The closed form places each arm at that swivel on its displayed goal
- * and falls back to refining from it only where the placement misses the goal,
- * leaves the range of motion or meets what the arm keeps clear of (Tolani,
- * Goswami and Badler 2000, §3.2.4: the swivel is the one free parameter of an
- * arm on its goal). None before the performance is prepared.
+ * solved when the performance is prepared
+ * ({@link readHumanSegmentAnchors.prepare}). A fit both anchors around a second
+ * give on one branch lies on the minimum-jerk path through its run of anchors
+ * (Flash and Hogan 1985, `HumanMinimumJerkSpline`: a quintic between each two
+ * whose position, velocity and acceleration carry across each anchor), its
+ * forearm twist too where the whole run gives one, so an anchor second shows
+ * its interval's limit; any other fit takes the nearer anchor's seed (the
+ * other's where only it gives the fit). The closed form places each arm at that
+ * swivel on its displayed goal and falls back to refining from it only where
+ * the placement misses the goal, leaves the range of motion or meets what the
+ * arm keeps clear of (Tolani, Goswami and Badler 2000, §3.2.4: the swivel is
+ * the one free parameter of an arm on its goal). None before the performance is
+ * prepared.
  *
  * @param segment The action.
  * @param t Film seconds.
  * @returns The arm fits' seeds by name, or none.
  */
 export function readHumanSegmentAnchors(
-  segment: IAutoMovieMotionHumanSegment,
+  segment: readHumanSegmentAnchors.IAnchored,
   t: number,
 ): HumanSegmentPose.IFits | undefined {
   const anchors: readonly IAutoMovieMotionHumanSegment.IAnchorFits[] =
@@ -85,9 +87,8 @@ export function readHumanSegmentAnchors(
     // each two anchors whose position, velocity and acceleration carry
     // across each anchor, so an anchor second shows its interval's limit.
     const on = (i: number): IAutoMovieSwivelSeed | undefined => {
-      const seed: IAutoMovieSwivelSeed | null | undefined = anchors[i]!.get(
-        name,
-      );
+      const seed: IAutoMovieSwivelSeed | null | undefined =
+        anchors[i]!.get(name);
       return seed && seed.branch === a.branch ? seed : undefined;
     };
     let first: number = lower;
@@ -136,6 +137,18 @@ export function readHumanSegmentAnchors(
 
 /** The anchor course's preparation. */
 export namespace readHumanSegmentAnchors {
+  /**
+   * What a read takes of an action: its time zero, its plan's duration and its
+   * prepared anchors.
+   */
+  export interface IAnchored extends Pick<
+    IAutoMovieMotionHumanSegment,
+    "start" | "prepared"
+  > {
+    /** The plan's duration. */
+    plan: Pick<IAutoMovieMotionHumanActionPlan, "duration">;
+  }
+
   /**
    * Every anchor's arm fits of an action, chained from its start: the first
    * continues the leaf arms the entry displays (`HumanLimbFit.seed` on its
@@ -192,7 +205,7 @@ export namespace readHumanSegmentAnchors {
  * plan.
  */
 function second(
-  segment: IAutoMovieMotionHumanSegment,
+  segment: readHumanSegmentAnchors.IAnchored,
   index: number,
   spacing: number,
 ): number {

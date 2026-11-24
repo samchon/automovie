@@ -9,8 +9,8 @@ const ROUNDING: number = 1e-12;
 
 /**
  * `prepareHumanShapeBlend` blends two clinical joint maps linearly, each axis
- * at `a + (b - a) w`, over every bone either names, a bone a map leaves out read
- * as zero, the weight unclamped.
+ * at `a + (b - a) w`, over every bone either names, a bone a map leaves out
+ * read as zero, the weight unclamped.
  *
  * Scenarios:
  *

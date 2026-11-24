@@ -15,18 +15,9 @@ export namespace AutoMovieConstructionSeedTrace {
     if (sink === undefined) return;
     sink({
       ...event,
-      phase:
-        event.phase !== null
-          ? event.phase
-          : null,
-      start:
-        event.start !== null
-          ? event.start
-          : null,
-      chart:
-        event.chart !== null
-          ? [...event.chart]
-          : null,
+      phase: event.phase !== null ? event.phase : null,
+      start: event.start !== null ? event.start : null,
+      chart: event.chart !== null ? [...event.chart] : null,
       gap: event.gap !== null ? event.gap : null,
     });
   }

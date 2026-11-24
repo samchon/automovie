@@ -118,4 +118,3 @@ export const simulateSoftBodyWithBoundaries: (
   }
   return simulateSoftBodyCore(domain, step, state, boundaries, observer);
 };
-

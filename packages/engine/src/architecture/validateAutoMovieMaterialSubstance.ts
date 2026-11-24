@@ -20,8 +20,8 @@ import { ViolationCollector } from "../validation/ViolationCollector";
  * range: density, specific heat and service life above 0, thermal conductivity
  * at least 0, sound absorption within [0, 1], and vapour resistance at least 1,
  * the factor of still air. The classification must be non-blank, and a present
- * name too. Every finding is returned with a `$input` path; nothing throws,
- * and the surface id is not resolved against any material.
+ * name too. Every finding is returned with a `$input` path; nothing throws, and
+ * the surface id is not resolved against any material.
  *
  * @param props.substance Substance record to range-check.
  * @returns Success, or every violation found.
@@ -101,7 +101,7 @@ const above: (
   label: string,
   collector: IAutoMovieViolationCollector,
 ): void => {
-  if (value !== null && (value <= limit))
+  if (value !== null && value <= limit)
     collector.push(
       "range",
       path,
@@ -124,7 +124,7 @@ const atLeast: (
   label: string,
   collector: IAutoMovieViolationCollector,
 ): void => {
-  if (value !== null && (value < limit))
+  if (value !== null && value < limit)
     collector.push(
       "range",
       path,

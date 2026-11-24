@@ -85,9 +85,7 @@ function measureStep(
     Infinity,
     "incoming film time",
   );
-  if (
-    after.seconds < before.seconds
-  )
+  if (after.seconds < before.seconds)
     collector.push(
       "temporal",
       `${path}.after.seconds`,

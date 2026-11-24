@@ -24,11 +24,7 @@ export namespace AutoMovieCubicOval64 {
       0.362683783378362, 0.362683783378362, 0.3137066458778873,
       0.2223810344533745, 0.1012285362903763,
     ];
-    if (
-      ![diameterU, diameterV].every(
-        (v: number): boolean => v >= 0,
-      )
-    )
+    if (![diameterU, diameterV].every((v: number): boolean => v >= 0))
       throw new Error("Nonnegative finite section diameters required");
     const a: number = diameterU / 2,
       b: number = diameterV / 2,
@@ -54,12 +50,7 @@ export namespace AutoMovieCubicOval64 {
     circumference: number,
     fixedDiameter: number,
   ): number {
-    if (
-      !(
-        fixedDiameter > 0 &&
-        circumference > 2 * fixedDiameter
-      )
-    )
+    if (!(fixedDiameter > 0 && circumference > 2 * fixedDiameter))
       throw new Error(
         "Incompatible cubic oval circumference and fixed diameter",
       );
@@ -85,12 +76,7 @@ export namespace AutoMovieCubicOval64 {
     depth: number,
     intervals: number = 256,
   ): number {
-    if (
-      breadth <= 0 ||
-      depth <= 0 ||
-      intervals < 2 ||
-      intervals % 2 !== 0
-    )
+    if (breadth <= 0 || depth <= 0 || intervals < 2 || intervals % 2 !== 0)
       throw new Error(
         "Positive cubic ellipse dimensions and even quadrature count required",
       );
@@ -119,10 +105,7 @@ export namespace AutoMovieCubicOval64 {
     girthMm: number,
     breadthOverDepth: number = 1,
   ): IAutoMovieCubicOval64.IAxesBySimpsonResult {
-    if (
-      girthMm <= 0 ||
-      breadthOverDepth <= 0
-    )
+    if (girthMm <= 0 || breadthOverDepth <= 0)
       throw new Error("Positive girth and independent breadth/depth required");
     // Homogeneity lets the quadrature use a largest diameter of one, so a
     // representable aspect ratio cannot overflow its derivative accumulation.
@@ -131,11 +114,7 @@ export namespace AutoMovieCubicOval64 {
     const scale: number = girthMm / perimeterBySimpson(breadth, depth);
     const breadthMm: number = breadth * scale;
     const depthMm: number = depth * scale;
-    if (
-      ![breadthMm, depthMm].every(
-        (value: number): boolean => value > 0,
-      )
-    )
+    if (![breadthMm, depthMm].every((value: number): boolean => value > 0))
       throw new RangeError(
         "Cubic oval diameters must be representable positive finite lengths",
       );
@@ -152,10 +131,7 @@ export namespace AutoMovieCubicOval64 {
     girthMm: number,
     breadthMm: number,
   ): number {
-    if (
-      breadthMm <= 0 ||
-      girthMm <= 2 * breadthMm
-    )
+    if (breadthMm <= 0 || girthMm <= 2 * breadthMm)
       throw new Error("Girth must exceed the collapsed section perimeter");
     let low: number = 0;
     let high: number = girthMm / 2;

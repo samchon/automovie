@@ -64,12 +64,7 @@ export function AirborneConstantShapeHistory(
   span?: { from: number; to: number },
   observation?: AirborneShapeStatistics.IObserver,
 ): integrateAirborneRotation.ICachedHistory | undefined {
-  if (
-    span !== undefined &&
-    !(
-      span.to > span.from
-    )
-  )
+  if (span !== undefined && !(span.to > span.from))
     throw new Error("A constant airborne shape needs a finite increasing span");
   const statistics: AirborneShapeStatistics.IStatistics | undefined =
     AirborneShapeStatistics.borrow(observation);

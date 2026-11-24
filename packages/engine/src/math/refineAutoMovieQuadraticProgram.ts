@@ -139,9 +139,7 @@ export function refineAutoMovieQuadraticProgram(
     stationarityResidual: number;
     complementarityResidual: number;
   } = residuals(input, polishing.primal, polishing.dual);
-  if (
-    admits(measured)
-  ) {
+  if (admits(measured)) {
     polishing.accepted = true;
     polishing.reason = "Every original numerical KKT condition passed.";
     return {
@@ -155,18 +153,6 @@ export function refineAutoMovieQuadraticProgram(
   return { ...base, polishing };
 }
 
-/** Read the unchanged original objective without relying on native diagnostics. */
-function objectiveValue(
-  input: IAutoMovieSolveQuadraticProgram.IInput,
-  primal: readonly number[],
-): number {
-  let value: number = 0;
-  for (let at: number = 0; at < input.diagonal.length; at++)
-    value +=
-      input.diagonal[at] * primal[at] * 0.5 * primal[at] +
-      input.linear[at] * primal[at];
-  return value;
-}
 
 /** Exact interval metadata; original rows and caller arrays remain unchanged. */
 function intervals(

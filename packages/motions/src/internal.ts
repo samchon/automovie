@@ -204,3 +204,4 @@ export * from "./perform/HumanSegmentLegs";
 export * from "./perform/HumanSegmentStop";
 export * from "./compose/AutoMovieMotionInterval";
 export * from "./compose/AutoMovieMotionWave";
+export * from "./body/readHumanBone";

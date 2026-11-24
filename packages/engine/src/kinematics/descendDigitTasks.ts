@@ -267,12 +267,7 @@ export function descendDigitTasks(
       accepted = !served
         ? squared(t1) < squared(r1)
         : Math.sqrt(squared(t1)) <= met && squared(t2) < squared(r2);
-      if (
-        accepted ||
-        !served ||
-        J2.length === 0 ||
-        !(maximum / 2 > step)
-      )
+      if (accepted || !served || J2.length === 0 || !(maximum / 2 > step))
         break;
       scale /= 2;
       maximum /= 2;

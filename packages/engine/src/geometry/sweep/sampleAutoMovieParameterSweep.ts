@@ -64,10 +64,7 @@ export function sampleAutoMovieParameterSweep(
       const scale: number = props.readScale(slots[k]!);
       const x: number = xs[k]! * scale,
         y: number = ys[k]! * scale;
-      if (
-        !(scale > 0) ||
-        ((xs[k] !== 0 || ys[k] !== 0) && x === 0 && y === 0)
-      )
+      if (!(scale > 0) || ((xs[k] !== 0 || ys[k] !== 0) && x === 0 && y === 0))
         throw new Error("scaled parameter sweep sample is not representable");
       sx[k] = x;
       sy[k] = y;
@@ -89,10 +86,7 @@ export function sampleAutoMovieParameterSweep(
 
 /** Nonzero reaches carry positive representable trapezoid weights. */
 function tent(below: number, above: number): Array<[number, number]> {
-  if (
-    below < 0 ||
-    above < 0
-  )
+  if (below < 0 || above < 0)
     throw new Error("parameter sweep cell must be finite and nonnegative");
   const total: number = below + above;
   if (total === 0) return [[0, 1]];
@@ -121,9 +115,7 @@ function average(
     maximumY: number = 0,
     total: number = 0;
   for (let k: number = 0; k < xs.length; k++) {
-    if (
-      !(weights[k]! > 0)
-    )
+    if (!(weights[k]! > 0))
       throw new Error("parameter sweep average input is not finite");
     maximumX = Math.max(maximumX, Math.abs(xs[k]!));
     maximumY = Math.max(maximumY, Math.abs(ys[k]!));
@@ -141,9 +133,7 @@ function average(
   normalizedY /= total;
   const x: number = maximumX * normalizedX,
     y: number = maximumY * normalizedY;
-  if (
-    ((normalizedX !== 0 || normalizedY !== 0) && x === 0 && y === 0)
-  )
+  if ((normalizedX !== 0 || normalizedY !== 0) && x === 0 && y === 0)
     throw new Error("parameter sweep average is not representable");
   out[0] = x;
   out[1] = y;

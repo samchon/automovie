@@ -33,9 +33,7 @@ export const appendCameraIntentArtifact: (
         intent.focusPull;
       const next: IAutoMovieCameraIntent | undefined = intents[i + 1];
       const frameLimit: number =
-        next !== undefined
-          ? Math.min(duration, next.start)
-          : duration;
+        next !== undefined ? Math.min(duration, next.start) : duration;
       if (intent.focus === null)
         pushViolation(
           violations,

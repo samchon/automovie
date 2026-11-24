@@ -23,10 +23,7 @@ export function measureAutoMovieCubicCurveLength64(
   subdivisions: number = 1,
 ): IAutoMovieCurveLengthMeasurement64 {
   assertAutoMovieCurve64(curve);
-  if (
-    subdivisions < 1 ||
-    subdivisions > 1024
-  )
+  if (subdivisions < 1 || subdivisions > 1024)
     throw new Error("Cubic length subdivisions must be an integer in [1,1024]");
   const measured: IAutoMovieCurveLengthQuadrature64.IMeasureResult =
     AutoMovieCurveLengthQuadrature64.measure(

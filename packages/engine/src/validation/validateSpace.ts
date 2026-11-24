@@ -107,10 +107,7 @@ const validateSurface: (
         alpha,
       );
   }
-  if (
-    surface.availableFrom !== undefined &&
-    (surface.availableFrom < 0)
-  )
+  if (surface.availableFrom !== undefined && surface.availableFrom < 0)
     collector.push(
       "range",
       `${path}.availableFrom`,
@@ -252,7 +249,6 @@ const validateRing: (
   label: string,
   collector: IAutoMovieViolationCollector,
 ): IAutoMovieFootprintRing | null => {
-
   if (points.length < 3) {
     collector.push(
       "type",
@@ -337,9 +333,7 @@ const validateSurfaceGround: (
   if (rampTo !== null) {
     const ax: number = rampTo.x - surface.anchor.x;
     const az: number = rampTo.z - surface.anchor.z;
-    if (
-      ax * ax + az * az < MIN_RAMP_AXIS
-    )
+    if (ax * ax + az * az < MIN_RAMP_AXIS)
       collector.push(
         "range",
         `${path}.rampTo`,
@@ -348,4 +342,3 @@ const validateSurfaceGround: (
       );
   }
 };
-

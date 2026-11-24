@@ -14,7 +14,6 @@ const JOINT_AXES: readonly AutoMovieJointAxis[] = [
   "twist",
 ];
 
-
 /** Length at or below which an axis names no direction. */
 const MIN_AXIS_LENGTH: number = 1e-9;
 

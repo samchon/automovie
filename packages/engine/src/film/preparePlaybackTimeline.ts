@@ -56,12 +56,7 @@ export function preparePlaybackTimeline(
         (entry.trim?.duration ?? found.shot.duration) / rate;
       const start: number = cursor - (entry.transition?.duration ?? 0);
       const end: number = start + played;
-      if (
-        rate !== 1 &&
-        (!(rate > 0) ||
-          !(played > 0) ||
-          !(end > start))
-      )
+      if (rate !== 1 && (!(rate > 0) || !(played > 0) || !(end > start)))
         throw new Error(
           `sequence.shots[${index}].playbackRate must be positive and produce a representable output span`,
         );

@@ -44,8 +44,8 @@ import { physicalPlanarPolygon as Polygon } from "./physicalPlanarPolygon";
  *    follows the live authored capture point.
  *
  * The rate decays linearly once a state is done when a decay duration is given
- * (l.287-306), never by default; only single support has a rate past its
- * end, so the reference's standing exemption changes nothing.
+ * (l.287-306), never by default; only single support has a rate past its end,
+ * so the reference's standing exemption changes nothing.
  *
  * The plan's points ride on the frames the reference attaches them to: the
  * support sole and the world in single support (l.701), the mid-feet frame or
@@ -459,12 +459,12 @@ export namespace physicalIcpPlanner {
 }
 
 /**
- * A double-support plan over the final transfer (l.611-620): the double-support cubic between two
- * capture points and rates (`ICPPlannerTrajectoryGenerator` l.39-105), its
- * start attached to the given frame and its end to the mid-feet frame
- * (`setInitialConditions` and `setFinalConditions` l.44-64). The reference
- * builds its first mid-feet frame on an identity rotation, the fallback's
- * world-forward axis.
+ * A double-support plan over the final transfer (l.611-620): the double-support
+ * cubic between two capture points and rates (`ICPPlannerTrajectoryGenerator`
+ * l.39-105), its start attached to the given frame and its end to the mid-feet
+ * frame (`setInitialConditions` and `setFinalConditions` l.44-64). The
+ * reference builds its first mid-feet frame on an identity rotation, the
+ * fallback's world-forward axis.
  */
 function transfer(
   p: physicalIcpPlanner.IParameters,

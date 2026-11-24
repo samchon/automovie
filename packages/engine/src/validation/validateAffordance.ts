@@ -36,10 +36,9 @@ const DIMENSIONS: readonly (
 ];
 
 /**
- * Admit a finite frame, require every optional dimension present
- * to be finite and positive, admit a surface's drawable outline, then require
- * stack-top extent plan points to span area or point-like kinds to have null
- * extent.
+ * Admit a finite frame, require every optional dimension present to be finite
+ * and positive, admit a surface's drawable outline, then require stack-top
+ * extent plan points to span area or point-like kinds to have null extent.
  *
  * An `outline` belongs to a `surface` with a `width` and `depth`; it has at
  * least three finite XZ points, each inside the width by depth rectangle
@@ -167,11 +166,7 @@ function validateOutline(
       ["x", halfWidth],
       ["z", halfDepth],
     ] as const)
-      if (
-        !(
-          Math.abs(point[axis]) <= half + OUTLINE_TOLERANCE
-        )
-      ) {
+      if (!(Math.abs(point[axis]) <= half + OUTLINE_TOLERANCE)) {
         inside = false;
         collector.push(
           "range",

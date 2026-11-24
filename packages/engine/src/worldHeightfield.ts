@@ -9,17 +9,11 @@ export const worldHeightfield: (
 ) => IAutoMovieWorldSurface = (
   input: IAutoMovieWorldHeightfield.IInput,
 ): IAutoMovieWorldSurface => {
-  if (
-    input.spacing.x <= 0 ||
-    input.spacing.z <= 0
-  )
+  if (input.spacing.x <= 0 || input.spacing.z <= 0)
     throw new Error(
       `World heightfield "${input.id}" requires a finite origin and positive spacing.`,
     );
-  if (
-    input.columns < 2 ||
-    input.rows < 2
-  )
+  if (input.columns < 2 || input.rows < 2)
     throw new Error(
       `World heightfield "${input.id}" requires at least two sample columns and rows.`,
     );

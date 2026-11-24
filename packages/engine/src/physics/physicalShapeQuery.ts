@@ -287,7 +287,8 @@ function query(
   const distance: (p: IAutoMovieVector3) => number = (
     p: IAutoMovieVector3,
   ): number => {
-    if (shape.kind === "hull") return physicalHullNearest(shape.points, p, false);
+    if (shape.kind === "hull")
+      return physicalHullNearest(shape.points, p, false);
     if (shape.kind === "box") return boxNearest(shape.halfExtents, p, false);
     if (shape.kind === "sphere" || shape.kind === "capsule") {
       if (roundAxis === undefined) roundAxis = { x: 0, y: 0, z: 0 };

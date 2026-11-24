@@ -73,9 +73,7 @@ export function projectileContinue(
   ): void => {
     if (value < 0 || (maximum !== undefined && value > maximum)) {
       const range: string =
-        maximum === undefined
-          ? "non-negative"
-          : `between 0 and ${maximum}`;
+        maximum === undefined ? "non-negative" : `between 0 and ${maximum}`;
       throw new RangeError(
         `projectile ${name} must be ${range}, but was ${value}`,
       );
@@ -324,4 +322,3 @@ export namespace projectileContinue {
 
 /** A surface at rest and a ball that does not turn. */
 const STILL: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
-

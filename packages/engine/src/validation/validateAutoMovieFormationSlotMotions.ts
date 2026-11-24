@@ -131,8 +131,7 @@ export const validateAutoMovieFormationSlotMotions: (
       new Set(cue.slots).size !== cue.slots.length ||
       cue.slots.some(
         (slot: number): boolean =>
-          slot < 0 ||
-          (compiled !== undefined && slot >= compiled.count),
+          slot < 0 || (compiled !== undefined && slot >= compiled.count),
       )
     )
       fail(
@@ -164,8 +163,7 @@ export const validateAutoMovieFormationSlotMotions: (
     ] as const) {
       if (
         [state.offset.x, state.offset.y, state.offset.z].some(
-          (number: number): boolean =>
-            Math.abs(number) > 1_000_000_000,
+          (number: number): boolean => Math.abs(number) > 1_000_000_000,
         ) ||
         Math.abs(state.facingOffsetDeg) > 360_000
       )

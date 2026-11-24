@@ -86,7 +86,11 @@ function appendTextLayer(
       "text layer text must be a nonempty string",
       layer.text,
     );
-  collector.positive(`${path}.size`, layer.size, "text layer size (face heights)");
+  collector.positive(
+    `${path}.size`,
+    layer.size,
+    "text layer size (face heights)",
+  );
   validateColor(layer.color, `${path}.color`, collector);
   if (layer.lineHeight !== undefined)
     collector.positive(
@@ -149,10 +153,7 @@ function appendFeedLayer(
       "feed camera must not be the shot's own camera",
       layer.camera,
     );
-  if (
-    layer.pixels < 1 ||
-    layer.pixels > 2048
-  )
+  if (layer.pixels < 1 || layer.pixels > 2048)
     collector.push(
       "range",
       `${path}.pixels`,

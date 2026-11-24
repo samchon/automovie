@@ -1,6 +1,5 @@
 import {
   createAutoMovieMeshDeformer,
-  inspectAutoMovieMeshTopology,
   mergeAutoMovieMeshes,
   transformAutoMovieMesh,
 } from "@automovie/engine";
@@ -13,8 +12,10 @@ import { vertexColourMesh } from "../internal/vertexColourFixture";
  * Vertex colour follows correspondence, not world coordinates.
  *
  * Scenarios:
+ *
  * 1. Mirrored placement preserves ordered RGB and owns its copied buffer.
- * 2. Mixed merging inserts white for uncoloured vertices; coloured merging retains declaration order. Empty and wholly bare merges omit the field.
+ * 2. Mixed merging inserts white for uncoloured vertices; coloured merging retains
+ *    declaration order. Empty and wholly bare merges omit the field.
  * 3. A nontrivial spatial deformation moves positions but retains RGB.
  * 4. Topology inspection counts nonfinite colour components independently.
  *
@@ -101,5 +102,4 @@ export function test_geometry_vertex_colour(): void {
     "deformation retains RGB",
     test12ValuesClose(deformed.colors, colored.colors),
   );
-
 }

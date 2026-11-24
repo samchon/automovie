@@ -78,11 +78,7 @@ export class AutoMoviePhysicsCache {
    * writes do not validate that invariant. Returns fresh poses and velocities.
    */
   public at(seconds: number): IAutoMoviePhysicalFrame {
-    if (
-      seconds < 0 ||
-      seconds > this.duration ||
-      this.frames.length === 0
-    )
+    if (seconds < 0 || seconds > this.duration || this.frames.length === 0)
       throw new Error("Physics cache read outside completed film");
     const step: number = seconds * this.rate;
     const low: number = Math.floor(step);

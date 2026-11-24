@@ -23,34 +23,36 @@ import { motionHumanBody } from "../../internal/motionHumanBody";
 import { motionHumanSignature as M } from "../../internal/motionHumanSignature";
 
 /**
- * Stepping over a box looks like human obstacle crossing, on the four
- * extreme bodies leading with either foot over the sweep's box (0.3 m high,
- * 0.25 m deep, its near side 0.35 m ahead).
+ * Stepping over a box looks like human obstacle crossing, on the four extreme
+ * bodies leading with either foot over the sweep's box (0.3 m high, 0.25 m
+ * deep, its near side 0.35 m ahead).
  *
  * Bounds and sources:
- * - Toe clearance: the lead foot clears an obstacle by about 0.1 m whatever
- *   its height (Patla and Rietdyk 1993, Gait Posture 1:45; Chou and
- *   Draganich 1998, J Biomech 31:685). Bound: the lowest sole point passes
- *   0.05 to 0.25 m above the box's top over its depth (provisional limits
- *   around the reported value); the trail foot at least 0.05 m.
- * - Lead limb: crossing raises the lead knee and hip far beyond level
- *   walking's swing; for an obstacle near 15 % of the stature the peak knee
- *   flexion is about 100 degrees and the hip's about 60 to 70 (Chou and
- *   Draganich 1997, J Biomech 30:331). Bound: peak lead knee flexion over
- *   the box in [75, 125] and peak lead hip flexion in [40, 95] degrees
- *   (provisional limits around the reported values).
- * - Trunk: crossing keeps the trunk upright or slightly forward (Chou,
- *   Kaufman, Brey and Draganich 2001, Gait Posture 13:17). Bound: mean
- *   inclination from lead toe-off to trail contact in [0, 15] degrees
- *   (provisional).
  *
- * The trunk is read as the line from the hip joints' midpoint to the
- * shoulder joints' midpoint, the trunk segment of the cited studies, and
- * the quiet stance must read within 3 degrees of vertical under it
- * (Kendall et al. 2005, ideal alignment; `motionHumanSignature.calibrate`).
+ * - Toe clearance: the lead foot clears an obstacle by about 0.1 m whatever its
+ *   height (Patla and Rietdyk 1993, Gait Posture 1:45; Chou and Draganich 1998,
+ *   J Biomech 31:685). Bound: the lowest sole point passes 0.05 to 0.25 m above
+ *   the box's top over its depth (provisional limits around the reported
+ *   value); the trail foot at least 0.05 m.
+ * - Lead limb: crossing raises the lead knee and hip far beyond level walking's
+ *   swing; for an obstacle near 15 % of the stature the peak knee flexion is
+ *   about 100 degrees and the hip's about 60 to 70 (Chou and Draganich 1997, J
+ *   Biomech 30:331). Bound: peak lead knee flexion over the box in [75, 125]
+ *   and peak lead hip flexion in [40, 95] degrees (provisional limits around
+ *   the reported values).
+ * - Trunk: crossing keeps the trunk upright or slightly forward (Chou, Kaufman,
+ *   Brey and Draganich 2001, Gait Posture 13:17). Bound: mean inclination from
+ *   lead toe-off to trail contact in [0, 15] degrees (provisional).
+ *
+ * The trunk is read as the line from the hip joints' midpoint to the shoulder
+ * joints' midpoint, the trunk segment of the cited studies, and the quiet
+ * stance must read within 3 degrees of vertical under it (Kendall et al. 2005,
+ * ideal alignment; `motionHumanSignature.calibrate`).
  *
  * Scenarios:
- * 1. Check the named geometry and contact conditions above at the measured instants.
+ *
+ * 1. Check the named geometry and contact conditions above at the measured
+ *    instants.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Performs the real step over on real bodies and reads displayed soles and joints; a foot that grazes or sails over the box, a stiff lead leg or a trunk tipped back fails with its cell, value, bound and source.
  * @evidence contracts/development/testing.md#independent-expectations Every bound is a cited obstacle-crossing value or marked provisional with its reason.
@@ -125,7 +127,10 @@ export function test_motion_crossing_obstacle_step(): void {
   complaints.assert("the step over has the signature of obstacle crossing");
 }
 
-/** The authored edge is crossed or refused according to its height and affordances. */
+/**
+ * The authored edge is crossed or refused according to its height and
+ * affordances.
+ */
 function checkObjectEdges(findings: motionComplaints.IGatherer): void {
   const body = motionHumanBody("m-average"),
     near = 0.3;

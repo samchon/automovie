@@ -35,8 +35,7 @@ export const clipTrackShapeFaults: (
   // the LAST time against the duration, which is equivalent once the times are
   // strictly increasing; checking every entry says which one is wrong when they
   // are not, and refuses nothing an increasing list would have passed.
-  const bounded: number | null =
-    duration > 0 ? duration : null;
+  const bounded: number | null = duration > 0 ? duration : null;
   const timeCount: number = times.length;
   for (let i: number = 0; i < timeCount; ++i) {
     const time: number = times[i]!;

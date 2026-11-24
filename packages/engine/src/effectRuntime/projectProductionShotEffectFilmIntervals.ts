@@ -92,9 +92,7 @@ const sourceInterval = (
   frameRate: IAutoMovieProductionFrameRate,
 ): ISourceInterval => {
   const startFrame: number | null =
-    effect.start >= 0
-      ? firstFrameAtOrAfter(effect.start, frameRate)
-      : null;
+    effect.start >= 0 ? firstFrameAtOrAfter(effect.start, frameRate) : null;
   const endFrame: number | null =
     effect.end > effect.start
       ? firstFrameAtOrAfter(effect.end, frameRate)

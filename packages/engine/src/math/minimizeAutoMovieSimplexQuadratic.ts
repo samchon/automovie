@@ -63,9 +63,7 @@ export function minimizeAutoMovieSimplexQuadratic(
     );
   spend(admission - work);
   for (const atom of atoms) {
-    if (
-      atom.values.length !== atom.indices.length
-    )
+    if (atom.values.length !== atom.indices.length)
       throw new Error("simplex-quadratic: finite sparse atom required");
     for (let at: number = 0; at < atom.indices.length; at++)
       if (

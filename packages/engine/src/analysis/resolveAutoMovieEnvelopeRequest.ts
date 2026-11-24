@@ -102,9 +102,7 @@ export const resolveAutoMovieEnvelopeRequest: (
       throw new Error(
         `thermal bridge "${bridge.id}" runs along assembly "${bridge.assembly}", which the study does not declare`,
       );
-    if (
-      bridge.linearTransmittance < 0
-    )
+    if (bridge.linearTransmittance < 0)
       throw new Error(
         `thermal bridge "${bridge.id}" linear transmittance must be a finite number at or above zero, but was ${bridge.linearTransmittance}`,
       );

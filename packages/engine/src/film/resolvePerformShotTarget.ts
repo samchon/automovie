@@ -25,8 +25,8 @@ import { resolveTargetPoint } from "../perform/resolveTargetPoint";
  * 1. Unless `formationsFramed` is true, a group naming any formation is refused
  *    first, because only a lens frames a mass and every other target asks one
  *    body for one point; checking membership first would hide that.
- * 2. A `bone` target's actor must be a staged node with an actor context and a
- *    rig carrying that bone; a `group` must have every member staged, and each
+ * 2. A `bone` target's actor must be a staged node with an actor context and a rig
+ *    carrying that bone; a `group` must have every member staged, and each
  *    formation it names must be one this shot compiled.
  * 3. Missing nodes, malformed point vectors, empty groups and non-positional kinds
  *    are refused before invoking the live resolver.
@@ -85,10 +85,7 @@ export function resolvePerformShotTarget(
   const point: IAutoMovieVector3 | null | undefined =
     context.targetAt?.(target, props.seconds) ??
     resolveTargetPoint(target, context.nodePositions, context.formationPoints);
-  if (
-    point === null ||
-    point === undefined
-  ) {
+  if (point === null || point === undefined) {
     context.out.push(
       "type",
       path,
@@ -100,9 +97,7 @@ export function resolvePerformShotTarget(
   return point;
 }
 
-/**
- * Check the ids a target carries, answering whether resolution may read it.
- */
+/** Check the ids a target carries, answering whether resolution may read it. */
 function validateTargetIds(
   context: IAutoMovieEnginePerformShotGateContext,
   target: IAutoMovieActionTarget,

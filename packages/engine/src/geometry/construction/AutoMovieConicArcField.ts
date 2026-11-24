@@ -188,14 +188,6 @@ export namespace AutoMovieConicArcField {
     geometry: IAutoMovieConicArcField.IGeometry<IAutoMovieConicFieldJet.IJet>,
     ray: IAutoMovieConicArc.IRay,
   ): IAutoMovieConicArcField.IReading | IAutoMovieConicArcField.IFailure {
-    const required: number[] = [
-      ...geometry.point[0],
-      ...geometry.point[1],
-      ...geometry.tangent[0].slice(0, 3),
-      ...geometry.tangent[1].slice(0, 3),
-      ...ray.radial,
-      ray.logCurvature,
-    ];
 
     return {
       kind: "reading",

@@ -12,10 +12,15 @@ import { TestValidator } from "@nestia/e2e";
  * Fixed feasible diagnostics preserve every scalar's resident and JSON meaning.
  *
  * Scenarios:
- * 1. An authored complete raw record projects all67 fields, distinguishing finite values, three nonfinite categories and unavailable null.
- * 2. Fixed nested records are independent copies and frozen raw records/state remain unchanged; no state, array or invented age crosses the projection.
- * 3. Null baseline/auxiliary reports stay null, while an older auxiliary reason and trial failure remain unchanged beside a terminal baseline.
- * 4. Finite extrema and signed zero preserve resident number semantics; JSON preserves categories without promising signed-zero bits.
+ *
+ * 1. An authored complete raw record projects all67 fields, distinguishing finite
+ *    values, three nonfinite categories and unavailable null.
+ * 2. Fixed nested records are independent copies and frozen raw records/state
+ *    remain unchanged; no state, array or invented age crosses the projection.
+ * 3. Null baseline/auxiliary reports stay null, while an older auxiliary reason
+ *    and trial failure remain unchanged beside a terminal baseline.
+ * 4. Finite extrema and signed zero preserve resident number semantics; JSON
+ *    preserves categories without promising signed-zero bits.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the actual fixed projection/encoder and serializes its result; missing fields, implicit nonfinite null conversion, aliasing and state leakage change the independently prescribed JSON object.
  * @evidence contracts/development/testing.md#independent-expectations Authored integers and exactly representable tolerance0.25 label each field independently; the explicit expected object follows the public scalar representation rather than a captured solver output. This tests representation, not numerical convergence or certificate truth.

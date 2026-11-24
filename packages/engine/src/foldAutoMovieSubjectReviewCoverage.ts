@@ -15,24 +15,24 @@ import { SHA256_DIGEST_PATTERN } from "./validation/constants/SHA256_DIGEST_PATT
  *
  * Observations are the production verifier's typed receipts. One whose target
  * names another subject, or another production's, shot's or subject's view, is
- * counted as `foreign`. A complete view of this production,
- * shot and subject is then sorted by its viewpoint and context: a planned
- * viewpoint observed in the current context is `observed` once and counted as a
- * duplicate after that; a planned viewpoint seen only in another context is
- * `stale`; an unplanned viewpoint in the current context is `unplanned`, and
- * one in another context is `foreign`. Plan order is kept for every planned
- * list, `unplanned` is sorted by code unit, and the order of the observations
- * cannot change the result.
+ * counted as `foreign`. A complete view of this production, shot and subject is
+ * then sorted by its viewpoint and context: a planned viewpoint observed in the
+ * current context is `observed` once and counted as a duplicate after that; a
+ * planned viewpoint seen only in another context is `stale`; an unplanned
+ * viewpoint in the current context is `unplanned`, and one in another context
+ * is `foreign`. Plan order is kept for every planned list, `unplanned` is
+ * sorted by code unit, and the order of the observations cannot change the
+ * result.
  *
  * The state is `indeterminate` for an empty plan, `reviewed` when every planned
  * viewpoint is observed, `partial` when some are, `stale` when none is observed
  * but some were seen in another context, and `not-run` otherwise.
  *
- * Throws an `Error` when `current` does not exactly name the resolved unit
- * (a target or revision differing from the unit, or a fingerprint or plan
- * identity not in `sha256:` hex form), and a `RangeError` for a plan with a
- * duplicated viewpoint id, a distance that is not finite and positive, or a direction whose length
- * is not within `1e-6` of one.
+ * Throws an `Error` when `current` does not exactly name the resolved unit (a
+ * target or revision differing from the unit, or a fingerprint or plan identity
+ * not in `sha256:` hex form), and a `RangeError` for a plan with a duplicated
+ * viewpoint id, a distance that is not finite and positive, or a direction
+ * whose length is not within `1e-6` of one.
  */
 export const foldAutoMovieSubjectReviewCoverage = (
   unit: IAutoMovieSubjectReviewUnit,
@@ -126,8 +126,8 @@ const validateCurrentContext = (
 };
 
 /**
- * Throw unless every viewpoint has a unique id, a positive distance
- * and a unit direction.
+ * Throw unless every viewpoint has a unique id, a positive distance and a unit
+ * direction.
  */
 const validateViewpointPlan = (
   viewpoints: readonly IAutoMovieSubjectReviewViewpoint[],

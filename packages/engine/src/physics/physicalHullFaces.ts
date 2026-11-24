@@ -100,7 +100,6 @@ export function physicalHullFaces(
   return hull;
 }
 
-
 /**
  * Each searched points array's face triples, which a translation of it starts
  * from.

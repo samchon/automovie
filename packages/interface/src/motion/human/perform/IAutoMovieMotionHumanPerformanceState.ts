@@ -243,8 +243,8 @@ export interface IAutoMovieMotionHumanPerformanceState {
   >;
 
   /**
-   * Each launched prop's flights, by the prop, solved once when the
-   * performance is prepared (`HumanPropFlight.flights`).
+   * Each launched prop's flights, by the prop, solved once when the performance
+   * is prepared (`HumanPropFlight.flights`).
    */
   readonly flights: Map<
     string,

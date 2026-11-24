@@ -15,7 +15,6 @@ const THROUGH_TRANSFER: number = 0.3 as const; // fraction of momentum a pass-th
 
 type ImpactCoefficient = "restitution" | "hardness" | "penetrability";
 
-
 const assertImpactMass: (label: "a" | "b", mass: number) => void = (
   label: "a" | "b",
   mass: number,

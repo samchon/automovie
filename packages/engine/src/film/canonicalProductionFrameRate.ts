@@ -20,10 +20,7 @@ export function canonicalProductionFrameRate(
       );
     return { numerator: input, denominator: 1 };
   }
-  if (
-    input.numerator <= 0 ||
-    input.denominator <= 0
-  )
+  if (input.numerator <= 0 || input.denominator <= 0)
     throw new Error(
       `Production frame rate ${input.numerator}/${input.denominator} must use positive safe-integer terms.`,
     );

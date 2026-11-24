@@ -106,9 +106,7 @@ export namespace AutoMovieSolidFoot {
         trial++ < 20
       )
         k /= 2;
-      if (
-        !AutoMovieSolidDomain.contains(surface, u + k * delta[0])
-      )
+      if (!AutoMovieSolidDomain.contains(surface, u + k * delta[0]))
         return null;
       u += k * delta[0];
       v += k * delta[1];

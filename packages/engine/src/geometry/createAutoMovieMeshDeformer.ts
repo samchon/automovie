@@ -80,7 +80,7 @@ export function createAutoMovieMeshDeformer(
       influence !== undefined &&
       (influence.length !== mesh.positions.length / 3 ||
         influence.some(
-          ({ weight, gradient }: IAutoMovieMeshDeformationInfluence): boolean =>
+          ({ weight }: IAutoMovieMeshDeformationInfluence): boolean =>
             weight < 0 || weight > 1,
         ))
     )

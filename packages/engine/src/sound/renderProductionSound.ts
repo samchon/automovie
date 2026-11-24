@@ -403,8 +403,8 @@ const noiseStream: (seed: number) => IAutoMovieRandom = (
   createAutoMovieRandom(deriveAutoMovieSeed(String(seed), "noise"));
 
 /**
- * One stateless signed noise sample in (-1, 1): the prepared stream read at
- * the sample index.
+ * One stateless signed noise sample in (-1, 1): the prepared stream read at the
+ * sample index.
  */
 const seededNoise: (stream: IAutoMovieRandom, index: number) => number = (
   stream: IAutoMovieRandom,

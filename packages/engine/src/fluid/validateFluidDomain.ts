@@ -165,9 +165,7 @@ export const validateFluidDomain: (
   );
   // A broken design depth is named at its own field, not again at every cell.
   const deepest: number =
-    solver.referenceDepth > 0
-      ? solver.referenceDepth
-      : Infinity;
+    solver.referenceDepth > 0 ? solver.referenceDepth : Infinity;
   domain.depth.forEach((value: number, index: number): void => {
     validateRange(
       value,
@@ -299,9 +297,7 @@ export const validateFluidDomain: (
     // Match the sampler's norm helper, including its hypot fallback for failed
     // squares. An unrepresentable norm can still be Infinity and pass this gate.
     const axis: IAutoMovieFluidSpray["direction"] = spray.direction;
-    if (
-      Vector3.length(axis) === 0
-    )
+    if (Vector3.length(axis) === 0)
       out.push(
         "type",
         `${path}.direction`,

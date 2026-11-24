@@ -155,9 +155,9 @@ export function planAutoMovieSupportLoft64(
         (normal: readonly [number, number], k: number): boolean => {
           const slack: number =
             normal[0] * x + normal[1] * z - B.scalar(field.offsets[k], phase);
-          return (
-            (triple.includes(k) ? Math.abs(slack) <= epsilon : slack <= epsilon)
-          );
+          return triple.includes(k)
+            ? Math.abs(slack) <= epsilon
+            : slack <= epsilon;
         },
       );
     };

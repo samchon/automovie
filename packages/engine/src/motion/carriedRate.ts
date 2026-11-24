@@ -26,9 +26,7 @@
  *   time is not finite.
  */
 export function carriedRate(duration: number, elapsed: number): number {
-  if (
-    !(duration > 0)
-  )
+  if (!(duration > 0))
     throw new Error(
       "A carried rate needs a finite elapsed time and a positive duration",
     );

@@ -37,7 +37,6 @@ export const inspectAutoMovieMeshTopology: (
 ) => IAutoMovieMeshTopology = (
   mesh: IAutoMovieMesh,
 ): IAutoMovieMeshTopology => {
-
   const {
     indices,
     corners,
@@ -88,4 +87,3 @@ export const inspectAutoMovieMeshTopology: (
     volume: sixVolume / 6,
   };
 };
-

@@ -154,9 +154,7 @@ export namespace AutoMovieSolidSharedCurve {
           dot(a.v, a.v) + dot(a.vv, r),
           [-dot(a.u, r), -dot(a.v, r)],
         );
-        if (
-          move === null
-        )
+        if (move === null)
           return `the part's foot of the loop point is singular at [${s}, ${phi}]`;
         s += move[0];
         phi += move[1];

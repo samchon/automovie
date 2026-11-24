@@ -17,8 +17,7 @@ export function admitPhysicalPointBounds(
   bounds: readonly IAutoMoviePhysicalPointBound[],
   ids: Set<string>,
 ): void {
-  if (bounds.length > 256)
-    throw new Error("Invalid point relationship budget");
+  if (bounds.length > 256) throw new Error("Invalid point relationship budget");
   const profile: IAutoMoviePhysicalProfile | undefined = Object.hasOwn(
     profiles,
     body,

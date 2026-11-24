@@ -145,10 +145,7 @@ export function compileCameraMove(
   if (entries.length === 0) return null;
   const halfY: number = Math.tan(((camera.fovY / 2) * Math.PI) / 180);
   const aspect: number =
-    props.aspect !== undefined &&
-    props.aspect > 0
-      ? props.aspect
-      : 1;
+    props.aspect !== undefined && props.aspect > 0 ? props.aspect : 1;
   const halfX: number = halfY * aspect;
   const rate: IAutoMovieProductionFrameRate = canonicalProductionFrameRate(
     props.frameRate ?? FALLBACK_FRAME_RATE,

@@ -37,8 +37,7 @@ export function MotionTrajectoryPartition(
       let end: number | undefined = ends.get(start);
       if (end === undefined) return false;
       const limit: number = maximumStep ?? (end - start) / 2;
-      if (!(limit > 0 && limit < end - start))
-        return false;
+      if (!(limit > 0 && limit < end - start)) return false;
       do {
         const middle: number = start + (end - start) / 2;
         if (!(start < middle && middle < end)) return false;

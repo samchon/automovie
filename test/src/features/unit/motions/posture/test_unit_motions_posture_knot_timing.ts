@@ -16,11 +16,11 @@ const SLACK: number = 0.01;
 
 /**
  * `HumanKnotTiming.parametrize` times a rest-to-rest piece of the minimum-jerk
- * knot path time-optimally under velocity and acceleration boxes (TOPP-RA,
- * Pham and Pham 2018).
+ * knot path time-optimally under velocity and acceleration boxes (TOPP-RA, Pham
+ * and Pham 2018).
  *
- * One metre at 1 m/s and 1 m/s²: no rest-to-rest movement under those limits
- * is faster than the bang-coast-bang profile, `d/v + v/a` = 2 s, and the timed
+ * One metre at 1 m/s and 1 m/s²: no rest-to-rest movement under those limits is
+ * faster than the bang-coast-bang profile, `d/v + v/a` = 2 s, and the timed
  * piece starts and ends at its knots at rest.
  *
  * Scenarios:
@@ -68,12 +68,13 @@ export function test_unit_motions_posture_knot_timing(): void {
   // 4. A repeated knot.
   TestValidator.predicate(
     "a repeated knot is refused",
-    throwsError((): HumanKnotTiming.ITimed =>
-      HumanKnotTiming.parametrize({
-        positions: [[0], [0]],
-        segments: [{ velocity: 1, acceleration: 1 }],
-        precision: PRECISION,
-      }),
+    throwsError(
+      (): HumanKnotTiming.ITimed =>
+        HumanKnotTiming.parametrize({
+          positions: [[0], [0]],
+          segments: [{ velocity: 1, acceleration: 1 }],
+          precision: PRECISION,
+        }),
     ),
   );
 }

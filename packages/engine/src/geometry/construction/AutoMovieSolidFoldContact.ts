@@ -175,10 +175,7 @@ export namespace AutoMovieSolidFoldContact {
         dot(m.rate, m.rate),
         [-dot(h.rate, gap), dot(m.rate, gap)],
       );
-      if (
-        move === null
-      )
-        return null;
+      if (move === null) return null;
       uh += move[0];
       up += move[1];
     }

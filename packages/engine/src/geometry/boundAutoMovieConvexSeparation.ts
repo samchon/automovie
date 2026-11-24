@@ -49,11 +49,7 @@ export function boundAutoMovieConvexSeparation(
   sufficient: number = Infinity,
   spend?: () => void,
 ): number {
-  if (
-    a.length < 1 ||
-    b.length < 1 ||
-    !(sufficient >= 0)
-  )
+  if (a.length < 1 || b.length < 1 || !(sufficient >= 0))
     throw new Error(
       "Convex separation requires nonempty finite vertex runs and a nonnegative target.",
     );

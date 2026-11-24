@@ -42,9 +42,7 @@ export function validateRetargetContacts(
         "hand contact start",
       );
       collector.range(`${base}.end`, hand.end, 0, duration, "hand contact end");
-      if (
-        hand.end < hand.start
-      )
+      if (hand.end < hand.start)
         collector.push(
           "temporal",
           `${base}.end`,

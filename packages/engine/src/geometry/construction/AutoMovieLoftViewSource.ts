@@ -23,11 +23,7 @@ export namespace AutoMovieLoftViewSource {
     const diagnostics: IAutoMovieViewOutline.IFailure[] = [];
     const first: number = part.stations[0] ?? NaN;
     const last: number = part.stations[part.stations.length - 1] ?? NaN;
-    if (
-      !(
-        last > first
-      )
-    )
+    if (!(last > first))
       return {
         source: null,
         diagnostics: [

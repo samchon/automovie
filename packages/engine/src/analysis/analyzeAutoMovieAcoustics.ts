@@ -397,10 +397,7 @@ const validateAcousticRequest: (request: IAutoMovieAcousticRequest) => void = (
       throw new Error(
         `acoustic surface "${surface.id}" area must be a finite number above zero, but was ${surface.area}`,
       );
-    if (
-      surface.absorption < 0 ||
-      surface.absorption > 1
-    )
+    if (surface.absorption < 0 || surface.absorption > 1)
       throw new Error(
         `acoustic surface "${surface.id}" absorption must be a fraction within [0, 1], but was ${surface.absorption}`,
       );

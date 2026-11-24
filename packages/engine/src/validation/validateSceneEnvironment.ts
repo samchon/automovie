@@ -59,10 +59,7 @@ function finiteRange(
   out: IAutoMovieViolationCollector,
   max: number = Infinity,
 ): void {
-  if (
-    (exclusive ? value <= min : value < min) ||
-    value > max
-  )
+  if ((exclusive ? value <= min : value < min) || value > max)
     out.push(
       "range",
       path,

@@ -11,6 +11,5 @@
  * @param path Dotted name of the field, used as the message prefix.
  */
 export function assertGrammarPositive(value: number, path: string): void {
-  if (value <= 0)
-    throw new Error(`${path} must be finite and positive.`);
+  if (value <= 0) throw new Error(`${path} must be finite and positive.`);
 }

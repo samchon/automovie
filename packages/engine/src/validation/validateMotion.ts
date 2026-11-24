@@ -216,4 +216,3 @@ const validateKeyframeBezier: (
       kf.bezier,
     );
 };
-

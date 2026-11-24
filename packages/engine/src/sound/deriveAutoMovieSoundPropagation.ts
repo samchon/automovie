@@ -111,8 +111,7 @@ const assertFinitePositive: (value: number, label: string) => void = (
   value: number,
   label: string,
 ): void => {
-  if (value <= 0)
-    throw new Error(`${label} must be finite and positive`);
+  if (value <= 0) throw new Error(`${label} must be finite and positive`);
 };
 
 /**
@@ -123,8 +122,7 @@ const assertFiniteNonnegative: (value: number, label: string) => void = (
   value: number,
   label: string,
 ): void => {
-  if (value < 0)
-    throw new Error(`${label} must be finite and non-negative`);
+  if (value < 0) throw new Error(`${label} must be finite and non-negative`);
 };
 
 /**

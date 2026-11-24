@@ -14,13 +14,13 @@ import { assertGrammarPositive } from "./assertGrammarPositive";
  * film-grammar read inspects.
  *
  * Throws an `Error` naming the offending field at the first defect, in this
- * order: a duration that is not finite and positive; at each camera boundary,
- * a field of view outside `(0, 180)`, an aspect that is not finite and
- * positive, or a non-finite or missing position or rotation component; then per
- * subject in id order, a repeated id, a non-finite or missing point component,
- * a height that is not finite and positive, a radius that is negative or not
- * finite, or a non-finite eyeline point; a primary subject that is not
- * observed; an action axis that repeats or misses an observed subject; and repeated style intents.
+ * order: a duration that is not finite and positive; at each camera boundary, a
+ * field of view outside `(0, 180)`, an aspect that is not finite and positive,
+ * or a non-finite or missing position or rotation component; then per subject
+ * in id order, a repeated id, a non-finite or missing point component, a height
+ * that is not finite and positive, a radius that is negative or not finite, or
+ * a non-finite eyeline point; a primary subject that is not observed; an action
+ * axis that repeats or misses an observed subject; and repeated style intents.
  *
  * @param input One observed shot as the production grammar pass built it.
  * @returns A new record whose subjects are sorted and indexed by id and whose
@@ -88,4 +88,3 @@ export function normalizeGrammarShot(
     throw new Error(`styleIntent in "${input.id}" must be unique.`);
   return { ...input, subjects, subjectById, actionAxis, styleIntent };
 }
-

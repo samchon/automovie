@@ -39,9 +39,9 @@ export namespace HumanPerformanceObject {
   /**
    * Every writer of a prop's articulations in film order, with its independent
    * degree resolved once: each placed action's drives, clipped to its active
-   * span, and the prop's own tracks from their instants: those the
-   * performance prepared once every action and its final clipped end was
-   * placed, or, while the schedule is resolved, those placed now.
+   * span, and the prop's own tracks from their instants: those the performance
+   * prepared once every action and its final clipped end was placed, or, while
+   * the schedule is resolved, those placed now.
    *
    * @param self The performance.
    * @param prop The prop.
@@ -130,9 +130,25 @@ export namespace HumanPerformanceObject {
     prop: IAutoMovieMotionHumanProp,
     seconds: number,
   ): Record<string, number> {
+    return travel(writers(self, prop), seconds);
+  }
+
+  /**
+   * The travel a prop's writers in film order give at a film second
+   * ({@link state}): each independent degree in its latest begun writer's
+   * coordinate, read within that writer's window and held at its end.
+   *
+   * @param ordered The writers, by their start.
+   * @param seconds Film seconds.
+   * @returns Travel by articulation id.
+   */
+  export function travel(
+    ordered: readonly IWriter[],
+    seconds: number,
+  ): Record<string, number> {
     const out: Record<string, number> = {};
     const latest: Map<string, IWriter> = new Map();
-    for (const w of writers(self, prop)) {
+    for (const w of ordered) {
       if (w.from > seconds) break;
       latest.set(w.leader, w);
     }

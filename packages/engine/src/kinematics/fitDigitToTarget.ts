@@ -66,18 +66,17 @@ import { swingTwistRange } from "./swingTwistRange";
  * better of two starts for a target the continued fit reaches, an argmin that
  * would switch basins between neighbouring targets. A caller's `rate` softens
  * the target near full extension, where the exact inverse has an unbounded
- * derivative: an exponential soft IK.
- * Below the soft band the target is unchanged; within it, some reach is traded
- * for a bounded radial extension rate. The band's width comes from the chain's
- * lengths and the requested rate, not the seed's posture. This controls the
- * full-extension singularity, not every possible change of basin of a
- * constrained digit. The result is deterministic for its input: fixed starts, a
- * fixed order of variables and no random draw. A target outside the digit's
- * workspace is fitted as nearly as this constrained local solve reaches it.
- * With `rate` it fits the eased target instead, so its constrained minimum may
- * differ from the original target's. In either case `residual` reports distance
- * to the original target, including any reach traded away, so a caller refuses
- * or accepts by its own bound.
+ * derivative: an exponential soft IK. Below the soft band the target is
+ * unchanged; within it, some reach is traded for a bounded radial extension
+ * rate. The band's width comes from the chain's lengths and the requested rate,
+ * not the seed's posture. This controls the full-extension singularity, not
+ * every possible change of basin of a constrained digit. The result is
+ * deterministic for its input: fixed starts, a fixed order of variables and no
+ * random draw. A target outside the digit's workspace is fitted as nearly as
+ * this constrained local solve reaches it. With `rate` it fits the eased target
+ * instead, so its constrained minimum may differ from the original target's. In
+ * either case `residual` reports distance to the original target, including any
+ * reach traded away, so a caller refuses or accepts by its own bound.
  *
  * @param input The rig, the posed body, the digit's joints and the effector and
  *   target.
@@ -91,10 +90,7 @@ export function fitDigitToTarget(
 ): IAutoMovieFitDigitToTarget.IResult {
   if (input.bones.length === 0)
     throw new Error("A digit fit needs the digit's joints");
-  if (
-    input.rate !== undefined &&
-    !(input.rate > 0)
-  )
+  if (input.rate !== undefined && !(input.rate > 0))
     throw new Error("A digit fit's rate must be finite and positive");
   const topology: IAutoMovieSkeletonTopology =
     input.topology ?? indexSkeletonTopology(input.skeleton);

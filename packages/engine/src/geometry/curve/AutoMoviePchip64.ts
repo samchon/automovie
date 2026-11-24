@@ -84,9 +84,7 @@ export class AutoMoviePchip64 {
     const m: number[] = values
       .slice(1)
       .map((y: number, i: number): number => (y - values[i]!) / h[i]!);
-    if (
-      h.some((x: number): boolean => x <= 0)
-    )
+    if (h.some((x: number): boolean => x <= 0))
       throw new Error("Finite increasing spline coordinates required");
     return AutoMoviePchip64.fromSecants(h, m);
   }
