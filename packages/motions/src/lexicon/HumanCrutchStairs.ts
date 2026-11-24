@@ -1,6 +1,7 @@
 import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
+  AutoMovieHumanoidBone,
   IAutoMovieAffordance,
   IAutoMovieMotionEvent,
   IAutoMovieMotionHumanActionContext,
@@ -10,6 +11,7 @@ import type {
   IAutoMovieMotionHumanEntryState,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanSupport,
+  IAutoMovieResolvedBone,
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -19,8 +21,11 @@ import { supportContact } from "../actions/supportContact";
 import type { supportCourse } from "../actions/supportCourse";
 import { crawl } from "../floor/crawl";
 import { getUp } from "../floor/getUp";
+import { HumanContactWindow } from "../law/HumanContactWindow";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFoot } from "../posture/HumanFoot";
+import { poseBones } from "../posture/poseBones";
+import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { carryCrutchHands } from "./carryCrutchHands";
 import { crutchHeldLeg } from "./crutchHeldLeg";
 import { crutchStairsFlight } from "./crutchStairsFlight";
@@ -394,40 +399,66 @@ export const HumanCrutchStairs: IAutoMovieMotionHumanCrutchStairs.ILaw = {
         ),
         seconds,
       );
+    // The law's intent: the injured foot bears only until it lifts; the
+    // sound foot bears on the tread it stands on.
+    const declared: IAutoMovieMotionHumanContactWindow[] =
+      plan.contacts.flatMap(
+        (
+          w: IAutoMovieMotionHumanContactWindow,
+        ): IAutoMovieMotionHumanContactWindow[] =>
+          w.part === `${injured}Foot`
+            ? w.from * plan.duration >= lifted
+              ? []
+              : [{ ...w, to: Math.min(w.to, lifted / plan.duration) }]
+            : w.part === `${sound}Foot`
+              ? [
+                  {
+                    ...w,
+                    support: {
+                      kind: "ground",
+                      height:
+                        ground +
+                        climb.sign *
+                          climb.riser *
+                          crutchStairsFlight.arrived(
+                            climb,
+                            w.from * plan.duration,
+                          ),
+                    },
+                  },
+                ]
+              : [w],
+      );
+
+    // The feet bear where their planned toes stand still on the static
+    // treads (`HumanContactWindow.fromPath`), on the support the intent
+    // names.
+    const toes: ReadonlySet<AutoMovieHumanoidBone> =
+      new Set<AutoMovieHumanoidBone>(["leftToes", "rightToes"]);
+    const feetWindows: IAutoMovieMotionHumanContactWindow[] =
+      HumanContactWindow.fromPath({
+        windows: declared,
+        duration: plan.duration,
+        toes: (seconds: number): HumanContactWindow.Toes => {
+          const placed: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
+            poseBones(
+              body,
+              resolveHumanPosture(body, posture(seconds)),
+              undefined,
+              toes,
+            );
+          return {
+            leftFoot: placed.get("leftToes")!.worldPosition,
+            rightFoot: placed.get("rightToes")!.worldPosition,
+          };
+        },
+      });
     return {
       ...plan,
       posture,
       yields: ["head"],
       contacts: [
-        ...plan.contacts.flatMap(
-          (
-            w: IAutoMovieMotionHumanContactWindow,
-          ): IAutoMovieMotionHumanContactWindow[] =>
-            // The injured foot bears only until it lifts; the sound foot
-            // bears on the tread it stands on.
-            w.part === `${injured}Foot`
-              ? w.from * plan.duration >= lifted
-                ? []
-                : [{ ...w, to: Math.min(w.to, lifted / plan.duration) }]
-              : w.part === `${sound}Foot`
-                ? [
-                    {
-                      ...w,
-                      support: {
-                        kind: "ground",
-                        height:
-                          ground +
-                          climb.sign *
-                            climb.riser *
-                            crutchStairsFlight.arrived(
-                              climb,
-                              w.from * plan.duration,
-                            ),
-                      },
-                    },
-                  ]
-                : [w],
-        ),
+        ...feetWindows,
         ...(["left", "right"] as const).map(
           (side: AutoMovieHumanSide): IAutoMovieMotionHumanContactWindow => ({
             part: `${side}Hand`,

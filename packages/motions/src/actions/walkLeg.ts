@@ -238,24 +238,20 @@ export namespace walkLeg {
   }
 
   /**
-   * The ankle's dorsal limit of a planted foot bearing a share of the body's
-   * weight, degrees: the unloaded foot's passive limit, rising linearly with
-   * the share to the weight-bearing one when it bears it all
-   * (`ANKLE_DORSIFLEXION`; Konor et al. 2012's weight-bearing lunge). The
-   * weight's moment about the ankle is what stretches the calf past its passive
-   * range, and it grows with the share the foot bears, so a foot taking the
-   * weight over a weight shift reaches its dorsal room continuously instead of
-   * at a touch-down.
+   * The ankle's dorsal limit of a foot by its contact state, degrees: a foot
+   * that bears any share of the body's weight the weight-bearing limit (39,
+   * Konor, Morton, Eckerson and Grindstaff 2012, Int J Sports Phys Ther
+   * 7(3):279, the weight-bearing lunge), one that bears none the passive one
+   * (20, the AAOS norm), both from `ANKLE_DORSIFLEXION`. The limit is binary,
+   * as the take's range audit reads it by the contact window: the studies
+   * measure the two conditions, and no study relates the limit to a partial
+   * load, so none is interpolated between them.
    *
    * @param share The share of the body's weight the foot bears, 0 to 1.
    * @returns Degrees.
    */
   export function dorsal(share: number): number {
-    const s: number = Math.min(1, Math.max(0, share));
-    return (
-      ANKLE_DORSIFLEXION.unloaded +
-      s * (ANKLE_DORSIFLEXION.loaded - ANKLE_DORSIFLEXION.unloaded)
-    );
+    return share > 0 ? ANKLE_DORSIFLEXION.loaded : ANKLE_DORSIFLEXION.unloaded;
   }
 
   /**

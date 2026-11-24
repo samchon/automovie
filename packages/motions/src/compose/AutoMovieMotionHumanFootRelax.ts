@@ -3,7 +3,6 @@ import {
   DEFAULT_HUMANOID_ROM,
   Quaternion,
   Vector3,
-  minimumJerk,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
@@ -21,29 +20,21 @@ import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolutio
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
 /**
- * A foot kept within the ankle's dorsal range for the weight it bears. A foot
- * bearing the body dorsiflexes as far as the loaded limit, one bearing nothing
- * only to the passive one (`ANKLE_DORSIFLEXION`), and the limit between follows
- * the share of the weight (`walkLeg.dorsal`). A law that carries a foot at a
- * placement of its own (held flat, or turned as it was set down) would ask the
- * ankle past that limit whenever the shank leans over it, so the placement's
- * heel is raised about the toes' joint (about the ball, for a support held
- * under it) as the forefoot rocker raises a walking foot's, read in closed form
- * from the shank's lean (`prepareWalkLegLean`): the forefoot stays where the
- * law put it, so a foot on the floor rises onto its ball rather than driving
- * its toes into the floor; a foot in the air turns toes down about its ankle, a
- * pointed foot left pointed. A planted foot takes the weight over the first
- * `LEAD` seconds of the plant and sheds it over the last (`load`), so it lands
- * on its ball and lowers its heel, and its heel is already up within the
- * passive limit when it leaves.
+ * A foot kept within the ankle's dorsal range for its contact state. A foot
+ * bearing any of the body's weight dorsiflexes as far as the loaded limit, one
+ * bearing nothing only to the passive one (`ANKLE_DORSIFLEXION`; the binary
+ * limit of `walkLeg.dorsal`, as the range audit reads it). A law that carries a
+ * foot at a placement of its own (held flat, or turned as it was set down)
+ * would ask the ankle past that limit whenever the shank leans over it, so the
+ * placement's heel is raised about the toes' joint (about the ball, for a
+ * support held under it) as the forefoot rocker raises a walking foot's, read
+ * in closed form from the shank's lean (`prepareWalkLegLean`): the forefoot
+ * stays where the law put it, so a foot on the floor rises onto its ball rather
+ * than driving its toes into the floor; a foot in the air turns toes down about
+ * its ankle, a pointed foot left pointed. A planted foot bears from its landing
+ * to its lift (`load`), the contact state the limit is read by.
  */
 export namespace AutoMovieMotionHumanFootRelax {
-  /**
-   * Seconds before a lift over which a planted foot sheds its weight
-   * (provisional: a tenth of a second, a walking weight shift's order).
-   */
-  export const LEAD: number = 0.1;
-
   /**
    * How many times the heel's rise is corrected for the lean it changes; the
    * lean moves by a fraction of the rise, so the residual shrinks
@@ -52,26 +43,22 @@ export namespace AutoMovieMotionHumanFootRelax {
   export const PASSES: number = 3;
 
   /**
-   * The share of the weight a planted foot bears: it takes the weight over the
-   * lead after it lands and sheds it over the lead before it lifts.
+   * Whether a planted foot bears at an action second, as the share the limit
+   * reads (`walkLeg.dorsal`): it bears strictly between its landing and its
+   * lift, the contact window's own state, with no ramp of its own between the
+   * two limits, which no study relates to a partial load.
    *
    * @param seconds The action second.
    * @param leave The second the foot lifts.
-   * @param at The second the plant began; a plant shorter than twice `LEAD`
-   *   takes and sheds over its halves.
-   * @returns Rising on a minimum-jerk share from 0 at the landing, 1 between
-   *   the leads, falling to 0 at the lift.
+   * @param at The second the plant began.
+   * @returns 1 between the landing and the lift, 0 at and outside them.
    */
   export function load(
     seconds: number,
     leave: number,
     at: number = -Infinity,
   ): number {
-    const lead: number = Math.min(LEAD, (leave - at) / 2);
-    if (!(lead > 0)) return 1;
-    const share: (u: number) => number = (u: number): number =>
-      minimumJerk.share(Math.min(1, Math.max(0, u / lead)));
-    return Math.min(share(seconds - at), share(leave - seconds));
+    return at < seconds && seconds < leave ? 1 : 0;
   }
 
   /**
@@ -137,8 +124,7 @@ export namespace AutoMovieMotionHumanFootRelax {
       pivot,
       placement,
     );
-    const dorsal: number =
-      share > 0 ? walkLeg.dorsal(share) : ANKLE_DORSIFLEXION.unloaded;
+    const dorsal: number = walkLeg.dorsal(share);
     // The ankle's room at the shank's lean is closed form; raising the heel
     // about the toes' joint moves the ankle and so the lean, so the excess
     // is taken off again from where it leaves the ankle, a fixed number of

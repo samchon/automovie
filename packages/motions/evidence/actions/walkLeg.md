@@ -122,19 +122,19 @@ Owns no state beyond the synchronous search.
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States the two ends, their source, the premise of the blend and the unit.
+States the two limits, their sources, why no partial-load value is drawn and the unit.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-The two measured limits joined by the share of the weight whose moment stretches the joint.
+The two measured limits by contact state: Konor, Morton, Eckerson and Grindstaff 2012 weight-bearing (39) for a foot bearing any weight, the AAOS passive norm (20) for one bearing none, as the range audit reads them; no study gives a limit under a partial load.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-One clamp and one linear blend.
+One comparison.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
-The ends are the engine's measured limits; the share is clamped to its range.
+The limits are the engine's measured ones; a share above zero is bearing.
 
 ## @evidenceExclude contracts/development/implementation.md#efficient-algorithms
 

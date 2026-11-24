@@ -1,6 +1,7 @@
 import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
+  AutoMovieHumanoidBone,
   IAutoMovieAffordance,
   IAutoMovieMotionEvent,
   IAutoMovieMotionHumanActionContext,
@@ -8,8 +9,10 @@ import type {
   IAutoMovieMotionHumanAidWalk,
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanCrutchWalk,
+  IAutoMovieMotionHumanFoot,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanSupport,
+  IAutoMovieResolvedBone,
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -17,7 +20,11 @@ import type {
 import { support } from "../actions/support";
 import { supportContact } from "../actions/supportContact";
 import { getUp } from "../floor/getUp";
+import { HumanContactWindow } from "../law/HumanContactWindow";
+import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
+import { poseBones } from "../posture/poseBones";
+import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { carryCrutchHands } from "./carryCrutchHands";
 import { crutchHeldLeg } from "./crutchHeldLeg";
 import { crutchWalkCourse } from "./crutchWalkCourse";
@@ -26,10 +33,14 @@ import { crutchWalkCourse } from "./crutchWalkCourse";
 const FLOOR: number = 0.01;
 
 /**
- * How far a swung-through foot lands past the crutch tips, metres (provisional:
- * a short step past the tripod).
+ * How far a swung-through foot lands past the crutch tips, metres: 12 inches,
+ * "Land on your good foot, about 12 inches in front of the crutches" (UMass
+ * Memorial Health, "Discharge Instructions: Using Crutches
+ * (Non-Weight-Bearing)", content by WebMD Ignite), measured, as a swing-to
+ * landing's level is, from the middle of the foot's support between heel and
+ * ball.
  */
-const THROUGH: number = 0.15;
+const THROUGH: number = 12 * 0.0254;
 
 /**
  * The hip's and knee's flexion that hold a three-point gait's injured foot off
@@ -91,15 +102,19 @@ function centreOf(
  * feet standing; then the hands bear on the planted handgrips while the feet
  * swing. In a three-point gait only the sound foot bears and steps, the injured
  * leg held off the floor (`HELD`), its foot first lifted clear over its place
- * before the leg folds; in a swing-to gait both feet land level with the tips,
- * and in a swing-through gait `THROUGH` past them (Physiopedia, Crutches,
- * https://www.physio-pedia.com/Crutches). The crutch props share the walk's
- * clock (`track`), so a scene's crutches and the body read one course. Each
- * station carries both crutches and the feet rigidly with the walker: displaced
- * by the station and turned about the walk's `origin` (each crutch about its
- * own tip and the feet about the tips' midpoint when none is given). The hands
- * hold their grips where the crutch stands at each support key and ride the
- * crutch's lift between them (`carryCrutchHands`).
+ * before the leg folds; in a swing-to gait both feet land level with the tips
+ * ("Lift and swing the body to the crutches", Morelewicz and Chambers 1961,
+ * "Crutch Walking", AAIN Journal 9(1):20-21; "Land on your good foot, between
+ * your crutches", UMass Memorial Health's crutch instructions), and in a
+ * swing-through gait `THROUGH` past them. A foot is level with a line where the
+ * middle of its support, between the heel and the ball it lands flat on
+ * (contacts.md, "Feet"), lies on it. The crutch props share the walk's clock
+ * (`track`), so a scene's crutches and the body read one course. Each station
+ * carries both crutches and the feet rigidly with the walker: displaced by the
+ * station and turned about the walk's `origin` (each crutch about its own tip
+ * and the feet about the tips' midpoint when none is given). The hands hold
+ * their grips where the crutch stands at each support key and ride the crutch's
+ * lift between them (`carryCrutchHands`).
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the order of each gait, where the weight goes and how the props share the clock.
  * @evidence contracts/development/design.md#principled-representation Support stances whose contacts are the bearing feet and hands, and one track per crutch derived from the same stations.
@@ -231,6 +246,27 @@ export const HumanCrutchWalk: IAutoMovieMotionHumanCrutchWalk.ILaw = {
         ).position,
         0.5,
       );
+    // How far ahead of the middle of each bearing foot's support, between its
+    // heel and its ball, the foot's bear point (its toes' joint) lies along
+    // the heading: read once on the entry's displayed sockets
+    // (`HumanFoot.sockets`).
+    const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
+      body,
+      context.entry.pose,
+    );
+    const ahead: readonly number[] = feet.map(
+      (side: AutoMovieHumanSide, i: number): number => {
+        const [heel, ball]: IAutoMovieMotionHumanFoot.ISocket[] =
+          HumanFoot.sockets(body, bones, side);
+        return Vector3.dot(
+          Vector3.subtract(
+            initial[i]!,
+            Vector3.lerp(heel!.point, ball!.point, 0.5),
+          ),
+          HumanFrame.forward(entry.yaw),
+        );
+      },
+    );
     const footAt: (
       i: number,
       station: number,
@@ -244,7 +280,8 @@ export const HumanCrutchWalk: IAutoMovieMotionHumanCrutchWalk.ILaw = {
         params.stations[station],
       ).position;
       // A three-point sound foot lands between the tips; a swing-to foot
-      // level with them and a swing-through foot `THROUGH` past them.
+      // with the middle of its support level with them and a swing-through
+      // foot's `THROUGH` past them.
       const forward: IAutoMovieVector3 = HumanFrame.forward(
         entry.yaw + (params.stations[station]!.turn ?? 0),
       );
@@ -257,7 +294,9 @@ export const HumanCrutchWalk: IAutoMovieMotionHumanCrutchWalk.ILaw = {
                 carried,
               ),
               forward,
-            ) + (pattern === "swingThrough" ? THROUGH : 0);
+            ) +
+            ahead[i]! +
+            (pattern === "swingThrough" ? THROUGH : 0);
       return {
         part: `${feet[i]!}Foot`,
         kind: "bear",
@@ -431,12 +470,34 @@ export const HumanCrutchWalk: IAutoMovieMotionHumanCrutchWalk.ILaw = {
             projection,
           ): IAutoMovieMotionHumanPosture =>
             hold(carried(seconds, channels, resolution, projection), seconds);
+    // The feet bear where their planned toes stand still on the floor
+    // (`HumanContactWindow.fromPath`), on the support each stance names.
+    const toes: ReadonlySet<AutoMovieHumanoidBone> =
+      new Set<AutoMovieHumanoidBone>(["leftToes", "rightToes"]);
+    const feetWindows: IAutoMovieMotionHumanContactWindow[] =
+      HumanContactWindow.fromPath({
+        windows: plan.contacts,
+        duration: plan.duration,
+        toes: (seconds: number): HumanContactWindow.Toes => {
+          const placed: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
+            poseBones(
+              body,
+              resolveHumanPosture(body, posture(seconds)),
+              undefined,
+              toes,
+            );
+          return {
+            leftFoot: placed.get("leftToes")!.worldPosition,
+            rightFoot: placed.get("rightToes")!.worldPosition,
+          };
+        },
+      });
     return {
       ...plan,
       posture,
       yields: ["head"],
       contacts: [
-        ...plan.contacts,
+        ...feetWindows,
         ...(["left", "right"] as const).map(
           (side: AutoMovieHumanSide): IAutoMovieMotionHumanContactWindow => ({
             part: `${side}Hand`,
