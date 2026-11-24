@@ -22,6 +22,8 @@ AutoMovieHumanToePart exchanges the named IInput, ISource, IDefinition contracts
 
 The toe's original point course and foot-axis section laws, calibration mm.
 
+The optional positive and negative transverse half-breadths are authored by the actual adjacent courses at the given side. The same declaration carries their signed range limits through the native source interpolator.
+
 ## @evidence contracts/development/design.md#principled-representation `name`: Anatomical source name, toe.left.1 through toe.right.5. `centres`: Named generating points on the plan-affine hidden-start-to-apex course and the declared height source; not measured joints. `apex`: Declared generated skin apex; no further pulp reach is added.
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface

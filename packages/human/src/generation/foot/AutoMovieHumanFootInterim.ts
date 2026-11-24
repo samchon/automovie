@@ -140,7 +140,11 @@ export namespace AutoMovieHumanFootInterim {
     const raw: IAutoMovieHumanFootBreadth.ISupport | string =
       AutoMovieHumanFootBreadth.measure(
         unit,
-        AutoMovieHumanFootToeSources.create(unit, unitDefinition).map(
+        AutoMovieHumanFootToeSources.create(
+          unit,
+          unitDefinition,
+          d.phalangealLengthScale,
+        ).map(
           (
             toe: IAutoMovieHumanFootToeSources.ICandidate,
           ): IAutoMovieHumanToePart.IInput => toe.part,
@@ -174,7 +178,11 @@ export namespace AutoMovieHumanFootInterim {
     return {
       foot,
       controls,
-      toes: AutoMovieHumanFootToeSources.create(foot, controls),
+      toes: AutoMovieHumanFootToeSources.create(
+        foot,
+        controls,
+        d.phalangealLengthScale,
+      ),
       diagnostics,
       definition: (): IAutoMovieHumanSourceDefinition =>
         AutoMovieHumanSiteViewPart.fromControls(controls),

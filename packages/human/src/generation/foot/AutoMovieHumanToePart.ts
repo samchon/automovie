@@ -268,9 +268,9 @@ export namespace AutoMovieHumanToePart {
         station,
         edges: [
           vertical?.[1] ?? law.depth - input.height,
-          law.breadth / 2,
+          input.halfBreadths?.[0] ?? law.breadth / 2,
           vertical?.[2] ?? -input.height,
-          -law.breadth / 2,
+          -(input.halfBreadths?.[1] ?? law.breadth / 2),
         ],
         fullness: { shoulder: law.shoulder },
         ...(input.vertical !== undefined || law.jets === undefined

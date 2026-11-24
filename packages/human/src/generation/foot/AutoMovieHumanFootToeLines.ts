@@ -91,12 +91,7 @@ export namespace AutoMovieHumanFootToeLines {
         const span: number =
           phalangealScale * Math.hypot(length, nominalY - head[1]);
         const y: number = apexY(span);
-        const projectionSquared: number = span ** 2 - (y - head[1]) ** 2;
-        if (!(projectionSquared > 0 && length > 0))
-          throw new Error(
-            "The requested toe length cannot reach its floor pad",
-          );
-        const advance: number = Math.sqrt(projectionSquared) / length;
+        const advance: number = planFactor(length, span, y - head[1]);
         return {
           head,
           tip: [
@@ -107,6 +102,27 @@ export namespace AutoMovieHumanFootToeLines {
         };
       },
     );
+  }
+
+  /**
+   * Project a requested full length between two held heights onto its
+   * horizontal course.
+   */
+  export function planFactor(
+    planLength: number,
+    length: number,
+    rise: number,
+  ): number {
+    const projectionSquared: number = length ** 2 - rise ** 2;
+    if (
+      !(
+        Number.isFinite(projectionSquared) &&
+        projectionSquared > 0 &&
+        planLength > 0
+      )
+    )
+      throw new Error("The requested toe length cannot reach its floor pad");
+    return Math.sqrt(projectionSquared) / planLength;
   }
 }
 

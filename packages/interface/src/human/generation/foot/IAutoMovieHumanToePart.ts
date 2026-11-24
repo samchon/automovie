@@ -44,6 +44,9 @@ export namespace IAutoMovieHumanToePart {
     /** Original breadth/depth laws in the fixed foot chart, using the existing generating-site names. */
     law: IAutoMovieHumanDigitWalk.IInput["law"];
 
+    /** Independent transverse half-breadths, mm, at the positive and negative chart guides. */
+    halfBreadths?: readonly [positive: number, negative: number];
+
     /** Optional closed scalar source bounds in that same up/across chart. */
     ranges: IAutoMovieHumanSectionSource["ranges"];
 
