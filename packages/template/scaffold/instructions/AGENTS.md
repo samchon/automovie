@@ -22,7 +22,7 @@ Keep subjects simple and motion detailed.
 
 - Use the polygon man from `@automovie/human`.
 - Use `@automovie/archetypes` for objects, or build a coarse form.
-- Compose actions from the family namespaces of `@automovie/motions`, `AutoMovieMotionHuman<Family>`, reading in their JSDoc and the family interface what each value, preset and default performs.
+- Compose actions from `@automovie/motions`, reading in its JSDoc what each value and default performs.
 
 Realize the screenplay in code.
 

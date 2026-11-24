@@ -1,6 +1,6 @@
 # Composing a performance
 
-Compose each beat as a kinematic performance from the actions of the family namespaces `AutoMovieMotionHuman<Family>` in `@automovie/motions`, reading their JSDoc. Do not copy the vocabulary's values or defaults into the production.
+Compose each beat as a kinematic performance from the actions, parameters and operators of `@automovie/motions`, reading their JSDoc.
 
 ## Actions
 
