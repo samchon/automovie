@@ -72,7 +72,7 @@ States the result and the refusal.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-Each candidate is fitted by the rig's own arm fit within its ranges and its hand's attitude miss read off the fitted pose; the first met turn in order of size is taken (Tolani et al. 2000, section 3.2.4), and a met arc narrower than the scan is found by golden-section search on the miss (Kiefer 1953).
+Each candidate is fitted by the rig's own arm fit within its ranges and its hand's attitude miss read off the fitted pose; a turn counts as met only where the fit's swivel lies on an arc that admits it (`IAutoMovieSwivelSeed.admitted`), an arc narrower than the swivel's resolution being none (`distalEndSwivelAdmitted`), so the course that continues the fit keeps it; the first met turn in order of size is taken (Tolani et al. 2000, section 3.2.4), and a met arc narrower than the scan is found by golden-section search on the miss (Kiefer 1953).
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
@@ -85,6 +85,36 @@ An unmet attitude is refused with its least miss; nothing is clamped or widened.
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
 At most 360 / STEP + 1 scanned fits and 2 REFINE + 1 refining ones per call, made once per plan by its callers, never per frame; the scan stops at the first met turn.
+
+## @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work
+
+A pure reading of its request.
+
+## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
+
+Retains nothing.
+
+# src/compose/AutoMovieMotionHumanArmReach.ts#AutoMovieMotionHumanArmReach.met
+
+## @evidence contracts/development/common.md#meaningful-documentation
+
+States what it answers and who uses it.
+
+## @evidence contracts/development/implementation.md#principled-implementation
+
+The same search as `attitude` (the rig's own fit per candidate turn, a turn met only on an admitted arc, the nearest met in order of size), answering none where `attitude` refuses, so a law that chooses a hand's place by whether its attitude is met reads the one search without catching a refusal.
+
+## @evidence contracts/development/implementation.md#clear-and-simple-structure
+
+One call of the shared search.
+
+## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
+
+No relaxed test: the answer is `attitude`'s own.
+
+## @evidence contracts/development/implementation.md#efficient-algorithms
+
+The search's bound per call, made at plan time by its callers.
 
 ## @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work
 

@@ -24,6 +24,7 @@ import type {
 
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
+import { AutoMovieMotionHumanArmReach } from "../compose/AutoMovieMotionHumanArmReach";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanHeld } from "../compose/AutoMovieMotionHumanHeld";
@@ -54,7 +55,10 @@ interface IVertex {
  * tool in the orientation used to write. The surface belongs to a fixed rigid
  * prop. A prop that supplies a frame reader declares its rigidity with
  * `hasArticulations: false`. The arm approaches and leaves the stroke with the
- * entry wrist attitude as its goal. The target gives each edge time
+ * entry wrist attitude as its goal, turned about the line from the wrist to the
+ * tip (which keeps the tip on the stroke) to the turn nearest it that the
+ * forearm and the wrist meet on an arc of swivels at the stroke's first point
+ * (`AutoMovieMotionHumanArmReach.attitude`). The target gives each edge time
  * proportional to its length and zero speed at each vertex, using Flash and
  * Hogan's planar minimum-jerk law (1985,
  * doi:10.1523/JNEUROSCI.05-07-01688.1985). The arm plans against that target.
@@ -65,7 +69,7 @@ interface IVertex {
  * @evidence contracts/development/design.md#principled-representation A law over a held tool, a fixed planar frame and an authored time-parametrized polyline. The wrist positions follow from the held tip's measured offset.
  * @evidence contracts/development/design.md#minimal-and-owned-surface One registerable law using the canonical write parameters and existing hold, clock and trajectory APIs.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No specific tool, glyph, in-hand regrasp or paper geometry is required. The author supplies the stroke.
- * @evidence contracts/development/implementation.md#principled-implementation The rigid transform fixes the tip relative to the wrist. Each target is on the surface plane, along a minimum-jerk leg of the authored stroke.
+ * @evidence contracts/development/implementation.md#principled-implementation The rigid transform fixes the tip relative to the wrist. Each target is on the surface plane, along a minimum-jerk leg of the authored stroke. The hand's turn about the wrist-to-tip line, free since it keeps the tip in place, is resolved once at plan time to the nearest the arm meets on an admitted arc (Tolani, Goswami and Badler 2000, section 3.2.4).
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit the input, place the surface and tool frames, then compose one planned arm over the entered base.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The tip and surface come from the props' affordances. The contact radius is the radius the tip declares, a point when it declares none.
  * @evidence contracts/development/implementation.md#efficient-algorithms Linear preparation in the stroke's vertices. The shared arm planner reads target sites by binary edge lookup and solves one trajectory.
@@ -286,10 +290,28 @@ function planWrite(
           },
           vertices.map((vertex: IVertex): IAutoMovieVector3 => vertex.point),
         );
-  const holding: IAutoMovieQuaternion =
+  const asked: IAutoMovieQuaternion =
     turns === undefined
       ? rotation
       : Quaternion.normalize(Quaternion.multiply(turns.stroke, rotation));
+  // A turn of the hand about the line from the wrist to the tip keeps the tip
+  // where the stroke puts it, so that turn is the hand's to choose: the one
+  // nearest the asked attitude that the forearm's twist and the wrist meet on
+  // an arc of swivels at the stroke's first point is taken at plan time
+  // (`AutoMovieMotionHumanArmReach.attitude`; Tolani, Goswami and Badler 2000,
+  // section 3.2.4), not the pick-up's attitude carried into a stroke its arm
+  // meets only at an arc's edge.
+  const reach: IAutoMovieVector3 = Quaternion.rotateVector(asked, contact);
+  const holding: IAutoMovieQuaternion = AutoMovieMotionHumanArmReach.attitude({
+    body: context.body,
+    posture: context.entry.posture,
+    side,
+    bend,
+    requested: asked,
+    axis: reach,
+    wrist: (): IAutoMovieVector3 => Vector3.subtract(first.point, reach),
+    name: "tool",
+  }).rotation;
   const lever: IAutoMovieVector3 = Quaternion.rotateVector(holding, contact);
   writeWith.reach(
     context,

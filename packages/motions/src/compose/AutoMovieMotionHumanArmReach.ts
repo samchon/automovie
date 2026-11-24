@@ -1,10 +1,11 @@
 import { Quaternion, ROM_TOLERANCE, Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanLimb,
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPosture,
-  IAutoMoviePose,
+  IAutoMovieMotionHumanResolveHumanPosture,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -26,11 +27,13 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
  * between two frames. Here each candidate turn of the requested attitude about
  * the free axis is fitted on the arm at its place, within the joints' ranges
  * (the rig's own fit), and the turn whose fitted hand meets its asked attitude
- * is taken, the one nearest the requested turn (or a previous attitude) among
- * those that meet it: the feasible value nearest the desired one (Tolani,
- * Goswami and Badler 2000, Graphical Models 62:353, section 3.2.4). Where no
- * turn is met within the range tolerance, the attitude is refused with the
- * least miss, never clamped in silence.
+ * on an arc of swivels that admits it (one wider than the swivel's resolution,
+ * `distalEndSwivelAdmitted`, so the course's next knot keeps it) is taken, the
+ * one nearest the requested turn (or a previous attitude) among those that meet
+ * it: the feasible value nearest the desired one (Tolani, Goswami and Badler
+ * 2000, Graphical Models 62:353, section 3.2.4). Where no turn is met within
+ * the range tolerance, the attitude is refused with the least miss, never
+ * clamped in silence.
  */
 export namespace AutoMovieMotionHumanArmReach {
   /**
@@ -101,6 +104,37 @@ export namespace AutoMovieMotionHumanArmReach {
    *   range tolerance (`ROM_TOLERANCE`).
    */
   export function attitude(request: IRequest): IResult {
+    const found: ISearch = search(request);
+    if (found.met !== null) return found.met;
+    throw new HumanRefusal({
+      kind: "reach",
+      axis: request.name,
+      value: found.least,
+      feasible: {
+        kind: "range",
+        minimum: 0,
+        maximum: ROM_TOLERANCE,
+        unit: "degrees",
+      },
+      reason: `no turn of the asked hand attitude about its free axis is within the ${request.side} forearm's twist and wrist ranges at its place: the nearest misses by ${found.least.toFixed(1)} degrees (turned ${found.nearest?.turn ?? 0} degrees)`,
+      fix: "place the hand where the arm can take the attitude, or free more of the attitude",
+    });
+  }
+
+  /**
+   * The reachable equivalent of a requested attitude, or none: the same search
+   * as `attitude`, for a law that chooses the hand's place by whether its
+   * attitude is met there.
+   *
+   * @param request What the law asks.
+   * @returns The attitude met nearest the requested turn, or null.
+   */
+  export function met(request: IRequest): IResult | null {
+    return search(request).met;
+  }
+
+  /** The scan and its refinement, with the least miss where none is met. */
+  function search(request: IRequest): ISearch {
     const hand: AutoMovieHumanoidBone = `${request.side}Hand`;
     const axis: IAutoMovieVector3 = Vector3.normalize(request.axis);
     const turned = (turn: number): IAutoMovieQuaternion =>
@@ -110,26 +144,40 @@ export namespace AutoMovieMotionHumanArmReach {
           request.requested,
         ),
       );
-    // The fitted hand's miss of a candidate attitude, degrees.
-    const missAt = (turn: number): number => {
+    const limb: AutoMovieHumanLimb = `${request.side}Arm`;
+    // The fitted hand's miss of a candidate attitude, degrees, and whether the
+    // fit's swivel lies on an arc that admits it (`IAutoMovieSwivelSeed.
+    // admitted`): an arc narrower than the swivel's resolution is none
+    // (`distalEndSwivelAdmitted`), so an attitude met only on such an arc is
+    // lost by the course's next knot and is not met.
+    const fitAt = (turn: number): IFit => {
       const rotation: IAutoMovieQuaternion = turned(turn);
-      const pose: IAutoMoviePose = resolveHumanPosture(request.body, {
-        ...request.posture,
-        limbs: {
-          ...request.posture.limbs,
-          [`${request.side}Arm`]: {
-            point: request.wrist(rotation),
-            rotation,
-            bend: request.bend,
+      const resolved: IAutoMovieMotionHumanResolveHumanPosture.ISeeded =
+        resolveHumanPosture.seeded(request.body, {
+          ...request.posture,
+          limbs: {
+            ...request.posture.limbs,
+            [limb]: {
+              point: request.wrist(rotation),
+              rotation,
+              bend: request.bend,
+            },
           },
-        },
-      });
-      return degrees(
-        poseBones(request.body, pose, undefined, new Set([hand])).get(hand)!
-          .worldRotation,
-        rotation,
-      );
+        });
+      return {
+        miss: degrees(
+          poseBones(
+            request.body,
+            resolved.pose,
+            undefined,
+            new Set([hand]),
+          ).get(hand)!.worldRotation,
+          rotation,
+        ),
+        arced: resolved.seeds[limb]?.admitted !== undefined,
+      };
     };
+    const missAt = (turn: number): number => fitAt(turn).miss;
     let best: IResult | undefined;
     let least: number = Infinity;
     // Turns in the order of their size, alternating sides, so the first met
@@ -138,8 +186,10 @@ export namespace AutoMovieMotionHumanArmReach {
       for (const sign of k === 0 || k === 180 / STEP ? [1] : [1, -1]) {
         const turn: number = sign * k * STEP;
         const rotation: IAutoMovieQuaternion = turned(turn);
-        const miss: number = missAt(turn);
-        if (miss <= ROM_TOLERANCE) return { rotation, turn };
+        const fitted: IFit = fitAt(turn);
+        const miss: number = fitted.miss;
+        if (miss <= ROM_TOLERANCE && fitted.arced)
+          return { met: { rotation, turn }, least: miss, nearest: undefined };
         if (miss < least) {
           least = miss;
           best = { rotation, turn };
@@ -158,26 +208,41 @@ export namespace AutoMovieMotionHumanArmReach {
       else lo = a;
     }
     const turn: number = (lo + hi) / 2;
-    const refined: number = missAt(turn);
-    if (refined <= ROM_TOLERANCE) return { rotation: turned(turn), turn };
+    const fitted: IFit = fitAt(turn);
+    const refined: number = fitted.miss;
+    if (refined <= ROM_TOLERANCE && fitted.arced)
+      return {
+        met: { rotation: turned(turn), turn },
+        least: refined,
+        nearest: undefined,
+      };
     if (refined < least) {
       least = refined;
       best = { rotation: turned(turn), turn };
     }
-    throw new HumanRefusal({
-      kind: "reach",
-      axis: request.name,
-      value: least,
-      feasible: {
-        kind: "range",
-        minimum: 0,
-        maximum: ROM_TOLERANCE,
-        unit: "degrees",
-      },
-      reason: `no turn of the asked hand attitude about its free axis is within the ${request.side} forearm's twist and wrist ranges at its place: the nearest misses by ${least.toFixed(1)} degrees (turned ${best?.turn ?? 0} degrees)`,
-      fix: "place the hand where the arm can take the attitude, or free more of the attitude",
-    });
+    return { met: null, least, nearest: best };
   }
+}
+
+/** A search's answer: the met attitude, or the least miss and where it lay. */
+interface ISearch {
+  /** The attitude met nearest the requested turn; null where none is. */
+  met: AutoMovieMotionHumanArmReach.IResult | null;
+
+  /** The least miss read, degrees. */
+  least: number;
+
+  /** The turn the least miss lay at, where none was met. */
+  nearest: AutoMovieMotionHumanArmReach.IResult | undefined;
+}
+
+/** A candidate attitude's fit: its miss and whether an arc admits it. */
+interface IFit {
+  /** The fitted hand's miss of the attitude, degrees. */
+  miss: number;
+
+  /** Whether the fit's swivel lies on an arc that admits the attitude. */
+  arced: boolean;
 }
 
 /** The golden section, (sqrt 5 - 1) / 2. */
