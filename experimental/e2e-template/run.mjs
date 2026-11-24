@@ -18,7 +18,8 @@
 //    `evidence`, including a nested test that imports the installed SDK;
 // 5. loads those SDK imports in the development and built inspector pages,
 //    and exercises Play and Pause in the pinned headless browser;
-// 6. saves and reopens a motion take in separate processes in the production.
+// 6. compares an authored edit through completed Viewer samples, Draw and
+//    the exact decoded delivery, then saves and opens a separate motion take.
 //
 // Packing `@automovie/template` runs its `prepare` script, which rebuilds the
 // checkout's `packages/template/generated`, so run one layout at a time per
@@ -173,7 +174,7 @@ const install = (directory) =>
   run("pnpm install", "pnpm", ["install", "--no-frozen-lockfile"], directory);
 
 /** Exercise the runtime project selected for a discovered SDK consumer. */
-const addSdkConsumer = (directory) => {
+const addSdkConsumer = (directory, { parity = true } = {}) => {
   const nested = path.join(directory, "test", "features", "installed-sdk");
   fs.mkdirSync(nested, { recursive: true });
   const contactBody = JSON.parse(
@@ -296,10 +297,39 @@ document.documentElement.dataset.sdkSmoke = "ready";
       `import "./installedSdkSmoke";\n` + fs.readFileSync(file, "utf8"),
     );
   }
+  if (!parity) return;
+  // The starter remains the SDK smoke subject. A second real film lets the
+  // installed film registry exercise transitions and repeat a retimed shot.
+  const films = path.join(directory, "src", "composition", "films");
+  fs.copyFileSync(
+    path.join(import.meta.dirname, "installedParityFilm.ts"),
+    path.join(films, "installedParityFilm.ts"),
+  );
+  const index = path.join(films, "index.ts");
+  const registered = fs.readFileSync(index, "utf8");
+  if (!registered.includes("  starter: starter(),"))
+    throw new Error("The installed starter is not in its film registry");
+  fs.writeFileSync(
+    index,
+    'import { installedParityFilm } from "./installedParityFilm";\n' +
+      registered.replace(
+        "  starter: starter(),",
+        '  starter: starter(),\n  "installed-parity": installedParityFilm(),',
+      ),
+  );
+  const executable = path.join(directory, "src", "executable");
+  fs.copyFileSync(
+    path.join(import.meta.dirname, "installedParityVerification.ts"),
+    path.join(executable, "installedParityVerification.ts"),
+  );
+  fs.writeFileSync(
+    path.join(executable, "verify.ts"),
+    'export { checks as default } from "./installedParityVerification.ts";\n',
+  );
 };
 
 /** Run the browser consumer against the installed SDK, never source aliases. */
-const browserSmoke = (directory) => {
+const browserSmoke = (directory, { parity = true } = {}) => {
   if (
     run(
       "install headless browser",
@@ -320,6 +350,7 @@ const browserSmoke = (directory) => {
       [
         path.join(ROOT, "experimental", "e2e-template", "browser.mjs"),
         directory,
+        ...(parity ? [] : ["--sdk-only"]),
       ],
       directory,
     );
@@ -434,6 +465,7 @@ if (layout === "production") {
   bind(target);
   if (!install(target)) finish();
   const productions = ["shorts/alpha", "series/beta"];
+  const parityProduction = productions[0];
   // An older workspace still has its pinned CLI and tarball overrides, but
   // predates these production dependencies. The installed add must fill both.
   const { parseDocument } = createRequire(path.join(ROOT, "test/package.json"))(
@@ -466,7 +498,9 @@ if (layout === "production") {
   if (!install(target)) finish();
   verifyLockfile(target);
   for (const production of productions)
-    addSdkConsumer(path.join(target, "movies", production));
+    addSdkConsumer(path.join(target, "movies", production), {
+      parity: production === parityProduction,
+    });
   run("pnpm run lint", "pnpm", ["run", "lint"], target);
   run("pnpm run test", "pnpm", ["run", "test"], target);
   for (const production of productions)
@@ -478,6 +512,8 @@ if (layout === "production") {
     );
   run("pnpm run evidence", "pnpm", ["run", "evidence"], target);
   for (const production of productions)
-    browserSmoke(path.join(target, "movies", production));
+    browserSmoke(path.join(target, "movies", production), {
+      parity: production === parityProduction,
+    });
 }
 finish();
