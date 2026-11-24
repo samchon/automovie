@@ -10,7 +10,7 @@ Each exported function and method under `src/composition/scenes/` and in the cat
 
 Cite a beat or section as `@evidence docs/body/screenplay/<film folder>/<scene file>#<anchor> <what it realizes>`. Omit the anchor for a whole file.
 
-Without narrative passes, scenes also cite the instructions they realize. Ask the user to add missing scene files or section or beat headings to a fixed screenplay before citing it.
+Without narrative passes, scenes also cite the instructions they realize. Ask the user to add missing section or beat headings to a fixed screenplay before citing it.
 
 Every section and beat is realized. An `OMITTED` one is covered by an `@evidenceExclude` on the scene composition that would have realized it. A whole omitted scene file is excluded on its film under [scene order](films.md#scene-order).
 
@@ -20,7 +20,7 @@ Does each scene realize every cited beat as written, does each catalog case exhi
 
 ### Scene
 
-Open the scene comment with its screenplay citation, action and relevant staging choices. Bind staged instances to the subjects in the standing state. Follow the same instances through movement, handovers, cuts and time out of view. Realize changes in camera. The film's [sound list](films.md#sound-list) carries the beat's lines and cues. For commissioned generation, carry reactions beyond the representation in the prompt.
+Open the scene comment with its screenplay citation, action and relevant staging choices. Bind staged instances to the subjects in the standing state. Follow the same instances through movement, handovers, cuts and time out of view. Realize changes in camera. For a direct 3D film, the film's [sound list](films.md#sound-list) carries the beat's lines and cues. For other films, compose the beat's outcome sound cues from `src/consequences/sound/`, as [source layout](../../development/source-layout.md#laws-interactions-and-consequences) places them. For commissioned generation, carry reactions beyond the representation in the prompt.
 
 If staging a passage requires inventing an exchange, response or pause, return that decision to its [written owner](../../story/correction/repair.md#concretization). Changes to a fixed screenplay go to the user.
 

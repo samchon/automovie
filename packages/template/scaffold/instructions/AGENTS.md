@@ -27,7 +27,7 @@ Keep subjects simple and motion detailed.
 Realize the screenplay in code.
 
 - Take every outcome from the screenplay.
-- Comment each value with its source and how it realizes it.
+- [Comment each value](.agents/skills/development/modules.md#documenting-source) with its source and how it realizes it.
 - Compute physics only for the response, parts and moments the scene needs.
 
 Work from evidence and verify the result.

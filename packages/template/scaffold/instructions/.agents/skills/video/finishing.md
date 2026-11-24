@@ -39,11 +39,11 @@ Match neighboring takes in color and exposure by grading, never by regenerating.
 
 ## Compositing
 
-Composite a clean render over the takes before assembly or over the assembled film after it.
+Composite a clean render's graphics over the assembled film. Composite whole 3D subjects over their take, before assembly.
 
 Composite legible text, signs, screens and logos in post from their own clean render, because models garble lettering. For surface graphics, flat lettering included, that render is the `graphics` guide pass of the README render command's `--passes` option. Composite it by the alpha convention its `record.json` names. Raised lettering is ordinary geometry and stays out of that pass, so lift it from the beauty pass through its node's mask region.
 
-The `graphics` pass goes through a transition as the picture does, so composite it over the assembled film frame for frame, without cutting it at the transition.
+The `graphics` pass goes through a transition as the picture does, so composite it frame for frame, without cutting it at the transition.
 
 To composite whole 3D subjects over a generated take, render the film with the README render command's `--background transparent` option. Use either render only under the [render report check](../production/media-records.md#render-reports) of its folder.
 

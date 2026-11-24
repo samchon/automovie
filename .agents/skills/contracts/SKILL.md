@@ -23,7 +23,9 @@ Answer each item from the code:
 1. Read the declaration and the dependencies the item asks about.
 2. Answer every fact the item asks for, from what the code does.
 3. Fix the code where it falls short of the item, and state any gap that remains instead of claiming it is met.
-4. In an evidence document, write `## @evidence contracts/development/<file>.md#<anchor>` under the declaration's H1, with the reason as the paragraph below it. Put a reason that opens with inline code on the heading line after the target, because Evidence 0.11.0 drops a reason line that starts with a backtick. In a test's doc comment, write `@evidence contracts/development/<file>.md#<anchor> <reason>` after a blank comment line.
+4. Write the answer as below.
+
+In an evidence document, write `## @evidence contracts/development/<file>.md#<anchor>` under the declaration's H1, with the reason as the paragraph below it. Put a reason that opens with inline code on the heading line after the target, because Evidence 0.11.0 drops a reason line that starts with a backtick. In a test's doc comment, write `@evidence contracts/development/<file>.md#<anchor> <reason>` after a blank comment line.
 
 For an item that does not apply, write `@evidenceExclude` the same way, as a heading in an evidence document and a tag in a test, never for a whole file. A change to a declaration updates its evidence document in the same commit.
 

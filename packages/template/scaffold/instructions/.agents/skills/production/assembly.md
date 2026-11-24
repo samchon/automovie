@@ -14,7 +14,7 @@ The render, captures and the inspector draw the transitions of the film's `playb
 
 Before scaling a new host or a changed export path, take a shot through a join and decode the result. Compare matched frames with the delivery renderer's output or the graded take supplied for assembly. If a conversion or lossy intermediate intervenes, compare on both sides of it. Check that decoded darks, highlights and colors reproduce the intended picture under the declared color range.
 
-After [segment review](../motion/segment-review.md), use the README render command for the complete motion hint or direct 3D film. For a generated film, assemble the accepted finished takes.
+After [segment review](../motion/segment-review.md), use the README render command for the complete motion hint or direct 3D film. For a generated film, assemble the accepted finished takes. Then composite clean renders under [compositing](../video/finishing.md#compositing).
 
 Keep only the commissioned [sound](../audio/film-sound.md) and [caption tracks](captions.md). The README render command encodes the picture and, as the README describes, the film's soundtrack, but no other stream. To add caption tracks or any other stream, use a documented assembly command that supports them or an approved production tool. [Measure](../review/delivery-review.md#measurement-and-comparison) the assembled file against the [profile](project-context.md#the-delivery-profile).
 

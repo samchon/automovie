@@ -43,7 +43,9 @@ Give each input one role, and state it in the prompt under [input roles](diffusi
 
 [Hints](diffusion/hints.md) sets how each input reaches the model. Render the request's hint and channels under [control channels](../motion/control-channels.md) at the model's frame rate and size. Never resample a channel afterwards, because resampling blends depth values and mask colors.
 
-The render draws at the film's `fps`, `width` and `height`. For a channel render, set those to the model's before rendering with the README render command's `--passes` option. Keep `durationSeconds` a whole number of frames at that rate. The delivered render keeps the delivery profile's values.
+The render draws at the film's `fps`, `width` and `height`. For the delivered render, they keep the delivery profile's values.
+
+A channel render is a render for a video request, with or without the README render command's `--passes` option. Before it, set the film's `fps`, `width` and `height` to the model's frame rate and size for that render only. Keep `durationSeconds` a whole number of frames at that rate.
 
 ## Record
 

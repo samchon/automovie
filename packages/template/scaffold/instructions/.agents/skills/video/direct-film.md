@@ -37,11 +37,9 @@ The inspector reads no sound and shows the authored mouth.
 
 On stills, check that each shape the installed face performs lands on the frames of its sound, with the mouth closed where the line closes the lips.
 
-`render-report.json` measures the lip-sync lag of each viseme-driven line: a line with phoneme chunks whose actor the film moved by `visemes`. A line whose sound leads its mouth by more than 45 ms or trails it by more than 125 ms blocks the render, so correct its phoneme chunks or start frame. The report lists every other line as unmeasured, and none of these blocks:
+`render-report.json` measures the lip-sync lag of each phoneme-driven line whose actor the film moved by `visemes`, where a phoneme-driven line has phoneme chunks. A line whose sound leads its mouth by more than 45 ms or trails it by more than 125 ms blocks the render, so correct its phoneme chunks or start frame.
 
-- `envelope-jaw`, a line without phoneme chunks, or a line of an actor moved by `jaw`, whose mouth follows its loudness;
-- `speaker-not-bound`, a line whose speaker binds to no single actor, so no mouth moves;
-- `mouth-not-drawn`, a bound line whose actor's mouth the film never read during the line.
+The report lists every other line as unmeasured, with a reason `IAutoMovieDialogueLipSync`'s JSDoc in `@automovie/interface` defines. An unmeasured line never blocks. For `mouth-not-drawn`, read the actor's mouth in `seek` and `seekShot`. For `speaker-not-bound`, bind the speaker to one actor in `sound.speakers`.
 
 Ask the user to watch and listen to the sync as a whole, because neither stills nor the lag show whether a line is bound to the right actor.
 
@@ -71,7 +69,7 @@ Return the camera response from the film's `optics`, in the film module as [sour
 
 Without `optics`, physical light renders white, and the film's `shading` and any staged `medium` are refused.
 
-Meter each scene's key subject with `meterAutoMovieIlluminance` from `@automovie/engine`, and set `ev100` from `autoMovieIncidentEv100` of its lux. Run `checkAutoMovieExposureContinuity` over the film's cuts, grouped by screenplay scene, and mark each exposure change the screenplay decided with `change: true`. The film's [camera response](../contracts/development/films.md#camera-response) item checks the camera response against the look and each marked change against the screenplay.
+Meter each scene's key subject with `meterAutoMovieIlluminance` from `@automovie/engine` under the metering rule [project context](../production/project-context.md#finishing-approach) records, and set `ev100` from `autoMovieIncidentEv100` of its lux. Run `checkAutoMovieExposureContinuity` over the film's cuts, grouped by screenplay scene, and mark each exposure change the screenplay decided with `change: true`. The film's [camera response](../contracts/development/films.md#camera-response) item checks the response.
 
 Give the optics a `shutter`, 180 degrees unless the look decides otherwise, and `samples`, so motion blurs as on film. Where a shot decides focus, author `fNumber` on its frame action and fill the optics' `lens` from `resolveAutoMovieLensAt` at each second, so the focus and any focus pull reach the frame.
 

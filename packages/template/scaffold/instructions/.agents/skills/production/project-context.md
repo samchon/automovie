@@ -45,7 +45,7 @@ Record these choices, each with the reasons and limits that affect later choices
 
 ### Finishing approach
 
-For a generated film, record the frame-rate conform and working color space. For a direct 3D film, record the exposure and tone curve.
+For a generated film, record the frame-rate conform and working color space. For a direct 3D film, record the tone curve and metering rule.
 
 ### Tools and operating constraints
 
@@ -77,7 +77,7 @@ For a film with sound, it also records the audio tracks and sample rate, the lou
 
 For standalone audio, record the promised format, sample rate and any required loudness targets.
 
-This file owns the profile, and the delivered render implements it. A channel render for a video model sets the film's rate and size to the model's for that render, as [requests](../video/requests.md#inputs) sets. Long-form settings state matching runtime and frame conditions. Resolve conflicts from the user's commission through the profile.
+This file owns the profile, and the delivered render implements it. A [channel render](../video/requests.md#inputs) departs from it. Long-form settings state matching runtime and frame conditions. Resolve conflicts from the user's commission through the profile.
 
 ## When to read and update it
 

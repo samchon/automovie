@@ -8,7 +8,8 @@ Settle these by measurement before looking. Before measuring, write each one tha
 
 - overall dimensions against the real ones, as its `size`;
 - clearances and contacts between parts, as its `pairs`;
-- the number of separate pieces, as its `pieces`, and the triangle count;
+- the number of separate pieces, as its `pieces`;
+- the triangle count;
 - open edges and edges that more than two triangles share;
 - reversed faces, triangles without area and a surface passing through itself.
 

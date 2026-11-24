@@ -6,9 +6,9 @@ A coarse form is the few primitives that tell a reader of the hint what a subjec
 
 Use two to four simple volumes in their real arrangement to distinguish the subject ([Biederman 1987](https://doi.org/10.1037/0033-295X.94.2.115)). Name it in the generation prompt.
 
-Add only parts a scene interacts with or moves separately. Define their affordances under entity work.
+Add only parts a scene interacts with or moves separately, at any size. Define their affordances under entity work.
 
-Keep only the parts whose [form tier](crafting/construction.md#form-tiers) the scene's camera distance resolves. A part the scene interacts with or moves stays at any size.
+Keep any other part only where the scene's camera distance resolves its [form tier](crafting/construction.md#form-tiers).
 
 ## Size
 
