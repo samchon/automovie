@@ -113,7 +113,7 @@ export function test_motion_stage_fight_stage_polearm_marks(): void {
     );
   for (const kind of createStagePoleBladeProp.KINDS) {
     try {
-      for (const seed of [undefined, 0, 1047])
+      for (const seed of [undefined, 0, "film"])
         checks.equals(
           `${kind} replays the saved recipe at seed ${String(seed)}`,
           JSON.stringify(

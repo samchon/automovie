@@ -20,7 +20,7 @@ import type { createSanitary } from "./createSanitary";
  */
 export function createToilet(
   params: createToilet.IParams = {},
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<createToilet.Affordance, createToilet.Dimension> {
   return FixtureDraw.installed<
     createToilet.Affordance,

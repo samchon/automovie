@@ -37,7 +37,7 @@ const POLE: string =
  */
 export function createLandingMat(
   params: createLandingMat.IParams,
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<createLandingMat.Affordance, createLandingMat.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createLandingMat.Dimension> =
     new AutoMovieArchetypeDrawSession<createLandingMat.Dimension>(

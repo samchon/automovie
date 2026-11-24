@@ -36,7 +36,7 @@ import { LongGunLock } from "./LongGunLock";
  */
 export function createLongGun(
   params: createLongGun.IParams,
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<createLongGun.Affordance, createLongGun.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createLongGun.Dimension> =
     new AutoMovieArchetypeDrawSession<createLongGun.Dimension>(

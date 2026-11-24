@@ -40,7 +40,7 @@ const INBOARD: number = 0.1;
  */
 export function createRoundabout(
   params: createRoundabout.IParams = {},
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<createRoundabout.Affordance, createRoundabout.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createRoundabout.Dimension> =
     new AutoMovieArchetypeDrawSession(

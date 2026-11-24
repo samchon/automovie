@@ -27,7 +27,7 @@ const BLADE: number = 0.015;
  */
 export function createIceHockeyStick(
   params: createIceHockeyStick.IParams = {},
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<
   createIceHockeyStick.Affordance,
   createIceHockeyStick.Dimension

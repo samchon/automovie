@@ -22,7 +22,7 @@ import { createTableKnife } from "./createTableKnife";
  */
 export function createTool(
   params: createTool.IParams,
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<createTool.Affordance, createTool.Dimension> {
   const kind: createTool.Kind = ArchetypeDraw.choice(
     "tool",
@@ -34,7 +34,7 @@ export function createTool(
   // The saved input spans every variant. The selected producer checks its original recipe.
   const produce: (
     params: createTool.IParams,
-    seed?: number,
+    seed?: number | string,
   ) => AutoMovieArchetype<createTool.Affordance, createTool.Dimension> =
     createTool.PRODUCERS[kind] as typeof produce;
   return produce(params, seed);

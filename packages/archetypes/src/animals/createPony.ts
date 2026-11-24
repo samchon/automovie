@@ -43,7 +43,7 @@ import { createHorse } from "./createHorse";
  */
 export function createPony(
   params: createPony.IParams = {},
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<
   AutoMovieArchetypeEquine.Affordance,
   AutoMovieArchetypeEquine.Dimension

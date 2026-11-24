@@ -36,7 +36,7 @@ const THIN_SHELL: number = 2 / 3;
  */
 export function createSphericalBall(
   params: createSphericalBall.IParams = {},
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<
   createSphericalBall.Affordance,
   createSphericalBall.Dimension

@@ -27,7 +27,7 @@ import { createCohortQuadruped } from "./createCohortQuadruped";
  */
 export function createOx(
   params: createOx.IParams,
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<
   createCohortQuadruped.Affordance,
   AutoMovieArchetypeQuadrupedBody.Dimension

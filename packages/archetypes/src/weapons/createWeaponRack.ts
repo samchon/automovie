@@ -30,7 +30,7 @@ import {
  */
 export function createWeaponRack(
   params: createWeaponRack.IParams = {},
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<createWeaponRack.Affordance, createWeaponRack.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createWeaponRack.Dimension> =
     new AutoMovieArchetypeDrawSession<createWeaponRack.Dimension>(

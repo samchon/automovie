@@ -32,7 +32,7 @@ const IWF: string =
  */
 export function createBarbell(
   params: createBarbell.IParams,
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<createBarbell.Affordance, createBarbell.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createBarbell.Dimension> =
     new AutoMovieArchetypeDrawSession<createBarbell.Dimension>(

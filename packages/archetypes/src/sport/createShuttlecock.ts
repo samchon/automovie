@@ -22,7 +22,7 @@ import {
  */
 export function createShuttlecock(
   params: createShuttlecock.IParams = {},
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<
   createShuttlecock.Affordance,
   createShuttlecock.Dimension

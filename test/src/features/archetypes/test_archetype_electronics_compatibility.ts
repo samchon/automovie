@@ -19,15 +19,12 @@ import { qclose } from "../internal/qclose";
 import { vclose } from "../internal/vclose";
 
 /**
- * The named devices preserve the saved device frames and expose actual contact
- * IDs.
+ * The named devices preserve the saved device frames and expose actual contact IDs.
  *
  * Scenarios:
- *
- * 1. Compare each saved recipe and its named producer at seeds 0 and 1045.
+ * 1. Compare each saved recipe and its named producer at numeric and string seeds.
  * 2. Check known case sizes and anchored camera and typing contacts.
- * 3. Keep the saved recipe's missing kind refusal and the root and props imports
- *    aligned.
+ * 3. Keep the saved recipe's missing kind refusal and the root and props imports aligned.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Lists replay, device contacts, imports and refusals.
  * @evidence contracts/development/testing.md#behavioral-verification Checks the public producers, compares the returned parts and contacts, and exercises the refused saved input.
@@ -70,7 +67,7 @@ export function test_archetype_electronics_compatibility(): void {
       `${kind} is the same export from both entry points`,
       produce === byFamily,
     );
-    for (const seed of [0, 1045]) {
+    for (const seed of [0, "device-parity"]) {
       const named: AutoMovieArchetype<string, string> = produce({}, seed);
       const saved: AutoMovieArchetype<string, string> =
         kind === "keyboard" || kind === "laptop"

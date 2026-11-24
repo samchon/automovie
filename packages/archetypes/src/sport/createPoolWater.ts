@@ -23,7 +23,7 @@ import {
  */
 export function createPoolWater(
   params: createPoolWater.IParams = {},
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<"water", createPoolWater.Dimension, null> {
   const draw: AutoMovieArchetypeDrawSession<createPoolWater.Dimension> =
     new AutoMovieArchetypeDrawSession(

@@ -29,7 +29,7 @@ const RULE: string =
  */
 export function createRelayBaton(
   params: createRelayBaton.IParams = {},
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<createRelayBaton.Affordance, createRelayBaton.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createRelayBaton.Dimension> =
     new AutoMovieArchetypeDrawSession<createRelayBaton.Dimension>(

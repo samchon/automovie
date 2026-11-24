@@ -31,7 +31,7 @@ const CARTON: string =
  */
 export function createBox(
   params: createBox.IParams = {},
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<createBox.Affordance, createBox.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createBox.Dimension> =
     new AutoMovieArchetypeDrawSession<createBox.Dimension>(

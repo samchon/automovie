@@ -340,7 +340,7 @@ export namespace BallBuild {
   export function draw<Id extends createBall.Affordance>(
     kind: createBall.Kind,
     params: Readonly<Omit<createBall.IParams, "kind">>,
-    seed: number | undefined,
+    seed: number | string | undefined,
     material: DrawMaterial,
   ): IDrawResult<Id> {
     const draw: AutoMovieArchetypeDrawSession<createBall.Dimension> =

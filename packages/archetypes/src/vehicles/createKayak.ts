@@ -39,7 +39,7 @@ type Build = AutoMovieArchetypeBuilder<
  */
 export function createKayak(
   params: createKayak.IParams = {},
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<createKayak.Affordance, createKayak.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createKayak.Dimension> =
     new AutoMovieArchetypeDrawSession("kayak", createKayak.UNITS, seed, params);

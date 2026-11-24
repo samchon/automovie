@@ -25,22 +25,14 @@ import { createModel } from "../internal/createModel";
 import { nclose, throwsError, vclose } from "../internal/predicates";
 
 /**
- * Compose two copies of a supplied landmark and place another prop at a named
- * entry.
+ * Compose two copies of a supplied landmark and place another prop at a named entry.
  *
  * Scenarios:
  *
- * 1. Two transformed uses of the same mesh definition publish distinct node/model
- *    ids and seeds. A prop declared before its host resolves the host's rotated
- *    anchor without reordering the staged records.
- * 2. The local plane and its hole follow the landmark through the same yaw and
- *    translation. A raised point on the rotated plane and an uncovered point in
- *    the hole distinguish the transform. Substituting the landmark's model
- *    preserves the entry and its attachments.
- * 3. An unrelated sibling leaves existing seeded definitions unchanged. Two
- *    producers can both read the other's already determined origin.
- * 4. Unknown named anchors, cyclic placements and conflicting model identities
- *    refuse with source diagnostics.
+ * 1. Two transformed uses of the same mesh definition publish distinct node/model ids and seeds. A prop declared before its host resolves the host's rotated anchor without reordering the staged records.
+ * 2. The local plane and its hole follow the landmark through the same yaw and translation. A raised point on the rotated plane and an uncovered point in the hole distinguish the transform. Substituting the landmark's model preserves the entry and its attachments.
+ * 3. An unrelated sibling leaves existing seeded definitions unchanged. Two producers can both read the other's already determined origin.
+ * 4. Unknown named anchors, cyclic placements and conflicting model identities refuse with source diagnostics.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the forward contact, repeated model, rotated support, stable seed and refusal scenarios.
  * @evidence contracts/development/testing.md#behavioral-verification Observes real createEnvironment and environmentModel records, canonical height queries on the merged stage space, and ordinary thrown errors through the supplied authoring API.
@@ -84,10 +76,7 @@ export function test_environment_composition(): void {
     },
   };
   const landmark: IAutoMovieEnvironmentModule = environmentModel(landmarkInput);
-  /**
-   * Store the module's actual seed in a model label so the scenario can compare
-   * it after composition.
-   */
+  /** Store the module's actual seed in a model label so the scenario can compare it after composition. */
   const seededLandmark: IAutoMovieEnvironmentModule = (
     context: IAutoMovieEnvironmentModule.IContext,
   ): IAutoMovieEnvironmentContribution => {
@@ -97,7 +86,7 @@ export function test_environment_composition(): void {
       models: result.models?.map(
         (model: IAutoMovieModel): IAutoMovieModel => ({
           ...model,
-          name: context.seed === undefined ? null : String(context.seed),
+          name: context.seed ?? null,
         }),
       ),
     };

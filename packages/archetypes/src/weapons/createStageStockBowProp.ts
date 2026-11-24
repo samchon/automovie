@@ -18,7 +18,7 @@ import type { createBow } from "./createBow";
  */
 export function createStageStockBowProp(
   params: createStageStockBowProp.IParams = {},
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<
   createStageStockBowProp.Affordance,
   createStageStockBowProp.Dimension

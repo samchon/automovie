@@ -24,7 +24,7 @@ import {
  */
 export function createBalancePole(
   params: createBalancePole.IParams = {},
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<
   createBalancePole.Affordance,
   createBalancePole.Dimension

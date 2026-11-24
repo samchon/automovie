@@ -48,7 +48,7 @@ import { createCostumeVambrace } from "./createCostumeVambrace";
  */
 export function createArmour(
   params: createArmour.IParams,
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<createArmour.Affordance, createArmour.Dimension> {
   const kind: createArmour.Kind = ArchetypeDraw.choice(
     "armour",
@@ -60,7 +60,7 @@ export function createArmour(
   type Producer = {
     build(
       params: createArmour.IParams,
-      seed?: number,
+      seed?: number | string,
     ): AutoMovieArchetype<createArmour.Affordance, createArmour.Dimension>;
   }["build"];
   // The selected producer validates its options from the saved parameter union.

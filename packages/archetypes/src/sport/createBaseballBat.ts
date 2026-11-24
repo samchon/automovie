@@ -20,7 +20,7 @@ import type { createClub } from "../weapons/createClub";
  */
 export function createBaseballBat(
   params: createBaseballBat.IParams = {},
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<
   createBaseballBat.Affordance,
   createBaseballBat.Dimension

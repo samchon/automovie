@@ -20,14 +20,11 @@ const LAP: number = 20;
 const STEP: number = 0.2;
 
 /**
- * Riders circle a Cantabrian loop at the canter on real rides, spaced evenly
- * round it: every ride holds its bends at its gait and no two bodies meet as
- * the loop closes.
+ * Riders circle a Cantabrian loop at the canter on real rides, spaced evenly round it: every ride holds its bends at its gait and no two bodies meet as the loop closes.
  *
  * Scenarios:
  *
- * 1. Each rider's ride samples every second of two laps without a refusal, at the
- *    canter the loop's speed calls for.
+ * 1. Each rider's ride samples every second of two laps without a refusal, at the canter the loop's speed calls for.
  * 2. No two riders' posed envelopes meet at any instant.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Lists the loop and the two scenarios.
@@ -39,7 +36,7 @@ const STEP: number = 0.2;
 export function test_world_cantabrian_circle(): void {
   const horse: ReturnType<typeof createHorse> = createHorse(
     { withersHeight: 1.6, tempo: 0 },
-    1027,
+    "javelin",
   );
   const canter: AutoMovieArchetypeManoeuvre.ISpeedRange =
     AutoMovieArchetypeQuadrupedGait.range(

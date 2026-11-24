@@ -68,7 +68,7 @@ const BANDS: Readonly<Record<Dimension, IAutoMovieArchetypeBand>> = {
  */
 export function createScenicParadeBanner(
   params: createScenicParadeBanner.IParams = {},
-  seed?: number,
+  seed?: string | number,
 ): AutoMovieArchetype<Affordance, Dimension> {
   const draw: AutoMovieArchetypeDrawSession<Dimension> =
     new AutoMovieArchetypeDrawSession(

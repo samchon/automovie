@@ -30,7 +30,7 @@ const NORMS: string =
  */
 export function createVaultingTable(
   params: createVaultingTable.IParams,
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<
   createVaultingTable.Affordance,
   createVaultingTable.Dimension

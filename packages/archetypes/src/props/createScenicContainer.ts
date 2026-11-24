@@ -14,7 +14,7 @@ import { createScenicBasket } from "./createScenicBasket";
 /** A saved recipe's producer as the dispatcher calls it. */
 type Producer = (
   params: createScenicContainer.IParams,
-  seed?: number,
+  seed?: number | string,
 ) => AutoMovieArchetype<
   createScenicContainer.Affordance,
   createScenicContainer.Dimension
@@ -38,7 +38,7 @@ type Producer = (
  */
 export function createScenicContainer(
   params: createScenicContainer.IParams,
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<
   createScenicContainer.Affordance,
   createScenicContainer.Dimension

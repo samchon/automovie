@@ -30,7 +30,7 @@ const STEEL: string = "#9aa1a6";
  */
 export function createTransitionRack(
   params: createTransitionRack.IParams = {},
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<
   createTransitionRack.Affordance,
   createTransitionRack.Dimension

@@ -38,7 +38,7 @@ const AMSEC: string =
  */
 export function createSafe(
   params: createSafe.IParams = {},
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<createSafe.Affordance, createSafe.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createSafe.Dimension> =
     new AutoMovieArchetypeDrawSession<createSafe.Dimension>(

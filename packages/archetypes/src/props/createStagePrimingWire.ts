@@ -17,7 +17,7 @@ import { PRIMING_WIRE } from "./PRIMING_WIRE";
  */
 export function createStagePrimingWire(
   params: Pick<HandToolDraw.IParams, "id" | "length" | "mass"> = {},
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<
   createStagePrimingWire.Affordance,
   createStagePrimingWire.Dimension

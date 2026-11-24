@@ -14,28 +14,25 @@ import { AnimalCohortObservation as observation } from "../internal/AnimalCohort
  * Whole measured reference rows vary actual geometry without invented bands.
  *
  * Scenarios:
- *
- * 1. Two hundred seeded camel/deer constructions each retain one complete source
- *    vector, repeat deterministically and match the public dispatcher. The five
- *    camel morphotypes and two adult deer references are all reached.
+ * 1. Two hundred seeded camel/deer constructions each retain one complete
+ *    source vector, repeat deterministically and match the public dispatcher.
+ *    The five camel morphotypes and two adult deer references are all reached.
  * 2. Every explicit reference, both seedless defaults and the canonical fixed
  *    references reproduce their source geometry. Camel limb ratios retain the
- *    declared Egyptian-to-pooled-height transfer, not invented group
- *    osteometry.
- * 3. Bare female weight/skull/limbs use their matching cited rows; female antlers
- *    and unknown/juvenile references refuse. Authored lead equipment needs
- *    complete mass and cannot silently inherit a bare population mean. Explicit
- *    false removes male antlers; null mass is invalid rather than omitted.
- * 4. Explicit null/nonfinite/nonpositive body heights refuse in both species; only
- *    omission selects the current reference's measured height.
+ *    declared Egyptian-to-pooled-height transfer, not invented group osteometry.
+ * 3. Bare female weight/skull/limbs use their matching cited rows; female
+ *    antlers and unknown/juvenile references refuse. Authored lead equipment
+ *    needs complete mass and cannot silently inherit a bare population mean.
+ *    Explicit false removes male antlers; null mass is invalid rather than omitted.
+ * 4. Explicit null/nonfinite/nonpositive body heights refuse in both species;
+ *    only omission selects the current reference's measured height.
  *
- * Camel: Diop2020 TableII, printed p.250, doi:10.19182/remvt.31948; all seven
- * consumed traits below are the same group's centimetres in metres. Group
- * sizes, weights, probabilities and ranges are unknown. Deer: Ochiai and
- * Asada1995 Table3, p.225, adult body means; separately sampled same-sex age5+
- * skulls/limbs are their1997 Tables3/7, pp.164/169. These are provisional
- * cross-sample control prototypes, not paired bodies or anatomical hard
- * limits.
+ * Camel: Diop2020 TableII, printed p.250, doi:10.19182/remvt.31948;
+ * all seven consumed traits below are the same group's centimetres in metres.
+ * Group sizes, weights, probabilities and ranges are unknown. Deer: Ochiai
+ * and Asada1995 Table3, p.225, adult body means; separately sampled same-sex
+ * age5+ skulls/limbs are their1997 Tables3/7, pp.164/169. These are provisional
+ * cross-sample control prototypes, not paired bodies or anatomical hard limits.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States source tables, separate body/skeletal samples, SI conversions, fixed versus seeded cases, equipment mass and the limited meaning of discrete reference variation.
  * @evidence contracts/development/testing.md#behavioral-verification Constructs real public models and registry outputs, reads actual displayed primitive landmarks and bar lengths, verifies source-axis provenance and exercises real actionable refusals.
@@ -134,7 +131,7 @@ export function test_archetype_animal_cohort_variation(): void {
   const camelSeen: Set<string> = new Set();
   const deerSeen: Set<string> = new Set();
   for (let index: number = 0; index < 200; index++) {
-    const seed: number = index;
+    const seed: string = `whole-reference-${index}`;
     for (const kind of ["camel", "deer"] as const) {
       const actual: ReturnType<typeof createCamel> =
         kind === "camel"
@@ -366,10 +363,7 @@ export function test_archetype_animal_cohort_variation(): void {
     return left < right ? -1 : left > right ? 1 : 0;
   }
 
-  /**
-   * Only the actual structured parameter refusal and axis satisfy a negative
-   * case.
-   */
+  /** Only the actual structured parameter refusal and axis satisfy a negative case. */
   function refused(label: string, call: () => unknown, axis: string): void {
     try {
       call();

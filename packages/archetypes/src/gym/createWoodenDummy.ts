@@ -35,7 +35,7 @@ const LISTINGS: string =
  */
 export function createWoodenDummy(
   params: createWoodenDummy.IParams = {},
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<
   createWoodenDummy.Affordance,
   createWoodenDummy.Dimension

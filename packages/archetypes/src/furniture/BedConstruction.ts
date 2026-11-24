@@ -35,7 +35,7 @@ interface IDrawn<Id extends createBed.Affordance> {
 function draw<Id extends createBed.Affordance>(
   kind: createBed.Kind,
   params: Omit<createBed.IParams, "kind">,
-  seed?: number,
+  seed?: number | string,
 ): IDrawn<Id> {
   const session: AutoMovieArchetypeDrawSession<createBed.Dimension> =
     new AutoMovieArchetypeDrawSession<createBed.Dimension>(
@@ -80,7 +80,7 @@ export namespace BedConstruction {
   export function platform(
     kind: PlatformKind,
     params: Omit<createBed.IParams, "kind">,
-    seed?: number,
+    seed?: number | string,
   ): AutoMovieArchetype<PlatformContact, createBed.Dimension> {
     const { builder, d }: ReturnType<typeof draw<PlatformContact>> =
       draw<PlatformContact>(kind, params, seed);
@@ -149,7 +149,7 @@ export namespace BedConstruction {
    */
   export function hospital(
     params: Omit<createBed.IParams, "kind">,
-    seed?: number,
+    seed?: number | string,
   ): AutoMovieArchetype<HospitalContact, createBed.Dimension> {
     const { builder, d }: ReturnType<typeof draw<HospitalContact>> =
       draw<HospitalContact>("hospital", params, seed);
@@ -163,7 +163,7 @@ export namespace BedConstruction {
   /** Build a stretcher on casters with a supported patient surface. */
   export function gurney(
     params: Omit<createBed.IParams, "kind">,
-    seed?: number,
+    seed?: number | string,
   ): AutoMovieArchetype<GurneyContact, createBed.Dimension> {
     const { builder, d }: ReturnType<typeof draw<GurneyContact>> =
       draw<GurneyContact>("gurney", params, seed);
@@ -177,7 +177,7 @@ export namespace BedConstruction {
   /** Build a crib with a mattress and graspable top rails. */
   export function crib(
     params: Omit<createBed.IParams, "kind">,
-    seed?: number,
+    seed?: number | string,
   ): AutoMovieArchetype<CribContact, createBed.Dimension> {
     const { builder, d }: ReturnType<typeof draw<CribContact>> =
       draw<CribContact>("crib", params, seed);
@@ -196,7 +196,7 @@ export namespace BedConstruction {
   /** Build a bunk bed with two sleep surfaces and a graspable guard rail. */
   export function bunk(
     params: Omit<createBed.IParams, "kind">,
-    seed?: number,
+    seed?: number | string,
   ): AutoMovieArchetype<BunkContact, createBed.Dimension> {
     const { builder, d }: ReturnType<typeof draw<BunkContact>> =
       draw<BunkContact>("bunk", params, seed);

@@ -14,7 +14,7 @@ const UNREAD: string = "the IKEA pages read give no weight of the item alone";
 /** A saved recipe's producer as the dispatcher calls it. */
 type Producer = (
   params: createTray.IParams,
-  seed?: number,
+  seed?: number | string,
 ) => AutoMovieArchetype<createTray.Affordance, createTray.Dimension>;
 
 /**
@@ -31,7 +31,7 @@ type Producer = (
  */
 export function createTray(
   params: createTray.IParams,
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<createTray.Affordance, createTray.Dimension> {
   const kind: createTray.Kind = ArchetypeDraw.choice(
     "tray",

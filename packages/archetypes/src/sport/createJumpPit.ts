@@ -31,7 +31,7 @@ const RULES: string =
  */
 export function createJumpPit(
   params: createJumpPit.IParams = {},
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<createJumpPit.Affordance, createJumpPit.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createJumpPit.Dimension> =
     new AutoMovieArchetypeDrawSession<createJumpPit.Dimension>(

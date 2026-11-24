@@ -46,7 +46,7 @@ import { CarRear } from "./CarRear";
  */
 export function createCar(
   params: createCar.IParams,
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<createCar.Affordance, createCar.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createCar.Dimension> =
     new AutoMovieArchetypeDrawSession<createCar.Dimension>(

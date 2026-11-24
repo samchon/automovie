@@ -223,7 +223,7 @@ export namespace HandheldDevice {
     kind: Kind,
     name: string,
     params: Omit<IParams, "kind">,
-    seed: number | undefined,
+    seed: number | string | undefined,
   ): IDrawResult<Id> {
     const draw: AutoMovieArchetypeDrawSession<Dimension> =
       new AutoMovieArchetypeDrawSession<Dimension>(
@@ -342,7 +342,7 @@ export namespace HandheldDevice {
     kind: FullFaceKind,
     name: string,
     params: Omit<IParams, "kind">,
-    seed: number | undefined,
+    seed: number | string | undefined,
     face: Face,
   ): AutoMovieArchetype<FaceAndGrip<Face>, Dimension> {
     const { builder, size }: ReturnType<typeof draw<FaceAndGrip<Face>>> = draw<

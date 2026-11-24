@@ -16,7 +16,7 @@ import { HandheldDevice } from "./HandheldDevice";
  */
 export function createPhone(
   params: createPhone.IParams = {},
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<createPhone.Affordance, createPhone.Dimension> {
   const {
     builder,

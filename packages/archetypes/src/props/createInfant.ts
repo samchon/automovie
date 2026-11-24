@@ -27,7 +27,7 @@ const STAGED: string =
  */
 export function createInfant(
   params: createInfant.IParams = {},
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<createInfant.Affordance, createInfant.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createInfant.Dimension> =
     new AutoMovieArchetypeDrawSession(

@@ -28,7 +28,7 @@ import { createWheelbarrow } from "./createWheelbarrow";
  */
 type Producer = (
   params: Omit<createCart.IParams, "kind">,
-  seed?: number,
+  seed?: number | string,
 ) => AutoMovieArchetype<createCart.Affordance, createCart.Dimension>;
 
 /**
@@ -65,7 +65,7 @@ type Producer = (
  */
 export function createCart(
   params: createCart.IParams,
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<createCart.Affordance, createCart.Dimension> {
   const kind: createCart.Kind = ArchetypeDraw.choice(
     "cart",

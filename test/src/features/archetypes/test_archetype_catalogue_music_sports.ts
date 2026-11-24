@@ -52,17 +52,16 @@ const ORIGIN: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
  * and physical playback.
  *
  * Scenarios:
- *
  * 1. A key and pedal still enter a prop with articulations, a crosse has a
- *    recessed pocket distinct from its scoop, and a puck has an edge midway up
- *    its flat disc.
+ *    recessed pocket distinct from its scoop, and a puck has an edge midway
+ *    up its flat disc.
  * 2. A ball crosses the real hoop's outer front and a tennis net's collision
  *    panel. An otherwise equal throw above the net clears it.
- * 3. A basketball's published restitution gives a FIBA-range floor rebound. A
- *    staged oval ball at ninety degrees rotates its long playing axis.
- * 4. An oval ball picked up by its grip keeps its long axis within one degree in
- *    the gripping hand through a still hold, and the saved and named producer
- *    forms are held in identical displayed frames.
+ * 3. A basketball's published restitution gives a FIBA-range floor rebound.
+ *    A staged oval ball at ninety degrees rotates its long playing axis.
+ * 4. An oval ball picked up by its grip keeps its long axis within one degree
+ *    in the gripping hand through a still hold, and the saved and named
+ *    producer forms are held in identical displayed frames.
  * 5. Saved kinds route to canonical factories and still refuse a length from
  *    another ball shape, a fixed volleyball class height and a foreign bat
  *    model.
@@ -91,7 +90,7 @@ export function test_archetype_catalogue_music_sports(): void {
 
   const crosse: ReturnType<typeof createLacrosseCrosse> = createLacrosseCrosse(
     {},
-    1000,
+    "sports",
   );
   TestValidator.predicate(
     "the crosse pocket lies behind the active scoop",
@@ -128,7 +127,7 @@ export function test_archetype_catalogue_music_sports(): void {
       vclose(hitRim.point, { x: 0, y: rimHeight, z: rimFront }, 1e-5),
   );
 
-  const net: ReturnType<typeof createTennisNet> = createTennisNet({}, 1000);
+  const net: ReturnType<typeof createTennisNet> = createTennisNet({}, "sports");
   const hitNet: IAutoMovieHit | null = inbound(net, 1, 0.6, 0.033);
   TestValidator.predicate(
     "the ball meets the front of the panel but clears over the net",
@@ -241,10 +240,7 @@ function inbound(
   );
 }
 
-/**
- * Drop the ball from 1.8 m measured at its underside, then read its rebound
- * apex.
- */
+/** Drop the ball from 1.8 m measured at its underside, then read its rebound apex. */
 function rebound(ball: AutoMovieArchetype, radius: number): number {
   const projectile: IAutoMovieProjectile = {
     origin: { x: 0, y: 1.8 + radius, z: 0 },
@@ -270,24 +266,18 @@ function rebound(ball: AutoMovieArchetype, radius: number): number {
   return projectileAt(bounce.projectile, apex).position.y - radius;
 }
 
-/**
- * The displayed ball frames through a still hold and the long axis's spread in
- * the gripping hand.
- */
+/** The displayed ball frames through a still hold and the long axis's spread in the gripping hand. */
 interface IHeldAxis {
   /** The ball's displayed frames at the hold samples, world. */
   samples: IAutoMovieRigidTransform[];
 
-  /**
-   * The greatest angle between the first and any later long axis in the hand's
-   * frame, radians.
-   */
+  /** The greatest angle between the first and any later long axis in the hand's frame, radians. */
   spread: number;
 }
 
 /**
- * Pick an oval ball up by its grip, hold it still, and read its long `+X` axis
- * in the frame of the hand nearer the ball through the hold.
+ * Pick an oval ball up by its grip, hold it still, and read its long `+X`
+ * axis in the frame of the hand nearer the ball through the hold.
  */
 function heldLongAxis(model: AutoMovieArchetype): IHeldAxis {
   const performance: HumanPerformance = new HumanPerformance({

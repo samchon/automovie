@@ -29,7 +29,7 @@ const NORMS: string =
  */
 export function createBalanceBeam(
   params: createBalanceBeam.IParams = {},
-  seed?: number,
+  seed?: string | number,
 ): AutoMovieArchetype<
   createBalanceBeam.Affordance,
   createBalanceBeam.Dimension

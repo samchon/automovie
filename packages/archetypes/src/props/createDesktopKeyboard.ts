@@ -13,7 +13,7 @@ import { KeyboardHardware } from "./KeyboardHardware";
  */
 export function createDesktopKeyboard(
   params: createDesktopKeyboard.IParams = {},
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<
   createDesktopKeyboard.Affordance,
   createDesktopKeyboard.Dimension

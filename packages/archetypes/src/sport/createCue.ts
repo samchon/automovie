@@ -38,7 +38,7 @@ const WEIGHT: string =
  */
 export function createCue(
   params: createCue.IParams = {},
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<createCue.Affordance, createCue.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createCue.Dimension> =
     new AutoMovieArchetypeDrawSession<createCue.Dimension>(

@@ -51,7 +51,7 @@ const FR: string =
  */
 export function createPoolEdge(
   params: createPoolEdge.IParams,
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<createPoolEdge.Affordance, createPoolEdge.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createPoolEdge.Dimension> =
     new AutoMovieArchetypeDrawSession<createPoolEdge.Dimension>(

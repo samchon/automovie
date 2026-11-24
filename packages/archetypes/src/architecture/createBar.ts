@@ -35,7 +35,7 @@ const ADA: string = "2010 ADA Standards (https://www.access-board.gov/ada/)";
  */
 export function createBar(
   params: createBar.IParams,
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<createBar.Affordance, createBar.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createBar.Dimension> =
     new AutoMovieArchetypeDrawSession<createBar.Dimension>(

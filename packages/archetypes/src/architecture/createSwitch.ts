@@ -30,7 +30,7 @@ const TRAVEL: string = "switch travel, not read at a source";
  */
 export function createSwitch(
   params: createSwitch.IParams,
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<createSwitch.Affordance, createSwitch.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createSwitch.Dimension> =
     new AutoMovieArchetypeDrawSession<createSwitch.Dimension>(

@@ -48,7 +48,7 @@ const CROWN: readonly [number, number][] = [
  */
 export function createBowlingPin(
   params: { id?: string } = {},
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<"base" | "belly", "mass"> {
   const inch: number = AutoMovieArchetypeUnits.INCH;
   const draw: AutoMovieArchetypeDrawSession<"mass"> =

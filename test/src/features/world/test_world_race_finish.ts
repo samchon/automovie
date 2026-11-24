@@ -13,10 +13,7 @@ import {
 import type { IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-/**
- * The authored bump: the rail distances over which the outer runner leans in on
- * the inner one, metres.
- */
+/** The authored bump: the rail distances over which the outer runner leans in on the inner one, metres. */
 const BUMP: readonly number[] = [120, 140];
 
 /** Bodies within a centimetre touch: the contact tolerance of a bump, metres. */
@@ -29,15 +26,12 @@ const POST: number = 240;
 const PULL: number = 60;
 
 /**
- * Two runners race down the home straight on real gallop rides, bump on an
- * authored stretch, pass the post and pull up.
+ * Two runners race down the home straight on real gallop rides, bump on an authored stretch, pass the post and pull up.
  *
  * Scenarios:
  *
- * 1. The runners' posed bodies meet only inside the authored bump, never
- *    elsewhere.
- * 2. Each runner's ride samples the whole race and pull-up without a refusal, its
- *    gait changing down after the post.
+ * 1. The runners' posed bodies meet only inside the authored bump, never elsewhere.
+ * 2. Each runner's ride samples the whole race and pull-up without a refusal, its gait changing down after the post.
  * 3. The same plans and seed replay the same race.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Lists the race, the bump, the pull-up and the two scenarios.
@@ -47,14 +41,14 @@ const PULL: number = 60;
  * @evidence contracts/development/testing.md#execution-ownership A synchronous CPU-only feature spec over real rides.
  */
 export function test_world_race_finish(): void {
-  const rail: ReturnType<typeof createRaceRail> = createRaceRail({}, 1034);
+  const rail: ReturnType<typeof createRaceRail> = createRaceRail({}, "track");
   const oval: AutoMovieArchetypeOval.IOval = AutoMovieArchetypeOval.lapped(
     createRaceRail.LAP,
     rail.dimensions.radius!,
   );
   const horse: ReturnType<typeof createHorse> = createHorse(
     { withersHeight: 1.62, tempo: 0 },
-    1001,
+    "runner",
   );
   const gallop: AutoMovieArchetypeManoeuvre.ISpeedRange =
     AutoMovieArchetypeQuadrupedGait.range(

@@ -20,7 +20,7 @@ import type { createAppliance } from "./createAppliance";
  */
 export function createRange(
   params: createRange.IParams = {},
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<createRange.Affordance, createRange.Dimension> {
   return FixtureDraw.installed<
     createRange.Affordance,

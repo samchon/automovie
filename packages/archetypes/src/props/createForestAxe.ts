@@ -18,7 +18,7 @@ export function createForestAxe(
     LongImplementDraw.IParams,
     "id" | "length" | "edge" | "headLength" | "headMass" | "mass"
   > = {},
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<createForestAxe.Affordance, createForestAxe.Dimension> {
   const {
     builder,

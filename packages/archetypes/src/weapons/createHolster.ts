@@ -62,7 +62,7 @@ import { createStageQuiver } from "./createStageQuiver";
  */
 export function createHolster(
   params: createHolster.IParams = {},
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<createHolster.Affordance, createHolster.Dimension> {
   const kind: createHolster.Kind = ArchetypeDraw.choice(
     "holster",
@@ -74,7 +74,7 @@ export function createHolster(
   type Producer = {
     build(
       params: createHolster.IParams,
-      seed?: number,
+      seed?: number | string,
     ): AutoMovieArchetype<createHolster.Affordance, createHolster.Dimension>;
   }["build"];
   // The selected producer validates its options from the saved parameter union.

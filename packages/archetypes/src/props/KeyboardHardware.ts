@@ -151,7 +151,7 @@ export namespace KeyboardHardware {
   export function draw<Id extends string>(
     kind: Kind,
     params: Omit<IParams, "kind">,
-    seed: number | undefined,
+    seed: number | string | undefined,
   ): IDrawResult<Id> {
     const draw: AutoMovieArchetypeDrawSession<Dimension> =
       new AutoMovieArchetypeDrawSession<Dimension>(

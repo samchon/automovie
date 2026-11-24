@@ -32,7 +32,7 @@ const SECTORS: number = 16;
  */
 export function createPuttingGreen(
   params: createPuttingGreen.IParams = {},
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<createPuttingGreen.Affordance, "side"> {
   const draw: AutoMovieArchetypeDrawSession<"side"> =
     new AutoMovieArchetypeDrawSession("puttingGreen", { side: "m" }, seed, {});

@@ -17,7 +17,7 @@ export function createToothbrush(
     GroomingPropDraw.IParams,
     "id" | "length" | "width" | "mass"
   > = {},
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<createToothbrush.Affordance, createToothbrush.Dimension> {
   const {
     builder,

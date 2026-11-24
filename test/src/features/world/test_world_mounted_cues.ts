@@ -20,19 +20,13 @@ const REACTION: number = 0.3;
 const RAMP: number = 0.6;
 
 /**
- * Break a horse from a starting stall on the door cue, and change a squadron
- * horse's gait on trumpet cues, on straight timed paths.
+ * Break a horse from a starting stall on the door cue, and change a squadron horse's gait on trumpet cues, on straight timed paths.
  *
  * Scenarios:
  *
- * 1. A horse standing in its stall lands no hoof before the doors open and its
- *    rider's reaction, and lands its first within one stride after.
- * 2. On each trumpet cue the horse changes gait up, from walk to trot and then
- *    from trot to a faster gait of its own table, each change falling after its
- *    cue and within the reaction, the ramp and one stride of the gait it
- *    leaves.
- * 3. A cue naming the gallop changes the trot to the gallop within the same bound,
- *    though the speed alone would not call it.
+ * 1. A horse standing in its stall lands no hoof before the doors open and its rider's reaction, and lands its first within one stride after.
+ * 2. On each trumpet cue the horse changes gait up, from walk to trot and then from trot to a faster gait of its own table, each change falling after its cue and within the reaction, the ramp and one stride of the gait it leaves.
+ * 3. A cue naming the gallop changes the trot to the gallop within the same bound, though the speed alone would not call it.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Lists the break, the cues and the bounds.
  * @evidence contracts/development/testing.md#behavioral-verification Rides a real horse with `rideQuadruped` on `AutoMovieArchetypeCourse.timed` speed profiles and reads its hoof and gait instants.
@@ -41,7 +35,10 @@ const RAMP: number = 0.6;
  * @evidence contracts/development/testing.md#execution-ownership A synchronous CPU-only spec; the trumpet and the doors are authored cue seconds.
  */
 export function test_world_mounted_cues(): void {
-  const horse: AutoMovieArchetype = createHorse({ withersHeight: 1.62 }, 1001);
+  const horse: AutoMovieArchetype = createHorse(
+    { withersHeight: 1.62 },
+    "runner",
+  );
   const species: createQuadruped.ISpecies = createQuadruped.species(horse);
   const middle: (gait: AutoMovieArchetypeQuadrupedGait.Gait) => number = (
     gait: AutoMovieArchetypeQuadrupedGait.Gait,
@@ -196,10 +193,7 @@ export function test_world_mounted_cues(): void {
   );
 }
 
-/**
- * Straight samples along +Z of a speed linear between knots of (second, metres
- * per second), every `STEP`.
- */
+/** Straight samples along +Z of a speed linear between knots of (second, metres per second), every `STEP`. */
 function profile(knots: readonly IKnot[]): AutoMovieArchetypeCourse.ISample[] {
   const samples: AutoMovieArchetypeCourse.ISample[] = [];
   let z: number = 0;

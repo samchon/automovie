@@ -44,7 +44,7 @@ export namespace ObstacleDraw {
     name: string,
     material: AutoMovieArchetypeMaterial.Kind,
     params: Omit<createObstacle.IParams, "kind">,
-    seed?: number,
+    seed?: number | string,
   ): IObstacle<Id> {
     const draw: AutoMovieArchetypeDrawSession<createObstacle.Dimension> =
       new AutoMovieArchetypeDrawSession(

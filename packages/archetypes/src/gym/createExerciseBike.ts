@@ -36,7 +36,7 @@ const UNREAD: string =
  */
 export function createExerciseBike(
   params: createExerciseBike.IParams = {},
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<
   createExerciseBike.Affordance,
   createExerciseBike.Dimension

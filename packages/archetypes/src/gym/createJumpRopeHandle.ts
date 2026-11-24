@@ -32,7 +32,7 @@ type Dimension = "handleLength" | "gripDiameter" | "mass";
  */
 export function createJumpRopeHandle(
   params: Pick<createJumpRope.IParams, "handle" | "id" | "gripDiameter"> = {},
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<"grip" | "cordSocket", Dimension> {
   const draw: AutoMovieArchetypeDrawSession<Dimension> =
     new AutoMovieArchetypeDrawSession<Dimension>(

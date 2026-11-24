@@ -69,7 +69,7 @@ interface IEnds {
  */
 export function createFoal(
   params: createFoal.IParams = {},
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<
   AutoMovieArchetypeEquine.Affordance,
   AutoMovieArchetypeEquine.Dimension

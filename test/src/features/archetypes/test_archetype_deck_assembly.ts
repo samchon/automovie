@@ -18,37 +18,14 @@ import type {
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * A ship's deck is a standing support guarded as the guardrail standard asks,
- * carries a gun as an assembly, and rides a seeded swell with the gun fast on
- * it.
+ * A ship's deck is a standing support guarded as the guardrail standard asks, carries a gun as an assembly, and rides a seeded swell with the gun fast on it.
  *
  * Scenarios, on a Liberty ship's whole deck (`createDeck.REFERENCE`):
- *
- * 1. The deck passes `validateModel`, and each side's guardrail, read from its own
- *    parts, meets ISO 5480:2020 clause 5: the toprail's top at least 1 000 mm
- *    above the deck (5.1.1), the opening below the lowest course at most 230 mm
- *    (5.1.2) and between the courses above at most 380 mm (5.1.3), at least
- *    three courses (Load Line Convention regulation 25(3)), stanchions from end
- *    to end at most 1 500 mm apart (5.1.4) and of at least 60 mm x 15 mm flat
- *    bar (5.2), a toprail tube of at least 34 mm (5.3.1) and lower rails of at
- *    least 19 mm (5.3.3). 1b. The `deck` surface spans the beam less the two
- *    stanchions over the whole length, and each toprail contact is a bar of the
- *    34 mm tube along the stretch with its top at the toprail's height.
- * 2. A deck too narrow for its two stanchions, and one of no length, are refused
- *    at their fields.
- * 3. The deck and a field gun set amidships on it, its muzzle square to the left
- *    side as a gun trained abeam, form an assembly that passes `validateModel`
- *    and keeps the deck's walking surface and the gun's muzzle under their
- *    keys.
- * 4. Steaming its own length at a Liberty ship's 11 knots cruising speed (ASME's
- *    1984 landmark brochure, p. 4), already at it when the course begins and
- *    still at it when it ends, so no rate of speeding up or slowing, which no
- *    source read gives, enters the test, on a sea at the top of the WMO sea
- *    state code's slight band, 1.25 m significant height, running abeam: the
- *    deck heaves by the sea's elevation under its root, tilts no more than the
- *    steepest slope allows, and the gun's muzzle keeps its place in the deck's
- *    surface frame, within 1e-9; the same seed rides the same, and a calm sea
- *    of zero height leaves the deck on still water.
+ * 1. The deck passes `validateModel`, and each side's guardrail, read from its own parts, meets ISO 5480:2020 clause 5: the toprail's top at least 1 000 mm above the deck (5.1.1), the opening below the lowest course at most 230 mm (5.1.2) and between the courses above at most 380 mm (5.1.3), at least three courses (Load Line Convention regulation 25(3)), stanchions from end to end at most 1 500 mm apart (5.1.4) and of at least 60 mm x 15 mm flat bar (5.2), a toprail tube of at least 34 mm (5.3.1) and lower rails of at least 19 mm (5.3.3).
+ * 1b. The `deck` surface spans the beam less the two stanchions over the whole length, and each toprail contact is a bar of the 34 mm tube along the stretch with its top at the toprail's height.
+ * 2. A deck too narrow for its two stanchions, and one of no length, are refused at their fields.
+ * 3. The deck and a field gun set amidships on it, its muzzle square to the left side as a gun trained abeam, form an assembly that passes `validateModel` and keeps the deck's walking surface and the gun's muzzle under their keys.
+ * 4. Steaming its own length at a Liberty ship's 11 knots cruising speed (ASME's 1984 landmark brochure, p. 4), already at it when the course begins and still at it when it ends, so no rate of speeding up or slowing, which no source read gives, enters the test, on a sea at the top of the WMO sea state code's slight band, 1.25 m significant height, running abeam: the deck heaves by the sea's elevation under its root, tilts no more than the steepest slope allows, and the gun's muzzle keeps its place in the deck's surface frame, within 1e-9; the same seed rides the same, and a calm sea of zero height leaves the deck on still water.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Builds the deck, an assembly on it and a floating ride, and reads the engine's admission, the guardrail's own parts, the refusals and the ride's frames; a guardrail out of the standard, a short run of stanchions, an assembly that loses a member's contact, a deck not following the sea, or a gun that slides on it is caught.
  * @evidence contracts/development/testing.md#independent-expectations The guardrail limits are the standard's clauses, written here, not read from the producer's bands; the heave is the sea's own elevation; the bounds on the tilt are the triangle inequality on a sum of sinusoids; a gun fast on a rigid deck keeps its place in the deck's frame.
@@ -260,7 +237,7 @@ export function test_archetype_deck_assembly(): void {
   const sea: AutoMovieArchetypeSea.IOptions = {
     height: 1.25,
     heading: 90,
-    seed: 1035,
+    seed: "deck",
   };
   const still: AutoMovieArchetypeRide.IRide<Id, never> =
     AutoMovieArchetypeRide.along(ship, course);

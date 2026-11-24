@@ -21,7 +21,7 @@ import type { createAppliance } from "./createAppliance";
  */
 export function createMicrowave(
   params: createMicrowave.IParams = {},
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<createMicrowave.Affordance, createMicrowave.Dimension> {
   return FixtureDraw.installed<
     createMicrowave.Affordance,

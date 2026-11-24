@@ -19,7 +19,7 @@ import type { createGoal } from "./createGoal";
  */
 export function createBasketballHoop(
   params: createBasketballHoop.IParams = {},
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<
   createBasketballHoop.Affordance,
   createBasketballHoop.Dimension

@@ -23,52 +23,44 @@ interface Reference {
   kind: "ox" | "camel" | "deer";
   /** Named source cohort recorded by the actual producer. */
   cohort: string;
-  /**
-   * Published withers height, chest circumference and total head length,
-   * metres.
-   */
+  /** Published withers height, chest circumference and total head length, metres. */
   height: number;
   girth: number;
   head: number;
   /** Complete authored kilograms, except the cited bare deer cohort mean. */
   mass: number;
-  /**
-   * Explicit fixed reference keeps this point-reference unit separate from
-   * catalogue variation.
-   */
+  /** Explicit fixed reference keeps this point-reference unit separate from catalogue variation. */
   params: createQuadruped.IParams;
   /** The species' actual public producer with explicit mass ownership. */
-  make: (seed: number) => Animal;
+  make: (seed: number | string) => Animal;
 }
 
 /**
  * Published point references survive real construction and public dispatch.
  *
  * Scenarios:
- *
- * 1. Each of three real producers and the public kind dispatcher constructs 200
- *    seeded, admissible, deterministic models within a 60-second budget.
- * 2. The actual withers sphere apex, trunk circumference and complete head capsule
- *    agree with independent published metre values at every seed. These inputs
- *    fix the reference key, so seeds do not choose another measured group or
- *    invent unreported population bands around its mean.
- * 3. All 21 animal bones remain actual parts and a generic named skeleton; reads
- *    leave model bytes unchanged and separately built models do not alias.
+ * 1. Each of three real producers and the public kind dispatcher constructs
+ *    200 seeded, admissible, deterministic models within a 60-second budget.
+ * 2. The actual withers sphere apex, trunk circumference and complete head
+ *    capsule agree with independent published metre values at every seed.
+ *    These inputs fix the reference key, so seeds do not choose another
+ *    measured group or invent unreported population bands around its mean.
+ * 3. All 21 animal bones remain actual parts and a generic named skeleton;
+ *    reads leave model bytes unchanged and separately built models do not alias.
  * 4. Missing required mass, invalid explicit mass and an unknown kind produce
  *    actionable refusals. A bare deer alone may use its cited 60.4 kg mean.
  *
  * Ox: Bhagat et al. 2022 Table 2, Kathani working bullocks (n=2614),
- * https://doi.org/10.56093/ijans.v92i10.105090. Camel: Diop et al. 2020, 131
- * adult Mauritanian females, https://doi.org/10.19182/remvt.31948; its chest
- * girth excludes the hump and head length is occiput-to-nose. Deer: Ochiai and
- * Asada 1995 Table 3, Boso males age 4+ (body mass n=25, other body measures
- * n=27); the separate 1997 Table 7 skull cohort gives the 0.2669 m cranial
- * control, not a paired soft-tissue head measurement:
+ * https://doi.org/10.56093/ijans.v92i10.105090. Camel: Diop et al. 2020,
+ * 131 adult Mauritanian females, https://doi.org/10.19182/remvt.31948;
+ * its chest girth excludes the hump and head length is occiput-to-nose.
+ * Deer: Ochiai and Asada 1995 Table 3, Boso males age 4+ (body mass n=25,
+ * other body measures n=27); the separate 1997 Table 7 skull cohort gives
+ * the 0.2669 m cranial control, not a paired soft-tissue head measurement:
  * https://www.chiba-muse.or.jp/NATURAL/cms/wp-content/uploads/2024/01/journal_03-2_11ochiai.pdf
  * https://www.chiba-muse.or.jp/NATURAL/cms/wp-content/uploads/2024/01/journal_04-2_12ochiai.pdf
  * Ox 300 kg and camel 450 kg are authored gallery choices, not survey weights.
- * This checks coarse reference geometry, not population anatomy or visual
- * quality.
+ * This checks coarse reference geometry, not population anatomy or visual quality.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names the three primary references, distinct cohorts and measurement definitions, authored versus measured mass, physical observations and limits of the coarse head controls.
  * @evidence contracts/development/testing.md#behavioral-verification Constructs real public species and registry outputs, admits each complete model, reads actual primitive dimensions and actual named skeletons, and exercises real runtime refusals and query isolation.
@@ -86,7 +78,7 @@ export function test_archetype_animal_reference_species(): void {
       head: 0.4292,
       mass: 300,
       params: { kind: "ox", mass: 300 },
-      make: (seed: number): Animal => createOx({ mass: 300 }, seed),
+      make: (seed: number | string): Animal => createOx({ mass: 300 }, seed),
     },
     {
       kind: "camel",
@@ -96,7 +88,7 @@ export function test_archetype_animal_reference_species(): void {
       head: 0.515,
       mass: 450,
       params: { kind: "camel", mass: 450, cohort: "mauritanian-adult-female" },
-      make: (seed: number): Animal =>
+      make: (seed: number | string): Animal =>
         createCamel({ mass: 450, cohort: "mauritanian-adult-female" }, seed),
     },
     {
@@ -107,7 +99,7 @@ export function test_archetype_animal_reference_species(): void {
       head: 0.2669,
       mass: 60.4,
       params: { kind: "deer", mass: 60.4, cohort: "boso-adult-male" },
-      make: (seed: number): Animal =>
+      make: (seed: number | string): Animal =>
         createDeer({ cohort: "boso-adult-male" }, seed),
     },
   ];
@@ -143,7 +135,7 @@ export function test_archetype_animal_reference_species(): void {
   const began: number = Date.now();
   for (const reference of references)
     for (let index: number = 0; index < 200; index++) {
-      const seed: number = index;
+      const seed: string = `reference-${index}`;
       const label: string = `${reference.kind}/${seed}`;
       const animal: Animal = reference.make(seed);
       const original: string = JSON.stringify(animal);
@@ -319,10 +311,7 @@ export function test_archetype_animal_reference_species(): void {
   TestValidator.equals("published animal reference behavior", findings, []);
 }
 
-/**
- * Read a real named primitive; absence is a construction failure, not an oracle
- * fallback.
- */
+/** Read a real named primitive; absence is a construction failure, not an oracle fallback. */
 function part(animal: Animal, id: string): IAutoMovieModelPart {
   const found: IAutoMovieModelPart | undefined = animal.parts.find(
     (candidate: IAutoMovieModelPart): boolean => candidate.id === id,
@@ -334,10 +323,7 @@ function part(animal: Animal, id: string): IAutoMovieModelPart {
   return found;
 }
 
-/**
- * Require the real refusal's class, physical axis, exact input and actionable
- * guidance.
- */
+/** Require the real refusal's class, physical axis, exact input and actionable guidance. */
 function refusal(
   findings: string[],
   label: string,

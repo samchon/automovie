@@ -14,7 +14,7 @@ import type { createLight } from "./createLight";
  */
 export function createLantern(
   params: createLantern.IParams = {},
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<createLantern.Affordance, createLantern.Dimension> {
   return PracticalLightConstruction.lantern(params, seed);
 }

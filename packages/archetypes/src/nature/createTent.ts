@@ -39,7 +39,7 @@ const UNHCR: string =
  */
 export function createTent(
   params: createTent.IParams,
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<createTent.Affordance, createTent.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createTent.Dimension> =
     new AutoMovieArchetypeDrawSession<createTent.Dimension>(

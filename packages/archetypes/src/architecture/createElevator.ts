@@ -72,7 +72,7 @@ const ESTIMATES: Readonly<{ wall: number; leaf: number; across: number }> = {
  */
 export function createElevator(
   params: createElevator.IParams = {},
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<createElevator.Affordance, createElevator.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createElevator.Dimension> =
     new AutoMovieArchetypeDrawSession<createElevator.Dimension>(

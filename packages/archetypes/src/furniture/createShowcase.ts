@@ -35,7 +35,7 @@ const CASE: Readonly<{ depth: number; height: number }> = {
  */
 export function createShowcase(
   params: createShowcase.IParams = {},
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<createShowcase.Affordance, createShowcase.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createShowcase.Dimension> =
     new AutoMovieArchetypeDrawSession<createShowcase.Dimension>(

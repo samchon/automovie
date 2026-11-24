@@ -24,7 +24,7 @@ import { createWashbasin } from "./createWashbasin";
  */
 export function createSanitary(
   params: createSanitary.IParams,
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<createSanitary.Affordance, createSanitary.Dimension> {
   const kind: createSanitary.Kind = ArchetypeDraw.choice(
     "sanitary",

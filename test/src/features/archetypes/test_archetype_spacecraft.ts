@@ -21,11 +21,9 @@ const MM: number = 0.001;
  * route two grip points that do not follow the hatch.
  *
  * Scenarios:
- *
  * 1. Replay a seeded model, compare a different seed, and reject a narrow hatch.
  * 2. Measure the hull, aperture, and flush boarding route on an authored set.
- * 3. Open the hatch 90 degrees and measure its leaf, grip, and stationary deck and
- *    rails.
+ * 3. Open the hatch 90 degrees and measure its leaf, grip, and stationary deck and rails.
  * 4. Check the physical seat and console contacts in a tight cabin.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Defines the set's staging behavior across the aperture, hull, and crew station.
@@ -58,14 +56,17 @@ export function test_archetype_spacecraft(): void {
     if (!condition) failures.push(label);
   };
 
-  const first: ReturnType<typeof createSpacecraft> = createSpacecraft({}, 1010);
+  const first: ReturnType<typeof createSpacecraft> = createSpacecraft(
+    {},
+    "dock",
+  );
   const replay: ReturnType<typeof createSpacecraft> = createSpacecraft(
     {},
-    1010,
+    "dock",
   );
   const variant: ReturnType<typeof createSpacecraft> = createSpacecraft(
     {},
-    1011,
+    "cabin",
   );
   TestValidator.equals(
     "seeded spacecraft dimensions",

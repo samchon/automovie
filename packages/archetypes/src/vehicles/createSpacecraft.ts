@@ -44,8 +44,8 @@ const ALUMINIUM_DENSITY: number = 2700;
  * function follow the mobility aid guidance in {@link MOBILITY_AIDS}.
  *
  * @param params The model id and any fixed dimensions in metres.
- * @param seed A number that draws the remaining dimensions. With no seed,
- *   dimensions take the middle of their bands.
+ * @param seed A number or string that draws the remaining dimensions. With no
+ *   seed, dimensions take the middle of their bands.
  * @returns The set and its local boarding, handrail, seated crew and console
  *   contacts.
  * @throws {AutoMovieArchetypeRefusal} For a dimension outside its authored
@@ -53,7 +53,7 @@ const ALUMINIUM_DENSITY: number = 2700;
  */
 export function createSpacecraft(
   params: createSpacecraft.IParams = {},
-  seed?: number,
+  seed?: string | number,
 ): AutoMovieArchetype<createSpacecraft.Affordance, createSpacecraft.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createSpacecraft.Dimension> =
     new AutoMovieArchetypeDrawSession(

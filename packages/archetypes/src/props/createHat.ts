@@ -19,7 +19,7 @@ export function createHat(
     WornPropDraw.IParams,
     "id" | "width" | "depth" | "height" | "mass"
   > = {},
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<createHat.Affordance, createHat.Dimension> {
   const {
     builder,

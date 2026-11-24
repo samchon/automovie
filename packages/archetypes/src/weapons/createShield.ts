@@ -37,7 +37,7 @@ const ROUND: string =
  */
 export function createShield(
   params: createShield.IParams,
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<createShield.Affordance, createShield.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createShield.Dimension> =
     new AutoMovieArchetypeDrawSession<createShield.Dimension>(

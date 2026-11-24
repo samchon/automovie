@@ -66,14 +66,14 @@ export function archetypeCatalogCarried(
     add(
       `car-${kind}`,
       (
-        seed?: number,
+        seed?: number | string,
         dimensions?: archetypeCatalog.Dimensions,
       ): AutoMovieArchetype => createCar({ kind, ...dimensions }, seed),
     );
   add(
     "bicycle",
     (
-      seed?: number,
+      seed?: number | string,
       dimensions?: archetypeCatalog.Dimensions,
     ): AutoMovieArchetype => createBicycle({ ...dimensions }, seed),
   );
@@ -81,7 +81,7 @@ export function archetypeCatalogCarried(
     add(
       `wheelchair-${kind}`,
       (
-        seed?: number,
+        seed?: number | string,
         dimensions?: archetypeCatalog.Dimensions,
       ): AutoMovieArchetype => createWheelchair({ kind, ...dimensions }, seed),
     );
@@ -89,7 +89,7 @@ export function archetypeCatalogCarried(
     add(
       `motorcycle-${kind}`,
       (
-        seed?: number,
+        seed?: number | string,
         dimensions?: archetypeCatalog.Dimensions,
       ): AutoMovieArchetype => createMotorcycle({ kind, ...dimensions }, seed),
     );
@@ -97,7 +97,7 @@ export function archetypeCatalogCarried(
     add(
       `cart-${kind}`,
       (
-        seed?: number,
+        seed?: number | string,
         dimensions?: archetypeCatalog.Dimensions,
       ): AutoMovieArchetype => createCart({ kind, ...dimensions }, seed),
       kind === "limber" || kind === "wagon",
@@ -106,7 +106,7 @@ export function archetypeCatalogCarried(
     add(
       `boat-${kind}`,
       (
-        seed?: number,
+        seed?: number | string,
         dimensions?: archetypeCatalog.Dimensions,
       ): AutoMovieArchetype => createBoat({ kind, ...dimensions }, seed),
       kind === "launch",
@@ -114,7 +114,7 @@ export function archetypeCatalogCarried(
   add(
     "deck",
     (
-      seed?: number,
+      seed?: number | string,
       dimensions?: archetypeCatalog.Dimensions,
     ): AutoMovieArchetype =>
       createDeck({ ...createDeck.REFERENCE, ...dimensions }, seed),
@@ -123,7 +123,7 @@ export function archetypeCatalogCarried(
   add(
     "horse",
     (
-      seed?: number,
+      seed?: number | string,
       dimensions?: archetypeCatalog.Dimensions,
     ): AutoMovieArchetype => createHorse({ ...dimensions }, seed),
   );
@@ -144,7 +144,7 @@ export function archetypeCatalogCarried(
   add(
     "ox",
     (
-      seed?: number,
+      seed?: number | string,
       dimensions?: archetypeCatalog.Dimensions,
     ): AutoMovieArchetype =>
       createOx({ ...createOx.REFERENCE, lead, ...dimensions }, seed),
@@ -152,7 +152,7 @@ export function archetypeCatalogCarried(
   add(
     "camel",
     (
-      seed?: number,
+      seed?: number | string,
       dimensions?: archetypeCatalog.Dimensions,
     ): AutoMovieArchetype =>
       createCamel({ ...createCamel.REFERENCE, lead, ...dimensions }, seed),
@@ -160,7 +160,7 @@ export function archetypeCatalogCarried(
   add(
     "deer",
     (
-      seed?: number,
+      seed?: number | string,
       dimensions?: archetypeCatalog.Dimensions,
     ): AutoMovieArchetype =>
       createDeer({ mass: 62, lead, ...dimensions }, seed),
@@ -168,21 +168,21 @@ export function archetypeCatalogCarried(
   add(
     "pony",
     (
-      seed?: number,
+      seed?: number | string,
       dimensions?: archetypeCatalog.Dimensions,
     ): AutoMovieArchetype => createPony({ ...dimensions }, seed),
   );
   add(
     "donkey",
     (
-      seed?: number,
+      seed?: number | string,
       dimensions?: archetypeCatalog.Dimensions,
     ): AutoMovieArchetype => createDonkey({ ...dimensions }, seed),
   );
   add(
     "mule",
     (
-      seed?: number,
+      seed?: number | string,
       dimensions?: archetypeCatalog.Dimensions,
     ): AutoMovieArchetype => createMule({ ...dimensions }, seed),
   );
@@ -190,7 +190,7 @@ export function archetypeCatalogCarried(
     add(
       `handgun-${frame}`,
       (
-        seed?: number,
+        seed?: number | string,
         dimensions?: archetypeCatalog.Dimensions,
       ): AutoMovieArchetype => createHandgun({ frame, ...dimensions }, seed),
     );
@@ -198,7 +198,7 @@ export function archetypeCatalogCarried(
     add(
       `holster-${kind}`,
       (
-        seed?: number,
+        seed?: number | string,
         dimensions?: archetypeCatalog.Dimensions,
       ): AutoMovieArchetype => createHolster({ kind, ...dimensions }, seed),
     );
@@ -206,7 +206,7 @@ export function archetypeCatalogCarried(
     add(
       `magazine-${kind}`,
       (
-        seed?: number,
+        seed?: number | string,
         dimensions?: archetypeCatalog.Dimensions,
       ): AutoMovieArchetype => createMagazine({ kind, ...dimensions }, seed),
       settled(createMagazine.BANDS[kind]),
@@ -215,7 +215,7 @@ export function archetypeCatalogCarried(
     add(
       `projectile-${kind}`,
       (
-        seed?: number,
+        seed?: number | string,
         dimensions?: archetypeCatalog.Dimensions,
       ): AutoMovieArchetype => createProjectile({ kind, ...dimensions }, seed),
       settled(createProjectile.BANDS[kind], createProjectile.MODELS[kind]),
@@ -224,7 +224,7 @@ export function archetypeCatalogCarried(
     add(
       `bow-${kind}`,
       (
-        seed?: number,
+        seed?: number | string,
         dimensions?: archetypeCatalog.Dimensions,
       ): AutoMovieArchetype => createBow({ kind, ...dimensions }, seed),
     );
@@ -232,7 +232,7 @@ export function archetypeCatalogCarried(
     add(
       `cannon-${kind}`,
       (
-        seed?: number,
+        seed?: number | string,
         dimensions?: archetypeCatalog.Dimensions,
       ): AutoMovieArchetype => createCannon({ kind, ...dimensions }, seed),
       settled(createCannon.BANDS[kind], createCannon.MODELS[kind]),
@@ -241,7 +241,7 @@ export function archetypeCatalogCarried(
     add(
       `siegeEngine-${kind}`,
       (
-        seed?: number,
+        seed?: number | string,
         dimensions?: archetypeCatalog.Dimensions,
       ): AutoMovieArchetype => createSiegeEngine({ kind, ...dimensions }, seed),
     );
@@ -249,63 +249,63 @@ export function archetypeCatalogCarried(
     add(
       `longGun-${kind}`,
       (
-        seed?: number,
+        seed?: number | string,
         dimensions?: archetypeCatalog.Dimensions,
       ): AutoMovieArchetype => createLongGun({ kind, ...dimensions }, seed),
     );
   add(
     `dumbbell`,
     (
-      seed?: number,
+      seed?: number | string,
       dimensions?: archetypeCatalog.Dimensions,
     ): AutoMovieArchetype => createDumbbell({ ...dimensions }, seed),
   );
   add(
     `kettlebell`,
     (
-      seed?: number,
+      seed?: number | string,
       dimensions?: archetypeCatalog.Dimensions,
     ): AutoMovieArchetype => createKettlebell({ ...dimensions }, seed),
   );
   add(
     `bench`,
     (
-      seed?: number,
+      seed?: number | string,
       dimensions?: archetypeCatalog.Dimensions,
     ): AutoMovieArchetype => createBench({ ...dimensions }, seed),
   );
   add(
     `plyo-box`,
     (
-      seed?: number,
+      seed?: number | string,
       dimensions?: archetypeCatalog.Dimensions,
     ): AutoMovieArchetype => createPlyoBox({ ...dimensions }, seed),
   );
   add(
     `rack`,
     (
-      seed?: number,
+      seed?: number | string,
       dimensions?: archetypeCatalog.Dimensions,
     ): AutoMovieArchetype => createRack({ ...dimensions }, seed),
   );
   add(
     "sled",
     (
-      seed?: number,
+      seed?: number | string,
       dimensions?: archetypeCatalog.Dimensions,
     ): AutoMovieArchetype => createSled({ ...dimensions }, seed),
   );
   add(
     "rowingMachine",
     (
-      seed?: number,
+      seed?: number | string,
       dimensions?: archetypeCatalog.Dimensions,
     ): AutoMovieArchetype => createRowingMachine({ ...dimensions }, seed),
   );
   add(
     "exerciseBike",
     (
-      seed?: number,
+      seed?: number | string,
       dimensions?: archetypeCatalog.Dimensions,
     ): AutoMovieArchetype => createExerciseBike({ ...dimensions }, seed),
   );
@@ -313,35 +313,35 @@ export function archetypeCatalogCarried(
     add(
       `exerciseMat-${kind}`,
       (
-        seed?: number,
+        seed?: number | string,
         dimensions?: archetypeCatalog.Dimensions,
       ): AutoMovieArchetype => createExerciseMat({ kind, ...dimensions }, seed),
     );
   add(
     "jumpRope",
     (
-      seed?: number,
+      seed?: number | string,
       dimensions?: archetypeCatalog.Dimensions,
     ): AutoMovieArchetype => createJumpRope({ ...dimensions }, seed),
   );
   add(
     "ring",
     (
-      seed?: number,
+      seed?: number | string,
       dimensions?: archetypeCatalog.Dimensions,
     ): AutoMovieArchetype => createRing({ ...dimensions }, seed),
   );
   add(
     "boxingGlove",
     (
-      seed?: number,
+      seed?: number | string,
       dimensions?: archetypeCatalog.Dimensions,
     ): AutoMovieArchetype => createBoxingGlove({ ...dimensions }, seed),
   );
   add(
     "heavyBag",
     (
-      seed?: number,
+      seed?: number | string,
       dimensions?: archetypeCatalog.Dimensions,
     ): AutoMovieArchetype => createHeavyBag({ ...dimensions }, seed),
   );
@@ -349,7 +349,7 @@ export function archetypeCatalogCarried(
     add(
       `pull-up-bar-${kind}`,
       (
-        seed?: number,
+        seed?: number | string,
         dimensions?: archetypeCatalog.Dimensions,
       ): AutoMovieArchetype => createPullUpBar({ kind, ...dimensions }, seed),
     );
@@ -357,7 +357,7 @@ export function archetypeCatalogCarried(
     add(
       `parallel-bars-${kind}`,
       (
-        seed?: number,
+        seed?: number | string,
         dimensions?: archetypeCatalog.Dimensions,
       ): AutoMovieArchetype =>
         createParallelBars({ kind, ...dimensions }, seed),
@@ -366,7 +366,7 @@ export function archetypeCatalogCarried(
     add(
       `barbell-${kind}`,
       (
-        seed?: number,
+        seed?: number | string,
         dimensions?: archetypeCatalog.Dimensions,
       ): AutoMovieArchetype => createBarbell({ kind, ...dimensions }, seed),
     );
@@ -374,7 +374,7 @@ export function archetypeCatalogCarried(
     add(
       `club-${kind}`,
       (
-        seed?: number,
+        seed?: number | string,
         dimensions?: archetypeCatalog.Dimensions,
       ): AutoMovieArchetype => createClub({ kind, ...dimensions }, seed),
     );
@@ -382,7 +382,7 @@ export function archetypeCatalogCarried(
     add(
       `sword-${kind}`,
       (
-        seed?: number,
+        seed?: number | string,
         dimensions?: archetypeCatalog.Dimensions,
       ): AutoMovieArchetype => createSword({ kind, ...dimensions }, seed),
     );
@@ -390,7 +390,7 @@ export function archetypeCatalogCarried(
     add(
       `shield-${kind}`,
       (
-        seed?: number,
+        seed?: number | string,
         dimensions?: archetypeCatalog.Dimensions,
       ): AutoMovieArchetype => createShield({ kind, ...dimensions }, seed),
     );
@@ -398,14 +398,14 @@ export function archetypeCatalogCarried(
     add(
       `polearm-${kind}`,
       (
-        seed?: number,
+        seed?: number | string,
         dimensions?: archetypeCatalog.Dimensions,
       ): AutoMovieArchetype => createPolearm({ kind, ...dimensions }, seed),
     );
   add(
     "pell",
     (
-      seed?: number,
+      seed?: number | string,
       dimensions?: archetypeCatalog.Dimensions,
     ): AutoMovieArchetype => createPell({ ...dimensions }, seed),
   );
@@ -413,14 +413,14 @@ export function archetypeCatalogCarried(
     add(
       `weaponLoop-${kind}`,
       (
-        seed?: number,
+        seed?: number | string,
         dimensions?: archetypeCatalog.Dimensions,
       ): AutoMovieArchetype => createWeaponLoop({ kind, ...dimensions }, seed),
     );
   add(
     "weaponRack",
     (
-      seed?: number,
+      seed?: number | string,
       dimensions?: archetypeCatalog.Dimensions,
     ): AutoMovieArchetype => createWeaponRack({ ...dimensions }, seed),
   );

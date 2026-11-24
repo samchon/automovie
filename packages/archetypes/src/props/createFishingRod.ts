@@ -18,7 +18,7 @@ export function createFishingRod(
   params: Pick<LongImplementDraw.IParams, "id" | "shaftDiameter"> & {
     model?: LongImplementDraw.Model;
   } = {},
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<createFishingRod.Affordance, createFishingRod.Dimension> {
   const {
     builder,

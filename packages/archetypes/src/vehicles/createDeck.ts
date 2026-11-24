@@ -58,7 +58,7 @@ const ESTIMATES: Readonly<{ plate: number }> = { plate: 0.02 };
  */
 export function createDeck(
   params: createDeck.IParams,
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<createDeck.Affordance, createDeck.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createDeck.Dimension> =
     new AutoMovieArchetypeDrawSession<createDeck.Dimension>(

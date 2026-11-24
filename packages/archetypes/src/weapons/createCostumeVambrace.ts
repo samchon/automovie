@@ -17,7 +17,7 @@ import type { createArmour } from "./createArmour";
  */
 export function createCostumeVambrace(
   params: createCostumeVambrace.IParams = {},
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<
   createCostumeVambrace.Affordance,
   createCostumeVambrace.Dimension

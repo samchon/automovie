@@ -19,7 +19,7 @@ export function createSpoon(
     HandToolDraw.IParams,
     "id" | "length" | "gripDiameter" | "mass"
   > = {},
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<createSpoon.Affordance, createSpoon.Dimension> {
   const {
     builder,

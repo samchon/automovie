@@ -20,10 +20,7 @@ interface IMark {
   z: number;
 }
 
-/**
- * One stretch of the speed profile: from its second, linearly to its speed by
- * the next stretch.
- */
+/** One stretch of the speed profile: from its second, linearly to its speed by the next stretch. */
 interface IStretch {
   /** Film second the stretch's speed is reached. */
   seconds: number;
@@ -32,22 +29,12 @@ interface IStretch {
 }
 
 /**
- * A mare departs from standing, walks into the trot and slows back through the
- * walk to a stretch slower than the slowest measured walk, which she walks on
- * at that row's cadence; every instant samples and no planted hoof slides.
+ * A mare departs from standing, walks into the trot and slows back through the walk to a stretch slower than the slowest measured walk, which she walks on at that row's cadence; every instant samples and no planted hoof slides.
  *
  * Scenarios:
- *
- * 1. A 1.6 m mare stands for a second, accelerates to 3 m/s, trots, slows to 0.8
- *    m/s, below the 1.077 m/s floor of the measured walk at her height, walks
- *    there for two seconds and speeds up again: every 20 ms samples, a
- *    `gait:walk-trot` and a later `gait:trot-walk` change appear, and no
- *    planted hoof slides.
- * 2. The same slow stretch named as a trot refuses with an
- *    AutoMovieArchetypeRefusal naming the trot.
- * 3. A crowd-sampled start, equal marks until it moves and marks every 0.5 s of a
- *    3 m/s^2 start to 3 m/s, never runs back along its line and rides every 20
- *    ms.
+ * 1. A 1.6 m mare stands for a second, accelerates to 3 m/s, trots, slows to 0.8 m/s, below the 1.077 m/s floor of the measured walk at her height, walks there for two seconds and speeds up again: every 20 ms samples, a `gait:walk-trot` and a later `gait:trot-walk` change appear, and no planted hoof slides.
+ * 2. The same slow stretch named as a trot refuses with an AutoMovieArchetypeRefusal naming the trot.
+ * 3. A crowd-sampled start, equal marks until it moves and marks every 0.5 s of a 3 m/s^2 start to 3 m/s, never runs back along its line and rides every 20 ms.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names the profile, the floor and the refusal.
  * @evidence contracts/development/testing.md#behavioral-verification Samples the public ride and reads its gait instants and planted hooves.
@@ -56,7 +43,7 @@ interface IStretch {
  * @evidence contracts/development/testing.md#execution-ownership A memory-only archetype unit.
  */
 export function test_archetype_equine_timed_walk_floor(): void {
-  const horse = createHorse({ withersHeight: 1.6, tempo: 0 }, 1003);
+  const horse = createHorse({ withersHeight: 1.6, tempo: 0 }, "mare");
   const floor: number = AutoMovieArchetypeQuadrupedGait.range(
     createQuadruped.species(horse),
     "walk",

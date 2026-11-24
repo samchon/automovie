@@ -47,7 +47,7 @@ const GRANITE: string =
  */
 export function createRock(
   params: createRock.IParams,
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<createRock.Affordance, createRock.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createRock.Dimension> =
     new AutoMovieArchetypeDrawSession<createRock.Dimension>(

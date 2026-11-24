@@ -35,7 +35,7 @@ const EVERLAST: string =
  */
 export function createHeavyBag(
   params: createHeavyBag.IParams = {},
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<createHeavyBag.Affordance, createHeavyBag.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createHeavyBag.Dimension> =
     new AutoMovieArchetypeDrawSession<createHeavyBag.Dimension>(

@@ -18,7 +18,7 @@ import { stageTokenSphere } from "./stageTokenSphere";
  */
 export function createStageRoundProp(
   params: createStageRoundProp.IParams = {},
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<
   createStageRoundProp.Affordance,
   createStageRoundProp.Dimension

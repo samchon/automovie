@@ -19,7 +19,7 @@ export function createPen(
     StationeryDraw.IParams,
     "id" | "length" | "thickness" | "mass"
   > = {},
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<createPen.Affordance, createPen.Dimension> {
   const {
     builder,

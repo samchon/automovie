@@ -42,7 +42,7 @@ const VERACRUZ: string =
  */
 export function createDonkey(
   params: AutoMovieArchetypeEquine.IParams = {},
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<
   AutoMovieArchetypeEquine.Affordance,
   AutoMovieArchetypeEquine.Dimension

@@ -27,7 +27,7 @@ const NORMS: string =
  */
 export function createUnevenBars(
   params: createUnevenBars.IParams = {},
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<createUnevenBars.Affordance, createUnevenBars.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createUnevenBars.Dimension> =
     new AutoMovieArchetypeDrawSession(

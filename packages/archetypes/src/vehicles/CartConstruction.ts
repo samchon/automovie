@@ -25,7 +25,7 @@ import { createCart } from "./createCart";
 export function CartConstruction(
   kind: createCart.Kind,
   params: Omit<createCart.IParams, "kind">,
-  seed: number | undefined,
+  seed: number | string | undefined,
   build: CartConstruction.Build,
   fit?: typeof CartFit.harness,
 ): AutoMovieArchetype<createCart.Affordance, createCart.Dimension> {

@@ -41,7 +41,7 @@ interface IDrawn<Id extends createStorage.Affordance> {
 function draw<Id extends createStorage.Affordance>(
   kind: createStorage.Kind,
   params: Omit<createStorage.IParams, "kind">,
-  seed?: number,
+  seed?: number | string,
 ): IDrawn<Id> {
   const session: AutoMovieArchetypeDrawSession<createStorage.Dimension> =
     new AutoMovieArchetypeDrawSession<createStorage.Dimension>(
@@ -92,7 +92,7 @@ export namespace StorageMechanisms {
   export function hinged(
     kind: HingedKind,
     params: Omit<createStorage.IParams, "kind">,
-    seed?: number,
+    seed?: number | string,
   ): AutoMovieArchetype<HingedContact, createStorage.Dimension> {
     const { builder, d }: ReturnType<typeof draw<HingedContact>> =
       draw<HingedContact>(kind, params, seed);
@@ -114,7 +114,7 @@ export namespace StorageMechanisms {
   export function sliding(
     kind: SlidingKind,
     params: Omit<createStorage.IParams, "kind">,
-    seed?: number,
+    seed?: number | string,
   ): AutoMovieArchetype<SlidingContact, createStorage.Dimension> {
     const { builder, d }: ReturnType<typeof draw<SlidingContact>> =
       draw<SlidingContact>(kind, params, seed);
@@ -128,7 +128,7 @@ export namespace StorageMechanisms {
   /** Build a bookcase with open, visible shelf supports. */
   export function bookcase(
     params: Omit<createStorage.IParams, "kind">,
-    seed?: number,
+    seed?: number | string,
   ): AutoMovieArchetype<BookcaseContact, createStorage.Dimension> {
     const { builder, d }: ReturnType<typeof draw<BookcaseContact>> =
       draw<BookcaseContact>("bookcase", params, seed);

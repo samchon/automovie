@@ -30,7 +30,7 @@ const FIG: string =
  */
 export function createParallelBars(
   params: createParallelBars.IParams,
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<
   createParallelBars.Affordance,
   createParallelBars.Dimension

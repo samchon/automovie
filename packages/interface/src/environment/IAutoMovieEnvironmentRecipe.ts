@@ -7,7 +7,7 @@ export interface IAutoMovieEnvironmentRecipe {
   id: string;
 
   /** Optional seed used to derive stable per-occurrence seeds. */
-  seed?: number;
+  seed?: number | string;
 
   /** Rigid world frame for the recipe, defaulting to the identity. */
   frame?: IAutoMovieTransform;

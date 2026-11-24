@@ -27,7 +27,7 @@ const NORMS: string =
  */
 export function createRhythmicBall(
   params: createRhythmicBall.IParams = {},
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<
   createRhythmicBall.Affordance,
   createRhythmicBall.Dimension

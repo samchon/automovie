@@ -70,7 +70,7 @@ import type { QuadrupedProportions } from "./QuadrupedProportions";
  */
 export function createHorse(
   params: createHorse.IParams = {},
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<
   AutoMovieArchetypeEquine.Affordance,
   AutoMovieArchetypeEquine.Dimension

@@ -34,7 +34,7 @@ const ESTIMATE: string = "an estimate, no source read gives it";
  */
 export function createRaceRail(
   params: createRaceRail.IParams = {},
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<createRaceRail.Affordance, createRaceRail.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createRaceRail.Dimension> =
     new AutoMovieArchetypeDrawSession<createRaceRail.Dimension>(

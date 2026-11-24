@@ -36,7 +36,7 @@ interface IDrawResult<Id extends createVessel.Affordance> {
 function draw<Id extends createVessel.Affordance>(
   kind: createVessel.Kind,
   params: Omit<createVessel.IParams, "kind">,
-  seed?: number,
+  seed?: number | string,
 ): IDrawResult<Id> {
   const session: AutoMovieArchetypeDrawSession<createVessel.Dimension> =
     new AutoMovieArchetypeDrawSession<createVessel.Dimension>(
@@ -156,7 +156,7 @@ export namespace VesselConstruction {
   /** Build a bowl held from beneath with two hands. */
   export function bowl(
     params: Omit<createVessel.IParams, "kind">,
-    seed?: number,
+    seed?: number | string,
   ): AutoMovieArchetype<BowlContact, createVessel.Dimension> {
     const { builder, d }: ReturnType<typeof draw<BowlContact>> =
       draw<BowlContact>("bowl", params, seed);
@@ -170,7 +170,7 @@ export namespace VesselConstruction {
   /** Build an ashtray grasped from below. */
   export function ashtray(
     params: Omit<createVessel.IParams, "kind">,
-    seed?: number,
+    seed?: number | string,
   ): AutoMovieArchetype<AshtrayContact, createVessel.Dimension> {
     const { builder, d }: ReturnType<typeof draw<AshtrayContact>> =
       draw<AshtrayContact>("ashtray", params, seed);
@@ -184,7 +184,7 @@ export namespace VesselConstruction {
   /** Build a vase at the model origin with a grip around the middle. */
   export function vase(
     params: Omit<createVessel.IParams, "kind">,
-    seed?: number,
+    seed?: number | string,
   ): AutoMovieArchetype<VaseContact, createVessel.Dimension> {
     const { builder, d }: ReturnType<typeof draw<VaseContact>> =
       draw<VaseContact>("vase", params, seed);
@@ -219,7 +219,7 @@ export namespace VesselConstruction {
   export function cookingPot(
     kind: CookingPotKind,
     params: Omit<createVessel.IParams, "kind">,
-    seed?: number,
+    seed?: number | string,
   ): AutoMovieArchetype<CookingPotContact, createVessel.Dimension> {
     const { builder, d }: ReturnType<typeof draw<CookingPotContact>> =
       draw<CookingPotContact>(kind, params, seed);

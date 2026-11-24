@@ -19,7 +19,7 @@ export function createBook(
     StationeryDraw.IParams,
     "id" | "width" | "length" | "thickness" | "mass"
   > = {},
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<createBook.Affordance, createBook.Dimension> {
   const {
     builder,

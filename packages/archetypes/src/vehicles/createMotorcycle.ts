@@ -34,7 +34,7 @@ const TRIANGLE: string =
  */
 export function createMotorcycle(
   params: createMotorcycle.IParams,
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<createMotorcycle.Affordance, createMotorcycle.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createMotorcycle.Dimension> =
     new AutoMovieArchetypeDrawSession<createMotorcycle.Dimension>(

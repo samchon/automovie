@@ -18,7 +18,7 @@ import type { createCart } from "./createCart";
  */
 export function createShoppingTrolley(
   params: createShoppingTrolley.IParams = {},
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<
   createShoppingTrolley.Affordance,
   createShoppingTrolley.Dimension

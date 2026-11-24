@@ -25,7 +25,7 @@ import {
  */
 export function createTorch(
   params: createTorch.IParams = {},
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<createTorch.Affordance, createTorch.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createTorch.Dimension> =
     new AutoMovieArchetypeDrawSession<createTorch.Dimension>(

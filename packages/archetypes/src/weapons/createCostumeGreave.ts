@@ -17,7 +17,7 @@ import type { createArmour } from "./createArmour";
  */
 export function createCostumeGreave(
   params: createCostumeGreave.IParams = {},
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<
   createCostumeGreave.Affordance,
   createCostumeGreave.Dimension

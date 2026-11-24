@@ -57,7 +57,7 @@ const ESTIMATES: Readonly<{ wheel: number; baseplate: number }> = {
  */
 export function createSkateboard(
   params: createSkateboard.IParams = {},
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<createSkateboard.Affordance, createSkateboard.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createSkateboard.Dimension> =
     new AutoMovieArchetypeDrawSession<createSkateboard.Dimension>(

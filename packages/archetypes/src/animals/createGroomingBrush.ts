@@ -42,7 +42,7 @@ const MASS: number = 0.2;
  */
 export function createGroomingBrush(
   params: createGroomingBrush.IParams = {},
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<
   createGroomingBrush.Affordance,
   createGroomingBrush.Dimension

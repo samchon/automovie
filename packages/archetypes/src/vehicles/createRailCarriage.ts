@@ -34,7 +34,7 @@ import {
  */
 export function createRailCarriage(
   params: createRailCarriage.IParams | string = {},
-  options?: number | Pick<createRailCarriage.IParams, "seatHeight">,
+  options?: number | string | Pick<createRailCarriage.IParams, "seatHeight">,
 ): AutoMovieArchetype<
   createRailCarriage.Affordance,
   createRailCarriage.Dimension
@@ -47,7 +47,7 @@ export function createRailCarriage(
       : typeof params === "object"
         ? params
         : {};
-  const seed: number | undefined =
+  const seed: number | string | undefined =
     typeof options === "object" ? undefined : options;
   const draw: AutoMovieArchetypeDrawSession<createRailCarriage.Dimension> =
     new AutoMovieArchetypeDrawSession("railCarriage", UNITS, seed, {

@@ -78,7 +78,7 @@ export namespace GoalBuild {
   export function draw<Id extends createGoal.Affordance>(
     kind: createGoal.Kind,
     params: Readonly<Omit<createGoal.IParams, "kind">>,
-    seed: number | undefined,
+    seed: number | string | undefined,
   ): IDrawResult<Id> {
     const draw: AutoMovieArchetypeDrawSession<createGoal.Dimension> =
       new AutoMovieArchetypeDrawSession("goal", UNITS, seed, params);

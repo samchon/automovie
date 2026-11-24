@@ -20,7 +20,7 @@ export function createClipboard(
   params: Pick<StationeryDraw.IParams, "id"> & {
     model?: StationeryDraw.Model;
   } = {},
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<createClipboard.Affordance, createClipboard.Dimension> {
   const {
     builder,

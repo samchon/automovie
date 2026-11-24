@@ -25,7 +25,7 @@ import { createTrafficCone } from "./createTrafficCone";
  */
 export function createStreetFixture(
   params: createStreetFixture.IParams,
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<
   createStreetFixture.Affordance,
   createStreetFixture.Dimension
@@ -40,7 +40,7 @@ export function createStreetFixture(
   // Saved recipes may state any model. The canonical draw checks it against this kind's table.
   const produce: (
     params: createStreetFixture.IParams,
-    seed?: number,
+    seed?: number | string,
   ) => AutoMovieArchetype<
     createStreetFixture.Affordance,
     createStreetFixture.Dimension

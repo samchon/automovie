@@ -31,7 +31,7 @@ const HEAD: Readonly<{
  */
 export function createPayStation(
   params: createPayStation.IParams = {},
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<createPayStation.Affordance, createPayStation.Dimension> {
   const cabinet: ServiceCabinet.ICabinet<createPayStation.Affordance> =
     ServiceCabinet.begin("payStation", "pay station", "#2b5797", params, seed);

@@ -28,7 +28,6 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieArchetypeFrame } from "../core/AutoMovieArchetypeFrame";
-import { deriveArchetypeSeed } from "../core/deriveArchetypeSeed";
 import { requireEnvironmentFrame } from "./requireEnvironmentFrame";
 
 /**
@@ -50,7 +49,7 @@ export function createEnvironment(
   recipe: IAutoMovieEnvironmentRecipe,
 ): IAutoMovieEnvironment {
   requirePath(recipe.id, "$input.id");
-  if (recipe.seed !== undefined && !Number.isFinite(recipe.seed))
+  if (typeof recipe.seed === "number" && !Number.isFinite(recipe.seed))
     throw new Error("$input.seed: numeric environment seed must be finite");
   const root: IAutoMovieTransform = recipe.frame ?? Transform.identity();
   requireEnvironmentFrame(root, "$input.frame");
@@ -169,7 +168,7 @@ export function createEnvironment(
         seed:
           recipe.seed === undefined
             ? undefined
-            : deriveArchetypeSeed(recipe.seed, id),
+            : JSON.stringify([String(recipe.seed), id]),
         anchor: (reference: string): IAutoMovieTransform =>
           anchor(reference, `${path}.use`),
       });

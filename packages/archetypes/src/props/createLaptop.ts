@@ -20,7 +20,7 @@ import { KeyboardHardware } from "./KeyboardHardware";
  */
 export function createLaptop(
   params: createLaptop.IParams = {},
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<createLaptop.Affordance, createLaptop.Dimension> {
   const {
     builder,

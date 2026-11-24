@@ -34,14 +34,11 @@ const MOUNT: number = 4.5;
 const CONTACT: number = 0.01;
 
 /**
- * A trooper keeps the seat through the charge: the horse is cued from the
- * canter into the gallop on its timed charge course, and the rider stays seated
- * within the contact budget and passes the shipped verdicts.
+ * A trooper keeps the seat through the charge: the horse is cued from the canter into the gallop on its timed charge course, and the rider stays seated within the contact budget and passes the shipped verdicts.
  *
  * Scenarios:
  *
- * 1. Through the canter and the cued gallop, the rider's seat holds within the
- *    contact budget.
+ * 1. Through the canter and the cued gallop, the rider's seat holds within the contact budget.
  * 2. The take passes the shipped verdicts.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Lists the charge course, the cue and the two scenarios.
@@ -54,7 +51,7 @@ export function test_world_cavalry_charge_seat(): void {
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const horse: ReturnType<typeof createHorse> = createHorse(
     { withersHeight: 1.65, stirrupDrop: 0.66, tempo: 0 },
-    1028,
+    "charger",
   );
   const species: ReturnType<typeof createQuadruped.species> =
     createQuadruped.species(horse);

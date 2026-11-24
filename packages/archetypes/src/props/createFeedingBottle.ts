@@ -24,7 +24,7 @@ const STAGED: string =
  */
 export function createFeedingBottle(
   params: createFeedingBottle.IParams = {},
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<
   createFeedingBottle.Affordance,
   createFeedingBottle.Dimension

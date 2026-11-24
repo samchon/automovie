@@ -20,7 +20,7 @@ import type { createObstacle } from "./createObstacle";
  */
 export function createCrosstie(
   params: createCrosstie.IParams = {},
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<createCrosstie.Affordance, createCrosstie.Dimension> {
   const { builder, d }: ObstacleDraw.IObstacle<createCrosstie.Affordance> =
     ObstacleDraw.begin("crosstie", "railway crosstie", "wood", params, seed);

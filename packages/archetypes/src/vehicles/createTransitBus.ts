@@ -35,7 +35,7 @@ import { addTransitBusSeating } from "./addTransitBusSeating";
  */
 export function createTransitBus(
   params: { id?: string } | string = {},
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<createTransitBus.Affordance, createTransitBus.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createTransitBus.Dimension> =
     new AutoMovieArchetypeDrawSession("transitBus", { aisleWidth: "m" }, seed, {

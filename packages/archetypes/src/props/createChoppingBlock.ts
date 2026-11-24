@@ -24,7 +24,7 @@ const STAGED: string =
  */
 export function createChoppingBlock(
   params: createChoppingBlock.IParams = {},
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<
   createChoppingBlock.Affordance,
   createChoppingBlock.Dimension

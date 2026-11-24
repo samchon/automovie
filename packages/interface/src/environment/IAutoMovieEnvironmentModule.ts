@@ -19,10 +19,10 @@ export namespace IAutoMovieEnvironmentModule {
     readonly id: string;
 
     /**
-     * Seed for this occurrence, an integer derived from the recipe seed and
-     * this occurrence's id, or undefined for the producer's unseeded defaults.
+     * Seed for this occurrence, or undefined for the producer's unseeded
+     * defaults.
      */
-    readonly seed: number | undefined;
+    readonly seed: string | undefined;
 
     /** Instance frame in world metres with unit scale. */
     readonly frame: IAutoMovieTransform;

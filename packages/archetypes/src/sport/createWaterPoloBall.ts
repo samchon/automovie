@@ -24,7 +24,7 @@ const RULES: string =
  */
 export function createWaterPoloBall(
   params: createWaterPoloBall.IParams = {},
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<
   createWaterPoloBall.Affordance,
   createWaterPoloBall.Dimension

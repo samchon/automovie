@@ -34,7 +34,7 @@ const RING: string =
  */
 export function createFireRing(
   params: createFireRing.IParams,
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<createFireRing.Affordance, createFireRing.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createFireRing.Dimension> =
     new AutoMovieArchetypeDrawSession<createFireRing.Dimension>(

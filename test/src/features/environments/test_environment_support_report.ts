@@ -71,7 +71,7 @@ import { namedFacts, nclose } from "../internal/predicates";
  * @evidence contracts/development/common.md#meaningful-documentation Lists its ten scenarios with the input and expected behavior of each.
  */
 export function test_environment_support_report(): void {
-  const crate: IAutoMovieModel = createMoldedCrate({}, 1021);
+  const crate: IAutoMovieModel = createMoldedCrate({}, "crate");
   const crateRest: IAutoMoviePropBox = computeModelRestExtent(crate)!;
   const level: () => IAutoMovieEnvironmentItem =
     (): IAutoMovieEnvironmentItem => ({
@@ -168,7 +168,7 @@ export function test_environment_support_report(): void {
 
   // Scenario 6: a mirror on wall +x of a furnished room, and the same mirror
   // 0.1 m off that wall by coordinates.
-  const mirror: IAutoMovieModel = createMirror({ kind: "wall" }, 1019);
+  const mirror: IAutoMovieModel = createMirror({ kind: "wall" }, "mirror");
   const hung: IAutoMovieEnvironment = createEnvironment({
     id: "home",
     seed: 5,
@@ -228,11 +228,11 @@ export function test_environment_support_report(): void {
           room: [4, 3.2],
           pieces: {
             sofa: {
-              model: createSeat({ kind: "sofa" }, 1022),
+              model: createSeat({ kind: "sofa" }, "sofa"),
               place: { kind: "wall", wall: "-z", offset: 0.4 },
             },
             coffee: {
-              model: createTable({ kind: "coffee" }, 1016),
+              model: createTable({ kind: "coffee" }, "coffee"),
               place: { kind: "facing", target: "sofa", distance: 0.45 },
             },
             mirror: {
@@ -278,13 +278,13 @@ export function test_environment_support_report(): void {
       rock: {
         at: { anchor: "land/amenities/rock" },
         use: createEnvironmentProp({
-          model: createRock({ kind: "boulder" }, 1023),
+          model: createRock({ kind: "boulder" }, "rock"),
         }),
       },
       bench: {
         at: { anchor: "land/amenities/bench" },
         use: createEnvironmentProp({
-          model: createSeat({ kind: "bench" }, 1024),
+          model: createSeat({ kind: "bench" }, "bench"),
         }),
       },
     },

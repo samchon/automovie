@@ -199,7 +199,7 @@ export namespace HandToolDraw {
   export function prepare<Id extends Affordance>(
     kind: Kind,
     params: Omit<IParams, "kind">,
-    seed?: number,
+    seed?: number | string,
   ): IPrepareResult<Id> {
     const draw: AutoMovieArchetypeDrawSession<Dimension> =
       new AutoMovieArchetypeDrawSession<Dimension>("tool", UNITS, seed, params);

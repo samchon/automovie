@@ -14,7 +14,7 @@ import type { createVessel } from "./createVessel";
  */
 export function createAshtray(
   params: createAshtray.IParams = {},
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<createAshtray.Affordance, createAshtray.Dimension> {
   return VesselConstruction.ashtray(params, seed);
 }

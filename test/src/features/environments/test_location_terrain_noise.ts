@@ -57,10 +57,10 @@ const NOISE: IAutoMovieTerrainRecipe.Relief = {
  */
 export function test_location_terrain_noise(): void {
   const build: (
-    seed: number,
+    seed: string,
     recipe?: Partial<IAutoMovieTerrainRecipe>,
   ) => IAutoMovieEnvironment = (
-    seed: number,
+    seed: string,
     recipe: Partial<IAutoMovieTerrainRecipe> = {},
   ): IAutoMovieEnvironment =>
     createEnvironment({
@@ -78,7 +78,7 @@ export function test_location_terrain_noise(): void {
   ) => IAutoMovieHeightRule = (
     environment: IAutoMovieEnvironment,
   ): IAutoMovieHeightRule => environment.stage.space!.surfaces[0]!.height!;
-  const environment: IAutoMovieEnvironment = build(1);
+  const environment: IAutoMovieEnvironment = build("first");
   const rule: IAutoMovieHeightRule = groundOf(environment);
   const samples: readonly number[] =
     rule.kind === "heightfield" ? rule.samples : [];
@@ -104,7 +104,7 @@ export function test_location_terrain_noise(): void {
   const graded: (maxSlope: number) => IAutoMovieEnvironment = (
     maxSlope: number,
   ): IAutoMovieEnvironment =>
-    build(1, {
+    build("first", {
       pads: {
         low: { outline: square(15, 20), height: 0 },
         high: { outline: square(35, 20), height: 1 },
@@ -135,7 +135,7 @@ export function test_location_terrain_noise(): void {
     return total / 64;
   };
   const rolling: IAutoMovieHeightRule = groundOf(
-    build(1, {
+    build("first", {
       relief: { kind: "rolling", amplitude: 3, wavelength: 40 },
     }),
   );
@@ -178,8 +178,8 @@ export function test_location_terrain_noise(): void {
         "bakes",
         (): boolean =>
           rule.kind === "heightfield" &&
-          JSON.stringify(rule) === JSON.stringify(groundOf(build(1))) &&
-          JSON.stringify(rule) !== JSON.stringify(groundOf(build(2))),
+          JSON.stringify(rule) === JSON.stringify(groundOf(build("first"))) &&
+          JSON.stringify(rule) !== JSON.stringify(groundOf(build("second"))),
       ],
       [
         "bounded",
@@ -206,7 +206,7 @@ export function test_location_terrain_noise(): void {
         (): boolean =>
           throwsError(
             () =>
-              build(1, {
+              build("first", {
                 size: [400, 400],
                 relief: {
                   kind: "noise",

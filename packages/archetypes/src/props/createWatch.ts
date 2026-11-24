@@ -22,7 +22,7 @@ export function createWatch(
     WornPropDraw.IParams,
     "id" | "width" | "depth" | "height" | "mass"
   > = {},
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<createWatch.Affordance, createWatch.Dimension> {
   const {
     builder,

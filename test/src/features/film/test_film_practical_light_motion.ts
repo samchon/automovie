@@ -35,24 +35,16 @@ import { throwsError } from "../internal/throwsError";
 import { vclose } from "../internal/vclose";
 
 /**
- * A torch's practical spot originates at its lens and follows its prop's
- * translation, rotation and staged scale while switching independently.
+ * A torch's practical spot originates at its lens and follows its prop's translation, rotation and staged scale while switching independently.
  *
  * Scenarios:
  *
- * 1. PerformShot admits the source with the object clips. Before the object's
- *    first keys, the source uses the staged prop frame.
- * 2. While only translation has started, the source follows that channel with the
- *    staged aim and scale.
- * 3. During the turn, the lens offset and spotlight aim both follow the prop at
- *    requested samples, including a time between prop keys.
- * 4. Exact switch edges change intensity without changing which frame supplies the
- *    pose.
- * 5. An attachTo cue supplies the prop motion to the binding without an authored
- *    object clip.
- * 6. Without an interval, a still point source uses the staged intensity and lens
- *    location. Malformed timing, missing emitter references, omitted
- *    moving-prop samples and competing light channels are refused.
+ * 1. performShot admits the source with the object clips. Before the object's first keys, the source uses the staged prop frame.
+ * 2. While only translation has started, the source follows that channel with the staged aim and scale.
+ * 3. During the turn, the lens offset and spotlight aim both follow the prop at requested samples, including a time between prop keys.
+ * 4. Exact switch edges change intensity without changing which frame supplies the pose.
+ * 5. An attachTo cue supplies the prop motion to the binding without an authored object clip.
+ * 6. Without an interval, a still point source uses the staged intensity and lens location. Malformed timing, missing emitter references, omitted moving-prop samples and competing light channels are refused.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Runs practical compilation, performShot admission, and ordinary light resolution to catch a source following the prop root, a missing turn, a fade in place of a switch, or a binding evaluated before coupling.
  * @evidence contracts/development/testing.md#independent-expectations The published torch length locates the +Y lens tip, doubled by the staged scale. For the authored clip, a quarter-turn about negative Z carries +Y to +X, with equal positive X and Y projections at 45 degrees. For the attachment, the mount aims the torch along the forearm. Halfway through the fixture's 120-degree elbow flexion, the hand and the lens extend from the elbow along the 60-degree direction in XZ.
@@ -61,7 +53,7 @@ import { vclose } from "../internal/vclose";
  * @evidence contracts/development/common.md#meaningful-documentation Scenarios identify the lens, world-motion channels, sampling boundaries and switch semantics under test.
  */
 export function test_film_practical_light_motion(): void {
-  const torch: ReturnType<typeof createTorch> = createTorch({}, 1025);
+  const torch: ReturnType<typeof createTorch> = createTorch({}, "practical");
   const length: number = torch.dimensions.length!;
   const diagonal: number = Math.SQRT2 * length;
   const script: IAutoMovieScript = makeScriptWrite();

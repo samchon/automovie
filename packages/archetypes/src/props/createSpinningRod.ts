@@ -45,7 +45,7 @@ const GRIP: number = 0.12;
  */
 export function createSpinningRod(
   params: createSpinningRod.IParams = {},
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<
   createSpinningRod.Affordance,
   createSpinningRod.Dimension

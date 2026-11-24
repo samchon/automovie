@@ -49,7 +49,7 @@ const BAR: number = 0.011;
  */
 export function createDoor(
   params: createDoor.IParams = {},
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<createDoor.Affordance, createDoor.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createDoor.Dimension> =
     new AutoMovieArchetypeDrawSession<createDoor.Dimension>(

@@ -17,13 +17,12 @@ import { vclose } from "../internal/vclose";
  * system that stays in place while the doors move.
  *
  * Scenarios:
- *
- * 1. Admit the closed bus and each independently posed pair. Read physical leaf
- *    edges at shut, half-open and fully open.
- * 2. Measure both thresholds against the deck and doorway geometry. Check aisle
- *    clearance, the seat surface and the position of each handhold.
- * 3. Check the sourced bus dimensions and the fixed axle positions in both closed
- *    and open poses.
+ * 1. Admit the closed bus and each independently posed pair. Read physical
+ *    leaf edges at shut, half-open and fully open.
+ * 2. Measure both thresholds against the deck and doorway geometry. Check
+ *    aisle clearance, the seat surface and the position of each handhold.
+ * 3. Check the sourced bus dimensions and the fixed axle positions in both
+ *    closed and open poses.
  * 4. Replay numeric and string seeds, measure the space between the opposing
  *    seats, and open both doors across different seating fits.
  *
@@ -193,8 +192,8 @@ export function test_archetype_transit_bus(): void {
 function checkSeatingFits(neutral: ReturnType<typeof createTransitBus>): void {
   const seeded: typeof neutral = createTransitBus("city-bus", 0);
   const replay: typeof neutral = createTransitBus("city-bus", 0);
-  const textSeed: typeof neutral = createTransitBus("city-bus", 0);
-  const other: typeof neutral = createTransitBus("city-bus", 1014);
+  const textSeed: typeof neutral = createTransitBus("city-bus", "0");
+  const other: typeof neutral = createTransitBus("city-bus", "another-fit");
   const neutralClearance: number = aisleClearance(neutral);
   const seededClearance: number = aisleClearance(seeded);
   const otherClearance: number = aisleClearance(other);

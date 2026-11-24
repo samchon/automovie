@@ -6,7 +6,6 @@ import type {
   IAutoMoviePropBox,
 } from "@automovie/interface";
 
-import { deriveArchetypeSeed } from "../../core/deriveArchetypeSeed";
 import { createSeat } from "../../furniture/createSeat";
 import { createTable } from "../../furniture/createTable";
 import { furnishRoom } from "./furnishRoom";
@@ -33,18 +32,18 @@ export function createCafeKit(
   return (
     context: IAutoMovieEnvironmentModule.IContext,
   ): IAutoMovieEnvironmentContribution => {
-    const seed: number | undefined = context.seed;
+    const seed: string | undefined = context.seed;
     const counter: IAutoMovieModel = createTable(
       { kind: "serviceCounter" },
-      seed === undefined ? undefined : deriveArchetypeSeed(seed, "counter"),
+      seed === undefined ? undefined : `${seed}/counter`,
     );
     const table: IAutoMovieModel = createTable(
       { kind: "dining" },
-      seed === undefined ? undefined : deriveArchetypeSeed(seed, "table"),
+      seed === undefined ? undefined : `${seed}/table`,
     );
     const chair: IAutoMovieModel = createSeat(
       { kind: "dining" },
-      seed === undefined ? undefined : deriveArchetypeSeed(seed, "chair"),
+      seed === undefined ? undefined : `${seed}/chair`,
     );
     const counterBox: IAutoMoviePropBox = furnishRoom.measure(counter);
     const tableBox: IAutoMoviePropBox = furnishRoom.measure(table);

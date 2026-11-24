@@ -18,7 +18,7 @@ import { StreetFixtureDraw } from "./StreetFixtureDraw";
  */
 export function createLampPost(
   params: createLampPost.IParams = {},
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<createLampPost.Affordance, createLampPost.Dimension> {
   const { builder, d }: StreetFixtureDraw.IFixture<createLampPost.Affordance> =
     StreetFixtureDraw.begin("lampPost", "lamp post", "composite", params, seed);

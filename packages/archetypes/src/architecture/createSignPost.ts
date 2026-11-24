@@ -27,7 +27,7 @@ const BLANK_THICKNESS: number = 0.003;
  */
 export function createSignPost(
   params: createSignPost.IParams = {},
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<createSignPost.Affordance, createSignPost.Dimension> {
   const { builder, d }: StreetFixtureDraw.IFixture<createSignPost.Affordance> =
     StreetFixtureDraw.begin("signPost", "sign post", "composite", params, seed);

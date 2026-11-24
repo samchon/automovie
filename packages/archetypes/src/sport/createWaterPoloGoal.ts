@@ -33,7 +33,7 @@ type Build = AutoMovieArchetypeBuilder<
  */
 export function createWaterPoloGoal(
   params: createWaterPoloGoal.IParams = {},
-  seed?: number,
+  seed?: string | number,
 ): AutoMovieArchetype<
   createWaterPoloGoal.Affordance,
   createWaterPoloGoal.Dimension

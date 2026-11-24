@@ -32,7 +32,7 @@ const RULE: string =
  */
 export function createHammerThrow(
   params: createHammerThrow.IParams,
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<
   createHammerThrow.Affordance,
   createHammerThrow.Dimension

@@ -56,7 +56,7 @@ const ESTIMATES: Readonly<{ wing: number }> = { wing: 0.02 };
  */
 export function createGate(
   params: createGate.IParams,
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<createGate.Affordance, createGate.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createGate.Dimension> =
     new AutoMovieArchetypeDrawSession<createGate.Dimension>(

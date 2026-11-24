@@ -14,7 +14,7 @@ import type { createMobilityAid } from "./createMobilityAid";
  */
 export function createCane(
   params: createCane.IParams = {},
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<createCane.Affordance, createCane.Dimension> {
   return MobilityAidConstruction.cane(params, seed);
 }

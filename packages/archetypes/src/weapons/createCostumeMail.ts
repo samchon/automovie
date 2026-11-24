@@ -18,7 +18,7 @@ import type { createArmour } from "./createArmour";
  */
 export function createCostumeMail(
   params: createCostumeMail.IParams = {},
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<
   createCostumeMail.Affordance,
   createCostumeMail.Dimension

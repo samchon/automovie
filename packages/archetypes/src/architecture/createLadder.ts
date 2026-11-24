@@ -46,7 +46,7 @@ const RUNG: string =
  */
 export function createLadder(
   params: createLadder.IParams,
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<createLadder.Affordance, createLadder.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createLadder.Dimension> =
     new AutoMovieArchetypeDrawSession<createLadder.Dimension>(

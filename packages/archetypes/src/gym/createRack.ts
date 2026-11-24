@@ -26,7 +26,7 @@ import {
  */
 export function createRack(
   params: createRack.IParams,
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<createRack.Affordance, createRack.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createRack.Dimension> =
     new AutoMovieArchetypeDrawSession<createRack.Dimension>(

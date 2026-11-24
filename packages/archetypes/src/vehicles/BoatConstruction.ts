@@ -28,7 +28,7 @@ import { createBoat } from "./createBoat";
 export function BoatConstruction(
   kind: createBoat.Kind,
   params: Omit<createBoat.IParams, "kind">,
-  seed: number | undefined,
+  seed: number | string | undefined,
   outfit: BoatConstruction.Outfit,
 ): AutoMovieArchetype<createBoat.Affordance, createBoat.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createBoat.Dimension> =

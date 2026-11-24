@@ -118,7 +118,7 @@ const ESTIMATES: Readonly<{ lid: number; bar: number }> = {
  */
 export function createBin(
   params: createBin.IParams,
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<createBin.Affordance, createBin.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createBin.Dimension> =
     new AutoMovieArchetypeDrawSession<createBin.Dimension>(

@@ -16,7 +16,7 @@ import { createLighter } from "./createLighter";
  */
 export function createSmoking(
   params: createSmoking.IParams,
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<createSmoking.Affordance, createSmoking.Dimension> {
   const kind: createSmoking.Kind = ArchetypeDraw.choice(
     "smoking",
@@ -28,7 +28,7 @@ export function createSmoking(
   // The saved input spans every variant. The selected producer checks its original recipe.
   const produce: (
     params: createSmoking.IParams,
-    seed?: number,
+    seed?: number | string,
   ) => AutoMovieArchetype<createSmoking.Affordance, createSmoking.Dimension> =
     createSmoking.PRODUCERS[kind] as typeof produce;
   return produce(params, seed);

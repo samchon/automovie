@@ -23,7 +23,7 @@ export function createMop(
     LongImplementDraw.IParams,
     "id" | "length" | "shaftDiameter" | "mass"
   > = {},
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<createMop.Affordance, createMop.Dimension> {
   const {
     builder,

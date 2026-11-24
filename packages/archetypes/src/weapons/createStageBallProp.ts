@@ -17,7 +17,7 @@ import { stageTokenSphere } from "./stageTokenSphere";
  */
 export function createStageBallProp(
   params: createStageBallProp.IParams = {},
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<
   createStageBallProp.Affordance,
   createStageBallProp.Dimension

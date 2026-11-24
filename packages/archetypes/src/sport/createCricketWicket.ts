@@ -18,7 +18,7 @@ import {
  */
 export function createCricketWicket(
   params: { id?: string } = {},
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<createCricketWicket.Affordance, "diameter"> {
   const draw: AutoMovieArchetypeDrawSession<"diameter"> =
     new AutoMovieArchetypeDrawSession(

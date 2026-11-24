@@ -18,7 +18,7 @@ export function createStageWorm(
     LongImplementDraw.IParams,
     "id" | "length" | "shaftDiameter" | "mass"
   > = {},
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<createStageWorm.Affordance, createStageWorm.Dimension> {
   const {
     builder,

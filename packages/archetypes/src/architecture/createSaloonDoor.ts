@@ -50,7 +50,7 @@ const SWING: number = 125;
  */
 export function createSaloonDoor(
   params: createSaloonDoor.IParams = {},
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<createSaloonDoor.Affordance, createSaloonDoor.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createSaloonDoor.Dimension> =
     new AutoMovieArchetypeDrawSession<createSaloonDoor.Dimension>(

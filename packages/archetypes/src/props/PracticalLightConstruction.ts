@@ -43,7 +43,7 @@ interface IDrawn<Id extends createLight.Affordance> {
 function draw<Id extends createLight.Affordance>(
   kind: createLight.Kind,
   params: Omit<createLight.IParams, "kind">,
-  seed?: number,
+  seed?: number | string,
 ): IDrawn<Id> {
   const session: AutoMovieArchetypeDrawSession<createLight.Dimension> =
     new AutoMovieArchetypeDrawSession<createLight.Dimension>(
@@ -76,7 +76,7 @@ export namespace PracticalLightConstruction {
   /** Build a suspended lamp with a downward light frame. */
   export function pendant(
     params: Omit<createLight.IParams, "kind">,
-    seed?: number,
+    seed?: number | string,
   ): AutoMovieArchetype<PendantContact, createLight.Dimension> {
     const { builder, d }: ReturnType<typeof draw<PendantContact>> =
       draw<PendantContact>("pendant", params, seed);
@@ -133,7 +133,7 @@ export namespace PracticalLightConstruction {
   export function standing(
     kind: StandingKind,
     params: Omit<createLight.IParams, "kind">,
-    seed?: number,
+    seed?: number | string,
   ): AutoMovieArchetype<StandingContact, createLight.Dimension> {
     const { builder, d }: ReturnType<typeof draw<StandingContact>> =
       draw<StandingContact>(kind, params, seed);
@@ -188,7 +188,7 @@ export namespace PracticalLightConstruction {
   /** Build a raised-bail lantern with a standing base, grip and hanging hook. */
   export function lantern(
     params: Omit<createLight.IParams, "kind">,
-    seed?: number,
+    seed?: number | string,
   ): AutoMovieArchetype<LanternContact, createLight.Dimension> {
     const { builder, d }: ReturnType<typeof draw<LanternContact>> =
       draw<LanternContact>("lantern", params, seed);
@@ -272,7 +272,7 @@ export namespace PracticalLightConstruction {
   export function wick(
     kind: WickKind,
     params: Omit<createLight.IParams, "kind">,
-    seed?: number,
+    seed?: number | string,
   ): AutoMovieArchetype<WickContact, createLight.Dimension> {
     const { builder, d }: ReturnType<typeof draw<WickContact>> =
       draw<WickContact>(kind, params, seed);

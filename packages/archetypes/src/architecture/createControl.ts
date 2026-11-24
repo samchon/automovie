@@ -46,7 +46,7 @@ const RISE: number = 20;
  */
 export function createControl(
   params: createControl.IParams,
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<createControl.Affordance, createControl.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createControl.Dimension> =
     new AutoMovieArchetypeDrawSession<createControl.Dimension>(

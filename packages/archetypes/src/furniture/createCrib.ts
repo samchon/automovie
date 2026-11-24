@@ -14,7 +14,7 @@ import type { createBed } from "./createBed";
  */
 export function createCrib(
   params: createCrib.IParams = {},
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<createCrib.Affordance, createCrib.Dimension> {
   return BedConstruction.crib(params, seed);
 }

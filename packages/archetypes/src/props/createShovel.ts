@@ -19,7 +19,7 @@ export function createShovel(
     LongImplementDraw.IParams,
     "id" | "length" | "shaftDiameter" | "mass"
   > = {},
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<createShovel.Affordance, createShovel.Dimension> {
   const {
     builder,

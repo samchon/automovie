@@ -19,7 +19,7 @@ export function createFork(
     HandToolDraw.IParams,
     "id" | "length" | "gripDiameter" | "mass"
   > = {},
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<createFork.Affordance, createFork.Dimension> {
   const {
     builder,

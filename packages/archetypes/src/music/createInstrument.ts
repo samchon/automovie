@@ -18,7 +18,7 @@ import { createViolin } from "./createViolin";
  */
 export function createInstrument(
   params: createInstrument.IParams,
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<createInstrument.Affordance, createInstrument.Dimension> {
   const kind: createInstrument.Kind = ArchetypeDraw.choice(
     "instrument",

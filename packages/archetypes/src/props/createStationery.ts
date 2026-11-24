@@ -18,7 +18,7 @@ import { createPen } from "./createPen";
  */
 export function createStationery(
   params: createStationery.IParams,
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<createStationery.Affordance, createStationery.Dimension> {
   const kind: createStationery.Kind = ArchetypeDraw.choice(
     "stationery",
@@ -35,7 +35,7 @@ export function createStationery(
   // The saved input spans every variant. The selected producer checks its original recipe.
   const produce: (
     params: createStationery.IParams,
-    seed?: number,
+    seed?: number | string,
   ) => AutoMovieArchetype<
     createStationery.Affordance,
     createStationery.Dimension

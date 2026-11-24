@@ -17,7 +17,7 @@ import { HandheldDevice } from "./HandheldDevice";
  */
 export function createCamera(
   params: createCamera.IParams = {},
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<createCamera.Affordance, createCamera.Dimension> {
   const {
     builder,

@@ -24,13 +24,13 @@ import { StationeryDraw } from "./StationeryDraw";
  */
 export function createPaper(
   params?: createPaper.ISheetParams,
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<createPaper.SheetAffordance, createPaper.Dimension>;
 
 /** The folded map adds a crease and separate grips for its two layers. */
 export function createPaper(
   params: createPaper.IFoldedMapParams,
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<createPaper.Affordance, createPaper.Dimension>;
 
 /**
@@ -39,13 +39,13 @@ export function createPaper(
  */
 export function createPaper(
   params: createPaper.IParams,
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<createPaper.Affordance, createPaper.Dimension>;
 
 /** Produce the requested format according to the contact contract above. */
 export function createPaper(
   params: createPaper.IParams = {},
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<createPaper.Affordance, createPaper.Dimension> {
   const format: createPaper.Format = ArchetypeDraw.choice(
     "stationery",

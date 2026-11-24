@@ -44,7 +44,7 @@ const ESTIMATE: string =
  */
 export function createStartingGate(
   params: createStartingGate.IParams = {},
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<
   createStartingGate.Affordance,
   createStartingGate.Dimension

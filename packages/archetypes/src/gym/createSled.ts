@@ -35,7 +35,7 @@ const UNREAD: string =
  */
 export function createSled(
   params: createSled.IParams = {},
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<createSled.Affordance, createSled.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createSled.Dimension> =
     new AutoMovieArchetypeDrawSession<createSled.Dimension>(

@@ -2,19 +2,12 @@ import {
   Quaternion,
   ROM_TOLERANCE,
   Vector3,
-  clampJointToSkeleton,
   fitHingedChainAt,
-  getConstraint,
-  nearestAngleAlias,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanLimb,
   AutoMovieHumanSide,
-  AutoMovieHumanoidBone,
-  IAutoMovieAngleRange,
   IAutoMovieHumanLimbGoal,
-  IAutoMovieJointConstraint,
-  IAutoMovieJointPose,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanResolveHumanPosture,
@@ -28,6 +21,7 @@ import { HumanLimbAt } from "../posture/HumanLimbAt";
 import { HumanSequentialConvex } from "../posture/HumanSequentialConvex";
 import { HumanSequentialConvexFunctions } from "../posture/HumanSequentialConvexFunctions";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { AutoMovieMotionHumanArmReachJoints } from "./AutoMovieMotionHumanArmReachJoints";
 
 /**
  * A hand attitude a law asks up to a freedom it declares, read as the
@@ -194,8 +188,12 @@ export namespace AutoMovieMotionHumanArmReach {
     // solutions (section 3.3), each angle read at its full-turn alias nearest
     // its range, as the rig reads a chart (`nearestAngleAlias`).
     const branch: number = seed.branch;
-    const ranges: IRanges = rangesOf(request.body);
-    function angles(x: readonly number[], family: IFamily): IFreeAngles {
+    const ranges: AutoMovieMotionHumanArmReachJoints.IRanges =
+      AutoMovieMotionHumanArmReachJoints.rangesOf(request.body);
+    function angles(
+      x: readonly number[],
+      family: IFamily,
+    ): AutoMovieMotionHumanArmReachJoints.IFreeAngles {
       const free: fitHingedChainAt.IFree | null = HumanLimbAt.free(
         request.body,
         fitted.pose,
@@ -207,13 +205,19 @@ export namespace AutoMovieMotionHumanArmReach {
       if (free === null || free.charts.effector === null)
         throw new Error(`The ${limb} has no wrist to turn`);
       return {
-        upper: aliased(free.charts.upper[family.upper], ranges.upper),
+        upper: AutoMovieMotionHumanArmReachJoints.aliased(
+          free.charts.upper[family.upper],
+          ranges.upper,
+        ),
         lower: free.lower,
-        effector: aliased(free.charts.effector[family.effector], {
-          flexion: ranges.hand?.flexion ?? null,
-          abduction: ranges.hand?.abduction ?? null,
-          twist: ranges.lower?.twist ?? null,
-        }),
+        effector: AutoMovieMotionHumanArmReachJoints.aliased(
+          free.charts.effector[family.effector],
+          {
+            flexion: ranges.hand?.flexion ?? null,
+            abduction: ranges.hand?.abduction ?? null,
+            twist: ranges.lower?.twist ?? null,
+          },
+        ),
       };
     }
 
@@ -225,7 +229,8 @@ export namespace AutoMovieMotionHumanArmReach {
     // within its range: each joint axis's displacement by the rig's own
     // clamp (`clampJointToSkeleton`, coupled limits included), the very
     // limits the solution is checked against.
-    const clamps: IClamps = clampsOf(request.body);
+    const clamps: AutoMovieMotionHumanArmReachJoints.IClamps =
+      AutoMovieMotionHumanArmReachJoints.clampsOf(request.body);
     const start: Vector = [seed.swivel * RADIAN, 0];
     function degrees(x: Vector): Vector {
       return [x[0]! / RADIAN, x[1]! / RADIAN];
@@ -233,13 +238,20 @@ export namespace AutoMovieMotionHumanArmReach {
     function minimum(family: IFamily, limited: boolean): ICandidate {
       function objective(x: Vector): number {
         let sum: number = 0;
-        for (const [value, range] of terms(angles(degrees(x), family), ranges))
+        for (const [value, range] of AutoMovieMotionHumanArmReachJoints.terms(
+          angles(degrees(x), family),
+          ranges,
+        ))
           sum += ((value - (range.min + range.max) / 2) * RADIAN) ** 2;
         return sum;
       }
       function within(x: Vector): Vector {
-        return displaced(angles(degrees(x), family), clamps).map(
-          (d: IDisplaced): number => d.degrees * RADIAN,
+        return AutoMovieMotionHumanArmReachJoints.displaced(
+          angles(degrees(x), family),
+          clamps,
+        ).map(
+          (d: AutoMovieMotionHumanArmReachJoints.IDisplaced): number =>
+            d.degrees * RADIAN,
         );
       }
       const solved: Solved = HumanSequentialConvex.minimise(
@@ -256,7 +268,13 @@ export namespace AutoMovieMotionHumanArmReach {
       const turn: number = solution[1]!;
       return {
         result: { rotation: turned(turn), turn },
-        past: beyond(request.side, displaced(angles(solution, family), clamps)),
+        past: AutoMovieMotionHumanArmReachJoints.beyond(
+          request.side,
+          AutoMovieMotionHumanArmReachJoints.displaced(
+            angles(solution, family),
+            clamps,
+          ),
+        ),
         f: objective(solved.x),
       };
     }
@@ -318,236 +336,18 @@ function least(candidates: readonly ICandidate[]): ICandidate | null {
   return found;
 }
 
-/** The free angles of one family: the root, the hinge and the wrist. */
-interface IFreeAngles {
-  /** The root joint. */
-  upper: IAutoMovieJointPose;
-
-  /** The mid joint, its hinge only. */
-  lower: IAutoMovieJointPose;
-
-  /** The end joint, its twist the distal twist the forearm takes. */
-  effector: IAutoMovieJointPose;
-}
-
-/** Each axis's range a chart is read against; null for an immobile axis. */
-interface IAxisRanges {
-  /** The flexion's. */
-  flexion: Range;
-
-  /** The abduction's. */
-  abduction: Range;
-
-  /** The twist's. */
-  twist: Range;
-}
-
-/** A chart read at each angle's full-turn alias nearest its axis's range. */
-function aliased(
-  joint: IAutoMovieJointPose,
-  ranges: IAxisRanges | null,
-): IAutoMovieJointPose {
-  function near(value: Angle, range: Range): number {
-    return nearestAngleAlias(value ?? 0, range ?? null);
-  }
-  return {
-    ...joint,
-    flexion: near(joint.flexion, ranges?.flexion),
-    abduction: near(joint.abduction, ranges?.abduction),
-    twist: near(joint.twist, ranges?.twist),
-  };
-}
 /** Tolani's choice: the attitude and, where one lies past its range, the joint. */
 interface IResolved {
   /** The attitude at the minimum. */
   result: AutoMovieMotionHumanArmReach.IResult;
 
   /** The joint farthest past its range there; null when every one is within. */
-  past: IPast | null;
+  past: AutoMovieMotionHumanArmReachJoints.IPast | null;
 }
-
-/** A joint's axis past its range. */
-interface IPast {
-  /** The bone, on the arm's own side. */
-  bone: AutoMovieHumanoidBone;
-
-  /** The axis. */
-  axis: Axis;
-
-  /** How far past its range, degrees. */
-  degrees: number;
-}
-
-/** A joint's clinical axis. */
-type Axis = "flexion" | "abduction" | "twist";
 
 /** A limb's seed as a seeded resolve reports it: absent or null for none. */
 type Seed =
   IAutoMovieMotionHumanResolveHumanPosture.ISeeded["seeds"][AutoMovieHumanLimb];
-
-/** A free angle, degrees, as a joint pose holds it: absent or null is zero. */
-type Angle = IAutoMovieJointPose["flexion"] | undefined;
-
-/** An axis's range, as a constraint holds it: absent or null is immobile. */
-type Range = IAutoMovieJointConstraint["flexion"] | undefined;
-
-/** One term of F: a free angle, degrees, and its joint's range. */
-type Term = readonly [number, IAutoMovieAngleRange];
-
-/** The ranges F reads, in the fit's frame (the right arm's). */
-interface IRanges {
-  /** The shoulder's. */
-  upper: IAutoMovieJointConstraint | null;
-
-  /** The forearm's, whose twist the wrist's distal twist is read against. */
-  lower: IAutoMovieJointConstraint | null;
-
-  /** The hand's. */
-  hand: IAutoMovieJointConstraint | null;
-}
-
-/** The fit's frame bones: a left arm is solved as its mirror image's right. */
-const UPPER: AutoMovieHumanoidBone = "rightUpperArm";
-const LOWER: AutoMovieHumanoidBone = "rightLowerArm";
-const HAND: AutoMovieHumanoidBone = "rightHand";
-
-/** The ranges of the arm's joints on a body, in the fit's frame. */
-function rangesOf(body: IAutoMovieMotionHumanBody): IRanges {
-  function of(bone: AutoMovieHumanoidBone): IAutoMovieJointConstraint | null {
-    return getConstraint(bone, body.bones.get(bone)?.constraint ?? null);
-  }
-  return { upper: of(UPPER), lower: of(LOWER), hand: of(HAND) };
-}
-
-/**
- * F's terms (section 3.3): the shoulder's three angles, the hand's flexion and
- * abduction and the distal twist against the forearm's twist range; an axis
- * with no range (an immobile one) is no term.
- */
-function terms(free: IFreeAngles, ranges: IRanges): Term[] {
-  const out: Term[] = [];
-  function add(value: Angle, range: Range): void {
-    if (range !== null && range !== undefined) out.push([value ?? 0, range]);
-  }
-  add(free.upper.flexion, ranges.upper?.flexion);
-  add(free.upper.abduction, ranges.upper?.abduction);
-  add(free.upper.twist, ranges.upper?.twist);
-  add(free.effector.flexion, ranges.hand?.flexion);
-  add(free.effector.abduction, ranges.hand?.abduction);
-  add(free.effector.twist, ranges.lower?.twist);
-  return out;
-}
-
-/** The rig's clamps of the three played joints, in the fit's frame. */
-interface IClamps {
-  /** The shoulder's. */
-  upper: IClamp;
-
-  /** The forearm's, which takes the wrist's distal twist. */
-  lower: IClamp;
-
-  /** The hand's. */
-  hand: IClamp;
-}
-
-/** One joint's clamp by the rig's ranges. */
-type IClamp = (joint: IAutoMovieJointPose) => IAutoMovieJointPose;
-
-/** An arm joint's bone without the side prefix. */
-type Part = "UpperArm" | "LowerArm" | "Hand";
-
-/** One joint axis's displacement by its clamp. */
-interface IDisplaced {
-  /** The joint, its bone without the side prefix. */
-  part: Part;
-
-  /** The axis. */
-  axis: Axis;
-
-  /** How far the clamp moves it, degrees; 0 within the range. */
-  degrees: number;
-}
-
-/** One joint of the arm at the free angles, with its clamp. */
-interface IJoint {
-  /** The joint, its bone without the side prefix. */
-  part: Part;
-
-  /** Its angles, in the fit's frame. */
-  joint: IAutoMovieJointPose;
-
-  /** Its clamp. */
-  clamp: IClamp;
-}
-
-/** The rig's clamps of the arm's joints (`clampJointToSkeleton.of`). */
-function clampsOf(body: IAutoMovieMotionHumanBody): IClamps {
-  return {
-    upper: clampJointToSkeleton.of(UPPER, body.skeleton),
-    lower: clampJointToSkeleton.of(LOWER, body.skeleton),
-    hand: clampJointToSkeleton.of(HAND, body.skeleton),
-  };
-}
-
-/**
- * Each joint axis's displacement by the rig's own clamp at the free angles: the
- * shoulder, the forearm with the wrist's distal twist, and the hand without it,
- * in that order, three axes each.
- */
-function displaced(free: IFreeAngles, clamps: IClamps): IDisplaced[] {
-  const effector: IAutoMovieJointPose = free.effector;
-  const joints: readonly IJoint[] = [
-    {
-      part: "UpperArm",
-      joint: { ...free.upper, bone: UPPER },
-      clamp: clamps.upper,
-    },
-    {
-      part: "LowerArm",
-      joint: { ...free.lower, bone: LOWER, twist: effector.twist ?? 0 },
-      clamp: clamps.lower,
-    },
-    {
-      part: "Hand",
-      joint: { ...effector, bone: HAND, twist: 0 },
-      clamp: clamps.hand,
-    },
-  ];
-  const out: IDisplaced[] = [];
-  for (const { part, joint, clamp } of joints) {
-    const clamped: IAutoMovieJointPose = clamp(joint);
-    for (const axis of AXES)
-      out.push({
-        part,
-        axis,
-        degrees: Math.abs((joint[axis] ?? 0) - (clamped[axis] ?? 0)),
-      });
-  }
-  return out;
-}
-
-/**
- * The joint axis farthest past the rig's range, named on the arm's own side (a
- * left arm is solved as its mirror image's right); null when every one is
- * within the range tolerance.
- */
-function beyond(
-  side: AutoMovieHumanSide,
-  displacements: readonly IDisplaced[],
-): IPast | null {
-  let worst: IPast | null = null;
-  for (const d of displacements)
-    if (
-      d.degrees > ROM_TOLERANCE &&
-      (worst === null || d.degrees > worst.degrees)
-    )
-      worst = {
-        bone: `${side}${d.part}`,
-        axis: d.axis,
-        degrees: d.degrees,
-      };
-  return worst;
-}
 
 /** Radians a degree: the problem is solved in radians (sco's units). */
 const RADIAN: number = Math.PI / 180;
@@ -560,6 +360,3 @@ type Solved = IAutoMovieMotionHumanSequentialConvex.IResult<
   Vector,
   IAutoMovieMotionHumanSequentialConvex.IEvaluation
 >;
-
-/** A joint's three clinical axes. */
-const AXES: readonly Axis[] = ["flexion", "abduction", "twist"];

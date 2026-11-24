@@ -15,7 +15,7 @@ import { createStandingLamp } from "./createStandingLamp";
 /** A saved recipe's producer as the dispatcher calls it. */
 type Producer = (
   params: createLight.IParams,
-  seed?: number,
+  seed?: number | string,
 ) => AutoMovieArchetype<createLight.Affordance, createLight.Dimension>;
 
 /**
@@ -32,7 +32,7 @@ type Producer = (
  */
 export function createLight(
   params: createLight.IParams,
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<createLight.Affordance, createLight.Dimension> {
   const kind: createLight.Kind = ArchetypeDraw.choice(
     "light",

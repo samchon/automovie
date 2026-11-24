@@ -12,7 +12,7 @@ import { createHingedCabinet } from "./createHingedCabinet";
 /** A saved storage recipe's producer as the dispatcher calls it. */
 type Producer = (
   params: createStorage.IParams,
-  seed?: number,
+  seed?: number | string,
 ) => AutoMovieArchetype<createStorage.Affordance, createStorage.Dimension>;
 
 /**
@@ -29,7 +29,7 @@ type Producer = (
  */
 export function createStorage(
   params: createStorage.IParams,
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<createStorage.Affordance, createStorage.Dimension> {
   const kind: createStorage.Kind = ArchetypeDraw.choice(
     "storage",

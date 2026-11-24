@@ -92,7 +92,7 @@ const SIDE_BLADE: readonly Section[] = [
  */
 export function createStagePoleBladeProp(
   params: createStagePoleBladeProp.IParams,
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<
   createStagePoleBladeProp.Affordance,
   createStagePoleBladeProp.Dimension

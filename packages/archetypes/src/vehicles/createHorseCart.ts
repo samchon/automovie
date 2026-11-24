@@ -19,7 +19,7 @@ import type { createCart } from "./createCart";
  */
 export function createHorseCart(
   params: createHorseCart.IParams = {},
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<createHorseCart.Affordance, createHorseCart.Dimension> {
   return CartConstruction(
     "cart",

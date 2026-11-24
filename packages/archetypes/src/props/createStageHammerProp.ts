@@ -18,7 +18,7 @@ import type { createStageWeaponProp } from "./createStageWeaponProp";
  */
 export function createStageHammerProp(
   params: createStageHammerProp.IParams = {},
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<
   createStageHammerProp.Affordance,
   createStageHammerProp.Dimension

@@ -37,7 +37,7 @@ const v: typeof Vector3.create = Vector3.create;
  */
 export function createFieldGoal(
   params: createFieldGoal.IParams = {},
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<createFieldGoal.Affordance, createFieldGoal.Dimension> {
   const kind: createFieldGoal.Kind = ArchetypeDraw.choice(
     "goal",

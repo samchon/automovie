@@ -142,7 +142,7 @@ export namespace ClubBuild {
   export function draw(
     kind: createClub.Kind,
     params: Readonly<Omit<createClub.IParams, "kind">>,
-    seed: number | undefined,
+    seed: number | string | undefined,
     name: string,
     material: DrawMaterial,
   ): IDrawResult {

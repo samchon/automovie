@@ -40,7 +40,7 @@ import { SWORD_MODELS } from "./SWORD_MODELS";
  */
 export function createSword(
   params: createSword.IParams,
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<createSword.Affordance, createSword.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createSword.Dimension> =
     new AutoMovieArchetypeDrawSession<createSword.Dimension>(

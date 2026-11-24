@@ -25,7 +25,7 @@ import type { createBuilding } from "./createBuilding";
 export function buildingDoor(
   id: string,
   opening: Extract<createBuilding.Opening, { kind: "door" }>,
-  seed: number | undefined,
+  seed: string | undefined,
 ): buildingDoor.IDoor {
   const door: AutoMovieArchetype<createDoor.Affordance, createDoor.Dimension> =
     createDoor({ ...opening.door, kind: "hinged", id }, seed);

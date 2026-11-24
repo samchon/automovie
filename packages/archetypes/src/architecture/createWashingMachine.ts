@@ -23,7 +23,7 @@ import type { createAppliance } from "./createAppliance";
  */
 export function createWashingMachine(
   params: createWashingMachine.IParams = {},
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<
   createWashingMachine.Affordance,
   createWashingMachine.Dimension

@@ -18,7 +18,7 @@ import type { createArmour } from "./createArmour";
  */
 export function createCostumeGauntlet(
   params: createCostumeGauntlet.IParams = {},
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<
   createCostumeGauntlet.Affordance,
   createCostumeGauntlet.Dimension

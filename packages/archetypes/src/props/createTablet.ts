@@ -15,7 +15,7 @@ import { HandheldDevice } from "./HandheldDevice";
  */
 export function createTablet(
   params: createTablet.IParams = {},
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<createTablet.Affordance, createTablet.Dimension> {
   return HandheldDevice.fullFace("tablet", "tablet", params, seed, "screen");
 }

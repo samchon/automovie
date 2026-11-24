@@ -14,7 +14,7 @@ import type { createLight } from "./createLight";
  */
 export function createPendantLamp(
   params: createPendantLamp.IParams = {},
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<
   createPendantLamp.Affordance,
   createPendantLamp.Dimension

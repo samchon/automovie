@@ -25,15 +25,15 @@ import { nclose, throwsError } from "../internal/predicates";
  *
  * Scenarios:
  *
- * 1. Different seeds vary rolling relief. The same seed reproduces its rule, while
- *    samples stay inside the authored amplitude about the world datum.
+ * 1. Different seeds vary rolling relief. The same seed reproduces its rule,
+ *    while samples stay inside the authored amplitude about the world datum.
  * 2. The actual interior triangle heights agree with world and stage heights
  *    within the authored mesh error. A compact tree instance stands on this
  *    same rolling land when a slot is regenerated.
- * 3. Incompatible pad levels and a path whose required rise exceeds its limit name
- *    the authored grade sources in their refusals.
- * 4. A two-metre track can meet a pond rim. The same centerline with a three-metre
- *    corridor would overlap water and refuses that width.
+ * 3. Incompatible pad levels and a path whose required rise exceeds its
+ *    limit name the authored grade sources in their refusals.
+ * 4. A two-metre track can meet a pond rim. The same centerline with a
+ *    three-metre corridor would overlap water and refuses that width.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States seed, amplitude, mesh measurements, vegetation placement, grade conflicts and full-width route cases.
  * @evidence contracts/development/testing.md#behavioral-verification Runs the public environment producer, compares actual triangle interiors with independent scene and world query paths, and performs one real compact slot regeneration.
@@ -42,8 +42,8 @@ import { nclose, throwsError } from "../internal/predicates";
  * @evidence contracts/development/testing.md#execution-ownership CPU-only feature scenario, with render coverage shared by the production fixture. No mocked globals or native GPU resources.
  */
 export function test_location_terrain(): void {
-  const build: (seed: number) => IAutoMovieEnvironment = (
-    seed: number,
+  const build: (seed: string) => IAutoMovieEnvironment = (
+    seed: string,
   ): IAutoMovieEnvironment =>
     createEnvironment({
       id: "relief",
@@ -62,7 +62,7 @@ export function test_location_terrain(): void {
         },
       },
     });
-  const environment: IAutoMovieEnvironment = build(1);
+  const environment: IAutoMovieEnvironment = build("first");
   const space: IAutoMovieSpace = environment.stage.space!;
   const ground: IAutoMovieSpace["surfaces"][number] = space.surfaces[0]!;
   const mesh: IAutoMovieTessellation = tessellateSurface(ground)!;
@@ -110,9 +110,9 @@ export function test_location_terrain(): void {
       error > 1e-8 &&
       error <= 0.015 &&
       JSON.stringify(ground.height) ===
-        JSON.stringify(build(1).stage.space!.surfaces[0]!.height) &&
+        JSON.stringify(build("first").stage.space!.surfaces[0]!.height) &&
       JSON.stringify(ground.height) !==
-        JSON.stringify(build(2).stage.space!.surfaces[0]!.height),
+        JSON.stringify(build("second").stage.space!.surfaces[0]!.height),
   );
   const compiled: ReturnType<typeof materializeCompiledInstanceSetInventory> =
     materializeCompiledInstanceSetInventory({

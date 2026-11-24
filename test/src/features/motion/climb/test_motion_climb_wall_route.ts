@@ -42,19 +42,18 @@ const CONTACT: number = 0.01;
 type Limb = IAutoMovieMotionHumanWallClimb.IMove["limb"];
 
 /**
- * A named climbing route supports a loaded reach, a shared-ledge foot swap and
- * a timed hand catch with contacts retained.
+ * A named climbing route supports a loaded reach, a shared-ledge foot swap
+ * and a timed hand catch with contacts retained.
  *
  * Scenarios:
- *
- * 1. Mount visible rectangular holds and compare their grip lip and toe patch with
- *    the actual shapes.
- * 2. Play a lateral reach, a timed release and foot swap, then a hand catch and
- *    recovery. Check every retained grip and toe against its placed frame
- *    through the take, the wall clearance of the collision shapes and the
- *    movement and recovery of the measured centre of mass.
- * 3. Refuse a duplicate claim on one occupied hold and a named grip beyond the
- *    avatar's supported reach.
+ * 1. Mount visible rectangular holds and compare their grip lip and toe
+ *    patch with the actual shapes.
+ * 2. Play a lateral reach, a timed release and foot swap, then a hand catch
+ *    and recovery. Check every retained grip and toe against its placed
+ *    frame through the take, the wall clearance of the collision shapes
+ *    and the movement and recovery of the measured centre of mass.
+ * 3. Refuse a duplicate claim on one occupied hold and a named grip beyond
+ *    the avatar's supported reach.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the staged contact sequence and measured outputs.
  * @evidence contracts/development/testing.md#behavioral-verification Uses named prop points from actual archetypes, support timelines and displayed polygon-man frames. Measures the body against the wall and the contact locations independently of the planner.
@@ -105,10 +104,7 @@ interface IFixture {
   play: (route: IAutoMovieMotionHumanWallClimb) => HumanPerformance;
 }
 
-/**
- * Assemble the same route topology at two sets of authored body-relative
- * heights.
- */
+/** Assemble the same route topology at two sets of authored body-relative heights. */
 function buildRoute(
   size: IFixture["size"],
   check: (condition: boolean, detail: string) => void,
@@ -137,7 +133,7 @@ function buildRoute(
   ): IAutoMovieMotionHumanWallClimb.Hold => {
     const model: ReturnType<typeof createClimbingHold> = createClimbingHold(
       { id: subject, width, rise: contact === "grip" ? 0.05 : 0.035, depth },
-      size === "f-small" ? 1 : 0,
+      size,
     );
     const top: number = archetypeExtent(model, "y").high;
     const front: number = archetypeExtent(model, "z").high;

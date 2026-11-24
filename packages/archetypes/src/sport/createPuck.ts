@@ -20,7 +20,7 @@ import type { createBall } from "./createBall";
  */
 export function createPuck(
   params: createPuck.IParams = {},
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<createPuck.Affordance, createPuck.Dimension> {
   const {
     builder,

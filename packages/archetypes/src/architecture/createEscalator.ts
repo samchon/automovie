@@ -69,7 +69,7 @@ const LANDING: number = 1;
  */
 export function createEscalator(
   params: createEscalator.IParams = {},
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<createEscalator.Affordance, createEscalator.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createEscalator.Dimension> =
     new AutoMovieArchetypeDrawSession(

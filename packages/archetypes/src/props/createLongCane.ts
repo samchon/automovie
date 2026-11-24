@@ -39,7 +39,7 @@ const MASS: string =
  */
 export function createLongCane(
   params: createLongCane.IParams = {},
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<createLongCane.Affordance, createLongCane.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createLongCane.Dimension> =
     new AutoMovieArchetypeDrawSession<createLongCane.Dimension>(

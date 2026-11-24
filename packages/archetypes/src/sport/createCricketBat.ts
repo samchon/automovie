@@ -27,7 +27,7 @@ const HANDLE: number = 0.035;
  */
 export function createCricketBat(
   params: createCricketBat.IParams = {},
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<createCricketBat.Affordance, createCricketBat.Dimension> {
   const {
     builder,

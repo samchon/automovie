@@ -165,8 +165,8 @@ export function test_environment_furnishing_relations(): void {
     });
 
   // Scenarios 1 and 2: a sofa, a chest after it and a coffee table facing it.
-  const chest: IAutoMovieModel = createDrawerUnit({ kind: "chest" }, 1015);
-  const coffee: IAutoMovieModel = createTable({ kind: "coffee" }, 1016);
+  const chest: IAutoMovieModel = createDrawerUnit({ kind: "chest" }, "chest");
+  const coffee: IAutoMovieModel = createTable({ kind: "coffee" }, "coffee");
   const lounge: (sofa: IAutoMovieModel) => IAutoMovieEnvironment = (
     sofa: IAutoMovieModel,
   ): IAutoMovieEnvironment =>
@@ -181,8 +181,11 @@ export function test_environment_furnishing_relations(): void {
         place: { kind: "facing", target: "sofa", distance: 0.45 },
       },
     });
-  const sofaA: IAutoMovieModel = createSeat({ kind: "sofa" }, 1017);
-  const sofaB: IAutoMovieModel = createSeat({ kind: "sofa", places: 3 }, 1018);
+  const sofaA: IAutoMovieModel = createSeat({ kind: "sofa" }, "sofa-a");
+  const sofaB: IAutoMovieModel = createSeat(
+    { kind: "sofa", places: 3 },
+    "sofa-b",
+  );
   const widthOf: (model: IAutoMovieModel) => number = (
     model: IAutoMovieModel,
   ): number => {
@@ -236,7 +239,7 @@ export function test_environment_furnishing_relations(): void {
   );
 
   // Scenario 4: a wall mirror on +x and a sofa on -z.
-  const mirror: IAutoMovieModel = createMirror({ kind: "wall" }, 1019);
+  const mirror: IAutoMovieModel = createMirror({ kind: "wall" }, "mirror");
   const mirrorRest: IAutoMoviePropBox = computeModelRestExtent(mirror)!;
   const hungPieces: Readonly<Record<string, IAutoMovieFurnishingPiece>> = {
     sofa: { model: sofaA, place: { kind: "wall", wall: "-z", offset: 0.4 } },
@@ -256,7 +259,7 @@ export function test_environment_furnishing_relations(): void {
   });
 
   // Scenario 5: a single bed with both long sides clear and a chest after it.
-  const bed: IAutoMovieModel = createPlatformBed({ kind: "single" }, 1020);
+  const bed: IAutoMovieModel = createPlatformBed({ kind: "single" }, "bed");
   const bedroom: (gap: number) => IAutoMovieEnvironment = (
     gap: number,
   ): IAutoMovieEnvironment =>

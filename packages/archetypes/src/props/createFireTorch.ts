@@ -14,7 +14,7 @@ import type { createLight } from "./createLight";
  */
 export function createFireTorch(
   params: createFireTorch.IParams = {},
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<createFireTorch.Affordance, createFireTorch.Dimension> {
   return PracticalLightConstruction.wick("fireTorch", params, seed);
 }

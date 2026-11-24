@@ -40,7 +40,7 @@ const NAMES: Readonly<Record<createHolster.Kind, string>> = {
 export function StageCarrierConstruction(
   kind: createHolster.Kind,
   params: Omit<createHolster.IParams, "kind">,
-  seed: number | undefined,
+  seed: number | string | undefined,
   build: StageCarrierConstruction.Build,
 ): AutoMovieArchetype<createHolster.Affordance, createHolster.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createHolster.Dimension> =

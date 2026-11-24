@@ -86,7 +86,7 @@ const SIDES: number = 16;
  */
 export function createPourVessel(
   params: createPourVessel.IParams,
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<Affordance, Dimension> {
   const kind: createPourVessel.Kind = ArchetypeDraw.choice(
     "pourVessel",

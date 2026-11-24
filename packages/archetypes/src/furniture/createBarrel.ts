@@ -55,7 +55,7 @@ const NAMES: Readonly<Record<createBarrel.Kind, string>> = {
  */
 export function createBarrel(
   params: createBarrel.IParams,
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<createBarrel.Affordance, createBarrel.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createBarrel.Dimension> =
     new AutoMovieArchetypeDrawSession<createBarrel.Dimension>(

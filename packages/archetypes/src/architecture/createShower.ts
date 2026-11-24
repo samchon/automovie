@@ -21,7 +21,7 @@ import type { createSanitary } from "./createSanitary";
  */
 export function createShower(
   params: createShower.IParams = {},
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<createShower.Affordance, createShower.Dimension> {
   return FixtureDraw.installed<
     createShower.Affordance,

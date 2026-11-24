@@ -17,7 +17,7 @@ import { createTablet } from "./createTablet";
  */
 export function createDevice(
   params: createDevice.IParams,
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<createDevice.Affordance, createDevice.Dimension> {
   const kind: createDevice.Kind = ArchetypeDraw.choice(
     "device",
@@ -29,7 +29,7 @@ export function createDevice(
   // Saved model inputs are a wider union. The selected draw checks them with the selected kind's table.
   const produce: (
     params: createDevice.IParams,
-    seed?: number,
+    seed?: number | string,
   ) => AutoMovieArchetype<createDevice.Affordance, createDevice.Dimension> =
     createDevice.PRODUCERS[kind] as typeof produce;
   return produce(params, seed);

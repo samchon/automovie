@@ -37,7 +37,7 @@ const SACK: string =
  */
 export function createLoad(
   params: createLoad.IParams,
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<createLoad.Affordance, createLoad.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createLoad.Dimension> =
     new AutoMovieArchetypeDrawSession<createLoad.Dimension>(

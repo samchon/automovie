@@ -54,7 +54,7 @@ import { createPony } from "./createPony";
  */
 export function createQuadruped(
   params: createQuadruped.IParams,
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<createQuadruped.Affordance, createQuadruped.Dimension> {
   ArchetypeDraw.choice("quadruped", "kind", params.kind, createQuadruped.KINDS);
   if (params.kind === "dog") return createDog(params, seed);

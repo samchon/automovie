@@ -48,7 +48,7 @@ const MASS: string =
  */
 export function createAxillaryCrutch(
   params: createAxillaryCrutch.IParams = {},
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<
   createAxillaryCrutch.Affordance,
   createAxillaryCrutch.Dimension

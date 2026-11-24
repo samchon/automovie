@@ -47,7 +47,7 @@ const AURAY: string =
  */
 export function createMicrophone(
   params: createMicrophone.IParams,
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<createMicrophone.Affordance, createMicrophone.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createMicrophone.Dimension> =
     new AutoMovieArchetypeDrawSession<createMicrophone.Dimension>(

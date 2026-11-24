@@ -18,7 +18,7 @@ import type { createCart } from "./createCart";
  */
 export function createChariot(
   params: createChariot.IParams = {},
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<createChariot.Affordance, createChariot.Dimension> {
   return CartConstruction("chariot", params, seed, CartDrawn.chariot);
 }

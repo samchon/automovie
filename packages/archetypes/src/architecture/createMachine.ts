@@ -18,7 +18,7 @@ import { createVendingMachine } from "./createVendingMachine";
  */
 export function createMachine(
   params: createMachine.IParams,
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<createMachine.Affordance, createMachine.Dimension> {
   const kind: createMachine.Kind = ArchetypeDraw.choice(
     "machine",
@@ -30,7 +30,7 @@ export function createMachine(
   // Saved recipes may state any model. The canonical draw checks it against this kind's table.
   const produce: (
     params: createMachine.IParams,
-    seed?: number,
+    seed?: number | string,
   ) => AutoMovieArchetype<createMachine.Affordance, createMachine.Dimension> =
     createMachine.PRODUCERS[kind] as typeof produce;
   return produce(params, seed);

@@ -39,7 +39,7 @@ const SAUCER: string =
  */
 export function createTableware(
   params: createTableware.IParams,
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<createTableware.Affordance, createTableware.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createTableware.Dimension> =
     new AutoMovieArchetypeDrawSession<createTableware.Dimension>(

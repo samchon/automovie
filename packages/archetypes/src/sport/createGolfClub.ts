@@ -29,7 +29,7 @@ import {
  */
 export function createGolfClub(
   params: createGolfClub.IParams,
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<createGolfClub.Affordance, createGolfClub.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createGolfClub.Dimension> =
     new AutoMovieArchetypeDrawSession<createGolfClub.Dimension>(

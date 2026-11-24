@@ -19,7 +19,7 @@ export function createComb(
     GroomingPropDraw.IParams,
     "id" | "length" | "width" | "mass" | "thickness"
   > = {},
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<createComb.Affordance, createComb.Dimension> {
   const {
     builder,

@@ -111,7 +111,7 @@ const UNITS: Readonly<
  */
 export function createScenicShip(
   params: createScenicShip.IParams,
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<createScenicShip.Affordance, createScenicShip.Dimension> {
   const kind: createScenicShip.Kind = ArchetypeDraw.choice(
     "scenic ship",

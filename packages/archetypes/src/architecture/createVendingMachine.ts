@@ -19,7 +19,7 @@ import type { createMachine } from "./createMachine";
  */
 export function createVendingMachine(
   params: createVendingMachine.IParams = {},
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<
   createVendingMachine.Affordance,
   createVendingMachine.Dimension

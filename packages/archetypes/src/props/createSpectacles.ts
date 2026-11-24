@@ -19,7 +19,7 @@ export function createSpectacles(
     WornPropDraw.IParams,
     "id" | "width" | "depth" | "height" | "mass"
   > = {},
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<createSpectacles.Affordance, createSpectacles.Dimension> {
   const {
     builder,

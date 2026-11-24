@@ -152,17 +152,20 @@ interface IStage {
  */
 export function test_world_mounted_passage(): void {
   // 1. Seeded members, their footprints and the tack inside them.
-  const hazel: AutoMovieArchetype = createHorse({}, 1002);
-  const indigo: AutoMovieArchetype = createPony({ breed: "connemara" }, 1006);
+  const hazel: AutoMovieArchetype = createHorse({}, "hazel");
+  const indigo: AutoMovieArchetype = createPony(
+    { breed: "connemara" },
+    "indigo",
+  );
   TestValidator.equals(
     "a seed rebuilds the same horse",
-    JSON.stringify(createHorse({}, 1002)),
+    JSON.stringify(createHorse({}, "hazel")),
     JSON.stringify(hazel),
   );
   TestValidator.predicate(
     "another seed varies the horse's footprint",
     JSON.stringify(
-      AutoMovieArchetypePassage.footprint(createHorse({}, 1032)),
+      AutoMovieArchetypePassage.footprint(createHorse({}, "ivory")),
     ) !== JSON.stringify(AutoMovieArchetypePassage.footprint(hazel)),
   );
   const footprints: readonly AutoMovieArchetypePassage.IFootprint[] = [

@@ -20,7 +20,7 @@ import { createToothbrush } from "./createToothbrush";
  */
 export function createCareItem(
   params: createCareItem.IParams,
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<createCareItem.Affordance, createCareItem.Dimension> {
   const kind: createCareItem.Kind = ArchetypeDraw.choice(
     "careItem",
@@ -32,7 +32,7 @@ export function createCareItem(
   // The saved input spans every variant. The selected producer checks its original recipe.
   const produce: (
     params: createCareItem.IParams,
-    seed?: number,
+    seed?: number | string,
   ) => AutoMovieArchetype<createCareItem.Affordance, createCareItem.Dimension> =
     createCareItem.PRODUCERS[kind] as typeof produce;
   return produce(params, seed);

@@ -31,7 +31,7 @@ interface INamedParams {
 /** A named producer as the loop calls it. */
 type NamedProducer = (
   params: INamedParams,
-  seed?: number,
+  seed?: number | string,
 ) => AutoMovieArchetype;
 
 /** The saved kind a dispatcher reads, typed per family by the loop's caller. */
@@ -46,13 +46,10 @@ interface ISavedParams {
 /** A saved dispatcher as the loop calls it. */
 type SavedDispatcher = (
   params: ISavedParams,
-  seed?: number,
+  seed?: number | string,
 ) => AutoMovieArchetype;
 
-/**
- * The saved tool and personal-prop recipes checked through both SDK entry
- * points.
- */
+/** The saved tool and personal-prop recipes checked through both SDK entry points. */
 const FAMILIES = [
   [
     props.createTool,
@@ -111,19 +108,13 @@ const FAMILIES = [
 ] as const;
 
 /**
- * A named tool or personal prop preserves the saved recipe and places its own
- * contacts.
+ * A named tool or personal prop preserves the saved recipe and places its own contacts.
  *
  * Scenarios:
- *
- * 1. Every saved kind resolves through the same named producer at both public
- *    imports. Compare default, custom ID, zero seed and nonzero seed cases.
+ * 1. Every saved kind resolves through the same named producer at both public imports. Compare default, custom ID, numeric seed and string seed cases.
  * 2. Recorded pre-split figures pin variable dimensions and model selection.
- * 3. The hammer face and spoon bowl lie on the modeled working surfaces. The broom
- *    and shovel face the floor, the shovel D-grip sits on its crossbar, and the
- *    fishing rod's target is its tip.
- * 4. A loose paper sheet exposes the writing face. A folded map keeps its support
- *    grip and moves its face with its crease.
+ * 3. The hammer face and spoon bowl lie on the modeled working surfaces. The broom and shovel face the floor, the shovel D-grip sits on its crossbar, and the fishing rod's target is its tip.
+ * 4. A loose paper sheet exposes the writing face. A folded map keeps its support grip and moves its face with its crease.
  * 5. An invalid paper format and an invalid saved kind each produce a refusal.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the named producers, saved inputs, geometric contacts and both refusal scenarios.
@@ -158,7 +149,7 @@ export function test_archetype_catalogue_tools_personal(): void {
       for (const [id, seed] of [
         [undefined, undefined],
         ["prop", 0],
-        [undefined, 1049],
+        [undefined, "catalogue-props"],
       ] as const) {
         const named: AutoMovieArchetype = produce({ id, format }, seed);
         const saved: AutoMovieArchetype = legacy(

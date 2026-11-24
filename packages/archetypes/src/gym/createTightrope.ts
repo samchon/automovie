@@ -25,7 +25,7 @@ import {
  */
 export function createTightrope(
   params: createTightrope.IParams = {},
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<createTightrope.Affordance, createTightrope.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createTightrope.Dimension> =
     new AutoMovieArchetypeDrawSession<createTightrope.Dimension>(

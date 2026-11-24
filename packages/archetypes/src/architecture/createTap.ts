@@ -33,7 +33,7 @@ const UNREAD: string = "the listings read do not give it";
  */
 export function createTap(
   params: createTap.IParams = {},
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<createTap.Affordance, createTap.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createTap.Dimension> =
     new AutoMovieArchetypeDrawSession<createTap.Dimension>(

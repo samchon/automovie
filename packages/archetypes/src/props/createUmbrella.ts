@@ -38,7 +38,7 @@ const POWER: string =
  */
 export function createUmbrella(
   params: createUmbrella.IParams = {},
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<createUmbrella.Affordance, createUmbrella.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createUmbrella.Dimension> =
     new AutoMovieArchetypeDrawSession<createUmbrella.Dimension>(

@@ -20,7 +20,7 @@ States when the definition runs, its supplied placement and namespace, and what 
 
 ## @evidence contracts/development/design.md#principled-representation
 
-The occurrence id is the environment id and local item key, the rigid frame is in world metres, and the seed is an integer derived from the root seed and the occurrence path when a root seed is supplied, the same kind of seed an archetype producer takes.
+The occurrence id is the environment id and local item key, the rigid frame is in world metres, and the seed is a deterministic stream key derived from the occurrence path when a root seed is supplied.
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 

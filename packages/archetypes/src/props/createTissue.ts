@@ -19,7 +19,7 @@ export function createTissue(
     GroomingPropDraw.IParams,
     "id" | "length" | "width" | "mass" | "thickness"
   > = {},
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<createTissue.Affordance, createTissue.Dimension> {
   const {
     builder,

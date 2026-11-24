@@ -18,7 +18,7 @@ import type { createArmour } from "./createArmour";
  */
 export function createCostumeHelmet(
   params: createCostumeHelmet.IParams,
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<
   createCostumeHelmet.Affordance,
   createCostumeHelmet.Dimension

@@ -58,7 +58,7 @@ const NET_THICKNESS: number = 0.005;
  */
 export function createTennisNet(
   params: createTennisNet.IParams = {},
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<createTennisNet.Affordance, createTennisNet.Dimension> {
   const {
     builder,

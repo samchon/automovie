@@ -23,7 +23,7 @@ import { createProjectile } from "./createProjectile";
  */
 export function createStageShaftToken(
   params: createStageShaftToken.IParams,
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<
   createStageShaftToken.Affordance,
   createStageShaftToken.Dimension

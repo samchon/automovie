@@ -19,7 +19,7 @@ import type { createInstrument } from "./createInstrument";
  */
 export function createViolin(
   params: createViolin.IParams = {},
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<createViolin.Affordance, createViolin.Dimension> {
   return InstrumentBuild.create<createViolin.Affordance>(
     "violin",

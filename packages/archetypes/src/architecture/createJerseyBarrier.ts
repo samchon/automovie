@@ -20,7 +20,7 @@ import { ObstacleDraw } from "./ObstacleDraw";
  */
 export function createJerseyBarrier(
   params: createJerseyBarrier.IParams = {},
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<
   createJerseyBarrier.Affordance,
   createJerseyBarrier.Dimension

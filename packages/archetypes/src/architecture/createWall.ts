@@ -30,7 +30,7 @@ const PICTURE: string = "a piece of wall for the picture, not read at a source";
  */
 export function createWall(
   params: createWall.IParams,
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<createWall.Affordance, createWall.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createWall.Dimension> =
     new AutoMovieArchetypeDrawSession<createWall.Dimension>(

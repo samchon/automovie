@@ -17,7 +17,7 @@ export function createBroom(
     LongImplementDraw.IParams,
     "id" | "length" | "shaftDiameter" | "mass"
   > = {},
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<createBroom.Affordance, createBroom.Dimension> {
   const {
     builder,

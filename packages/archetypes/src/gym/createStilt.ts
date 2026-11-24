@@ -25,7 +25,7 @@ import {
  */
 export function createStilt(
   params: createStilt.IParams = {},
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<createStilt.Affordance, createStilt.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createStilt.Dimension> =
     new AutoMovieArchetypeDrawSession<createStilt.Dimension>(

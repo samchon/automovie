@@ -29,7 +29,7 @@ import { createArmour } from "./createArmour";
 export function CostumeConstruction(
   kind: createArmour.Kind,
   params: Omit<createArmour.IParams, "kind">,
-  seed: number | undefined,
+  seed: number | string | undefined,
   cellsOf: (profile: ArmourProfile.IProfile) => readonly ArmourProfile.ICell[],
 ): AutoMovieArchetype<createArmour.Affordance, createArmour.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createArmour.Dimension> =

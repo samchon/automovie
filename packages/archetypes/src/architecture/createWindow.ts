@@ -57,7 +57,7 @@ const SASH: Readonly<{ rail: number; depth: number; pane: number }> = {
  */
 export function createWindow(
   params: createWindow.IParams,
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<createWindow.Affordance, createWindow.Dimension> {
   if (
     params.fractureEnergy !== undefined &&

@@ -9,7 +9,6 @@ import type {
 
 import { createRange } from "../../architecture/createRange";
 import { createRefrigerator } from "../../architecture/createRefrigerator";
-import { deriveArchetypeSeed } from "../../core/deriveArchetypeSeed";
 import { createTable } from "../../furniture/createTable";
 import { ROOM_CLEARANCES } from "./ROOM_CLEARANCES";
 import { furnishRoom } from "./furnishRoom";
@@ -43,11 +42,11 @@ export function createKitchenKit(
     const cooks: number = params.cooks ?? 1;
     if (cooks !== 1 && cooks !== 2)
       throw new Error(`${context.id} cooks must be 1 or 2: ${cooks}`);
-    const seed: number | undefined = context.seed;
-    const draw: (role: string) => number | undefined = (
+    const seed: string | undefined = context.seed;
+    const draw: (role: string) => string | undefined = (
       role: string,
-    ): number | undefined =>
-      seed === undefined ? undefined : deriveArchetypeSeed(seed, role);
+    ): string | undefined =>
+      seed === undefined ? undefined : `${seed}/${role}`;
     const refrigerator: IAutoMovieModel = createRefrigerator(
       {},
       draw("refrigerator"),

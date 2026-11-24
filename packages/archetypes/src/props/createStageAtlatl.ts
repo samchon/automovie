@@ -18,7 +18,7 @@ export function createStageAtlatl(
     LongImplementDraw.IParams,
     "id" | "length" | "width" | "spurSetback" | "gripSetback" | "mass"
   > = {},
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<
   createStageAtlatl.Affordance,
   createStageAtlatl.Dimension

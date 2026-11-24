@@ -20,7 +20,7 @@ import { ObstacleDraw } from "./ObstacleDraw";
  */
 export function createRopeStanchions(
   params: createRopeStanchions.IParams = {},
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<
   createRopeStanchions.Affordance,
   createRopeStanchions.Dimension

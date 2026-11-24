@@ -330,7 +330,7 @@ function terrainBase(
       );
     const random: ReturnType<typeof createAutoMovieRandom> =
       createAutoMovieRandom(
-        deriveAutoMovieSeed(String(context.seed ?? 0), "terrain"),
+        deriveAutoMovieSeed(context.seed ?? "0000000000000000", "terrain"),
       );
     const phaseX: number = 2 * Math.PI * random.float(0);
     const phaseZ: number = 2 * Math.PI * random.float(1);
@@ -397,7 +397,7 @@ function noiseBase(
       `Terrain "${context.id}" requires noise roughness strictly between 0 and 1: ${roughness}.`,
     );
   const noise: (x: number, y: number) => number = createAutoMovieFractalNoise2(
-    deriveAutoMovieSeed(String(context.seed ?? 0), "terrain"),
+    deriveAutoMovieSeed(context.seed ?? "0000000000000000", "terrain"),
     octaves,
     roughness,
   );

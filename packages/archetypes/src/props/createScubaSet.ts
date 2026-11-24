@@ -25,7 +25,7 @@ const STAGED: string =
  */
 export function createScubaSet(
   params: createScubaSet.IParams = {},
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<createScubaSet.Affordance, createScubaSet.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createScubaSet.Dimension> =
     new AutoMovieArchetypeDrawSession(

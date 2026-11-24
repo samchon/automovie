@@ -37,10 +37,7 @@ const IDENTITY: IAutoMovieRigidTransform = {
   rotation: { x: 0, y: 0, z: 0, w: 1 },
 };
 
-/**
- * Whether an advertised contact is on the top of a named solid with free space
- * above it.
- */
+/** Whether an advertised contact is on the top of a named solid with free space above it. */
 function onTop(
   model: AutoMovieArchetype,
   site: IAutoMovieAffordance,
@@ -70,27 +67,21 @@ function onTop(
 }
 
 /**
- * The named mobility, bed and storage producers replay old recipes and expose
- * their own physical contacts.
+ * The named mobility, bed and storage producers replay old recipes and expose their own physical contacts.
  *
  * Scenarios:
- *
- * 1. Every old selector and canonical route has the same serialized model, seed
- *    dimensions and provenance when no feature is added.
- * 2. The cane and walker put their support at floor level. The stretcher and open
- *    shelf supply real horizontal supports with clear space above them.
- * 3. A wardrobe carries its pull through a 90 degree rotation and a chest carries
- *    its pull along a 12 cm slide. Refuse travel beyond the measured hinge
- *    option and old dimensions that belong to a selected model.
+ * 1. Every old selector and canonical route has the same serialized model, seed dimensions and provenance when no feature is added.
+ * 2. The cane and walker put their support at floor level. The stretcher and open shelf supply real horizontal supports with clear space above them.
+ * 3. A wardrobe carries its pull through a 90 degree rotation and a chest carries its pull along a 12 cm slide. Refuse travel beyond the measured hinge option and old dimensions that belong to a selected model.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Gives the old-route, ground and support, and articulation scenarios.
  * @evidence contracts/development/testing.md#behavioral-verification Exercises typed creation, placed colliders, affordances and normal articulation. Wrong support frames and moving handles that detach from their mechanisms fail independently of the compatibility comparisons.
  * @evidence contracts/development/testing.md#independent-expectations The geometric oracle uses collider space and the quarter-turn or slide prescribed by the caller. The millimetre is the existing #3368 frame limit. The legacy route only witnesses replay equivalence.
- * @evidence contracts/development/testing.md#distinguishing-cases Includes seedless and two numeric seeds, fixed valid and refused values, single versus paired grips, wheeled and stationary support, and rotary versus linear travel.
+ * @evidence contracts/development/testing.md#distinguishing-cases Includes seedless and numeric or string seeds, fixed valid and refused values, single versus paired grips, wheeled and stationary support, and rotary versus linear travel.
  * @evidence contracts/development/testing.md#execution-ownership An in-memory SDK unit test discovered by its named export.
  */
 export function test_archetype_catalogue_home_supports(): void {
-  for (const seed of [undefined, 0, 1041]) {
+  for (const seed of [undefined, 0, "care-room"]) {
     const pairs: readonly (readonly [
       AutoMovieArchetype,
       AutoMovieArchetype,

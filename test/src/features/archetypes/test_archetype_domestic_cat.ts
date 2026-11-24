@@ -20,12 +20,11 @@ import { animalTerminalSole } from "../internal/animalTerminalSole";
  * level walk whose actual paw contacts follow the authored clock.
  *
  * Scenarios:
- *
- * 1. Both factory paths produce the measured-scale bare reference and four sourced
- *    proximal control lengths. Two builds with the same seed reproduce their
- *    actual geometry and draw.
- * 2. The automatic walk repeats its lateral contact sequence, keeps stance soles
- *    grounded in stance, and lifts the actual soles in swing.
+ * 1. Both factory paths produce the measured-scale bare reference and four
+ *    sourced proximal control lengths. Two builds
+ *    with the same seed reproduce their actual geometry and draw.
+ * 2. The automatic walk repeats its lateral contact sequence, keeps stance
+ *    soles grounded in stance, and lifts the actual soles in swing.
  * 3. An unsupported speed and an unsupported explicit gait refuse.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names the typed producer paths and the physical contact and admission properties.
@@ -96,7 +95,7 @@ export function test_archetype_domestic_cat(): void {
       }
   }
 
-  const seed: number = 1040;
+  const seed: string = "domestic-cat-walk";
   const first: ReturnType<typeof createCat> = createCat({}, seed);
   const repeated: ReturnType<typeof createCat> = createCat({}, seed);
   if (

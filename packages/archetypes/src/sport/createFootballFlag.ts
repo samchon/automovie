@@ -24,7 +24,7 @@ import {
  */
 export function createFootballFlag(
   params: createFootballFlag.IParams = {},
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<createFootballFlag.Affordance, never> {
   const draw: AutoMovieArchetypeDrawSession<never> =
     new AutoMovieArchetypeDrawSession("footballFlag", {}, seed, {});

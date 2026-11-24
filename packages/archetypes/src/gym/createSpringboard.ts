@@ -29,7 +29,7 @@ const FIG: string =
  */
 export function createSpringboard(
   params: createSpringboard.IParams = {},
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<
   createSpringboard.Affordance,
   createSpringboard.Dimension

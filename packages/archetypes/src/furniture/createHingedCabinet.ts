@@ -14,7 +14,7 @@ import type { createStorage } from "./createStorage";
  */
 export function createHingedCabinet(
   params: createHingedCabinet.IParams,
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<
   createHingedCabinet.Affordance,
   createHingedCabinet.Dimension

@@ -14,7 +14,7 @@ import type { createBed } from "./createBed";
  */
 export function createPlatformBed(
   params: createPlatformBed.IParams,
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<
   createPlatformBed.Affordance,
   createPlatformBed.Dimension

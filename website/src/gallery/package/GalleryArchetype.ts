@@ -11,10 +11,10 @@ import type { IGalleryView } from "../structures/IGalleryView";
 import { GalleryCatalogue } from "./GalleryCatalogue";
 
 /**
- * Builds one archetype for the gallery and reads off what the page lists: the
- * dimensions it records with a band, a model or a derived value, as the
- * archetype records them, and its affordances with the range each articulation
- * moves through.
+ * Builds one archetype for the gallery and reads off what the page lists:
+ * the dimensions it records with a band, a model or a derived value,
+ * as the archetype records them, and its affordances with
+ * the range each articulation moves through.
  */
 export namespace GalleryArchetype {
   /** Read a reference recipe only when the gallery needs its subject. */
@@ -38,11 +38,9 @@ export namespace GalleryArchetype {
   /**
    * Build the archetype a request names.
    *
-   * @param request The subject, its variant, the seed and the articulations'
-   *   state.
+   * @param request The subject, its variant, the seed and the articulations' state.
    * @returns The archetype and its listing.
-   * @throws {Error} When no producer has the subject's id; the package's
-   *   `AutoMovieArchetypeRefusal` when it refuses the variant or a travel.
+   * @throws {Error} When no producer has the subject's id; the package's `AutoMovieArchetypeRefusal` when it refuses the variant or a travel.
    */
   export function build(request: IGalleryRequest): IBuilt {
     const producer: GalleryCatalogue.IProducer | undefined =
@@ -60,7 +58,7 @@ export namespace GalleryArchetype {
     };
     const rest: GalleryCatalogue.Model = producer(
       params,
-      request.seed === "" ? undefined : Number(request.seed),
+      request.seed === "" ? undefined : request.seed,
     );
 
     // Only the articulations the archetype has are moved, so a state kept

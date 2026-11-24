@@ -33,7 +33,7 @@ const IBA: string =
  */
 export function createBoxingGlove(
   params: createBoxingGlove.IParams = {},
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<
   createBoxingGlove.Affordance,
   createBoxingGlove.Dimension

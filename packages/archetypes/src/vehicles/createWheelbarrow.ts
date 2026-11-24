@@ -18,7 +18,7 @@ import type { createCart } from "./createCart";
  */
 export function createWheelbarrow(
   params: createWheelbarrow.IParams = {},
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<
   createWheelbarrow.Affordance,
   createWheelbarrow.Dimension

@@ -10,7 +10,6 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { deriveArchetypeSeed } from "../../core/deriveArchetypeSeed";
 import { createTree } from "../../nature/createTree";
 
 /**
@@ -54,14 +53,14 @@ export function terrainTrees(
         `Terrain trees "${id}" need finite geometry, positive radius and scale, and a count from one to 100,000.`,
       );
     const seed: string = deriveAutoMovieSeed(
-      String(context.seed ?? 0),
+      context.seed ?? "0000000000000000",
       "trees",
       name,
     );
     const modelId: string = `${id}/prototype`;
     const prototype: ReturnType<typeof createTree> = createTree(
       { id: modelId, kind: "whiteOak" },
-      deriveArchetypeSeed(context.seed ?? 0, "trees", name),
+      seed,
     );
     const radius: number =
       trees.radius + (prototype.dimensions.dbh! * scale) / 2;

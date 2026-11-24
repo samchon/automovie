@@ -29,7 +29,7 @@ import {
  */
 export function createKerb(
   params: createKerb.IParams,
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<createKerb.Affordance, createKerb.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createKerb.Dimension> =
     new AutoMovieArchetypeDrawSession<createKerb.Dimension>(

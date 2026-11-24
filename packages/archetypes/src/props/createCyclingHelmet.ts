@@ -25,7 +25,7 @@ export function createCyclingHelmet(
     WornPropDraw.IParams,
     "id" | "width" | "depth" | "height" | "mass"
   > = {},
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<
   createCyclingHelmet.Affordance,
   createCyclingHelmet.Dimension

@@ -19,7 +19,7 @@ import type { createInstrument } from "./createInstrument";
  */
 export function createSideDrum(
   params: createSideDrum.IParams = {},
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<createSideDrum.Affordance, createSideDrum.Dimension> {
   return InstrumentBuild.create<createSideDrum.Affordance>(
     "sideDrum",

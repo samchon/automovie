@@ -16,7 +16,7 @@ export function createShavingRazor(
   params: Pick<GroomingPropDraw.IParams, "id" | "width"> & {
     model?: Extract<GroomingPropDraw.Model, "edwinJagger" | "gilletteMach3">;
   } = {},
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<
   createShavingRazor.Affordance,
   createShavingRazor.Dimension

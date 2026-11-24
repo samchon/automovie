@@ -119,7 +119,7 @@ const NAMES: Readonly<Record<createBoard.Kind, string>> = {
  */
 export function createBoard(
   params: createBoard.IParams,
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<createBoard.Affordance, createBoard.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createBoard.Dimension> =
     new AutoMovieArchetypeDrawSession<createBoard.Dimension>(

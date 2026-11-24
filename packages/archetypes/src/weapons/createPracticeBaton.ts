@@ -20,7 +20,7 @@ import type { createClub } from "./createClub";
  */
 export function createPracticeBaton(
   params: createPracticeBaton.IParams = {},
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<
   createPracticeBaton.Affordance,
   createPracticeBaton.Dimension

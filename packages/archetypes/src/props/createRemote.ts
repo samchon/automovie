@@ -14,7 +14,7 @@ import { HandheldDevice } from "./HandheldDevice";
  */
 export function createRemote(
   params: createRemote.IParams = {},
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<createRemote.Affordance, createRemote.Dimension> {
   const {
     builder,

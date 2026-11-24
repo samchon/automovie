@@ -64,7 +64,7 @@ export function archetypeCatalogEveryday(
     add(
       `vessel-${kind}`,
       (
-        seed?: number,
+        seed?: number | string,
         dimensions?: archetypeCatalog.Dimensions,
       ): AutoMovieArchetype => createVessel({ kind, ...dimensions }, seed),
     );
@@ -72,7 +72,7 @@ export function archetypeCatalogEveryday(
     add(
       `wearable-${kind}`,
       (
-        seed?: number,
+        seed?: number | string,
         dimensions?: archetypeCatalog.Dimensions,
       ): AutoMovieArchetype => createWearable({ kind, ...dimensions }, seed),
     );
@@ -80,7 +80,7 @@ export function archetypeCatalogEveryday(
     add(
       `keyboard-${kind}`,
       (
-        seed?: number,
+        seed?: number | string,
         dimensions?: archetypeCatalog.Dimensions,
       ): AutoMovieArchetype => createKeyboard({ kind, ...dimensions }, seed),
     );
@@ -88,7 +88,7 @@ export function archetypeCatalogEveryday(
     add(
       `cleaning-${kind}`,
       (
-        seed?: number,
+        seed?: number | string,
         dimensions?: archetypeCatalog.Dimensions,
       ): AutoMovieArchetype => createCleaning({ kind, ...dimensions }, seed),
     );
@@ -96,21 +96,21 @@ export function archetypeCatalogEveryday(
     add(
       `tray-${kind}`,
       (
-        seed?: number,
+        seed?: number | string,
         dimensions?: archetypeCatalog.Dimensions,
       ): AutoMovieArchetype => createTray({ kind, ...dimensions }, seed),
     );
   add(
     "torch",
     (
-      seed?: number,
+      seed?: number | string,
       dimensions?: archetypeCatalog.Dimensions,
     ): AutoMovieArchetype => createTorch({ ...dimensions }, seed),
   );
   add(
     "pram",
     (
-      seed?: number,
+      seed?: number | string,
       dimensions?: archetypeCatalog.Dimensions,
     ): AutoMovieArchetype => createPram({ ...dimensions }, seed),
   );
@@ -118,7 +118,7 @@ export function archetypeCatalogEveryday(
     add(
       `tableware-${kind}`,
       (
-        seed?: number,
+        seed?: number | string,
         dimensions?: archetypeCatalog.Dimensions,
       ): AutoMovieArchetype => createTableware({ kind, ...dimensions }, seed),
       settled(createTableware.BANDS[kind], createTableware.MODELS[kind]),
@@ -127,7 +127,7 @@ export function archetypeCatalogEveryday(
     add(
       `food-${kind}`,
       (
-        seed?: number,
+        seed?: number | string,
         dimensions?: archetypeCatalog.Dimensions,
       ): AutoMovieArchetype => createFood({ kind, ...dimensions }, seed),
       settled(createFood.BANDS[kind], createFood.MODELS[kind]),
@@ -136,7 +136,7 @@ export function archetypeCatalogEveryday(
     add(
       `light-${kind}`,
       (
-        seed?: number,
+        seed?: number | string,
         dimensions?: archetypeCatalog.Dimensions,
       ): AutoMovieArchetype => createLight({ kind, ...dimensions }, seed),
       settled(createLight.BANDS[kind]),
@@ -145,7 +145,7 @@ export function archetypeCatalogEveryday(
     add(
       `umbrella-${open ? "open" : "closed"}`,
       (
-        seed?: number,
+        seed?: number | string,
         dimensions?: archetypeCatalog.Dimensions,
       ): AutoMovieArchetype => createUmbrella({ open, ...dimensions }, seed),
     );
@@ -153,7 +153,7 @@ export function archetypeCatalogEveryday(
     add(
       `mobilityAid-${kind}`,
       (
-        seed?: number,
+        seed?: number | string,
         dimensions?: archetypeCatalog.Dimensions,
       ): AutoMovieArchetype => createMobilityAid({ kind, ...dimensions }, seed),
     );
@@ -161,7 +161,7 @@ export function archetypeCatalogEveryday(
     add(
       `rock-${kind}`,
       (
-        seed?: number,
+        seed?: number | string,
         dimensions?: archetypeCatalog.Dimensions,
       ): AutoMovieArchetype => createRock({ kind, ...dimensions }, seed),
     );
@@ -169,7 +169,7 @@ export function archetypeCatalogEveryday(
     add(
       `fireRing-${kind}`,
       (
-        seed?: number,
+        seed?: number | string,
         dimensions?: archetypeCatalog.Dimensions,
       ): AutoMovieArchetype => createFireRing({ kind, ...dimensions }, seed),
       settled(createFireRing.BANDS[kind]),
@@ -178,7 +178,7 @@ export function archetypeCatalogEveryday(
     add(
       `tent-${kind}`,
       (
-        seed?: number,
+        seed?: number | string,
         dimensions?: archetypeCatalog.Dimensions,
       ): AutoMovieArchetype => createTent({ kind, ...dimensions }, seed),
     );
@@ -186,7 +186,7 @@ export function archetypeCatalogEveryday(
     add(
       `tree-${kind}`,
       (
-        seed?: number,
+        seed?: number | string,
         dimensions?: archetypeCatalog.Dimensions,
       ): AutoMovieArchetype => createTree({ kind, ...dimensions }, seed),
     );
@@ -194,21 +194,21 @@ export function archetypeCatalogEveryday(
   add(
     "vaultingPole",
     (
-      seed?: number,
+      seed?: number | string,
       dimensions?: archetypeCatalog.Dimensions,
     ): AutoMovieArchetype => createVaultingPole({ ...dimensions }, seed),
   );
   add(
     "highJump",
     (
-      seed?: number,
+      seed?: number | string,
       dimensions?: archetypeCatalog.Dimensions,
     ): AutoMovieArchetype => createHighJump({ ...dimensions }, seed),
   );
   add(
     "highJump-poleVault",
     (
-      seed?: number,
+      seed?: number | string,
       dimensions?: archetypeCatalog.Dimensions,
     ): AutoMovieArchetype =>
       createHighJump({ kind: "poleVault", ...dimensions }, seed),
@@ -217,7 +217,7 @@ export function archetypeCatalogEveryday(
     add(
       `poolEdge-${kind}`,
       (
-        seed?: number,
+        seed?: number | string,
         dimensions?: archetypeCatalog.Dimensions,
       ): AutoMovieArchetype => createPoolEdge({ kind, ...dimensions }, seed),
     );
@@ -225,7 +225,7 @@ export function archetypeCatalogEveryday(
     add(
       `goal-${kind}`,
       (
-        seed?: number,
+        seed?: number | string,
         dimensions?: archetypeCatalog.Dimensions,
       ): AutoMovieArchetype => createGoal({ kind, ...dimensions }, seed),
     );
@@ -233,42 +233,42 @@ export function archetypeCatalogEveryday(
     add(
       `stick-${kind}`,
       (
-        seed?: number,
+        seed?: number | string,
         dimensions?: archetypeCatalog.Dimensions,
       ): AutoMovieArchetype => createStick({ kind, ...dimensions }, seed),
     );
   add(
     "cue",
     (
-      seed?: number,
+      seed?: number | string,
       dimensions?: archetypeCatalog.Dimensions,
     ): AutoMovieArchetype => createCue({ ...dimensions }, seed),
   );
   add(
     "cueTable",
     (
-      seed?: number,
+      seed?: number | string,
       dimensions?: archetypeCatalog.Dimensions,
     ): AutoMovieArchetype => createCueTable({ ...dimensions }, seed),
   );
   add(
     "skateboard",
     (
-      seed?: number,
+      seed?: number | string,
       dimensions?: archetypeCatalog.Dimensions,
     ): AutoMovieArchetype => createSkateboard({ ...dimensions }, seed),
   );
   add(
     "ski",
     (
-      seed?: number,
+      seed?: number | string,
       dimensions?: archetypeCatalog.Dimensions,
     ): AutoMovieArchetype => createSki({ ...dimensions }, seed),
   );
   add(
     "surfboard",
     (
-      seed?: number,
+      seed?: number | string,
       dimensions?: archetypeCatalog.Dimensions,
     ): AutoMovieArchetype => createSurfboard({ ...dimensions }, seed),
   );
@@ -276,7 +276,7 @@ export function archetypeCatalogEveryday(
     add(
       `landingMat-${kind}`,
       (
-        seed?: number,
+        seed?: number | string,
         dimensions?: archetypeCatalog.Dimensions,
       ): AutoMovieArchetype => createLandingMat({ kind, ...dimensions }, seed),
     );
@@ -284,7 +284,7 @@ export function archetypeCatalogEveryday(
     add(
       `vaultingTable-${kind}`,
       (
-        seed?: number,
+        seed?: number | string,
         dimensions?: archetypeCatalog.Dimensions,
       ): AutoMovieArchetype =>
         createVaultingTable({ kind, ...dimensions }, seed),
@@ -294,7 +294,7 @@ export function archetypeCatalogEveryday(
     add(
       `ball-${kind}`,
       (
-        seed?: number,
+        seed?: number | string,
         dimensions?: archetypeCatalog.Dimensions,
       ): AutoMovieArchetype => createBall({ kind, ...dimensions }, seed),
     );
@@ -302,7 +302,7 @@ export function archetypeCatalogEveryday(
     add(
       `racket-${kind}`,
       (
-        seed?: number,
+        seed?: number | string,
         dimensions?: archetypeCatalog.Dimensions,
       ): AutoMovieArchetype => createRacket({ kind, ...dimensions }, seed),
     );
@@ -310,7 +310,7 @@ export function archetypeCatalogEveryday(
     add(
       `golfClub-${kind}`,
       (
-        seed?: number,
+        seed?: number | string,
         dimensions?: archetypeCatalog.Dimensions,
       ): AutoMovieArchetype => createGolfClub({ kind, ...dimensions }, seed),
     );
@@ -318,7 +318,7 @@ export function archetypeCatalogEveryday(
     add(
       `glove-${kind}`,
       (
-        seed?: number,
+        seed?: number | string,
         dimensions?: archetypeCatalog.Dimensions,
       ): AutoMovieArchetype => createGlove({ kind, ...dimensions }, seed),
     );
@@ -326,7 +326,7 @@ export function archetypeCatalogEveryday(
     add(
       `javelin-${kind}`,
       (
-        seed?: number,
+        seed?: number | string,
         dimensions?: archetypeCatalog.Dimensions,
       ): AutoMovieArchetype => createJavelin({ kind, ...dimensions }, seed),
     );
@@ -334,7 +334,7 @@ export function archetypeCatalogEveryday(
     add(
       `shot-${kind}`,
       (
-        seed?: number,
+        seed?: number | string,
         dimensions?: archetypeCatalog.Dimensions,
       ): AutoMovieArchetype => createShot({ kind, ...dimensions }, seed),
     );
@@ -342,7 +342,7 @@ export function archetypeCatalogEveryday(
     add(
       `discus-${kind}`,
       (
-        seed?: number,
+        seed?: number | string,
         dimensions?: archetypeCatalog.Dimensions,
       ): AutoMovieArchetype => createDiscus({ kind, ...dimensions }, seed),
     );
@@ -350,7 +350,7 @@ export function archetypeCatalogEveryday(
     add(
       `hammerThrow-${kind}`,
       (
-        seed?: number,
+        seed?: number | string,
         dimensions?: archetypeCatalog.Dimensions,
       ): AutoMovieArchetype => createHammerThrow({ kind, ...dimensions }, seed),
     );
@@ -358,21 +358,21 @@ export function archetypeCatalogEveryday(
     add(
       `hurdle-${kind}`,
       (
-        seed?: number,
+        seed?: number | string,
         dimensions?: archetypeCatalog.Dimensions,
       ): AutoMovieArchetype => createHurdle({ kind, ...dimensions }, seed),
     );
   add(
     "startingBlock",
     (
-      seed?: number,
+      seed?: number | string,
       dimensions?: archetypeCatalog.Dimensions,
     ): AutoMovieArchetype => createStartingBlock({ ...dimensions }, seed),
   );
   add(
     "relayBaton",
     (
-      seed?: number,
+      seed?: number | string,
       dimensions?: archetypeCatalog.Dimensions,
     ): AutoMovieArchetype => createRelayBaton({ ...dimensions }, seed),
   );
@@ -381,7 +381,7 @@ export function archetypeCatalogEveryday(
     add(
       `instrument-${kind}`,
       (
-        seed?: number,
+        seed?: number | string,
         dimensions?: archetypeCatalog.Dimensions,
       ): AutoMovieArchetype => createInstrument({ kind, ...dimensions }, seed),
     );
@@ -389,7 +389,7 @@ export function archetypeCatalogEveryday(
     add(
       `microphone-${kind}`,
       (
-        seed?: number,
+        seed?: number | string,
         dimensions?: archetypeCatalog.Dimensions,
       ): AutoMovieArchetype => createMicrophone({ kind, ...dimensions }, seed),
       kind === "handheld",

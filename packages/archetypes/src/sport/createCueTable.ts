@@ -42,7 +42,7 @@ const MOUTH = {
  */
 export function createCueTable(
   params: createCueTable.IParams = {},
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<createCueTable.Affordance, createCueTable.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createCueTable.Dimension> =
     new AutoMovieArchetypeDrawSession<createCueTable.Dimension>(

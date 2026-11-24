@@ -52,7 +52,10 @@ const MARGIN: number = 0.3;
  * @evidence contracts/development/testing.md#execution-ownership A synchronous CPU-only feature spec; the shots are inert events, the mounted firing acts are #3806's.
  */
 export function test_world_mounted_formations(): void {
-  const horse: AutoMovieArchetype = createHorse({ withersHeight: 1.7 }, 1031);
+  const horse: AutoMovieArchetype = createHorse(
+    { withersHeight: 1.7 },
+    "squadron",
+  );
   const footprint: AutoMovieArchetypePassage.IFootprint =
     AutoMovieArchetypePassage.footprint(horse);
   const trot: AutoMovieArchetypeManoeuvre.ISpeedRange =

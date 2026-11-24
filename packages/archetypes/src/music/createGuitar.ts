@@ -20,7 +20,7 @@ import type { createInstrument } from "./createInstrument";
  */
 export function createGuitar(
   params: createGuitar.IParams = {},
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<createGuitar.Affordance, createGuitar.Dimension> {
   return InstrumentBuild.create<createGuitar.Affordance>(
     "guitar",

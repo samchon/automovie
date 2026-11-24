@@ -170,7 +170,7 @@ export namespace StickBuild {
   export function draw<Id extends createStick.Affordance>(
     kind: createStick.Kind,
     params: Readonly<Omit<createStick.IParams, "kind">>,
-    seed: number | undefined,
+    seed: number | string | undefined,
   ): IDrawResult<Id> {
     const draw: AutoMovieArchetypeDrawSession<createStick.Dimension> =
       new AutoMovieArchetypeDrawSession("stick", UNITS, seed, params);

@@ -24,7 +24,7 @@ import { createSandbag } from "./createSandbag";
  */
 export function createObstacle(
   params: createObstacle.IParams,
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<createObstacle.Affordance, createObstacle.Dimension> {
   const kind: createObstacle.Kind = ArchetypeDraw.choice(
     "obstacle",

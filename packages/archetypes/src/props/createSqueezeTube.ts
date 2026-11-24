@@ -18,7 +18,7 @@ export function createSqueezeTube(
   params: Pick<GroomingPropDraw.IParams, "id" | "length" | "mass"> & {
     model?: Exclude<GroomingPropDraw.Model, "edwinJagger" | "gilletteMach3">;
   } = {},
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<
   createSqueezeTube.Affordance,
   createSqueezeTube.Dimension

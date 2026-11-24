@@ -61,7 +61,7 @@ const NAMES: Readonly<Record<createFood.Kind, string>> = {
  */
 export function createFood(
   params: createFood.IParams,
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<createFood.Affordance, createFood.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createFood.Dimension> =
     new AutoMovieArchetypeDrawSession<createFood.Dimension>(

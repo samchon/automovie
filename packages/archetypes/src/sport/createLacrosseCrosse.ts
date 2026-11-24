@@ -24,7 +24,7 @@ const v: typeof Vector3.create = Vector3.create;
  */
 export function createLacrosseCrosse(
   params: createLacrosseCrosse.IParams = {},
-  seed?: number,
+  seed?: number | string,
 ): AutoMovieArchetype<
   createLacrosseCrosse.Affordance,
   createLacrosseCrosse.Dimension
