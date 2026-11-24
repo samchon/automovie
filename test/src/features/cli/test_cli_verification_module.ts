@@ -1,9 +1,9 @@
+import { run } from "automovie";
 import assert from "node:assert/strict";
 import * as fs from "node:fs/promises";
 import * as os from "node:os";
 import * as path from "node:path";
-
-import { verifyAutoMovie } from "../../../../packages/cli/src/verifyAutoMovie";
+import { mock } from "node:test";
 
 /**
  * An editable verification entry can import additional TypeScript targets in
@@ -46,29 +46,32 @@ export async function test_cli_verification_module(): Promise<void> {
       ].join("\n"),
     );
     const output: string[] = [];
-    const write = (text: string): void => {
-      output.push(text);
-    };
-    assert.equal(
-      await verifyAutoMovie({
-        root,
-        env: {},
-        write,
-        args: ["--subject", "chair", "--json"],
-      }),
-      0,
+    const directory = mock.method(process, "cwd", (): string => root);
+    const stdout = mock.method(
+      process.stdout,
+      "write",
+      (chunk: string | Uint8Array): boolean => {
+        output.push(chunk.toString());
+        return true;
+      },
     );
-    assert.match(output[0]!, /"state": "disabled"/u);
-    assert.equal(
-      await verifyAutoMovie({
-        root,
-        env: {},
-        write,
-        args: ["--subject", "chair", "--require", "handoff", "--json"],
-      }),
-      1,
-    );
-    assert.match(output[1]!, /"blocked": true/u);
+    try {
+      const args: string[] = [
+        "node",
+        "automovie",
+        "verify",
+        "--subject",
+        "chair",
+        "--json",
+      ];
+      assert.equal(await run(args), 0);
+      assert.match(output[0]!, /"state": "disabled"/u);
+      assert.equal(await run([...args, "--require", "handoff"]), 1);
+      assert.match(output[1]!, /"blocked": true/u);
+    } finally {
+      directory.mock.restore();
+      stdout.mock.restore();
+    }
   } finally {
     await fs.rm(root, { recursive: true, force: false });
   }

@@ -266,10 +266,12 @@ export function test_cli_render_review_options(): void {
       }),
     ),
   ];
+  const byKey = (left: string, right: string): number =>
+    left < right ? -1 : left > right ? 1 : 0;
   TestValidator.equals(
     "review examples cover every option",
-    admitted.sort(),
-    [...AUTOMOVIE_REVIEW_OPTIONS].sort(),
+    admitted.sort(byKey),
+    [...AUTOMOVIE_REVIEW_OPTIONS].sort(byKey),
   );
   for (const [values, fragment] of [
     [

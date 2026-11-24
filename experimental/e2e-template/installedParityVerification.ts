@@ -6,6 +6,21 @@ export const checks = [
     id: "installed-parity",
     checks: [
       {
+        kind: "capture",
+        id: "dissolve-depth",
+        title: "Confirm the departing camera's depth",
+        scope: "Slide occurrence 0 at output frame 5 during the dissolve",
+        subject: "installed-parity",
+        // The copied round includes depth and beauty in an aggregate audit.
+        // This check requires current coverage for the named pass alone.
+        record: ".cache/e2e-parity-capture/rounds/drawn/record.json",
+        view: "film",
+        pass: "depth",
+        occurrence: "slide/0",
+        diagnostic: { check: "installed-parity", key: "cart/5" },
+        at: { second: 0.625 },
+      },
+      {
         kind: "delivery",
         id: "published",
         title: "Confirm published bytes",

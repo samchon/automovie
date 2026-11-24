@@ -153,8 +153,17 @@ async function copiedCommand(page, url) {
 
 /** Join the Draw and delivered frame records to their real image witnesses. */
 async function deliver({ root, decodePng, guideFrameName, ffmpeg, command }) {
-  verification(root, "not-run", 1);
+  verification(root, {
+    capture: "not-run",
+    published: "not-run",
+    blocked: true,
+  });
   runCopiedCapture(root, command);
+  verification(root, {
+    capture: "unobserved",
+    published: "not-run",
+    blocked: true,
+  });
   pnpm(root, [
     "run",
     "render",
@@ -190,7 +199,11 @@ async function deliver({ root, decodePng, guideFrameName, ffmpeg, command }) {
   const controls = await read(root, delivery, "controls", "record.json");
   const fromFile = await read(root, decoded, "record.json");
   const hash = sha256(await fs.readFile(path.join(root, file)));
-  verification(root, "passed", 0);
+  verification(root, {
+    capture: "unobserved",
+    published: "passed",
+    blocked: false,
+  });
   await reviewDelivered(root, file, hash);
 
   assert.equal(report.status, "published");
@@ -426,7 +439,7 @@ function sha256(bytes) {
 }
 
 /** A generated production can require the matching current published receipt. */
-function verification(root, state, expectedStatus) {
+function verification(root, { capture, published, blocked }) {
   const result = pnpm(
     root,
     [
@@ -439,15 +452,28 @@ function verification(root, state, expectedStatus) {
       "handoff",
       "--json",
     ],
-    { expectedStatus, encoding: "utf8", stdio: "pipe" },
+    { expectedStatus: blocked ? 1 : 0, encoding: "utf8", stdio: "pipe" },
   );
   const status = JSON.parse(result.stdout);
-  assert.equal(status.blocked, expectedStatus === 1);
+  assert.equal(status.blocked, blocked);
   assert.equal(status.requiredStage, "handoff");
   assert.deepEqual(
-    status.items.map(({ target, id, state }) => [target, id, state]),
-    [[subject, "published", state]],
+    status.items.map(({ target, id, state, required }) => [
+      target,
+      id,
+      state,
+      required,
+    ]),
+    [
+      [subject, "dissolve-depth", capture, false],
+      [subject, "published", published, true],
+    ],
   );
+  if (capture === "unobserved")
+    assert.match(
+      status.items[0].message,
+      /Capture input identity is unknown|this audit combines other views or passes/u,
+    );
 }
 
 /** The navigation mark and its replay name the exact bytes and output frame. */

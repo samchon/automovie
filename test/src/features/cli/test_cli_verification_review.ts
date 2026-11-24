@@ -1,11 +1,12 @@
-import type { IAutoMovieVerification } from "automovie";
+import {
+  type IAutoMovieVerification,
+  runAutoMovieVerification,
+} from "automovie";
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
 import * as fs from "node:fs/promises";
 import * as os from "node:os";
 import * as path from "node:path";
-
-import { inspectAutoMovieVerificationReview } from "../../../../packages/cli/src/inspectAutoMovieVerificationReview";
 
 /**
  * Approval belongs to the person's observed medium, interval and exact
@@ -72,7 +73,14 @@ export async function test_cli_verification_review(): Promise<void> {
       selected: IAutoMovieVerification.IReview = check,
     ): Promise<IAutoMovieVerification.IResult["state"]> => {
       await fs.writeFile(receipt, JSON.stringify(value));
-      return (await inspectAutoMovieVerificationReview(selected, root)).state;
+      const report: IAutoMovieVerification.IReport =
+        await runAutoMovieVerification({
+          root,
+          env: {},
+          targets: [{ id: "walk", checks: [selected] }],
+          options: { subjects: ["walk"], only: [], require: null, run: false },
+        });
+      return report.items[0]!.state;
     };
     assert.equal(
       await verify({

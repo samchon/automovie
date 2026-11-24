@@ -1,12 +1,13 @@
-import type { IAutoMovieVerification } from "automovie";
+import {
+  type IAutoMovieVerification,
+  runAutoMovieVerification,
+} from "automovie";
 import assert from "node:assert/strict";
+import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import * as fs from "node:fs/promises";
 import * as os from "node:os";
 import * as path from "node:path";
-
-import { inspectAutoMovieVerificationCapture } from "../../../../packages/cli/src/inspectAutoMovieVerificationCapture";
-import { inspectAutoMovieVerificationDelivery } from "../../../../packages/cli/src/inspectAutoMovieVerificationDelivery";
 
 /**
  * Verify the retained capture and delivered facts over the exact declared scope
@@ -23,16 +24,55 @@ import { inspectAutoMovieVerificationDelivery } from "../../../../packages/cli/s
  *    cannot approve the previous film left beside its report.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names the selected scope, artifact identity and preserved blocked-attempt behavior.
- * @evidence contracts/development/testing.md#behavioral-verification Reads retained capture and delivery inputs through the verifier's existing-record adapters.
+ * @evidence contracts/development/testing.md#behavioral-verification Reads retained capture and delivery inputs through the shared evaluator used by the CLI.
  * @evidence contracts/development/testing.md#independent-expectations The fixture supplies individual checked frames, unmatched observations and independently hashed literal publication bytes.
  * @evidence contracts/development/testing.md#distinguishing-cases Contrasts one sample with two, a matched versus mixed view and pass, current versus stale video or controls and a later blocked attempt.
- * @evidence contracts/development/testing.md#execution-ownership A portable CLI unit using an owned temporary directory with no graphics, encoding or browser invocation.
+ * @evidence contracts/development/testing.md#execution-ownership The CLI test owns a temporary Git fixture and launches no graphics, encoding or browser process.
  */
 export async function test_cli_verification_records(): Promise<void> {
   const root: string = await fs.mkdtemp(
     path.join(os.tmpdir(), "automovie-verify-records-"),
   );
   try {
+    const git = (...args: string[]): string =>
+      execFileSync("git", ["-C", root, ...args], {
+        encoding: "utf8",
+        windowsHide: true,
+      }).trim();
+    git("init", "--quiet", "--template=");
+    const revision: string = git(
+      "-c",
+      "user.name=AutoMovie Test",
+      "-c",
+      "user.email=test@example.invalid",
+      "commit-tree",
+      git("write-tree"),
+      "-m",
+      "Capture source fixture",
+    );
+    git("update-ref", "HEAD", revision);
+    const info: string = path.join(root, ".git", "info");
+    await fs.mkdir(info, { recursive: true });
+    await fs.writeFile(path.join(info, "exclude"), "/*.png\n/record.json\n");
+
+    const verify = async (
+      check: IAutoMovieVerification.Check,
+    ): Promise<IAutoMovieVerification.IResult> =>
+      (
+        await runAutoMovieVerification({
+          root,
+          env: {},
+          targets: [{ id: "walk", checks: [check] }],
+          options: { subjects: ["walk"], only: [], require: null, run: false },
+        })
+      ).items[0]!;
+    const verifyCapture = async (
+      check: IAutoMovieVerification.ICapture,
+      record: unknown,
+    ): Promise<IAutoMovieVerification.IResult> => {
+      await fs.writeFile(path.join(root, check.record), JSON.stringify(record));
+      return verify(check);
+    };
     await fs.writeFile(path.join(root, "one.png"), "retained");
     await fs.writeFile(path.join(root, "two.png"), "retained");
     const still: IAutoMovieVerification.ICapture = {
@@ -79,39 +119,27 @@ export async function test_cli_verification_records(): Promise<void> {
       },
     };
     const single = {
+      revision,
       state: "complete",
       subject: { name: "walk" },
       rows: [firstRow],
       diagnostics: { episodes: [], coverage: [checked] },
     };
+    assert.equal((await verifyCapture(still, single)).state, "passed");
     assert.equal(
-      (await inspectAutoMovieVerificationCapture(still, single, root)).state,
-      "passed",
-    );
-    assert.equal(
-      (
-        await inspectAutoMovieVerificationCapture(
-          { ...still, pass: "albedo" },
-          single,
-          root,
-        )
-      ).state,
+      (await verifyCapture({ ...still, pass: "albedo" }, single)).state,
       "unobserved",
     );
     assert.equal(
       (
-        await inspectAutoMovieVerificationCapture(
-          still,
-          { ...single, rows: [firstRow, { ...firstRow, view: "rear" }] },
-          root,
-        )
+        await verifyCapture(still, {
+          ...single,
+          rows: [firstRow, { ...firstRow, view: "rear" }],
+        })
       ).state,
       "unobserved",
     );
-    assert.equal(
-      (await inspectAutoMovieVerificationCapture(interval, single, root)).state,
-      "unobserved",
-    );
+    assert.equal((await verifyCapture(interval, single)).state, "unobserved");
     const adjacent = {
       ...single,
       rows: [firstRow, lastRow],
@@ -120,34 +148,26 @@ export async function test_cli_verification_records(): Promise<void> {
         coverage: [{ ...checked, last, samples: 2 }],
       },
     };
-    assert.equal(
-      (await inspectAutoMovieVerificationCapture(interval, adjacent, root))
-        .state,
-      "passed",
-    );
+    assert.equal((await verifyCapture(interval, adjacent)).state, "passed");
     assert.equal(
       (
-        await inspectAutoMovieVerificationCapture(
-          interval,
-          {
-            ...adjacent,
-            comparison: {
-              findings: {
-                state: "compared",
-                entries: [
-                  {
-                    state: "unmatched",
-                    category: "error",
-                    scope: "shot/0",
-                    check: "support",
-                    key: "foot",
-                  },
-                ],
-              },
+        await verifyCapture(interval, {
+          ...adjacent,
+          comparison: {
+            findings: {
+              state: "compared",
+              entries: [
+                {
+                  state: "unmatched",
+                  category: "error",
+                  scope: "shot/0",
+                  check: "support",
+                  key: "foot",
+                },
+              ],
             },
           },
-          root,
-        )
+        })
       ).state,
       "unobserved",
     );
@@ -172,10 +192,7 @@ export async function test_cli_verification_records(): Promise<void> {
       video: "film.mp4",
       source: { file: "film.mp4", sha256: filmSha256 },
     };
-    assert.equal(
-      (await inspectAutoMovieVerificationDelivery(delivery, root)).state,
-      "not-run",
-    );
+    assert.equal((await verify(delivery)).state, "not-run");
     await fs.writeFile(film, "film");
     await fs.writeFile(report, JSON.stringify(published));
     const controls: string = path.join(root, "controls", "record.json");
@@ -188,10 +205,7 @@ export async function test_cli_verification_records(): Promise<void> {
         channels: [{ pass: "depth" }],
       }),
     );
-    assert.equal(
-      (await inspectAutoMovieVerificationDelivery(delivery, root)).state,
-      "passed",
-    );
+    assert.equal((await verify(delivery)).state, "passed");
     await fs.writeFile(
       controls,
       JSON.stringify({
@@ -200,15 +214,9 @@ export async function test_cli_verification_records(): Promise<void> {
         channels: [{ pass: "depth" }],
       }),
     );
-    assert.equal(
-      (await inspectAutoMovieVerificationDelivery(delivery, root)).state,
-      "stale",
-    );
+    assert.equal((await verify(delivery)).state, "stale");
     await fs.writeFile(film, "new film");
-    assert.equal(
-      (await inspectAutoMovieVerificationDelivery(delivery, root)).state,
-      "stale",
-    );
+    assert.equal((await verify(delivery)).state, "stale");
     await fs.writeFile(
       report,
       JSON.stringify({
@@ -218,7 +226,7 @@ export async function test_cli_verification_records(): Promise<void> {
         failure: { message: "audit failed" },
       }),
     );
-    const blocked = await inspectAutoMovieVerificationDelivery(delivery, root);
+    const blocked: IAutoMovieVerification.IResult = await verify(delivery);
     assert.equal(blocked.state, "failed");
     assert.match(blocked.message, /Previous output: film\.mp4/u);
   } finally {

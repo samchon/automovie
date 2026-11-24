@@ -202,8 +202,14 @@ export async function test_cli_verification_scopes(): Promise<void> {
       /needs named requirements/u,
     );
 
-    const entered = Promise.withResolvers<void>();
-    const resume = Promise.withResolvers<void>();
+    let markProbeStarted!: () => void;
+    const probeStarted: Promise<void> = new Promise((resolve) => {
+      markProbeStarted = resolve;
+    });
+    let releaseProbe!: () => void;
+    const probeReleased: Promise<void> = new Promise((resolve) => {
+      releaseProbe = resolve;
+    });
     let probing: boolean = false;
     const concurrent: IAutoMovieVerification.IMeasurement = {
       ...chair,
@@ -211,8 +217,8 @@ export async function test_cli_verification_scopes(): Promise<void> {
       measure: async (directory: string): Promise<number> => {
         if (probing) throw new Error("The clearance probe failed");
         probing = true;
-        entered.resolve();
-        await resume.promise;
+        markProbeStarted();
+        await probeReleased;
         return Number(
           await fs.readFile(path.join(directory, "chair.json"), "utf8"),
         );
@@ -222,11 +228,11 @@ export async function test_cli_verification_scopes(): Promise<void> {
       [concurrent],
       true,
     );
-    await entered.promise;
+    await probeStarted;
     const concurrentFailure: IAutoMovieVerification.IReport = await run(
       [concurrent],
       true,
-    ).finally(resume.resolve);
+    ).finally(releaseProbe);
     const concurrentPass: IAutoMovieVerification.IReport = await pending;
     assert.equal(concurrentFailure.items[0]?.state, "failed");
     assert.equal(concurrentPass.items[0]?.state, "passed");
