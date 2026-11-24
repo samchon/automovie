@@ -10,13 +10,13 @@ import * as fs from "node:fs/promises";
 import * as path from "node:path";
 
 import { AutoMovieCaptureHost } from "./AutoMovieCaptureHost";
+import type { AutoMovieFfmpegStaticPath } from "./AutoMovieFfmpegStaticPath";
 import { loadAutoMovieProductionModule } from "./loadAutoMovieProductionModule";
 import { readAutoMovieCaptureHostOptions } from "./readAutoMovieCaptureHostOptions";
 import { readAutoMovieRevision } from "./readAutoMovieRevision";
 import { readAutoMovieVideoProbe } from "./readAutoMovieVideoProbe";
 import { resolveAutoMovieFfmpeg } from "./resolveAutoMovieFfmpeg";
 import { runAutoMovieFfmpeg } from "./runAutoMovieFfmpeg";
-import type { AutoMovieFfmpegStaticPath } from "./AutoMovieFfmpegStaticPath";
 
 /**
  * Run `automovie capture` in a production: read the options through the request
@@ -50,10 +50,10 @@ export async function captureAutoMovie(props: {
   env: Readonly<Record<string, string | undefined>>;
 }): Promise<number> {
   const { root } = props;
-  const render: typeof Render = loadAutoMovieProductionModule(
+  const render: typeof Render = loadAutoMovieProductionModule<typeof Render>(
     root,
     "@automovie/render",
-  ) as typeof Render;
+  );
   const options: ReturnType<typeof readAutoMovieCaptureHostOptions> =
     readAutoMovieCaptureHostOptions(
       render.readAutoMovieCaptureArguments(props.args),

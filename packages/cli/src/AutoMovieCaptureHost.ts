@@ -8,6 +8,7 @@ import type {
 import type * as Render from "@automovie/render";
 import * as fs from "node:fs/promises";
 import * as path from "node:path";
+import type * as Playwright from "playwright-core";
 
 import type { AutoMovieCaptureBackend } from "./AutoMovieCaptureBackend";
 import type { IAutoMovieChromium } from "./IAutoMovieChromium";
@@ -126,15 +127,13 @@ export class AutoMovieCaptureHost {
   }): Promise<AutoMovieCaptureHost> {
     const timeout: number = readAutoMoviePageTimeout(props.timeout);
 
-    const render: typeof Render = loadAutoMovieProductionModule(
+    const render: typeof Render = loadAutoMovieProductionModule<typeof Render>(
       props.root,
       "@automovie/render",
-    ) as typeof Render;
-    const chromium: IAutoMovieChromium = (
-      loadAutoMovieProductionModule(props.root, "playwright-core") as {
-        chromium: IAutoMovieChromium;
-      }
-    ).chromium;
+    );
+    const chromium: IAutoMovieChromium = loadAutoMovieProductionModule<
+      typeof Playwright
+    >(props.root, "playwright-core").chromium;
 
     // Vite's CommonJS entry warns once per load; the command loads it on purpose.
     process.env.VITE_CJS_IGNORE_WARNING = "true";

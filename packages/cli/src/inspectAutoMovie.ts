@@ -32,10 +32,10 @@ export async function inspectAutoMovie(props: {
   root: string;
 }): Promise<number> {
   const { root } = props;
-  const render: typeof Render = loadAutoMovieProductionModule(
+  const render: typeof Render = loadAutoMovieProductionModule<typeof Render>(
     root,
     "@automovie/render",
-  ) as typeof Render;
+  );
   const options: ReturnType<typeof readAutoMovieInspectHostOptions> =
     readAutoMovieInspectHostOptions(
       render.readAutoMovieCaptureArguments(props.args),
