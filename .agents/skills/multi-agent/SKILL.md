@@ -23,10 +23,14 @@ It warns on each violation and orders its correction.
 
 It adds no approval step of its own for routine work. Approvals the project's rules reserve, such as destructive or outward-facing actions and the user's decisions, still go to the user.
 
-## Agents
+## Subagents
 
-Give each agent its own files.
+Give each subagent its own files.
 
-No agent waits for another agent or a run.
+No subagent waits for another subagent or a run.
 
-Claude Code agents report a full context and offer to stop, hand off or have a fresh agent take over. Claude Code compacts the context on its own, so the main session tells such an agent to continue its task and resumes the same agent.
+A Claude Code subagent stops mid-task with a message like this:
+
+> My context is nearly full. I'll stop here; a fresh agent can pick this up from my notes.
+
+Claude Code compacts the context on its own. The main session tells that subagent to continue its task and resumes the same subagent.
