@@ -8,7 +8,7 @@ Write a generated score's request under [music prompts](diffusion/prompts.md#mus
 
 ## Sound list
 
-Declare a direct 3D film's adopted sound as its production's `sound` member (`IAutoMovieFilmSound`), and leave `delivery.audio.path` unset; `npm run render` refuses a film that declares both. The list holds:
+Declare a direct 3D film's adopted sound as its production's `sound` member (`IAutoMovieFilmSound`), and leave `delivery.audio.path` unset; `pnpm run render` refuses a film that declares both. The list holds:
 
 - each spoken line's id, text, language, speaker, start frame, WAVE file and receipt;
 - each cue placed on the film clock with its trim, gain, fades, bus and WAVE file;
@@ -18,7 +18,7 @@ Declare a direct 3D film's adopted sound as its production's `sound` member (`IA
 
 Paths are relative to the production root. Line ids and cue ids are each unique within the film. A line plays at its own length from its start frame, so leave room before the next line and the film's end.
 
-`npm run render` admits every receipt against its bytes, mixes the list into the soundtrack it encodes and writes the soundtrack's digest and each line's PCM digest to `render-report.json`. A missing file or a receipt that does not match its line is refused by path or field.
+`pnpm run render` admits every receipt against its bytes, mixes the list into the soundtrack it encodes and writes the soundtrack's digest and each line's PCM digest to `render-report.json`. A missing file or a receipt that does not match its line is refused by path or field.
 
 ## Adopted line receipts
 
