@@ -36,7 +36,7 @@ States mm chords, callback ownership, fixed limits passed from the public consta
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
-For C targets, the first walk permits walkSteps*C steps with bounded failed halvings; one initial and at most closingSteps equal walks each use walkPoints*C points, plus existing solve costs.
+For C targets, the first walk permits walkSteps*C steps with bounded failed halvings. Each reference chord uses one full step or at most walkSteps shortened attempts. An accepted shortened step decreases the remaining distance and regrows toward half the nominal chord. One initial and at most closingSteps equal walks each use walkPoints*C points.
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 

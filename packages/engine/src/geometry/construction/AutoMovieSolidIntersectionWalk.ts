@@ -340,9 +340,13 @@ export namespace AutoMovieSolidIntersectionWalk {
           let current: Heading = along;
           let left: number = chord;
           let h: number = chord / 2;
+          let halving: number = 0;
           for (
-            let halving: number = 0;
-            left > 1e-9 * chord && halving < AutoMovieSolidTraceSolve.HALVINGS;
+            let attempt: number = 0;
+            attempt < walkSteps &&
+            left > 1e-9 * chord &&
+            halving < AutoMovieSolidTraceSolve.HALVINGS;
+            attempt++
           ) {
             const part: IPoint | null = step(
               from,
@@ -354,8 +358,13 @@ export namespace AutoMovieSolidIntersectionWalk {
               halving++;
               continue;
             }
-            left -= norm(sub(part.point, from.point));
+            const remaining: number = left - norm(sub(part.point, from.point));
+            // A distinct chart or world point may leave the remaining chord
+            // unchanged at binary64 precision. Only strict progress can advance.
+            if (!(Number.isFinite(remaining) && remaining < left)) break;
+            left = remaining;
             from = part;
+            h = Math.min(chord / 2, 2 * h);
             const turned: Heading | null = tangent(from, current.world);
             if (turned === null) break;
             current = turned;
