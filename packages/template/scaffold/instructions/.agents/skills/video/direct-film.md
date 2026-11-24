@@ -18,25 +18,13 @@ Cloth and hair follow the body only as far as the installed packages simulate th
 
 Use the look adopted in [project context](../production/project-context.md#overview-and-look), including the cinematography record on long work.
 
-Use record and canon materials in the installed format. Generate wood, stone, plaster, clay, fabric and brushed-metal finishes, and the wear of handled objects, under [3D modeling](../3d-modeling/SKILL.md#commissioned-detail). Get other textures and environment maps from [sources](../3d-modeling/sources.md). Tag each color texture as color and each normal or roughness map as data. Use clay for form and beauty for materials under [form inspection](../3d-modeling/inspection.md#light-and-material).
+Give each detailed entity its surfaces under [materials](../3d-modeling/materials.md).
 
 ### Light
 
 [Staging](../motion/staging.md#the-view) places each light at its motivated source, the sun included. A detailed film keys from that source, then adds a fill that sets the look's contrast and an edge or back light where a figure would merge with its background.
 
-State light in physical units: lux for the sun and other directional lights, candela for lamps and nits for panels. A practical shows its flame or lit screen as [entity work](../development/entities.md#flames-screens-and-lettering) authors it. An emissive surface lights nothing, so give a screen that should light its surroundings a staged area light.
-
-When the scene has image lighting, return `occlusion` from the film's `shading` beside its `optics`, so creases, corners and the ground under each figure darken as the look's contact shadows require. Set its `radius` to the gaps that should darken, about 0.5 m for a room's corners and a figure's footing and less for close-ups of small props.
-
-Where the set's own light should bounce, as in an interior lit by practical lamps or by sun through a window, add `probes` to the same `shading`. Put the static set and its lights on the probes' `layer`, and keep moving actors off it so they receive the bounce without casting it. Space the probes about 0.5 to 1 m apart over the lit space, at most 2048 in all and out of walls and furniture where possible. Change `revision` whenever a light or set piece of that layer changes.
-
-### Camera response
-
-Return the camera response from the film's `optics`, in the film module as [source layout](../development/source-layout.md#source) places it: the exposure in EV100, the white balance as the key light's kelvin, the tone curve, any glare around practical lamps and bright windows, and the adopted grade as ASC CDL values. Without `optics`, physical light renders white, and the film's `shading` and a staged `medium` are refused.
-
-Meter each scene's key subject with `meterAutoMovieIlluminance` from `@automovie/engine`, and set `ev100` from `autoMovieIncidentEv100` of its lux. Run `checkAutoMovieExposureContinuity` over the film's cuts, grouped by screenplay scene, and mark each exposure change the screenplay decided with `change: true`.
-
-Give the optics a `shutter`, 180 degrees unless the look decides otherwise, and `samples`, so motion blurs as on film. Where a shot decides focus, author `fNumber` on its frame action and fill the optics' `lens` from `resolveAutoMovieLensAt` at each second, so the focus and any focus pull reach the frame.
+State light in physical units: lux for the sun and other directional lights, candela for lamps and nits for panels. A practical shows its flame or lit screen as [entity work](../development/entities.md#flames-screens-and-lettering) authors it. An emissive surface lights nothing, so give a screen that should light its surroundings a staged area light. Get environment maps for image lighting from [sources](../3d-modeling/sources.md).
 
 ### Faces and speech
 
@@ -50,9 +38,23 @@ On stills, check that each shape the installed face performs lands on the frames
 
 ## Renderer
 
-Prepare the supported renderer settings here. Inspect them with the README's capture command before assembly renders the final picture. Report missing required effects during delivery review.
+Prepare the supported renderer settings below. Inspect them with the README's capture command before assembly renders the final picture. Report missing required effects during delivery review.
 
 Use an external renderer only through a documented scene export. Report unsupported exports. Route neural picture generation to [generated film](generated-film.md).
+
+### Camera response
+
+Return the camera response from the film's `optics`, in the film module as [source layout](../development/source-layout.md#source) places it: the exposure in EV100, the white balance as the key light's kelvin, the tone curve, any glare around practical lamps and bright windows, and the adopted grade as ASC CDL values. Without `optics`, physical light renders white, and the film's `shading` and a staged `medium` are refused.
+
+Meter each scene's key subject with `meterAutoMovieIlluminance` from `@automovie/engine`, and set `ev100` from `autoMovieIncidentEv100` of its lux. Run `checkAutoMovieExposureContinuity` over the film's cuts, grouped by screenplay scene, and mark each exposure change the screenplay decided with `change: true`.
+
+Give the optics a `shutter`, 180 degrees unless the look decides otherwise, and `samples`, so motion blurs as on film. Where a shot decides focus, author `fNumber` on its frame action and fill the optics' `lens` from `resolveAutoMovieLensAt` at each second, so the focus and any focus pull reach the frame.
+
+### Indirect light
+
+When the scene has image lighting, return `occlusion` from the film's `shading` beside its `optics`, so creases, corners and the ground under each figure darken as the look's contact shadows require. Set its `radius` to the gaps that should darken, about 0.5 m for a room's corners and a figure's footing and less for close-ups of small props.
+
+Where the set's own light should bounce, as in an interior lit by practical lamps or by sun through a window, add `probes` to the same `shading`. Put the static set and its lights on the probes' `layer`, and keep moving actors off it so they receive the bounce without casting it. Space the probes about 0.5 to 1 m apart over the lit space, at most 2048 in all and out of walls and furniture where possible. Change `revision` whenever a light or set piece of that layer changes.
 
 ## What to look for
 

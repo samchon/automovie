@@ -74,7 +74,7 @@ Audit invariants generically over every section and join of the finished form: e
 
 Check each input on the finished form at its own definition, such as a measurement taken at its site the way it is defined, because a per-part test that recomputes the construction's formulas passes whatever the construction does.
 
-Drive every banded dimension to both ends as [band ends](../conditioning.md#band-ends) sets.
+A band is the range a seeded form draws one free dimension from. Let the form's parameters fix every banded dimension, and build the form at its middle and at each end of every band, one dimension at a time, because a part most often detaches or stops moving at a band's end. Fix every end where the form fails admission, a part loses its area or detaches, or nothing changes that the dimension should change. Record with its reason a dimension that moves no rest geometry by design, such as an articulation's limit or a mass property.
 
 ## Stylization
 

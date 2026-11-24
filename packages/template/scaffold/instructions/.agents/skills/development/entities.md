@@ -24,7 +24,15 @@ An affordance defines where and how an action meets an object. Pass it to the in
 
 If no archetype exists, build a coarse form with the required affordances, mass and articulations.
 
-### Flames, screens and lettering
+### Everything else
+
+Identify other subjects with the simplest [coarse form](../3d-modeling/coarse-forms.md).
+
+### What stays out
+
+Send unsupported appearance facts through [canon references](../image/SKILL.md) and [generation prompts](../video/SKILL.md), or a direct 3D detail option. Use images for reference or conditioning. Author motion in code.
+
+## Flames, screens and lettering
 
 <!-- @source `IAutoMovieFlameCue`, `IAutoMovieSurfaceGraphicTrack`, `IAutoMovieSurfaceGraphicLayer` and `IAutoMovieFontSource` in `@automovie/interface`, with `prepareAutoMovieFlames` and `prepareAutoMovieSurfaceGraphics` in `@automovie/render`. -->
 
@@ -35,14 +43,6 @@ Put pictures and text on a prop's `screen` or `face` surface with a surface-grap
 Letter only from a font source the shot lists: a font the production synthesizes in its own code, or a licensed font file it holds as a project asset, recorded under [media records](../production/media-records.md#fonts-and-stills). For raised letters, such as channel letters over a storefront, decode the font in production code and build the lettering mesh as a set piece.
 
 The film draws only what it mounts. After building a shot's scene, mount its flames with `prepareAutoMovieFlames` and its surface graphics with `prepareAutoMovieSurfaceGraphics`, call each one's `apply` at the shot-local second whenever the film places that shot, and dispose both with the film. For a feed layer, the film's `beforeDraw` also calls the graphics' `renderFeeds` with the film's `optics`. Without that call the screen stays empty, and without the optics it shows raw scene light.
-
-### Everything else
-
-Identify other subjects with the simplest [coarse form](../3d-modeling/coarse-forms.md).
-
-### What stays out
-
-Send unsupported appearance facts through [canon references](../image/SKILL.md) and [generation prompts](../video/SKILL.md), or a direct 3D detail option. Use images for reference or conditioning. Author motion in code.
 
 ## Detail
 
