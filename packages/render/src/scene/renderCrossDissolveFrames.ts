@@ -1,7 +1,6 @@
 import * as THREE from "three";
 
 import { AutoMovieDisplayCompositor } from "./AutoMovieDisplayCompositor.js";
-import { AutoMovieDissolveCompositorState as states } from "./AutoMovieDissolveCompositorState.js";
 
 /**
  * Combine two independently resolved display frames with complementary byte
@@ -17,14 +16,19 @@ import { AutoMovieDissolveCompositorState as states } from "./AutoMovieDissolveC
  * The numerical contribution is the documented opaque highp Float32 byte bound.
  * It does not certify an unobserved device precision profile or reinterpret
  * low-alpha canvas presentation as straight delivery.
+ *
+ * The caller owns the compositor: it is resized to the drawing buffer here and
+ * released by its owner, so no state outlives the call on this side.
  */
 export const renderCrossDissolveFrames: (
   renderer: THREE.WebGLRenderer,
+  compositor: AutoMovieDisplayCompositor,
   renderOutgoing: () => void,
   renderIncoming: () => void,
   alpha: number,
 ) => void = (
   renderer: THREE.WebGLRenderer,
+  compositor: AutoMovieDisplayCompositor,
   renderOutgoing: () => void,
   renderIncoming: () => void,
   alpha: number,
@@ -34,10 +38,6 @@ export const renderCrossDissolveFrames: (
   const size: THREE.Vector2 = renderer.getDrawingBufferSize(
     new THREE.Vector2(),
   );
-  let state: AutoMovieDisplayCompositor | undefined = states.get(renderer);
-  if (state === undefined) {
-    state = new AutoMovieDisplayCompositor(size.x, size.y);
-    states.set(renderer, state);
-  } else state.resize(size.x, size.y);
-  state.render(renderer, renderOutgoing, renderIncoming, alpha);
+  compositor.resize(size.x, size.y);
+  compositor.render(renderer, renderOutgoing, renderIncoming, alpha);
 };

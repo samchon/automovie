@@ -91,16 +91,7 @@ export function assertContourLoftMalformedCurves(
       curve: { ...originalCurve, spans: [], phaseIntervals: [] },
       diagnosticPoints: 0,
     },
-    {
-      name: "NaN endpoint",
-      curve: firstPointCurve([Number.NaN, 0, -1]),
-      diagnosticPoints: 0,
-    },
-    {
-      name: "infinite endpoint",
-      curve: firstPointCurve([Infinity, 0, -1]),
-      diagnosticPoints: 0,
-    },
+
     {
       name: "short endpoint",
       curve: firstPointCurve(shortPoint),

@@ -8,7 +8,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { prepareHumanPostureCorrection } from "../actions/prepareHumanPostureCorrection";
+import { prepareHumanPostureCorrection } from "../compose/prepareHumanPostureCorrection";
 import { HumanBalance } from "../everyday/HumanBalance";
 import { prepareHumanTrunkBalance } from "../everyday/prepareHumanTrunkBalance";
 import { HumanPhysics } from "../law/HumanPhysics";

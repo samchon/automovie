@@ -8,8 +8,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { HumanKnot } from "../posture/HumanKnot";
-import { prepareHumanKnotCourse } from "../posture/prepareHumanKnotCourse";
+import type { HumanKnot } from "./HumanKnot";
+import { prepareHumanKnotCourse } from "./prepareHumanKnotCourse";
 
 /**
  * Prepare a posture course through key postures solved in preparation and
@@ -20,8 +20,9 @@ import { prepareHumanKnotCourse } from "../posture/prepareHumanKnotCourse";
  * at their seconds after Flash and Hogan 1985, J. Neurosci. 5(7):1688, at rest
  * at the first and the last knot): the root, the heading unwrapped knot to knot
  * so it turns the short way, the tips, each joint's clinical angles (a joint a
- * knot leaves out at zero) and, for a limb every knot sets, its goal's point,
- * bend, contact and rotation, the rotation kept in the previous knot's
+ * knot leaves out at zero), each unwrapped the same way so a twist through ±180
+ * degrees takes the short way, and, for a limb every knot sets, its goal's
+ * point, bend, contact and rotation, the rotation kept in the previous knot's
  * hemisphere and normalized after the read. A limb only some knots set, a
  * goal's other fields and the posture's own rotation and digits are taken from
  * the last knot at or before the instant. A read evaluates the course once, so
@@ -67,6 +68,7 @@ export function prepareHumanPostureCourse(
 
   // Each knot's coordinates, in the layout `read` takes them back from.
   let yaw: number = first.yaw;
+  const angles: Partial<Record<AutoMovieHumanoidBone, number[]>> = {};
   const hemispheres: Partial<Record<AutoMovieHumanLimb, IAutoMovieQuaternion>> =
     {};
   const positions: number[][] = knots.map(
@@ -81,7 +83,19 @@ export function prepareHumanPostureCourse(
         p.pitch,
         p.roll,
       ];
-      for (const bone of bones) out.push(...(p.joints[bone] ?? ZERO));
+      for (const bone of bones) {
+        const raw: readonly number[] = p.joints[bone] ?? ZERO;
+        const before: number[] | undefined = angles[bone];
+        const kept: number[] =
+          before === undefined
+            ? [...raw]
+            : raw.map(
+                (v: number, i: number): number =>
+                  v - 360 * Math.round((v - before[i]!) / 360),
+              );
+        angles[bone] = kept;
+        out.push(...kept);
+      }
       for (const limb of limbs) {
         const goal: IAutoMovieHumanLimbGoal = p.limbs[limb]!;
         out.push(...vector(goal.point), ...vector(goal.bend));

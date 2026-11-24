@@ -6,7 +6,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { prepareHumanPostureCorrection } from "../actions/prepareHumanPostureCorrection";
+import { prepareHumanPostureCorrection } from "../compose/prepareHumanPostureCorrection";
 import { rangeSteppingFoot } from "../actions/rangeSteppingFoot";
 import type { stand } from "../actions/stand";
 import { walkLeg } from "../actions/walkLeg";

@@ -8,7 +8,7 @@ import type {
   IAutoMovieMotionHumanTouchStance,
 } from "@automovie/interface";
 
-import { prepareHumanPostureCorrection } from "../actions/prepareHumanPostureCorrection";
+import { prepareHumanPostureCorrection } from "../compose/prepareHumanPostureCorrection";
 import { AutoMovieMotionHumanRoot } from "../compose/AutoMovieMotionHumanRoot";
 import { HumanBalance } from "../everyday/HumanBalance";
 import { prepareHumanTrunkBalance } from "../everyday/prepareHumanTrunkBalance";

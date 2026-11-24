@@ -157,7 +157,7 @@ export * from "./touch/backToBack";
 export * from "./touch/sitOnLap";
 
 // The prepared readers and closed forms area 2's unit tests read directly.
-export * from "./actions/prepareHumanPostureCourse";
+export * from "./posture/prepareHumanPostureCourse";
 export * from "./actions/walkLocomoteLowering";
 export * from "./actions/walkHipTwist";
 export * from "./actions/walkDelayed";
@@ -243,3 +243,5 @@ export * from "./actions/walkLegBinding";
 export * from "./terrain/climbStairsRailLine";
 export * from "./terrain/climbStairsCarry";
 export * from "./dressing/presentHandPlace";
+export * from "./compose/prepareHumanPostureCorrection";
+export * from "./posture/prepareHumanSampledCourse";

@@ -17,7 +17,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { prepareHumanSampledCourse } from "../actions/prepareHumanSampledCourse";
+import { prepareHumanSampledCourse } from "../posture/prepareHumanSampledCourse";
 import { stand } from "../actions/stand";
 import { walk } from "../actions/walk";
 import { walkDelayed } from "../actions/walkDelayed";

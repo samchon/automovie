@@ -12,6 +12,7 @@ import { cofactorAutoMovieJacobian } from "../math/cofactorAutoMovieJacobian";
 import { resolveAutoMovieMeshPhysicalVertices } from "../math/resolveAutoMovieMeshPhysicalVertices";
 import { assertAutoMovieDeformedTriangles } from "./assertAutoMovieDeformedTriangles";
 import { triangleIndicesOf } from "./triangleIndicesOf";
+import { overflowsBinary64 } from "../math/overflowsBinary64";
 
 /**
  * Compile compact deformation fields into an operation that deforms a mesh.
@@ -124,6 +125,11 @@ export function createAutoMovieMeshDeformer(
           const movement: number =
             field.displacement[row]! + field.stretch[row]! * delta[row]!;
           target[row] += weight * movement;
+          // Finite displacements and stretches can overflow their sum.
+          if (overflowsBinary64(movement) || overflowsBinary64(target[row]!))
+            throw new Error(
+              "Mesh deformation must remain finite and preserve local surface orientation.",
+            );
           for (let column: number = 0; column < 3; column++)
             // Form movement*gradient(weight) as a dimensionless ratio. A
             // physical radius squared can underflow/overflow even when this
@@ -152,6 +158,10 @@ export function createAutoMovieMeshDeformer(
       }
       const { matrix }: IAutoMovieJacobianCofactor =
         cofactorAutoMovieJacobian(jacobian);
+      if (target.some(overflowsBinary64))
+        throw new Error(
+          "Mesh deformation must remain finite and preserve local surface orientation.",
+        );
       positions.push(target[0]!, target[1]!, target[2]!);
       cofactors.push(matrix);
       if (normals !== null) {

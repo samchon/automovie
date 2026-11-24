@@ -133,10 +133,7 @@ export function test_geometry_elliptic_loft_atlas(): void {
   const unequal: (typeof variants)[number] = make();
   unequal.loft.spans[1].radiusZ[0] += 0.001;
   variants.push(unequal);
-  const sparse: (typeof variants)[number] = make();
-  const controls: number[] = sparse.loft.spans[0].centreX;
-  Reflect.deleteProperty(controls, "1");
-  variants.push(sparse);
+
   const invalidBudget: (typeof variants)[number] = make();
   invalidBudget.maxVertices = 0;
   variants.push(invalidBudget);

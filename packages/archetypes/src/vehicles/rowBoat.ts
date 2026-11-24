@@ -26,18 +26,6 @@ type Ride = AutoMovieArchetypeRide.IRide<
   createBoat.Dimension
 >;
 
-/** The original full samplers and whether the course ends in a fixed pose. */
-interface IBindingSource {
-  boat: AutoMovieArchetype<createBoat.Affordance, createBoat.Dimension>;
-  placement: (seconds: number) => IAutoMovieTransform;
-  frame: Ride["frame"];
-  duration: number;
-  stillEnd: boolean;
-  current: () => boolean;
-}
-
-/** Only this producer can issue the curve of a ride's own clock. */
-const SOURCES: WeakMap<Ride, IBindingSource> = new WeakMap();
 
 /**
  * A rowboat rowed along a course: its root on the path, its oars swept through
@@ -74,7 +62,7 @@ export function rowBoat(
   boat: AutoMovieArchetype<createBoat.Affordance, createBoat.Dimension>,
   course: AutoMovieArchetypeCourse.ICourse | AutoMovieArchetypeCourse.IPlan,
   options: { sea?: AutoMovieArchetypeSea.IOptions } = {},
-): AutoMovieArchetypeRide.IRide<createBoat.Affordance, createBoat.Dimension> {
+): rowBoat.IRowRide {
   if (
     boat.affordances.every(
       (a: { id: string }): boolean => a.id !== "leftOarlock",
@@ -177,8 +165,7 @@ export function rowBoat(
     }
     return {
       get archetype(): typeof boat {
-        model ??= boat.articulate(travels);
-        return model;
+        return model ?? boat.articulate(travels);
       },
       set archetype(value: typeof boat) {
         model = value;
@@ -187,10 +174,7 @@ export function rowBoat(
       course: sea === undefined ? state : { ...state, placement },
     };
   }
-  const ride: AutoMovieArchetypeRide.IRide<
-    createBoat.Affordance,
-    createBoat.Dimension
-  > = {
+  const ride: Ride = {
     plan,
     duration: plan.duration,
     instants: [...plan.instants, ...instants].sort(
@@ -201,24 +185,54 @@ export function rowBoat(
     frame: (id: createBoat.Affordance, seconds: number): IAutoMovieTransform =>
       sample(seconds, id),
   };
-  if (course.kind !== "plan" && project !== undefined) {
-    const original: AutoMovieArchetypeCourse.IPlan["at"] = plan.at;
-    SOURCES.set(ride, {
-      boat,
-      placement: (seconds: number): IAutoMovieTransform =>
-        floated(plan.at(seconds).placement, seconds),
-      frame: ride.frame,
-      duration: ride.duration,
-      stillEnd: sea === undefined,
-      current: (): boolean =>
-        Object.getOwnPropertyDescriptor(plan, "at")?.value === original,
-    });
-  }
-  return ride;
+  return {
+    ...ride,
+    rowing:
+      course.kind !== "plan" && project !== undefined
+        ? {
+            boat,
+            placement: (seconds: number): IAutoMovieTransform =>
+              floated(plan.at(seconds).placement, seconds),
+            frame: ride.frame,
+            duration: ride.duration,
+            stillEnd: sea === undefined,
+          }
+        : undefined,
+  };
 }
 
 /** Companion constants and rules of {@link rowBoat}. */
 export namespace rowBoat {
+  /** A rowboat's ride with what `bind` reads of a native rowing course. */
+  export interface IRowRide extends Ride {
+    /**
+     * The full samplers of a native course in course seconds, or undefined
+     * for a ride along an external plan, which `bind` refuses.
+     */
+    readonly rowing: IRowing | undefined;
+  }
+
+  /** The full samplers of a native rowing course and its end hold. */
+  export interface IRowing {
+    /** The boat at rest. */
+    readonly boat: AutoMovieArchetype<
+      createBoat.Affordance,
+      createBoat.Dimension
+    >;
+
+    /** The floated root placement at a course second. */
+    readonly placement: (seconds: number) => IAutoMovieTransform;
+
+    /** A socket's world frame at a course second. */
+    readonly frame: Ride["frame"];
+
+    /** The course's duration, seconds. */
+    readonly duration: number;
+
+    /** Whether the boat holds its final pose after the course: still water. */
+    readonly stillEnd: boolean;
+  }
+
   /**
    * Bind a native rowing course to the film second it starts. The boat holds
    * its initial pose until then. On still water it also holds its final
@@ -231,8 +245,11 @@ export namespace rowBoat {
    *   seconds.
    * @throws {RangeError} For an unbound, external course or a nonfinite start.
    */
-  export function bind(ride: Ride, start: number): RigidCarrierSample.IBinding {
-    const source: IBindingSource | undefined = SOURCES.get(ride);
+  export function bind(
+    ride: IRowRide,
+    start: number,
+  ): RigidCarrierSample.IBinding {
+    const source: IRowing | undefined = ride.rowing;
     if (source === undefined)
       throw new RangeError(
         "A bound rowboat needs a native course and a finite film second.",
@@ -242,8 +259,7 @@ export namespace rowBoat {
       {
         from: -Infinity,
         to: start,
-        contains: (seconds: number): boolean =>
-          source.current() && clock(seconds) === 0,
+        contains: (seconds: number): boolean => clock(seconds) === 0,
       },
     ];
     if (source.stillEnd)
@@ -251,7 +267,7 @@ export namespace rowBoat {
         from: start + source.duration,
         to: Infinity,
         contains: (seconds: number): boolean =>
-          source.current() && clock(seconds) > source.duration,
+          clock(seconds) > source.duration,
       });
     return RigidCarrierSample.bind(
       source.boat,

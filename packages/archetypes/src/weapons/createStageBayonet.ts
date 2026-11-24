@@ -52,12 +52,11 @@ export function createStageBayonet(
 > {
   const { gun, id = "stageBayonet" }: createStageBayonet.IParams = params;
   if (
-    !(gun instanceof AutoMovieArchetype) ||
     gun.archetype !== "longGun" ||
     gun.name !== createLongGun.NAMES.musket ||
     id === gun.id
   )
-    throw refuse(gun?.id);
+    throw refuse(gun.id);
   const barrel: IAutoMovieModelPart | undefined = gun.parts.find(
     (part: IAutoMovieModelPart): boolean => part.id === "barrel",
   );

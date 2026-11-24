@@ -1,3 +1,5 @@
+import { overflowsBinary64 } from "./overflowsBinary64";
+
 /**
  * Finite row-major 3-by-3 algebra for original-design numerical consumers.
  * These arrays use row-major order, unlike the scene Matrix4 column convention.
@@ -41,9 +43,13 @@ export namespace AutoMovieMatrix3 {
     const result: number[] = new Array<number>(9).fill(0);
     for (let row: number = 0; row < 3; row++) {
       for (let column: number = 0; column < 3; column++) {
-        for (let at: number = 0; at < 3; at++)
-          result[3 * row + column] +=
-            left[3 * row + at]! * right[3 * at + column]!;
+        for (let at: number = 0; at < 3; at++) {
+          const term: number = left[3 * row + at]! * right[3 * at + column]!;
+          result[3 * row + column] += term;
+          // Products and sums of finite entries can overflow binary64.
+          if (overflowsBinary64(term) || overflowsBinary64(result[3 * row + column]!))
+            throw new Error("matrix3: product is not representable");
+        }
       }
     }
     return result;
@@ -83,17 +89,14 @@ export namespace AutoMovieMatrix3 {
       throw new Error(
         "matrix3: complete finite matrix and three-coordinate vector required",
       );
-    const result: [number, number, number] = [
-      matrix[0]! * vector[0]! +
-        matrix[1]! * vector[1]! +
-        matrix[2]! * vector[2]!,
-      matrix[3]! * vector[0]! +
-        matrix[4]! * vector[1]! +
-        matrix[5]! * vector[2]!,
-      matrix[6]! * vector[0]! +
-        matrix[7]! * vector[1]! +
-        matrix[8]! * vector[2]!,
-    ];
+    const result: [number, number, number] = [0, 0, 0];
+    for (let row: number = 0; row < 3; row++)
+      for (let at: number = 0; at < 3; at++) {
+        const term: number = matrix[3 * row + at]! * vector[at]!;
+        result[row] += term;
+        if (overflowsBinary64(term) || overflowsBinary64(result[row]))
+          throw new Error("matrix3: vector product is not representable");
+      }
     return result;
   }
 }

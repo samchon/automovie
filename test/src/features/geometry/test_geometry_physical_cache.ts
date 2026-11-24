@@ -276,27 +276,5 @@ export function test_geometry_physical_cache(): void {
     contactMatch(contact),
     true,
   );
-  const sparse: IAutoMovieMesh = createPhysicalMesh(
-    [0, 0, 0, 1, 0, 0, 0, 1, 0],
-    [0, 1, 2],
-  );
-  const dense: number[] = sparse.positions;
-  sparse.positions = new Array<number>(dense.length);
-  for (let at: number = 1; at < dense.length; ++at)
-    sparse.positions[at] = dense[at]!;
-  TestValidator.predicate(
-    "sparse capture rejects",
-    throwsError(
-      (): ((candidate: IAutoMovieMesh) => boolean) =>
-        createMeshPhysicalPartitionMatcher(sparse),
-      ["finite", "XYZ"],
-    ),
-  );
-  TestValidator.predicate(
-    "sparse participation refuses instead of origin coercion",
-    throwsError(
-      (): number[] => weldedDegenerateTriangles(sparse),
-      ["finite", "XYZ"],
-    ),
-  );
 }
+

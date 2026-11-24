@@ -4,8 +4,7 @@ import type {
 } from "@automovie/interface";
 
 import type { HumanPhysics } from "../law/HumanPhysics";
-import type { HumanKnot } from "../posture/HumanKnot";
-import { prepareHumanKnotCourse } from "../posture/prepareHumanKnotCourse";
+import { prepareHumanSampledCourse } from "../posture/prepareHumanSampledCourse";
 
 /**
  * Prepare a balance correction over a window as a course of the changes it
@@ -16,7 +15,7 @@ import { prepareHumanKnotCourse } from "../posture/prepareHumanKnotCourse";
  * each given event inside it and the middle of each interval between two of
  * them, on the uncorrected posture there. What it changes, the root, the
  * heading's three angles and each joint it sets, is a coordinate of a knot
- * course (`prepareHumanKnotCourse`, a minimum-jerk path after Flash and Hogan
+ * course (`prepareHumanSampledCourse`, a minimum-jerk path after Flash and Hogan
  * 1985, J. Neurosci. 5(7):1688). A read adds the course's change at its second
  * to the posture it is given, with no fit, search or resolve; outside the
  * window the posture is left as it is, the correction's weight being none
@@ -63,12 +62,12 @@ export function prepareHumanPostureCorrection(
       )
         bones.push(bone);
     }
-  const course: prepareHumanKnotCourse.ICourse = prepareHumanKnotCourse(
+  const course: (seconds: number) => number[] = prepareHumanSampledCourse.through(
     pairs.map(
-      ([before, after]: [
-        IAutoMovieMotionHumanPosture,
-        IAutoMovieMotionHumanPosture,
-      ]): HumanKnot.IKnot => {
+      (
+        [before, after]: [IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanPosture],
+        i: number,
+      ): prepareHumanSampledCourse.IKnot => {
         const position: number[] = [
           after.root.x - before.root.x,
           after.root.y - before.root.y,
@@ -83,10 +82,9 @@ export function prepareHumanPostureCorrection(
           const b: readonly [number, number, number] = after.joints[bone] ?? a;
           position.push(b[0] - a[0], b[1] - a[1], b[2] - a[2]);
         }
-        return { position, dwell: 0 };
+        return { seconds: times[i]!, position };
       },
     ),
-    { kind: "fixed", times },
   );
   return (
     posture: IAutoMovieMotionHumanPosture,
@@ -94,7 +92,7 @@ export function prepareHumanPostureCorrection(
   ): IAutoMovieMotionHumanPosture => {
     if (seconds < times[0]! || seconds > times[times.length - 1]!)
       return posture;
-    const d: number[] = course.position(seconds);
+    const d: number[] = course(seconds);
     const joints: IAutoMovieMotionHumanPosture["joints"] = {
       ...posture.joints,
     };

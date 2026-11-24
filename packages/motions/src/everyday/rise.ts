@@ -16,7 +16,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { prepareHumanPostureCorrection } from "../actions/prepareHumanPostureCorrection";
+import { prepareHumanPostureCorrection } from "../compose/prepareHumanPostureCorrection";
 import { stand } from "../actions/stand";
 import { standUpright } from "../actions/standUpright";
 import { HumanSupportFrame } from "../carrier/HumanSupportFrame";

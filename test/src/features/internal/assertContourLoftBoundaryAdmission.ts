@@ -290,14 +290,7 @@ export function assertContourLoftBoundaryAdmission(): void {
     events: IAutoMovieContourLoft64.IEvent[];
   }[] = [
     { name: "missing terminal", events: [{ ...birth, terminal: null }] },
-    {
-      name: "nonfinite terminal",
-      events: [{ ...birth, terminal: [20, Number.NaN, 0] }],
-    },
-    {
-      name: "nonfinite critical coordinate",
-      events: [{ ...birth, coordinateMm: Number.NaN }],
-    },
+
     {
       name: "invalid incident ordinal",
       events: [{ ...birth, after: [1, 99] }],

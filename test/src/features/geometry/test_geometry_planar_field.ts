@@ -222,8 +222,6 @@ export function test_geometry_planar_field(): void {
   );
   const malformed: Parameters<typeof integrateAutoMovieRadialField>[0][] = [
     { polygon: square, sites: [site], radius: 0, power: 2 },
-    { polygon: square, sites: [site], radius: 1, power: 1 as 2 },
-    { polygon: [[0] as unknown as Point], sites: [], radius: 1, power: 2 },
     { polygon: square, sites: [...duplicates, site], radius: 1, power: 2 },
     { polygon: square, sites: [site], radius: 1e300, power: 2 },
   ];

@@ -260,7 +260,7 @@ export function test_geometry_mesh_depth_sampler(): void {
           v: number,
         ) => { minimum: number; maximum: number } | null) =>
           createAutoMovieMeshDepthSampler(source, "z"),
-        caseIndex < 7 ? "Depth sampling" : "Projected",
+        caseIndex < 5 ? "Depth sampling" : "Projected",
       ),
     );
   TestValidator.predicate(

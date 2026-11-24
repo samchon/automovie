@@ -43,12 +43,11 @@ export function createStageFittedCarrier(
     id = "stageFittedCarrier",
   }: createStageFittedCarrier.IParams = params;
   if (
-    !(display instanceof AutoMovieArchetype) ||
     display.archetype !== "stageBladeProp" ||
     display.name !== "padded longsword stage prop" ||
     id === display.id
   )
-    throw invalidEnvelope(display?.id);
+    throw invalidEnvelope(display.id);
   const { tip, guardTop, radius }: IEnvelope = envelope(display);
   const v: typeof Vector3.create = Vector3.create;
   const inner: number = 2 * (radius + GAP);

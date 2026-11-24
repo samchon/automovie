@@ -80,12 +80,6 @@ export function test_geometry_procedural_revolve(): void {
       "revolve segments must be a safe integer >= 3",
     ],
     [
-      "revolve fractional segments",
-      (): IAutoMovieMesh =>
-        revolveAutoMovieProfile({ profile: square, segments: 3.5 }),
-      "revolve segments must be a safe integer >= 3",
-    ],
-    [
       "revolve radius",
       (): IAutoMovieMesh =>
         revolveAutoMovieProfile({

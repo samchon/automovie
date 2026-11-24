@@ -1,7 +1,6 @@
 import * as THREE from "three";
 
 import { AutoMovieDisplayCompositor } from "./AutoMovieDisplayCompositor.js";
-import { AutoMovieFadeCompositorState as states } from "./AutoMovieFadeCompositorState.js";
 
 /**
  * Fade one directly resolved display frame over opaque black, or with
@@ -13,14 +12,19 @@ import { AutoMovieFadeCompositorState as states } from "./AutoMovieFadeComposito
  * scalar thresholds permit one opaque byte of rounding versus Float64 delivery;
  * weight one retains identity. Transparent straight delivery uses an
  * unassociated target, not low-alpha premultiplied canvas extraction.
+ *
+ * The caller owns the compositor: it is resized to the drawing buffer here and
+ * released by its owner.
  */
 export const renderFadeToBlackFrame: (
   renderer: THREE.WebGLRenderer,
+  compositor: AutoMovieDisplayCompositor,
   renderFrame: () => void,
   weight: number,
   transparent?: boolean,
 ) => void = (
   renderer: THREE.WebGLRenderer,
+  compositor: AutoMovieDisplayCompositor,
   renderFrame: () => void,
   weight: number,
   transparent: boolean = false,
@@ -30,10 +34,6 @@ export const renderFadeToBlackFrame: (
   const size: THREE.Vector2 = renderer.getDrawingBufferSize(
     new THREE.Vector2(),
   );
-  let state: AutoMovieDisplayCompositor | undefined = states.get(renderer);
-  if (state === undefined) {
-    state = new AutoMovieDisplayCompositor(size.x, size.y);
-    states.set(renderer, state);
-  } else state.resize(size.x, size.y);
-  state.render(renderer, renderFrame, null, 1 - weight, transparent);
+  compositor.resize(size.x, size.y);
+  compositor.render(renderer, renderFrame, null, 1 - weight, transparent);
 };

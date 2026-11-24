@@ -104,7 +104,6 @@ export namespace AutoMovieArchetypeQuadrupedLocomotion {
   export function camel(
     params: ICamel,
   ): AutoMovieArchetypeQuadrupedGait.ITable {
-    object(params, "camel");
     return admit({
       ...CamelGait.TABLE,
       order: ["walk", "pace"],
@@ -126,7 +125,6 @@ export namespace AutoMovieArchetypeQuadrupedLocomotion {
    *   clock/table.
    */
   export function deer(params: IDeer): AutoMovieArchetypeQuadrupedGait.ITable {
-    object(params, "deer");
     if (params.trot === undefined && params.gallop === undefined)
       refuse("deer", params, "supply trot and/or rotary-gallop clocks");
     const order: AutoMovieArchetypeQuadrupedGait.Gait[] = ["walk"];
@@ -162,9 +160,6 @@ export namespace AutoMovieArchetypeQuadrupedLocomotion {
   export function admit(
     table: AutoMovieArchetypeQuadrupedGait.ITable,
   ): AutoMovieArchetypeQuadrupedGait.ITable {
-    object(table, "table");
-    object(table.gaits, "table.gaits");
-    object(table.follow, "table.follow");
     if (table.order.length === 0)
       refuse("table.order", table.order, "list at least one supported gait");
     positive(table.reference, "table.reference");
@@ -203,11 +198,6 @@ export namespace AutoMovieArchetypeQuadrupedLocomotion {
       const axis: string = `table.gaits.${kind}`;
       if (source === undefined)
         refuse(axis, source, "supply every ordered gait");
-      object(source, axis);
-      object(source.phases, `${axis}.phases`);
-      object(source.nod, `${axis}.nod`);
-      object(source.fold, `${axis}.fold`);
-      object(source.lift, `${axis}.lift`);
       const rows: AutoMovieArchetypeQuadrupedGait.IRow[] = admittedRows(
         source.rows,
         `${axis}.rows`,
@@ -307,7 +297,6 @@ export namespace AutoMovieArchetypeQuadrupedLocomotion {
       clocks,
       (clock: IClock, index: number): AutoMovieArchetypeQuadrupedGait.IRow => {
         const axis: string = `${gait}.rows[${index}]`;
-        object(clock, axis);
         positive(clock.hindStance, `${axis}.hindStance`);
         return {
           speed: clock.speed,
@@ -344,7 +333,6 @@ export namespace AutoMovieArchetypeQuadrupedLocomotion {
         index: number,
       ): AutoMovieArchetypeQuadrupedGait.IRow => {
         const at: string = `${axis}[${index}]`;
-        object(row, at);
         positive(row.speed, `${at}.speed`);
         positive(row.stride, `${at}.stride`);
         positive(1 / row.stride, `${at}.frequency`);
@@ -411,7 +399,6 @@ export namespace AutoMovieArchetypeQuadrupedLocomotion {
       );
     if (rule === undefined)
       refuse(`${axis}.change`, rule, "declare the faster gait's change rule");
-    object(rule, `${axis}.change`);
     if (rule.kind === "speed") {
       positive(rule.speed, `${axis}.change.speed`);
       return { kind: "speed", speed: rule.speed };
@@ -439,12 +426,6 @@ export namespace AutoMovieArchetypeQuadrupedLocomotion {
         "supply intersecting speed ranges for an overlap transition",
       );
     return { kind: "overlap" };
-  }
-
-  /** Require a record before reading a caller's nested table or clock. */
-  function object(value: unknown, axis: string): void {
-    if (value === null || typeof value !== "object")
-      refuse(axis, value, "supply the declared record");
   }
 
   /** A finite positive SI time, reciprocal frequency, speed or reference length. */

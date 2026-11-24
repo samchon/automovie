@@ -61,7 +61,7 @@ export namespace QuadrupedTimedRoute {
       };
     }
     // A cued timed path is its plan's route with its legs named at the cues.
-    if ("cues" in route)
+    if (route.kind === "cued")
       return QuadrupedTimedCues.split(
         of(species, route.plan, withers),
         route.cues,

@@ -18,7 +18,6 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { prepareHumanPostureCourse } from "../actions/prepareHumanPostureCourse";
 import { stand } from "../actions/stand";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
@@ -29,6 +28,7 @@ import { HumanFoot } from "../posture/HumanFoot";
 import { humanPostureHeading } from "../posture/humanPostureHeading";
 import { lowerHumanPosture } from "../posture/lowerHumanPosture";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
+import { prepareHumanPostureCourse } from "../posture/prepareHumanPostureCourse";
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { knockdown } from "../reaction/knockdown";
 import { GymnasticsFlight } from "../sport/GymnasticsFlight";

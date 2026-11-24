@@ -92,7 +92,6 @@ export function assembleCostumeArmour(
       slots,
     );
     if (
-      !(model instanceof AutoMovieArchetype) ||
       model.archetype !== "armour" ||
       !PIECES[bone].some(
         (kind: createArmour.Kind): boolean => kind === model.name,

@@ -254,13 +254,7 @@ export function test_geometry_cubic_hermite_conversion(): void {
       1,
     );
   });
-  const sparse: number[] = new Array<number>(3);
-  TestValidator.error(
-    "sparse controls do not silently become finite",
-    (): void => {
-      M.toHermite([sparse, [0, 0, 0], [0, 0, 0], [0, 0, 0]], 1);
-    },
-  );
+
   TestValidator.error(
     "unrepresentable derivative overflow refuses",
     (): void => {

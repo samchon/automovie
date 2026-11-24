@@ -7,7 +7,7 @@ import type {
 
 import { prepareBearingTrunkBalance } from "../everyday/prepareBearingTrunkBalance";
 import { HumanPhysics } from "../law/HumanPhysics";
-import { prepareHumanPostureCorrection } from "./prepareHumanPostureCorrection";
+import { prepareHumanPostureCorrection } from "../compose/prepareHumanPostureCorrection";
 import { prepareSupportCorrection } from "./prepareSupportCorrection";
 
 /**

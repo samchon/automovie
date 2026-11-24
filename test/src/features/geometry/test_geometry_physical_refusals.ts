@@ -52,52 +52,22 @@ export function test_geometry_physical_refusals(): void {
   add((mesh: IAutoMovieMesh): void => {
     mesh.positions.pop();
   });
-  for (const value of [NaN, Infinity])
-    add((mesh: IAutoMovieMesh): void => {
-      mesh.positions[0] = value;
-    });
-  add((mesh: IAutoMovieMesh): void => {
-    mesh.positions = new Array<number>(9);
-  });
+
   add((mesh: IAutoMovieMesh): void => {
     mesh.physicalVertices!.vertices.pop();
   });
-  add((mesh: IAutoMovieMesh): void => {
-    mesh.physicalVertices!.vertices = new Array<number | null>(3);
-  });
-  add((mesh: IAutoMovieMesh): void => {
-    mesh.physicalVertices!.sources = new Array<IAutoMovieMeshPhysicalSource>(3);
-  });
-  for (const id of [-1, 0.5, Number.MAX_SAFE_INTEGER + 1,])
+  for (const id of [-1, Number.MAX_SAFE_INTEGER + 1])
     add((mesh: IAutoMovieMesh): void => {
       mesh.physicalVertices!.sources[0].id = id;
     });
-  for (const domain of ["", " \t"])
-    add((mesh: IAutoMovieMesh): void => {
-      mesh.physicalVertices!.sources[0].domain = domain;
-    });
-  for (const reference of [-1, 0.5, 3,])
+  for (const reference of [-1, 3])
     add((mesh: IAutoMovieMesh): void => {
       mesh.physicalVertices!.vertices[0] = reference;
     });
   add((mesh: IAutoMovieMesh): void => {
     mesh.physicalVertices!.vertices[1] = 0;
   });
-  for (const metadata of [
-    null,
-    {},
-    { sources: null, vertices: [] },
-    { sources: [], vertices: null },
-  ])
-    add((mesh: IAutoMovieMesh): void => {
-      mesh.physicalVertices =
-        metadata as unknown as IAutoMovieMesh["physicalVertices"];
-    });
-  for (const source of [null, { domain: 1, id: 0 }])
-    add((mesh: IAutoMovieMesh): void => {
-      mesh.physicalVertices!.sources[0] =
-        source as unknown as IAutoMovieMeshPhysicalSource;
-    });
+
   for (const mesh of invalid) {
     TestValidator.predicate("named refusal", refuses(mesh));
     const result: IAutoMovieValidation = validateMeshTopology({

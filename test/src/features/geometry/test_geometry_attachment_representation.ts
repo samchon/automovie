@@ -147,7 +147,7 @@ export function test_geometry_attachment_representation(): void {
       throwsError(
         (): IAutoMovieTriangleAttachmentContactBound =>
           boundAutoMovieTriangleAttachmentContact(badFan, badSupport),
-        "complete finite",
+        "complete fan",
       ),
     );
   TestValidator.predicate(
