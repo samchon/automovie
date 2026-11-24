@@ -9,10 +9,13 @@ import { Vector3 } from "../math/Vector3";
 import type { AutoMovieXpbdBody } from "./AutoMovieXpbdBody";
 import type { AutoMovieXpbdCollider } from "./AutoMovieXpbdCollider";
 import { AutoMovieXpbdMath } from "./AutoMovieXpbdMath";
+import type { IAutoMovieXpbdContactRow } from "./IAutoMovieXpbdContactRow";
+import type { IAutoMovieXpbdResponder } from "./IAutoMovieXpbdResponder";
+import { correctXpbdContactRow } from "./correctXpbdContactRow";
+import { pairXpbdContactRow } from "./pairXpbdContactRow";
 import { physicalShapeContactManifold } from "./physicalShapeContactManifold";
 import { physicalShapePairContact } from "./physicalShapePairContact";
 import { physicalShapePenetration } from "./physicalShapePenetration";
-import type { solveXpbdArticulation } from "./solveXpbdArticulation";
 
 /**
  * The contact phase of one extended position-based dynamics step (Mueller,
@@ -25,13 +28,13 @@ import type { solveXpbdArticulation } from "./solveXpbdArticulation";
  * frequency on the pair's effective mass (Macklin, Mueller and Chentanez 2016:
  * compliance `alpha = 1 / k`), and removes its tangential slip up to the
  * friction cone `lambda_t <= mu lambda_n`, each point taking the share its own
- * normal multiplier allows. `velocities`, one Gauss-Seidel sweep over the
- * points that the world repeats as often as the position passes, applies
- * dynamic friction, an impulse against the slip of at most what the cone leaves
- * over all sweeps, `(mu lambda_n - lambda_t) / h`, and at most what stops the
- * slip, then sets the normal velocity to the restitution of the pre-step
- * approach when that approach is faster than gravity gives in two substeps, and
- * to rest otherwise.
+ * normal multiplier allows. `solveXpbdContactVelocities`, one Gauss-Seidel
+ * sweep over the points that the world repeats as often as the position passes,
+ * applies dynamic friction, an impulse against the slip of at most what the
+ * cone leaves over all sweeps, `(mu lambda_n - lambda_t) / h`, and at most what
+ * stops the slip, then sets the normal velocity to the restitution of the
+ * pre-step approach when that approach is faster than gravity gives in two
+ * substeps, and to rest otherwise.
  */
 export namespace solveXpbdContacts {
   /**
@@ -214,16 +217,16 @@ export namespace solveXpbdContacts {
    * @param h The substep, seconds.
    * @param allowed The depth left uncorrected, metres.
    * @param frequency The contact spring's natural frequency, hertz.
-   * @param trees The pass's articulated response
-   *   (`solveXpbdArticulation.responder`): a jointed body's correction moves
-   *   its whole tree along its joints' free axes; each body alone when absent.
+   * @param trees The pass's articulated response (`respondXpbdArticulation`): a
+   *   jointed body's correction moves its whole tree along its joints' free
+   *   axes; each body alone when absent.
    */
   export function positions(
     contacts: readonly IContact[],
     h: number,
     allowed: number,
     frequency: number,
-    trees?: solveXpbdArticulation.IResponder,
+    trees?: IAutoMovieXpbdResponder,
   ): void {
     const omega: number = 2 * Math.PI * frequency;
     for (const patch of manifolds(contacts)) {
@@ -242,7 +245,7 @@ export namespace solveXpbdContacts {
         contact.separation = -depth;
         if (!(depth > allowed)) continue;
         const away: IAutoMovieVector3 = Vector3.scale(contact.normal, -1);
-        contact.normalLambda += correct(
+        contact.normalLambda += correctXpbdContactRow(
           trees,
           first,
           second,
@@ -299,7 +302,14 @@ export namespace solveXpbdContacts {
           z: -tangent.z / length,
         };
         for (;;) {
-          const along: IPair = pair(trees, first, second, back, armA, armB);
+          const along: IAutoMovieXpbdContactRow = pairXpbdContactRow(
+            trees,
+            first,
+            second,
+            back,
+            armA,
+            armB,
+          );
           if (!(along.weight > 0)) break;
           const wanted: IAutoMovieVector3 = Vector3.add(
             head.tangentLambda,
@@ -333,237 +343,6 @@ export namespace solveXpbdContacts {
     }
   }
   /**
-   * A pair's row along a direction: its generalised inverse mass and the move
-   * of both bodies by a multiplier, through their trees where they have one
-   * (`solveXpbdArticulation.responder`, both impulses acting together so a
-   * contact within one tree reads its own coupling) and as rigid bodies
-   * otherwise.
-   */
-  function pair(
-    trees: solveXpbdArticulation.IResponder | undefined,
-    first: AutoMovieXpbdBody,
-    second: AutoMovieXpbdBody,
-    direction: IAutoMovieVector3,
-    armA: IAutoMovieVector3,
-    armB: IAutoMovieVector3,
-  ): IPair {
-    const jointed: readonly boolean[] = [
-      trees?.has(first) === true,
-      trees?.has(second) === true,
-    ];
-    const impulses: solveXpbdArticulation.IPointImpulse[] = [];
-    if (jointed[0])
-      impulses.push({
-        body: first,
-        point: Vector3.add(first.center, armA),
-        direction,
-      });
-    if (jointed[1])
-      impulses.push({
-        body: second,
-        point: Vector3.add(second.center, armB),
-        direction: Vector3.scale(direction, -1),
-      });
-    const response: solveXpbdArticulation.IPointResponse | null =
-      impulses.length === 0 ? null : trees!.respond(impulses);
-    const tree: boolean = response !== null;
-    const rigidFirst: boolean = !(tree && jointed[0]);
-    const rigidSecond: boolean = !(tree && jointed[1]);
-    return {
-      weight:
-        (response?.weight ?? 0) +
-        (rigidFirst ? AutoMovieXpbdMath.weight(first, direction, armA) : 0) +
-        (rigidSecond ? AutoMovieXpbdMath.weight(second, direction, armB) : 0),
-      limit: (scale: number): boolean => response?.limit(scale) === true,
-      apply: (scale: number): void => {
-        response?.apply(scale);
-        const p: IAutoMovieVector3 = Vector3.scale(direction, scale);
-        if (rigidFirst) AutoMovieXpbdMath.apply(first, null, p, armA, armA);
-        if (rigidSecond)
-          AutoMovieXpbdMath.apply(
-            second,
-            null,
-            Vector3.scale(p, -1),
-            armB,
-            armB,
-          );
-      },
-    };
-  }
-
-  /** A pair's row along one direction. */
-  interface IPair {
-    /** The row's generalised inverse mass. */
-    weight: number;
-
-    /**
-     * Hold the joint axes the move by a multiplier would carry onto or past a
-     * bound (`solveXpbdArticulation.IPointResponse.limit`); the row is then
-     * read again.
-     *
-     * @param scale The multiplier, newton seconds squared.
-     * @returns Whether any axis was newly held.
-     */
-    limit(scale: number): boolean;
-
-    /**
-     * Move the pair by a multiplier along the row.
-     *
-     * @param scale The multiplier, newton seconds squared.
-     */
-    apply(scale: number): void;
-  }
-
-  /**
-   * A contact's positional correction (Mueller et al. 2020, section 3.3.1)
-   * through the pair's row (`pair`): `dlambda = (c - alphaTilde lambda) / (w +
-   * alphaTilde)`, the spring's compliance `w / omega^2` so the contact keeps
-   * its natural frequency against the inertia it really moves. A correction
-   * that would carry a joint axis onto or past a bound holds that axis and is
-   * solved again (`IPair.limit`), at most once more per newly held axis.
-   */
-  function correct(
-    trees: solveXpbdArticulation.IResponder | undefined,
-    first: AutoMovieXpbdBody,
-    second: AutoMovieXpbdBody,
-    away: IAutoMovieVector3,
-    c: number,
-    armA: IAutoMovieVector3,
-    armB: IAutoMovieVector3,
-    omega: number,
-    h: number,
-    lambda: number,
-  ): number {
-    for (;;) {
-      const row: IPair = pair(trees, first, second, away, armA, armB);
-      const tilde: number = row.weight / (omega * omega) / (h * h);
-      const total: number = row.weight + tilde;
-      if (!(total > 0)) return 0;
-      const delta: number = (c - tilde * lambda) / total;
-      if (row.limit(delta)) continue;
-      row.apply(delta);
-      return delta;
-    }
-  }
-
-  /**
-   * The velocity pass over the contacts that pressed this step.
-   *
-   * @param contacts The step's contacts.
-   * @param h The substep, seconds.
-   * @param gravity The world gravity's magnitude, metres per second squared.
-   */
-  export function velocities(
-    contacts: readonly IContact[],
-    h: number,
-    gravity: number,
-  ): void {
-    for (const patch of manifolds(contacts)) {
-      const pressedPoints: IContact[] = patch.filter(
-        (contact: IContact): boolean => contact.normalLambda > 0,
-      );
-      if (pressedPoints.length === 0) continue;
-      const head: IContact = patch[0]!;
-      const first: AutoMovieXpbdBody = head.a.body;
-      const second: AutoMovieXpbdBody = head.b.body;
-      const pressed: number = pressedPoints.reduce(
-        (sum: number, contact: IContact): number => sum + contact.normalLambda,
-        0,
-      );
-
-      // Dynamic friction on the patch: an impulse against the centroid's
-      // slip, at most what the cone mu * sum(lambda_n) leaves after the
-      // positional friction, over h, and at most what stops the slip.
-      const localA: IAutoMovieVector3 = centroid(
-        pressedPoints.map(
-          (contact: IContact): IAutoMovieVector3 => contact.localA,
-        ),
-      );
-      const localB: IAutoMovieVector3 = centroid(
-        pressedPoints.map(
-          (contact: IContact): IAutoMovieVector3 => contact.localB,
-        ),
-      );
-      const centreA: IAutoMovieVector3 = arm(first, localA);
-      const centreB: IAutoMovieVector3 = arm(second, localB);
-      const v: IAutoMovieVector3 = Vector3.subtract(
-        first.velocityAtPoint(Vector3.add(first.center, centreA)),
-        second.velocityAtPoint(Vector3.add(second.center, centreB)),
-      );
-      const vt: IAutoMovieVector3 = Vector3.subtract(
-        v,
-        Vector3.scale(head.normal, Vector3.dot(v, head.normal)),
-      );
-      const speed: number = Vector3.length(vt);
-      if (speed > 0) {
-        const direction: IAutoMovieVector3 = {
-          x: -vt.x / speed,
-          y: -vt.y / speed,
-          z: -vt.z / speed,
-        };
-        const weight: number =
-          AutoMovieXpbdMath.weight(first, direction, centreA) +
-          AutoMovieXpbdMath.weight(second, direction, centreB);
-        const amount: number = Math.min(
-          (head.friction * pressed - Vector3.length(head.tangentLambda)) / h -
-            head.tangentImpulse,
-          speed / weight,
-        );
-        if (weight > 0 && amount > 0) {
-          head.tangentImpulse += amount;
-          head.frictionImpulse = Vector3.add(
-            head.frictionImpulse,
-            Vector3.scale(direction, amount),
-          );
-          AutoMovieXpbdMath.impulse(
-            first,
-            second,
-            Vector3.scale(direction, amount),
-            centreA,
-            centreB,
-          );
-        }
-      }
-
-      // Each pressed point's normal velocity becomes the restitution of its
-      // approach before the step, which also removes the velocity the
-      // position correction left (Mueller et al. 2020, eq. 34).
-      for (const contact of pressedPoints) {
-        const armA: IAutoMovieVector3 = arm(first, contact.localA);
-        const armB: IAutoMovieVector3 = arm(second, contact.localB);
-        const bounce: number =
-          contact.approach > 2 * gravity * h
-            ? contact.restitution * contact.approach
-            : 0;
-        const after: IAutoMovieVector3 = Vector3.subtract(
-          first.velocityAtPoint(Vector3.add(first.center, armA)),
-          second.velocityAtPoint(Vector3.add(second.center, armB)),
-        );
-        const away: IAutoMovieVector3 = Vector3.scale(contact.normal, -1);
-        const normalWeight: number =
-          AutoMovieXpbdMath.weight(first, away, armA) +
-          AutoMovieXpbdMath.weight(second, away, armB);
-        if (!(normalWeight > 0)) continue;
-        // A contact only pushes: over the substep its position and velocity
-        // impulses together stay nonnegative (Signorini), so the pass may
-        // take back at most what the position pass gave.
-        const push: number = Math.max(
-          (bounce + Vector3.dot(after, contact.normal)) / normalWeight,
-          -(contact.normalLambda / h + contact.velocityImpulse),
-        );
-        contact.velocityImpulse += push;
-        AutoMovieXpbdMath.impulse(
-          first,
-          second,
-          Vector3.scale(away, push),
-          armA,
-          armB,
-        );
-      }
-    }
-  }
-
-  /**
    * The responding contacts grouped by collider pair, in pair order; sensors
    * are left out.
    *
@@ -582,8 +361,15 @@ export namespace solveXpbdContacts {
     return result;
   }
 
-  /** The mean of body-frame offsets. */
-  function centroid(points: readonly IAutoMovieVector3[]): IAutoMovieVector3 {
+  /**
+   * The mean of body-frame offsets.
+   *
+   * @param points The offsets, at least one.
+   * @returns Their mean.
+   */
+  export function centroid(
+    points: readonly IAutoMovieVector3[],
+  ): IAutoMovieVector3 {
     return Vector3.scale(
       points.reduce(
         (sum: IAutoMovieVector3, p: IAutoMovieVector3): IAutoMovieVector3 =>
@@ -636,8 +422,14 @@ export namespace solveXpbdContacts {
     );
   }
 
-  /** A body-frame offset from the centre as a world arm. */
-  function arm(
+  /**
+   * A body-frame offset from the centre as a world arm.
+   *
+   * @param body The body.
+   * @param offset The offset in its frame, metres.
+   * @returns The world arm, metres.
+   */
+  export function arm(
     body: AutoMovieXpbdBody,
     offset: IAutoMovieVector3,
   ): IAutoMovieVector3 {

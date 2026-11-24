@@ -14,7 +14,9 @@ import { AutoMovieXpbdMath } from "./AutoMovieXpbdMath";
 import { PhysicalRotationVector } from "./PhysicalRotationVector";
 import { limitPhysicalSwingTwist } from "./limitPhysicalSwingTwist";
 import { projectPhysicalJointRotation } from "./projectPhysicalJointRotation";
-import { solveXpbdArticulation } from "./solveXpbdArticulation";
+import { readXpbdJointCoordinate } from "./readXpbdJointCoordinate";
+import { readXpbdJointDirections } from "./readXpbdJointDirections";
+import type { solveXpbdArticulation } from "./solveXpbdArticulation";
 
 /**
  * The joints' position pass over one articulation at once: every joint's anchor
@@ -130,9 +132,8 @@ function visit(top: solveXpbdArticulation.INode): solveXpbdJointTree.IVisit[] {
  * limit, one row along the turn into it, as MuJoCo's ball-joint limit is one
  * row along the rotation's axis (the same function, lines 1349-1363). A
  * coordinate's row is its gradient in the joint's motion subspace: the dual of
- * the basis of its free directions (`solveXpbdArticulation.directions`)
- * completed by the locked ones, so a step moves each coordinate by its own
- * error and no other.
+ * the basis of its free directions (`readXpbdJointDirections`) completed by the
+ * locked ones, so a step moves each coordinate by its own error and no other.
  */
 function rowsOf(v: solveXpbdJointTree.IVisit): solveXpbdJointTree.IJointRows {
   const { joint, parent, child } = v;
@@ -187,7 +188,7 @@ function rowsOf(v: solveXpbdJointTree.IVisit): solveXpbdJointTree.IJointRows {
     const turn: number = Vector3.length(e);
     if (turn > 0) push(Vector3.scale(e, 1 / turn), turn);
   } else {
-    const basis: IAutoMovieVector3[] = solveXpbdArticulation.directions(
+    const basis: IAutoMovieVector3[] = readXpbdJointDirections(
       joint.joint,
       relative,
     );
@@ -197,8 +198,8 @@ function rowsOf(v: solveXpbdJointTree.IVisit): solveXpbdJointTree.IJointRows {
         const declared: IAutoMoviePhysicalJointAxis | undefined =
           joint.joint.axes[i];
         if (declared !== undefined) {
-          const q: number | null = solveXpbdArticulation.coordinate(
-            joint,
+          const q: number | null = readXpbdJointCoordinate(
+            joint.joint,
             relative,
             declared,
           );

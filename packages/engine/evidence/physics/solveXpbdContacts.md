@@ -72,7 +72,7 @@ States the compliant depth correction and the friction projection.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-Macklin et al. 2016 compliance alpha = w / omega^2 on depth beyond the allowed error; static friction as a Coulomb projection of the accumulated tangential multiplier onto mu lambda_n. A jointed body's row reads its whole tree (Kokkevis 2004; Featherstone 2008, section 7.5, `solveXpbdArticulation.responder`): w is the tree's generalised inverse mass at the point and the correction moves every body of the tree along its joints' free axes. A correction that would carry a joint axis onto or past a bound holds that axis and is solved again (solveXpbdArticulation.IPointResponse.limit), at most once more per newly held axis.
+Macklin et al. 2016 compliance alpha = w / omega^2 on depth beyond the allowed error; static friction as a Coulomb projection of the accumulated tangential multiplier onto mu lambda_n. A jointed body's row reads its whole tree (Kokkevis 2004; Featherstone 2008, section 7.5, `respondXpbdArticulation`): w is the tree's generalised inverse mass at the point and the correction moves every body of the tree along its joints' free axes. A correction that would carry a joint axis onto or past a bound holds that axis and is solved again (IAutoMovieXpbdContactRow.limit, correctXpbdContactRow), at most once more per newly held axis.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
@@ -89,36 +89,6 @@ Linear in contacts per pass.
 ## @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work
 
 Multipliers accumulate on the contacts for the step only.
-
-## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
-
-Mutates only the bodies it is given; allocates only transient vectors.
-
-# src/physics/solveXpbdContacts.ts#solveXpbdContacts.velocities
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States dynamic friction's budget and the restitution rule.
-
-## @evidence contracts/development/implementation.md#principled-implementation
-
-Mueller et al. 2020, sec. 3.6: dynamic friction bounded by the cone's remaining impulse, then the normal velocity set to the restitution of the pre-step approach above 2 g h.
-
-## @evidence contracts/development/implementation.md#clear-and-simple-structure
-
-Friction then normal, each with its own generalized inverse mass.
-
-## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
-
-Only pressing contacts are treated.
-
-## @evidence contracts/development/implementation.md#efficient-algorithms
-
-Linear in contacts per sweep.
-
-## @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work
-
-The friction budget accumulates on the contacts for the step only.
 
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
@@ -153,3 +123,63 @@ Each pass groups the step's current contacts; nothing is cached.
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
 Returns fresh arrays over the given records; retains nothing.
+
+# src/physics/solveXpbdContacts.ts#solveXpbdContacts.centroid
+
+## @evidence contracts/development/common.md#meaningful-documentation
+
+States what is averaged and returned.
+
+## @evidence contracts/development/implementation.md#principled-implementation
+
+The patch's centroid, where patch friction acts (Mueller et al. 2020, section 3.5).
+
+## @evidence contracts/development/implementation.md#clear-and-simple-structure
+
+One sum and one scale.
+
+## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
+
+None.
+
+## @evidence contracts/development/implementation.md#efficient-algorithms
+
+Linear in the points.
+
+## @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work
+
+A pure reading of one patch.
+
+## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
+
+Returns a fresh vector; retains nothing.
+
+# src/physics/solveXpbdContacts.ts#solveXpbdContacts.arm
+
+## @evidence contracts/development/common.md#meaningful-documentation
+
+States the frames and units.
+
+## @evidence contracts/development/implementation.md#principled-implementation
+
+A body-frame offset rotated into the world by the body's orientation.
+
+## @evidence contracts/development/implementation.md#clear-and-simple-structure
+
+One rotation.
+
+## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
+
+None.
+
+## @evidence contracts/development/implementation.md#efficient-algorithms
+
+Constant work.
+
+## @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work
+
+A pure reading of one body's pose.
+
+## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
+
+Returns a fresh vector; retains nothing.
