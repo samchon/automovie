@@ -121,7 +121,7 @@ export function courseArmGoal(
   // but those arms, so a law that honours the demand skips their goals
   // (`IAutoMovieMotionHumanActionPlan.posture`'s `channels`): demand-driven
   // evaluation of only the required parts, as an engine's animation graph
-  // evaluates only its required bones (Unreal Engine `FBoneContainer`). One
+  // evaluates only its required bones. One
   // list per set of such arms, so the reads of a second share one posture.
   const demands: Map<string, readonly AutoMovieMotionHumanChannel[]> =
     new Map();
@@ -264,11 +264,18 @@ export function courseArmGoal(
         start,
       ))
         rests.set(limb, rest);
+  // The plan's events, seconds: each one inside an arm's hold carries the
+  // goal's pose there and is a waypoint of its course (`ISpan.knots`).
+  const events: readonly number[] = plan.events.map(
+    (event: IAutoMovieMotionEvent): number => event.share * plan.duration,
+  );
   const primitives: IAutoMovieMotionHumanPrimitive[] = arms.map(
     (arm: courseArmGoal.IArm): IAutoMovieMotionHumanPrimitive => {
       const limb: courseArmGoal.Limb = `${arm.side}Arm`;
-      const span: IAutoMovieMotionHumanArmPlanned.ISpan =
-        arm.span ?? props.span;
+      const span: IAutoMovieMotionHumanArmPlanned.ISpan = courseArmGoal.knotted(
+        arm.span ?? props.span,
+        events,
+      );
       return AutoMovieMotionHumanArm.carried({
         ...(group === undefined ? {} : { together: group }),
         ...(beside === undefined ? {} : { beside }),
@@ -489,6 +496,33 @@ export namespace courseArmGoal {
 
     /** The plan's posture at the second. */
     posture: IAutoMovieMotionHumanPosture;
+  }
+
+  /**
+   * A span with the plan's events inside its hold as its knots
+   * (`IAutoMovieMotionHumanArmPlanned.ISpan.knots`): each event carries the
+   * goal's pose at its instant, so the course has a waypoint there, as trajopt
+   * imposes a pose term at a timestep (github.com/joschu/trajopt,
+   * `src/trajopt/problem_description.cpp`; Schulman et al. 2014, IJRR 33:1251,
+   * section VII-B). The hold's own ends are waypoints already.
+   *
+   * @param span The span, seconds since the plan's start.
+   * @param events The plan's events, seconds since the plan's start.
+   * @returns The span with its knots, ascending and without repeats; the span
+   *   itself when no event lies inside its hold.
+   */
+  export function knotted(
+    span: IAutoMovieMotionHumanArmPlanned.ISpan,
+    events: readonly number[],
+  ): IAutoMovieMotionHumanArmPlanned.ISpan {
+    const inside: number[] = events.filter(
+      (t: number): boolean => t > span.ready + 1e-9 && t < span.relax - 1e-9,
+    );
+    if (inside.length === 0) return span;
+    const knots: number[] = [
+      ...new Set<number>([...(span.knots ?? []), ...inside]),
+    ].sort((a: number, b: number): number => a - b);
+    return { ...span, knots };
   }
 
   /** The arm limb a side names. */

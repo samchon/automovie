@@ -1,9 +1,11 @@
 import { hingedArmSwivel } from "@automovie/engine";
 import type {
   AutoMovieHumanLimb,
+  AutoMovieHumanSide,
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanArmAngles,
   IAutoMovieMotionHumanArmClearance,
+  IAutoMovieMotionHumanArmPlanned,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanResolveHumanPosture,
@@ -24,7 +26,7 @@ import { AutoMovieMotionHumanArmAngles } from "./AutoMovieMotionHumanArmAngles";
  * meets every bound a solved trajectory meets (`HumanArmTrajectory.admitted`),
  * else the optimiser's seed (`HumanArmTrajectory.solve`).
  *
- * On the frame grid of the span (and its `ready` and `relax`):
+ * On the frame grid of the span (and its `ready`, `relax` and knots, `grid`):
  *
  * - The hold: every arm's goal at the instant, each arm on the base the planner
  *   already solved (`HumanLimbFit.fit`), the riding arm after the one it rides,
@@ -49,8 +51,8 @@ export namespace AutoMovieMotionHumanArmCourse {
     /** The body. */
     body: IAutoMovieMotionHumanBody;
 
-    /** The span's instants, seconds. */
-    span: { start: number; ready: number; relax: number; end: number };
+    /** The span's instants and knots, seconds. */
+    span: IAutoMovieMotionHumanArmPlanned.ISpan;
 
     /**
      * The current duration divided by the law's original duration, for an
@@ -63,22 +65,13 @@ export namespace AutoMovieMotionHumanArmCourse {
      * the seed of the law's own fit of its hold's first goal, in the group's
      * order.
      */
-    arms: readonly {
-      side: "left" | "right";
-      rest: IAutoMovieMotionHumanArmAngles.IAngles;
-      back?: IAutoMovieMotionHumanArmAngles.IAngles;
-      on?: string;
-      hold?: IAutoMovieSwivelSeed;
-    }[];
+    arms: readonly IArm[];
 
     /**
      * The posture so far and its pose with the group's arms left out, at an
      * instant.
      */
-    at: (seconds: number) => {
-      posture: IAutoMovieMotionHumanPosture;
-      pose: IAutoMoviePose;
-    };
+    at: (seconds: number) => IAt;
 
     /** An arm's goal at an instant, as the plan perceives it. */
     aimed: (arm: number, seconds: number) => IAutoMovieHumanLimbGoal;
@@ -88,6 +81,36 @@ export namespace AutoMovieMotionHumanArmCourse {
 
     /** The plan's exact FK reader. */
     resolution: ReturnType<typeof prepareHumanPoseResolution>;
+  }
+
+  /**
+   * One arm of the group: its side, rest, return, the bone of another arm its
+   * grip rides and the seed of the law's own fit of its hold's first goal.
+   */
+  export interface IArm {
+    /** The arm. */
+    side: AutoMovieHumanSide;
+
+    /** The arm's angles as the course leaves. */
+    rest: IAutoMovieMotionHumanArmAngles.IAngles;
+
+    /** The arm's angles the course returns to; the rest when absent. */
+    back?: IAutoMovieMotionHumanArmAngles.IAngles;
+
+    /** The bone of another arm of the group whose grip this one rides. */
+    on?: string;
+
+    /** The seed of the law's own fit of the hold's first goal. */
+    hold?: IAutoMovieSwivelSeed;
+  }
+
+  /** The posture so far at an instant and its pose without the group's arms. */
+  export interface IAt {
+    /** The posture so far. */
+    posture: IAutoMovieMotionHumanPosture;
+
+    /** Its pose with the group's arms left out. */
+    pose: IAutoMoviePose;
   }
 
   /**
@@ -106,26 +129,17 @@ export namespace AutoMovieMotionHumanArmCourse {
   ): ReturnType<typeof HumanArmTrajectory.admitted> | undefined {
     const { span, arms } = props;
 
-    // Each phrase (the reach, the hold, the return) cut into equal pieces no
-    // longer than a frame, its end left to the next: the hold's two ends are
-    // instants of the grid themselves. Laid beside a span-wide grid instead,
-    // an end falls milliseconds from a grid instant, and the arm's frame of
-    // travel between the two reads as a speed of tens of metres a second.
-    const times: number[] = [];
-    for (const [from, to] of [
-      [span.start, span.ready],
-      [span.ready, span.relax],
-      [span.relax, span.end],
-    ] as const) {
-      if (!(to > from + 1e-9)) continue;
-      const pieces: number = Math.max(
-        1,
-        Math.ceil((to - from) / AutoMovieMotionHumanArmCourse.STEP - 1e-9),
-      );
-      for (let j: number = 0; j < pieces; ++j)
-        times.push(from + ((to - from) * j) / pieces);
-    }
-    times.push(span.end);
+    // Each phrase (the reach, the hold, the return) cut at the span's knots,
+    // and each piece between two of those instants cut into equal pieces no
+    // longer than a frame, its end left to the next: the hold's two ends and
+    // every instant that carries a pose constraint are instants of the grid
+    // themselves, as trajopt imposes a pose term at a timestep
+    // (`problem_description.cpp`; Schulman et al. 2014, section VII-B). Laid
+    // beside a span-wide grid instead, an end falls milliseconds from a grid
+    // instant, and the arm's frame of travel between the two reads as a speed
+    // of tens of metres a second; a knot between two grid instants is met
+    // only by the interpolation between them.
+    const times: number[] = AutoMovieMotionHumanArmCourse.grid(span);
     const holding: (t: number) => boolean = (t: number): boolean =>
       t >= span.ready - 1e-9 && t <= span.relax + 1e-9;
     const course: Map<number, IAutoMovieMotionHumanArmClearance.IArm[]> =
@@ -205,6 +219,39 @@ export namespace AutoMovieMotionHumanArmCourse {
    * waypoint spacing, not a value of its own.
    */
   export const STEP: number = 1 / 30;
+
+  /**
+   * A span's frame grid, seconds: the span's four instants and its knots
+   * (`ISpan.knots`) inside it are instants of the grid, and each interval
+   * between two of them is cut into equal pieces no longer than `STEP`, so a
+   * constrained instant is a waypoint, as trajopt imposes a pose term at a
+   * timestep (github.com/joschu/trajopt, `src/trajopt/problem_description.cpp`,
+   * pose terms with a `timestep`; Schulman et al. 2014, IJRR 33:1251, section
+   * VII-B). With no knots it is the phrases' own grid.
+   *
+   * @param span The span, with its knots.
+   * @returns The grid, ascending, from the start to the end.
+   */
+  export function grid(span: IAutoMovieMotionHumanArmPlanned.ISpan): number[] {
+    const breaks: number[] = [span.start];
+    for (const t of [
+      span.ready,
+      span.relax,
+      ...(span.knots ?? []),
+      span.end,
+    ].sort((a: number, b: number): number => a - b))
+      if (t > breaks.at(-1)! + 1e-9 && t <= span.end + 1e-9) breaks.push(t);
+    const times: number[] = [];
+    for (let i: number = 1; i < breaks.length; ++i) {
+      const from: number = breaks[i - 1]!;
+      const to: number = breaks[i]!;
+      const pieces: number = Math.max(1, Math.ceil((to - from) / STEP - 1e-9));
+      for (let j: number = 0; j < pieces; ++j)
+        times.push(from + ((to - from) * j) / pieces);
+    }
+    times.push(span.end);
+    return times;
+  }
 }
 
 /**

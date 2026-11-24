@@ -27,3 +27,33 @@ The last evaluated posture is reused while the second, the borrowed readers and 
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
 Retains the plan, the course, one posture and the arm's ending angles, released with the plan.
+
+# src/compose/courseArmGoal.ts#courseArmGoal.knotted
+
+## @evidence contracts/development/common.md#meaningful-documentation
+
+States what a knot is, which events become knots, the source of the rule, the units and the result.
+
+## @evidence contracts/development/implementation.md#principled-implementation
+
+trajopt imposes a pose term at a timestep (github.com/joschu/trajopt src/trajopt/problem_description.cpp at 8da5bb00b690647318a12fa4f5dd7e6c8a0f501c, BSD-2-Clause; Schulman et al. 2014, IJRR 33:1251, section VII-B), so an event inside the hold, where the plan's goal is the pose the act asks, is a waypoint of the course.
+
+## @evidence contracts/development/implementation.md#clear-and-simple-structure
+
+One filter of the plan's events into the span; the planner and the laid course read the knots from the span (`AutoMovieMotionHumanArmCourse.grid`, `AutoMovieMotionHumanArmPlanned.planned`).
+
+## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
+
+No tolerance beyond the 1e-9 s that tells an event from the hold's own ends, which are waypoints already.
+
+## @evidence contracts/development/implementation.md#efficient-algorithms
+
+Linear in the plan's events, once per arm when the plan is coursed.
+
+## @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work
+
+A pure function of its arguments.
+
+## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
+
+Returns a new span and retains nothing.

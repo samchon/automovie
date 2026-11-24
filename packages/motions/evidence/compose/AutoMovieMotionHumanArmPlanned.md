@@ -146,11 +146,11 @@ Retains nothing.
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States the problem, the waypoints and their spacing, the sites and the refusal.
+States the problem, the waypoints and their spacing, the knots as waypoints, the sites and the refusal.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-The arms' whole action is first laid as an animation system lays it (`AutoMovieMotionHumanArmCourse`: a minimum-jerk effector course with a closed-form via-point, the rig's analytic fit at every instant continued from the last) and kept when the trajectory model's own reading admits it (`HumanArmTrajectory.admitted`); otherwise it seeds one trajectory optimisation (TrajOpt). Either is read off the very postures it is written on, so the plan is a constant of the action.
+The arms' whole action is first laid as an animation system lays it (`AutoMovieMotionHumanArmCourse`: a minimum-jerk effector course with a closed-form via-point, the rig's analytic fit at every instant continued from the last) and kept when the trajectory model's own reading admits it (`HumanArmTrajectory.admitted`); otherwise it seeds one trajectory optimisation (TrajOpt). Either is read off the very postures it is written on, so the plan is a constant of the action. Every knot of the span (an instant carrying a pose constraint) is a waypoint of both, as trajopt imposes a pose term at a timestep (github.com/joschu/trajopt src/trajopt/problem_description.cpp; Schulman et al. 2014, section VII-B).
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 

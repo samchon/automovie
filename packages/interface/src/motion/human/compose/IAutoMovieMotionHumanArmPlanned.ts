@@ -32,6 +32,14 @@ export namespace IAutoMovieMotionHumanArmPlanned {
      * ends with it there.
      */
     end: number;
+
+    /**
+     * Instants within the span that carry a pose constraint (a touch, a contact
+     * event), seconds since the action's start; each is a waypoint of the
+     * course, so the hand meets its goal there exactly, not by the
+     * interpolation between two waypoints. None when absent.
+     */
+    knots?: number[];
   }
 
   /**

@@ -254,12 +254,14 @@ export namespace AutoMovieMotionHumanArmPlanned {
    * The waypoints: the reach and the return spaced by the arc their blend
    * covers (`SPACING` of the farthest probe's travel, between `1 / LEAST` and a
    * frame), the hold at the least spacing (`LEAST` a second, the rate a site at
-   * a daily reach's peak speed moves `SPACING` at); the solve then splits every
-   * interval that does not bound its site's path or its probes' clearance
-   * (`HumanArmRefine`), down to the frame grid at the finest, so a still hold
-   * keeps few waypoints and a stroke as many as its motion needs. On the hold
-   * each arm's site is its goal's contact in the world; a site on a segment of
-   * another arm of the group rides that arm as it is solved.
+   * a daily reach's peak speed moves `SPACING` at), and every knot of the span
+   * (`ISpan.knots`, an instant that carries a pose constraint) a waypoint of
+   * its own; the solve then splits every interval that does not bound its
+   * site's path or its probes' clearance (`HumanArmRefine`), down to the frame
+   * grid at the finest, so a still hold keeps few waypoints and a stroke as
+   * many as its motion needs. On the hold each arm's site is its goal's contact
+   * in the world; a site on a segment of another arm of the group rides that
+   * arm as it is solved.
    *
    * @param body The body.
    * @param span The span's instants.
@@ -523,16 +525,21 @@ export namespace AutoMovieMotionHumanArmPlanned {
         spaced(span.end - span.relax, travel(span.relax, -1)),
         true,
       );
-      // An arm's own hold begins and ends on waypoints of its own.
+      // An arm's own hold begins and ends on waypoints of its own, and every
+      // instant that carries a pose constraint (`ISpan.knots`) is a waypoint,
+      // as trajopt imposes a pose term at a timestep (github.com/joschu/
+      // trajopt, `src/trajopt/problem_description.cpp`; Schulman et al. 2014,
+      // section VII-B).
+      const own: number[] = [...(span.knots ?? [])];
       for (const c of carries)
-        if (c.span !== undefined)
-          for (const t of [c.span.ready, c.span.relax])
-            if (
-              t > span.start &&
-              t < span.end &&
-              !times.some((u: number): boolean => Math.abs(u - t) < 1e-9)
-            )
-              times.push(t);
+        if (c.span !== undefined) own.push(c.span.ready, c.span.relax);
+      for (const t of own)
+        if (
+          t > span.start &&
+          t < span.end &&
+          !times.some((u: number): boolean => Math.abs(u - t) < 1e-9)
+        )
+          times.push(t);
       times.sort((a: number, b: number): number => a - b);
     };
 

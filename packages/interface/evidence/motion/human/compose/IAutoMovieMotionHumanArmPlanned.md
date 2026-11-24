@@ -2,15 +2,15 @@
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States each instant's meaning and unit.
+States each instant's meaning and unit, and that each knot is a waypoint of the course.
 
 ## @evidence contracts/development/design.md#principled-representation
 
-The reach, the hold and the return are bounded by four instants of the action's clock.
+The reach, the hold and the return are bounded by four instants of the action's clock; the knots are the instants inside it that carry a pose constraint, which trajopt imposes at a timestep (github.com/joschu/trajopt src/trajopt/problem_description.cpp, pose terms with a `timestep`; Schulman et al. 2014, IJRR 33:1251, section VII-B), so each is a waypoint.
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
-Four members, all read by `planned`.
+Four instants and the optional knots, all read by `planned` and the laid course (`AutoMovieMotionHumanArmCourse.course`).
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 

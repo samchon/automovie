@@ -135,3 +135,69 @@ Reads the planner's cached postures, bases and goals, and the trajectory's playb
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
 Per-instant arms live until the admission; the readers returned keep only the trajectory's playback data.
+
+# src/compose/AutoMovieMotionHumanArmCourse.ts#AutoMovieMotionHumanArmCourse.grid
+
+## @evidence contracts/development/common.md#meaningful-documentation
+
+States which instants the grid holds, how each interval is cut, the source of the knot rule, the units and the result.
+
+## @evidence contracts/development/implementation.md#principled-implementation
+
+The span's four instants and its knots are grid instants, as trajopt imposes a pose term at a timestep (github.com/joschu/trajopt src/trajopt/problem_description.cpp at 8da5bb00b690647318a12fa4f5dd7e6c8a0f501c, BSD-2-Clause; Schulman et al. 2014, IJRR 33:1251, section VII-B); each interval between two of them is cut into equal pieces no longer than the optimiser's waypoint spacing, `STEP`. With no knots it is the phrases' own grid, unchanged.
+
+## @evidence contracts/development/implementation.md#clear-and-simple-structure
+
+One owner of the grid, read by `course`; the optimiser's waypoints add the same knots (`AutoMovieMotionHumanArmPlanned.planned`).
+
+## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
+
+No tuned value: the spacing is `STEP`, and 1e-9 s only tells coincident instants apart.
+
+## @evidence contracts/development/implementation.md#efficient-algorithms
+
+Linear in the span's frames plus a sort of its few breaks.
+
+## @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work
+
+A pure function of the span.
+
+## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
+
+Returns a new array and retains nothing.
+
+# src/compose/AutoMovieMotionHumanArmCourse.ts#AutoMovieMotionHumanArmCourse.IArm
+
+## @evidence contracts/development/common.md#meaningful-documentation
+
+States each member: the side, the rest, the return, the bone ridden and the hold's seed.
+
+## @evidence contracts/development/design.md#principled-representation
+
+The planner's per-arm inputs the laid course reads, angles in degrees as `IAngles` holds them.
+
+## @evidence contracts/development/design.md#minimal-and-owned-surface
+
+Owned by the laid course; the planner's `IPlanned` carries satisfy it, and only the members `course` reads are named.
+
+## @evidence contracts/development/design.md#prohibited-design-shortcuts
+
+A named interface in place of the inline object type it replaces, with the same members.
+
+# src/compose/AutoMovieMotionHumanArmCourse.ts#AutoMovieMotionHumanArmCourse.IAt
+
+## @evidence contracts/development/common.md#meaningful-documentation
+
+States both members.
+
+## @evidence contracts/development/design.md#principled-representation
+
+The posture so far and its resolved pose without the group's arms, at one instant.
+
+## @evidence contracts/development/design.md#minimal-and-owned-surface
+
+Owned by the laid course; the planner's `at` returns it.
+
+## @evidence contracts/development/design.md#prohibited-design-shortcuts
+
+A named interface in place of the inline object type it replaces, with the same members.
