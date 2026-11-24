@@ -117,7 +117,13 @@ export function test_physical_disturbance_verdicts(): void {
           .map((k: number) => ({
             seconds: k / RATE,
             duration: 1 / RATE,
-            impulse: (share * weight) / RATE / limbs.length,
+            // The legs still planted at this step share the load.
+            impulse:
+              (share * weight) /
+              RATE /
+              limbs.filter(
+                (other): boolean => !(skip?.(other.bone, k) ?? false),
+              ).length,
             point,
             normal: { x: 0, y: 1, z: 0 },
             separation: 0,
