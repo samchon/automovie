@@ -30,7 +30,7 @@ interface IDrawResult<Id extends createTray.Affordance> {
 function draw<Id extends createTray.Affordance>(
   kind: createTray.Kind,
   params: Omit<createTray.IParams, "kind">,
-  seed?: number | string,
+  seed?: number,
 ): IDrawResult<Id> {
   const session: AutoMovieArchetypeDrawSession<createTray.Dimension> =
     new AutoMovieArchetypeDrawSession<createTray.Dimension>(
@@ -110,7 +110,7 @@ export namespace TrayConstruction {
    */
   export function servingTray(
     params: Omit<createTray.IParams, "kind">,
-    seed?: number | string,
+    seed?: number,
   ): AutoMovieArchetype<ServingTrayContact, createTray.Dimension> {
     const { builder, d }: ReturnType<typeof draw<ServingTrayContact>> =
       draw<ServingTrayContact>("tray", params, seed);
@@ -166,7 +166,7 @@ export namespace TrayConstruction {
   /** Build a deep carry basket with an overhead grip. */
   export function basket(
     params: Omit<createTray.IParams, "kind">,
-    seed?: number | string,
+    seed?: number,
   ): AutoMovieArchetype<BasketContact, createTray.Dimension> {
     const { builder, d }: ReturnType<typeof draw<BasketContact>> =
       draw<BasketContact>("basket", params, seed);

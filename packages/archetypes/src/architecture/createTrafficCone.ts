@@ -43,7 +43,7 @@ const PLATE_RATIO: number = 0.04;
  */
 export function createTrafficCone(
   params: createTrafficCone.IParams = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<
   createTrafficCone.Affordance,
   createTrafficCone.Dimension

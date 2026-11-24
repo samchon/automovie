@@ -21,7 +21,7 @@ import type { createAppliance } from "./createAppliance";
  */
 export function createRefrigerator(
   params: createRefrigerator.IParams = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<
   createRefrigerator.Affordance,
   createRefrigerator.Dimension

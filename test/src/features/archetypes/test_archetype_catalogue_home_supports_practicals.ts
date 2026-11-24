@@ -58,12 +58,20 @@ const UNPLACED: IAutoMovieRigidTransform = {
 };
 
 /**
- * Canonical vessels, hand carriers, practical lights and scenic containers preserve legacy appearance and carry the proper site to production.
+ * Canonical vessels, hand carriers, practical lights and scenic containers
+ * preserve legacy appearance and carry the proper site to production.
  *
  * Scenarios:
- * 1. Seedless, zero and string seeds produce equal legacy and canonical models including dimensions and provenance. The new cargo mount is the sole additive model field for its route.
- * 2. The carry basket's handle follows the real carry bar and its interior placement is on the real floor. The cargo pod seats on a translated and turned coffer with its base and mount touching the supported lid.
- * 3. A pendant passes its model contact to the existing emitter compiler and light resolver. The spot starts the switching interval at the shade mouth, aims down and switches off at the interval end.
+ *
+ * 1. Seedless, zero and nonzero seeds produce equal legacy and canonical models
+ *    including dimensions and provenance. The new cargo mount is the sole
+ *    additive model field for its route.
+ * 2. The carry basket's handle follows the real carry bar and its interior
+ *    placement is on the real floor. The cargo pod seats on a translated and
+ *    turned coffer with its base and mount touching the supported lid.
+ * 3. A pendant passes its model contact to the existing emitter compiler and light
+ *    resolver. The spot starts the switching interval at the shade mouth, aims
+ *    down and switches off at the interval end.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the compatibility, support, grasp and light binding observations.
  * @evidence contracts/development/testing.md#behavioral-verification Creates named producers, submits the actual model affordances to staged prop mounting and practical lighting, samples the results and measures the lid and base colliders.
@@ -72,7 +80,7 @@ const UNPLACED: IAutoMovieRigidTransform = {
  * @evidence contracts/development/testing.md#execution-ownership A discoverable in-memory SDK and production composition test without a browser or graphics host.
  */
 export function test_archetype_catalogue_home_supports_practicals(): void {
-  for (const seed of [undefined, 0, "furnished-set"]) {
+  for (const seed of [undefined, 0, 1042]) {
     const pairs: readonly (readonly [
       AutoMovieArchetype,
       AutoMovieArchetype,

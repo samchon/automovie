@@ -19,7 +19,7 @@ export function createLadle(
     HandToolDraw.IParams,
     "id" | "length" | "gripDiameter" | "mass" | "bowl"
   > = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createLadle.Affordance, createLadle.Dimension> {
   const {
     builder,

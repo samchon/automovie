@@ -15,7 +15,7 @@ import { HandheldDevice } from "./HandheldDevice";
  */
 export function createRadio(
   params: createRadio.IParams = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createRadio.Affordance, createRadio.Dimension> {
   return HandheldDevice.fullFace(
     "walkieTalkie",

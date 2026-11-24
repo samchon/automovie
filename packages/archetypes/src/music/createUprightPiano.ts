@@ -20,7 +20,7 @@ import type { createInstrument } from "./createInstrument";
  */
 export function createUprightPiano(
   params: createUprightPiano.IParams = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<
   createUprightPiano.Affordance,
   createUprightPiano.Dimension

@@ -14,7 +14,7 @@ import type { createVessel } from "./createVessel";
  */
 export function createBowl(
   params: createBowl.IParams = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createBowl.Affordance, createBowl.Dimension> {
   return VesselConstruction.bowl(params, seed);
 }

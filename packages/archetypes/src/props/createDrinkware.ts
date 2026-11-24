@@ -78,7 +78,7 @@ const CAPACITY: Readonly<Record<createDrinkware.Kind, number>> = {
  */
 export function createDrinkware(
   params: createDrinkware.IParams,
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createDrinkware.Affordance, createDrinkware.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createDrinkware.Dimension> =
     new AutoMovieArchetypeDrawSession<createDrinkware.Dimension>(

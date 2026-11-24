@@ -21,7 +21,7 @@ import type { createStageBladeProp } from "./createStageBladeProp";
  */
 export function createStageFencingProp(
   params: createStageFencingProp.IParams,
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<
   createStageFencingProp.Affordance,
   createStageFencingProp.Dimension

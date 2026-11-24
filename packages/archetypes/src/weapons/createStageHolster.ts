@@ -19,7 +19,7 @@ import type { createHolster } from "./createHolster";
  */
 export function createStageHolster(
   params: createStageHolster.IParams = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<
   createStageHolster.Affordance,
   createStageHolster.Dimension

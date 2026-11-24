@@ -27,7 +27,7 @@ const OAK_AND_IRON: string =
  */
 export function createLoadingTower(
   params: createLoadingTower.IParams = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<
   createLoadingTower.Affordance,
   createLoadingTower.Dimension

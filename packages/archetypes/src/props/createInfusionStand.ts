@@ -14,7 +14,7 @@ import type { createMobilityAid } from "./createMobilityAid";
  */
 export function createInfusionStand(
   params: createInfusionStand.IParams = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<
   createInfusionStand.Affordance,
   createInfusionStand.Dimension

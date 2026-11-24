@@ -54,7 +54,7 @@ const ESTIMATES: Readonly<{ run: number; tape: number }> = {
  */
 export function createHandhold(
   params: createHandhold.IParams,
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createHandhold.Affordance, createHandhold.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createHandhold.Dimension> =
     new AutoMovieArchetypeDrawSession<createHandhold.Dimension>(

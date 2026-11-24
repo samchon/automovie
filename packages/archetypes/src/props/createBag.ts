@@ -63,7 +63,7 @@ const LOADS: Readonly<Record<createBag.Kind, number>> = {
  */
 export function createBag(
   params: createBag.IParams,
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createBag.Affordance, createBag.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createBag.Dimension> =
     new AutoMovieArchetypeDrawSession<createBag.Dimension>(

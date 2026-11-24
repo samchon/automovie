@@ -14,7 +14,7 @@ import type { createScenicContainer } from "./createScenicContainer";
  */
 export function createPlankCoffer(
   params: createPlankCoffer.IParams = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<
   createPlankCoffer.Affordance,
   createPlankCoffer.Dimension

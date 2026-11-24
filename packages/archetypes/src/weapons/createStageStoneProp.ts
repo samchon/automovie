@@ -18,7 +18,7 @@ import { stageTokenSphere } from "./stageTokenSphere";
  */
 export function createStageStoneProp(
   params: createStageStoneProp.IParams = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<
   createStageStoneProp.Affordance,
   createStageStoneProp.Dimension

@@ -29,7 +29,7 @@ const FIG: string =
  */
 export function createTrampoline(
   params: createTrampoline.IParams = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createTrampoline.Affordance, createTrampoline.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createTrampoline.Dimension> =
     new AutoMovieArchetypeDrawSession<createTrampoline.Dimension>(

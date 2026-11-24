@@ -31,7 +31,7 @@ import {
  */
 export function createPoloMallet(
   params: createPoloMallet.IParams = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createPoloMallet.Affordance, createPoloMallet.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createPoloMallet.Dimension> =
     new AutoMovieArchetypeDrawSession<createPoloMallet.Dimension>(

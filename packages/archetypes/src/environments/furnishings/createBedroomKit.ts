@@ -7,6 +7,7 @@ import type {
   IAutoMoviePropBox,
 } from "@automovie/interface";
 
+import { deriveArchetypeSeed } from "../../core/deriveArchetypeSeed";
 import { createDrawerUnit } from "../../furniture/createDrawerUnit";
 import { createHingedCabinet } from "../../furniture/createHingedCabinet";
 import { createPlatformBed } from "../../furniture/createPlatformBed";
@@ -40,11 +41,11 @@ export function createBedroomKit(
   return (
     context: IAutoMovieEnvironmentModule.IContext,
   ): IAutoMovieEnvironmentContribution => {
-    const seed: string | undefined = context.seed;
-    const draw: (role: string) => string | undefined = (
+    const seed: number | undefined = context.seed;
+    const draw: (role: string) => number | undefined = (
       role: string,
-    ): string | undefined =>
-      seed === undefined ? undefined : `${seed}/${role}`;
+    ): number | undefined =>
+      seed === undefined ? undefined : deriveArchetypeSeed(seed, role);
     const chestGap: number = params.chestGap ?? createBedroomKit.CHEST_GAP;
     if (!(Number.isFinite(chestGap) && chestGap >= 0))
       throw new Error(

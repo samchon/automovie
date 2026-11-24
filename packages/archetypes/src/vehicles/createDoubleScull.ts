@@ -60,7 +60,7 @@ type Build = AutoMovieArchetypeBuilder<
  */
 export function createDoubleScull(
   params: createDoubleScull.IParams = {},
-  seed?: string | number,
+  seed?: number,
 ): AutoMovieArchetype<
   createDoubleScull.Affordance,
   createDoubleScull.Dimension

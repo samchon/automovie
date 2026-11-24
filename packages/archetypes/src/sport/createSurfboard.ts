@@ -31,7 +31,7 @@ import {
  */
 export function createSurfboard(
   params: createSurfboard.IParams = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createSurfboard.Affordance, createSurfboard.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createSurfboard.Dimension> =
     new AutoMovieArchetypeDrawSession<createSurfboard.Dimension>(

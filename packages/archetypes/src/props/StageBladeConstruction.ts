@@ -95,7 +95,7 @@ const PROFILES = {
 export function StageBladeConstruction(
   kind: createStageBladeProp.Kind,
   params: Omit<createStageBladeProp.IParams, "kind">,
-  seed: number | string | undefined,
+  seed: number | undefined,
   twoHand: boolean,
   decorate: StageBladeConstruction.Decorate,
   edge?: StageBladeConstruction.Span,

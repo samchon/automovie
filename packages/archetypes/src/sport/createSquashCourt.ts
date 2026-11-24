@@ -26,7 +26,7 @@ import {
  */
 export function createSquashCourt(
   params: createSquashCourt.IParams = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createSquashCourt.Affordance, never> {
   const draw: AutoMovieArchetypeDrawSession<never> =
     new AutoMovieArchetypeDrawSession("squashCourt", {}, seed, {});

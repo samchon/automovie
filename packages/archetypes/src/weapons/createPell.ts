@@ -25,7 +25,7 @@ import {
  */
 export function createPell(
   params: createPell.IParams = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createPell.Affordance, createPell.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createPell.Dimension> =
     new AutoMovieArchetypeDrawSession<createPell.Dimension>(

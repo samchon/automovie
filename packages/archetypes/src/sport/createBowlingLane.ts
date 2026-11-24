@@ -19,7 +19,7 @@ import {
  */
 export function createBowlingLane(
   params: { id?: string } = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createBowlingLane.Affordance, "width"> {
   const inch: number = AutoMovieArchetypeUnits.INCH;
   const draw: AutoMovieArchetypeDrawSession<"width"> =

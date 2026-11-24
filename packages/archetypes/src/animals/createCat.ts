@@ -18,7 +18,7 @@ import { createCohortQuadruped } from "./createCohortQuadruped";
  */
 export function createCat(
   params: createCat.IParams = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<
   createCohortQuadruped.Affordance,
   AutoMovieArchetypeQuadrupedBody.Dimension

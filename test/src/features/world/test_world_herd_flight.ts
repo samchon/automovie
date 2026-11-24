@@ -17,23 +17,31 @@ import { TestValidator } from "@nestia/e2e";
 /** The alarm's film second. */
 const ALARM: number = 2;
 
-/** The declared reaction from the alarm to the first step, seconds: an authored staging choice. */
+/**
+ * The declared reaction from the alarm to the first step, seconds: an authored
+ * staging choice.
+ */
 const REACTION: number = 0.4;
 
 /** The gate's opening, metres: wider than one horse and narrower than two. */
 const OPENING: number = 1.6;
 
 /**
- * A grazing band takes flight on an alarm, bunches and goes through a gate in single file.
+ * A grazing band takes flight on an alarm, bunches and goes through a gate in
+ * single file.
  *
  * Scenarios:
  *
- * 1. No horse moves before the alarm and its reaction, and every horse is moving within a stride's time after it.
+ * 1. No horse moves before the alarm and its reaction, and every horse is moving
+ *    within a stride's time after it.
  * 2. The band's spread contracts as it bunches toward the gate.
- * 3. The band passes the gate one at a time: no two horses are in the opening together.
+ * 3. The band passes the gate one at a time: no two horses are in the opening
+ *    together.
  * 4. No two horses touch, each a disc as wide as its own footprint.
- * 6. Each mare rides her own steered course as a real ride, every second riding and no two posed bodies meeting.
- * 5. The stallion drives from behind, following the rearmost mare's line a fixed distance back, behind every mare and without meeting one.
+ * 5. Each mare rides her own steered course as a real ride, every second riding
+ *    and no two posed bodies meeting.
+ * 6. The stallion drives from behind, following the rearmost mare's line a fixed
+ *    distance back, behind every mare and without meeting one.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Lists the band, the alarm, the gate and the four scenarios.
  * @evidence contracts/development/testing.md#behavioral-verification Steers real horse-sized agents with the engine's crowd steering from their seeded grazing places to a gate and reads their courses.
@@ -44,7 +52,7 @@ const OPENING: number = 1.6;
 export function test_world_herd_flight(): void {
   const outline: readonly IAutoMovieVector3[] =
     AutoMovieArchetypePassage.footprint(
-      createHorse({ withersHeight: 1.6 }, "mare"),
+      createHorse({ withersHeight: 1.6 }, 1003),
     ).outline;
   const radius: number =
     (Math.max(...outline.map((p: IAutoMovieVector3): number => p.x)) -
@@ -215,7 +223,7 @@ export function test_world_herd_flight(): void {
   // 6. Each mare rides her own steered course: every second rides, and no two posed bodies meet.
   const mare: ReturnType<typeof createHorse> = createHorse(
     { withersHeight: 1.6, tempo: 0 },
-    "mare",
+    1003,
   );
   const rides: AutoMovieArchetypeRide.IRide<string, string>[] = grazing.map(
     (

@@ -36,7 +36,7 @@ const ESTIMATE: string =
  */
 export function createSwing(
   params: createSwing.IParams = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createSwing.Affordance, createSwing.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createSwing.Dimension> =
     new AutoMovieArchetypeDrawSession("swing", createSwing.UNITS, seed, params);

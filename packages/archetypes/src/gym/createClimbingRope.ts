@@ -28,7 +28,7 @@ import {
  */
 export function createClimbingRope(
   params: createClimbingRope.IParams = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<
   createClimbingRope.Affordance,
   createClimbingRope.Dimension

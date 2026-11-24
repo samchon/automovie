@@ -12,22 +12,31 @@ import { TestValidator } from "@nestia/e2e";
 /** Animals in the string. */
 const ANIMALS: number = 3;
 
-/** Metres between one animal's root and the next along the leader's line: an authored staging choice. */
+/**
+ * Metres between one animal's root and the next along the leader's line: an
+ * authored staging choice.
+ */
 const GAP: number = 3.7;
 
-/** The lead rope's length from tie to halter, metres: an authored packer's choice. */
+/**
+ * The lead rope's length from tie to halter, metres: an authored packer's
+ * choice.
+ */
 const ROPE: number = 2.4;
 
 /** Seconds between reads. */
 const STEP: number = 0.1;
 
 /**
- * A pack string follows its leader through a turn on real rides: every lead stays tied within its rope's length between the actual tie on the animal in front and the halter's lead behind, and no two animals' bodies meet.
+ * A pack string follows its leader through a turn on real rides: every lead
+ * stays tied within its rope's length between the actual tie on the animal in
+ * front and the halter's lead behind, and no two animals' bodies meet.
  *
  * Scenarios:
  *
  * 1. Each animal treads the leader's line its gap behind the one in front.
- * 2. Every lead stays within the rope's length between the tie and the following animal's lead contact at every read.
+ * 2. Every lead stays within the rope's length between the tie and the following
+ *    animal's lead contact at every read.
  * 3. No two animals' posed envelopes meet.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Lists the string and the three scenarios.
@@ -39,7 +48,7 @@ const STEP: number = 0.1;
 export function test_world_pack_string(): void {
   const horse: ReturnType<typeof createHorse> = createHorse(
     { withersHeight: 1.6, tempo: 0, tack: "pack" },
-    "packer",
+    1033,
   );
   const leader: AutoMovieArchetypeCourse.IPlan = AutoMovieArchetypeCourse.timed(
     "leader",

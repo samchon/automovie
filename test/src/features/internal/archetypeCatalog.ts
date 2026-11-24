@@ -50,7 +50,7 @@ export function archetypeCatalog(): archetypeCatalog.IRow[] {
   const add = (
     name: string,
     create: (
-      seed?: number | string,
+      seed?: number,
       dimensions?: archetypeCatalog.Dimensions,
     ) => AutoMovieArchetype,
     fixed?: boolean,
@@ -61,7 +61,7 @@ export function archetypeCatalog(): archetypeCatalog.IRow[] {
     add(
       `drinkware-${kind}`,
       (
-        seed?: number | string,
+        seed?: number,
         dimensions?: archetypeCatalog.Dimensions,
       ): AutoMovieArchetype => createDrinkware({ kind, ...dimensions }, seed),
     );
@@ -69,7 +69,7 @@ export function archetypeCatalog(): archetypeCatalog.IRow[] {
     add(
       `device-${kind}`,
       (
-        seed?: number | string,
+        seed?: number,
         dimensions?: archetypeCatalog.Dimensions,
       ): AutoMovieArchetype => createDevice({ kind, ...dimensions }, seed),
     );
@@ -77,7 +77,7 @@ export function archetypeCatalog(): archetypeCatalog.IRow[] {
     add(
       `smoking-${kind}`,
       (
-        seed?: number | string,
+        seed?: number,
         dimensions?: archetypeCatalog.Dimensions,
       ): AutoMovieArchetype => createSmoking({ kind, ...dimensions }, seed),
     );
@@ -85,7 +85,7 @@ export function archetypeCatalog(): archetypeCatalog.IRow[] {
     add(
       `stationery-${kind}`,
       (
-        seed?: number | string,
+        seed?: number,
         dimensions?: archetypeCatalog.Dimensions,
       ): AutoMovieArchetype => createStationery({ kind, ...dimensions }, seed),
       settled(createStationery.BANDS[kind], createStationery.MODELS[kind]),
@@ -94,7 +94,7 @@ export function archetypeCatalog(): archetypeCatalog.IRow[] {
     add(
       `careItem-${kind}`,
       (
-        seed?: number | string,
+        seed?: number,
         dimensions?: archetypeCatalog.Dimensions,
       ): AutoMovieArchetype => createCareItem({ kind, ...dimensions }, seed),
     );
@@ -102,14 +102,14 @@ export function archetypeCatalog(): archetypeCatalog.IRow[] {
     add(
       `bag-${kind}`,
       (
-        seed?: number | string,
+        seed?: number,
         dimensions?: archetypeCatalog.Dimensions,
       ): AutoMovieArchetype => createBag({ kind, ...dimensions }, seed),
     );
   add(
     "box",
     (
-      seed?: number | string,
+      seed?: number,
       dimensions?: archetypeCatalog.Dimensions,
     ): AutoMovieArchetype => createBox({ ...dimensions }, seed),
   );
@@ -117,7 +117,7 @@ export function archetypeCatalog(): archetypeCatalog.IRow[] {
     add(
       `tool-${kind}`,
       (
-        seed?: number | string,
+        seed?: number,
         dimensions?: archetypeCatalog.Dimensions,
       ): AutoMovieArchetype => createTool({ kind, ...dimensions }, seed),
       settled(createTool.BANDS[kind], createTool.MODELS[kind]),
@@ -126,7 +126,7 @@ export function archetypeCatalog(): archetypeCatalog.IRow[] {
     add(
       `longTool-${kind}`,
       (
-        seed?: number | string,
+        seed?: number,
         dimensions?: archetypeCatalog.Dimensions,
       ): AutoMovieArchetype => createLongTool({ kind, ...dimensions }, seed),
       settled(createLongTool.BANDS[kind], createLongTool.MODELS[kind]),
@@ -135,7 +135,7 @@ export function archetypeCatalog(): archetypeCatalog.IRow[] {
     add(
       `seat-${kind}`,
       (
-        seed?: number | string,
+        seed?: number,
         dimensions?: archetypeCatalog.Dimensions,
       ): AutoMovieArchetype => createSeat({ kind, ...dimensions }, seed),
     );
@@ -143,7 +143,7 @@ export function archetypeCatalog(): archetypeCatalog.IRow[] {
     add(
       `bed-${kind}`,
       (
-        seed?: number | string,
+        seed?: number,
         dimensions?: archetypeCatalog.Dimensions,
       ): AutoMovieArchetype => createBed({ kind, ...dimensions }, seed),
     );
@@ -151,7 +151,7 @@ export function archetypeCatalog(): archetypeCatalog.IRow[] {
     add(
       `table-${kind}`,
       (
-        seed?: number | string,
+        seed?: number,
         dimensions?: archetypeCatalog.Dimensions,
       ): AutoMovieArchetype => createTable({ kind, ...dimensions }, seed),
     );
@@ -159,7 +159,7 @@ export function archetypeCatalog(): archetypeCatalog.IRow[] {
     add(
       `storage-${kind}`,
       (
-        seed?: number | string,
+        seed?: number,
         dimensions?: archetypeCatalog.Dimensions,
       ): AutoMovieArchetype => createStorage({ kind, ...dimensions }, seed),
     );
@@ -167,35 +167,35 @@ export function archetypeCatalog(): archetypeCatalog.IRow[] {
     add(
       `load-${kind}`,
       (
-        seed?: number | string,
+        seed?: number,
         dimensions?: archetypeCatalog.Dimensions,
       ): AutoMovieArchetype => createLoad({ kind, ...dimensions }, seed),
     );
   add(
     "highChair",
     (
-      seed?: number | string,
+      seed?: number,
       dimensions?: archetypeCatalog.Dimensions,
     ): AutoMovieArchetype => createHighChair({ ...dimensions }, seed),
   );
   add(
     "lectern",
     (
-      seed?: number | string,
+      seed?: number,
       dimensions?: archetypeCatalog.Dimensions,
     ): AutoMovieArchetype => createLectern({ ...dimensions }, seed),
   );
   add(
     "console",
     (
-      seed?: number | string,
+      seed?: number,
       dimensions?: archetypeCatalog.Dimensions,
     ): AutoMovieArchetype => createConsole({ ...dimensions }, seed),
   );
   add(
     "showcase",
     (
-      seed?: number | string,
+      seed?: number,
       dimensions?: archetypeCatalog.Dimensions,
     ): AutoMovieArchetype => createShowcase({ ...dimensions }, seed),
   );
@@ -203,7 +203,7 @@ export function archetypeCatalog(): archetypeCatalog.IRow[] {
     add(
       `safe-${hinge}`,
       (
-        seed?: number | string,
+        seed?: number,
         dimensions?: archetypeCatalog.Dimensions,
       ): AutoMovieArchetype => createSafe({ hinge, ...dimensions }, seed),
       true,
@@ -212,7 +212,7 @@ export function archetypeCatalog(): archetypeCatalog.IRow[] {
     add(
       `barrel-${kind}`,
       (
-        seed?: number | string,
+        seed?: number,
         dimensions?: archetypeCatalog.Dimensions,
       ): AutoMovieArchetype => createBarrel({ kind, ...dimensions }, seed),
     );
@@ -241,7 +241,7 @@ export namespace archetypeCatalog {
      *   the built archetype's `dimensions` to learn whether a value took.
      * @returns The archetype.
      */
-    create(seed?: number | string, dimensions?: Dimensions): AutoMovieArchetype;
+    create(seed?: number, dimensions?: Dimensions): AutoMovieArchetype;
 
     /**
      * True when every band of the row's variant has zero width, as a
@@ -262,10 +262,7 @@ export namespace archetypeCatalog {
    */
   export type Add = (
     name: string,
-    create: (
-      seed?: number | string,
-      dimensions?: Dimensions,
-    ) => AutoMovieArchetype,
+    create: (seed?: number, dimensions?: Dimensions) => AutoMovieArchetype,
     fixed?: boolean,
   ) => void;
 

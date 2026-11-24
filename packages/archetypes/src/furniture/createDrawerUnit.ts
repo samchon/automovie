@@ -14,7 +14,7 @@ import type { createStorage } from "./createStorage";
  */
 export function createDrawerUnit(
   params: createDrawerUnit.IParams,
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createDrawerUnit.Affordance, createDrawerUnit.Dimension> {
   return StorageMechanisms.sliding(
     ArchetypeDraw.choice(

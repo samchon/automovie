@@ -70,7 +70,7 @@ const DOUGLAS: string =
  */
 export function createCannon(
   params: createCannon.IParams,
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createCannon.Affordance, createCannon.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createCannon.Dimension> =
     new AutoMovieArchetypeDrawSession<createCannon.Dimension>(

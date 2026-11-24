@@ -42,7 +42,7 @@ const FORM: Readonly<{
  */
 export function createSnowboard(
   params: createSnowboard.IParams = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createSnowboard.Affordance, "mass"> {
   const draw: AutoMovieArchetypeDrawSession<"mass"> =
     new AutoMovieArchetypeDrawSession(

@@ -19,7 +19,7 @@ import type { createProjectile } from "./createProjectile";
  */
 export function createStageCartridgeProp(
   params: createStageCartridgeProp.IParams = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<
   createStageCartridgeProp.Affordance,
   createStageCartridgeProp.Dimension

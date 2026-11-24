@@ -18,7 +18,7 @@ export function createStageSpongeRammer(
     LongImplementDraw.IParams,
     "id" | "length" | "shaftDiameter" | "mass"
   > = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<
   createStageSpongeRammer.Affordance,
   createStageSpongeRammer.Dimension

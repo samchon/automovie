@@ -15,7 +15,7 @@ import type { createMobilityAid } from "./createMobilityAid";
  */
 export function createWalker(
   params: createWalker.IParams = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createWalker.Affordance, createWalker.Dimension> {
   return MobilityAidConstruction.walker(params, seed);
 }

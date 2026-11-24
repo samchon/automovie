@@ -19,10 +19,13 @@ const HOLD: readonly number[] = [4, 6];
  *
  * Scenarios:
  *
- * 1. Each ride follows the timed plan: its root stands on every authored mark at its second.
- * 2. No hoof lands while the animal stands on its mark, and hooves land again after it resumes.
+ * 1. Each ride follows the timed plan: its root stands on every authored mark at
+ *    its second.
+ * 2. No hoof lands while the animal stands on its mark, and hooves land again
+ *    after it resumes.
  * 3. The seat a rider sits on holds still through the halt and rides the curve.
- * 4. The smaller pony takes more strides than the horse over the same moving path, and their landings differ, so each keeps its own gait phase.
+ * 4. The smaller pony takes more strides than the horse over the same moving path,
+ *    and their landings differ, so each keeps its own gait phase.
  * 5. Forward and reversed reads give the same poses.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Lists the path, the two bodies and the five scenarios.
@@ -47,8 +50,8 @@ export function test_archetype_ride_course_timed_horse(): void {
     samples,
   );
   const mounts: readonly AutoMovieArchetype[] = [
-    createHorse({ withersHeight: 1.7 }, "hazel"),
-    createPony({ breed: "connemara" }, "indigo"),
+    createHorse({ withersHeight: 1.7 }, 1002),
+    createPony({ breed: "connemara" }, 1006),
   ];
   const rides: AutoMovieArchetypeRide.IRide<string, string>[] = mounts.map(
     (mount: AutoMovieArchetype): AutoMovieArchetypeRide.IRide<string, string> =>

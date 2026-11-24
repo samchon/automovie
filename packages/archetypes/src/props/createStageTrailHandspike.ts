@@ -15,7 +15,7 @@ import { LongImplementDraw } from "./LongImplementDraw";
  */
 export function createStageTrailHandspike(
   params: Pick<LongImplementDraw.IParams, "id" | "length" | "mass"> = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<
   createStageTrailHandspike.Affordance,
   createStageTrailHandspike.Dimension

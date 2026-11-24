@@ -38,7 +38,7 @@ import { HandgunActions } from "./HandgunActions";
  */
 export function createHandgun(
   params: createHandgun.IParams,
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createHandgun.Affordance, createHandgun.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createHandgun.Dimension> =
     new AutoMovieArchetypeDrawSession<createHandgun.Dimension>(

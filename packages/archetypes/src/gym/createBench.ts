@@ -32,7 +32,7 @@ const IPF: string =
  */
 export function createBench(
   params: createBench.IParams,
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createBench.Affordance, createBench.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createBench.Dimension> =
     new AutoMovieArchetypeDrawSession<createBench.Dimension>(

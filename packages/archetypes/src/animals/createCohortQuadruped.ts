@@ -304,7 +304,7 @@ export namespace createCohortQuadruped {
      * `params`; absent, the cohort is `reference` and each free dimension takes
      * the middle of its band.
      */
-    seed?: number | string;
+    seed?: number;
     /** Admit physical additions without emitting unselected model geometry. */
     prepare?: (
       rig: AutoMovieArchetypeQuadrupedBody.IRig,

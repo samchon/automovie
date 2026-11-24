@@ -16,7 +16,7 @@ import { createRowboat } from "./createRowboat";
  */
 type Producer = (
   params: Omit<createBoat.IParams, "kind">,
-  seed?: number | string,
+  seed?: number,
 ) => AutoMovieArchetype<createBoat.Affordance, createBoat.Dimension>;
 
 /**
@@ -45,7 +45,7 @@ type Producer = (
  */
 export function createBoat(
   params: createBoat.IParams,
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createBoat.Affordance, createBoat.Dimension> {
   const kind: createBoat.Kind = ArchetypeDraw.choice(
     "boat",

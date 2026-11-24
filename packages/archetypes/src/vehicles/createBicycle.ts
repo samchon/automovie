@@ -44,7 +44,7 @@ const GEOMETRY: string =
  */
 export function createBicycle(
   params: createBicycle.IParams = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createBicycle.Affordance, createBicycle.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createBicycle.Dimension> =
     new AutoMovieArchetypeDrawSession<createBicycle.Dimension>(

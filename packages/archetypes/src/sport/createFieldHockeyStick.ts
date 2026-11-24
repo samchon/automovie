@@ -27,7 +27,7 @@ const TOE: number = 0.1;
  */
 export function createFieldHockeyStick(
   params: createFieldHockeyStick.IParams = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<
   createFieldHockeyStick.Affordance,
   createFieldHockeyStick.Dimension

@@ -46,7 +46,7 @@ export namespace AutoMovieArchetypeSea {
     heading?: number;
 
     /** The seed the phases and an absent heading are drawn from. */
-    seed: number | string;
+    seed: number;
   }
 
   /** One sinusoid of the surface. */

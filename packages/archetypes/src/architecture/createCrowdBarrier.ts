@@ -18,7 +18,7 @@ import { ObstacleDraw } from "./ObstacleDraw";
  */
 export function createCrowdBarrier(
   params: createCrowdBarrier.IParams = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<
   createCrowdBarrier.Affordance,
   createCrowdBarrier.Dimension

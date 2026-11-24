@@ -14,7 +14,7 @@ import type { createVessel } from "./createVessel";
  */
 export function createCookingPot(
   params: createCookingPot.IParams,
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createCookingPot.Affordance, createCookingPot.Dimension> {
   return VesselConstruction.cookingPot(
     ArchetypeDraw.choice("vessel", "kind", params.kind, createCookingPot.KINDS),

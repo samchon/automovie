@@ -30,7 +30,7 @@ const FIG: string =
  */
 export function createPullUpBar(
   params: createPullUpBar.IParams,
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createPullUpBar.Affordance, createPullUpBar.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createPullUpBar.Dimension> =
     new AutoMovieArchetypeDrawSession<createPullUpBar.Dimension>(

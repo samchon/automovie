@@ -83,7 +83,7 @@ const ESTIMATES: Readonly<{ plate: number; body: number; stud: number }> = {
  */
 export function createBeerTap(
   params: createBeerTap.IParams = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createBeerTap.Affordance, createBeerTap.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createBeerTap.Dimension> =
     new AutoMovieArchetypeDrawSession<createBeerTap.Dimension>(

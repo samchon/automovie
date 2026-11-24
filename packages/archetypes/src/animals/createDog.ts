@@ -38,7 +38,7 @@ import { QuadrupedAnimal } from "./QuadrupedAnimal";
  */
 export function createDog(
   params: createDog.IParams,
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<
   createDog.Affordance,
   AutoMovieArchetypeQuadrupedBody.Dimension

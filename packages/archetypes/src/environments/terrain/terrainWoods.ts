@@ -19,6 +19,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { deriveArchetypeSeed } from "../../core/deriveArchetypeSeed";
 import { createTree } from "../../nature/createTree";
 
 /** One accepted site with its seeded order. */
@@ -133,7 +134,7 @@ export function terrainWoods(
 
     // The weighted species in a fixed order, each with its own prototype.
     const seed: string = deriveAutoMovieSeed(
-      context.seed ?? "0000000000000000",
+      String(context.seed ?? 0),
       "woods",
       name,
     );
@@ -168,7 +169,7 @@ export function terrainWoods(
       ([kind]: [createTree.Kind, number]): ReturnType<typeof createTree> =>
         createTree(
           { id: `${id}/${kind}`, kind },
-          deriveAutoMovieSeed(seed, kind),
+          deriveArchetypeSeed(context.seed ?? 0, "woods", name, kind),
         ),
     );
     const trunk: number = Math.max(

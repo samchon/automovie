@@ -22,18 +22,26 @@ const STEP: number = 0.1;
 /** The authored clearance a horse keeps from a person, metres. */
 const CLEARANCE: number = 0.2;
 
-/** Half of Fruin's 0.61 m body-ellipse breadth (Fruin 1971): a standing person's disc. */
+/**
+ * Half of Fruin's 0.61 m body-ellipse breadth (Fruin 1971): a standing person's
+ * disc.
+ */
 const PERSON: number = 0.305;
 
 /**
- * A mounted line leg-yields into a standing crowd: the line keeps its alignment, and the people give way round the horses' actual bodies.
+ * A mounted line leg-yields into a standing crowd: the line keeps its
+ * alignment, and the people give way round the horses' actual bodies.
  *
  * Scenarios:
  *
- * 1. Three horses leg-yield abreast and stay level and evenly spaced within the alignment bound.
- * 2. Standing people steered round the horses' posed envelopes make no contact with them.
- * 3. Every person's steered course keeps the authored clearance from every horse's posed envelope.
- * 4. People walking up the street part round an overtaking carriage outside the clearance and close back to their lanes behind it.
+ * 1. Three horses leg-yield abreast and stay level and evenly spaced within the
+ *    alignment bound.
+ * 2. Standing people steered round the horses' posed envelopes make no contact
+ *    with them.
+ * 3. Every person's steered course keeps the authored clearance from every horse's
+ *    posed envelope.
+ * 4. People walking up the street part round an overtaking carriage outside the
+ *    clearance and close back to their lanes behind it.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Lists the line, the crowd and the three scenarios.
  * @evidence contracts/development/testing.md#behavioral-verification Rides real horses with a leg-yield leg, steers real crowd agents round `AutoMovieArchetypePassage.obstacle` of each ride's posed envelope, and measures the steered courses with `AutoMovieArchetypePassage`.
@@ -44,7 +52,7 @@ const PERSON: number = 0.305;
 export function test_world_mounted_crowd_line(): void {
   const horse: ReturnType<typeof createHorse> = createHorse(
     { withersHeight: 1.65, tempo: 0 },
-    "police",
+    1030,
   );
   const rides: AutoMovieArchetypeRide.IRide<string, string>[] = [-1, 0, 1].map(
     (file: number): AutoMovieArchetypeRide.IRide<string, string> =>

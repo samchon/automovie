@@ -31,7 +31,7 @@ const RULE: string =
  */
 export function createJavelin(
   params: createJavelin.IParams,
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createJavelin.Affordance, createJavelin.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createJavelin.Dimension> =
     new AutoMovieArchetypeDrawSession<createJavelin.Dimension>(

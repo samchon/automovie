@@ -15,7 +15,7 @@ import { createPracticeBaton } from "./createPracticeBaton";
  */
 export function createClub(
   params: createClub.IParams,
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createClub.Affordance, createClub.Dimension> {
   const kind: createClub.Kind = ArchetypeDraw.choice(
     "club",
@@ -27,7 +27,7 @@ export function createClub(
   // The stored input can carry any former choice. The selected draw admits only its own profile.
   const produce: (
     params: createClub.IParams,
-    seed?: number | string,
+    seed?: number,
   ) => AutoMovieArchetype<createClub.Affordance, createClub.Dimension> =
     createClub.PRODUCERS[kind] as typeof produce;
   return produce(params, seed);

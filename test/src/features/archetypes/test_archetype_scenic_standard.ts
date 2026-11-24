@@ -18,11 +18,12 @@ const MILLIMETRE: number = 0.001;
  * human-motion input can use.
  *
  * Scenarios:
- * 1. With fixed dimensions, measure the pole and square or circular head. The grip must
- *    fit the measured shaft below the head and the face site must sit on the
- *    head's measured front.
- * 2. Build the same seeded banner twice and compare the emitted colliders.
- *    A nonpositive head dimension is independently outside the supported set.
+ *
+ * 1. With fixed dimensions, measure the pole and square or circular head. The grip
+ *    must fit the measured shaft below the head and the face site must sit on
+ *    the head's measured front.
+ * 2. Build the same seeded banner twice and compare the emitted colliders. A
+ *    nonpositive head dimension is independently outside the supported set.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the geometric oracle and how it distinguishes either form.
  * @evidence contracts/development/testing.md#behavioral-verification Reads collider extents and motion prop sites from the public producers.
@@ -121,12 +122,8 @@ export function test_archetype_scenic_standard(): void {
   }
   TestValidator.equals(
     "the same seed returns the same visible geometry",
-    JSON.stringify(
-      createScenicStandard({ kind: "banner" }, "village").shapes(),
-    ),
-    JSON.stringify(
-      createScenicStandard({ kind: "banner" }, "village").shapes(),
-    ),
+    JSON.stringify(createScenicStandard({ kind: "banner" }, 1009).shapes()),
+    JSON.stringify(createScenicStandard({ kind: "banner" }, 1009).shapes()),
   );
   TestValidator.error("head size must be positive", () =>
     createScenicStandard({ kind: "roundel", headSpan: 0 }),

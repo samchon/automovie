@@ -18,7 +18,7 @@ import type { createCart } from "./createCart";
  */
 export function createLimber(
   params: createLimber.IParams = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createLimber.Affordance, createLimber.Dimension> {
   return CartConstruction("limber", params, seed, CartLimber.build);
 }

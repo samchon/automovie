@@ -68,7 +68,7 @@ const PIECES: number = 24;
  */
 export function createNecklace(
   params: createNecklace.IParams = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createNecklace.Affordance, createNecklace.Dimension> {
   const kind: createNecklace.Kind = ArchetypeDraw.choice(
     "necklace",
@@ -256,8 +256,10 @@ export namespace createNecklace {
 
   /**
    * The ellipse's half-axis front to back whose perimeter is `length` at the
-   * half-breadth `b`, by bisection on Ramanujan's first approximation `pi (3 (a
-   * + b) - sqrt((3a + b)(a + 3b)))`.
+   * half-breadth `b`, by bisection on Ramanujan's first approximation `pi (3
+   * (a
+   *
+   * - B) - sqrt((3a + b)(a + 3b)))`.
    *
    * @param length The loop's perimeter, metres.
    * @param b The half-breadth, metres.

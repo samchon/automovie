@@ -45,7 +45,7 @@ import { SiegeArm } from "./SiegeArm";
  */
 export function createSiegeEngine(
   params: createSiegeEngine.IParams,
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<
   createSiegeEngine.Affordance,
   createSiegeEngine.Dimension

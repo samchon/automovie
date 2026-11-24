@@ -23,6 +23,7 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieArchetypeFrame } from "../../core/AutoMovieArchetypeFrame";
+import { deriveArchetypeSeed } from "../../core/deriveArchetypeSeed";
 import { buildingDoor } from "./buildingDoor";
 import { buildingModel } from "./buildingModel";
 import type { buildingPlans } from "./buildingPlans";
@@ -235,7 +236,7 @@ function addOpening(
           opening,
           context.seed === undefined
             ? undefined
-            : JSON.stringify([context.seed, leafKey]),
+            : deriveArchetypeSeed(context.seed, leafKey),
         )
       : null;
   const width: number = opening.kind === "door" ? door!.width : opening.width;

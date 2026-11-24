@@ -119,7 +119,7 @@ const ESTIMATES: Readonly<IEstimates> = { shelf: 0.03, aspect: 4 / 3 };
  */
 export function createAtm(
   params: createAtm.IParams = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createAtm.Affordance, createAtm.Dimension> {
   const cabinet: ServiceCabinet.ICabinet<createAtm.Affordance> =
     ServiceCabinet.begin("atm", "cash machine", "#b3202a", params, seed);

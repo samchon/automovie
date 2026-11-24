@@ -33,7 +33,7 @@ const POWER: string =
 /** A saved mobility aid recipe's producer as the dispatcher calls it. */
 type Producer = (
   params: createMobilityAid.IParams,
-  seed?: number | string,
+  seed?: number,
 ) => AutoMovieArchetype<
   createMobilityAid.Affordance,
   createMobilityAid.Dimension
@@ -53,7 +53,7 @@ type Producer = (
  */
 export function createMobilityAid(
   params: createMobilityAid.IParams,
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<
   createMobilityAid.Affordance,
   createMobilityAid.Dimension

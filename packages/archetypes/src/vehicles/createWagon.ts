@@ -18,7 +18,7 @@ import type { createCart } from "./createCart";
  */
 export function createWagon(
   params: createWagon.IParams = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createWagon.Affordance, createWagon.Dimension> {
   return CartConstruction("wagon", params, seed, CartCoach.wagon);
 }

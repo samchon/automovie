@@ -14,7 +14,7 @@ import type { createVessel } from "./createVessel";
  */
 export function createVase(
   params: createVase.IParams = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createVase.Affordance, createVase.Dimension> {
   return VesselConstruction.vase(params, seed);
 }

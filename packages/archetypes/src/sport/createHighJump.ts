@@ -51,7 +51,7 @@ const BAR: string = `${WA}, Technical Rule 26.7: the circular part of the crossb
  */
 export function createHighJump(
   params: createHighJump.IParams = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createHighJump.Affordance, createHighJump.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createHighJump.Dimension> =
     new AutoMovieArchetypeDrawSession<createHighJump.Dimension>(

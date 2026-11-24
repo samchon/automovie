@@ -31,7 +31,7 @@ const RULE: string =
  */
 export function createHurdle(
   params: createHurdle.IParams,
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createHurdle.Affordance, createHurdle.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createHurdle.Dimension> =
     new AutoMovieArchetypeDrawSession<createHurdle.Dimension>(

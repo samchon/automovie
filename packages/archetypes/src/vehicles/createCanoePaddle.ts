@@ -25,7 +25,7 @@ const v: typeof Vector3.create = Vector3.create;
  */
 export function createCanoePaddle(
   params: createCanoePaddle.IParams = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<
   createCanoePaddle.Affordance,
   createCanoePaddle.Dimension

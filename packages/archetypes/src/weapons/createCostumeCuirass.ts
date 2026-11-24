@@ -18,7 +18,7 @@ import type { createArmour } from "./createArmour";
  */
 export function createCostumeCuirass(
   params: createCostumeCuirass.IParams = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<
   createCostumeCuirass.Affordance,
   createCostumeCuirass.Dimension

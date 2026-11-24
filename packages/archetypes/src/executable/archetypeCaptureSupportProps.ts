@@ -40,7 +40,7 @@ export function archetypeCaptureSupportProps(): Readonly<
   };
   const calm: ReturnType<typeof rowBoat> = rowBoat(boat, waterCourse);
   const sea: ReturnType<typeof rowBoat> = rowBoat(boat, waterCourse, {
-    sea: { height: 0.4, heading: 35, seed: "canonical-rowing-sea" },
+    sea: { height: 0.4, heading: 35, seed: 1050 },
   });
   const leading: ReturnType<typeof createCart> = createCart({
     kind: "limber",

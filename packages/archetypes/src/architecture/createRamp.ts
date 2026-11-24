@@ -29,7 +29,7 @@ const ADA: string =
  */
 export function createRamp(
   params: createRamp.IParams = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createRamp.Affordance, createRamp.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createRamp.Dimension> =
     new AutoMovieArchetypeDrawSession<createRamp.Dimension>(

@@ -31,7 +31,7 @@ const BUGABOO: string =
  */
 export function createPram(
   params: createPram.IParams = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createPram.Affordance, createPram.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createPram.Dimension> =
     new AutoMovieArchetypeDrawSession<createPram.Dimension>(

@@ -69,7 +69,7 @@ const PROFILES: Readonly<Record<createStageFootwear.Kind, IFootwearProfile>> = {
  */
 export function createStageFootwear(
   params: createStageFootwear.IParams,
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<
   createStageFootwear.Affordance,
   createStageFootwear.Dimension

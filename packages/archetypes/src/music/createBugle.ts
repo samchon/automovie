@@ -19,7 +19,7 @@ import type { createInstrument } from "./createInstrument";
  */
 export function createBugle(
   params: createBugle.IParams = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createBugle.Affordance, createBugle.Dimension> {
   return InstrumentBuild.create<createBugle.Affordance>(
     "bugle",

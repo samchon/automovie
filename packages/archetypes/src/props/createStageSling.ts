@@ -18,7 +18,7 @@ export function createStageSling(
     LongImplementDraw.IParams,
     "id" | "length" | "shaftDiameter" | "pouchLength" | "pouchWidth" | "mass"
   > = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createStageSling.Affordance, createStageSling.Dimension> {
   const {
     builder,

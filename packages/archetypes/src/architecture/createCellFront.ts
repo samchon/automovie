@@ -50,7 +50,7 @@ const ESTIMATES: Readonly<{ flat: number }> = { flat: 0.05 };
  */
 export function createCellFront(
   params: createCellFront.IParams,
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createCellFront.Affordance, createCellFront.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createCellFront.Dimension> =
     new AutoMovieArchetypeDrawSession<createCellFront.Dimension>(

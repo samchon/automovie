@@ -50,7 +50,7 @@ const KNEE: number = 0.305;
  */
 export function createTable(
   params: createTable.IParams,
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createTable.Affordance, createTable.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createTable.Dimension> =
     new AutoMovieArchetypeDrawSession<createTable.Dimension>(

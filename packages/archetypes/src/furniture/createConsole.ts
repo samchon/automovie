@@ -54,7 +54,7 @@ const ESTIMATES: Readonly<{ panel: number }> = { panel: 0.03 };
  */
 export function createConsole(
   params: createConsole.IParams = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createConsole.Affordance, createConsole.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createConsole.Dimension> =
     new AutoMovieArchetypeDrawSession<createConsole.Dimension>(

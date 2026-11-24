@@ -16,7 +16,7 @@ import { createSphericalBall } from "./createSphericalBall";
  */
 export function createBall(
   params: createBall.IParams,
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createBall.Affordance, createBall.Dimension> {
   const kind: createBall.Kind = ArchetypeDraw.choice(
     "ball",
@@ -28,7 +28,7 @@ export function createBall(
   // The stored input can carry any former choice. The selected draw admits only its own profile.
   const produce: (
     params: createBall.IParams,
-    seed?: number | string,
+    seed?: number,
   ) => AutoMovieArchetype<createBall.Affordance, createBall.Dimension> =
     createBall.PRODUCERS[kind] as typeof produce;
   return produce(params, seed);

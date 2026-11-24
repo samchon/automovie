@@ -19,7 +19,7 @@ export function createScrewdriver(
     HandToolDraw.IParams,
     "id" | "length" | "gripDiameter" | "mass" | "blade"
   > = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<
   createScrewdriver.Affordance,
   createScrewdriver.Dimension

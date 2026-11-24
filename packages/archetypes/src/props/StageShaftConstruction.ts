@@ -55,7 +55,7 @@ const DISPLAY_HEIGHTS: Readonly<Record<createStageWeaponProp.Kind, number>> = {
 export function StageShaftConstruction(
   kind: createStageWeaponProp.Kind,
   params: Omit<createStageWeaponProp.IParams, "kind">,
-  seed: number | string | undefined,
+  seed: number | undefined,
   shaftRatio: number,
   decorate: StageShaftConstruction.Decorate,
 ): AutoMovieArchetype<

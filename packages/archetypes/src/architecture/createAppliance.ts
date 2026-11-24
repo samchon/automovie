@@ -23,7 +23,7 @@ import { createWashingMachine } from "./createWashingMachine";
  */
 export function createAppliance(
   params: createAppliance.IParams,
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createAppliance.Affordance, createAppliance.Dimension> {
   const kind: createAppliance.Kind = ArchetypeDraw.choice(
     "appliance",

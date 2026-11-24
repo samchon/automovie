@@ -14,7 +14,7 @@ import type { createBed } from "./createBed";
  */
 export function createHospitalBed(
   params: createHospitalBed.IParams = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<
   createHospitalBed.Affordance,
   createHospitalBed.Dimension

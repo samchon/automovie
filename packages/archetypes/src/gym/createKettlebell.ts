@@ -31,7 +31,7 @@ const BELL: string =
  */
 export function createKettlebell(
   params: createKettlebell.IParams,
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createKettlebell.Affordance, createKettlebell.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createKettlebell.Dimension> =
     new AutoMovieArchetypeDrawSession<createKettlebell.Dimension>(

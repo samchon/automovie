@@ -23,7 +23,7 @@ import { createBow } from "./createBow";
  */
 export function createStageHandBowProp(
   params: createStageHandBowProp.IParams,
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<
   createStageHandBowProp.Affordance,
   createStageHandBowProp.Dimension

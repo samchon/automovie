@@ -14,7 +14,7 @@ import type { createLight } from "./createLight";
  */
 export function createCandle(
   params: createCandle.IParams = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createCandle.Affordance, createCandle.Dimension> {
   return PracticalLightConstruction.wick("candle", params, seed);
 }

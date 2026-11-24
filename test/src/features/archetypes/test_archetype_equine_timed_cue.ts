@@ -8,22 +8,33 @@ import { TestValidator } from "@nestia/e2e";
 
 import { archetypeHorseRide } from "../internal/archetypeHorseRide";
 
-/** The cruising speed, metres per second: inside both the canter's and the gallop's measured ranges, below the declared canter-gallop change point. */
+/**
+ * The cruising speed, metres per second: inside both the canter's and the
+ * gallop's measured ranges, below the declared canter-gallop change point.
+ */
 const SPEED: number = 7;
 
 /** The cue's film seconds. */
 const FROM: number = 4;
 const TO: number = 10;
 
-/** The longest canter stride at this height, seconds: the cue's change lands at the first stride start after it. */
+/**
+ * The longest canter stride at this height, seconds: the cue's change lands at
+ * the first stride start after it.
+ */
 const STRIDE: number = 0.6;
 
 /**
- * A timed path's named-gait cue asks a cantering horse for the gallop at a speed both gaits share: the change comes at the cue's stride and no planted hoof slides; uncued, the declared change rule keeps the canter; a malformed cue is refused.
+ * A timed path's named-gait cue asks a cantering horse for the gallop at a
+ * speed both gaits share: the change comes at the cue's stride and no planted
+ * hoof slides; uncued, the declared change rule keeps the canter; a malformed
+ * cue is refused.
  *
  * Scenarios:
+ *
  * 1. Uncued at 7 m/s, the hazel horse never changes from canter to gallop.
- * 2. Cued gallop from 4 s to 10 s: `gait:canter-gallop` at the first stride start at or after 4 s, within one stride, and no planted hoof moves.
+ * 2. Cued gallop from 4 s to 10 s: `gait:canter-gallop` at the first stride start
+ *    at or after 4 s, within one stride, and no planted hoof moves.
  * 3. A cue ending before it starts refuses as an AutoMovieArchetypeRefusal.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names the path, the cue and the refusal.
@@ -33,7 +44,7 @@ const STRIDE: number = 0.6;
  * @evidence contracts/development/testing.md#execution-ownership A memory-only archetype unit.
  */
 export function test_archetype_equine_timed_cue(): void {
-  const horse = createHorse({}, "hazel");
+  const horse = createHorse({}, 1002);
   const plan: AutoMovieArchetypeCourse.IPlan = AutoMovieArchetypeCourse.timed(
     "hazel",
     [

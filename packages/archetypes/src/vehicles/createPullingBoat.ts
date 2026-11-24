@@ -18,7 +18,7 @@ import { createBoat } from "./createBoat";
  */
 export function createPullingBoat(
   params: createPullingBoat.IParams = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<
   createPullingBoat.Affordance,
   createPullingBoat.Dimension

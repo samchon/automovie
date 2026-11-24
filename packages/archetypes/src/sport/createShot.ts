@@ -31,7 +31,7 @@ const RULE: string =
  */
 export function createShot(
   params: createShot.IParams,
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createShot.Affordance, createShot.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createShot.Dimension> =
     new AutoMovieArchetypeDrawSession<createShot.Dimension>(

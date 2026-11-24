@@ -27,7 +27,7 @@ const BELL: string =
  */
 export function createBellFrame(
   params: createBellFrame.IParams = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<"step", createBellFrame.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createBellFrame.Dimension> =
     new AutoMovieArchetypeDrawSession(

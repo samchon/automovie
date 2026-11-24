@@ -72,7 +72,7 @@ const METAL: string = "#5b5f66";
  */
 export function createSeat(
   params: createSeat.IParams,
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createSeat.Affordance, createSeat.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createSeat.Dimension> =
     new AutoMovieArchetypeDrawSession<createSeat.Dimension>(

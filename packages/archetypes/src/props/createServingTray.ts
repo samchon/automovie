@@ -15,7 +15,7 @@ import type { createTray } from "./createTray";
  */
 export function createServingTray(
   params: createServingTray.IParams = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<
   createServingTray.Affordance,
   createServingTray.Dimension

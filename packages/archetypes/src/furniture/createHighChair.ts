@@ -43,7 +43,7 @@ const ESTIMATES: Readonly<{ leg: number; shell: number }> = {
  */
 export function createHighChair(
   params: createHighChair.IParams = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createHighChair.Affordance, createHighChair.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createHighChair.Dimension> =
     new AutoMovieArchetypeDrawSession<createHighChair.Dimension>(

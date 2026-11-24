@@ -59,7 +59,7 @@ import { projectileFlight } from "./projectileFlight";
  */
 export function createProjectile(
   params: createProjectile.IParams,
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createProjectile.Affordance, createProjectile.Dimension> {
   const kind: createProjectile.Kind = ArchetypeDraw.choice(
     "projectile",
@@ -71,7 +71,7 @@ export function createProjectile(
   type Producer = {
     build(
       params: createProjectile.IParams,
-      seed?: number | string,
+      seed?: number,
     ): AutoMovieArchetype<
       createProjectile.Affordance,
       createProjectile.Dimension

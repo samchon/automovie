@@ -14,7 +14,7 @@ import type { createBed } from "./createBed";
  */
 export function createGurney(
   params: createGurney.IParams = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createGurney.Affordance, createGurney.Dimension> {
   return BedConstruction.gurney(params, seed);
 }

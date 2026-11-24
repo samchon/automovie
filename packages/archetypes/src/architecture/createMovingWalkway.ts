@@ -46,7 +46,7 @@ const LANDING: number = 1;
  */
 export function createMovingWalkway(
   params: createMovingWalkway.IParams = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<
   createMovingWalkway.Affordance,
   createMovingWalkway.Dimension

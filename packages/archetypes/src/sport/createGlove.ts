@@ -28,7 +28,7 @@ import {
  */
 export function createGlove(
   params: createGlove.IParams,
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createGlove.Affordance, createGlove.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createGlove.Dimension> =
     new AutoMovieArchetypeDrawSession<createGlove.Dimension>(

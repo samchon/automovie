@@ -17,7 +17,7 @@ export function createLighter(
   params: Pick<SmokingPropDraw.IParams, "id"> & {
     model?: SmokingPropDraw.Model;
   } = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createLighter.Affordance, createLighter.Dimension> {
   const {
     builder,
