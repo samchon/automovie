@@ -1,47 +1,72 @@
+import {
+  Quaternion,
+  Vector3,
+  aimRotation,
+  resolveAutoMovieCenterOfMass,
+  resolveAutoMovieHumanoidSurfaces,
+} from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   AutoMovieHumanoidRegion,
+  IAutoMovieHumanoidSurfaces,
   IAutoMovieMotionHumanAuditMotion,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanContactWindow,
+  IAutoMoviePose,
+  IAutoMovieQuaternion,
   IAutoMovieResolvedBone,
+  IAutoMovieTransform,
+  IAutoMovieVector3,
 } from "@automovie/interface";
 import { HumanChain, HumanPerformance } from "@automovie/motions";
 import {
   AutoMovieMotionHumanAuditStatics,
   HumanContactWindow,
+  poseBones,
 } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../../../internal/motionHumanBody";
+import { nclose } from "../../../internal/nclose";
 
-/** One trunk-part case: the part, the region it bears through and whether the still body balances over it. */
+/**
+ * One trunk-part case: the part, the region it bears through and whether the
+ * still body balances over it.
+ */
 interface ICase {
   /** The bearing part. */
   part: "head" | "chest";
 
-  /** The region named, or the part's default when absent. */
-  region?: AutoMovieHumanoidRegion;
+  /** The physical site whose projected distance this case expects. */
+  site: AutoMovieHumanoidRegion;
 
-  /** Whether the centre of mass lies within the statics bound of the region's point. */
+  /** Supply the site explicitly. The other cases exercise the default. */
+  explicit?: true;
+
+  /**
+   * Whether the centre of mass lies within the statics bound of the region's
+   * point.
+   */
   balanced: boolean;
 }
 
 /**
  * The head and the chest as contact parts (#4012).
  *
- * Scenarios, on a standing average man whose whole weight is declared on
- * one trunk-part window:
- * 1. The parts and their default regions are in the contact tables: the
- *    back of the head and the breastbone.
- * 2. The statics audit reads a head or chest window at its region's point:
- *    the crown, straight over the centre of mass, holds the body; the back
- *    of the head (the head's default) and the breastbone, a hand's depth
- *    behind and before it, do not.
+ * Scenarios use one still pose with the crown set on the line of weight. A
+ * rigid turn of the original standing bones sets up that premise for the
+ * contact-window test while retaining the polygon body's proportions. Each case
+ * declares the full load on one trunk-part window.
+ *
+ * 1. The parts and their default regions are in the contact tables: the back of
+ *    the head and the breastbone.
+ * 2. The statics audit reads a head or chest window at its region's point: the
+ *    crown holds the body. The back of the head (the head's default) and the
+ *    breastbone are on opposite sides of the weight line outside the bound.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the tables and the cases.
  * @evidence contracts/development/testing.md#behavioral-verification Feeds a still body's displayed bones with declared windows to the statics audit; a part missing from the tables or read at another point fails.
- * @evidence contracts/development/testing.md#independent-expectations The crown lies over a standing body's centre of mass and the breastbone and the back of the head lie a chest's half depth off it, beyond the audit's 2 % of stature.
+ * @evidence contracts/development/testing.md#independent-expectations A rigid turn maps the posed crown-to-centre direction onto world up. The horizontal lengths of the rotated physical site vectors independently predict the three audit readings. The audit's 2 % of stature bound still separates the crown and both defaults.
  * @evidence contracts/development/testing.md#distinguishing-cases Both parts, a named region and each default.
  * @evidence contracts/development/testing.md#execution-ownership An in-memory performance supplies the bones; the audit runs on them directly.
  */
@@ -69,10 +94,51 @@ export function test_motion_contact_window_trunk_parts(): void {
   });
   const bound: number =
     AutoMovieMotionHumanAuditStatics.SHARE * body.measure.stature;
+  const pose: IAutoMoviePose = film.pose("a", 0);
+  const original: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
+    film.bones("a", 0);
+  const centre: IAutoMovieVector3 = resolveAutoMovieCenterOfMass.place(
+    body.massModel,
+    original,
+  );
+  const siteVector = (site: AutoMovieHumanoidRegion): IAutoMovieVector3 => {
+    const frame: IAutoMovieHumanoidSurfaces.IFrame =
+      body.surfaces.regions[site];
+    return Vector3.subtract(
+      resolveAutoMovieHumanoidSurfaces.point(frame, original.get(frame.bone)!),
+      centre,
+    );
+  };
+
+  // Turn the complete posed rig about its own centre of mass. The contact
+  // table is checked against the resulting displayed geometry.
+  const turn: IAutoMovieQuaternion = aimRotation(siteVector("crown"), {
+    x: 0,
+    y: 1,
+    z: 0,
+  });
+  const root: IAutoMovieTransform = pose.root!;
+  const held: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
+    body,
+    {
+      ...pose,
+      root: {
+        ...root,
+        translation: Vector3.add(
+          centre,
+          Quaternion.rotateVector(
+            turn,
+            Vector3.subtract(root.translation, centre),
+          ),
+        ),
+        rotation: Quaternion.multiply(turn, root.rotation),
+      },
+    },
+  );
   const cases: readonly ICase[] = [
-    { part: "head", region: "crown", balanced: true },
-    { part: "head", balanced: false },
-    { part: "chest", balanced: false },
+    { part: "head", site: "crown", explicit: true, balanced: true },
+    { part: "head", site: "headBack", balanced: false },
+    { part: "chest", site: "sternum", balanced: false },
   ];
   for (const c of cases) {
     const window: IAutoMovieMotionHumanContactWindow = {
@@ -82,15 +148,11 @@ export function test_motion_contact_window_trunk_parts(): void {
       to: 1,
       load: 1,
       support: { kind: "person", subject: "b", region: "shoulderLeft" },
-      ...(c.region === undefined ? {} : { region: c.region }),
+      ...(c.explicit === true ? { region: c.site } : {}),
     };
     const motion: IAutoMovieMotionHumanAuditMotion = {
       duration: 1,
-      bones: (
-        subject: string,
-        seconds: number,
-      ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =>
-        film.bones(subject, Math.min(seconds, 0.5)),
+      bones: (): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> => held,
       segments: (): readonly IAutoMovieMotionHumanAuditMotion.ISpan[] => [
         {
           name: "rest",
@@ -106,9 +168,14 @@ export function test_motion_contact_window_trunk_parts(): void {
       "a",
       body,
     ).value;
+    const projected: IAutoMovieVector3 = Quaternion.rotateVector(
+      turn,
+      siteVector(c.site),
+    );
+    const expected: number = Math.hypot(projected.x, projected.z);
     TestValidator.predicate(
-      `a ${c.part} window on ${c.region ?? "its default region"} ${c.balanced ? "holds" : "does not hold"} the still body (${(value * 1000).toFixed(0)} mm)`,
-      c.balanced ? value <= bound : value > bound,
+      `a ${c.part} window on ${c.explicit ? c.site : "its default region"} ${c.balanced ? "holds" : "does not hold"} the still body (${(value * 1000).toFixed(3)} mm, expected ${(expected * 1000).toFixed(3)} mm)`,
+      nclose(value, expected) && (c.balanced ? value <= bound : value > bound),
     );
   }
 }
