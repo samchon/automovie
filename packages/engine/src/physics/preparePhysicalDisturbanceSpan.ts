@@ -168,11 +168,12 @@ export function preparePhysicalDisturbanceSpan(
         foot,
       ),
     }));
-    return (
+    const chosen: (typeof trials)[number] | undefined =
       trials.find((trial): boolean => trial.holds) ??
       trials.find((trial): boolean => trial.capturable) ??
-      trials[0]!
-    ).foot.bone;
+      trials[0];
+    if (chosen === undefined) throw new Error("No planted limb to swing.");
+    return chosen.foot.bone;
   };
 
   // One candidate's step laid once in closed form: its preferred swing time
