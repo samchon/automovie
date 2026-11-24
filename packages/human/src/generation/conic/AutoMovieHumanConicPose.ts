@@ -232,16 +232,28 @@ export namespace AutoMovieHumanConicPose {
     placed!.forEach(([start, end]: [number, number], k: number): void => {
       // The halves of the turns at this run's two ends, sharing the run where it is shorter than both.
       const [before, after]: [number, number] = [k === 0 ? 0 : to!.halves[k - 1]!, k < to!.halves.length ? to!.halves[k]! : 0];
-      const share: number = before + after > end - start ? (end - start) / (before + after) : 1;
+      const span: number = end - start;
+      const total: number = before + after;
+      let [left, right]: [number, number] = [before, after];
+      if (total > span) {
+        // Round the larger proportion once and take the smaller as the remainder of the stored span.
+        if (before >= after) {
+          left = span * (before / total);
+          right = span - left;
+        } else {
+          right = span * (after / total);
+          left = span - right;
+        }
+      }
       // A joint without a turn's span leaves the run's start on the knot before it, which holds the same angle.
       if (knots.length === 0 || start > knots.at(-1)!) {
         knots.push(start);
         values.push(turned[Math.max(0, k - 1)]!);
-        eases.push(before * share);
+        eases.push(left);
       }
       knots.push(end);
       values.push(turned[k]!);
-      eases.push(after * share);
+      eases.push(right);
     });
     return { knots, values, eases };
   }

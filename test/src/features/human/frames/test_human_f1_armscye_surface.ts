@@ -35,9 +35,9 @@ import type {
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls `AutoMovieHumanF1Armscye.create` with the `surface` rule on two made sources and reads its stations, loop and gap. It catches a loop read off the two walls' crossing, a faired or shifted station, host shares interpolated from the part's ring instead of cut on the host's skin, and a missing refusal.
  * @evidence contracts/development/testing.md#independent-expectations A cylinder cut by a surface of revolution about its course is a circle at one station; a point on a surface has zero measure; the host's cut is solved here in closed form along its two principal rays. None uses the module's search.
- * @evidence contracts/development/testing.md#distinguishing-cases A bowl square to the course, a slanted one whose station varies with the phase, and one with no crossing.
+ * @evidence contracts/development/testing.md#distinguishing-cases A transverse bowl, a slanted bowl, a fractional terminal bracket, the unrelated wall crossing and counts zero or two.
  * @evidence contracts/development/testing.md#execution-ownership A discoverable synchronous CPU unit reached by `--include human_f1_armscye_surface`; it builds two made cylinders in process.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the three numbered scenarios with their inputs and bounds.
+ * @evidence contracts/development/common.md#meaningful-documentation States the geometric scenarios, units and closures.
  */
 export function test_human_f1_armscye_surface(): void {
   const failures: string[] = [];
@@ -166,8 +166,27 @@ export function test_human_f1_armscye_surface(): void {
         `a bowl past the part's end: refused with ${String(error)}`,
       );
   }
-  if (failures.length > 0)
-    throw new Error(
-      `armscye surface rule: ${failures.length} finding(s):\n${failures.join("\n")}`,
-    );
+  const old = AutoMovieHumanF1Armscye.create(host, part, 64, { type: "ring", ring: 100, near: 8 });
+  if (!(Math.min(...old.stations) > 95))
+    failures.push("the wall crossing control did not distinguish the two curves");
+
+  const short = AutoMovieHumanConicLoft.part(
+    cylinder("short", [0, 200, 0], [0, 200, 90.25], [0, 1, 0], 90.25, 20),
+    [0, 45, 90, 90.25],
+  );
+  const last = AutoMovieHumanF1Armscye.create(host, short, 64, {
+    type: "surface", side: (p: readonly number[]): number => p[2]! - 80.1 - bowl(p),
+  });
+  near("terminal fractional bracket", Math.max(...last.stations.map((s: number): number => Math.abs(s - 90.1))), 0, 1e-9);
+
+  try {
+    AutoMovieHumanF1Armscye.create(host, part, 64, {
+      type: "surface", side: (p: readonly number[]): number => (p[2]! - 75) * (p[2]! - 95),
+    });
+    failures.push("a pair of crossings was admitted");
+  } catch (error) {
+    if (!(error instanceof Error && error.message.includes("2 times")))
+      failures.push("the second crossing was not identified: " + String(error));
+  }
+  if (failures.length > 0) throw new Error(`armscye surface rule: ${failures.length} finding(s):\n${failures.join("\n")}`);
 }

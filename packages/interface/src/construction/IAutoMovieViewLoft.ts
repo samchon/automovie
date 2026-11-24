@@ -1,5 +1,6 @@
 import type { IAutoMovieLoftChain } from "./IAutoMovieLoftChain";
 import type { IAutoMovieLoftContract } from "./IAutoMovieLoftContract";
+import type { IAutoMovieLoftSectionConnect } from "./IAutoMovieLoftSectionConnect";
 import type { IAutoMovieLoftSectionFrame } from "./IAutoMovieLoftSectionFrame";
 import type { IAutoMovieSolidSurface } from "./IAutoMovieSolidSurface";
 import type { IAutoMovieViewChain } from "./IAutoMovieViewChain";
@@ -26,6 +27,9 @@ export namespace IAutoMovieViewLoft {
 
     /** Surviving conic-chain sections in increasing physical station order for touch, split or piece-list sources; empty when none survive or the ordinary four-quarter representation applies. */
     chains: IAutoMovieViewLoft.IChainStation[];
+
+    /** Original section stations exclude surrogate conic rows and retain the same actual generator as the published chain. */
+    original?: { station: number; frame: IAutoMovieLoftSectionFrame; field: IAutoMovieLoftSectionConnect.IOriginal }[];
 
     /** Collected numerical admission failures in encounter order; empty means no reported failure, not a proof of every geometric invariant. Callback exceptions can escape without becoming entries. */
     diagnostics: IAutoMovieLoftContract.IDiagnostic[];

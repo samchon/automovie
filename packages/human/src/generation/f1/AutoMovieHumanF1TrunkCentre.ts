@@ -9,7 +9,7 @@ import type {
   IAutoMovieHumanConicLoft,
   IAutoMovieHumanConicRecentre,
   IAutoMovieHumanConicSection,
-  IAutoMovieViewAxis,
+  IAutoMovieHumanF1TrunkCentre,
   IAutoMovieViewChain,
 } from "@automovie/interface";
 
@@ -46,30 +46,8 @@ export namespace AutoMovieHumanF1TrunkCentre {
   /** Phases a section's area is integrated over. */
   const ROUND: number = 1440;
 
-  /**
-   * A family re-expressed about a centre line.
-   *
-   * @evidence contracts/development/design.md#principled-representation The origin line, the knot values about it and the course moved onto it are one consistent set: lofting the values on any other course is another surface.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Five members, what a loft of the re-expressed wall reads.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Not an `IFamily`: its values cannot be handed to a consumer that would chart them about the base course.
-   * @evidence contracts/development/common.md#meaningful-documentation Members state frames and units.
-   */
-  export interface IRecentred {
-    /** The origin line's shift from the base course at each knot, in the section chart, mm. */
-    line: IAutoMovieHumanConicRecentre.ILine;
-
-    /** The family's own station knots, mm. */
-    knots: readonly number[];
-
-    /** The family's own layout. */
-    layout: IAutoMovieHumanConicSection.ILayout;
-
-    /** Knot values by section field then knot, about the origin line. */
-    values: number[][];
-
-    /** The base course with its origin on the line, every section plane and chart direction kept. */
-    axis: IAutoMovieViewAxis.IAxis;
-  }
+  /** A family re-expressed about a centre line. */
+  export type IRecentred = IAutoMovieHumanF1TrunkCentre.IRecentred;
 
   /**
    * The centroid of a section's area in its chart, `[u, v]` mm about the point the section is charted about.

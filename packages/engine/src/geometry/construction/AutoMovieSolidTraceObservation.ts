@@ -14,7 +14,7 @@ export namespace AutoMovieSolidTraceObservation {
     "part-jet-unavailable" | "host-trial-unavailable" | "singular-newton-jacobian" |
     "residual-not-decreasing" | "line-search-stalled" | "newton-iterations" |
     "singular-first-rate" | "singular-second-rate" | "branch-distance" |
-    "walk-step-failed" | "walk-step-limit" | "singular-tangent";
+    "walk-step-failed" | "walk-step-limit" | "walk-no-progress" | "walk-part-bound" | "singular-tangent";
 
   /** Actual rejected native chart; trials have two host coordinates, solves four.
    */
@@ -75,6 +75,8 @@ export namespace AutoMovieSolidTraceObservation {
     length: number;
     /** Last accepted native meeting and its world point, distinct from the attempted prediction. */
     last: { chart: readonly number[]; point: AutoMovieVector3Tuple; face: number };
+    /** Accepted source state before the last attempted chord, absent before any trial. */
+    before: IDirection["last"] | null;
     /** Last attempted chord in mm and its actual prediction, or null when no step was attempted. */
     step: { h: number; predicted: AutoMovieVector3Tuple;
       tangent: AutoMovieVector3Tuple; guess: readonly number[]; halving: number;

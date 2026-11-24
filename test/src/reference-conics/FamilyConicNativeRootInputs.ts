@@ -194,8 +194,8 @@ namespace FamilyConicNativeRootInputs {
     };
     const started: number = performance.now(),
       original: IAutoMovieHumanF1.IAssembly = Figure.assemble(),
-      originalConstruction: ReturnType<typeof Figure.constructionFrom> =
-        Figure.constructionFrom(original),
+      originalConstruction: ReturnType<typeof Figure.constructionBareFrom> =
+        Figure.constructionBareFrom(original),
       prepared: IAutoMovieHumanF1NativeLaw.IPrepared = Law.prepare(
         original,
         originalConstruction.sources,
@@ -271,7 +271,7 @@ namespace FamilyConicNativeRootInputs {
           ? original
           : prepared.apply(plan.fields, bone);
         const assembled: number = performance.now(),
-          declared: ReturnType<typeof Figure.constructionFrom> = baseline
+          declared: IAutoMovieHumanF1.IConstruction = baseline
             ? originalConstruction
             : Figure.constructionFrom(assembly),
           constructed: number = performance.now();
@@ -307,7 +307,7 @@ namespace FamilyConicNativeRootInputs {
         }
         const sourced: number = performance.now();
         const operators: ReturnType<typeof FamilyConicNativePremises> =
-          FamilyConicNativePremises(declared.root, sources, observed.hooks);
+          FamilyConicNativePremises(declared.root, sources, observed.hooks, declared.loopSources());
         const operatorEnd: number = performance.now(),
           outcome: {
             failures: typeof operators.failures;

@@ -2,6 +2,7 @@ import { AutoMovieHumanSegmentFrame as F } from "./AutoMovieHumanSegmentFrame";
 import type {
   AutoMovieVector3Tuple,
   IAutoMovieHumanSegmentJoint,
+  IAutoMovieHumanSegmentScaling,
 } from "@automovie/interface";
 
 /**
@@ -16,7 +17,7 @@ import type {
  */
 export namespace AutoMovieHumanSegmentScaling {
   /** One joint's offset edit: a ratio, or an along/across map in the parent's frame. */
-  export type IScale = number | ((offset: AutoMovieVector3Tuple) => AutoMovieVector3Tuple);
+  export type IScale = IAutoMovieHumanSegmentScaling.IScale;
 
   /**
    * A local vector scaled along the unit `a` by `along` and along the unit `b`, square to `a`, by `across`; the third direction kept.

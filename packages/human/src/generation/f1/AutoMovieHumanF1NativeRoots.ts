@@ -1,4 +1,5 @@
 import { AutoMovieHumanConicLoft as H } from "../conic/AutoMovieHumanConicLoft";
+import { AutoMovieHumanJoinLoop } from "../conic/AutoMovieHumanJoinLoop";
 import {
   AutoMovieHumanNativeControlLaw as N,
 } from "../conic/AutoMovieHumanNativeControlLaw";
@@ -136,7 +137,9 @@ export function AutoMovieHumanF1NativeRoots(context: IContext): IResult {
           number,
           AutoMovieVector2Tuple,
         ] => [
-          name === "wrist" ? AutoMovieHumanF1ArmEnd.TO_MM : station,
+          name === "wrist"
+            ? AutoMovieHumanF1ArmEnd.station(original.body.arm, original.body.hand)
+            : station,
           ratio(complete().arm[name], zero.arm[name]),
         ],
       ),
@@ -160,31 +163,22 @@ export function AutoMovieHumanF1NativeRoots(context: IContext): IResult {
   const parentSource: IAutoMovieViewPart = H.source(family("trunk"));
   /** Reuse original calibration and resolve a current candidate from the same wall/field invocation. */
   function prepareRoot(
-    name: "arm" | "breast" | "nose",
-    side: 1 | -1,
   ): IAutoMovieHumanF1NativeRoot.IPrepared {
-    const key: string = original.body[name].name + (side < 0 ? ".mirror" : "");
-    const prior: IAutoMovieHumanConicLoft.IFamily = original.body[name];
+    const name = "nose";
+    const prior: IAutoMovieHumanConicLoft.IFamily = original.body.nose;
+    const key: string = prior.name;
     let calibration: IAutoMovieHumanF1NativeRoot.ICalibration | undefined = rootCalibrations.get(key);
     if (calibration === undefined) {
       const part: IAutoMovieViewPart | undefined = originals.get(key);
       if (part === undefined)
         throw new Error("original port source absent: " + key);
-      const loop: IAutoMovieConstructionPortLoop =
-        name === "nose"
-          ? original.roots.nose
-          : original.roots[name][side > 0 ? 0 : 1];
+      const loop: IAutoMovieConstructionPortLoop = original.roots.nose;
       const count: number | undefined = loop.shape?.length;
       if (count === undefined)
         throw new Error(
           "original root needs its explicit column controls: " + key,
         );
-      const distances: readonly number[] =
-        name === "arm"
-          ? AutoMovieHumanF1RootRails.forArm(side)
-          : name === "nose"
-            ? AutoMovieHumanF1RootRails.nose
-            : [RAIL.breast];
+      const distances: readonly number[] = AutoMovieHumanF1RootRails.nose;
       calibration = Root.calibrate({
         name: key,
         parent: originals.get(original.body.trunk.name)!,
@@ -194,7 +188,7 @@ export function AutoMovieHumanF1NativeRoots(context: IContext): IResult {
           (distance: number): number => prior.knots[0]! + distance,
         ),
         count,
-        correspondence: name === "nose" ? "length" : "angle",
+        correspondence: "length",
         metric: {
           station: prior.knots[0]! + RAIL[name],
           depth: zero.roots[name].depth,
@@ -221,15 +215,22 @@ export function AutoMovieHumanF1NativeRoots(context: IContext): IResult {
       const prior: IAutoMovieHumanConicLoft.IFamily = original.body[name],
         placed: IAutoMovieHumanConicLoft.IFamily = bone.body[name];
       const rootRatio: AutoMovieVector2Tuple = ratio(rootField(name), zero.roots[name]);
-      const rail: number = prior.knots[0]! + RAIL[name];
-      const originalRange: readonly [number, number] =
-        name === "arm" || name === "nose"
-          ? AutoMovieHumanPeriodicRailRange(AutoMovieHumanF1RootRails[name])
-          : [RAIL[name], RAIL[name]];
-      const originalMinimum: number = prior.knots[0]! + originalRange[0],
-        originalMaximum: number = prior.knots[0]! + originalRange[1];
+      const first: number = prior.knots[0]!;
+      const rail: number = name === "arm"
+        ? AutoMovieHumanJoinLoop.address(
+            H.source(prior), [first, prior.knots.at(-1)!],
+            original.point("upperarm"), first,
+          )[0]
+        : name === "breast" ? first : Calibration.rootStation(original, name);
+      const originalRange: readonly [number, number] = name === "nose"
+        ? AutoMovieHumanPeriodicRailRange(AutoMovieHumanF1RootRails.nose)
+        : [rail - first, rail - first];
+      const originalMinimum: number = name === "nose" ? first + originalRange[0] : rail;
+      const originalMaximum: number = name === "nose" ? first + originalRange[1] : rail;
+      // Only the nose continues to use a port. Side contacts are generated
+      // when the person's actual trunk and limb sources have been declared.
       const prepared: IAutoMovieHumanF1NativeRoot.IPrepared | undefined =
-        name === "leg" ? undefined : prepareRoot(name, 1);
+        name === "nose" ? prepareRoot() : undefined;
       const priorAxis: IAutoMovieViewAxis.IAxis = H.axis(prior);
 
       // The bone-placed course in material stations, and whether a segment length moved the arm's runs. Unmoved, the arm's skin root
@@ -249,16 +250,12 @@ export function AutoMovieHumanF1NativeRoots(context: IContext): IResult {
           ? { station: (originalMaximum + legRelease) / 2, window: (legRelease - originalMaximum) / 2 }
           : undefined,
       );
-      const moved: boolean = name === "arm" && !LengthCourse.unchanged(prior, placed);
       const skin: IAutoMovieViewAxis.IAxis =
-        prepared !== undefined
-          ? moved
-            ? prepared.cutterAxis(boneAxis)
-            : prepared.axis
-          : translated(
-              priorAxis,
-              F.sub(skinPoint(priorAxis.at(0).origin), priorAxis.at(0).origin),
-            );
+        prepared !== undefined ? prepared.axis : name === "arm" ? boneAxis :
+          translated(
+            priorAxis,
+            F.sub(skinPoint(priorAxis.at(0).origin), priorAxis.at(0).origin),
+          );
 
       // The part's own scale past its root, as a station function with its jet (the native source applies it
       // to the source function, not at knots): the limb's site profile, or the root ratio for a rigid part.
@@ -285,32 +282,15 @@ export function AutoMovieHumanF1NativeRoots(context: IContext): IResult {
         featureScale,
         forward,
       );
-      const rootTargets: ReadonlyMap<string, IAutoMovieViewPart> = targets(
-        prior,
-        sourceAxis,
-        rootRatio,
-        features,
-      );
-      let minimumRail: number = originalMinimum,
-        maximumRail: number = originalMaximum;
-      // Tape candidates request these same native source controls, not a port.
-      // Their original material junction/range is independent of the parent cut solve.
+      const rootTargets: ReadonlyMap<string, IAutoMovieViewPart> =
+        targets(prior, sourceAxis, rootRatio, features);
+      let minimumRail: number = originalMinimum;
+      let maximumRail: number = originalMaximum;
       if (prepared !== undefined && request.scope === "all") {
-        const primary: IAutoMovieHumanF1NativeRoot.IRootSpec = prepared.resolve(
-          rootTargets.get(prior.name)!,
-        );
+        const primary: IAutoMovieHumanF1NativeRoot.IRootSpec = prepared.resolve(rootTargets.get(prior.name)!);
         rootPorts.set(prior.name, primary);
         minimumRail = primary.range[0];
         maximumRail = primary.range[1];
-        if (request.scope === "all" && (name === "arm" || name === "breast")) {
-          const mirrored: IAutoMovieHumanF1NativeRoot.IPrepared = prepareRoot(name, -1);
-          const spec: IAutoMovieHumanF1NativeRoot.IRootSpec = mirrored.resolve(
-            rootTargets.get(prior.name + ".mirror")!,
-          );
-          rootPorts.set(prior.name + ".mirror", spec);
-          minimumRail = Math.min(minimumRail, spec.range[0]);
-          maximumRail = Math.max(maximumRail, spec.range[1]);
-        }
       }
       const rootSize: ISize = rootField(name);
       const release: number =
@@ -326,7 +306,7 @@ export function AutoMovieHumanF1NativeRoots(context: IContext): IResult {
           ? Profile.handoff(Profile.constant(rootRatio), own, maximumRail, release)
           : Profile.constant(rootRatio);
       const requirements: N.IProtection[] =
-        name === "arm" || name === "nose"
+        name === "nose"
           ? [{ type: "interval", domain: [minimumRail, maximumRail] }]
           : [
               {
@@ -410,9 +390,7 @@ export function AutoMovieHumanF1NativeRoots(context: IContext): IResult {
     seed: IAutoMovieHumanF1NativeRoot.ISeed,
     hostFace: string,
   ): IAutoMovieConstructionSeed {
-    const port: string = family.name.startsWith(original.axilla.name)
-      ? original.body.arm.name + (family.name.endsWith(".mirror") ? ".mirror" : "")
-      : family.name.startsWith(original.nostril.name) ? original.body.nose.name : "";
+    const port: string = family.name.startsWith(original.nostril.name) ? original.body.nose.name : "";
     const spec: IAutoMovieHumanF1NativeRoot.IRootSpec | undefined = rootPorts.get(port);
     const before: IAutoMovieViewPart | undefined = originals.get(family.name);
     if (spec === undefined || before === undefined)

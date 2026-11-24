@@ -427,7 +427,7 @@ namespace FamilyConicScan {
       const name: string = process.argv[3] ?? "band.nose";
       const every: number = Number(process.argv[4] ?? 48);
       const declared = AutoMovieHumanF1.construction();
-      const real = realizeAutoMovieConstruction({ name: "f1.body", root: declared.root }, { chord: 0.001, sources: declared.sources });
+      const real = realizeAutoMovieConstruction({ name: "f1.body", root: declared.root }, { chord: 0.001, sources: declared.sources, loopSources: declared.loopSources() });
       const face = { surface: real.surfaces.find((s: { name: string }): boolean => s.name === name)! };
       const L: number | undefined = real.chains.find((c: { name: string }): boolean => c.name === name)?.layers.at(-1)?.y;
       if (face.surface === undefined || L === undefined) throw new Error("no band " + name);
@@ -860,7 +860,7 @@ namespace FamilyConicScan {
       const pattern: RegExp = new RegExp(process.argv[3] ?? "^band\\.");
       const columns: number | undefined = process.argv[4] === undefined ? undefined : Number(process.argv[4]);
       const declared = AutoMovieHumanF1.construction();
-      const real = realizeAutoMovieConstruction({ name: "f1.body", root: declared.root, fills: declared.fills }, { chord: 0.001, sources: declared.sources });
+      const real = realizeAutoMovieConstruction({ name: "f1.body", root: declared.root, fills: declared.fills }, { chord: 0.001, sources: declared.sources, loopSources: declared.loopSources() });
       process.stdout.write("diagnostics " + real.diagnostics.length + real.diagnostics.map((d: { node: string; contract: string; detail: string }): string => "\n  " + d.node + " (" + d.contract + "): " + d.detail.slice(0, 200)).join("") + "\nsurfaces " + real.surfaces.map((s: { name: string }): string => s.name).join(", ") + "\n");
       const sub = (a: readonly number[], b: readonly number[]): R.V => [a[0]! - b[0]!, a[1]! - b[1]!, a[2]! - b[2]!];
       const dot = (a: readonly number[], b: readonly number[]): number => a[0]! * b[0]! + a[1]! * b[1]! + a[2]! * b[2]!;

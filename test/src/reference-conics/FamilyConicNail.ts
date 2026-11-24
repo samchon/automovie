@@ -1,16 +1,18 @@
+import { FamilyConicCaptureContext as Capture } from "./FamilyConicCaptureContext";
+import { FamilyConicFigureCapture as Figure } from "./FamilyConicFigureCapture";
+import { FamilyConicNailSourcePose } from "./FamilyConicNailSourcePose";
+import { FamilyConicCaseIdentity as Identity } from "./FamilyConicCaseIdentity";
 import type { FamilyConicSection as C } from "./FamilyConicSection";
 import { FamilyConicSource as R } from "./FamilyConicSource";
 import { NodeCanvasRaster } from "./render/NodeCanvasRaster";
 import type { NodeCanvasTypes as N } from "./render/NodeCanvasTypes";
-import { AutoMovieLoftChain, realizeAutoMovieConstruction } from "@automovie/engine";
+import { AutoMovieLoftChain, AutoMovieViewLoft, realizeAutoMovieConstruction } from "@automovie/engine";
 import {
   AutoMovieHumanConicLoft,
   AutoMovieHumanConicSection,
   AutoMovieHumanF1,
   AutoMovieHumanF1Frames,
   AutoMovieHumanF1Nails,
-  AutoMovieHumanF1Placement,
-  AutoMovieHumanNail,
   AutoMovieHumanNailLoop,
   AutoMovieHumanTipDome,
 } from "@automovie/human";
@@ -47,6 +49,7 @@ import path from "node:path";
  */
 namespace FamilyConicNail {
   type V = R.V;
+  const Evidence = Capture.NailEvidence;
 
   /** A digit's distal segment as the nail reads it. */
   interface IDistal {
@@ -211,11 +214,10 @@ namespace FamilyConicNail {
   };
 
   /**
-   * A digit with its cap started by the body's tip dome law, on the probe's own copy: the station where the stretch left before the
-   * pole is the digit's share of the section's mean reach there (the mean of its four extents, as `rounded` reads it), no earlier than
-   * the family's second knot. Past the last knot the wall has no section of its own, so the reach there is the last knot's.
+   * Read the dome solver's request beside the actual production cap.
+   * The reach past the final authored knot is the section at that knot.
    */
-  function domed(family: IAutoMovieHumanConicLoft.IFamily): { family: IAutoMovieHumanConicLoft.IFamily; was: number; start: AutoMovieHumanTipDome.IStart } {
+  function domeStart(family: IAutoMovieHumanConicLoft.IFamily): AutoMovieHumanTipDome.IStart {
     const end: IAutoMovieHumanConicLoft.ITip | null = family.tips?.[1] ?? null;
     const share: number | undefined = DOME[family.name];
     if (end === null || share === undefined) throw new Error("no tip or no dome share for " + family.name);
@@ -225,8 +227,7 @@ namespace FamilyConicNail {
       const chain: IAutoMovieHumanConicSection.IChain = AutoMovieHumanConicSection.resolve(read(Math.min(s, last)), family.layout);
       return chain.guides.reduce((sum: number, g: number, q: number): number => sum + Math.abs(chain.input.points[g]![q % 2]!), 0) / 4;
     };
-    const start: AutoMovieHumanTipDome.IStart = AutoMovieHumanTipDome.start(reach, end.tip, share, family.knots[1]!);
-    return { family: { ...family, tips: [family.tips?.[0] ?? null, { ...end, from: Math.min(start.from, last) }] }, was: end.from, start };
+    return AutoMovieHumanTipDome.start(reach, end.tip, share, family.knots[1]!);
   }
 
   /**
@@ -239,23 +240,24 @@ namespace FamilyConicNail {
     NodeCanvasRaster.initialize();
     const report: Record<string, unknown>[] = [];
     const cells: ICell[] = [];
-    // The ten nails are made together: the prior's spread is the ten digits' own, so no one digit's roll is final without the others.
-    const lawStarted: number = performance.now();
-    const together: IAutoMovieHumanF1Nails.IMade[] = AutoMovieHumanF1Nails.all(
-      AutoMovieHumanF1.DIGITS.map((digit: IAutoMovieHumanF1.IDigit): IAutoMovieHumanConicLoft.IFamily => domed(digit.family).family),
-      AutoMovieHumanF1Placement.REFERENCE,
+    const assembly: IAutoMovieHumanF1.IAssembly = AutoMovieHumanF1.assemble();
+    const digits: IAutoMovieHumanF1.IDigit[] = assembly.digits.filter((digit: IAutoMovieHumanF1.IDigit): boolean =>
+      only === undefined || digit.family.name === only);
+    if (digits.length === 0) throw new Error("No digit matches " + only);
+    const originals: ReadonlyMap<string, IAutoMovieViewPart> = AutoMovieHumanF1.originalSources(
+      assembly, new Set(digits.map((digit: IAutoMovieHumanF1.IDigit): string => digit.family.name)),
     );
-    const lawEach: number = Math.round((performance.now() - lawStarted) / together.length);
-    for (const digit of AutoMovieHumanF1.DIGITS) {
-      if (only !== undefined && digit.family.name !== only) continue;
-      const dome: { family: IAutoMovieHumanConicLoft.IFamily; was: number; start: AutoMovieHumanTipDome.IStart } = domed(digit.family);
-      const family: IAutoMovieHumanConicLoft.IFamily = dome.family;
+    for (const digit of digits) {
+      const family: IAutoMovieHumanConicLoft.IFamily = digit.family;
+      const original: IAutoMovieViewPart = originals.get(family.name)!;
+      const lawStarted: number = performance.now();
+      const made: IAutoMovieHumanF1Nails.IMade = AutoMovieHumanF1Nails.createFrom(digit, assembly.frames, original);
+      const start: AutoMovieHumanTipDome.IStart = domeStart(family);
       let started: number = performance.now();
-      const row: Record<string, unknown> = { digit: family.name, dome: { from: round(dome.start.from), was: dome.was, pole: family.tips?.[1]?.tip, held: dome.start.held } };
+      const row: Record<string, unknown> = { digit: family.name, dome: { requested: start.from, installed: family.tips?.[1]?.from, pole: family.tips?.[1]?.tip, held: start.held } };
       report.push(row);
-      const made: IAutoMovieHumanF1Nails.IMade = together[AutoMovieHumanF1.DIGITS.indexOf(digit)]!;
       const { plate, bed, frame, readings }: IAutoMovieHumanNail.INail = made.nail;
-      row.lawMilliseconds = lawEach;
+      row.lawMilliseconds = Math.round(started - lawStarted);
       row.profile = made.nail.profile.map((p: { along: number; middle: number; height: number; edge: number; turn: number }): number[] => [round(p.along), round(p.middle), round(p.height), round(p.edge), round((p.turn * 180) / Math.PI, 1)]);
       started = performance.now();
       row.readings = Object.fromEntries(
@@ -269,31 +271,25 @@ namespace FamilyConicNail {
 
       // `--law`: the law's readings and profile only, with no realization.
       if (process.argv.includes("--law")) continue;
-      const hosted: IAutoMovieHumanConicLoft.IFamily = AutoMovieHumanF1Nails.bedded(family, made, true);
+      const hosted: IAutoMovieViewPart = AutoMovieHumanF1Nails.addReliefs(original, family, [bed, made.nail.strip]);
       const cell: number = (bed.stations[1] - bed.stations[0]) / (bed.rows - 3);
-      const stations: number[] = [];
-      const strip: IAutoMovieHumanNail.INail["strip"] = made.nail.strip;
-      const fine: number = (strip.stations[1] - strip.stations[0]) / (strip.rows - 3);
-      for (let s: number = family.knots[0]!; s < family.knots.at(-1)!; s += s >= strip.stations[0] ? fine : s >= bed.stations[0] - 2 ? cell : 2) stations.push(s);
-      const lastKnot: number = family.knots.at(-1)!;
-      stations.push(lastKnot);
       const plateCount: number = Math.ceil(plate.knots.at(-1)! / cell) + 1;
       const plateStations: number[] = Array.from({ length: plateCount }, (_: unknown, i: number): number => (i === plateCount - 1 ? plate.knots.at(-1)! : (plate.knots.at(-1)! * i) / (plateCount - 1)));
       const sources: Map<string, IAutoMovieViewPart> = new Map([
-        [hosted.name, AutoMovieHumanConicLoft.part(hosted, stations)],
+        [hosted.name, hosted],
         [plate.name, AutoMovieHumanConicLoft.part(plate, plateStations)],
       ]);
       // `--loop`: the meeting curve declared from the two lofted surfaces (`AutoMovieHumanNailLoop`) with fold widths, instead of traced.
       let loop: IAutoMovieHumanNailLoop.ILoop | null = null;
       if (process.argv.includes("--loop")) {
-        const lofts: IAutoMovieViewLoft.IResult[] = [AutoMovieHumanConicLoft.create(plate, plateStations), AutoMovieHumanConicLoft.create(hosted, stations)];
+        const lofts: IAutoMovieViewLoft.IResult[] = [AutoMovieViewLoft.create(sources.get(plate.name)!), AutoMovieViewLoft.create(hosted)];
         const [plateChain, hostChain]: (IAutoMovieViewLoft.IResult["chain"] | undefined)[] = [lofts[0]?.chain, lofts[1]?.chain];
         if (plateChain === null || plateChain === undefined || hostChain === null || hostChain === undefined) {
           row.refused = "the plate or the bedded digit does not loft: " + JSON.stringify(lofts.map((l: IAutoMovieViewLoft.IResult): unknown => l.diagnostics)).slice(0, 300);
           continue;
         }
         try {
-          loop = AutoMovieHumanNailLoop.create(made.nail, plateChain, hostChain, family.tips?.[1]?.tip ?? lastKnot, COLUMNS);
+          loop = AutoMovieHumanNailLoop.create(made.nail, plateChain, hostChain, hosted.stations.at(-1)!, COLUMNS);
         } catch (error: unknown) {
           row.refused = error instanceof Error ? error.message : String(error);
           continue;
@@ -361,13 +357,10 @@ namespace FamilyConicNail {
       row.section = { generated: clip(cut(mm, middle, lateral, frame.dorsal), -readings.width, readings.width, -1), reference: clip(cut(source.body, middle, lateral, frame.dorsal), -readings.width, readings.width, -1) };
 
       // The figure's level beside the close-up's: the same digit with its bed alone, its layers cut to the bed's rows only.
-      const plain: IAutoMovieHumanConicLoft.IFamily = AutoMovieHumanF1Nails.bedded(family, made);
-      const plainStations: number[] = [];
-      for (let s: number = family.knots[0]!; s < lastKnot; s += s >= bed.stations[0] - 2 ? cell : 2) plainStations.push(s);
-      plainStations.push(lastKnot);
+      const plain: IAutoMovieViewPart = AutoMovieHumanF1Nails.addReliefs(original, family, [bed]);
       let figured: ReturnType<typeof realizeAutoMovieConstruction>["mesh"] = null;
       try {
-        figured = realizeAutoMovieConstruction({ name: "nail.figure." + family.name, root: base.host, fills: [] }, { chord: 0.001, sources: new Map([[plain.name, AutoMovieHumanConicLoft.part(plain, plainStations)]]) }).mesh;
+        figured = realizeAutoMovieConstruction({ name: "nail.figure." + family.name, root: base.host, fills: [] }, { chord: 0.001, sources: new Map([[plain.name, plain]]) }).mesh;
       } catch (error: unknown) {
         row.figureThrown = error instanceof Error ? error.message : String(error);
       }
@@ -389,8 +382,7 @@ namespace FamilyConicNail {
         ["figure", figured === null ? [] : [{ id: "figure", positions: figured.positions, indices: keep(figured.positions, figured.indices, 1000), colour: [0.64, 0.65, 0.67] }]],
         ["close", [{ id: "close", positions: mesh.positions, indices: keep(mesh.positions, mesh.indices, 1000), colour: [0.64, 0.65, 0.67] }]],
       ];
-      const target: N.Point = [0, 1, 2].map((k: number): number => (frame.origin[k]! + frame.distal[k]! * readings.tip * 0.55) / 1000) as N.Point;
-      const scale: number = 720 / ((readings.tip + 6) / 1000);
+      const limits: V[] = Evidence.points(shown.flatMap(([, meshes]: [string, N.Mesh[]]): N.Mesh[] => meshes));
       const blend = (a: V, b: V, c: V): V => unit([a[0] + b[0] + c[0], a[1] + b[1] + c[1], a[2] + b[2] + c[2]]);
       const cameras: [string, V, V][] = [
         ["dorsal", frame.dorsal, frame.distal],
@@ -399,9 +391,10 @@ namespace FamilyConicNail {
         ["oblique", blend(frame.dorsal, lateral, frame.distal), frame.distal],
         ["oblique-twin", blend(frame.dorsal, neg(lateral), frame.distal), frame.distal],
       ];
+      row.cameras = [];
       for (const [name, back, top] of cameras) {
-        const right: V = unit(cross(top, back));
-        const camera: N.Camera = { name, target, back, right, up: cross(back, right), scale: (scale * CELL) / 900, width: CELL, height: CELL };
+        const camera: N.Camera = Evidence.fit(name, back, top, limits, CELL, CELL);
+        (row.cameras as unknown[]).push({ camera, vertices: limits.length, outside: Evidence.outside(limits, camera) });
         for (const [pass, meshes] of shown) cells.push({ view: name, pass, digit: family.name, png: NodeCanvasRaster.render(camera, meshes, [], "depth", family.name + " | " + pass + " | " + name).png });
       }
     }
@@ -422,87 +415,80 @@ namespace FamilyConicNail {
     process.stdout.write(JSON.stringify({ out, digits: report.map((row: Record<string, unknown>): unknown => ({ digit: row.digit, refused: row.refused, thrown: row.thrown, diagnostics: row.diagnostics, ms: row.milliseconds })) }, null, 1) + "\n");
   }
 
-  /**
-   * The whole figure with its twenty nails, realized once: the figure's own tree from an assembly whose digits carry their beds
-   * (`AutoMovieHumanF1Nails.bedded`), with every plate and its twin merged on (`AutoMovieHumanF1Nails.attach`). Writes `figure.json`
-   * (the diagnostics, the mesh's size, each nail's owners' vertices on both sides) and stills of every distal segment of both sides
-   * cut out of the figure's skin, in clay and coloured by owner, under cameras fixed in the nail's frame and its reflection.
-   */
-  async function figure(out: string): Promise<void> {
-    NodeCanvasRaster.initialize();
-    const started: number = performance.now();
-    const assembled: IAutoMovieHumanF1.IAssembly = AutoMovieHumanF1.assemble();
-    const domes: IAutoMovieHumanF1.IDigit[] = assembled.digits.map((digit: IAutoMovieHumanF1.IDigit): IAutoMovieHumanF1.IDigit => ({ ...digit, family: domed(digit.family).family }));
-    const nails: IAutoMovieHumanF1Nails.IMade[] = AutoMovieHumanF1Nails.all(
-      domes.map((digit: IAutoMovieHumanF1.IDigit): IAutoMovieHumanConicLoft.IFamily => digit.family),
-      assembled.frames,
-    );
-    const placed: IAutoMovieHumanF1.IAssembly = { ...assembled, digits: domes.map((digit: IAutoMovieHumanF1.IDigit, i: number): IAutoMovieHumanF1.IDigit => ({ ...digit, family: AutoMovieHumanF1Nails.bedded(digit.family, nails[i]!) })) };
-    const declared: IAutoMovieHumanF1.IConstruction = AutoMovieHumanF1.constructionFrom(placed);
-    const lawMilliseconds: number = Math.round(performance.now() - started);
-    const sources: Map<string, IAutoMovieViewPart> = new Map(declared.sources);
-    const tree: IAutoMovieConstructionNode = declared.root;
-    const realized: ReturnType<typeof realizeAutoMovieConstruction> = realizeAutoMovieConstruction({ name: "f1.body", root: tree, fills: declared.fills }, { chord: 0.001, sources });
-    const report: Record<string, unknown> = {
-      lawAndDeclarationMilliseconds: lawMilliseconds,
-      milliseconds: Math.round(performance.now() - started),
-      diagnostics: realized.diagnostics.map((d: unknown): string => JSON.stringify(d)).map((text: string): string => (text.length > 700 ? text.slice(0, 200) + " ... " + text.slice(-480) : text)),
-    };
-    if (realized.mesh !== null) {
-      const mesh: NonNullable<typeof realized.mesh> = realized.mesh;
-      report.vertices = mesh.positions.length / 3;
-      report.triangles = mesh.indices.length / 3;
-      const owned: number[] = mesh.owners.map((): number => 0);
-      for (let v: number = 0; v < mesh.positions.length / 3; ++v) owned[mesh.coordinates[v * 3]!]! += 1;
-      report.nailOwners = Object.fromEntries(mesh.owners.map((owner: string, k: number): [string, number] => [owner, owned[k]!]).filter(([owner]: [string, number]): boolean => owner.includes("nail.")));
-      // The vertices each nail's region claims on its digit's face and on the twin's, whose points are read reflected in the median plane.
-      const claimed: Record<string, number> = {};
-      for (const nail of nails)
-        for (const side of [1, -1]) {
-          const face: string = nail.row.digit + (side > 0 ? "" : ".mirror");
-          let count: number = 0;
-          for (let v: number = 0; v < mesh.positions.length / 3; ++v)
-            if (mesh.owners[mesh.coordinates[v * 3]!] === face && AutoMovieHumanNail.owns(nail.nail, [mesh.positions[v * 3]! * 1000, mesh.positions[v * 3 + 1]! * 1000, side * mesh.positions[v * 3 + 2]! * 1000])) count += 1;
-          claimed[face] = count;
-        }
-      report.nailOwned = claimed;
-      const palette = (owner: string): [number, number, number] => (owner.startsWith("fold.nail.") ? [0.25, 0.4, 0.9] : owner.startsWith("nail.") ? [0.85, 0.25, 0.25] : owner.startsWith("band.") ? [0.25, 0.7, 0.3] : [0.64, 0.65, 0.67]);
-      for (const made of nails)
-        for (const side of [1, -1]) {
-          const flip = (a: readonly number[]): V => [a[0]!, a[1]!, side * a[2]!];
-          const frame: { origin: V; distal: V; dorsal: V } = { origin: flip(made.nail.frame.origin), distal: flip(made.nail.frame.distal), dorsal: flip(made.nail.frame.dorsal) };
-          const lateral: V = cross(frame.distal, frame.dorsal);
-          const near = (v: number): boolean => {
-            const d: V = sub([mesh.positions[v * 3]! * 1000, mesh.positions[v * 3 + 1]! * 1000, mesh.positions[v * 3 + 2]! * 1000], frame.origin);
-            return dot(d, frame.distal) > -6 && Math.hypot(dot(d, frame.dorsal), dot(d, lateral)) < 1.2 * made.nail.readings.breadth;
-          };
-          const groups: Map<string, number[]> = new Map();
-          for (let t: number = 0; t < mesh.indices.length; t += 3) {
-            if (!(near(mesh.indices[t]!) && near(mesh.indices[t + 1]!) && near(mesh.indices[t + 2]!))) continue;
-            const owner: string = mesh.owners[mesh.coordinates[mesh.indices[t + 1]! * 3]!]!;
-            const group: number[] = groups.get(owner) ?? [];
-            group.push(mesh.indices[t]!, mesh.indices[t + 1]!, mesh.indices[t + 2]!);
-            groups.set(owner, group);
-          }
-          const shown: [string, N.Mesh[]][] = [
-            ["clay", [...groups].map(([owner, indices]: [string, number[]]): N.Mesh => ({ id: owner, positions: mesh.positions, indices, colour: [0.64, 0.65, 0.67] }))],
-            ["owners", [...groups].map(([owner, indices]: [string, number[]]): N.Mesh => ({ id: owner, positions: mesh.positions, indices, colour: palette(owner) }))],
-          ];
-          const target: N.Point = [0, 1, 2].map((k: number): number => (frame.origin[k]! + frame.distal[k]! * made.nail.readings.tip * 0.5) / 1000) as N.Point;
-          const scale: number = 720 / ((made.nail.readings.tip + 10) / 1000);
-          const cameras: [string, V, V][] = [
-            ["dorsal", frame.dorsal, frame.distal],
-            ["oblique", unit([frame.dorsal[0] + lateral[0] + frame.distal[0], frame.dorsal[1] + lateral[1] + frame.distal[1], frame.dorsal[2] + lateral[2] + frame.distal[2]]), frame.distal],
-          ];
-          for (const [name, back, top] of cameras) {
-            const right: V = unit(cross(top, back));
-            const camera: N.Camera = { name, target, back, right, up: cross(back, right), scale, width: 900, height: 900 };
-            for (const [pass, meshes] of shown) await fs.writeFile(path.join(out, "figure." + made.row.digit + (side > 0 ? "" : ".mirror") + "." + name + "." + pass + ".png"), NodeCanvasRaster.render(camera, meshes, [], "depth", "f1 | figure " + pass + " | " + made.row.digit + (side > 0 ? "" : ".mirror") + " nail | " + name).png);
-          }
-        }
+  /** Share the ordinary production result with Figure and the nail evidence. */
+  async function figure(root: string, out: string): Promise<void> {
+    let observedViewport: ReturnType<typeof Capture.NailEvidence.checkFrame> | null = null;
+    const failures: string[] = [];
+    try {
+      observedViewport = Evidence.checkFrame();
+    } catch (error: unknown) {
+      failures.push(error instanceof Error ? error.message : String(error));
     }
-    await fs.writeFile(path.join(out, "figure.json"), JSON.stringify(report, null, 1));
-    process.stdout.write(JSON.stringify({ out, ...report }, null, 1) + "\n");
+    let operatorControl: ReturnType<typeof Capture.OperatorEvidence.check> | null = null;
+    try {
+      operatorControl = Capture.OperatorEvidence.check();
+    } catch (error: unknown) {
+      failures.push(error instanceof Error ? error.message : String(error));
+    }
+    // The named digit's pose transport on the original source, read before admission so a later refusal still reports it.
+    let sourcePose: FamilyConicNailSourcePose.IRecord | null = null;
+    try {
+      sourcePose = FamilyConicNailSourcePose.read();
+      failures.push(...sourcePose.findings);
+    } catch (error: unknown) {
+      failures.push("source pose: " + (error instanceof Error ? error.message : String(error)));
+    }
+    process.stdout.write(JSON.stringify({ viewport: observedViewport, operatorControl, sourcePose, findings: failures }) + "\n");
+    const observed: Capture.IOrdinaryObservation = {};
+    let context: Capture.IOrdinary;
+    try {
+      context = await Capture.createOrdinary(root, out, (observation): void => {
+        Object.assign(observed, observation);
+      });
+    } catch (error: unknown) {
+      const detail: string = error instanceof Error ? error.message : String(error);
+      const failure = {
+        ...Capture.failedOrdinary(observed),
+        viewport: observedViewport, operatorControl, sourcePose,
+        failures: [...failures, "ordinary candidate preparation: " + detail],
+      };
+      await fs.writeFile(path.join(out, "figure.json"), JSON.stringify(failure, null, 2));
+      throw error;
+    }
+    failures.push(...context.comparison.findings, ...context.operators.failures);
+    let figureReceipt: { file: string; sha256: string } | null = null;
+    try {
+      await Figure.run(context);
+      const directory: string | undefined = context.outputs.figure;
+      if (directory === undefined) throw new Error("The ordinary Figure produced no receipt directory");
+      const file: string = path.join(directory, "receipt.json");
+      figureReceipt = { file, sha256: Identity.byteHash(await fs.readFile(file)) };
+    } catch (error: unknown) {
+      failures.push(error instanceof Error ? error.message : String(error));
+    }
+    let nailEvidence: Capture.NailEvidence.IResult | null = null;
+    try {
+      nailEvidence = await Evidence.run(context, out);
+      failures.push(...nailEvidence.findings);
+    } catch (error: unknown) {
+      failures.push(error instanceof Error ? error.message : String(error));
+    }
+    const report = {
+      ...context.comparison,
+      viewport: observedViewport,
+      operatorControl,
+      sourcePose,
+      operators: context.operators,
+      operatorFailures: context.operators.failures,
+      generationMs: context.generationMs,
+      figure: context.outputs.figure,
+      figureReceipt,
+      nails: nailEvidence,
+      failures,
+    };
+    await fs.writeFile(path.join(out, "figure.json"), JSON.stringify(report, null, 2));
+    process.stdout.write(JSON.stringify({ out, failures }) + "\n");
+    if (failures.length !== 0) throw new Error(failures.join("\n"));
   }
 
   /** Survey every digit and, on request, draw it. */
@@ -511,9 +497,10 @@ namespace FamilyConicNail {
     if (process.argv.includes("--figure")) {
       const made: string = path.join(root, "packages/human/.shots/nails", new Date().toISOString().replaceAll(":", "-") + "-figure");
       await fs.mkdir(made, { recursive: true });
-      return figure(made);
+      return figure(root, made);
     }
     if (process.argv.includes("--realize")) {
+      Evidence.checkFrame();
       const made: string = path.join(root, "packages/human/.shots/nails", new Date().toISOString().replaceAll(":", "-") + "-realize");
       await fs.mkdir(made, { recursive: true });
       return realize(root, made, process.argv.find((arg: string): boolean => arg.startsWith("--digit="))?.slice(8));

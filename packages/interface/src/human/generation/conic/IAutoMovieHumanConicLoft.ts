@@ -53,6 +53,17 @@ export namespace IAutoMovieHumanConicLoft {
     /** Knot values by section field then knot. */
     values: number[][];
 
+    /**
+     * An extended side part (`AutoMovieHumanConicLoft.extended`): the stored first knot's station. From it on the fields are the natural
+     * cubics through the knots from that one, so the stored stretch is unchanged; below it each field leaves that knot on its own tangent
+     * and levels out over the stored first knot interval, then holds (`AutoMovieHumanConicLoft.reader`), down to the joint's loop, where
+     * the part's view and its port start. Absent, the fields are the natural cubics through all the knots.
+     */
+    extended?: number;
+
+    /** Original protected station of a bounded proximal attachment. Distal fields and caps retain their own authority there. */
+    rootSectionMark?: number;
+
     /** Reliefs composed onto the wall; absent means none. */
     reliefs?: IAutoMovieLoftRelief[];
 
@@ -105,7 +116,8 @@ export namespace IAutoMovieHumanConicLoft {
 
     /**
      * The length over which the angle's slope rises or falls beside each knot, mm, one per knot, not negative; on each stretch the two
-     * eases together are no longer than the stretch. Present, the angle is the local eased law; absent, the natural cubic.
+     * eases together are no longer than a stretch where the angle changes. A held angle does not use the ease lengths on its
+     * stretch. Present, the angle is the local eased law; absent, the natural cubic.
      */
     eases?: number[];
   }

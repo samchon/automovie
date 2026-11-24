@@ -11,6 +11,7 @@ import type {
   IAutoMovieViewAxisJet,
   IAutoMovieViewOutline,
   IAutoMovieViewPart,
+  IAutoMovieHumanNativeControlLaw,
 } from "@automovie/interface";
 
 /**
@@ -28,17 +29,8 @@ const JUNCTION_AGREEMENT: number = 1e-9;
 
 /** Native control operations in physical millimetres, before any loft. */
 export namespace AutoMovieHumanNativeControlLaw {
-  /**
-   * Distinct exact contracts: one whole polynomial interval or one complete boundary jet.
-   *
-   * @evidence contracts/development/design.md#principled-representation A closed discriminator separates whole-function preservation from a single native junction; physical station values are millimetres.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Both arms are consumed by current head/curved-rail interval and breast/leg junction owners.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts A junction never certifies its adjacent interval; nonlinear parameter changes cannot silently weaken the interval arm.
-   * @evidence contracts/development/common.md#meaningful-documentation Names the two derivative/domain promises and physical units.
-   */
-  export type IProtection =
-    | { type: "interval"; domain: readonly [number, number] }
-    | { type: "junction"; station: number };
+  /** The precise source interval or junction protected during scaling. */
+  export type IProtection = IAutoMovieHumanNativeControlLaw.IProtection;
   /**
    * Transform a complete planar original by positive directional scale and centre translation.
    *

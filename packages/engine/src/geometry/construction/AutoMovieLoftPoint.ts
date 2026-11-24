@@ -13,6 +13,7 @@ import { AutoMovieLoftCoefficientSource } from "./AutoMovieLoftCoefficientSource
 import { AutoMovieLoftFrame } from "./AutoMovieLoftFrame";
 import { AutoMovieLoftReliefCompose } from "./AutoMovieLoftReliefCompose";
 import { AutoMovieLoftSection } from "./AutoMovieLoftSection";
+import { AutoMovieLoftSectionOriginal } from "./AutoMovieLoftSectionOriginal";
 import { AutoMovieSplineCurve } from "./AutoMovieSplineCurve";
 import { AutoMovieStationHermite } from "./AutoMovieStationHermite";
 
@@ -37,10 +38,11 @@ export namespace AutoMovieLoftPoint {
     const cap: ((phi: number) => IAutoMovieLoftPhaseReading) | null =
       AutoMovieLoftCapRead.phase(chain, s);
     if (cap !== null) return (t: number): [number, number, number] => cap(t).p;
+    const original = AutoMovieLoftSectionOriginal.active(chain.originalSection, s) ? chain.originalSection! : undefined;
     const source: ((phi: number) => IAutoMovieLoftSectionPhase) | null =
-      AutoMovieLoftSection.phase(chain, s);
+      original === undefined ? AutoMovieLoftSection.phase(chain, s) : null;
     const c: number[] | null =
-      source === null ? AutoMovieLoftChain.coefficients(chain, s) : null;
+      source === null && original === undefined ? AutoMovieLoftChain.coefficients(chain, s) : null;
     const f: IAutoMovieLoftSectionFrame = AutoMovieLoftChain.frame(chain, s);
 
     // A lifted section leaves its plane along the frame normal by the
@@ -52,7 +54,7 @@ export namespace AutoMovieLoftPoint {
 
     return (t: number): [number, number, number] => {
       const p: readonly number[] =
-        source === null
+        original !== undefined ? original.point(s, t) : source === null
           ? AutoMovieLoftChain.section(chain, c!, t)
           : source(t).p;
       const q: [number, number, number] = AutoMovieLoftFrame.place(
@@ -69,7 +71,7 @@ export namespace AutoMovieLoftPoint {
         for (let k: number = 0; k < 3; k++) q[k]! += h * n[k]!;
       }
       AutoMovieLoftReliefCompose.point(q, chain.reliefs ?? [], s, t);
-      if (source !== null && !q.every(Number.isFinite))
+      if ((source !== null || original !== undefined) && !q.every(Number.isFinite))
         throw new Error("The actual native point has no finite world value.");
       return q;
     };

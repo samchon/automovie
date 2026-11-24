@@ -1,4 +1,7 @@
-import type { AutoMovieVector2Tuple } from "@automovie/interface";
+import type {
+  AutoMovieVector2Tuple,
+  IAutoMovieHumanNativeSiteReaches,
+} from "@automovie/interface";
 
 /**
  * A measurement site's four reaches about a stated centre, and how tissue and bone move them.
@@ -17,28 +20,10 @@ import type { AutoMovieVector2Tuple } from "@automovie/interface";
  */
 export namespace AutoMovieHumanNativeSiteReaches {
   /** A section's four reaches from its centre, mm, each positive. */
-  export interface IReaches {
-    /** Along `+u`. */
-    front: number;
-
-    /** Along `-u`. */
-    back: number;
-
-    /** Along `+v`. */
-    lateral: number;
-
-    /** Along `-v`. */
-    medial: number;
-  }
+  export type IReaches = IAutoMovieHumanNativeSiteReaches.IReaches;
 
   /** Where a depth and a breadth are split about the centre, each a share in (0, 1). */
-  export interface IShares {
-    /** The share of the depth that lies along `+u` of the centre. */
-    front: number;
-
-    /** The share of the breadth that lies along `+v` of the centre. */
-    lateral: number;
-  }
+  export type IShares = IAutoMovieHumanNativeSiteReaches.IShares;
 
   const positive = (what: string, x: number): void => {
     if (!(Number.isFinite(x) && x > 0)) throw new Error("site reaches: " + what + " must be finite and positive");

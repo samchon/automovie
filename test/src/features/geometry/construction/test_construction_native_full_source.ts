@@ -32,8 +32,10 @@ type V = [number, number, number];
  * 3. A root-parameter cap has analytic radius 2sqrt(s), a phase-constant pole
  *    value and unavailable regular pole2. A relief that deforms the pole refuses.
  * 4. Outside/nonfinite queries refuse and actual axis callback errors propagate.
- * 5. A small real view-loft counterpart reads the same complete original field
- *    through the existing Point0 and physical2 consumers after extraction.
+ * 5. The actual view-loft counterpart and a same-address relief perturbation
+ *    keep the complete original Point0 before and after view-loft publication.
+ * 6. A successful raw cap Point0 does not admit an original field overlapping
+ *    that cap as an ordinary solid view loft.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the public original reader on complete in-memory descriptors and separately compares its Point0/physical2 with actual ViewLoft/LoftChain/LoftJet consumers. Every scenario is collected before one verdict; no process, reference asset or renderer is used.
  * @evidence contracts/development/testing.md#independent-expectations A circle has elementary trigonometric derivatives. On the first cardinal-cubic span the sole central coefficient contributes x^3*y^3/36; expanding its shifted argument gives the explicit monomials below, differentiated algebraically without Relief.height/jet or finite differences. The cap uses radius 2sqrt(s).
@@ -88,6 +90,8 @@ export function test_construction_native_full_source(): void {
   const before: string = JSON.stringify(input);
   const reader: IAutoMovieLoftViewFullSource.IReader =
     AutoMovieLoftViewFullSource.create(input);
+  if (reader.regular === null) failures.push("the open direct source lost its regular material span");
+  else check("open-source regular endpoints", reader.regular, [0, 4]);
   const s: number = 0.4;
   const t: number = 0.5;
   const expected: IAutoMovieSolidSurface.IJet = polynomial(s, t);
@@ -123,6 +127,23 @@ export function test_construction_native_full_source(): void {
     };
     for (const key of ["p", "u", "v", "uu", "uv", "vv"] as const)
       check("existing physical2 consumer " + key, published[key], actual[key]);
+    // Feature heights scale linearly with this single changed ordinate. The
+    // original scalar station, phase and feature shift do not move.
+    const gain: number = 0.125;
+    const perturbed: IAutoMovieViewPart = {
+      ...part, reliefs: [{ ...feature, heights: heights.map((value): number => value * (1 + gain)) }],
+    };
+    const moved = AutoMovieLoftViewFullSource.create(perturbed);
+    const baselinePoint = reader.point(s, t), movedPoint = moved.point(s, t);
+    const delta: V = [0, (expected.p[1] - s) * gain, (expected.p[2] - 2 * Math.sin(t)) * gain];
+    check("original same-address displacement", movedPoint.map((v, k) => v - baselinePoint[k]!), delta);
+    const assembled = AutoMovieViewLoft.create(perturbed).chain;
+    if (assembled === null) failures.push("same-address perturbed loft refused");
+    else {
+      const before = AutoMovieLoftChain.point(chain, s, t);
+      check("published same-address displacement", AutoMovieLoftChain.point(assembled, s, t)
+        .map((v, k) => v - before[k]!), delta);
+    }
   }
 
   const without2: IAutoMovieLoftViewFullSource.IReader =
@@ -139,8 +160,28 @@ export function test_construction_native_full_source(): void {
   if (JSON.stringify(input) !== before)
     failures.push("original controls mutated");
 
-  const cap: IAutoMovieLoftViewFullSource.IReader =
-    AutoMovieLoftViewFullSource.create(cylinder([], true, true));
+  const capInput: IAutoMovieLoftViewFullSource.IInput = cylinder([], true, true);
+  const cap: IAutoMovieLoftViewFullSource.IReader = AutoMovieLoftViewFullSource.create(capInput);
+  if (cap.regular !== null) failures.push("an entirely capped source supplied a regular interval");
+  const local = (xyz: V): [number, number] => [xyz[0], xyz[2]];
+  const localJet = (s: number, phase: number) => {
+    const j = cap.jet(s, phase);
+    return { p: local(j.p), s: local(j.u), t: local(j.v), ss: local(j.uu), st: local(j.uv), tt: local(j.vv) };
+  };
+  const overlap: IAutoMovieViewPart = {
+    ...part, ...capInput,
+    originalSection: { name: part.name, domain: [0.5, 1.5], jet: localJet,
+      point: (s, phase) => local(cap.point(s, phase)),
+      phase: (s, phase) => {
+        const { p, t, tt } = localJet(s, phase);
+        return { p, t, tt };
+      } },
+  };
+  check("point in a declared cap interval", AutoMovieLoftViewFullSource.create(overlap).point(1, t),
+    [2 * Math.cos(t), 1, 2 * Math.sin(t)]);
+  const unavailable = AutoMovieViewLoft.create(overlap);
+  if (unavailable.chain !== null || !unavailable.diagnostics.some((row) => row.contract === "original section"))
+    failures.push("a direct Point0 promoted an original section overlapping a bottom cap to an admitted loft");
   check("collapsed Point0", cap.point(0, t), [0, 0, 0]);
   refuses("collapsed pole2", (): unknown => cap.jet(0, t));
   const capJet: IAutoMovieSolidSurface.IJet = cap.jet(1, t);

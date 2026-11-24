@@ -1,7 +1,6 @@
 import {
   FamilyConicCaptureCatalog as Catalog,
 } from "../../../reference-conics/FamilyConicCaptureCatalog";
-import { ConstructionShapes } from "../../internal/construction/ConstructionShapes";
 import { nclose } from "../../internal/nclose";
 import { AutoMovieSolidChain, AutoMovieSplineCurve } from "@automovie/engine";
 import type {
@@ -41,9 +40,7 @@ export function test_human_capture_catalog_endpoints(): void {
     TestValidator.predicate("the actual upper endpoint is admitted", nclose(point(hi, 0)[1], hi, 0));
 
     const declared: Parameters<typeof Catalog.create>[0] = {
-      root: ConstructionShapes.cylinder("unused-root", ConstructionShapes.DOWN, 0.001, 0.001, 2),
       sources: new Map<string, IAutoMovieViewPart>(),
-      fills: [],
     };
     const result: Catalog.IResult = Catalog.create(declared, [surface], []);
     const clocks: Catalog.IResult["curves"] = result.curves.filter((curve: Catalog.IResult["curves"][number]): boolean => curve.id.startsWith("operator.endpoint-tube.clock."));

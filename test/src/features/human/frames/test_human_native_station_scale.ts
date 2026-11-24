@@ -2,6 +2,9 @@ import { AutoMovieViewOutline } from "@automovie/engine";
 import {
   AutoMovieHumanConicLoft as H,
   AutoMovieHumanConicSection as S,
+  AutoMovieHumanF1,
+  AutoMovieHumanF1Placing,
+  AutoMovieHumanF1SegmentLengths,
   AutoMovieHumanNativeFamily as Native,
   AutoMovieHumanNativeScaleProfile as Profile,
   AutoMovieHumanNativeSourceLaw,
@@ -9,6 +12,7 @@ import {
 import type {
   AutoMovieVector2Tuple,
   IAutoMovieHumanConicLoft,
+  IAutoMovieHumanF1NativeLaw,
   IAutoMovieViewAxis,
   IAutoMovieViewOutline,
   IAutoMovieViewPart,
@@ -61,6 +65,40 @@ import type {
  */
 export function test_human_native_station_scale(): void {
   const failures: string[] = [];
+  const rawDigit = AutoMovieHumanF1.PRE_DOME_DIGITS[0]!.family;
+  const priorTip = rawDigit.tips?.[1];
+  if (priorTip === undefined || priorTip === null) throw new Error("the selected test digit needs a real authored distal tip");
+  const marker = (priorTip.rings ?? 0) + 1;
+  const ordinaryDigit = AutoMovieHumanF1.DIGITS.find((digit): boolean => digit.family.name === rawDigit.name)!.family;
+  const expectedFrom = ordinaryDigit.tips![1]!.from;
+  const markedFrom = (expectedFrom + priorTip.tip) / 2;
+  const marked: IAutoMovieHumanConicLoft.IFamily = { ...rawDigit, tips: [rawDigit.tips?.[0] ?? null, { ...priorTip, from: markedFrom, rings: marker }] };
+  const fromRaw = AutoMovieHumanF1.assemble(undefined, undefined, new Map([[marked.name, marked]]));
+  const selected = fromRaw.reference(marked.name);
+  const placedDigit = fromRaw.digits.find((digit): boolean => digit.family.name === marked.name)!.family;
+  if (selected.tips?.[1]?.rings !== marker || placedDigit.tips?.[1]?.rings !== marker ||
+      selected.tips[1]!.from !== expectedFrom || placedDigit.tips[1]!.from !== expectedFrom || expectedFrom === markedFrom)
+    failures.push("the selected marked raw digit did not supply its placed once-domed material");
+  const size = { depth: 1, breadth: 1 };
+  const fields: IAutoMovieHumanF1NativeLaw.IFields = {
+    hipJointCentreBreadth: 2 * AutoMovieHumanF1Placing.CHAIN.find((joint): boolean => joint.name === "femur")!.offset[2],
+    lengths: AutoMovieHumanF1SegmentLengths.F1, breastProjection: 1,
+    wall: { hipSkin: size, omphalionWall: size, underbustWall: size, bustWall: size, neckSkin: size, headSkin: size },
+    roots: { arm: size, leg: size, breast: size, nose: size },
+    arm: { upperArm: size, elbow: size, forearm: size, wrist: size },
+    leg: { knee: size, calf: size, ankle: size },
+    extremities: { hand: size, foot: size, finger: size, toe: size },
+  };
+  const nativeBone = AutoMovieHumanF1.nativeFrom(fields, {
+    fields,
+    reference: fromRaw.reference,
+    get calibration(): never { throw new Error("the source-selection boundary unexpectedly requested real calibration"); },
+    tapeFamilies: (): never => { throw new Error("source selection unexpectedly requested a tape inverse"); },
+    apply: (_fields, bone) => bone,
+  });
+  const nativeDigit = nativeBone.digits.find((digit): boolean => digit.family.name === selected.name)!.family;
+  if (nativeBone.reference(selected.name) !== selected || nativeDigit.tips?.[1]?.rings !== marker || nativeDigit.tips[1]!.from !== expectedFrom)
+    failures.push("the prepared original was discarded or domed again before native placement");
   const R: number = 100;
   const share: number = 0.5;
   const median: number = (R * (1 + share)) / 2;
@@ -204,6 +242,38 @@ export function test_human_native_station_scale(): void {
     if (!(Math.abs(read(piece(anisotropic).shoulder, s)[0] - read(originalPiece.shoulder, s)[0]) <= 1e-12))
       failures.push("anisotropic median shoulder changed at " + s);
   }
+
+  // An independently named station between two angle knots owns the transformed original jet there.
+  const at: number = 21;
+  const ratio: AutoMovieVector2Tuple = [1.2, 0.8];
+  const twist: IAutoMovieViewPart.IOutline = { knots: [
+    { site: "proximal", station: 0, value: 1.8 },
+    { site: "distal", station: 100, value: 2.8 },
+  ] };
+  if (original.fullness.kind !== "top" || original.fullness.pieces === undefined)
+    throw new Error("the made source lacks its median");
+  const varied: IAutoMovieViewPart = { ...original, fullness: { ...original.fullness, pieces: [
+    [{ ...originalPiece, angle: twist }], original.fullness.pieces[1],
+    original.fullness.pieces[2], original.fullness.pieces[3],
+  ] } };
+  const target = (station?: number): IAutoMovieViewPart =>
+    AutoMovieHumanNativeSourceLaw(varied, axis, ratio, [], undefined, station);
+  const raw: number = 1.8 + at / 100;
+  const [a, b] = ratio;
+  const cs: number = Math.cos(raw);
+  const sn: number = Math.sin(raw);
+  const den: number = a * a * cs * cs + b * b * sn * sn;
+  const expected: [number, number, number] = [
+    Math.atan2(b * sn, a * cs), a * b / (100 * den),
+    2 * a * b * (a * a - b * b) * sn * cs / (10000 * den * den),
+  ];
+  const anchored: IAutoMovieViewPart.IOutline = piece(target(at)).angle;
+  const unanchored: IAutoMovieViewPart.IOutline = piece(target()).angle;
+  if (anchored.knots.map((k): number => k.station).join(",") !== "0,21,100" ||
+      unanchored.knots.length !== 2 ||
+      !read(anchored, at).every((v: number, k: number): boolean => Math.abs(v - expected[k]!) < 1e-12) ||
+      !read(unanchored, at).some((v: number, k: number): boolean => Math.abs(v - expected[k]!) > 1e-9))
+    failures.push("the actual junction did not distinguish the transformed source jet from endpoint interpolation");
 
   // 4. Identity returns the original outline objects.
   const identity: IAutoMovieViewPart = build(

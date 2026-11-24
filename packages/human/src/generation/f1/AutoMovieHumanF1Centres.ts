@@ -11,6 +11,7 @@ import type {
   AutoMovieVector3Tuple,
   IAutoMovieHumanConicLoft,
   IAutoMovieHumanConicSection,
+  IAutoMovieHumanF1Centres,
   IAutoMovieHumanF1Placement,
   IAutoMovieHumanF1Placing,
   IAutoMovieHumanF1SegmentLengths,
@@ -41,70 +42,16 @@ import type {
  */
 export namespace AutoMovieHumanF1Centres {
   /** What a course centre is. */
-  export type Kind = "joint" | "origin" | "datum";
+  export type Kind = IAutoMovieHumanF1Centres.Kind;
 
-  /**
-   * One course centre's inventory row.
-   *
-   * @evidence contracts/development/design.md#principled-representation The centre's kind, the frame that holds it, where f1's value comes from and the rule that should generate it.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Five members, all read by the centre table.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts A datum with no generating rule yet says so in `rule` rather than passing as a joint.
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states what it holds.
-   */
-  export interface ICentre {
-    /** The centre's name in `AutoMovieHumanF1Placing.POINTS`. */
-    name: string;
-    /** The segment whose frame holds it. */
-    frame: string;
-    /** Its kind. */
-    kind: Kind;
-    /** Where f1's value comes from. */
-    source: string;
-    /** The rule that generates it from joint centres, segment frames and the person's measures. */
-    rule: string;
-  }
+  /** One course centre's inventory row. */
+  export type ICentre = IAutoMovieHumanF1Centres.ICentre;
 
-  /**
-   * One turn of a course, measured.
-   *
-   * @evidence contracts/development/design.md#principled-representation The engine's own turn (angle, set-back, station) beside the section's size there, the quantities a half-length law would relate.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Each member is one column of the turn table.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The section's size is read from the family's own fields, not from a loft.
-   * @evidence contracts/development/common.md#meaningful-documentation Members state units.
-   */
-  export interface ITurn {
-    /** The interior centre's name. */
-    centre: string;
-    /** The stored half arclength, mm. */
-    half: number;
-    /** The turn's angle, radians. */
-    angle: number;
-    /** How far the turn leaves each segment's line before the centre, mm. */
-    setback: number;
-    /** How far the course stands from the centre at the turn's middle, mm. */
-    gap: number;
-    /** The station of the turn's middle, mm. */
-    station: number;
-    /** The mean of the section's four guide reaches at that station, mm; NaN outside the family's knots. */
-    radius: number;
-  }
+  /** One turn of a course, measured. */
+  export type ITurn = IAutoMovieHumanF1Centres.ITurn;
 
-  /**
-   * How far a course stands from its section and from its bone at one station.
-   *
-   * @evidence contracts/development/design.md#principled-representation The section's centre as the mean of its four guide extremes in the section chart, and the course point's distance to the bone line.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Three members, the offset table's columns.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts A family without a bone line reports null, not zero.
-   * @evidence contracts/development/common.md#meaningful-documentation Members state units and frames.
-   */
-  export interface IOffset {
-    /** The station, mm. */
-    station: number;
-    /** The mean of the four guide extremes in the section chart `[u, v]`, mm from the course point. */
-    centroid: [number, number];
-    /** The course point's distance to the bone line, mm; null where the family has no bone line or the station lies past its ends. */
-    bone: number | null;
-  }
+  /** How far a course stands from its section and from its bone at one station. */
+  export type IOffset = IAutoMovieHumanF1Centres.IOffset;
 
   /**
    * The authored course datums that follow a joint centre of their own frame: each keeps f1's offset from that joint centre in the frame

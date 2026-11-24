@@ -49,6 +49,8 @@ import type {
  *    about the course. On the first two runs and across both joints (stations 0, 50, 100, 150, 205) the rolled axis is the unrolled
  *    axis bit for bit, `u` and `v`; a roll that is one cubic through all its knots stands 1e-9 rad off there, which refuses a root
  *    whose planes must agree to 64 machine epsilons (f1's leg under a changed foot length).
+ * 10. A held angle across a stored turn returns its exact constant jet. The same oversubscribed ease lengths in a changing span
+ *     are rejected.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls `AutoMovieHumanConicPose.share`, `course`, `halves`, `map`, `twist` and `repose` and reads the results through the engine's `prepare`, `runs` and `jointed` axis.
  * @evidence contracts/development/testing.md#independent-expectations The engine's own set-back and stations, a bone rotated rigidly about its joint, and a chart turned by a known angle about a straight course are derived apart from the law's formulas.
@@ -175,6 +177,24 @@ export function test_human_conic_pose(): void {
     const [plain, rolled] = [AutoMovieHumanConicLoft.axis(long), AutoMovieHumanConicLoft.axis({ ...long, roll: distal })];
     for (const s of [0, 50, 100, 150, 205]) near("untwisted runs at " + s, [...rolled.at(s).u, ...rolled.at(s).v], [...plain.at(s).u, ...plain.at(s).v], 0);
     near("twisted end", [Math.atan2(-rolled.at(300).u[2], rolled.at(300).u[0])], [0.1], 1e-12);
+  }
+
+  // 10: a constant turn has no ease interpolation even if its endpoint difference gives a truncated stored span.
+  const knots: number[] = [400, 512, 592 - 2 ** -43, 700];
+  const eases: number[] = [0, 40, 40, 0];
+  try {
+    const held = AutoMovieHumanConicLoft.eased({ knots, eases, values: [0, 0.4, 0.4, 0.8] });
+    for (const station of [knots[1]!, 552, knots[2]!])
+      near("held roll at " + station, held(station), [0.4, 0, 0], 0);
+  } catch (error: unknown) {
+    failures.push("a held turn was refused: " + (error instanceof Error ? error.message : String(error)));
+  }
+  try {
+    AutoMovieHumanConicLoft.eased({ knots, eases, values: [0, 0.4, 0.6, 0.8] });
+    failures.push("an active stretch accepted ease lengths that overlap");
+  } catch (error: unknown) {
+    if (!(error instanceof Error && error.message.includes("are negative or longer")))
+      failures.push("the active overlap did not reach the intended admission");
   }
 
   if (failures.length > 0) throw new Error(`conic pose: ${failures.length} finding(s):\n${failures.join("\n")}`);

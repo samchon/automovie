@@ -24,7 +24,7 @@ import type {
  * One directional native source definition from complete native source controls, under a constant scale or a station-varying one.
  *
  * Constant scale: coordinate functions scale exactly. A changed tangent-angle law is a native shared-jet quintic through the transformed
- * original knots, with its actual derivatives there; it is not claimed the exact nonlinear angular pullback between knots. Uniform scale
+ * original knots and any independently measured interior junction, with its actual derivatives there. Uniform scale
  * retains the original angle/fullness functions.
  *
  * Station-varying scale (a profile that carries its jet and is not constant): the scale applies to the source function, not to the
@@ -56,7 +56,9 @@ export function AutoMovieHumanNativeSourceLaw(
   scale: AutoMovieVector2Tuple | Profile.IScale,
   features: IAutoMovieLoftRelief[],
   centre?: Profile.ICentre,
+  measuredAt?: number,
 ): IAutoMovieViewPart {
+  if (measuredAt !== undefined && !Number.isFinite(measuredAt)) throw new Error("the measured target station is not finite");
   if (!Array.isArray(scale) && scale.constant === null)
     return varying(original, axis, scale, features, centre);
   const [a, b]: AutoMovieVector2Tuple = Array.isArray(scale) ? scale : scale.constant!;
@@ -117,13 +119,22 @@ export function AutoMovieHumanNativeSourceLaw(
     const prepared = AutoMovieViewOutline.create(source);
     if ("contract" in prepared) throw new Error(prepared.detail);
     const span: number = prepared.spline.xs.at(-1)! - prepared.spline.xs[0]!;
+    const knots: IAutoMovieViewPart.IKnot[] = [...source.knots];
+    if (measuredAt !== undefined && measuredAt > prepared.domain[0] && measuredAt < prepared.domain[1] &&
+        !knots.some((k: IAutoMovieViewPart.IKnot): boolean => k.station === measuredAt)) {
+      const gap: number = AutoMovieLoftContract.splineGap(prepared.domain);
+      if (knots.some((k: IAutoMovieViewPart.IKnot): boolean => Math.abs(k.station - measuredAt) < gap))
+        throw new Error("the independently measured station is within the scalar knot gap at " + measuredAt);
+      const at: number = knots.findIndex((k: IAutoMovieViewPart.IKnot): boolean => k.station > measuredAt);
+      knots.splice(at, 0, { site: "junction." + measuredAt, station: measuredAt, value: NaN });
+    }
     const transform = (theta: number): number => {
       const raw: number = Math.atan2(b * Math.sin(theta), a * Math.cos(theta));
       return raw + 2 * Math.PI * Math.round((theta - raw) / (2 * Math.PI));
     };
     return {
       ...source,
-      knots: source.knots.map(
+      knots: knots.map(
         (k: IAutoMovieViewPart.IKnot): IAutoMovieViewPart.IKnot => {
           const read = AutoMovieViewOutline.at(prepared, k.station);
           if (typeof read === "string") throw new Error(read);

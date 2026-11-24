@@ -13,7 +13,7 @@ How each statement was obtained:
 
 Runs named below, all under `packages/human/.shots/nails`: `survey` is `2026-11-17T12-28-41.521Z` (every digit's distal segment cut in its own frame, reference and generated family), `probe` is the `-realize` run named in the premise table (every digit alone with its nail, realized by the engine).
 
-## Today
+## Baseline before nail relief
 
 **Generated (code, frame).** Each digit is one conic family fitted to the convex hull of the reference's sections (a tape wall) and closed in a cap from its last knot. No relief, line or part stands for a nail: `finger.index.dorsal.generated` of `survey` is a bare dome, and so are the other nine. The hull runs over the nail, so on the dorsal side of a distal segment the wall is the plate's own surface, bridged over the folds.
 
@@ -35,11 +35,12 @@ The segment frames of `AutoMovieHumanF1Frames` point their dorsal axis at the na
 
 ## What others do
 
-| System | How nails are carried | Read |
+| System | Geometry and ownership | Material |
 | --- | --- | --- |
-| MakeHuman base mesh in MPFB2 | A quad patch welded into the one skin: vertex groups `fingernails` (168 vertices) and `toenails` (270), no separate shell, no nail morph target; the material is the skin's copied into a slot of its own and routed by mask textures. Fingernail vertices are rigid on the distal bone (least dominant weight 0.974); toenails are blended across the toe's bones | Group lists, the base mesh's faces and one weight file parsed by a subagent; morph targets by name only |
-| Anny | The same mesh and weights, no handling of its own | Loader and data folder searched |
-| Dust3D, Blender's skin modifier | No notion of a nail or of a rigid shell on a limb tip | Searched, not read in full |
+| MakeHuman and MPFB2 | The pinned base OBJ has one indexed body skin. Its finger-nail group selects 168 indices and 92 complete quads. The toe-nail group selects 270 indices and 200 complete quads. Every selected-patch perimeter edge has two actual body-face incidences, 132 for the fingers and 120 for the toes. The count establishes shared body indices at those boundaries. | MPFB2 copies the base material into a named instance assigned through each vertex group. The skin node router also uses nail masks to select nail shaders. [Base OBJ](https://github.com/makehumancommunity/mpfb2/blob/9de0707fdc88438d7c53a1a2ac7937d9221e2431/src/mpfb/data/3dobjs/base.obj), [index groups](https://github.com/makehumancommunity/mpfb2/blob/9de0707fdc88438d7c53a1a2ac7937d9221e2431/src/mpfb/entities/socketobject/_extra_vertex_groups.py#L9-L14), [material assignment](https://github.com/makehumancommunity/mpfb2/blob/9de0707fdc88438d7c53a1a2ac7937d9221e2431/src/mpfb/services/materialservice.py#L400-L459), [shader routing](https://github.com/makehumancommunity/mpfb2/blob/9de0707fdc88438d7c53a1a2ac7937d9221e2431/src/mpfb/entities/nodemodel/v2/composites/nodewrappermpfbbodysectionsrouter.py) |
+| Anny | Its loader reads the same OBJ blob and selects its `body` face indices. It is a second consumer of the same topology. | The loader reads separate mesh and texture indices. [Anny loader](https://github.com/naver/anny/blob/8f35dc2df1c4062fd2fae86734f9705de50c0c2b/src/anny/models/full_model.py#L418-L438) |
+| Epic MetaHuman | The public material documentation does not expose nail index ownership or the method shaping the folds. | Separate fingernail and toenail color controls can bake into final skin textures. [Skin Material Tools](https://dev.epicgames.com/documentation/metahuman/skin-material-tools?lang=en-US) |
+| Daz Genesis 9 | The merchant resources list nail length and shape morphs in the base figure's morph paths. The general DSON graft contract declares boundary-index pairs and hidden target polygons, while the public nail entries give no base nail seam indices. | Products list independent nail materials. [Morph and material files](https://docs.daz3d.com/public/read_me/index/87627/file_list), [graft specification](https://docs.daz3d.com/public/dson_spec/object_definitions/graft/start) |
 
 ## Published proportions
 
@@ -49,14 +50,21 @@ The segment frames of `AutoMovieHumanF1Frames` point their dorsal axis at the na
 | Width over length from the proximal fold's groove to the fingertip, women | 0.91 for every finger | The same table |
 | Radius of the plate at its crown | Women: thumb 9.6, index 7.4, middle 7.3, ring 6.8, little 5.2 mm; 0.59 to 0.75 of the width over both sexes | The same table; Murdan S, Int J Cosmet Sci 2011;33(6):509-513 gives 5.3 to 10.4 mm for women (preprint table read) |
 | Plate thickness, fingers I to V | 0.48, 0.47, 0.47, 0.45, 0.42 mm | Bellinato F et al., Arch Dermatol Res 2023;315(3):593-600, ultrasound; extracted text |
+| Plate thickness of women, fingers II to V | 0.405, 0.39, 0.37, 0.355 mm (mean 0.38) | Szymoniak-Lipska M et al., Front Med 2021;8:686470, high-frequency ultrasound; the rows' source since 2026-11-23 |
+| Normal axial rotation of the fingers | rms 0.183 rad (10.5 degrees) | Clarke et al. 2012, Orthopaedic Proceedings 94-B SUPP III:85, abstract only; the nails' roll spread (`TURN`), the toes by the same value as an estimate |
 | Second toe | Distal matrix width 8.80 mm, nail bed length 5.68 mm | Palomo-Lopez P et al., Diagnostics 2020;10(3):147, 50 cadaver toes; extracted text |
 | Hallux nail width, women | 13.9 mm at its root | Jung DJ et al., Arch Plast Surg 2015;42(2):207-213; extracted text |
+| Hallux plate thickness at a clipped free edge | Young women 0.452 ± 0.152 mm, middle-aged women 0.591 ± 0.188 mm | Mingorance Álvarez E et al., Biology 2021;10(1):53, sections 2.2–2.3 and table 1, measured on SEM images of healthy first-toe clippings. [Paper](https://pmc.ncbi.nlm.nih.gov/articles/PMC7828269/) |
+| Hallux plate thickness on the intact plate | Women 0.57 ± 0.13 mm right and 0.60 ± 0.13 mm left | López Ripado O et al., Clinical Anatomy 2024;37(3):366–374, figure 2 and table 3, longitudinal ultrasound. [Paper](https://onlinelibrary.wiley.com/doi/full/10.1002/ca.24145) |
+| Hallux transverse curvature | Women 25.32 ± 4.15 degrees right and 25.13 ± 3.20 degrees left | López Ripado et al., figure 3 and table 3, angle between the edge-to-edge chord and the edge-to-centre line in the transverse ultrasound section. [Paper](https://onlinelibrary.wiley.com/doi/full/10.1002/ca.24145) |
 | Plate hidden under the proximal fold | 3.9 mm (thumb), 4.1 mm (index) | Michelucci A et al., Diagnostics 2023;13(16):2716, patients; extracted text |
 | Angle between the plate and the proximal fold's skin | 171.4 degrees, SD 5.5 | Cited from Sinniah and Omar after Bentley 1976; a secondary citation, the paper not obtained |
 
-Not found: a longitudinal radius of the plate, the depth of the proximal or the lateral folds on healthy digits, a toenail's width against the toe's skin breadth, the lengths of toenails 1 and 3 to 5, toenail thickness from a primary source. Each of these enters the law as a declared estimate.
+The initial survey did not find a longitudinal plate radius, healthy proximal or lateral fold depths, a toenail width against the toe's skin breadth, or lengths of toenails 1 and 3 to 5. These quantities still use declared estimates. Later primary measurements give the hallux observations below.
 
 ## Binding or attachment
+
+This section through the original test round records the first attached-plate design. The later relief decision and production wiring supersede it.
 
 Three constructions were weighed against what the nail unit is: a rigid plate of another material that grows out from under a fold of skin, lies in a groove between two more folds and ends free over the fingertip.
 
@@ -99,14 +107,14 @@ One function, `AutoMovieHumanNail.create` (`packages/human/src/generation/nail/A
 | --- | --- | --- |
 | `width`, fingers | Jung's five ratios for women | Source; f1 is a woman |
 | `aspect`, fingers | 0.91 | Source |
-| `thickness`, fingers | Bellinato's five | Source |
-| `aspect`, toes 2 to 5 | 8.80 / 5.68 | Source, the second toe's, taken for the four lesser toes |
-| `wrap` | 0.40 fingers, 0.343 big toe, 0.317 toes 2 to 5 | Source: Ha GU et al., J Dermatol 2024;51(8):1117-1119, the plate's lateral tip under its apex over the height to the bottom of the distal phalanx (thumb 40.1 %, middle finger 40.2 %, hallux 34.3 %, third toe 31.7 %); extracted text |
-| `fold` | 0.46 mm, one mean fingernail thickness | Estimate: no depth of a healthy fold was found; the reference's steps of 0.14 to 0.75 mm are not its basis |
+| `thickness`, fingers | Index 0.405, middle 0.39, ring 0.37, little 0.355 mm; thumb 0.41 mm | Source: Szymoniak-Lipska et al., Front Med 2021;8:686470, women. The thumb is an estimate: the index value times Bellinato's thumb-to-index ratio (0.48 / 0.47) |
+| `aspect`, toes 2 to 5 | 8.80 / 5.68 | Estimate: Palomo-Lopez's second toe measures the matrix's width over the bed's length, not Jung's plate width over fold-to-tip length that `aspect` means |
+| `wrap` | 0.40 fingers, 0.343 big toe, 0.317 toes 2 to 5 | Ha GU et al., J Dermatol 2024;51(8):1117-1119, the plate's lateral tip under its apex over the height to the bottom of the distal phalanx (thumb 40.1 %, middle finger 40.2 %, hallux 34.3 %, third toe 31.7 %); extracted text. Applied over the digit's skin height, not the bone's: a looser bound than Ha's, an estimate |
+| `fold` | 0.38 mm, the women's mean fingernail thickness (Szymoniak-Lipska 2021) | Estimate: no depth of a healthy fold was found; the reference's steps of 0.14 to 0.75 mm are not its basis |
 | `lunula` | 1 | Estimate: the reference's fold arc reads 0.86 of the width on the index finger |
 | `width`, toes | 0.65 | Estimate: no source relates a toenail's width to the toe's skin breadth |
 | `aspect`, big toe | 1.1 | Estimate |
-| `thickness`, big toe 1.38 mm, toes 2 to 5 0.46 mm | | A secondary citation for the big toe; an estimate for the others |
+| `thickness` | Big toe 0.585 mm, toes 2 to 5 0.38 mm | The big toe: the intact plate of women by longitudinal ultrasound, (0.57 + 0.60) / 2 (López Ripado O et al., Clinical Anatomy 2024;37(3):366-374, table 3), replacing an inherited 1.38 mm with no source. The lesser toes take the women's mean fingernail thickness, an estimate. The hallux value also sets the elevation used to place the free edge, the plate and cap dimensions, the minimum room for the side wall and the close strip's width and sampling |
 | Hidden root | Two ramps, 1.84 mm | Geometry: room for the fold's blend and the bed's ramp. The published 3.9 to 4.1 mm of hidden plate is not modelled: a straight root that long showed through a twisted toe's skin before the plate was given its twist, and nothing visible depends on it |
 | Blend chord | 0.23 mm at most, a quarter of the ramp's half width | Geometry: the fold's rounding inside the ramp |
 
@@ -1073,7 +1081,7 @@ The owner's rule is research before the change. Order, stated as it happened: th
 | How a hallux's plate is described against the others' | Web search, two queries. Jung DJ et al., Arch Plast Surg 2015;42(2):207 (the pincer nail study I had cited): it measures "the widths of the nail root and nail tip and the height of the nail tip" and forms a width index and a height index from them. A cadaver study of ten halluces (the hallucal distal phalanx and the nail's transverse convexity): the phalanx does not by itself set the plate's convexity. A UK radius-gauge study and Jung JW 2015: transverse radii for fingers only; one of them states that no normal transverse curvature data existed for nail plates before it | The 3.3 mm I used is the height of the nail's **tip**, by that study's own definition. No normal transverse radius of a hallux plate, and no hallux against lesser toe comparison with numbers, was found. The controls' width index (tip width over root width) is in the paper's tables, which I did not reach | Confirms the cause: a tip height was applied as a radius midway. The big toe's row has no radius; its plate is its bed's arc. What I could not find is stated: the hallux plate's own flatness midway, if it is flatter than the toe's back, has no number here, and the plate's root-to-tip width change (the width index) is not modelled: the plate keeps its share of the toe's breadth |
 | What the relief's evaluation does between net cells across a corner | `AutoMovieLoftRelief.ts` lines 1 to 118 (`height`, `jet`): a clamped-free uniform cubic B-spline in each direction, sixteen controls a point, value and two derivatives exact from the basis; `IAutoMovieLoftRelief.ts` read earlier | The field is C2 everywhere inside its window, across a corner of the fold as anywhere. The law's controls are samples of its function at their own abscissae, not a fit, so the net is the function smoothed over about a cell (the cubic's variation-diminishing blend): a wall four cells wide comes out a little wider and rounder, never toothed. The teeth are therefore not in the relief. They are the mesh's: the smooth field is read at rings and phases 0.46 mm apart and drawn as two flat triangles a cell, split along one diagonal, so a wall that crosses the cells obliquely is cut by diagonals that run with it on one flank and against it on the next. A tooth is as high as the wall falls across one cell: 0.46 mm of depth over 1.2 to 1.84 mm of wall, 0.11 to 0.18 mm | The comb is under a pixel at the figure's cameras (0.5 to 0.8 px at 4.7 px a millimetre, less on the foot): a close-up finding, open, not a blocker. A net aligned with the fold would not remove it, since the net is not its source; what would is the mesh's density there or its diagonals' choice, neither the nail's |
 
-### The kernel fact, pinned by a test that is red
+### The kernel fact and its passing refusal control
 
 `test/src/features/geometry/construction/operator/test_construction_operator_capped_part.ts`, read first against `test_construction_operator_pointed_cut.ts` and `test_construction_operator_mixed_join.ts`, whose composition it follows. Made case: the ellipsoid with half axes 10, 5 and 3 mm, charted as a lofted part is (a station along its long axis, a phase round it, both closed ends the chart's poles), its centre `h` under the plane `z = 0`; the declared loop is the plane's own section, one ellipse; the part is kept above. The geometry is regular at every depth. One run, 52 ms:
 
@@ -1085,23 +1093,22 @@ The owner's rule is research before the change. Order, stated as it happened: th
 
 So the fact stands as stated, with its adjacent positive case: a join on a declared loop serves a closed part only while the loop keeps clear of the part's poles.
 
-That run had the test expecting all three admitted, red on two. A test left failing breaks every full run, so it now pins today's behaviour the way `test_construction_operator_pointed_cut` pins its refusal: depths 0.3 and 0 must be refused under the contract `shared loop` with no join (the name, not the wording), depth 2.4 must be admitted with a rail at every point, and the capability is carried as the constant `SERVED_ROUND_A_POLE`, false today, under which the two near cases expect admission instead. The rewritten file passed the watch (cycle 12:24:39) and has **not been run**: a fit was alive when its turn came.
+That run had the test expecting all three admitted, red on two. A test left failing breaks every full run, so it now pins today's behaviour the way `test_construction_operator_pointed_cut` pins its refusal: depths 0.3 and 0 must be refused under the contract `shared loop` with no join (the name, not the wording), depth 2.4 must be admitted with a rail at every point, and the capability is carried as the constant `SERVED_ROUND_A_POLE`, false today, under which the two near cases expect admission instead. The rewritten file passed watch cycle `12:24:39`. A live fit prevented its run at the time. The later focused test round passed `test_construction_operator_capped_part`.
 ## Wiring: the package for the round
 
-This is the whole of what the nails ask of `AutoMovieHumanF1.ts`, which is the joints worker's file. It replaces the two older wiring sections below. The nail was judged on domed digits and clipped on today's caps (2.1 to 4.2 mm asked of the net's zero rings), so the tip dome's start lands with it.
+This is the whole of what the nails ask of `AutoMovieHumanF1.ts`, which is the joints worker's file. It replaces the two older wiring sections below. The nail was judged on domed digits and clipped on the original caps (2.1 to 4.2 mm asked of the net's zero rings), so the tip dome's start lands with it.
 
 ### A. The tip dome's start (the body note's W3), stated exactly
 
 Read in full: `body-one-shot.md` "Tips", the dome table, rows W3 and W4, and "With the nails' work"; `joints-one-shot.md` rows F7 (both tables) and "The nails' and the face's wiring".
 
-1. Two constants beside `TOE_DOME` (0.8, which stays), each with its basis in its comment: `FINGER_DOME = 1.5` and `THUMB_DOME = 1.1`, the length of the digit's dome over the mean reach of the section it starts from, read on f1's ends as half ellipsoids (index, middle, ring, little finger 1.78, 1.39, 1.36, 1.45; thumb 1.09; the body note's table).
-2. One function beside `rounded`: `domed(family, share)` returns the family with `tips[1].from` set to `Math.min(AutoMovieHumanTipDome.start(reach, end.tip, share, family.knots[1]).from, family.knots.at(-1))`, where `end` is `family.tips[1]` and `reach(s)` is the mean of the four extents of `AutoMovieHumanConicSection.resolve(AutoMovieHumanConicLoft.reader(family)(Math.min(s, family.knots.at(-1))), family.layout)`, the reading `rounded` already makes. Every other field of the tip record is kept, `own` and `centre` among them.
-3. In `DIGITS`: the four fingers' families through `domed(..., FINGER_DOME)`, the thumb's through `domed(..., THUMB_DOME)`. In `rounded`, the three lines of fixed-point iteration replaced by the same call with `TOE_DOME`; its layout bound, its phase turn and its 30 cap rings stay.
-4. A `held` start is a diagnostic. None is held on f1.
+`DIGITS` applies W3 to `PRE_DOME_DIGITS` with `FINGER_DOME` (1.5) for the four fingers, `THUMB_DOME` (1.1) for the thumb and `TOE_DOME` (0.8) for the toes. These are dome lengths divided by the mean section reach. The reference half ellipsoid ratios are 1.78, 1.39, 1.36 and 1.45 on the index, middle, ring and little fingers, and 1.09 on the thumb.
 
-Order against the splice (F7): after a splice a digit's tip record is the stored one again, `own` kept, "until W3 sets its start". `domed` reads only the stored family's own knots, fields and tip record, so it stands after the splice by construction, and a digit's root stretch, proximal of its old first knot, does not enter: the earliest start it may take is the second knot, and every start found lies 14 to 50 mm distal of that.
+`digitDome` reads the four section extents on the selected family and uses its second knot as the dome start's lower bound. It installs the lesser of the requested start and the last authored wall knot. The selected family supplies the rest of the cap record, layout and phase policy. A held start produces a refusal.
 
-Verified on all ten, on the probe's copy (`FamilyConicNail.ts`, `domed`, the same call), runs `15-09-05` to `15-45-18`:
+F7 restores the selected digit's complete distal record before W3. The dome reads that family's own course.
+
+The early probe runs `15-09-05` to `15-45-18` recorded these requested starts.
 
 | Digit | Cap starts at, mm (stored) | Pole | Dome's length (was) | Held |
 | --- | --- | --- | --- | --- |
@@ -1116,7 +1123,7 @@ Verified on all ten, on the probe's copy (`FamilyConicNail.ts`, `domed`, the sam
 | Fourth toe | 36.77 (36.77) | 41.13 | 4.36 | no |
 | Little toe | 30.16 (30.22) | 33.63 | 3.47 | no |
 
-All ten loft and realize on these starts at both levels with no diagnostic. The toes' starts are `rounded`'s own to 0.01 mm, the little toe's to 0.06 (its stored value is rounded to a hundredth after a 16-step iteration).
+The current ordinary run `2026-11-18T10-31-57.678Z-realize` reads the actual `DIGITS` roster. Nine installed starts equal their requests. The little toe's requested 30.156 mm reaches the final wall knot at 30 mm, so W3 installs 30 mm. All ten measured poles agree with the table.
 
 **Must the pad datums be read again as well (W4)?** No, not for the nail to stand; it would move the toes' free edges, by an amount that cannot be read before it is done. What the nail takes from a datum is one thing, the pole, and from the pole one number, the digit's length along its distal direction (the fold stands a width over the aspect before it). W4 moves the thumb's and the toes' datums across the tip, 1 to 3 mm toward `-u`, and keeps the length, so the fold does not move; the nail's frame is fitted to the skin and does not read the segment's axis. What does depend on where the pole stands across the tip is how early the back falls away before it, hence the free edge's apex:
 
@@ -1130,31 +1137,37 @@ All ten loft and realize on these starts at both levels with no diagnostic. The 
 
 On the lesser toes the plate runs nearly to the pole, which the body note explains: their poles stand on the dome's upper front. A datum lower on the tip would let the back fall sooner and bring those free edges back. So W4 belongs before the nails in the order (the nail re-reads everything from the skin and follows), it is not a condition of this round, and the lesser toes' free edge is the reading to take again when it lands.
 
-### B. The nails, in `constructionFrom`
+### B. The positioned digit source
 
-1. First statement, before any digit is read (the fans' seams, the thumb's capsule and the splits' children all read the digits), on digits that already carry A: `const nails = AutoMovieHumanF1Nails.all(assembled.digits.map((digit) => digit.family), assembled.frames);` Each nail is made once, from its own digit and the frames; its roll is weighed against the declared prior `TURN` inside `AutoMovieHumanF1Nails`.
-2. The assembly every later line reads, with the parameter renamed `assembled`: `const placed = { ...assembled, digits: assembled.digits.map((digit, i) => ({ ...digit, family: AutoMovieHumanF1Nails.bedded(digit.family, nails[i]) })) };` This is the figure's level, the bed alone. `bedded` also sets the cap's rings from the bed's rows, so the family it returns is the one to loft; nothing sets `ITip.rings` after it.
-3. Nothing at the tree's end: no join, no plate source, `attach` is not called.
+The ordinary digit leaf establishes one original view part after F7, W3 and placement. Its axis, original outlines, fullness, cap and section map define the skin in millimetres. The nail fits that view part before the relief is added. Native digits invert their own physical course map for the joint-relative aperture, and the original proximal chart supplies the relief's bounded support.
 
-The digit's layers inside the bed's station window are cut to the bed's rows by the leaf's existing rule (`AutoMovieHumanF1.ts` lines 2297 to 2330); its phases follow the bed's columns by `AutoMovieHumanConicLoft`'s. Nothing else is asked.
+The digit emits the same original controls with its bed and additional display rows where the relief needs them. Existing rows, including cap rows, survive. The regular layers and phases carry display sampling independently of the field. Native cap selection still receives its original cap record. The authored side fits the nail once. The figure emits the opposite digit and bed through the normal reflection. Close inspection adds the separate strip to the same digit source.
 
-**The mirror.** Nothing a side. The ten nails are made once; a twin's family is the bedded family through `AutoMovieHumanConicLoft.mirror`, which reflects each relief's window, axis and heights with the family. There is no right-side row, reading or condition.
+The ordinary figure path emits each bed before checking the named side contacts. The check can retain the original-source identity, emitted pole and reflected net when the contact refuses. The whole-figure result follows the usual root and cap admission.
 
-**The owner region.** A vertex of a digit's face is the nail's when `AutoMovieHumanNail.owns(nails[i].nail, point)` holds for its position in millimetres; on a twin's face, for its position reflected in the median plane. The plate's outline is `nails[i].nail.plan`.
+The plate's chart region comes from `INail.plan`. `AutoMovieHumanNail.owns` reads a point in the nail's frame and distinguishes the dorsal plate from the folds and underside. The owner pass reads that region only on the actual indexed digit face. The opposite side uses the authored predicate after reflecting the point through the median plane.
 
-**Cost at the figure's level.** About 8,400 vertices on ten digits over the digits without nails (57,106 against 48,712), about 17,000 on the figure. The law takes under a second a digit, about 8 s an assembly.
+The earlier isolated comparison measured 57,106 bed vertices against 48,712 bare vertices on ten digits. A later isolated run measured 88,138 bed-only and 151,066 close vertices with its earlier sampling policy. C measures the actual same-tree increase with the positioned view source.
 
 ### C. The made-figure check, when the tree stands
 
-`FamilyConicNail.ts --figure`, on a verified empty process list: the figure's own assembly with A applied on the probe's copy until A is in the file, then B's two statements, `constructionFrom`, one realization. Pass forms, all stated before it runs:
+`FamilyConicNail.ts --figure` uses the ordinary construction with W3 and B in the production path. It reads the named contacts before the bare and production realizations.
 
 | Form | Pass |
 | --- | --- |
-| Diagnostics | The realization reports no diagnostic that the same tree without B's two statements does not report; both lists are written to `figure.json` |
-| Every nail's net | `clipped` at most 0.01 mm on each of the ten |
+| Diagnostics and index topology | Both realizations return indexed triangles. The diagnostic multiset adds no entries, and the production skin has one used-index component and no open or non-manifold edges. |
+| Every nail's original and net | Emission keeps the fitted original source, its distal pole, one bed and an exact twin. The combined bed and close strip clipping is at most 0.01 mm on each of the ten. |
 | Every nail's region | The vertices `owns` claims: more than zero on each of the twenty faces, and a twin's count equal to its side's |
 | Vertices | The figure's count less the same tree's without nails, against the 17,600 expected |
 | Frames | For each of the ten digits and its twin, the nail's own dorsal and oblique camera at 900 px, the owned vertices tinted: twenty digits, forty stills, each opened and entered with a pixel region for the fold's U, the two rims and the plate. Then the shared instrument's hand and foot frames in the round, where the question is only whether a nail reads at 0.21 and 0.28 mm a pixel |
+
+The standalone close sheets fit the actual retained reference, bed and close triangles under the same complete camera. The capture receipt records projected containment for each tile. The selected triangles still identify the reference crop, including any neighbouring reference tissue it retained.
+
+The plate fit opens 3 mm of placed course arclength before the last joint, whose station is the midpoint of the rounded turn. If the source starts farther along, the first ring supplies the aperture. An ordinary digit already uses course arclength. A native digit maps the bound back through the same material clock that places its sections. Core samples stand at most 0.25 mm apart in chart station. The same source may supply earlier rings for the bed and strip. Those rings extend the relief domain up to the real proximal boundary and share the fit's first ring with the core. Each relief still requires a positive support margin inside its available source.
+
+The bed and close strip each enclose their own supported chart. The axial bound comes from the proximal fold wall and the free-edge line. A closed tip lies beyond that line at every phase. The distal skin's sampled chart supplies an angular envelope of the dorsal band over the relevant stations. Each window leaves one Greville interval for its innermost forced zeros before the admitted support, while the other zeros maintain the C2 boundary. The net cells keep their authored target pitch wherever that margin fits.
+
+The figure check reads the whole tree once with its production nails and keeps only the diagnostic records and vertex count from the same already placed tree without them. It records diagnostic identities as well as totals. The normal figure capture and the dedicated nail stills share the production mesh. Nail colours mark the actual claimed digit-face vertices, with visibility determined on the incident triangles. The paired camera reflects the complete authored basis, and the separate left reference uses the authored camera. The figure receipt gives the measured vertex increase, two claim counts per digit and the forty owner image identities.
 
 ## Wiring, for the relief
 
@@ -1174,7 +1187,9 @@ The lofting skill's rule: an edge with a roll is resolved when every sampling ac
 ## The width against the published spread
 
 The pass condition reads the published law, not the reference. Jung 2015, women, mean and SD of the nail width: thumb 13.2 (1.1), index 11.1 (1.1), middle 11.5 (1.1), ring 10.7 (0.9), little 8.8 (0.8) mm, on breadths across the joint of 18.8 (1.7), 15.4 (1.4), 15.1 (1.4), 14.4 (1.2), 12.0 (1.3). The reference's own chords (index 9.4, middle 9.6, ring 8.9, little 7.3 mm) stand 1.5, 1.7, 2.0 and 1.9 SD under those means on breadths within one SD of Jung's: one person at the narrow end of the spread. The law's widths (10.9, 11.5, 10.2, 9.3 mm) are Jung's share of this person's breadth and stay.
-## Wiring
+## Earlier attachment wiring
+
+This section records the superseded attachment design.
 
 The nails land in the single whole-figure round with the joints, the body and the head. `AutoMovieHumanF1.ts` is the joints worker's file; the request is three statements in `constructionFrom`, applied in its declaration step:
 
@@ -1182,25 +1197,26 @@ The nails land in the single whole-figure round with the joints, the body and th
 2. Next, the assembly every later line reads: `const placed = { ...assembled, digits: assembled.digits.map((digit, i) => ({ ...digit, family: AutoMovieHumanF1Nails.bedded(digit.family, nails[i]) })) };` with the parameter renamed `assembled`. The twin's bed comes from the digit's own `twin`.
 3. Last statement before the return, after the nostrils' cuts: `root = AutoMovieHumanF1Nails.attach(root, sources, nails, (name) => name + ".mirror");` It adds twenty `fold.nail.<digit>` joins and twenty `nail.<digit>` sources.
 
-Order against the tips: a nail reads the digit's lofted skin, so a digit whose tip changes after statement 1 has a nail made for the old tip. `FamilyConicNail.ts --figure` performs the same three steps outside that file and has not been run; it is not run while the joints queue runs.
+Order against the tips: a nail reads the completed digit skin. The ordinary `FamilyConicNail.ts --figure` entry uses that production order.
 ## Open
 
-State after run `16-41-29`, which supersedes the list under it:
+The ordinary isolated run `2026-11-18T10-31-57.678Z-realize` admitted all ten close meshes with their digit owners and zero close diagnostics. All fifty camera fits contain the retained triangles. The combined bed and strip clip reads zero on every digit. The earlier baseline measured a 0.029 mm strip clip on the fourth toe and a 0.013 mm bed clip on the little toe.
 
-- **The far crossings are gone**: the roll is the least of one objective, and the fourth toe sits 0.5 degrees from its frame.
-- **What the prior cannot do, by the check.** Against the reference's nail tilts the objective moves the index finger and the third toe away (index -6.5 against -10, where the level roll read -7.8; third toe 0.1 against 8, where it read 6.7), and the lesser toes sit in or near frames that are known to miss. The answer for those is not a looser prior but the segments' frames carrying each digit's own axial turn (next line).
-- **On three lesser toes the roll and the axis are one coupled problem.** The second and little toe end at the cap (0.002 mm and under 0.0001 rad still asked, a hundredth of the skin's error), the third settles at a roll the fixed-axis table did not predict, and the little toe's conditioning at its roll is negative. The pass-by-pass fit is not a solver of that coupled problem; the three residuals are still not solved together.
-- **`test_human_nail_roll` passed on its first run and was not shown red** on a made defect (the crossing-based law it is meant to catch was already replaced when it first ran).
-- **A stale comment** in `AutoMovieHumanNail.ts`, lines 486 to 491, still describes the roll as one equation with the slope at second order.
-- **The distal segments' frames miss the nails' orientation by the digits' own axial turn** (index finger 8 to 10 degrees, little finger 16 to 24, thumb 6 to 7, third toe 7 to 8, read on the skin and on the reference's nails alike). `AutoMovieHumanF1Frames` does not carry it. For the body issue; the supervisor relays it. Until it does, a digit whose back has no level roll can only keep a frame that is known to miss.
-- **The second toe's level phase does not settle** in its 24 passes; the three residuals are not solved together.
-- **The big toe's thickness, 1.38 mm, is an estimate** (attributed to Hamilton 1955, not read); the reference's free-edge step is about 0.7 mm, so it may be about twice too thick. Not fitted to the reference.
-- **The weighed roll has no unit test.** `test_human_nail` reads the level roll alone.
-- **`--figure` is brought to the wiring's form but not run**, and two of its pass forms are not built: the stills' tint by owner and the same tree's diagnostics without the nails.
-- **The comb at the fold's corners**: the mesh's diagonals, under a pixel at the figure's cameras; a close-up finding.
-- **The wiring's first statement now reads** `const nails = AutoMovieHumanF1Nails.all(assembled.digits.map((digit) => digit.family), assembled.frames);` since the ten are made together.
+Run `16-41-29` hit 24 passes on the second and little toes with the residuals in that run's table. The current coupled roll, pitch and lateral shift solve hits 24 on the second, fourth and little toes. These are the final residuals.
 
-Owed, in order: the free edge's end as one piece of work (rows 2, 3 and 4 of the run's table), then one run of all ten; the whole figure in the shared round ("Wiring"). The unit test passes on the law as it stands (`test_human_nail`, 1 of 1, 2.5 s, which is over the one second a Human test is allowed: the frame's fit reads nine rings of the made skin on each pass).
+| Toe | Roll, pitch and lateral shift residuals |
+| --- | --- |
+| Second | 0.0000001, 0, 0.0000013 |
+| Fourth | -0.0004017, -0.0000641, -0.0002084 |
+| Little | 0, 0, 0.0000001 |
+
+The third toe settles at -10.141 degrees against the fixed-axis prediction of 3.6. The fourth toe reads 8.995 against 0. The distal frames and free-edge alignment of the lesser toes remain open in the body work.
+
+`test_human_nail_roll` reads a held back and a nearly round back with their prior and again with the bare levelling objective. The shared focused run on 2026-11-19 measured `test_human_nail` at 314 ms, `test_human_nail_chart_support` at 492 ms, `test_human_nail_native_aperture` at 777 ms, `test_human_nail_placed_cap` at 441 ms and `test_human_nail_relief_clock` at 411 ms. The five tests each took under a second and totalled 2,435 ms, 159 ms more than the preceding combined test at 2,276 ms.
+
+The hallux geometry entry is 0.585 mm (López Ripado 2024), replacing the inherited 1.38 mm. It controls the free edge and sampling as well as plate thickness. A law for anatomical thickness has independent healthy hallux measurements from free-edge clippings and intact-plate ultrasound. The rendered vertical step also depends on the supporting skin and plate angle. The isolated obliques in the earlier round show the proximal-fold comb explained by the mesh diagonals.
+
+The ordinary `--figure` attempt produced a contact refusal before the mesh. C still needs the same-tree diagnostics, nail ownership and forty stills. The later source-only round reads both actual Toe IV sources in twenty-two length and tissue cases. Two tagged cases stop at the leg's protected ankle junction before the nails are built.
 
 Earlier notes, kept for their frames; the run's table above supersedes them where they differ:
 
@@ -1212,3 +1228,6 @@ Earlier notes, kept for their frames; the run's table above supersedes them wher
 - The toes' width share, the big toe's aspect and the folds' depth are estimates; a published source replaces each when found.
 - The plate's radius at the crown follows the fitted digit, not the published radii; a wall whose dorsal arc is laid by the published radius would close that.
 - The line under the free edge: on the index finger's median cut of probe `13-36-27` the plate ends in convex turns of 24, 12, 15, 12 and 8 degrees and meets the skin in concave turns of 8, 12 and 7 degrees 0.68 mm lower. The other nine cuts are written to `realize.json` and were not read one by one.
+## The fold's corners, by the net's cell (2026-11-22)
+
+`sheet.oblique.0` of run `2026-11-19T12-31-17.207Z-realize` shows saw-toothed corners where the proximal fold meets the lateral folds on the middle, ring, little and thumb nails, figure and close rows alike (supervisor's finding). The cause is row 6's: the bed's net held a quarter of the ramp alone (0.46 mm on a fingernail), while at the corners the wall's band between the outline and its outer border is only `beside` wide and the lateral wall only the room beside the plate, so there the transition was about one cell wide and crossed the rings and phases obliquely. The cell is now a quarter of the narrowest transition the bed draws: the proximal wall's two ramps, the room beside the plate at every visible section, and `beside` at the corners (`AutoMovieHumanNail`, step 6). The plate's part is lofted at that cell and the fold's join takes at least one column a cell along its 40 mm curve (`AutoMovieHumanF1Nails.attach`). The vertex cost is the realize run's `bed.rows`, `bed.columns` and `vertices` per digit, reported with the round's nail sheets.

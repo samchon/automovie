@@ -1,21 +1,12 @@
-import type { IAutoMovieHumanConicLoft } from "@automovie/interface";
+import type { IAutoMovieHumanConicLoft, IAutoMovieHumanF1SourceScope } from "@automovie/interface";
 
 /** Production cap/clock requests shared by construction and complete original-source readers. */
 export namespace AutoMovieHumanF1SourceScope {
-  /** Closed production roles; supplied clock values affect sampling, not scalar functions. */
-  export type Scope =
-    | { kind: "arm"; until: number; turn?: number }
-    | { kind: "hand" | "leg"; turn?: number }
-    | { kind: "trunk" | "nose"; phase: number }
-    | { kind: "breast" | "ear" };
+  /** The production source role and its sampling request. */
+  export type Scope = IAutoMovieHumanF1SourceScope.Scope;
 
-  /** One actual family request, distinct from its cap-inclusive native source domain. */
-  export interface IResult {
-    /** Complete controls with the production cap and clock scope applied once. */
-    family: IAutoMovieHumanConicLoft.IFamily;
-    /** Requested wall sampling interval in physical mm; caps retain their own extra domain. */
-    wallDomain: readonly [number, number];
-  }
+  /** The resolved family and the wall interval its consumer requests. */
+  export type IResult = IAutoMovieHumanF1SourceScope.IResult;
 
   /** Resolve the same cap/kept-wall request for the source producer and its independent reader. */
   export function resolve(family: IAutoMovieHumanConicLoft.IFamily, scope: Scope): IResult {

@@ -1,3 +1,5 @@
+import type { IAutoMovieHumanTipDome } from "@automovie/interface";
+
 /**
  * Where a closed end's dome begins: the station at which the stretch left before the pole is a stated share of the section's own reach
  * there.
@@ -14,16 +16,7 @@
  */
 export namespace AutoMovieHumanTipDome {
   /** Where a dome begins. */
-  export interface IStart {
-    /** The station the cap starts at, mm. */
-    from: number;
-
-    /**
-     * Whether the dome was held at the earliest station it may start from: the part is shorter there than its dome's proportion asks,
-     * and the cap then starts at `least` with a shorter dome than the share's.
-     */
-    held: boolean;
-  }
+  export type IStart = IAutoMovieHumanTipDome.IStart;
 
   /** Halvings of the bracket: sixty take a bracket of a hundred millimetres under one unit of a double. */
   const HALVINGS: number = 60;

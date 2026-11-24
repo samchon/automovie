@@ -102,7 +102,7 @@ export namespace FamilyConicDeviationCapture {
       const declared = AutoMovieHumanF1.construction();
       const real = realizeAutoMovieConstruction(
         { name: "f1.body", root: declared.root, fills: declared.fills },
-        { chord: 0.001, sources: declared.sources },
+        { chord: 0.001, sources: declared.sources, loopSources: declared.loopSources() },
       );
       const diagnostics: string[] = real.diagnostics.map(
         (d: { node: string; contract: string; detail: string }): string =>

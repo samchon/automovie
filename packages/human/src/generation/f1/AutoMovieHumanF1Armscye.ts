@@ -2,11 +2,12 @@ import { AutoMovieHumanJoinLoop } from "../conic/AutoMovieHumanJoinLoop";
 import { AutoMovieHumanLandmarkSurface } from "../conic/AutoMovieHumanLandmarkSurface";
 import { AutoMovieLoftViewFullSource as Full } from "@automovie/engine";
 import type {
-  IAutoMovieConstructionPortLoop,
+  AutoMovieVector3Tuple,
   IAutoMovieHumanSegmentFrame,
   IAutoMovieLoftSectionFrame,
   IAutoMovieLoftViewFullSource,
   IAutoMovieViewPart,
+  IAutoMovieHumanF1Armscye,
 } from "@automovie/interface";
 
 /**
@@ -49,7 +50,14 @@ export namespace AutoMovieHumanF1Armscye {
    * slit's front and back upper ends, and its apex (ISO 8559-1's shoulder point, armpit front and back fold points and armpit point;
    * construction.md, Ports). They are f1's traced points moved onto the skin, read by `FamilyConicJoints.ts --armscye-landmarks` from
    * `test/src/reference-conics/FamilyConicLoop.ts`, whose surface clips the trunk's and the arm's fits. Stored in the thorax's frame
-   * they ride the thorax; a law that places them for a person from her measures is not written yet.
+   * they ride the thorax.
+   *
+   * F1-FITTED, provisional. The law that replaces them needs fields the person does not yet carry: the axilla's height (the armpit
+   * point), ANSUR II Interscye I (the back's surface arc between the posterior axillary folds; half of it places each back fold point
+   * from the median line), and the acromion (#3187; the shoulder point straight above it). With those, the front fold point stands on
+   * the anterior axillary line at the armpit's level (ISO 8559-1:2017 3.1.13), the back fold point half Interscye I along the back's
+   * surface from the median line at the same level, and the shoulder point on the skin over the acromion. Until then f1's traced points
+   * stand, and the frames judge the loop they give.
    */
   export const LANDMARKS_MM: readonly (readonly [number, number, number])[] = [
     [-59.46, -8.85, 142.22],
@@ -75,8 +83,34 @@ export namespace AutoMovieHumanF1Armscye {
    * @evidence contracts/development/common.md#meaningful-documentation States frames and units.
    */
   export function surface(thorax: IAutoMovieHumanSegmentFrame, shoulder: readonly number[], elbow: readonly number[]): AutoMovieHumanLandmarkSurface.ISurface {
-    const world = (local: readonly number[]): [number, number, number] => [0, 1, 2].map((k: number): number => thorax.origin[k]! + local[0]! * thorax.axes[0][k]! + local[1]! * thorax.axes[1][k]! + local[2]! * thorax.axes[2][k]!) as [number, number, number];
-    return AutoMovieHumanLandmarkSurface.create(shoulder, LANDMARKS_MM.map(world), elbow);
+    return AutoMovieHumanLandmarkSurface.create(
+      shoulder,
+      landmarks(thorax),
+      elbow,
+    );
+  }
+
+  /** The four independent source landmarks in the current thoracic frame. */
+  export function landmarks(thorax: IAutoMovieHumanSegmentFrame): AutoMovieVector3Tuple[] {
+    return LANDMARKS_MM.map((local): AutoMovieVector3Tuple => landmark(thorax, local));
+  }
+
+  /**
+   * The authored axillary fold apex on the carried dividing surface, figure mm.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Uses the apex datum in the supplied thorax frame.
+   * @evidence contracts/development/implementation.md#principled-implementation The same local point and frame map supply the production surface and the matched diagnostic camera.
+   */
+  export function apex(thorax: IAutoMovieHumanSegmentFrame): AutoMovieVector3Tuple {
+    return landmark(thorax, LANDMARKS_MM[3]!);
+  }
+
+  /** Carry one thorax landmark into the figure, mm. */
+  function landmark(thorax: IAutoMovieHumanSegmentFrame, local: readonly number[]): AutoMovieVector3Tuple {
+    const at = (k: number): number =>
+      thorax.origin[k]! + local[0]! * thorax.axes[0][k]! +
+      local[1]! * thorax.axes[1][k]! + local[2]! * thorax.axes[2][k]!;
+    return [at(0), at(1), at(2)];
   }
 
   /** Arm phases the contact is read at. */
@@ -90,47 +124,11 @@ export namespace AutoMovieHumanF1Armscye {
    */
   const FAIR_RAD: number = (15 * Math.PI) / 180;
 
-  /**
-   * The generated contact.
-   *
-   * @evidence contracts/development/design.md#principled-representation The loop as the engine admits it, the two chart points a point seed names, and the two readings the join's tolerance and an inspection need.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Each member is read by the figure's join or by the pre-check tool.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The gap is reported, never folded into the loop.
-   * @evidence contracts/development/common.md#meaningful-documentation Members state charts and units.
-   */
-  export interface IContact {
-    /** The loop on the trunk's chart, `count` shares about its own centre. */
-    loop: IAutoMovieConstructionPortLoop;
+  /** The shared point-seed contact read on the F1 armscye. */
+  export type IContact = IAutoMovieHumanF1Armscye.IContact;
 
-    /** The arm's chart point `[station m, phase rad]` of the loop's point at clock 0. */
-    part: [number, number];
-
-    /** The trunk's chart point `[station m, phase rad]` at clock 0. */
-    host: [number, number];
-
-    /** The largest distance between the arm's face and the trunk's skin on the loop, mm: what the join's tolerance must admit. */
-    gap: number;
-
-    /** The loop's station on the arm's course at each arm phase read, mm, after fairing. */
-    stations: number[];
-  }
-
-  /**
-   * How the contact's station is sought at each phase of the part: about a ring of the part (`ring`, the crossing nearest it within
-   * `near` mm of its course, and the ring itself where there is none), or as the last station at which the part's station line leaves
-   * the host within `within` mm of the face's start (`outermost`), for a part whose course leaves the host obliquely; or where the
-   * part's station line passes the dividing surface the two parts were fitted either side of (`surface`, positive on the part's side).
-   * The first two read the crossing of the two fitted walls, which is the contact only where both walls are skin: fitted either side
-   * of one surface, the host's wall past it and the part's before it are closures, and their crossing is nobody's curve (measured on
-   * f1: it jumped between arm stations 74 and 119 over the shoulder's cap). The third reads the surface itself, where both are skin
-   * (`AutoMovieHumanJoinLoop`), and is not faired: a skin cut by a smooth surface is a smooth curve.
-   *
-   * @evidence contracts/development/design.md#principled-representation Two closed cases, each with the lengths its search reads.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Read by `create` alone.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No default hides which rule a caller chose for another part than the arm.
-   * @evidence contracts/development/common.md#meaningful-documentation Lengths in mm of the part's course.
-   */
-  export type IRule = { type: "ring"; ring: number; near: number } | { type: "outermost"; within: number } | { type: "surface"; side: (p: readonly number[]) => number };
+  /** The ring, outermost or signed-surface search for that contact. */
+  export type IRule = IAutoMovieHumanF1Armscye.IRule;
 
   /**
    * Generate the contact of an arm on a trunk.
@@ -216,14 +214,25 @@ export namespace AutoMovieHumanF1Armscye {
     const raw: number[] = outermost !== undefined ? last() : Array.from({ length: PHASES }, (_: unknown, j: number): number => {
       const phase: number = (2 * Math.PI * j) / PHASES;
       const at = (s: number): number => depth(part!.point(s, phase));
+      if (!(near >= 0.25)) return ring;
+      const initial: number = at(ring);
+      const edges: [number, number] = [initial, initial];
       for (let step: number = 0.25; step <= near; step += 0.25)
-        for (const s of [ring - step, ring + step]) {
-          let [lo, hi]: [number, number] = s < ring ? [s, s + 0.25] : [s - 0.25, s];
-          if (at(lo) * at(hi) > 0) continue;
+        for (const [index, s] of [ring - step, ring + step].entries()) {
+          let [lo, hi]: [number, number] = index === 0 ? [s, s + 0.25] : [s - 0.25, s];
+          const outside: number = at(s);
+          let low: number = index === 0 ? outside : edges[1];
+          const high: number = index === 0 ? edges[0] : outside;
+          edges[index] = outside;
+          if (low * high > 0) continue;
           for (let i: number = 0; i < 40; ++i) {
             const middle: number = (lo + hi) / 2;
-            if (at(lo) * at(middle) <= 0) hi = middle;
-            else lo = middle;
+            const value: number = at(middle);
+            if (low * value <= 0) hi = middle;
+            else {
+              lo = middle;
+              low = value;
+            }
           }
           return (lo + hi) / 2;
         }

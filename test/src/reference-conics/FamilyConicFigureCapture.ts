@@ -1,3 +1,4 @@
+import { FamilyConicCaseRegion as Region } from "./FamilyConicCaseRegion";
 import { FamilyConicCaptureContext as Capture } from "./FamilyConicCaptureContext";
 import { FamilyConicCaptureFrame as Frame } from "./FamilyConicCaptureFrame";
 import { FamilyConicCaptureViews as Views } from "./FamilyConicCaptureViews";
@@ -6,7 +7,7 @@ import { NodeCanvasRaster } from "./render/NodeCanvasRaster";
 import type { NodeCanvasTypes as N } from "./render/NodeCanvasTypes";
 import { realizeAutoMovieConstruction } from "@automovie/engine";
 import { AutoMovieHumanF1 } from "@automovie/human";
-import type { IAutoMovieHumanF1 } from "@automovie/interface";
+import type { IAutoMovieHumanF1, IAutoMovieHumanSegmentFrame } from "@automovie/interface";
 import fs from "node:fs/promises";
 import path from "node:path";
 
@@ -28,20 +29,17 @@ export namespace FamilyConicFigureCapture {
    * @evidence contracts/development/common.md#meaningful-documentation The comment and receipt distinguish legacy/default output and shared native observations.
    */
   export async function run(
-    context: Capture.IContext | null = null,
+    context: Capture.Scene | null = null,
   ): Promise<void> {
-    const root: string =
-      context?.input.root ?? path.resolve(process.cwd(), "..");
-    const out: string = path.join(
-      root,
-      "packages/human/.shots/family-conic-figure",
-      context === null
-        ? new Date().toISOString().replaceAll(":", "-")
-        : path.join(
-            context.round,
-            "case-" + encodeURIComponent(context.input.selected.id),
-          ),
-    );
+    const ordinary: Capture.IOrdinary | null = context !== null && "ordinary" in context ? context : null;
+    const native: Capture.IContext | null = context !== null && !("ordinary" in context) ? context : null;
+    const root: string = ordinary?.root ?? native?.input.root ?? path.resolve(process.cwd(), "..");
+    const subject: string = native?.input.selected.id ?? "f1";
+    const out: string = ordinary === null
+      ? path.join(root, "packages/human/.shots/family-conic-figure", native === null
+          ? new Date().toISOString().replaceAll(":", "-")
+          : path.join(native.round, "case-" + encodeURIComponent(subject)))
+      : path.join(ordinary.out, "figure");
     await fs.mkdir(out, { recursive: true });
     if (context !== null) context.outputs.figure = out;
 
@@ -77,12 +75,12 @@ export namespace FamilyConicFigureCapture {
     const owned: {
       meshes: N.Mesh[];
       legend: { name: string; rgb: number[] }[];
-    } | null = !(context === null
+    } | null = !(ordinary !== null || (context === null
       ? process.argv.includes("--owners")
       : process.argv.some(
           (arg: string): boolean =>
             arg === "--owners" || arg.startsWith("--owners="),
-        ))
+        )))
       ? null
       : ((): {
           meshes: N.Mesh[];
@@ -94,7 +92,7 @@ export namespace FamilyConicFigureCapture {
             context?.mesh ??
             realizeAutoMovieConstruction(
               { name: "f1.body", root: declared!.root, fills: declared!.fills },
-              { chord: 0.001, sources: declared!.sources },
+              { chord: 0.001, sources: declared!.sources, loopSources: declared!.loopSources() },
             ).mesh;
           const owner = (v: number): string =>
             mesh.owners[mesh.coordinates[v * 3]!]!;
@@ -237,14 +235,14 @@ export namespace FamilyConicFigureCapture {
       )) {
         const file: string = "figure." + view + "." + stage + ".png";
         const frame: { file: string; sha256: string } = await Frame.write(
-          context,
+          native,
           out,
           file,
           camera,
           shown,
           Capture.curves(context, stage),
           stage === "curves" || stage === "raw-loft-curves" ? "xray" : "depth",
-          (context === null ? "f1" : context.input.selected.id) +
+          subject +
             " | " +
             stage +
             " | " +
@@ -292,7 +290,13 @@ export namespace FamilyConicFigureCapture {
       return (x: N.Point): boolean =>
         Math.hypot(x[0] - c[0]!, x[1] - c[1]!, x[2] - c[2]!) < radius;
     };
+    // f1's segment frames, read once, against which a native case's own frames carry each close region.
+    let f1: ReadonlyMap<string, IAutoMovieHumanSegmentFrame> | undefined;
+    const f1Frames = (): ReadonlyMap<string, IAutoMovieHumanSegmentFrame> => (f1 ??= AutoMovieHumanF1.assemble().frames);
+    // Generated vertices of each carried region that project outside its close frame; any is a finding of the round.
+    const framing: { zone: string; view: string; inside: number; outside: number }[] = [];
     // Close frames: the same pair framed on the reference's points inside one zone of the figure, metres.
+    const fold: N.Point | null = context === null ? null : Capture.fold();
     const zones: [string, (p: N.Point) => boolean][] = [
       ["head", (p: N.Point): boolean => p[1] > 1.45],
       [
@@ -360,17 +364,28 @@ export namespace FamilyConicFigureCapture {
       ["toes", (p: N.Point): boolean => p[2] > 0 && p[1] < 0.05 && p[0] > 0.16],
       // The armpit, within 110 mm of the +Z shoulder joint, and the elbow, within 70 mm of the +Z elbow joint, with views from behind and
       // below, which the armscye's folds and the cubital fossa need.
-      ["armpit", near("upperarm_l", 0.11)],
+      ["armpit", near(context === null ? "upperarm_l" : "upperarm_r", 0.11)],
+      ...(context === null ? [] : [[
+        "armpit.fold",
+        (p: N.Point): boolean => {
+          const apex: N.Point = fold!;
+          return Math.hypot(p[0] - apex[0], p[1] - apex[1], p[2] - apex[2]) < 0.11;
+        },
+      ] as [string, (p: N.Point) => boolean]]),
       ["elbow", near("lowerarm_l", 0.07)],
       // The hand's close frames: the web between the thumb and the index finger (30 mm round the midpoint of the thumb's second joint and
       // the index finger's first), the back of the hand over the knuckles (45 mm round the middle and ring fingers' first joints), and the
       // finger roots where the hand's end splits (32 mm round the same point).
       ["hand.web", between("thumb_02_l", "index_01_l", 0.03)],
       ["hand.dorsum", between("middle_01_l", "ring_01_l", 0.045)],
-      ["hand.roots", between("middle_01_l", "ring_01_l", 0.032)],
+      ["hand.roots", context === null
+        ? between("middle_01_l", "ring_01_l", 0.032)
+        : between("middle_01_r", "ring_01_r", 0.032)],
     ];
     const views = (zone: string): string[] =>
-      zone.startsWith("shoulder")
+      zone === "armpit.fold"
+        ? ["fold-front", "fold-back"]
+        : zone.startsWith("shoulder")
         ? [
             "front",
             "back",
@@ -388,7 +403,7 @@ export namespace FamilyConicFigureCapture {
                 : zone === "hand.dorsum"
                   ? ["left", "back", "high-oblique"]
                   : zone === "hand.roots"
-                    ? ["left", "high-oblique", "low-oblique", "front"]
+                    ? ["left", "high-oblique", "low-oblique", "front", ...(context === null ? [] : ["palm"])]
                     : ["front", "left", "high-oblique"];
     // `--zones=<zone,...>`: only those close frames.
     const only: string[] = (
@@ -408,19 +423,25 @@ export namespace FamilyConicFigureCapture {
       )
         continue;
       const near: N.Point[] = bounds.filter(inside);
+
+      // A native case frames its own region: f1's zone carried by the case's bones. The reference pass stays on f1's region, which its
+      // caption states; Deviation borrows the case camera under the same zone and view key.
+      const own: N.Point[] = native === null ? near : Region.carry(near, f1Frames(), native.source.assembly.frames);
       const zoneViews: string[] =
         context === null ? views(zone) : Capture.views(zone, views);
       if (context !== null)
-        context.zones.push({ id: zone, points: near, views: zoneViews });
+        context.zones.push({ id: zone, points: own, views: zoneViews });
       for (const view of zoneViews) {
         const camera: N.Camera = Capture.camera(
           context,
           zone,
           view,
-          near,
+          own,
           900,
           900,
         );
+        const referenceCamera: N.Camera = native === null ? camera : Capture.camera(context, zone + "@f1", view, near, 900, 900);
+        if (native !== null) framing.push({ zone, view, ...Region.outside(generated, own, camera) });
         for (const [stage, shown] of Capture.stages(
           context,
           reference,
@@ -429,36 +450,39 @@ export namespace FamilyConicFigureCapture {
           false,
         )) {
           const file: string = zone + "." + view + "." + stage + ".png";
+          const onF1: boolean = stage === "reference" && referenceCamera !== camera;
           const frame: { file: string; sha256: string } = await Frame.write(
-            context,
+            native,
             out,
             file,
-            camera,
+            onF1 ? referenceCamera : camera,
             shown,
             Capture.curves(context, stage),
             stage === "curves" || stage === "raw-loft-curves"
               ? "xray"
               : "depth",
-            (context === null ? "f1" : context.input.selected.id) +
+            subject +
               " | " +
               stage +
               " | " +
               zone +
               " " +
-              view,
+              view +
+              (onF1 ? " | framed on f1's region" : ""),
             stage,
             zone,
             { stage, realization: "mesh-returned", diagnosticCount },
           );
           frames.push({
             ...frame,
-            ...(context === null ? {} : { pass: stage, view, camera }),
+            ...(context === null ? {} : { pass: stage, view, camera: onF1 ? referenceCamera : camera }),
           });
         }
       }
     }
     const receipt = {
-      ...(context === null ? {} : { native: Capture.metadata(context) }),
+      ...(native === null ? {} : { native: Capture.metadata(native) }),
+      ...(ordinary === null ? {} : { ordinary: ordinary.comparison, operators: ordinary.operators }),
       schema: "f1-family-conic-figure-v1",
       generationMs: Math.round(generationMs),
       pieces: pieces.map(
@@ -472,6 +496,7 @@ export namespace FamilyConicFigureCapture {
       ),
       faults,
       frames,
+      ...(native === null ? {} : { framing, framingFindings: framing.filter((row): boolean => row.outside > 0).map((row): string => row.zone + "." + row.view + ": " + row.outside + " of " + row.inside + " region vertices outside the frame") }),
       ...(owned === null ? {} : { owners: owned.legend }),
     };
     await fs.writeFile(

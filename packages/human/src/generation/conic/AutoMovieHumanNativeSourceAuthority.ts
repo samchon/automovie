@@ -4,25 +4,16 @@ import type {
   IAutoMovieViewAxis,
   IAutoMovieViewAxisJet,
   IAutoMovieViewPart,
+  IAutoMovieHumanNativeSourceAuthority,
 } from "@automovie/interface";
 
 /** Explicit complete native ownership, material sampling bounds and source scope. */
 export namespace AutoMovieHumanNativeSourceAuthority {
-  /** Axis-origin speed bound and material breaks; neither is a surface-chord bound. */
-  export interface ISampling {
-    /** Finite positive world millimetres per material millimetre. */
-    maximumSpeed: number;
-    /** Finite ordered source-native course breaks, in material millimetres. */
-    materialBreaks: readonly number[];
-  }
+  /** An invocation's axis-origin sampling metadata. */
+  export type ISampling = IAutoMovieHumanNativeSourceAuthority.ISampling;
 
-  /** Both named sides use their own complete source and axis, without canonical reconstruction. */
-  export interface ISpec {
-    /** Invocation-owned complete sources, including each actual reflected name. */
-    sources: ReadonlyMap<string, IAutoMovieViewPart>;
-    /** Nonidentity course sampling only; absence preserves the requested/cap grid. */
-    sampling?: ISampling;
-  }
+  /** The actual named original and reflected sources and their sampling scope. */
+  export type ISpec = IAutoMovieHumanNativeSourceAuthority.ISpec;
   /** A right-handed reflected chart reverses its local v as well as phase. */
   export function reflected(axis: IAutoMovieViewAxis.IAxis): IAutoMovieViewAxis.IAxis {
     const flip = (

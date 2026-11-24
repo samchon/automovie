@@ -833,7 +833,7 @@ namespace FamilyConicEarRound {
     const started: number = performance.now();
     const real = realizeAutoMovieConstruction(
       { name: "f1.body", root: declared.root, fills: declared.fills },
-      { chord: 0.001, sources: declared.sources },
+      { chord: 0.001, sources: declared.sources, loopSources: declared.loopSources() },
     );
     const realizeMs: number = Math.round(performance.now() - started);
     const mesh = real.mesh;

@@ -1,3 +1,4 @@
+import type { IAutoMovieViewPart } from "../../../construction/IAutoMovieViewPart";
 import type { IAutoMovieHumanNail } from "../hand/IAutoMovieHumanNail";
 
 /**
@@ -25,11 +26,14 @@ export namespace IAutoMovieHumanF1Nails {
   }
 
   /**
-   * The proportion row and resulting nail for one reference-family digit.
+   * The authored proportion row, original view source, and resulting nail for one placed digit.
    */
   export interface IMade {
     /** The row. */
     row: IRow;
+
+    /** The placed digit's original view source before the nail was added. */
+    readonly original: IAutoMovieViewPart;
 
     /** The nail. */
     nail: IAutoMovieHumanNail.INail;

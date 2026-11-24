@@ -76,7 +76,9 @@ export namespace AutoMovieConstructionAdmission {
 
           // A mixed join's declared loop and each fold's reach (`IAutoMovieConstructionJoin.loop`, `IAutoMovieConstructionFoldWidth.reach`).
           const loop: typeof node.loop = node.loop;
-          if (loop !== undefined && !(Number.isFinite(loop.centre[0]) && Number.isFinite(loop.centre[1]) && loop.semi[0] > 0 && loop.semi[1] > 0 && loop.semi[1] < Math.PI && (loop.sense === 1 || loop.sense === -1) && (loop.shape === undefined || (loop.shape.length === node.count && loop.shape.every((share: number): boolean => Number.isFinite(share) && share > 0)))))
+          if (loop !== undefined && "source" in loop && !(loop.type === "source" && typeof loop.source === "string" && loop.source.length > 0))
+            throw new Error(`realizeAutoMovieConstruction: ${name}'s source loop needs a nonempty key`);
+          if (loop !== undefined && !("source" in loop) && !(Number.isFinite(loop.centre[0]) && Number.isFinite(loop.centre[1]) && loop.semi[0] > 0 && loop.semi[1] > 0 && loop.semi[1] < Math.PI && (loop.sense === 1 || loop.sense === -1) && (loop.shape === undefined || (loop.shape.length === node.count && loop.shape.every((share: number): boolean => Number.isFinite(share) && share > 0)))))
             throw new Error(`realizeAutoMovieConstruction: ${name}'s loop needs a finite centre, positive semi-axes with the phase one under pi, a sense of 1 or -1 and, when shaped, ${node.count} positive shares`);
           for (const width of [node.partWidth, node.hostWidth])
             if (width.type === "fold" && width.reach !== undefined && !(Number.isFinite(width.reach) && width.reach > 0))

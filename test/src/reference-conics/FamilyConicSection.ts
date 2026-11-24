@@ -1133,7 +1133,10 @@ export namespace FamilyConicSection {
     // and the largest turn in it, a feature jumped up to 39.5 mm between sections 2 mm apart where a groove faded (`groove-check`).
     const placed: Map<number, { point: P; tangent: P }> | null =
       place === undefined ? null : place(found, tangent);
-    const ends: IEnd[] = placed !== null ? [] : converted(points, fairMm).ends;
+    const ends: IEnd[] =
+      placed === null && layout.anchors.some((anchor: IAnchor): boolean => anchor.kind === "f")
+        ? converted(points, fairMm).ends
+        : [];
     const phaseOf = (q: P): number => Math.atan2(q[1], q[0]);
     const within = (phi: number, a: number, b: number): boolean => {
       const span: number =

@@ -10,6 +10,7 @@ import type {
   IAutoMovieHumanConicLoft,
   IAutoMovieHumanConicRecentre,
   IAutoMovieHumanConicSection,
+  IAutoMovieHumanF1CourseLaw,
   IAutoMovieViewAxis,
   IAutoMovieViewAxisJet,
   IAutoMovieViewChain,
@@ -27,30 +28,8 @@ import type {
  * knee and behind it at the hip; the spine lies behind the trunk's centre).
  */
 export namespace AutoMovieHumanF1CourseLaw {
-  /**
-   * One turn read against the turn rule.
-   *
-   * @evidence contracts/development/design.md#principled-representation The stored half length beside the least the rule allows for the turn's angle and the reach on its concave side.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface One row of the turn-rule table.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts A turn whose middle lies outside the family's knots reports NaN reach and margin, not a guess.
-   * @evidence contracts/development/common.md#meaningful-documentation Members state units.
-   */
-  export interface IFold {
-    /** The interior centre's name. */
-    centre: string;
-    /** The station of the turn's middle, mm. */
-    station: number;
-    /** The stored half arclength, mm. */
-    half: number;
-    /** The turn's angle, radians. */
-    angle: number;
-    /** The section's reach toward the turn's centre of curvature at the turn's middle, mm. */
-    concave: number;
-    /** The least half length the rule allows, mm: `(15 / 16) angle concave`. */
-    least: number;
-    /** `half / least`: under 1 the sections cross on the concave side. */
-    margin: number;
-  }
+  /** One turn read against the turn rule. */
+  export type IFold = IAutoMovieHumanF1CourseLaw.IFold;
 
   /**
    * The skeletal datum line of a course: joint centres by their names in the placing table, or segment origins by their frames' names.

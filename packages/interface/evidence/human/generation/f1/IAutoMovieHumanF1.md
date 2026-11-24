@@ -196,24 +196,6 @@ IAutoMovieHumanF1.IFanSeamsResult is the canonical exchange used by AutoMovieHum
 
 Required fields are `station`, `seams`, `headings`, `normal`, `up`; callers supply the complete record.
 
-# src/human/generation/f1/IAutoMovieHumanF1.ts#IAutoMovieHumanF1.ICrotchProfile
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-The crotch seam's shared chord-plane and fairing controls.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Each knot is a pair of chord distance and depth in metres. The corner is in radians, and each fairing share belongs to one side.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-AutoMovieHumanF1 reads the same profile when deriving the posed seam.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The profile is authored in one chord plane. The construction operator admits its knot ordering and geometry.
-
 # src/human/generation/f1/IAutoMovieHumanF1.ts#IAutoMovieHumanF1.IRootControls
 
 ## @evidence contracts/development/common.md#meaningful-documentation
@@ -249,3 +231,57 @@ AutoMovieHumanF1.rootSection returns this section for fitter and join diagnostic
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 
 This records the sampled skin intersection and its plane. The operator owns admission of the continuous joint.
+
+# src/human/generation/f1/IAutoMovieHumanF1.ts#IAutoMovieHumanF1.IConstructionWithNails
+
+## @evidence contracts/development/common.md#meaningful-documentation
+
+The nails are fitted once for the already placed +Z digits before their beds enter the source tree.
+
+## @evidence contracts/development/design.md#principled-representation
+
+The assembled tree and the immutable nail records have the same invocation and authored digit identities.
+
+## @evidence contracts/development/design.md#minimal-and-owned-surface
+
+Production and capture share these records. Source-only preparation reads IConstruction.
+
+## @evidence contracts/development/design.md#prohibited-design-shortcuts
+
+A production declaration supplies the records that generated its beds.
+
+# src/human/generation/f1/IAutoMovieHumanF1.ts#IAutoMovieHumanF1.IConstructionWithContacts
+
+## @evidence contracts/development/design.md#principled-representation
+
+Each actual F1 declaration owns its immutable source bank and the +Z attachment producers that consume it.
+
+## @evidence contracts/development/common.md#meaningful-documentation
+
+The aggregate prepares all named contacts before a later operator may require their seeds.
+
+## @evidence contracts/development/design.md#minimal-and-owned-surface
+
+Returned by AutoMovieHumanF1's construction builders and extended by IConstructionWithNails. It adds one deferred reader to IConstruction, so the premises are prepared only when asked for.
+
+## @evidence contracts/development/design.md#prohibited-design-shortcuts
+
+The `contactPremises` reader is produced by AutoMovieHumanF1 for every authored side attachment, and its only current reader is the reference capture under `test/src/reference-conics`, which refuses a capture on a refused premise; no production package reads it yet.
+
+# src/human/generation/f1/IAutoMovieHumanF1.ts#IAutoMovieHumanF1.IContactPremise
+
+## @evidence contracts/development/design.md#principled-representation
+
+A discriminated record binds the real host and child face names to the prepared chart or its first named refusal.
+
+## @evidence contracts/development/common.md#meaningful-documentation
+
+Gap is measured in mm at the preparing producer's sample scope. Preparation does not certify final rails, trim or the reference surface.
+
+## @evidence contracts/development/design.md#minimal-and-owned-surface
+
+Returned by `IConstructionWithContacts.contactPremises`. The node name and the two face names identify the attachment; the prepared branch carries the gap and the sampled column count, the refused branch its first unavailable premise.
+
+## @evidence contracts/development/design.md#prohibited-design-shortcuts
+
+The two outcomes are a union discriminated by `kind`, so a refusal carries no gap and a prepared contact no detail. Its only current reader is the reference capture under `test/src/reference-conics`; no production package reads it yet.

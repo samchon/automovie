@@ -4,6 +4,7 @@ import type { IAutoMovieConstructionNode } from "./IAutoMovieConstructionNode";
 import type { IAutoMovieConstructionParameter } from "./IAutoMovieConstructionParameter";
 import type { IAutoMovieConstructionPortLoop } from "./IAutoMovieConstructionPortLoop";
 import type { IAutoMovieConstructionSeed } from "./IAutoMovieConstructionSeed";
+import type { IAutoMovieConstructionSharedLoop } from "./IAutoMovieConstructionSharedLoop";
 import type { IAutoMovieConstructionWidth } from "./IAutoMovieConstructionWidth";
 
 /**
@@ -41,9 +42,10 @@ export interface IAutoMovieConstructionJoin {
    * The contact as a declared closed curve on `seed.hostFace`'s chart, in place of a trace: the loop one owner supplies to both surfaces,
    * such as the host's skin cut by a surface fixed in its frame, through which the part's face passes all round. It admits a contact that
    * is tangential over part of its turn, which no trace can follow. The seed then names the two faces and, as a `point` seed, the part's
-   * chart point near the loop's clock 0; nothing is searched along the curve. Absent, the curve is traced from the seed.
+   * chart point near the loop's clock 0. A source key reads the invocation's original host chart 2-jet and first part foot.
+   * Absent, the curve is traced from the seed.
    */
-  loop?: IAutoMovieConstructionPortLoop;
+  loop?: IAutoMovieConstructionPortLoop | IAutoMovieConstructionSharedLoop.IReference;
 
   /** Chord from the curve to the part's rail, as a function of the curve's parameter. */
   partWidth: IAutoMovieConstructionWidth;

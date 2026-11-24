@@ -1,4 +1,6 @@
-import { AutoMovieHumanF1Divide as D } from "@automovie/human";
+import { AutoMovieLoftViewFullSource, AutoMovieViewAxis } from "@automovie/engine";
+import type { IAutoMovieHumanConicLoft } from "@automovie/interface";
+import { AutoMovieHumanConicLoft, AutoMovieHumanConicSection, AutoMovieHumanF1Divide as D, AutoMovieHumanGlutealParent, AutoMovieHumanJoinLoop } from "@automovie/human";
 
 /**
  * Every point of skin has exactly one owner across each dividing surface: inside a surface's region the side decides, outside it the
@@ -21,6 +23,7 @@ import { AutoMovieHumanF1Divide as D } from "@automovie/human";
  * 5. The row: (-10, 100, 310) is the first finger's alone among hand and fingers, (10, 100, 310) the second's, (0.5, 100, 290) the
  *    hand's.
  * 6. A hundred points on a lattice round the hand: every one is kept by exactly one of the hand, the two fingers and the thumb.
+ * 7. A course turns from +X to +Y. (-15,0,2) addresses the first straight leg 5 mm from its start. (-6,6,0) has a separate perpendicular in each straight leg with another crossing through the turn. A point behind both axes has no address. Translating the whole source preserves the first address only with the matching declared offset.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls `AutoMovieHumanF1Divide.create` and `outside` and reads which parts keep made points. It catches a far part that claims skin beyond its region, a near part that gives skin up outside it, a row plane with the wrong sign, and any point with two owners or none.
  * @evidence contracts/development/testing.md#independent-expectations Each point's owner is read off the made planes, balls and tubes by hand in the text above.
@@ -30,6 +33,9 @@ import { AutoMovieHumanF1Divide as D } from "@automovie/human";
  */
 export function test_human_f1_divide(): void {
   const failures: string[] = [];
+  const owned = D.landmarkOwner([0, 0, 0], [[0, 0, 0], [0, 0, 10]], [[3, 0, 0], [0, 4, 0], [0, 0, 5]]);
+  if (!owned([0, 0, 5], true) || !owned([0, 3, 10]) || owned([0, 8, 10]) || owned([0, 4, 10]))
+    failures.push("a source landmark closure, the forward material tube and its unrelated outside sheet lost their independent ownership");
   const digit = (part: string, x: number, z: number): D.IDigit => ({ part, first: [x, 100, z], second: [x, 100, z + 30] });
   const surfaces: D.ISurface[] = D.create({
     armscye: { side: (p: D.V): number => p[2] - 60, centre: [0, 100, 50], reach: 40, course: [[0, 100, 50], [0, 100, 150], [0, 100, 250]], tube: 20, part: "arm" },
@@ -74,6 +80,99 @@ export function test_human_f1_divide(): void {
       const found: string[] = owners(hand, p);
       if (found.length !== 1) failures.push(`lattice point (${p.join(", ")}) is kept by [${found.join(", ")}]`);
     }
+
+  // Two straight circular walls meet at the same interior station. Moving only the child
+  // radius by one millimetre or moving its address onto the cut plane distinguishes them.
+  const circle = (radius: number): IAutoMovieHumanConicLoft.IFamily => ({
+    name: "made.wall",
+    centres: [[0, 0, 0], [0, 20, 0]],
+    halves: [],
+    up: [1, 0, 0],
+    layout: AutoMovieHumanConicSection.limb(0),
+    knots: [0, 10, 20],
+    values: [radius, 0, 0, radius, -radius, 0, 0, -radius, ...new Array<number>(4).fill(Math.SQRT2 - 1)]
+      .map((value: number): number[] => [value, value, value]),
+  });
+  for (const origin of [0, 70]) {
+    const part = { ...AutoMovieHumanConicLoft.part(circle(4), [0, 10, 20]),
+      axis: AutoMovieViewAxis.straight([0, origin, 0], [1, 0, 0], [0, 0, 1]) };
+    const parent = AutoMovieHumanGlutealParent.trunkOnly(part);
+    if (typeof parent === "string") { failures.push(parent); continue; }
+    const at = parent.chord(origin + 10, 0), outside = parent.chord(origin - 1, 0);
+    if (typeof at === "string" || at.length !== 1 || at[0]!.front.station !== 10 || at[0]!.back.station !== 10 ||
+        Math.abs(at[0]!.front.x - 4) > 1e-9 || Math.abs(at[0]!.back.x + 4) > 1e-9 ||
+        typeof outside === "string" || outside.length !== 0)
+      failures.push("a world-height AP chord lost its actual station, phase or bounded level on the shifted source");
+  }
+  const lifted: ReturnType<typeof AutoMovieHumanConicLoft.part> = { ...AutoMovieHumanConicLoft.part(circle(4), [0, 10, 20]),
+    axis: AutoMovieViewAxis.straight([0, 70, 0], [1, 0, 0], [0, 0, 1]),
+    reliefs: [{ name: "shifted.ap", stations: [0, 20], phases: [-1, 1], axis: [Math.SQRT1_2, 0, Math.SQRT1_2],
+      rows: 7, columns: 7, heights: Array.from({ length: 49 }, (_, i): number => i === 24 ? 2 : 0) }] };
+  const fullAP = AutoMovieLoftViewFullSource.create(lifted);
+  const bareAddress = fullAP.point(10, 0);
+  const actualAP = fullAP.point(...D.apGerm(lifted, [8, 80, 0], 1e-8));
+  if (!(bareAddress[2] > 0 && actualAP[0] > 4 && Math.hypot(actualAP[1] - 80, actualAP[2]) <= 1e-8))
+    failures.push("a displaced full AP germ preserved the bare wall's position or lost the actual bust meridian");
+  try {
+    D.apGerm(lifted, [3, 80, 0], 1e-8);
+    failures.push("the AP germ admitted an apex behind the full anterior wall");
+  } catch (error: unknown) {
+    if (!String(error).includes("no positive projection")) failures.push("wrong full AP projection refusal: " + String(error));
+  }
+  const h = AutoMovieLoftViewFullSource.create(AutoMovieHumanConicLoft.part(circle(4), [0, 10, 20]));
+  const wider = AutoMovieLoftViewFullSource.create(AutoMovieHumanConicLoft.part(circle(5), [0, 10, 20]));
+  for (const phase of [0, Math.PI / 4, Math.PI, -Math.PI / 4]) {
+    const at: [number, number] = [10, phase];
+    if (AutoMovieHumanJoinLoop.columnGap(h, h, at, at) !== 0 ||
+        Math.abs(AutoMovieHumanJoinLoop.columnGap(h, wider, at, at) - 1) > 1e-10)
+      failures.push("the paired physical chart did not measure the independent one-millimetre radial mismatch");
+  }
+  try {
+    AutoMovieHumanJoinLoop.columnGap(h, h, [10, 0], [0, 0]);
+    failures.push("a child cut plane was accepted as an interior wall");
+  } catch (error) {
+    if (!String(error).includes("interior station")) failures.push("wrong child-domain refusal: " + String(error));
+  }
+
+  const course: IAutoMovieHumanConicLoft.IFamily = {
+    name: "proved",
+    centres: [[-20, 0, 0], [0, 0, 0], [0, 20, 0]],
+    halves: [2],
+    up: [0, 0, 1],
+    layout: AutoMovieHumanConicSection.limb(0),
+    knots: [0, 20, 35],
+    values: [],
+  };
+  const part = { name: course.name, axis: AutoMovieHumanConicLoft.axis(course) };
+  const address = AutoMovieHumanJoinLoop.certifiedAddress(part, [0, 35], course);
+  const [station, phase] = address([-15, 0, 2]);
+  if (Math.abs(station - 5) > 1e-9 || Math.abs(phase) > 1e-12)
+    failures.push("the straight leg lost its exact world-plane address");
+  const refuse = (point: D.V, reason: string): void => {
+    try {
+      address(point);
+      failures.push("a missing or competing plane address was accepted");
+    } catch (error) {
+      if (!String(error).includes(reason)) failures.push("the plane witness was refused for the wrong reason: " + String(error));
+    }
+  };
+  refuse([-6, 6, 0], "3 certified plane addresses");
+  refuse([-30, -20, 0], "0 certified plane addresses");
+
+  const translation: D.V = [10, 4, 8];
+  const shifted = { ...part, axis: { at: (s: number): ReturnType<typeof part.axis.at> => {
+    const frame = part.axis.at(s);
+    return { ...frame, origin: [frame.origin[0] + 10, frame.origin[1] + 4, frame.origin[2] + 8] };
+  } } };
+  const posed = AutoMovieHumanJoinLoop.certifiedAddress(shifted, [0, 35], course, translation);
+  if (Math.abs(posed([-5, 4, 10])[0] - 5) > 1e-9)
+    failures.push("the same placed course lost its address after the authored translation");
+  try {
+    AutoMovieHumanJoinLoop.certifiedAddress(shifted, [0, 35], course)([-5, 4, 10]);
+    failures.push("an origin translation without source declaration was admitted");
+  } catch (error) {
+    if (!String(error).includes("source axis differs")) failures.push("a mismatched placed axis was refused for the wrong reason");
+  }
 
   if (failures.length > 0) throw new Error(`dividing surfaces: ${failures.length} finding(s):\n${failures.join("\n")}`);
 }

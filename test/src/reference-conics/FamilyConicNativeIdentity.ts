@@ -62,7 +62,7 @@ namespace FamilyConicNativeIdentity {
   function record(): { families: IRecord[]; milliseconds: number } {
     const started: number = performance.now();
     const original: IAutoMovieHumanF1.IAssembly = AutoMovieHumanF1.assemble();
-    const prepared: IAutoMovieHumanF1NativeLaw.IPrepared = AutoMovieHumanF1NativeLaw.prepare(original, AutoMovieHumanF1.constructionFrom(original).sources);
+    const prepared: IAutoMovieHumanF1NativeLaw.IPrepared = AutoMovieHumanF1NativeLaw.prepare(original, AutoMovieHumanF1.constructionBareFrom(original).sources);
     const person: IAutoMovieHumanF1.IAssembly = AutoMovieHumanF1.nativeFrom(prepared.fields, prepared);
 
     // The sources the construction itself asks for: a limb's source without the distal cap its digits replace, as production reads it.

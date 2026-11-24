@@ -2,6 +2,7 @@ import type {
   IAutoMovieConstructionOutlineParameter,
   IAutoMovieLoftChain,
   IAutoMovieLoftContract,
+  IAutoMovieLoftSectionJet,
   IAutoMovieLoftSectionFrame,
   IAutoMovieLoftViewRead,
   IAutoMovieLoftViewSource,
@@ -19,6 +20,7 @@ import { AutoMovieLoftCoefficientSource } from "./AutoMovieLoftCoefficientSource
 import { AutoMovieLoftContract } from "./AutoMovieLoftContract";
 import { AutoMovieLoftFrameSource } from "./AutoMovieLoftFrameSource";
 import { AutoMovieLoftSectionNative } from "./AutoMovieLoftSectionNative";
+import { AutoMovieLoftSectionOriginal } from "./AutoMovieLoftSectionOriginal";
 import { AutoMovieLoftSectionSource } from "./AutoMovieLoftSectionSource";
 import { AutoMovieLoftViewRead } from "./AutoMovieLoftViewRead";
 import { AutoMovieLoftViewSource } from "./AutoMovieLoftViewSource";
@@ -36,7 +38,7 @@ type Quarters<T> = IAutoMovieViewPart.IQuarters<T>;
 interface Row {
   station: number;
   frame: IAutoMovieLoftSectionFrame;
-  radius: (phi: number) => number;
+  point: (phi: number) => [number, number];
   view: IAutoMovieLoftChain.IView | undefined;
 }
 
@@ -148,6 +150,32 @@ export namespace AutoMovieViewLoft {
     }
     const direct: IAutoMovieLoftViewSource.ISource | null =
       admitted?.source ?? null;
+    const field = part.originalSection;
+    if (field !== undefined) {
+      const fault = AutoMovieLoftSectionOriginal.fault(field, first, last);
+      if (fault !== null || direct === null || closes.includes("bottom")) {
+        report("original section", fault ?? "a bounded original section needs a direct regular proximal field and a retained native tail");
+        return empty();
+      }
+      if (direct.caps.some(({ pole, span }): boolean => span === null || field.domain[1] > pole - span)) {
+        report("original section", "the original section overlaps the original distal cap");
+        return empty();
+      }
+      const mark = field.domain[1], retained = AutoMovieLoftViewRead.jets(direct, mark);
+      if (typeof retained === "string") {
+        report("original section", retained);
+        return empty();
+      }
+      const tail = AutoMovieLoftSectionNative.jet(retained);
+      for (let k = 0; k < 2 * part.order; ++k) {
+        const phi = Math.PI * k / part.order;
+        const before = field.jet(mark, phi), after = tail(phi);
+        if (!sameJet(before, after)) {
+          report("original section", "the original section does not preserve its protected local 0/1/2 jets");
+          return empty();
+        }
+      }
+    }
     const inputs: IAutoMovieViewLoftInputsInputs | null =
       AutoMovieViewLoftInputs(part, direct, report);
     if (inputs === null) return empty();
@@ -300,7 +328,12 @@ export namespace AutoMovieViewLoft {
 
     const sections: IAutoMovieViewLoft.IStation[] = [];
     const chains: IAutoMovieViewLoft.IChainStation[] = [];
+    const original: NonNullable<IAutoMovieViewLoft.IResult["original"]> = [];
     for (const s of stations) {
+      if (AutoMovieLoftSectionOriginal.active(field, s)) {
+        original.push({ station: s, frame: part.axis.at(s), field: field! });
+        continue;
+      }
       const at: string = `station ${s} mm`;
       const actual: IAutoMovieLoftViewRead.IValues | string | null =
         direct === null ? null : AutoMovieLoftViewRead.values(direct, s);
@@ -404,7 +437,7 @@ export namespace AutoMovieViewLoft {
       if (section === null) continue;
       sections.push({ station: s, frame: part.axis.at(s), section });
     }
-    const emitted: number = sections.length + chains.length;
+    const emitted: number = sections.length + chains.length + original.length;
     if (emitted < 2) {
       report(
         "stations",
@@ -424,8 +457,7 @@ export namespace AutoMovieViewLoft {
         (st: IAutoMovieViewLoft.IStation): Row => ({
           station: st.station,
           frame: st.frame,
-          radius: (phi: number): number =>
-            AutoMovieViewSection.radius(st.section, phi)[0],
+          point: (phi: number): [number, number] => polar(AutoMovieViewSection.radius(st.section, phi)[0], phi),
           view: {
             extents: [...st.section.box.extents],
             shoulders: [...st.section.shoulders],
@@ -440,11 +472,14 @@ export namespace AutoMovieViewLoft {
         (st: IAutoMovieViewLoft.IChainStation): Row => ({
           station: st.station,
           frame: st.frame,
-          radius: (phi: number): number =>
-            AutoMovieViewChain.radius(st.chain, phi),
+          point: (phi: number): [number, number] => polar(AutoMovieViewChain.radius(st.chain, phi), phi),
           view: undefined,
         }),
       ),
+      ...original.map((row): Row => ({
+        station: row.station, frame: row.frame,
+        point: (phi) => row.field.point(row.station, phi), view: undefined,
+      })),
     ].sort((a: Row, b: Row): number => a.station - b.station);
     const layers: IAutoMovieLoftChain.ILayer[] = [];
     for (const row of rows) {
@@ -452,8 +487,7 @@ export namespace AutoMovieViewLoft {
         { length: N },
         (_: unknown, m: number): [number, number] => {
           const phi: number = (2 * Math.PI * m) / N;
-          const r: number = row.radius(phi);
-          return [r * Math.cos(phi), r * Math.sin(phi)];
+          return row.point(phi);
         },
       );
       if (
@@ -518,6 +552,7 @@ export namespace AutoMovieViewLoft {
     chain = AutoMovieSeamStation.continuous(source);
     if (direct !== null)
       chain = AutoMovieLoftSectionSource.retain(chain, direct);
+    if (field !== undefined) chain = { ...chain, originalSection: field };
     chain = AutoMovieLoftCapSource.retain(chain, part.axis);
     // The part's reliefs ride on the chain it returns, as its owner composes
     // them (`{ ...chain, reliefs }`), so the surface and every reader of the
@@ -556,11 +591,23 @@ export namespace AutoMovieViewLoft {
       surface,
       sections,
       chains,
+      ...(field === undefined ? {} : { original }),
       diagnostics,
       continuity:
         chains.length === 0 ? CONTINUITY : { phase: "C1", station: "C1" },
     };
   }
+}
+
+function polar(r: number, phi: number): [number, number] {
+  return [r * Math.cos(phi), r * Math.sin(phi)];
+}
+
+/** Match the old continuation's numeric scale at the protected original local section. */
+function sameJet(a: IAutoMovieLoftSectionJet, b: IAutoMovieLoftSectionJet): boolean {
+  return (["p", "s", "t", "ss", "st", "tt"] as const).every((key): boolean =>
+    a[key].length === 2 && a[key].every((x, i): boolean =>
+      Number.isFinite(x) && Math.abs(x - b[key][i]!) <= 32 * Number.EPSILON * Math.max(1, Math.abs(x), Math.abs(b[key][i]!))));
 }
 
 /** The continuity every four-quarter chain carries. */

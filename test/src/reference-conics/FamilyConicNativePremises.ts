@@ -3,7 +3,9 @@ import {
   AutoMovieConstructionPortCurve,
   AutoMovieConstructionSeeds,
   AutoMovieConstructionSplitBand as Band,
+  AutoMovieConstructionSplitCompose as Compose,
   AutoMovieConstructionSplitSeam as Seam,
+  AutoMovieLoftFrame,
   AutoMovieNaturalSpline,
   AutoMovieSolidChain,
   AutoMovieSolidRibbon,
@@ -15,6 +17,7 @@ import type {
   IAutoMovieBlendCrossJet,
   IAutoMovieConstructionNode,
   IAutoMovieConstructionSeedTrace,
+  IAutoMovieConstructionSharedLoop,
   IAutoMovieConstructionSplit,
   IAutoMovieConstructionSplitBand,
   IAutoMovieConstructionSplitBandTrace,
@@ -63,6 +66,7 @@ export function FamilyConicNativePremises(
       surface: IAutoMovieSolidSurface,
     ) => IAutoMovieSolidSurface;
   },
+  loopSources?: ReadonlyMap<string, IAutoMovieConstructionSharedLoop.ISource>,
 ): {
   rows: unknown[];
   failures: { owner: string; detail: string }[];
@@ -116,6 +120,17 @@ export function FamilyConicNativePremises(
     if (frame === undefined) throw new Error("actual end frame is absent");
     const made = V.unit(
       V.scale(V.cross(frame.v, frame.u), side === "bottom" ? -1 : 1),
+    );
+    if (made === null) throw new Error("actual end plane is degenerate");
+    return made;
+  };
+  const basis = (source: Source, side: "bottom" | "top", into: 1 | -1) => {
+    const layer = source.chain.layers[
+      side === "bottom" ? 0 : source.chain.layers.length - 1
+    ]!;
+    const made = Compose.basis(
+      layer.frame ?? AutoMovieLoftFrame.horizontal(layer.y),
+      into,
     );
     if (made === null) throw new Error("actual end plane is degenerate");
     return made;
@@ -323,6 +338,48 @@ export function FamilyConicNativePremises(
           source.chain.opposite?.end === node.hostEnd
         )
           throw new Error("split host end closes in a pole");
+        if (node.compose !== undefined) {
+          const children = node.children.map((member) => {
+            const skin = take(member.partFace);
+            const inside: 1 | -1 = member.partEnd === "bottom" ? 1 : -1;
+            const [first, last] = domain(skin);
+            return {
+              name: member.partFace,
+              surface: skin.surface,
+              into: inside,
+              stations: skin.chain.layers.map((layer) => layer.y)
+                .filter((y) => y >= first && y <= last),
+              rail: member.rail * 1000,
+              basis: basis(skin, member.partEnd, inside),
+            };
+          });
+          const derived = Compose.derive({
+            compose: node.compose,
+            host: { surface: source.surface, station, basis: basis(source, node.hostEnd, into) },
+            children,
+            count: node.count,
+          });
+          if (typeof derived === "string") throw new Error("compose: " + derived);
+          rows.push({
+            owner: node.name,
+            kind: "actual-composed-end",
+            section: station,
+            definition: node.compose,
+            hostGap: derived.host,
+            seams: derived.seams,
+            headings: derived.headings,
+            valleys: derived.valleys,
+            children: children.map((member, index) => {
+              const cut = derived.cuts[index]!;
+              const [first, last] = domain(take(member.name));
+              if (!(cut.reach[0] > first && cut.reach[1] < last))
+                throw new Error(member.name + "'s composed rail leaves its actual domain");
+              return { name: member.name, domain: [first, last], rail: cut.reach };
+            }),
+            pending: ["realized child end ownership", "seam ribbon and blend columns", "mesh and topology"],
+          });
+          return;
+        }
         const seams: IAutoMovieConstructionSplit.ISeam[] = [
           {
             seam: node.seam,
@@ -610,6 +667,48 @@ export function FamilyConicNativePremises(
           hostSurface =
             observe?.seedSurface?.(node.name, "host", host.surface) ??
             host.surface;
+        if (node.loop !== undefined) {
+          let addresses: readonly (readonly [number, number])[];
+          if ("source" in node.loop) {
+            const source = loopSources?.get(node.loop.source);
+            if (source === undefined) throw new Error("the declared shared loop source is absent");
+            if (source.hostFace !== node.seed.hostFace || source.partFace !== node.seed.partFace)
+              throw new Error("the declared shared loop source names another wall pair");
+            if (source.kind === "refused") throw new Error(source.detail);
+            addresses = Array.from({ length: node.count }, (_, k) => source.at(2 * Math.PI * k / node.count).point);
+          } else addresses = AutoMovieConstructionPortCurve.chart(node.loop, node.count).addresses;
+          const hostDomain = domain(host);
+          const columns = addresses.map(([s, t]) => {
+            if (!(s > hostDomain[0] && s < hostDomain[1]))
+              throw new Error("shared loop leaves the actual host source domain");
+            const full2 = read(hostSurface, s, t);
+            if ("unavailable" in full2) throw new Error(full2.unavailable);
+            return { station: s, phase: t, full2 };
+          });
+          rows.push({
+            owner: node.name,
+            kind: "actual-shared-loop-source",
+            definition: node.loop,
+            host: node.seed.hostFace,
+            hostDomain,
+            part: node.seed.partFace,
+            partDomain: domain(part),
+            columns,
+            stationSpan: [
+              Math.min(...columns.map((column) => column.station)),
+              Math.max(...columns.map((column) => column.station)),
+            ],
+            widths: { host: node.hostWidth, part: node.partWidth },
+            numericalContact: { toleranceMm: node.tolerance * 1000, grazingRad: node.grazing },
+            pending: [
+              "reference attachment cover and independent physical fold scale",
+              "contact feet on the admitted face and current host atlas",
+              "enclosed kept side and fold widths",
+              "blend rails, trim cycles, mesh and topology",
+            ],
+          });
+          return;
+        }
         const seed = AutoMovieConstructionSeeds.create(
           node.seed,
           partSurface,
@@ -651,7 +750,7 @@ export function FamilyConicNativePremises(
     } catch (error: unknown) {
       const detail = error instanceof Error ? error.message : String(error);
       failures.push({ owner: node.name, detail });
-      if (node.type === "split")
+      if (node.type === "split" && node.compose === undefined)
         for (const c of node.children) {
           try {
             const side = child(c.partFace, c.partEnd, c.rail);

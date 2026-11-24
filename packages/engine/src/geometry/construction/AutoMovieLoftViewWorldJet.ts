@@ -1,6 +1,7 @@
 import type {
   IAutoMovieAxis,
   IAutoMovieLoftSectionJet,
+  IAutoMovieLoftSectionConnect,
   IAutoMovieLoftViewRead,
   IAutoMovieLoftViewSource,
   IAutoMovieLoftWorldJetWorld,
@@ -26,6 +27,7 @@ export function AutoMovieLoftViewWorldJet(
   axis: IAutoMovieAxis,
   station: number,
   phase: number,
+  original?: IAutoMovieLoftSectionConnect.IOriginal,
 ): IAutoMovieSolidSurface.IJet | string {
   if (!Number.isFinite(station) || !Number.isFinite(phase))
     return "Original view world2 requires a finite station and phase.";
@@ -34,8 +36,8 @@ export function AutoMovieLoftViewWorldJet(
   const readAxis: IAutoMovieAxis["jet"] = axis.jet;
   if (typeof readAxis !== "function")
     return "Original view world2 requires actual axis2, not frame values alone.";
-  const inputs: IAutoMovieLoftViewRead.IJets | string =
-    AutoMovieLoftViewRead.jets(source, station);
+  const inputs: IAutoMovieLoftViewRead.IJets | string | null =
+    original === undefined ? AutoMovieLoftViewRead.jets(source, station) : null;
   if (typeof inputs === "string") return `Original view world2: ${inputs}`;
 
   // Foreign code and getters remain outside the numeric admission boundary.
@@ -43,11 +45,12 @@ export function AutoMovieLoftViewWorldJet(
   const rows: number[][] | null = frameRows(frame);
   if (rows === null)
     return `Original view world2 has no complete finite axis2 at station ${station} mm.`;
+  const authored = original?.jet(station, phase);
 
   // Both callees below read only the freshly owned numeric arrays above.
   try {
     const local: ReturnType<(phi: number) => IAutoMovieLoftSectionJet> =
-      AutoMovieLoftSectionNative.jet(inputs)(phase);
+      authored ?? AutoMovieLoftSectionNative.jet(inputs!)(phase);
     const world: IAutoMovieLoftWorldJetWorld = AutoMovieLoftWorldJet(
       local,
       rows,

@@ -13,6 +13,7 @@ import {
   AutoMovieHumanConicSection as S,
   AutoMovieHumanF1,
   AutoMovieHumanF1Armscye as Armscye,
+  AutoMovieHumanF1Divide,
   AutoMovieHumanF1Joints,
   AutoMovieHumanF1Placement,
 } from "@automovie/human";
@@ -92,8 +93,11 @@ namespace FamilyConicArmscyeJoin {
    * knot less `carried` to 200 mm past it, at which the arm's skin changes side of the trunk's skin (`out` leaving the trunk's solid,
    * `in` entering it), and at the first `out` the point, its and its trunk drop's signed distance to the reference's skin, and the turn
    * between the two surfaces' normals.
+   * `--contact --part=breast --actual` reads the prepared F1 breast and trunk leaves without carrying either one. The station/phase
+   * drop and nearest reference distance locate candidate crossings. They do not establish where the reference breast attaches, nor
+   * whether the host and part have complementary trim curves.
    */
-  async function contact(trunkPart: IAutoMovieViewPart): Promise<void> {
+  async function contact(trunkPart: IAutoMovieViewPart, prepared?: IAutoMovieViewPart): Promise<void> {
     const file: string | undefined = process.argv.find((a: string): boolean => a.startsWith("--arm="))?.slice(6);
     // `--part=<family>`: any stored family of the figure in place of the arm (a breast, a nose), read against the trunk the same way.
     const named: string | undefined = process.argv.find((a: string): boolean => a.startsWith("--part="))?.slice(7);
@@ -101,10 +105,13 @@ namespace FamilyConicArmscyeJoin {
     if (stored === undefined) throw new Error("--part: the figure has no family named " + named);
     const family: IAutoMovieHumanConicLoft.IFamily = file === undefined ? stored : (JSON.parse(await fs.readFile(file, "utf8")) as IAutoMovieHumanConicLoft.IFamily);
     const carried: number = Number(process.argv.find((a: string): boolean => a.startsWith("--carried="))?.slice(10) ?? 0);
-    const from: number = family.knots[0]! - carried;
-    const reach: number = Math.min(200, family.knots.at(-1)! - from);
-    const armPart: IAutoMovieViewPart = H.part({ ...family, tips: undefined }, Array.from({ length: 101 }, (_: unknown, i: number): number => from + (reach * i) / 100));
-    const [arm, trunk]: IAutoMovieLoftViewFullSource.IReader[] = [Full.create(armPart), Full.create(trunkPart)];
+    const firstKnot: number = family.knots[0]! - carried;
+    const nominalReach: number = Math.min(200, family.knots.at(-1)! - firstKnot);
+    const armPart: IAutoMovieViewPart = prepared ?? H.part({ ...family, tips: undefined }, Array.from({ length: 101 }, (_: unknown, i: number): number => firstKnot + (nominalReach * i) / 100));
+    const arm: IAutoMovieLoftViewFullSource.IReader = Full.create(armPart);
+    const trunk: IAutoMovieLoftViewFullSource.IReader = Full.create(trunkPart);
+    const from: number = prepared === undefined ? firstKnot : arm.domain[0];
+    const reach: number = prepared === undefined ? nominalReach : Math.min(200, arm.domain[1] - from);
     const grid: Nearest.IGrid = Nearest.grid([(await R.load(path.resolve(process.cwd(), ".."))).all]);
     const foot: IAutoMovieLoftSectionFrame = trunkPart.axis.at(0);
     const tangent: V = unit(cross(foot.v, foot.u));
@@ -120,7 +127,10 @@ namespace FamilyConicArmscyeJoin {
     };
     const near = (x: readonly number[]): string => (Nearest.distance(grid, [x[0]!, x[1]!, x[2]!])?.toFixed(2) ?? "far");
     const out: string[] = [`== contact of ${family.name} "${file ?? "stored"}" (knots ${family.knots[0]} to ${family.knots.at(-1)}, carried ${carried} mm) with the stored trunk ==`];
+    if (prepared !== undefined)
+      out.push(`prepared ${armPart.name} stations ${from}..${from + reach} mm against ${trunkPart.name} stations ${trunk.domain.join("..")} mm; projected source crossing only`);
     out.push("arm phase deg | crossings (station:way) | first out: point x, y, z | arm to reference mm | trunk drop to reference mm | turn deg");
+    let singleExits: number = 0;
     for (let k: number = 0; k < 72; ++k) {
       const phase: number = (2 * Math.PI * k) / 72;
       const at = (s: number): number => depth(arm!.point(s, phase));
@@ -141,6 +151,7 @@ namespace FamilyConicArmscyeJoin {
         previous = d;
       }
       const first: [number, string] | undefined = crossings.find((c: [number, string]): boolean => c[1] === "out");
+      if (at(from) > 0 && first !== undefined && crossings.length === 1) ++singleExits;
       let detail: string = `starts ${at(from) > 0 ? "inside" : "outside"} by ${Math.abs(at(from)).toFixed(2)}; no out`;
       if (first !== undefined) {
         const p: readonly number[] = arm!.point(first[0], phase);
@@ -151,6 +162,8 @@ namespace FamilyConicArmscyeJoin {
       }
       out.push(`${k * 5} | ${crossings.map((c: [number, string]): string => c[0].toFixed(1) + ":" + c[1]).join(" ") || "none"} | ${detail}`);
     }
+    if (prepared !== undefined)
+      out.push(`${singleExits}/72 projected rays start inside and cross out once; direct reference insertion and complementary trim remain unmeasured.`);
     process.stdout.write(out.join("\n") + "\n");
   }
 
@@ -204,8 +217,40 @@ namespace FamilyConicArmscyeJoin {
   }
 
   export async function main(): Promise<void> {
+    if (process.argv.includes("--field-contact")) {
+      const option = (name: string): string | undefined => process.argv.find((arg: string): boolean => arg.startsWith("--" + name + "="))?.slice(name.length + 3);
+      const part: string | undefined = option("part");
+      const site: string | undefined = option("site");
+      const columns: number = Number(option("columns"));
+      if (part === undefined || site === undefined || !Number.isSafeInteger(columns) || columns < 3)
+        throw new Error("--field-contact needs the prepared part, anatomical site and column count");
+      const placed = AutoMovieHumanF1.assemble();
+      const sources = AutoMovieHumanF1.constructionBareFrom(placed).sources;
+      const trunk: IAutoMovieViewPart | undefined = sources.get("trunk");
+      const child: IAutoMovieViewPart | undefined = sources.get(part);
+      if (trunk === undefined || child === undefined) throw new Error("f1 has no prepared trunk or " + part + " source");
+      try {
+        const contact = AutoMovieHumanF1Divide.fieldContact(trunk, child, placed.point(site), columns,
+          (row) => { process.stdout.write(JSON.stringify({ event: "field-contact-clock", ...row }) + "\n"); },
+          part === placed.body.ear.name ? placed.earAxis ?? { family: placed.body.ear, translation: [0, 0, 0] } : undefined,
+        );
+        process.stdout.write(JSON.stringify({ event: "field-contact-result", part, site, admitted: true, contact }) + "\n");
+      } catch (error) {
+        process.stdout.write(JSON.stringify({ event: "field-contact-result", part, site, admitted: false, reason: String(error) }) + "\n");
+      }
+      return;
+    }
     if (process.argv.includes("--groove")) return groove();
     if (process.argv.includes("--contact")) {
+      if (process.argv.includes("--actual")) {
+        if (!process.argv.includes("--part=breast") || process.argv.some((a: string): boolean => /^(--arm|--trunk|--carried)=/.test(a)))
+          throw new Error("--actual requires --part=breast without a source override");
+        const sources = AutoMovieHumanF1.constructionBareFrom(AutoMovieHumanF1.assemble()).sources;
+        const trunk: IAutoMovieViewPart | undefined = sources.get("trunk");
+        const breast: IAutoMovieViewPart | undefined = sources.get("breast");
+        if (trunk === undefined || breast === undefined) throw new Error("f1 has no prepared trunk or breast source");
+        return contact(trunk, breast);
+      }
       const trunkFile: string | undefined = process.argv.find((a: string): boolean => a.startsWith("--trunk="))?.slice(8);
       const stored: IAutoMovieViewPart | undefined =
         trunkFile === undefined
@@ -515,7 +560,7 @@ namespace FamilyConicArmscyeJoin {
       continuity: "G2",
       count,
       rows: 8,
-      tolerance: option("tolerance", Math.ceil(contact.gap * 10 + 1) / 10) / 1000,
+      tolerance: option("tolerance", 0.001) / 1000,
       grazing: option("grazing", 0.2),
     };
     const started: number = performance.now();

@@ -10,6 +10,7 @@ import type {
   IAutoMovieConstructionPointSeed,
   IAutoMovieConstructionSeed,
   IAutoMovieHumanF1NativeRoot,
+  IAutoMovieHumanNativeRadialContact,
   IAutoMovieLoftViewFullSource,
   IAutoMovieViewPart,
 } from "@automovie/interface";
@@ -133,7 +134,7 @@ export namespace AutoMovieHumanF1NativeRootContact {
       throw new Error("cutter seed window/phase must be finite and ordered");
     const hostSource: IAutoMovieLoftViewFullSource.IReader = Full.create(host);
     const span: number = source.domain[1] - source.domain[0];
-    const found: Radial.IResult = Radial.seed(
+    const found: IAutoMovieHumanNativeRadialContact.IResult = Radial.seed(
       (s: number): readonly number[] => source.point(s, old.phase),
       source.domain[0] + old.from * span,
       source.domain[0] + old.to * span,

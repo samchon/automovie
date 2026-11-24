@@ -446,7 +446,7 @@ namespace FamilyConicArmscye {
     const declared = AutoMovieHumanF1.construction();
     const real = realizeAutoMovieConstruction(
       { name: "f1.body", root: declared.root, fills: declared.fills },
-      { chord: 0.001, sources: declared.sources },
+      { chord: 0.001, sources: declared.sources, loopSources: declared.loopSources() },
     );
     const generated: IAutoMovieMillimeterMesh = {
       positions: Array.from(
@@ -633,7 +633,7 @@ namespace FamilyConicArmscye {
     const declared = AutoMovieHumanF1.construction();
     const real = realizeAutoMovieConstruction(
       { name: "f1.body", root: declared.root, fills: declared.fills },
-      { chord: 0.001, sources: declared.sources },
+      { chord: 0.001, sources: declared.sources, loopSources: declared.loopSources() },
     );
     process.stdout.write(
       JSON.stringify({

@@ -47,7 +47,7 @@ export namespace FamilyConicCaptureCatalog {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only sampled lines and provenance survive; temporary factory chains are released after each source and no global cache is added.
    */
   export function create(
-    declared: IAutoMovieHumanF1.IConstruction,
+    declared: Pick<IAutoMovieHumanF1.IConstruction, "sources">,
     surfaces: readonly IAutoMovieSolidSurface[],
     cutters: readonly string[],
   ): IResult {

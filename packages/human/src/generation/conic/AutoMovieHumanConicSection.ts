@@ -548,6 +548,27 @@ export namespace AutoMovieHumanConicSection {
     return { at, shoulders: cursor };
   }
 
+  /**
+   * The fields that hold the guides' extents: for each guide anchor (`IAnchor.guide`) its coordinate along its own chart axis, a `u`
+   * guide's `u` and a `v` guide's `v`, as `resolve` reads them. Each is a signed distance from the course whose sign is its guide's side,
+   * a magnitude that a section admitted by the engine keeps away from zero.
+   */
+  export function extents(
+    layout: IAutoMovieHumanConicSection.ILayout,
+  ): number[] {
+    const { at } = offsets(layout);
+    return layout.anchors.flatMap(
+      (anchor: IAutoMovieHumanConicSection.IAnchor, k: number): number[] =>
+        anchor.guide !== true
+          ? []
+          : anchor.kind === "u"
+            ? [at[k]!]
+            : anchor.kind === "v"
+              ? [at[k]! + 1]
+              : [],
+    );
+  }
+
   /** Dependent anchors (`m`, `i`) by increasing level, the order they are resolved in. */
   export function dependents(
     layout: IAutoMovieHumanConicSection.ILayout,

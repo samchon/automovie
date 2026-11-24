@@ -1,7 +1,6 @@
 import type {
   IAutoMovieHumanF1Engineering,
-  IAutoMovieHumanF1NativeLaw,
-  IAutoMovieHumanF1SegmentLengths,
+  IAutoMovieHumanF1FieldModel,
 } from "@automovie/interface";
 
 /**
@@ -18,21 +17,8 @@ import type {
  * fails here at compile time. This module holds no law and is read by documentation and audits, not by generation.
  */
 export namespace AutoMovieHumanF1FieldModel {
-  /**
-   * The primary working fields of one person, by reference to their owners' declarations.
-   *
-   * @evidence contracts/development/design.md#principled-representation Skeleton first (segment lengths; the hip support rides in the tissue record's `hipJointCentreBreadth`), then tissue reach at the sites; no girth is a member.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Two members, each the record its applying owner already declares; nothing is duplicated.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No bone, muscle and fat split is declared, because one person's skin cannot identify it (`UNRESOLVED`).
-   * @evidence contracts/development/common.md#meaningful-documentation Names both owners and the units their members carry (mm).
-   */
-  export interface IPrimary {
-    /** Joint-centre segment lengths, mm, which move the chain's joint centres, frames and course runs. */
-    lengths: IAutoMovieHumanF1SegmentLengths.IFields;
-
-    /** The hip joint centre breadth and the directional tissue calipers at the measurement sites, mm. */
-    tissue: IAutoMovieHumanF1NativeLaw.IFields;
-  }
+  /** The primary working fields of one person, by reference to their owners' declarations. */
+  export type IPrimary = IAutoMovieHumanF1FieldModel.IPrimary;
 
   /**
    * The derived surface checks: tapes read on the generated source, mm.
@@ -45,68 +31,19 @@ export namespace AutoMovieHumanF1FieldModel {
   export type IChecks = IAutoMovieHumanF1Engineering.IReading;
 
   /** A field's layer, from the skeleton outward. */
-  export type Layer = "joint" | "length" | "frame" | "rest" | "bone" | "tissue" | "check";
+  export type Layer = IAutoMovieHumanF1FieldModel.Layer;
 
   /** What f1 can say about a field: measured by its definition, identifiable from f1's controls, or not separable on one person. */
-  export type Identifiability = "measured" | "identifiable" | "unresolved";
+  export type Identifiability = IAutoMovieHumanF1FieldModel.Identifiability;
 
   /** A member of the typed working records a catalogue row documents. */
-  export type Member =
-    | `lengths.${keyof IAutoMovieHumanF1SegmentLengths.IFields}`
-    | `tissue.${keyof IAutoMovieHumanF1NativeLaw.IFields}`
-    | `checks.${keyof IAutoMovieHumanF1Engineering.IReading}`;
+  export type Member = IAutoMovieHumanF1FieldModel.Member;
 
-  /**
-   * One working field or derived check.
-   *
-   * @evidence contracts/development/design.md#principled-representation The attributes #3172 asks of every field: unit, definition, frame, posture, source, identifiability, driven controls and applying owner.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Every member is read by the documentation and the audits that list the model.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts `members` is typed against the owners' records; a field with no typed member yet says so with an empty list.
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states what it holds.
-   */
-  export interface IField {
-    /** The field's name, as its owner spells it. */
-    name: string;
-    /** Its layer. */
-    layer: Layer;
-    /** The members of `IPrimary` or `IChecks` that hold it; absent or empty while no typed record holds it. */
-    members?: readonly Member[];
-    /** Its unit. */
-    unit: string;
-    /** Its written definition and standard. */
-    definition: string;
-    /** The frame it is expressed in. */
-    frame: string;
-    /** The posture its value holds in. */
-    posture: string;
-    /** Where f1's value comes from. */
-    source: string;
-    /** What f1 can say about it. */
-    identifiable: Identifiability;
-    /** The f1 controls it drives, by owner and member. */
-    drives: readonly string[];
-    /** The module that applies it, its shared joint owner. */
-    owner: string;
-  }
+  /** One working field or derived check. */
+  export type IField = IAutoMovieHumanF1FieldModel.IField;
 
-  /**
-   * One quantity the model needs and one person cannot give.
-   *
-   * @evidence contracts/development/design.md#principled-representation The quantity, why one person cannot identify it, what would, and the issue that receives it.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Four members, all read by the handoff to the receiving issue.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No estimate stands in for an unresolved quantity.
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states what it holds.
-   */
-  export interface IUnresolved {
-    /** The quantity. */
-    quantity: string;
-    /** Why f1 alone cannot identify it. */
-    reason: string;
-    /** What would identify it: a measurement, a source or another person. */
-    needs: string;
-    /** The issue that receives it: #3187 the public parameter type, #3205 the cross-person campaign; absent while undecided. */
-    to?: "#3187" | "#3205";
-  }
+  /** One quantity the model needs and one person cannot give. */
+  export type IUnresolved = IAutoMovieHumanF1FieldModel.IUnresolved;
 
   /** The primary working fields, from the skeleton outward. */
   export const PRIMARY: readonly IField[] = [

@@ -51,7 +51,10 @@ export namespace AutoMovieHumanConicLoft {
     if (eases === undefined || eases.length !== knots.length || values.length !== knots.length || knots.length < 2) throw new Error("roll: an eased roll needs one value and one ease per knot, at least two knots");
     for (let i: number = 0; i + 1 < knots.length; ++i) {
       if (!(knots[i + 1]! > knots[i]!)) throw new Error("roll: the knots must increase");
-      if (!(eases[i]! >= 0 && eases[i + 1]! >= 0 && eases[i]! + eases[i + 1]! <= knots[i + 1]! - knots[i]!)) throw new Error("roll: the eases of the stretch from " + knots[i] + " to " + knots[i + 1] + " mm are negative or longer than it");
+      const [a, b]: [number, number] = [eases[i]!, eases[i + 1]!];
+      if (!(Number.isFinite(a) && Number.isFinite(b) && a >= 0 && b >= 0 &&
+            (values[i] === values[i + 1] || a + b <= knots[i + 1]! - knots[i]!)))
+        throw new Error("roll: the eases of the stretch from " + knots[i] + " to " + knots[i + 1] + " mm are negative or longer than it");
     }
     // The quintic smoothstep, its integral from 0 and its derivative, at a share of its window.
     const step = (t: number): number => t * t * t * (10 + t * (-15 + 6 * t));
@@ -220,18 +223,62 @@ export namespace AutoMovieHumanConicLoft {
     };
   }
 
-  /** The family's field vector at one station. */
+  /** The family's field vector at one station; an extended family (`IFamily.extended`) eases below its stored first knot (`extended`). */
   export function reader(
-    family: Pick<IAutoMovieHumanConicLoft.IFamily, "knots" | "values">,
+    family: Pick<IAutoMovieHumanConicLoft.IFamily, "knots" | "values" | "extended"> & Partial<Pick<IAutoMovieHumanConicLoft.IFamily, "layout">>,
   ): (s: number) => number[] {
+    const from: number = family.extended === undefined ? 0 : family.knots.indexOf(family.extended);
+    if (from < 0) throw new Error("an extended family's stored first knot " + family.extended + " is not among its knots");
+    const knots: number[] = family.knots.slice(from);
     const splines: IAutoMovieNaturalCubicSpline[] = family.values.map(
       (field: number[]): IAutoMovieNaturalCubicSpline =>
-        AutoMovieNaturalSpline.create(family.knots, field),
+        AutoMovieNaturalSpline.create(knots, field.slice(from)),
     );
-    return (s: number): number[] =>
-      splines.map((spline: IAutoMovieNaturalCubicSpline): number =>
-        AutoMovieNaturalSpline.evaluate(spline, s),
-      );
+    if (family.extended === undefined)
+      return (s: number): number[] => splines.map((spline: IAutoMovieNaturalCubicSpline): number => AutoMovieNaturalSpline.evaluate(spline, s));
+    // The extension leaves the first knot on each field's own tangent and levels out over the stored first knot interval `L`,
+    // `v + d L g((s - k) / L)` with `g(x) = x + x^2 / 2` (g(0) = 0, g'(0) = 1, g'(-1) = 0, g(-1) = -1/2), then holds: C1 at both ends and
+    // monotone between, so the engine's outlines through the stations do not swing across a slope break.
+    // The guides' extents (`AutoMovieHumanConicSection.extents`) are positive magnitudes (signed by their side), so they are extended
+    // multiplicatively, in their logarithm: `v exp((d / v) L g(x))`, the same ease on `ln |v|`. It has the same value and slope `d` at
+    // the knot and levels out at `x = -1`, and it never reaches zero, so the axis stays inside the box by construction. On f1's arm the
+    // forward extent leaves its first knot (24 mm) at 10.1 mm falling 6.9 mm/mm toward the shoulder; the linear ease dipped by
+    // `d L / 2` = 41 mm and crossed zero below 22.4 mm (joints-one-shot.md, "The guide extents in log space").
+    const k: number = family.extended, span: number = knots[1]! - k;
+    const magnitudes: Set<number> = new Set(family.layout === undefined ? [] : AutoMovieHumanConicSection.extents(family.layout));
+    const ends = splines.map((spline: IAutoMovieNaturalCubicSpline): [number, number] => {
+      const [value, slope] = AutoMovieNaturalSpline.read(spline, k);
+      return [value, slope];
+    });
+    return (s: number): number[] => splines.map((spline: IAutoMovieNaturalCubicSpline, f: number): number => {
+      if (s >= k) return AutoMovieNaturalSpline.evaluate(spline, s);
+      const [value, slope] = ends[f]!;
+      const x: number = Math.max(-1, (s - k) / span), g: number = x + (x * x) / 2;
+      return magnitudes.has(f) && value !== 0 ? value * Math.exp((slope / value) * span * g) : value + slope * span * g;
+    });
+  }
+
+  /**
+   * A section's mean reach, mm: the mean distance of its four guides from the course along their own chart axes (the forward and back
+   * extremes' `u`, the two sides' `v`), from the family's fields at one station. The size a joint's widths are shares of.
+   *
+   * @param family The family.
+   * @param station The station, mm; past the last knot the last knot's section.
+   *
+   * @evidence contracts/development/implementation.md#principled-implementation The four guides are the section's extremes on its box, resolved from the fields by `AutoMovieHumanConicSection.resolve`.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One resolve and one mean.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A section without four guides is refused with its count.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One field read.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The digits' domes and the joints' widths read this one definition.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns one number.
+   * @evidence contracts/development/common.md#meaningful-documentation States the guides and the unit.
+   */
+  export function meanReach(family: IAutoMovieHumanConicLoft.IFamily, station: number): number {
+    const chain: IAutoMovieHumanConicSection.IChain = AutoMovieHumanConicSection.resolve(
+      reader(family)(Math.min(station, family.knots.at(-1)!)), family.layout);
+    if (chain.guides.length !== 4) throw new Error("a section of " + family.name + " has " + chain.guides.length + " guides, four expected");
+    return chain.guides.reduce(
+      (sum: number, guide: number, quarter: number): number => sum + Math.abs(chain.input.points[guide]![quarter % 2]!), 0) / 4;
   }
 
   /**
@@ -260,10 +307,14 @@ export namespace AutoMovieHumanConicLoft {
    *
    * @param family The authored definition.
    * @param stations Stations of the emitted layers and of the derived outlines, mm, increasing.
+   * @param refine Whether midway stations are inserted where the section turns faster than the engine's spline follows. Off, the
+   *   requested stations between the caps are the derived outlines' knots exactly: a caller differentiating the family's values holds
+   *   the base state's discrete station choices fixed, since the insertion is a step function of the values.
    */
   export function part(
     family: IAutoMovieHumanConicLoft.IFamily,
     requested: number[],
+    refine: boolean = true,
   ): IAutoMovieViewPart {
     if (family.native !== undefined)
       return family.native.part(family, requested);
@@ -299,7 +350,7 @@ export namespace AutoMovieHumanConicLoft {
       return chain;
     };
     const between = (a: number, b: number): number[] => {
-      if (b - a <= 2 * REFINE.least) return [];
+      if (!refine || b - a <= 2 * REFINE.least) return [];
       const middle: number = (a + b) / 2;
       const [low, mid, high]: IAutoMovieHumanConicSection.IChain[] = [
         at(a),
@@ -775,6 +826,46 @@ export namespace AutoMovieHumanConicLoft {
    * @param name The twin's chain name.
    */
   export function mirror(family: IAutoMovieHumanConicLoft.IFamily, name: string): IAutoMovieHumanConicLoft.IFamily {
+    return mirrored(family, name);
+  }
+
+  /**
+   * A side part's fields extended from its stored first knot back to its joint's loop, so its view starts at the loop and the port
+   * (`AutoMovieHumanBoundSection.port`) can blend from the loop into the part's own sections (joints-one-shot.md, "The port blend, ruled").
+   *
+   * The extension leaves the first knot on each field's own tangent and levels out over the stored first knot interval, then holds
+   * (`IFamily.extended`, read by `reader`: C1, monotone, with no constant of its own; the guides' extents eased in their logarithm, so
+   * they stay positive); the stored stretch is the stored natural cubics unchanged. It is asked only as far as the loop's shallowest
+   * station. Inside one natural cubic a prepended knot with the first knot's values swung the cubic (a half extent at -3.26 mm) and a
+   * knot on the tangent line followed the arm's steep root slopes; a plain hold's slope break made the engine's outlines swing between
+   * stations, and a linear ease of the extents crossed zero on f1's arm below 22.4 mm. The port replaces the extension in the skin: at
+   * the loop's own station the port is the loop, and the extension's own section there carries weight zero. A family that already
+   * starts at or before `from` is returned unchanged.
+   *
+   * @param family The stored family.
+   * @param from The loop's shallowest station on the family's course, mm (less one address tolerance).
+   *
+   * @evidence contracts/development/implementation.md#principled-implementation The first section levelled out C1 from its own tangent over its own first interval, with the stored natural cubics untouched past the first knot.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One prepended knot and one marker.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A native family or one with a proximal tip is returned unchanged.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Every field read goes through `reader`, which applies the ease.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh family.
+   * @evidence contracts/development/common.md#meaningful-documentation States the ease, its range and why the natural cubic's own continuations were left.
+   */
+  export function extended(family: IAutoMovieHumanConicLoft.IFamily, from: number): IAutoMovieHumanConicLoft.IFamily {
+    if (!(family.knots[0]! > from) || family.native !== undefined || (family.tips?.[0] ?? null) !== null) return family;
+    const first: number = family.knots[0]!;
+    return {
+      ...family,
+      knots: [from, ...family.knots],
+      values: family.values.map((field: number[]): number[] => [field[0]!, ...field]),
+      extended: family.extended ?? first,
+    };
+  }
+
+  /** The twin, as `mirror` documents it. */
+  function mirrored(family: IAutoMovieHumanConicLoft.IFamily, name: string): IAutoMovieHumanConicLoft.IFamily {
     if (family.native !== undefined) return family.native.mirror(family, name);
     const anchors: IAutoMovieHumanConicSection.IAnchor[] = family.layout.anchors;
     const K: number = anchors.length;
@@ -940,6 +1031,7 @@ export namespace AutoMovieHumanConicLoft {
       },
       knots: [...family.knots],
       values,
+      ...(family.extended === undefined ? {} : { extended: family.extended }),
       // A cap's centre lies in the chart, whose `v` the twin negates.
       ...(family.tips === undefined
         ? {}

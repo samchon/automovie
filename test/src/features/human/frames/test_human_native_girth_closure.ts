@@ -3,7 +3,7 @@ import {
   AutoMovieHumanConicSection as S,
   AutoMovieHumanNativeGirthClosure as Closure,
 } from "@automovie/human";
-import type { IAutoMovieHumanConicSection } from "@automovie/interface";
+import type { IAutoMovieHumanConicSection, IAutoMovieHumanNativeGirthClosure } from "@automovie/interface";
 
 /**
  * The girth closure measures a section's taut tape and finds the one fullness at which the tape is a given girth, the extremes held.
@@ -70,13 +70,13 @@ export function test_human_native_girth_closure(): void {
 
   // 3. Closed on a longer and a shorter girth; the identity.
   for (const ratio of [1.03, 0.97]) {
-    const closed: Closure.IClosed = Closure.solve(ellipse, layout, ratio * own);
+    const closed: IAutoMovieHumanNativeGirthClosure.IClosed = Closure.solve(ellipse, layout, ratio * own);
     close("the closed tape at " + ratio, closed.tape, ratio * own, 1e-6);
     close("the closed section measured again at " + ratio, Closure.tape(closed.values, layout), ratio * own, 1e-6);
     if (Math.sign(closed.fullness) !== Math.sign(ratio - 1)) failures.push("the fullness at " + ratio + " has the wrong sign: " + closed.fullness);
     if (closed.values.slice(0, 8).some((x: number, k: number): boolean => x !== ellipse[k])) failures.push("an extreme moved at " + ratio);
   }
-  const same: Closure.IClosed = Closure.solve(ellipse, layout, own);
+  const same: IAutoMovieHumanNativeGirthClosure.IClosed = Closure.solve(ellipse, layout, own);
   if (same.values !== ellipse || same.fullness !== 0) failures.push("a section that measures its girth was not returned as given");
 
   // 4. Out of reach.
@@ -88,7 +88,7 @@ export function test_human_native_girth_closure(): void {
   const half: IAutoMovieHumanConicSection.ILayout = S.bilateral(1);
   const trunk: number[] = [120, 0.5, 20, 180, 0.5, -90, 0.45, 0.45, 0.45, 0.45];
   const girth: number = 1.02 * Closure.tape(trunk, half);
-  const fuller: Closure.IClosed = Closure.solve(trunk, half, girth);
+  const fuller: IAutoMovieHumanNativeGirthClosure.IClosed = Closure.solve(trunk, half, girth);
   close("the bilateral section's closed tape", fuller.tape, girth, 1e-6);
   for (const k of [0, 2, 3, 5]) if (fuller.values[k] !== trunk[k]) failures.push("the bilateral section's millimetre field " + k + " moved");
   for (const k of [1, 4, 6, 7, 8, 9]) if (!(fuller.values[k]! > trunk[k]!)) failures.push("the bilateral section's share " + k + " did not rise");

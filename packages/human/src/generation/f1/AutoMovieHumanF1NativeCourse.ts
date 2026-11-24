@@ -7,6 +7,7 @@ import type {
   IAutoMovieHumanConicLoft,
   IAutoMovieHumanF1SegmentLengths,
   IAutoMovieViewAxis,
+  IAutoMovieHumanF1NativeCourse,
 } from "@automovie/interface";
 
 /**
@@ -19,6 +20,9 @@ import type {
  * and every course is the placed course object itself.
  */
 export namespace AutoMovieHumanF1NativeCourse {
+  /** The axis and the physical arclength conversion from the same preparation. */
+  export type IPrepared = IAutoMovieHumanF1NativeCourse.IPrepared;
+
   /**
    * A family's course at the person in the reference's material stations.
    *
@@ -35,7 +39,23 @@ export namespace AutoMovieHumanF1NativeCourse {
    * @evidence contracts/development/common.md#meaningful-documentation Names both families' roles and the identity case.
    */
   export function create(prior: IAutoMovieHumanConicLoft.IFamily, placed: IAutoMovieHumanConicLoft.IFamily, hold?: Material.IHold): IAutoMovieViewAxis.IAxis {
-    return Material.create(H.axis(placed), Material.map(prior, placed, hold));
+    return prepare(prior, placed, hold).axis;
+  }
+
+  /**
+   * Prepare the native material course with its original forward arclength map.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation A reference material station in mm maps to placed course arclength in mm, from the same origin.
+   * @evidence contracts/development/implementation.md#principled-implementation The exact callable used to compose the native axis is available to consumers of physical arclength. Native outline, rail and relief stations retain their material coordinates.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work One map governs both capabilities, including the shared identity at unchanged lengths.
+   */
+  export function prepare(
+    prior: IAutoMovieHumanConicLoft.IFamily,
+    placed: IAutoMovieHumanConicLoft.IFamily,
+    hold?: Material.IHold,
+  ): IPrepared {
+    const physicalStation = Material.map(prior, placed, hold);
+    return { axis: Material.create(H.axis(placed), physicalStation), physicalStation };
   }
 
   /**

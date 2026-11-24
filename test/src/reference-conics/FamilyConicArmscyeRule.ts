@@ -907,7 +907,7 @@ namespace FamilyConicArmscyeRule {
       return { positions: Array.from(positions), indices: Array.from(indices), owners: Array.from(owners, (o: number): string => header.owners[o]!) };
     }
     const declared = AutoMovieHumanF1.construction(undefined, pose === "reference" ? undefined : P.NEUTRAL);
-    const real = realizeAutoMovieConstruction({ name: "f1.body", root: declared.root, fills: declared.fills }, { chord: 0.001, sources: declared.sources });
+    const real = realizeAutoMovieConstruction({ name: "f1.body", root: declared.root, fills: declared.fills }, { chord: 0.001, sources: declared.sources, loopSources: declared.loopSources() });
     const mesh = real.mesh;
     progress(`realized the ${pose} figure`);
     const vertexOwner = (v: number): string => mesh.owners[mesh.coordinates[v * 3]!]!;

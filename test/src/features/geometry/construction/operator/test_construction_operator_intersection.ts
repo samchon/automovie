@@ -22,12 +22,14 @@ const { cylinder, distance, plane, sphere }: typeof HumanSolidShapes =
  * Scenarios:
  * 1. Original closed-form transversal, contact and missing-curve cases retain their point/preimage/derivative expectations.
  * 2. Explicit bounded graphs and two original parent charts reject exterior callback evaluation through actual Foot/Newton/rail consumers; source callback error identity survives.
+ * 3. A skew plane cuts a cylinder in a loop whose station turns strictly inside its original domain. Clipping the same domain through the curve's maximum leaves the contact open.
+ * 4. Orthogonal placed charts share an open line with a finite original boundary and a stride below the next representable coordinate.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Exercises the same independent bounded trial/atlas fixture as owned_domain, without requiring a source AST or a mesh cap. Traces with `AutoMovieSolidIntersection.trace` and reads `ICurve.points` and `ICurve.at` for four closed-form pairs: a 6 mm cylinder along z through a 10 mm cylinder along x (the Steinmetz curve), a 5 mm cylinder at 40 degrees to a plane (an ellipse), two spheres of 10 and 8 mm with centres 12 mm apart (a circle), and two spheres 30 mm apart (no meeting), plus the two cylinders of equal radius (a tangential contact). It catches a curve off either surface, wrong preimages, a tangent or curvature that is not the curve's own, a loop that is not closed, a contact reported as transversal, and a curve invented where none exists. Any tracer passes that finds the true curve at every phase.
  * @evidence contracts/development/testing.md#independent-expectations Expectations are the pairs' closed forms: the Steinmetz curve `(r cos t, r sin t, sqrt(R^2 - r^2 sin^2 t))` with `z' = -r^2 sin 2t / 2z` and `z'' = (-r^2 cos 2t - z'^2) / z`, the host preimage `y = r cos t`, `theta = atan2(z, r sin t)`; the plane's ellipse `x = -r cos t / sin a`, `y = r sin t` with semi-axes `r / sin a` and `r`; the spheres' circle in the plane `z = (R1^2 - R2^2 + c^2) / 2c` of radius `sqrt(R1^2 - z^2)`. Limits are 1e-9 mm on points and 1e-8 relative on derivatives, a thousand times the 1e-12 mm solve tolerance on 10 mm magnitudes. The shared bounded fixture additionally uses y=u^2 for the exact interior foot/Newton station0.5, rejects impossible station1.2, preserves accepted station1 during infeasible polish and checks radius0.55 rails across two explicit charts. Oracle limit: the closed forms hold only on the traced branch (the Steinmetz curve's upper loop, `z > 0`), which the seed selects.
  * @evidence contracts/development/testing.md#distinguishing-cases Green: three transversal pairs at every traced point and at off-sample phases through `at`. Red: the equal-radius cylinders, whose two loops touch where the tangent planes coincide, must yield a diagnostic; the far spheres must yield no curve and a diagnostic; a trace asked for fewer than 8 points is refused. Rails, blends and trims own their tests (`test_construction_operator_merge`, `test_construction_operator_diff`, `test_construction_operator_trim`).
  * @evidence contracts/development/testing.md#execution-ownership A discoverable synchronous CPU unit reached by `--include construction_operator_intersection`; it builds closed-form surfaces in process and starts no host, browser or GPU.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 2 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Original closed-form transversal, contact and missing-curve cases retain their point/preimage/derivative expectations.).
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Original closed-form transversal, contact and missing-curve cases retain their point/preimage/derivative expectations.).
  */
 export function test_construction_operator_intersection(): void {
   const failures: string[] = [];
@@ -272,6 +274,58 @@ export function test_construction_operator_intersection(): void {
     failures.push("a trace of 4 points per turn is not refused");
 
   ConstructionOwnedAtlas(failures);
+
+  // The exact closed intersection turns in station inside a narrow but sufficient original chart.
+  // Removing part of that chart leaves the very same two surfaces with an open intersection.
+  const base: number = 2, slope: number = 0.25, count: number = 32;
+  const angularStep: number = 2 * Math.PI / count;
+  const headroom: number = slope * (1 - Math.cos(angularStep)) / 8;
+  const oldSecantExcess: number = 2 * slope * Math.cos(angularStep) * (1 - Math.cos(angularStep));
+  if (!(oldSecantExcess > headroom))
+    failures.push("the independently known turning fixture does not distinguish the unscaled secant");
+  const oblique = plane("turning plane", [0, base, 0], [1, slope, 0], [0, 0, 1], [-slope, 1, 0]);
+  const turning = cylinder("turning cylinder", [0, 0, 0], [0, 1, 0], [1, 0, 0], [0, 0, 1], 1);
+  const walk = (top: number): IAutoMovieSolidIntersection.IResult => {
+    const low: number = base - slope - headroom;
+    return AutoMovieSolidIntersection.trace({
+      part: { ...turning, domain: [low, top], jet: (s, phi) => {
+        if (!(s >= low && s <= top)) throw new Error("the arc predictor evaluated an exterior chart");
+        return turning.jet(s, phi);
+      } },
+      host: oblique,
+      parameter: { kind: "arc" },
+      seed: { s: base, phi: -Math.PI / 2, y: 0, theta: -1 },
+      count, tolerance, grazing: 0.05,
+    });
+  };
+  const held = walk(base + slope + headroom);
+  if (held.curve === null || Math.abs(held.curve.partWinding) !== 1)
+    failures.push("the bounded regular station turn failed to close with one unwrapped period");
+  else
+    for (const p of held.curve.points)
+      near("bounded station turn", p.s, base + slope * Math.cos(p.phi), 1e-9);
+  const truncated = walk(base + slope / 2);
+  if (truncated.curve !== null || truncated.diagnostics.length === 0)
+    failures.push("the truncated original chart was treated as a closed curve");
+
+  // The periodic cylinder and longitudinal plane meet transversely at (s, 1, 0).
+  // At this seed neither original station nor world X can advance by 2 pi / 32.
+  const large: number = 2 ** 53;
+  const longPart = cylinder("large bounded cylinder", [0, 0, 0], [1, 0, 0], [0, 1, 0], [0, 0, 1], 1);
+  const longHost = plane("longitudinal plane", [0, 0, 0], [1, 0, 0], [0, 1, 0], [0, 0, 1]);
+  for (const [lower, forward] of [[large, "walk-part-bound"], [large - 1, "walk-no-progress"]] as const) {
+    const stuck = AutoMovieSolidIntersection.trace({
+      part: { ...longPart, domain: [lower, large + 2] },
+      host: longHost, parameter: { kind: "arc" },
+      seed: { s: large, phi: 0, y: large, theta: 1 }, count, tolerance, grazing: 0.05,
+    });
+    const reasons = stuck.diagnostics.flatMap(({ detail }) => [...detail.matchAll(/"sense":(-?1),"reason":"([^"]+)"/g)]);
+    if (stuck.curve !== null || reasons.length !== 2 ||
+        reasons[0]?.[1] !== "1" || reasons[0]?.[2] !== forward ||
+        reasons[1]?.[1] !== "-1" || reasons[1]?.[2] !== "walk-no-progress")
+      failures.push("the large periodic chart confused representable progress with original part ownership: " +
+        stuck.diagnostics.map(({ detail }) => detail).join(" "));
+  }
 
   if (failures.length)
     throw new Error(

@@ -237,7 +237,7 @@ export function realizeAutoMovieConstruction(
     let input: IAutoMovieSolidBody.IMerge["join"];
     if (node.loop !== undefined) {
       const prepared: IAutoMovieConstructionSharedLoop.IPrepared | IAutoMovieConstructionSharedLoop.IRefusal =
-        AutoMovieConstructionSharedLoop.create(node, partSurface, atlas, face);
+        AutoMovieConstructionSharedLoop.create(node, partSurface, atlas, face, props.loopSources);
       if (!("join" in prepared)) return fail(prepared.contract, prepared.detail);
       input = prepared.join;
     } else {

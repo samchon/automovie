@@ -121,13 +121,12 @@ namespace FamilyConicTree {
     // `FamilyConicTree.ts [layerMm] [chordMm]`: the families' layer spacing and the tessellation chord, to weigh time against the skin.
     const layer: number = Number(process.argv[2] ?? "2");
     const chord: number = Number(process.argv[3] ?? "1") / 1000;
-    const declared: IAutoMovieHumanF1.IConstruction =
-      AutoMovieHumanF1.construction(layer);
+    const declared = AutoMovieHumanF1.construction(layer);
     const started: number = performance.now();
     const real: IAutoMovieConstructionRealization.IRealization =
       realizeAutoMovieConstruction(
         { name: "f1.body", root: declared.root },
-        { chord, sources: declared.sources },
+        { chord, sources: declared.sources, loopSources: declared.loopSources() },
       );
     const report = {
       layerMm: layer,

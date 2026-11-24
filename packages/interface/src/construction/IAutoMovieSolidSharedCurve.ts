@@ -16,6 +16,8 @@ import type { IAutoMovieSolidSurface } from "./IAutoMovieSolidSurface";
  * Newton on `A_s . (A - C) = 0`, `A_phi . (A - C) = 0`, a problem that stays regular at any angle between the surfaces. The part's
  * rates solve `I_A (s', phi') = (A_s . C', A_phi . C')` and `I_A (s'', phi'') = (A_s . (C'' - Q_A), A_phi . (C'' - Q_A))`, exact
  * where the loop lies on the part and within the gap's order where it stands off by less than the tolerance.
+ * An authored pair instead supplies both original charts at the same clock. The engine checks their world points and both signed
+ * clock derivatives directly and uses the supplied part chart for trimming and rail construction.
  *
  * What the surfaces decide, with no arc declared: the turn between the two outward normals at each point is the fold's angle, which a
  * `fold` width law reads (`AutoMovieConstructionWidths`); a point where the tangent planes meet under `grazing` is on a smooth arc
@@ -59,7 +61,10 @@ export namespace IAutoMovieSolidSharedCurve {
     /** Which side of the host the part keeps: `outside` for a merge, `inside` for a diff. */
     keep: IAutoMovieSolidRail.Keep;
 
-    /** The part's chart point near the loop's point at clock 0; absent, the nearest of a grid over the part's declared domain. */
+    /** The same boundary on its original part chart, on the same unwrapped clock. */
+    partAt?: Loop;
+
+    /** The starting point for the legacy projection when `partAt` is absent, in mm and radians. */
     start?: [number, number];
   }
 

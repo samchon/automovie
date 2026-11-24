@@ -1,9 +1,12 @@
+import { AutoMovieViewAxis } from "@automovie/engine";
 import {
   AutoMovieHumanConicLoft,
+  AutoMovieHumanJoinLoop,
   AutoMovieHumanF1,
   AutoMovieHumanF1Frames,
   AutoMovieHumanF1Joints,
   AutoMovieHumanF1Landmarks,
+  AutoMovieHumanF1Placing,
   AutoMovieHumanSegmentFrame as F,
 } from "@automovie/human";
 import type {
@@ -17,6 +20,8 @@ import type {
 import fs from "node:fs/promises";
 import path from "node:path";
 
+import { FamilyConicLoft } from "./FamilyConicLoft";
+
 /**
  * The re-base of f1 (step 2 of the Human skill's three steps): every quantity that places a part, written in the frame of the segment it
  * belongs to, and the proof that the figure's source did not move.
@@ -26,8 +31,12 @@ import path from "node:path";
  *   (`AutoMovieHumanSegmentFrame.chain` of `AutoMovieHumanF1Frames.segments()`), every datum of `AutoMovieHumanF1Joints` and
  *   `AutoMovieHumanF1Landmarks` and every course centre as `{ frame, local point }`, every family's `up` and every relief's `axis` and
  *   `turn` as `{ frame, local direction }`, and each family's course as datum names; and the receipt `assignment.txt`.
+ *   With `--arm-family=<admitted family JSON>`, the humerus-led arm course is registered from the actual new artifact, with the
+ *   existing forearm, wrist and hand datums. The hand keeps its own course.
+ *   Use `--tables-out=<new file>` and `--out=<receipt directory>` to review the table and assignment before replacing the package file.
  * - `--modules` rewrites the placing fields of the datum tables and of every family module to read that table, and nothing else of
  *   their text: a section table (`knots`, `values`, `tips`, `layout`, a relief's window, net and heights) is never touched.
+ *   `--modules=arm` limits the rewrite to that registered family.
  * - `--snapshot=<name>` writes `<name>.json` (every datum, family, cutter, port loop and fan seam as the bundle holds them) and
  *   `<name>.construction.json` (the declared construction: its tree, fills and every source's stations and outlines).
  * - `--compare=<before>,<after>` writes `comparison.<before>.<after>.txt`: both snapshots walked number by number.
@@ -125,6 +134,7 @@ namespace FamilyConicRebase {
       armpit: "thorax",
       armRoot: "thorax",
       armTurn: "thorax",
+      armHumerusLead: "humerus",
       axilla: "thorax",
       vault: "thorax",
       breastFan: "thorax",
@@ -175,45 +185,6 @@ namespace FamilyConicRebase {
     }
     throw new Error("no segment is declared for the datum " + name);
   }
-
-  /** A polyline datum's centres by name: `helix.0`, `helix.1`, and so on. */
-  const line = (name: string, count: number): string[] =>
-    Array.from(
-      { length: count },
-      (_: unknown, k: number): string => name + "." + k,
-    );
-
-  /**
-   * Every family's course as datum names. A course's end past its last joint is a datum of its own (`handEnd`, `footEnd`, a digit's
-   * `<digit>End`): the point `AutoMovieHumanF1Joints.toward` or `beyond` built, stored in the segment it stands in.
-   */
-  const COURSES: Record<string, string[]> = {
-    trunk: ["axisFloor", "axisCrown"],
-    arm: ["armRoot", "armTurn", "lowerarm", "hand", "middle1", "handEnd"],
-    hand: ["armRoot", "armTurn", "lowerarm", "hand", "middle1", "handEnd"],
-    leg: ["thigh", "calf", "foot", "footBall", "footEnd"],
-    plate: line("plate", 5),
-    helix: line("helix", 11),
-    antihelix: line("antihelix", 7),
-    nose: ["noseRoot", "noseTip"],
-    breast: ["breastRoot", "breastTip"],
-    concha: ["conchaRoot", "conchaTip"],
-    nostril: ["nostrilRoot", "nostrilTip"],
-    axilla: line("axilla", 4),
-    vault: line("vault", 2),
-    ...Object.fromEntries(
-      [...FINGERS, "thumb"].map((finger: string): [string, string[]] => [
-        "finger." + finger,
-        [finger + "1", finger + "2", finger + "3", finger + "End"],
-      ]),
-    ),
-    ...Object.fromEntries(
-      TOES.map((toe: string): [string, string[]] => [
-        "toe." + toe.replace("toe", ""),
-        [toe + "1", toe + "2", toe + "End"],
-      ]),
-    ),
-  };
 
   /**
    * The segment each leg of a jointed course lies on, by family: a relief's directions are stored in the segment its window's middle
@@ -312,25 +283,13 @@ namespace FamilyConicRebase {
   const far = (a: readonly number[], b: readonly number[]): number =>
     Math.max(...a.map((x: number, i: number): number => Math.abs(x - b[i]!)));
 
-  /** The stored tables parsed from the package module's text; null when it is not written yet. */
-  async function stored(root: string): Promise<ITables | null> {
-    const text: string | null = await fs
-      .readFile(path.join(root, F1, "AutoMovieHumanF1Placing.ts"), "utf8")
-      .catch((): null => null);
-    if (text === null) return null;
-    const read = <X>(name: string, open: string, close: string): X => {
-      const from: number =
-        text.indexOf("= " + open, text.indexOf("export const " + name + ":")) +
-        2;
-      return JSON.parse(
-        text.slice(from, text.indexOf("\n  " + close + ";", from) + 4),
-      ) as X;
-    };
+  /** The exact registered placing table from the bundle being rebased. */
+  function stored(): ITables {
     return {
-      chain: read("CHAIN", "[", "]"),
-      points: read("POINTS", "{", "}"),
-      directions: read("DIRECTIONS", "{", "}"),
-      courses: read("COURSES", "{", "}"),
+      chain: AutoMovieHumanF1Placing.CHAIN,
+      points: AutoMovieHumanF1Placing.POINTS,
+      directions: AutoMovieHumanF1Placing.DIRECTIONS,
+      courses: AutoMovieHumanF1Placing.COURSES,
     };
   }
 
@@ -418,7 +377,11 @@ namespace FamilyConicRebase {
         );
       return { frame: hit[1] };
     }
-    const legs: string[] | undefined = LEGS[family.name];
+    const registered: string[] | undefined = LEGS[family.name];
+    const legs: string[] | undefined =
+      family.name === "arm" && registered?.length === family.centres.length
+        ? registered.slice(1)
+        : registered;
     if (legs === undefined)
       throw new Error("no legs are declared for the reliefs of " + family.name);
     const course = AutoMovieHumanConicLoft.axis(family);
@@ -453,13 +416,61 @@ namespace FamilyConicRebase {
   }
 
   /** `--tables`: the stored tables from the present world values. */
-  async function tables(root: string, out: string): Promise<void> {
-    const before: ITables | null = await stored(root);
+  async function tables(root: string, out: string, armFile?: string, tableOut?: string): Promise<ITables> {
+    const before: ITables = stored();
     const given: {
       points: Record<string, V3>;
       directions: Record<string, V3>;
     } = await overrides();
     const all: Map<string, IFamily> = families();
+    const courses: Record<string, string[]> = { ...before.courses };
+    let armTransfer: string | undefined;
+    if (armFile !== undefined) {
+      const arm: IFamily = JSON.parse(await fs.readFile(armFile, "utf8")) as IFamily;
+      const names: string[] = ["armHumerusLead", "lowerarm", "hand", "middle1", "handEnd"];
+      if (arm.name !== "arm" || arm.centres.length !== names.length)
+        throw new Error("the submitted arm must have the humerus-led five-centre course");
+      const refusals: string[] = FamilyConicLoft.refusals(arm);
+      if (refusals.length > 0)
+        throw new Error("the submitted arm fails native admission: " + refusals.join("; "));
+      const hand: IFamily | undefined = all.get("hand");
+      if (hand === undefined) throw new Error("the original hand course is absent");
+      // The original distal hand definition is shared symbolically. The
+      // archive rounds the derived end a second time after observation.
+      const centres: V3[] = [
+        arm.centres[0]!,
+        AutoMovieHumanF1Joints.lowerarm,
+        AutoMovieHumanF1Joints.hand,
+        AutoMovieHumanF1Joints.middle1,
+        AutoMovieHumanF1Joints.handEnd,
+      ];
+      if (arm.centres.slice(0, -1).some((point: V3, i: number): boolean =>
+        far(point, centres[i]!) > 0.005 + RETURN.point,
+      )) throw new Error("the submitted arm's retained course differs from its registered centres");
+      const canonical: IFamily = { ...arm, centres };
+      const archivedRuns = AutoMovieViewAxis.runs([...centres.slice(0, -1), arm.centres.at(-1)!], arm.halves);
+      const registeredRuns = AutoMovieViewAxis.runs(centres, arm.halves);
+      if (typeof archivedRuns === "string" || typeof registeredRuns === "string")
+        throw new Error("the transferred arm course is inadmissible: " + (typeof archivedRuns === "string" ? archivedRuns : registeredRuns));
+      // Jointed axes share every turn before the first turn depending on
+      // the changed endpoint. Both courses have identical retained fields.
+      const cutoff: number = Math.min(archivedRuns[2]!.end, registeredRuns[2]!.end);
+      const wrist = AutoMovieHumanF1.wristPlane(AutoMovieHumanConicLoft.axis(hand));
+      const axis = AutoMovieHumanConicLoft.axis(canonical);
+      const domain: [number, number] = [arm.knots[0]!, arm.knots.at(-1)!];
+      const at: number = AutoMovieHumanJoinLoop.address({ name: arm.name, axis }, domain, wrist.point, AutoMovieHumanF1.ARM_TO_MM)[0];
+      const section = axis.at(at);
+      const normal: V3 = F.unit(F.cross(section.v, section.u));
+      if (!(at > domain[0] && at <= domain[1] && at < cutoff) ||
+          Math.abs(F.dot(F.sub(section.origin, wrist.point), wrist.normal)) > 1e-9 ||
+          Math.hypot(...F.sub(normal, wrist.normal)) > 1e-9)
+        throw new Error("the arm's existing wrist plane is not before the terminal change's course support");
+      armTransfer = "arm terminal bound to existing handEnd; raw maximum component difference " +
+        far(arm.centres.at(-1)!, centres[4]!) + " mm; retained wrist at " + at +
+        " mm precedes both terminal-dependent turns (earliest " + cutoff + " mm)";
+      all.set(arm.name, canonical);
+      courses[arm.name] = names;
+    }
 
     // The present world points: the datum tables, then each course's centres under their datum names, the seeds, and the overrides.
     const world: Record<string, V3> = {
@@ -467,14 +478,17 @@ namespace FamilyConicRebase {
       ...datums(AutoMovieHumanF1Landmarks),
     };
     for (const [name, family] of all) {
-      const names: string[] | undefined = COURSES[name];
+      const names: string[] | undefined = courses[name];
       if (names === undefined || names.length !== family.centres.length)
         throw new Error(
           "the course of " + name + " is not declared centre for centre",
         );
       names.forEach((datum: string, k: number): void => {
         if (world[datum] === undefined) world[datum] = family.centres[k]!;
-        else if (!same(world[datum], family.centres[k]!))
+        // The admitted artifact's serialized point components are rounded to 0.01 mm.
+        else if (!(armFile !== undefined && name === "arm"
+          ? far(world[datum], family.centres[k]!) <= 0.005 + RETURN.point
+          : same(world[datum], family.centres[k]!)))
           throw new Error(
             name + "'s centre " + k + " is not the datum " + datum,
           );
@@ -569,6 +583,7 @@ namespace FamilyConicRebase {
     const receipt: string[] = [
       "f1 re-based placing: every quantity in its segment's frame; mm; chain " +
         (kept ? "kept as stored" : "from the rules"),
+      ...(armTransfer === undefined ? [] : [armTransfer]),
       "",
     ];
     const worst: { point: number; direction: number } = {
@@ -664,7 +679,7 @@ namespace FamilyConicRebase {
         );
     };
     for (const [name, family] of all) {
-      direct(name + ".up", frameOf(COURSES[name]![0]!), family.up);
+      direct(name + ".up", frameOf(courses[name]![0]!), family.up);
       for (const relief of family.reliefs ?? []) {
         const where: { frame: string; note?: string } = reliefFrame(
           family,
@@ -694,7 +709,10 @@ namespace FamilyConicRebase {
           (i + 1 < rows.length ? "," : ""),
       );
     const text: string[] = [
-      'import type { AutoMovieHumanSegmentFrame } from "../frame/AutoMovieHumanSegmentFrame";',
+      'import type {',
+      '  IAutoMovieHumanF1Placing,',
+      '  IAutoMovieHumanSegmentJoint,',
+      '} from "@automovie/interface";',
       "",
       "/**",
       " * f1's placing, re-based: the chain of its segment frames and every quantity that places a part, each in the frame of the segment it",
@@ -730,20 +748,9 @@ namespace FamilyConicRebase {
       " * Millimetres; directions are as their sources wrote them (a relief's `axis` is rounded to 1e-5, so it is unit only to that).",
       " */",
       "export namespace AutoMovieHumanF1Placing {",
-      "  /** One placed quantity. */",
-      "  export interface IPlaced {",
-      "    /** The segment whose frame holds it. */",
-      "    frame: string;",
-      "",
-      "    /** The point, mm, or the direction in that frame. */",
-      "    local: [number, number, number];",
-      "",
-      "    /** How a relief's window lies on its course, when it crosses a joint. */",
-      "    note?: string;",
-      "  }",
-      "",
+
       "  /** The chain, parent first: each segment's origin in its parent's frame, mm, and its reference rotation `A_parent^T A_child` by rows. */",
-      "  export const CHAIN: AutoMovieHumanSegmentFrame.IJoint[] = [",
+      "  export const CHAIN: IAutoMovieHumanSegmentJoint[] = [",
       ...chain.map(
         (joint: IAutoMovieHumanSegmentJoint, i: number): string =>
           "    " + row(joint) + (i + 1 < chain.length ? "," : ""),
@@ -751,25 +758,26 @@ namespace FamilyConicRebase {
       "  ];",
       "",
       "  /** Every datum and course centre: a joint centre reads `[0, 0, 0]` in the segment whose origin it is; a polyline's centres are `<name>.<index>`. */",
-      "  export const POINTS: Record<string, IPlaced> = {",
+      "  export const POINTS: Record<string, IAutoMovieHumanF1Placing.IPlaced> = {",
       ...block(Object.entries(points)),
       "  };",
       "",
       "  /** Every placing direction: a family's `<family>.up` in its course's first segment, a relief's `<relief>.axis` and `<relief>.turn` in its window's segment. */",
-      "  export const DIRECTIONS: Record<string, IPlaced> = {",
+      "  export const DIRECTIONS: Record<string, IAutoMovieHumanF1Placing.IPlaced> = {",
       ...block(Object.entries(directions)),
       "  };",
       "",
       "  /** Every family's course as the names of its centres in `POINTS`. */",
       "  export const COURSES: Record<string, string[]> = {",
-      ...block(Object.entries(COURSES)),
+      ...block(Object.entries(courses)),
       "  };",
       "}",
       "",
     ];
     await fs.writeFile(
-      path.join(root, F1, "AutoMovieHumanF1Placing.ts"),
+      tableOut ?? path.join(root, F1, "AutoMovieHumanF1Placing.ts"),
       text.join("\n"),
+      tableOut === undefined ? undefined : { flag: "wx" },
     );
     receipt.splice(
       1,
@@ -799,6 +807,7 @@ namespace FamilyConicRebase {
         path.join(out, "assignment.txt") +
         "\n",
     );
+    return { chain, points, directions, courses };
   }
 
   /** The module file of a family. */
@@ -811,9 +820,9 @@ namespace FamilyConicRebase {
     ".ts";
 
   /** `--modules`: the placing fields' text rewritten to read the table. */
-  async function modules(root: string, out: string): Promise<void> {
-    const table: ITables | null = await stored(root);
-    if (table === null) throw new Error("run --tables first");
+  async function modules(root: string, out: string, table: ITables, only?: string): Promise<void> {
+    if (only !== undefined && table.courses[only] === undefined)
+      throw new Error("no registered course for " + only);
     const report: string[] = [];
     const use: string =
       'import { AutoMovieHumanF1Placement } from "./AutoMovieHumanF1Placement";';
@@ -828,10 +837,10 @@ namespace FamilyConicRebase {
     };
 
     // The datum tables: every stored point reads the table by its own name.
-    for (const file of [
+    for (const file of only === undefined ? [
       "AutoMovieHumanF1Joints.ts",
       "AutoMovieHumanF1Landmarks.ts",
-    ]) {
+    ] : []) {
       const lines: string[] = (
         await fs.readFile(path.join(root, F1, file), "utf8")
       ).split("\n");
@@ -869,6 +878,7 @@ namespace FamilyConicRebase {
 
     // The families: `centres` names the course's datums, `up` and each relief's `axis` and `turn` read their directions.
     for (const [name, names] of Object.entries(table.courses)) {
+      if (only !== undefined && name !== only) continue;
       const file: string = moduleOf(name);
       const lines: string[] = (
         await fs.readFile(path.join(root, F1, file), "utf8")
@@ -883,7 +893,11 @@ namespace FamilyConicRebase {
           ? "AutoMovieHumanF1Joints." + whole[1]
           : "[" +
             names
-              .map((datum: string): string => "AutoMovieHumanF1Joints." + datum)
+              .map((datum: string): string =>
+                datum in AutoMovieHumanF1Joints
+                  ? "AutoMovieHumanF1Joints." + datum
+                  : "AutoMovieHumanF1Placement.point(" + JSON.stringify(datum) + ")",
+              )
               .join(", ") +
             "]";
       lines.forEach((text: string, i: number): void => {
@@ -926,7 +940,8 @@ namespace FamilyConicRebase {
           lines[i] = head + text.slice(until);
         }
       });
-      if (changed.some((field: string): boolean => field !== "centres"))
+      if (changed.some((field: string): boolean => field !== "centres") ||
+          (changed.includes("centres") && centres.includes("AutoMovieHumanF1Placement.")))
         imported(lines, use);
       if (
         lines.some((text: string): boolean =>
@@ -1215,14 +1230,18 @@ namespace FamilyConicRebase {
   /** Run the mode the arguments name. */
   export async function main(): Promise<void> {
     const root: string = path.resolve(process.cwd(), "..");
-    const out: string = path.join(root, "test/.shots/family-conic-rebase");
-    await fs.mkdir(out, { recursive: true });
     const value = (flag: string): string | undefined =>
       process.argv
         .find((a: string): boolean => a.startsWith(flag + "="))
         ?.slice(flag.length + 1);
-    if (process.argv.includes("--tables")) await tables(root, out);
-    if (process.argv.includes("--modules")) await modules(root, out);
+    const out: string = value("--out") ?? path.join(root, "test/.shots/family-conic-rebase");
+    await fs.mkdir(out, { recursive: true });
+    const selected: ITables = process.argv.includes("--tables")
+      ? await tables(root, out, value("--arm-family"), value("--tables-out"))
+      : stored();
+    const one: string | undefined = value("--modules");
+    if (process.argv.includes("--modules") || one !== undefined)
+      await modules(root, out, selected, one);
     const name: string | undefined = value("--snapshot");
     if (name !== undefined) await snapshot(out, name);
     const pair: string[] | undefined = value("--compare")?.split(",");

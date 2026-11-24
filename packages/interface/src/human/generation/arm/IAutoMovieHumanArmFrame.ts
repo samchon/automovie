@@ -8,25 +8,7 @@ import type { IAutoMovieHumanArmWalk } from "./IAutoMovieHumanArmWalk";
  * Type contracts exchanged by AutoMovieHumanArmFrame; runtime evaluation remains in Human.
  */
 export namespace IAutoMovieHumanArmFrame {
-  /** Original placement/control inputs; no completed source or neighbouring part is required.
-   *
- *
- * @evidence contracts/development/common.md#meaningful-documentation Original placement/control inputs; no completed source or neighbouring part is required.
- * @evidence contracts/development/design.md#principled-representation `name`: Side-qualified original owner name. `bones`: Neutral GH, elbow and wrist datums in calibration mm. `knuckle`: Actual third metacarpal head, calibration mm.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Read by AutoMovieHumanArmFrame.create. Also types AutoMovieHumanArmFrame.{
-      name,
-      bones,
-      knuckle,
-      reach,
-      sites,
-      joints,
-      gap,
-      crease,
-      radial,
-      order,
-    }.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts `crease`: Optional palmar crease locus, calibration mm. `radial`: Optional signed across-hand direction defining the material roll.
- */
+  /** Original placement/control inputs; no completed source or neighbouring part is required. */
   export interface IInput {
     /** Side-qualified original owner name. */
     name: string;

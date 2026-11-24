@@ -106,8 +106,7 @@ export namespace FamilyConicSourceEvidence {
           shape: "dimensionless",
           sense: "orientation sign",
         },
-        crotchProfile: state.assembly.crotchProfile,
-        crotchProfileUnits: "chord-plane m",
+
         frames: Object.fromEntries(state.assembly.frames),
         worldLoops: {
           status: "unavailable",

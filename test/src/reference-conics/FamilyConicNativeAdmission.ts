@@ -189,7 +189,7 @@ namespace FamilyConicNativeAdmission {
     await fs.mkdir(output, { recursive: true });
     const started: number = performance.now(),
       original = Figure.assemble(),
-      bank = Figure.constructionFrom(original).sources,
+      bank = Figure.constructionBareFrom(original).sources,
       prepared = Law.prepare(original, bank);
     const originalRows = original.families.flatMap((family): unknown[] => [
       ...inspect(family, bank),

@@ -194,6 +194,7 @@ export namespace AutoMovieHumanF1NativeBuild {
       axis: IAutoMovieViewAxis.IAxis,
       scale: AutoMovieVector2Tuple,
       features: IAutoMovieLoftRelief[],
+      measuredAt?: number,
     ): ReadonlyMap<string, IAutoMovieViewPart> {
       const source: IAutoMovieViewPart | undefined = originals.get(prior.name);
       if (source === undefined)
@@ -201,7 +202,7 @@ export namespace AutoMovieHumanF1NativeBuild {
       const sources: Map<string, IAutoMovieViewPart> = new Map([
         [
           prior.name,
-          AutoMovieHumanNativeSourceLaw(source, axis, scale, features),
+          AutoMovieHumanNativeSourceLaw(source, axis, scale, features, undefined, measuredAt),
         ],
       ]);
       // Section symmetry is not tree replication: the central nose/trunk
@@ -218,6 +219,8 @@ export namespace AutoMovieHumanF1NativeBuild {
             scale,
             H.mirror({ ...prior, reliefs: features }, prior.name + ".mirror")
               .reliefs ?? [],
+            undefined,
+            measuredAt,
           ),
         );
       return sources;
@@ -234,7 +237,7 @@ export namespace AutoMovieHumanF1NativeBuild {
       sites: readonly (readonly [number, AutoMovieVector2Tuple])[],
     ): Native.ISpec["protection"] =>
       sites.map(([station, scale]) => ({
-        sources: targets(prior, axis, scale, features),
+        sources: targets(prior, axis, scale, features, station),
         requirement: { type: "junction", station },
       }));
     const crown: IAutoMovieHumanConicLoft.ITip | null | undefined = original.body.trunk.tips?.[1];
@@ -381,6 +384,10 @@ export namespace AutoMovieHumanF1NativeBuild {
       ),
     );
     const headScale: AutoMovieVector2Tuple = ratio(fields.wall.headSkin, zero.wall.headSkin);
+    const earTranslation: AutoMovieVector3Tuple = F.sub(
+      skinPoint(original.body.ear.centres[0]!),
+      original.body.ear.centres[0]!,
+    );
     const headGroup: (prior: IAutoMovieHumanConicLoft.IFamily, placed: IAutoMovieHumanConicLoft.IFamily) => IAutoMovieHumanConicLoft.IFamily = (
       prior: IAutoMovieHumanConicLoft.IFamily,
       placed: IAutoMovieHumanConicLoft.IFamily,
@@ -389,26 +396,13 @@ export namespace AutoMovieHumanF1NativeBuild {
         prior,
         placed,
         (): AutoMovieVector2Tuple => headScale,
-        translated(
-          H.axis(placed),
-          F.sub(
-            skinPoint(original.body.ear.centres[0]!),
-            original.body.ear.centres[0]!,
-          ),
-        ),
+        translated(H.axis(placed), earTranslation),
       );
     generated.set("ear", headGroup(original.body.ear, bone.body.ear));
     const helix: IAutoMovieHumanConicLoft.IFamily = headGroup(original.helix, bone.helix);
     const antihelix: IAutoMovieHumanConicLoft.IFamily = headGroup(original.antihelix, bone.antihelix);
     const concha: IAutoMovieHumanConicLoft.IFamily = headGroup(original.concha, bone.concha);
-    const axilla: IAutoMovieHumanConicLoft.IFamily = make(
-      original.axilla,
-      bone.axilla,
-      (): AutoMovieVector2Tuple => ratio(fullFields.roots.arm, zero.roots.arm),
-      rootPrepared
-        .get(original.body.arm.name)!
-        .cutterAxis(H.axis(original.axilla)),
-    );
+
     const nostril: IAutoMovieHumanConicLoft.IFamily = make(
       original.nostril,
       bone.nostril,
@@ -423,14 +417,12 @@ export namespace AutoMovieHumanF1NativeBuild {
           digit.limb === "arm"
             ? ratio(fullFields.extremities.finger, zero.extremities.finger)
             : ratio(fullFields.extremities.toe, zero.extremities.toe);
+        const prior = original.digits[k]!.family;
+        const { axis, physicalStation } = LengthCourse.prepare(prior, digit.family);
         return {
           ...digit,
-          family: make(
-            original.digits[k]!.family,
-            digit.family,
-            (): AutoMovieVector2Tuple => scale,
-            course(original.digits[k]!.family, digit.family),
-          ),
+          family: make(prior, digit.family, (): AutoMovieVector2Tuple => scale, axis),
+          physicalStation,
         };
       },
     );
@@ -444,26 +436,10 @@ export namespace AutoMovieHumanF1NativeBuild {
       breast: family("breast"),
     };
     const roots: IAutoMovieHumanF1.IAssembly["roots"] = {
-      arm: [rootLoop("arm", 1), rootLoop("arm", -1)],
-      breast: [rootLoop("breast", 1), rootLoop("breast", -1)],
+      get arm() { return bone.roots.arm; },
+      get breast() { return bone.roots.breast; },
       nose: rootLoop("nose", 1),
     };
-    // The seam's along coordinate belongs to the AP chord, not the trunk's
-    // station map. Its normalized original controls use that same root depth;
-    // its new vertical rise is an explicit total-tissue geometric-mean prior.
-    const hip: AutoMovieVector2Tuple = ratio(fields.wall.hipSkin, zero.wall.hipSkin);
-    const crotchProfile: IAutoMovieHumanF1.IAssembly["crotchProfile"] =
-      hip[0] === 1 && hip[1] === 1
-        ? original.crotchProfile
-        : {
-            ...original.crotchProfile,
-            knots: original.crotchProfile.knots.map(
-              ([along, depth]): [number, number] => [
-                along * hip[0],
-                depth * Math.sqrt(hip[0] * hip[1]),
-              ],
-            ),
-          };
     return {
       scope: "all",
       assembly: {
@@ -472,22 +448,21 @@ export namespace AutoMovieHumanF1NativeBuild {
         direction: bone.direction,
         body,
         digits,
+        earAxis: { family: bone.body.ear, translation: earTranslation },
         helix,
         antihelix,
-        axilla,
+        get axilla() { return bone.axilla; },
         concha,
         nostril,
         roots,
         nativePorts: rootPorts,
         nativeSeed,
         nativeSeedControls: seedControls,
-        crotchProfile,
         families: [
           ...Object.values(body),
           helix,
           antihelix,
           ...digits.map((digit: IAutoMovieHumanF1.IDigit): IAutoMovieHumanConicLoft.IFamily => digit.family),
-          axilla,
           concha,
           nostril,
         ],

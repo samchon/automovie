@@ -17,12 +17,13 @@ type V3 = [number, number, number];
  * 6. Red control, a tabulated fork: the forks of the base fixture, kept while `B` grows to radius 11, stand 1.4 mm or more off `B`'s new section, where the composition's own stand on both sections within 1e-9.
  * 7. The outline is one closed curve: four pieces on sections `A`, `B`, `C`, `B`, each ending within 1e-9 mm where the next begins, at a fork, where the tangent turns (a sine above 0.5); the first piece's middle is `A`'s extreme `(-23, 0)` with the derivative `(0, -9 (2 pi - 2 atan2(sqrt(32), 7)))`.
  * 8. Distances to the outline in the end plane: its own points stand within 1e-9 mm; the circle of radius 23 stands 14 off at `(0, 23)` and 0 at `(+-23, 0)`; the point `(-7, 8)` above a valley stands `hypot(7, 8) - 9` off; the origin 9; within 1e-9 mm.
+ * 9. One search returns the same scalar distance with its actual interior, fork or tied witnesses. A translated two-circle pair distinguishes the two directional derivatives at the tie.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls `AutoMovieConstructionComposedEnd.create` on made sections and reads its forks, lobes and seams. It catches a fork off either curve, forks in the wrong order, a lobe that includes a covered arc, a seam plane that ignores an axis and a composition admitted on sections that do not meet or that overlap out of order.
  * @evidence contracts/development/testing.md#independent-expectations Radical lines of two circles, angles by `atan2`, the bisector of two unit vectors by its half angle, and the ellipse's implicit equation, all written here; none reads the operator's polygons.
  * @evidence contracts/development/testing.md#distinguishing-cases An outer section against the middle one with two lobes; a changed size against a changed axis; a circle against an ellipse; four refusals with distinct causes; stale forks against derived ones.
  * @evidence contracts/development/testing.md#execution-ownership A discoverable synchronous CPU unit reached by `--include construction_composed_end`; it evaluates made closed forms in process and starts no host, browser or GPU.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 8 numbered scenarios it runs, each naming its input, its closed form and its bound.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 9 numbered scenarios it runs, each naming its input, its closed form and its bound.
  */
 export function test_construction_composed_end(): void {
   const failures: string[] = [];
@@ -145,6 +146,44 @@ export function test_construction_composed_end(): void {
     const cases: [V3, number][] = [[[0, 23, 0], 14], [[23, 0, 0], 0], [[-23, 0, 0], 0], [[-7, 8, 0], Math.hypot(7, 8) - 9], [[0, 0, 0], 9]];
     for (const [point, expected] of cases)
       if (!(Math.abs(distance(point) - expected) <= 1e-9)) failures.push(`outline: (${point.join(", ")}) stands ${distance(point)} mm off, not ${expected}`);
+  }
+
+  const pair = compose([ellipse("left", -7, 9, 9, lean(0)), ellipse("right", 7, 9, 9, lean(0))]);
+  if (typeof pair === "string") failures.push("two-circle distance witness: " + pair);
+  else {
+    const listen = (point: V3) => {
+      let sites: readonly IAutoMovieConstructionComposedEnd.IOutlineDistanceSite[] = [];
+      const observed: number = pair.outline.distance(point, (rows): void => { sites = rows; });
+      if (observed !== pair.outline.distance(point)) failures.push("requesting distance witnesses changed the actual distance");
+      return { observed, sites };
+    };
+    const interior = listen([-19, 0, 0]);
+    if (Math.abs(interior.observed - 3) > 1e-9 || !interior.sites.some((site): boolean =>
+        site.settled && site.share > 0 && site.share < 1 &&
+        off(pair.outline.at(site.piece + site.share).point, [-16, 0, 0]) <= 1e-9))
+      failures.push("the known left-circle interior foot was not witnessed");
+    const corner = listen([0, 1, 0]);
+    if (Math.abs(corner.observed - (y - 1)) > 1e-9 || !corner.sites.some((site): boolean =>
+        (site.share === 0 || site.share === 1) && site.forks[site.share] === 0))
+      failures.push("the known upper shared fork was not witnessed");
+    const equal = listen([0, 12, 0]);
+    if (Math.abs(equal.observed - (Math.hypot(7, 12) - 9)) > 1e-9 ||
+        new Set(equal.sites.map((site): number => pair.outline.pieces[site.piece]!.section)).size !== 2)
+      failures.push("the equal nearest branches lost one of their distinct child identities");
+    const step: number = 1e-5, slope: number = -7 / Math.hypot(7, 12);
+    const winner = equal.sites[0];
+    if (winner !== undefined) {
+      const witness: number = pair.outline.pieces[winner.piece]!.section === 0 ? slope : 0;
+      for (const sign of [-1, 1]) {
+        const moved = compose([ellipse("left", -7 + step * sign, 9, 9, lean(0)), ellipse("right", 7, 9, 9, lean(0))]);
+        if (typeof moved === "string") failures.push("tied outline lost its two regular crossings");
+        else {
+          const direction: number = (moved.outline.distance([0, 12, 0]) - equal.observed) / step;
+          if (Math.abs(direction - Math.min(sign * slope, 0)) > 1e-5 || direction > sign * witness + 1e-5)
+            failures.push("the tied distance's directional response escaped its fixed-branch witness");
+        }
+      }
+    }
   }
 
   if (failures.length !== 0) throw new Error("test_construction_composed_end:\n" + failures.join("\n"));

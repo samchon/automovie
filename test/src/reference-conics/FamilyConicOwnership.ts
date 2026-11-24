@@ -194,11 +194,14 @@ namespace FamilyConicOwnership {
       oldPath === undefined
         ? undefined
         : (JSON.parse(await fs.readFile(oldPath, "utf8")) as Receipt);
-    const declared: IAutoMovieHumanF1.IConstruction =
-      AutoMovieHumanF1.construction();
+    const figure: IAutoMovieHumanF1.IAssembly = AutoMovieHumanF1.assemble();
+    const declared: IAutoMovieHumanF1.IConstructionWithContacts =
+      AutoMovieHumanF1.constructionBareFrom(figure);
+    const raw = AutoMovieHumanF1.originalSources(figure, new Set(declared.sources.keys()));
+    const contactPremises: readonly IAutoMovieHumanF1.IContactPremise[] = declared.contactPremises();
     const addresses: Address[] =
       old?.addresses ??
-      [...declared.sources].map(([name, part]): Address => {
+      [...raw].map(([name, part]): Address => {
         const from: number = part.stations[0]!;
         const to: number = part.stations.at(-1)!;
         return {
@@ -210,11 +213,12 @@ namespace FamilyConicOwnership {
         };
       });
     const payload: string = encode({
-      root: declared.root,
+      root: contactPremises.every((row): boolean => row.kind === "prepared") ? declared.root : null,
+      contactPremises,
       fills: declared.fills,
-      parts: [...declared.sources],
+      parts: [...raw],
       originals: addresses.map((address: Address): unknown => {
-        const part: IAutoMovieViewPart | undefined = declared.sources.get(
+        const part: IAutoMovieViewPart | undefined = raw.get(
           address.name,
         );
         return part === undefined
@@ -247,7 +251,7 @@ namespace FamilyConicOwnership {
       JSON.stringify({
         output,
         sha256: receipt.sha256,
-        sourceCount: declared.sources.size,
+        sourceCount: raw.size,
         addresses: addresses.reduce(
           (sum: number, address: Address): number =>
             sum + address.stations.length * address.phases.length,

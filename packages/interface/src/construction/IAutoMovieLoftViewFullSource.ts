@@ -13,7 +13,7 @@ export namespace IAutoMovieLoftViewFullSource {
    * Complete original scalar controls, their actual axis and immutable features.
    */
   export type IInput = IAutoMovieLoftViewSource.IInput &
-    Pick<IAutoMovieViewPart, "axis" | "reliefs">;
+    Pick<IAutoMovieViewPart, "axis" | "reliefs" | "originalSection">;
 
   /**
    * Two independent full-native capabilities on one inclusive original domain.
@@ -21,6 +21,10 @@ export namespace IAutoMovieLoftViewFullSource {
   export interface IReader {
     /** Inclusive physical station bounds, mm. */
     readonly domain: readonly [number, number];
+    /**
+     * Inclusive physical station bounds outside the retained caps, mm.
+     */
+    readonly regular: readonly [number, number] | null;
     /**
      * Fresh full world Point0, mm; no axis.jet is requested.
      */

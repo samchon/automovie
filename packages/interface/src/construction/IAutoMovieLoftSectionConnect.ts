@@ -1,10 +1,32 @@
 import type { IAutoMovieLoftSectionBoundary } from "./IAutoMovieLoftSectionBoundary";
+import type { IAutoMovieLoftSectionJet } from "./IAutoMovieLoftSectionJet";
+import type { IAutoMovieLoftSectionPhase } from "./IAutoMovieLoftSectionPhase";
 import type { IAutoMovieLoftSectionSource } from "./IAutoMovieLoftSectionSource";
 
 /**
  * Declared generating laws on regular station intervals changed by continuation.
  */
 export namespace IAutoMovieLoftSectionConnect {
+  /**
+   * A bounded original local section generator before frame, lift and features.
+   */
+  export interface IOriginal {
+    /** Stable name of this complete original material field. */
+    readonly name: string;
+
+    /** Support in physical mm, including its first station. At the protected last station its 0/1/2 jets agree with the original tail. */
+    readonly domain: readonly [number, number];
+
+    /** Local section plane position at physical mm and correspondence radians. */
+    readonly point: (station: number, phase: number) => [number, number];
+
+    /** The same point and its first two phase derivatives, without requesting physical station derivatives. */
+    readonly phase: (station: number, phase: number) => IAutoMovieLoftSectionPhase;
+
+    /** The same local field's actual physical-station/radian total2. */
+    readonly jet: (station: number, phase: number) => IAutoMovieLoftSectionJet;
+  }
+
   /**
    * Explicit native, mixed or basis law on a changed regular station span.
    *

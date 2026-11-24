@@ -1,5 +1,6 @@
 import { AutoMovieViewChain } from "@automovie/engine";
 import { AutoMovieHumanConicSection } from "@automovie/human";
+import { FamilyConicSection as FitSection } from "../../../reference-conics/FamilyConicSection";
 import type {
   AutoMovieVector2Tuple,
   IAutoMovieHumanConicSection,
@@ -504,6 +505,17 @@ export function test_human_conic_section(): void {
         `continuous at anchor 1 set arc 1 to ${matched[9]}, expected its own bound, not arc 0's 0.3`,
       );
   }
+
+  // Plain extrema have no feature conversion dependency, even on a finely broken outline.
+  const broken: AutoMovieVector2Tuple[] = Array.from({ length: 720 }, (_, k: number): AutoMovieVector2Tuple => {
+    const phi: number = (2 * Math.PI * k) / 720;
+    const r: number = 100 + 5 * Math.cos(152 * phi);
+    return [r * Math.cos(phi), r * Math.sin(phi)];
+  });
+  const layout = FitSection.limb(0);
+  const seeded: number[] = FitSection.seed(broken, layout);
+  if (seeded.length !== 12 || !seeded.every(Number.isFinite))
+    failures.push("the plain seed did not read its rectangular extrema");
 
   if (failures.length > 0)
     throw new Error("human conic section:\n" + failures.join("\n"));

@@ -1,5 +1,6 @@
 import type { IAutoMovieConstructionDiagnostic } from "./IAutoMovieConstructionDiagnostic";
 import type { IAutoMovieConstructionProfileSource } from "./IAutoMovieConstructionProfileSource";
+import type { IAutoMovieConstructionSharedLoop } from "./IAutoMovieConstructionSharedLoop";
 import type { IAutoMovieLoftChain } from "./IAutoMovieLoftChain";
 import type { IAutoMoviePreparedConstructionProfile } from "./IAutoMoviePreparedConstructionProfile";
 import type { IAutoMovieSolidBlendChain } from "./IAutoMovieSolidBlendChain";
@@ -28,6 +29,9 @@ export namespace IAutoMovieConstructionRealization {
 
     /** Actual original piecewise families by pure profile node name. Complete matching declarations and immutable source dependencies are required through output-reader lifetime. */
     profiles?: ReadonlyMap<string, IAutoMovieConstructionProfileSource>;
+
+    /** Original shared chart loops named by explicit join keys. Entries borrow immutable sources from this same invocation. */
+    loopSources?: ReadonlyMap<string, IAutoMovieConstructionSharedLoop.ISource>;
   }
 
   /**

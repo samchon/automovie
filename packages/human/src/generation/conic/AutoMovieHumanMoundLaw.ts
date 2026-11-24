@@ -1,3 +1,5 @@
+import type { IAutoMovieHumanMoundLaw } from "@automovie/interface";
+
 /**
  * The breast mound's form from its volume: how a change of volume is shared between the base's radii and the projection, under the
  * bounds the person's own measures set on the base.
@@ -7,7 +9,7 @@
  * mastectomy specimens at r 0.975). For a hemisphere of radius `R` it gives `(2 / 3) pi R^3`, the hemisphere's volume.
  *
  * A girth says how much mound there is, not where it goes. The published tables say where it goes: mostly into projection, little into
- * the base. On breast CT (219 women; group means by cup, read as a summary of the paper) the volume rises from 324.7 to 467.9, 803.1 and
+ * the base. On dedicated breast CT (Huang et al. 2011, below; 219 women; group means by cup, read as a summary of the paper) the volume rises from 324.7 to 467.9, 803.1 and
  * 1,203.7 ml from cup A to D while the breast's diameter at the chest wall goes 11.1, 11.4, 13.0, 13.7 cm: the least-squares slope of
  * `ln diameter` on `ln volume` through those four means is 0.17 (`BASE_EXPONENT`), against the one third of similar solids, and the
  * length from the chest wall grows 1.70 times where a similar solid would grow 1.55. Zheng, Yu and Fan 2010 (322 women, read in full)
@@ -22,30 +24,17 @@
  */
 export namespace AutoMovieHumanMoundLaw {
   /** A mound's base radii from the apex's foot on the chest wall, mm. */
-  export interface IRadii {
-    /** Toward the median plane. */
-    medial: number;
-
-    /** Toward the side. */
-    lateral: number;
-
-    /** Down to the fold under the breast. */
-    inferior: number;
-  }
+  export type IRadii = IAutoMovieHumanMoundLaw.IRadii;
 
   /** A mound: its base and how far its apex stands off the chest wall. */
-  export interface IMound {
-    /** The base's radii, mm. */
-    radii: IRadii;
-
-    /** The projection, mm. */
-    projection: number;
-  }
+  export type IMound = IAutoMovieHumanMoundLaw.IMound;
 
   /**
    * The power of the volume ratio a base radius grows by: the slope of `ln diameter` on `ln volume` through the four cup groups' means
    * of the breast CT study (`(ln 324.7, ln 11.1)`, `(ln 467.9, ln 11.4)`, `(ln 803.1, ln 13.0)`, `(ln 1203.7, ln 13.7)`: 0.1732 /
-   * 1.004). Prone breasts, group means, read from a summary of the paper: a provisional prior, to be replaced by a regression on
+   * 1.004). The study: Huang SY, Boone JM, Yang K, Packard NJ, McKenney SE, Prionas ND, Lindfors KK, Yaffe MJ, The characterization
+   * of breast anatomical metrics using dedicated breast CT, Med Phys 2011;38(4):2180-2191 (prone women). ESTIMATE, provisional: the
+   * per-cup values were read from a summary of the paper, not its tables, and are group means; to be replaced by a regression on
    * individual women when one is read.
    */
   export const BASE_EXPONENT: number = 0.17;

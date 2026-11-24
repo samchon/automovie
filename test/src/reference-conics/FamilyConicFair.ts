@@ -38,15 +38,19 @@ export namespace FamilyConicFair {
    * A star-shaped section meets every ray once. Where a faceted source meets
    * it more than once the outermost hit is returned and `folds` counts the
    * event, so the caller reports the non-star interval instead of losing it.
+   * When edge custody is supplied, a winning edge without measured support
+   * leaves the radius unobserved. It does not select a different crossing.
    */
   export function radius(
     points: readonly C.P[],
     phi: number,
     folds?: { count: number },
+    retained?: (start: C.P, end: C.P) => boolean,
   ): number {
     const d: C.P = [Math.cos(phi), Math.sin(phi)];
     let best: number = NaN;
     let hits: number = 0;
+    let observed: boolean = true;
     for (let i: number = 0; i < points.length; ++i) {
       const a: C.P = points[i]!;
       const b: C.P = points[(i + 1) % points.length]!;
@@ -58,10 +62,13 @@ export namespace FamilyConicFair {
         (1 - t) * (a[0] * d[0] + a[1] * d[1]) + t * (b[0] * d[0] + b[1] * d[1]);
       if (!(r > 0)) continue;
       ++hits;
-      if (!(best >= r)) best = r;
+      if (!(best >= r)) {
+        best = r;
+        observed = retained?.(a, b) ?? true;
+      }
     }
     if (hits > 1 && folds !== undefined) ++folds.count;
-    return best;
+    return observed ? best : NaN;
   }
 
   /** One converted arc on the faired section. */

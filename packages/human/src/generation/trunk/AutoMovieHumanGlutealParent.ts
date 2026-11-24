@@ -138,9 +138,13 @@ function trunkChord(
   z: number,
 ): IAutoMovieHumanGlutealParent.IChord[] | string {
   const [first, last]: readonly [number, number] = field.source.domain;
-  if (y < first || y > last) return [];
+  const bottom = field.part.axis.at(first), top = field.part.axis.at(last);
+  const station: number = first + (y - bottom.origin[1]);
+  if (!(Number.isFinite(station) && Math.abs(top.origin[1] - bottom.origin[1] - (last - first)) <= TOLERANCE))
+    return field.part.name + ": AP contact needs its registered level station course.";
+  if (station < first || station > last) return [];
   const frame: ReturnType<IAutoMovieViewPart["axis"]["at"]> =
-    field.part.axis.at(y);
+    field.part.axis.at(station);
   if (
     Math.abs(frame.origin[1] - y) > TOLERANCE ||
     frame.u.some(
@@ -152,15 +156,15 @@ function trunkChord(
   )
     return `${field.part.name}: contact needs its actual level +X/+Z frame.`;
   const values: IAutoMovieLoftViewRead.IValues | string =
-    AutoMovieLoftViewRead.values(field.source, y);
+    AutoMovieLoftViewRead.values(field.source, station);
   if (typeof values === "string") return values;
   const across: number = z - frame.origin[2];
   if (values.extents.every((value: number): boolean => value === 0))
     return Math.abs(across) <= TOLERANCE
       ? [
           {
-            back: boundary(field, frame.origin[0], y, 0),
-            front: boundary(field, frame.origin[0], y, 0),
+            back: boundary(field, frame.origin[0], station, 0),
+            front: boundary(field, frame.origin[0], station, 0),
           },
         ]
       : [];
@@ -184,7 +188,7 @@ function trunkChord(
       );
       if (phase === null || Math.abs(read(phase)[1] - across) > TOLERANCE)
         return `${field.part.name}: no admitted local AP chord root.`;
-      return boundary(field, frame.origin[0] + read(phase)[0], y, phase);
+      return boundary(field, frame.origin[0] + read(phase)[0], station, phase);
     };
     const back: IAutoMovieHumanGlutealParent.IBoundary | string = at(
       Math.PI / 2,
@@ -200,7 +204,7 @@ function trunkChord(
         : (front as string)
       : [{ back, front }];
   } catch (error: unknown) {
-    return `${field.part.name}: local AP chord at world Y/Z [${y}, ${z}] mm, source station ${y} mm, extents [${values.extents.join(", ")}] mm, shoulders [${values.shoulders.join(", ")}]: ${error instanceof Error ? error.message : String(error)}`;
+    return `${field.part.name}: local AP chord at world Y/Z [${y}, ${z}] mm, source station ${station} mm, extents [${values.extents.join(", ")}] mm, shoulders [${values.shoulders.join(", ")}]: ${error instanceof Error ? error.message : String(error)}`;
   }
 }
 

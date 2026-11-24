@@ -1,4 +1,6 @@
 import { AutoMovieHumanConicSection } from "../conic/AutoMovieHumanConicSection";
+import { AutoMovieHumanBracketLeast } from "./AutoMovieHumanBracketLeast";
+import { AutoMovieHumanBracketRoot } from "./AutoMovieHumanBracketRoot";
 import type {
   AutoMovieVector3Tuple,
   IAutoMovieHumanConicLoft,
@@ -36,6 +38,131 @@ import type {
  *    down to the skin inside the outline, as a slope in the bed and as a step one thickness long in the strip.
  */
 export namespace AutoMovieHumanNail {
+
+  interface IWindow {
+    stations: [number, number];
+    phases: [number, number];
+    rows: number;
+    columns: number;
+  }
+
+  /** The part of a linear track at or above a physical bound, in cell coordinates. */
+  function above(a: number, b: number, bound: number): [number, number] {
+    if (a >= bound && b >= bound) return [0, 1];
+    if (a < bound && b < bound) return [1, 0];
+    const crossing: number = (bound - a) / (b - a);
+    return a >= bound ? [0, crossing] : [crossing, 1];
+  }
+
+  /**
+   * Check the single dorsal arc on a bilinear station cell. Each phase
+   * edge's lateral slope is affine in station. The cyclic sign pattern
+   * can change only at the finitely many zero crossings of those slopes.
+   */
+  function dorsalArc(bed: string, slopes: readonly [number, number][]): void {
+    const changing: [number, number][] = slopes.filter(([a, b]: [number, number]): boolean => a !== 0 || b !== 0);
+    const signs: boolean[] = changing.map(([a, b]: [number, number]): boolean => a === 0 ? b > 0 : a > 0);
+    const wraps: number = signs.length;
+    const events: [number, number][] = [];
+    for (let i: number = 0; i < wraps; ++i) {
+      const [a, b]: [number, number] = changing[i]!;
+      if (a !== 0 && b !== 0 && (a > 0) !== (b > 0))
+        events.push([a / (a - b), i]);
+    }
+    const begins = (i: number): number => Number(signs[i] && !signs[(i + wraps - 1) % wraps]);
+    let arcs: number = signs.reduce((count: number, _: boolean, i: number): number => count + begins(i), 0);
+    const admit = (): void => {
+      if (arcs !== 1) throw new Error("nail: " + bed + " has disconnected or undefined dorsal chart support");
+    };
+    admit();
+    events.sort(([a]: [number, number], [b]: [number, number]): number => a - b);
+    for (let k: number = 0; k < events.length; ++k) {
+      const [station, i]: [number, number] = events[k]!;
+      const next: number = (i + 1) % wraps;
+      arcs -= begins(i) + begins(next);
+      signs[i] = !signs[i];
+      arcs += begins(i) + begins(next);
+      if (events[k + 1]?.[0] !== station) admit();
+    }
+  }
+
+  /**
+   * Enclose the single dorsal band that could carry height in one net. In a
+   * bilinear chart cell the axial extremes at each station are on the
+   * two phase edges. The lateral phase slope is linear across the cell.
+   * These tests enclose the admitted chart band independently of the relief
+   * samples. A general point callback supplies a sampled chart observation.
+   */
+  function window(
+    bed: string,
+    grid: readonly (readonly AutoMovieVector3Tuple[])[],
+    domain: [number, number],
+    stationAt: (row: number, share: number) => number,
+    axial: [number, number],
+    dorsalSign: number,
+    cell: number,
+    phasePitch: number,
+  ): IWindow {
+    const phases: number = grid[0]!.length;
+    const active: boolean[] = new Array<boolean>(phases).fill(false);
+    let [low, high]: [number, number] = [Infinity, -Infinity];
+    for (let i: number = 0; i + 1 < grid.length; ++i) {
+      const [a, b]: readonly (readonly AutoMovieVector3Tuple[])[] = [grid[i]!, grid[i + 1]!];
+      const slopes: [number, number][] = [];
+      let occupied: boolean = false;
+      for (let j: number = 0; j < phases; ++j) {
+        const k: number = (j + 1) % phases;
+        const [p, q, r, w]: AutoMovieVector3Tuple[] = [a![j]!, a![k]!, b![j]!, b![k]!];
+        const slope: [number, number] = [dorsalSign * (q![2] - p![2]), dorsalSign * (w![2] - r![2])];
+        slopes.push(slope);
+        const dorsal: [number, number] = above(slope[0], slope[1], 0);
+        const before: [number, number] = above(-p![0], -r![0], -axial[1]);
+        const beforeNext: [number, number] = above(-q![0], -w![0], -axial[1]);
+        const after: [number, number] = above(p![0], r![0], axial[0]);
+        const afterNext: [number, number] = above(q![0], w![0], axial[0]);
+        const enter: number = Math.max(dorsal[0], Math.min(before[0], beforeNext[0]), Math.min(after[0], afterNext[0]));
+        const leave: number = Math.min(dorsal[1], Math.max(before[1], beforeNext[1]), Math.max(after[1], afterNext[1]));
+        if (!(enter < leave)) continue;
+        low = Math.min(low, stationAt(i, enter));
+        high = Math.max(high, stationAt(i, leave));
+        active[j] = true;
+        occupied = true;
+      }
+      if (occupied) dorsalArc(bed, slopes);
+    }
+    // The longest support-free interval supplies a seam even when the dorsal
+    // phase turns across zero along the digit.
+    let [gap, end, run]: [number, number, number] = [0, 0, 0];
+    for (let j: number = 0; j < 2 * phases; ++j) {
+      run = active[j % phases] ? 0 : run + 1;
+      if (run > gap) {
+        gap = run;
+        end = j + 1;
+      }
+    }
+    if (!(low < high && gap > 0 && gap < phases))
+      throw new Error("nail: " + bed + " has no bounded dorsal relief window");
+    const angle: number = (2 * Math.PI) / phases;
+    const padding: number = Math.min(3 * phasePitch, (gap * angle) / 3);
+    const opening: number = (end % phases) * angle - padding;
+    const span: number = (phases - gap) * angle + 2 * padding;
+    const stations: [number, number] = [
+      Math.max(domain[0], low - 3 * cell),
+      Math.min(domain[1], high + 3 * cell),
+    ];
+    // The innermost forced zero is one Greville interval from each end.
+    // Choose the pitch from the available physical margin after clipping the
+    // window to the original skin, never by extending a closed cap.
+    const pitch: number = Math.min(cell, low - stations[0], stations[1] - high);
+    if (!(pitch > 0))
+      throw new Error("nail: " + bed + " touches the skin chart's axial boundary");
+    return {
+      stations,
+      phases: [opening, opening + span],
+      rows: Math.max(7, Math.ceil((stations[1] - stations[0]) / pitch) + 3),
+      columns: Math.max(7, Math.ceil(span / Math.min(phasePitch, padding)) + 3),
+    };
+  }
 
   /**
    * Whether a point of the digit's skin belongs to the nail: inside the plate's outline in the nail's plan and on the plate's side of
@@ -200,21 +327,16 @@ export namespace AutoMovieHumanNail {
   /** Read a skin in a frame. */
   function reader(skin: IAutoMovieHumanNail.ISkin, frame: IAutoMovieHumanNail.IFrame): IReader {
     const lateral: AutoMovieVector3Tuple = cross(frame.distal, frame.dorsal);
+    const offset = (station: number, phase: number): AutoMovieVector3Tuple => sub(skin.point(station, phase), frame.origin);
     const at = (station: number, phase: number): AutoMovieVector3Tuple => {
-      const d: AutoMovieVector3Tuple = sub(skin.point(station, phase), frame.origin);
+      const d: AutoMovieVector3Tuple = offset(station, phase);
       return [dot(d, frame.distal), dot(d, frame.dorsal), dot(d, lateral)];
     };
-    // The distance along grows with the station on the distal segment, so a bisection finds the station. Twenty-four halvings take a
-    // distal segment of 30 mm under 2e-6 mm, the chord error of the net a digit's skin is read on (`AutoMovieHumanF1Nails`).
-    const station = (x: number, phase: number): number => {
-      let [low, high]: [number, number] = [skin.first, skin.tip];
-      for (let i: number = 0; i < 24; ++i) {
-        const middle: number = (low + high) / 2;
-        if (at(middle, phase)[0] < x) low = middle;
-        else high = middle;
-      }
-      return (low + high) / 2;
-    };
+    // The distance along grows with the station on the distal segment, so the station is the bracketed root, to the accuracy of
+    // twenty-four halvings: a distal segment of 30 mm under 2e-6 mm, the chord error of the net a digit's skin is read on
+    // (`AutoMovieHumanF1Nails`). Brent's safeguarded steps reach it in a few skin reads where the bisection took twenty-four.
+    const station = (x: number, phase: number): number =>
+      AutoMovieHumanBracketRoot.solve((s: number): number => dot(offset(s, phase), frame.distal) - x, skin.first, skin.tip, 24);
     const lateralAt = (x: number, phase: number): AutoMovieVector3Tuple => at(station(x, phase), phase);
     // The skin's ring a distance along, read once at `RING` phases: every question about that distance starts from it.
     const rings: Map<number, AutoMovieVector3Tuple[]> = new Map();
@@ -224,16 +346,8 @@ export namespace AutoMovieHumanNail {
       return made;
     };
     // The dorsal phase: where the skin crosses the median plane on the dorsal side, found once on a scan and refined by bisection.
-    const crossing = (x: number, z: number, from: number, to: number): number => {
-      let [a, b]: [number, number] = [from, to];
-      const sign: number = Math.sign(lateralAt(x, a)[2] - z);
-      for (let i: number = 0; i < 48; ++i) {
-        const middle: number = (a + b) / 2;
-        if (Math.sign(lateralAt(x, middle)[2] - z) === sign) a = middle;
-        else b = middle;
-      }
-      return (a + b) / 2;
-    };
+    const crossing = (x: number, z: number, from: number, to: number): number =>
+      AutoMovieHumanBracketRoot.solve((phase: number): number => lateralAt(x, phase)[2] - z, from, to, 48);
     const find = (x: number, z: number): { station: number; phase: number; height: number } => {
       const count: number = RING;
       const around: AutoMovieVector3Tuple[] = ring(x);
@@ -298,13 +412,14 @@ export namespace AutoMovieHumanNail {
     const midway0: number = (fold0 + tip0) / 2;
     const bed0: number[] = Array.from({ length: BED }, (_: unknown, k: number): number => fold0 + (0.9 * (tip0 - fold0) * k) / (BED - 1));
     const mean = (values: readonly number[]): number => values.reduce((sum: number, x: number): number => sum + x, 0) / values.length;
+    const bedMean: number = mean(bed0);
+    const bedMoment: number = bed0.reduce((sum: number, x: number): number => sum + (x - bedMean) ** 2, 0);
     let passes: number = 0;
     const residuals: [number, number, number][] = [];
     // What the roll's objective read on the last pass.
     let misfit: number = 0;
     let objective: number = 0;
-    let conditioning: number = 0;
-    const levelling: [number, number][] = [];
+    let finalPass: { roll: number; angle: number; turn: (by: number) => number } | null = null;
     // The greatest of the values round a ring, by the parabola through the greatest sample and its two neighbours.
     const peak = (values: readonly number[]): number => {
       let top: number = 0;
@@ -351,44 +466,40 @@ export namespace AutoMovieHumanNail {
         const turned: [number, number][][] = rings.map((ring: AutoMovieVector3Tuple[]): [number, number][] => ring.map((p: AutoMovieVector3Tuple): [number, number] => [p[1] * c + p[2] * s, p[2] * c - p[1] * s]));
         const spans: [number, number][] = turned.map((ring: [number, number][]): [number, number] => [-peak(ring.map((p: [number, number]): number => -p[1])), peak(ring.map((p: [number, number]): number => p[1]))]);
         const middles: number[] = spans.map((d: [number, number]): number => (d[0] + d[1]) / 2);
-        const lean: number = bed0.reduce((sum: number, x: number, k: number): number => sum + (x - mean(bed0)) * (middles[k]! - mean(middles)), 0) / bed0.reduce((sum: number, x: number): number => sum + (x - mean(bed0)) ** 2, 0);
+        const middleMean: number = mean(middles);
+        const lean: number = bed0.reduce((sum: number, x: number, k: number): number => sum + (x - bedMean) * (middles[k]! - middleMean), 0) / bedMoment;
         const asked: number = mean(
           spans.map((d: [number, number], k: number): number => {
             const e: number = Math.min(half * Math.min(1, (d[1] - d[0]) / (spans[0]![1] - spans[0]![0])), 0.45 * (d[1] - d[0]));
             return -Math.atan2(crest(turned[k]!, middles[k]! + e) - crest(turned[k]!, middles[k]! - e), 2 * e);
           }),
         );
-        return { turn: asked, slope: lean, shift: mean(middles) - lean * mean(bed0) };
+        return { turn: asked, slope: lean, shift: middleMean - lean * bedMean };
       };
       // The roll. On these rings the mean levelling turn is a function of the roll alone, and the roll, counted from the segment's
       // frame, is the value that makes `(turn / error)^2 + (roll / spread)^2` least within a quarter turn either side: the skin's
       // evidence, whose error is the fitted skin's across the plate, against the prior that the nail lies in its segment's frame.
       // No crossing of the turn through zero is sought: a far, weakly held one on a round back lowers the first term a little and
       // pays the second in full. Sought as the nearest crossing it rolled f1's two roundest toes 25 and 36 degrees (run 16-16-14).
-      // The objective is read at 49 rolls, each of its local leasts is placed by forty golden sections of the two steps about it,
+      // The objective is read at 49 rolls, each of its local leasts is placed within the two steps about it by Brent's method to the width of forty golden sections,
       // and the least of those is taken.
       const error: number = FIT_RMS / half;
       const cost = (by: number): number => (levelled(by).turn / error) ** 2 + ((roll + by) / spread) ** 2;
-      levelling.length = 0;
-      for (let n: number = 0; n < 25; ++n) levelling.push([-Math.PI / 2 + (n * Math.PI) / 24, levelled(-Math.PI / 2 + (n * Math.PI) / 24 - roll).turn]);
       const [from, to]: [number, number] = [-Math.PI / 2 - roll, Math.PI / 2 - roll];
       const sampled: number[] = Array.from({ length: 49 }, (_: unknown, n: number): number => cost(from + ((to - from) * n) / 48));
       let [fewest, angle]: [number, number] = [Infinity, 0];
       for (let n: number = 0; n <= 48; ++n) {
         if ((n > 0 && sampled[n - 1]! < sampled[n]!) || (n < 48 && sampled[n + 1]! < sampled[n]!)) continue;
-        let [shy, past]: [number, number] = [Math.max(from, from + ((to - from) * (n - 1)) / 48), Math.min(to, from + ((to - from) * (n + 1)) / 48)];
-        for (let k: number = 0; k < 40; ++k) {
-          const [inner, outer]: [number, number] = [past - (past - shy) * GOLDEN, shy + (past - shy) * GOLDEN];
-          if (cost(inner) < cost(outer)) past = outer;
-          else shy = inner;
-        }
-        const found: number = cost((shy + past) / 2);
-        if (found < fewest) [fewest, angle] = [found, (shy + past) / 2];
+        const [shy, past]: [number, number] = [Math.max(from, from + ((to - from) * (n - 1)) / 48), Math.min(to, from + ((to - from) * (n + 1)) / 48)];
+        // To the width forty golden sections of the two steps reached, by Brent's method, which reads one value a step where each
+        // golden section read two (`test_human_nail_roll` at 1232 ms: the objective's reads were 537 of them).
+        const found: { at: number; value: number } = AutoMovieHumanBracketLeast.least(cost, shy, past, (past - shy) * GOLDEN ** 40);
+        if (found.value < fewest) [fewest, angle] = [found.value, found.at];
       }
-      conditioning = (levelled(angle - 0.05).turn - levelled(angle + 0.05).turn) / 0.1;
-      misfit = levelled(angle).turn;
+      const { turn, slope, shift }: { turn: number; slope: number; shift: number } = levelled(angle);
+      misfit = turn;
       objective = fewest;
-      const { slope, shift }: { slope: number; shift: number } = levelled(angle);
+      finalPass = { roll, angle, turn: (by: number): number => levelled(by).turn };
       residuals.push([angle, slope, shift]);
       last = Math.abs(angle) + Math.abs(slope) + Math.abs(shift);
       // What this pass asks, and the secant's correction from what the last step did to what was asked then.
@@ -418,6 +529,17 @@ export namespace AutoMovieHumanNail {
       frame = { origin: [0, 1, 2].map((k: number): number => frame.origin[k]! + sideways[k]! * move[2]! * bedLength) as AutoMovieVector3Tuple, distal: unit(mix(frame.distal, 1, sideways, move[1]!)), dorsal: levelDorsal };
       // The cap bounds the work, not the answer: where it ends the fit first, what was still asked at the last pass stays in
       // `residuals` and is the frame's remaining uncertainty.
+    }
+    // The published diagnostics read the last pass's rings and roll before its frame update and the width adjustment below.
+    const levelling: [number, number][] = [];
+    let conditioning: number = 0;
+    if (finalPass !== null) {
+      const { roll: before, angle, turn } = finalPass;
+      for (let n: number = 0; n < 25; ++n) {
+        const at: number = -Math.PI / 2 + (n * Math.PI) / 24;
+        levelling.push([at, turn(at - before)]);
+      }
+      conditioning = (turn(angle - 0.05) - turn(angle + 0.05)) / 0.1;
     }
     // Pitch: a plate is straight along its length and lies on the digit from the fold on, so its line is the taut line over the dorsal
     // skin from the fold's point: the steepest rise of the skin's median profile seen from that point, read every quarter millimetre
@@ -688,61 +810,89 @@ export namespace AutoMovieHumanNail {
       // and up where the face stands over it, toward the free edge.
       return share * (sharp ? step(left / proportions.thickness) - slope : slope) * over;
     };
-    const cell: number = NET * ramp;
-    const reachOut: number = 2 * ramp + 3 * cell;
-    // The window's phases, read on the skin's ring midway along the plate: from the dorsal line each way round to the lateral wall's
-    // end, or to the skin's side where it turns under before that, and three cells on, which the net's zero rings take.
+    // The net's cell: a quarter of the narrowest transition the bed draws (the lofting skill's fitting rule, `NET` over a ramp's half
+    // width). Along the digit the proximal fold's wall spans two ramps; across, the lateral wall spans the room beside the plate, and
+    // at the corners, where the proximal fold's ellipse meets the lateral folds, the wall's band between the outline and its outer
+    // border is `beside` wide. Held at a quarter of the ramp alone (0.46 mm on a fingernail) the band at the corners was one cell
+    // wide and crossed the rings and phases obliquely, a saw-toothed corner on every finger (`sheet.oblique.0` of run
+    // 2026-11-19T12-31-17.207Z, nails.md row 6).
+    const narrowest: number = Math.min(2 * ramp, beside, ...sections.filter((_: unknown, i: number): boolean => stations[i]! >= fold).map(room));
+    const cell: number = (NET / 2) * narrowest;
     const midway: number = (fold + edge) / 2;
-    const walled: number = between(midway).edge + room(between(midway));
     const around: AutoMovieVector3Tuple[] = read.ring(midway);
     const around0: number = read.find(midway, mid(read, midway)).phase;
-    const start: number = Math.round((around0 / (2 * Math.PI)) * RING) % RING;
-    const walk = (direction: 1 | -1): { steps: number; length: number } => {
-      let [length, extra, steps]: [number, number, number] = [0, 0, 0];
-      let reached: boolean = false;
-      while (extra < 3 * cell && steps < RING / 2) {
-        const p: AutoMovieVector3Tuple = around[(((start + direction * steps) % RING) + RING) % RING]!;
-        const q: AutoMovieVector3Tuple = around[(((start + direction * (steps + 1)) % RING) + RING) % RING]!;
-        const piece: number = Math.hypot(q[1] - p[1], q[2] - p[2]);
-        if (Math.abs(q[2]) >= walled || (Math.abs(p[2]) > half / 2 && Math.abs(q[2]) < Math.abs(p[2]))) reached = true;
-        length += piece;
-        if (reached) extra += piece;
-        steps += 1;
-      }
-      return { steps, length };
+    const samples: number = Math.ceil((skin.tip - skin.first) / 0.25) + 1;
+    const sampled: readonly (readonly (readonly number[])[])[] = skin.grid ?? Array.from(
+      { length: samples },
+      (_: unknown, i: number): (readonly number[])[] => {
+        const station: number = i + 1 === samples
+          ? skin.tip
+          : skin.first + ((skin.tip - skin.first) * i) / (samples - 1);
+        return Array.from({ length: 2 * RING }, (__: unknown, j: number): readonly number[] =>
+          skin.point(station, (Math.PI * j) / RING));
+      },
+    );
+    const proximal: NonNullable<IAutoMovieHumanNail.ISkin["proximal"]> = skin.proximal ?? [];
+    const phaseCount: number = sampled[0]!.length;
+    for (const [i, row] of proximal.entries()) {
+      const previous: number = proximal[i - 1]?.station ?? -Infinity;
+      if (!(Number.isFinite(row.station) && previous < row.station && row.station < skin.first &&
+          row.ring.length === phaseCount && row.ring.every((p): boolean => p.every(Number.isFinite))))
+        throw new Error("nail: " + bed + " has an invalid proximal support chart");
+    }
+    const grid: AutoMovieVector3Tuple[][] = [...proximal.map((row) => row.ring), ...sampled].map((row): AutoMovieVector3Tuple[] =>
+      row.map((p): AutoMovieVector3Tuple => {
+        const d: AutoMovieVector3Tuple = sub(p, frame.origin);
+        return [dot(d, frame.distal), dot(d, frame.dorsal), dot(d, read.lateral)];
+      }),
+    );
+    const directionAt: number = read.station(midway, around0);
+    const clockStep: number = (2 * Math.PI) / around.length;
+    const dorsalSign: number = Math.sign(
+      read.at(directionAt, around0 + clockStep)[2] - read.at(directionAt, around0 - clockStep)[2],
+    );
+    if (dorsalSign === 0) throw new Error("nail: " + bed + " has no lateral direction at its dorsal phase");
+    const girth: number = around.reduce((sum: number, point: AutoMovieVector3Tuple, i: number): number => {
+      const next: AutoMovieVector3Tuple = around[(i + 1) % around.length]!;
+      return sum + Math.hypot(next[1] - point[1], next[2] - point[2]);
+    }, 0);
+    const phasePitch: number = (2 * Math.PI * cell) / girth;
+    const supportFirst: number = proximal[0]?.station ?? skin.first;
+    const domain: [number, number] = [supportFirst, skin.tip];
+    const stationPitch: number = (skin.tip - skin.first) / (sampled.length - 1);
+    const stationAt = (row: number, share: number): number => {
+      const preceding = proximal[row];
+      if (preceding === undefined)
+        return row === grid.length - 2 && share === 1
+          ? skin.tip
+          : skin.first + stationPitch * (row - proximal.length + share);
+      const next: number = proximal[row + 1]?.station ?? skin.first;
+      return share === 1 ? next : preceding.station + (next - preceding.station) * share;
     };
-    const [down, up]: [{ steps: number; length: number }, { steps: number; length: number }] = [walk(-1), walk(1)];
-    const opening: number = (2 * Math.PI * (start - down.steps)) / RING;
-    const span: number = (2 * Math.PI * (down.steps + up.steps)) / RING;
-    const girth: number = down.length + up.length;
-    const columns: number = Math.max(7, Math.ceil(girth / cell) + 3);
-    const phases: [number, number] = [opening < 0 ? opening + 2 * Math.PI : opening, 0];
-    // A window along the digit that holds two distances along the nail at every one of its columns. A row of the digit's chart is not
-    // a line across the nail, whose frame is pitched and rolled against the digit's course, so the stations are read at every
-    // column's phase and the window runs from the least to the greatest; cut at one phase, the strip's last rows and outer columns
-    // still lay before the free edge at the sides (run 15-09-05, `clippedIn`).
-    const windowed = (from: number, to: number): [number, number] => {
-      let [least, greatest]: [number, number] = [Infinity, -Infinity];
-      for (let j: number = 0; j < columns; ++j) {
-        const phase: number = phases[0] + (span * (j - 1)) / (columns - 3);
-        least = Math.min(least, read.station(from, phase));
-        greatest = Math.max(greatest, read.station(Math.min(tip, to), phase));
-      }
-      return [least, Math.min(skin.tip - 1e-6, greatest)];
-    };
-    const net: { stations: [number, number]; phases: [number, number] } = { stations: windowed(fold - reachOut, frontMost + reachOut), phases };
-    const rows: number = Math.max(7, Math.ceil((net.stations[1] - net.stations[0]) / cell) + 3);
+    const rear: number = fold - 2 * ramp;
+    const net: IWindow = window(bed, grid, domain, stationAt, [rear, frontMost], dorsalSign, cell, phasePitch);
+    const band: IWindow = window(
+      bed + ".edge",
+      grid,
+      domain,
+      stationAt,
+      [Math.max(rear, frontLeast - Math.max(2 * ramp, proportions.thickness)), frontMost],
+      dorsalSign,
+      proportions.thickness / 4,
+      phasePitch,
+    );
     let clipped: number = 0;
     let clippedAt: [number, number] = [0, 0];
     let clippedIn: [number, number, number, number, number] = [0, 0, 0, 0, 0];
     // A net's heights over the window's phases between two stations. Each control stands at its Greville abscissa: control `i` of `n`
     // at parameter `i - 1` of `[0, n - 3]`. The back of a row ends at its own two sides, the controls that stand farthest to either
     // side in it; a control past them lies on the underside, where the lateral offset reads as the back's again, and holds zero.
-    const fill = (count: number, from: number, to: number, sharp: boolean): number[] => {
+    const fill = ({ rows: count, columns, stations: [from, to], phases: [opening, closing] }: IWindow, sharp: boolean): number[] => {
       const out: number[] = [];
+      const span: number = closing - opening;
       for (let i: number = 0; i < count; ++i) {
-        const s: number = Math.max(skin.first, Math.min(skin.tip, from + ((to - from) * (i - 1)) / (count - 3)));
-        const points: AutoMovieVector3Tuple[] = Array.from({ length: columns }, (_: unknown, j: number): AutoMovieVector3Tuple => read.at(s, net.phases[0] + (span * (j - 1)) / (columns - 3)));
+        const s: number = Math.max(supportFirst, Math.min(skin.tip, from + ((to - from) * (i - 1)) / (count - 3)));
+        const points: AutoMovieVector3Tuple[] = Array.from({ length: columns }, (_: unknown, j: number): AutoMovieVector3Tuple => read.at(s, opening + (span * (j - 1)) / (columns - 3)));
         let [least, greatest]: [number, number] = [0, 0];
         for (let j: number = 1; j < columns; ++j) {
           if (points[j]![2] < points[least]![2]) least = j;
@@ -762,21 +912,16 @@ export namespace AutoMovieHumanNail {
       }
       return out;
     };
-    const heights: number[] = fill(rows, net.stations[0], net.stations[1], false);
-    // The free edge's strip: the bed's window round the digit, and along it from two ramps and three of its own cells before the
-    // apex to three cells past it; its cells along are a quarter of the step's length, one thickness (the lofting skill's rule).
-    const fine: number = proportions.thickness / 4;
-    const band: [number, number] = windowed(frontLeast - 2 * ramp - 3 * fine, frontMost + 3 * fine);
-    const lines: number = Math.max(7, Math.ceil((band[1] - band[0]) / fine) + 3);
-    const steps: number[] = fill(lines, band[0], band[1], true);
+    const heights: number[] = fill(net, false);
+    const steps: number[] = fill(band, true);
     const visible: ISection[] = sections.filter((_: unknown, i: number): boolean => stations[i]! >= fold);
     // A conic of middle weight `w` from a level start to an upright end turns on the radius `2 w^2 side^2 / drop` at its start.
     const radii: number[] = visible.map((s: ISection): number => (2 * s.weight * s.weight * s.side * s.side) / s.drop);
     const sagittas: number[] = visible.map((s: ISection): number => s.sagitta);
     return {
       plate,
-      bed: { name: bed, stations: net.stations, phases: [net.phases[0], net.phases[0] + span], axis: frame.dorsal, rows, columns, heights },
-      strip: { name: bed + ".edge", stations: band, phases: [net.phases[0], net.phases[0] + span], axis: frame.dorsal, rows: lines, columns, heights: steps },
+      bed: { name: bed, ...net, axis: frame.dorsal, heights },
+      strip: { name: bed + ".edge", ...band, axis: frame.dorsal, heights: steps },
       frame,
       plan: {
         span: [fold, free],

@@ -3,9 +3,9 @@ import { AutoMovieLoftChain } from "@automovie/engine";
 import type {
   IAutoMovieHumanNail,
   IAutoMovieHumanNailLoop,
+  IAutoMovieLoftChain,
   IAutoMovieLoftSectionFrame,
   IAutoMovieViewAxis,
-  IAutoMovieViewLoft,
 } from "@automovie/interface";
 
 /**
@@ -18,8 +18,8 @@ import type {
  * is traced or searched by the engine, and the loop's corners are the outline's own.
  */
 export namespace AutoMovieHumanNailLoop {
-  /** A lofted chain, as the engine publishes it. */
-  export type Chain = NonNullable<IAutoMovieViewLoft.IResult["chain"]>;
+  /** @deprecated Use `IAutoMovieLoftChain` from the interface package. */
+  export type Chain = IAutoMovieLoftChain;
 
   /** Phases a plate's ring is scanned at for its side extreme. */
   const SCAN: number = 24;
@@ -33,7 +33,7 @@ export namespace AutoMovieHumanNailLoop {
    * @param tip The station of the digit's tip, mm.
    * @param count The join's columns.
    */
-  export function create(nail: IAutoMovieHumanNail.INail, plate: Chain, host: Chain, tip: number, count: number): IAutoMovieHumanNailLoop.ILoop {
+  export function create(nail: IAutoMovieHumanNail.INail, plate: IAutoMovieLoftChain, host: IAutoMovieLoftChain, tip: number, count: number): IAutoMovieHumanNailLoop.ILoop {
     const axis: IAutoMovieViewAxis.IAxis = AutoMovieHumanConicLoft.axis(nail.plate);
     const knots: [number, number] = [nail.plate.knots[0]!, nail.plate.knots.at(-1)!];
     const [from, to]: [number, number] = [nail.plate.tips?.[0]?.tip ?? knots[0], nail.plate.tips?.[1]?.tip ?? knots[1]];

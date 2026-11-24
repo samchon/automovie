@@ -1,19 +1,20 @@
 import { AutoMovieHumanConicLoft as H } from "../conic/AutoMovieHumanConicLoft";
 import { AutoMovieHumanConicSection as S } from "../conic/AutoMovieHumanConicSection";
 import { AutoMovieHumanCourseRuns as Runs } from "../conic/AutoMovieHumanCourseRuns";
+import { AutoMovieHumanJoinLoop } from "../conic/AutoMovieHumanJoinLoop";
 import { AutoMovieHumanSegmentFrame as F } from "../frame/AutoMovieHumanSegmentFrame";
 import { AutoMovieHumanF1Arm } from "./AutoMovieHumanF1Arm";
 import { AutoMovieHumanF1Breast } from "./AutoMovieHumanF1Breast";
 import { AutoMovieHumanF1FingerMiddle } from "./AutoMovieHumanF1FingerMiddle";
 import { AutoMovieHumanF1Hand } from "./AutoMovieHumanF1Hand";
 import { AutoMovieHumanF1Leg } from "./AutoMovieHumanF1Leg";
+import { AutoMovieHumanF1Mammary } from "./AutoMovieHumanF1Mammary";
 import { AutoMovieHumanF1Placement } from "./AutoMovieHumanF1Placement";
 import { AutoMovieHumanF1Placing as T } from "./AutoMovieHumanF1Placing";
 import { AutoMovieHumanF1RootControls } from "./AutoMovieHumanF1RootControls";
 import { AutoMovieHumanF1ToeBig } from "./AutoMovieHumanF1ToeBig";
 import { AutoMovieHumanF1Trunk } from "./AutoMovieHumanF1Trunk";
 import {
-  AutoMovieConstructionPortCurve,
   AutoMovieLoftRelief,
   AutoMovieLoftViewFullSource,
   AutoMovieLoftViewRead,
@@ -22,7 +23,6 @@ import {
 } from "@automovie/engine";
 import type {
   AutoMovieVector3Tuple,
-  IAutoMovieConstructionPortLoop,
   IAutoMovieHumanConicLoft,
   IAutoMovieHumanConicSection,
   IAutoMovieHumanSegmentFrame,
@@ -30,6 +30,8 @@ import type {
   IAutoMovieLoftViewFullSource,
   IAutoMovieViewAxis,
   IAutoMovieViewChain,
+  IAutoMovieViewPart,
+  IAutoMovieHumanF1NativeSites,
 } from "@automovie/interface";
 
 /**
@@ -55,99 +57,20 @@ import type {
  * A consumer that still anchors a profile or a tape at a former station reads another section than the calibration's caliper.
  */
 export namespace AutoMovieHumanF1NativeSites {
-  /** A course station's run: its course centres or segment origins, its index on the course and its normalized place. */
-  export interface IRun {
-    /** The run's first end: a course centre or segment origin by name. */
-    from: string;
+  /** The reference run that carries a measurement site. */
+  export type IRun = IAutoMovieHumanF1NativeSites.IRun;
 
-    /** The run's last end. */
-    to: string;
+  /** A measurement on a family's physical course. */
+  export type ISite = IAutoMovieHumanF1NativeSites.ISite;
 
-    /** The run's index among the course's runs. */
-    index: number;
+  /** A representative digit's material station and landmark definition. */
+  export type IDigitSite = IAutoMovieHumanF1NativeSites.IDigitSite;
 
-    /** `(s - start) / (end - start)` on the reference course. */
-    tau: number;
-  }
+  /** The organized native caliper sites and their course runs. */
+  export type ISites = IAutoMovieHumanF1NativeSites.ISites;
 
-  /** One measurement site on a family's course. */
-  export interface ISite {
-    /** The family whose course holds the site. */
-    family: "trunk" | "arm" | "hand" | "leg";
-
-    /** The site's course station, mm, arclength from the course's first centre. */
-    station: number;
-
-    /** The written definition the station is read by, with its standard. */
-    definition: string;
-
-    /** `definition`: read by its definition on the reference; `provisional`: f1's authored station of an unreadable definition. */
-    basis: "definition" | "provisional";
-
-    /** The run that carries the site to another person. */
-    run: IRun;
-
-    /** The bind segment whose length or frame carries the run (`SEGMENTS`), by its chain name. */
-    segment: string;
-  }
-
-  /** A digit's measurement site on its own course. */
-  export interface IDigitSite {
-    /** The digit family whose course holds the site, by its name. */
-    family: string;
-
-    /** The site's station on that course, mm, arclength from its first centre (the digit's first joint). */
-    station: number;
-
-    /** The written definition the station is read by. */
-    definition: string;
-  }
-
-  /** Every site of the native path. */
-  export interface ISites {
-    /** The trunk's wall sites, the trunk course's stations. */
-    wall: Record<"hip" | "omphalion" | "underbust" | "bust" | "neck" | "head", ISite>;
-
-    /** The arm's sites on its course; the wrist lies on the hand family's domain of the same course. */
-    arm: Record<"upperArm" | "elbow" | "forearm" | "wrist", ISite>;
-
-    /** The leg's sites on its course. */
-    leg: Record<"thigh" | "knee" | "calf" | "ankle", ISite>;
-
-    /** The hand's metacarpal site on the hand family and the foot's ball site on the leg family. */
-    extremities: Record<"hand" | "foot", ISite>;
-
-    /**
-     * The representative finger's and toe's caliper sites, each a station of that digit's own course, mm. A digit's girth has no field of
-     * its own yet (one finger and one toe stand for theirs), so the site is the representative digit's; the station is a material
-     * station of the digit's course and is carried to a person by that course's own map.
-     */
-    digits: Record<"finger" | "toe", IDigitSite>;
-
-    /** The run ends of each course, mm: trunk by segment origins, limbs by course centres. */
-    runs: Record<"trunk" | "arm" | "hand" | "leg", number[]>;
-
-    /** The blend window's half length at each interior run end of each course, mm (`windows`); absent, every window is zero. */
-    windows?: Record<"trunk" | "arm" | "hand" | "leg", number[]>;
-  }
-
-  /** What a site reads: the person's frames, datums, families and the mammary port loops, as one assembly holds them. */
-  export interface IInput {
-    /** Every segment's frame at the pose, in the figure's frame. */
-    frames: ReadonlyMap<string, IAutoMovieHumanSegmentFrame>;
-
-    /** A stored datum in the figure's frame, mm. */
-    point: (name: string) => AutoMovieVector3Tuple;
-
-    /** The families whose courses hold sites. */
-    body: Record<"trunk" | "arm" | "hand" | "leg" | "breast", IAutoMovieHumanConicLoft.IFamily>;
-
-    /** The breast's port loops on the trunk's chart (`AutoMovieHumanF1RootControls.breast`); the first is the stored side's. */
-    roots: { breast: readonly IAutoMovieConstructionPortLoop[] };
-
-    /** The representative finger's and toe's families, the digits whose calipers stand for their hand's and foot's digits. */
-    digits: Record<"finger" | "toe", IAutoMovieHumanConicLoft.IFamily>;
-  }
+  /** The assembly fields that define the native measurement sites. */
+  export type IInput = IAutoMovieHumanF1NativeSites.IInput;
 
   /** Angular samples of a section's girth: the limb law's 360, under 0.1 % short of the curve for a 100 mm limb. */
   const GIRTH_PHASES: number = 360;
@@ -181,9 +104,9 @@ export namespace AutoMovieHumanF1NativeSites {
    */
   const SEGMENTS: Record<ISite["family"], readonly string[]> = {
     trunk: ["pelvis", "pelvis", "thorax", "head"],
-    arm: ["thorax", "humerus", "forearm", "hand", "hand"],
-    hand: ["thorax", "humerus", "forearm", "hand", "hand"],
-    leg: ["femur", "tibia", "foot", "foot"],
+    arm: AutoMovieHumanF1Placement.runs("arm"),
+    hand: AutoMovieHumanF1Placement.runs("hand"),
+    leg: AutoMovieHumanF1Placement.runs("leg"),
   };
 
   /**
@@ -317,7 +240,8 @@ export namespace AutoMovieHumanF1NativeSites {
     // ISO 8559-1 5.3.13 hip level, the buttocks' greatest posterior projection: the largest bare posterior reach of the trunk's side
     // outline from its first knot up to midway between the hip centres' midpoint and suprasternale (above it the back's kyphosis and
     // scapulae project farther, outside the pelvis). The bare wall excludes the `trunk.low` net, as the calipers it locates do.
-    const trunkSource: ReturnType<typeof AutoMovieLoftViewSource.create> = AutoMovieLoftViewSource.create(H.source(trunk));
+    const trunkPart: IAutoMovieViewPart = H.source(trunk);
+    const trunkSource: ReturnType<typeof AutoMovieLoftViewSource.create> = AutoMovieLoftViewSource.create(trunkPart);
     if (trunkSource === null || trunkSource.source === null) throw new Error("native sites need the trunk's bare source");
     const bare = trunkSource.source;
     const posterior = (s: number): number => {
@@ -340,12 +264,19 @@ export namespace AutoMovieHumanF1NativeSites {
       1,
     );
 
-    // ISO 8559-1 5.3.8 under bust level, "directly below breast": the lowest trunk station of the stored side's mammary landmark loop.
-    const loop: IAutoMovieConstructionPortLoop | undefined = input.roots.breast[0];
-    if (loop?.shape === undefined) throw new Error("native sites need the mammary loop's column controls");
-    const underbust: number = Math.min(
-      ...AutoMovieConstructionPortCurve.chart(loop, loop.shape.length).addresses.map(([s]: [number, number]): number => s),
-    );
+    // ISO 8559-1 5.3.8 under bust level, directly below the breast: the generated footprint's fold level (`AutoMovieHumanF1Mammary.
+    // foldPoint`, Fujisawa's index of the surface distance from suprasternale to the person's umbilicus along the anterior median line).
+    // It reads the person's own landmarks and the trunk's bare wall, no calibrated girth, so the caliper does not feed back into itself.
+    const frameOf = (name: string): IAutoMovieHumanSegmentFrame => {
+      const found: IAutoMovieHumanSegmentFrame | undefined = input.frames.get(name);
+      if (found === undefined) throw new Error("native sites need the " + name + " frame");
+      return found;
+    };
+    const underbust: number = trunkStation(AutoMovieHumanF1Mammary.foldPoint(trunkPart, {
+      suprasternale: [...frameOf("thorax").origin] as AutoMovieVector3Tuple,
+      hips: [...frameOf("pelvis").origin] as AutoMovieVector3Tuple,
+      umbilicus: [...trunkAxis.at(omphalion).origin] as AutoMovieVector3Tuple,
+    }));
 
     // ISO 8559-1 5.3.4 bust point level, the bust's most anterior point (on the bare breast, not in a bra): the breast source's
     // farthest-forward point over 65 stations by 128 phases, on the trunk course.
@@ -380,6 +311,9 @@ export namespace AutoMovieHumanF1NativeSites {
         return total + Math.hypot(first![0] - previous![0], first![1] - previous![1]);
       };
     };
+    const forearm: number = ENDS.arm.indexOf("lowerarm");
+    if (forearm < 0 || ENDS.arm[forearm + 1] !== "hand")
+      throw new Error("native sites need the lowerarm-to-hand course run");
     const armLength: number = armRuns.at(-1)!;
     const handLength: number = courses.hand.at(-1)!;
     const legLength: number = legRuns.at(-1)!;
@@ -409,15 +343,15 @@ export namespace AutoMovieHumanF1NativeSites {
       wall: {
         hip: site("trunk", hip, "ISO 8559-1 5.3.13 hip level: the buttocks' greatest posterior projection, the largest bare posterior reach of the trunk's side outline below midway from the hip centres' midpoint to suprasternale", "definition"),
         omphalion: site("trunk", omphalion, "ANSUR II omphalion: the centre of the navel, the pit of the `trunk.navel` net on the median line", "definition"),
-        underbust: site("trunk", underbust, "ISO 8559-1 5.3.8 under bust level, directly below the breast: the lowest trunk station of the mammary landmark loop", "definition"),
+        underbust: site("trunk", underbust, "ISO 8559-1 5.3.8 under bust level, directly below the breast: the lowest station of the independently stored reference attachment", "definition"),
         bust: site("trunk", bust, "ISO 8559-1 5.3.4 bust point level: the bare breast's most anterior point", "definition"),
         neck: site("trunk", NECK_F1_MM, "ISO 8559-1 5.3.2 neck girth just below the thyroid cartilage: unreadable on f1's skin; f1's authored neck-skin station, carried in the suprasternale-to-bitragion run", "provisional"),
         head: site("trunk", HEAD_F1_MM, "the head's own sections: no published measure; f1's authored head knot, 9 mm above the bitragion midpoint, carried in the bitragion-to-crown run", "provisional"),
       },
       arm: {
         upperArm: site("arm", Runs.nearest(armAxis, armLength, F.mid(point("upperarm"), point("lowerarm"))), "ISO 8559-1 upper arm girth at mid upper arm, midway between the acromion and the olecranon (ISAK mid-acromiale-radiale); the shoulder and elbow joint centres stand in for the acromion and olecranon", "definition"),
-        elbow: site("arm", Runs.nearest(armAxis, armLength, point("lowerarm")), "elbow girth at the elbow joint centre, the epicondyles' level (ISO 7250-1 elbow breadth's landmarks)", "definition"),
-        forearm: site("arm", Runs.extreme(armGirth, armRuns[2]!, (armRuns[2]! + armRuns[3]!) / 2, STEP_MM, 1), "ISO 8559-1 forearm girth, the forearm's maximum relaxed girth: the largest wall girth in the forearm run's proximal half", "definition"),
+        elbow: site("arm", armRuns[forearm]!, "elbow girth at the lowerarm turn's physical joint-centre station, the epicondyles' level (ISO 7250-1 elbow breadth's landmarks)", "definition"),
+        forearm: site("arm", Runs.extreme(armGirth, armRuns[forearm]!, (armRuns[forearm]! + armRuns[forearm + 1]!) / 2, STEP_MM, 1), "ISO 8559-1 forearm girth, the forearm's maximum relaxed girth: the largest wall girth in the forearm run's proximal half", "definition"),
         wrist: site("hand", Runs.nearest(handAxis, handLength, F.mid(point("styloidRadial"), point("styloidUlnar"))), "ANSUR II wrist circumference over stylion: the station nearest the radial and ulnar styloids' midpoint", "definition"),
       },
       leg: {
@@ -428,7 +362,7 @@ export namespace AutoMovieHumanF1NativeSites {
       },
       extremities: {
         hand: site("hand", Runs.nearest(handAxis, handLength, F.mid(point("index1"), point("pinky1"))), "ISO 7250-1 6.3.3 hand breadth at the metacarpals and ANSUR hand circumference at metacarpale: the station nearest the second and fifth metacarpal heads' midpoint", "definition"),
-        foot: site("leg", Runs.nearest(legAxis, legLength, point("footBall")), "ANSUR II ball of foot circumference over the first and fifth metatarsal heads: the station nearest the ball-of-foot datum", "definition"),
+        foot: site("leg", footStation(leg, point("footBall")), "ANSUR II ball of foot circumference over the first and fifth metatarsal heads: the section plane through the ball-of-foot datum", "definition"),
       },
     };
   }
@@ -479,6 +413,26 @@ export namespace AutoMovieHumanF1NativeSites {
     roots: { breast: AutoMovieHumanF1RootControls.breast },
     digits: { finger: AutoMovieHumanF1FingerMiddle, toe: AutoMovieHumanF1ToeBig },
   };
+
+  /**
+   * The ball-of-foot section shared by the leg source end and the native foot caliper.
+   *
+   * @param leg The placed leg family, with its actual section course and supported wall domain.
+   * @param datum The placed ball-of-foot landmark, mm.
+   *
+   * @evidence contracts/development/implementation.md#principled-implementation The section plane through the datum has one address on this course; the same section ends the host and supports the ANSUR II ball-of-foot caliper.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Does not minimize distance to the axis, clamp the reported station or widen the original wall domain.
+   * @evidence contracts/development/common.md#meaningful-documentation Returns the placed course's station in mm.
+   */
+  export function footStation(
+    leg: IAutoMovieHumanConicLoft.IFamily,
+    datum: readonly number[],
+  ): number {
+    const domain: [number, number] = [leg.knots[0]!, leg.knots.at(-1)!];
+    return AutoMovieHumanJoinLoop.address(
+      { axis: H.axis(leg), name: leg.name }, domain, datum, (domain[0] + domain[1]) / 2,
+    )[0];
+  }
 
   /** f1's sites by their definitions, evaluated once. */
   export const REFERENCE: ISites = evaluate(F1);

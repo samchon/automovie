@@ -11,6 +11,7 @@ import { AutoMovieLoftAdmissionError } from "./AutoMovieLoftAdmissionError";
 import { AutoMovieLoftFrame } from "./AutoMovieLoftFrame";
 import { AutoMovieLoftReliefCompose } from "./AutoMovieLoftReliefCompose";
 import { AutoMovieLoftSectionNative } from "./AutoMovieLoftSectionNative";
+import { AutoMovieLoftSectionOriginal } from "./AutoMovieLoftSectionOriginal";
 import { AutoMovieLoftViewRead } from "./AutoMovieLoftViewRead";
 import { AutoMovieLoftViewSource } from "./AutoMovieLoftViewSource";
 import { AutoMovieLoftViewWorldJet } from "./AutoMovieLoftViewWorldJet";
@@ -50,7 +51,20 @@ export namespace AutoMovieLoftViewFullSource {
       source.domain[0],
       source.domain[1],
     ];
+    const regular: [number, number] = [...domain];
+    const hasRegularSpan: boolean = source.caps.every(({ pole, near, span }): boolean => {
+      if (near === null || span === null || !(span > 0)) return false;
+      if (pole === domain[0]) regular[0] = near;
+      else if (pole === domain[1]) regular[1] = near;
+      else return false;
+      return true;
+    }) && regular[0] < regular[1];
     const axis: IAutoMovieLoftViewFullSource.IInput["axis"] = input.axis;
+    const original = input.originalSection;
+    if (original !== undefined) {
+      const error = AutoMovieLoftSectionOriginal.fault(original, ...domain);
+      if (error !== null) throw new AutoMovieLoftAdmissionError(error);
+    }
     const reliefs: NonNullable<IAutoMovieLoftViewFullSource.IInput["reliefs"]> = [...(input.reliefs ?? [])];
     const stations: Station[] = [];
 
@@ -73,8 +87,9 @@ export namespace AutoMovieLoftViewFullSource {
         (entry: Station): boolean => entry.s === s,
       );
       if (prior !== undefined) return prior;
-      const values: IAutoMovieLoftViewRead.IValues | string =
-        AutoMovieLoftViewRead.values(source, s);
+      const external = AutoMovieLoftSectionOriginal.active(original, s);
+      const values: IAutoMovieLoftViewRead.IValues | string | null =
+        external ? null : AutoMovieLoftViewRead.values(source, s);
       if (typeof values === "string")
         throw new AutoMovieLoftAdmissionError(values);
       const frame: IAutoMovieLoftSectionFrame = axis.at(s);
@@ -97,7 +112,7 @@ export namespace AutoMovieLoftViewFullSource {
       );
       if (
         pole &&
-        !values.extents.every((extent: number): boolean => extent === 0)
+        (values === null || !values.extents.every((extent: number): boolean => extent === 0))
       )
         throw new AutoMovieLoftAdmissionError(
           "The original cap tip differs from its actual collapsed source.",
@@ -105,7 +120,7 @@ export namespace AutoMovieLoftViewFullSource {
       const next: Station = {
         s,
         frame,
-        local: pole ? null : AutoMovieLoftSectionNative.point(values),
+        local: pole ? null : external ? (t) => original!.point(s, t) : AutoMovieLoftSectionNative.point(values!),
       };
       stations.unshift(next);
       if (stations.length > 8) stations.pop();
@@ -114,6 +129,7 @@ export namespace AutoMovieLoftViewFullSource {
 
     return {
       domain,
+      regular: hasRegularSpan ? regular : null,
       point: (s: number, t: number): V => {
         admit(s, t);
         const at: Station = station(s);
@@ -142,7 +158,7 @@ export namespace AutoMovieLoftViewFullSource {
             "The collapsed original pole has no regular physical2 chart.",
           );
         const bare: IAutoMovieSolidSurface.IJet | string =
-          AutoMovieLoftViewWorldJet(source, axis, s, t);
+          AutoMovieLoftViewWorldJet(source, axis, s, t, AutoMovieLoftSectionOriginal.active(original, s) ? original : undefined);
         if (typeof bare === "string")
           throw new AutoMovieLoftAdmissionError(bare);
         const full: IAutoMovieLoftSurfaceJet = {

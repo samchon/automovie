@@ -42,6 +42,23 @@ export namespace IAutoMovieConstructionComposedEnd {
   }
 
   /**
+   * An observed nearest branch site on the same outline whose distance is returned by the ordinary search.
+   */
+  export interface IOutlineDistanceSite {
+    /** Index in the retained pieces, zero based. */
+    piece: number;
+
+    /** Unitless share in [0, 1] along this piece's directed phase interval. */
+    share: number;
+
+    /** IDs of the start and end forks in piece order. An ID is twice its seam index plus its fork index. */
+    forks: readonly [number, number];
+
+    /** Whether the search settled on this site, including an active endpoint. */
+    settled: boolean;
+  }
+
+  /**
    * The composed outline as one closed curve: every section's lobes joined through the forks, in the order they bound the union.
    *
    * Sections that cross have no gap between them, so the saddle rule (a radius of half the gap between two root sections) gives each fork a zero radius: a fork is a corner of the outline, a point of both lobes, and needs no fillet.
@@ -60,7 +77,11 @@ export namespace IAutoMovieConstructionComposedEnd {
      * The distance in the end plane from a point's foot on the plane to the outline, mm: the least over the pieces, each solved on its
      * section's own curve from its nearest sample.
      */
-    distance: (point: AutoMovieVector3Tuple) => number;
+    distance: (
+      point: AutoMovieVector3Tuple,
+      // The exact scalar winner leads, followed by other numerically tied branch sites in the original search order.
+      observe?: (sites: readonly IOutlineDistanceSite[]) => void,
+    ) => number;
   }
 
   /**

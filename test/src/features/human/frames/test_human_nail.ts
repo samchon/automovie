@@ -2,6 +2,8 @@ import { AutoMovieLoftChain } from "@automovie/engine";
 import { AutoMovieHumanConicLoft, AutoMovieHumanNail } from "@automovie/human";
 import type { IAutoMovieHumanNail, IAutoMovieViewLoft } from "@automovie/interface";
 
+import { HumanNailFixture } from "../../internal/HumanNailFixture";
+
 /**
  * The nail law against closed forms, on one made digit: a level-topped bar along +X, 10 mm long, whose section is
  * `|y / 2.5|^8 + |z / 3.5|^8 = 1`, closed by that section shrunk over a quarter circle 4.6 mm long, with its distal segment's frame given
@@ -29,32 +31,15 @@ import type { IAutoMovieHumanNail, IAutoMovieViewLoft } from "@automovie/interfa
  *    long: 0.8 of the half width aside, a point a twentieth of that length past the fold's apex is outside it
  *    (`sqrt(1 - 0.95^2) = 0.31 < 0.8`) and one at its centre is inside.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Calls `AutoMovieHumanNail.create` and lofts the plate it returns through `AutoMovieHumanConicLoft.create`.
- * @evidence contracts/development/testing.md#independent-expectations Every expectation is the made section's support function, the quarter circle, the circle's sagitta from the published radius, or a bound from the fold's definition; none is the law's own formula.
- * @evidence contracts/development/testing.md#distinguishing-cases The turned frame tells a roll read from the skin from one taken from the segment; the level top tells the plate's own arc from the digit's back, which has none; the closing quarter circle tells the free edge's rule from a share of the length; the short digit tells a refusal from a nail behind the joint.
- * @evidence contracts/development/testing.md#execution-ownership A synchronous CPU unit on one made skin, reached by `--include human_nail`, with no reference body or figure.
- * @evidence contracts/development/common.md#meaningful-documentation Lists each scenario with the closed form it is checked against.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds the nail through AutoMovieHumanNail.create, checks owns and lofts the plate.
+ * @evidence contracts/development/testing.md#independent-expectations The made bar supplies closed forms for breadth, fold, free edge and sagitta.
+ * @evidence contracts/development/testing.md#distinguishing-cases The turned frame, underside, short digit and points just outside the free edge separate the material claims.
+ * @evidence contracts/development/testing.md#execution-ownership Synchronous CPU work on a made skin.
+ * @evidence contracts/development/common.md#meaningful-documentation Each observed surface and closed form is named above.
  */
 export function test_human_nail(): void {
-  const failures: string[] = [];
-  const near = (label: string, got: number, want: number, tolerance: number): void => {
-    if (!(Math.abs(got - want) <= tolerance)) failures.push(`${label}: ${got} against ${want} within ${tolerance}`);
-  };
-  const [high, broad, length, turned, fold, thickness]: [number, number, number, number, number, number] = [2.5, 3.5, 10, 0.2, 0.46, 0.47];
-  // The closing quarter circle is 4.6 mm long: short enough that the proximal fold stands on the straight bar (1.2 mm before its end), and long enough that three cells of the net (1.38 mm) before the tip the top has fallen 0.71 mm, over
-  // the fold the relief needs there, so the plate's line is not raised and the frame stays unpitched.
-  const close: number = 4.6;
-  const root = (x: number): number => Math.sign(x) * Math.abs(x) ** 0.25;
-  const skin = (long: number): IAutoMovieHumanNail.ISkin => ({
-    first: 0,
-    tip: long + (close * Math.PI) / 2,
-    point: (station: number, phase: number): number[] => {
-      const turn: number = Math.max(0, station - long) / close;
-      return [Math.min(station, long) + close * Math.sin(turn), high * Math.cos(turn) * root(Math.cos(phase)), broad * Math.cos(turn) * root(Math.sin(phase))];
-    },
-  });
-  const proportions: IAutoMovieHumanNail.IProportions = { width: 0.7, aspect: 0.91, radius: 0.7, thickness, fold, lunula: 1, wrap: 1 };
-  const segment: IAutoMovieHumanNail.IFrame = { origin: [0, 0, 0], distal: [1, 0, 0], dorsal: [0, Math.cos(turned), Math.sin(turned)] };
+  const { failures, near, finish }: ReturnType<typeof HumanNailFixture.observations> = HumanNailFixture.observations();
+  const { high, broad, length, turned, fold, thickness, close, skin, proportions, segment }: ReturnType<typeof HumanNailFixture.madeBar> = HumanNailFixture.madeBar();
   const nail: IAutoMovieHumanNail.INail = AutoMovieHumanNail.create("nail.made", "nailbed.made", segment, skin(length), proportions, 0.69, 10);
 
   // 1. Breadth, tip, width and fold.
@@ -125,6 +110,5 @@ export function test_human_nail(): void {
   } catch {
     // Refused, as it must be.
   }
-
-  if (failures.length > 0) throw new Error("nail:\n" + failures.join("\n"));
+  finish();
 }

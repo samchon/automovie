@@ -4,7 +4,6 @@ import type {
   IAutoMovieConstructionSkinCut,
   IAutoMovieConstructionSplit,
   IAutoMovieConstructionSplitCompose,
-  IAutoMovieSolidSurface,
 } from "@automovie/interface";
 
 import { AutoMovieConstructionComposedEnd as ComposedEnd } from "./AutoMovieConstructionComposedEnd";
@@ -42,7 +41,7 @@ export namespace AutoMovieConstructionSplitCompose {
   }
 
   /** A declared plane in kernel coordinates: metres in its frame to mm, its normal made unit; null for a zero normal. */
-  function plane(declared: IAutoMovieConstructionSplit.IPlane, frame: IAutoMovieConstructionSplitCompose.IBasis | null): IAutoMovieConstructionSkinCut.IPlane | null {
+  export function plane(declared: IAutoMovieConstructionSplit.IPlane, frame: IAutoMovieConstructionSplitCompose.IBasis | null): IAutoMovieConstructionSkinCut.IPlane | null {
     const S: number = AutoMovieConstructionViews.SCALE;
     const carry = (a: readonly number[], length: number): Vec3 =>
       frame === null
@@ -87,6 +86,20 @@ export namespace AutoMovieConstructionSplitCompose {
   }
 
   /**
+   * Bind the child's cut to the same physical plane and wall consumed by the composed split.
+   */
+  export function section(
+    plane: IAutoMovieConstructionSkinCut.IPlane,
+    child: IAutoMovieConstructionSplitCompose.IChild,
+    count: number,
+  ): IAutoMovieConstructionSplitCompose.ISection | string {
+    const cut = SkinCut.create({ surface: child.surface, planes: [plane], into: child.into, stations: child.stations, samples: count });
+    if (typeof cut === "string") return "the child face " + child.name + "'s section is not admitted in the end plane: " + cut;
+    const section = ComposedEnd.section(child.name, child.surface, cut, child.into, count);
+    return typeof section === "string" ? section : { child, plane, count, cut, section };
+  }
+
+  /**
    * Derive a composed end (`IAutoMovieConstructionSplit.ICompose`), or the refusal.
    *
    * Each child's section is its skin cut by the end plane; the composition gives each pair's forks and seam plane
@@ -95,14 +108,13 @@ export namespace AutoMovieConstructionSplitCompose {
    * before. Each child's rail is its skin cut by the end plane and its seam planes, each moved along the child's axis by its rail distance.
    *
    * @param input The declaration, the host's ring and frame, the children and the band's columns.
+   * @param prepared The engine's own previously prepared cuts on these same sources and physical plane.
    * @returns The derived members, or the refusal.
    */
-  export function derive(input: {
-    compose: IAutoMovieConstructionSplit.ICompose;
-    host: { surface: IAutoMovieSolidSurface; station: number; basis: IAutoMovieConstructionSplitCompose.IBasis };
-    children: readonly IAutoMovieConstructionSplitCompose.IChild[];
-    count: number;
-  }): IAutoMovieConstructionSplitCompose.IDerived | string {
+  export function derive(
+    input: IAutoMovieConstructionSplitCompose.IInput,
+    prepared?: readonly IAutoMovieConstructionSplitCompose.ISection[],
+  ): IAutoMovieConstructionSplitCompose.IDerived | string {
     const { compose, host, children, count }: typeof input = input;
     const S: number = AutoMovieConstructionViews.SCALE;
     const turn: number = 2 * Math.PI;
@@ -111,19 +123,15 @@ export namespace AutoMovieConstructionSplitCompose {
 
     // Each child's section in the end plane.
     const sections: IAutoMovieConstructionComposedEnd.ISection[] = [];
-    for (const child of children) {
-      const across: IAutoMovieConstructionSkinCut.ICut | string = SkinCut.create({
-        surface: child.surface,
-        planes: [end],
-        into: child.into,
-        stations: child.stations,
-        samples: count,
-      });
-      if (typeof across === "string")
-        return `the child face ${child.name}'s section is not admitted in the end plane: ${across}`;
-      const section: IAutoMovieConstructionComposedEnd.ISection | string = ComposedEnd.section(child.name, child.surface, across, child.into, count);
-      if (typeof section === "string") return section;
-      sections.push(section);
+    if (prepared !== undefined && prepared.length !== children.length) return "the prepared child sections have different membership";
+    for (const [index, child] of children.entries()) {
+      const bound = prepared === undefined ? section(end, child, count) : prepared[index]!;
+      if (typeof bound === "string") return bound;
+      if (bound.child !== child || bound.count !== count ||
+          !end.point.every((v, i): boolean => v === bound.plane.point[i]) ||
+          !end.normal.every((v, i): boolean => v === bound.plane.normal[i]))
+        return "the prepared section of " + child.name + " has a different physical source or end plane";
+      sections.push(bound.section);
     }
     const composition: IAutoMovieConstructionComposedEnd.IComposition | string = ComposedEnd.create({
       point: end.point,

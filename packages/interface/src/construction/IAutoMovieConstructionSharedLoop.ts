@@ -13,6 +13,46 @@ import type { IAutoMovieSolidSharedCurve } from "./IAutoMovieSolidSharedCurve";
  */
 export namespace IAutoMovieConstructionSharedLoop {
   /**
+   * A pure declaration selecting an already evaluated chart loop on this invocation's source map.
+   */
+  export interface IReference {
+    /** Select the evaluated source variant of a shared loop. */
+    type: "source";
+
+    /** Key of this invocation's boundary record. */
+    source: string;
+  }
+
+  /**
+   * A generated closed boundary, or its first unavailable premise, bound to the two actual source face identities.
+   */
+  export type ISource = {
+    /** Actual host chart face. */
+    readonly hostFace: string;
+
+    /** Actual attached chart face. */
+    readonly partFace: string;
+  } & (
+    | {
+        /** The generating definition supplies an actual corrected boundary. */
+        readonly kind: "ready";
+
+        /** One-turn unwrapped host chart with its actual two clock derivatives, in mm and radians. */
+        readonly at: IAutoMovieSolidSharedCurve.Loop;
+
+        /** The same boundary in the part's original chart with its actual two clock derivatives, in mm and radians. */
+        readonly partAt: IAutoMovieSolidSharedCurve.Loop;
+      }
+    | {
+        /** The source could not establish a boundary on the original charts. */
+        readonly kind: "refused";
+
+        /** The source producer's unavailable premise. */
+        readonly detail: string;
+      }
+  );
+
+  /**
    * The kernel's join input for a declared loop, and the contact it was built from.
    */
   export interface IPrepared {

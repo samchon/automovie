@@ -162,7 +162,7 @@ namespace FamilyConicNativeRootFrames {
     const started: number = performance.now(),
       original: IAutoMovieHumanF1.IAssembly = Figure.assemble(),
       originals: ReturnType<typeof Figure.constructionFrom>["sources"] =
-        Figure.constructionFrom(original).sources,
+        Figure.constructionBareFrom(original).sources,
       prepared: IAutoMovieHumanF1NativeLaw.IPrepared = Law.prepare(original, originals);
     const bones: Map<number, IAutoMovieHumanF1.IAssembly> = new Map([
         [prepared.fields.hipJointCentreBreadth, original],

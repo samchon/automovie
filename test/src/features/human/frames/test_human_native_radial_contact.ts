@@ -4,7 +4,7 @@ import {
   AutoMovieHumanF1,
   AutoMovieHumanNativeRadialContact as Radial,
 } from "@automovie/human";
-import type { IAutoMovieLoftViewFullSource } from "@automovie/interface";
+import type { IAutoMovieHumanNativeRadialContact, IAutoMovieLoftViewFullSource } from "@automovie/interface";
 
 /**
  * A cutter's seed is derived where its declared seed line enters a star-shaped host, not copied from an earlier run.
@@ -28,13 +28,13 @@ export function test_human_native_radial_contact(): void {
   const near = (what: string, got: number, want: number, tolerance: number): void => {
     if (!(Math.abs(got - want) <= tolerance)) failures.push(`${what}: ${got} instead of ${want}`);
   };
-  const cylinder: Radial.IHost = {
-    at: (s: number): Radial.IFrame => ({ origin: [0, 0, s], u: [1, 0, 0], v: [0, 1, 0] }),
+  const cylinder: IAutoMovieHumanNativeRadialContact.IHost = {
+    at: (s: number): IAutoMovieHumanNativeRadialContact.IFrame => ({ origin: [0, 0, s], u: [1, 0, 0], v: [0, 1, 0] }),
     point: (s: number, t: number): number[] => [5 * Math.cos(t), 5 * Math.sin(t), s],
     domain: [0, 100],
   };
   for (const sign of [1, -1]) {
-    const got: Radial.IResult = Radial.seed((s: number): number[] => [20 - s, 3 * sign, 40], 0, 20, cylinder);
+    const got: IAutoMovieHumanNativeRadialContact.IResult = Radial.seed((s: number): number[] => [20 - s, 3 * sign, 40], 0, 20, cylinder);
     const phase: number = sign > 0 ? Math.atan2(3, 4) : 2 * Math.PI - Math.atan2(3, 4);
     near(`side ${sign} part station`, got.part, 16, 1e-8);
     near(`side ${sign} host station`, got.host[0], 40, 1e-12);
@@ -53,7 +53,7 @@ export function test_human_native_radial_contact(): void {
   const nose = H.source(AutoMovieHumanF1.BODY.nose);
   const noseReader: IAutoMovieLoftViewFullSource.IReader = Full.create(nose);
   const span: number = nostril.domain[1] - nostril.domain[0];
-  const f1: Radial.IResult = Radial.seed(
+  const f1: IAutoMovieHumanNativeRadialContact.IResult = Radial.seed(
     (s: number): readonly number[] => nostril.point(s, 0),
     nostril.domain[0],
     nostril.domain[0] + 0.9 * span,

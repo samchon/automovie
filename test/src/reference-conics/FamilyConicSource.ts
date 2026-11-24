@@ -46,6 +46,9 @@ export namespace FamilyConicSource {
 
     /** Every chained piece of the cut, closed or open. */
     pieces: number;
+
+    /** By outgoing edge of the selected loop, whether it came from the source cut. */
+    measured?: boolean[];
   }
 
   /** Load the reference from the repository root. */
@@ -114,11 +117,13 @@ export namespace FamilyConicSource {
    * Cut a mesh by a frame's plane and read the loop round its origin in the frame's chart.
    *
    * @param bridge Longest gap between open chains' ends the outer boundary closes where no closed loop winds round the origin, mm.
+   * @param observeEdges Record exact original edges so a joined boundary's synthetic gap cannot become an observation.
    */
   export function cut(
     mesh: IAutoMovieMillimeterMesh,
     frame: IAutoMovieLoftSectionFrame,
     bridge: number = 3,
+    observeEdges: boolean = false,
   ): ICut {
     const n: V = [
       frame.v[1] * frame.u[2] - frame.v[2] * frame.u[1],
@@ -158,7 +163,21 @@ export namespace FamilyConicSource {
         : round.reduce((a: C.P[], b: C.P[]): C.P[] =>
             area(b) > area(a) ? b : a,
           );
-    return { loop: outer, around: round.length, pieces: section.loops.length };
+    if (!observeEdges || outer === null)
+      return { loop: outer, around: round.length, pieces: section.loops.length };
+    const edge = (a: readonly number[], b: readonly number[]): string => {
+      const [p, q] = [a.join(","), b.join(",")];
+      return p < q ? p + "/" + q : q + "/" + p;
+    };
+    const recorded: Set<string> = new Set(
+      section.loops.flatMap((loop: IAutoMovieMeshSectionChain): string[] =>
+        loop.points.slice(0, loop.closed ? loop.points.length : -1).map(
+          (p, i): string => edge(p, loop.points[(i + 1) % loop.points.length]!),
+        ),
+      ),
+    );
+    const measured = outer.map((p: C.P, i: number): boolean => recorded.has(edge(p, outer[(i + 1) % outer.length]!)));
+    return { loop: outer, around: round.length, pieces: section.loops.length, measured };
   }
 
   /** Every chain of a mesh's cut by a frame's plane in the frame's chart, closed or open, in the order the cut gives them: a plane through an opening of the mesh has open chains only. */

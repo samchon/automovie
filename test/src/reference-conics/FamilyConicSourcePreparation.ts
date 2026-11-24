@@ -123,8 +123,41 @@ export namespace FamilyConicSourcePreparation {
     );
     const assemblyMs: number = performance.now() - started;
     const originalStarted: number = performance.now();
+    const { originals, declaredOriginals, sourceScopes, reads } = originalsOf(assembly, true);
+    const authored: Original.IResult = observe(
+      originals.counterparts.map(
+        (part: Original.IResult["counterparts"][number]): Original.IEntry => ({
+          id: part.id,
+          role: part.role,
+          read: (): IAutoMovieViewPart => part.definition,
+        }),
+      ),
+    );
+    return {
+      input,
+      round,
+      assembly,
+      originals,
+      declaredOriginals,
+      recorded: { submitted: null, evidence: null },
+      frameBaseline: null,
+      sourceScopes,
+      authored,
+      assemblyMs,
+      originalMs: performance.now() - originalStarted,
+      reads,
+      memory: { before, afterOriginals: process.memoryUsage() },
+      frames: [],
+    };
+  }
+
+  /** Observe the actual original guides from an already resolved assembly. */
+  export function originalsOf(
+    assembly: IState["assembly"],
+    native: boolean,
+  ): Pick<IState, "originals" | "declaredOriginals" | "sourceScopes" | "reads"> {
     const reads: IState["reads"] = {
-      assembleNative: 1,
+      assembleNative: native ? 1 : 0,
       actualFamilyFactory: 0,
       authoredFamilyFactory: 0,
     };
@@ -187,14 +220,14 @@ export namespace FamilyConicSourcePreparation {
           id: member.name,
           owner:
             scope === null || scope === undefined
-              ? "AutoMovieHumanConicLoft.source native canonical callback"
+              ? native ? "AutoMovieHumanConicLoft.source native canonical callback" : "AutoMovieHumanConicLoft.source"
               : "AutoMovieHumanF1.sourceScope -> AutoMovieHumanConicLoft.source",
           wallDomain: scope?.wallDomain ?? null,
           tips: member.tips,
           phase: member.phase,
           turn: member.turn,
         });
-        if (member.native === undefined)
+        if (native && member.native === undefined)
           throw new Error(
             "Actual native canonical source is unavailable; an ordinary re-created sampling grid is not a production source fallback",
           );
@@ -229,32 +262,6 @@ export namespace FamilyConicSourcePreparation {
     }
     const originals: Original.IResult = observe(entries);
     originals.unavailable.push(...preparationUnavailable);
-    const authored: Original.IResult = observe(
-      originals.counterparts.map(
-        (part: Original.IResult["counterparts"][number]): Original.IEntry => ({
-          id: part.id,
-          role: part.role,
-          read: (): IAutoMovieViewPart => part.definition,
-        }),
-      ),
-    );
-    return {
-      input,
-      round,
-      assembly,
-      originals,
-      declaredOriginals: entries.map(
-        (entry: Original.IEntry): string => entry.id,
-      ),
-      recorded: { submitted: null, evidence: null },
-      frameBaseline: null,
-      sourceScopes,
-      authored,
-      assemblyMs,
-      originalMs: performance.now() - originalStarted,
-      reads,
-      memory: { before, afterOriginals: process.memoryUsage() },
-      frames: [],
-    };
+    return { originals, declaredOriginals: entries.map((entry: Original.IEntry): string => entry.id), sourceScopes, reads };
   }
 }

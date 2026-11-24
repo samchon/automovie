@@ -2,6 +2,7 @@ import type { IAutoMovieConstructionOutlineJet } from "./IAutoMovieConstructionO
 import type { IAutoMovieConstructionOutlineParameter } from "./IAutoMovieConstructionOutlineParameter";
 import type { IAutoMovieConstructionOutlineRange } from "./IAutoMovieConstructionOutlineRange";
 import type { IAutoMovieLoftRelief } from "./IAutoMovieLoftRelief";
+import type { IAutoMovieLoftSectionConnect } from "./IAutoMovieLoftSectionConnect";
 import type { IAutoMovieViewAxis } from "./IAutoMovieViewAxis";
 
 /**
@@ -59,6 +60,9 @@ export interface IAutoMovieViewPart {
 
   /** What owns the quarters' fullness at each station. */
   fullness: IAutoMovieViewPart.Fullness;
+
+  /** Optional immutable original section field on a bounded proximal span, sharing the ordinary source's downstream field and cap. */
+  originalSection?: IAutoMovieLoftSectionConnect.IOriginal;
 
   /**
    * The end that closes in a point, or both ends (`both`: a foot from the

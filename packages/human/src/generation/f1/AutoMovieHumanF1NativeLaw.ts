@@ -58,6 +58,7 @@ export namespace AutoMovieHumanF1NativeLaw {
     const rootCalibrations: Map<string, IAutoMovieHumanF1NativeRoot.ICalibration> = new Map();
     return {
       fields,
+      reference: original.reference,
       calibration: {
         nativeSourceReadAttempts,
         originalProjection: projectionOwner.calibration,

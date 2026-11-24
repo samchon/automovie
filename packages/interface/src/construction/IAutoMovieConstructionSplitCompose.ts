@@ -1,6 +1,7 @@
 import type { AutoMovieVector3Tuple } from "../geometry/AutoMovieVector3Tuple";
 import type { IAutoMovieConstructionComposedEnd } from "./IAutoMovieConstructionComposedEnd";
 import type { IAutoMovieConstructionSkinCut } from "./IAutoMovieConstructionSkinCut";
+import type { IAutoMovieConstructionSplit } from "./IAutoMovieConstructionSplit";
 import type { IAutoMovieSolidSurface } from "./IAutoMovieSolidSurface";
 
 /**
@@ -72,5 +73,40 @@ export namespace IAutoMovieConstructionSplitCompose {
 
     /** The composition the rest was derived from. */
     composition: IAutoMovieConstructionComposedEnd.IComposition;
+  }
+
+  /** Actual split declaration, terminal ring and ordered original sources. */
+  export interface IInput {
+    /** Declared composition frame and plane. */
+    compose: IAutoMovieConstructionSplit.ICompose;
+
+    /** The actual host's regular surface, terminal station and numerical frame. */
+    host: { surface: IAutoMovieSolidSurface; station: number; basis: IBasis };
+
+    /** Every ordered original child and its declared rail. */
+    children: readonly IChild[];
+
+    /** Existing composition sample count. */
+    count: number;
+  }
+
+  /**
+   * One original child cut on the common physical plane.
+   */
+  export interface ISection {
+    /** Actual input surface, stations and direction. */
+    readonly child: IChild;
+
+    /** End plane in the same world millimetres as the source. */
+    readonly plane: IAutoMovieConstructionSkinCut.IPlane;
+
+    /** Sample count of the original cut and section. */
+    readonly count: number;
+
+    /** Actual wall cut with station and both derivatives. */
+    readonly cut: IAutoMovieConstructionSkinCut.ICut;
+
+    /** Actual closed section consumed by the composition. */
+    readonly section: IAutoMovieConstructionComposedEnd.ISection;
   }
 }

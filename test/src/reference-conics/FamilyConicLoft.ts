@@ -1,9 +1,19 @@
-import { realizeAutoMovieConstruction } from "@automovie/engine";
-import { AutoMovieHumanConicLoft as H } from "@automovie/human";
+import {
+  AutoMovieBernstein64, AutoMovieLoftChain, AutoMovieLoftFrame, AutoMovieLoftRelief, AutoMovieLoftSectionNative,
+  AutoMovieLoftViewFullSource, AutoMovieLoftViewRead, AutoMovieLoftViewSource, AutoMovieNaturalSpline,
+  AutoMovieSolidVector as V, AutoMovieViewChain as Q, orientAutoMovieSolidChart, realizeAutoMovieConstruction,
+} from "@automovie/engine";
+import { AutoMovieHumanConicLoft as H, AutoMovieHumanConicSection } from "@automovie/human";
 import type {
+  AutoMovieVector2Tuple,
   AutoMovieVector3Tuple,
+  IAutoMovieLoftRelief,
+  IAutoMovieLoftSectionFrame,
+  IAutoMovieLoftViewFullSource,
+  IAutoMovieViewPart,
   IAutoMovieHumanConicLoft,
   IAutoMovieViewAxis,
+  IAutoMovieViewChain,
   IAutoMovieViewLoft,
 } from "@automovie/interface";
 
@@ -33,6 +43,791 @@ export namespace FamilyConicLoft {
     stations: number[],
   ) => IAutoMovieViewLoft.IResult = H.create;
 
+  /** Keep consecutive indexed section edges whose two physical endpoints belong to the observed material. */
+  export function measuredRuns(points: AutoMovieVector2Tuple[], measured: readonly boolean[], side: readonly number[]): AutoMovieVector2Tuple[][] {
+    const kept: boolean[] = measured.map((edge: boolean, i: number): boolean =>
+      edge && side[i]! <= 0 && side[(i + 1) % points.length]! <= 0,
+    );
+    const breakAt: number = kept.indexOf(false);
+    if (breakAt < 0) return [points];
+    const runs: AutoMovieVector2Tuple[][] = [];
+    let run: AutoMovieVector2Tuple[] | undefined;
+    for (let offset: number = 1; offset <= points.length; ++offset) {
+      const i: number = (breakAt + offset) % points.length;
+      if (!kept[i]) run = undefined;
+      else {
+        if (run === undefined) {
+          run = [points[i]!];
+          runs.push(run);
+        }
+        run.push(points[(i + 1) % points.length]!);
+      }
+    }
+    return runs;
+  }
+
+  /** Strict signed half-space for every point of a prepared positive-weight section in one affine material chart. */
+  export function beforePlane(
+    section: IAutoMovieViewChain.ISection,
+    offset: number,
+    u: number,
+    v: number,
+  ): string | null {
+    if (section.fault !== null) return section.fault;
+    if (section.arcs.length === 0) return "the admitted section has no arcs";
+    const height = (p: readonly number[]): number => offset + u * p[0]! + v * p[1]!;
+    for (const [index, arc] of section.arcs.entries()) {
+      if (!(Number.isFinite(arc.weight) && arc.weight > 0)) return `arc ${index} has no positive homogeneous weight`;
+      const a: number = height(arc.start);
+      const b: number = arc.weight * height(arc.control);
+      const c: number = height(arc.end);
+      if (![a, b, c].every(Number.isFinite)) return `arc ${index} has nonfinite signed supports`;
+      if (!(a < 0 && c < 0)) return `arc ${index} reaches or crosses the end plane at an endpoint`;
+      if (b < 0) continue;
+      // A, B, C are the controls of the homogeneous numerator. The denominator is positive.
+      // If B >= 0 > A,C the maximum occurs strictly inside. Its sign is that of B² - A*C.
+      if (orientAutoMovieSolidChart([0, 0], [b, a], [c, b]) >= 0)
+        return `arc ${index} reaches or crosses the end plane in its interior`;
+    }
+    return null;
+  }
+
+  /** Maximum of the quadratic homogeneous signed-height numerator from its three Bernstein controls. */
+  export function planeMaximum(a: number, b: number, c: number): number {
+    const curvature: number = a - 2 * b + c;
+    const t: number = curvature < 0 ? (a - b) / curvature : NaN;
+    return t > 0 && t < 1 ? (1 - t) * ((1 - t) * a + t * b) + t * ((1 - t) * b + t * c) : Math.max(a, c);
+  }
+
+  /** The cyclically indexed extraction is the only source of the measured segment adjacencies. */
+  export function measuredRing(points: readonly AutoMovieVector2Tuple[], closed: boolean): { edges: { index: number; a: AutoMovieVector2Tuple; b: AutoMovieVector2Tuple }[]; length: number[] } | string {
+    if (!closed || points.length < 3 || points.some((p): boolean => !p.every(Number.isFinite)))
+      return "the measured section is not a finite closed cut";
+    const orientation = (a: AutoMovieVector2Tuple, b: AutoMovieVector2Tuple, c: AutoMovieVector2Tuple): number => orientAutoMovieSolidChart(a, b, c);
+    const contains = (a: AutoMovieVector2Tuple, b: AutoMovieVector2Tuple, c: AutoMovieVector2Tuple): boolean => orientation(a, b, c) === 0 &&
+      c.every((value, k): boolean => value >= Math.min(a[k]!, b[k]!) && value <= Math.max(a[k]!, b[k]!));
+    const edges = points.map((a, index) => ({ index, a, b: points[(index + 1) % points.length]! }));
+    for (const [i, e] of edges.entries()) {
+      if (e.a[0] === e.b[0] && e.a[1] === e.b[1]) return "the measured cut contains an empty directed edge";
+      const next = edges[(i + 1) % edges.length]!;
+      if (contains(e.a, e.b, next.b) || contains(next.a, next.b, e.a)) return "adjacent measured edges overlap";
+      for (let j: number = i + 2; j < edges.length; ++j) {
+        if (i === 0 && j === edges.length - 1) continue;
+        const q = edges[j]!;
+        if ((orientation(e.a, e.b, q.a) * orientation(e.a, e.b, q.b) < 0 &&
+             orientation(q.a, q.b, e.a) * orientation(q.a, q.b, e.b) < 0) ||
+            contains(e.a, e.b, q.a) || contains(e.a, e.b, q.b) || contains(q.a, q.b, e.a) || contains(q.a, q.b, e.b))
+          return "the measured directed section intersects itself at edges " + e.index + " and " + q.index;
+      }
+    }
+    // At the lexicographically least extreme of a simple polygon the noncollinear turn has its global orientation.
+    const extreme: number = points.reduce((left, p, i): number =>
+      p[0] < points[left]![0] || p[0] === points[left]![0] && p[1] < points[left]![1] ? i : left, 0);
+    const sign: number = orientation(points[(extreme + points.length - 1) % points.length]!, points[extreme]!, points[(extreme + 1) % points.length]!);
+    if (sign === 0) return "the directed cut has no unique outer turn at its extreme";
+    const forward = sign > 0 ? edges : edges.reverse().map((e) => ({ index: e.index, a: e.b, b: e.a }));
+    const length: number[] = [0];
+    for (const e of forward) length.push(length.at(-1)! + Math.hypot(e.b[0] - e.a[0], e.b[1] - e.a[1]));
+    return { edges: forward, length };
+  }
+
+  /** Closest point of the actual relieved parent to the allowed consecutive portion of an observed closed polyline. */
+  function edgeFoot(
+    ring: { edges: { index: number; a: AutoMovieVector2Tuple; b: AutoMovieVector2Tuple }[]; length: number[] },
+    p: AutoMovieVector2Tuple, lo: number, hi: number,
+  ): { along: number; edge: number; fraction: number; distance: number } | string {
+    const perimeter: number = ring.length.at(-1)!;
+    let best: { along: number; edge: number; fraction: number; distance: number } | undefined;
+    for (let lap: number = Math.floor(lo / perimeter); lap <= Math.floor(hi / perimeter); ++lap) {
+      for (const [k, edge] of ring.edges.entries()) {
+        const base: number = lap * perimeter + ring.length[k]!, span: number = ring.length[k + 1]! - ring.length[k]!;
+        const begin: number = Math.max(lo, base), end: number = Math.min(hi, base + span);
+        if (begin > end) continue;
+        const x: number = edge.b[0] - edge.a[0], y: number = edge.b[1] - edge.a[1];
+        const projection: number = base + ((p[0] - edge.a[0]) * x + (p[1] - edge.a[1]) * y) / Math.hypot(x, y);
+        const along: number = Math.min(end, Math.max(begin, projection)), fraction: number = (along - base) / span;
+        const distance: number = Math.hypot(p[0] - edge.a[0] - fraction * x, p[1] - edge.a[1] - fraction * y);
+        if (best === undefined || distance < best.distance) best = { along, edge: k, fraction, distance };
+      }
+    }
+    return best ?? "no measured finite edge lies in the ordered correspondence interval";
+  }
+
+  /** Certify a complete, increasing material subarc against the same traversal of one measured finite edge. */
+  function parentInterval(
+    section: IAutoMovieViewChain.IArc, left: number, right: number, a: V3, b: V3, frame: IAutoMovieLoftSectionFrame,
+    source: IAutoMovieLoftViewFullSource.IReader, station: number, angularRate: number, limit: number,
+  ): { lower: number; upper: number; pieces: number } | string {
+    const homogen: V3[] = [[section.start[0], section.start[1], 1],
+      [section.weight * section.control[0], section.weight * section.control[1], section.weight],
+      [section.end[0], section.end[1], 1]];
+    const phase = (t: number): number => {
+      if (t === 0 || t === 1) return section.span[t]!;
+      const p: AutoMovieVector2Tuple = Q.evaluate(section, t);
+      const middle: number = (section.span[0] + section.span[1]) / 2;
+      const theta: number = Math.atan2(p[1], p[0]) - middle;
+      return middle + Math.atan2(Math.sin(theta), Math.cos(theta));
+    };
+    const split = (a: V3, b: V3): V3 => V.add(a, V.scale(V.sub(b, a), 0.5));
+    const boxes = [{ lo: left, hi: right, a, b, net: AutoMovieBernstein64.restrict(homogen, left, right) }];
+    let lower: number = 0, upper: number = 0, pieces: number = 0;
+    let subdivisions: number = 0;
+    while (boxes.length !== 0) {
+      const box = boxes.pop()!;
+      const t: number = box.lo + (box.hi - box.lo) / 2;
+      if (!(t > box.lo && t < box.hi)) return "the physical parent interval remains unverified at floating-point resolution";
+      const theta: number = phase(t), lo: number = phase(box.lo), hi: number = phase(box.hi);
+      if (!(hi >= theta && theta >= lo)) return "the restricted physical phase order is unverified";
+      const full: V3 = source.point(station, theta);
+      const relief: V3 = V.sub(full, AutoMovieLoftFrame.place(frame, ...Q.evaluate(section, t)));
+      const observed: V3 = split(box.a, box.b);
+      const error: number = V.norm(V.sub(full, observed));
+      lower = Math.max(lower, error);
+      if (!(error <= limit)) return "the fixed material correspondence exceeds its measured allowance by " + (error - limit) + " mm";
+      let range: number = 0;
+      for (const h of box.net) {
+        if (!(Number.isFinite(h[2]) && h[2]! > 0)) return "the physical parent interval lacks a positive rational hull";
+        const world: V3 = V.add(AutoMovieLoftFrame.place(frame, h[0]! / h[2]!, h[1]! / h[2]!), relief);
+        range = Math.max(range, V.norm(V.sub(world, box.a)), V.norm(V.sub(world, box.b)));
+      }
+      range += angularRate * Math.max(theta - lo, hi - theta);
+      if (range <= limit) {
+        upper = Math.max(upper, range);
+        ++pieces;
+        continue;
+      }
+      if (++subdivisions > 4096) return "the finite parent-interval subdivision budget is exhausted";
+      const [first, last] = AutoMovieBernstein64.split(box.net, 0.5);
+      boxes.push({ lo: t, hi: box.hi, a: observed, b: box.b, net: last },
+        { lo: box.lo, hi: t, a: box.a, b: observed, net: first });
+    }
+    return { lower, upper, pieces };
+  }
+
+  /** Lipschitz constant in world millimetres per radian of the actual sum of relieved displacements at a fixed station. */
+  function reliefRate(reliefs: readonly IAutoMovieLoftRelief[], station: number): number {
+    let total: number = 0;
+    for (const relief of reliefs) {
+      const rows: number = relief.rows, cols: number = relief.columns;
+      const axial: number = (rows - 3) / (relief.stations[1] - relief.stations[0]);
+      const angular: number = (cols - 3) / AutoMovieLoftRelief.width(relief);
+      const bounds = (net: readonly number[]): { height: number; station: number; phase: number } => {
+        if (net.length !== rows * cols || rows < 4 || cols < 4 || !(angular > 0 && axial > 0))
+          throw new Error("the retained parent has no finite uniform cubic relief domain");
+        let height: number = 0, ds: number = 0, dt: number = 0;
+        for (let i: number = 0; i < rows; ++i) for (let j: number = 0; j < cols; ++j) {
+          const at: number = i * cols + j, v: number = net[at]!;
+          if (!Number.isFinite(v)) throw new Error("nonfinite physical relief control");
+          if ((i < 3 || i >= rows - 3 || j < 3 || j >= cols - 3) && v !== 0)
+            throw new Error("the relief's zero extension is unverified at a patch edge");
+          height = Math.max(height, Math.abs(v));
+          if (j > 0) dt = Math.max(dt, Math.abs(v - net[at - 1]!));
+          if (i > 0) ds = Math.max(ds, Math.abs(v - net[at - cols]!));
+        }
+        return { height, station: axial * ds, phase: angular * dt };
+      };
+      // D is zero outside its own window, so at a station past that window neither field contributes.
+      if (station <= relief.stations[0] || station >= relief.stations[1]) continue;
+      const h = bounds(relief.heights);
+      const shifted: number = relief.shift === undefined ? 0 : bounds(relief.shift).phase;
+      const direction: number = relief.turn === undefined
+        ? Math.hypot(...relief.axis) : Math.hypot(...relief.axis, ...relief.turn);
+      const change: number = relief.turn === undefined ? 0 : direction;
+      total += (h.phase + h.station * shifted) * direction + h.height * change;
+    }
+    if (!Number.isFinite(total)) throw new Error("the physical relief interval bound is unavailable");
+    return total;
+  }
+
+  /** Read the same original conic scalars and numeric chain as this placed view uses for Point0. */
+  export function placedSections(view: IAutoMovieViewPart): (s: number) => IAutoMovieViewChain.ISection {
+    const direct = AutoMovieLoftViewSource.create(view);
+    if (direct === null || direct.source === null) throw new Error(view.name + " has no direct section chart");
+    const source = direct.source;
+    return (s): IAutoMovieViewChain.ISection => {
+      const fields = AutoMovieLoftViewRead.values(source, s);
+      if (typeof fields === "string") throw new Error(fields);
+      const section = AutoMovieLoftSectionNative.chain(fields);
+      if (typeof section === "string") throw new Error(section);
+      return section;
+    };
+  }
+
+  /** One immutable indexed witness in the observed parent contour's world frame. */
+  export interface IParentWitness {
+    /** Original directed edge identity. */
+    edge: number;
+    /** Arclength of the edge midpoint in the canonical measured cycle. */
+    along: number;
+    /** Fixed observed world position. */
+    point: V3;
+    /** Square root of this edge's fixed arclength in millimetres. */
+    weight: number;
+  }
+
+  /** Hold world witnesses and quadrature weights independently of all candidate arc subdivisions. */
+  export function parentWitnesses(
+    ring: Exclude<ReturnType<typeof measuredRing>, string>, frame: IAutoMovieLoftSectionFrame,
+    owns: (a: V3, b: V3) => boolean = () => true,
+  ): IParentWitness[] {
+    return ring.edges.flatMap(({ index, a, b }, i) => {
+      const start = AutoMovieLoftFrame.place(frame, ...a), end = AutoMovieLoftFrame.place(frame, ...b);
+      const length: number = ring.length[i + 1]! - ring.length[i]!;
+      return owns(start, end) ? [{ edge: index, along: ring.length[i]! + length / 2,
+        point: V.scale(V.add(start, end), 0.5), weight: Math.sqrt(length) }] : [];
+    });
+  }
+
+  /** Invert the ordered observed arclength on its one continuous original phase branch. */
+  export function parentPhase(along: number, feet: readonly number[], phases: readonly number[]): number {
+    const right: number = feet.findIndex((end): boolean => end >= along);
+    if (feet.length !== phases.length || right < 0 ||
+        right === 0 && along !== feet[0] ||
+        (right > 0 && along === feet[right] && feet[right + 1] === along))
+      throw new Error("a fixed observed parent witness lacks one directed inverse");
+    if (along === feet[right]) {
+      if (feet[right + 1] === along) throw new Error("a fixed observed parent witness aliases a directed inverse");
+      return phases[right]!;
+    }
+    const lo: number = feet[right - 1]!, hi: number = feet[right]!;
+    if (!(lo < along && along < hi && phases[right - 1]! < phases[right]!))
+      throw new Error("a fixed observed parent witness has no open material interval");
+    return phases[right - 1]! + (phases[right]! - phases[right - 1]!) * (along - lo) / (hi - lo);
+  }
+
+  /** Register one physical native parent ring to a traversal of its one observed, directed section. */
+  export function parentCorrespondence(
+    view: IAutoMovieViewPart, station: number,
+    ring: Exclude<ReturnType<typeof measuredRing>, string>, count: number, held: boolean, limit: number,
+    owns: (a: V3, b: V3) => boolean = () => true,
+    witnesses?: readonly IParentWitness[],
+  ) {
+    const section = placedSections(view)(station);
+    const source = AutoMovieLoftViewFullSource.create(view), frame = view.axis.at(station);
+    const chart = (p: V3): AutoMovieVector2Tuple => {
+      const delta: V3 = V.sub(p, frame.origin);
+      return [V.dot(delta, frame.u), V.dot(delta, frame.v)];
+    };
+    const turn: number = 2 * Math.PI;
+    const point = (arc: IAutoMovieViewChain.IArc, t: number) => {
+      const bare: AutoMovieVector2Tuple = Q.evaluate(arc, t), middle: number = (arc.span[0] + arc.span[1]) / 2;
+      const angle: number = Math.atan2(bare[1], bare[0]) - middle;
+      const phi: number = t === 0 ? arc.span[0] : t === 1 ? arc.span[1] : middle + Math.atan2(Math.sin(angle), Math.cos(angle));
+      return { phi, world: source.point(station, phi) };
+    };
+    const cells = section.arcs.flatMap((arc) => {
+      const n: number = Math.max(1, Math.ceil(count * (arc.span[1] - arc.span[0]) / turn));
+      return Array.from({ length: n }, (_, i: number) => ({ arc, lo: i / n, hi: (i + 1) / n, ...point(arc, i / n) }));
+    });
+    const projected: AutoMovieVector2Tuple[] = cells.map((v): AutoMovieVector2Tuple => chart(v.world));
+    const area: number = projected.reduce((sum, p, i): number => {
+      const q = projected[(i + 1) % projected.length]!;
+      return sum + p[0] * q[1] - p[1] * q[0];
+    }, 0);
+    if (!(Number.isFinite(area) && area !== 0)) throw new Error("the physical projected ring has no oriented traversal");
+    let cycle = ring;
+    if (area < 0) {
+      const edges = [...ring.edges].reverse().map((e) => ({ index: e.index, a: e.b, b: e.a }));
+      const length: number[] = [0];
+      for (const e of edges) length.push(length.at(-1)! + Math.hypot(e.a[0] - e.b[0], e.a[1] - e.b[1]));
+      cycle = { edges, length };
+    }
+    const perimeter: number = cycle.length.at(-1)!;
+    const first = edgeFoot(cycle, projected[0]!, 0, perimeter);
+    if (typeof first === "string") throw new Error(first);
+    const distances: number[] = [0];
+    for (const [i, cell] of cells.entries()) distances.push(distances.at(-1)! + V.norm(V.sub(cells[(i + 1) % cells.length]!.world, cell.world)));
+    const total: number = distances.at(-1)!;
+    if (!(total > 0)) throw new Error("the physical parent ring has no measurable traversal");
+    const guessed: number[] = distances.map((s): number => first.along + perimeter * s / total);
+    const feet: number[] = [first.along];
+    for (let i: number = 1; i < cells.length; ++i) {
+      const foot = edgeFoot(cycle, projected[i]!, (guessed[i - 1]! + guessed[i]!) / 2, (guessed[i]! + guessed[i + 1]!) / 2);
+      if (typeof foot === "string") throw new Error(foot);
+      feet.push(foot.along);
+    }
+    feet.push(first.along + perimeter);
+    const visit = (along: number): V3 => {
+      const local: number = ((along % perimeter) + perimeter) % perimeter;
+      const index: number = cycle.length.findIndex((end): boolean => end > local) - 1;
+      if (index < 0) throw new Error("a physical registration loses an observed edge");
+      const e = cycle.edges[index]!, t = (local - cycle.length[index]!) / (cycle.length[index + 1]! - cycle.length[index]!);
+      return AutoMovieLoftFrame.place(frame, e.a[0] + t * (e.b[0] - e.a[0]), e.a[1] + t * (e.b[1] - e.a[1]));
+    };
+    const boundaries: number[] = [0, 1].flatMap((lap): number[] => cycle.length.slice(0, -1).map((s): number => s + lap * perimeter));
+    if (first.along === perimeter) boundaries.push(2 * perimeter);
+    const targets: { phi: number; point: V3; edge: number; weight: number }[] = [];
+    if (witnesses !== undefined) {
+      if (held || witnesses.length === 0) throw new Error("the fixed parent quadrature needs a nonempty training measure");
+      if (!feet.every((f, i): boolean => Number.isFinite(f) && (i === 0 || f >= feet[i - 1]!)))
+        throw new Error("the fixed physical correspondence reorders measured ownership");
+      const phases = [...cells.map((cell): number => cell.phi), section.arcs.at(-1)!.span[1]];
+      for (const row of witnesses) {
+        if (!cycle.edges.some(({ index }): boolean => index === row.edge))
+          throw new Error("the fixed parent witness has lost its measured owner");
+        const along: number = area < 0 ? perimeter - row.along : row.along;
+        const value: number = along < feet[0]! ? along + perimeter : along;
+        targets.push({ phi: parentPhase(value, feet, phases), point: row.point, edge: row.edge, weight: row.weight });
+      }
+      return { targets, lower: 0, upper: 0, pieces: 0 };
+    }
+    let upper: number = 0, lower: number = 0, pieces: number = 0;
+    const rate: number = held ? reliefRate(view.reliefs ?? [], station) : 0;
+    for (const [i, cell] of cells.entries()) {
+      const left: number = feet[i]!, right: number = feet[i + 1]!;
+      if (right < left) throw new Error("the physical correspondence reorders measured ownership");
+      const cuts: number[] = [left, ...boundaries.filter((s): boolean => s > left && s < right), right];
+      for (let j: number = 1; j < cuts.length; ++j) {
+        const s: number = cuts[j - 1]!, e: number = cuts[j]!;
+        const lo: number = j === 1 ? cell.lo : cell.lo + (cell.hi - cell.lo) * (s - left) / (right - left);
+        const hi: number = j + 1 === cuts.length ? cell.hi : cell.lo + (cell.hi - cell.lo) * (e - left) / (right - left);
+        const a = visit(s), b = visit(e);
+        if (!owns(a, b)) continue;
+        const local: number = ((s % perimeter) + perimeter) % perimeter;
+        const edge: number = cycle.length.findIndex((end): boolean => end > local) - 1;
+        targets.push({ phi: point(cell.arc, lo).phi, point: a, edge: cycle.edges[edge]!.index, weight: 1 });
+        if (!held) continue;
+        const proof = parentInterval(cell.arc, lo, hi, a, b, frame, source, station, rate, limit);
+        if (typeof proof === "string") throw new Error(proof);
+        lower = Math.max(lower, proof.lower); upper = Math.max(upper, proof.upper); pieces += proof.pieces;
+      }
+    }
+    return { targets, lower, upper, pieces };
+  }
+
+  /** Compare the original and reopened scalar material 0/1/2 jets on the union of their knots in the retained intervals. */
+  export function materialDifference(
+    original: Pick<IStored, "knots" | "values">, output: Pick<IStored, "knots" | "values">, retained: (s: number) => boolean,
+  ): string | null {
+    if (original.values.length !== output.values.length) return "different material field counts";
+    const knots = [...new Set([...original.knots, ...output.knots])].sort((a, b): number => a - b);
+    const span = Math.min(1, ...knots.slice(1).map((s, i): number => s - knots[i]!));
+    const count = original.knots.length + output.knots.length;
+    for (const [f, row] of original.values.entries()) {
+      const before = AutoMovieNaturalSpline.create(original.knots, row), after = AutoMovieNaturalSpline.create(output.knots, output.values[f]!);
+      const scale = Math.max(1, ...row.map(Math.abs), ...output.values[f]!.map(Math.abs));
+      for (const s of knots.filter(retained)) {
+        const a = AutoMovieNaturalSpline.read(before, s), b = AutoMovieNaturalSpline.read(after, s);
+        for (let order = 0; order <= 2; ++order) {
+          const rounding = Number.EPSILON * count * count * scale / span ** order;
+          if (!(Math.abs(a[order]! - b[order]!) <= rounding))
+            return "material field " + f + " differs at " + s + " mm, derivative order " + order + " (" + a[order] + " vs " + b[order] + ")";
+        }
+      }
+    }
+    return null;
+  }
+
+  /** Restrict one independently measured end repair to the natural-cubic span that contains the physical cut. */
+  export function endMaterial(family: IStored, end: number) {
+    const right = family.knots.findIndex((s): boolean => s > end);
+    if (right <= 0 || !(family.knots[right - 1]! < end))
+      throw new Error(family.name + " has no original material span around its fixed end");
+    const left = family.knots[right - 1]!, last = family.knots[right]!;
+    const breaks = [left, (left + end) / 2, end, (end + last) / 2, last];
+    if (breaks.some((s, i): boolean => !Number.isFinite(s) || (i > 0 && s <= breaks[i - 1]!)))
+      throw new Error("the registered end has no positive local spline spans");
+    const knots = [...new Set([...family.knots, ...breaks])].sort((x, y): number => x - y);
+    const source = family.values.map((column) => AutoMovieNaturalSpline.create(family.knots, column));
+    // One cubic B-spline on five simple knots is C2, with zero 0/1/2 jets at either physical limit.
+    const basis = (s: number, i: number, degree: number): number => {
+      if (degree === 0) return s >= breaks[i]! && s < breaks[i + 1]! ? 1 : 0;
+      return (s - breaks[i]!) / (breaks[i + degree]! - breaks[i]!) * basis(s, i, degree - 1) +
+        (breaks[i + degree + 1]! - s) / (breaks[i + degree + 1]! - breaks[i + 1]!) * basis(s, i + 1, degree - 1);
+    };
+    const peak = basis(end, 0, 3);
+    const weights = knots.map((s): number => s <= left || s >= last ? 0 : basis(s, 0, 3) / peak);
+    const values = source.map((spline, f) => knots.map((s) => {
+      const i = family.knots.indexOf(s);
+      return i < 0 ? AutoMovieNaturalSpline.evaluate(spline, s) : family.values[f]![i]!;
+    }));
+    const expand = (d: readonly number[]): IStored => {
+      if (d.length !== values.length || !d.every(Number.isFinite)) throw new Error("invalid local parent field vector");
+      return { ...family, knots, values: values.map((row, f) => row.map((v, i): number => v + d[f]! * weights[i]!)) };
+    };
+    const check = (output: IStored): string | null => {
+      if (output.knots.length !== knots.length || output.knots.some((s, i): boolean => s !== knots[i]) ||
+          output.values.length !== values.length) return "the local parent representation changed outside its declared basis";
+      return materialDifference(family, output, (s): boolean => s <= left || s >= last);
+    };
+    return { left, last, expand, check };
+  }
+
+  /** Add a proximal, unobserved material span without creating another free spline ordinate. */
+  export function continueBefore(fit: ITailFit, station: number): ITailFit | string {
+    const first: number = fit.knots[0]!;
+    if (!(Number.isFinite(station) && station < first)) return "the hidden station must precede the first material knot";
+    const coefficients: number[] = fit.knots.map((_, i): number => {
+      const row = fit.knots.map((__, j): number => i === j ? 1 : 0);
+      const slope = AutoMovieNaturalSpline.derivative(AutoMovieNaturalSpline.create(fit.knots, row), first)[0];
+      return row[0]! + (station - first) * slope;
+    });
+    const extend = (values: readonly number[]): number[] => {
+      const spline = AutoMovieNaturalSpline.create(fit.knots, [...values]);
+      const slope = AutoMovieNaturalSpline.derivative(spline, first)[0];
+      return [values[0]! + (station - first) * slope, ...values];
+    };
+    const knots = [station, ...fit.knots];
+    const initial = fit.initial.map(extend);
+    const fault = fit.check({ knots, values: initial });
+    if (fault !== null) return fault;
+    return {
+      mark: fit.mark, knots, initial, free: fit.free.map((i: number): number => i + 1),
+      expand: (field: number, reduced: readonly number[]): number[] => extend(fit.expand(field, reduced)),
+      basis: (row: readonly number[]): number[] => fit.basis(coefficients.map((v: number, i: number): number => row[i + 1]! + row[0]! * v)),
+      check: fit.check,
+    };
+  }
+
+  /** Independent physical fork stations must lie strictly inside the chosen source and its protected material join. */
+  export function enclosesForks(first: number, mark: number, stations: readonly number[]): string | null {
+    if (!(Number.isFinite(first) && Number.isFinite(mark) && first < mark) || stations.length === 0)
+      return "the proximal material domain or the required fork list is empty";
+    const missed = stations.find((s): boolean => !(s > first && s < mark));
+    return missed === undefined ? null : "the required fork at " + missed + " mm is not interior to " + first + ".." + mark;
+  }
+
+  /** Two layouts share a field vector only when their actual anchor declarations agree. */
+  export function sameAnchors(a: IStored["layout"], b: IStored["layout"]): boolean {
+    const shape = (layout: IStored["layout"]): string => JSON.stringify([
+      layout.mirror,
+      layout.anchors.map(({ kind, mid, guide, level, feature, window, pick }) =>
+        [kind, mid === true, guide === true, level ?? 1, feature ?? null, window ?? null, pick ?? null],
+      ),
+    ]);
+    return shape(a) === shape(b);
+  }
+
+  /** One measured section in a splice's exposed prefix. */
+  export interface IPrefixObservation {
+    /** The observed station on the placed course, mm. */
+    s: number;
+
+    /** Whether the station was excluded from fitting. */
+    heldout: boolean;
+
+    /** Number of directly observed skin vertices. */
+    points: number;
+
+    /** Greatest observed distance to the sealed wall at this station, mm. */
+    maximumMm: number;
+  }
+
+  /** Declare an interior held cut in each prefix interval that has no existing interior held station. */
+  export function heldPrefixStations(
+    prefix: readonly number[],
+    mark: number,
+    scan: readonly { s: number; heldout: boolean }[],
+  ): number[] {
+    return prefix.flatMap((start: number, k: number): number[] => {
+      const end: number = prefix[k + 1] ?? mark;
+      const inside = scan.filter((row): boolean => row.s > start && row.s < end);
+      if (!(end > start) || inside.some((row): boolean => row.heldout)) return [];
+      const sites: number[] = [start, ...inside.map((row): number => row.s).sort((a, b): number => a - b), end];
+      let widest: number = 0;
+      for (let i: number = 1; i + 1 < sites.length; ++i)
+        if (sites[i + 1]! - sites[i]! > sites[widest + 1]! - sites[widest]!) widest = i;
+      const middle: number = sites[widest]! + (sites[widest + 1]! - sites[widest]!) / 2;
+      return middle > sites[widest]! && middle < sites[widest + 1]! ? [middle] : [];
+    });
+  }
+
+  /** Every retained interval needs direct support, even when its first ordinate was held. */
+  export function prefixEvidence(
+    prefix: readonly number[],
+    mark: number,
+    rows: readonly IPrefixObservation[],
+    targetMm: number,
+  ): { missing: number[][]; measured: number; held: number; maximumMm: number | null; heldMaximumMm: number | null; supported: boolean } {
+    const covered = rows.filter((row: IPrefixObservation): boolean => row.points > 0 && row.s >= prefix[0]! && row.s < mark);
+    const missing: number[][] = prefix.flatMap((start: number, i: number): number[][] => {
+      const end: number = prefix[i + 1] ?? mark;
+      return covered.some((row: IPrefixObservation): boolean => row.s >= start && row.s < end) ? [] : [[start, end]];
+    });
+    const heldRows = covered.filter((row: IPrefixObservation): boolean => row.heldout);
+    const maximum = (selected: readonly IPrefixObservation[]): number | null =>
+      selected.length === 0 ? null : Math.max(...selected.map((row: IPrefixObservation): number => row.maximumMm));
+    const maximumMm = maximum(covered);
+    return {
+      missing,
+      measured: covered.reduce((sum: number, row: IPrefixObservation): number => sum + row.points, 0),
+      held: heldRows.reduce((sum: number, row: IPrefixObservation): number => sum + row.points, 0),
+      maximumMm,
+      heldMaximumMm: maximum(heldRows),
+      supported: prefix.length === 0 || (missing.length === 0 && maximumMm !== null && maximumMm <= targetMm),
+    };
+  }
+
+  /** Points from the original directed skin runs on a recorded section plane. */
+  export interface IPrefixCut {
+    /** The measured station on the source course, mm. */
+    s: number;
+
+    /** Whether this section was withheld from the original fit. */
+    heldout: boolean;
+
+    /** Directly observed vertices in world millimetres. */
+    world: V3[];
+  }
+
+  /**
+   * Measure unchanged direct skin cuts against the stored splice, including
+   * stations that supplied skin but did not have an admissible fitting seed.
+   *
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The same reader measures a new splice and replays an archived splice without refitting.
+   * @evidence contracts/development/implementation.md#principled-implementation The view loft receives increasing physical stations; a view failure and absent skin are separate outcomes.
+   */
+  export function verifyPrefix(
+    stored: IStored,
+    required: readonly number[],
+    mark: number,
+    cuts: readonly IPrefixCut[],
+    targetMm: number,
+  ): {
+    evidence: ReturnType<typeof prefixEvidence> | null;
+    observations: IPrefixObservation[];
+    viewRefusals: IAutoMovieViewLoft.IResult["diagnostics"];
+  } {
+    const prefix: number[] = stored.knots.filter((s: number): boolean => s < mark);
+    const measured: IPrefixCut[] = cuts.filter(({ s, world }: IPrefixCut): boolean =>
+      s >= stored.knots[0]! && s < mark && world.length > 0,
+    );
+    const stations: number[] = [...new Set([...required, ...measured.map(({ s }): number => s)])]
+      .sort((a: number, b: number): number => a - b);
+    const loft: IAutoMovieViewLoft.IResult = create(stored, stations);
+    if (loft.chain === null)
+      return { evidence: null, observations: [], viewRefusals: loft.diagnostics };
+    const chain = loft.chain;
+    const observations: IPrefixObservation[] = measured.map(({ s, heldout, world }: IPrefixCut): IPrefixObservation => {
+      const ring: V3[] = Array.from({ length: 512 }, (_: unknown, j: number): V3 =>
+        AutoMovieLoftChain.point(chain, s, (2 * Math.PI * j) / 512),
+      );
+      return {
+        s, heldout, points: world.length,
+        maximumMm: Math.max(...world.map((point: V3): number => distanceToRing(point, ring))),
+      };
+    });
+    return {
+      evidence: prefixEvidence(prefix, mark, observations, targetMm),
+      observations,
+      viewRefusals: loft.diagnostics,
+    };
+  }
+
+  /** Shortest world-mm distance to the edges of a sampled conic section. */
+  function distanceToRing(point: V3, ring: readonly V3[]): number {
+    let minimum: number = Infinity;
+    for (let i: number = 0; i < ring.length; ++i) {
+      const [a, b]: [V3, V3] = [ring[i]!, ring[(i + 1) % ring.length]!];
+      const [x, y, z]: V3 = [point[0] - a[0], point[1] - a[1], point[2] - a[2]];
+      const [u, v, w]: V3 = [b[0] - a[0], b[1] - a[1], b[2] - a[2]];
+      const length: number = u * u + v * v + w * w;
+      const t: number = length === 0 ? 0 : Math.max(0, Math.min(1, (x * u + y * v + z * w) / length));
+      minimum = Math.min(minimum, (x - t * u) ** 2 + (y - t * v) ** 2 + (z - t * w) ** 2);
+    }
+    return Math.sqrt(minimum);
+  }
+
+  /**
+   * Read prior coefficients on the exact registered chart, only if the archive
+   * reproduces that chart directly or through the offline coordinate emitter.
+   *
+   * @evidence contracts/development/implementation.md#principled-implementation An archive may initialize the native fields when its original registered course and section layout are witnessed by the exact serialized shapes.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Direction, roll, layout and full centre arrays must match; proximity alone admits nothing. Only a field initializer escapes.
+   */
+  export function registeredInitializer(
+    stored: IStored,
+    course: Pick<IStored, "name" | "centres" | "halves" | "up" | "roll">,
+    layout: IStored["layout"],
+    emitCoordinate: (n: number) => number,
+  ): ((s: number) => number[] | null) | string {
+    const array = (value: object | undefined): string | undefined => JSON.stringify(value);
+    const matchingCentres: boolean = array(stored.centres) === array(course.centres) ||
+      array(stored.centres) === array(course.centres.map((p: V3): V3 => p.map(emitCoordinate) as V3));
+    if (stored.native !== undefined || stored.origin !== undefined || stored.name !== course.name || !matchingCentres || array(stored.halves) !== array(course.halves) ||
+        array(stored.up) !== array(course.up) || array(stored.roll) !== array(course.roll))
+      return "the initializer does not have the declared registered course";
+    if (!sameAnchors(stored.layout, layout) || stored.values.length !== AutoMovieHumanConicSection.units(layout).length ||
+        stored.knots.length < 2 || stored.knots.some((s: number, i: number): boolean => !Number.isFinite(s) || (i > 0 && !(s > stored.knots[i - 1]!))) ||
+        stored.values.some((field: number[]): boolean => field.length !== stored.knots.length || !field.every(Number.isFinite)))
+      return "the initializer does not have the declared anchor layout";
+    const evaluate = reader({ ...stored, centres: course.centres });
+    return (s: number): number[] | null =>
+      s >= stored.knots[0]! && s <= stored.knots.at(-1)! ? evaluate(s) : null;
+  }
+
+  /** Check the complete retained runtime policy after the JSON boundary. */
+  export function tailPolicyFault(
+    stored: Pick<IStored, "layout" | "pitch" | "phase" | "turn" | "tips">,
+    tail: Pick<IStored, "layout" | "pitch" | "phase" | "turn" | "tips">,
+  ): string | null {
+    const keys = ["layout", "pitch", "phase", "turn", "tips"] as const;
+    const moved = keys.find((key): boolean => JSON.stringify(stored[key]) !== JSON.stringify(tail[key]));
+    return moved === undefined ? null : "the carried tail's " + moved + " differs after serialization";
+  }
+
+
+  /** Read the protected natural spline with the same tolerance as the authored splice. */
+  function tailTrace(
+    tail: Pick<IStored, "knots" | "values">,
+    at: number,
+  ): (output: Pick<IStored, "knots" | "values">) => string | null {
+    const source = tail.values.map((field: number[]) => AutoMovieNaturalSpline.create(tail.knots, field));
+    const traces: number[] = tail.knots.slice(tail.knots.indexOf(at)).flatMap((s: number, k: number, suffix: number[]): number[] =>
+      k + 1 === suffix.length ? [s] : [s, (s + suffix[k + 1]!) / 2],
+    );
+    return (output: Pick<IStored, "knots" | "values">): string | null => {
+      const start: number = output.knots.indexOf(at);
+      const tailStart: number = tail.knots.indexOf(at);
+      if (start < 0 || output.knots.length - start !== tail.knots.length - tailStart ||
+          output.knots.slice(start).some((s: number, i: number): boolean => s !== tail.knots[tailStart + i]))
+        return "the protected distal knot vector changed";
+      if (output.values.length !== tail.values.length ||
+          output.values.some((field: number[], f: number): boolean =>
+            field.length !== output.knots.length ||
+            field.slice(start).some((y: number, i: number): boolean => y !== tail.values[f]![tailStart + i])))
+        return "the protected distal ordinates changed";
+      const prepared = output.values.map((field: number[]) => AutoMovieNaturalSpline.create(output.knots, field));
+      const count: number = output.knots.length + tail.knots.length;
+      const span: number = Math.min(...[output.knots, tail.knots].flatMap((knots: number[]): number[] => knots.slice(1).map((s: number, k: number): number => s - knots[k]!)));
+      for (const [f, prior] of source.entries()) {
+        const scale: number = Math.max(1, ...prior.ys.map(Math.abs), ...prepared[f]!.ys.map(Math.abs));
+        for (const s of traces) {
+          const a = AutoMovieNaturalSpline.read(prior, s);
+          const b = AutoMovieNaturalSpline.read(prepared[f]!, s);
+          for (let order: number = 0; order <= 2; ++order) {
+            const rounding: number = Number.EPSILON * count * count * scale / Math.min(1, span) ** order;
+            if (!(Math.abs(a[order]! - b[order]!) <= rounding))
+              return "tail field " + f + " differs at " + s + " mm, order " + order + " (" + a[order] + " vs " + b[order] + ")";
+          }
+        }
+      }
+      return null;
+    };
+  }
+
+  /** One full-knot representation of a root fit with an exact canonical distal spline. */
+  export interface ITailFit {
+    /** The retained cut between variable root geometry and the fixed distal spline. */
+    mark: number;
+    /** All spline stations, including every canonical distal knot. */
+    knots: number[];
+    /** Full initial fields from exact canonical subdivision and first tangent extension. */
+    initial: number[][];
+    /** Indices of independently adjustable proximal ordinates in the full vector. */
+    free: number[];
+    /** Map the derivatives with respect to all ordinates to the independent prefix. */
+    basis: (full: readonly number[]) => number[];
+    /** Expand one field from values at the independent proximal ordinates. */
+    expand: (field: number, values: readonly number[]) => number[];
+    /** Verify exact stored suffix ordinates and its runtime value and two derivatives. */
+    check: (output: Pick<IStored, "knots" | "values">) => string | null;
+  }
+
+  /**
+   * Resolve the natural-cubic join curvature before fitting the physical prefix.
+   *
+   * @evidence contracts/development/implementation.md#principled-implementation Fixed canonical ordinates and one derivative equation determine the distal cubic. Elimination uses cardinal curvatures with the largest coefficient as pivot.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The first tangent extends only the initializer, preserving the old natural cubic exactly. No points in the extension become skin observations.
+   */
+  export function constrainTail(
+    tail: Pick<IStored, "knots" | "values">,
+    mark: number,
+    observed: readonly number[],
+  ): ITailFit | string {
+    const start: number = tail.knots.indexOf(mark);
+    if (start <= 0 || start === tail.knots.length - 1 || observed.length === 0 ||
+        observed.some((s: number): boolean => !(Number.isFinite(s) && s < mark)) ||
+        observed[0]! > tail.knots[0]!)
+      return "a constrained root needs a supported start by its first knot, the exact retained knot and its distal interval";
+    const knots: number[] = [...new Set([...observed, ...tail.knots])].sort((a: number, b: number): number => a - b);
+    const join: number = knots.indexOf(mark);
+    const curvature = (field: readonly number[]): number =>
+      AutoMovieNaturalSpline.derivative(AutoMovieNaturalSpline.create(knots, field), mark)[1];
+    const prefix: number[] = knots.slice(0, join).map((_: number, i: number): number => i);
+    const coefficients: number[] = prefix.map((index: number): number => curvature(knots.map((_: number, k: number): number => Number(k === index))));
+    const pivot: number = prefix.reduce((a: number, i: number): number =>
+      Math.abs(coefficients[i]!) > Math.abs(coefficients[a]!) ? i : a);
+    const scale: number = coefficients[pivot]!;
+    if (!Number.isFinite(scale) || scale === 0)
+      return "the physical prefix has no ordinate for the protected join curvature";
+    const free: number[] = prefix.filter((k: number): boolean => k !== pivot);
+    const ratios: number[] = free.map((k: number): number => coefficients[k]! / scale);
+    const source = tail.values.map((field: number[]) => AutoMovieNaturalSpline.create(tail.knots, field));
+    const fixed: number[][] = tail.values.map((field: number[], f: number): number[] => {
+      const values: number[] = [...new Array<number>(join).fill(0), ...field.slice(start)];
+      values[pivot] = (AutoMovieNaturalSpline.derivative(source[f]!, mark)[1] - curvature(values)) / scale;
+      return values;
+    });
+    const expand = (f: number, reduced: readonly number[]): number[] => {
+      const values: number[] = [...fixed[f]!];
+      let dependent: number = values[pivot]!;
+      free.forEach((k: number, i: number): void => {
+        values[k] = reduced[i]!;
+        dependent -= ratios[i]! * reduced[i]!;
+      });
+      values[pivot] = dependent;
+      return values;
+    };
+    const initial: number[][] = source.map((field, f: number): number[] =>
+      expand(f, free.map((k: number): number => {
+        const s: number = knots[k]!;
+        const existing: number = tail.knots.indexOf(s);
+        return existing < 0 ? AutoMovieNaturalSpline.evaluate(field, s) : tail.values[f]![existing]!;
+      })));
+    const check = tailTrace(tail, mark);
+    const failure: string | null = check({ knots, values: initial });
+    return failure ?? {
+      mark, knots, initial, free,
+      basis: (full: readonly number[]): number[] =>
+        free.map((k: number, i: number): number => full[k]! - full[pivot]! * ratios[i]!),
+      expand, check,
+    };
+  }
+
+  /**
+   * Hold the canonical tail's scalar jets at its first retained knot. Matching
+   * its values and that second derivative fixes every following cubic piece.
+   * Every canonical knot remains fixed. The first fitted ordinate is held
+   * when the prefix has another degree of freedom. A prefix with only one
+   * measured knot uses that ordinate as the dependent coefficient and the
+   * caller must remeasure the exposed root. Both in-memory and serialized
+   * walls must still pass the trace read below.
+   */
+  export function holdTail(
+    wall: Pick<IStored, "knots" | "values">,
+    tail: Pick<IStored, "knots" | "values">,
+    at: number,
+  ): { values: number[][]; changed: number[]; check: (output: Pick<IStored, "knots" | "values">) => string | null } | string {
+    const join: number = wall.knots.indexOf(at);
+    const start: number = tail.knots.indexOf(at);
+    if (join < 0 || start < 0 || start === tail.knots.length - 1)
+      return "the splice lacks the shared knot and a distal interval at " + at + " mm";
+    const free: number[] = wall.knots.map((_: number, k: number): number => k).filter((k: number): boolean => k > 0 && k < join);
+    if (join === 1) free.push(0);
+    const curvature = (field: number[]): number =>
+      AutoMovieNaturalSpline.derivative(AutoMovieNaturalSpline.create(wall.knots, field), at)[1];
+    const gradients: number[] = free.map((index: number): number => curvature(wall.knots.map((_: number, k: number): number => Number(k === index))));
+    const norm: number = gradients.reduce((sum: number, g: number): number => sum + g * g, 0);
+    const values: number[][] = [];
+    const source = tail.values.map((field: number[]) => AutoMovieNaturalSpline.create(tail.knots, field));
+    for (const [f, field] of wall.values.entries()) {
+      const expected: number = AutoMovieNaturalSpline.derivative(source[f]!, at)[1];
+      const miss: number = expected - curvature(field);
+      const held: number[] = [...field];
+      if (norm > 0)
+        free.forEach((index: number, k: number): void => { held[index] = field[index]! + gradients[k]! * miss / norm; });
+      values.push(held);
+    }
+    const check = tailTrace(tail, at);
+    const failure: string | null = check({ knots: wall.knots, values });
+    return failure === null ? {
+      values,
+      changed: free.filter((i: number): boolean => values.some((field: number[], f: number): boolean => field[i] !== wall.values[f]![i])).map((i: number): number => wall.knots[i]!),
+      check,
+    } : (norm === 0 ? "no free prefix knot to hold the canonical tail: " : "cannot hold the canonical tail: ") + failure;
+  }
+
   /**
    * The refusals of a stored family realized alone as a construction source, the path the figure is built by, over layers `layer` mm apart.
    *
@@ -40,15 +835,19 @@ export namespace FamilyConicLoft {
    * native chain there, so a family the view loft admits can still be refused: a cutter whose fields run far outside its sections, and an
    * ear on a course that turns, both were.
    */
-  export function refusals(stored: IStored, layer: number = 4): string[] {
+  export function refusals(stored: IStored, layer: number = 4, required: readonly number[] = []): string[] {
     const first: number = stored.knots[0]!;
     const last: number = stored.knots.at(-1)!;
     const count: number = Math.max(2, Math.ceil((last - first) / layer) + 1);
-    const stations: number[] = Array.from(
+    const sampled: number[] = Array.from(
       { length: count },
       (_: unknown, i: number): number =>
-        first + ((last - first) * i) / (count - 1),
+        i === 0 ? first : i === count - 1 ? last :
+          first + ((last - first) * i) / (count - 1),
     );
+    if (required.some((station: number): boolean => station < first || station > last))
+      return ["the native source does not own a required station"];
+    const stations: number[] = [...new Set([...sampled, ...required])].sort((a: number, b: number): number => a - b);
     try {
       const real = realizeAutoMovieConstruction(
         {

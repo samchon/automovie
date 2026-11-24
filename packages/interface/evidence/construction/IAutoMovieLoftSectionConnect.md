@@ -33,3 +33,21 @@ Native endpoints are not Cartesian Taylor jets; basis endpoints are complete fun
 ## @evidence contracts/development/common.md#meaningful-documentation
 
 Native end selects weight one at that end, and all station coordinates use mm.
+
+# src/construction/IAutoMovieLoftSectionConnect.ts#IAutoMovieLoftSectionConnect.IOriginal
+
+## @evidence contracts/development/design.md#principled-representation
+
+Its complete physical station and radian phase functions own the supported interval; the original distal section law owns the exact protected boundary.
+
+## @evidence contracts/development/design.md#minimal-and-owned-surface
+
+Direct reads and emitted chains share these three capabilities and one immutable interval.
+
+## @evidence contracts/development/design.md#prohibited-design-shortcuts
+
+The point and derivatives are source functions. Compatibility rows neither supply nor repair a missing original coordinate or derivative.
+
+## @evidence contracts/development/common.md#meaningful-documentation
+
+Defines local units, immutable source lifetime and the protected endpoint convention.

@@ -2,9 +2,10 @@ import type {
   IAutoMovieConstructionNode,
   IAutoMovieConstructionRealization,
   IAutoMovieConstructionSplit,
+  IAutoMovieConstructionSplitCompose,
   IAutoMovieSolidSurface,
 } from "@automovie/interface";
-import { realizeAutoMovieConstruction } from "@automovie/engine";
+import { AutoMovieConstructionSplitCompose, AutoMovieConstructionViews, AutoMovieLoftFrame, AutoMovieViewLoft, realizeAutoMovieConstruction } from "@automovie/engine";
 
 import { ConstructionRead } from "../../internal/construction/ConstructionRead";
 import { ConstructionShapes } from "../../internal/construction/ConstructionShapes";
@@ -126,6 +127,43 @@ export function test_construction_split_compose(): void {
   const b: number = 0.3;
   const [c2, s2]: [number, number] = [Math.cos(b / 2), Math.sin(b / 2)];
   const apex: number = (9 - fork(b)) / Math.tan(b / 2);
+
+  // The engine keeps the child intersection and the host ring crossing as different owned coordinates on one seam plane.
+  const childY = Math.sqrt(81 - fork(b) ** 2), hostY = childY * 1.02;
+  const separated = split({ lean: b, host: trunk(24.5, hostY / Math.sqrt(1 - (fork(b) / 24.5) ** 2)) });
+  const physical = (node: IAutoMovieConstructionNode, top: boolean, sign: 1 | -1) => {
+    if (node.type !== "view") throw new Error("the made fixture lost its original view");
+    const view = AutoMovieConstructionViews.part(node);
+    if (typeof view === "string") throw new Error(view);
+    const { chain, surface, diagnostics } = AutoMovieViewLoft.create(view);
+    if (chain === null || surface?.domain === undefined)
+      throw new Error(diagnostics.map((row) => row.detail).join(", "));
+    const layer = chain.layers[top ? chain.layers.length - 1 : 0]!;
+    const basis = AutoMovieConstructionSplitCompose.basis(layer.frame ?? AutoMovieLoftFrame.horizontal(layer.y), sign);
+    if (basis === null) throw new Error("the made split lost its physical plane");
+    return { surface, station: layer.y, basis, stations: chain.layers.map((row) => row.y) };
+  };
+  const host = physical(separated.host, true, 1), compose = separated.compose!;
+  const children = separated.children.map((row): IAutoMovieConstructionSplitCompose.IChild =>
+    ({ ...physical(row.part, false, 1), name: row.partFace, into: 1, rail: 1000 * row.rail }));
+  const plane = AutoMovieConstructionSplitCompose.plane(compose.plane, host.basis)!;
+  const prepared = children.map((child) => {
+    const out = AutoMovieConstructionSplitCompose.section(plane, child, separated.count);
+    if (typeof out === "string") throw new Error(out);
+    return out;
+  });
+  const input = { compose, host, children, count: separated.count };
+  const distinct = AutoMovieConstructionSplitCompose.derive(input, prepared);
+  if (typeof distinct === "string") failures.push(distinct);
+  else {
+    const child = distinct.composition.seams[0]!.forks.map((f) => f.point);
+    const parent = distinct.seams[0]!.map((angle) => host.surface.jet(host.station, angle).p);
+    if (child.some((p) => Math.abs(Math.abs(p[1]) - childY) > 1e-6 || Math.abs(p[0] - fork(b)) > 1e-6) ||
+        parent.some((p) => Math.abs(Math.abs(p[1]) - hostY) > 1e-6 || Math.abs(p[0] - fork(b)) > 1e-6))
+      failures.push("the same physical seam plane lost one of its distinct original fork coordinates");
+  }
+  if (typeof AutoMovieConstructionSplitCompose.derive(input, [...prepared].reverse()) !== "string")
+    failures.push("prepared sections from different ordered wall identities were reused");
 
   // 1. The composed tree.
   const real: IAutoMovieConstructionRealization.IRealization = realize(split({ lean: b }));

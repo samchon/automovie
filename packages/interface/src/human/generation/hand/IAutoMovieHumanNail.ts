@@ -26,14 +26,40 @@ export namespace IAutoMovieHumanNail {
   export interface ISkin {
     /**
      * The skin's point at a station and a phase of the digit's chart, mm in the figure's frame.
+     * Plate measurements use the interval from first to tip. The relief alone may
+     * also read the preceding chart supplied by proximal.
      */
     point: (station: number, phase: number) => readonly number[];
 
-    /** The first station the nail may read, mm. */
+    /** The first station of the fitted distal chart, mm. */
     first: number;
 
     /** The station of the digit's tip, where its skin closes, mm. */
     tip: number;
+
+    /**
+     * The point reader's exact bilinear chart samples in figure-world mm, when
+     * it is backed by such a grid. Rows step equally from first to tip,
+     * inclusive. Columns start at phase zero and step equally through a turn
+     * without repeating the initial column. Interpolation wraps that last
+     * interval to column zero. The grid and point callback must read the same
+     * surface to kernel arithmetic precision.
+     */
+    grid?: readonly (readonly AutoMovieVector3Tuple[])[];
+
+    /**
+     * Ordered rings on the same owning skin from its actual first station up to
+     * the fitting chart. The first ring of the fit is shared and appears only in
+     * the fitting grid. Rings use that chart's same unrepeated phase columns.
+     * When supplied, point also evaluates this piecewise bilinear chart.
+     */
+    proximal?: readonly {
+      /** Station on the owning skin chart in millimetres. */
+      station: number;
+
+      /** Positions on the original skin ring, in figure-world millimetres. */
+      ring: readonly AutoMovieVector3Tuple[];
+    }[];
   }
 
   /**
@@ -100,7 +126,7 @@ export namespace IAutoMovieHumanNail {
     /** The plate's sagitta over the chord between its edges, least and greatest over the visible plate, mm. */
     sagitta: [number, number];
 
-    /** The greatest height the bed's net was asked to hold in its three outer rings, where the engine needs zero, mm. */
+    /** Largest absolute height requested of either net's three outer rows or columns, where the engine requires zero, mm. */
     clipped: number;
 
     /** Where `clipped` stands in the nail's frame: `[along the distal axis from the joint, aside]`, mm. */

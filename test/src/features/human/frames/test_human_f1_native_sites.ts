@@ -13,8 +13,8 @@ import type { IAutoMovieViewAxis } from "@automovie/interface";
  * Scenarios:
  * 1. Every site lies inside its declared run with tau in [0, 1] (a provisional site's tau is its run share), and the knee, calf, elbow,
  *    wrist and head sites are carried by the femur, tibia, humerus, forearm and head.
- * 2. A site defined as the course station nearest a datum is a local minimum of the course's distance to that datum: 0.05 mm either side
- *    is no nearer.
+ * 2. A nearest-datum site is a local minimum of the course's distance: 0.05 mm either side is no nearer. The foot's ball datum
+ *    lies in its named section plane, including after a rigid translation and reflection.
  * 3. Carrying f1's sites through f1's own runs returns every station bit for bit, and every course's station map is the shared identity.
  * 4. The calibration's exported site tables (`WALL`, `ARM`, `LEG`) and root caliper offsets (`RAIL`) are exactly the site owner's stations
  *    and the rails' single landing owner; the failure lists every site with its signed difference.
@@ -57,6 +57,10 @@ export function test_human_f1_native_sites(): void {
   ] as const)
     if (site.segment !== segment) failures.push(`${what} is carried by ${site.segment}, not ${segment}`);
 
+  if (sites.arm.elbow.run.to !== "lowerarm" || sites.arm.elbow.run.tau !== 1 ||
+      sites.arm.elbow.station !== sites.runs.arm[sites.arm.elbow.run.index + 1])
+    failures.push("the elbow caliper is not at the humerus run's named terminal joint");
+
   // 2. Nearest-datum sites are local minima of the distance to their datum.
   const axes: Record<string, IAutoMovieViewAxis.IAxis> = {
     arm: H.axis(Sites.F1.body.arm),
@@ -73,7 +77,6 @@ export function test_human_f1_native_sites(): void {
     [sites.arm.wrist, mid("styloidRadial", "styloidUlnar"), "arm.wrist"],
     [sites.leg.knee, Sites.F1.point("calf"), "leg.knee"],
     [sites.extremities.hand, mid("index1", "pinky1"), "extremities.hand"],
-    [sites.extremities.foot, Sites.F1.point("footBall"), "extremities.foot"],
   ];
   for (const [site, datum, name] of datums) {
     const axis: IAutoMovieViewAxis.IAxis = axes[site.family]!;
@@ -84,6 +87,31 @@ export function test_human_f1_native_sites(): void {
     if (d(site.station - 0.05) < d(site.station) - 1e-9 || d(site.station + 0.05) < d(site.station) - 1e-9)
       failures.push(`${name} ${site.station} is not the course station nearest its datum`);
   }
+
+  // The foot's distinct support rule puts the ball datum in the terminal section plane.
+  const leg = Sites.F1.body.leg;
+  const datum = Sites.F1.point("footBall");
+  const foot = sites.extremities.foot.station;
+  const inPlane = (axis: IAutoMovieViewAxis.IAxis, station: number, point: readonly number[]): boolean => {
+    const { origin, u, v } = axis.at(station);
+    const normal: [number, number, number] = [
+      v[1] * u[2] - v[2] * u[1],
+      v[2] * u[0] - v[0] * u[2],
+      v[0] * u[1] - v[1] * u[0],
+    ];
+    const signed: number = normal.reduce((sum: number, n: number, k: number): number => sum + n * (point[k]! - origin[k]!), 0);
+    return Math.abs(signed) <= 1e-9;
+  };
+  if (foot !== Sites.footStation(leg, datum) || !inPlane(H.axis(leg), foot, datum))
+    failures.push("the ball-of-foot caliper does not use its anatomical section plane");
+  const shift = (p: readonly number[]): [number, number, number] => [p[0]! + 1.25, p[1]! - 2.5, p[2]! + 5.75];
+  const moved = { ...leg, centres: leg.centres.map(shift) };
+  const reflected = H.mirror(moved, leg.name + ".mirror");
+  const p = shift(datum);
+  const q: [number, number, number] = [p[0], p[1], -p[2]];
+  const carriedFoot: number = Sites.footStation(reflected, q);
+  if (Math.abs(foot - carriedFoot) > 1e-9 || !inPlane(H.axis(reflected), carriedFoot, q))
+    failures.push("the translated reflected ball-of-foot site does not preserve its section plane");
 
   // 3. The identity carry.
   const carried: Sites.ISites = Sites.resolve(Sites.F1);

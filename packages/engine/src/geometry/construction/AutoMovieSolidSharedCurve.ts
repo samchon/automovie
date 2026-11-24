@@ -6,6 +6,7 @@ import type {
   IAutoMovieSolidSharedCurve,
   IAutoMovieSolidSurface,
 } from "@automovie/interface";
+import { AutoMovieLoftAdmissionError } from "./AutoMovieLoftAdmissionError";
 import { AutoMovieSolidDomain } from "./AutoMovieSolidDomain";
 import { AutoMovieSolidIntersection } from "./AutoMovieSolidIntersection";
 import { AutoMovieSolidVector } from "./AutoMovieSolidVector";
@@ -18,6 +19,10 @@ type IJet = IAutoMovieSolidSurface.IJet;
 
 /** A point of the shared curve. */
 type IPoint = IAutoMovieSolidIntersection.IPoint;
+/** The original chart coordinates and two clock derivatives. */
+type IChart = ReturnType<IAutoMovieSolidSharedCurve.Loop>;
+/** Contact at one clock, or the exact premise which refused it. */
+type Reading = { point: IPoint; gap: number } | string;
 const { combine, cross, dot, norm, scale, solve2, sub, unit }: typeof AutoMovieSolidVector = AutoMovieSolidVector;
 
 /**
@@ -32,6 +37,8 @@ const { combine, cross, dot, norm, scale, solve2, sub, unit }: typeof AutoMovieS
  * Newton on `A_s . (A - C) = 0`, `A_phi . (A - C) = 0`, a problem that stays regular at any angle between the surfaces. The part's
  * rates solve `I_A (s', phi') = (A_s . C', A_phi . C')` and `I_A (s'', phi'') = (A_s . (C'' - Q_A), A_phi . (C'' - Q_A))`, exact
  * where the loop lies on the part and within the gap's order where it stands off by less than the tolerance.
+ * When an authored source supplies both charts, map both actual surface jets at each clock and compare their signed world 2-jets.
+ * Those same addresses then drive the rails and trims.
  *
  * What the surfaces decide, with no arc declared: the turn between the two outward normals at each point is the fold's angle, which a
  * `fold` width law reads (`AutoMovieConstructionWidths`); a point where the tangent planes meet under `grazing` is on a smooth arc
@@ -72,24 +79,64 @@ export namespace AutoMovieSolidSharedCurve {
       diagnostics: [{ producer, level: 6, contract, detail }],
     });
 
-    /** The curve's point at a clock with the part's foot from a chart guess, or the premise that failed. */
-    const evaluate = (t: number, guess: readonly [number, number]): { point: IPoint; gap: number } | string => {
-      const c: ReturnType<IAutoMovieSolidSharedCurve.Loop> = input.loop(t);
+    /** The world curve's signed velocity and acceleration through an original chart. */
+    const derivatives = (chart: IChart, jet: IJet): [Vec3, Vec3] => [
+      combine([[chart.first[0], jet.u], [chart.first[1], jet.v]]),
+      combine([
+        [chart.first[0] ** 2, jet.uu], [2 * chart.first[0] * chart.first[1], jet.uv], [chart.first[1] ** 2, jet.vv],
+        [chart.second[0], jet.u], [chart.second[1], jet.v],
+      ]),
+    ];
+
+    /** The projected and paired paths publish the same contact record. */
+    const contact = (t: number, c: IChart, d: IChart, b: IJet, a: IJet, tangent: Vec3, second: Vec3): Reading => {
+      const nA: Vec3 | null = unit(cross(a.u, a.v));
+      const nB: Vec3 | null = unit(cross(b.u, b.v));
+      if (nA === null || nB === null) return `a normal vanishes at the loop point [${c.point[0]}, ${c.point[1]}]`;
+      return {
+        point: {
+          t, phi: d.point[1], s: d.point[0], face: index, y: c.point[0], theta: c.point[1],
+          point: b.p, tangent, second, rate: [...d.first, ...c.first], rate2: [...d.second, ...c.second],
+          angle: Math.acos(Math.min(1, Math.abs(dot(nA, nB)))),
+        },
+        gap: norm(sub(a.p, b.p)),
+      };
+    };
+
+    /** Compare analytic world vectors at the kernel's roundoff scale. */
+    const sameVector = (a: Vec3, b: Vec3): boolean => {
+      const scale: number = Math.max(norm(a), norm(b));
+      return Number.isFinite(scale) && norm(sub(a, b)) <= ROUNDING * (1 + scale);
+    };
+
+    /** Read the two original charts, or run the legacy foot from its continuation guess. */
+    const evaluate = (t: number, guess: readonly [number, number]): Reading => {
+      let c: IChart;
+      let d: IChart | undefined;
+      try {
+        c = input.loop(t);
+        d = input.partAt?.(t);
+      } catch (error: unknown) {
+        if (error instanceof AutoMovieLoftAdmissionError) return error.message;
+        throw error;
+      }
       const b: IJet | null = AutoMovieSolidDomain.jet(face, c.point[0], c.point[1]);
       if (b === null) return `the loop leaves the host face's domain at [${c.point[0]}, ${c.point[1]}]`;
 
-      // The host's map of the loop: the curve's point and its two clock derivatives.
-      const tangent: Vec3 = combine([
-        [c.first[0], b.u],
-        [c.first[1], b.v],
-      ]);
-      const second: Vec3 = combine([
-        [c.first[0] * c.first[0], b.uu],
-        [2 * c.first[0] * c.first[1], b.uv],
-        [c.first[1] * c.first[1], b.vv],
-        [c.second[0], b.u],
-        [c.second[1], b.v],
-      ]);
+      const [tangent, second]: [Vec3, Vec3] = derivatives(c, b);
+      if (input.partAt !== undefined) {
+        if (d === undefined) return "the original part chart reader returned no address";
+        const a: IJet | null = AutoMovieSolidDomain.jet(part, ...d.point);
+        if (a === null) return `the original part chart is unavailable at [${d.point.join(", ")}]`;
+        const gap: number = norm(sub(a.p, b.p));
+        if (!(gap <= input.tolerance)) return `the paired original points differ by ${gap} mm`;
+        const [first, next]: [Vec3, Vec3] = derivatives(d, a);
+        if (!(norm(tangent) > 0 && sameVector(tangent, first)))
+          return `the paired original first derivatives disagree by ${norm(sub(tangent, first))} mm per radian`;
+        if (!sameVector(second, next))
+          return `the paired original second derivatives disagree by ${norm(sub(second, next))} mm per squared radian`;
+        return contact(t, c, d, b, a, tangent, second);
+      }
 
       // The part's foot of the point: Newton on the two orthogonality equations with their own second-order terms.
       let s: number = guess[0];
@@ -138,32 +185,15 @@ export namespace AutoMovieSolidSharedCurve {
         ]),
       );
       const rate2: [number, number] | null = solve2(E, F, F, G, [dot(a.u, rest), dot(a.v, rest)]);
-      const nA: Vec3 | null = unit(cross(a.u, a.v));
-      const nB: Vec3 | null = unit(cross(b.u, b.v));
-      if (rate2 === null || nA === null || nB === null) return `a normal vanishes at the loop point [${c.point[0]}, ${c.point[1]}]`;
-      return {
-        point: {
-          t,
-          phi,
-          s,
-          face: index,
-          y: c.point[0],
-          theta: c.point[1],
-          point: b.p,
-          tangent,
-          second,
-          rate: [rate[0], rate[1], c.first[0], c.first[1]],
-          rate2: [rate2[0], rate2[1], c.second[0], c.second[1]],
-          angle: Math.acos(Math.min(1, Math.abs(dot(nA, nB)))),
-        },
-        gap: norm(sub(a.p, b.p)),
-      };
+      if (rate2 === null) return `the part's chart has no second rate at the loop point's foot [${s}, ${phi}]`;
+      return contact(t, c, { point: [s, phi], first: rate, second: rate2 }, b, a, tangent, second);
     };
 
     // Where the first foot starts: the given chart point, or the nearest point of a grid over the part.
     if (!(Number.isInteger(input.count) && input.count >= 8)) return refuse("shared loop", `the count ${input.count} is not an integer of at least 8`);
     let guess: [number, number];
-    if (input.start !== undefined) guess = [input.start[0], input.start[1]];
+    if (input.partAt !== undefined) guess = [0, 0];
+    else if (input.start !== undefined) guess = [input.start[0], input.start[1]];
     else {
       if (part.domain === undefined) return refuse("shared loop", "a part without a declared domain needs the start of its first foot");
       const origin: IJet | null = AutoMovieSolidDomain.jet(face, input.loop(0).point[0], input.loop(0).point[1]);
@@ -191,6 +221,14 @@ export namespace AutoMovieSolidSharedCurve {
       gaps.push(read.gap);
       guess = [read.point.s, read.point.phi];
     }
+
+    // Verify the original pair between the stored columns before either rail reads it.
+    if (input.partAt !== undefined)
+      for (let i: number = 0; i < input.count; ++i) {
+        const t: number = (turn * (i + 0.5)) / input.count;
+        const read: Reading = evaluate(t, guess);
+        if (typeof read === "string") return refuse("shared loop", `at interleaved clock ${t}: ${read}`);
+      }
 
     // A part that leaves the loop is refused with the arc it leaves over: the longest run of points off it, from its first clock to its last.
     const off: boolean[] = gaps.map((gap: number): boolean => !(gap <= input.tolerance));
@@ -227,6 +265,9 @@ export namespace AutoMovieSolidSharedCurve {
     );
     if (!(miss <= 10 * input.tolerance))
       return refuse("closed loop", `the part's foot returns ${miss} mm from its start after one turn of the loop`);
+    if (input.partAt !== undefined &&
+        (!sameVector(first.tangent, closing.point.tangent) || !sameVector(first.second, closing.point.second)))
+      return refuse("closed loop", "the authored boundary does not return to its signed first and second derivatives");
     const winding: number = face.period === undefined ? 0 : Math.round((closing.point.theta - first.theta) / face.period);
     if (winding !== 0)
       return refuse("enclosed loop", `the loop winds ${winding} times round the host's phase: it must enclose a region of the host's chart`);

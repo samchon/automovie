@@ -13,6 +13,7 @@ import { AutoMovieLoftSectionBoundary } from "./AutoMovieLoftSectionBoundary";
 import { AutoMovieLoftSectionConnect } from "./AutoMovieLoftSectionConnect";
 import { AutoMovieLoftSectionLegacy } from "./AutoMovieLoftSectionLegacy";
 import { AutoMovieLoftSectionNative } from "./AutoMovieLoftSectionNative";
+import { AutoMovieLoftSectionOriginal } from "./AutoMovieLoftSectionOriginal";
 import { AutoMovieLoftSectionSource } from "./AutoMovieLoftSectionSource";
 import { AutoMovieLoftViewRead } from "./AutoMovieLoftViewRead";
 
@@ -41,6 +42,7 @@ export namespace AutoMovieLoftSection {
   export function present(chain: IAutoMovieLoftChain): boolean {
     return (
       chain.nativeSource !== undefined ||
+      chain.originalSection !== undefined ||
       chain.sectionSpans !== undefined ||
       chain.layers.some(
         (layer: IAutoMovieLoftChain.ILayer): boolean =>
@@ -54,6 +56,10 @@ export namespace AutoMovieLoftSection {
    */
   export function regular(chain: IAutoMovieLoftChain): boolean {
     if (!AutoMovieLoftSectionSource.regular(chain)) return false;
+    if (chain.originalSection !== undefined && (
+      chain.nativeSource === undefined ||
+      AutoMovieLoftSectionOriginal.fault(chain.originalSection, chain.layers[0]!.y, chain.nativeSource.data.domain[1]) !== null
+    )) return false;
     if (!present(chain))
       return chain.layers.every(
         (layer: IAutoMovieLoftChain.ILayer): boolean =>
@@ -94,6 +100,8 @@ export namespace AutoMovieLoftSection {
     station: number,
   ): ((phi: number) => IAutoMovieLoftSectionPhase) | null {
     if (!present(chain)) return null;
+    if (AutoMovieLoftSectionOriginal.active(chain.originalSection, station))
+      return (phi) => chain.originalSection!.phase(station, phi);
     const selected: Owner | null = owner(chain, station);
     if (selected === null) return null;
     if (selected.kind === "source")
@@ -140,6 +148,8 @@ export namespace AutoMovieLoftSection {
     station: number,
   ): ((phi: number) => IAutoMovieLoftSectionJet) | null {
     if (!present(chain)) return null;
+    if (AutoMovieLoftSectionOriginal.active(chain.originalSection, station))
+      return (phi) => chain.originalSection!.jet(station, phi);
     const selected: Owner | null = owner(chain, station);
     if (selected === null) return null;
     if (selected.kind === "source")

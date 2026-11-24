@@ -1,10 +1,9 @@
-import { AutoMovieHumanConicSection } from "../conic/AutoMovieHumanConicSection";
+import type { IAutoMovieHumanConicLoft } from "@automovie/interface";
 import { AutoMovieHumanF1Joints } from "./AutoMovieHumanF1Joints";
 import { AutoMovieHumanF1Placement } from "./AutoMovieHumanF1Placement";
-import type { IAutoMovieHumanConicLoft } from "@automovie/interface";
 
 /**
- * f1's toe.big tape wall on the +Z side; the other side is its mirror image in the median plane z = 0, which f1's reference satisfies exactly.
+ * f1's toe.big tape wall on the +Z side; the authored geometry is reflected across the body's median plane at z = 0.
  *
  * Frame: the figure's absolute reference pose, millimetres, forward +X, up +Y, +Z the reference's left. The course runs
  * through `centres` with a turn of half length `halves` at each joint; stations are arclength from the first centre and each
@@ -14,49 +13,44 @@ import type { IAutoMovieHumanConicLoft } from "@automovie/interface";
  * them: the section is a chain of conics through its four extremes, fitted to the convex hull of the reference skin
  * (the path of a taut tape).
  *
- * Source: the f1 reference body cut by this course's own planes over stations 21 to 53 mm, 33 sections 1 mm apart, every
- * second one withheld from the fit. Fitted offline by `test/src/reference-conics/FamilyConicBody.ts` (joint least squares over
- * all sections). Regenerated through the engine's view loft from these numbers alone, the reference skin's cut vertices lie
- * 0.11 mm from it on average and at most 0.58 mm. 65 independent numbers.
+ * Source: a measured proximal field and its exact carried distal source. The independent native wall and cap checked the input geometry.
+ * The assembled attachment and its retained ownership still require inspection on the complete figure.
  */
 export const AutoMovieHumanF1ToeBig: IAutoMovieHumanConicLoft.IFamily = {
   name: "toe.big",
   centres: [AutoMovieHumanF1Joints.bigtoe1, AutoMovieHumanF1Joints.bigtoe2, AutoMovieHumanF1Joints.bigtoeEnd],
   halves: [5],
   up: AutoMovieHumanF1Placement.direction("toe.big.up"),
-  layout: AutoMovieHumanConicSection.limb(0),
-  knots: [21, 31, 37, 43, 53],
+  layout: {"mirror": false, "anchors": [{"kind": "u", "guide": true, "pick": "max"}, {"kind": "v", "guide": true, "pick": "max"}, {"kind": "u", "guide": true, "pick": "min"}, {"kind": "v", "guide": true, "pick": "min"}], "least": 0.3},
+  knots: [2, 14, 21, 31, 37, 43, 53],
   values: [
     // front (+u) extreme: u, mm
-    [6.95, 6.44, 5.17, 5.59, 6.77],
+    [9.12, 6.993356682864, 6.95, 6.44, 5.17, 5.59, 6.77],
     // front (+u) extreme: v, mm
-    [-2.58, -4.5, -5.41, -0.46, 1.58],
+    [0.46, -1.725423804226919, -2.58, -4.5, -5.41, -0.46, 1.58],
     // side (+v) extreme: u, mm
-    [-6.64, -7.65, -7.11, -3.97, -0.66],
+    [-8.52, -6.128142058427492, -6.64, -7.65, -7.11, -3.97, -0.66],
     // side (+v) extreme: v, mm
-    [9.95, 11.06, 11.07, 10.84, 6.89],
+    [7.68, 8.952311896259, 9.95, 11.06, 11.07, 10.84, 6.89],
     // back (-u) extreme: u, mm
-    [-15.32, -15.49, -14.82, -13.75, -8.55],
+    [-13.04, -14.810236095661846, -15.32, -15.49, -14.82, -13.75, -8.55],
     // back (-u) extreme: v, mm
-    [-4.88, -3.66, -3.28, -5.44, -4.35],
+    [-7.96, -5.663027618406419, -4.88, -3.66, -3.28, -5.44, -4.35],
     // side (-v) extreme: u, mm
-    [-8.29, -7.01, -5.32, -5.27, -3.27],
+    [-17.89, -9.364129529887009, -8.29, -7.01, -5.32, -5.27, -3.27],
     // side (-v) extreme: v, mm
-    [-13.6, -14.78, -14.4, -13.71, -9.56],
+    [-18.33, -13.028891224167204, -13.6, -14.78, -14.4, -13.71, -9.56],
     // shoulder rho of the arc after anchor 0, share
-    [0.4309, 0.4408, 0.4703, 0.2395, 0.2682],
+    [0.5795, 0.46878017051109416, 0.4309, 0.4408, 0.4703, 0.2395, 0.2682],
     // shoulder rho of the arc after anchor 1, share
-    [0.4596, 0.4311, 0.3978, 0.4794, 0.5619],
+    [0.8941, 0.4969676738774077, 0.4596, 0.4311, 0.3978, 0.4794, 0.5619],
     // shoulder rho of the arc after anchor 2, share
-    [0.503, 0.5131, 0.5546, 0.4157, 0.4009],
+    [0.9453, 0.5607877938938002, 0.503, 0.5131, 0.5546, 0.4157, 0.4009],
     // shoulder rho of the arc after anchor 3, share
-    [0.5015, 0.3764, 0.3487, 0.4349, 0.4347],
+    [0.918, 0.6078757350272231, 0.5015, 0.3764, 0.3487, 0.4349, 0.4347],
   ],
+  turn: 0.1,
 
   // The part closes in a point at `tip`, the station where the reference's own loop vanishes; its cap starts at `from`.
-  // Each extreme closes on its own outline's taper and bend (`own`, lofting.md: a closing law meets the wall's slope and bend where the two
-  // meet): with one taper for the whole section the cap left the wall on the nail's side falling 0.26 mm a millimetre toward the tip where
-  // the wall rises 0.12 (secants over the last span), a turn of 21 degrees that drew a ring across the top of the toe (`toes.left`,
-  // `toes.high-oblique`), and underneath 0.33 against 0.52. A side that still widens toward the tip leaves level (`TAPER.least`).
-  tips: [null, {from: 53, tip: 56.13, own: true}],
+  tips: [null, {from: 48.43, tip: 56.13, own: true, rings: 30}],
 };

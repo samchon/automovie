@@ -13,9 +13,8 @@ import type {
   AutoMovieVector2Tuple,
   IAutoMovieHumanConicLoft,
   IAutoMovieHumanConicSection,
-  IAutoMovieLoftRelief,
-  IAutoMovieViewAxis,
   IAutoMovieViewPart,
+  IAutoMovieHumanNativeFamily,
 } from "@automovie/interface";
 
 /** A full native source generated from qualified F1 controls, independently of any loft. */
@@ -34,46 +33,8 @@ export namespace AutoMovieHumanNativeFamily {
     girth: number;
   }
 
-  /**
-   * One invocation's original controls, axis, material addresses and directional tissue law.
-   *
-   * @evidence contracts/development/design.md#principled-representation Original and bone-placed families are distinct; physical mm address maps, positive local scales and actual native source ownership are explicit.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface All members are consumed by family, source or reflected-source construction; no observations or optional future solver are stored.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Original source definitions are borrowed immutable; no mesh, recovered reference or fabricated differential enters generation.
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its role and lifetime in the resolved invocation.
-   */
-  export interface ISpec {
-    /** Accepted normalized family controls, before the new skeleton placement. */
-    original: IAutoMovieHumanConicLoft.IFamily;
-    /** The same family's skeleton-placed local inputs, before native skin-root generation. */
-    bone: IAutoMovieHumanConicLoft.IFamily;
-    /** Actual original native controls for this invocation, with both reflected clocks. */
-    originals: ReadonlyMap<string, IAutoMovieViewPart>;
-    /** Explicit complete source/cap binding; absence retains the existing family producer. */
-    authority?: A.ISpec;
-    /** New original course and complete section planes. */
-    axis: IAutoMovieViewAxis.IAxis;
-    /**
-     * Positive directional chart scales in original material station, +u/-u and +v/-v. A scale from AutoMovieHumanNativeScaleProfile
-     * carries its station 2-jet and is applied to the source function, a(s)·f(s); a plain function scales the family's knot controls only.
-     */
-    scale: (station: number) => AutoMovieVector2Tuple;
-    /**
-     * The line the scale holds still, in each section's chart: every coordinate becomes c(s) + a(s)·(f(s) - c(s)). Absent, the scale
-     * acts about the course point. The consumer chooses the line; it needs a jet-carrying scale and stands on the course at a closing
-     * pole whose ratio is not 1.
-     */
-    centre?: Profile.ICentre;
-    /** Address/knot map in physical mm, not asserted a C2 surface pullback. */
-    station: (station: number) => number;
-    /** Once-resolved complete native feature definitions, shared with the root target. */
-    features: IAutoMovieLoftRelief[];
-    /** Complete native root/head targets under their distinct exact source contracts; null declares none. */
-    protection: readonly {
-      sources: ReadonlyMap<string, IAutoMovieViewPart>;
-      requirement: N.IProtection;
-    }[];
-  }
+  /** The bound native source and control inputs for this invocation. */
+  export type ISpec = IAutoMovieHumanNativeFamily.ISpec;
 
   /**
    * Encode every affine original point/tangent back into its unchanged native layout. With a centre off the chart origin each point

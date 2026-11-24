@@ -830,11 +830,10 @@ namespace FamilyConicNeutral {
     const started: number = performance.now();
     let real: ReturnType<typeof realizeAutoMovieConstruction>;
     try {
-      const declared: IAutoMovieHumanF1.IConstruction =
-        AutoMovieHumanF1.construction(undefined, P.NEUTRAL);
+      const declared = AutoMovieHumanF1.construction(undefined, P.NEUTRAL);
       real = realizeAutoMovieConstruction(
         { name: "f1.neutral", root: declared.root, fills: declared.fills },
-        { chord: 0.001, sources: declared.sources },
+        { chord: 0.001, sources: declared.sources, loopSources: declared.loopSources() },
       );
     } catch (error) {
       await fs.writeFile(

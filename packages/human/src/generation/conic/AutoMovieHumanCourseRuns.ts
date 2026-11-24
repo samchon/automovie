@@ -2,6 +2,7 @@ import { AutoMovieViewJointedCourse } from "@automovie/engine";
 import type {
   IAutoMovieViewAxis,
   IAutoMovieViewJointedCourse,
+  IAutoMovieHumanCourseRuns,
 } from "@automovie/interface";
 
 /**
@@ -28,21 +29,8 @@ export namespace AutoMovieHumanCourseRuns {
   /** Course stations of the run ends, increasing, mm; at least two. */
   export type IRuns = readonly number[];
 
-  /**
-   * A station map that also gives its first two derivatives.
-   *
-   * @evidence contracts/development/design.md#principled-representation The call keeps every `(station) => station` consumer; `jet` adds the derivatives a composed source function needs for its chain rule.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface One call signature and one member.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The derivatives are the map's closed form, never a finite difference.
-   * @evidence contracts/development/common.md#meaningful-documentation States units of the value and both derivatives.
-   */
-  export interface IMap {
-    /** The person's station of a reference station, mm. */
-    (s: number): number;
-
-    /** `[value mm, first derivative (dimensionless), second derivative per mm]` at a reference station. */
-    jet: (s: number) => [number, number, number];
-  }
+  /** A material station conversion with its first two derivatives. */
+  export type IMap = IAutoMovieHumanCourseRuns.IMap;
 
   /**
    * The exact run ends of a jointed course: 0, the middle of every interior centre's turn, and the course's arclength.

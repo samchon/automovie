@@ -91,6 +91,9 @@ export namespace IAutoMovieHumanF1NativeLaw {
    * One immutable-original invocation shared by complete and tape-only construction.
    */
   export interface IPrepared {
+    /** Original material family for each registered name in this preparation. */
+    readonly reference?: IAutoMovieHumanF1.IAssembly["reference"];
+
     /** Borrowed calibration P; callers build changed fields without mutating it. */
     readonly fields: IFields;
 

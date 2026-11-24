@@ -507,8 +507,8 @@ namespace FamilyConicNativeRound {
     const started: number = performance.now(),
       original = Figure.assemble(),
       framesPrepared: number = performance.now(),
-      originalConstruction = Figure.constructionFrom(original),
-      originals = originalConstruction.sources,
+      originalConstruction = Figure.constructionBareFrom(original),
+      originals = Figure.originalSources(original, new Set(originalConstruction.sources.keys())),
       bankPrepared: number = performance.now();
     const preparation = Law.prepare(original, originals),
       base = preparation.fields,
@@ -583,7 +583,7 @@ namespace FamilyConicNativeRound {
       baselineSourceFailures: { owner: string; detail: string }[] = [],
       summary: unknown[] = [];
     const baselineStarted: number = performance.now();
-    for (const [name, part] of originalConstruction.sources) {
+    for (const [name, part] of originals) {
       try {
         const raw: ReturnType<typeof AutoMovieViewLoft.create> =
           AutoMovieViewLoft.create(part);
@@ -627,14 +627,20 @@ namespace FamilyConicNativeRound {
         const assembly: IAutoMovieHumanF1.IAssembly = Figure.nativeFrom(plan.fields, preparation);
         const made: number = performance.now(),
           declared = Figure.constructionFrom(assembly),
+          contactPremises: readonly IAutoMovieHumanF1.IContactPremise[] = declared.contactPremises(),
           constructed: number = performance.now();
-        try {
-          AutoMovieConstructionAdmission.admit(declared.root);
-        } catch (error: unknown) {
-          failures.push({
-            owner: "tree admission",
-            detail: error instanceof Error ? error.message : String(error),
-          });
+        const available: boolean = contactPremises.every((row): boolean => row.kind === "prepared");
+        for (const row of contactPremises)
+          if (row.kind === "refused") failures.push({ owner: row.name, detail: row.detail });
+        if (available) {
+          try {
+            AutoMovieConstructionAdmission.admit(declared.root);
+          } catch (error: unknown) {
+            failures.push({
+              owner: "tree admission",
+              detail: error instanceof Error ? error.message : String(error),
+            });
+          }
         }
         const sources = new Map<string, Source>(),
           sourceRows: unknown[] = [];
@@ -707,6 +713,7 @@ namespace FamilyConicNativeRound {
               declared.root,
               sources,
               observation.hooks,
+              declared.loopSources(),
             ),
           operatorEnd: number = performance.now();
         const trunk = sources.get(assembly.body.trunk.name),
@@ -819,22 +826,23 @@ namespace FamilyConicNativeRound {
           nativeEntry:
             "same prepared native builder for every case; independent ordinary original source bank",
           operatorInputObservation,
+          contactPremises,
           rootControls,
           nativeSeedControls: [
             ...(assembly.nativeSeedControls?.entries() ?? []),
           ],
           failures,
           controls: Control.read(assembly, original, inventory.rows),
-          constantConsumerRows: differences(
+          constantConsumerRows: available ? differences(
             { root: declared.root, fills: declared.fills },
             { root: accepted.root, fills: accepted.fills },
             "accepted.rootAndFills",
-          ),
+          ) : null,
           ownershipComparison,
           fieldSites,
           supportParentPlane: joint,
           projection: projectionObservation,
-          rootAndFills: { root: declared.root, fills: declared.fills },
+          rootAndFills: available ? { root: declared.root, fills: declared.fills } : null,
           sourceRows,
           operators: premises,
           memory: process.memoryUsage(),

@@ -1,5 +1,8 @@
 import type { IAutoMovieConstructionPortLoop } from "../../../construction/IAutoMovieConstructionPortLoop";
 import type { IAutoMovieConstructionSeed } from "../../../construction/IAutoMovieConstructionSeed";
+import type { IAutoMovieConstructionSharedLoop } from "../../../construction/IAutoMovieConstructionSharedLoop";
+import type { IAutoMovieHumanF1Nails } from "./IAutoMovieHumanF1Nails";
+import type { AutoMovieVector3Tuple } from "../../../geometry/AutoMovieVector3Tuple";
 import type { IAutoMovieHumanF1NativeRoot } from "./IAutoMovieHumanF1NativeRoot";
 import type { IAutoMovieConstructionFill } from "../../../construction/IAutoMovieConstructionFill";
 import type { IAutoMovieConstructionNode } from "../../../construction/IAutoMovieConstructionNode";
@@ -59,14 +62,17 @@ export namespace IAutoMovieHumanF1 {
      * leaves the hand's side, its first joint deep in the palm, and keeps the root closed `ROOT_MM` behind its first joint.
      */
     knuckle: boolean;
+
+    /**
+     * Native digit's forward map from material station to placed course arclength, both in millimetres from the course's origin.
+     * Ordinary digits already use placed arclength and omit the map. Knots, caps and reliefs keep the native material coordinate.
+     */
+    physicalStation?: (materialStation: number) => number;
   }
 
   /** Every family of the figure placed at a pose (`assemble`).
    */
   export interface IAssembly {
-    /** Shared crotch seam knots and fairing controls in the chord plane. */
-    crotchProfile: ICrotchProfile;
-
     /** Original radial port controls for the invocation, in their native parent charts. */
     roots: IRootControls;
 
@@ -98,6 +104,18 @@ export namespace IAutoMovieHumanF1 {
 
     /** `DIGITS` at the pose. */
     digits: IDigit[];
+
+    /**
+     * Exact prepared +Z plate course and its native constant translation.
+     * The original course keeps its material stations and frame derivatives.
+     */
+    earAxis?: {
+      /** The original placed jointed family, before translating its origins. */
+      family: IAutoMovieHumanConicLoft.IFamily;
+
+      /** World-mm displacement of every section origin. */
+      translation: AutoMovieVector3Tuple;
+    };
 
     /** The helix's tube at the pose. */
     helix: IAutoMovieHumanConicLoft.IFamily;
@@ -144,9 +162,55 @@ export namespace IAutoMovieHumanF1 {
     /** The view part of every source leaf, by its name. */
     sources: ReadonlyMap<string, IAutoMovieViewPart>;
 
+    /** Prepare and borrow the evaluated shared chart loops of this declaration and its exact source bank. */
+    readonly loopSources: () => ReadonlyMap<string, IAutoMovieConstructionSharedLoop.ISource>;
+
     /** The skin's discs faired once it is drawn (`IAutoMovieConstruction.fills`), metres. */
     fills: IAutoMovieConstructionFill[];
   }
+
+  /**
+   * The production sewn-body declaration and its fitted nail records.
+   */
+  export interface IConstructionWithNails extends IConstructionWithContacts {
+    /** Nail records in authored digit order, before each family and its bed are mirrored. */
+    readonly nails: readonly IAutoMovieHumanF1Nails.IMade[];
+  }
+
+  /**
+   * An original or bedded figure with its deferred side-attachment preparation.
+   */
+  export interface IConstructionWithContacts extends IConstruction {
+    /** Observe every authored side attachment against this invocation's actual source bank before mesh admission. */
+    readonly contactPremises: () => readonly IContactPremise[];
+  }
+
+  /**
+   * One authored attachment's first original-source preparation result.
+   */
+  export type IContactPremise = {
+    /** Stable name of the construction node on the authored side. */
+    readonly name: string;
+    /** Name of its actual host leaf face. */
+    readonly hostFace: string;
+    /** Name of its actual attached leaf face. */
+    readonly partFace: string;
+  } & (
+    | {
+        /** The producer supplies a loop and point seed. */
+        readonly kind: "prepared";
+        /** Gap observed by the original-source preparation, mm. */
+        readonly gapMm: number;
+        /** Number of sampled host chart shares. */
+        readonly columns: number;
+      }
+    | {
+        /** The producer refuses the attachment. */
+        readonly kind: "refused";
+        /** Named first unavailable physical or numerical premise. */
+        readonly detail: string;
+      }
+  );
 
   /** The families the sewn body is built from.
    */
@@ -234,20 +298,6 @@ export namespace IAutoMovieHumanF1 {
     /** Dimensionless direction in the containing record's registered source frame; geometric consumers apply the documented normalization rule. */
     up: number[];
   };
-
-  /**
-   * The crotch seam's shared chord-plane and fairing controls.
-   */
-  export interface ICrotchProfile {
-    /** Chord distance and depth, in metres, at each knot. */
-    knots: [number, number][];
-
-    /** Corner angle, radians. */
-    corner: number;
-
-    /** Fairing share at each end of the chord. */
-    fair: [number, number];
-  }
 
   /**
    * The assembly's original parent-chart radial controls.

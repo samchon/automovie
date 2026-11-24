@@ -15,6 +15,7 @@ import type {
   AutoMovieVector2Tuple,
   AutoMovieVector3Tuple,
   IAutoMovieHumanF1,
+  IAutoMovieHumanF1NativeCalibration,
   IAutoMovieHumanF1NativeLaw,
   IAutoMovieHumanNativeProjectionCourse,
   IAutoMovieHumanSegmentFrame,
@@ -37,12 +38,7 @@ type IFields = IAutoMovieHumanF1NativeLaw.IFields;
  */
 export namespace AutoMovieHumanF1NativeCalibration {
   /** Fields and their one source-bound physical projection calibration for this invocation. */
-  export interface IReference {
-    /** Qualified source fields, with projection measured from the original endpoint metric. */
-    fields: IFields;
-    /** Same immutable-original owner shared by every full/tape candidate. */
-    projectionOwner: IAutoMovieHumanNativeProjectionCourse.IProjectionOwner;
-  }
+  export type IReference = IAutoMovieHumanF1NativeCalibration.IReference;
 
   /** f1's sites by their definitions, from their one owner. */
   const SITES: Sites.ISites = Sites.REFERENCE;
@@ -92,6 +88,17 @@ export namespace AutoMovieHumanF1NativeCalibration {
     hand: SITES.extremities.hand.station,
     foot: SITES.extremities.foot.station,
   };
+
+  /** Physical root calibration registration, independent of the extensible lower wall domain. */
+  export function rootStation(
+    figure: IAutoMovieHumanF1.IAssembly,
+    name: keyof IFields["roots"],
+  ): number {
+    // This is the original canonical leg's 52.5-mm material onset, before its composed-end continuation.
+    // The reference caliper is 6 mm along the same course from that historical material site.
+    const initial = name === "leg" ? 52.5 : figure.reference(figure.body[name].name).knots[0]!;
+    return initial + RAIL[name];
+  }
 
   /** Endpoint-flat quintic blend on normalized position, held at zero/one outside its interval. */
   export const smooth: (t: number) => number = (t: number): number =>
@@ -184,7 +191,7 @@ export namespace AutoMovieHumanF1NativeCalibration {
     const root: (name: keyof IFields["roots"]) => ISize = (
       name: keyof IFields["roots"],
     ): ISize =>
-      size(figure.body[name].name, figure.body[name].knots[0]! + RAIL[name]);
+      size(figure.body[name].name, rootStation(figure, name));
     const femur: IAutoMovieHumanSegmentFrame | undefined = figure.frames.get("femur");
     const pelvis: IAutoMovieHumanSegmentFrame | undefined = figure.frames.get("pelvis");
     if (femur === undefined || pelvis === undefined)
@@ -217,6 +224,10 @@ export namespace AutoMovieHumanF1NativeCalibration {
     if (breastSource === undefined)
       throw new Error("original breast projection source absent");
     const projectionOwner: IAutoMovieHumanNativeProjectionCourse.IProjectionOwner = Course.prepare(breastSource, breastRail);
+    const footStation: number = Sites.footStation(figure.body.leg, figure.point("footBall"));
+    const footEnd: number | undefined = originals.get(figure.body.leg.name)?.stations.at(-1);
+    if (footEnd !== footStation)
+      throw new Error("the original leg source ends at " + footEnd + " mm, not at its ball-of-foot section " + footStation + " mm");
     const fields: IFields = {
       hipJointCentreBreadth: 2 * F.toLocal(pelvis, femur.origin)[2],
       wall: Object.fromEntries(
@@ -258,7 +269,7 @@ export namespace AutoMovieHumanF1NativeCalibration {
       ) as IFields["leg"],
       extremities: {
         hand: size(figure.body.hand.name, EXTREMITIES.hand),
-        foot: size(figure.body.leg.name, EXTREMITIES.foot),
+        foot: size(figure.body.leg.name, footEnd),
         finger: size(finger.family.name, digitSite("finger", finger.family)),
         toe: size(toe.family.name, digitSite("toe", toe.family)),
       },

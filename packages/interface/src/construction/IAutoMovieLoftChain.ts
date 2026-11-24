@@ -73,6 +73,9 @@ export interface IAutoMovieLoftChain {
   /** Original plain scalar field and independent compatibility-row bindings. Present data owns points/phase/jets; stale or broken data throws. Absence retains the legacy basis. Finite values do not imply physical source2 availability. */
   nativeSource?: IAutoMovieLoftSectionSource.ISource;
 
+  /** The actual local material function on its declared bounded interval, shared with the unlofted part and preview. */
+  originalSection?: IAutoMovieLoftSectionConnect.IOriginal;
+
   /** Complete generating laws on spans changed by continuation; other spans keep their original source. Immutable copies preserve these laws and coefficient rewrites must re-express their bindings. */
   sectionSpans?: IAutoMovieLoftSectionConnect.ISpan[];
 
