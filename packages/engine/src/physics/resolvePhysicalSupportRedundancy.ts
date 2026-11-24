@@ -102,17 +102,59 @@ export function resolvePhysicalSupportRedundancy(
   if (difference.every((value: number): boolean => value === 0))
     return { ...input.seed };
 
-  // Central-difference support-task Jacobian at the seed, one column per coordinate.
+  // Each coordinate's index by its joint and axis, read by `rotation`.
+  const indices: Map<
+    IAutoMoviePhysicalJoint,
+    Map<IAutoMoviePhysicalJointAxis, number>
+  > = new Map();
+  coordinates.forEach(
+    (coordinate: (typeof coordinates)[number], index: number): void => {
+      let axes: Map<IAutoMoviePhysicalJointAxis, number> | undefined =
+        indices.get(coordinate.joint);
+      if (!axes) indices.set(coordinate.joint, (axes = new Map()));
+      axes.set(coordinate.axis, index);
+    },
+  );
+
+  // Central-difference support-task Jacobian at the seed, one column per
+  // coordinate. A probe moves only its joint's descendants, so a limb whose
+  // endpoint and floor witnesses lie outside them reads the same poses in both
+  // probes and its rows' differences are exactly zero: only the limbs the
+  // probe moves are evaluated, the rest left at that zero.
   const step: number = Math.cbrt(Number.EPSILON);
   const baseline: number[] = rows(input.seed);
+  const offsets: number[] = [];
+  let count: number = 0;
+  for (const limb of input.pattern.limbs) {
+    offsets.push(count);
+    count += limbRows(input.seed, limb).length;
+  }
   const columns: number[][] = coordinates.map(
-    (_: (typeof coordinates)[number], index: number): number[] => {
-      const plus: number[] = rows(build(seed, index, step));
-      const minus: number[] = rows(build(seed, index, -step));
-      return plus.map(
-        (value: number, row: number): number =>
-          (value - minus[row]!) / (2 * step),
+    (coordinate: (typeof coordinates)[number], index: number): number[] => {
+      const moved: ReadonlySet<string> = new Set(
+        input.descendants.get(coordinate.joint.child)!,
       );
+      const column: number[] = new Array<number>(count).fill(0);
+      const plus: Record<string, IAutoMovieRigidTransform> = build(
+        seed,
+        index,
+        step,
+      );
+      const minus: Record<string, IAutoMovieRigidTransform> = build(
+        seed,
+        index,
+        -step,
+      );
+      input.pattern.limbs.forEach(
+        (limb: IAutoMovieFootfallPattern["limbs"][number], at: number): void => {
+          if (!touches(limb, moved)) return;
+          const high: number[] = limbRows(plus, limb);
+          const low: number[] = limbRows(minus, limb);
+          for (let row: number = 0; row < high.length; row++)
+            column[offsets[at]! + row] = (high[row]! - low[row]!) / (2 * step);
+        },
+      );
+      return column;
     },
   );
   const design: number[][] = baseline.map((_: number, row: number): number[] =>
@@ -166,19 +208,21 @@ export function resolvePhysicalSupportRedundancy(
   const result: Record<string, IAutoMovieRigidTransform> = {
     ...input.seed,
   };
+  const changed: Set<IAutoMoviePhysicalJoint> = new Set(
+    coordinates.flatMap(
+      (
+        coordinate: (typeof coordinates)[number],
+        index: number,
+      ): IAutoMoviePhysicalJoint[] =>
+        update[index] !== 0 ? [coordinate.joint] : [],
+    ),
+  );
   const owned: Set<string> = new Set();
   for (const segment of input.order) {
     const joint: IAutoMoviePhysicalJoint | undefined = input.joints.get(
       segment.bone,
     );
-    if (
-      !joint ||
-      !coordinates.some(
-        (coordinate: (typeof coordinates)[number], index: number): boolean =>
-          coordinate.joint === joint && update[index] !== 0,
-      )
-    )
-      continue;
+    if (!joint || !changed.has(joint)) continue;
     const descendants: readonly string[] = input.descendants.get(joint.child)!;
     for (const bone of descendants)
       if (!owned.has(bone)) {
@@ -199,24 +243,52 @@ export function resolvePhysicalSupportRedundancy(
     poses: Readonly<Record<string, IAutoMovieRigidTransform>>,
   ): number[] {
     return input.pattern.limbs.flatMap(
-      (limb: IAutoMovieFootfallPattern["limbs"][number]): number[] => {
-        const endpoint: IAutoMovieVector3 = physicalSupportPoint(
-          poses[limb.bone]!,
-          limb.localPoint,
-        );
-        return [
-          endpoint.x,
-          endpoint.y,
-          endpoint.z,
-          ...(input.planted.has(limb.bone) ? (limb.floorPoints ?? []) : []).map(
-            (point: {
-              bone: string;
-              localPoint: IAutoMovieRigidTransform["position"];
-            }): number =>
-              physicalSupportPoint(poses[point.bone]!, point.localPoint).y,
-          ),
-        ];
-      },
+      (limb: IAutoMovieFootfallPattern["limbs"][number]): number[] =>
+        limbRows(poses, limb),
+    );
+  }
+
+  /** One limb's rows: its endpoint XYZ, plus its planted floor witness heights. */
+  function limbRows(
+    poses: Readonly<Record<string, IAutoMovieRigidTransform>>,
+    limb: IAutoMovieFootfallPattern["limbs"][number],
+  ): number[] {
+    const endpoint: IAutoMovieVector3 = physicalSupportPoint(
+      poses[limb.bone]!,
+      limb.localPoint,
+    );
+    return [
+      endpoint.x,
+      endpoint.y,
+      endpoint.z,
+      ...witnesses(limb).map(
+        (point: {
+          bone: string;
+          localPoint: IAutoMovieRigidTransform["position"];
+        }): number =>
+          physicalSupportPoint(poses[point.bone]!, point.localPoint).y,
+      ),
+    ];
+  }
+
+  /** A limb's floor witnesses, read while it is planted. */
+  function witnesses(limb: IAutoMovieFootfallPattern["limbs"][number]): {
+    bone: string;
+    localPoint: IAutoMovieRigidTransform["position"];
+  }[] {
+    return input.planted.has(limb.bone) ? (limb.floorPoints ?? []) : [];
+  }
+
+  /** Whether a probe moving these bones moves any of a limb's rows. */
+  function touches(
+    limb: IAutoMovieFootfallPattern["limbs"][number],
+    moved: ReadonlySet<string>,
+  ): boolean {
+    return (
+      moved.has(limb.bone) ||
+      witnesses(limb).some((point: { bone: string }): boolean =>
+        moved.has(point.bone),
+      )
     );
   }
 
@@ -250,12 +322,9 @@ export function resolvePhysicalSupportRedundancy(
   ): IAutoMovieRigidTransform["rotation"] {
     const tangent: { x: number; y: number; z: number } = { x: 0, y: 0, z: 0 };
     for (const axis of joint.axes) {
-      const index: number = coordinates.findIndex(
-        (coordinate: (typeof coordinates)[number]): boolean =>
-          coordinate.joint === joint && coordinate.axis === axis,
-      );
+      const index: number | undefined = indices.get(joint)?.get(axis);
       tangent[axis.axis] = Math.tan(
-        (index === -1 ? axis.minimum : values[index]!) / 2,
+        (index === undefined ? axis.minimum : values[index]!) / 2,
       );
     }
     return Quaternion.normalize({ ...tangent, w: 1 });
