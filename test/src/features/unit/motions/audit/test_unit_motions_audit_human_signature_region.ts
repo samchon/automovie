@@ -1,73 +1,78 @@
 ﻿import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieMotionHumanBody,
-  IAutoMovieResolvedBone,
+  IAutoMovieHumanoidSurfaces,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import { HumanSignature } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
-import { auditStanceMotion } from "../../../internal/auditStanceMotion";
-import { humanFixtureBody } from "../../../internal/fixtures/humanFixtureBody";
+import { humanFixture } from "../../../internal/fixtures/humanFixture";
+import { resolvedBones } from "../../../internal/resolvedBones";
 import { throwsError } from "../../../internal/throwsError";
 import { vclose } from "../../../internal/vclose";
 
+/** Rounding of a rigid placement, metres. */
+const ROUNDING: number = 1e-12;
+
 /**
- * `HumanSignature.region` places a named body region on the displayed bones,
- * and refuses where the rig lacks the region's bone.
+ * `HumanSignature.region` places a named body region on the displayed bone the
+ * body's surface frame names, and refuses where the rig lacks that bone.
  *
- * Scenarios, the average man's quiet stance facing +Z:
+ * Scenarios, the average man's stored sternum frame:
  *
- * 1. The sternum lies on the front of the chest: ahead of the hips, between the
- *    hips' height and the head's.
- * 2. Carried 1 m along +X, it moves 1 m with the body.
+ * 1. Its bone displayed unturned at (0, 1.4, 0) and then carried 1 m along +X: the
+ *    sternum moves the same metre with it, a rigid placement on the bone.
+ * 2. Displayed turned a half turn about the vertical, the sternum's offset from
+ *    its bone reverses in x and z and keeps its height.
  * 3. Without its bone the region is refused.
  *
- * The body is built whole (`humanFixtureBody`): the region reads the body's
- * surface frames.
+ * The surfaces are the stored person's (`humanFixture`), the only part of the
+ * body the reading reads.
  */
 export async function test_unit_motions_audit_human_signature_region(): Promise<void> {
-  // Reads the body's surface frames (`body.surfaces`); the parameter is the whole body record, which has no stored or partial typed form without a cast.
-  const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");
-  const at = (x: number): IAutoMovieVector3 =>
+  const surfaces: IAutoMovieHumanoidSurfaces.ISurfaces = (
+    await humanFixture("m-average")
+  ).surfaces;
+  const bone = surfaces.regions.sternum.bone;
+  const at = (
+    position: IAutoMovieVector3,
+    turned: boolean = false,
+  ): IAutoMovieVector3 =>
     HumanSignature.region(
-      HumanSignature(
-        auditStanceMotion(body, { shift: () => ({ x, y: 0, z: 0 }) }),
-        "a",
-        body,
-        0,
-      ),
+      {
+        motion: {
+          duration: 1,
+          bones: () =>
+            resolvedBones(
+              [[bone, position]],
+              turned ? { x: 0, y: 1, z: 0, w: 0 } : { x: 0, y: 0, z: 0, w: 1 },
+            ),
+        },
+        subject: "a",
+        body: { surfaces },
+      },
       "sternum",
       0,
     );
-  const sternum: IAutoMovieVector3 = at(0);
-  const hips: IAutoMovieVector3 = auditStanceMotion(body)
-    .bones("a", 0)
-    .get("hips")!.worldPosition;
-  TestValidator.predicate(
-    "on the chest",
-    sternum.z > hips.z &&
-      sternum.y > hips.y &&
-      sternum.y < body.measure.headHeight,
-  );
+  const origin: IAutoMovieVector3 = { x: 0, y: 1.4, z: 0 };
+  const here: IAutoMovieVector3 = at(origin);
   TestValidator.predicate(
     "carried",
-    vclose(at(1), { ...sternum, x: sternum.x + 1 }, 1e-9),
+    vclose(at({ x: 1, y: 1.4, z: 0 }), { ...here, x: here.x + 1 }, ROUNDING),
+  );
+  const back: IAutoMovieVector3 = at(origin, true);
+  TestValidator.predicate(
+    "turned",
+    vclose(back, { x: -here.x, y: here.y, z: 2 * origin.z - here.z }, ROUNDING),
   );
   TestValidator.predicate(
     "no bone",
     throwsError(() =>
       HumanSignature.region(
-        HumanSignature(
-          {
-            duration: 1,
-            bones: () =>
-              new Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>(),
-          },
-          "a",
-          body,
-          0,
-        ),
+        {
+          motion: { duration: 1, bones: () => resolvedBones([]) },
+          subject: "a",
+          body: { surfaces },
+        },
         "sternum",
         0,
       ),

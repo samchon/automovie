@@ -15,7 +15,7 @@ const ROUNDING: number = 1e-9;
  * lies in, holding still between: each turn takes up to two quarter turns of a
  * second, and the rest of the sleep is shared out over seeded holds.
  *
- * Scenarios, a 20 s sleep with three changes on seed `night`:
+ * Scenarios, a 20 s sleep with three changes on seed 7:
  *
  * 1. It appends three `turnOver`s, no two in a row to the same position.
  * 2. Their holds sum to less than the 20 - 2 x 3 = 14 s left after the turns.
@@ -28,7 +28,7 @@ export function test_unit_motions_floor_sleep(): void {
       sleep(HumanChain.subject("a"), {
         duration: 20,
         changes: 3,
-        seed: "night",
+        seed: 7,
       }).node,
     );
   const once: IAutoMovieIntent[] = turns();
@@ -69,7 +69,7 @@ export function test_unit_motions_floor_sleep(): void {
     changes: number,
   ): string => {
     try {
-      sleep(HumanChain.subject("a"), { duration, changes, seed: "night" });
+      sleep(HumanChain.subject("a"), { duration, changes, seed: 7 });
     } catch (error: unknown) {
       if (error instanceof HumanRefusal) return error.axis;
     }

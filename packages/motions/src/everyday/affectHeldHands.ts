@@ -50,7 +50,7 @@ export function affectHeldHands(
   before: IAutoMovieMotionHumanPosture,
   after: IAutoMovieMotionHumanPosture,
   seconds: number,
-  context: IAutoMovieMotionHumanLayer.IContext,
+  context: affectHeldHands.IContext,
 ): IAutoMovieMotionHumanPosture {
   const action: IAutoMovieMotionHumanLayer.IAction | undefined =
     context.action();
@@ -180,6 +180,17 @@ export function affectHeldHands(
     };
   }
   return { ...after, joints, limbs };
+}
+
+export namespace affectHeldHands {
+  /**
+   * What the hold reads of a layer's context: the performer, its body, the
+   * active action and the borrowed FK.
+   */
+  export type IContext = Pick<
+    IAutoMovieMotionHumanLayer.IContext,
+    "subject" | "body" | "action" | "resolution"
+  >;
 }
 
 /**

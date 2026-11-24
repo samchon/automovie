@@ -16,14 +16,14 @@ import type { bindHumanSimulationGrips } from "./bindHumanSimulationGrips";
  * @returns Each step's labels by performer; a step without a group is absent.
  */
 export function coupleHumanSimulationGrips(
-  grips: readonly bindHumanSimulationGrips.IGrip[],
+  grips: readonly coupleHumanSimulationGrips.IGrip[],
   releases: ReadonlyMap<string, number>,
   end: number,
 ): Map<number, Map<string, string>> {
   const groups: Map<number, Map<string, string>> = new Map();
   for (let step: number = 1; step <= end; step++) {
-    const active: readonly bindHumanSimulationGrips.IGrip[] = grips.filter(
-      (grip: bindHumanSimulationGrips.IGrip): boolean =>
+    const active: readonly coupleHumanSimulationGrips.IGrip[] = grips.filter(
+      (grip: coupleHumanSimulationGrips.IGrip): boolean =>
         grip.from <= step &&
         step <= grip.to &&
         step < releases.get(grip.subject)! &&
@@ -37,7 +37,7 @@ export function coupleHumanSimulationGrips(
     for (const grip of active)
       if (
         active.some(
-          (other: bindHumanSimulationGrips.IGrip): boolean =>
+          (other: coupleHumanSimulationGrips.IGrip): boolean =>
             other.subject === grip.partner && other.partner === grip.subject,
         )
       ) {
@@ -61,6 +61,15 @@ export function coupleHumanSimulationGrips(
     groups.set(step, labels);
   }
   return groups;
+}
+
+/** What a coupling reads of a grip. */
+export namespace coupleHumanSimulationGrips {
+  /** A grip's two performers and its steps. */
+  export type IGrip = Pick<
+    bindHumanSimulationGrips.IGrip,
+    "subject" | "partner" | "from" | "to"
+  >;
 }
 
 /** Code-unit order of two ids, the deterministic order of a label. */

@@ -1,8 +1,6 @@
-﻿import type { IAutoMovieMotionHumanBody } from "@automovie/interface";
 import { HumanSignature } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
-import { humanFixtureBody } from "../../../internal/fixtures/humanFixtureBody";
 import { nclose } from "../../../internal/nclose";
 import { resolvedBones } from "../../../internal/resolvedBones";
 
@@ -15,14 +13,10 @@ const ROUNDING: number = 1e-9;
  *
  * Scenario: the left thigh hangs from (0.1, 1, 0) to (0.1, 0.5, 0), the shank
  * runs back to (0.1, 0, -0.5): 45 degrees; the right leg hangs straight: 0.
- *
- * The body is built whole (`humanFixtureBody`) only for the reader's record.
  */
-export async function test_unit_motions_audit_human_signature_knee(): Promise<void> {
-  // The parameter is the whole body record (closures and maps, no stored or partial typed form without a cast); this reading reads no field of it.
-  const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");
-  const reader = HumanSignature(
-    {
+export function test_unit_motions_audit_human_signature_knee(): void {
+  const reader: HumanSignature.IBones = {
+    motion: {
       duration: 1,
       bones: () =>
         resolvedBones([
@@ -34,10 +28,8 @@ export async function test_unit_motions_audit_human_signature_knee(): Promise<vo
           ["rightFoot", { x: -0.1, y: 0.05, z: 0 }],
         ]),
     },
-    "a",
-    body,
-    0,
-  );
+    subject: "a",
+  };
   TestValidator.predicate(
     "the knees",
     nclose(HumanSignature.knee(reader, 0, "left"), 45, ROUNDING) &&

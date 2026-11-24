@@ -1,3 +1,4 @@
+import type { IAutoMovieLoftChain } from "./IAutoMovieLoftChain";
 import type { IAutoMovieViewPart } from "./IAutoMovieViewPart";
 
 /** Data and callback contracts shared by the LoftCapSource operations. */
@@ -21,5 +22,15 @@ export namespace IAutoMovieLoftCapSource {
 
     /** Exact plain scalar snapshot, independent of its retained source record. */
     scalar: string;
+
+    /**
+     * The end layer and native source record the snapshots above were checked
+     * against when the cap was retained. A read that finds the same objects need
+     * not serialise them again; one that finds others checks in full.
+     */
+    prepared?: {
+      layer: IAutoMovieLoftChain.ILayer;
+      data: object;
+    };
   }
 }

@@ -1,9 +1,7 @@
-﻿import { Quaternion } from "@automovie/engine";
-import type { IAutoMovieMotionHumanBody } from "@automovie/interface";
+import { Quaternion } from "@automovie/engine";
 import { HumanSignature } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
-import { humanFixtureBody } from "../../../internal/fixtures/humanFixtureBody";
 import { nclose } from "../../../internal/nclose";
 import { resolvedBones } from "../../../internal/resolvedBones";
 import { throwsError } from "../../../internal/throwsError";
@@ -21,16 +19,12 @@ const ROUNDING: number = 1e-9;
  * 2. One turned -15 degrees pitches -15; one turned 90 degrees about the vertical
  *    pitches 0.
  * 3. A motion without a head is refused.
- *
- * The body is built whole (`humanFixtureBody`) only for the reader's record.
  */
-export async function test_unit_motions_audit_human_signature_head(): Promise<void> {
-  // The parameter is the whole body record (closures and maps, no stored or partial typed form without a cast); this reading reads no field of it.
-  const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");
+export function test_unit_motions_audit_human_signature_head(): void {
   const pitch = (axis: "x" | "y", degrees: number): number =>
     HumanSignature.head(
-      HumanSignature(
-        {
+      {
+        motion: {
           duration: 1,
           bones: () =>
             resolvedBones(
@@ -41,10 +35,8 @@ export async function test_unit_motions_audit_human_signature_head(): Promise<vo
               ),
             ),
         },
-        "a",
-        body,
-        0,
-      ),
+        subject: "a",
+      },
       0,
     );
   TestValidator.predicate(
@@ -57,12 +49,10 @@ export async function test_unit_motions_audit_human_signature_head(): Promise<vo
     "no head",
     throwsError(() =>
       HumanSignature.head(
-        HumanSignature(
-          { duration: 1, bones: () => resolvedBones([]) },
-          "a",
-          body,
-          0,
-        ),
+        {
+          motion: { duration: 1, bones: () => resolvedBones([]) },
+          subject: "a",
+        },
         0,
       ),
     ),

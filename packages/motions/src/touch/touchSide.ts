@@ -96,20 +96,32 @@ export function touchSide(
   const other = (side: AutoMovieHumanSide): AutoMovieHumanSide =>
     side === "right" ? "left" : "right";
 
+  // Whether a hand would lay on its own arm: a region of the arm it ends.
+  const own = (
+    side: AutoMovieHumanSide,
+    target: IAutoMovieMotionTarget | undefined,
+  ): boolean => {
+    if (target === undefined || target.kind !== "self") return false;
+    const bone: string = body.surfaces.regions[target.region].bone;
+    return (
+      bone === `${side}UpperArm` ||
+      bone === `${side}LowerArm` ||
+      bone === `${side}Hand`
+    );
+  };
+  // A hand that would touch its own arm is never chosen, whatever the other
+  // hand's strain: an arm cannot lay its hand on itself.
+  const barred = (side: AutoMovieHumanSide): boolean =>
+    own(side, p.target) || own(other(side), p.other);
+  if (barred("left") !== barred("right"))
+    return barred("right") ? "left" : "right";
+
   // The strain of one hand laid on one region, as the plan lays it.
   const strain = (
     side: AutoMovieHumanSide,
     target: IAutoMovieMotionTarget,
   ): number => {
-    if (target.kind === "self") {
-      const bone: string = body.surfaces.regions[target.region].bone;
-      if (
-        bone === `${side}UpperArm` ||
-        bone === `${side}LowerArm` ||
-        bone === `${side}Hand`
-      )
-        return Infinity;
-    }
+    if (own(side, target)) return Infinity;
     const placed: ReturnType<typeof touchRegion.reader> = touchRegion.reader(
       context,
       bones,

@@ -7,6 +7,31 @@ import { nclose } from "../../../internal/nclose";
 /** Rounding of a few minimum-jerk products, degrees. */
 const ROUNDING: number = 1e-9;
 
+/** The sampling step of the inspiration peaks, seconds. */
+const STEP: number = 0.001;
+
+/**
+ * A sob's interval between inspirations at intensity 1 and its ±30 % seeded
+ * range, seconds.
+ */
+const SOB: readonly [number, number] = [0.5 * 0.7, 0.5 * 1.3];
+
+/** The 12 Hz Nyquist limit of 24 Hz film, seconds. */
+const NYQUIST: number = 1 / 12;
+
+/**
+ * The seconds of a 4 s sob's steady part, between its 8 % ramp in and its 20 %
+ * ramp out, at which the shoulder lift peaks.
+ */
+function peaks(intensity: number, seed: string): number[] {
+  const lift = (t: number): number =>
+    HumanAffect.angles("sob", t, 4, intensity, seed).leftShoulder![1];
+  const found: number[] = [];
+  for (let t: number = 0.32 + STEP; t < 3.2 - STEP; t += STEP)
+    if (lift(t) > lift(t - STEP) && lift(t) >= lift(t + STEP)) found.push(t);
+  return found;
+}
+
 /**
  * `HumanAffect.angles` of the crying displays: a sob flexes the chest 6, the
  * lumbar spine 4 and the head 10 degrees under a seeded train of inspirations,
@@ -26,7 +51,10 @@ const ROUNDING: number = 1e-9;
  *    lift beyond the slow heave `2 (0.5 - 0.5 cos(2 pi t / 2.5))`.
  * 3. A 1.5 s gasp at 0.25 s extends the head 12, the chest 6 and lifts each
  *    shoulder 8.
- * 4. The same seed reads the same sob twice; a sneeze too short for its burst is
+ * 4. In the steady part the shoulder lift peaks at intervals within ±30 % of 0.5
+ *    s, never closer than 1/12 s, not all equal; another seed moves the peaks
+ *    and intensity 2 gives more of them.
+ * 5. The same seed reads the same sob twice; a sneeze too short for its burst is
  *    refused by the layer on `seconds`.
  */
 export function test_unit_motions_everyday_human_affect_crying(): void {
@@ -80,6 +108,24 @@ export function test_unit_motions_everyday_human_affect_crying(): void {
       nclose(gasp.rightShoulder![1], 8, ROUNDING),
   );
   TestValidator.equals("replayed", sob(1.7), sob(1.7));
+  const lifts: number[] = peaks(1, "a");
+  const gaps: number[] = lifts
+    .slice(1)
+    .map((t: number, i: number): number => t - lifts[i]!);
+  TestValidator.predicate(
+    "seeded intervals",
+    gaps.length >= 3 &&
+      gaps.every(
+        (gap: number): boolean =>
+          gap >= SOB[0] - 2 * STEP && gap <= SOB[1] + 2 * STEP && gap > NYQUIST,
+      ) &&
+      Math.max(...gaps) - Math.min(...gaps) > 4 * STEP,
+  );
+  TestValidator.predicate(
+    "another seed, a stronger sob",
+    peaks(1, "b").join() !== lifts.join() &&
+      peaks(2, "a").length > lifts.length,
+  );
   let axis: string | undefined;
   try {
     HumanAffect.layer([{ kind: "sneeze", at: 0, duration: 0.2 }]);

@@ -1,11 +1,6 @@
-﻿import type {
-  IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanSignature,
-} from "@automovie/interface";
 import { HumanSignature } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
-import { humanFixtureBody } from "../../../internal/fixtures/humanFixtureBody";
 import { nclose } from "../../../internal/nclose";
 import { resolvedBones } from "../../../internal/resolvedBones";
 
@@ -24,31 +19,22 @@ const ROUNDING: number = 1e-9;
  * 2. Shoulders `0.5 tan 30` ahead along +X, read facing 90 degrees (+X): 30.
  * 3. The same read facing 270 degrees: -30; facing 0, the lean is sideways and
  *    reads 0.
- *
- * The body is built whole (`humanFixtureBody`) only for the reader's record.
  */
-export async function test_unit_motions_audit_human_signature_trunk(): Promise<void> {
-  // The parameter is the whole body record (closures and maps, no stored or partial typed form without a cast); this reading reads no field of it.
-  const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");
-  const reader = (
-    ahead: number,
-    yaw: number,
-  ): IAutoMovieMotionHumanSignature.IReader =>
-    HumanSignature(
-      {
-        duration: 1,
-        bones: () =>
-          resolvedBones([
-            ["leftUpperLeg", { x: 0, y: 1, z: 0.1 }],
-            ["rightUpperLeg", { x: 0, y: 1, z: -0.1 }],
-            ["leftUpperArm", { x: ahead, y: 1.5, z: 0.15 }],
-            ["rightUpperArm", { x: ahead, y: 1.5, z: -0.15 }],
-          ]),
-      },
-      "a",
-      body,
-      yaw,
-    );
+export function test_unit_motions_audit_human_signature_trunk(): void {
+  const reader = (ahead: number, yaw: number): HumanSignature.IHeading => ({
+    motion: {
+      duration: 1,
+      bones: () =>
+        resolvedBones([
+          ["leftUpperLeg", { x: 0, y: 1, z: 0.1 }],
+          ["rightUpperLeg", { x: 0, y: 1, z: -0.1 }],
+          ["leftUpperArm", { x: ahead, y: 1.5, z: 0.15 }],
+          ["rightUpperArm", { x: ahead, y: 1.5, z: -0.15 }],
+        ]),
+    },
+    subject: "a",
+    yaw,
+  });
   const ahead: number = 0.5 * Math.tan(Math.PI / 6);
   TestValidator.predicate(
     "the inclinations",

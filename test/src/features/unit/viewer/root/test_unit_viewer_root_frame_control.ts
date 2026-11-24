@@ -55,7 +55,9 @@ export function test_unit_viewer_root_frame_control(): void {
     [2, ["rebase 4", "redraw 4"]],
   );
   log.length = 0;
-  const thaw: () => void = controller.control.freeze();
+  const freeze: (() => () => void) | undefined = controller.control.freeze;
+  if (freeze === undefined) throw new Error("The frame control lends freezes.");
+  const thaw: () => void = freeze();
   let produced: number = 0;
   controller.frame((): void => {
     produced++;

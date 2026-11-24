@@ -40,6 +40,24 @@ export namespace AutoMovieLoftCapSource {
       };
     }
     bounds(copy);
+    // The full check has passed on these very objects; later reads may rely on
+    // their identity.
+    for (const key of ["pole", "opposite"] as const) {
+      const pole: Pole | undefined = copy[key];
+      if (pole?.source === undefined) continue;
+      const index: number =
+        pole.end === "bottom" ? 0 : chain.layers.length - 1;
+      copy[key] = {
+        ...pole,
+        source: {
+          ...pole.source,
+          prepared: {
+            layer: chain.layers[index]!,
+            data: chain.nativeSource.data,
+          },
+        },
+      };
+    }
     return copy;
   }
 
@@ -117,6 +135,11 @@ function check(chain: IAutoMovieLoftChain, pole: Pole): void {
   const native: IAutoMovieLoftSectionSource.ISource | null =
     AutoMovieLoftSectionSource.validate(chain, index, index);
   AutoMovieLoftFrameSource.validate(layer);
+  const prepared: boolean =
+    source.prepared !== undefined &&
+    source.prepared.layer === layer &&
+    native !== null &&
+    source.prepared.data === native.data;
   if (
     native === null ||
     source.station !== native.data.domain[pole.end === "bottom" ? 0 : 1] ||
@@ -125,8 +148,8 @@ function check(chain: IAutoMovieLoftChain, pole: Pole): void {
       ? source.station < layer.y
       : source.station > layer.y) ||
     typeof source.axis?.at !== "function" ||
-    binding(layer) !== source.boundary ||
-    JSON.stringify(native.data) !== source.scalar ||
+    (!prepared && binding(layer) !== source.boundary) ||
+    (!prepared && JSON.stringify(native.data) !== source.scalar) ||
     pole.point.some((x: number, k: number): boolean => x !== source.point[k]) ||
     layer.lift !== undefined
   )

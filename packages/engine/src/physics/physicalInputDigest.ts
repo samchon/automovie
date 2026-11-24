@@ -1,13 +1,9 @@
-import type {
-  IAutoMoviePhysicalProfile,
-  IAutoMoviePhysicalSegment,
-  IAutoMoviePhysicalShape,
-  IAutoMoviePhysicalSimulationInput,
-} from "@automovie/interface";
+import type { IAutoMoviePhysicalSimulationInput } from "@automovie/interface";
 
 import { autoMovieRenderDigest } from "../render/autoMovieRenderDigest";
 import { canonicalizeAutoMovieJson } from "../text/canonicalizeAutoMovieJson";
 import { AutoMoviePhysicsCache } from "./AutoMoviePhysicsCache";
+import { physicalProfileWithoutHulls } from "./physicalProfileWithoutHulls";
 
 /**
  * Hash every admitted sampled value without retaining one film-sized JSON
@@ -21,7 +17,7 @@ export function physicalInputDigest(
   const bodies: object[] = input.bodies.map(
     (body: (typeof input.bodies)[number]): object => ({
       ...body,
-      profile: withoutHulls(body.profile),
+      profile: physicalProfileWithoutHulls(body.profile),
       maximumBindings: body.maximumBindings ?? 16,
       handoffSeconds: body.handoffSeconds ?? 0.2,
       handoffLimits: body.handoffLimits ?? {
@@ -53,28 +49,4 @@ export function physicalInputDigest(
       },
     }),
   );
-}
-
-/**
- * A profile as authored: the hull a hull shape carries is derived from its
- * points, so it does not enter the digest.
- */
-function withoutHulls(
-  profile: IAutoMoviePhysicalProfile,
-): IAutoMoviePhysicalProfile {
-  return {
-    ...profile,
-    segments: profile.segments.map(
-      (segment: IAutoMoviePhysicalSegment): IAutoMoviePhysicalSegment => ({
-        ...segment,
-        shapes: segment.shapes.map(
-          (shape: IAutoMoviePhysicalShape): IAutoMoviePhysicalShape => {
-            if (shape.kind !== "hull") return shape;
-            const { hull: _derived, ...authored } = shape;
-            return authored;
-          },
-        ),
-      }),
-    ),
-  };
 }

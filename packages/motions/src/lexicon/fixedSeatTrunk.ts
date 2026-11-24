@@ -18,6 +18,7 @@ import type {
 import { HumanBoneGroups } from "../posture/HumanBoneGroups";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { fixedSeatHarmonic } from "./fixedSeatHarmonic";
 
 type Joints = IAutoMovieMotionHumanPosture["joints"];
 type Angles = readonly [number, number, number];
@@ -43,16 +44,6 @@ interface IVariable {
   range: IAutoMovieAngleRange;
 }
 
-/**
- * A squared distance to a fixed target as the joint turns from the centre of
- * its range.
- */
-interface IHarmonic {
-  constant: number;
-  cosine: number;
-  sine: number;
-}
-
 const RAD: number = Math.PI / 180;
 const ZERO: Angles = [0, 0, 0];
 const TRUNK: readonly Trunk[] = [
@@ -73,66 +64,6 @@ function turn(joints: Joints, variable: IVariable, degrees: number): void {
   const row: [number, number, number] = [...(joints[variable.bone] ?? ZERO)];
   row[variable.index] = degrees;
   joints[variable.bone] = row;
-}
-
-/**
- * Recover A+B cos(t)+C sin(t) from the ends and midpoint of a legal angular
- * range.
- */
-function harmonic(
-  low: number,
-  middle: number,
-  high: number,
-  half: number,
-): IHarmonic {
-  const cosine: number = Math.cos(half);
-  const constant: number = ((low + high) / 2 - middle * cosine) / (1 - cosine);
-  return {
-    constant,
-    cosine: middle - constant,
-    sine: (high - low) / (2 * Math.sin(half)),
-  };
-}
-
-/**
- * On one rigid ancestor axis the maximum of two sinusoids can attain a minimum
- * at an endpoint, a single-arm extremum or a crossing.
- */
-function bestAngle(
-  left: IHarmonic,
-  right: IHarmonic,
-  half: number,
-  incoming: number,
-): number {
-  const candidates: number[] = [incoming, -half, half];
-  for (const f of [left, right])
-    candidates.push(Math.atan2(-f.sine, -f.cosine));
-  const a: number = left.constant - right.constant;
-  const b: number = left.cosine - right.cosine;
-  const c: number = left.sine - right.sine;
-  const radius: number = Math.hypot(b, c);
-  if (radius > 0 && Math.abs(a) <= radius) {
-    const phase: number = Math.atan2(c, b);
-    const separation: number = Math.acos(-a / radius);
-    for (const angle of [phase - separation, phase + separation])
-      candidates.push(Math.atan2(Math.sin(angle), Math.cos(angle)));
-  }
-  let best: number = incoming;
-  let least: number = Infinity;
-  for (const angle of candidates) {
-    if (angle < -half || angle > half) continue;
-    const x: number = Math.cos(angle);
-    const y: number = Math.sin(angle);
-    const score: number = Math.max(
-      left.constant + left.cosine * x + left.sine * y,
-      right.constant + right.cosine * x + right.sine * y,
-    );
-    if (score < least) {
-      least = score;
-      best = angle;
-    }
-  }
-  return best;
 }
 
 /**
@@ -232,9 +163,9 @@ export function fixedSeatTrunk(
         const high: Pair = squared();
         const angle: number =
           middle +
-          bestAngle(
-            harmonic(low[0], centre[0], high[0], half),
-            harmonic(low[1], centre[1], high[1], half),
+          fixedSeatHarmonic.best(
+            fixedSeatHarmonic(low[0], centre[0], high[0], half),
+            fixedSeatHarmonic(low[1], centre[1], high[1], half),
             half,
             (before - middle) * RAD,
           ) /

@@ -16,11 +16,12 @@ import { motionActionContext } from "../../../internal/motionActionContext";
  * Scenarios, the average man standing at the origin, the fingertips touching:
  *
  * 1. With the left hand named, the left touches, whatever the region.
- * 2. The left forearm is touched by the right hand: the left arm cannot touch
- *    itself.
- * 3. The front of the left thigh is touched by the left hand, of the right by the
- *    right: the hand on its own side reaches it with the lesser strain.
- * 4. The sternum, on the midline, is reached as well by either hand: the right.
+ * 2. The left forearm is touched by the right hand and the right forearm by the
+ *    left: an arm cannot touch itself, whatever the other hand's strain.
+ * 3. The sternum with the other hand on the left forearm is touched by the left
+ *    hand: the right would leave the left hand on its own forearm.
+ * 4. The sternum alone, on the midline, is reached as well by either hand: the
+ *    right.
  *
  * The body is built whole (`humanFixtureBody`): the choice solves each arm on
  * the body's rig and surfaces.
@@ -38,8 +39,13 @@ export async function test_unit_motions_touch_touch_side(): Promise<void> {
     [
       side({ target: { kind: "self", region: "forearmLeft" }, hand: "left" }),
       side({ target: { kind: "self", region: "forearmLeft" } }),
+      side({ target: { kind: "self", region: "forearmRight" } }),
+      side({
+        target: { kind: "self", region: "sternum" },
+        other: { kind: "self", region: "forearmLeft" },
+      }),
       side({ target: { kind: "self", region: "sternum" } }),
     ],
-    ["left", "right", "right"],
+    ["left", "right", "left", "left", "right"],
   );
 }

@@ -63,14 +63,12 @@ export function parseAutoMovieInspectionView(
   // Fixed: two triples, then the scale and the up direction a recorded camera may need.
   if (head!.includes(":")) {
     const halves: string[] = head!.split(":");
-    const points: number[][] = halves.map(triple);
-    if (
-      points.length !== 2 ||
-      points.some((point: number[]): boolean => point.length !== 3)
-    )
+    const position: IAutoMovieVector3 | null =
+      halves.length === 2 ? triple(halves[0]!) : null;
+    const target: IAutoMovieVector3 | null =
+      halves.length === 2 ? triple(halves[1]!) : null;
+    if (position === null || target === null)
       return refuse("is not two finite triples");
-    const position: IAutoMovieVector3 = vector(points[0]!);
-    const target: IAutoMovieVector3 = vector(points[1]!);
     const sight: IAutoMovieVector3 = {
       x: target.x - position.x,
       y: target.y - position.y,
@@ -88,17 +86,17 @@ export function parseAutoMovieInspectionView(
           return refuse(
             "is a fixed camera, whose @ortho states its metres per pixel as @ortho=<m>",
           );
-        const scale: number = value.trim() === "" ? Number.NaN : Number(value);
-        if (!(scale > 0))
+        const scale: number | null = finite(value);
+        if (scale === null || !(scale > 0))
           return refuse(
             `has @ortho=${value}, which is not a positive number of metres per pixel`,
           );
         metresPerPixel = scale;
       } else if (key === "up" && written.startsWith("up=")) {
-        const direction: number[] = triple(value);
-        if (direction.length !== 3)
+        const direction: IAutoMovieVector3 | null = triple(value);
+        if (direction === null)
           return refuse(`has @up=${value}, which is not a finite triple`);
-        up = vector(direction);
+        up = direction;
         const cross: number = Math.hypot(
           up.y * sight.z - up.z * sight.y,
           up.z * sight.x - up.x * sight.z,
@@ -149,16 +147,35 @@ export function parseAutoMovieInspectionView(
   return { type: "named", name: head!, orthographic, follow, focus };
 }
 
-/** The numbers of a comma-separated triple, NaN for a blank one. */
-function triple(text: string): number[] {
-  return text
-    .split(",")
-    .map((value: string): number =>
-      value.trim() === "" ? Number.NaN : Number(value),
-    );
+/**
+ * The vector a comma-separated triple spells, or null unless it is three finite
+ * numbers.
+ */
+function triple(text: string): IAutoMovieVector3 | null {
+  const values: number[] = [];
+  for (const part of text.split(",")) {
+    const value: number | null = finite(part);
+    if (value === null) return null;
+    values.push(value);
+  }
+  return values.length === 3
+    ? { x: values[0]!, y: values[1]!, z: values[2]! }
+    : null;
 }
 
-/** A vector from a triple. */
-function vector(triple: number[]): IAutoMovieVector3 {
-  return { x: triple[0]!, y: triple[1]!, z: triple[2]! };
+/**
+ * A numeric literal as `Number` reads one: decimal with an optional exponent,
+ * or a binary, octal or hexadecimal integer.
+ */
+const NUMERIC: RegExp =
+  /^\s*(?:[+-]?(?:\d+\.?\d*|\.\d+)(?:e[+-]?\d+)?|0x[0-9a-f]+|0o[0-7]+|0b[01]+)\s*$/iu;
+
+/**
+ * The finite number a text spells, or null for blank, malformed or overflowing
+ * text.
+ */
+function finite(text: string): number | null {
+  if (!NUMERIC.test(text)) return null;
+  const value: number = Number(text);
+  return value === Infinity || value === -Infinity ? null : value;
 }

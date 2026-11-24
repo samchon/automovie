@@ -90,9 +90,36 @@ export namespace HumanSignature {
    */
   export const HELD: number = 10;
 
+  /**
+   * What a reading of displayed joints reads of a reader: the motion and the
+   * performer, not the body.
+   */
+  export type IBones = Pick<
+    IAutoMovieMotionHumanSignature.IReader,
+    "motion" | "subject"
+  >;
+
+  /**
+   * What placing a body region reads of a reader: the motion, the performer and
+   * the body's surface frames.
+   */
+  export interface IRegion extends HumanSignature.IBones {
+    /** The body's surface frames, the only part of the body a region reads. */
+    body: Pick<IAutoMovieMotionHumanBody, "surfaces">;
+  }
+
+  /**
+   * What a reading along the performer's heading reads of a reader: the motion,
+   * the performer and the heading, not the body.
+   */
+  export type IHeading = Pick<
+    IAutoMovieMotionHumanSignature.IReader,
+    "motion" | "subject" | "yaw"
+  >;
+
   /** The performer's bones at a second. */
   export function bones(
-    reader: IAutoMovieMotionHumanSignature.IReader,
+    reader: HumanSignature.IBones,
     seconds: number,
   ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> {
     return reader.motion.bones(reader.subject, seconds);
@@ -108,7 +135,7 @@ export namespace HumanSignature {
    * @throws {Error} When the rig lacks the bone.
    */
   export function joint(
-    reader: IAutoMovieMotionHumanSignature.IReader,
+    reader: HumanSignature.IBones,
     seconds: number,
     bone: AutoMovieHumanoidBone,
   ): IAutoMovieVector3 {
@@ -137,7 +164,7 @@ export namespace HumanSignature {
    * ed.).
    */
   export function trunk(
-    reader: IAutoMovieMotionHumanSignature.IReader,
+    reader: HumanSignature.IHeading,
     seconds: number,
   ): number {
     const l: IAutoMovieVector3 = joint(reader, seconds, "leftUpperLeg");
@@ -180,7 +207,7 @@ export namespace HumanSignature {
 
   /** A knee's flexion, degrees. */
   export function knee(
-    reader: IAutoMovieMotionHumanSignature.IReader,
+    reader: HumanSignature.IBones,
     seconds: number,
     side: AutoMovieHumanSide,
   ): number {
@@ -193,7 +220,7 @@ export namespace HumanSignature {
 
   /** A hip's flexion: the thigh's turn from the trunk's line, degrees. */
   export function hip(
-    reader: IAutoMovieMotionHumanSignature.IReader,
+    reader: HumanSignature.IBones,
     seconds: number,
     side: AutoMovieHumanSide,
   ): number {
@@ -207,7 +234,7 @@ export namespace HumanSignature {
 
   /** An elbow's flexion, degrees. */
   export function elbow(
-    reader: IAutoMovieMotionHumanSignature.IReader,
+    reader: HumanSignature.IBones,
     seconds: number,
     side: AutoMovieHumanSide,
   ): number {
@@ -222,10 +249,7 @@ export namespace HumanSignature {
    * The head's pitch: how far its forward axis points below the horizon,
    * degrees.
    */
-  export function head(
-    reader: IAutoMovieMotionHumanSignature.IReader,
-    seconds: number,
-  ): number {
+  export function head(reader: HumanSignature.IBones, seconds: number): number {
     const b: IAutoMovieResolvedBone | undefined = bones(reader, seconds).get(
       "head",
     );
@@ -370,7 +394,7 @@ export namespace HumanSignature {
    * @returns The peak speed.
    */
   export function speed(
-    reader: IAutoMovieMotionHumanSignature.IReader,
+    reader: HumanSignature.IBones,
     bone: AutoMovieHumanoidBone,
     from: number,
     to: number,
@@ -413,7 +437,7 @@ export namespace HumanSignature {
    * @throws {Error} When the rig lacks the region's bone.
    */
   export function region(
-    reader: IAutoMovieMotionHumanSignature.IReader,
+    reader: HumanSignature.IRegion,
     name: AutoMovieHumanoidRegion,
     seconds: number,
   ): IAutoMovieVector3 {

@@ -6,7 +6,6 @@ import type {
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanEnsemble,
   IAutoMovieMotionHumanFormation,
-  IAutoMovieMotionHumanPerformance,
   IAutoMovieMotionHumanPopulation,
   IAutoMovieMotionHumanSegment,
   IAutoMoviePose,
@@ -150,15 +149,15 @@ export namespace HumanPopulation {
    *   whole stride from `from`.
    */
   export function cycle(
-    performance: IAutoMovieMotionHumanPerformance,
+    performance: HumanPopulation.IPerformance,
     template: string,
     from: number,
     samples: number,
   ): IAutoMovieMotionHumanPopulation.ICycle {
-    const segment: IAutoMovieMotionHumanSegment | undefined = performance
+    const segment: HumanPopulation.ISegment | undefined = performance
       .segments(template)
       .find(
-        (s: IAutoMovieMotionHumanSegment): boolean =>
+        (s: HumanPopulation.ISegment): boolean =>
           s.entryTime <= from && from < s.end,
       );
     const strikes: ICycleStrikesItem[] = (segment?.plan.events ?? [])
@@ -271,12 +270,12 @@ export namespace HumanPopulation {
    *   ground within its placed span or the sample count is invalid.
    */
   export function standing(
-    performance: IAutoMovieMotionHumanPerformance,
+    performance: HumanPopulation.IPerformance,
     template: string,
     from: number,
     samples: number,
   ): IAutoMovieMotionHumanPopulation.ICycle {
-    if (!(samples > 0 && samples < 2 ** 32))
+    if (!(samples > 0 && samples < 2 ** 32 && samples % 1 === 0))
       throw new HumanRefusal({
         kind: "parameter",
         performer: template,
@@ -285,10 +284,10 @@ export namespace HumanPopulation {
         reason: "a standing take needs a positive whole phase count",
         fix: "give the same positive phase count as the other pose takes",
       });
-    const segments: readonly IAutoMovieMotionHumanSegment[] =
+    const segments: readonly HumanPopulation.ISegment[] =
       performance.segments(template);
-    const segment: IAutoMovieMotionHumanSegment | undefined = segments.find(
-      (s: IAutoMovieMotionHumanSegment): boolean =>
+    const segment: HumanPopulation.ISegment | undefined = segments.find(
+      (s: HumanPopulation.ISegment): boolean =>
         s.entryTime <= from && from < s.end,
     );
     const settled: IAutoMovieMotionEvent | undefined =
@@ -305,7 +304,7 @@ export namespace HumanPopulation {
       segment?.name !== "stand" ||
       !(segment.entryTime <= at && at <= segment.end) ||
       segments.some(
-        (next: IAutoMovieMotionHumanSegment): boolean =>
+        (next: HumanPopulation.ISegment): boolean =>
           next.index > segment.index && next.entryTime <= at + 1e-12,
       ) ||
       segment.plan.contacts.some(
@@ -348,4 +347,28 @@ export namespace HumanPopulation {
       poses: new Array<IAutoMoviePose>(samples).fill(held),
     };
   }
+
+  /** What a take reads of the performance: its segments and displayed poses. */
+  export interface IPerformance {
+    /** The template's placed actions, in placement order. */
+    segments(subject: string): readonly ISegment[];
+
+    /** The displayed pose at a film second. */
+    pose(subject: string, seconds: number): IAutoMoviePose;
+  }
+
+  /**
+   * What a take reads of a placed action: its name and placement, its plan's
+   * events, length and contacts, and its body and entry state.
+   */
+  export type ISegment = Pick<
+    IAutoMovieMotionHumanSegment,
+    "index" | "name" | "start" | "entryTime" | "end"
+  > & {
+    plan: Pick<
+      IAutoMovieMotionHumanSegment["plan"],
+      "events" | "duration" | "contacts"
+    >;
+    context: Pick<IAutoMovieMotionHumanSegment["context"], "body" | "entry">;
+  };
 }

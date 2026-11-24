@@ -5,9 +5,11 @@ import { nclose } from "../../../internal/nclose";
 
 /**
  * How far Ramanujan's first approximation may fall from the exact perimeter of
- * a 2:1 ellipse, mm: its error there is about 3 parts in a million.
+ * the 10 by 5 mm ellipse, mm: its truncation error leads with `-h³ / 512` of
+ * `pi (a + b)`, `h = ((a - b) / (a + b))²` (Almkvist and Berndt 1988, Amer.
+ * Math. Monthly 95:585), doubled here for the higher terms at `h = 1/9`.
  */
-const RAMANUJAN: number = 2e-4;
+const RAMANUJAN: number = (Math.PI * 15 * (1 / 9) ** 3) / 256;
 
 /**
  * `HumanPopulationAccess.ellipse` is Ramanujan's first approximation of an
@@ -18,7 +20,7 @@ const RAMANUJAN: number = 2e-4;
  * 1. A circle of radius 10 mm has perimeter `20 pi` exactly.
  * 2. The 10 by 5 mm ellipse's perimeter is `40 E(sqrt(3) / 2)` = 48.4422411 mm
  *    (the complete elliptic integral of the second kind); the approximation
- *    falls short of it by about 0.14 um at this eccentricity.
+ *    falls short of it by its `h³ / 512` truncation error.
  * 3. The perimeter is symmetric in its semi-axes.
  */
 export function test_unit_motions_executable_human_population_ellipse(): void {

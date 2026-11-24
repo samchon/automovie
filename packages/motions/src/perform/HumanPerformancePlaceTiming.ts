@@ -14,7 +14,10 @@ import type {
  * @returns The timing.
  */
 export function HumanPerformancePlaceTiming(
-  plan: IAutoMovieMotionHumanActionPlan,
+  plan: Pick<
+    IAutoMovieMotionHumanActionPlan,
+    "duration" | "contact" | "events"
+  >,
   share: number,
 ): IAutoMovieIntentTiming {
   const active: number = (1 - share) * plan.duration;

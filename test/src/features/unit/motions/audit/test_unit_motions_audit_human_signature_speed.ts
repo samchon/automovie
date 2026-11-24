@@ -1,8 +1,7 @@
-﻿import type { IAutoMovieMotionHumanBody } from "@automovie/interface";
+import type { IAutoMovieVector3 } from "@automovie/interface";
 import { HumanSignature } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
-import { humanFixtureBody } from "../../../internal/fixtures/humanFixtureBody";
 import { nclose } from "../../../internal/nclose";
 import { resolvedBones } from "../../../internal/resolvedBones";
 
@@ -17,31 +16,25 @@ const ROUNDING: number = 1e-9;
  *
  * 1. A hand moving at 1.5 m/s along +X peaks at 1.5 m/s.
  * 2. A hand at `0.5 t^2` along +Y peaks over 0.5 to 1 s at the window's end, `1
- *    m/s` within the series' spacing, exactly where a central difference of a
- *    quadratic is exact.
+ *    m/s` within the series' spacing, where a central difference of a quadratic
+ *    is exact.
  * 3. A still hand peaks at 0.
- *
- * The body is built whole (`humanFixtureBody`) only for the reader's record.
  */
-export async function test_unit_motions_audit_human_signature_speed(): Promise<void> {
-  // The parameter is the whole body record (closures and maps, no stored or partial typed form without a cast); this reading reads no field of it.
-  const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");
+export function test_unit_motions_audit_human_signature_speed(): void {
   const peak = (
-    path: (t: number) => { x: number; y: number; z: number },
+    path: (t: number) => IAutoMovieVector3,
     from: number,
     to: number,
   ): number =>
     HumanSignature.speed(
-      HumanSignature(
-        {
+      {
+        motion: {
           duration: 2,
           bones: (_subject: string, t: number) =>
             resolvedBones([["leftHand", path(t)]]),
         },
-        "a",
-        body,
-        0,
-      ),
+        subject: "a",
+      },
       "leftHand",
       from,
       to,

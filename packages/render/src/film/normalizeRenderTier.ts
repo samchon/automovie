@@ -23,7 +23,6 @@ export const normalizeRenderTier: (
 ): IAutoMovieProductionRenderTier => {
   const value: Readonly<IAutoMovieProductionRenderTier> = tier ?? FINAL_TIER;
   if (
-    (value.kind !== "proxy" && value.kind !== "final") ||
     value.resolutionScale <= 0 ||
     value.resolutionScale > 1 ||
     value.frameStep <= 0 ||

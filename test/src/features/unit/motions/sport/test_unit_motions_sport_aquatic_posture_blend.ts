@@ -18,7 +18,7 @@ import { vclose } from "../../../internal/vclose";
  * 1. At no progress it is the first posture's root and tip; past the end, the
  *    second's.
  * 2. At half progress (share one half) the root is 1 m along, tipped 45, the knee
- *    near 30 degrees.
+ *    at 30 degrees, a single-axis flexion blending linearly.
  * 3. With no rigid turn on either side, none is blended.
  */
 export function test_unit_motions_sport_aquatic_posture_blend(): void {
@@ -47,7 +47,7 @@ export function test_unit_motions_sport_aquatic_posture_blend(): void {
       blend(2).pitch === 90 &&
       vclose(half.root, { x: 0, y: 0, z: 1 }, 1e-12) &&
       nclose(half.pitch, 45, 1e-12) &&
-      nclose(half.joints.leftLowerLeg![0], 30, 1) &&
+      nclose(half.joints.leftLowerLeg![0], 30, 1e-9) &&
       half.rotation === undefined,
   );
 }
