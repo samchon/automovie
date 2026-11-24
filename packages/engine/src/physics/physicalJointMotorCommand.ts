@@ -18,8 +18,8 @@ import { projectPhysicalJointVelocity } from "./projectPhysicalJointVelocity";
  * d = (c + k dt) strength-scaled plus passive damping and target speed
  * (k e + c_active w_target + f strength) / d_active+passive, the backward-Euler
  * form of PD with stiffness k = stiffness strength. With positive strength the
- * requested velocity is projected into the joint's twist-limit box for the next
- * substep. The cap is the axis torque when any gain is active and zero
+ * requested velocity is projected into the joint's limit box for the next
+ * substep, read in its chart when it declares one, as the solver limits it. The cap is the axis torque when any gain is active and zero
  * otherwise. Saturation is a demand forecast |d (speed - velocity)| > cap at
  * the command's velocity, before the substeps run.
  */
@@ -66,6 +66,7 @@ export function physicalJointMotorCommand(
           input.joint.axes,
           requested,
           input.timestep,
+          input.joint.order,
         )
       : requested;
   const output: IAutoMoviePhysicalJointMotorCommand.IOutput = {
