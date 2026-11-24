@@ -3,7 +3,7 @@ import type { IAutoMovieConstraintViolation } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * alidateUniqueBy reports each later occurrence of an id at that entry's own
+ * AlidateUniqueBy reports each later occurrence of an id at that entry's own
  * path and never the first.
  *
  * Scenarios:

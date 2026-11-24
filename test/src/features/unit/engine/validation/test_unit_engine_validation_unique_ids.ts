@@ -3,7 +3,7 @@ import type { IAutoMovieConstraintViolation } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * alidateUniqueIds reports a repeated record id at <path>[index].id of the
+ * AlidateUniqueIds reports a repeated record id at <path>[index].id of the
  * later record.
  *
  * Scenarios:

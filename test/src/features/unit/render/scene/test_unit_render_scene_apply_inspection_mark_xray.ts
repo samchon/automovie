@@ -44,8 +44,9 @@ export function test_unit_render_scene_apply_inspection_mark_xray(): void {
     ];
     const out: (boolean | number)[][] = objects.map(
       (object: THREE.Object3D): (boolean | number)[] => {
-        const material: THREE.Material = (object as THREE.Mesh)
-          .material as THREE.Material;
+        if (!AutoMovieThreeKind.isMesh(object) && !AutoMovieThreeKind.isPoints(object))
+          throw new Error("Expected a drawn mark");
+        const material: THREE.Material = singleMaterial(object.material);
         return [
           material.depthTest,
           material.depthWrite,

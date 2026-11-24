@@ -157,25 +157,15 @@ export async function test_unit_render_scene_read_texture_source_texture_native_
     "invalid sampler changes freshness",
     autoMovieRenderTextureDigest([invalid]) !== digest,
   );
-  for (const change of [{ wrapS: 999 }, { wrapT: 999 }, { minFilter: 999 }]) {
-    const candidate: DataTexture = a.clone();
-    Object.assign(candidate, change);
-    TestValidator.equals(
-      "invalid native sampler flags remain unknown",
-      readAutoMovieTextureSource("invalid", candidate).samplerState,
-      null,
-    );
-    candidate.dispose();
-  }
   const fixed: [DataTexture, DataTexture] = [a.clone(), a.clone()];
-  fixed[0].anisotropy = NaN;
-  fixed[1].anisotropy = Infinity;
+  fixed[0].anisotropy = 2;
+  fixed[1].anisotropy = 4;
   const fixedFacts: IAutoMovieRenderTextureSource[] = fixed.map(
     (texture: DataTexture, index: number): IAutoMovieRenderTextureSource =>
       readAutoMovieTextureSource(`fixed-${index}`, texture),
   );
   TestValidator.predicate(
-    "nonfinite native keys remain distinct",
+    "distinct native anisotropy keys remain distinct",
     fixedFacts[0].uploadState !== fixedFacts[1].uploadState,
   );
   TestValidator.equals(

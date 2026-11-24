@@ -1,7 +1,7 @@
 import { bracketedBisection } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
-import { nclose, throwsError } from "../../../internal/predicates";
+import { throwsError } from "../../../internal/predicates";
 
 /**
  * `bracketedBisection` finds the boundary of a yes-or-no condition between two

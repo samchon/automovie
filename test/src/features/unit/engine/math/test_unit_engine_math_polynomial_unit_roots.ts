@@ -1,7 +1,7 @@
 import { polynomialUnitRoots } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
-import { nclose, throwsError } from "../../../internal/predicates";
+import { nclose } from "../../../internal/predicates";
 
 /**
  * `polynomialUnitRoots` finds the real roots on [0, 1] of a polynomial given by

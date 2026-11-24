@@ -63,7 +63,8 @@ export function motionActionContext<P extends object>(
   );
   const posture: IAutoMovieMotionHumanPosture =
     options.posture ?? stand.posture(body, at, yaw);
-  const pose: IAutoMoviePose = resolveHumanPosture(body, posture);
+  const pose: IAutoMoviePose =
+    options.pose ?? resolveHumanPosture(body, posture);
   const bones: ReturnType<typeof poseBones> = poseBones(body, pose);
   const rest: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
   const foot = (
@@ -108,6 +109,8 @@ export function motionActionContext<P extends object>(
     body,
     params,
     skill,
+    ...(options.handover === undefined ? {} : { handover: options.handover }),
+    ...(options.tempo === undefined ? {} : { tempo: options.tempo }),
     entry: {
       seconds: options.start ?? 0,
       pose,
@@ -243,6 +246,13 @@ export namespace motionActionContext {
     /** The posture it enters in; its quiet stance there when absent. */
     posture?: IAutoMovieMotionHumanPosture;
 
+    /**
+     * The pose the entry shows, as the performance resolves its posture (the
+     * ROM-projected seeded resolve of `HumanSegmentPose.initial`); the plain
+     * resolve of the posture when absent.
+     */
+    pose?: IAutoMoviePose;
+
     /** The base it enters on; standing when absent. */
     base?: IAutoMovieMotionHumanBase;
 
@@ -284,5 +294,15 @@ export namespace motionActionContext {
 
     /** The action's film start, seconds; 0 when absent. */
     start?: number;
+
+    /**
+     * The arm solutions the action's plans hand each other, as the
+     * performance gives every placed action one (`HumanPerformancePlace`); none
+     * when absent.
+     */
+    handover?: IAutoMovieMotionHumanActionContext["handover"];
+
+    /** The action's time scale; the manner's own (1) when absent. */
+    tempo?: number;
   }
 }

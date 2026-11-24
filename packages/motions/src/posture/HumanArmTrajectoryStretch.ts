@@ -157,10 +157,8 @@ export namespace HumanArmTrajectoryStretch {
     penalty?: number,
   ): ISolved {
     let at: IKnots = from;
-    const T0 = performance.now();
     let solved: ReturnType<typeof HumanArmOptimiser.optimise> =
       HumanArmOptimiser.optimise(at.context, seed, penalty, grid.fine);
-    console.error("PROF0", at.knots.length, grid.fine.n, (performance.now()-T0).toFixed(0), solved.evaluation.worst.term, solved.evaluation.worst.value.toFixed(2));
     while (
       solved.evaluation.worst.value > M.TOLERANCE &&
       !at.context.still &&
@@ -190,14 +188,12 @@ export namespace HumanArmTrajectoryStretch {
           ),
       );
       at = next;
-      const T1 = performance.now();
       solved = HumanArmOptimiser.optimise(
         at.context,
         carried,
         solved.penalty,
         grid.fine,
       );
-      console.error("PROF", at.knots.length, (performance.now()-T1).toFixed(0), solved.evaluation.worst.term, solved.evaluation.worst.value.toFixed(2));
     }
     const played: Admission.IReading = {
       x:

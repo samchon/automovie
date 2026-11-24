@@ -9,7 +9,9 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { makeRng } from "../../../internal/makeRng";
 import { nclose } from "../../../internal/nclose";
+import { uniform } from "../../../internal/uniform";
 import { vclose } from "../../../internal/vclose";
 
 const REST: IAutoMovieTransform = {
@@ -59,6 +61,9 @@ const SKELETON: IAutoMovieSkeleton = {
  *    200 → 150).
  * 4. A bone with no constraint anywhere (hips) passes through unchanged, and the
  *    root transform is preserved.
+ * 5. Property: for 200 seeded poses of angles in [-200, 200) on the override,
+ *    table and unconstrained bones, clamping twice equals clamping once, and
+ *    the first clamp changes each pose.
  */
 export function test_unit_engine_rom_clamp_pose(): void {
   const pose: IAutoMoviePose = {
@@ -123,4 +128,33 @@ export function test_unit_engine_rom_clamp_pose(): void {
       nclose(out.root.rotation.z, REST.rotation.z, 0) &&
       nclose(out.root.rotation.w, REST.rotation.w, 0),
   );
+  const rng: () => number = makeRng(0x7c3f0055);
+  const bones: IAutoMovieJointPose["bone"][] = [
+    "leftLowerArm",
+    "leftHand",
+    "leftUpperArm",
+    "hips",
+  ];
+  let fixed: boolean = true;
+  let changed: boolean = true;
+  for (let index: number = 0; index < 200; ++index) {
+    const wild: IAutoMoviePose = {
+      skeleton: "s",
+      root: REST,
+      joints: bones.map(
+        (name: IAutoMovieJointPose["bone"]): IAutoMovieJointPose => ({
+          bone: name,
+          flexion: uniform(rng, -200, 200),
+          abduction: uniform(rng, -200, 200),
+          twist: uniform(rng, -200, 200),
+        }),
+      ),
+    };
+    const once: IAutoMoviePose = clampPose(wild, SKELETON);
+    fixed &&=
+      JSON.stringify(clampPose(once, SKELETON)) === JSON.stringify(once);
+    changed &&= JSON.stringify(once.joints) !== JSON.stringify(wild.joints);
+  }
+  TestValidator.predicate("clamping is idempotent", fixed);
+  TestValidator.predicate("and the first clamp acts", changed);
 }

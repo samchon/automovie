@@ -1,0 +1,86 @@
+import { validateModel } from "@automovie/engine";
+import type {
+  IAutoMovieModel,
+  IAutoMovieModelPart,
+  IAutoMovieTransform,
+  IAutoMovieValidation,
+} from "@automovie/interface";
+import { TestValidator } from "@nestia/e2e";
+
+import { createModel } from "../../../internal/createModel";
+import { hasViolation } from "../../../internal/hasViolation";
+
+const PART_TRANSFORM: IAutoMovieTransform = {
+  translation: { x: 0.1, y: 0.2, z: 0.3 },
+  rotation: { x: 0, y: 0, z: 0, w: 1 },
+  scale: { x: 1, y: 1, z: 1 },
+};
+
+const modelWithPartTransform: (
+  transform: IAutoMovieTransform,
+) => IAutoMovieModel = (transform: IAutoMovieTransform): IAutoMovieModel => {
+  const base: IAutoMovieModel = createModel();
+  return {
+    ...base,
+    parts: base.parts.map(
+      (part: IAutoMovieModelPart, i: number): IAutoMovieModelPart =>
+        i === 0 ? { ...part, transform } : part,
+    ),
+  };
+};
+
+/**
+ * Exercise optional part-transform admission for finite translation, unit
+ * rotation and positive scale without normalizing authored values.
+ *
+ * Scenarios:
+ *
+ * 1. A valid non-null part transform still validates.
+ * 2. Non-finite translation is a range violation.
+ * 3. Non-finite rotation is a range violation.
+ * 4. Finite but non-unit rotation is a range violation.
+ * 5. Non-positive scale is a range violation.
+ */
+export function test_unit_engine_validation_model_part_transform(): void {
+  TestValidator.equals(
+    "valid part transform succeeds",
+    validateModel({ model: modelWithPartTransform(PART_TRANSFORM) }).success,
+    true,
+  );
+
+  const nonUnitRotation: IAutoMovieValidation = validateModel({
+    model: modelWithPartTransform({
+      ...PART_TRANSFORM,
+      rotation: { ...PART_TRANSFORM.rotation, w: 2 },
+    }),
+  });
+  TestValidator.equals(
+    "non-unit part rotation fails",
+    nonUnitRotation.success,
+    false,
+  );
+  TestValidator.predicate(
+    "range violation on part rotation length",
+    hasViolation(
+      nonUnitRotation,
+      "range",
+      "$input.parts[0].transform.rotation",
+    ),
+  );
+
+  const badScale: IAutoMovieValidation = validateModel({
+    model: modelWithPartTransform({
+      ...PART_TRANSFORM,
+      scale: { ...PART_TRANSFORM.scale, y: 0 },
+    }),
+  });
+  TestValidator.equals(
+    "non-positive part scale fails",
+    badScale.success,
+    false,
+  );
+  TestValidator.predicate(
+    "range violation on part scale",
+    hasViolation(badScale, "range", "$input.parts[0].transform.scale.y"),
+  );
+}

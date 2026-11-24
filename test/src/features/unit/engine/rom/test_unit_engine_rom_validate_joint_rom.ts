@@ -8,6 +8,9 @@ import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../../internal/nclose";
 
+/** The swing metric is a trigonometric closed form, to rounding. */
+const SWING: number = 1e-9;
+
 /** Overshoots are differences of whole degrees. */
 const EXACT: number = 0;
 
@@ -56,6 +59,10 @@ const faults: (
  *    files nothing.
  * 5. A zero outside the interval 10..90 is a fault.
  * 6. Flexion 999 and twist 999 file exactly the flexion and twist paths.
+ * 7. A 100 degree swing cap on wide axes: a 90/90 corner has swing 120 and files
+ *    one `swing` fault, overshoot 20; 30/30, a lone abduction 50 and a lone
+ *    flexion 50 file nothing; a lone flexion 150 files one fault whether the
+ *    other axis is null or an explicit 0.
  */
 export function test_unit_engine_rom_validate_joint_rom(): void {
   TestValidator.equals(
@@ -110,5 +117,45 @@ export function test_unit_engine_rom_validate_joint_rom(): void {
       .map((item: IAutoMovieConstraintViolation): string => item.path)
       .sort(),
     ["$input.flexion", "$input.twist"],
+  );
+  const cone: IAutoMovieJointConstraint = {
+    flexion: { min: -180, max: 180 },
+    abduction: { min: -180, max: 180 },
+    twist: null,
+    swingDeg: 100,
+  };
+  const corner: IAutoMovieConstraintViolation[] = faults(
+    pose({ flexion: 90, abduction: 90 }),
+    cone,
+  );
+  TestValidator.predicate(
+    "a corner past the cap",
+    corner.length === 1 &&
+      corner[0]!.path === "$input.swing" &&
+      nclose(corner[0]!.overshoot!, 20, SWING),
+  );
+  TestValidator.equals(
+    "inside the cap",
+    [
+      faults(pose({ flexion: 30, abduction: 30 }), cone),
+      faults(pose({ abduction: 50 }), cone),
+      faults(pose({ flexion: 50 }), cone),
+    ].map((items: IAutoMovieConstraintViolation[]): number => items.length),
+    [0, 0, 0],
+  );
+  const resting: IAutoMovieConstraintViolation[] = faults(
+    pose({ flexion: 150 }),
+    cone,
+  );
+  const zero: IAutoMovieConstraintViolation[] = faults(
+    pose({ flexion: 150, abduction: 0 }),
+    cone,
+  );
+  TestValidator.predicate(
+    "a resting axis reads as zero",
+    resting.length === 1 &&
+      zero.length === 1 &&
+      resting[0]!.path === zero[0]!.path &&
+      nclose(resting[0]!.overshoot!, zero[0]!.overshoot!, EXACT),
   );
 }

@@ -7,6 +7,7 @@ import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
 import { InspectionScene } from "../../../internal/InspectionScene";
+import { singleMaterial } from "../../../internal/singleMaterial";
 
 /**
  * `restore` puts back everything an inspection changed and releases everything
@@ -38,22 +39,23 @@ export function test_unit_render_scene_apply_inspection_restore(): void {
   const planes: THREE.Plane[] = [
     new THREE.Plane(new THREE.Vector3(1, 0, 0), 5),
   ];
-  (left.material as THREE.Material).clippingPlanes = planes;
+  singleMaterial(left.material).clippingPlanes = planes;
   const renderer: IAutoMovieSectionRenderer = { localClippingEnabled: false };
 
   // Every geometry and material the inspection adds is watched for its dispose.
   const disposed: Set<object> = new Set<object>();
   const watched: Set<object> = new Set<object>();
-  const watch = (): void =>
+  const watch: () => void = (): void =>
     stage.traverse((object: THREE.Object3D): void => {
-      for (const resource of [
-        (object as THREE.Mesh).geometry,
-        (object as THREE.Mesh).material,
-      ] as (THREE.EventDispatcher<{ dispose: {} }> | undefined)[])
+      if (!AutoMovieThreeKind.isMesh(object)) return;
+      const resources: (THREE.BufferGeometry | THREE.Material)[] = [
+        object.geometry,
+        ...[object.material].flat(),
+      ];
+      for (const resource of resources)
         if (
-          resource !== undefined &&
           !watched.has(resource) &&
-          !own.includes(resource as THREE.Material)
+          !own.some((material: THREE.Material): boolean => material === resource)
         ) {
           if (resource === left.geometry || resource === right.geometry)
             continue;
@@ -93,7 +95,7 @@ export function test_unit_render_scene_apply_inspection_restore(): void {
       left.material !== own[0] &&
       right.layers.mask === 0 &&
       renderer.localClippingEnabled &&
-      (left.material as THREE.Material).clippingPlanes?.length === 1,
+      singleMaterial(left.material).clippingPlanes?.length === 1,
   );
   TestValidator.equals(
     "and holds two line objects and one points object",
@@ -125,8 +127,8 @@ export function test_unit_render_scene_apply_inspection_restore(): void {
       right.material === own[1],
       left.layers.mask,
       right.layers.mask,
-      (left.material as THREE.Material).clippingPlanes === planes,
-      (right.material as THREE.Material).clippingPlanes,
+      singleMaterial(left.material).clippingPlanes === planes,
+      singleMaterial(right.material).clippingPlanes,
       renderer.localClippingEnabled,
     ],
     [2, true, true, 1, 1, true, null, false],

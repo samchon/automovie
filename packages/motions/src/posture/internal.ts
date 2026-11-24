@@ -1,6 +1,7 @@
 // The posture internals the test programme reads directly, re-exported by `../internal`.
 
 export * from "./hipJoints";
+export * from "./prepareHumanPostureProjection";
 export * from "./HumanArmClearance";
 export * from "./HumanArmSwing";
 export * from "./HumanBodyFit";

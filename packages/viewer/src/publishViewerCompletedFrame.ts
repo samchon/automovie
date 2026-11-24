@@ -9,13 +9,18 @@ import type { IAutoMovieViewerCompletedFrame } from "./IAutoMovieViewerCompleted
  * and model facts match the preceding frame: graphics recovery still needs new
  * pixels. Ordinary producers retain their supplied idle/change classification.
  *
+ * A canvas's own `dispatchEvent` serves, and its listeners receive the event
+ * typed through `HTMLElementEventMap`.
+ *
  * Completion belongs to the original draw producer. This publisher contributes
  * capture authority without implementing validation or delivery gates.
  */
 export function publishViewerCompletedFrame(
   canvas: {
     getAttribute?: (name: string) => string | null;
-    dispatchEvent?: (event: Event) => boolean;
+    dispatchEvent?: (
+      event: HTMLElementEventMap["automovie:completed-frame"],
+    ) => boolean;
   },
   frame: IAutoMovieViewerCompletedFrame,
   explicitDraw: boolean = false,

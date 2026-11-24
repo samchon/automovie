@@ -118,7 +118,9 @@ export function test_unit_render_scene_apply_inspection_mark_shapes(): void {
       { at: [-1, -2, -3], color: 0x13579b },
     ],
   );
-  const dot: THREE.PointsMaterial = places[0]!.material as THREE.PointsMaterial;
+  const dot: THREE.Material = singleMaterial(places[0]!.material);
+  if (!AutoMovieThreeKind.isPointsMaterial(dot))
+    throw new Error("Expected a points material");
   TestValidator.equals(
     "a point is three strokes across and not attenuated",
     [places.length, dot.size, dot.sizeAttenuation],

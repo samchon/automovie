@@ -36,9 +36,11 @@ declare module "three" {
 
   interface Material {
     readonly isMeshStandardMaterial?: boolean;
+    readonly isMeshPhysicalMaterial?: boolean;
     readonly isMeshPhongMaterial?: boolean;
     readonly isMeshLambertMaterial?: boolean;
     readonly isMeshBasicMaterial?: boolean;
+    readonly isPointsMaterial?: boolean;
     readonly isMeshToonMaterial?: boolean;
     readonly isShaderMaterial?: boolean;
     readonly isRawShaderMaterial?: boolean;
@@ -227,6 +229,20 @@ export namespace AutoMovieThreeKind {
     material: THREE.Material,
   ): material is THREE.MeshBasicMaterial {
     return material.isMeshBasicMaterial === true;
+  }
+
+  /** Whether a material is a physical material. */
+  export function isMeshPhysicalMaterial(
+    material: THREE.Material,
+  ): material is THREE.MeshPhysicalMaterial {
+    return material.isMeshPhysicalMaterial === true;
+  }
+
+  /** Whether a material is a points material. */
+  export function isPointsMaterial(
+    material: THREE.Material,
+  ): material is THREE.PointsMaterial {
+    return material.isPointsMaterial === true;
   }
 
   /** Whether a material is a toon material. */

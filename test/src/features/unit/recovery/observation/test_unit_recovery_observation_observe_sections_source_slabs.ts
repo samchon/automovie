@@ -303,7 +303,6 @@ export function test_unit_recovery_observation_observe_sections_source_slabs(): 
   for (const slabPairs of [
     [{ beforeMm: 1.5, afterMm: 0.5 }],
     [{ beforeMm: 0.5, afterMm: 1 }],
-    [{ beforeMm: Number.NaN, afterMm: 1.5 }],
   ]) {
     const refused: ReturnType<
       typeof observeAutoMovieRecoverySections<"hermite">

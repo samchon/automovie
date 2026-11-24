@@ -2,7 +2,7 @@ import { quaternionFromAutoMovieBasis } from "@automovie/engine";
 import type { IAutoMovieQuaternion } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { nclose, throwsError } from "../../../internal/predicates";
+import { nclose } from "../../../internal/predicates";
 
 /**
  * `quaternionFromAutoMovieBasis` is the unit quaternion of the rotation whose

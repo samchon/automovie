@@ -5,7 +5,7 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { nclose, throwsError } from "../../../internal/predicates";
+import { nclose } from "../../../internal/predicates";
 
 /**
  * `swingTwist` splits a rotation into a swing and a twist about an axis.

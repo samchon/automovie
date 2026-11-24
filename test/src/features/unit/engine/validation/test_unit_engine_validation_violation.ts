@@ -2,7 +2,7 @@ import { violation } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * iolation builds one constraint row from its arguments, severity defaulting to
+ * Iolation builds one constraint row from its arguments, severity defaulting to
  * error and overshoot present only when supplied.
  *
  * Scenarios:

@@ -8,8 +8,7 @@ import type {
 import {
   AutoMovieThreeKind,
   type IAutoMovieModelObject,
-  buildModel,
-} from "@automovie/render";
+  buildModel, readAutoMovieBufferAttribute } from "@automovie/render";
 import type { IMaterialShaderSource } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
@@ -73,10 +72,8 @@ export function test_unit_render_scene_build_model_procedural_skinned(): void {
   );
 
   // 2. Bend 90° and compare.
-  const position: THREE.BufferAttribute = skinned.geometry.getAttribute(
-    "position",
-  ) as THREE.BufferAttribute;
-  const before: number[] = Array.from(position.array as ArrayLike<number>);
+  const position: THREE.BufferAttribute = readAutoMovieBufferAttribute(skinned.geometry, "position");
+  const before: number[] = Array.from(position.array);
   const spine: THREE.Bone = skinned.skeleton.bones.find(
     (bone: THREE.Bone): boolean => bone.name === "spine",
   )!;
@@ -92,7 +89,7 @@ export function test_unit_render_scene_build_model_procedural_skinned(): void {
     const bent: THREE.Vector3 = skinned.applyBoneTransform(index, rest.clone());
     moved = Math.max(moved, bent.distanceTo(rest));
   }
-  const after: number[] = Array.from(position.array as ArrayLike<number>);
+  const after: number[] = Array.from(position.array);
   let same: boolean = after.every(
     (value: number, k: number): boolean => value === before[k],
   );

@@ -7,6 +7,7 @@ export * from "./planMotionCaptureProps";
 export * from "./cases/colliderCaseInside";
 export * from "./cases/colliderCaseNearest";
 export * from "./cases/everydayCaseKit";
+export * from "./cases/everydayGestureSwings";
 export * from "./cases/everydayVerdicts";
 export * from "./cases/FamilyCaseKit";
 export * from "./cases/floorCaseSpan";

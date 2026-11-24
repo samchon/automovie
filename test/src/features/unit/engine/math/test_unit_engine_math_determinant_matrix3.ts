@@ -1,7 +1,7 @@
 import { determinantAutoMovieMatrix3 } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
-import { nclose, throwsError } from "../../../internal/predicates";
+import { throwsError } from "../../../internal/predicates";
 
 /**
  * `determinantAutoMovieMatrix3` is the determinant of a row-major 3 by 3

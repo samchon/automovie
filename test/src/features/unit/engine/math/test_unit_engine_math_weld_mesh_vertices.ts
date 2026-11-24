@@ -1,7 +1,7 @@
 import { weldMeshVertices } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
-import { nclose, throwsError } from "../../../internal/predicates";
+import { throwsError } from "../../../internal/predicates";
 
 /**
  * `weldMeshVertices` interns XYZ tuples within one nanometre in

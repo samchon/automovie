@@ -5,8 +5,7 @@ import type {
 } from "@automovie/interface";
 import {
   type IAutoMovieInspectionHandle,
-  applyAutoMovieInspection,
-} from "@automovie/render";
+  applyAutoMovieInspection, readAutoMovieBufferAttribute } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
@@ -119,9 +118,9 @@ export function test_unit_render_scene_apply_inspection_mark_curves_defects(): v
   );
   TestValidator.predicate(
     "the marks share the curves' points and closure",
-    (marks[0]!.shape as IAutoMovieMark.IPolyline).points === ring.points &&
-      (marks[0]!.shape as IAutoMovieMark.IPolyline).closed &&
-      !(marks[1]!.shape as IAutoMovieMark.IPolyline).closed,
+    readMarkPolyline(marks[0]).points === ring.points &&
+      readMarkPolyline(marks[0]).closed &&
+      !readMarkPolyline(marks[1]).closed,
   );
   TestValidator.equals(
     "a form at the root anchors to the empty path",
@@ -208,9 +207,7 @@ export function test_unit_render_scene_apply_inspection_mark_curves_defects(): v
   );
 
   // 4. The marks follow a moved vertex.
-  const position: THREE.BufferAttribute = open.geometry.getAttribute(
-    "position",
-  ) as THREE.BufferAttribute;
+  const position: THREE.BufferAttribute = readAutoMovieBufferAttribute(open.geometry, "position");
   const corner: number[] = [
     position.getX(0),
     position.getY(0),

@@ -164,12 +164,12 @@ export function handoverCases(): IMotionCaptureCase[] {
       Vector3.add(sternum("a", a, closed), sternum("b", b, closed)),
       0.5,
     );
-    const exchange: number = distance(centre(closed), middle);
+    const exchange: number = Vector3.distance(centre(closed), middle);
     let jump: number = 0;
     let previous: IAutoMovieVector3 = performance.prop("bottle", 0).position;
     for (let t: number = 1 / 240; t <= performance.duration; t += 1 / 240) {
       const now: IAutoMovieVector3 = performance.prop("bottle", t).position;
-      jump = Math.max(jump, distance(now, previous));
+      jump = Math.max(jump, Vector3.distance(now, previous));
       previous = now;
     }
     const offset = (t: number): IAutoMovieVector3 => {
@@ -186,7 +186,7 @@ export function handoverCases(): IMotionCaptureCase[] {
     };
     let held: number = 0;
     for (let t: number = release; t <= performance.duration; t += 1 / 24)
-      held = Math.max(held, distance(offset(t), offset(release)));
+      held = Math.max(held, Vector3.distance(offset(t), offset(release)));
     let deepest: number = Infinity;
     for (let t: number = closed; t <= release; t += 1 / 48)
       deepest = Math.min(
@@ -212,7 +212,7 @@ export function handoverCases(): IMotionCaptureCase[] {
         )
           slip = Math.max(
             slip,
-            distance(
+            Vector3.distance(
               performance.bones(subject, t).get(foot)!.worldPosition,
               from,
             ),
@@ -293,9 +293,4 @@ export function handoverCases(): IMotionCaptureCase[] {
     });
   }
   return out;
-}
-
-/** Distance between two points, metres. */
-function distance(p: IAutoMovieVector3, q: IAutoMovieVector3): number {
-  return Math.hypot(p.x - q.x, p.y - q.y, p.z - q.z);
 }

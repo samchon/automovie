@@ -1,0 +1,71 @@
+import { resolveAutoMovieFraming } from "@automovie/engine";
+import type { IAutoMovieFramingGoal } from "@automovie/interface";
+import { TestValidator } from "@nestia/e2e";
+
+import { nclose, throwsError } from "../../../internal/predicates";
+
+/**
+ * `resolveAutoMovieFraming` places a camera so the subjects' enclosing sphere
+ * fills the declared share of the vertical field of view, at distance `d = r /
+ * (fill tan(fov / 2))`.
+ *
+ * Goal: fill 0.5, field of view pi / 2 (so tan(fov / 2) = 1).
+ *
+ * Scenarios:
+ *
+ * 1. One unit sphere at the origin, bearing 0: radius 1, distance 2, camera (0, 0,
+ *    2).
+ * 2. Two unit spheres at x = -2 and x = 2, bearing pi / 2: target (0, 0, 0),
+ *    radius 3, distance 6, camera (6, 0, 0).
+ * 3. An unknown subject, a fill of 0 and no subjects are refused.
+ */
+export function test_unit_engine_composition_resolve_framing(): void {
+  const goal = (
+    subjects: string[],
+    bearing: number,
+    fill: number = 0.5,
+  ): IAutoMovieFramingGoal => ({
+    subjects,
+    fill,
+    bearing,
+    elevation: 0,
+    fieldOfView: Math.PI / 2,
+  });
+  const state = {
+    a: { center: { x: 0, y: 0, z: 0 }, radius: 1 },
+    left: { center: { x: -2, y: 0, z: 0 }, radius: 1 },
+    right: { center: { x: 2, y: 0, z: 0 }, radius: 1 },
+  };
+  const one = resolveAutoMovieFraming(goal(["a"], 0), state);
+  TestValidator.predicate("one radius", nclose(one.radius, 1, 1e-12));
+  TestValidator.predicate(
+    "one camera",
+    nclose(one.position.x, 0, 1e-12) &&
+      nclose(one.position.y, 0, 1e-12) &&
+      nclose(one.position.z, 2, 1e-12),
+  );
+  const two = resolveAutoMovieFraming(
+    goal(["left", "right"], Math.PI / 2),
+    state,
+  );
+  TestValidator.equals("two target", two.target, { x: 0, y: 0, z: 0 });
+  TestValidator.predicate("two radius", nclose(two.radius, 3, 1e-12));
+  TestValidator.predicate(
+    "two camera",
+    nclose(two.position.x, 6, 1e-12) &&
+      nclose(two.position.y, 0, 1e-12) &&
+      nclose(two.position.z, 0, 1e-12),
+  );
+  TestValidator.predicate(
+    "unknown",
+    throwsError(() => resolveAutoMovieFraming(goal(["ghost"], 0), state)),
+  );
+  TestValidator.predicate(
+    "fill",
+    throwsError(() => resolveAutoMovieFraming(goal(["a"], 0, 0), state)),
+  );
+  TestValidator.predicate(
+    "empty",
+    throwsError(() => resolveAutoMovieFraming(goal([], 0), state)),
+  );
+}

@@ -10,6 +10,7 @@ import * as THREE from "three";
 import { observeThrownValue } from "../../../internal/observeThrownValue";
 import { namedFacts, nclose } from "../../../internal/predicates";
 import { softFurnishing, softPanel } from "../../../internal/softFixtures";
+import { singleMaterial } from "../../../internal/singleMaterial";
 
 /** A hanging panel and its derived surface at one step. */
 const drape: (step: number) => ReturnType<typeof softBodySurfaceGeometry> = (
@@ -299,7 +300,7 @@ export function test_unit_render_scene_build_soft_body_object(): void {
     material: borrowed,
     status: "solved",
   });
-  const owned: THREE.Material = object.object.material as THREE.Material;
+  const owned: THREE.Material = singleMaterial(object.object.material);
   let defaultDisposals: number = 0;
   owned.addEventListener("dispose", (): void => {
     ++defaultDisposals;
@@ -427,7 +428,7 @@ export function test_unit_render_scene_build_soft_body_object(): void {
   failedResize.object.geometry.addEventListener("dispose", (): void => {
     ++currentAttempts;
   });
-  (failedResize.object.material as THREE.Material).addEventListener(
+  singleMaterial(failedResize.object.material).addEventListener(
     "dispose",
     (): void => {
       ++materialAttempts;

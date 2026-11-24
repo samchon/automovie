@@ -127,7 +127,9 @@ export function test_unit_render_scene_build_model_anisotropy_tangent(): void {
             return texture;
           },
         );
-        const mesh: THREE.Mesh = output.parts.get("strip") as THREE.Mesh;
+        const mesh: THREE.Object3D | undefined = output.parts.get("strip");
+        if (mesh === undefined || !AutoMovieThreeKind.isMesh(mesh))
+          throw new Error("Expected the strip mesh");
         const expected: boolean = anisotropic && mode === "rigid";
         TestValidator.predicate(
           "only eligible rigid geometry acquires tangents",
@@ -154,8 +156,9 @@ export function test_unit_render_scene_build_model_anisotropy_tangent(): void {
             );
           }
         }
-        const material: THREE.MeshPhysicalMaterial =
-          mesh.material as THREE.MeshPhysicalMaterial;
+        const material: THREE.Material = singleMaterial(mesh.material);
+        if (!AutoMovieThreeKind.isMeshPhysicalMaterial(material))
+          throw new Error("Expected a physical material");
         if (mapped)
           TestValidator.predicate(
             "normal map and detail/overlay registrations retained",

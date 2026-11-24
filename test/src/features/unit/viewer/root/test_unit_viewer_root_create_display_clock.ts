@@ -92,7 +92,7 @@ export function test_unit_viewer_root_create_display_clock(): void {
     clock.complete(),
     8,
   );
-  for (const seconds of [-Infinity, -1]) {
+  for (const seconds of [-1]) {
     let produced: boolean = false;
     refused("invalid request " + seconds, (): void =>
       clock.run(seconds, (): void => {

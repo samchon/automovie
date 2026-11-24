@@ -6,6 +6,7 @@ import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
 import { InspectionScene } from "../../../internal/InspectionScene";
+import { singleMaterial } from "../../../internal/singleMaterial";
 
 /**
  * `color` recolours the objects and mark kinds its patterns match for one
@@ -38,8 +39,12 @@ export function test_unit_render_scene_apply_inspection_color(): void {
       points: [0, 1, 0, 1, 1, 0],
     }),
   ];
-  const hex = (mesh: THREE.Mesh): number =>
-    ((mesh.material as THREE.MeshBasicMaterial).color as THREE.Color).getHex();
+  const hex: (mesh: THREE.Mesh) => number = (mesh: THREE.Mesh): number => {
+    const material: THREE.Material = singleMaterial(mesh.material);
+    if (!AutoMovieThreeKind.isMeshBasicMaterial(material))
+      throw new Error("Expected a basic material");
+    return material.color.getHex();
+  };
 
   // 1. Beauty.
   const beauty: IAutoMovieInspectionHandle = applyAutoMovieInspection({
@@ -56,9 +61,9 @@ export function test_unit_render_scene_apply_inspection_color(): void {
   TestValidator.equals(
     "the quad and the kind take their colours",
     [
-      (left.material as THREE.Material).type,
+      singleMaterial(left.material).type,
       hex(left),
-      right.material !== own && (right.material as THREE.Material).type,
+      right.material !== own && singleMaterial(right.material).type,
       InspectionScene.colors(InspectionScene.strokes(stage)[0]!),
       beauty.legend,
     ],
@@ -89,7 +94,7 @@ export function test_unit_render_scene_apply_inspection_color(): void {
   });
   TestValidator.equals(
     "under clay it is lit in its colour",
-    [(left.material as THREE.Material).type, hex(left)],
+    [singleMaterial(left.material).type, hex(left)],
     ["MeshLambertMaterial", 0x336699],
   );
   clay.restore();

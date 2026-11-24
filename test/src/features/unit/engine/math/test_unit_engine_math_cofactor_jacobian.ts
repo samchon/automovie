@@ -1,7 +1,7 @@
 import { cofactorAutoMovieJacobian } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
-import { nclose, throwsError } from "../../../internal/predicates";
+import { throwsError } from "../../../internal/predicates";
 
 /**
  * `cofactorAutoMovieJacobian` returns det(J) and the cofactor matrix det(J) *

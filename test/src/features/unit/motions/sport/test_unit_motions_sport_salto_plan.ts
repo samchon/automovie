@@ -59,7 +59,9 @@ export async function test_unit_motions_sport_salto_plan(): Promise<void> {
     back.duration *
     back.events.find((e: IAutoMovieMotionEvent): boolean => e.name === name)!
       .share;
-  const bones = (seconds: number): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =>
+  const bones = (
+    seconds: number,
+  ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =>
     poseBones(body, resolveHumanPosture(body, back.posture(seconds)));
 
   // 1. Events.
@@ -71,7 +73,9 @@ export async function test_unit_motions_sport_salto_plan(): Promise<void> {
   );
 
   // 2. The landing.
-  const landed: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = bones(back.duration);
+  const landed: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = bones(
+    back.duration,
+  );
   const feet: IAutoMovieVector3 = {
     x:
       (landed.get("leftFoot")!.worldPosition.x +

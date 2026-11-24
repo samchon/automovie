@@ -82,10 +82,10 @@ export function test_unit_render_scene_build_material_procedural_shader(): void 
   // 2. The uniforms reproduce the CPU sample point.
   const uniforms: Record<string, THREE.IUniform> = shader.uniforms;
   const transform: THREE.Matrix3 = uniforms.uProceduralUvTransform!
-    .value as THREE.Matrix3;
-  const tile: THREE.Vector2 = uniforms.uProceduralTile!.value as THREE.Vector2;
+    .value;
+  const tile: THREE.Vector2 = uniforms.uProceduralTile!.value;
   const shift: THREE.Vector3 = uniforms.uProceduralPieceOffset!
-    .value as THREE.Vector3;
+    .value;
   let agree: boolean = true;
   for (let index: number = 0; index < 64; ++index) {
     const u: number = (index % 8) / 7;
@@ -117,7 +117,7 @@ export function test_unit_render_scene_build_material_procedural_shader(): void 
   const frame: ReturnType<typeof autoMovieProceduralFrame> =
     autoMovieProceduralFrame(piece.axis!);
   const vector: (name: string) => number[] = (name: string): number[] =>
-    (uniforms[name]!.value as THREE.Vector3).toArray();
+    (uniforms[name]!.value).toArray();
   TestValidator.predicate(
     "frame, colours, roughness and relief uniforms",
     [
@@ -130,7 +130,7 @@ export function test_unit_render_scene_build_material_procedural_shader(): void 
         nclose(value, b![k]!, 1e-12),
       ),
     ) &&
-      (uniforms.uProceduralRoughness!.value as THREE.Vector2).equals(
+      (uniforms.uProceduralRoughness!.value).equals(
         new THREE.Vector2(0.45, 0.85),
       ) &&
       uniforms.uProceduralRelief!.value === 0.001 &&

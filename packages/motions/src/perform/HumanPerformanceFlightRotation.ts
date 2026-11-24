@@ -7,31 +7,29 @@ import type {
 
 import { createHumanPostureRotation } from "../posture/createHumanPostureRotation";
 
-/** The record of `IHumanPerformanceFlightRotationProps`'s site. */
-type IHumanPerformanceFlightRotationProps = {
-  start: number;
-  t0: number;
-  t1: number;
-  step: number;
-  times: readonly number[];
-  table: readonly IPropsTableItem[];
-  orientation: (
-    seconds: number,
-    root: IAutoMovieQuaternion,
-  ) => IAutoMovieQuaternion;
-};
-
-/** The record of `IPropsTableItem`'s site. */
-type IPropsTableItem = { about: IAutoMovieVector3; root: IAutoMovieQuaternion };
-
 /**
  * Playback of a flight's supplied orientation about its composed centre,
- * constructed outside the performance's shape-evaluation scope.
+ * constructed outside the performance's shape-evaluation scope: each table
+ * interval's slerp of the unturned root is prepared here, and a read takes the
+ * interval its second falls in, the centre lerped across it and the turn the
+ * orientation gives over the unturned root there.
+ *
+ * @param props The flight's clock, its table of centres and unturned roots, and
+ *   its orientation.
+ * @returns The rotation at a second since the flight's start.
  */
 export function HumanPerformanceFlightRotation(
-  props: IHumanPerformanceFlightRotationProps,
+  props: HumanPerformanceFlightRotation.IProps,
 ): (seconds: number) => IAutoMovieHumanPostureRotation {
-  const roots: (IRootInterpolation | undefined)[] = [];
+  const reads: ReturnType<typeof Quaternion.prepareSlerp>[] = props.table
+    .slice(0, -1)
+    .map(
+      (
+        row: HumanPerformanceFlightRotation.IRow,
+        i: number,
+      ): ReturnType<typeof Quaternion.prepareSlerp> =>
+        Quaternion.prepareSlerp(row.root, props.table[i + 1]!.root),
+    );
   return (seconds: number): IAutoMovieHumanPostureRotation => {
     const t: number = Math.max(
       props.t0,
@@ -43,35 +41,7 @@ export function HumanPerformanceFlightRotation(
     );
     const a: number = props.times[i]!;
     const u: number = (t - a) / (props.times[i + 1]! - a);
-    roots.length = Math.min(roots.length, props.table.length);
-    const from: IAutoMovieQuaternion = props.table[i]!.root;
-    const to: IAutoMovieQuaternion = props.table[i + 1]!.root;
-    let root: IRootInterpolation | undefined = roots[i];
-    if (
-      root === undefined ||
-      !sameQuaternion(root.from, from) ||
-      !sameQuaternion(root.to, to)
-    ) {
-      const before: IAutoMovieQuaternion = {
-        x: from.x,
-        y: from.y,
-        z: from.z,
-        w: from.w,
-      };
-      const after: IAutoMovieQuaternion = {
-        x: to.x,
-        y: to.y,
-        z: to.z,
-        w: to.w,
-      };
-      root = {
-        from: before,
-        to: after,
-        read: Quaternion.prepareSlerp(before, after),
-      };
-      roots[i] = root;
-    }
-    const unturned: IAutoMovieQuaternion = root.read(u);
+    const unturned: IAutoMovieQuaternion = reads[i]!(u);
     return createHumanPostureRotation(
       Vector3.lerp(props.table[i]!.about, props.table[i + 1]!.about, u),
       Quaternion.normalize(
@@ -84,27 +54,40 @@ export function HumanPerformanceFlightRotation(
   };
 }
 
-/** One interval's copied keys and prepared scalar interpolation prerequisites. */
-interface IRootInterpolation {
-  /** Copied unturned root at the left table endpoint. */
-  from: IAutoMovieQuaternion;
+/** The inputs of {@link HumanPerformanceFlightRotation}. */
+export namespace HumanPerformanceFlightRotation {
+  /** A flight's clock, table and orientation. */
+  export interface IProps {
+    /** The flight's start, film seconds. */
+    start: number;
+    /** The table's first second. */
+    t0: number;
+    /** Its last second. */
+    t1: number;
+    /** Its spacing, seconds. */
+    step: number;
+    /** Its seconds, `t0` to `t1` a step apart. */
+    times: readonly number[];
+    /** Each second's composed centre and unturned root. */
+    table: readonly IRow[];
+    /**
+     * The flight's orientation at a second over its unturned root.
+     *
+     * @param seconds Film seconds.
+     * @param root The unturned root there.
+     * @returns The orientation.
+     */
+    orientation: (
+      seconds: number,
+      root: IAutoMovieQuaternion,
+    ) => IAutoMovieQuaternion;
+  }
 
-  /** Copied unturned root at the right table endpoint. */
-  to: IAutoMovieQuaternion;
-
-  /** Same endpoint slerp, with a fresh result at each requested share. */
-  read: ReturnType<typeof Quaternion.prepareSlerp>;
-}
-
-/** Exact copied keys preserve table mutation and signed-zero behavior. */
-function sameQuaternion(
-  a: IAutoMovieQuaternion,
-  b: IAutoMovieQuaternion,
-): boolean {
-  return (
-    Object.is(a.x, b.x) &&
-    Object.is(a.y, b.y) &&
-    Object.is(a.z, b.z) &&
-    Object.is(a.w, b.w)
-  );
+  /** One second of a flight's table. */
+  export interface IRow {
+    /** The composed centre the body turns about. */
+    about: IAutoMovieVector3;
+    /** The unturned root. */
+    root: IAutoMovieQuaternion;
+  }
 }

@@ -8,6 +8,7 @@ import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
 import { InspectionScene } from "../../../internal/InspectionScene";
+import { singleMaterial } from "../../../internal/singleMaterial";
 
 /**
  * Mesh edges are a measured mark kind, `edge`, drawn over any shade or alone,
@@ -78,7 +79,7 @@ export function test_unit_render_scene_apply_inspection_edges(): void {
     "the faces stay and 18 sides are drawn in the edge colour",
     [
       box.layers.mask,
-      (box.material as THREE.Material).type,
+      singleMaterial(box.material).type,
       sides(stage).length,
       [...new Set(InspectionScene.colors(InspectionScene.strokes(stage)[0]!))],
       over.legend,

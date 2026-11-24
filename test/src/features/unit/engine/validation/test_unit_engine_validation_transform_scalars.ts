@@ -9,7 +9,7 @@ import type {
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * alidateTransformScalars requires a unit rotation and every scale axis above
+ * AlidateTransformScalars requires a unit rotation and every scale axis above
  * zero.
  *
  * Scenarios:

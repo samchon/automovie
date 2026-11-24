@@ -1,6 +1,7 @@
 // The perform internals the test programme reads directly, re-exported by `../internal`.
 
 export * from "./HumanBlast";
+export * from "./HumanPerformanceTempo";
 export * from "./HumanHitTrack";
 export * from "./HumanPropFlight";
 export * from "./HumanPropFrame";
@@ -32,3 +33,6 @@ export * from "./readHumanSegmentAnchors";
 export * from "./HumanPerformanceObject";
 export * from "./HumanSegmentLegs";
 export * from "./HumanSegmentStop";
+export * from "./HumanPerformanceFlightRotation";
+export * from "./HumanPerformanceStagedFlightRotation";
+export * from "./HumanSegmentEntry";

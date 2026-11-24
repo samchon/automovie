@@ -26,6 +26,7 @@ import * as THREE from "three";
 import { InspectionScene } from "../../../internal/InspectionScene";
 import { PhysicalFixtures } from "../../../internal/PhysicalFixtures";
 import { nclose } from "../../../internal/nclose";
+import { singleMaterial } from "../../../internal/singleMaterial";
 
 /**
  * Force marks carry the solver's own contact witnesses and the allocator's own
@@ -75,9 +76,11 @@ export async function test_unit_render_draw_replace_draw_inspection_physical_for
   const touching: IAutoMovieMark[] = contacts(step.seconds);
   const [lifted, pressed] = ["ball/", "floor/"].map(
     (prefix: string): IAutoMovieMark.IArrows =>
-      touching.find((mark: IAutoMovieMark): boolean =>
-        mark.path.startsWith(prefix),
-      )!.shape as IAutoMovieMark.IArrows,
+      readMarkArrows(
+        touching.find((mark: IAutoMovieMark): boolean =>
+          mark.path.startsWith(prefix),
+        ),
+      ),
   );
   const length: number = Math.hypot(...lifted!.vectors);
   TestValidator.equals(
@@ -128,8 +131,7 @@ export async function test_unit_render_draw_replace_draw_inspection_physical_for
   TestValidator.predicate(
     "the clamped impact still points the ball up at exactly 0.1 m",
     impact.every((mark: IAutoMovieMark): boolean => {
-      const vector: readonly number[] = (mark.shape as IAutoMovieMark.IArrows)
-        .vectors;
+      const vector: readonly number[] = readMarkArrows(mark).vectors;
       return (
         nclose(Math.hypot(...vector), 0.1, 1e-12) &&
         (mark.path.startsWith("ball/") ? vector[1]! > 0 : vector[1]! < 0)
@@ -233,8 +235,7 @@ export async function test_unit_render_draw_replace_draw_inspection_physical_for
     });
   const strained: IAutoMovieMark[] = supports(infeasible);
   const [carried, missing] = strained.map(
-    (mark: IAutoMovieMark): IAutoMovieMark.IArrows =>
-      mark.shape as IAutoMovieMark.IArrows,
+    (mark: IAutoMovieMark): IAutoMovieMark.IArrows => readMarkArrows(mark),
   );
   TestValidator.equals(
     "feasible, infeasible and unsupported requests",
@@ -335,7 +336,7 @@ export async function test_unit_render_draw_replace_draw_inspection_physical_for
   } finally {
     active?.restore();
     ball.geometry.dispose();
-    (ball.material as THREE.Material).dispose();
+    singleMaterial(ball.material).dispose();
   }
 }
 

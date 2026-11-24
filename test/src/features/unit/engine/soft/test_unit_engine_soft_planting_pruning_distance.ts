@@ -10,8 +10,9 @@ import { nclose } from "../../../internal/nclose";
 /**
  * `plantingPruningDistance` is where a unit-axis segment starting inside a
  * pruning envelope leaves it: the nearest slab exit of a box, the far root `−b
- * + √(b² − c)` of a sphere; null when no envelope prunes or the exit is not
- * before the segment's end.
+ *
+ * - √(b² − c)` of a sphere; null when no envelope prunes or the exit is not
+ *   before the segment's end.
  *
  * Scenarios:
  *

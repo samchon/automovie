@@ -24,22 +24,23 @@ export function test_unit_viewer_root_publish_completed_frame(): void {
     changed: false,
   };
   const delivered: IAutoMovieViewerCompletedFrame[] = [];
-  const events: EventTarget = new EventTarget();
-  const NativeFrameEvent: typeof CustomEvent<IAutoMovieViewerCompletedFrame> =
-    CustomEvent<IAutoMovieViewerCompletedFrame>;
-  events.addEventListener("automovie:completed-frame", (event: Event): void => {
-    TestValidator.predicate(
-      "standard completed-frame event",
-      event instanceof NativeFrameEvent,
-    );
-    if (event instanceof NativeFrameEvent) delivered.push(event.detail);
-  });
+  const types: string[] = [];
   const canvas: Parameters<typeof publishViewerCompletedFrame>[0] = {
     getAttribute: (): string => "on",
-    dispatchEvent: (event: Event): boolean => events.dispatchEvent(event),
+    dispatchEvent: (
+      event: CustomEvent<IAutoMovieViewerCompletedFrame>,
+    ): boolean => {
+      types.push(event.type);
+      delivered.push(event.detail);
+      return true;
+    },
   };
   publishViewerCompletedFrame(canvas, frame, true);
   publishViewerCompletedFrame(canvas, frame, true);
+  TestValidator.equals("the completed-frame event", types, [
+    "automovie:completed-frame",
+    "automovie:completed-frame",
+  ]);
   TestValidator.equals(
     "every explicit original draw is meaningful",
     delivered.map(

@@ -1,4 +1,4 @@
-import { createStageJacket } from "@automovie/archetypes";
+import { createStageFootwear, createStageJacket } from "@automovie/archetypes";
 import type {
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanBody,
@@ -7,7 +7,7 @@ import type {
   IAutoMovieMotionHumanWardrobe,
 } from "@automovie/interface";
 import { HumanObject } from "@automovie/motions";
-import { pickUp, wardrobe } from "@automovie/motions/internal";
+import { HumanRefusal, pickUp, wardrobe } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { humanFixtureBody } from "../../../internal/fixtures/humanFixtureBody";
@@ -76,4 +76,32 @@ export async function test_unit_motions_dressing_wardrobe(): Promise<void> {
     "worn on the chest as the grip lets go",
     worn !== undefined && grip !== undefined && grip.to === worn.from,
   );
+  // A shoe held as a jacket declares no sleeve: refused on the opening.
+  const shoe: IAutoMovieMotionHumanProp = HumanObject.prop(
+    "shoe",
+    createStageFootwear({
+      id: "shoe",
+      kind: "shoe",
+      length: 0.34,
+      width: 0.15,
+      height: 0.045,
+    }),
+    { at: { x: -0.1, y: 1.06, z: 0.24 }, yaw: 0 },
+  );
+  let refused: boolean = false;
+  try {
+    wardrobe.plan(
+      motionActionContext(
+        body,
+        { kind: "jacketOn", prop: "shoe", hand: "right" },
+        { props: [shoe], holds: { right: "shoe" } },
+      ),
+    );
+  } catch (error: unknown) {
+    refused =
+      error instanceof HumanRefusal &&
+      error.axis === "opening" &&
+      error.value === "leftSleeveOpening";
+  }
+  TestValidator.predicate("a shoe is no jacket", refused);
 }

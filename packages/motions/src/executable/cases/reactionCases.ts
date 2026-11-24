@@ -4,7 +4,6 @@ import type {
   IAutoMovieMotionHumanChain,
   IAutoMovieMotionHumanPerformance,
   IAutoMovieMotionTarget,
-  IAutoMoviePose,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -76,7 +75,7 @@ export function reactionCases(
         body,
         HumanChain.subject("a").flinch({ target: from }),
       );
-      const peak: number = event(performance, "stroke");
+      const peak: number = FamilyCaseKit.event(performance, "stroke");
       const gap = (seconds: number): number =>
         Vector3.length(
           Vector3.subtract(
@@ -131,8 +130,8 @@ export function reactionCases(
       }
       out.push({
         name: `reaction-flinch-${label}${suffix}`,
-        times: times(performance, 0.05, [[peak, "peak"]]),
-        performers: [figure(performance, man)],
+        times: FamilyCaseKit.times(performance, 0.05, [[peak, "peak"]]),
+        performers: [FamilyCaseKit.figure(performance, man)],
         targets: [{ at, radius: 0.04, color: 0xd04040 }],
         verdicts,
       });
@@ -155,11 +154,11 @@ export function reactionCases(
       );
       out.push({
         name: `reaction-stagger-${label === "ahead" ? "back" : "side"}${suffix}`,
-        times: times(performance, 0.05, [
-          [event(performance, "tipped"), "tipped"],
-          [event(performance, "caught"), "caught"],
+        times: FamilyCaseKit.times(performance, 0.05, [
+          [FamilyCaseKit.event(performance, "tipped"), "tipped"],
+          [FamilyCaseKit.event(performance, "caught"), "caught"],
         ]),
-        performers: [figure(performance, man)],
+        performers: [FamilyCaseKit.figure(performance, man)],
         targets: [{ at, radius: 0.04, color: 0xd04040 }],
         verdicts: [
           ...everydayVerdicts.standard(performance, "a", body),
@@ -199,15 +198,15 @@ export function reactionCases(
           performance,
           body,
           "a",
-          event(performance, "seated"),
+          FamilyCaseKit.event(performance, "seated"),
           of,
         );
       out.push({
         name: `reaction-knockdown${suffix}`,
-        times: times(performance, 0.1, [
-          [event(performance, "seated"), "seated"],
+        times: FamilyCaseKit.times(performance, 0.1, [
+          [FamilyCaseKit.event(performance, "seated"), "seated"],
         ]),
-        performers: [figure(performance, man)],
+        performers: [FamilyCaseKit.figure(performance, man)],
         targets: [{ at, radius: 0.04, color: 0xd04040 }],
         verdicts: [
           everydayVerdicts.within(
@@ -280,48 +279,4 @@ function perform(
     ],
     composition: chain.node,
   });
-}
-
-/** The drawn performer. */
-function figure(
-  performance: IAutoMovieMotionHumanPerformance,
-  man: humanPolygonMan.IPolygonMan,
-): IMotionCaptureCase.IPerformer {
-  return {
-    id: "a",
-    body: man.body,
-    pose: (seconds: number): IAutoMoviePose => performance.pose("a", seconds),
-  };
-}
-
-/** The film second of an event of the first action. */
-function event(
-  performance: IAutoMovieMotionHumanPerformance,
-  name: string,
-): number {
-  const segment = performance.segments("a")[0]!;
-  return (
-    segment.start +
-    segment.plan.events.find((e) => e.name === name)!.share *
-      segment.plan.duration
-  );
-}
-
-/** The whole performance at a fixed step, with named instants in their order. */
-function times(
-  performance: IAutoMovieMotionHumanPerformance,
-  step: number,
-  named: [number, string][],
-): IMotionCaptureCase.ITime[] {
-  const out: IMotionCaptureCase.ITime[] = named.map(([seconds, label]) => ({
-    seconds,
-    label,
-  }));
-  const count: number = Math.ceil(performance.duration / step - 1e-9);
-  for (let i: number = 0; i <= count; i++) {
-    const seconds: number = Math.min(performance.duration, i * step);
-    if (out.every((t) => Math.abs(t.seconds - seconds) > step / 4))
-      out.push({ seconds, label: `${seconds.toFixed(2)} s` });
-  }
-  return out.sort((a, b) => a.seconds - b.seconds);
 }

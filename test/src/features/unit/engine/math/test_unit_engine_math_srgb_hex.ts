@@ -141,10 +141,7 @@ export function test_unit_engine_math_srgb_hex(): void {
     mixed.hex,
     "#7d828c",
   );
-  TestValidator.predicate(
-    "a six-digit swatch is opaque",
-    typeof mixed.a === "number" && nclose(mixed.a, 1, 0),
-  );
+  TestValidator.predicate("a six-digit swatch is opaque", mixed.a === 1);
 
   TestValidator.equals(
     "components outside the gamut clamp to its ends",

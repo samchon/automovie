@@ -288,7 +288,10 @@ export function handlingCases(
       };
       let carried: number = 0;
       for (let t: number = closed; t <= placed; t += 1 / 24)
-        carried = Math.max(carried, distance(offset(t), offset(closed)));
+        carried = Math.max(
+          carried,
+          Vector3.distance(offset(t), offset(closed)),
+        );
 
       // Put down, slip during the handling, range of motion.
       const rest = performance.prop("bottle", performance.duration);
@@ -310,7 +313,7 @@ export function handlingCases(
           for (let t: number = segment.entryTime; t <= segment.end; t += 1 / 24)
             slip = Math.max(
               slip,
-              distance(
+              Vector3.distance(
                 performance.bones("a", t).get(foot)!.worldPosition,
                 from,
               ),
@@ -408,8 +411,8 @@ export function handlingCases(
           },
           {
             name: "put down within 1 mm of its place",
-            passed: distance(rest.position, target) <= 0.001,
-            detail: `${(distance(rest.position, target) * 1000).toFixed(2)} mm`,
+            passed: Vector3.distance(rest.position, target) <= 0.001,
+            detail: `${(Vector3.distance(rest.position, target) * 1000).toFixed(2)} mm`,
           },
           {
             name: "put down upright within 1 degree",
@@ -432,9 +435,4 @@ export function handlingCases(
   if (family === undefined || family === "handover")
     out.push(...handoverCases());
   return out;
-}
-
-/** Distance between two points, metres. */
-function distance(p: IAutoMovieVector3, q: IAutoMovieVector3): number {
-  return Math.hypot(p.x - q.x, p.y - q.y, p.z - q.z);
 }

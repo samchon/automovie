@@ -3,9 +3,12 @@ import type {
   IAutoMovieMotionHumanArmPlanned,
   IAutoMovieMotionHumanBody,
   IAutoMoviePose,
+  IAutoMovieVector3,
 } from "@automovie/interface";
 
 import type { HumanArmTrajectory } from "../posture/HumanArmTrajectory";
+import { HumanArmTrajectoryTerms } from "../posture/HumanArmTrajectoryTerms";
+import { prepareHumanAdaptiveKnots } from "../posture/prepareHumanAdaptiveKnots";
 import type { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { AutoMovieMotionHumanArmCourse } from "./AutoMovieMotionHumanArmCourse";
 import { AutoMovieMotionHumanArmObservation } from "./AutoMovieMotionHumanArmObservation";
@@ -60,6 +63,29 @@ export function AutoMovieMotionHumanArmPlannedProblem(
         1,
       ),
     );
+  // The instants strictly inside a hold where its holding arms' sites need a
+  // knot: AutoKnots on every holding arm's goal point, millimetres.
+  const moving = (from: number, to: number): number[] =>
+    prepareHumanAdaptiveKnots({
+      from,
+      to,
+      evaluate: (t: number): number[] =>
+        carries.flatMap(
+          (
+            c: IAutoMovieMotionHumanArmPlanned.IPlanned,
+            a: number,
+          ): number[] => {
+            if (!holding(c, t)) return [0, 0, 0];
+            const point: IAutoMovieVector3 = aimed(a, t).point;
+            return [1000 * point.x, 1000 * point.y, 1000 * point.z];
+          },
+        ),
+      tolerance: {
+        kind: "absolute",
+        absolute: HumanArmTrajectoryTerms.TOLERANCE,
+      },
+      maxKnots: Math.max(6, Math.ceil((to - from) / STEP) + 1),
+    }).times.filter((t: number): boolean => t > from && t < to);
   // The optimiser's first waypoints, cut only when the laid course is not
   // admitted.
   const waypoints: () => void = (): void => {
@@ -83,6 +109,17 @@ export function AutoMovieMotionHumanArmPlannedProblem(
       spaced(span.end - span.relax, travel(span.relax, -1)),
       true,
     );
+    // A hold's sites can move faster than the least density assumes (a
+    // punch's fist, a push's palms): the hold also takes the knots AutoKnots
+    // places on the sites' own path (Vitenti et al. 2024, arXiv:2412.13423;
+    // `prepareHumanAdaptiveKnots`) to the solver's own millimetre
+    // (`HumanArmTrajectoryTerms.TOLERANCE`), no finer than the frame grid, so
+    // the course meets a fast site on waypoints of its own instead of the
+    // optimiser fighting an interpolant too coarse for it.
+    if (span.relax < span.ready)
+      for (const t of moving(span.ready, span.relax))
+        if (!times.some((u: number): boolean => Math.abs(u - t) < 1e-9))
+          times.push(t);
     // An arm's own hold begins and ends on waypoints of its own, and every
     // instant that carries a pose constraint (`ISpan.knots`) is a waypoint,
     // as trajopt imposes a pose term at a timestep (github.com/joschu/

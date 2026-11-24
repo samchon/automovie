@@ -2,7 +2,7 @@ import { ViolationCollector, validateUniqueValues } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * alidateUniqueValues pushes one finding per repeated value at the repeat's own
+ * AlidateUniqueValues pushes one finding per repeated value at the repeat's own
  * path.
  *
  * Scenarios:

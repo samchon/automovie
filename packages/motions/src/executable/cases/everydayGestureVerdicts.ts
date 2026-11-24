@@ -18,6 +18,7 @@ import { HumanFrame } from "../../posture/HumanFrame";
 import { HumanHand } from "../../posture/HumanHand";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
 import { MotionPlaceVerdicts } from "./MotionPlaceVerdicts";
+import { everydayGestureSwings } from "./everydayGestureSwings";
 
 /**
  * The checks that a gesture performs its own goal, measured on the displayed
@@ -88,18 +89,6 @@ export function everydayGestureVerdicts(
     (performance.pose("a", t).joints as IAutoMovieJointPose[]).find(
       (j) => j.bone === bone,
     )?.flexion ?? 0;
-  const swings = (signal: number[]): number => {
-    let count: number = 0;
-    for (let i: number = 1; i + 1 < signal.length; i++)
-      if (
-        signal[i]! > signal[i - 1]! &&
-        signal[i]! >= signal[i + 1]! &&
-        signal[i]! - Math.min(...signal) >
-          0.25 * (Math.max(...signal) - Math.min(...signal))
-      )
-        count++;
-    return count;
-  };
   const verdict = (
     name: string,
     passed: boolean,
@@ -147,8 +136,10 @@ export function everydayGestureVerdicts(
       const amplitude: number = Math.max(...signal.map(Math.abs));
       const count: number =
         kind === "nod"
-          ? swings(signal)
-          : swings(times.map((t: number): number => read(t) - base));
+          ? everydayGestureSwings(signal)
+          : everydayGestureSwings(
+              times.map((t: number): number => read(t) - base),
+            );
       return [
         verdict(
           `${kind} amplitude in 5 to 20 deg`,
@@ -184,8 +175,8 @@ export function everydayGestureVerdicts(
         ),
         verdict(
           `waves ${cycles}`,
-          swings(xs) === cycles,
-          `${swings(xs)} swings`,
+          everydayGestureSwings(xs) === cycles,
+          `${everydayGestureSwings(xs)} swings`,
         ),
         placed("hand at eye, outside, near", {
           height: "eye",
@@ -212,8 +203,8 @@ export function everydayGestureVerdicts(
         ),
         verdict(
           `beckons ${cycles}`,
-          swings(curl) === cycles,
-          `${swings(curl)} curls`,
+          everydayGestureSwings(curl) === cycles,
+          `${everydayGestureSwings(curl)} curls`,
         ),
       ];
     }

@@ -8,6 +8,7 @@ import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
 import { InspectionScene } from "../../../internal/InspectionScene";
+import { singleMaterial } from "../../../internal/singleMaterial";
 
 /**
  * A request the inspection cannot apply is refused without leaving a change
@@ -89,7 +90,7 @@ export function test_unit_render_scene_apply_inspection_refusals(): void {
 
   // 3. A cut.
   const slab: THREE.Mesh = InspectionScene.quad("slab");
-  const clipped: THREE.Material = slab.material as THREE.Material;
+  const clipped: THREE.Material = singleMaterial(slab.material);
   const prior: THREE.Plane[] = [
     new THREE.Plane(new THREE.Vector3(0, 1, 0), 100),
   ];

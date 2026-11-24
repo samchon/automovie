@@ -2,7 +2,7 @@ import { pointHullDistance } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { nclose, throwsError } from "../../../internal/predicates";
+import { nclose } from "../../../internal/predicates";
 
 /**
  * `pointHullDistance` is the distance on the XZ plane from a point to a convex

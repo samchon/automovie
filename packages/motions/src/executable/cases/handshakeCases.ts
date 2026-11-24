@@ -142,7 +142,10 @@ export function handshakeCases(): IMotionCaptureCase[] {
               Math.PI,
           );
         }
-        drift = Math.max(drift, distance(palm("a", a, t), palm("b", b, t)));
+        drift = Math.max(
+          drift,
+          Vector3.distance(palm("a", a, t), palm("b", b, t)),
+        );
         deepest = Math.min(
           deepest,
           HandOverlap.deepest(
@@ -160,7 +163,10 @@ export function handshakeCases(): IMotionCaptureCase[] {
             overshoot = Math.max(overshoot, jointRomOvershoot(j, c));
         }
     }
-    const meet: number = distance(palm("a", a, clasp), palm("b", b, clasp));
+    const meet: number = Vector3.distance(
+      palm("a", a, clasp),
+      palm("b", b, clasp),
+    );
     const sternum = (
       subject: string,
       body: IAutoMovieMotionHumanBody,
@@ -184,7 +190,7 @@ export function handshakeCases(): IMotionCaptureCase[] {
         for (const t of samples)
           slip = Math.max(
             slip,
-            distance(
+            Vector3.distance(
               performance.bones(subject, t).get(foot)!.worldPosition,
               from,
             ),
@@ -282,8 +288,3 @@ const PAIRS: readonly (readonly [string, string])[] = [
   ["m-long-armed", "m-short-armed"],
   ["m-broad", "m-narrow"],
 ];
-
-/** Distance between two points, metres. */
-function distance(p: IAutoMovieVector3, q: IAutoMovieVector3): number {
-  return Vector3.length(Vector3.subtract(p, q));
-}

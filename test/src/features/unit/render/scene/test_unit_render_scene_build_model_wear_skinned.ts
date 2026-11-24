@@ -17,6 +17,7 @@ import * as THREE from "three";
 
 import { compileMaterialShaderSource } from "../../../internal/compileMaterialShaderSource";
 import { createSkinnedTubeModel } from "../../../internal/createSkinnedTubeModel";
+import { singleMaterial } from "../../../internal/singleMaterial";
 
 /**
  * A skinned mesh is worn at its bind pose: its feature edges are measured once
@@ -82,10 +83,10 @@ export function test_unit_render_scene_build_model_wear_skinned(): void {
       indices: record.indices!,
       reach: 0.02,
     });
-  const material: THREE.Material = mesh.material as THREE.Material;
+  const material: THREE.Material = singleMaterial(mesh.material);
   const shader: IMaterialShaderSource = compileMaterialShaderSource(material);
   const data: Float32Array = (
-    shader.uniforms.uWearEdges!.value as THREE.DataTexture
+    shader.uniforms.uWearEdges!.value
   ).image.data as Float32Array;
   TestValidator.predicate(
     `the texture holds the ${expected.edges.length} bind-pose edges`,
@@ -102,7 +103,7 @@ export function test_unit_render_scene_build_model_wear_skinned(): void {
   const position: THREE.BufferAttribute = geometry.getAttribute(
     "position",
   ) as THREE.BufferAttribute;
-  const before: number[] = Array.from(position.array as ArrayLike<number>);
+  const before: number[] = Array.from(position.array);
   const spine: THREE.Bone = mesh.skeleton.bones.find(
     (bone: THREE.Bone): boolean => bone.name === "spine",
   )!;
@@ -120,7 +121,7 @@ export function test_unit_render_scene_build_model_wear_skinned(): void {
       mesh.applyBoneTransform(index, rest.clone()).distanceTo(rest),
     );
   }
-  const after: number[] = Array.from(position.array as ArrayLike<number>);
+  const after: number[] = Array.from(position.array);
   const assigned: number = shader.vertexShader.indexOf(
     "vWearPoint = position;",
   );
@@ -134,7 +135,7 @@ export function test_unit_render_scene_build_model_wear_skinned(): void {
 
   // 4. Disposing the part's material releases its edge texture.
   const texture: THREE.DataTexture = shader.uniforms.uWearEdges!
-    .value as THREE.DataTexture;
+    .value;
   let released: boolean = false;
   texture.addEventListener("dispose", (): void => {
     released = true;

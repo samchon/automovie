@@ -28,6 +28,8 @@ const CLINICAL: IAutoMovieJointConstraint = {
  *    numeric, null and absent values retain their meaning. This does not
  *    establish clinical swing-metric invariance under arbitrary neutral
  *    shifts.
+ * 6. A 100 degree cap on wide axes, with the frame abduction +30, keeps the 100
+ *    and shifts abduction -180..180 to [-210, 150].
  */
 export function test_unit_engine_rom_rest_relative_constraint(): void {
   // 1. sign +1
@@ -100,4 +102,19 @@ export function test_unit_engine_rom_rest_relative_constraint(): void {
     { abduction: { sign: 1, neutral: 90 } },
   );
   TestValidator.equals("null cone stays null", nullCone.swingDeg, null);
+  const shifted: IAutoMovieJointConstraint = restRelativeConstraint(
+    {
+      flexion: { min: -180, max: 180 },
+      abduction: { min: -180, max: 180 },
+      twist: null,
+      swingDeg: 100,
+    },
+    { abduction: { sign: 1, neutral: 30 } },
+  );
+  TestValidator.predicate(
+    "a wide shoulder under a 30 degree frame",
+    nclose(shifted.swingDeg!, 100, 0) &&
+      nclose(shifted.abduction!.min, -210, 0) &&
+      nclose(shifted.abduction!.max, 150, 0),
+  );
 }

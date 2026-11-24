@@ -26,7 +26,8 @@ const POINT: IAutoMovieLight = {
  *    and transform records.
  * 2. A position override replaces the translation and keeps rotation and scale.
  * 3. A directional light takes the intensity override and stays directional; it\n
- *    * has no range to override.
+ *
+ *    - Has no range to override.
  */
 export function test_unit_engine_resolve_apply_light_override(): void {
   const dimmed: IAutoMovieLight = applyLightOverride(POINT, {

@@ -10,6 +10,7 @@ export { guardAutoMovieRenderModeRetirement } from "./guardAutoMovieRenderModeRe
 export { guardAutoMovieSceneShadowRetirement } from "./guardAutoMovieSceneShadowRetirement.js";
 export * from "./readAutoMovieTextureSource.js";
 export * from "./AutoMovieThreeKind.js";
+export * from "./readAutoMovieBufferAttribute.js";
 export * from "./IAutoMovieTextureLoader.js";
 export * from "./IAutoMovieTextureResolver.js";
 export * from "./buildGeometry.js";
