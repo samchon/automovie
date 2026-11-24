@@ -100,7 +100,7 @@ Steps 1 to 3 use the `port` as it stands, with its loop sampled into shares and 
 
 ## Metacarpophalangeal row and finger webs
 
-**Form.** Bone ends: the four metacarpal heads, arched about the thumb's base, the third the highest. Tendons: the extensors over each head, with valleys between. Fat pads: the distal palmar pad. Sheets: the webs, skin folds between neighbouring fingers. The palmar web reaches the middle of the proximal phalanges, so the fingers look shorter from the palm (Gray); the web stands 15 to 25 % of the web-to-tip length distal of the joint space (Buryanov). Hand-surgery texts describe the commissure as sloping about 45 degrees from dorsal-proximal to palmar-distal (recalled).
+**Form.** Bone ends: the four metacarpal heads, arched about the thumb's base, the third the highest. Tendons: the extensors over each head, with valleys between. Fat pads: the distal palmar pad. The web forms an inclined triangular region from the dorsal metacarpophalangeal joint to the distal palm, with a curved dorsal outline in abduction. The person's own sections supply the extent and slope. [Digital web measurements](rule-basis.md#digital-webs).
 
 **Centres and axes.** ISB: each metacarpal's and phalanx's origin lies midway between its base and head at the tube's centre, its long axis from the head's centre to the base's midpoint; flexion is about the proximal segment's `Z`. The joint centre is the head's centre. Each finger's own section family begins at that centre, inside the hand, not at the web; the hand's family ends where its section stops being one star-shaped loop, at the dorsal forks.
 
