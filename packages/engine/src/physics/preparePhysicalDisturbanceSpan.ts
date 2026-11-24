@@ -532,6 +532,18 @@ export function preparePhysicalDisturbanceSpan(
 
   // The response's settling: the last piece's error within the tolerance of
   // its plan, from its decay.
+  // A response that falls at its first push has no moving span: it holds
+  // the state just after the push.
+  if (pieces.length === 0)
+    pieces.push({
+      start: t0,
+      end: Number.POSITIVE_INFINITY,
+      phase: mode,
+      saturated: false,
+      form: { kind: "exp", start: t0, q: state.xi, r: { x: 0, z: 0 } },
+      errors: [],
+      c0: state.c,
+    });
   const last: IPiece = pieces[pieces.length - 1]!;
   const residual: number = last.errors.reduce(
     (sum: number, error): number => sum + Math.hypot(error.b.x, error.b.z),
@@ -573,6 +585,14 @@ export function preparePhysicalDisturbanceSpan(
       for (const contact of contacts)
         if (contact.start <= seconds) bones = contact.bones;
       return bones;
+    },
+    // A planted limb's outline where its endpoint stands, the weight being
+    // split over the support the pivot is held on.
+    outline: (bone: string, at: Tools.IFloor): Tools.IFloor[] => {
+      const foot: Foot = input.feet.find(
+        (f: Foot): boolean => f.bone === bone,
+      )!;
+      return outline({ ...foot, frame: { ...foot.frame, origin: at } });
     },
   });
 }
@@ -1319,6 +1339,7 @@ function span(input: {
   until: number;
   feet: (seconds: number) => Record<string, Tools.IFloor>;
   contacts: (seconds: number) => string[];
+  outline: (bone: string, at: Tools.IFloor) => Tools.IFloor[];
 }): preparePhysicalDisturbanceSpan.ISpan {
   const { pieces } = input;
   const { omega, mass, gravity, floor } = input.input;
@@ -1338,14 +1359,14 @@ function span(input: {
       const feet: Record<string, Tools.IFloor> = input.feet(seconds);
       const planted: string[] = input.contacts(seconds);
 
-      // The weight's split over the planted limbs at the pivot, for any
-      // number (`physicalSupportSpanContacts.loads`), each at its endpoint.
+      // The weight's split over the planted limbs' outlines at the pivot,
+      // for any number (`physicalSupportSpanContacts.loads`).
       const loads: Record<string, number> = Object.fromEntries(
         Contacts.loads(
           planted.map(
             (bone: string): Contacts.IContact => ({
               bone,
-              points: [feet[bone]!],
+              points: input.outline(bone, feet[bone]!),
             }),
           ),
           cmp,
