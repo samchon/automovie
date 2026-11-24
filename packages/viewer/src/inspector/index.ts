@@ -19,6 +19,7 @@ export * from "./handleAutoMovieInspectorKey.js";
 export * from "./locateAutoMovieInspectorFinding.js";
 export * from "./showAutoMovieInspectorFinding.js";
 export * from "./stopAutoMovieInspectorTime.js";
+export * from "./syncAutoMovieInspectorSoundtrack.js";
 export * from "./IAutoMovieInspectorAction.js";
 export * from "./IAutoMovieInspectorPathNode.js";
 export * from "./IAutoMovieInspectorProps.js";

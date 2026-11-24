@@ -85,7 +85,7 @@ const viewer = mountViewer(canvas, scene, camera, (elapsedSeconds) => {
 
 - Inspector: `mountAutoMovieInspectorPage`, `AutoMovieInspector`, `createAutoMovieInspectorAddressWriter`.
 - Imperative display: `mountViewer`, `releaseMountedViewer`, `createViewerDisplaySave`.
-- Audio and transport: `playAutoMovieAudioCues`, `AutoMovieViewerTransport`.
+- Audio and transport: `playAutoMovieSoundtrack`, `AutoMovieViewerTransport`.
 
 Units and the owner of each returned object are in the JSDoc.
 

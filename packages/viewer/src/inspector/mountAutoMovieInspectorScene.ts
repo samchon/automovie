@@ -5,7 +5,6 @@ import type {
 import {
   type IAutoMovieDrawScene,
   type IAutoMovieDrawSubject,
-  type IAutoMovieInspectionHandle,
   createAutoMovieInspectionDiagnosticOverlay,
   observeAutoMoviePlacedInspection,
 } from "@automovie/render";
@@ -18,19 +17,19 @@ import { AutoMovieInspectorTransition } from "./AutoMovieInspectorTransition.js"
 import type { IAutoMovieInspectorLive } from "./IAutoMovieInspectorLive.js";
 import type { IAutoMovieInspectorScene } from "./IAutoMovieInspectorScene.js";
 import type { IAutoMovieInspectorSceneHost } from "./IAutoMovieInspectorSceneHost.js";
+import { applyAutoMovieInspectorRequest } from "./applyAutoMovieInspectorRequest.js";
 import { assertAutoMovieInspectorRaster } from "./assertAutoMovieInspectorRaster.js";
 import { changesAutoMovieObservedScene } from "./changesAutoMovieObservedScene.js";
 import { firstAutoMovieInspectorSecond } from "./firstAutoMovieInspectorSecond.js";
 import { followAutoMovieInspectorSize } from "./followAutoMovieInspectorSize.js";
-import { inspectAutoMovieInspectorRequest } from "./inspectAutoMovieInspectorRequest.js";
 import { installAutoMovieInspectorRequest } from "./installAutoMovieInspectorRequest.js";
 import { messageOfAutoMovieInspectorError } from "./messageOfAutoMovieInspectorError.js";
-import { readAutoMovieInspectorAddress } from "./readAutoMovieInspectorAddress.js";
 import { readAutoMovieInspectorFacts } from "./readAutoMovieInspectorFacts.js";
 import { readsAutoMovieInspectorPlacedScene } from "./readsAutoMovieInspectorPlacedScene.js";
 import { releaseAutoMovieInspectorSteps } from "./releaseAutoMovieInspectorSteps.js";
 import { reportAutoMovieInspectorLabels } from "./reportAutoMovieInspectorLabels.js";
 import { resolveAutoMovieInspectorCamera } from "./resolveAutoMovieInspectorCamera.js";
+import { syncAutoMovieInspectorSoundtrack } from "./syncAutoMovieInspectorSoundtrack.js";
 import { writeAutoMovieInspectorInspection } from "./writeAutoMovieInspectorInspection.js";
 
 /**
@@ -58,6 +57,9 @@ import { writeAutoMovieInspectorInspection } from "./writeAutoMovieInspectorInsp
  * second, so a slow subject drops intermediate seconds instead of queueing
  * them. A drawing error pauses playback and is reported once until a frame
  * draws again.
+ *
+ * On a host with sound, the playhead plays the master the subject's delivery
+ * encodes (`syncAutoMovieInspectorSoundtrack`) until dispose.
  *
  * The picture's aspect is the subject's raster, not the canvas's, so a view
  * frames what a capture of the same subject frames; the page gives the canvas
@@ -122,6 +124,7 @@ export function mountAutoMovieInspectorScene(props: {
   let witnesses: boolean = true;
   let wanted: IAutoMovieCapturePlanRequest = props.request;
   let live: IAutoMovieInspectorLive | undefined;
+  let silence: (() => void) | undefined;
 
   // The instance arrives later; one that arrives after dispose is released at once.
   props.subject
@@ -174,25 +177,9 @@ export function mountAutoMovieInspectorScene(props: {
       held.push((): void => transition.dispose());
 
       // The newest request, or the one that asks for nothing when the scene refuses it.
-      let applied: IAutoMovieCapturePlanRequest = wanted;
-      let inspection: IAutoMovieInspectionHandle;
-      let refusal: string | null = null;
-      try {
-        inspection = inspectAutoMovieInspectorRequest({
-          ...{ instance, renderer, marks },
-          request: applied,
-        });
-      } catch (error) {
-        refusal = messageOfAutoMovieInspectorError(error);
-        applied = {
-          ...readAutoMovieInspectorAddress(""),
-          subject: wanted.subject,
-        };
-        inspection = inspectAutoMovieInspectorRequest({
-          ...{ instance, renderer, marks },
-          request: applied,
-        });
-      }
+      const { applied, inspection, refusal } = applyAutoMovieInspectorRequest({
+        ...{ instance, renderer, marks, wanted },
+      });
       held.push((): void => inspection.restore());
       wanted = applied;
       live = {
@@ -215,6 +202,12 @@ export function mountAutoMovieInspectorScene(props: {
       if (refusal !== null) report.refused(applied, refusal);
       report.legend([...inspection.legend]);
       live.frame = host.requestFrame(frame);
+
+      if (host.sound !== undefined)
+        silence = syncAutoMovieInspectorSoundtrack({
+          ...{ instance, playhead, error: report.error },
+          sound: host.sound,
+        });
     } catch (error) {
       live = undefined;
       report.error(messageOfAutoMovieInspectorError(error));
@@ -486,6 +479,7 @@ export function mountAutoMovieInspectorScene(props: {
           if (now.frame !== undefined) host.cancelFrame(now.frame);
           now.frame = undefined;
         },
+        (): void => silence?.(),
         (): void => now.inspection.restore(),
         (): void => now.transition.dispose(),
         (): void => now.beauty.dispose(),
