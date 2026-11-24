@@ -1,6 +1,7 @@
 export * from "./AUTO_MOVIE_CAPTURE_PLAN_KEYS.js";
 export * from "./AutoMovieCaptureFolder.js";
 export * from "./compareAutoMovieCaptureRounds.js";
+export * from "./diffAutoMovieCaptureFindings.js";
 export * from "./formatAutoMovieCapturePlanRequest.js";
 export * from "./IAutoMovieCaptureBudget.js";
 export * from "./IAutoMovieCaptureCell.js";
@@ -10,8 +11,8 @@ export * from "./IAutoMovieCaptureLayout.js";
 export * from "./IAutoMovieCapturePlan.js";
 export * from "./IAutoMovieCapturePlanRequest.js";
 export * from "./IAutoMovieCaptureRecord.js";
-export * from "./IAutoMovieCaptureResolution.js";
 export * from "./IAutoMovieCaptureRequestSource.js";
+export * from "./IAutoMovieCaptureResolution.js";
 export * from "./IAutoMovieCaptureSelection.js";
 export * from "./IAutoMovieCaptureStorage.js";
 export * from "./IAutoMovieCaptureSubject.js";

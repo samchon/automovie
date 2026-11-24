@@ -1,23 +1,25 @@
-import {
-  type IAutoMovieDialogueMouthRange,
-  type IAutoMovieDialogueSpeakerBinding,
-  type IAutoMovieDialogueVisemeCompilation,
-  type IAutoMovieJoinDialogueVisemes,
-  IAutoMovieProductionViseme,
+import type {
+  AutoMovieViseme,
+  IAutoMovieDialogueMouthRange,
+  IAutoMovieDialogueSpeakerBinding,
+  IAutoMovieDialogueVisemeCompilation,
+  IAutoMovieJoinDialogueVisemes,
 } from "@automovie/interface";
 
-const DIALOGUE_VISEMES: Set<"rest" | "aa" | "ih" | "ou" | "ee" | "oh"> =
-  new Set<IAutoMovieProductionViseme["viseme"]>([
-    "aa",
-    "ih",
-    "ou",
-    "ee",
-    "oh",
-    "rest",
-  ]);
-
 /**
- * Join supplied receipt visemes to one explicit actor binding on emission time.
+ * Bind a line's timed visemes to its speaker's actor and place them on the
+ * emission clock.
+ *
+ * Each viseme's sample bounds become film frames from the line's start frame at
+ * the film's rate, `frame = line.startFrame + sample × fps / sourceSampleRate`,
+ * which is the clock the line's samples play on; no propagation delay is added.
+ * Pauses between visemes become `sil` ranges, so a pause inside a line closes
+ * the mouth. The weights layer over the actor's authored expression
+ * (`mouth-layer-over-authored-expression`).
+ *
+ * @param props The line, the film's speaker bindings, the timed visemes and the
+ *   two rates.
+ * @returns The join outcome, with the timeline when it is available.
  */
 export const joinAutoMovieDialogueVisemes: (
   props: IAutoMovieJoinDialogueVisemes.IProps,
@@ -47,53 +49,52 @@ export const joinAutoMovieDialogueVisemes: (
   if (binding.actor.trim().length === 0)
     throw new Error("dialogue actor binding must not be blank");
   if (props.visemes.length === 0)
-    throw new Error(
-      `dialogue line "${props.line.id}" has no final-byte viseme timing`,
-    );
+    throw new Error(`dialogue line "${props.line.id}" has no viseme timing`);
   if (
     !Number.isSafeInteger(props.line.startFrame) ||
     !Number.isSafeInteger(props.line.endFrame) ||
     props.line.startFrame < 0 ||
-    props.line.endFrame <= props.line.startFrame
+    props.line.endFrame <= props.line.startFrame ||
+    !(props.sourceSampleRate > 0) ||
+    !(props.fps > 0)
   )
-    throw new Error(`dialogue line "${props.line.id}" has an invalid range`);
+    throw new Error(
+      `dialogue line "${props.line.id}" has an invalid range or rate`,
+    );
 
+  const frame: (sample: number) => number = (sample: number): number =>
+    props.line.startFrame + (sample * props.fps) / props.sourceSampleRate;
   const ranges: IAutoMovieDialogueMouthRange[] = [];
-  let cursor: number = props.line.startFrame;
+  let cursor: number = props.visemes[0]!.startSample;
   for (const [index, viseme] of props.visemes.entries()) {
-    if (!DIALOGUE_VISEMES.has(viseme.viseme))
+    if (!VISEMES.has(viseme.viseme))
       throw new Error(
         `dialogue line "${props.line.id}" viseme[${index}] has unsupported mouth target "${String(viseme.viseme)}"`,
       );
     if (
-      !Number.isSafeInteger(viseme.startFrame) ||
-      !Number.isSafeInteger(viseme.endFrame) ||
-      viseme.startFrame < cursor ||
-      viseme.endFrame <= viseme.startFrame ||
-      viseme.endFrame > props.line.endFrame
+      !Number.isFinite(viseme.startSample) ||
+      !Number.isFinite(viseme.endSample) ||
+      viseme.startSample < cursor ||
+      viseme.startSample < 0 ||
+      viseme.endSample <= viseme.startSample ||
+      frame(viseme.endSample) > props.line.endFrame
     )
       throw new Error(
         `dialogue line "${props.line.id}" viseme[${index}] is outside or overlaps its emission range`,
       );
-    if (viseme.startFrame > cursor)
+    if (viseme.startSample > cursor)
       ranges.push({
-        startFrame: cursor,
-        endFrame: viseme.startFrame,
-        viseme: "rest",
+        startFrame: frame(cursor),
+        endFrame: frame(viseme.startSample),
+        viseme: "sil",
       });
     ranges.push({
-      startFrame: viseme.startFrame,
-      endFrame: viseme.endFrame,
+      startFrame: frame(viseme.startSample),
+      endFrame: frame(viseme.endSample),
       viseme: viseme.viseme,
     });
-    cursor = viseme.endFrame;
+    cursor = viseme.endSample;
   }
-  if (cursor < props.line.endFrame)
-    ranges.push({
-      startFrame: cursor,
-      endFrame: props.line.endFrame,
-      viseme: "rest",
-    });
   return {
     join: {
       status: "available",
@@ -104,3 +105,25 @@ export const joinAutoMovieDialogueVisemes: (
     timeline: { line: props.line.id, actor: binding.actor, ranges },
   };
 };
+
+/**
+ * The 15 MPEG-4 visemes; a timed viseme a receipt reports is checked against
+ * them at runtime.
+ */
+const VISEMES: ReadonlySet<AutoMovieViseme> = new Set<AutoMovieViseme>([
+  "sil",
+  "PP",
+  "FF",
+  "TH",
+  "DD",
+  "kk",
+  "CH",
+  "SS",
+  "nn",
+  "RR",
+  "aa",
+  "E",
+  "I",
+  "O",
+  "U",
+]);

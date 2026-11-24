@@ -9,7 +9,8 @@ import type {
  * The canonical compiled-shot adapter uses this field projection and derives
  * the artifact's simulated drawable rows. Other callers must supply those rows
  * explicitly; omitted supplemental arrays become empty. Texture upload and
- * residency facts come from the capture host, rather than the compiled artifact.
+ * residency facts come from the capture host, rather than the compiled
+ * artifact.
  */
 export const autoMovieRenderSubjectOfShot: (
   props: IAutoMovieRenderSubjectOfShot.IProps,
@@ -26,5 +27,8 @@ export const autoMovieRenderSubjectOfShot: (
   softBodies: props.softBodies ?? [],
   plantings: props.plantings ?? [],
   textures: props.textures ?? [],
+  surfaceGraphics: props.compiled.shot.surfaceGraphics ?? [],
+  fonts: props.compiled.shot.fonts ?? [],
+  flames: props.compiled.shot.flames ?? [],
   textureResidency: props.textureResidency,
 });

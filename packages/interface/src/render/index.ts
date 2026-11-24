@@ -52,6 +52,7 @@ export type { IAutoMovieRenderBudgetEvidenceProps } from "./IAutoMovieRenderBudg
 export type { IAutoMovieRenderChunk } from "./IAutoMovieRenderChunk";
 export type { IAutoMovieRenderChunkPlan } from "./IAutoMovieRenderChunkPlan";
 export type { IAutoMovieRenderContributor } from "./IAutoMovieRenderContributor";
+export type { IAutoMovieRenderFilm } from "./IAutoMovieRenderFilm";
 export type { IAutoMovieRenderFinding } from "./IAutoMovieRenderFinding";
 export type { IAutoMovieRenderGraphicsIdentity } from "./IAutoMovieRenderGraphicsIdentity";
 export type { IAutoMovieRenderInstanceSetCost } from "./IAutoMovieRenderInstanceSetCost";

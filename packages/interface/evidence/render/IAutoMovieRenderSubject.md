@@ -2,7 +2,7 @@
 
 ## @evidence contracts/development/design.md#principled-representation
 
-Use one drawable-world record for both semantic ownership and inventory cost, including compact populations and simulated drawables not represented by ordinary scene nodes.
+Use one drawable-world record for both semantic ownership and inventory cost, including compact populations, simulated drawables not represented by ordinary scene nodes, surface graphics whose face rectangles the mask paints under their own ids, and the film stage's settings, whose GPU targets the inventory counts.
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
@@ -14,4 +14,4 @@ Missing texture facts produce not-run, unsupported water facts remain unknown, a
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-Members explain heroes already in nodes, anonymous compact formations, domain-derived geometry, missing measurements and fresh-context meaning of omitted residency.
+Members explain heroes already in nodes, anonymous compact formations, domain-derived geometry, missing measurements, fresh-context meaning of omitted residency, and what an omitted film allocates.

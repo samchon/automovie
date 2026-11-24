@@ -8,11 +8,11 @@ A motion hint reaches its receiver through control channels rendered from the pe
 
 Render only the receiver's required channels. Use outlines for edge inputs and scene-projected points for exact tracks.
 
-Material channels, such as base color and roughness, carry only what the forms' materials hold, so they serve only a film that switched on its [detail options](../development/entities.md#detail).
+The installed material channel is the `albedo` pass: each surface's base colour, unlit and on black. It carries only what the forms' materials hold, so it serves only a film that switched on its [detail options](../development/entities.md#detail). No installed pass produces roughness or metalness.
 
 Read the installed packages' documentation for what each channel outputs, because a mode name or a plausible image does not establish the representation another tool expects. When no installed path produces an essential channel, tell the user.
 
-Light coarse forms to show volume. Use [entity colors](../development/entities.md#coarse-first) and omit overlays, textures and lettering.
+Light coarse forms to show volume. Use [entity colors](../development/entities.md#coarse-first) and omit overlays, textures and lettering: surface graphics, flat lettering included, draw only in the beauty, mask and `graphics` passes. The mask carries flame, screen and lettering regions under their own ids, and the depth pass carries open flames. A lantern's globe covers its flame in every pass but beauty.
 
 Render from the scene any control mask a video request asks for, never estimate it from pictures.
 
@@ -34,6 +34,6 @@ Compare each rendered channel with the adapter's annotator on the same hint fram
 
 ## Handoff
 
-Keep controls, mappings, palettes, sidecars and digests under [media records](../production/media-records.md). Keep viewing encodes separate to preserve numeric depth and mask colors.
+Render the channels with `pnpm run render --subject <film> --passes <passes>`, which draws them at every frame through the film's camera into `videos/controls/` with a `record.json` of each pass's convention and every frame file's SHA-256. Use them only under the [render report check](../production/media-records.md#render-reports); on a mismatch, render again. Keep mappings, palettes and sidecars under [media records](../production/media-records.md). Keep viewing encodes separate to preserve numeric depth and mask colors.
 
 Inspect matched frames across the whole sequence under [capture times](../visual-debugging/capture.md#times). Check the receiver's input path. Report observed limits to [assembly](../production/assembly.md) or [generation](../video/generation.md). Without a commissioned generator, report compatibility as unverified.

@@ -14,7 +14,7 @@ The producer refuses a rotated parcel so a stored XZ lattice keeps its world fra
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States the coordinate frame, units, defaults and opacity, hard grade sources, holes, variable relief and bounded tessellation error.
+States the coordinate frame, units, defaults and opacity, hard grade sources, holes, variable relief, bounded tessellation error, and how tree disks and woods clear pads, paths, holes and water.
 
 # src/environment/IAutoMovieTerrainRecipe.ts#IAutoMovieTerrainRecipe.Point
 
@@ -38,19 +38,19 @@ Names axis order, frame and units.
 
 ## @evidence contracts/development/design.md#principled-representation
 
-Three closed variants select a constant, planar grade or bounded waves. Stored heights and wavelength are metres, with grades in metres of rise per metre in their local axis.
+Four closed variants select a constant, planar grade, bounded periodic waves or bounded seeded fractal noise. Stored heights, amplitudes and wavelengths are metres, grades are metres of rise per metre in their local axis, and the noise's octave count and roughness are dimensionless.
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
-Preserves constant and plane rules without allocating a lattice when no grade constraints exist. Rolling ground needs amplitude and wavelength to express spatial size independently of extent.
+Preserves constant and plane rules without allocating a lattice when no grade constraints exist. Rolling ground needs amplitude and wavelength to express spatial size independently of extent. Noise ground adds only the octave count and roughness, the two inputs of the engine's fractal sum, so an outdoor set gets ground that does not repeat while pads and paths stay with the recipe.
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 
-No shape-dependent parameter is shared across meaningless variants. The producer checks finite values, positive wavelength and representable sampling.
+No shape-dependent parameter is shared across meaningless variants: octaves and roughness exist only on the noise variant. The producer checks finite values, positive amplitude and wavelength, the integer octave range 1 to 8, roughness in (0, 1) and representable sampling.
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-Defines variants, local height datum, grade axes, amplitude, wavelength and omitted height.
+Defines variants, local height datum, grade axes, amplitude, wavelength, the noise seed and sampling, octave and roughness ranges and defaults, and omitted height.
 
 # src/environment/IAutoMovieTerrainRecipe.ts#IAutoMovieTerrainRecipe.IPad
 
@@ -141,3 +141,21 @@ The producer refuses disks whose trunks can reach a protected region. A separate
 ## @evidence contracts/development/common.md#meaningful-documentation
 
 States the disk geometry, count bounds and visual scale.
+
+# src/environment/IAutoMovieTerrainRecipe.ts#IAutoMovieTerrainRecipe.IWoods
+
+## @evidence contracts/development/design.md#principled-representation
+
+A simple local XZ ring in metres bounds the wood, a positive spacing in metres is the least trunk-to-trunk distance, an optional integer count from 1 to 100,000 caps the planting, dimensionless positive weights choose the species and a positive scale sizes every tree. The type fixes the species keys to the two kinds `createTree` draws; the terrain module checks the ring, the ranges, finiteness and that at least one weight is given.
+
+## @evidence contracts/development/design.md#minimal-and-owned-surface
+
+`interface` owns the authored record and `createTerrain` in `archetypes` consumes it through `terrainWoods`. An outline and a spacing are the two inputs a region-following wood cannot do without; count, species and scale are optional because a wood defaults to every accepted white oak at drawn size. The output reuses the existing explicit instance layout and prototype table, so no new population type is added.
+
+## @evidence contracts/development/design.md#prohibited-design-shortcuts
+
+A wood is a separate record rather than optional fields on `ITrees`, so a disk and an outline never combine into one meaningless placement. No variant serves one fixture: the outline is any simple ring and the species table any weighted mix of the drawn kinds.
+
+## @evidence contracts/development/common.md#meaningful-documentation
+
+States the sampling rule, the frame and units of the outline and spacing, the count range and its seeded order, the species default and how the clearance uses the largest trunk, and the scale default.

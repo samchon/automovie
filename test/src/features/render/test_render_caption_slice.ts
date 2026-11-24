@@ -24,22 +24,24 @@ const whole: () => IAutoMovieCaptionSidecar = (): IAutoMovieCaptionSidecar =>
  * frame-atomic rule: entries clip to the window and re-base to chunk-local
  * indices, so every chunk render carries its own caption sidecar.
  *
- * Scenarios (whole = 10 frames: duel `[0,2)`, aftermath `[2,10)`):
+ * Scenarios (whole = 10 frames: duel `[0,3)`, aftermath `[3,10)`, the
+ * dissolve's midpoint at frame 3):
  *
- * 1. A middle window `[1,5)` clips both spans and re-bases them to `[0,1)` /
- *    `[1,4)` with captions intact: the hand-math oracle.
+ * 1. A middle window `[1,5)` clips both spans and re-bases them to `[0,2)` /
+ *    `[2,4)` with captions intact: the hand-math oracle.
  * 2. The full window `[0,10)` reproduces the whole sidecar exactly.
  * 3. A window past the end clamps to `frameCount` (frames re-based, count `end -
  *    frameStart`).
  * 4. A window entirely inside one span drops the other (the `start >= stop` skip).
  * 5. Non-integer / negative `frameStart` and `frameEnd <= frameStart` throw.
- * 6. Non-integer frameEnd and windows starting at or beyond coverage refuse rather than producing negative frame counts.
+ * 6. Non-integer frameEnd and windows starting at or beyond coverage refuse rather
+ *    than producing negative frame counts.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the real slicer over the caption planner's original two-span track and asserts clipped/rebased records, whole-window preservation, clamped coverage, single-span selection and every existing malformed or out-of-coverage refusal.
- * @evidence contracts/development/testing.md#independent-expectations Half-open interval intersection gives [0,1) and [1,4) for the [1,5) window over [0,2)/[2,10); authored fixture labels stay literal. Counts and interval endpoints remain exact, with nclose only for scalar clock leaves in whole-record comparisons.
+ * @evidence contracts/development/testing.md#independent-expectations Half-open interval intersection gives [0,2) and [2,4) for the [1,5) window over [0,3)/[3,10); authored fixture labels stay literal. Counts and interval endpoints remain exact, with nclose only for scalar clock leaves in whole-record comparisons.
  * @evidence contracts/development/testing.md#distinguishing-cases Preserves full, middle, inside-one-span and past-end windows plus fractional/negative starts, equal endpoints, fractional ends and starts at/beyond frameCount. Caption-tree joining and clock admission belong to caption_sidecar.
  * @evidence contracts/development/testing.md#execution-ownership The discoverable test_render_caption_slice owns these portable synchronous interval cases and borrows canonical fixtures directly, without importing another test entry or writing/rendering files.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 6 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A middle window `[1,5)` clips both spans and re-bases them to `[0,1)` /).
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 6 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A middle window `[1,5)` clips both spans and re-bases them to `[0,2)` /).
  */
 export function test_render_caption_slice(): void {
   const sidecar: IAutoMovieCaptionSidecar = whole();
@@ -55,13 +57,13 @@ export function test_render_caption_slice(): void {
       entries: [
         {
           frameStart: 0,
-          frameEnd: 1,
+          frameEnd: 2,
           beat: "duel",
           caption: "two knights clash at dawn",
           slug: "EXT. CASTLE COURTYARD - DAWN",
         },
         {
-          frameStart: 1,
+          frameStart: 2,
           frameEnd: 4,
           beat: "aftermath",
           caption: null,
@@ -79,8 +81,8 @@ export function test_render_caption_slice(): void {
       entry.frameEnd,
     ]),
     [
-      [0, 1],
-      [1, 4],
+      [0, 2],
+      [2, 4],
     ],
   );
 

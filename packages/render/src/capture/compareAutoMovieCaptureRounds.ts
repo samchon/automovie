@@ -13,15 +13,35 @@ import { AutoMovieRasterSheet } from "../picture/AutoMovieRasterSheet.js";
 import { compareAutoMovieRasters } from "../picture/compareAutoMovieRasters.js";
 import { decodeAutoMovieRasterPng } from "../picture/decodeAutoMovieRasterPng.js";
 import { encodeAutoMovieRasterPng } from "../picture/encodeAutoMovieRasterPng.js";
+import { diffAutoMovieCaptureFindings } from "./diffAutoMovieCaptureFindings.js";
 import { markAutoMovieCaptureCell } from "./markAutoMovieCaptureCell.js";
 import { planAutoMovieCaptureLayout } from "./planAutoMovieCaptureLayout.js";
 
 /**
- * Compare the cells a capture just wrote against an earlier round's, write a difference image for every changed pair, and lay every pair on comparison sheets.
+ * Compare the cells a capture just wrote against an earlier round's, write a
+ * difference image for every changed pair, and lay every pair on comparison
+ * sheets.
  *
- * Under `cell`, two cells pair when their selection, second, view and pass agree; when both state a resolved camera and the cameras differ, the cells stay unmatched, because a view that fits itself to its subject can resolve to another camera. Under `time`, cells pair by second alone, as an encoded file against the source drawn at the same seconds. A pair whose stills name the same backend is measured by `compareAutoMovieRasters` at `tolerance`, and a changed pair gets `diff-<name>.png`, the newer picture dimmed with every changed pixel in magenta. A pair drawn by different or unstated backends is laid side by side without a difference image. A cell either capture failed to draw, a cell only one capture holds and a measured pair whose rasters differ are unmatched, each with the cause.
+ * Under `cell`, two cells pair when their selection, second, view and pass
+ * agree; when both state a resolved camera and the cameras differ, the cells
+ * stay unmatched, because a view that fits itself to its subject can resolve to
+ * another camera. Under `time`, cells pair by second alone, as an encoded file
+ * against the source drawn at the same seconds. A pair whose stills name the
+ * same backend is measured by `compareAutoMovieRasters` at `tolerance`, and a
+ * changed pair gets `diff-<name>.png`, the newer picture dimmed with every
+ * changed pixel in magenta. A pair drawn by different or unstated backends is
+ * laid side by side without a difference image. A cell either capture failed to
+ * draw, a cell only one capture holds and a measured pair whose rasters differ
+ * are unmatched, each with the cause.
  *
- * Each entry takes three consecutive cells of the comparison sheets, the earlier still, this capture's still and the difference image, with a marked cell where a side or the difference is missing; rows and sheets hold whole entries, laid out for `budget` and named `comparison-001.png` onwards.
+ * The findings of the two rounds are compared by diffAutoMovieCaptureFindings,
+ * from the earlier record's diagnostics and this round's, which the caller
+ * reduces first.
+ *
+ * Each entry takes three consecutive cells of the comparison sheets, the
+ * earlier still, this capture's still and the difference image, with a marked
+ * cell where a side or the difference is missing; rows and sheets hold whole
+ * entries, laid out for `budget` and named `comparison-001.png` onwards.
  */
 export async function compareAutoMovieCaptureRounds(
   props: IAutoMovieCaptureComparisonProps,
@@ -210,6 +230,10 @@ export async function compareAutoMovieCaptureRounds(
     tolerance: props.tolerance,
     entries,
     sheets,
+    findings: diffAutoMovieCaptureFindings({
+      earlier: earlier.diagnostics,
+      current: props.diagnostics,
+    }),
   };
 }
 

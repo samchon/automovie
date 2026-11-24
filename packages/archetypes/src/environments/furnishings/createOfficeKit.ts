@@ -1,0 +1,117 @@
+import type {
+  IAutoMovieEnvironmentContribution,
+  IAutoMovieEnvironmentModule,
+  IAutoMovieFurnishingLayout,
+  IAutoMovieModel,
+  IAutoMoviePropBox,
+} from "@automovie/interface";
+
+import { createBookcase } from "../../furniture/createBookcase";
+import { createDrawerUnit } from "../../furniture/createDrawerUnit";
+import { createSeat } from "../../furniture/createSeat";
+import { createTable } from "../../furniture/createTable";
+import { ROOM_CLEARANCES } from "./ROOM_CLEARANCES";
+import { furnishRoom } from "./furnishRoom";
+
+/**
+ * Furnish an office: repeated desks, each with an office chair facing it, on
+ * the room's grid, a filing cabinet on the `-x` wall and a bookcase on the `+x`
+ * wall.
+ *
+ * The roles are `filing`, `bookcase`, `desk-1`, `desk-1/chair` and so on for
+ * each desk; each producer affordance is `<role>/<affordance id>`, such as
+ * `desk-1/chair/seat`. Each chair stands on its desk's local +Z side, turned to
+ * face the desk, with its front at the desk's edge. The filing cabinet stands
+ * near the `-x` wall's run corner, as far from it as its clear floor overhangs
+ * the cabinet, and keeps the forward-approach clear floor of
+ * {@link ROOM_CLEARANCES}.clearFloor in front, named `forward approach`; the
+ * bookcase starts at the `+x` wall's run corner. The desk groups take the first
+ * grid slots clear of both and of that clearance. The figure is a coarse layout
+ * rule, not an accessibility claim.
+ *
+ * @param params The room layout and the positive number of desks.
+ * @returns The placed-room module.
+ * @throws When a piece or clearance leaves the room or overlaps, or the desks
+ *   do not fit, naming the role or the `desks` count.
+ */
+export function createOfficeKit(
+  params: createOfficeKit.IParams,
+): IAutoMovieEnvironmentModule {
+  return (
+    context: IAutoMovieEnvironmentModule.IContext,
+  ): IAutoMovieEnvironmentContribution => {
+    const seed: string | undefined = context.seed;
+    const draw: (role: string) => string | undefined = (
+      role: string,
+    ): string | undefined =>
+      seed === undefined ? undefined : `${seed}/${role}`;
+    const desk: IAutoMovieModel = createTable({ kind: "desk" }, draw("desk"));
+    const chair: IAutoMovieModel = createSeat(
+      { kind: "office" },
+      draw("chair"),
+    );
+    const filing: IAutoMovieModel = createDrawerUnit(
+      { kind: "filingCabinet" },
+      draw("filing"),
+    );
+    const bookcase: IAutoMovieModel = createBookcase({}, draw("bookcase"));
+    const deskBox: IAutoMoviePropBox = furnishRoom.measure(desk);
+    const chairBox: IAutoMoviePropBox = furnishRoom.measure(chair);
+    const filingBox: IAutoMoviePropBox = furnishRoom.measure(filing);
+    const approach: number = ROOM_CLEARANCES.clearFloor.width!;
+
+    // A clear floor wider than the cabinet overhangs it equally on both sides,
+    // so the cabinet stands that overhang from the corner.
+    const overhang: number = Math.max(
+      0,
+      (approach - (filingBox.max.x - filingBox.min.x)) / 2,
+    );
+    return furnishRoom(context, {
+      layout: params,
+      pieces: {
+        filing: {
+          model: filing,
+          bounds: filingBox,
+          place: { kind: "wall", wall: "-x", offset: overhang },
+          clear: [
+            {
+              name: "forward approach",
+              depth: ROOM_CLEARANCES.clearFloor.depth,
+              width: approach,
+            },
+          ],
+        },
+        bookcase: {
+          model: bookcase,
+          bounds: furnishRoom.measure(bookcase),
+          place: { kind: "wall", wall: "+x" },
+        },
+      },
+      grid: {
+        count: params.desks,
+        capacity: "desks",
+        prefix: "desk",
+        group: [
+          { role: "", model: desk, bounds: deskBox, x: 0, z: 0, heading: 0 },
+          {
+            role: "chair",
+            model: chair,
+            bounds: chairBox,
+            x: 0,
+            z: deskBox.max.z + chairBox.max.z,
+            heading: 180,
+          },
+        ],
+      },
+    });
+  };
+}
+
+/** The office kit's parameters. */
+export namespace createOfficeKit {
+  /** The room layout and the positive integer count of desks. */
+  export interface IParams extends IAutoMovieFurnishingLayout {
+    /** Positive integer count of desk groups. */
+    readonly desks: number;
+  }
+}

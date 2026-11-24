@@ -7,8 +7,6 @@ import {
   BufferAttribute,
   Camera,
   Frustum,
-  InterleavedBufferAttribute,
-  Material,
   Matrix4,
   Mesh,
   Plane,
@@ -18,32 +16,30 @@ import {
 
 import { AutoMovieSkinnedMesh } from "../AutoMovieSkinnedMesh.js";
 import { readAutoMovieDisplayedBox } from "./readAutoMovieDisplayedBox.js";
+import { readAutoMovieDrawnRanges } from "./readAutoMovieDrawnRanges.js";
 
 /** The delivery camera and a required subject's admitted meshes. */
 interface IProps {
-  /** Delivery camera with its world matrices and projection, crop included, already current. */
+  /**
+   * Delivery camera with its world matrices and projection, crop included,
+   * already current.
+   */
   camera: Camera;
 
-  /** Meshes from listAutoMovieCameraSubjectMeshes with current world matrices and poses, or undefined when it refused the subject. */
+  /**
+   * Meshes from listAutoMovieCameraSubjectMeshes with current world matrices
+   * and poses, or undefined when it refused the subject.
+   */
   meshes: readonly Mesh[] | undefined;
 
-  /** Optional independently certified world envelope of the whole placed subject, metres. */
+  /**
+   * Optional independently certified world envelope of the whole placed
+   * subject, metres.
+   */
   bounds?: IAutoMovieSubjectBox;
 
   /** Largest number of drawn triangles this call may examine. */
   triangleBudget: number;
-}
-
-/** One drawn index range of a mesh and the material it is drawn with. */
-interface IRange {
-  /** First index or vertex, inclusive. */
-  start: number;
-
-  /** Last index or vertex, exclusive. */
-  end: number;
-
-  /** Material Three binds for the range. */
-  material: Material;
 }
 
 /**
@@ -57,12 +53,13 @@ interface IRange {
  * (Sutherland-Hodgman); signed distance to the near plane is linear over the
  * remaining convex polygon, so its deepest point is a polygon vertex.
  *
- * @param props Delivery camera, admitted subject meshes and the triangle budget.
+ * @param props Delivery camera, admitted subject meshes and the triangle
+ *   budget.
  * @returns `clear` when no drawn surface crosses, `clipped` with the deepest
- * intrusion in metres, its world surface point and the near-plane point at the
- * same delivered pixel, `over-budget` when the triangles to examine exceed the
- * budget, or `unmeasured` with the reason the subject cannot be checked.
- *
+ *   intrusion in metres, its world surface point and the near-plane point at
+ *   the same delivered pixel, `over-budget` when the triangles to examine
+ *   exceed the budget, or `unmeasured` with the reason the subject cannot be
+ *   checked.
  * @evidence contracts/development/common.md#meaningful-documentation States the clipping premise, the units and frame of depth and point, the opacity flag, the budget and every outcome.
  * @evidence contracts/development/implementation.md#principled-implementation Uses Three's normalized frustum planes from the actual delivery projection, so distances are world metres and any crop or aspect is included. A triangle part counts only beyond a tolerance of 32 ulps of its plane arithmetic plus, for an owned skin, its stated float32 GPU tolerance scaled by the largest world row norm; touching the near plane is not an intrusion.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Mesh admission stays with listAutoMovieCameraSubjectMeshes; this function first lets a certified envelope that lies wholly beyond the near plane or outside a side plane settle the subject, then prefilters meshes by world box, counts the drawn triangles against the budget and clips.
@@ -126,7 +123,11 @@ export function measureAutoMovieCameraNearClip(
     };
 
   // 1. Keep meshes whose world box can reach in front of the near plane in view.
-  const selected: { mesh: Mesh; ranges: IRange[]; slack: number }[] = [];
+  const selected: {
+    mesh: Mesh;
+    ranges: readAutoMovieDrawnRanges.IRange[];
+    slack: number;
+  }[] = [];
   let triangles: number = 0;
   for (const mesh of meshes) {
     if (mesh instanceof AutoMovieSkinnedMesh) mesh.computeBoundingBox();
@@ -139,7 +140,8 @@ export function measureAutoMovieCameraNearClip(
     if (local === null || local.isEmpty()) continue;
     world.copy(local).applyMatrix4(mesh.matrixWorld);
     if (excluded(world)) continue;
-    const ranges: IRange[] = drawnRanges(mesh);
+    const ranges: readAutoMovieDrawnRanges.IRange[] =
+      readAutoMovieDrawnRanges(mesh);
     for (const range of ranges)
       triangles += Math.floor((range.end - range.start) / 3);
     if (triangles > triangleBudget)
@@ -230,21 +232,15 @@ export function measureAutoMovieCameraNearClip(
   };
 }
 
-/**
- * Outcomes of one near-plane clip measurement.
- *
- * @evidence contracts/development/common.md#meaningful-documentation IResult defines the units, frame and opacity flag of each state.
- * @evidence contracts/development/design.md#principled-representation A cut surface, a checked surface with no cut, a check the budget stopped and a subject that cannot be checked are distinct observations with distinct states.
- * @evidence contracts/development/design.md#minimal-and-owned-surface IResult carries the count of triangles examined, the deepest intrusion and whether an opaque stock surface was cut; findings and coverage stay with the caller.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts An unmeasured subject never reports clear.
- */
+/** Outcomes of one near-plane clip measurement. */
 export namespace measureAutoMovieCameraNearClip {
-  /**
-   * Clear, clipped with its deepest witness, or unmeasured with a reason.
-   */
+  /** Clear, clipped with its deepest witness, or unmeasured with a reason. */
   export type IResult =
     | {
-        /** Every examined triangle stays on or beyond the near plane inside the frame. */
+        /**
+         * Every examined triangle stays on or beyond the near plane inside the
+         * frame.
+         */
         status: "clear";
 
         /** Drawn triangles examined. */
@@ -263,49 +259,38 @@ export namespace measureAutoMovieCameraNearClip {
         /** World surface point of that intrusion, metres. */
         point: IAutoMovieVector3;
 
-        /** World point on the near plane at the same delivered pixel, metres, where the cut shows in the frame. */
+        /**
+         * World point on the near plane at the same delivered pixel, metres,
+         * where the cut shows in the frame.
+         */
         cut: IAutoMovieVector3;
 
-        /** Whether the reported intrusion lies on an opaque stock surface; false means the cut part may be invisible anyway. */
+        /**
+         * Whether the reported intrusion lies on an opaque stock surface; false
+         * means the cut part may be invisible anyway.
+         */
         opaque: boolean;
       }
     | {
-        /** The drawn triangles in front of the near plane exceed the caller's budget; a larger budget completes the check. */
+        /**
+         * The drawn triangles in front of the near plane exceed the caller's
+         * budget; a larger budget completes the check.
+         */
         status: "over-budget";
 
         /** How far the budget fell short. */
         reason: string;
       }
     | {
-        /** The surface cannot be checked: an unreadable drawable, a non-finite vertex or projection, or an invalid budget. */
+        /**
+         * The surface cannot be checked: an unreadable drawable, a non-finite
+         * vertex or projection, or an invalid budget.
+         */
         status: "unmeasured";
 
         /** Why the check cannot run. */
         reason: string;
       };
-}
-
-/** Index ranges Three draws for the mesh, by visible material. */
-function drawnRanges(mesh: Mesh): IRange[] {
-  const position: BufferAttribute | InterleavedBufferAttribute =
-    mesh.geometry.getAttribute("position");
-  const total: number = mesh.geometry.index?.count ?? position.count;
-  const start: number = Math.max(0, mesh.geometry.drawRange.start);
-  const end: number = Math.min(total, start + mesh.geometry.drawRange.count);
-  const material: Material | Material[] = mesh.material;
-  if (!Array.isArray(material))
-    return material.visible && start < end ? [{ start, end, material }] : [];
-
-  // Three draws a multi-material mesh only through its groups.
-  const ranges: IRange[] = [];
-  for (const group of mesh.geometry.groups) {
-    const chosen: Material | undefined = material[group.materialIndex ?? 0];
-    const from: number = Math.max(start, group.start);
-    const to: number = Math.min(end, group.start + group.count);
-    if (chosen !== undefined && chosen.visible && from < to)
-      ranges.push({ start: from, end: to, material: chosen });
-  }
-  return ranges;
 }
 
 /** Signed distance from the plane to the box corner deepest against its normal. */
@@ -338,8 +323,9 @@ function rounding(plane: Plane, point: Vector3): number {
 }
 
 /**
- * Keep the part of a convex polygon on the plane's inner side (Sutherland-Hodgman).
- * A triangle clipped by four planes has at most seven vertices, within the eight-slot scratch.
+ * Keep the part of a convex polygon on the plane's inner side
+ * (Sutherland-Hodgman). A triangle clipped by four planes has at most seven
+ * vertices, within the eight-slot scratch.
  */
 function clip(
   polygon: readonly Vector3[],

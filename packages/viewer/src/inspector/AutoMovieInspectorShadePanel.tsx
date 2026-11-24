@@ -2,11 +2,9 @@ import type {
   AutoMovieInspectionShade,
   IAutoMovieCapturePlanRequest,
 } from "@automovie/interface";
-
 import type { ChangeEvent, JSX } from "react";
 
 import type { IAutoMovieInspectorAction } from "./IAutoMovieInspectorAction.js";
-
 
 /** Every shade, keyed so the compiler refuses a list that misses one. */
 const SHADES: Record<AutoMovieInspectionShade, true> = {
@@ -16,6 +14,8 @@ const SHADES: Record<AutoMovieInspectionShade, true> = {
   normal: true,
   outline: true,
   pose: true,
+  albedo: true,
+  graphics: true,
   clay: true,
   faces: true,
 };
@@ -23,7 +23,8 @@ const SHADES: Record<AutoMovieInspectionShade, true> = {
 /**
  * Shade and surface: how surfaces are coloured and whether they are drawn.
  *
- * The page draws the request's first pass, so the shade shown is `passes[0]`; choosing one replaces every pass with it.
+ * The page draws the request's first pass, so the shade shown is `passes[0]`;
+ * choosing one replaces every pass with it.
  */
 export function AutoMovieInspectorShadePanel(props: {
   /** The request shown. */

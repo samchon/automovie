@@ -2,23 +2,23 @@
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-Documents the measured sources, paths and refusal behavior.
+Documents the transparent layer's folder, file, missing audio, skipped black check and sample check, the control channels staged and published with the film and their record's binding to the film digest, the measured sources, the loudness targets the decoded audio must meet and where they come from, the lip-sync verdict that blocks, paths and refusal behavior.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-Uses Render for drawing and auditing, hashes and decodes exactly one uniquely staged candidate, measures the encoder's own inputs the same way so drawn and encode-introduced intervals are told apart, and settles both verdicts before replacing any delivered bytes.
+Uses Render for drawing and auditing, hashes and decodes exactly one uniquely staged candidate, measures the encoder's own inputs the same way so drawn and encode-introduced intervals are told apart, checks the encoded boxes against the picture and sound profiles through `auditAutoMovieDeliveryProfile`, and settles every verdict before replacing any delivered bytes.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-Reserves the output, renders, audits, stages the report and publishes, then releases owned resources.
+Reserves the output through `AutoMovieRenderOutputReservation`, renders, audits, stages the report and the control record and publishes through `publishAutoMovieRenderAttempt`, then releases owned resources.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
-Failed attempts carry their own report status and digest when measured. Confirmed findings and unresolved required checks prevent the candidate rename.
+Failed attempts carry their own report status and digest when measured. Confirmed findings, unresolved required checks and profile findings prevent the candidate rename.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
-Uses one encode, one streamed hash, one video decode and an audio decode only when present, plus one decode of the drawn frames and one of the soundtrack the encoder read. PNG scratch is never copied into the delivery folder.
+Uses one encode, one streamed hash, one video decode and an audio decode only when present, plus one decode of the drawn frames and one of the soundtrack the encoder read, and one read of the candidate's box headers for the profile check. PNG scratch is never copied into the delivery folder.
 
 ## @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work
 

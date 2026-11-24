@@ -9,6 +9,7 @@ Read the asset's required appearance and controls. Use the source the user choos
 
 | Read | For |
 | --- | --- |
+| [Environments](environments.md) | Building a place: a furnished room, a terrain or an outdoor set |
 | [Crafting](crafting/SKILL.md) | Building or changing a form from dimensions and formulas |
 | [Lofting](crafting/lofting.md) | Building or fitting a form from related sections and guides |
 | [Diffusion](diffusion/SKILL.md) | Generating a form with a diffusion model |

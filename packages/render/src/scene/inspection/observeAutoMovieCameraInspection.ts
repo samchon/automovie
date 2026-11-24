@@ -16,6 +16,7 @@ import {
 } from "three";
 
 import { boundAutoMovieCameraSubject } from "./boundAutoMovieCameraSubject.js";
+import { crossesAutoMovieFrustumPlane } from "./crossesAutoMovieFrustumPlane.js";
 import { listAutoMovieCameraSubjectMeshes } from "./listAutoMovieCameraSubjectMeshes.js";
 import { sampleAutoMovieCameraOcclusion } from "./sampleAutoMovieCameraOcclusion.js";
 
@@ -39,13 +40,14 @@ interface IProps {
   /** Maximum total triangles admitted to the optional, nine-ray witness pass. */
   triangleBudget?: number;
 
-  /** Matching exact pixel observations, when a capture or delivery audit obtained them. */
+  /**
+   * Matching exact pixel observations, when a capture or delivery audit
+   * obtained them.
+   */
   pixels?: IAutoMovieCameraInspection.IPixels;
 }
 
-/**
- * Observes required-subject framing from the original delivered projection.
- */
+/** Observes required-subject framing from the original delivered projection. */
 export function observeAutoMovieCameraInspection(
   props: IProps,
 ): IAutoMovieCameraInspection.IResult {
@@ -100,10 +102,16 @@ export function observeAutoMovieCameraInspection(
                 .slice(0, 4)
                 .some((plane: Plane): boolean => outsidePlane(bounds, plane))
             ? "outside"
-            : "possible";
+            : frustum.planes
+                  .slice(0, 4)
+                  .some((plane: Plane): boolean =>
+                    crossesAutoMovieFrustumPlane(bounds, plane),
+                  )
+              ? "crosses-side"
+              : "possible";
   const triangleBudget: number = props.triangleBudget ?? 0;
   const witnesses: IAutoMovieCameraInspection.IWitnesses | undefined =
-    framing === "possible" &&
+    (framing === "possible" || framing === "crosses-side") &&
     pixels === undefined &&
     Number.isSafeInteger(triangleBudget) &&
     triangleBudget > 0

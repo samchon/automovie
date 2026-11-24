@@ -6,7 +6,7 @@ Absent textures/residency remain unmeasured rather than fabricated zero costs.
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
-assessAutoMovieRenderBudget exchanges compiled, shot, budget, renderer, settings, assets, textures, textureResidency; their canonical owner is this contract and their concrete meanings are documented on the members.
+assessAutoMovieRenderBudget exchanges compiled, shot, budget, renderer, settings, assets, textures, textureResidency and film; their canonical owner is this contract and their concrete meanings are documented on the members.
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 

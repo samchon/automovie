@@ -183,12 +183,6 @@ catalogs:
     h264-mp4-encoder:
       specifier: ^1.0.12
       version: 1.0.12
-    kokoro-js:
-      specifier: ^1.2.1
-      version: 1.2.1
-    libopus-wasm:
-      specifier: ^0.2.0
-      version: 0.2.0
     mp4box:
       specifier: ^2.4.1
       version: 2.4.1
@@ -942,12 +936,6 @@ importers:
       h264-mp4-encoder:
         specifier: catalog:media
         version: 1.0.12
-      kokoro-js:
-        specifier: catalog:media
-        version: 1.2.1
-      libopus-wasm:
-        specifier: catalog:media
-        version: 0.2.0
       onnxruntime-node:
         specifier: catalog:media
         version: 1.21.0
@@ -3569,9 +3557,6 @@ packages:
   khroma@2.1.0:
     resolution: {integrity: sha512-Ls993zuzfayK269Svk9hzpeGUKob/sIgZzyHYdjQoAdQetRKpOLj+k/QQQ/6Qi0Yz65mlROrfd+Ev+1+7dz9Kw==}
 
-  kokoro-js@1.2.1:
-    resolution: {integrity: sha512-oq0HZJWis3t8lERkMJh84WLU86dpYD0EuBPtqYnLlQzyFP1OkyBRDcweAqCfhNOpltyN9j/azp1H6uuC47gShw==}
-
   ktx-parse@1.1.0:
     resolution: {integrity: sha512-mKp3y+FaYgR7mXWAbyyzpa/r1zDWeaunH+INJO4fou3hb45XuNSwar+7llrRyvpMWafxSIi99RNFJ05MHedaJQ==}
 
@@ -3580,10 +3565,6 @@ packages:
 
   layout-base@2.0.1:
     resolution: {integrity: sha512-dp3s92+uNI1hWIpPGH3jK2kxE2lMjdXdr+DH8ynZHpd6PUlH6x6cbuXnoMmiNumznqaNO31xu9e79F0uuZ0JFg==}
-
-  libopus-wasm@0.2.0:
-    resolution: {integrity: sha512-x/2Gu1/C6L3IICY09zyfp984AWiOYjn53u4WfdY3yh+3KTzMN8Xkm77q3lenWMVIk5SnSzjGEkQT+VQMFHLBHQ==}
-    engines: {node: '>=20'}
 
   linkify-it@5.0.2:
     resolution: {integrity: sha512-ONTm2jCMAVZjgQa/Fy1kScXsuOoF5NPTsoFBdE1KVIZ2vAh/r9+Bqo+0jINCBYnavTPQZz38QzFTme79ENoN3Q==}
@@ -4226,9 +4207,6 @@ packages:
   path-type@4.0.0:
     resolution: {integrity: sha512-gDKb8aZMDeD/tZWs9P6+q0J9Mwkdl6xMV8TjnGP3qJVJ06bdMgkbBlLU8IdfOsIsFz2BW1rNVT3XuNEl8zPAvw==}
     engines: {node: '>=8'}
-
-  phonemizer@1.2.1:
-    resolution: {integrity: sha512-v0KJ4mi2T4Q7eJQ0W15Xd4G9k4kICSXE8bpDeJ8jisL4RyJhNWsweKTOi88QXFc4r4LZlz5jVL5lCHhkpdT71A==}
 
   picocolors@1.1.1:
     resolution: {integrity: sha512-xceH2snhtb5M9liqDsmEw56le376mTZkEX/jEb/RxNFyegNul7eNslCXP9FDj/Lcu0X8KEyMceP2ntpaHrDEVA==}
@@ -7291,18 +7269,11 @@ snapshots:
 
   khroma@2.1.0: {}
 
-  kokoro-js@1.2.1:
-    dependencies:
-      '@huggingface/transformers': 3.8.1
-      phonemizer: 1.2.1
-
   ktx-parse@1.1.0: {}
 
   layout-base@1.0.2: {}
 
   layout-base@2.0.1: {}
-
-  libopus-wasm@0.2.0: {}
 
   linkify-it@5.0.2:
     dependencies:
@@ -8126,8 +8097,6 @@ snapshots:
       minipass: 7.1.3
 
   path-type@4.0.0: {}
-
-  phonemizer@1.2.1: {}
 
   picocolors@1.1.1: {}
 

@@ -2,7 +2,7 @@
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-Frames come from frameTimes, the independently computed binary64 i/fps schedule the render plan uses, and a forward-only playbackCursor resolves each instant to the live shot. Division can round, but the positive clock gives the non-decreasing queries the cursor requires; grouping consecutive equal beats into half-open spans covers every scheduled frame exactly once.
+Frames come from frameTimes, the independently computed binary64 i/fps schedule the render plan uses, and `playbackShownLayer` of `playbackLayersAt` resolves each instant to the shot the picture shows most of, the larger compositing weight with the incoming shot on a tie, so a caption names the shot on screen through a fade or a dissolve. Grouping consecutive equal beats into half-open spans covers every scheduled frame exactly once.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
@@ -18,7 +18,7 @@ The doc states the clock and schedule shared with the render, the transition rul
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
-For S supplied shots, F output frames, E cut entries and N script-tree nodes, timeline indexing, caption indexing and the cursor sweep take O(S+F+E+N) work. The schedule holds F times, the returned range list can also reach F entries, and each range joins the beat index once without retaining a separate playback-sample array.
+For S supplied shots, F output frames, E cut entries and N script-tree nodes, timeline indexing and caption indexing take O(S+E+N) work and the per-frame layer resolution O(F log E). The schedule holds F times, the returned range list can also reach F entries, and each range joins the beat index once without retaining a separate playback-sample array.
 
 ## @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work
 
@@ -26,4 +26,4 @@ The planner computes one sidecar per call from caller-supplied values and coordi
 
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
-The frame schedule, cursor and beat index are local and released on return; the returned sidecar, owned by the caller, holds one entry per run of consecutive frames of one beat, at most F.
+The frame schedule and beat index are local and released on return; the returned sidecar, owned by the caller, holds one entry per run of consecutive frames of one beat, at most F.

@@ -15,9 +15,7 @@ const FRAMINGS: ReadonlySet<string> = CAMERA_FRAMINGS;
 /** The closed move union, read as strings for an unvalidated artifact. */
 const MOVES: ReadonlySet<string> = CAMERA_MOVES;
 
-/**
- * Append camera-intent span shape, vocabulary, focus and focal-length findings.
- */
+/** Append camera-intent span shape, vocabulary, focus and focal-length findings. */
 export const appendCameraIntentArtifact: (
   intents: unknown,
   path: string,
@@ -130,6 +128,19 @@ export const appendCameraIntentArtifact: (
         0,
         Infinity,
         "camera intent focal length",
+        violations,
+        false,
+      );
+
+    // The input gate refuses a non-positive or non-finite stop; the artifact
+    // must agree.
+    if (intent.fNumber !== undefined)
+      validateRange(
+        intent.fNumber,
+        `${intentPath}.fNumber`,
+        0,
+        Infinity,
+        "camera intent f-number",
         violations,
         false,
       );

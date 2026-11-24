@@ -14,7 +14,7 @@ The pitch is refined by halving both axis spacings. Exhaustion of the one-millio
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-Gives world units and frame, the bilinear bound, refinement policy, sample budget and Float32 limit.
+Gives world units and frame, the bilinear bound, refinement policy, sample budget and Float32 limit, and the optional advice the budget refusal appends for the relief that drives the lattice.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 

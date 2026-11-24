@@ -10,22 +10,25 @@ import * as THREE from "three";
 import { nclose } from "../internal/predicates";
 
 /**
- * The host's placed observation frames a required subject through the
- * subject's own delivery raster and reports a near-plane cut at the output frame.
+ * The host's placed observation frames a required subject through the subject's
+ * own delivery raster and reports a near-plane cut at the output frame.
  *
  * Scenarios:
  *
- * 1. With a stale square camera, a 2:1 delivery raster keeps a box at x 7 m,
- *    depth 5 m inside the frame: framing is checked with no finding.
- * 2. Changing the delivery raster to 1:1 confirms the same box outside the
- *    frame, at the output frame of the placed second.
+ * 1. With a stale square camera, a 2:1 delivery raster keeps a box at x 7 m, depth
+ *    5 m inside the frame: framing is checked with no finding.
+ * 2. Changing the delivery raster to 1:1 confirms the same box outside the frame,
+ *    at the output frame of the placed second.
  * 3. A box whose front face is 0.25 m in front of the near plane is confirmed
  *    clipped with its intrusion and a witness on the near plane, where the
- *    review cube stays visible, and the near-clip coverage
- *    row is checked; the same box touching the near plane has no finding.
+ *    review cube stays visible, and the near-clip coverage row is checked; the
+ *    same box touching the near plane has no finding.
+ * 4. A box at x 5 m, depth 5 m is inside the 2:1 raster and cut by the right edge
+ *    of the 1:1 raster at the output frame, with near-clip coverage still
+ *    checked.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Runs the real observeAutoMoviePlacedInspection seam the Draw and Viewer hosts call, with the scaffold's camera observer, and asserts the portable findings and coverage; catches framing judged at a stale aspect and a near-plane cut left unreported.
- * @evidence contracts/development/testing.md#independent-expectations A 90-degree vertical field of view gives half-height equal to depth, so at depth 5 m the 2:1 half-width is 10 m and the 1:1 half-width 5 m, against the box's x range 6.5..7.5 m. A unit box centred 1.25 m from the camera has its front face 0.25 m in front of the 1 m near plane; centred 1.5 m away it touches. One frame per second puts second one at output frame one.
+ * @evidence contracts/development/testing.md#independent-expectations A 90-degree vertical field of view gives half-height equal to depth, so at depth 5 m the 2:1 half-width is 10 m and the 1:1 half-width 5 m, against the box's x range 6.5..7.5 m; the box at x 5 m spans 4.5..5.5 m, inside 10 m and across 5 m. A unit box centred 1.25 m from the camera has its front face 0.25 m in front of the 1 m near plane; centred 1.5 m away it touches. One frame per second puts second one at output frame one.
  * @evidence contracts/development/testing.md#distinguishing-cases Pairs wide and square rasters for the same placement and a crossing with a touching box; whole-subject exclusions and occlusion are owned by test_inspection_camera_visibility and test_inspection_camera_delivery, and posed skins by test_inspection_camera_near_clip.
  * @evidence contracts/development/testing.md#execution-ownership A portable unit over an in-memory draw subject with capture mode, so no renderer, browser or film is involved.
  * @evidence contracts/development/common.md#meaningful-documentation Lists each scenario, its geometry and its expected packet.
@@ -129,6 +132,29 @@ export function test_inspection_camera_delivery_aspect(): void {
   );
   target.position.set(0, 0, -1.5);
   TestValidator.equals("touching face has no finding", codes(observe()), []);
+
+  // 4. The raster moves the right edge across the subject.
+  target.position.set(5, 0, -5);
+  subject.width = 200;
+  TestValidator.equals(
+    "wide raster keeps the box inside",
+    codes(observe()),
+    [],
+  );
+  subject.width = 100;
+  const edge: IAutoMovieInspectionDiagnostics = observe();
+  TestValidator.equals(
+    "square raster cuts the box at the output frame",
+    [codes(edge), edge.time.outputFrame],
+    [["frame-edge-cut"], 1],
+  );
+  TestValidator.predicate(
+    "near-clip coverage stays checked at the edge",
+    edge.coverage.some(
+      (row: IAutoMovieInspectionDiagnostics.ICoverage): boolean =>
+        row.check === "camera-near-clip" && row.status === "checked",
+    ),
+  );
 
   geometry.dispose();
   material.dispose();

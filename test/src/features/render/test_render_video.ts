@@ -16,7 +16,10 @@ const SPEC: IAutoMovieRenderSpec = {
   crf: 18,
 };
 
-/** Await the supplied operation and require every diagnostic fragment on its Error. */
+/**
+ * Await the supplied operation and require every diagnostic fragment on its
+ * Error.
+ */
 const rejectsError: (
   task: () => Promise<unknown>,
   messageIncludes?: string | readonly string[],
@@ -49,7 +52,7 @@ const rejectsError: (
  * the result reports the frame count, the schedule, and the output path.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Invokes the actual renderVideo orchestration through its declared capture/encode ports and checks count, endpoint artifacts, returned paths, exact ffmpeg arguments and zero-frame refusal before either port runs.
- * @evidence contracts/development/testing.md#independent-expectations A one-second 24-fps clip expects 24 frames and endpoint times 0 and 23/24, checked with zero-tolerance nclose; literal paths and encoder arguments come directly from the authored spec, not another planner.
+ * @evidence contracts/development/testing.md#independent-expectations A one-second 24-fps clip expects 24 frames and endpoint times 0 and 23/24, checked with zero-tolerance nclose; the literal paths are the test's own, the raster, rate, pixel format and CRF come from the authored spec, `-y`, `-c:v libx264` and `-movflags +faststart` come from `ffmpegArgs`'s fixed H.264 MP4 encoding, and `-bf 0`, the BT.709 full-range `scale` filter and the four colour tags come from the delivery profile's sRGB declaration (#4087), all written out literally rather than taken from another planner.
  * @evidence contracts/development/testing.md#distinguishing-cases Contrasts a valid schedule with zero fps and records capture count plus endpoint indices; intermediate capture ordering and exactly-one successful encode are not separately counted by these assertions.
  * @evidence contracts/development/testing.md#execution-ownership Owns asynchronous callbacks through the public supported I/O seam, records arguments in memory and awaits both render/refusal paths; no frame file, ffmpeg process or video pixels are produced, and the portable runner owns execution.
  * @evidence contracts/development/common.md#meaningful-documentation Gives the purpose (The render orchestration over injected I/O: it captures one frame per scheduled instant in order, then encodes the sequence: pure control flow, so a fake capture/encode pair drives it deterministically) as stated in this comment.
@@ -126,10 +129,20 @@ export async function test_render_video(): Promise<void> {
     "yuv420p",
     "-crf",
     "18",
+    "-bf",
+    "0",
+    "-vf",
+    "scale=w=640:h=480:out_color_matrix=bt709:out_range=full",
+    "-color_primaries",
+    "bt709",
+    "-color_trc",
+    "iec61966-2-1",
+    "-colorspace",
+    "bt709",
+    "-color_range",
+    "pc",
     "-r",
     "24",
-    "-s",
-    "640x480",
     "-movflags",
     "+faststart",
     "/tmp/out.mp4",

@@ -10,11 +10,16 @@ import { CarBody } from "./CarBody";
 import { createCar } from "./createCar";
 
 /**
- * A car's cabin: its doors with their windows and openings, its seats with their reclining backs, and the driver's controls, all placed on `CarBody`'s layout.
+ * A car's cabin: its doors with their windows and openings, its seats with
+ * their reclining backs, and the driver's controls, all placed on `CarBody`'s
+ * layout.
  */
 export namespace CarCabin {
   /**
-   * The doors: the front pair; the rear pair on a sedan, a hatchback and a pickup; a van's sliding door on its kerb side. Each hinged door has its handle and the opening behind it, and each side window slides down into its door with an opening that grows above it.
+   * The doors: the front pair; the rear pair on a sedan, a hatchback and a
+   * pickup; a van's sliding door on its kerb side. Each hinged door has its
+   * handle and the opening behind it, and each side window slides down into its
+   * door with an opening that grows above it.
    *
    * @param builder The car under construction.
    * @param l The layout.
@@ -78,7 +83,8 @@ export namespace CarCabin {
   }
 
   /**
-   * The seats: the front pair and, except in a van, the rear bench, each with its back on a reclining hinge.
+   * The seats: the front pair and, except in a van, the rear bench, each with
+   * its back on a reclining hinge.
    *
    * @param builder The car under construction.
    * @param l The layout.
@@ -123,7 +129,9 @@ export namespace CarCabin {
   }
 
   /**
-   * The driver's controls: the steering wheel and the accelerator. The brake, the gear lever, the mirror and the belt grip are not built until a source places them.
+   * The driver's controls: the steering wheel and the accelerator. The brake,
+   * the gear lever, the mirror and the belt grip are not built until a source
+   * places them.
    *
    * @param builder The car under construction.
    * @param l The layout.
@@ -269,7 +277,8 @@ const METAL: string = "#c9ccd1";
 const BODY: string = "#3f6c8f";
 
 /**
- * Add one hinged door: its leaf, handle and middle pillar, its hinge, handle and opening, and its sliding window with the window's opening.
+ * Add one hinged door: its leaf, handle and middle pillar, its hinge, handle
+ * and opening, and its sliding window with the window's opening.
  *
  * @param builder The car under construction.
  * @param l The layout.
@@ -394,13 +403,16 @@ function door(
 }
 
 /**
- * Add one seat: a cushion and a back, its `seat` affordance on the cushion's front edge facing forward, and the back's reclining hinge.
+ * Add one seat: a cushion and a back, its `seat` affordance on the cushion's
+ * front edge facing forward, and the back's reclining hinge where `recline` is
+ * positive.
  *
  * @param builder The car under construction.
  * @param l The layout.
  * @param id The seat's affordance id.
  * @param name Its name in part ids.
- * @param reference The middle of the cushion's surface under the seating reference point, which lies 0.1 m ahead of the back.
+ * @param reference The middle of the cushion's surface under the seating
+ *   reference point, which lies 0.1 m ahead of the back.
  * @param width The cushion's width.
  */
 function seat(
@@ -436,21 +448,27 @@ function seat(
     width,
     back: 0.6,
   });
-  builder.affordance({
-    id: `${id}Back`,
-    kind: "hinge",
-    frame: AutoMovieArchetypeFrame.facing(
-      Vector3.create(reference.x, reference.y, rear),
-      Vector3.create(-1, 0, 0),
-      Vector3.create(0, 1, 0),
-    ),
-    extent: null,
-    travel: l.d.recline!,
-    parts: [`backrest-${name}`],
-  });
+
+  // A back whose recline is 0 does not recline, so it has no hinge: a hinge's travel must be positive.
+  if (l.d.recline! > 0)
+    builder.affordance({
+      id: `${id}Back`,
+      kind: "hinge",
+      frame: AutoMovieArchetypeFrame.facing(
+        Vector3.create(reference.x, reference.y, rear),
+        Vector3.create(-1, 0, 0),
+        Vector3.create(0, 1, 0),
+      ),
+      extent: null,
+      travel: l.d.recline!,
+      parts: [`backrest-${name}`],
+    });
 }
 
-/** Each door's name in part ids, as the front doors' were before the rear doors came. */
+/**
+ * Each door's name in part ids, as the front doors' were before the rear doors
+ * came.
+ */
 const PART: Readonly<
   Record<"driver" | "passenger" | "rearLeft" | "rearRight", string>
 > = {

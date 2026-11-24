@@ -24,9 +24,13 @@ import {
  *
  * Scenarios:
  *
- * 1. Trimmed events are omitted and admitted events retain frame placement and bounded attenuation.
- * 2. Actor, formation and instance emitters cover positive, negative and zero pan; formation positions follow their compact motion.
- * 3. The largest fitting source offset survives planning, and the mixed master has the authored stereo extent, audible bounded peaks and admitted event alignment.
+ * 1. Trimmed events are omitted and admitted events retain frame placement and
+ *    bounded attenuation.
+ * 2. Actor, formation and instance emitters cover positive, negative and zero pan;
+ *    formation positions follow their compact motion.
+ * 3. The largest fitting source offset survives planning, and the mixed master has
+ *    the authored stereo extent, audible bounded peaks and admitted event
+ *    alignment.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Plans trimmed semantic events and mixes cues/dialogue, asserting event membership, camera-relative pan signs, live formation positions, source offsets and audible bounded master analysis.
  * @evidence contracts/development/testing.md#independent-expectations The authored trim gives six retained events, dyadic formation X positions and three seconds at 48kHz gives 144000 sample frames. The trim assertion counts events without checking the full retained id set; frame rounding and mixed-master alignment share planner/analysis quantities and do not isolate each event's energy. Exact formation/runtime predicates retain zero tolerance, and alignment count prevents an empty report from passing vacuously.
@@ -80,8 +84,17 @@ export function test_film_production_sound(): void {
       formationEvents[1] !== undefined &&
       nclose(formationEvents[1].emitter.x, 2, 0),
   );
+  // A 0.3 s line inside the caption's 0.4 s window, loud enough to level: a
+  // 220 Hz tone at 0.1 peak.
   const dialogue: Map<string, Float32Array<ArrayBuffer>> = new Map([
-    ["line", Float32Array.from([0.5])],
+    [
+      "line",
+      Float32Array.from(
+        { length: 14_400 },
+        (_: unknown, index: number): number =>
+          0.1 * Math.sin((2 * Math.PI * 220 * index) / 48_000),
+      ),
+    ],
   ]);
   const first: IAutoMovieRenderedProductionSound = renderProductionSound({
     plan,

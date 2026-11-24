@@ -19,13 +19,16 @@ type Producer = (
 ) => AutoMovieArchetype<createLight.Affordance, createLight.Dimension>;
 
 /**
- * Replay a saved light variant with the original dimensions, identifier and model choices.
+ * Replay a saved light variant with the original dimensions, identifier and
+ * model choices.
  *
- * @param params The historic selector and optional fixed settings in the original units.
- * @param seed Draws the omitted settings. Omit it for the original seedless defaults.
+ * @param params The historic selector and optional fixed settings in the
+ *   original units.
+ * @param seed Draws the omitted settings. Omit it for the original seedless
+ *   defaults.
  * @returns The original generated model and its local contacts.
- * @throws {AutoMovieArchetypeRefusal} If the selector or any author setting is outside its admitted range.
- *
+ * @throws {AutoMovieArchetypeRefusal} If the selector or any author setting is
+ *   outside its admitted range.
  * @evidence contracts/development/common.md#meaningful-documentation Replay a saved light variant with the original dimensions, identifier and model choices.
  * @evidence contracts/development/implementation.md#principled-implementation Validate the saved selector and call its named producer, which runs the original shape construction in the light draw namespace.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Dispatch one checked selector through the public producer table. Each named producer owns its geometry and contacts.
@@ -50,14 +53,7 @@ export function createLight(
   return produce(params, seed);
 }
 
-/**
- * Companion types, constants and bands of {@link createLight}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance, dimension and constant states what it is and where it comes from.
- * @evidence contracts/development/design.md#principled-representation A closed union of three flame lights and three lamps, one cited band per dimension per kind; the flame and the beam are frames, never parts.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The grip a hand takes, the hook a pendant or a lantern hangs by, and the light a production places (#3501, #3468's N1); the electric flashlight is `createTorch`'s.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Every light has the same `grip` and `light`, so carrying, aiming and lighting are written once; bands seen only in search results are provisional, and a lantern's unread fount and wire are named estimates.
- */
+/** Companion types, constants and bands of {@link createLight}. */
 export namespace createLight {
   /** Each saved selector's named producer. */
   export interface IProducers {
@@ -102,7 +98,10 @@ export namespace createLight {
     },
   };
 
-  /** The kinds: a taper candle, a hand-held fire torch, a pendant lamp, a table lamp, a floor lamp and a hurricane lantern. */
+  /**
+   * The kinds: a taper candle, a hand-held fire torch, a pendant lamp, a table
+   * lamp, a floor lamp and a hurricane lantern.
+   */
   export type Kind =
     | "candle"
     | "fireTorch"
@@ -121,27 +120,56 @@ export namespace createLight {
     "lantern",
   ];
 
-  /** A lantern's globe across its top, metres: Dietz's 2 3/8 in, the width its cap is drawn at. */
+  /**
+   * A lantern's globe across its top, metres: Dietz's 2 3/8 in, the width its
+   * cap is drawn at.
+   */
   export const GLOBE_TOP: number = (2 + 3 / 8) * AutoMovieArchetypeUnits.INCH;
 
   /**
-   * A lantern's parts no source read sizes, metres, provisional estimates: `fount`, the burner's height over the floor, where the globe stands and the flame burns; `wire`, the bail's wire across, the hooked grip's aperture. The search 'Dietz No. 20 Junior lantern fount height inches dimensions bail' found the lantern's height, base, globe, fount capacity and a bail-up height, neither of these.
+   * A lantern's parts no source read sizes, metres, provisional estimates:
+   * `fount`, the burner's height over the floor, where the globe stands and the
+   * flame burns; `wire`, the bail's wire across, the hooked grip's aperture;
+   * `globe`, the clear glass globe's opacity, a look estimate low enough that
+   * the flame inside reads through it, drawn as blended glass rather than
+   * transmission because a transmission material samples only opaque objects
+   * and would hide the additive flame. The search 'Dietz No. 20 Junior lantern
+   * fount height inches dimensions bail' found the lantern's height, base,
+   * globe, fount capacity and a bail-up height, neither of these.
    */
-  export const LANTERN_ESTIMATES: Readonly<{ fount: number; wire: number }> = {
+  export const LANTERN_ESTIMATES: Readonly<{
+    fount: number;
+    wire: number;
+    globe: number;
+  }> = {
     fount: 0.09,
     wire: 0.003,
+    globe: 0.15,
   };
 
-  /** A pendant cord's radius, metres: a construction estimate that no act reads and no band declares. */
+  /**
+   * A pendant cord's radius, metres: a construction estimate that no act reads
+   * and no band declares.
+   */
   export const CORD: number = 0.003;
 
-  /** A standing lamp's base plate thickness as a share of its read base diameter: a construction estimate that no act reads and no band declares. */
+  /**
+   * A standing lamp's base plate thickness as a share of its read base
+   * diameter: a construction estimate that no act reads and no band declares.
+   */
   export const BASE: number = 0.1;
 
-  /** A standing lamp's stem radius as a share of its read base diameter: a construction estimate that no act reads and no band declares. */
+  /**
+   * A standing lamp's stem radius as a share of its read base diameter: a
+   * construction estimate that no act reads and no band declares.
+   */
   export const STEM: number = 0.04;
 
-  /** A standing lamp's shade's net weight, kilograms, which places its balance: the RINGSTA shades' 0.19 kg (search only) and 0.49 kg (read), the rest of the lamp's mass its base's. */
+  /**
+   * A standing lamp's shade's net weight, kilograms, which places its balance:
+   * the RINGSTA shades' 0.19 kg (search only) and 0.49 kg (read), the rest of
+   * the lamp's mass its base's.
+   */
   export const SHADE_MASS: Readonly<Record<createStandingLamp.Kind, number>> = {
     tableLamp: 0.19,
     floorLamp: 0.49,
@@ -150,9 +178,12 @@ export namespace createLight {
   /**
    * The affordance ids:
    *
-   * - `grip`: a candle's taper, a torch's shaft below its head, a lamp's shade, a lantern's bail top.
+   * - `grip`: a candle's taper, a torch's shaft below its head, a lamp's shade, a
+   *   lantern's bail top.
    * - `hook`: a pendant's ceiling end or a lantern's bail top, to hang it by.
-   * - `light`: the top of a wick or a torch's head, or a lantern's burner, `+Y` up the flame; a pendant's shade mouth, `+Y` down its beam; a standing lamp's lampholder top, `+Y` up.
+   * - `light`: the top of a wick or a torch's head, or a lantern's burner, `+Y`
+   *   up the flame; a pendant's shade mouth, `+Y` down its beam; a standing
+   *   lamp's lampholder top, `+Y` up.
    */
   export type Affordance = "grip" | "hook" | "light";
 
@@ -165,11 +196,14 @@ export namespace createLight {
    * - `height`: a lamp's shade or a lantern's globe, bottom to top.
    * - `shade`: a lamp's shade across, or a lantern's globe across its bottom.
    * - `cord`: a pendant's cord from the ceiling to its shade.
-   * - `overall`: a standing lamp, floor to the shade's top; a lantern, floor to its cap's top.
-   * - `stem`: a standing lamp's base with its stem, floor to the lampholder's top.
+   * - `overall`: a standing lamp, floor to the shade's top; a lantern, floor to
+   *   its cap's top.
+   * - `stem`: a standing lamp's base with its stem, floor to the lampholder's
+   *   top.
    * - `base`: a standing lamp's or a lantern's base across.
    * - `bail`: a lantern with its bail raised, floor to the bail's top.
-   * - `mass`: kilograms; a standing lamp's is its base's and its shade's net weights together.
+   * - `mass`: kilograms; a standing lamp's is its base's and its shade's net
+   *   weights together.
    */
   export type Dimension =
     | "length"
@@ -201,7 +235,10 @@ export namespace createLight {
     mass: "kg",
   };
 
-  /** The parameters: the kind, and any free dimension fixed to a value inside its band. */
+  /**
+   * The parameters: the kind, and any free dimension fixed to a value inside
+   * its band.
+   */
   export interface IParams extends Partial<Record<Dimension, number>> {
     /** Which light. */
     kind: Kind;

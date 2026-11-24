@@ -3,6 +3,7 @@ import {
   IAutoMovieConstraintViolation,
   type IAutoMovieFog,
   IAutoMovieLight,
+  type IAutoMovieMedium,
   IAutoMovieSceneNode,
   IAutoMovieScript,
   IAutoMovieSpace,
@@ -19,7 +20,6 @@ import {
 
 import { Quaternion } from "../math/Quaternion";
 import { Transform } from "../math/Transform";
-import { Vector3 } from "../math/Vector3";
 import { ViolationCollector } from "../validation/ViolationCollector";
 import { collectNonEmptyId } from "../validation/collectNonEmptyId";
 import { describeInvalidValue } from "../validation/describeInvalidValue";
@@ -32,11 +32,11 @@ import { lightTypeOf } from "./staging/lightTypeOf";
 import { lowerCameraClearanceEnvelope } from "./staging/lowerCameraClearanceEnvelope";
 import { lowerLightPlacement } from "./staging/lowerLightPlacement";
 import { resolveStagedFog } from "./staging/resolveStagedFog";
+import { resolveStagedMedium } from "./staging/resolveStagedMedium";
 import { setPieceScale } from "./staging/setPieceScale";
 import { setPieceTransform } from "./staging/setPieceTransform";
-import { validateCameraClearanceEnvelope } from "./staging/validateCameraClearanceEnvelope";
-import { validateCameraDepthPrecision } from "./staging/validateCameraDepthPrecision";
 import { validateLightPlacementShape } from "./staging/validateLightPlacementShape";
+import { validateStageCamera } from "./staging/validateStageCamera";
 
 /** World up, the axis an actor's `facingDeg` turns about. */
 const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
@@ -44,21 +44,45 @@ const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
 /** Largest accepted deviation of a set rotation's length from one. */
 const UNIT_QUATERNION_TOLERANCE: number = 1e-6;
 
-/** A camera and its target closer than this, in metres, have no look axis. */
-const LOOK_DISTANCE_EPSILON: number = 1e-9;
-
 /**
- * The STAGING consumer: fold the script's cast and the staging write's placements into the {@link IAutoMovieScene} every later stage performs into, or return every violation for the correction round.
+ * The STAGING consumer: fold the script's cast and the staging write's
+ * placements into the {@link IAutoMovieScene} every later stage performs into,
+ * or return every violation for the correction round.
  *
- * Referential integrity is the core check: every placement names a cast member, every cast member is placed, ids are non-blank and unique across actors, set pieces, cameras and lights, a mount rides another placed actor, and a camera's `lookAt` node is a placed actor, set piece or camera, the same table the performance stage resolves positional targets against. Scalars are range-checked where a later stage could not use them: finite positions and turns, a unit set rotation not combined with `facingDeg`, a positive finite set scale, a field of view in `(0, 180)` degrees, `0 < near < far`, the camera's depth precision and clearance envelope, a non-negative light intensity, each light's shape, and a finite derived camera look direction that does not collapse to its own position. Geometry is converted, not judged: whether 0.7 m is striking range is the reviewer's business.
+ * Referential integrity is the core check: every placement names a cast member,
+ * every cast member is placed, ids are non-blank and unique across actors, set
+ * pieces, cameras and lights, a mount rides another placed actor, and a
+ * camera's `lookAt` node is a placed actor, set piece or camera, the same table
+ * the performance stage resolves positional targets against. Scalars are
+ * range-checked where a later stage could not use them: finite positions and
+ * turns, a unit set rotation not combined with `facingDeg`, a positive finite
+ * set scale, a field of view in `(0, 180)` degrees, `0 < near < far`, the
+ * camera's depth precision and clearance envelope, a non-negative light
+ * intensity, each light's shape, and a finite derived camera look direction
+ * that does not collapse to its own position. Geometry is converted, not
+ * judged: whether 0.7 m is striking range is the reviewer's business.
  *
- * Conversions: an actor's `facingDeg`, about `+Y` with 0 facing `+Z`, becomes its rotation; a set piece becomes a static node through {@link setPieceTransform}; a camera's `lookAt` resolves to a point and the level-horizon look basis aims its `-Z` there; a light lowers through {@link lowerLightPlacement} to the scene light its `type` names.
+ * Conversions: an actor's `facingDeg`, about `+Y` with 0 facing `+Z`, becomes
+ * its rotation; a set piece becomes a static node through
+ * {@link setPieceTransform}; a camera's `lookAt` resolves to a point and the
+ * level-horizon look basis aims its `-Z` there; a light lowers through
+ * {@link lowerLightPlacement} to the scene light its `type` names.
  *
- * The optional `space`, the ground's walkable meaning, is accepted by {@link validateSpace} with its paths re-rooted under `$input.space`, and is composed as `space: null` when omitted, the scalar ground plane. An authored `fog` lowers verbatim, while `fogVisibility` solves the density from camera-axis depth and transmittance. {@link resolveStagedFog} admits one form and leaves fog absent when neither is authored. The optional `environment` is checked by {@link validateSceneEnvironment} against the staged lights and lowered verbatim.
+ * The optional `space`, the ground's walkable meaning, is accepted by
+ * {@link validateSpace} with its paths re-rooted under `$input.space`, and is
+ * composed as `space: null` when omitted, the scalar ground plane. An authored
+ * `fog` lowers verbatim, while `fogVisibility` solves the density from
+ * camera-axis depth and transmittance. {@link resolveStagedFog} admits one form
+ * and leaves fog absent when neither is authored. A `medium` is admitted by
+ * {@link resolveStagedMedium}, refused beside either fog form, and lowered
+ * verbatim. The optional `environment` is checked by
+ * {@link validateSceneEnvironment} against the staged lights and lowered
+ * verbatim.
  *
  * @param script The screenplay whose cast staging must place.
  * @param staging The staging write.
- * @returns The composed scene with its persistent mounts and authored actor support scopes, or every violation.
+ * @returns The composed scene with its persistent mounts and authored actor
+ *   support scopes, or every violation.
  */
 export function stageScene(
   script: IAutoMovieScript,
@@ -266,6 +290,10 @@ export function stageScene(
     staging.fogVisibility,
     out,
   );
+  const medium: IAutoMovieMedium | undefined = resolveStagedMedium(
+    staging,
+    out,
+  );
   if (staging.environment !== undefined) {
     const validated: IAutoMovieValidation = validateSceneEnvironment({
       environment: staging.environment,
@@ -295,100 +323,13 @@ export function stageScene(
   staging.cameras.forEach((camera: IAutoMovieStageCamera, i: number): void => {
     const path: string = `$input.cameras[${i}]`;
     claim(camera.node, `${path}.node`, "camera node id");
-    const positionFinite: boolean = isFiniteStageVector3(camera.position);
-    if (!positionFinite)
-      out.push(
-        "range",
-        `${path}.position`,
-        "camera position must be a finite vector",
-        camera.position,
-      );
-    if (
-      typeof camera.fovDeg !== "number" ||
-      !(camera.fovDeg > 0 && camera.fovDeg < 180)
-    )
-      out.push(
-        "range",
-        `${path}.fovDeg`,
-        `vertical field of view must be within (0, 180)°, but was ${describeInvalidValue(camera.fovDeg)}`,
-        camera.fovDeg,
-      );
-    if (!Number.isFinite(camera.near) || camera.near <= 0)
-      out.push(
-        "range",
-        `${path}.near`,
-        "camera near distance must be finite and greater than zero metres",
-        camera.near,
-      );
-    if (
-      !Number.isFinite(camera.far) ||
-      (Number.isFinite(camera.near) &&
-        camera.near > 0 &&
-        camera.far <= camera.near)
-    )
-      out.push(
-        "range",
-        `${path}.far`,
-        "camera far distance must be finite and greater than near",
-        camera.far,
-      );
-    validateCameraDepthPrecision(
-      camera.depthPrecision,
-      `${path}.depthPrecision`,
+    const direction: IAutoMovieVector3 | undefined = validateStageCamera(
+      camera,
+      path,
+      placedPoints,
       out,
     );
-    if (camera.lookAt.kind === "node" && !placedPoints.has(camera.lookAt.node))
-      out.push(
-        "type",
-        `${path}.lookAt.node`,
-        `camera target "${describeInvalidValue(camera.lookAt.node)}" must be a placed actor, set piece, or camera`,
-        camera.lookAt.node,
-      );
-    if (
-      camera.lookAt.kind === "point" &&
-      !isFiniteStageVector3(camera.lookAt.point)
-    )
-      out.push(
-        "range",
-        `${path}.lookAt.point`,
-        "camera point target must be a finite vector",
-        camera.lookAt.point,
-      );
-    const target: IAutoMovieVector3 | undefined =
-      camera.lookAt.kind === "node"
-        ? placedPoints.get(camera.lookAt.node)
-        : camera.lookAt.point;
-    if (
-      target !== undefined &&
-      positionFinite &&
-      isFiniteStageVector3(target)
-    ) {
-      const direction: IAutoMovieVector3 = Vector3.subtract(
-        target,
-        camera.position,
-      );
-      if (!isFiniteStageVector3(direction))
-        out.push(
-          "range",
-          `${path}.lookAt`,
-          "camera look direction must have finite components",
-          camera.lookAt,
-        );
-      else if (Vector3.length(direction) < LOOK_DISTANCE_EPSILON)
-        out.push(
-          "range",
-          `${path}.lookAt`,
-          "camera lookAt must not equal the camera position",
-          camera.lookAt,
-        );
-      else cameraDirections.set(camera, direction);
-    }
-    if (camera.clearance !== undefined)
-      validateCameraClearanceEnvelope(
-        camera.clearance,
-        `${path}.clearance`,
-        out,
-      );
+    if (direction !== undefined) cameraDirections.set(camera, direction);
   });
 
   staging.lights.forEach((light: IAutoMovieStageLight, i: number): void => {
@@ -472,6 +413,7 @@ export function stageScene(
       // `fog: null` would change the bytes, and so the content digest, of
       // every production that never mentioned fog.
       ...(fog === undefined ? {} : { fog }),
+      ...(medium === undefined ? {} : { medium }),
       ...(staging.environment === undefined
         ? {}
         : { environment: staging.environment }),

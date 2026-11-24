@@ -1,10 +1,17 @@
+export type { AutoMovieFurnishingWall } from "./AutoMovieFurnishingWall";
 export type { IAutoMovieEnvironment } from "./IAutoMovieEnvironment";
 export type { IAutoMovieEnvironmentContribution } from "./IAutoMovieEnvironmentContribution";
 export type { IAutoMovieEnvironmentItem } from "./IAutoMovieEnvironmentItem";
 export type { IAutoMovieEnvironmentModel } from "./IAutoMovieEnvironmentModel";
 export type { IAutoMovieEnvironmentModule } from "./IAutoMovieEnvironmentModule";
 export type { IAutoMovieEnvironmentRecipe } from "./IAutoMovieEnvironmentRecipe";
+export type { IAutoMovieEnvironmentSupportReport } from "./IAutoMovieEnvironmentSupportReport";
+export type { IAutoMovieFurnishingClearance } from "./IAutoMovieFurnishingClearance";
 export type { IAutoMovieFurnishingLayout } from "./IAutoMovieFurnishingLayout";
+export type { IAutoMovieFurnishingPiece } from "./IAutoMovieFurnishingPiece";
+export type { IAutoMovieFurnishingRelation } from "./IAutoMovieFurnishingRelation";
+export type { IAutoMovieSetPieceSupport } from "./IAutoMovieSetPieceSupport";
 export type { IAutoMovieTerrainRecipe } from "./IAutoMovieTerrainRecipe";
 export type { IAutoMovieTrackCourse } from "./IAutoMovieTrackCourse";
 export type { IAutoMovieTrackedRide } from "./IAutoMovieTrackedRide";
+export type { IAutoMovieWallMount } from "./IAutoMovieWallMount";

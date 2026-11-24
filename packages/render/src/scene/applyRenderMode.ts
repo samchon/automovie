@@ -12,11 +12,14 @@ import { applyEdgeMode } from "./applyEdgeMode.js";
 import { applyMaskMode } from "./applyMaskMode.js";
 import { applyPoseMode } from "./applyPoseMode.js";
 import { applySemanticMaskMode } from "./applySemanticMaskMode.js";
+import { createAutoMovieAlbedoMaterial } from "./createAutoMovieAlbedoMaterial.js";
 import { guardAutoMovieRenderModeRetirement } from "./guardAutoMovieRenderModeRetirement.js";
 import { overrideAutoMovieRenderModeMaterials } from "./overrideAutoMovieRenderModeMaterials.js";
 import { restoreAutoMovieRenderModeOnce } from "./restoreAutoMovieRenderModeOnce.js";
 import { restoreAutoMovieRenderModeState } from "./restoreAutoMovieRenderModeState.js";
 import { autoMovieSemanticMaskOf } from "./semanticMask/index.js";
+import { applyAutoMovieGraphicsMode } from "./surfaceGraphic/applyAutoMovieGraphicsMode.js";
+import { hideAutoMovieSurfaceGraphics } from "./surfaceGraphic/hideAutoMovieSurfaceGraphics.js";
 
 /** A renderable that is NOT a mesh: a line/grid/helper, points, or a sprite. */
 const isNonMeshRenderable: (object: THREE.Object3D) => boolean = (
@@ -61,7 +64,10 @@ const hideNonMeshRenderables: (scene: THREE.Scene) => () => void = (
  * the scene's animation does not move:
  *
  * - `beauty`: no override (the ordinary shaded render).
- * - `depth`: meshes use clamp(1-viewZ/range,0,1) with camera-space depth and a shared {@link DEPTH_NORMALIZATION_RANGE}, independent of near/far normalization. Camera changes can change a world point's viewZ; black is the far-range/background convention.
+ * - `depth`: meshes use clamp(1-viewZ/range,0,1) with camera-space depth and a
+ *   shared {@link DEPTH_NORMALIZATION_RANGE}, independent of near/far
+ *   normalization. Camera changes can change a world point's viewZ; black is
+ *   the far-range/background convention.
  * - `mask`: the segmentation pass. A scene handed its palette by
  *   {@link attachAutoMovieSemanticMask} is painted by
  *   {@link applyAutoMovieSemanticMask}, so every colour is the one that entity's
@@ -71,22 +77,39 @@ const hideNonMeshRenderables: (scene: THREE.Scene) => () => void = (
  *   identity, because inserting one node repaints everything after it.
  * - `normal`: every mesh swapped to `MeshNormalMaterial`: the unlit
  *   surface-normal conditioning pass (#1166).
- * - `outline`: black fills plus inverted-hull back-face shells extruded by {@link EDGE_WIDTH} in model space, leaving white contours on black. Object/instance scaling and camera projection affect world thickness and screen line weight.
+ * - `outline`: black fills plus inverted-hull back-face shells extruded by
+ *   {@link EDGE_WIDTH} in model space, leaving white contours on black.
+ *   Object/instance scaling and camera projection affect world thickness and
+ *   screen line weight.
  * - `pose`: meshes hidden, and a line-segment overlay of every bone→child bone
  *   connection drawn over a black background: the skeleton pose pass.
+ * - `albedo`: every mesh drawn unlit in its material's base colour on black, one
+ *   `createAutoMovieAlbedoMaterial` per original material: the material channel
+ *   for a neural renderer that is given lighting separately.
+ *
+ * Surface graphics from `prepareAutoMovieSurfaceGraphics` draw in `beauty`,
+ * `mask` and `graphics` only; every other pass hides them for its duration.
+ *
+ * - `graphics`: {@link applyAutoMovieGraphicsMode}: the surface graphics as beauty
+ *   draws them, every other mesh writing depth only, no backdrop, with the
+ *   scene's fog and image lighting kept.
  *
  * Every pass that swaps a material carries a formation's baked cycle onto the
- * replacement, so a marching crowd marches in `depth`, `normal`, `mask` and
- * `outline` exactly as it does in `beauty`. `pose` is the standing exception:
- * an anonymous member has no bones in the scene for the overlay to draw, which
- * is the same gap it had before the crowd could move at all.
+ * replacement, so a marching crowd marches in `depth`, `normal`, `mask`,
+ * `outline` and `albedo` exactly as it does in `beauty`. `pose` is the standing
+ * exception: an anonymous member has no bones in the scene for the overlay to
+ * draw, which is the same gap it had before the crowd could move at all.
  *
- * An unknown mode is a caller bug and throws.
- * Active or failed scene retirement refuses every mode before setup, including
- * beauty. Failed restoration retains its complete owner callback and cause;
- * nested owned cleanup still runs independently beneath the active boundary.
+ * An unknown mode is a caller bug and throws. Active or failed scene retirement
+ * refuses every mode before setup, including beauty. Failed restoration retains
+ * its complete owner callback and cause; nested owned cleanup still runs
+ * independently beneath the active boundary.
  *
- * Direct embedders can override depthRange and edgeWidth. The bundled __afPass capture path uses the defaults, keeping the camera-space depth normalization consistent while preserving differences caused by camera pose. Depth beyond the default range clamps to black; changing that range requires a direct call.
+ * Direct embedders can override depthRange and edgeWidth. The bundled __afPass
+ * capture path uses the defaults, keeping the camera-space depth normalization
+ * consistent while preserving differences caused by camera pose. Depth beyond
+ * the default range clamps to black; changing that range requires a direct
+ * call.
  */
 export const applyRenderMode: (
   scene: THREE.Scene,
@@ -104,7 +127,9 @@ export const applyRenderMode: (
     depthRange?: number;
 
     /**
-     * Model-space normal extrusion for the outline pass; defaults to {@link EDGE_WIDTH} (0.02). Object/instance scale changes its world thickness; the capture path keeps the default.
+     * Model-space normal extrusion for the outline pass; defaults to
+     * {@link EDGE_WIDTH} (0.02). Object/instance scale changes its world
+     * thickness; the capture path keeps the default.
      */
     edgeWidth?: number;
   },
@@ -143,6 +168,21 @@ export const applyRenderMode: (
         }
         case "pose":
           return (): IAutoMovieRenderModeHandle => applyPoseMode(scene);
+        case "graphics":
+          return (): IAutoMovieRenderModeHandle =>
+            applyAutoMovieGraphicsMode(scene);
+        case "albedo":
+          return (): IAutoMovieRenderModeHandle =>
+            overrideAutoMovieRenderModeMaterials(
+              scene,
+              mode,
+              (
+                original: THREE.Material | THREE.Material[],
+              ): THREE.Material | THREE.Material[] =>
+                Array.isArray(original)
+                  ? original.map(createAutoMovieAlbedoMaterial)
+                  : createAutoMovieAlbedoMaterial(original),
+            );
         default:
           throw new Error(`unknown render mode "${String(mode)}"`);
       }
@@ -153,8 +193,18 @@ export const applyRenderMode: (
   // afterward and stays visible). Restore reverses these three suspensions and
   // the pass builder's own resources and background transition.
   const restoreRenderables: () => void = hideNonMeshRenderables(scene);
-  const restoreFog: () => void = suspendFog(scene);
-  const restoreEnvironment: () => void = suspendEnvironment(scene);
+  // The graphics plate keeps the beauty pass's fog and image lighting and
+  // removes the backdrop itself, so it suspends neither.
+  const restoreFog: () => void =
+    mode === "graphics" ? (): void => {} : suspendFog(scene);
+  const restoreEnvironment: () => void =
+    mode === "graphics" ? (): void => {} : suspendEnvironment(scene);
+  // Surface graphics draw only in beauty and mask: elsewhere the prop's own
+  // surface beneath already draws, and a control channel carries no lettering.
+  const restoreGraphics: () => void =
+    mode === "mask" || mode === "graphics"
+      ? (): void => {}
+      : hideAutoMovieSurfaceGraphics(scene);
   // A builder that throws returns no handle, so the three suspensions above
   // would have no way back and the scene would keep drawing on black with its
   // atmosphere off for the rest of the session. The semantic mask pass is the
@@ -167,7 +217,7 @@ export const applyRenderMode: (
     handle = build();
   } catch (error) {
     restoreAutoMovieRenderModeState(
-      [restoreEnvironment, restoreFog, restoreRenderables],
+      [restoreGraphics, restoreEnvironment, restoreFog, restoreRenderables],
       { error },
     );
   }
@@ -180,6 +230,7 @@ export const applyRenderMode: (
         run: (): void => {
           restoreAutoMovieRenderModeState([
             handle.restore,
+            restoreGraphics,
             restoreEnvironment,
             restoreFog,
             restoreRenderables,
