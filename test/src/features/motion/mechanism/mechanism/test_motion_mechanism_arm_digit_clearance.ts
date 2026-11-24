@@ -1,5 +1,10 @@
 import { createCyclingHelmet } from "@automovie/archetypes";
-import { Quaternion } from "@automovie/engine";
+import {
+  Quaternion,
+  Vector3,
+  physicalShapeBounds,
+  physicalShapeSegmentDistance,
+} from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieVector3,
@@ -10,6 +15,10 @@ import {
   HumanPerformance,
   HumanRefusal,
 } from "@automovie/motions";
+import {
+  AutoMovieMotionHumanAudit,
+  HumanColliders,
+} from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { assertTakeClean } from "../../../internal/assertTakeClean";
@@ -64,21 +73,41 @@ export function test_motion_mechanism_arm_digit_clearance(): void {
         .pickUp({ prop: "box", handle: "hold", hand: "right" }).node,
     });
   const hip: number = body.measure.hipHeight;
+  const beside = take({ x: -0.32, y: hip - 0.1, z: 0.12 });
   assertTakeClean(
     "a helmet beside the hip is taken up with the digits clear",
-    take({ x: -0.32, y: hip - 0.1, z: 0.12 }),
+    beside,
   );
 
+  const pelvis = HumanColliders.placed(body, beside.bones("a", 0)).find(
+    ({ bone }) => bone === "hips",
+  )!;
+  const hipShape = pelvis.shapes[0]!;
+  const bounds = physicalShapeBounds(pelvis.pose, hipShape);
+  const inside: IAutoMovieVector3 = Vector3.lerp(
+    { x: -body.measure.hipHalfWidth, y: hip, z: 0 },
+    Vector3.lerp(bounds.min, bounds.max, 0.5),
+    0.5,
+  );
+  const depth: number = physicalShapeSegmentDistance(
+    pelvis.pose,
+    hipShape,
+    inside,
+    inside,
+  );
+  TestValidator.predicate(
+    `the impossible hold lies inside the posed hip (${(depth * 1000).toFixed(3)} mm signed distance)`,
+    depth < -AutoMovieMotionHumanAudit.LIMITS.tangle,
+  );
   let refusal: unknown;
   try {
-    // The hold itself at the right hip joint, inside the pelvis.
     const hold: IAutoMovieVector3 = createCyclingHelmet({}, 1).affordances.find(
       (a): boolean => a.id === "hold",
     )!.frame.translation;
     take({
-      x: -body.measure.hipHalfWidth - hold.x,
-      y: hip - hold.y,
-      z: -hold.z,
+      x: inside.x - hold.x,
+      y: inside.y - hold.y,
+      z: inside.z - hold.z,
     });
   } catch (error: unknown) {
     refusal = error;
