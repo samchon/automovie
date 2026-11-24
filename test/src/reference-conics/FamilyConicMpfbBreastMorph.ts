@@ -54,7 +54,7 @@ export namespace FamilyConicMpfbBreastMorph {
     source: Pick<HM08.ISource, "body" | "bodyVertexIds">,
     target: string,
   ): IAutoMovieMillimeterMesh {
-    const positions: number[] = [...source.body.positions];
+    const positions: number[] = Array.from(source.body.positions);
     const vertices: Map<number, number> = new Map(
       source.bodyVertexIds.map((id, index): [number, number] => [id, index]),
     );
