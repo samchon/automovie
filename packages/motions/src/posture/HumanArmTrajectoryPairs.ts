@@ -134,7 +134,8 @@ export namespace HumanArmTrajectoryPairs {
    * @param k The waypoint.
    * @param placed The arm placed there.
    * @param cut How far short of its bound a pair may be left unread, millimetres (`CUT` where the reading's users need no more; negative, how little past it, for a reader that refuses only past a slack); every pair in reach is read when absent.
-   * @returns The pairs by part and shape.
+   * @param stopWhen Optional predicate that accepts a single exact depth as a complete refusal witness.
+   * @returns The pairs by part and shape, through the first exact refusal if requested.
    */
   export function deepest(
     c: M.IContext,
@@ -142,6 +143,7 @@ export namespace HumanArmTrajectoryPairs {
     k: number,
     placed: IAutoMovieMotionHumanArmGeometry.IPlaced,
     cut: number = Infinity,
+    stopWhen?: (short: number) => boolean,
   ): Map<number, IPair> {
     const frame: IAutoMovieMotionHumanArmGeometry.IFrame = c.frames[a]![k]!;
     const out: Map<number, IPair> = new Map();
@@ -153,12 +155,12 @@ export namespace HumanArmTrajectoryPairs {
     );
     const gaps: number[] = [];
     let queries: ReturnType<typeof S.prepareGap>[] | undefined;
-    placed.probes.forEach(
-      ([p, r]: readonly [IAutoMovieVector3, number], probe: number): void => {
-        if (probe < G.SURFACE) return;
+    placed.probes.some(
+      ([p, r]: readonly [IAutoMovieVector3, number], probe: number): boolean => {
+        if (probe < G.SURFACE) return false;
 
         // A probe whose segment's screen holds no shape has none near it.
-        if (screened[frame.owners[probe - G.SURFACE]!].length === 0) return;
+        if (screened[frame.owners[probe - G.SURFACE]!].length === 0) return false;
         const part: number = frame.segments[probe - G.SURFACE]!;
         for (const shape of S.nearby(frame, placed, probe, T.REACH, screened, gaps)) {
           const other: number = frame.shapes[shape]!.part;
@@ -184,7 +186,8 @@ export namespace HumanArmTrajectoryPairs {
             1000 * (allowance - (HumanArmShapeBox(frame.shapes[shape]!, p) - r)) <=
               known.short
           )
-            continue;          if (
+            continue;
+          if (
             bound < -cut &&
             !c.rested(a, k, probe, frame.shapes[shape]!.bone)
           ) {
@@ -200,14 +203,17 @@ export namespace HumanArmTrajectoryPairs {
           }
           const short: number =
             1000 * (allowance - (query(p, p) - r));
-          if (known === undefined || short > known.short)
+          if (known === undefined || short > known.short) {
             out.set(key, {
               probe,
               shape,
               short,
               rested: c.rested(a, k, probe, frame.shapes[shape]!.bone),
             });
+            if (stopWhen?.(short)) return true;
+          }
         }
+        return false;
       },
     );
     return out;

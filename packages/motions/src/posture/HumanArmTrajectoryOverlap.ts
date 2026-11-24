@@ -215,7 +215,8 @@ export namespace HumanArmTrajectoryOverlap {
    * @param k The waypoint.
    * @param placed The arm placed there.
    * @param cut How far short of its bound a pair may be left unread, millimetres (`HumanArmTrajectoryPairs.CUT` where the reading's users need no more; negative, how little past it, for a reader that refuses only past a slack); every pair in reach is read when absent.
-   * @returns The pairs by body part and arm shape.
+   * @param stopWhen Optional predicate that accepts a single exact depth as a complete refusal witness.
+   * @returns The pairs by body part and arm shape, through the first exact refusal if requested.
    */
   export function embedded(
     c: M.IContext,
@@ -223,6 +224,7 @@ export namespace HumanArmTrajectoryOverlap {
     k: number,
     placed: IAutoMovieMotionHumanArmGeometry.IPlaced,
     cut: number = Infinity,
+    stopWhen?: (short: number) => boolean,
   ): Map<number, IEmbedded> {
     const frame: IAutoMovieMotionHumanArmGeometry.IFrame = c.frames[a]![k]!;
     const out: Map<number, IEmbedded> = new Map();
@@ -249,7 +251,7 @@ export namespace HumanArmTrajectoryOverlap {
     const visit = (
       corner: IAutoMovieMotionHumanArmGeometry.IFrame["body"][number],
       i: number,
-    ): void => {
+    ): boolean => {
         const close: Record<"upper" | "lower" | "hand", boolean> = {
           upper:
             Vector3.length(Vector3.subtract(corner.point, centres.upper)) -
@@ -264,17 +266,17 @@ export namespace HumanArmTrajectoryOverlap {
               frame.bounds.hand.radius <
             T.REACH,
         };
-        if (!close.upper && !close.lower && !close.hand) return;
-        mine.forEach(
-          (shape: IAutoMovieMotionHumanArmGeometry.IShape, j: number): void => {
-            if (!close[owners[j]!]) return;
+        if (!close.upper && !close.lower && !close.hand) return false;
+        return mine.some(
+          (shape: IAutoMovieMotionHumanArmGeometry.IShape, j: number): boolean => {
+            if (!close[owners[j]!]) return false;
             const apart: number =
               Vector3.length(Vector3.subtract(corner.point, shape.centre)) -
               shape.radius;
-            if (apart >= T.REACH) return;
-            if (frame.related[corner.part]?.[shape.part] === true) return;
+            if (apart >= T.REACH) return false;
+            if (frame.related[corner.part]?.[shape.part] === true) return false;
             // What the hand rests on lies on the hand: the goal's contact.
-            if (owners[j] === "hand" && frame.resting.has(corner.part)) return;
+            if (owners[j] === "hand" && frame.resting.has(corner.part)) return false;
             const key: number = corner.part * mine.length + j;
             const known: IEmbedded | undefined = out.get(key);
             const allowance: number = c.inside(a, k, i, j);
@@ -285,7 +287,7 @@ export namespace HumanArmTrajectoryOverlap {
               known !== undefined &&
               1000 * (allowance - apart) <= known.short
             )
-              return;
+              return false;
             const own: "upperArm" | "lowerArm" | "hand" =
               owners[j] === "upper"
                 ? "upperArm"
@@ -306,7 +308,7 @@ export namespace HumanArmTrajectoryOverlap {
                   short: 1000 * (allowance - apart),
                   rested: false,
                 });
-              return;
+              return false;
             }
             const short: number =
               1000 *
@@ -327,7 +329,9 @@ export namespace HumanArmTrajectoryOverlap {
                 short,
                 rested: c.lying(a, k, own, corner.bone),
               });
+              if (stopWhen?.(short)) return true;
             }
+            return false;
           },
         );
     };
@@ -346,7 +350,7 @@ export namespace HumanArmTrajectoryOverlap {
       )
         continue;
       for (let i: number = cluster.start; i < cluster.end; ++i)
-        visit(frame.body[i]!, i);
+        if (visit(frame.body[i]!, i)) return out;
     }
     return out;
   }

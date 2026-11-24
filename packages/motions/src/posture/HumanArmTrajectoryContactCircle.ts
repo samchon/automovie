@@ -107,6 +107,8 @@ export function HumanArmTrajectoryContactCircle(
   // only pairs whose bounding spheres show them shallower than a refusal,
   // the skin and the tolerance: the candidate's verdict reads no other.
   const refuses: number = -(T.SKIN + M.TOLERANCE);
+  const exceedsClearance = (depth: number): boolean =>
+    depth - T.SKIN > M.TOLERANCE;
   const check = (branch: IBranch, swivel: number): number[] | undefined => {
     const arm: IAutoMovieMotionHumanArmClearance.IArm = G.arm(setup, reference, branch.pose(swivel).upper);
     const q: number[] = M.ranged(c, a, G.encode(setup, { ...arm, lower: [branch.angle, arm.lower[1], arm.lower[2]] }));
@@ -135,12 +137,25 @@ export function HumanArmTrajectoryContactCircle(
       }
     }
 
-    // A pair refuses only past the skin and the tolerance, so a pair whose
-    // bounding sphere shows it short of that is left unread (`refuses`).
-    for (const pair of P.deepest(c, a, k, placed, refuses).values())
-      if (pair.short - T.SKIN > M.TOLERANCE) return undefined;
-    for (const pair of P.embedded(c, a, k, placed, refuses).values())
-      if (pair.short - T.SKIN > M.TOLERANCE) return undefined;
+    // One exact forbidden penetration is sufficient to reject the swivel.
+    for (const pair of P.deepest(
+      c,
+      a,
+      k,
+      placed,
+      refuses,
+      exceedsClearance,
+    ).values())
+      if (exceedsClearance(pair.short)) return undefined;
+    for (const pair of P.embedded(
+      c,
+      a,
+      k,
+      placed,
+      refuses,
+      exceedsClearance,
+    ).values())
+      if (exceedsClearance(pair.short)) return undefined;
     if (start !== undefined && end !== undefined)
       for (const sweep of HumanArmTrajectorySweep.of(c, a, interval, start, end))
         if (1000 * (sweep.lower - sweep.clear) > M.TOLERANCE) return undefined;
