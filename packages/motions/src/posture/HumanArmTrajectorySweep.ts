@@ -14,10 +14,12 @@ import type {
 
 import { HumanArmGeometry as G } from "./HumanArmGeometry";
 import { HumanArmShapes as S } from "./HumanArmShapes";
+import { HumanArmTrajectoryDeepestStep } from "./HumanArmTrajectoryDeepestStep";
 import { HumanArmTrajectoryHalfStep } from "./HumanArmTrajectoryHalfStep";
 import { HumanArmTrajectoryLinks } from "./HumanArmTrajectoryLinks";
 import type { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
 import { HumanArmTrajectoryStray } from "./HumanArmTrajectoryStray";
+import { HumanArmTrajectorySweepBound } from "./HumanArmTrajectorySweepBound";
 import { HumanArmTrajectoryTerms as T } from "./HumanArmTrajectoryTerms";
 import { HumanAuditModel } from "./HumanAuditModel";
 
@@ -160,12 +162,8 @@ export namespace HumanArmTrajectorySweep {
           turns.push(moved.turn);
         }
         const s: IAutoMovieMotionHumanArmGeometry.IShape = frame.shapes[shape]!;
-        const bound: AutoMovieMotionBound.IPrepared | undefined = chords(
-          c,
-          k,
-          frames,
-          course,
-        );
+        const bound: AutoMovieMotionBound.IPrepared | undefined =
+          HumanArmTrajectorySweepBound.chords(c, k, frames, course);
 
         // The last exact reading of this course: its step and its distance.
         let read: number = -1;
@@ -249,16 +247,19 @@ export namespace HumanArmTrajectorySweep {
    * of its solids through every frame of the interval widened by the played
    * course's stray within a frame step (`HumanArmTrajectoryLinks.cast`,
    * `HumanAuditModel.certify`); where that cast does not keep the shape clear,
-   * as one cast per frame step; and only on a step whose cast fails, probe by
-   * probe. A probe's step is its chord, carried into the shape's frame at the
-   * interval's first waypoint, less the played cubic's interpolation error
-   * toward the shape: an eighth of the second difference about each of the
-   * step's frames, along the shape's outward normal at the step's nearest
-   * point. Each step a part passes its allowance on is one sweep, its deepest
-   * probe's, as each of trajopt's subdivided casts is one contact (Schulman et
-   * al. 2014, section IV-C): the merit counts each and the convex model
-   * linearises each at both its frames, so a miss that spans several steps is
-   * moved at every one of them.
+   * as one cast per frame step, a step an earlier step's certified clearance
+   * still covers by conservative advancement (Mirtich 1996: the part's solids'
+   * points have moved less than it since,
+   * `HumanArmTrajectorySweepBound.solids`) left uncast; and only on a step
+   * whose cast fails, probe by probe. A probe's step is its chord, carried into
+   * the shape's frame at the interval's first waypoint, less the played cubic's
+   * interpolation error toward the shape: an eighth of the second difference
+   * about each of the step's frames, along the shape's outward normal at the
+   * step's nearest point. Each step a part passes its allowance on is one
+   * sweep, its deepest probe's, as each of trajopt's subdivided casts is one
+   * contact (Schulman et al. 2014, section IV-C): the merit counts each and the
+   * convex model linearises each at both its frames, so a miss that spans
+   * several steps is moved at every one of them.
    *
    * Every allowance is no more than zero, so a cast certified clear of the
    * shape lets no probe of it pass its allowance anywhere it covers.
@@ -357,28 +358,63 @@ export namespace HumanArmTrajectorySweep {
           rested || link.solids.length === 0
             ? undefined
             : physicalShapeGjk.solid(s.pose, s.shape);
-        const clear = (
+
+        // The cast's certified clearance, metres; negative infinity where
+        // no cast is read.
+        const certified = (
           over: readonly HumanArmTrajectoryLinks.IStep[],
-        ): boolean =>
-          solid !== undefined &&
-          HumanAuditModel.certify(
-            HumanArmTrajectoryLinks.cast(
-              c,
-              a,
-              k,
-              link.part,
-              over,
-              shape,
-              stray,
-            ),
-            link.offset,
-            solid,
-            0,
-          ) > 0;
-        if (frames.length > 2 && clear(all())) continue;
+        ): number =>
+          solid === undefined
+            ? -Infinity
+            : HumanAuditModel.certify(
+                HumanArmTrajectoryLinks.cast(
+                  c,
+                  a,
+                  k,
+                  link.part,
+                  over,
+                  shape,
+                  stray,
+                ),
+                link.offset,
+                solid,
+                0,
+              );
+        if (frames.length > 2 && certified(all()) > 0) continue;
+
+        // Conservative advancement over the steps (Mirtich 1996, ch. 3): a
+        // step's cast is the hull of the part's solids' points at its two
+        // frames, each within the points' travel since the last certified
+        // step of that step's, and a hull's distance to a convex shape
+        // changes no more than its points move, so a step that clearance
+        // still covers is clear and its cast is not read.
+        const bound: AutoMovieMotionBound.IPrepared | undefined =
+          solid === undefined || frames.length <= 2
+            ? undefined
+            : HumanArmTrajectorySweepBound.solids(
+                c,
+                a,
+                k,
+                link.part,
+                all(),
+                shape,
+              );
+        let anchor: number = -1;
+        let margin: number = 0;
         for (let i: number = 0; i + 1 < frames.length; ++i) {
-          if (clear([step(i), step(i + 1)])) continue;
-          const sweep: ISwept | undefined = deepestStep(
+          if (
+            bound !== undefined &&
+            anchor >= 0 &&
+            margin > bound.travel(bound.times[anchor]!, bound.times[i + 1]!)
+          )
+            continue;
+          const clearance: number = certified([step(i), step(i + 1)]);
+          if (clearance > 0) {
+            anchor = i;
+            margin = clearance;
+            continue;
+          }
+          const sweep: ISwept | undefined = HumanArmTrajectoryDeepestStep(
             c,
             a,
             k,
@@ -395,123 +431,4 @@ export namespace HumanArmTrajectorySweep {
     }
     return out;
   }
-}
-
-/**
- * The bound on a probe's course over an interval, prepared once
- * (`AutoMovieMotionBound.prepare`): its chord lengths per frame step over the
- * steps' seconds from the interval's first waypoint, the chords being the
- * course `HumanArmTrajectorySweep.of` reads. None where two frames share an
- * instant or the course has no step.
- */
-function chords(
-  c: M.IContext,
-  k: number,
-  frames: readonly number[],
-  course: readonly IAutoMovieVector3[],
-): AutoMovieMotionBound.IPrepared | undefined {
-  const along: number[] = frames.map((g: number): number =>
-    Math.abs(c.times[g]! - c.times[k]!),
-  );
-  const speeds: number[] = [];
-  for (let i: number = 0; i + 1 < along.length; ++i) {
-    const h: number = along[i + 1]! - along[i]!;
-    if (!(h > 0)) return undefined;
-    speeds.push(Vector3.distance(course[i]!, course[i + 1]!) / h);
-  }
-  return speeds.length === 0
-    ? undefined
-    : AutoMovieMotionBound.prepare(along, speeds);
-}
-
-/**
- * A part's deepest probe past its allowance over one frame step, as a sweep
- * (`HumanArmTrajectorySweep.links`); none where no probe passes it. Each
- * probe's chord is bounded first by the shape's bounding sphere less the
- * course's stray in any direction, and read exactly only where that bound could
- * pass its allowance and the deepest so far (branch and bound).
- */
-function deepestStep(
-  c: M.IContext,
-  a: number,
-  k: number,
-  placed: readonly IAutoMovieMotionHumanArmGeometry.IPlaced[],
-  link: HumanArmTrajectoryLinks.ILink,
-  shape: number,
-  g0: number,
-  g1: number,
-  stray: number,
-): HumanArmTrajectorySweep.ISwept | undefined {
-  const s: IAutoMovieMotionHumanArmGeometry.IShape =
-    c.frames[a]![k]!.shapes[shape]!;
-  const carried = (
-    g: number,
-    probe: number,
-  ): ReturnType<typeof HumanArmTrajectoryHalfStep.carry> =>
-    HumanArmTrajectoryHalfStep.carry(
-      c,
-      a,
-      k,
-      g,
-      shape,
-      HumanArmTrajectoryHalfStep.point(c.frames[a]![g]!, placed[g]!, probe),
-    );
-  let best: HumanArmTrajectorySweep.ISwept | undefined;
-  let deepest: number = 0;
-  for (const probe of link.probes) {
-    const r: number = placed[k]!.probes[probe]![1];
-    const lower: number = Math.min(
-      c.allowed(a, g0, probe, shape),
-      c.allowed(a, g1, probe, shape),
-    );
-    const start: ReturnType<typeof HumanArmTrajectoryHalfStep.carry> = carried(
-      g0,
-      probe,
-    );
-    const end: ReturnType<typeof HumanArmTrajectoryHalfStep.carry> = carried(
-      g1,
-      probe,
-    );
-
-    // The chord's least distance the bounding sphere allows, less the
-    // course's stray in any direction: a probe it shows within its
-    // allowance, or no deeper than the deepest so far, is not read exactly.
-    const bound: number =
-      HumanArmTrajectoryHalfStep.sphere(s, start.point, end.point) - r - stray;
-    if (bound >= lower || lower - bound <= deepest) continue;
-    const reading: IAutoMoviePhysicalShapeNearest.IResult =
-      physicalShapeNearest(s.pose, s.shape, start.point, end.point);
-
-    // Within the step the played cubic stands off its chord by an eighth of
-    // the second difference about its frames; its share along the shape's
-    // outward normal at the nearest point is how much nearer the shape the
-    // course comes than the chord (`h^2 p'' / 8`). A frame at the course's
-    // end has no second difference: the course stops there.
-    const bend = (g: number, at: IAutoMovieVector3): number => {
-      if (g < 1 || g + 1 >= c.n) return 0;
-      const second: IAutoMovieVector3 = Vector3.subtract(
-        Vector3.add(carried(g - 1, probe).point, carried(g + 1, probe).point),
-        Vector3.scale(at, 2),
-      );
-      return Math.max(0, Vector3.dot(reading.normal, second) / 8);
-    };
-    const toward: number = Math.max(bend(g0, start.point), bend(g1, end.point));
-    const clear: number = reading.distance - toward - r;
-    if (clear >= lower || lower - clear <= deepest) continue;
-    deepest = lower - clear;
-    best = {
-      probe,
-      shape,
-      from: g0,
-      start: start.point,
-      first: start.turn,
-      other: g1,
-      to: end.point,
-      turn: end.turn,
-      clear,
-      lower,
-      near: reading,
-    };
-  }
-  return best;
 }

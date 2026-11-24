@@ -24,7 +24,7 @@ States what is read, through which frames, what is left out and the order.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-A sphere's course through every frame of the interval, each step a capsule, read relative to the shape's own motion as continuous collision detection against a moving obstacle is; each step within the active set is its own sweep with its own signed distance less the radius (`physicalShapeNearest`), as trajopt subdivides a long interval into several casts, each its own contact, so the convex model moves every step of a miss at once. A step a previous exact reading of the same course still keeps clear is certified by conservative advancement (Mirtich 1996, PhD thesis, ch. 3): each end of its chord lies within the course's chord travel since that reading of the reading's chord ends, prepared once per course by `AutoMovieMotionBound.prepare` and read by its `travel`, and a segment's signed distance to a convex shape changes no more than its ends move.
+A sphere's course through every frame of the interval, each step a capsule, read relative to the shape's own motion as continuous collision detection against a moving obstacle is; each step within the active set is its own sweep with its own signed distance less the radius (`physicalShapeNearest`), as trajopt subdivides a long interval into several casts, each its own contact, so the convex model moves every step of a miss at once. A step a previous exact reading of the same course still keeps clear is certified by conservative advancement (Mirtich 1996, PhD thesis, ch. 3): each end of its chord lies within the course's chord travel since that reading of the reading's chord ends, prepared once per course by `HumanArmTrajectorySweepBound.chords` and read by its `travel`, and a segment's signed distance to a convex shape changes no more than its ends move.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
@@ -54,11 +54,11 @@ States what is read, in which order the certificates come, what a sweep records 
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-Trajopt's link-pair cast (Schulman et al. 2014, section IV-C): each audit part's solids cast over the whole interval through every frame, carried into the shape's frame and widened by the played course's stray (`HumanArmTrajectoryLinks.cast`), certify the pair clear of every allowance by one GJK lower bound (`HumanAuditModel.certify`), since two convex solids' distance bounds every probe depth between them and every allowance is no more than zero. Where it does not, each frame step is cast alone, the subdivision trajopt makes of an interval past its longest valid segment, and only a step whose cast fails reads its probes' chords less the cubic's interpolation error toward the shape (an eighth of the second difference about the step's frames, along the shape's outward normal at the nearest point). Each failing step is its own contact, its deepest probe's, so the convex model moves every step of a miss at both its frames.
+Trajopt's link-pair cast (Schulman et al. 2014, section IV-C): each audit part's solids cast over the whole interval through every frame, carried into the shape's frame and widened by the played course's stray (`HumanArmTrajectoryLinks.cast`), certify the pair clear of every allowance by one GJK lower bound (`HumanAuditModel.certify`), since two convex solids' distance bounds every probe depth between them and every allowance is no more than zero. Where it does not, each frame step is cast alone, the subdivision trajopt makes of an interval past its longest valid segment, and only a step whose cast fails reads its probes' chords less the cubic's interpolation error toward the shape (an eighth of the second difference about the step's frames, along the shape's outward normal at the nearest point). Each failing step is its own contact, its deepest probe's, so the convex model moves every step of a miss at both its frames. A step after one whose cast certified a clearance is itself certified clear while the part's solids' points have moved less than that clearance since (conservative advancement, Mirtich 1996, PhD thesis, ch. 3): its cast is the hull of the same points at its own two frames, and a hull's distance to a convex shape changes no more than its points move; the points' travel is prepared once per part and shape (`HumanArmTrajectorySweepBound.solids`).
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-Part by part, shape by shape: the screen, the interval's cast, each step's cast, then the step's probes under branch and bound (`deepestStep`).
+Part by part, shape by shape: the screen, the interval's cast, each step's cast, then the step's probes under branch and bound (`HumanArmTrajectoryDeepestStep`); the conservative-advancement bound is `HumanArmTrajectorySweepBound`'s.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
@@ -66,7 +66,7 @@ A declared rest touches its shape by design, so it is never certified and its pr
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
-Plan-time cost class, once per read interval of an iterate: one GJK per part and shape left by the screen, one per frame step only where the interval's cast fails, and probes read exactly only on the steps whose cast fails. The frames' solids are made once per interval on the first cast that reads them. Nothing is read per displayed frame.
+Plan-time cost class, once per read interval of an iterate: one GJK per part and shape left by the screen, one per frame step only where the interval's cast fails and no earlier step's clearance still covers the step (an O(log n) read of the bound prepared once per part and shape in O(n p) carries for n frames and p solid points), and probes read exactly only on the steps whose cast fails. The frames' solids are made once per interval on the first cast that reads them. Nothing is read per displayed frame.
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 
