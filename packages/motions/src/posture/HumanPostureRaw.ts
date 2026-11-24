@@ -5,66 +5,53 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanFields } from "./HumanFields";
-
 /**
  * Raw translation and the original observable serialization/admission policy.
  * These operations establish no solved-pose or mutable-body capability.
  */
 export namespace HumanPostureRaw {
-  /** Retain the original finite joint/free-world-leg admission observation. */
+  /**
+   * Whether the posture lies in the raw proof domain: no digit goals, finite
+   * root and angles, finite joint triples, only free leg goals and an optional
+   * finite rigid rotation.
+   */
   export function eligible(posture: IAutoMovieMotionHumanPosture): boolean {
-    {
-      if (
-        Object.keys(posture).some(
-          (key: string): boolean => !POSTURE_KEYS.has(key),
-        ) ||
-        !vector(posture.root) ||
-        ![posture.yaw, posture.pitch, posture.roll].every(Number.isFinite)
-      )
+    if (
+      posture.digits !== undefined ||
+      !vector(posture.root) ||
+      ![posture.yaw, posture.pitch, posture.roll].every(Number.isFinite)
+    )
+      return false;
+    for (const joint of Object.values(posture.joints))
+      if (joint === undefined || !joint.every(Number.isFinite)) return false;
+    for (const [limb, goal] of Object.entries(posture.limbs)) {
+      if ((limb !== "leftLeg" && limb !== "rightLeg") || goal === undefined)
         return false;
-      for (const joint of Object.values(posture.joints))
-        if (
-          joint === undefined ||
-          joint.length !== 3 ||
-          !joint.every(Number.isFinite)
-        )
-          return false;
-      for (const [limb, goal] of Object.entries(posture.limbs)) {
-        if ((limb !== "leftLeg" && limb !== "rightLeg") || goal === undefined)
-          return false;
-        if (
-          !goalFields(goal) ||
-          !vector(goal.point) ||
-          !vector(goal.bend) ||
-          (goal.rotation !== undefined &&
-            ![
-              goal.rotation.x,
-              goal.rotation.y,
-              goal.rotation.z,
-              goal.rotation.w,
-            ].every(Number.isFinite))
-        )
-          return false;
-      }
       if (
-        posture.rotation !== undefined &&
-        (!vector(posture.rotation.about) ||
+        !free(goal) ||
+        !vector(goal.point) ||
+        !vector(goal.bend) ||
+        (goal.rotation !== undefined &&
           ![
-            posture.rotation.turn.x,
-            posture.rotation.turn.y,
-            posture.rotation.turn.z,
-            posture.rotation.turn.w,
-          ].every(Number.isFinite) ||
-          Object.keys(posture.rotation).some(
-            (key: string): boolean => key !== "about" && key !== "turn",
-          ))
+            goal.rotation.x,
+            goal.rotation.y,
+            goal.rotation.z,
+            goal.rotation.w,
+          ].every(Number.isFinite))
       )
         return false;
-      return true;
     }
+    return (
+      posture.rotation === undefined ||
+      (vector(posture.rotation.about) &&
+        [
+          posture.rotation.turn.x,
+          posture.rotation.turn.y,
+          posture.rotation.turn.z,
+          posture.rotation.turn.w,
+        ].every(Number.isFinite))
+    );
   }
-
   /** Observe the existing complete JSON walk, distinguishing signed zero. */
   export function signature(
     posture: IAutoMovieMotionHumanPosture,
@@ -109,75 +96,24 @@ export namespace HumanPostureRaw {
     );
   }
 
-  /** Keep the original point/bend/rotation-only enumerable goal-key domain. */
-  export function goalFields(goal: IAutoMovieHumanLimbGoal): boolean {
-    return !Object.keys(goal).some(
-      (key: string): boolean => !GOAL_KEYS.has(key),
+  /**
+   * Whether the goal is free: it sets none of the declared contact, plant,
+   * reference or collider contexts, which require ordinary solving.
+   */
+  export function free(goal: IAutoMovieHumanLimbGoal): boolean {
+    return (
+      goal.elbow === undefined &&
+      goal.planted === undefined &&
+      goal.contact === undefined &&
+      goal.limits === undefined &&
+      goal.on === undefined &&
+      goal.reference === undefined &&
+      goal.seed === undefined &&
+      goal.clear === undefined &&
+      goal.clearExternal === undefined &&
+      goal.rests === undefined &&
+      goal.restsOwn === undefined &&
+      goal.clearanceOn === undefined
     );
   }
 }
-
-/** The posture fields inside the raw proof domain. */
-const POSTURE_FIELDS = [
-  "root",
-  "yaw",
-  "pitch",
-  "roll",
-  "joints",
-  "limbs",
-  "rotation",
-] as const satisfies ReadonlyArray<keyof IAutoMovieMotionHumanPosture>;
-
-/** The posture fields that carry context outside it. */
-const POSTURE_CONTEXT = ["digits"] as const satisfies ReadonlyArray<
-  keyof IAutoMovieMotionHumanPosture
->;
-
-/** The posture fields neither list classifies: never while both are complete. */
-type IUnlistedPostureField = HumanFields.Unlisted<
-  IAutoMovieMotionHumanPosture,
-  (typeof POSTURE_FIELDS)[number],
-  (typeof POSTURE_CONTEXT)[number]
->;
-
-/** Other top-level fields carry context outside this raw proof domain. */
-const POSTURE_KEYS: ReadonlySet<string> = HumanFields.admitted<
-  IAutoMovieMotionHumanPosture,
-  IUnlistedPostureField
->(POSTURE_FIELDS);
-
-/** The goal fields inside the raw proof domain. */
-const GOAL_FIELDS = [
-  "point",
-  "bend",
-  "rotation",
-] as const satisfies ReadonlyArray<keyof IAutoMovieHumanLimbGoal>;
-
-/** Contact/plant/reference/external contexts require ordinary solving. */
-const GOAL_CONTEXT = [
-  "elbow",
-  "planted",
-  "contact",
-  "limits",
-  "on",
-  "reference",
-  "seed",
-  "clear",
-  "clearExternal",
-  "rests",
-  "restsOwn",
-  "clearanceOn",
-] as const satisfies ReadonlyArray<keyof IAutoMovieHumanLimbGoal>;
-
-/** The goal fields neither list classifies: never while both are complete. */
-type IUnlistedGoalField = HumanFields.Unlisted<
-  IAutoMovieHumanLimbGoal,
-  (typeof GOAL_FIELDS)[number],
-  (typeof GOAL_CONTEXT)[number]
->;
-
-/** The goal fields the raw domain admits. */
-const GOAL_KEYS: ReadonlySet<string> = HumanFields.admitted<
-  IAutoMovieHumanLimbGoal,
-  IUnlistedGoalField
->(GOAL_FIELDS);
