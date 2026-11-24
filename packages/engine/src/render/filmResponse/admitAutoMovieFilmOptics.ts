@@ -29,33 +29,29 @@ export function admitAutoMovieFilmOptics(
       `Film optics at ${seconds} s: ${field} must be ${rule}, got ${String(value)}`,
     );
   };
-  if (typeof optics !== "object" || optics === null)
-    refuse("optics", "an object", optics);
-  if (!finite(optics.ev100)) refuse("ev100", "finite", optics.ev100);
+  if (!Number.isFinite(optics.ev100)) refuse("ev100", "finite", optics.ev100);
   if (optics.toneMapping !== "none" && optics.toneMapping !== "acesFilmic")
     refuse("toneMapping", `"none" or "acesFilmic"`, optics.toneMapping);
   if (
     optics.whiteBalance !== undefined &&
     !(
-      finite(optics.whiteBalance) &&
+      Number.isFinite(optics.whiteBalance) &&
       optics.whiteBalance >= 1667 &&
       optics.whiteBalance <= 25000
     )
   )
     refuse("whiteBalance", "within [1667, 25000] K", optics.whiteBalance);
   if (optics.glare !== undefined) {
-    const strength: unknown = optics.glare?.strength;
-    if (!(finite(strength) && strength >= 0 && strength <= 0.2))
+    const strength: number = optics.glare.strength;
+    if (!(Number.isFinite(strength) && strength >= 0 && strength <= 0.2))
       refuse("glare.strength", "within [0, 0.2]", strength);
   }
   if (optics.grade !== undefined) {
     const grade: IAutoMovieFilmOptics.IGrade = optics.grade;
     for (const name of ["slope", "offset", "power"] as const) {
-      const channels: unknown = grade?.[name];
-      if (!Array.isArray(channels) || channels.length !== 3)
-        refuse(`grade.${name}`, "three channels", channels);
-      channels.forEach((value: unknown, index: number): void => {
-        if (!finite(value) || (name === "power" && value <= 0))
+      const channels: [number, number, number] = grade[name];
+      channels.forEach((value: number, index: number): void => {
+        if (!Number.isFinite(value) || (name === "power" && value <= 0))
           refuse(
             `grade.${name}[${index}]`,
             name === "power" ? "finite and above zero" : "finite",
@@ -63,7 +59,7 @@ export function admitAutoMovieFilmOptics(
           );
       });
     }
-    if (!finite(grade.saturation))
+    if (!Number.isFinite(grade.saturation))
       refuse("grade.saturation", "finite", grade.saturation);
   }
 
@@ -82,19 +78,14 @@ export function admitAutoMovieFilmOptics(
       refuse("samples", "a safe integer of at least 2", optics.samples);
   }
   if (optics.shutter !== undefined) {
-    const angle: unknown = optics.shutter?.angle;
-    if (!(finite(angle) && angle > 0 && angle <= 360))
+    const angle: number = optics.shutter.angle;
+    if (!(Number.isFinite(angle) && angle > 0 && angle <= 360))
       refuse("shutter.angle", "within (0, 360] degrees", angle);
   }
   if (optics.lens !== undefined)
     for (const name of ["fNumber", "focusDistance"] as const) {
-      const value: unknown = optics.lens?.[name];
-      if (!(finite(value) && value > 0))
+      const value: number = optics.lens[name];
+      if (!(Number.isFinite(value) && value > 0))
         refuse(`lens.${name}`, "finite and above zero", value);
     }
-}
-
-/** Whether a value is a finite number. */
-function finite(value: unknown): value is number {
-  return typeof value === "number" && Number.isFinite(value);
 }
