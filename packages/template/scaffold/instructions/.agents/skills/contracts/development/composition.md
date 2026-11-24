@@ -20,7 +20,7 @@ Does each scene realize every cited beat as written, does each catalog case exhi
 
 ### Scene
 
-Open the scene comment with its screenplay citation, action and relevant staging choices. Bind staged instances to the subjects in the standing state. Follow the same instances through movement, handovers, cuts and time out of view. Realize changes in camera. Where the film declares a sound list, carry the beat's spoken lines and sound cues into it. For commissioned generation, carry reactions beyond the representation in the prompt.
+Open the scene comment with its screenplay citation, action and relevant staging choices. Bind staged instances to the subjects in the standing state. Follow the same instances through movement, handovers, cuts and time out of view. Realize changes in camera. The film's [sound list](films.md#sound-list) carries the beat's lines and cues. For commissioned generation, carry reactions beyond the representation in the prompt.
 
 If staging a passage requires inventing an exchange, response or pause, return that decision to its [written owner](../../story/correction/repair.md#concretization). Changes to a fixed screenplay go to the user.
 
@@ -56,7 +56,7 @@ sync(rush.start, maraBackStep.start);
 
 Does the declaration compose only accepted module capabilities using installed operators and the screenplay's decisions?
 
-Resolve the film once from one seed. Place absolute time only at screenplay anchors. Compose the [production entity's capabilities](entities.md#settings-realization), interactions and consequences with installed operators. Their capability owners handle calculations, constants, coordinates, direct law imports, URL parameters, archive loads and runtime selections.
+The catalog film resolves once from one seed. Place absolute time only at screenplay anchors. Compose the [production entity's capabilities](entities.md#settings-realization), interactions and consequences with installed operators. Their capability owners handle calculations, constants, coordinates, direct law imports, URL parameters, archive loads and runtime selections.
 
 Cast and crowds perform through the vocabulary. [Retarget](../../motion/retargeting.md) a supplied or user-chosen clip to its performer. Fix package [refusals](../../motion/compose/refusals.md) at the named axis.
 

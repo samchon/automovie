@@ -18,7 +18,7 @@ The object shell over a functional core is the production's own style; installed
 
 ## Shots and films
 
-<!-- @source `prepareAutoMovieFlames` and `prepareAutoMovieSurfaceGraphics` in `@automovie/render`, and `IFilmProduction` in `src/IFilmProduction.ts`. -->
+<!-- @source `defineShot` and `compileDefinedShot` in `@automovie/engine`, `IAutoMovieEngineShotRuntime`'s `frameFormat` in `@automovie/interface`, `prepareAutoMovieFlames` and `prepareAutoMovieSurfaceGraphics` in `@automovie/render`, and `IFilmProduction` in `src/IFilmProduction.ts`. -->
 
 Supply the place's prepared stage to the shot's `defineShot` builder and the prepared runtime records to `compileDefinedShot`. Give the runtime's `frameFormat` the film's `fps`, `width` and `height`, because without `fps` moving camera paths are keyed at 24 frames per second.
 

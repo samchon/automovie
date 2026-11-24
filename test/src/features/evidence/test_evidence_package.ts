@@ -14,19 +14,36 @@ import { ProductionWorkflowFixture } from "../internal/ProductionWorkflowFixture
 import { repositoryRoot } from "../internal/repositoryRoot";
 
 /**
- * The package's one-object factory keeps coding ordinary and narrative explicit.
+ * The package's one-object factory keeps coding ordinary and narrative
+ * explicit.
  *
  * Scenarios:
- * 1. Actual default source/test claims reject missing answers and accept complete answers beside unfinished narrative; a type answering implementation items instead of design fails.
+ *
+ * 1. Actual default source/test claims reject missing answers and accept complete
+ *    answers beside unfinished narrative; a type answering implementation items
+ *    instead of design fails.
  * 2. A reviewed short evaluates its native graph through the public configuration.
  * 3. An additional ordinary native claim exposes its missing answer.
  * 4. Default claim objects remain independent across calls.
- * 5. An omitted outline stage follows activated settings and rejects an unanswered outline principle.
- * 6. Settings closed and returned to disabled while treatments runs keeps its discovery claim active, so its recorded findings in the shared discovery record still resolve and the graph passes.
- * 7. Enabled research and behavior stages require each study's detached answers and each law's answers: a law missing one behaviors answer fails, and the complete law passes with its study named in prose and no study tag.
- * 8. An enabled composition stage over a film folder of scene files requires every section and beat realized and every scene file ordered: a scene citing one of two beats fails, citing its whole scene file covers both, a film ordering one of two scene files fails until it orders both, and a film answering the composition checklist instead of the films checklist fails.
- * 9. Narrative mode none adds no instruction relation without instructions or without composition, and otherwise requires every instruction section realized: one realized section of two fails, excluding the other fails, and a film realizing it passes.
- * 10. Film composition reports all three missing catalog inputs together. A catalog case cannot supply a beat missing from the production scene.
+ * 5. An omitted outline stage follows activated settings and rejects an unanswered
+ *    outline principle.
+ * 6. Settings closed and returned to disabled while treatments runs keeps its
+ *    discovery claim active, so its recorded findings in the shared discovery
+ *    record still resolve and the graph passes.
+ * 7. Enabled research and behavior stages require each study's detached answers
+ *    and each law's answers: a law missing one behaviors answer fails, and the
+ *    complete law passes with its study named in prose and no study tag.
+ * 8. An enabled composition stage over a film folder of scene files requires every
+ *    section and beat realized and every scene file ordered: a scene citing one
+ *    of two beats fails, citing its whole scene file covers both, a film
+ *    ordering one of two scene files fails until it orders both, and a film
+ *    answering the composition checklist instead of the films checklist fails.
+ * 9. Narrative mode none adds no instruction relation without instructions or
+ *    without composition, and otherwise requires every instruction section
+ *    realized: one realized section of two fails, excluding the other fails,
+ *    and a film realizing it passes.
+ * 10. Film composition reports all three missing catalog inputs together. A catalog
+ *     case cannot supply a beat missing from the production scene.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Evaluates the public configuration's real source/test and narrative claims through native Evidence, preserving engineering selection, additional claim coverage, outline stage inheritance, discovery after a closed layer turns disabled and the scene-file composition relations.
  * @evidence contracts/development/testing.md#independent-expectations Explicitly authored answers satisfy the shipped common, design, implementation and testing checklists for one interface, one function and one test; an unrelated unfinished story creates no engineering obligation. Established one-scene fixtures supply reviewed content; removing the outline principle answer must fail when its omitted stage inherits active settings, just as an added unanswered work question must block a ready short pass. The route contract supplies the closed-layer expectation: a layer the user disabled after it closed must not break the layers still running, so its findings in the shared discovery record must still resolve. The layout contract supplies the composition expectations: each scene file maps to one scene composition and the film orders every scene file of its folder.
@@ -465,7 +482,7 @@ export async function test_evidence_package(): Promise<void> {
         `export function ${name}(): string { return "${name}"; }`,
       ].join("\n");
     // A screenplay film answers the films checklist, not composition.
-    const play = (citation: string): string =>
+    const play: (citation: string) => string = (citation: string): string =>
       [
         "/** Plays the bout.",
         ...implementation,

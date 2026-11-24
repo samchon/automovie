@@ -89,7 +89,7 @@ export default createEvidenceConfig({
 | `research` | Each study in `docs/research/` | `contracts/story/principles/research.md` |
 | `development.entities` | Exports under `src/entities/` | `contracts/development/entities.md` |
 | `development.behaviors` | Exports under `src/laws/`, `src/interactions/` and `src/consequences/` | `contracts/development/behaviors.md` |
-| `development.composition` | Exports under `src/composition/` | `contracts/development/composition.md`, or `films.md` for films, citing the screenplay scene files, sections and beats they realize |
+| `development.composition` | Exports under `src/composition/` | `contracts/development/composition.md`, or `films.md` for screenplay films, citing the screenplay scene files, sections and beats they realize |
 
 When entities or composition are submitted, entity types cite the subject files in `cast/`, `crowds/`, `props/` and `sets/` under a short's `docs/body/brief/` or a long work's `docs/body/settings/`. For example, `@evidence docs/body/brief/props/ball.md The ball uses the brief's red panels.`
 
