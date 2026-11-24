@@ -20,6 +20,7 @@ import type {
 import { AutoMovieConstructionPortBand } from "./AutoMovieConstructionPortBand";
 import { AutoMovieConstructionPortCurve } from "./AutoMovieConstructionPortCurve";
 import { AutoMovieConstructionPortField as PortField } from "./AutoMovieConstructionPortField";
+import { AutoMovieConstructionPortMeridian } from "./AutoMovieConstructionPortMeridian";
 import { AutoMovieConstructionSplitBand } from "./AutoMovieConstructionSplitBand";
 import { AutoMovieConstructionState } from "./AutoMovieConstructionState";
 import { AutoMovieConstructionViews } from "./AutoMovieConstructionViews";
@@ -229,7 +230,7 @@ export function AutoMovieConstructionPortRealize(
             exact.surface,
           );
     if (typeof shaped === "string") return fail(`band ${node.band}: ${shaped}`);
-    const surface: IAutoMovieSolidSurface =
+    const unguided: IAutoMovieSolidSurface =
       shaped === null
         ? exact.surface
         : AutoMovieConstructionPortBand.carried(
@@ -237,6 +238,13 @@ export function AutoMovieConstructionPortRealize(
             shaped.surface,
             band.surface,
           );
+    // Resolve the guide's section within a micron in the original world chart.
+    const surface: IAutoMovieSolidSurface | string =
+      node.meridian === undefined
+        ? unguided
+        : AutoMovieConstructionPortMeridian(unguided, node.meridian, S, 0.001);
+    if (typeof surface === "string")
+      return fail(`band ${node.band}: ${surface}`);
     const published: IAutoMovieLoftChain =
       shaped === null ? band.chain : shaped.chain;
 

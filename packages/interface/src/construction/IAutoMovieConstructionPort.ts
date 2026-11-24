@@ -65,6 +65,9 @@ export interface IAutoMovieConstructionPort {
    */
   ribbons?: "common" | "column";
 
+  /** Interpolate one measured point of a cross meridian without changing the boundary jets. */
+  meridian?: IAutoMovieConstructionPort.IMeridian;
+
   /**
    * Cross profiles of the band: over windows of its loop clock, the band is carried in along its own normal by a depth that is a function of
    * its cross share, so it can leave the host into a hollow and come up again onto the part, as a profile blend's interior cross sections
@@ -77,4 +80,18 @@ export interface IAutoMovieConstructionPort {
 
   /** Grid stations of the band face across its span, at least 1. */
   rows: number;
+}
+
+export namespace IAutoMovieConstructionPort {
+  /** A clock and two independent world coordinates of its cross-meridian guide. */
+  export interface IMeridian {
+    /** Angle in radians on the port's own loop. */
+    clock: number;
+
+    /** One world coordinate, in metres, that locates the guide on the original meridian. */
+    section: { axis: 0 | 1 | 2; value: number };
+
+    /** The guide's required value, in metres, in an independent world direction. */
+    through: { axis: 0 | 1 | 2; value: number };
+  }
 }

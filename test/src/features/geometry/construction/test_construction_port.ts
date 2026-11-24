@@ -32,12 +32,14 @@ type V3 = [number, number, number];
  * 13. Correspondence admission: a correspondence of `chord` is refused.
  * 14. Ribbons per column: with the part's axis 4 mm off the loop's centre (z = -54 mm), the columns at clock 0 hug their chords; with one common scale (red) the opposite column, clock pi, is held under 0.2 of the chord law as well, and per column (`ribbons: "column"`) it takes at least 0.95 while the hard columns keep at most 1.5 times the common scale, no column turns back along its own chord by more than 0.01 mm at 41 samples, and every loop column keeps the host's cross direction and curvature within 1e-9.
  * 15. Ribbons admission: ribbons of `band` are refused.
+ * 16. A world guide changes the inner cross meridian, preserving both boundary 2-jets and the opposite half turn.
+ * 17. A guide outside the cross meridian rolls back the complete port, and dependent axes fail admission.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Realizes port trees with `realizeAutoMovieConstruction` and reads the band's, host's and part's surfaces, the published body's cycles and the skin. It catches a band off the port curve or the rail, a band whose cross jets are not the host's, a hole not shared with the band, an open skin and a refusal that leaves a partial cut.
  * @evidence contracts/development/testing.md#independent-expectations Port points from the cylinder's closed form on the declared chart ellipse; cross jets read on the host's realized surface along the ellipse's inward chart direction (the node contract); rail points on the part's knot circle, exact for ConstructionShapes; watertightness from the manifold edge rule.
  * @evidence contracts/development/testing.md#distinguishing-cases A positive port, a rail outside the part as the rollback case, a shifted curve as the red reading, a shaped loop read against both its own curve and the plain ellipse, one ring matched by angle (refused) and by length (realized), and one off-centre part with one common ribbon scale (red) and a scale per column; the strip's scale law belongs to `test_construction_strip_law`, the split to `test_construction_split`.
  * @evidence contracts/development/testing.md#execution-ownership A discoverable synchronous CPU unit reached by `--include construction_port`; it realizes made trees in process and starts no host, browser or GPU.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 15 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: No diagnostic; the faces are exactly the host, the part and the band; the host carries one hole cycle.).
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 17 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: No diagnostic; the faces are exactly the host, the part and the band; the host carries one hole cycle.).
  */
 export function test_construction_port(): void {
   const failures: string[] = [];
@@ -719,6 +721,45 @@ export function test_construction_port(): void {
     ribbonsRefused = true;
   }
   if (!ribbonsRefused) failures.push("ribbons of band were admitted");
+
+  const unguided = band.jet(L / 2, 0).p;
+  const meridian: IAutoMovieConstructionPort.IMeridian = {
+    clock: 0,
+    section: { axis: 0, value: unguided[0] / 1000 },
+    through: { axis: 2, value: (unguided[2] + 0.4) / 1000 },
+  };
+  const guided = realize({ ...port(0.02), meridian });
+  if (guided.diagnostics.length !== 0)
+    failures.push(`meridian: ${ConstructionRead.diagnostics(guided)}`);
+  else {
+    const source = ConstructionRead.surface(guided, "band.port");
+    const guide = source.jet(L / 2, 0).p;
+    if (guide[0] !== unguided[0] || Math.abs(guide[2] - unguided[2] - 0.4) > 0.001)
+      failures.push(`meridian: the prescribed world guide was missed: ${guide}`);
+    for (const [u, v] of [[0, 0], [0, 0.7], [L, 0], [L, 0.7], [L / 2, Math.PI]]) {
+      const before = band.jet(u!, v!);
+      const after = source.jet(u!, v!);
+      for (const key of ["p", "u", "v", "uu", "uv", "vv"] as const)
+        if (before[key].some((x, i) => x !== after[key][i]))
+          failures.push(`meridian: changed the ${key} jet at [${u},${v}]`);
+    }
+  }
+
+  const noBracket = realize({
+    ...port(0.02),
+    meridian: { ...meridian, section: { axis: 0, value: 1 } },
+  });
+  if (
+    !ConstructionRead.diagnostics(noBracket).includes("does not bracket its guide") ||
+    noBracket.body.faces.map(({ chain }) => chain).join(",") !== "trunk"
+  ) failures.push("meridian: an unbracketed port did not roll back");
+  let dependentAxesRefused = false;
+  try {
+    realize({ ...port(0.02), meridian: { ...meridian, through: meridian.section } });
+  } catch (error) {
+    dependentAxesRefused = String(error).includes("independent world coordinates");
+  }
+  if (!dependentAxesRefused) failures.push("meridian: dependent world axes were admitted");
   if (failures.length !== 0)
     throw new Error(
       `${failures.length} port failures:\n${failures.join("\n")}`,

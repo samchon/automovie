@@ -368,6 +368,25 @@ export namespace AutoMovieConstructionAdmission {
             throw new Error(
               `realizeAutoMovieConstruction: ${name}'s ribbons ${String(node.ribbons)} is neither common nor column`,
             );
+          const meridian = node.meridian;
+          if (
+            meridian !== undefined &&
+            (meridian === null ||
+              meridian.section === undefined ||
+              meridian.section === null ||
+              meridian.through === undefined ||
+              meridian.through === null ||
+              !Number.isFinite(meridian.clock) ||
+              ![meridian.section.axis, meridian.through.axis].every(
+                (axis) => axis === 0 || axis === 1 || axis === 2,
+              ) ||
+              !Number.isFinite(meridian.section.value) ||
+              !Number.isFinite(meridian.through.value) ||
+              meridian.section.axis === meridian.through.axis)
+          )
+            throw new Error(
+              `realizeAutoMovieConstruction: ${name}'s meridian needs a finite clock and independent world coordinates`,
+            );
           for (const profile of node.profiles ?? []) {
             const knots: boolean =
               profile.knots.length >= 1 &&
