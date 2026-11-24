@@ -71,7 +71,7 @@ export function embraceTrunkClear(
     (t: number): IAutoMovieMotionHumanColliders.IPlaced[] =>
       HumanColliders.placed(partner.body, partner.bones(t, requested)),
   );
-  return (posture: IAutoMovieMotionHumanPosture, head: boolean): number => {
+  return (posture: IAutoMovieMotionHumanPosture, head: boolean): number[] => {
     const read = (bone: AutoMovieHumanoidBone): boolean =>
       !ARMS.test(M.group(bone)) && (head || !HEAD.test(bone));
     const segments: IAutoMovieMotionHumanColliders.IPlaced[] =
