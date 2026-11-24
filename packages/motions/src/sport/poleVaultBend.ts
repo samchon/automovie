@@ -58,7 +58,7 @@ export function poleVaultBend(
         ),
       ),
   );
-  const parameter = (seconds: number): number => {
+  const parameter: (seconds: number) => number = (seconds: number): number => {
     const at: number = Math.min(
       parameters.length - 1,
       Math.max(0, seconds / poleVaultSwing.STEP),
@@ -68,8 +68,10 @@ export function poleVaultBend(
     return parameters[k]! + (parameters[k + 1]! - parameters[k]!) * (at - k);
   };
   // A link's direction from the elastica's chord, toward the bow.
-  const direction = (m: number, j: number): number =>
-    pinnedElastica.slope(m, Math.min(1, middles[j]! / length));
+  const direction: (m: number, j: number) => number = (
+    m: number,
+    j: number,
+  ): number => pinnedElastica.slope(m, Math.min(1, middles[j]! / length));
   return {
     hinges: hinges.map((h: IAutoMovieAffordance): string => h.id),
     turn: (k: number, seconds: number): number => {

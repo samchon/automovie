@@ -208,7 +208,9 @@ function planEmbraceFromBehind(
         TORSO.has(bone),
     ),
   );
-  const back = (
+  const back: (
+    point: IAutoMovieVector3,
+  ) => IAutoMovieMotionHumanColliders.IDistance = (
     point: IAutoMovieVector3,
   ): IAutoMovieMotionHumanColliders.IDistance =>
     HumanColliders.distance(partner.body, torso, point);
@@ -222,7 +224,9 @@ function planEmbraceFromBehind(
   // The shoulder the head rests on: the colliders of the region's bone.
   const carrying: AutoMovieHumanoidBone =
     partner.body.surfaces.regions[shoulder].bone;
-  const top = (
+  const top: (
+    point: IAutoMovieVector3,
+  ) => IAutoMovieMotionHumanColliders.IDistance = (
     point: IAutoMovieVector3,
   ): IAutoMovieMotionHumanColliders.IDistance =>
     HumanColliders.distance(
@@ -693,7 +697,9 @@ function solve(
   );
   const chin: ReturnType<typeof HumanTrunk.preparePoint> =
     HumanTrunk.preparePoint(body, "chin");
-  const posed = (s: ISolved): IAutoMovieMotionHumanPosture =>
+  const posed: (s: ISolved) => IAutoMovieMotionHumanPosture = (
+    s: ISolved,
+  ): IAutoMovieMotionHumanPosture =>
     neck(
       leaned({
         pitch: s.pitch,
@@ -709,7 +715,9 @@ function solve(
     );
 
   // A point of the solve: metres and radians, read back in degrees.
-  const solved = (x: HumanSequentialConvexFunctions.Vector): ISolved => ({
+  const solved: (x: HumanSequentialConvexFunctions.Vector) => ISolved = (
+    x: HumanSequentialConvexFunctions.Vector,
+  ): ISolved => ({
     advance: x[0]!,
     shift: x[1]!,
     sink: x[2]!,
@@ -722,7 +730,9 @@ function solve(
     raise: degrees(x[9]!),
     miss: 0,
   });
-  const neckRange = (axis: AutoMovieClinicalAxis): IRange => ({
+  const neckRange: (axis: AutoMovieClinicalAxis) => IRange = (
+    axis: AutoMovieClinicalAxis,
+  ): IRange => ({
     low:
       (DEFAULT_HUMANOID_ROM.neck![axis]!.min +
         DEFAULT_HUMANOID_ROM.head![axis]!.min) *

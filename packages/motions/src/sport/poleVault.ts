@@ -429,14 +429,19 @@ export namespace poleVault {
     const degrees: number = 180 / Math.PI;
     const chord0: number = Math.atan2(radius0.forward, radius0.up);
     // A direction in the vault's plane at an angle from upright toward the run.
-    const towards = (angle: number): IAutoMovieVector3 =>
+    const towards: (angle: number) => IAutoMovieVector3 = (
+      angle: number,
+    ): IAutoMovieVector3 =>
       Vector3.add(Vector3.scale(ahead, Math.sin(angle)), {
         x: 0,
         y: Math.cos(angle),
         z: 0,
       });
     // A point turned about the planted tip in the vault's plane, toward the run.
-    const about = (
+    const about: (
+      point: IAutoMovieVector3,
+      angle: number,
+    ) => IAutoMovieVector3 = (
       point: IAutoMovieVector3,
       angle: number,
     ): IAutoMovieVector3 => {
@@ -485,7 +490,9 @@ export namespace poleVault {
     // The body turned with the chord about the planted tip, its grip on the
     // shown chain's chord, and the hands on the pole where the chain puts the
     // held link: the arms take that link's turn from the chord.
-    const swinging = (t: number): IAutoMovieMotionHumanPosture => {
+    const swinging: (t: number) => IAutoMovieMotionHumanPosture = (
+      t: number,
+    ): IAutoMovieMotionHumanPosture => {
       const at: poleVaultSwing.ISample = swing.at(t);
       const chord: number = Math.atan2(at.position.forward, at.position.up);
       const shown: poleVaultBend.IChain = bend.chain(t);
@@ -753,7 +760,7 @@ export namespace poleVault {
     const vy: number = speed * Math.sin(rise);
     const buckling: number =
       (rating ?? body.profile.mass) * poleVaultSwing.RATING;
-    const swings = (l: number): boolean => {
+    const swings: (l: number) => boolean = (l: number): boolean => {
       const at: walkPoleFrame.IPlant | undefined = walkPoleFrame.plant(
         shoulder,
         reach,

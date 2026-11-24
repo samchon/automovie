@@ -82,7 +82,11 @@ export function embraceTrunkClear(
     const deepest: number[] = new Array<number>(mine.parts.length * count).fill(
       0,
     );
-    const record = (
+    const record: (
+      a: AutoMovieHumanoidBone,
+      b: AutoMovieHumanoidBone,
+      depth: number,
+    ) => void = (
       a: AutoMovieHumanoidBone,
       b: AutoMovieHumanoidBone,
       depth: number,

@@ -104,7 +104,7 @@ export function createVaultingPole(
     pinnedElastica.parameter(createVaultingPole.BREAK),
     top,
   );
-  const at = (k: number): number => k * link;
+  const at: (k: number) => number = (k: number): number => k * link;
   for (let k: number = 0; k < n; k++)
     builder.rod(
       `link${k}`,
@@ -113,7 +113,9 @@ export function createVaultingPole(
       v(0, k === n - 1 ? length : at(k + 1), 0),
       { color: "#d8c23a" },
     );
-  const hinge = (k: number): createVaultingPole.Bend => `bend${k}`;
+  const hinge: (k: number) => createVaultingPole.Bend = (
+    k: number,
+  ): createVaultingPole.Bend => `bend${k}`;
   for (let k: number = n - 1; k >= 1; k--)
     builder.affordance({
       id: hinge(k),
@@ -131,11 +133,15 @@ export function createVaultingPole(
     });
   // The hinge that carries a point of the pole: the one at the top of the
   // link it lies on, none on the topmost.
-  const carrier = (y: number): createVaultingPole.Bend | undefined => {
+  const carrier: (y: number) => createVaultingPole.Bend | undefined = (
+    y: number,
+  ): createVaultingPole.Bend | undefined => {
     const k: number = Math.floor(y / link);
     return k >= n - 1 ? undefined : hinge(k + 1);
   };
-  const rides = (y: number): createVaultingPole.IRidden => {
+  const rides: (y: number) => createVaultingPole.IRidden = (
+    y: number,
+  ): createVaultingPole.IRidden => {
     const by: createVaultingPole.Bend | undefined = carrier(y);
     return by === undefined ? {} : { rides: by };
   };
