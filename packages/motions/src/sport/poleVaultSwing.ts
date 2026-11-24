@@ -1,80 +1,81 @@
 import { HumanRefusal } from "../law/HumanRefusal";
 
+/**
+ * A vaulter's swing on a flexible pole: Linthorne's flexible-pole model
+ * (Linthorne 2000, "Energy loss in the pole vault take-off and the advantage of
+ * the flexible pole", Sports Engineering 3:205-218), integrated once.
+ *
+ * The vaulter is a point mass on the end of a massless pole planted at its tip,
+ * the end the top hand grips ("the pole length is the height of the vaulter's
+ * upper grip on the pole"). At the plant the vaulter's body dissipates `F0^2 /
+ * (2k) cos^2(phi + alpha)` (Eq. 3), the buckling load `F0` and the body's
+ * stiffness `k`, never more than the rigid pole's loss `1/2 M v^2 cos^2(phi +
+ * alpha)` (Eq. 1), the energy of the velocity along the pole; the speed falls
+ * by it and keeps its direction. After the plant the only forces are gravity
+ * and the pole's, along its chord from the tip, `F = F0 + 0.6 F0 (L0 - L) / L0`
+ * while the pole is bent shorter than its length `L0` (Eq. 2, Hubbard 1980's
+ * elastica without an end moment). The motion is integrated at the paper's
+ * constant step of 0.01 s, each interval's position and velocity from the
+ * previous ones and the forces acting ("Results"), as uniformly accelerated
+ * motion over the interval. The vaulter releases the pole when it has recoiled
+ * to its length ("Take-off and pole plant phases").
+ *
+ * The motion is in the vault's plane: `forward` along the run from the tip,
+ * `up` vertical.
+ *
+ * @param props The plant's state, the vaulter's mass and the pole.
+ * @returns The swing.
+ * @throws {HumanRefusal} When the swing does not reach the release
+ *   (`poleVaultSwing.integrate`): the run is too slow.
+ */
+export function poleVaultSwing(
+  props: poleVaultSwing.IProps,
+): poleVaultSwing.ISwing {
+  const outcome: poleVaultSwing.IOutcome = poleVaultSwing.integrate(props);
+  if (outcome.failure !== null)
+    throw new HumanRefusal({
+      kind: "base",
+      axis: "run",
+      value: props.run,
+      reason: `at ${props.run.toFixed(2)} m/s ${outcome.failure}`,
+      fix: "run faster into the vault, or grip lower",
+    });
+  const samples: readonly poleVaultSwing.ISample[] = outcome.samples;
+  return {
+    samples,
+    duration: samples[samples.length - 1]!.seconds,
+    length: outcome.length,
+    at: (seconds: number): poleVaultSwing.ISample => {
+      const k: number = Math.min(
+        samples.length - 1,
+        Math.max(0, Math.floor(seconds / poleVaultSwing.STEP)),
+      );
+      const from: poleVaultSwing.ISample = samples[k]!;
+      const tau: number = Math.max(0, seconds - from.seconds);
+      return {
+        seconds,
+        position: {
+          forward:
+            from.position.forward +
+            from.velocity.forward * tau +
+            0.5 * from.acceleration.forward * tau * tau,
+          up:
+            from.position.up +
+            from.velocity.up * tau +
+            0.5 * from.acceleration.up * tau * tau,
+        },
+        velocity: {
+          forward: from.velocity.forward + from.acceleration.forward * tau,
+          up: from.velocity.up + from.acceleration.up * tau,
+        },
+        acceleration: from.acceleration,
+      };
+    },
+  };
+}
+
 /** Companion types and constants of {@link poleVaultSwing}. */
 export namespace poleVaultSwing {
-  /**
-   * A vaulter's swing on a flexible pole: Linthorne's flexible-pole model
-   * (Linthorne 2000, "Energy loss in the pole vault take-off and the advantage
-   * of the flexible pole", Sports Engineering 3:205-218), integrated once.
-   *
-   * The vaulter is a point mass on the end of a massless pole planted at its
-   * tip, the end the top hand grips ("the pole length is the height of the
-   * vaulter's upper grip on the pole"). At the plant the vaulter's body
-   * dissipates `F0^2 / (2k) cos^2(phi + alpha)` (Eq. 3), the buckling load `F0`
-   * and the body's stiffness `k`, never more than the rigid pole's loss `1/2 M
-   * v^2 cos^2(phi + alpha)` (Eq. 1), the energy of the velocity along the pole;
-   * the speed falls by it and keeps its direction. After the plant the only
-   * forces are gravity and the pole's, along its chord from the tip, `F = F0 +
-   * 0.6 F0 (L0 - L) / L0` while the pole is bent shorter than its length `L0`
-   * (Eq. 2, Hubbard 1980's elastica without an end moment). The motion is
-   * integrated at the paper's constant step of 0.01 s, each interval's position
-   * and velocity from the previous ones and the forces acting ("Results"), as
-   * uniformly accelerated motion over the interval. The vaulter releases the
-   * pole when it has recoiled to its length ("Take-off and pole plant
-   * phases").
-   *
-   * The motion is in the vault's plane: `forward` along the run from the tip,
-   * `up` vertical.
-   *
-   * @param props The plant's state, the vaulter's mass and the pole.
-   * @returns The swing.
-   * @throws {HumanRefusal} When the swing does not reach the release
-   *   (`poleVaultSwing.integrate`): the run is too slow.
-   */
-  export function of(props: poleVaultSwing.IProps): poleVaultSwing.ISwing {
-    const outcome: poleVaultSwing.IOutcome = poleVaultSwing.integrate(props);
-    if (outcome.failure !== null)
-      throw new HumanRefusal({
-        kind: "base",
-        axis: "run",
-        value: props.run,
-        reason: `at ${props.run.toFixed(2)} m/s ${outcome.failure}`,
-        fix: "run faster into the vault, or grip lower",
-      });
-    const samples: readonly poleVaultSwing.ISample[] = outcome.samples;
-    return {
-      samples,
-      duration: samples[samples.length - 1]!.seconds,
-      length: outcome.length,
-      at: (seconds: number): poleVaultSwing.ISample => {
-        const k: number = Math.min(
-          samples.length - 1,
-          Math.max(0, Math.floor(seconds / poleVaultSwing.STEP)),
-        );
-        const from: poleVaultSwing.ISample = samples[k]!;
-        const tau: number = Math.max(0, seconds - from.seconds);
-        return {
-          seconds,
-          position: {
-            forward:
-              from.position.forward +
-              from.velocity.forward * tau +
-              0.5 * from.acceleration.forward * tau * tau,
-            up:
-              from.position.up +
-              from.velocity.up * tau +
-              0.5 * from.acceleration.up * tau * tau,
-          },
-          velocity: {
-            forward: from.velocity.forward + from.acceleration.forward * tau,
-            up: from.velocity.up + from.acceleration.up * tau,
-          },
-          acceleration: from.acceleration,
-        };
-      },
-    };
-  }
-
   /**
    * The integration's step, seconds: Linthorne 2000's constant 0.01 s, "found
    * to be adequate".

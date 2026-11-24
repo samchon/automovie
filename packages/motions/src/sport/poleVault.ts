@@ -241,8 +241,8 @@ export namespace poleVault {
     const { shoulders, root: rootT }: ITakeoffFrame = ((): ITakeoffFrame => {
       const resolution: ReturnType<typeof preparePoseResolution> =
         preparePoseResolution();
-      const projection: ReturnType<typeof prepareHumanPostureProjection.of> =
-        prepareHumanPostureProjection.of(body);
+      const projection: ReturnType<typeof prepareHumanPostureProjection> =
+        prepareHumanPostureProjection(body);
       const raw: IAutoMovieMotionHumanPosture = takeoff.plan.posture(
         off,
         undefined,
@@ -250,7 +250,7 @@ export namespace poleVault {
         projection,
       );
       const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
-        poseBones.of(
+        poseBones(
           body,
           resolveHumanPosture.seeded(
             body,
@@ -413,7 +413,7 @@ export namespace poleVault {
       forward: Vector3.dot(reach0, ahead),
       up: reach0.y,
     };
-    const swing: poleVaultSwing.ISwing = poleVaultSwing.of({
+    const swing: poleVaultSwing.ISwing = poleVaultSwing({
       radius: radius0,
       velocity: {
         forward: Vector3.dot(takeoff.velocity, ahead),
@@ -425,7 +425,7 @@ export namespace poleVault {
       upright: 0,
       run: speed,
     });
-    const bend: poleVaultBend.IBend = poleVaultBend.of(swing, held.affordances);
+    const bend: poleVaultBend.IBend = poleVaultBend(swing, held.affordances);
     const degrees: number = 180 / Math.PI;
     const chord0: number = Math.atan2(radius0.forward, radius0.up);
     // A direction in the vault's plane at an angle from upright toward the run.
@@ -465,7 +465,7 @@ export namespace poleVault {
     // chord: its hinges turn the way that bows its `+Z` there, or the other
     // way when the hands hold it turned.
     const plantBones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
-      readGrip(resolveHumanPosture.of(body, from));
+      readGrip(resolveHumanPosture(body, from));
     const bow: number =
       Vector3.dot(
         Quaternion.rotateVector(
@@ -567,8 +567,8 @@ export namespace poleVault {
     const down: number = ((): number => {
       const [floorResolution, floorProjection]: [
         ReturnType<typeof preparePoseResolution>,
-        ReturnType<typeof prepareHumanPostureProjection.of>,
-      ] = [preparePoseResolution(), prepareHumanPostureProjection.of(body)];
+        ReturnType<typeof prepareHumanPostureProjection>,
+      ] = [preparePoseResolution(), prepareHumanPostureProjection(body)];
       const readLowest: ReturnType<typeof GymnasticsFlight.prepareLowest> =
         GymnasticsFlight.prepareLowest(body);
       const lowest: (t: number) => number = (t: number): number =>
@@ -635,7 +635,7 @@ export namespace poleVault {
     // The released pole leaves its held frame on the grip with the velocity
     // the rigid swing about the planted end gives its origin.
     const releasedGrip: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
-      readGrip(resolveHumanPosture.of(body, released));
+      readGrip(resolveHumanPosture(body, released));
     const hand: IAutoMovieResolvedBone = releasedGrip.get(
       side === "left" ? "leftHand" : "rightHand",
     )!;

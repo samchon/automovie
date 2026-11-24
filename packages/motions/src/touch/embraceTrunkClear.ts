@@ -77,7 +77,7 @@ export function embraceTrunkClear(
     const segments: IAutoMovieMotionHumanColliders.IPlaced[] =
       HumanColliders.placed(
         body,
-        poseBones.of(body, resolveHumanPosture.of(body, posture)),
+        poseBones(body, resolveHumanPosture(body, posture)),
       );
     const deepest: number[] = new Array<number>(mine.parts.length * count).fill(
       0,
