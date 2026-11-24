@@ -20,8 +20,10 @@ import type { resolveFurnishingPieces } from "./resolveFurnishingPieces";
  *
  * The roles are `refrigerator`, `counter-1`, `range` and `counter-2`; each
  * producer affordance is `<role>/<affordance id>`. The refrigerator starts at
- * the run's corner. Each counter and the range keeps the NKBA work aisle in
- * front of it, as wide as its own box and named `work aisle`:
+ * the run's corner. Every piece of the run keeps the NKBA work aisle in front
+ * of it, the refrigerator included, as the guideline measures the aisle from
+ * counters, tall cabinets and appliances alike; each aisle is as wide as its
+ * piece's box and named `work aisle`:
  * {@link ROOM_CLEARANCES}.workAisle for one cook and
  * {@link ROOM_CLEARANCES}.sharedWorkAisle for two. A room too shallow for the
  * aisle is refused naming it. No archetype draws a kitchen sink, so the kit has
@@ -60,14 +62,16 @@ export function createKitchenKit(
       cooks === 1 ? ROOM_CLEARANCES.workAisle : ROOM_CLEARANCES.sharedWorkAisle
     ).depth;
 
-    // A run piece after the one before, keeping the work aisle across its own
-    // front face.
+    // A run piece at the run's corner or after the one before, keeping the
+    // work aisle across its own front face. NKBA Guideline 6 measures the
+    // aisle from the counter frontage, tall cabinets and appliances alike, so
+    // the refrigerator keeps it as the counters and the range do.
     const work: (
       model: IAutoMovieModel,
-      after: string,
+      after?: string,
     ) => resolveFurnishingPieces.IPiece = (
       model: IAutoMovieModel,
-      after: string,
+      after?: string,
     ): resolveFurnishingPieces.IPiece => {
       const bounds: IAutoMoviePropBox = furnishRoom.measure(model);
       const clear: IAutoMovieFurnishingClearance = {
@@ -78,18 +82,18 @@ export function createKitchenKit(
       return {
         model,
         bounds,
-        place: { kind: "wall", wall: "-z", after },
+        place: {
+          kind: "wall",
+          wall: "-z",
+          ...(after !== undefined ? { after } : {}),
+        },
         clear: [clear],
       };
     };
     return furnishRoom(context, {
       layout: params,
       pieces: {
-        refrigerator: {
-          model: refrigerator,
-          bounds: furnishRoom.measure(refrigerator),
-          place: { kind: "wall", wall: "-z" },
-        },
+        refrigerator: work(refrigerator),
         "counter-1": work(counter, "refrigerator"),
         range: work(range, "counter-1"),
         "counter-2": work(counter, "range"),
