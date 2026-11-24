@@ -24,10 +24,10 @@ import { prepareHumanSampledCourse } from "../posture/prepareHumanSampledCourse"
  *
  * A hip correction's shift, a search (`HumanBalance.shift`), is solved here on
  * the stance as written at knots AutoKnots places over the window (Vitenti et
- * al. 2024, arXiv:2412.13423; `prepareHumanSampledCourse`), split at each of the
- * clock's instants inside it, and read between those knots from a knot course
- * (`prepareHumanKnotCourse`, a minimum-jerk path after Flash and Hogan 1985, J.
- * Neurosci. 5(7):1688), so a read searches nothing.
+ * al. 2024, arXiv:2412.13423; `prepareHumanSampledCourse`), split at each of
+ * the clock's instants inside it, and read between those knots from a knot
+ * course (`prepareHumanKnotCourse`, a minimum-jerk path after Flash and Hogan
+ * 1985, J. Neurosci. 5(7):1688), so a read searches nothing.
  *
  * @param body The canonical body.
  * @param window The admitted action-local balance window.
@@ -135,4 +135,3 @@ export function touchBalance(
     },
   };
 }
-

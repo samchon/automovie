@@ -15,9 +15,9 @@ import type { AutoMovieXpbdBody } from "./AutoMovieXpbdBody";
 type Limb = IAutoMovieFootfallPattern["limbs"][number];
 
 /**
- * The stance's swing terms (`physicalStanceBalance`): the reach of a step,
- * the swinging leg's bound, mass and clearance, the body's momentum and spin,
- * and the swing's force.
+ * The stance's swing terms (`physicalStanceBalance`): the reach of a step, the
+ * swinging leg's bound, mass and clearance, the body's momentum and spin, and
+ * the swing's force.
  */
 export namespace physicalStanceSwing {
   /**
@@ -98,9 +98,10 @@ export namespace physicalStanceSwing {
    */
   export function swingMass(
     profile: IAutoMoviePhysicalProfile,
-    poses:
-      | ReadonlyMap<string, AutoMovieXpbdBody>
-      | Readonly<Record<string, IAutoMovieRigidTransform>>,
+    poses: ReadonlyMap<
+      string,
+      Pick<AutoMovieXpbdBody, "translation" | "rotation">
+    >,
     limb: Limb,
   ): number {
     return swingLeg(profile, poses, limb).mass;
@@ -113,26 +114,19 @@ export namespace physicalStanceSwing {
    */
   export function swingLeg(
     profile: IAutoMoviePhysicalProfile,
-    poses:
-      | ReadonlyMap<string, AutoMovieXpbdBody>
-      | Readonly<Record<string, IAutoMovieRigidTransform>>,
+    poses: ReadonlyMap<
+      string,
+      Pick<AutoMovieXpbdBody, "translation" | "rotation">
+    >,
     limb: Limb,
   ): { mass: number; length: number; torque: number } {
     const pose = (bone: string): IAutoMovieRigidTransform | undefined => {
-      if (poses instanceof Map) {
-        const rigid: AutoMovieXpbdBody | undefined = (
-          poses as ReadonlyMap<string, AutoMovieXpbdBody>
-        ).get(bone);
-        return rigid
-          ? {
-              position: rigid.translation(),
-              rotation: rigid.rotation(),
-            }
-          : undefined;
-      }
-      return (poses as Readonly<Record<string, IAutoMovieRigidTransform>>)[
-        bone
-      ];
+      const rigid:
+        | Pick<AutoMovieXpbdBody, "translation" | "rotation">
+        | undefined = poses.get(bone);
+      return rigid
+        ? { position: rigid.translation(), rotation: rigid.rotation() }
+        : undefined;
     };
     const first = profile.joints.find(
       (joint): boolean => joint.child === limb.chain[0],

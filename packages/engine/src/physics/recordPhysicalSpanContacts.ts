@@ -27,7 +27,10 @@ import { recordPhysicalContact } from "./recordPhysicalContact";
  *   episodes and this frame's touched keys.
  */
 export function recordPhysicalSpanContacts(input: {
-  settings: Pick<IAutoMoviePhysicalSimulationInput.IInput, "rate" | "substeps"> & {
+  settings: Pick<
+    IAutoMoviePhysicalSimulationInput.IInput,
+    "rate" | "substeps"
+  > & {
     bodies: readonly (physicalSpanPose.IBody &
       Pick<IAutoMoviePhysicalSimulationInput.IBody, "mode">)[];
   };

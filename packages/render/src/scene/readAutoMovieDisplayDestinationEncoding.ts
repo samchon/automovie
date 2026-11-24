@@ -17,7 +17,9 @@ import type * as THREE from "three";
  * binds nor allocates a target and changes no native state. The installed
  * renderer declaration also admits a WebGL1 context, so the WebGL2 member of
  * that declared union is selected before its attachment-query constants are
- * read; no guessed numeric enum or widened type substitutes.
+ * read; no guessed numeric enum or widened type substitutes. That selection is
+ * a capability probe of the host's runtime WebGL context, not a type check of
+ * AutoMovie data, so it reads the context's own member with `in`.
  */
 export const readAutoMovieDisplayDestinationEncoding: (
   renderer: Pick<THREE.WebGLRenderer, "getContext">,

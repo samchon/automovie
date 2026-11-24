@@ -7,7 +7,9 @@ import type {
 
 import { Vector3 } from "../math/Vector3";
 import { convexHull2D } from "../math/convexHull2D";
-import { physicalStanceSupport } from "./physicalStanceSupport";
+import { physicalBalanceAssessment as Assessment } from "./physicalBalanceAssessment";
+import { physicalBalanceCandidate as Candidate } from "./physicalBalanceCandidate";
+import { physicalBalancePair as Pair } from "./physicalBalancePair";
 
 /**
  * Linear-inverted-pendulum capture-point balance over an arbitrary support
@@ -96,11 +98,11 @@ export namespace AutoMoviePhysicalBalance {
     // The capture point needs a step once it leaves the outline the stance
     // holds its centre of pressure inside (Koolen et al., Corollary 3).
     const inset: number = input.inset ?? 0;
-    const held = (outline: IAutoMovieVector3[]): IAutoMovieVector3[] =>
-      inset > 0 ? physicalStanceSupport.shrink(outline, inset) : outline;
-    const outside: number = excess(polygon, capturePoint);
-    const beyond: number = excess(held(polygon), capturePoint);
-    const result: IAutoMoviePhysicalBalance.IResult = {
+    const outside: number = Assessment.excess(polygon, capturePoint);
+    const beyond: number = Assessment.excess(
+      Assessment.held({ inset }, polygon),
+      capturePoint,
+    );    const result: IAutoMoviePhysicalBalance.IResult = {
       state: "unrecoverable",
       capturePoint,
       polygon,
@@ -136,152 +138,19 @@ export namespace AutoMoviePhysicalBalance {
       (input.swing.landing === undefined || input.swing.landing >= 0)
         ? input.swing
         : undefined;
-    const swing = (distance: number): number =>
-      timing
-        ? AutoMoviePhysicalBalance.duration(
-            distance,
-            timing.height,
-            timing.acceleration,
-          )
-        : (input.swingSeconds ?? 0);
     // A swing under way lands its elapsed time sooner than a fresh one.
-    const spent: number = Math.max(0, timing?.elapsed ?? 0);
-    // The capture point diverges through the unloading ramp, the swing and
-    // the landed foot's ramp-in, less what a swing under way has spent: the
-    // target is where it will be once the new foot bears (Khadiv et al. 2017,
-    // Section III-B; Herzog et al. 2016, Section 5.3).
-    const until = (distance: number): number =>
-      Math.max(
-        0,
-        (timing?.ramp ?? 0) + swing(distance) + (timing?.landing ?? 0) - spent,
-      );
-    // A diagonal pair, both feet moved by one displacement while the other
-    // diagonal holds the centre of pressure on its hull (Chen et al. 2022,
-    // Section 2.1, Example 1; MIT Cheetah-Software, trotting): its place and
-    // time are chosen together as a single step's are, the lead's middle on
-    // the capture point at landing within reach, else the shortest
-    // displacement toward it that captures, and it captures when the capture
-    // point then lies inside the new support.
-    const pair = (
-      lead: IAutoMoviePhysicalSupportPatch,
-      partner: IAutoMoviePhysicalSupportPatch,
-    ): {
-      travel: IAutoMovieVector3;
-      distance: number;
-      seconds: number;
-      viable: boolean;
-      violation: number;
-    } => {
-      const rest: IAutoMovieVector3[] = input.supports
-        .filter(
-          (other: (typeof input.supports)[number]): boolean =>
-            other !== lead && other !== partner,
-        )
-        .flatMap(
-          (other: (typeof input.supports)[number]): IAutoMovieVector3[] =>
-            other.points,
-        );
-      const holding: IAutoMovieVector3[] = held(convexHull2D(rest));
-      const moved = (
-        support: IAutoMoviePhysicalSupportPatch,
-        d: IAutoMovieVector3,
-      ): IAutoMovieVector3[] =>
-        support.points.map(
-          (p: IAutoMovieVector3): IAutoMovieVector3 => ({
-            x: p.x + d.x,
-            y: p.y,
-            z: p.z + d.z,
-          }),
-        );
-      const after = (d: IAutoMovieVector3): IAutoMovieVector3[] =>
-        held(convexHull2D([...rest, ...moved(lead, d), ...moved(partner, d)]));
-      const still: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
-      const place = (xi: IAutoMovieVector3): IAutoMovieVector3 => {
-        if (excess(after(still), xi) <= 0) return still;
-        const aim: IAutoMovieVector3 = {
-          x: xi.x - lead.position.x,
-          y: 0,
-          z: xi.z - lead.position.z,
-        };
-        const gap: number = Math.hypot(aim.x, aim.z);
-        if (gap <= input.maximumStep && excess(after(aim), xi) <= 0) return aim;
-        const toward: IAutoMovieVector3 =
-          gap > 0
-            ? { x: aim.x / gap, y: 0, z: aim.z / gap }
-            : { x: 0, y: 0, z: 1 };
-        const step = (d: number): IAutoMovieVector3 => Vector3.scale(toward, d);
-        let near: number = 0;
-        let far: number = input.maximumStep;
-        if (excess(after(step(far)), xi) > 0) return step(far);
-        while (far - near > SETTLED) {
-          const middle: number = (near + far) / 2;
-          if (excess(after(step(middle)), xi) <= 0) far = middle;
-          else near = middle;
-        }
-        return step(far);
-      };
-      let distance: number = Math.min(
-        input.maximumStep,
-        Math.hypot(
-          capturePoint.x - lead.position.x,
-          capturePoint.z - lead.position.z,
-        ),
-      );
-      let travel: IAutoMovieVector3 = still;
-      let landing: IAutoMovieVector3 = { ...capturePoint };
-      for (let pass: number = 0; pass < PASSES; pass++) {
-        const before: IAutoMovieVector3 = travel;
-        landing = AutoMoviePhysicalBalance.diverge(
-          capturePoint,
-          holding,
-          omega * until(distance),
-        );
-        travel = place(landing);
-        distance = Math.hypot(travel.x, travel.z);
-        if (Math.hypot(travel.x - before.x, travel.z - before.z) <= SETTLED)
-          break;
-      }
-      const violation: number = excess(after(travel), landing);
-      return {
-        travel,
-        distance,
-        seconds: swing(distance),
-        viable: violation <= SETTLED,
-        violation,
-      };
-    };
-    const paired = (
-      lead: IAutoMoviePhysicalSupportPatch,
-      partner: IAutoMoviePhysicalSupportPatch,
-      planned: ReturnType<typeof pair>,
-    ): IAutoMoviePhysicalBalance.IResult => ({
-      ...result,
-      state: "recovery",
-      step: {
-        bone: lead.bone,
-        target: {
-          x: lead.position.x + planned.travel.x,
-          y: input.floor,
-          z: lead.position.z + planned.travel.z,
-        },
-        ...(timing
-          ? {
-              seconds: planned.seconds,
-              viable: planned.viable,
-              violation: planned.violation,
-            }
-          : {}),
-        pair: {
-          bone: partner.bone,
-          target: {
-            x: partner.position.x + planned.travel.x,
-            y: input.floor,
-            z: partner.position.z + planned.travel.z,
-          },
-        },
-      },
-    });
-    // A pair under way is planned again as that pair.
+    const scope: Assessment.IAssessment = {
+      input,
+      omega,
+      capturePoint,
+      inset,
+      result,
+      centroid,
+      direction,
+      denominator,
+      timing,
+      spent: Math.max(0, timing?.elapsed ?? 0),
+    };    // A pair under way is planned again as that pair.
     if (input.pair) {
       const lead: IAutoMoviePhysicalSupportPatch | undefined =
         input.supports.find(
@@ -297,243 +166,10 @@ export namespace AutoMoviePhysicalBalance {
         ? paired(lead, partner, pair(lead, partner))
         : result;
     }
-    const candidates: {
-      support: IAutoMoviePhysicalSupportPatch;
-      phase: number;
-      distance: number;
-      lead: number;
-      target: IAutoMovieVector3;
-      seconds: number;
-      viable: boolean;
-      violation: number;
-      unloadable: boolean;
-    }[] = input.supports.flatMap(
-      (
-        support: (typeof input.supports)[number],
-      ): {
-        support: IAutoMoviePhysicalSupportPatch;
-        phase: number;
-        distance: number;
-        lead: number;
-        target: IAutoMovieVector3;
-        seconds: number;
-        viable: boolean;
-        violation: number;
-        unloadable: boolean;
-      }[] => {
-        const limb: IAutoMovieFootfallPattern["limbs"][number] | undefined =
-          input.pattern.limbs.find(
-            (candidate: (typeof input.pattern.limbs)[number]): boolean =>
-              candidate.bone === support.bone,
-          );
-        if (!limb || input.unavailable.includes(support.bone)) return [];
-        const offset: IAutoMovieVector3 = {
-          x: support.position.x - centroid.x,
-          y: 0,
-          z: support.position.z - centroid.z,
-        };
-        const along: number =
-          denominator > 0 ? Vector3.dot(offset, direction) / denominator : 0;
-        // The remaining supports hold the centre of pressure on their
-        // shrunken outline, at its point nearest the capture point, while this
-        // limb swings; the capture point diverges from it by e^(omega t) (Hof
-        // et al. 2005, Eq. 3). The step's place and time are chosen together,
-        // the earliest the leg can land: the time from the distance, the
-        // distance from where the capture point will be then, until the two
-        // agree (Khadiv et al. 2017, Section III-B). A step that stops the body
-        // puts the foot's centre on that capture point, clamped to the reach.
-        const holding: IAutoMovieVector3[] = held(
-          convexHull2D(
-            input.supports
-              .filter(
-                (other: (typeof input.supports)[number]): boolean =>
-                  other !== support,
-              )
-              .flatMap(
-                (other: (typeof input.supports)[number]): IAutoMovieVector3[] =>
-                  other.points,
-              ),
-          ),
-        );
-        // The step keeps the swinging limb on its own side of the remaining
-        // supports, at least as wide as it stands, so no limb crosses over
-        // (Pratt et al., M2V2, Section IX-G; Khadiv et al. 2017, Appendix B),
-        // and reaches forward until the capture point lies inside the new
-        // support: capture is the capture point inside it, not under the
-        // foot (Pratt et al., M2V2, Section VII-E1).
-        const rest: IAutoMovieVector3[] = input.supports
-          .filter(
-            (other: (typeof input.supports)[number]): boolean =>
-              other !== support,
-          )
-          .flatMap(
-            (other: (typeof input.supports)[number]): IAutoMovieVector3[] =>
-              other.points,
-          );
-        const stance: IAutoMovieVector3 = Vector3.scale(
-          input.supports
-            .filter(
-              (other: (typeof input.supports)[number]): boolean =>
-                other !== support,
-            )
-            .reduce(
-              (
-                sum: IAutoMovieVector3,
-                other: (typeof input.supports)[number],
-              ) => Vector3.add(sum, other.position),
-              { x: 0, y: 0, z: 0 },
-            ),
-          1 / Math.max(1, input.supports.length - 1),
-        );
-        // The body's own axes: its heading and its side (the root's yaw), so a
-        // diagonal step does not turn the side the limb must keep.
-        const facing: IAutoMovieVector3 = input.heading ?? direction;
-        const length2: number = Math.hypot(facing.x, facing.z);
-        const forward: IAutoMovieVector3 =
-          length2 > 0
-            ? { x: facing.x / length2, y: 0, z: facing.z / length2 }
-            : { x: 0, y: 0, z: 1 };
-        const side: IAutoMovieVector3 = { x: -forward.z, y: 0, z: forward.x };
-        const across = (p: IAutoMovieVector3): number =>
-          (p.x - stance.x) * side.x + (p.z - stance.z) * side.z;
-        const width: number = across(support.position);
-        const sign: number = width < 0 ? -1 : 1;
-        // The new support with this limb's patch moved to a target.
-        const after = (target: IAutoMovieVector3): IAutoMovieVector3[] =>
-          held(
-            convexHull2D([
-              ...rest,
-              ...support.points.map(
-                (p: IAutoMovieVector3): IAutoMovieVector3 => ({
-                  x: p.x - support.position.x + target.x,
-                  y: p.y,
-                  z: p.z - support.position.z + target.z,
-                }),
-              ),
-            ]),
-          );
-        // The step puts the foot's middle on the capture point at landing,
-        // the limb kept on its own side so it never crosses over: stopping
-        // puts the centre of pressure on the capture point (Koolen et al.,
-        // Section II-G), and the capture point then lies inside the new
-        // support by the foot's own margin rather than on its edge (Pratt et
-        // al., M2V2, Sections VII-C2, VII-E1 and IX-G). Out of reach, or when
-        // the side clamp leaves the capture point outside, the shortest step
-        // that still captures, forward, backward or aside.
-        const keep = (p: IAutoMovieVector3): IAutoMovieVector3 => {
-          const lateral: number = across(p);
-          const fixed: number =
-            sign * Math.max(sign * lateral, Math.abs(width));
-          return {
-            x: p.x + side.x * (fixed - lateral),
-            y: p.y,
-            z: p.z + side.z * (fixed - lateral),
-          };
-        };
-        const place = (xi: IAutoMovieVector3): IAutoMovieVector3 => {
-          if (excess(after(support.position), xi) <= 0)
-            return { ...support.position };
-          // Toward the capture point as seen on the limb's own side, so the
-          // reach is not spent on a crossing the side clamp would undo.
-          const aim: IAutoMovieVector3 = keep(xi);
-          const gap: number = Math.hypot(
-            aim.x - support.position.x,
-            aim.z - support.position.z,
-          );
-          const aimed: IAutoMovieVector3 = { ...aim, y: support.position.y };
-          if (gap <= input.maximumStep && excess(after(aimed), xi) <= 0)
-            return aimed;
-          const toward: IAutoMovieVector3 =
-            gap > 0
-              ? {
-                  x: (aim.x - support.position.x) / gap,
-                  y: 0,
-                  z: (aim.z - support.position.z) / gap,
-                }
-              : forward;
-          const step = (d: number): IAutoMovieVector3 =>
-            keep({
-              x: support.position.x + toward.x * d,
-              y: support.position.y,
-              z: support.position.z + toward.z * d,
-            });
-          let near: number = 0;
-          let far: number = input.maximumStep;
-          if (excess(after(step(far)), xi) > 0) return step(far);
-          while (far - near > SETTLED) {
-            const middle: number = (near + far) / 2;
-            if (excess(after(step(middle)), xi) <= 0) far = middle;
-            else near = middle;
-          }
-          return step(far);
-        };
-        let distance: number = Math.min(
-          input.maximumStep,
-          Math.hypot(
-            capturePoint.x - support.position.x,
-            capturePoint.z - support.position.z,
-          ),
-        );
-        let target: IAutoMovieVector3 = { ...capturePoint };
-        let landing: IAutoMovieVector3 = { ...capturePoint };
-        let length: number = 0;
-        for (let pass: number = 0; pass < PASSES; pass++) {
-          const before: IAutoMovieVector3 = target;
-          landing = AutoMoviePhysicalBalance.diverge(
-            capturePoint,
-            holding,
-            omega * until(distance),
-          );
-          const placed: IAutoMovieVector3 = place(landing);
-          const travel: IAutoMovieVector3 = {
-            x: placed.x - support.position.x,
-            y: 0,
-            z: placed.z - support.position.z,
-          };
-          length = Math.hypot(travel.x, travel.z);
-          distance = Math.min(length, input.maximumStep);
-          const scale: number = length > 0 ? distance / length : 0;
-          target = {
-            x: support.position.x + travel.x * scale,
-            y: landing.y,
-            z: support.position.z + travel.z * scale,
-          };
-          if (Math.hypot(target.x - before.x, target.z - before.z) <= SETTLED)
-            break;
-        }
-        // One-step capture with finite feet (Koolen et al., Eq. 25): this
-        // limb's step, clamped to the reach, leaves the capture point at its
-        // landing inside the new support. A step is asked for either way, and
-        // the body steps again or falls by its physics (Khadiv et al. 2017,
-        // Section III-B: viability is soft). Without a step time only a step
-        // within reach captures.
-        const violation: number = excess(after(target), landing);
-        const viable: boolean = violation <= SETTLED;
-        if (!timing && !viable) return [];
-        // A limb whose remaining supports already hold the commanded centre
-        // of pressure gives up its load at once; another first has the
-        // centre of pressure moved off it (Pratt et al., M2V2, Section
-        // VII-A: the leg is unloaded before it swings).
-        const unloadable: boolean =
-          input.pressure !== undefined &&
-          holding.length >= 3 &&
-          excess(holding, input.pressure) <= 0;
-        return [
-          {
-            support,
-            phase: limb.phase,
-            distance,
-            lead: along,
-            target,
-            viable,
-            violation,
-            unloadable,
-            seconds: swing(distance),
-          },
-        ];
-      },
-    );
-    candidates.sort(
+    const candidates: Candidate.ICandidate[] = input.supports.flatMap(
+      (support: (typeof input.supports)[number]): Candidate.ICandidate[] =>
+        Candidate.candidate(scope, support),
+    );    candidates.sort(
       (
         a: (typeof candidates)[number],
         b: (typeof candidates)[number],
@@ -738,46 +374,4 @@ export namespace AutoMoviePhysicalBalance {
     }
     return inside ? { ...point } : best;
   }
-}
-
-/** The most passes the step's place and time take to agree. */
-const PASSES: number = 20;
-
-/** The step target's change, metres, below which its place and time agree. */
-const SETTLED: number = 1e-4;
-
-/**
- * How far a point lies outside a convex floor polygon, metres: zero inside,
- * else its distance to the nearest edge; a polygon of fewer than three vertices
- * has no inside.
- */
-function excess(
-  polygon: readonly IAutoMovieVector3[],
-  point: IAutoMovieVector3,
-): number {
-  let inside: boolean = polygon.length >= 3;
-  let outside: number = Infinity;
-  for (let i: number = 0; i < polygon.length; i++) {
-    const a: IAutoMovieVector3 = polygon[i]!;
-    const b: IAutoMovieVector3 = polygon[(i + 1) % polygon.length]!;
-    const dx: number = b.x - a.x;
-    const dz: number = b.z - a.z;
-    const denominator: number = dx * dx + dz * dz;
-    const t: number =
-      denominator === 0
-        ? 0
-        : Math.max(
-            0,
-            Math.min(
-              1,
-              ((point.x - a.x) * dx + (point.z - a.z) * dz) / denominator,
-            ),
-          );
-    outside = Math.min(
-      outside,
-      Math.hypot(point.x - a.x - dx * t, point.z - a.z - dz * t),
-    );
-    if (dx * (point.z - a.z) - dz * (point.x - a.x) < 0) inside = false;
-  }
-  return inside ? 0 : outside;
 }

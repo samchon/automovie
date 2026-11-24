@@ -9,6 +9,7 @@ import {
 import type {
   IAutoMovieFootfallPattern,
   IAutoMoviePhysicalProfile,
+  IAutoMovieQuaternion,
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -151,7 +152,22 @@ export function test_physical_support_footprint_face(): void {
     moment += segment.mass * Vector3.length(Vector3.subtract(center, hip));
     mass += segment.mass;
   }
-  const effective: number = physicalStanceSwing.swingMass(base, neutral, leg);
+  const effective: number = physicalStanceSwing.swingMass(
+    base,
+    // The neutral pose as the rigid poses the swing reads.
+    new Map(
+      Object.entries(neutral).map(
+        ([bone, at]: [string, IAutoMovieRigidTransform]) => [
+          bone,
+          {
+            translation: (): IAutoMovieVector3 => at.position,
+            rotation: (): IAutoMovieQuaternion => at.rotation,
+          },
+        ],
+      ),
+    ),
+    leg,
+  );
   const expected: number = moment / Vector3.length(Vector3.subtract(end, hip));
   if (
     !(Math.abs(effective - expected) < 1e-9) ||

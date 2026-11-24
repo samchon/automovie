@@ -1,6 +1,4 @@
-import type {
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import { Vector3 } from "../math/Vector3";
 import { AutoMoviePhysicalBalance } from "./AutoMoviePhysicalBalance";

@@ -5,12 +5,12 @@ import type { IAutoMovieExpressionTarget } from "./IAutoMovieExpressionTarget.js
 import type { IAutoMovieViewerFrame } from "./IAutoMovieViewerFrame.js";
 
 /**
- * Host-owned map or partial slot record; null and missing nodes are omitted
- * during normalization.
+ * Host-owned partial slot record of humanoid bones; null and missing nodes are
+ * omitted during normalization.
  */
-type BoneMapInput =
-  | ReadonlyMap<AutoMovieHumanoidBone, THREE.Object3D | null | undefined>
-  | Partial<Record<AutoMovieHumanoidBone, THREE.Object3D | null | undefined>>;
+type BoneMapInput = Partial<
+  Record<AutoMovieHumanoidBone, THREE.Object3D | null | undefined>
+>;
 
 /**
  * Runtime adapter for an already-loaded `three.js`/VRM/glTF object.

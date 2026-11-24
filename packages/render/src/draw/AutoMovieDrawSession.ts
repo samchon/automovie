@@ -126,9 +126,8 @@ export class AutoMovieDrawSession {
     await page.goto(props.url, { waitUntil: "load" });
     try {
       await page.waitForFunction(
-        (name: string): boolean =>
-          typeof (globalThis as unknown as Record<string, unknown>)[name] ===
-          "object",
+        (name: typeof AUTO_MOVIE_DRAW_GLOBALS.draw): boolean =>
+          globalThis[name] !== undefined,
         AUTO_MOVIE_DRAW_GLOBALS.draw,
         { timeout },
       );
@@ -145,11 +144,7 @@ export class AutoMovieDrawSession {
         (
           arg: IAutoMovieDrawPageRequest.IDescribe,
         ): Promise<IAutoMovieDrawDescription> =>
-          (
-            (globalThis as unknown as Record<string, unknown>)[arg.name] as {
-              describe(): Promise<IAutoMovieDrawDescription>;
-            }
-          ).describe(),
+          globalThis[arg.name]!.describe(),
         { kind: "describe", name: AUTO_MOVIE_DRAW_GLOBALS.draw },
       ),
     );
@@ -174,11 +169,7 @@ export class AutoMovieDrawSession {
       `Handing the dialogue mouths to subject "${this.subject.name}"`,
       this.page.evaluate(
         (arg: IAutoMovieDrawPageRequest.ISpeak): Promise<void> =>
-          (
-            (globalThis as unknown as Record<string, unknown>)[arg.name] as {
-              speak(track: IAutoMovieDialogueMouthTrack): Promise<void>;
-            }
-          ).speak(arg.track),
+          globalThis[arg.name]!.speak(arg.track),
         { kind: "speak", name: AUTO_MOVIE_DRAW_GLOBALS.draw, track },
       ),
     );
@@ -199,11 +190,7 @@ export class AutoMovieDrawSession {
       what,
       this.page.evaluate(
         (arg: IAutoMovieDrawPageRequest.IDraw): Promise<IAutoMovieDrawResult> =>
-          (
-            (globalThis as unknown as Record<string, unknown>)[arg.name] as {
-              draw(call: IAutoMovieDrawCall): Promise<IAutoMovieDrawResult>;
-            }
-          ).draw(arg.call),
+          globalThis[arg.name]!.draw(arg.call),
         { kind: "draw", name: AUTO_MOVIE_DRAW_GLOBALS.draw, call },
       ),
     );

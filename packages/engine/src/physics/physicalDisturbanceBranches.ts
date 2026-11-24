@@ -2,6 +2,7 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import { physicalDisturbanceFollow } from "./physicalDisturbanceFollow";
 import { physicalDisturbanceForm } from "./physicalDisturbanceForm";
+import { physicalDisturbancePlacement as Placement } from "./physicalDisturbancePlacement";
 import { physicalDisturbanceResponse as Response } from "./physicalDisturbanceResponse";
 import { physicalIcpPlanner } from "./physicalIcpPlanner";
 import type { physicalIcpPlannerTools as Tools } from "./physicalIcpPlannerTools";
@@ -64,7 +65,7 @@ export namespace physicalDisturbanceBranches {
       s.swing.bone,
       scope.t,
     );
-    const moved = Response.place(
+    const moved = Placement.place(
       scope,
       s.stance,
       s.swing,
@@ -83,7 +84,7 @@ export namespace physicalDisturbanceBranches {
     if (!moved.adjusted) return false;
     s.target = moved.target;
     s.viable = moved.viable;
-    s.plan = Response.plan(
+    s.plan = Placement.plan(
       scope,
       s.support,
       s.swing,
@@ -119,7 +120,7 @@ export namespace physicalDisturbanceBranches {
     );
     const support: Foot = Response.merge(stance, swing);
     scope.recovery = Recovery.fall(scope.recovery);
-    const placedAt = Response.place(
+    const placedAt = Placement.place(
       scope,
       stance,
       swing,
@@ -153,7 +154,7 @@ export namespace physicalDisturbanceBranches {
     // capture point reaches, as the reference checks the footstep against
     // the capture point through the swing (`WalkingSingleSupportState`
     // l.136-163); the plan is laid again toward it.
-    const region: Polygon.IPoint[] = Response.reachable(
+    const region: Polygon.IPoint[] = Placement.reachable(
       scope,
       stance,
       swing,
@@ -164,7 +165,7 @@ export namespace physicalDisturbanceBranches {
         phase: "single",
         reference: segmented(
           scope.t,
-          Response.plan(scope, support, swing, placedAt.target, duration),
+          Placement.plan(scope, support, swing, placedAt.target, duration),
         ),
         support: Response.supportOf(stance),
         start: scope.t,
@@ -211,7 +212,7 @@ export namespace physicalDisturbanceBranches {
       swing,
       target: under,
       touchdown: scope.t + duration,
-      plan: Response.plan(scope, support, swing, under, duration),
+      plan: Placement.plan(scope, support, swing, under, duration),
       viable: placedAt.viable,
     };
     scope.step = step;
@@ -231,7 +232,11 @@ export namespace physicalDisturbanceBranches {
       start: scope.t,
       bones: stance.map((foot: Foot): string => foot.bone),
     });
-    scope.branches.push({ kind: "trigger", seconds: scope.t, bone: swing.bone });
+    scope.branches.push({
+      kind: "trigger",
+      seconds: scope.t,
+      bone: swing.bone,
+    });
     scope.reference = segmented(scope.t, step.plan);
     scope.mode = "single";
     scope.trigger = undefined;
@@ -255,10 +260,7 @@ export namespace physicalDisturbanceBranches {
     scope.placed.set(landing.bone, landing);
     scope.contacts.push({
       start: scope.t,
-      bones: [
-        ...s.stance.map((foot: Foot): string => foot.bone),
-        landing.bone,
-      ],
+      bones: [...s.stance.map((foot: Foot): string => foot.bone), landing.bone],
     });
     scope.branches.push({
       kind: "touchdown",

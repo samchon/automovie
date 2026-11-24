@@ -150,7 +150,8 @@ function cascade(
     if (patch.torsion !== undefined) {
       const pivot: solveXpbdSupportCascade.IRow = set.rows[patch.torsion]!;
       const first: solveXpbdSupportCascade.IRow = set.rows[patch.tangents[0]!]!;
-      const second: solveXpbdSupportCascade.IRow = set.rows[patch.tangents[1]!]!;
+      const second: solveXpbdSupportCascade.IRow =
+        set.rows[patch.tangents[1]!]!;
       const levers: number[] = patch.normals.map((r: number): number => {
         const point: solveXpbdSupportCascade.IRow = set.rows[r]!;
         const dx: number = point.point.x - pivot.point.x;

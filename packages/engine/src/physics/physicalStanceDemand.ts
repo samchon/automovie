@@ -32,7 +32,10 @@ export namespace physicalStanceDemand {
   /** One balance step's inputs. */
   export interface IInput {
     /** Admitted settings. */
-    settings: Pick<IAutoMoviePhysicalSimulationInput.IInput, "gravity" | "floor">;
+    settings: Pick<
+      IAutoMoviePhysicalSimulationInput.IInput,
+      "gravity" | "floor"
+    >;
     /** The body. */
     body: IAutoMoviePhysicalSimulationInput.IBody;
     /** Its native segments. */
@@ -374,58 +377,60 @@ export namespace physicalStanceDemand {
           floor,
         })
       : undefined;
-    const { pressure, pivot, clamped, strategy }: ReturnType<
-      typeof physicalStanceAllocation.allocate
-    > =
-      icp
-        ? { pressure: icp.pressure, pivot: icp.pivot, clamped: !icp.converged }
-        : physicalStanceAllocation.allocate({
-            capture,
-            reference,
-            command,
-            offset: {
-              x: input.torque.z / lift,
-              y: 0,
-              z: -input.torque.x / lift,
-            },
-            shrunken: capped(polygon),
-            support: capped(bearable.hull),
-            // The bearing feet's hips deliver the ground's moment on the body
-            // with the room their feet's forces leave them (`hipRoom`): the
-            // pivot's offset along d turns the body about the axis across it,
-            // (d_z, 0, -d_x).
-            bound: (direction: IAutoMovieVector3): number =>
-              physicalStanceHip.hipRoom({
-                profile: body.profile,
-                segments,
-                stance: carried,
-                axis: { x: direction.z, y: 0, z: -direction.x },
-              }) / lift,
-            ...(input.intended
-              ? {
-                  hip: (direction: IAutoMovieVector3): number | undefined => {
-                    const strategy = physicalStanceHip.hip({
-                      profile: body.profile,
-                      segments,
-                      limbs,
-                      stance: input.stance,
-                      direction,
-                      intended: input.intended!,
-                    });
-                    if (!strategy) return undefined;
-                    // Bang-bang: out while the trunk can still be stopped within
-                    // the angle left, back once its turn would carry it past.
-                    const braking: boolean =
-                      strategy.rate > 0 &&
-                      (strategy.rate * strategy.rate * strategy.inertia) /
-                        (2 * strategy.torque) >=
-                        strategy.angle;
-                    if (!braking && !(strategy.angle > 0)) return undefined;
-                    return ((braking ? -1 : 1) * strategy.torque) / lift;
-                  },
-                }
-              : {}),
-          });
+    const {
+      pressure,
+      pivot,
+      clamped,
+      strategy,
+    }: ReturnType<typeof physicalStanceAllocation.allocate> = icp
+      ? { pressure: icp.pressure, pivot: icp.pivot, clamped: !icp.converged }
+      : physicalStanceAllocation.allocate({
+          capture,
+          reference,
+          command,
+          offset: {
+            x: input.torque.z / lift,
+            y: 0,
+            z: -input.torque.x / lift,
+          },
+          shrunken: capped(polygon),
+          support: capped(bearable.hull),
+          // The bearing feet's hips deliver the ground's moment on the body
+          // with the room their feet's forces leave them (`hipRoom`): the
+          // pivot's offset along d turns the body about the axis across it,
+          // (d_z, 0, -d_x).
+          bound: (direction: IAutoMovieVector3): number =>
+            physicalStanceHip.hipRoom({
+              profile: body.profile,
+              segments,
+              stance: carried,
+              axis: { x: direction.z, y: 0, z: -direction.x },
+            }) / lift,
+          ...(input.intended
+            ? {
+                hip: (direction: IAutoMovieVector3): number | undefined => {
+                  const strategy = physicalStanceHip.hip({
+                    profile: body.profile,
+                    segments,
+                    limbs,
+                    stance: input.stance,
+                    direction,
+                    intended: input.intended!,
+                  });
+                  if (!strategy) return undefined;
+                  // Bang-bang: out while the trunk can still be stopped within
+                  // the angle left, back once its turn would carry it past.
+                  const braking: boolean =
+                    strategy.rate > 0 &&
+                    (strategy.rate * strategy.rate * strategy.inertia) /
+                      (2 * strategy.torque) >=
+                      strategy.angle;
+                  if (!braking && !(strategy.angle > 0)) return undefined;
+                  return ((braking ? -1 : 1) * strategy.torque) / lift;
+                },
+              }
+            : {}),
+        });
     const aimed: IAutoMovieVector3 = Vector3.scale(
       {
         x: mass * omega * omega * (center.x - pivot.x),
@@ -452,30 +457,14 @@ export namespace physicalStanceDemand {
       Vector3.cross(Vector3.subtract(center, input.origin), force),
       Vector3.scale(reaction, input.strength),
     );
-
-    // IHMC's controllers ask the whole-body solve for their linear momentum
-    // rate, aimed through the pivot (develop `LinearMomentumRateControlModule
-    // .computeDesiredLinearMomentumRateOfChange` l.603-628), as weighted
-    // objectives over the contact wrench rather than a moment
-    // (`AutoMovieXpbdWorld.IObjective`); the trunk's orientation stays the
-    // root task's spin row, its own task.
     const objective: IResult["objective"] = icp
-      ? {
-          force: physicalStancePressure.BIPED_MOMENTUM_WEIGHT,
-          ...(input.icp?.swinging
-            ? {
-                yaw: {
-                  center,
-                  weight: physicalStancePressure.BIPED_YAW_WEIGHT,
-                },
-              }
-            : {}),
-          ...physicalStancePressure.pressureCommand(
-            outlines,
-            input.planted,
-            icp.pressure,
-          ),
-        }
+      ? physicalStancePressure.objective({
+          center,
+          swinging: input.icp?.swinging === true,
+          outlines,
+          planted: input.planted,
+          point: icp.pressure,
+        })
       : undefined;
     return {
       force,

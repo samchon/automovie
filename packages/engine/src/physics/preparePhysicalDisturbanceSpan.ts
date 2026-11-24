@@ -216,7 +216,8 @@ export function preparePhysicalDisturbanceSpan(
         (f: Foot): boolean => f.bone === bone,
       )!;
       return outline({ ...foot, frame: { ...foot.frame, origin: at } });
-    },  });
+    },
+  });
 }
 
 /** The span's input, branch points, sample and result. */
@@ -379,4 +380,3 @@ export namespace preparePhysicalDisturbanceSpan {
     sample(seconds: number): ISample;
   }
 }
-

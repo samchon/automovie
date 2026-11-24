@@ -226,61 +226,61 @@ export namespace physicalStanceSupport {
     return inside && hull.length >= 3 ? hull : [{ ...mean }];
   }
 
-/**
- * The part of a convex polygon on a half-plane's side, (q - point) . normal >=
- * 0, as a counter-clockwise hull (Sutherland and Hodgman 1974, one clipping
- * edge).
- */
-export function clip(
-  polygon: readonly IAutoMovieVector3[],
-  point: IAutoMovieVector3,
-  normal: IAutoMovieVector3,
-): IAutoMovieVector3[] {
-  const side = (q: IAutoMovieVector3): number =>
-    (q.x - point.x) * normal.x + (q.z - point.z) * normal.z;
-  const kept: IAutoMovieVector3[] = [];
-  polygon.forEach((a: IAutoMovieVector3, i: number): void => {
-    const b: IAutoMovieVector3 = polygon[(i + 1) % polygon.length]!;
-    const sa: number = side(a);
-    const sb: number = side(b);
-    if (sa >= 0) kept.push({ ...a });
-    if (sa >= 0 !== sb >= 0) {
-      const t: number = sa / (sa - sb);
-      kept.push({
-        x: a.x + (b.x - a.x) * t,
-        y: a.y,
-        z: a.z + (b.z - a.z) * t,
-      });
-    }
-  });
-  return convexHull2D(kept);
-}
+  /**
+   * The part of a convex polygon on a half-plane's side, (q - point) . normal >=
+   * 0, as a counter-clockwise hull (Sutherland and Hodgman 1974, one clipping
+   * edge).
+   */
+  export function clip(
+    polygon: readonly IAutoMovieVector3[],
+    point: IAutoMovieVector3,
+    normal: IAutoMovieVector3,
+  ): IAutoMovieVector3[] {
+    const side = (q: IAutoMovieVector3): number =>
+      (q.x - point.x) * normal.x + (q.z - point.z) * normal.z;
+    const kept: IAutoMovieVector3[] = [];
+    polygon.forEach((a: IAutoMovieVector3, i: number): void => {
+      const b: IAutoMovieVector3 = polygon[(i + 1) % polygon.length]!;
+      const sa: number = side(a);
+      const sb: number = side(b);
+      if (sa >= 0) kept.push({ ...a });
+      if (sa >= 0 !== sb >= 0) {
+        const t: number = sa / (sa - sb);
+        kept.push({
+          x: a.x + (b.x - a.x) * t,
+          y: a.y,
+          z: a.z + (b.z - a.z) * t,
+        });
+      }
+    });
+    return convexHull2D(kept);
+  }
 
-/**
- * A convex polygon's area centroid on the floor; its vertices' mean when it has
- * no area.
- */
-export function centroid(
-  polygon: readonly IAutoMovieVector3[],
-  floor: number,
-): IAutoMovieVector3 {
-  let area: number = 0;
-  let x: number = 0;
-  let z: number = 0;
-  polygon.forEach((a: IAutoMovieVector3, i: number): void => {
-    const b: IAutoMovieVector3 = polygon[(i + 1) % polygon.length]!;
-    const cross: number = a.x * b.z - b.x * a.z;
-    area += cross;
-    x += (a.x + b.x) * cross;
-    z += (a.z + b.z) * cross;
-  });
-  if (Math.abs(area) > 1e-12)
-    return { x: x / (3 * area), y: floor, z: z / (3 * area) };
-  const n: number = Math.max(1, polygon.length);
-  return {
-    x: polygon.reduce((sum, p) => sum + p.x, 0) / n,
-    y: floor,
-    z: polygon.reduce((sum, p) => sum + p.z, 0) / n,
-  };
-}
+  /**
+   * A convex polygon's area centroid on the floor; its vertices' mean when it has
+   * no area.
+   */
+  export function centroid(
+    polygon: readonly IAutoMovieVector3[],
+    floor: number,
+  ): IAutoMovieVector3 {
+    let area: number = 0;
+    let x: number = 0;
+    let z: number = 0;
+    polygon.forEach((a: IAutoMovieVector3, i: number): void => {
+      const b: IAutoMovieVector3 = polygon[(i + 1) % polygon.length]!;
+      const cross: number = a.x * b.z - b.x * a.z;
+      area += cross;
+      x += (a.x + b.x) * cross;
+      z += (a.z + b.z) * cross;
+    });
+    if (Math.abs(area) > 1e-12)
+      return { x: x / (3 * area), y: floor, z: z / (3 * area) };
+    const n: number = Math.max(1, polygon.length);
+    return {
+      x: polygon.reduce((sum, p) => sum + p.x, 0) / n,
+      y: floor,
+      z: polygon.reduce((sum, p) => sum + p.z, 0) / n,
+    };
+  }
 }

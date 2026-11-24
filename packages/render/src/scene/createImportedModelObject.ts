@@ -45,11 +45,6 @@ const normalizeBones: (
     THREE.Object3D<THREE.Object3DEventMap>
   > = new Map<AutoMovieHumanoidBone, THREE.Object3D>();
   if (input === undefined) return bones;
-  if (input instanceof Map) {
-    for (const [bone, node] of input)
-      if (node !== null && node !== undefined) bones.set(bone, node);
-    return bones;
-  }
   for (const [bone, node] of Object.entries(input))
     if (node !== null && node !== undefined)
       bones.set(bone as AutoMovieHumanoidBone, node);

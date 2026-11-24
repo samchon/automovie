@@ -1,5 +1,6 @@
 import { physicalDisturbanceFollow } from "./physicalDisturbanceFollow";
 import { physicalDisturbanceForm } from "./physicalDisturbanceForm";
+import { physicalDisturbancePlacement as Placement } from "./physicalDisturbancePlacement";
 import { physicalFootstepAdjustor } from "./physicalFootstepAdjustor";
 import { physicalIcpController } from "./physicalIcpController";
 import { physicalIcpPlanner } from "./physicalIcpPlanner";
@@ -260,7 +261,10 @@ export namespace physicalDisturbanceResponse {
         return {
           foot,
           index,
-          distance: Math.hypot(scope.state.xi.x - at.x, scope.state.xi.z - at.z),
+          distance: Math.hypot(
+            scope.state.xi.x - at.x,
+            scope.state.xi.z - at.z,
+          ),
         };
       })
       .sort((a, b): number => b.distance - a.distance || b.index - a.index);
@@ -293,7 +297,12 @@ export namespace physicalDisturbanceResponse {
     stance: readonly Foot[],
     swing: Foot,
   ): { holds: boolean; capturable: boolean } {
-    const time: number = Placement.preferred(scope, stance, swing, ZULU.swingTime);
+    const time: number = Placement.preferred(
+      scope,
+      stance,
+      swing,
+      ZULU.swingTime,
+    );
     if (!(time > 0)) return { holds: false, capturable: false };
     const duration: number = Math.max(
       ZULU.minimumSwingTime,

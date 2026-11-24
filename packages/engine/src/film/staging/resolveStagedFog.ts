@@ -4,6 +4,7 @@ import type {
   IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
+import { overflowsBinary64 } from "../../math/overflowsBinary64";
 import { validateColor } from "../../validation/validateColor";
 import { validateFogPlacement } from "./validateFogPlacement";
 
@@ -57,5 +58,15 @@ export function resolveStagedFog(
       ? 0
       : Math.sqrt(-Math.log(transmittance)) / cameraDepthM;
 
+  // A depth near the smallest positive double overflows the quotient.
+  if (overflowsBinary64(density)) {
+    out.push(
+      "range",
+      path,
+      "depth and transmittance must produce a finite fog density",
+      reference,
+    );
+    return undefined;
+  }
   return fog === undefined ? { density, color } : undefined;
 }

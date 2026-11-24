@@ -3,6 +3,8 @@ import type {
   IAutoMovieDrawCall,
 } from "@automovie/interface";
 
+import type { AUTO_MOVIE_DRAW_GLOBALS } from "./AUTO_MOVIE_DRAW_GLOBALS.js";
+
 /**
  * One request a draw session hands the page's installed draw function, named by
  * `kind` so the page's task and a recording double each read the request it is
@@ -21,7 +23,7 @@ export namespace IAutoMovieDrawPageRequest {
     kind: "describe";
 
     /** The draw function's global name. */
-    name: string;
+    name: typeof AUTO_MOVIE_DRAW_GLOBALS.draw;
   }
 
   /** Hand the subject the film's dialogue mouths. */
@@ -30,7 +32,7 @@ export namespace IAutoMovieDrawPageRequest {
     kind: "speak";
 
     /** The draw function's global name. */
-    name: string;
+    name: typeof AUTO_MOVIE_DRAW_GLOBALS.draw;
 
     /** The mouths over the film. */
     track: IAutoMovieDialogueMouthTrack;
@@ -42,7 +44,7 @@ export namespace IAutoMovieDrawPageRequest {
     kind: "draw";
 
     /** The draw function's global name. */
-    name: string;
+    name: typeof AUTO_MOVIE_DRAW_GLOBALS.draw;
 
     /** The call to draw. */
     call: IAutoMovieDrawCall;

@@ -7,8 +7,8 @@ import type {
 } from "@automovie/interface";
 
 import { Vector3 } from "../math/Vector3";
-import { physicalRecoverySwing } from "./physicalRecoverySwing";
 import { physicalRecoveryLimbSwing } from "./physicalRecoveryLimbSwing";
+import { physicalRecoverySwing } from "./physicalRecoverySwing";
 import { physicalSupportPoint } from "./physicalSupportPoint";
 import { samplePhysicalRecoveryGoal } from "./samplePhysicalRecoveryGoal";
 

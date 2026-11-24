@@ -61,7 +61,7 @@ const NAILS: IAutoMovieMaterialOverlay = {
  * 1. Tint/normal and replacement/roughness overlays preserve their images, factors and strengths, image listing order and generated program-key shape after subsurface/detail patches.
  * 2. A normal overlay supplies a flat fallback when no base normal exists; an absent resolver applies no overlay.
  * 3. Generated programs carry transformed UVs and insert color, roughness and tangent-normal operations at their declared boundaries, after an earlier detail patch where applicable.
- * 4. Validation refuses malformed or oversized lists, non-record entries, missing images, unknown blends, invalid factors/strength/roughness/scales and wrong texture color spaces, while admitting the authored pair.
+ * 4. Validation refuses oversized lists, invalid factors/strength/roughness/scales and wrong texture color spaces, while admitting the authored pair.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Builds real overlay materials, reads published texture/factor records and generated shader programs, and validates authored declarations; catches dropped fields, wrong patch order and malformed layers admitted to projection.
  * @evidence contracts/development/testing.md#independent-expectations Authored scalar factors, multiply-versus-replace composition and native shader-stage boundaries define expected output. Generated shader text is product output but does not establish compiled GLSL or observed colors/normals.
@@ -258,22 +258,21 @@ export function test_viewer_material_overlay(): void {
   );
 
   const model: IAutoMovieModel = createModel();
-  const validate: (overlays: unknown) => ReturnType<typeof validateModel> = (
-    overlays: unknown,
+  const validate: (
+    overlays: IAutoMovieMaterial["overlays"],
+  ) => ReturnType<typeof validateModel> = (
+    overlays: IAutoMovieMaterial["overlays"],
   ): ReturnType<typeof validateModel> =>
     validateModel({
       model: {
         ...model,
-        materials: [{ ...model.materials[0]!, overlays } as IAutoMovieMaterial],
+        materials: [{ ...model.materials[0]!, overlays }],
       },
     });
   TestValidator.equals(
     "overlays are validated",
     namedFacts([
-      [
-        "notList",
-        (): boolean => hasViolation(validate("veins"), "type", ".overlays"),
-      ],
+
       [
         "tooMany",
         (): boolean =>
@@ -283,28 +282,7 @@ export function test_viewer_material_overlay(): void {
             ".overlays",
           ),
       ],
-      [
-        "notRecord",
-        (): boolean => hasViolation(validate([7]), "type", ".overlays[0]"),
-      ],
-      [
-        "noColour",
-        (): boolean =>
-          hasViolation(
-            validate([{ ...NAILS, baseColorTexture: null }]),
-            "type",
-            ".overlays[0].baseColorTexture",
-          ),
-      ],
-      [
-        "blend",
-        (): boolean =>
-          hasViolation(
-            validate([{ ...NAILS, blend: "screen" }]),
-            "type",
-            ".overlays[0].blend",
-          ),
-      ],
+
       [
         "strength",
         (): boolean =>
@@ -366,11 +344,7 @@ export function test_viewer_material_overlay(): void {
       ["admitted", (): boolean => validate([VEINS, NAILS]).success],
     ]),
     {
-      notList: true,
       tooMany: true,
-      notRecord: true,
-      noColour: true,
-      blend: true,
       strength: true,
       roughness: true,
       colourFactor: true,

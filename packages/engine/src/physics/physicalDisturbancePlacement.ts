@@ -1,5 +1,4 @@
 import { physicalDisturbanceForm } from "./physicalDisturbanceForm";
-import type { physicalDisturbanceResponse as Response } from "./physicalDisturbanceResponse";
 import { physicalDisturbanceResponse } from "./physicalDisturbanceResponse";
 import { physicalFootstepAdjustor } from "./physicalFootstepAdjustor";
 import { physicalIcpPlanner } from "./physicalIcpPlanner";
@@ -13,7 +12,7 @@ import type { preparePhysicalDisturbanceSpan } from "./preparePhysicalDisturbanc
 type Foot = preparePhysicalDisturbanceSpan.IFoot;
 
 /** The response being laid. */
-type IResponse = Response.IResponse;
+type IResponse = physicalDisturbanceResponse.IResponse;
 
 /** The closed forms a placement reads. */
 const { ZULU, add, outline, toLocal, toWorld }: typeof physicalDisturbanceForm =
@@ -21,15 +20,17 @@ const { ZULU, add, outline, toLocal, toWorld }: typeof physicalDisturbanceForm =
 
 /**
  * Where a disturbance response's swinging limb can step
- * (`preparePhysicalDisturbanceSpan`): the capture region it can reach, the swing
- * time it prefers, the footstep projected into the region, and the plan to it.
+ * (`preparePhysicalDisturbanceSpan`): the capture region it can reach, the
+ * swing time it prefers, the footstep projected into the region, and the plan
+ * to it.
  */
-export namespace physicalDisturbancePlacement {  /**
+export namespace physicalDisturbancePlacement {
+  /**
    * The region a swinging limb can step into with a swing time left: the
    * remaining support's one-step capture region cut by the discs it can reach,
    * the maximum endpoint travel about its lift-off place
-   * (`IAutoMoviePhysicalBalance.maximumStep`) and, with its leg known, the leg's
-   * reach about its hip carried by the centre of mass
+   * (`IAutoMoviePhysicalBalance.maximumStep`) and, with its leg known, the
+   * leg's reach about its hip carried by the centre of mass
    * (`physicalSupportSpanContacts.captureRegion`).
    */
   export function reachable(
@@ -118,7 +119,9 @@ export namespace physicalDisturbancePlacement {  /**
             toLocal,
           ),
         ),
-        support: Polygon.centroid(physicalDisturbanceResponse.supportOf(stance)),
+        support: Polygon.centroid(
+          physicalDisturbanceResponse.supportOf(stance),
+        ),
         region,
       },
     );

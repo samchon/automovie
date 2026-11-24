@@ -19,7 +19,6 @@ import { walkPosture } from "./walkPosture";
 import { walkReach } from "./walkReach";
 import { walkSwing } from "./walkSwing";
 
-
 /** A leg's swing kept inside its ranges under a settled pelvis. */
 type Ranged = ReturnType<typeof walkReach.prepareSwing>;
 

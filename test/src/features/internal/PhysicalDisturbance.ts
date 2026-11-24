@@ -328,7 +328,7 @@ export namespace PhysicalDisturbance {
     );
     const from: number = center[axis];
     const middles = limbs.map((limb) => {
-      const at: number[] = physicalStanceBalance
+      const at: number[] = physicalStanceSupport
         .polygon(subject.profile, subject.targets, [limb], 0)
         .map((point: IAutoMovieVector3): number => point[axis]);
       return { limb, middle: (Math.min(...at) + Math.max(...at)) / 2 };
@@ -345,7 +345,7 @@ export namespace PhysicalDisturbance {
         from -
         physicalStanceSwing.reach(polygon, { ...center, y: 0 }, along(-1)),
       rest: Math.max(
-        ...physicalStanceBalance
+        ...physicalStanceSupport
           .polygon(
             subject.profile,
             subject.targets,
@@ -479,7 +479,22 @@ export namespace PhysicalDisturbance {
     );
     const leg = limbs
       .map((limb) =>
-        physicalStanceSwing.swingLeg(subject.profile, subject.targets, limb),
+        physicalStanceSwing.swingLeg(
+          subject.profile,
+          // The targets as the rigid poses the swing reads.
+          new Map(
+          Object.entries(subject.targets).map(
+            ([bone, at]: [string, IAutoMovieRigidTransform]) => [
+              bone,
+              {
+                translation: (): IAutoMovieVector3 => at.position,
+                rotation: (): IAutoMovieQuaternion => at.rotation,
+              },
+            ],
+          ),
+        ),
+          limb,
+        ),
       )
       .reduce((a, b) => (b.mass > a.mass ? b : a));
     const peak: number = Math.min(

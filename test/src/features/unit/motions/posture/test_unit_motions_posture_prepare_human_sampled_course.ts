@@ -9,86 +9,147 @@ const ROUNDING: number = 1e-9;
 /** A short step of time to read a rate by a forward difference, seconds. */
 const DT: number = 1e-6;
 
+/** The tolerance the smooth value is knotted to, units of the value. */
+const TOLERANCE: number = 1e-4;
+
 /**
- * `prepareHumanSampledCourse` joins values solved at their seconds by the
- * minimum-jerk path through them (Flash and Hogan 1985): it passes each knot's
- * exact value, starts and ends at rest, and holds the end values outside; a
- * knot within `GAP` of the one before is dropped, a single knot holds, and
- * `window` gives a short easing's ends and middle.
+ * `prepareHumanSampledCourse` knots a value over an interval by AutoKnots
+ * (Vitenti et al. 2024, arXiv:2412.13423) between its marks, and joins each
+ * piece's knots by the minimum-jerk path through them (Flash and Hogan 1985):
+ * every evaluation is a knot the course passes, each piece starts and ends at
+ * rest, so the course is at rest at a mark, and the course holds its end values
+ * outside the interval. No piece is knotted finer than its step allows, an
+ * interval no longer than `GAP` holds the value at its start, and `through`
+ * joins given knots, dropping one within `GAP` of the one before.
  *
- * Scenarios, the value `t^2` sampled at 0, 1 and 2 s:
+ * Scenarios:
  *
- * 1. The course passes 0, 1 and 4 at the knots.
- * 2. It leaves the first knot and reaches the last at rest.
- * 3. Before the first and after the last second it holds 0 and 4.
- * 4. A second knot half a microsecond after the first is dropped: the course
- *    through 0 s, 0.0000005 s and 1 s equals the course through 0 and 1 s.
- * 5. One knot holds its value at every second.
- * 6. A window from 1 to 3 s has the knots 1, 2 and 3; an empty one only its start.
+ * 1. `sin t` over 0 to 2 s with a mark at 1 s, to 1e-4: the course passes the
+ *    value at every second it was read, each piece's six uniform starting knots
+ *    (0, 0.2, ..., 1 s and 1, 1.2, ..., 2 s) among them.
+ * 2. Every read second lies in the interval, and between knots the course stays
+ *    within twice the tolerance of `sin t` over a grid of hundredths.
+ * 3. The course is at rest at the mark and at both ends.
+ * 4. Before and after the interval it holds `sin 0` and `sin 2`.
+ * 5. A value that steps at 1 s, with no mark there, over 0 to 2 s on a step of a
+ *    quarter second, is read only at its six starting knots: the most knots a
+ *    quarter-second grid allows over 2 s is nine, fewer than the six and the
+ *    five middles a sweep would add.
+ * 6. An interval of half `GAP` reads its start once and holds it.
+ * 7. Through 0 s, half `GAP` and 1 s the course equals the course through 0 and 1
+ *    s, and one knot holds its value at every second.
  */
 export function test_unit_motions_posture_prepare_human_sampled_course(): void {
-  const course: (seconds: number) => number[] = prepareHumanSampledCourse(
-    [0, 1, 2],
-    (t: number): number[] => [t * t],
-  );
+  const reads: number[] = [];
+  const course: (seconds: number) => number[] = prepareHumanSampledCourse({
+    from: 0,
+    to: 2,
+    marks: [1],
+    sample: (t: number): number[] => {
+      reads.push(t);
+      return [Math.sin(t)];
+    },
+    tolerance: { kind: "absolute", absolute: TOLERANCE },
+    step: 1e-3,
+  });
 
-  // 1. Through the knots.
+  // 1. Through every read.
   TestValidator.predicate(
-    "through the knots",
-    [0, 1, 2].every((t: number): boolean =>
-      nclose(course(t)[0]!, t * t, ROUNDING),
-    ),
+    "through every read",
+    [0, 0.2, 0.4, 0.6, 0.8, 1, 1.2, 1.4, 1.6, 1.8, 2].every(
+      (t: number): boolean =>
+        reads.some((r: number): boolean => nclose(r, t, ROUNDING)),
+    ) &&
+      reads.every((t: number): boolean =>
+        nclose(course(t)[0]!, Math.sin(t), ROUNDING),
+      ),
   );
 
-  // 2. At rest at the ends.
+  // 2. Inside the interval, near the value.
   TestValidator.predicate(
-    "at rest at the ends",
-    Math.abs(course(DT)[0]! - course(0)[0]!) / DT < 1e-3 &&
-      Math.abs(course(2)[0]! - course(2 - DT)[0]!) / DT < 1e-3,
+    "near the value",
+    reads.every((t: number): boolean => t >= 0 && t <= 2) &&
+      Array.from(
+        { length: 201 },
+        (_: unknown, k: number): number => k / 100,
+      ).every(
+        (t: number): boolean =>
+          Math.abs(course(t)[0]! - Math.sin(t)) <= 2 * TOLERANCE,
+      ),
   );
 
-  // 3. Held outside.
+  // 3. At rest at the mark and the ends.
+  const rate: (t: number) => number = (t: number): number =>
+    Math.abs(course(t + DT)[0]! - course(t)[0]!) / DT;
+  TestValidator.predicate(
+    "at rest at the mark",
+    rate(0) < 1e-3 &&
+      rate(1 - DT) < 1e-3 &&
+      rate(1) < 1e-3 &&
+      rate(2 - DT) < 1e-3,
+  );
+
+  // 4. Held outside.
   TestValidator.predicate(
     "held outside",
-    nclose(course(-1)[0]!, 0, ROUNDING) && nclose(course(3)[0]!, 4, ROUNDING),
+    nclose(course(-1)[0]!, 0, ROUNDING) &&
+      nclose(course(3)[0]!, Math.sin(2), ROUNDING),
   );
 
-  // 4. Knots within the gap.
-  const near: (seconds: number) => number[] = prepareHumanSampledCourse(
-    [0, prepareHumanSampledCourse.GAP / 2, 1],
-    (t: number): number[] => [t],
+  // 5. The step stops a value that never converges.
+  const stepped: number[] = [];
+  prepareHumanSampledCourse({
+    from: 0,
+    to: 2,
+    sample: (t: number): number[] => {
+      stepped.push(t);
+      return [t < 1 ? 0 : 1];
+    },
+    tolerance: { kind: "absolute", absolute: TOLERANCE },
+    step: 0.25,
+  });
+  TestValidator.equals("the step's knots", stepped.length, 6);
+
+  // 6. An interval within the gap.
+  const short: number[] = [];
+  const held: (seconds: number) => number[] = prepareHumanSampledCourse({
+    from: 1,
+    to: 1 + prepareHumanSampledCourse.GAP / 2,
+    sample: (t: number): number[] => {
+      short.push(t);
+      return [7, 8];
+    },
+    tolerance: { kind: "absolute", absolute: TOLERANCE },
+    step: 1e-3,
+  });
+  TestValidator.equals(
+    "a short interval",
+    [short, held(0), held(5)],
+    [[1], [7, 8], [7, 8]],
   );
-  const plain: (seconds: number) => number[] = prepareHumanSampledCourse(
-    [0, 1],
-    (t: number): number[] => [t],
+
+  // 7. Through given knots.
+  const near: (seconds: number) => number[] = prepareHumanSampledCourse.through(
+    [
+      { seconds: 0, position: [0] },
+      { seconds: prepareHumanSampledCourse.GAP / 2, position: [0] },
+      { seconds: 1, position: [1] },
+    ],
   );
+  const plain: (seconds: number) => number[] =
+    prepareHumanSampledCourse.through([
+      { seconds: 0, position: [0] },
+      { seconds: 1, position: [1] },
+    ]);
+  const one: (seconds: number) => number[] = prepareHumanSampledCourse.through([
+    { seconds: 1, position: [7, 8] },
+  ]);
   TestValidator.predicate(
-    "a knot within the gap is dropped",
+    "through given knots",
     [0.25, 0.5, 0.75].every((t: number): boolean =>
       nclose(near(t)[0]!, plain(t)[0]!, ROUNDING),
-    ),
-  );
-
-  // 5. One knot.
-  const held: (seconds: number) => number[] = prepareHumanSampledCourse.through(
-    [{ seconds: 1, position: [7, 8] }],
-  );
-  TestValidator.equals(
-    "one knot holds",
-    [held(0), held(5)],
-    [
-      [7, 8],
-      [7, 8],
-    ],
-  );
-
-  // 6. A window's knots.
-  TestValidator.equals(
-    "a window's knots",
-    [
-      prepareHumanSampledCourse.window(1, 3),
-      prepareHumanSampledCourse.window(2, 2),
-    ],
-    [[1, 2, 3], [2]],
+    ) &&
+      one(0)[1] === 8 &&
+      one(5)[0] === 7,
   );
 }

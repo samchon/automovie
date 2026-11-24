@@ -1,4 +1,9 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import {
+  Quaternion,
+  ROM_TOLERANCE,
+  Vector3,
+  minimumJerk,
+} from "@automovie/engine";
 import type {
   AutoMovieHumanLimb,
   AutoMovieHumanSide,
@@ -20,6 +25,7 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
+import { AutoMovieMotionHumanArmCourse } from "../compose/AutoMovieMotionHumanArmCourse";
 import { AutoMovieMotionHumanArmJointCourse } from "../compose/AutoMovieMotionHumanArmJointCourse";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { HumanTrunk } from "../everyday/HumanTrunk";
@@ -172,9 +178,10 @@ export namespace relayPass {
             ? 1
             : 1 - minimumJerk.share(Math.min(1, (t - relax) / REACH));
 
-    // The run's own arm over each blend, solved at the blend's ends and its
-    // middle and read from their course (`prepareHumanSampledCourse`), so a
-    // read resolves no posture.
+    // The run's own arm over each blend, solved at knots AutoKnots places
+    // over the blend (Vitenti et al. 2024, arXiv:2412.13423) to the arm
+    // solver's angular resolution (`ROM_TOLERANCE`) and read from their
+    // course (`prepareHumanSampledCourse`), so a read resolves no posture.
     const runArm = (t: number): number[] => {
       const angles: IAutoMovieMotionHumanArmAngles.IAngles =
         AutoMovieMotionHumanArm.angles(
@@ -183,14 +190,19 @@ export namespace relayPass {
         );
       return [...angles.upper, ...angles.lower, ...angles.hand];
     };
-    const into: (t: number) => number[] = prepareHumanSampledCourse(
-      prepareHumanSampledCourse.window(Math.max(0, at - REACH), at),
-      runArm,
-    );
-    const out: (t: number) => number[] = prepareHumanSampledCourse(
-      prepareHumanSampledCourse.window(relax, duration),
-      runArm,
-    );
+    const blend: (from: number, to: number) => (t: number) => number[] = (
+      from: number,
+      to: number,
+    ): ((t: number) => number[]) =>
+      prepareHumanSampledCourse({
+        from,
+        to,
+        sample: runArm,
+        tolerance: { kind: "absolute", absolute: ROM_TOLERANCE },
+        step: AutoMovieMotionHumanArmCourse.STEP,
+      });
+    const into: (t: number) => number[] = blend(Math.max(0, at - REACH), at);
+    const out: (t: number) => number[] = blend(relax, duration);
 
     // The hand's goal at a second, on the run's posture there.
     const goal: (

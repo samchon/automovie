@@ -21,6 +21,7 @@ import { AutoMovieDrawFilm } from "./AutoMovieDrawFilm.js";
 import { AutoMovieDrawPlacement } from "./AutoMovieDrawPlacement.js";
 import type { AutoMovieDrawSubjects } from "./AutoMovieDrawSubjects.js";
 import type { IAutoMovieDrawFunction } from "./IAutoMovieDrawFunction.js";
+import type { IAutoMovieDrawGlobal } from "./IAutoMovieDrawGlobal.js";
 import type { IAutoMovieDrawProps } from "./IAutoMovieDrawProps.js";
 import type { IAutoMovieDrawScene } from "./IAutoMovieDrawScene.js";
 import type { IAutoMovieDrawSubject } from "./IAutoMovieDrawSubject.js";
@@ -111,11 +112,9 @@ const SUPERSAMPLE = 2 as const;
  */
 export function installAutoMovieDraw<Props = unknown>(
   subjects: AutoMovieDrawSubjects<Props | null>,
-  target: Record<string, unknown> = globalThis as unknown as Record<
-    string,
-    unknown
-  >,
+  target: IAutoMovieDrawGlobal = globalThis,
 ): void {
+  // The host injects the props its own subjects take, by the page contract.
   const injected: IAutoMovieDrawProps<Props | null> = (target[
     AUTO_MOVIE_DRAW_GLOBALS.props
   ] as IAutoMovieDrawProps<Props> | undefined) ?? {
@@ -177,10 +176,7 @@ export function installAutoMovieDraw<Props = unknown>(
   target[AUTO_MOVIE_DRAW_GLOBALS.draw] = draw;
 
   // Leaving the page releases what it holds.
-  const listen: unknown = target["addEventListener"];
-  if (typeof listen === "function")
-    listen.call(
-      target,
+  target.addEventListener?.(
       "pagehide",
       (): void => {
         void loading.then((loaded: ILoaded): void => {

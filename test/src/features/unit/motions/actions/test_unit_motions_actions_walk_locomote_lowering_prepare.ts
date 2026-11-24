@@ -3,61 +3,74 @@ import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../../internal/nclose";
 
-/** Rounding of one quintic's evaluation, metres. */
+/** Rounding of one quintic's evaluation, metres and degrees. */
 const ROUNDING: number = 1e-12;
 
 /**
- * `walkLocomoteLowering.prepare` solves the exact lowering at each knot
- * (`walkLocomoteLowering.times`) and joins the knots by a knot course, so the
- * course passes through every exact value and holds the end values outside the
- * take, the exact solve read only at the knots.
+ * `walkLocomoteLowering.prepare` solves the exact lowering at knots AutoKnots
+ * places between the walk's contact events, every toe-off and heel strike
+ * (`walkLocomoteLowering.marks`), and joins them by a knot course, so the
+ * course passes every exact value it read and holds the end values outside the
+ * take; `prepareStances` courses each foot's pitch the same way, split at that
+ * foot's own events only.
  *
  * The exact lowering here is `0.01 t` metres at `t` seconds over a one-second
- * take with one swing from 0.2 to 0.6 s: knots at 0, 0.1, 0.2, 0.3, 0.4, 0.5,
- * 0.6, 0.8 and 1.
+ * take with a left swing from 0.2 to 0.6 s; the pitches are `10 t` degrees for
+ * the left foot and `-5 t` for the right.
  *
  * Scenarios:
  *
- * 1. At every knot the course gives the exact lowering.
- * 2. The exact lowering is read at the knots only.
+ * 1. The marks are the swing's toe-off and heel strike.
+ * 2. The lowering is read at the take's ends and at both contact events, and the
+ *    course passes the exact lowering at every second it read.
  * 3. Before the take and after it the course holds its end values.
+ * 4. Each pitch course passes its exact pitch at both ends of the take and at the
+ *    left foot's events.
  */
 export function test_unit_motions_actions_walk_locomote_lowering_prepare(): void {
+  const swings: { side: "left"; off: number; on: number }[] = [
+    { side: "left", off: 0.2, on: 0.6 },
+  ];
+  TestValidator.equals(
+    "the marks",
+    walkLocomoteLowering.marks(swings),
+    [0.2, 0.6],
+  );
   const read: number[] = [];
   const course: ReturnType<typeof walkLocomoteLowering.prepare> =
-    walkLocomoteLowering.prepare(
-      1,
-      [{ side: "left", off: 0.2, on: 0.6 }],
-      (t: number): number => {
-        read.push(t);
-        return 0.01 * t;
-      },
-    );
-  const knots: number[] = [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.8, 1];
-
-  // 1. Through every knot.
-  for (const t of knots)
-    TestValidator.predicate(
-      `the exact lowering at ${t} s`,
-      nclose(course(t)[0]!, 0.01 * t, ROUNDING),
-    );
-
-  // 2. Read at the knots only.
+    walkLocomoteLowering.prepare(1, swings, (t: number): number => {
+      read.push(t);
+      return 0.01 * t;
+    });
   TestValidator.predicate(
-    "the exact lowering is read once a knot",
-    read.length === knots.length &&
-      read.every((t: number, i: number): boolean =>
-        nclose(t, knots[i]!, ROUNDING),
+    "through every read",
+    [0, 0.2, 0.6, 1].every((t: number): boolean =>
+      read.some((r: number): boolean => nclose(r, t, ROUNDING)),
+    ) &&
+      read.every((t: number): boolean =>
+        nclose(course(t)[0]!, 0.01 * t, ROUNDING),
       ),
   );
-
-  // 3. Held outside.
   TestValidator.predicate(
-    "held before the take",
-    nclose(course(-1)[0]!, 0, ROUNDING),
+    "held outside",
+    nclose(course(-1)[0]!, 0, ROUNDING) &&
+      nclose(course(2)[0]!, 0.01, ROUNDING),
   );
+  const pitches: ReturnType<typeof walkLocomoteLowering.prepareStances> =
+    walkLocomoteLowering.prepareStances(
+      1,
+      swings,
+      (t: number): Record<"left" | "right", number> => ({
+        left: 10 * t,
+        right: -5 * t,
+      }),
+    );
   TestValidator.predicate(
-    "held after the take",
-    nclose(course(2)[0]!, 0.01, ROUNDING),
+    "the pitches",
+    [0, 0.2, 0.6, 1].every((t: number): boolean =>
+      nclose(pitches(t).left, 10 * t, ROUNDING),
+    ) &&
+      nclose(pitches(0).right, 0, ROUNDING) &&
+      nclose(pitches(1).right, -5, ROUNDING),
   );
 }

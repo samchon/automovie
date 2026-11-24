@@ -32,10 +32,10 @@ export function readAutoMovieTextureSource(
   asset: string,
   texture: THREE.Texture,
 ): IAutoMovieRenderTextureSource {
-  const image: unknown = texture.image;
+  const image: IDecodedImage | null = decodedImage(texture.image);
   const data: boolean = AutoMovieThreeKind.isDataTexture(texture);
   const original: ReturnType<typeof decodedExtent> = decodedExtent(image, data);
-  if (typeof image !== "object" || image === null || original === undefined)
+  if (image === null || original === undefined)
     throw new Error(
       `Texture asset "${asset}" has no decoded two-dimensional extent.`,
     );
@@ -48,10 +48,10 @@ export function readAutoMovieTextureSource(
     !AutoMovieThreeKind.isDepthTexture(texture) &&
     !texture.isRenderTargetTexture;
   const extent: { width: number; height: number } = usesManualBase
-    ? (decodedExtent(mipmaps[0], data) ?? original)
+    ? (decodedExtent(decodedImage(mipmaps[0]), data) ?? original)
     : original;
   const unsupportedExtent: boolean =
-    ("depth" in image && image.depth !== 1) ||
+    (image.depth !== undefined && image.depth !== 1) ||
     AutoMovieThreeKind.isDataArrayTexture(texture) ||
     AutoMovieThreeKind.isData3DTexture(texture) ||
     AutoMovieThreeKind.isCompressedArrayTexture(texture) ||
@@ -151,8 +151,6 @@ export function readAutoMovieTextureSource(
       !unsupportedExtent &&
       !AutoMovieThreeKind.isCompressedTexture(texture) &&
       !AutoMovieThreeKind.isDepthTexture(texture) &&
-      "width" in image &&
-      "height" in image &&
       original.width === image.width &&
       original.height === image.height,
     colorSpace:
@@ -214,31 +212,64 @@ export function readAutoMovieTextureSource(
 
 /** Decode the native base metadata; manual history remains uncertified. */
 const decodedExtent: (
-  image: unknown,
+  image: IDecodedImage | null,
   data: boolean,
 ) => { width: number; height: number } | undefined = (
-  image: unknown,
+  image: IDecodedImage | null,
   data: boolean,
 ): { width: number; height: number } | undefined => {
-  if (typeof image !== "object" || image === null) return undefined;
-  const rawWidth: unknown = "width" in image ? image.width : undefined;
-  const rawHeight: unknown = "height" in image ? image.height : undefined;
-  const width: unknown =
-    !data && "displayWidth" in image
+  if (image === null) return undefined;
+  const width: number | undefined =
+    !data && image.displayWidth !== undefined
       ? image.displayWidth
-      : !data && "naturalWidth" in image
-        ? image.naturalWidth || rawWidth
-        : rawWidth;
-  const height: unknown =
-    !data && "displayHeight" in image
+      : !data && image.naturalWidth !== undefined
+        ? image.naturalWidth || image.width
+        : image.width;
+  const height: number | undefined =
+    !data && image.displayHeight !== undefined
       ? image.displayHeight
-      : !data && "naturalHeight" in image
-        ? image.naturalHeight || rawHeight
-        : rawHeight;
-  return typeof width === "number" &&
-    typeof height === "number" &&
+      : !data && image.naturalHeight !== undefined
+        ? image.naturalHeight || image.height
+        : image.height;
+  return width !== undefined &&
+    height !== undefined &&
     width > 0 &&
     height > 0
     ? { width, height }
     : undefined;
 };
+
+/**
+ * The extent fields a decoded texture source can carry: a data texture's
+ * `{ data, width, height, depth? }`, an image element's natural size, a video
+ * frame's display size, or a canvas or bitmap's own size. three declares a
+ * texture's image and a mipmap level without a type, so this accessor names
+ * the fields this reader takes from them.
+ */
+interface IDecodedImage {
+  /** The stored width in texels. */
+  width?: number;
+
+  /** The stored height in texels. */
+  height?: number;
+
+  /** The layer count of a layered or volume source. */
+  depth?: number;
+
+  /** An image element's intrinsic width. */
+  naturalWidth?: number;
+
+  /** An image element's intrinsic height. */
+  naturalHeight?: number;
+
+  /** A video frame's display width. */
+  displayWidth?: number;
+
+  /** A video frame's display height. */
+  displayHeight?: number;
+}
+
+/** A texture's image, or one mipmap level, read through its extent fields. */
+function decodedImage(value: unknown): IDecodedImage | null {
+  return (value ?? null) as IDecodedImage | null;
+}

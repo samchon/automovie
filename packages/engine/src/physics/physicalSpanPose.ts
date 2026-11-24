@@ -236,10 +236,7 @@ export namespace physicalSpanPose {
   };
 
   /** The body's actual poses judged by `admissible`. */
-  function handable(
-    bound: Pick<Bound, "segments">,
-    body: IBody,
-  ): boolean {
+  function handable(bound: Pick<Bound, "segments">, body: IBody): boolean {
     const segments = bound.segments?.get(body.id);
     const limit: number | undefined = body.handoffLimits?.maximumLinearError;
     if (!segments || limit === undefined) return true;

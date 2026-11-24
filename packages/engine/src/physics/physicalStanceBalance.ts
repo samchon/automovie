@@ -1,13 +1,10 @@
 import type {
-  IAutoMovieFootfallPattern,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
-
-/** A support limb of the balance pattern. */
-type Limb = IAutoMovieFootfallPattern["limbs"][number];
+import type { physicalStanceDemand } from "./physicalStanceDemand";
 
 /**
  * The stance balance of a body under internal actuation: the support wrench
@@ -350,6 +347,4 @@ export namespace physicalStanceBalance {
       actual,
     );
   }
-
 }
-

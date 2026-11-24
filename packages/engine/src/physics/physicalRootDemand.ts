@@ -440,7 +440,10 @@ export namespace physicalRootDemand {
    * @returns The force, world newtons, and moment, world N m, to apply.
    */
   export function external(input: {
-    settings: Pick<IAutoMoviePhysicalSimulationInput.IInput, "gravity" | "floor">;
+    settings: Pick<
+      IAutoMoviePhysicalSimulationInput.IInput,
+      "gravity" | "floor"
+    >;
     body: IAutoMoviePhysicalSimulationInput.IBody;
     base: AutoMovieXpbdBody;
     rootGoal: IAutoMovieVector3;

@@ -11,10 +11,10 @@ import type {
 
 import { stand } from "../actions/stand";
 import { HumanRefusal } from "../law/HumanRefusal";
+import { HumanArmTrajectoryTerms } from "../posture/HumanArmTrajectoryTerms";
 import { humanPostureHeading } from "../posture/humanPostureHeading";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
-import { HumanArmTrajectoryTerms } from "../posture/HumanArmTrajectoryTerms";
 import { prepareHumanSampledCourse } from "../posture/prepareHumanSampledCourse";
 import { prepareHumanShapeBlend } from "../posture/prepareHumanShapeBlend";
 import { knockdown } from "../reaction/knockdown";

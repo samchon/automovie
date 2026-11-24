@@ -88,8 +88,9 @@ export function seatLadderAccessGrips(
       t: number,
     ): ReturnType<typeof poseBones> =>
       poseBones(body, resolveHumanPosture.seeded(body, plan.posture(t)).pose);
-    const start: IAutoMovieQuaternion = bonesAt(from).get(`${side}Hand`)!
-      .worldRotation;
+    const start: IAutoMovieQuaternion = bonesAt(from).get(
+      `${side}Hand`,
+    )!.worldRotation;
     return prepareHumanSampledCourse({
       from,
       to,
@@ -121,7 +122,8 @@ export function seatLadderAccessGrips(
       },
       step: AutoMovieMotionHumanArmCourse.STEP,
     });
-  };  const schedule = (side: AutoMovieHumanSide): ISeat[] => {
+  };
+  const schedule = (side: AutoMovieHumanSide): ISeat[] => {
     const own: ILadderAccessGrip[] = grips.filter(
       (grip: ILadderAccessGrip): boolean => grip.side === side,
     );

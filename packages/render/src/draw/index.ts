@@ -12,6 +12,7 @@ export * from "./encodeAutoMovieDrawPixels.js";
 export * from "./IAutoMovieDrawCall.js";
 export * from "./IAutoMovieDrawDescription.js";
 export * from "./IAutoMovieDrawFunction.js";
+export * from "./IAutoMovieDrawGlobal.js";
 export * from "./IAutoMovieDrawPage.js";
 export * from "./IAutoMovieDrawPageRequest.js";
 export * from "./IAutoMovieDrawProps.js";

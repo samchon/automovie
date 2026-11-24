@@ -40,15 +40,22 @@ export const bindFormationTierCycle: (
       THREE.BufferGeometryEventMap
     >,
     material: THREE.Material<THREE.MaterialEventMap>,
-    group: THREE.Group<THREE.Object3DEventMap>,
+    // Three r186 dispatches the drawn geometry group, or null for an ungrouped
+    // draw; its declaration names the scene-graph Group, so the parameter
+    // admits both and the group's flag tells them apart.
+    group: THREE.Group | THREE.GeometryGroup | null,
   ): void => {
-    // Three r186 dispatches a geometry group. The installed Object3D
-    // declaration currently names the scene-graph Group at this boundary.
-    const drawGroup: THREE.GeometryGroup | null = group as unknown as
-      | THREE.BufferGeometry["groups"][number]
-      | null;
     const palette: THREE.Material<THREE.MaterialEventMap> =
-      representation.materials[drawGroup?.materialIndex ?? 0]!;
+      representation.materials[
+        isGeometryGroup(group) ? (group.materialIndex ?? 0) : 0
+      ]!;
     shadows.beforeDraw(material, palette);
   };
 };
+
+/** Whether a shadow draw names a geometry group rather than a scene group. */
+function isGeometryGroup(
+  group: THREE.Group | THREE.GeometryGroup | null,
+): group is THREE.GeometryGroup {
+  return group !== null && (group as THREE.Group).isGroup !== true;
+}

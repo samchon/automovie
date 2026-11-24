@@ -27,8 +27,8 @@ import { samplePhysicalRecoveryGoal } from "./samplePhysicalRecoveryGoal";
  * their caps; the drive adds only the path's feed-forward through J^T
  * (`physicalStanceSwing.swingForce`).
  *
- * The path is this phase's own, a known non-port: IHMC 201903 swings a biped
- * by an optimized two-waypoint trajectory (`TwoWaypointSwingGenerator`) and a
+ * The path is this phase's own, a known non-port: IHMC 201903 swings a biped by
+ * an optimized two-waypoint trajectory (`TwoWaypointSwingGenerator`) and a
  * quadruped by a blended two-waypoint one (`QuadrupedSwingState`), each tracked
  * by a whole-body task in space, which this engine does not have.
  *

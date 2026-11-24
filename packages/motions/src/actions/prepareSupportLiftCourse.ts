@@ -10,11 +10,11 @@ import { prepareHumanSampledCourse } from "../posture/prepareHumanSampledCourse"
  * the share one frame of the display's grid takes, and read between them from
  * the knots' minimum-jerk course (Flash and Hogan 1985). Its interpolation and
  * Simpson integral tests both read each tested middle, so a lift that rises and
- * falls between two knots fails the integral test even where the middle lies
- * on the line through them.
+ * falls between two knots fails the integral test even where the middle lies on
+ * the line through them.
  *
- * @param least The share of the interval one frame of the grid takes: the
- *   frame grid's interval over the interval's seconds.
+ * @param least The share of the interval one frame of the grid takes: the frame
+ *   grid's interval over the interval's seconds.
  * @param exact The exact root lift at a share.
  * @returns The course's reader.
  */

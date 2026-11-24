@@ -140,7 +140,7 @@ export function test_unit_motions_everyday_conversation_group_gaze(): void {
     conversationGaze({
       subject: "a",
       partner: "b",
-      turns: [{ speaker: "a", addressee: "b", from: 1, to: Infinity }],
+      turns: [{ speaker: "a", from: 1, to: Infinity }],
       random: held,
       eyes: EYES,
     });
