@@ -17,6 +17,7 @@ import type {
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { physicalHullFaces } from "../physics/physicalHullFaces";
+import { physicalShapeHull } from "../physics/physicalShapeHull";
 import { physicalShapeBounds } from "../physics/physicalShapeBounds";
 import { physicalShapeNormal } from "../physics/physicalShapeNormal";
 import { AutoMovieHumanoidNeutralBounds } from "./AutoMovieHumanoidNeutralBounds";
@@ -166,7 +167,7 @@ export namespace AutoMovieHumanoidSurfaceRays {
     }
     const inverse: IAutoMovieQuaternion = Quaternion.inverse(rotation);
     const faces: readonly IAutoMoviePhysicalHullFaces.IFace[] | undefined =
-      shape.kind === "hull" ? physicalHullFaces(shape.points).faces : undefined;
+      shape.kind === "hull" ? physicalShapeHull(shape).faces : undefined;
     return (origin: IAutoMovieVector3, d: IAutoMovieVector3): number => {
       const o: IAutoMovieVector3 = Quaternion.rotateVector(inverse, {
         x: origin.x - centre.x,

@@ -14,8 +14,6 @@ import { HumanPerformanceObject } from "./HumanPerformanceObject";
 import { humanTetherCatenary } from "./humanTetherCatenary";
 import { humanTetherReach } from "./humanTetherReach";
 
-/** How many points a slack line is drawn with. */
-
 /** A tether found by its far prop: the declaring prop and the line. */
 type IHeld = IAutoMovieMotionHumanPerformanceState.ITethered;
 

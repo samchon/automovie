@@ -21,14 +21,26 @@ import { createRecoveryMapNumericalFixture } from "../internal/createRecoveryMap
 import { nclose } from "../internal/nclose";
 
 /**
- * Lagged local curvature has independent geometry, factor and owner expectations.
+ * Lagged local curvature has independent geometry, factor and owner
+ * expectations.
  *
  * Scenarios:
- * 1. Pinhole point/rotation-point Hessians and general seed normalization match closed derivatives; finite first-order depth need not support second derivatives.
- * 2. An authored offdiagonal arrowhead quadratic with nonunit D has the independent dense physical norm, inverse/transpose product and covector duality.
- * 3. Point, Schur and fixed-row arithmetic refusals are distinct from malformed or sparse-hole ownership; a later inverse overflow throws from the already selected factor.
- * 4. Owned dual copying distinguishes empty and null, survives source mutation, and propagates identity/charge errors. Resource admission distinguishes fixed, optional and materialization capacity.
- * 5. Real camera initial KKT preserves all four adaptive/lagged combinations, invalid SQP admission, capacity fallback and per-fit reset; a selected update reaches its next terminal model without another trial.
+ *
+ * 1. Pinhole point/rotation-point Hessians and general seed normalization match
+ *    closed derivatives; finite first-order depth need not support second
+ *    derivatives.
+ * 2. An authored offdiagonal arrowhead quadratic with nonunit D has the
+ *    independent dense physical norm, inverse/transpose product and covector
+ *    duality.
+ * 3. Point, Schur and fixed-row arithmetic refusals are distinct from malformed or
+ *    sparse-hole ownership; a later inverse overflow throws from the already
+ *    selected factor.
+ * 4. Owned dual copying distinguishes empty and null, survives source mutation,
+ *    and propagates identity/charge errors. Resource admission distinguishes
+ *    fixed, optional and materialization capacity.
+ * 5. Real camera initial KKT preserves all four adaptive/lagged combinations,
+ *    invalid SQP admission, capacity fallback and per-fit reset; a selected
+ *    update reaches its next terminal model without another trial.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls local derivative/assembly, numerical factor/actions, precharged admission/copy and actual internal camera consumer. It observes physical quadratic identities, explicit refusal stages, owned copies, counters and original gauge/population without replacing foreign code.
  * @evidence contracts/development/testing.md#independent-expectations Authored quotient derivatives and Rodrigues second-order terms give scalar Hessian entries. A separately constructed upper factor defines dense H=D R^T R D independently of the factor under test. Fixed resource polynomials and original exact projected geometry define admission and initial KKT expectations; no helper output or convergence snapshot is its own oracle.
@@ -95,7 +107,7 @@ export function test_recovery_lagged_curvature(): void {
         [],
       ) === null,
   );
-  assertRecoveryMapCurvatureFactor(pose, seedPose, point, intrinsic);
+  assertRecoveryMapCurvatureFactor();
   const borrowed: IAutoMovieRecoveryUntiltedEstimate = {
     width: 8,
     rowCount: 3,

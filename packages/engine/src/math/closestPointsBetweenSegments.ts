@@ -5,6 +5,7 @@ import type {
 
 import { Vector3 } from "./Vector3";
 import { clampAutoMovieUnitInterval } from "./clampAutoMovieUnitInterval";
+import { overflowsBinary64 } from "./overflowsBinary64";
 
 /**
  * Closest witnesses on bounded segments in one metre coordinate frame. Inputs
@@ -58,6 +59,11 @@ export const closestPointsBetweenSegments: (
   const rx: number = rawR.x,
     ry: number = rawR.y,
     rz: number = rawR.z;
+  // The three differences are the operations that can overflow binary64.
+  if ([ux, uy, uz, vx, vy, vz, rx, ry, rz].some(overflowsBinary64))
+    throw new Error(
+      "Segment proximity requires finite coordinates and differences.",
+    );
 
   const scale: number = Math.max(
     Math.abs(ux),
@@ -182,5 +188,7 @@ export const closestPointsBetweenSegments: (
     pointA.y - pointB.y,
     pointA.z - pointB.z,
   );
+  if (overflowsBinary64(distance))
+    throw new Error("Segment proximity cannot represent its witness distance.");
   return { pointA, pointB, distance };
 };

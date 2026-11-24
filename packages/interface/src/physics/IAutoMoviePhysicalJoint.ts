@@ -1,6 +1,6 @@
 import type { IAutoMovieRigidTransform } from "../geometry/IAutoMovieRigidTransform";
 import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
-import type { IAutoMovieJointRotationFrame } from "../pose/IAutoMovieJointRotationFrame";
+import type { IAutoMoviePreparedJointRotationFrame } from "../pose/IAutoMoviePreparedJointRotationFrame";
 import type { IAutoMovieJointConstraint } from "../skeleton/IAutoMovieJointConstraint";
 import type { IAutoMoviePhysicalJointAxis } from "./IAutoMoviePhysicalJointAxis";
 
@@ -75,7 +75,7 @@ export namespace IAutoMoviePhysicalJoint {
     constraint: IAutoMovieJointConstraint;
 
     /** The bone's swing-twist frame: its clinical axes and rest frame. */
-    frame: IAutoMovieJointRotationFrame;
+    frame: IAutoMoviePreparedJointRotationFrame;
 
     /** The joint frame's rotation into the bone's own frame. */
     basis: IAutoMovieRigidTransform["rotation"];

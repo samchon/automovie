@@ -14,7 +14,7 @@ import { nclose } from "../../../internal/nclose";
  * joints alone.
  *
  * The average man stands with his left elbow flexed 30 degrees, well inside its
- * range, and a right hand goal.
+ * range.
  *
  * Scenarios:
  *
@@ -22,9 +22,10 @@ import { nclose } from "../../../internal/nclose";
  * 2. Its root and heading are the posture's own.
  */
 export async function test_unit_motions_sport_gymnastics_flight_frozen(): Promise<void> {
+  // Whole body: freezing resolves the posture over the full rig, topology and ROM.
   const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");
   const posture: IAutoMovieMotionHumanPosture = {
-    root: { x: 0, y: body.measure.hipHeight, z: 0 },
+    root: { x: 0, y: 0, z: 0 },
     yaw: 15,
     pitch: 0,
     roll: 0,

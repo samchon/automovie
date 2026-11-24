@@ -10,9 +10,14 @@ import { nclose } from "../internal/nclose";
  * Orthogonal row compression preserves the complete least-squares objective.
  *
  * Scenarios:
- * 1. Nonsymmetric tall rows and a noisy right side preserve objective values for independent variable choices and singular values from direct original-design Jacobi SVD.
- * 2. Zero/rank-deficient designs remain unresolved instead of acquiring invented rank, and no caller array is modified.
- * 3. Empty, wide, ragged, nonfinite, overflowing and over-budget inputs refuse before returning a misleading factor.
+ *
+ * 1. Nonsymmetric tall rows and a noisy right side preserve objective values for
+ *    independent variable choices and singular values from direct
+ *    original-design Jacobi SVD.
+ * 2. Zero/rank-deficient designs remain unresolved instead of acquiring invented
+ *    rank, and no caller array is modified.
+ * 3. Empty, wide, ragged, nonfinite, overflowing and over-budget inputs refuse
+ *    before returning a misleading factor.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the public reducer and asserts objective equality, full singular spectrum, triangular storage, original input ownership and refusal effects. These distinguish right-side omission and normal-matrix or residual-dropping substitutions.
  * @evidence contracts/development/testing.md#independent-expectations Direct scalar residual sums for prescribed x include the independently computed constant norm; original-row Jacobi SVD supplies a different orthogonalization route for singular values, without claiming an external high-relative-accuracy reference.

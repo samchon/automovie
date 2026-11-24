@@ -1,6 +1,4 @@
 import type {
-  IAutoMovieJointConstraint,
-  IAutoMovieJointRotationFrame,
   IAutoMovieQuaternion,
   IAutoMovieSwingTwistBasis,
   IAutoMovieVector3,
@@ -11,7 +9,6 @@ import { rotationBetween } from "../math/rotationBetween";
 import { toRigAngle } from "../rom/toRigAngle";
 import { swingTwistBasis } from "./swingTwistBasis";
 import { swingTwistRange } from "./swingTwistRange";
-import { swingTwistRegion } from "./swingTwistRegion";
 
 /** A disc coordinate pair and clinical-degree twist, as the chart produces. */
 type IPlace = ReturnType<typeof swingTwistRange.chart>;
@@ -42,8 +39,7 @@ interface IState {
  */
 export function placeSwingTwistChart(
   place: IPlace,
-  constraint: IAutoMovieJointConstraint,
-  joint: IAutoMovieJointRotationFrame,
+  joint: swingTwistRange.IPrepared,
   radius: IRadius,
   state?: IState,
 ): IAutoMovieQuaternion {
@@ -54,7 +50,7 @@ export function placeSwingTwistChart(
     k > 1e-12 ? Math.atan2(place.y, place.x) * swingTwistBasis.DEG : 0;
   const direction: IAutoMovieVector3 = swingTwistBasis.direction(
     basis,
-    k * radius(constraint, joint, azimuth),
+    k * radius(joint, azimuth),
     azimuth,
   );
   const aimed: IAutoMovieQuaternion =
@@ -76,15 +72,12 @@ export function placeSwingTwistChart(
 export namespace placeSwingTwistChart {
   /** Release this reader with its fixed endpoint pair and unchanged rig. */
   export function prepare(
-    constraint: IAutoMovieJointConstraint,
-    joint: IAutoMovieJointRotationFrame,
+    joint: swingTwistRange.IPrepared,
     radius: IRadius,
   ): (place: IPlace) => IAutoMovieQuaternion {
     const basis: IAutoMovieSwingTwistBasis.IBasis = swingTwistBasis.of(
       joint.axes,
     );
-    const prepared: IAutoMovieJointRotationFrame & swingTwistRegion.IRegional =
-      { ...joint, region: swingTwistRegion.of(constraint, joint) };
     const state: IState = {
       basis,
       aim: rotationBetween.prepare(basis.u),
@@ -92,6 +85,6 @@ export namespace placeSwingTwistChart {
       rig: toRigAngle.prepare(),
     };
     return (place: IPlace): IAutoMovieQuaternion =>
-      placeSwingTwistChart(place, constraint, prepared, radius, state);
+      placeSwingTwistChart(place, joint, radius, state);
   }
 }

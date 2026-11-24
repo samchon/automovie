@@ -70,6 +70,8 @@ export function resolvePerformShotTarget(
   }
   if (!validateTargetIds(context, target, path, props.label)) return null;
   if (
+    target.kind === "direction" ||
+    target.kind === "offscreen" ||
     (target.kind === "node" && !context.nodePositions.has(target.node)) ||
     (target.kind === "group" &&
       target.nodes.length + (target.formations?.length ?? 0) === 0)

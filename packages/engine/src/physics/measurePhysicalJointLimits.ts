@@ -64,12 +64,7 @@ export function measurePhysicalJointLimits(
         violation:
           Math.max(
             0,
-            reading.swing -
-              swingTwistRange.radius(
-                gate.constraint,
-                gate.frame,
-                reading.azimuth,
-              ),
+            reading.swing - swingTwistRange.radius(gate.frame, reading.azimuth),
           ) * radian,
       },
       {

@@ -67,26 +67,10 @@ const applyCopy: (
   sampled: Map<string, IAutoMovieSampledChannel>,
   nodesById: Map<string, IAutoMovieNode>,
 ): void => {
-  validateCopyFlag(d.translation, "translation");
-  validateCopyFlag(d.rotation, "rotation");
-  validateCopyFlag(d.scale, "scale");
   validateCopyInfluence(d.influence);
   if (d.translation) writeBlend(d, "translation", false, sampled, nodesById);
   if (d.rotation) writeBlend(d, "rotation", true, sampled, nodesById);
   if (d.scale) writeBlend(d, "scale", false, sampled, nodesById);
-};
-
-const validateCopyFlag: (
-  value: boolean,
-  label: "translation" | "rotation" | "scale",
-) => void = (
-  value: boolean,
-  label: "translation" | "rotation" | "scale",
-): void => {
-  if (typeof value !== "boolean")
-    throw new Error(
-      `copy driver ${label} flag must be boolean, but was ${value}`,
-    );
 };
 
 const validateCopyInfluence: (influence: number) => void = (
@@ -176,8 +160,6 @@ const validateCopySampledValue: (
   value: number[],
 ): void => {
   const expected: 3 | 4 = COPY_SAMPLE_WIDTHS[path];
-  if (!Array.isArray(value))
-    throw new Error(`copy driver ${role} ${path} value must be an array`);
   if (value.length !== expected)
     throw new Error(
       `copy driver ${role} ${path} value must contain exactly ${expected} entries, but had ${value.length}`,
@@ -267,19 +249,10 @@ const readDrivenSourceValue: (value: number[]) => number = (
 const validateDrivenSourceValue: (value: number[]) => void = (
   value: number[],
 ): void => {
-  if (!Array.isArray(value))
-    throw new Error("driven driver source value must be an array");
   if (value.length !== 1)
     throw new Error(
       `driven driver source value must contain exactly 1 entry, but had ${value.length}`,
     );
-};
-
-const validateDrivenClamp: (clamp: boolean) => void = (
-  clamp: boolean,
-): void => {
-  if (typeof clamp !== "boolean")
-    throw new Error(`driven driver clamp must be boolean, but was ${clamp}`);
 };
 
 const validateDrivenRange: (
@@ -294,8 +267,6 @@ const validateDrivenRangeTuple: (
   label: "inRange" | "outRange",
   range: [number, number],
 ) => void = (label: "inRange" | "outRange", range: [number, number]): void => {
-  if (!Array.isArray(range))
-    throw new Error(`driven driver ${label} must be an array`);
   if (range.length !== 2)
     throw new Error(
       `driven driver ${label} must contain exactly 2 entries, but had ${range.length}`,
@@ -315,7 +286,6 @@ const remapDriven: (
       "driven driver without a curve requires inRange and outRange",
     );
   validateDrivenRange(inRange, outRange);
-  if (d.clamp !== undefined) validateDrivenClamp(d.clamp);
   return remap(source ?? inRange[0], inRange, outRange, d.clamp ?? false);
 };
 

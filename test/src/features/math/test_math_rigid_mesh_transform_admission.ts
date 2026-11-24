@@ -7,9 +7,12 @@ import { throwsError } from "../internal/predicates";
 /**
  * Invalid correspondence cannot be laundered into a finite rigid result.
  * Scenarios:
+ *
  * 1. Misaligned buffers, absent/duplicate/outside/noninteger vertices refuse.
- * 2. Selected nonfinite or missing coordinates and unrepresentable centering refuse.
- * 3. A following valid call remains usable, and unused coordinates do not enter the fit.
+ * 2. Selected nonfinite or missing coordinates and unrepresentable centering
+ *    refuse.
+ * 3. A following valid call remains usable, and unused coordinates do not enter
+ *    the fit.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the real rigid fitter on malformed correspondence and requires its named refusal, then checks a valid centroid and exclusion of unselected NaN coordinates. Accepting invalid selected data or scanning unrelated vertices fails these observations.
  * @evidence contracts/development/testing.md#independent-expectations Aligned XYZ buffers and distinct resident integer selections are the fit contract. Averaging the authored target vertices gives (.5,1,0); selecting only target (4,5,6) gives that point unchanged. These centroid assertions do not independently validate the recovered rotation.

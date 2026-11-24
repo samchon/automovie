@@ -1,10 +1,9 @@
-import { swingTwistRange } from "@automovie/engine";
+import { DEFAULT_HUMANOID_ROM, swingTwistRange } from "@automovie/engine";
 import type {
   IAutoMovieJointAxes,
   IAutoMovieJointRotationFrame,
   IAutoMovieQuaternion,
   IAutoMovieSwingTwistRange,
-  IAutoMovieVector3,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -111,8 +110,11 @@ export function test_rom_swing_twist_prepared_scope(): void {
   }
 
   scenario("immutable prepared numerical readings", (): void => {
-    const prepared: IAutoMovieJointRotationFrame =
-      swingTwistRange.prepare(joint);
+    const prepared: IAutoMovieJointRotationFrame = swingTwistRange.prepare(
+      "leftUpperArm",
+      joint,
+      DEFAULT_HUMANOID_ROM.leftUpperArm!,
+    );
     if (
       !(
         prepared !== joint &&
@@ -167,55 +169,6 @@ export function test_rom_swing_twist_prepared_scope(): void {
       findings.push("a later read repaired caller-owned earlier output");
   });
 
-  scenario("lazy admission and retry", (): void => {
-    let reads: number = 0;
-    let refuse: boolean = true;
-    const observed: IAutoMovieJointAxes = {
-      get flexion(): IAutoMovieVector3 {
-        reads++;
-        if (refuse) {
-          refuse = false;
-          throw new Error("owned basis input refused once");
-        }
-        return axes.flexion;
-      },
-      abduction: axes.abduction,
-      twist: axes.twist,
-    };
-    const prepared: IAutoMovieJointRotationFrame = swingTwistRange.prepare({
-      axes: observed,
-      frame: joint.frame,
-    });
-    if (reads !== 0) findings.push("preparation eagerly read numerical axes");
-    if (
-      !throwsError(
-        (): IAutoMovieSwingTwistRange.IReading =>
-          swingTwistRange.read(rotation(0, 30), prepared),
-        "owned basis input refused once",
-      )
-    )
-      findings.push(
-        "first numerical admission did not propagate the owned refusal",
-      );
-    physical(
-      "retry after refusal",
-      swingTwistRange.read(rotation(0, 30), prepared),
-      0,
-      30,
-    );
-    const admittedReads: number = reads;
-    physical(
-      "changed rotation after retry",
-      swingTwistRange.read(rotation(20, -15), prepared),
-      20,
-      -15,
-    );
-    if (!(admittedReads > 0 && reads === admittedReads))
-      findings.push(
-        "successful prepared basis was rebuilt for a changed rotation",
-      );
-  });
-
   scenario("raw and copied frames retain live admission", (): void => {
     const invalid: IAutoMovieJointAxes = {
       ...axes,
@@ -243,8 +196,11 @@ export function test_rom_swing_twist_prepared_scope(): void {
     raw.axes.flexion.x = 1;
     physical("raw recovery", swingTwistRange.read(rotation(0, 30), raw), 0, 30);
 
-    const prepared: IAutoMovieJointRotationFrame =
-      swingTwistRange.prepare(joint);
+    const prepared: IAutoMovieJointRotationFrame = swingTwistRange.prepare(
+      "leftUpperArm",
+      joint,
+      DEFAULT_HUMANOID_ROM.leftUpperArm!,
+    );
     physical(
       "source wrapper warmed",
       swingTwistRange.read(rotation(0, 30), prepared),

@@ -9,7 +9,9 @@ import {
 import type {
   AutoMovieHumanLimb,
   AutoMovieHumanoidBone,
+  IAutoMovieJointConstraint,
   IAutoMovieJointPose,
+  IAutoMovieJointRotationFrame,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanResolveHumanPosture,
@@ -65,15 +67,29 @@ export function prepareHumanFreeCurve(
     AutoMovieHumanoidBone,
     (joint: IAutoMovieJointPose) => number
   > = new Map();
-  for (const bone of body.skeleton.bones)
+  for (const bone of body.skeleton.bones) {
+    const constraint: IAutoMovieJointConstraint | null = getConstraint(
+      bone.bone,
+      bone.constraint ?? null,
+    );
+    const frame: IAutoMovieJointRotationFrame | undefined = swingTwistRange.of(
+      bone.bone,
+      body.skeleton,
+    );
     legality.set(
       bone.bone,
       jointRomOvershoot.prepare(
         bone.bone,
-        getConstraint(bone.bone, bone.constraint ?? null),
-        swingTwistRange.of(bone.bone, body.skeleton),
+        constraint,
+        constraint === null ||
+          constraint.swingTwist === undefined ||
+          constraint.swingTwist === null ||
+          frame === undefined
+          ? undefined
+          : swingTwistRange.prepare(bone.bone, frame, constraint),
       ),
     );
+  }
   const { cold, observe, correct }: HumanFreeCurveFit.IFits = HumanFreeCurveFit(
     { body, at, tolerance, radians, legality },
   );

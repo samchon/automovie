@@ -1,5 +1,6 @@
 import type { IAutoMovieRigidTransform } from "../geometry/IAutoMovieRigidTransform";
 import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
+import type { IAutoMoviePhysicalHullFaces } from "./IAutoMoviePhysicalHullFaces";
 
 /**
  * A finite solid collider placed in its segment's bone frame.
@@ -44,5 +45,10 @@ export type IAutoMoviePhysicalShape = {
        * At least four shape-local vertices, metres, not all in one plane; every
        * point is a vertex or lies on the hull's surface, never inside it.
        */ points: IAutoMovieVector3[];
+
+      /**
+       * The convex hull of `points`, built when the shape is; a reader that
+       * finds none computes it from the points.
+       */ hull?: IAutoMoviePhysicalHullFaces.IHull;
     }
 );

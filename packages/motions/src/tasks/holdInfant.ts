@@ -26,7 +26,9 @@ import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
 import { poseBones } from "../posture/poseBones";
+import { holdInfantBasis } from "./holdInfantBasis";
 import { holdInfantCrook } from "./holdInfantCrook";
+import { holdInfantEvents } from "./holdInfantEvents";
 
 /**
  * Seconds the arms take to bring the infant into the hold: provisional, an
@@ -169,7 +171,7 @@ export namespace holdInfant {
             // The infant's origin that puts the gripping hand's wrist at the
             // arm's wrist.
             const hand: IAutoMovieQuaternion = Quaternion.multiply(
-              basis(line, face),
+              holdInfantBasis(line, face),
               Quaternion.inverse(infant.frame.rotation),
             );
             return {
@@ -199,7 +201,7 @@ export namespace holdInfant {
     const placed: (t: number) => IAutoMovieRigidTransform = (
       t: number,
     ): IAutoMovieRigidTransform => {
-      const rotation: IAutoMovieQuaternion = basis(pose.line, pose.face);
+      const rotation: IAutoMovieQuaternion = holdInfantBasis(pose.line, pose.face);
       return { position: Vector3.add(pose.seat, sway(t)), rotation };
     };
     const world: (
@@ -216,13 +218,13 @@ export namespace holdInfant {
 
     const duration: number = SETTLE + seconds;
     const rate: number = params.pats ?? 1.5;
-    const events: IAutoMovieMotionEvent[] = [
-      { name: "held", share: SETTLE / duration },
-    ];
-    if (params.kind === "shoulder")
-      for (let k: number = 1; SETTLE + k / rate <= duration; k++)
-        events.push({ name: `pat${k}`, share: (SETTLE + k / rate) / duration });
-    events.push({ name: "relax", share: 1 });
+    const events: IAutoMovieMotionEvent[] = holdInfantEvents(
+      SETTLE,
+      duration,
+      rate,
+      params.kind === "shoulder",
+    );
+
 
     // The infant's front, opposite its back across its body's line, which
     // the bundle centres.
@@ -332,25 +334,6 @@ export namespace holdInfant {
   }
 
   /**
-   * The rotation that takes the infant's `+Y` to `line` and its `+Z` toward
-   * `face`.
-   */
-  function basis(
-    line: IAutoMovieVector3,
-    face: IAutoMovieVector3,
-  ): IAutoMovieQuaternion {
-    return HumanHand.align(
-      { normal: { x: 0, y: 1, z: 0 }, forward: { x: 0, y: 0, z: 1 } },
-      {
-        normal: line,
-        forward: Vector3.normalize(
-          Vector3.subtract(face, Vector3.scale(line, Vector3.dot(face, line))),
-        ),
-      },
-    );
-  }
-
-  /**
    * A palm laid on a site facing `normal`, its fingers toward `forward`, off it
    * by `lift`.
    */
@@ -409,7 +392,7 @@ export namespace holdInfant {
         Quaternion.rotateVector(infant.rotation, { x: 0, y: 0.6, z: 0 }),
       ),
     );
-    const rotation: IAutoMovieQuaternion = basis(down, UP);
+    const rotation: IAutoMovieQuaternion = holdInfantBasis(down, UP);
     const position: IAutoMovieVector3 = Vector3.subtract(
       mouth,
       Quaternion.rotateVector(rotation, tip),

@@ -45,10 +45,11 @@ const RETURNED: number = 0.01;
  * 3. At the end the wrist is back within a centimetre of where it hung.
  *
  * The body is built whole (`humanFixtureBody`): the plan solves the arm on the
- * body's rig and reads its measure, and the wrist is read by forward
- * kinematics of the whole posture.
+ * body's rig and reads its measure, and the wrist is read by forward kinematics
+ * of the whole posture.
  */
 export async function test_unit_motions_dressing_present_hand(): Promise<void> {
+  // Plans the arm on the whole body: the rig, the arm chain, the measure and the pose resolution.
   const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");
   const context = motionActionContext(body, { side: "left", hold: 0.5 });
   const plan: IAutoMovieMotionHumanActionPlan = presentHand.plan(context);

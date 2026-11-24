@@ -4,6 +4,7 @@ import {
 } from "@automovie/interface";
 
 import { Vector3 } from "./Vector3";
+import { overflowsBinary64 } from "./overflowsBinary64";
 
 /**
  * Evaluate one finite orientation-preserving 3×3 deformation Jacobian. Input
@@ -44,7 +45,7 @@ export function cofactorAutoMovieJacobian(
   const ca: IAutoMovieVector3 = Vector3.cross(c, a);
   const ab: IAutoMovieVector3 = Vector3.cross(a, b);
   const determinant: number = Vector3.dot(a, bc);
-  if (determinant <= 0)
+  if (!(determinant > 0) || overflowsBinary64(determinant))
     throw new Error(
       "Mesh deformation must remain finite and preserve local surface orientation.",
     );

@@ -230,7 +230,7 @@ export namespace AquaticCrew {
 
   /** Hold articulated sockets without taking ownership of the entire hull. */
   export function grips(
-    hull: IHull,
+    hull: Pick<IHull, "id">,
     params: AquaticPosture.Context["params"],
   ): IAutoMovieMotionHumanContactWindow[] {
     return (["left", "right"] as const)

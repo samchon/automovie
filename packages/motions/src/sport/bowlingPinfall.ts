@@ -5,6 +5,7 @@ import type {
   IAutoMoviePhysicalFrame,
   IAutoMoviePhysicalSegment,
   IAutoMoviePhysicalShape,
+  IAutoMoviePhysicsCache,
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -31,13 +32,13 @@ const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
  *   is missing from the cache.
  */
 export function bowlingPinfall(
-  params: IAutoMovieMotionHumanBowling.IReadPinfall,
+  params: bowlingPinfall.IRead,
 ): IAutoMovieMotionHumanBowling.IPinfall {
   const last: IAutoMoviePhysicalFrame = params.result.cache.at(
     params.result.cache.duration,
   );
   return params.pins
-    .filter((pin: IAutoMovieMotionHumanPrecisionDeck.IRigid): boolean => {
+    .filter((pin: bowlingPinfall.IPin): boolean => {
       const root: IAutoMovieRigidTransform | undefined =
         last.bodies[pin.id]?.root;
       if (root === undefined)
@@ -46,15 +47,46 @@ export function bowlingPinfall(
         Quaternion.rotateVector(root.rotation, UP).y < Math.cos(tipOver(pin))
       );
     })
-    .map((pin: IAutoMovieMotionHumanPrecisionDeck.IRigid): string => pin.id);
+    .map((pin: bowlingPinfall.IPin): string => pin.id);
+}
+
+/** What a pinfall reads of a baked delivery. */
+export namespace bowlingPinfall {
+  /** A placed pin: its id and its profile's first segment. */
+  export interface IPin {
+    /** The pin's body id in the deck cache. */
+    id: IAutoMovieMotionHumanPrecisionDeck.IRigid["id"];
+
+    /** Its profile, the first segment its hull and centre of mass. */
+    profile: {
+      /** The profile's segments. */
+      segments: readonly Pick<
+        IAutoMoviePhysicalSegment,
+        "shapes" | "centerOfMass"
+      >[];
+    };
+  }
+
+  /** The pins and the baked deck's cache end. */
+  export interface IRead {
+    /** The placed pins, each upright on its base with +Y along its axis. */
+    pins: readonly IPin[];
+
+    /** The baked deck, its cache's duration and frame reader. */
+    result: {
+      /** The deck's physics cache. */
+      cache: Pick<IAutoMoviePhysicsCache, "at" | "duration">;
+    };
+  }
 }
 
 /**
  * The tilt, radians, at which a standing pin's centre of mass passes over the
  * rim of its base.
  */
-function tipOver(pin: IAutoMovieMotionHumanPrecisionDeck.IRigid): number {
-  const segment: IAutoMoviePhysicalSegment = pin.profile.segments[0]!;
+function tipOver(pin: bowlingPinfall.IPin): number {
+  const segment: Pick<IAutoMoviePhysicalSegment, "shapes" | "centerOfMass"> =
+    pin.profile.segments[0]!;
   const points: IAutoMovieVector3[] = segment.shapes.flatMap(
     (shape: IAutoMoviePhysicalShape): IAutoMovieVector3[] =>
       shape.kind === "hull"

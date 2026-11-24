@@ -12,7 +12,6 @@ import type {
 import { TestValidator } from "@nestia/e2e";
 
 import { qclose } from "../internal/qclose";
-import { throwsError } from "../internal/throwsError";
 
 /**
  * Public prepared cardinal composition retains the actual noncommuting product,

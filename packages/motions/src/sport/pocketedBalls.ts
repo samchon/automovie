@@ -5,6 +5,7 @@ import type {
   IAutoMoviePhysicalFrame,
   IAutoMoviePhysicalSegment,
   IAutoMoviePhysicalShape,
+  IAutoMoviePhysicsCache,
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -28,18 +29,18 @@ import type {
  *   a ball is missing from the cache.
  */
 export function pocketedBalls(
-  params: IAutoMovieMotionHumanBilliards.IReadPocketed,
+  params: pocketedBalls.IRead,
 ): IAutoMovieMotionHumanBilliards.IPocketed {
   const { balls, pockets, result } = params;
   if (pockets.length === 0)
     throw new RangeError("A pocket credit needs at least one mouth");
   const bed: number = pockets[0]!.point.y;
-  const pending: Map<string, IAutoMovieMotionHumanPrecisionDeck.IRigid> =
+  const pending: Map<string, pocketedBalls.IBall> =
     new Map(
       balls.map(
         (
-          ball: IAutoMovieMotionHumanPrecisionDeck.IRigid,
-        ): [string, IAutoMovieMotionHumanPrecisionDeck.IRigid] => [
+          ball: pocketedBalls.IBall,
+        ): [string, pocketedBalls.IBall] => [
           ball.id,
           ball,
         ],
@@ -47,7 +48,7 @@ export function pocketedBalls(
     );
   const radii: Map<string, number> = new Map(
     balls.map(
-      (ball: IAutoMovieMotionHumanPrecisionDeck.IRigid): [string, number] => [
+      (ball: pocketedBalls.IBall): [string, number] => [
         ball.id,
         radius(ball),
       ],
@@ -87,14 +88,47 @@ export function pocketedBalls(
   return out;
 }
 
+/** What a pocket credit reads of a baked shot. */
+export namespace pocketedBalls {
+  /** A ball: its id and its profile's first segment, a sphere about its centre. */
+  export interface IBall {
+    /** The ball's body id in the deck cache. */
+    id: IAutoMovieMotionHumanPrecisionDeck.IRigid["id"];
+
+    /** Its profile, the first segment its sphere and centre of mass. */
+    profile: {
+      /** The profile's segments. */
+      segments: readonly Pick<
+        IAutoMoviePhysicalSegment,
+        "shapes" | "centerOfMass"
+      >[];
+    };
+  }
+
+  /** The balls, the mouths and the baked shot. */
+  export interface IRead {
+    /** The balls to credit. */
+    balls: readonly IBall[];
+
+    /** The table's pockets at bed height. */
+    pockets: readonly IAutoMovieMotionHumanPrecisionDeck.IPocket[];
+
+    /** The baked shot: its release and its cache's frames. */
+    result: Pick<IAutoMovieMotionHumanPrecisionDeck.IResult, "release"> & {
+      /** The shot's physics cache. */
+      cache: Pick<IAutoMoviePhysicsCache, "at" | "duration" | "rate">;
+    };
+  }
+}
+
 /** The horizontal distance between two points, metres. */
 function plan(a: IAutoMovieVector3, b: IAutoMovieVector3): number {
   return Math.hypot(a.x - b.x, a.z - b.z);
 }
 
 /** A ball's sphere radius, metres. */
-function radius(ball: IAutoMovieMotionHumanPrecisionDeck.IRigid): number {
-  const segment: IAutoMoviePhysicalSegment | undefined =
+function radius(ball: pocketedBalls.IBall): number {
+  const segment: Pick<IAutoMoviePhysicalSegment, "shapes" | "centerOfMass"> | undefined =
     ball.profile.segments[0];
   const sphere: IAutoMoviePhysicalShape | undefined = segment?.shapes.find(
     (shape: IAutoMoviePhysicalShape): boolean => shape.kind === "sphere",

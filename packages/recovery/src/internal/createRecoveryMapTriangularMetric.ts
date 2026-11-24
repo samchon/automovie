@@ -50,7 +50,7 @@ export function createRecoveryMapTriangularMetric(
     pivot: number,
   ): number => {
     const answer: number = value / pivot;
-    if (pivot === 0)
+    if (pivot === 0 || overflowed(answer))
       throw new Error("camera-feasible: unresolved triangular metric action");
     return answer;
   };
@@ -84,7 +84,8 @@ export function createRecoveryMapTriangularMetric(
         for (let previous: number = 0; previous < axis; previous++)
           value -= triangular[previous]![axis]! * right[previous]!;
         right[axis] = value / triangular[axis]![axis]!;
-        if (triangular[axis]![axis] === 0) return null;
+        if (triangular[axis]![axis] === 0 || overflowed(right[axis]!))
+          return null;
       }
       for (let column: number = 0; column < cameraWidth; column++)
         for (let axis: number = 0; axis < 3; axis++)
@@ -95,7 +96,8 @@ export function createRecoveryMapTriangularMetric(
       for (let previous: number = 0; previous < axis; previous++)
         value -= camera[previous]![axis]! * cameraRight[previous]!;
       cameraRight[axis] = value / camera[axis]![axis]!;
-      if (camera[axis]![axis] === 0) return null;
+      if (camera[axis]![axis] === 0 || overflowed(cameraRight[axis]!))
+        return null;
     }
     const indices: number[] = Array.from(
       { length: cameraWidth },
@@ -148,6 +150,8 @@ export function createRecoveryMapTriangularMetric(
         for (let axis: number = 0; axis < 3; axis++)
           physical.push(local[axis]! / pointScales[point]![axis]!);
       }
+      if (physical.some(overflowed))
+        throw new Error("camera-feasible: nonrepresentable physical step");
       return physical;
     },
     toPhysicalCovector: (value: readonly number[]): number[] => {
@@ -173,7 +177,14 @@ export function createRecoveryMapTriangularMetric(
       }
       for (let axis: number = 0; axis < cameraWidth; axis++)
         physical[axis]! *= cameraScales[axis]!;
+      if (physical.some(overflowed))
+        throw new Error("camera-feasible: nonrepresentable physical covector");
       return physical;
     },
   };
+}
+
+/** Whether a metric action entry overflowed binary64. */
+function overflowed(value: number): boolean {
+  return value === Infinity || value === -Infinity;
 }

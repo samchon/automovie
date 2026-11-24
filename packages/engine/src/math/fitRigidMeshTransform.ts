@@ -1,6 +1,7 @@
 import type { IAutoMovieFitRigidMeshTransform } from "@automovie/interface";
 
 import { Quaternion } from "./Quaternion";
+import { overflowsBinary64 } from "./overflowsBinary64";
 
 /**
  * Fit a proper rotation and translation between corresponding mesh vertices.
@@ -67,6 +68,9 @@ export function fitRigidMeshTransform(
         Math.abs(target[3 * vertex + k] - b[k]),
       );
     }
+  // The centroids and the centred extents are the operations that overflow.
+  if ([...a, ...b, referenceScale, targetScale].some(overflowsBinary64))
+    throw new Error("Rigid fitting exceeded finite coordinate arithmetic.");
   // Positive uniform rescaling of either cloud leaves the maximizing rotation
   // unchanged. Normalize before multiplication to avoid overflow and underflow.
   const referenceDivisor: number = referenceScale === 0 ? 1 : referenceScale;

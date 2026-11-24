@@ -157,6 +157,8 @@ const validateCue = (cue: FilmEffectCue): void => {
     cue.recipe !== "world-zone" ||
     cue.startFrame < 0 ||
     cue.durationFrames <= 0 ||
+    // The end frame is a frame index, so it must stay an exact integer.
+    cue.startFrame + cue.durationFrames > Number.MAX_SAFE_INTEGER ||
     cue.intensity < 0 ||
     cue.intensity > 1
   )

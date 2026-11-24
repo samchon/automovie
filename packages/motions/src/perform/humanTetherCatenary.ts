@@ -2,12 +2,12 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
 
 /**
  * The catenary of a slack line's length between two points, sampled from the
- * first to the second (Irvine 1981, Cable Structures): `y = a (cosh((x − x0)
- * / a) − cosh(−x0 / a))` along the level run `h` between the ends, its
- * parameter from `2a sinh(h / 2a) = sqrt(L² − v²)` solved by Newton's method
- * on `b = h / 2a`, and its vertex `x0 = h / 2 − a atanh(v / L)` placing it
- * through both ends. Ends that share a vertical hang the line straight down
- * from them, folded at its low point.
+ * first to the second (Irvine 1981, Cable Structures): `y = a (cosh((x − x0) /
+ * a) − cosh(−x0 / a))` along the level run `h` between the ends, its parameter
+ * from `2a sinh(h / 2a) = sqrt(L² − v²)` solved by Newton's method on `b = h /
+ * 2a`, and its vertex `x0 = h / 2 − a atanh(v / L)` placing it through both
+ * ends. Ends that share a vertical hang the line straight down from them,
+ * folded at its low point.
  *
  * @param from The near end.
  * @param to The far end.

@@ -12,6 +12,7 @@ import { nclose, throwsError, vclose } from "../internal/predicates";
  * limits. Symmetric constructions supply independent midpoint/gap oracles.
  *
  * Scenarios:
+ *
  * 1. Orthogonal and nearly parallel skew pairs retain interior minima at
  *    microscopic, ordinary and large scales; winding and pair swaps agree.
  * 2. Parallel overlap, endpoint contact and separated intervals are total,
@@ -20,8 +21,8 @@ import { nclose, throwsError, vclose } from "../internal/predicates";
  * 4. Exact points and owned witnesses preserve inputs; invalid coordinates,
  *    overflowing differences and underflowed nonzero ranks refuse and recover.
  * 5. Finite component differences whose norm overflows refuse explicitly.
- * 6. Eberly's independent near-parallel examples retain the published zero
- *    gap and endpoint minimum rather than cancelling a determinant division.
+ * 6. Eberly's independent near-parallel examples retain the published zero gap and
+ *    endpoint minimum rather than cancelling a determinant division.
  * 7. A rigid axis permutation and translation preserve a known skew minimum.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Executes segment witnesses and scalar separation across scale, near-parallel orientation, exact point degeneracy and arithmetic refusal, checking gaps, selected witnesses and owned collapsed results. Absolute span thresholds, cancelled interior minima or fabricated finite answers fail these cases.

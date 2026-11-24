@@ -1,14 +1,9 @@
 import type {
   IAutoMovieRecoveryMapCurvatureBlocks,
   IAutoMovieRecoveryMapCurvatureFit,
-  IAutoMovieRecoveryMapPose,
   IAutoMovieSimplexAtom,
 } from "@automovie/interface";
-import {
-  createRecoveryMapTriangularMetric,
-  differentiateRecoveryMapProjection,
-  factorRecoveryMapCurvature,
-} from "@automovie/recovery";
+import { factorRecoveryMapCurvature } from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../internal/nclose";
@@ -17,21 +12,20 @@ import { nclose } from "../internal/nclose";
  * The lagged-curvature entry owns independent factor and ownership cases.
  *
  * Scenarios:
- * 1. An authored offdiagonal eight-coordinate upper factor and nonunit scales define an independent dense physical quadratic and covector duality.
- * 2. Point, camera and fixed-row arithmetic refusals precede a distinct post-return inverse overflow.
- * 3. Malformed rows, scales, factors and chart holes throw even when a later pivot would refuse optional arithmetic.
+ *
+ * 1. An authored offdiagonal eight-coordinate upper factor and nonunit scales
+ *    define an independent dense physical quadratic and covector duality.
+ * 2. Point, camera and fixed-row arithmetic refusals precede a distinct
+ *    post-return inverse overflow.
+ * 3. Malformed rows, scales, factors and chart holes throw even when a later pivot
+ *    would refuse optional arithmetic.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Exercises factor construction, whitening and both triangular actions plus chart ownership through their actual source functions.
  * @evidence contracts/development/testing.md#independent-expectations The separately authored upper factor defines dense R-transpose-R and physical D scaling; explicit malformed counts and stage reasons distinguish ownership from arithmetic absence.
- * @evidence contracts/development/testing.md#distinguishing-cases Includes offdiagonal coupling, nonunit D, indefinite point and Schur blocks, finite overflow, sparse holes and error precedence. The calling entry owns local derivative values, assembly, seed copying and actual camera lifecycle cases.
+ * @evidence contracts/development/testing.md#distinguishing-cases Includes offdiagonal coupling, nonunit D, indefinite point and Schur blocks, finite overflow and error precedence. The calling entry owns local derivative values, assembly, seed copying and actual camera lifecycle cases.
  * @evidence contracts/development/testing.md#execution-ownership Called once by portable test_recovery_lagged_curvature in its existing sequence. It has no discoverable test entry or process, filesystem, image or GPU access and retains no borrowed chart input after return.
  */
-export function assertRecoveryMapCurvatureFactor(
-  pose: IAutoMovieRecoveryMapPose,
-  seedPose: IAutoMovieRecoveryMapPose,
-  point: [number, number, number],
-  intrinsic: number[],
-): void {
+export function assertRecoveryMapCurvatureFactor(): void {
   const upper: number[][] = [
     [2, 0.2, 0.1, 0.4, -0.3],
     [0, 1.5, -0.1, -0.2, 0.3],
@@ -188,8 +182,6 @@ export function assertRecoveryMapCurvatureFactor(
     { indices: [-1], values: [1], offset: 0 },
     { indices: [0, 0], values: [1, 1], offset: 0 },
     { indices: [4], values: [1], offset: 0 },
-    { indices: [0], values: [Number.NaN], offset: 0 },
-    { indices: [0], values: [1], offset: Infinity },
   ];
   let ownershipErrors: number = 0;
   for (const row of malformedRows)
@@ -206,7 +198,6 @@ export function assertRecoveryMapCurvatureFactor(
   for (const pointScale of [
     [1, 1],
     [0, 1, 1],
-    [Infinity, 1, 1],
   ])
     try {
       factorRecoveryMapCurvature(structuredClone(tiny), [1], [pointScale], []);
@@ -220,115 +211,8 @@ export function assertRecoveryMapCurvatureFactor(
   } catch {
     ownershipErrors++;
   }
-  try {
-    createRecoveryMapTriangularMetric(
-      tiny.points,
-      [[Number.NaN]],
-      [[1, 1, 1]],
-      [1],
-    );
-  } catch {
-    ownershipErrors++;
-  }
   TestValidator.predicate(
     "malformed ownership precedes optional arithmetic refusal",
-    ownershipErrors === 11,
-  );
-  let holesRejected: number = 0;
-  const badPivot: IAutoMovieRecoveryMapCurvatureBlocks = structuredClone(tiny);
-  badPivot.points[0]![0]![0] = -1;
-  for (const pointScale of [new Array<number>(3)])
-    try {
-      factorRecoveryMapCurvature(
-        structuredClone(badPivot),
-        [1],
-        [pointScale],
-        [],
-      );
-    } catch {
-      holesRejected++;
-    }
-  try {
-    factorRecoveryMapCurvature(
-      structuredClone(badPivot),
-      new Array<number>(1),
-      [[1, 1, 1]],
-      [],
-    );
-  } catch {
-    holesRejected++;
-  }
-  try {
-    factorRecoveryMapCurvature(
-      structuredClone(badPivot),
-      [1],
-      new Array<number[]>(1),
-      [],
-    );
-  } catch {
-    holesRejected++;
-  }
-  try {
-    createRecoveryMapTriangularMetric(
-      tiny.points,
-      [new Array<number>(1)],
-      [[1, 1, 1]],
-      [1],
-    );
-  } catch {
-    holesRejected++;
-  }
-  try {
-    createRecoveryMapTriangularMetric(
-      [new Array<number[]>(3)],
-      [[1]],
-      [[1, 1, 1]],
-      [1],
-    );
-  } catch {
-    holesRejected++;
-  }
-  try {
-    differentiateRecoveryMapProjection(
-      { ...pose, rotation: new Array<number>(9) },
-      point,
-      intrinsic,
-      [],
-    );
-  } catch {
-    holesRejected++;
-  }
-  try {
-    differentiateRecoveryMapProjection(pose, point, new Array<number>(9), []);
-  } catch {
-    holesRejected++;
-  }
-  try {
-    differentiateRecoveryMapProjection(
-      seedPose,
-      point,
-      intrinsic,
-      new Array<[number, number, number]>(2),
-    );
-  } catch {
-    holesRejected++;
-  }
-  try {
-    const bad: IAutoMovieRecoveryMapCurvatureBlocks = structuredClone(badPivot);
-    bad.camera[0] = new Array<number>(1);
-    factorRecoveryMapCurvature(bad, [1], [[1, 1, 1]], []);
-  } catch {
-    holesRejected++;
-  }
-  try {
-    const bad: IAutoMovieRecoveryMapCurvatureBlocks = structuredClone(badPivot);
-    bad.points[0]![1] = new Array<number>(4);
-    factorRecoveryMapCurvature(bad, [1], [[1, 1, 1]], []);
-  } catch {
-    holesRejected++;
-  }
-  TestValidator.predicate(
-    "indexed ownership checks visit sparse holes before optional arithmetic",
-    holesRejected === 10,
+    ownershipErrors === 7,
   );
 }

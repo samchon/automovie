@@ -11,8 +11,8 @@ export interface IAutoMovieJointRotationFrame {
   frame?: IAutoMovieRestFrame | undefined;
 
   /**
-   * The swing region of the constraint the joint is read under, built where
-   * the joint is prepared; absent on a frame that is not prepared.
+   * The swing region of the constraint the joint is read under, built where the
+   * joint is prepared; absent on a frame that is not prepared.
    */
   readonly region?: IAutoMovieSwingTwistRegion | undefined;
 }

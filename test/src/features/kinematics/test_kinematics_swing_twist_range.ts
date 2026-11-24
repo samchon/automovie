@@ -12,7 +12,6 @@ import type {
   AutoMovieHumanoidBone,
   IAutoMovieAngleRange,
   IAutoMovieJointConstraint,
-  IAutoMovieJointRotationFrame,
   IAutoMovieQuaternion,
   IAutoMovieSwingTwistRange,
   IAutoMovieVector3,
@@ -23,47 +22,46 @@ import { makeRng, randomUnitQuaternion } from "../internal/random";
 
 /**
  * A ball joint's range read by swing and twist holds what it states: the
- * twist's sign is the clinical one, the swing region is a star about the
- * rest direction and holds every direction the flexion and abduction ranges
- * reach, and the way back into the range leaves a rotation inside it as it
- * is and moves continuously with a rotation outside.
+ * twist's sign is the clinical one, the swing region is a star about the rest
+ * direction and holds every direction the flexion and abduction ranges reach,
+ * and the way back into the range leaves a rotation inside it as it is and
+ * moves continuously with a rotation outside.
  *
- * The joints are the shoulders and the hips of the default humanoid table,
- * each given a swing-twist twist interval (the shoulders [-70, 90], the hips
- * [-45, 45]), with the humanoid's axes and rest frames.
+ * The joints are the shoulders and the hips of the default humanoid table, each
+ * given a swing-twist twist interval (the shoulders [-70, 90], the hips [-45,
+ * 45]), with the humanoid's axes and rest frames.
  *
  * Scenarios:
- * 1. Sign: on the T-pose arm, the turn about the arm's own axis that carries
- *    the forward direction up (an elbow bent forward at a right angle, its
- *    forearm raised) reads as +90 degrees of twist on both sides: positive
- *    is external rotation, as the constraint's twist states.
- * 2. The region holds the ranges: for 4000 seeded pairs inside a joint's
- *    flexion and abduction intervals (and its swing cone), with no twist,
- *    the limb's direction lies within the region's radius on its circle, to
- *    two degrees (the radius is read on rays a degree apart by a half-degree
- *    scan, which can step over a sliver of reach narrower than its step).
- * 3. Inside is kept: a rotation made of a reached direction and a twist
- *    inside its interval comes back from the projection unchanged.
- * 4. Continuity: along 40 seeded paths between two rotations, cut into 1000
- *    steps, wherever the swing stays under 150 degrees (the decomposition is
- *    singular at 180, and at a swing s the azimuth turns up to
- *    1 / sin s times the step, twice at 150), the twist less than 60 degrees past its
- *    interval (a clamp of a turn onto an arc breaks at the turn farthest
- *    from it, 80 degrees past a shoulder's interval) and the swing less than
- *    30 degrees past the region, a step of under 0.4 degrees moves the
- *    projected rotation no more than six times the step plus 0.05 degrees
- *    (the region's radius turns at most three degrees per degree of
- *    azimuth, and the azimuth moves up to twice the step there), and the
- *    projected rotation is inside the range (its overshoot under a millionth
- *    of a degree).
+ *
+ * 1. Sign: on the T-pose arm, the turn about the arm's own axis that carries the
+ *    forward direction up (an elbow bent forward at a right angle, its forearm
+ *    raised) reads as +90 degrees of twist on both sides: positive is external
+ *    rotation, as the constraint's twist states.
+ * 2. The region holds the ranges: for 4000 seeded pairs inside a joint's flexion
+ *    and abduction intervals (and its swing cone), with no twist, the limb's
+ *    direction lies within the region's radius on its circle, to two degrees
+ *    (the radius is read on rays a degree apart by a half-degree scan, which
+ *    can step over a sliver of reach narrower than its step).
+ * 3. Inside is kept: a rotation made of a reached direction and a twist inside its
+ *    interval comes back from the projection unchanged.
+ * 4. Continuity: along 40 seeded paths between two rotations, cut into 1000 steps,
+ *    wherever the swing stays under 150 degrees (the decomposition is singular
+ *    at 180, and at a swing s the azimuth turns up to 1 / sin s times the step,
+ *    twice at 150), the twist less than 60 degrees past its interval (a clamp
+ *    of a turn onto an arc breaks at the turn farthest from it, 80 degrees past
+ *    a shoulder's interval) and the swing less than 30 degrees past the region,
+ *    a step of under 0.4 degrees moves the projected rotation no more than six
+ *    times the step plus 0.05 degrees (the region's radius turns at most three
+ *    degrees per degree of azimuth, and the azimuth moves up to twice the step
+ *    there), and the projected rotation is inside the range (its overshoot
+ *    under a millionth of a degree).
  * 5. The default shoulder's interval, provisional (one interval of the turn
  *    measured from the T-pose for every swing, where the anatomical limit
- *    depends on the swing): a hand behind the head, clasped behind the back
- *    and on the hip (the three-angle readings the engine's own reaches gave,
- *    turns of 128.4, -103.8 and -80.2 from rest) lie inside it, and each with
- *    the forearm wound a further 60 degrees about the arm, away from rest's
- *    turn, lies outside.
-
+ *    depends on the swing): a hand behind the head, clasped behind the back and
+ *    on the hip (the three-angle readings the engine's own reaches gave, turns
+ *    of 128.4, -103.8 and -80.2 from rest) lie inside it, and each with the
+ *    forearm wound a further 60 degrees about the arm, away from rest's turn,
+ *    lies outside.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the public reading, measure and projection on the humanoid's own axes and frames; a reversed twist sign, a region with a hole along a ray, a range the region misses, a projection that moves a rotation inside or steps between two near rotations fails with the joint and the numbers.
  * @evidence contracts/development/testing.md#independent-expectations The sign comes from what external rotation does to a forearm; the directions the region must hold come from the clinical intervals through the forward conversion (`jointToQuaternion`), so the radius table is the quantity tested and never the source of an expectation; continuity from the steps' sizes; the default shoulder's poses from the engine's own reach readings, a recorded baseline. Limitation: scenario 5's poses are the three-angle readings the engine's reaches gave, not a measured population.
@@ -102,7 +100,7 @@ export function test_kinematics_swing_twist_range(): void {
   const rng: () => number = makeRng(0x5717c4);
 
   for (const [bone, constraint] of joints) {
-    const joint: IAutoMovieJointRotationFrame = swingTwistRange.prepare(
+    const joint: swingTwistRange.IPrepared = swingTwistRange.prepare(
       bone,
       {
         axes: HUMANOID_JOINT_AXES[bone]!,
@@ -158,11 +156,7 @@ export function test_kinematics_swing_twist_range(): void {
         ),
         joint,
       );
-      const edge: number = swingTwistRange.radius(
-        constraint,
-        joint,
-        reading.azimuth,
-      );
+      const edge: number = swingTwistRange.radius(joint, reading.azimuth);
       if (reading.swing > edge + 2 && missed++ === 0)
         first = `${flexion.toFixed(1)}/${abduction.toFixed(1)} swings ${reading.swing.toFixed(2)} on the circle at ${reading.azimuth.toFixed(1)}, of radius ${edge.toFixed(2)}`;
     }
@@ -197,8 +191,7 @@ export function test_kinematics_swing_twist_range(): void {
         if (
           reading.swing >= 150 ||
           beyondTwist >= 60 ||
-          reading.swing >
-            swingTwistRange.radius(constraint, joint, reading.azimuth) + 30
+          reading.swing > swingTwistRange.radius(joint, reading.azimuth) + 30
         ) {
           before = undefined;
           previous = undefined;
@@ -241,7 +234,7 @@ export function test_kinematics_swing_twist_range(): void {
                       swingTwistRange.project(q, constraint, joint),
                       joint,
                     );
-                  return `in swing ${r.swing.toFixed(2)} azimuth ${r.azimuth.toFixed(2)} twist ${r.twist.toFixed(2)} radius ${swingTwistRange.radius(constraint, joint, r.azimuth).toFixed(2)}, out swing ${p.swing.toFixed(2)} azimuth ${p.azimuth.toFixed(2)} twist ${p.twist.toFixed(2)}`;
+                  return `in swing ${r.swing.toFixed(2)} azimuth ${r.azimuth.toFixed(2)} twist ${r.twist.toFixed(2)} radius ${swingTwistRange.radius(joint, r.azimuth).toFixed(2)}, out swing ${p.swing.toFixed(2)} azimuth ${p.azimuth.toFixed(2)} twist ${p.twist.toFixed(2)}`;
                 })
                 .join(" then ")}`,
             };
@@ -269,10 +262,14 @@ export function test_kinematics_swing_twist_range(): void {
   // forearm wound a further 60 degrees past each out.
   const shoulder: IAutoMovieJointConstraint =
     DEFAULT_HUMANOID_ROM.leftUpperArm!;
-  const arm: IAutoMovieJointRotationFrame = {
-    axes: HUMANOID_JOINT_AXES.leftUpperArm!,
-    frame: HUMANOID_REST_FRAME.leftUpperArm,
-  };
+  const arm: swingTwistRange.IPrepared = swingTwistRange.prepare(
+    "leftUpperArm",
+    {
+      axes: HUMANOID_JOINT_AXES.leftUpperArm!,
+      frame: HUMANOID_REST_FRAME.leftUpperArm,
+    },
+    shoulder,
+  );
   const axis: IAutoMovieVector3 = Vector3.normalize(arm.axes.twist);
   for (const [pose, triple] of [
     ["a hand behind the head", [180, -10.2, -51.6]],

@@ -3,7 +3,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { physicalHullFaces } from "./physicalHullFaces";
+import { resolvePhysicalHull } from "./resolvePhysicalHull";
 
 /**
  * The unit parameter of the point of a segment nearest a convex hull, or
@@ -30,11 +30,11 @@ import { physicalHullFaces } from "./physicalHullFaces";
  * @throws {Error} When the points span no volume.
  */
 export function physicalHullSegment(
-  points: readonly IAutoMovieVector3[],
+  points: readonly IAutoMovieVector3[] | IAutoMoviePhysicalHullFaces.IHull,
   a: IAutoMovieVector3,
   b: IAutoMovieVector3,
 ): number {
-  const hull: IAutoMoviePhysicalHullFaces.IHull = physicalHullFaces(points);
+  const hull: IAutoMoviePhysicalHullFaces.IHull = resolvePhysicalHull(points);
   if (!hull.faces.length) throw new Error("A hull must span a volume");
   const vertices: readonly IAutoMovieVector3[] = hull.vertices;
   const support = (d: IAutoMovieVector3): IVertex => {

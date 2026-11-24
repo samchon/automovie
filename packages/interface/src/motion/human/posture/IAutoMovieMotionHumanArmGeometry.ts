@@ -1,7 +1,7 @@
 import type { IAutoMovieQuaternion } from "../../../geometry/IAutoMovieQuaternion";
 import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
 import type { IAutoMovieJointPose } from "../../../pose/IAutoMovieJointPose";
-import type { IAutoMovieJointRotationFrame } from "../../../pose/IAutoMovieJointRotationFrame";
+import type { IAutoMoviePreparedJointRotationFrame } from "../../../pose/IAutoMoviePreparedJointRotationFrame";
 import type { AutoMovieHumanoidBone } from "../../../skeleton/AutoMovieHumanoidBone";
 import type { IAutoMovieBone } from "../../../skeleton/IAutoMovieBone";
 import type { IAutoMovieJointAxes } from "../../../skeleton/IAutoMovieJointAxes";
@@ -41,7 +41,7 @@ export namespace IAutoMovieMotionHumanArmGeometry {
       hand: IAutoMovieJointConstraint | null;
     };
     /** The shoulder's canonical swing-twist frame. */
-    joint: IAutoMovieJointRotationFrame;
+    joint: IAutoMoviePreparedJointRotationFrame;
     /** Current skeleton-declared axes over the canonical family table. */
     axes: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>;
     /** Borrowed bone-local rest transforms, translation in metres. */

@@ -8,6 +8,7 @@ import type {
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { physicalHullFaces } from "./physicalHullFaces";
+import { physicalShapeHull } from "./physicalShapeHull";
 
 /**
  * The outward unit normal of a collider at a point of its surface: a sphere's
@@ -127,7 +128,7 @@ function prepareNormal(
     inverse: Quaternion.inverse(rotation),
     planes:
       shape.kind === "hull"
-        ? physicalHullFaces(shape.points).faces
+        ? physicalShapeHull(shape).faces
         : shape.kind === "box"
           ? BOX.map(
               (

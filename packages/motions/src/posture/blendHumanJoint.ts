@@ -15,7 +15,6 @@ import type {
   IAutoMovieBone,
   IAutoMovieJointAxes,
   IAutoMovieJointConstraint,
-  IAutoMovieJointRotationFrame,
   IAutoMovieMotionHumanBody,
   IAutoMovieQuaternion,
   IAutoMovieResolvedJointAngles,
@@ -32,7 +31,7 @@ interface IFrame {
   basis: IAutoMovieJointAxes;
 
   /** The swing-twist frame, present only where the raw entry exists. */
-  joint: IAutoMovieJointRotationFrame | undefined;
+  joint: swingTwistRange.IPrepared | undefined;
 }
 
 /** The two metadata phases: constraint lookup precedes any ball-joint axes work. */
@@ -88,7 +87,7 @@ function frameOf(
       axes === undefined
         ? undefined
         : constraint === null
-          ? swingTwistRange.fromAxes(bone, axes)
+          ? undefined
           : swingTwistRange.prepare(
               bone,
               swingTwistRange.fromAxes(bone, axes)!,

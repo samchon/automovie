@@ -8,7 +8,11 @@ import type {
   IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { poseBones, resolveHumanPosture, touch } from "@automovie/motions/internal";
+import {
+  poseBones,
+  resolveHumanPosture,
+  touch,
+} from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { humanFixtureBody } from "../../../internal/fixtures/humanFixtureBody";
@@ -28,14 +32,15 @@ import { motionActionContext } from "../../../internal/motionActionContext";
  *    centimetre.
  * 2. The left palm on the right thigh's front: at `ready` the left wrist lies
  *    within a hand's length of the thigh's surface point.
- * 3. Both touches start from the entry posture: at 0 the right wrist is where
- *    it hung.
+ * 3. Both touches start from the entry posture: at 0 the right wrist is where it
+ *    hung.
  *
  * The body is built whole (`humanFixtureBody`): the plan solves the arm on the
  * body's rig and surfaces, and the wrists are read by forward kinematics of the
  * whole posture.
  */
 export async function test_unit_motions_touch_touch(): Promise<void> {
+  // Plans the touch on the whole body: the rig, the arm chains, the surfaces and the pose resolution.
   const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");
   const read = (
     plan: IAutoMovieMotionHumanActionPlan,

@@ -13,8 +13,8 @@ import type {
 import { AutoMovieMotionHumanRange } from "../compose/AutoMovieMotionHumanRange";
 import { kneelKeys } from "../everyday/kneelKeys";
 import { HumanFoot } from "../posture/HumanFoot";
-import type { humanFootOffset } from "../posture/humanFootOffset";
 import { HumanFrame } from "../posture/HumanFrame";
+import type { humanFootOffset } from "../posture/humanFootOffset";
 
 /** The record of `IPrepareRollResult2`'s site. */
 type IPrepareRollResult2 = {

@@ -126,7 +126,6 @@ function scan(
           ? jointToQuaternion(joint, range.axes, range.frame)
           : compose(joint)),
       constraint.swingTwist,
-      constraint,
       range,
       report,
       score,
@@ -186,7 +185,6 @@ function gate(
   total: number,
   rotation: IAutoMovieQuaternion,
   swingTwist: NonNullable<IAutoMovieJointConstraint["swingTwist"]>,
-  constraint: IAutoMovieJointConstraint,
   range: swingTwistRange.IPrepared,
   report: Parameters<typeof scanJointRom>[2] | undefined,
   score: boolean,
@@ -195,11 +193,7 @@ function gate(
     rotation,
     range,
   );
-  const reach: number = swingTwistRange.radius(
-    constraint,
-    range,
-    reading.azimuth,
-  );
+  const reach: number = swingTwistRange.radius(range, reading.azimuth);
   if (reading.swing > reach)
     total = fault(
       total,
@@ -349,6 +343,6 @@ export namespace scanJointRom {
     );
     if (range === undefined) return null;
     return (rotation: IAutoMovieQuaternion): number =>
-      gate(0, rotation, swingTwist, constraint, range, undefined, true);
+      gate(0, rotation, swingTwist, range, undefined, true);
   }
 }

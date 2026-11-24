@@ -3,6 +3,8 @@ import type {
   IAutoMovieQrDesignReduction,
 } from "@automovie/interface";
 
+import { overflowsBinary64 } from "./overflowsBinary64";
+
 /**
  * Compress original least-squares rows by streaming Givens rotations. The
  * returned upper design and transformed right side preserve the variable
@@ -44,7 +46,7 @@ export function reduceAutoMovieQrDesign(
       if (b === 0) continue;
       const a: number = upper[column]![column]!;
       const norm: number = Math.hypot(a, b);
-      if (!(norm > 0))
+      if (!(norm > 0) || overflowsBinary64(norm))
         throw new Error("qr-design: unrepresentable orthogonal rotation");
       const cosine: number = a / norm;
       const sine: number = b / norm;
@@ -53,6 +55,8 @@ export function reduceAutoMovieQrDesign(
         const second: number = incoming[entry]!;
         const retained: number = cosine * first + sine * second;
         const remaining: number = -sine * first + cosine * second;
+        if (overflowsBinary64(retained) || overflowsBinary64(remaining))
+          throw new Error("qr-design: unrepresentable transformed cell");
         upper[column]![entry] = retained;
         incoming[entry] = remaining;
         transformedCells++;
@@ -63,6 +67,8 @@ export function reduceAutoMovieQrDesign(
       orthogonalResidualNorm,
       incoming[width]!,
     );
+    if (overflowsBinary64(orthogonalResidualNorm))
+      throw new Error("qr-design: unrepresentable orthogonal residual");
   }
   return {
     rows: upper.map((row: number[]): number[] => row.slice(0, width)),

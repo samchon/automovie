@@ -5,6 +5,7 @@ import {
   jointToQuaternion,
   normalizeJointAxes,
   prepareJointRotationProjection,
+  swingTwistRange,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
@@ -295,13 +296,18 @@ export namespace jointRotationOracle {
         expected?: IAutoMovieQuaternion,
         expectedScore?: number,
       ): IAutoMovieJointPose {
+        const range: ReturnType<typeof swingTwistRange.prepare> | undefined =
+          input.constraint.swingTwist === undefined ||
+          input.constraint.swingTwist === null
+            ? undefined
+            : swingTwistRange.prepare(
+                input.bone,
+                { axes: input.basis, frame: input.frame },
+                input.constraint,
+              );
         const clamp: (joint: IAutoMovieJointPose) => IAutoMovieJointPose = (
           joint: IAutoMovieJointPose,
-        ): IAutoMovieJointPose =>
-          clampJointRom(joint, input.constraint, {
-            axes: input.basis,
-            frame: input.frame,
-          });
+        ): IAutoMovieJointPose => clampJointRom(joint, input.constraint, range);
         const project: (rotation: IAutoMovieQuaternion) => IAutoMovieJointPose =
           prepareJointRotationProjection({
             domain: { bone: input.bone, constraint: input.constraint },
@@ -339,13 +345,7 @@ export namespace jointRotationOracle {
           );
           check(
             `${label} sign ${sign}: actual ROM gate`,
-            nclose(
-              jointRomOvershoot(result, input.constraint, {
-                axes: input.basis,
-                frame: input.frame,
-              }),
-              0,
-            ),
+            nclose(jointRomOvershoot(result, input.constraint, range), 0),
           );
           if (expected !== undefined)
             check(

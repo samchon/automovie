@@ -22,9 +22,10 @@ import { nclose } from "../../../internal/nclose";
  *    after another does not repeat it.
  */
 export async function test_unit_motions_sport_gymnastics_flight_prepare_lowest(): Promise<void> {
+  // Whole body: the reader resolves postures and reads every collider of the profile.
   const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");
   const standing: IAutoMovieMotionHumanPosture = {
-    root: { x: 0, y: body.measure.hipHeight, z: 0 },
+    root: { x: 0, y: 0, z: 0 },
     yaw: 0,
     pitch: 0,
     roll: 0,
@@ -40,7 +41,7 @@ export async function test_unit_motions_sport_gymnastics_flight_prepare_lowest()
       nclose(
         lowest({
           ...standing,
-          root: { x: 0, y: body.measure.hipHeight + 0.5, z: 0 },
+          root: { x: 0, y: 0.5, z: 0 },
         }) - stood,
         0.5,
         1e-9,

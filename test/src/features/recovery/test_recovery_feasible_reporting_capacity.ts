@@ -6,7 +6,6 @@ import type {
 import {
   RecoveryFeasibleCapacityError,
   admitRecoveryCameraScene,
-  prepareRecoveryCheckpointReportCapacity,
   prepareRecoveryFeasibleMapReporting,
   prepareRecoveryFeasibleReportCapacity,
   prepareRecoverySceneFeasibleRouting,

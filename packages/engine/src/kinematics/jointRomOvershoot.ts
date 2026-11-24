@@ -6,6 +6,7 @@ import type {
 } from "@automovie/interface";
 
 import { scanJointRom } from "../rom/scanJointRom";
+import type { swingTwistRange } from "./swingTwistRange";
 
 /**
  * The total range-of-motion overshoot of one joint's clinical angles, in

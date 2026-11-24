@@ -4,13 +4,13 @@ import type {
   IAutoMovieJointAxes,
   IAutoMovieJointConstraint,
   IAutoMovieJointRotationFrame,
+  IAutoMoviePreparedJointRotationFrame,
   IAutoMovieQuaternion,
   IAutoMovieRestFrame,
   IAutoMovieSkeleton,
   IAutoMovieSwingTwistBasis,
   IAutoMovieSwingTwistChartPosition,
   IAutoMovieSwingTwistRange,
-  IAutoMovieSwingTwistRegion,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -167,10 +167,7 @@ export namespace swingTwistRange {
   }
 
   /** A joint frame that carries the swing region of its constraint. */
-  export type IPrepared = IAutoMovieJointRotationFrame & {
-    /** The region prepared for the constraint the frame is read under. */
-    readonly region: IAutoMovieSwingTwistRegion;
-  };
+  export type IPrepared = IAutoMoviePreparedJointRotationFrame;
 
   /**
    * The humanoid tables' frame of a bone, prepared for a constraint: the
@@ -253,7 +250,7 @@ export namespace swingTwistRange {
     const twist: IAutoMovieAngleRange = constraint.swingTwist!.twist;
     const turned: number = nearestAngleAlias(reading.twist, twist);
     return (
-      Math.max(0, reading.swing - radius(constraint, joint, reading.azimuth)) +
+      Math.max(0, reading.swing - radius(joint, reading.azimuth)) +
       Math.max(0, twist.min - turned, turned - twist.max)
     );
   }
@@ -285,7 +282,7 @@ export namespace swingTwistRange {
       interval.min,
       interval.max,
     );
-    const limit: number = radius(constraint, joint, reading.azimuth);
+    const limit: number = radius(joint, reading.azimuth);
     if (reading.swing <= limit && twist === turned) return q;
     const swing: number = Math.min(reading.swing, limit);
     const direction: IAutoMovieVector3 =
@@ -324,8 +321,7 @@ export namespace swingTwistRange {
     joint: IPrepared,
   ): IAutoMovieSwingTwistChartPosition {
     const reading: IAutoMovieSwingTwistRange.IReading = read(q, joint);
-    const k: number =
-      reading.swing / radius(constraint, joint, reading.azimuth);
+    const k: number = reading.swing / radius(joint, reading.azimuth);
     const turn: number = reading.azimuth / DEG;
     return {
       x: k * Math.cos(turn),
@@ -338,16 +334,14 @@ export namespace swingTwistRange {
    * The rotation at a place of the range's chart (`chart`), its inverse.
    *
    * @param place The disc coordinates and the twist, clinical degrees.
-   * @param constraint The constraint, with `swingTwist`.
    * @param joint The joint's axes and rest frame.
    * @returns The joint's rest-relative rotation.
    */
   export function placed(
     place: IAutoMovieSwingTwistChartPosition,
-    constraint: IAutoMovieJointConstraint,
     joint: IPrepared,
   ): IAutoMovieQuaternion {
-    return placeSwingTwistChart(place, constraint, joint, radius);
+    return placeSwingTwistChart(place, joint, radius);
   }
 
   /**
@@ -388,7 +382,7 @@ export namespace swingTwistRange {
       constraint,
       joint,
     );
-    return blendCharts(from, to, share, constraint, joint);
+    return blendCharts(from, to, share, joint);
   }
 
   /**
@@ -405,9 +399,9 @@ export namespace swingTwistRange {
     const from: IChart = chart(a, constraint, joint);
     const to: IChart = chart(b, constraint, joint);
     const place: (coordinate: IChart) => IAutoMovieQuaternion =
-      placeSwingTwistChart.prepare(constraint, joint, radius);
+      placeSwingTwistChart.prepare(joint, radius);
     return (share: number): IAutoMovieQuaternion =>
-      blendCharts(from, to, share, constraint, joint, place);
+      blendCharts(from, to, share, joint, place);
   }
 
   /**
@@ -418,7 +412,6 @@ export namespace swingTwistRange {
     from: IChart,
     to: IChart,
     share: number,
-    constraint: IAutoMovieJointConstraint,
     joint: IPrepared,
     read?: (coordinate: IChart) => IAutoMovieQuaternion,
   ): IAutoMovieQuaternion {
@@ -427,25 +420,18 @@ export namespace swingTwistRange {
       y: from.y + (to.y - from.y) * share,
       twist: from.twist + (to.twist - from.twist) * share,
     };
-    return read === undefined
-      ? placed(coordinate, constraint, joint)
-      : read(coordinate);
+    return read === undefined ? placed(coordinate, joint) : read(coordinate);
   }
   /**
    * The swing region's radius on one great circle, degrees, read off the cached
    * table by linear interpolation between its two nearest rays.
    *
-   * @param constraint The constraint.
-   * @param joint The joint's axes and rest frame.
+   * @param joint The joint's axes and rest frame, carrying its region.
    * @param azimuth The great circle, degrees about the rest direction from the
    *   flexion axis.
    * @returns The radius, degrees.
    */
-  export function radius(
-    constraint: IAutoMovieJointConstraint,
-    joint: IPrepared,
-    azimuth: number,
-  ): number {
+  export function radius(joint: IPrepared, azimuth: number): number {
     const table: Float64Array = joint.region.table;
     const rays: number = swingTwistBasis.RAYS;
     const at: number = positiveModulo(azimuth, 360) / (360 / rays);

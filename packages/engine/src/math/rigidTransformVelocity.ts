@@ -9,6 +9,7 @@ import type {
 import { ViolationCollector } from "../validation/ViolationCollector";
 import { Quaternion } from "./Quaternion";
 import { Vector3 } from "./Vector3";
+import { overflowsBinary64 } from "./overflowsBinary64";
 
 /**
  * Finite WORLD rigid-frame velocities over a positive interval: translation
@@ -81,6 +82,12 @@ export function rigidTransformVelocity(
           y: ((imaginary.y / sine) * angle) / elapsedSeconds,
           z: ((imaginary.z / sine) * angle) / elapsedSeconds,
         };
-
+  // The displacement and the quotients by a subnormal interval can overflow.
+  if (
+    [...Object.values(linear), ...Object.values(angular)].some(
+      overflowsBinary64,
+    )
+  )
+    throw new RangeError("Rigid velocity arithmetic is not representable");
   return { linear, angular };
 }

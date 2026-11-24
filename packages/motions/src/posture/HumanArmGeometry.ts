@@ -284,14 +284,12 @@ export namespace HumanArmGeometry {
     const most: number =
       (180 - ROM_TOLERANCE) /
       swingTwistRange.radius(
-        setup.constraint.upper,
         setup.joint,
         k > 0 ? (Math.atan2(c[1]!, c[0]!) * 180) / Math.PI : 0,
       );
     const scale: number = k > most ? most / k : 1;
     return swingTwistRange.placed(
       { x: (c[0]! * scale) / SCALE, y: (c[1]! * scale) / SCALE, twist: c[2]! },
-      setup.constraint.upper,
       setup.joint,
     );
   }

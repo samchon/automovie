@@ -104,9 +104,6 @@ const applyParent: (
   localById: Map<string, IAutoMovieTransform>,
   childrenById: Map<string, string[]>,
 ): void => {
-  validateParentFlag(d.translation, "translation");
-  validateParentFlag(d.rotation, "rotation");
-  validateParentFlag(d.scale, "scale");
   const own: {
     position: IAutoMovieVector3;
     rotation: IAutoMovieQuaternion;
@@ -126,19 +123,6 @@ const applyParent: (
     ),
   );
   recompose(d.owner, world, localById, childrenById);
-};
-
-const validateParentFlag: (
-  value: boolean,
-  label: "translation" | "rotation" | "scale",
-) => void = (
-  value: boolean,
-  label: "translation" | "rotation" | "scale",
-): void => {
-  if (typeof value !== "boolean")
-    throw new Error(
-      `world driver parent ${label} flag must be boolean, but was ${value}`,
-    );
 };
 
 /**

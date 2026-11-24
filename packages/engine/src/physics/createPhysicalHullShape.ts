@@ -6,6 +6,7 @@ import type {
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
+import { physicalHullFaces } from "./physicalHullFaces";
 
 /** One profile construction owns a shared rotation and its placed hulls. */
 interface IAutoMovieHullShapeFactory {
@@ -54,6 +55,7 @@ export function createPhysicalHullShape(): IAutoMovieHullShapeFactory {
         transform: { position, rotation },
         kind: "hull",
         points,
+        hull: physicalHullFaces(points),
       };
     },
   };

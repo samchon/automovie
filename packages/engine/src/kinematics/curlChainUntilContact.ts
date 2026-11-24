@@ -12,6 +12,7 @@ import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { bracketedCrossing } from "../math/bracketedCrossing";
 import { physicalHullFaces } from "../physics/physicalHullFaces";
+import { physicalShapeHull } from "../physics/physicalShapeHull";
 import { physicalShapeSegmentDistance } from "../physics/physicalShapeSegmentDistance";
 import { clampJointToSkeleton } from "../rom/clampJointToSkeleton";
 import { ROM_TOLERANCE } from "../rom/constants/ROM_TOLERANCE";
@@ -278,7 +279,7 @@ function validate(shape: IAutoMoviePhysicalShape): void {
       shape.halfExtents.y > 0 &&
       shape.halfExtents.z > 0;
   else if (shape.kind === "hull")
-    ok = physicalHullFaces(shape.points).faces.length >= 4;
+    ok = physicalShapeHull(shape).faces.length >= 4;
   else {
     shape satisfies never;
     ok = false;

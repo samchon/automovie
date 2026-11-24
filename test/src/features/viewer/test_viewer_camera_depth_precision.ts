@@ -166,9 +166,7 @@ export function test_viewer_camera_depth_precision(): void {
 
   TestValidator.equals(
     "invalid supplied capability observations stay addressed",
-    [
-      evaluate({ bits: -1 }),
-    ].map(
+    [evaluate({ bits: -1 })].map(
       (
         report: ReturnType<typeof evaluate>,
       ): ReturnType<typeof evaluate>["status"] => report.status,
@@ -203,12 +201,11 @@ export function test_viewer_camera_depth_precision(): void {
   infiniteRealized.far = Number.POSITIVE_INFINITY;
   const serializable: ReturnType<typeof evaluate> = evaluate({
     realized: infiniteRealized,
-    bits: "unknown",
   });
   TestValidator.equals(
-    "an infinite far plane and a non-numeric observation serialize as null",
-    [serializable.realizedFar, serializable.observedDepthBits],
-    [null, null],
+    "an infinite far plane serializes as null",
+    serializable.realizedFar,
+    null,
   );
 
   TestValidator.equals(

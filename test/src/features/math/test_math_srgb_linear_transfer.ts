@@ -6,35 +6,36 @@ import { equalGeometryTestValues } from "../internal/equalGeometryTestValues";
 import { nclose, throwsError } from "../internal/predicates";
 
 /**
- * sRGB decoding and quantized encoding follow the declared piecewise transfer
+ * SRGB decoding and quantized encoding follow the declared piecewise transfer
  * curves, with independently calculated channel values and refusal boundaries.
  *
  * Scenarios:
  *
- * 1. `#000000` and `#ffffff` decode to exact `0` and `1`, the two values where
- *    an approximate curve is still allowed to look right, and they re-encode to
+ * 1. `#000000` and `#ffffff` decode to exact `0` and `1`, the two values where an
+ *    approximate curve is still allowed to look right, and they re-encode to
  *    themselves.
- * 2. `#7d828c`, the swatch that split one production's roof in two, decodes to
- *    the standard's `0.2051 / 0.2232 / 0.2623` rather than the transcribed
- *    `0.4902 / 0.5098 / 0.5490`, and `#808080` decodes to `0.2159` rather than
+ * 2. `#7d828c`, the swatch that split one production's roof in two, decodes to the
+ *    standard's `0.2051 / 0.2232 / 0.2623` rather than the transcribed `0.4902
+ *    / 0.5098 / 0.5490`, and `#808080` decodes to `0.2159` rather than
  *    `0.5020`.
- * 3. The decode's piecewise split is exercised on both sides: byte `10` sits
- *    below the `0.04045` breakpoint and takes the `/ 12.92` segment, byte `11`
- *    sits above it and takes the power segment, and the two agree at the
- *    breakpoint itself to within `1e-8`.
- * 4. The encode's piecewise split is exercised the same way: linear `0.001`
- *    takes the `* 12.92` segment while `0.5` takes the power segment, and the
- *    values straddling the `0.0031308` breakpoint land on one byte.
- * 5. All 256 grayscale channel values round-trip exactly through decode and encode;
- *    arbitrary linear triples remain subject to eight-bit quantization.
+ * 3. The decode's piecewise split is exercised on both sides: byte `10` sits below
+ *    the `0.04045` breakpoint and takes the `/ 12.92` segment, byte `11` sits
+ *    above it and takes the power segment, and the two agree at the breakpoint
+ *    itself to within `1e-8`.
+ * 4. The encode's piecewise split is exercised the same way: linear `0.001` takes
+ *    the `* 12.92` segment while `0.5` takes the power segment, and the values
+ *    straddling the `0.0031308` breakpoint land on one byte.
+ * 5. All 256 grayscale channel values round-trip exactly through decode and
+ *    encode; arbitrary linear triples remain subject to eight-bit
+ *    quantization.
  * 6. A mixed-case swatch returns its lowercase label and alpha `1`; these
  *    observations do not distinguish re-encoding from lowercasing the input.
- * 7. Components outside `[0, 1]` clamp to the gamut ends because eight bits
- *    cannot state light the display cannot emit.
+ * 7. Components outside `[0, 1]` clamp to the gamut ends because eight bits cannot
+ *    state light the display cannot emit.
  * 8. A malformed swatch is refused rather than decoded: a missing `#`, five
  *    digits, eight digits, a non-hexadecimal digit, and the empty string.
- * 9. A non-finite component is refused rather than clamped, so `NaN` can never
- *    be rounded into a string that reads like a swatch.
+ * 9. A non-finite component is refused rather than clamped, so `NaN` can never be
+ *    rounded into a string that reads like a swatch.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls actual sRGB decode/encode and asserts channel values, opaque alpha, normalized labels, quantized bytes, gamut clipping and named refusals. Treating display bytes as linear channels, choosing the wrong transfer branch or encoding nonfinite data fails these assertions.
  * @evidence contracts/development/testing.md#independent-expectations The declared sRGB thresholds 0.04045/0.0031308, divisor 12.92, offset .055 and exponent 2.4 determine the literal/formula expectations and rounded output bytes. Grayscale roundtrip parity alone can share an inverse-pair defect, so independent midtone and branch values constrain it; this unit observes numbers rather than displayed color.

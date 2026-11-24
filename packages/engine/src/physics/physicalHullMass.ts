@@ -6,8 +6,8 @@ import type {
 } from "@automovie/interface";
 
 import { Vector3 } from "../math/Vector3";
-import { physicalHullFaces } from "./physicalHullFaces";
 import { physicalPrincipalAxes } from "./physicalPrincipalAxes";
+import { resolvePhysicalHull } from "./resolvePhysicalHull";
 
 /**
  * The volume, centroid and principal inertia of the uniform solid convex hull
@@ -27,9 +27,9 @@ import { physicalPrincipalAxes } from "./physicalPrincipalAxes";
  * @throws {Error} When the points span no volume.
  */
 export function physicalHullMass(
-  points: readonly IAutoMovieVector3[],
+  points: readonly IAutoMovieVector3[] | IAutoMoviePhysicalHullFaces.IHull,
 ): IAutoMoviePhysicalHullMass.IResult {
-  const hull: IAutoMoviePhysicalHullFaces.IHull = physicalHullFaces(points);
+  const hull: IAutoMoviePhysicalHullFaces.IHull = resolvePhysicalHull(points);
   const axes: ("x" | "y" | "z")[] = ["x", "y", "z"];
   let volume: number = 0;
   let moment: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };

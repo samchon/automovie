@@ -30,6 +30,7 @@ const STANDING: readonly [number, number] = [0.53, 0.6];
  * 2. Rooted 1 m higher and 2 m along +X, the centre moves by exactly that.
  */
 export async function test_unit_motions_sport_gymnastics_flight_centre(): Promise<void> {
+  // Whole body: the centre resolves the posture over the full rig, ROM and mass model.
   const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");
   const standing: IAutoMovieMotionHumanPosture = {
     root: { x: 0, y: 0, z: 0 },

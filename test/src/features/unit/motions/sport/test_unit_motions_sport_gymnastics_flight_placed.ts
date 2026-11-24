@@ -22,6 +22,7 @@ import { vclose } from "../../../internal/vclose";
  * 2. Only its root moved: its joints and heading are its own.
  */
 export async function test_unit_motions_sport_gymnastics_flight_placed(): Promise<void> {
+  // Whole body: placing reads the centre, resolved over the full rig, ROM and mass model.
   const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");
   const tucked: IAutoMovieMotionHumanPosture = {
     root: { x: 0, y: 1, z: 0 },

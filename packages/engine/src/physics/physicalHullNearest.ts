@@ -1,4 +1,5 @@
 import type {
+  IAutoMoviePhysicalHullFaces,
   IAutoMoviePhysicalHullNearest,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -11,7 +12,7 @@ import { readPhysicalHullPoint } from "./readPhysicalHullPoint";
  * contact records are omitted. The implementation below owns both modes.
  */
 export function physicalHullNearest(
-  points: readonly IAutoMovieVector3[],
+  points: readonly IAutoMovieVector3[] | IAutoMoviePhysicalHullFaces.IHull,
   p: IAutoMovieVector3,
   details: false,
 ): number;
@@ -21,7 +22,7 @@ export function physicalHullNearest(
  * type. It remains the last overload for Parameters/ReturnType consumers.
  */
 export function physicalHullNearest(
-  points: readonly IAutoMovieVector3[],
+  points: readonly IAutoMovieVector3[] | IAutoMoviePhysicalHullFaces.IHull,
   p: IAutoMovieVector3,
 ): { distance: number; point: IAutoMovieVector3; normal: IAutoMovieVector3 };
 
@@ -51,7 +52,7 @@ export function physicalHullNearest(
  * @throws {Error} When the points span no volume.
  */
 export function physicalHullNearest(
-  points: readonly IAutoMovieVector3[],
+  points: readonly IAutoMovieVector3[] | IAutoMoviePhysicalHullFaces.IHull,
   p: IAutoMovieVector3,
   details: boolean = true,
 ): IAutoMoviePhysicalHullNearest.IResult | number {

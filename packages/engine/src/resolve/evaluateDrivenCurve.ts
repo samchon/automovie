@@ -38,10 +38,6 @@ export const evaluateDrivenCurve: (
 const validateDrivenCurve: (curve: IAutoMovieDrivenCurve) => void = (
   curve: IAutoMovieDrivenCurve,
 ): void => {
-  if (typeof curve !== "object" || curve === null || Array.isArray(curve))
-    throw new Error("driven driver curve must be an object");
-  if (!Array.isArray(curve.points))
-    throw new Error("driven driver curve.points must be an array");
   if (curve.points.length === 0)
     throw new Error(
       "driven driver curve.points must contain at least one point",
@@ -50,7 +46,6 @@ const validateDrivenCurve: (curve: IAutoMovieDrivenCurve) => void = (
   let previousSource: number | null = null;
   for (let i: number = 0; i < curve.points.length; ++i) {
     const point: IAutoMovieDrivenCurvePoint = curve.points[i]!;
-    validateDrivenCurvePoint(i, point);
     if (previousSource !== null && point.source <= previousSource)
       throw new Error(
         `driven driver curve.points source values must be strictly increasing, but point ${i} was ${point.source} after ${previousSource}`,
@@ -59,15 +54,3 @@ const validateDrivenCurve: (curve: IAutoMovieDrivenCurve) => void = (
   }
 };
 
-const validateDrivenCurvePoint: (
-  index: number,
-  point: IAutoMovieDrivenCurve["points"][number],
-) => void = (
-  index: number,
-  point: IAutoMovieDrivenCurve["points"][number],
-): void => {
-  if (typeof point !== "object" || point === null || Array.isArray(point))
-    throw new Error(
-      `driven driver curve.points[${index}] point must be an object`,
-    );
-};

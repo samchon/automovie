@@ -4,30 +4,30 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { physicalHullFaces } from "./physicalHullFaces";
 import { physicalHullFlat } from "./physicalHullFlat";
+import { resolvePhysicalHull } from "./resolvePhysicalHull";
 
 /** The scalar signature: the signed distance alone. */
 export function readPhysicalHullPoint(
-  points: readonly IAutoMovieVector3[],
+  points: readonly IAutoMovieVector3[] | IAutoMoviePhysicalHullFaces.IHull,
   p: IAutoMovieVector3,
   details: false,
 ): number;
 
 /** Shared proximity computation, including the original full and scalar results. */
 export function readPhysicalHullPoint(
-  points: readonly IAutoMovieVector3[],
+  points: readonly IAutoMovieVector3[] | IAutoMoviePhysicalHullFaces.IHull,
   p: IAutoMovieVector3,
   details: boolean,
 ): IAutoMoviePhysicalHullNearest.IResult | number;
 
 /** Compute the original nearest hull point or signed distance. */
 export function readPhysicalHullPoint(
-  points: readonly IAutoMovieVector3[],
+  points: readonly IAutoMovieVector3[] | IAutoMoviePhysicalHullFaces.IHull,
   p: IAutoMovieVector3,
   details: boolean,
 ): IAutoMoviePhysicalHullNearest.IResult | number {
-  const hull: IAutoMoviePhysicalHullFaces.IHull = physicalHullFaces(points);
+  const hull: IAutoMoviePhysicalHullFaces.IHull = resolvePhysicalHull(points);
   if (!hull.faces.length) throw new Error("A hull must span a volume");
   const flat: IAutoMoviePhysicalHullFaces.IFlat =
     hull.flat ?? physicalHullFlat(hull);

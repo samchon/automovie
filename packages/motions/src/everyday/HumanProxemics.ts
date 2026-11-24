@@ -10,6 +10,17 @@ import { HumanRefusal } from "../law/HumanRefusal";
 /** The alternatives of `GapRequest`'s site. */
 type GapRequest = IAutoMovieMotionHumanProxemics.Band | number;
 
+/** The measures a handing reach reads. */
+type ReachMeasure =
+  | "upperArm"
+  | "forearm"
+  | "hand"
+  | "shoulderHeight"
+  | "chestDepth";
+
+/** The measures a handing gap reads: a reach's and the handover heights. */
+type GapMeasure = ReachMeasure | "waistHeight" | "chestHeight";
+
 /** The alternatives of `ZONESEntryItem`'s site. */
 type ZONESEntryItem = "intimate" | "personal" | "social";
 
@@ -85,7 +96,7 @@ export namespace HumanProxemics {
    *   ahead.
    */
   export function reach(
-    measure: IAutoMovieBodyMeasure,
+    measure: Pick<IAutoMovieBodyMeasure, ReachMeasure>,
     height: number,
   ): number {
     const a: number = measure.upperArm;
@@ -109,8 +120,8 @@ export namespace HumanProxemics {
    */
   export function gap(
     request: GapRequest,
-    self: IAutoMovieBodyMeasure,
-    other: IAutoMovieBodyMeasure = self,
+    self: Pick<IAutoMovieBodyMeasure, GapMeasure>,
+    other: Pick<IAutoMovieBodyMeasure, GapMeasure> = self,
   ): number {
     if (typeof request === "number") {
       HumanBound.above("at", request, 0, "m");

@@ -21,9 +21,8 @@ import { physicalHullTriangles } from "./physicalHullTriangles";
  * a plane count as on it, so a flat ring of many points yields one face rather
  * than a fan of slivers. A point set that spans no volume has no face.
  *
- * The result is remembered per `points` array, so a profile's shape pays the
- * search once however many queries read it; the array must not be mutated after
- * its first use.
+ * Every call searches afresh; a shape that is queried repeatedly carries its hull
+ * on its record (`createPhysicalHullShape`) instead of calling this again.
  *
  * @param points Shape-local points, metres.
  * @returns The hull's faces, its vertices, the mean of its vertices, the radii
@@ -33,28 +32,6 @@ import { physicalHullTriangles } from "./physicalHullTriangles";
 export function physicalHullFaces(
   points: readonly IAutoMovieVector3[],
 ): IAutoMoviePhysicalHullFaces.IHull {
-  const cached: IAutoMoviePhysicalHullFaces.IHull | undefined =
-    HULLS.get(points);
-  if (cached !== undefined) return cached;
-  const original: readonly IAutoMovieVector3[] | undefined =
-    REFLECTIONS.get(points);
-  if (original !== undefined) {
-    try {
-      if (isMirrorX(points, original)) {
-        const hull: IAutoMoviePhysicalHullFaces.IHull = reflectedHull(
-          points,
-          physicalHullFaces(original),
-        );
-        HULLS.set(points, hull);
-        return hull;
-      }
-    } finally {
-      REFLECTIONS.delete(points);
-    }
-
-    // A caller may edit its fresh points before their first topology read.
-    // Such geometry needs its own actual supporting-plane search.
-  }
   const count: number = points.length;
   let extent: number = 0;
   for (let i: number = 0; i < count; i++)
@@ -62,23 +39,13 @@ export function physicalHullFaces(
       extent = Math.max(extent, Vector3.distance(points[i]!, points[j]!));
   const tolerance: number = 1e-9 * extent;
 
-  // A translated array first tries its source's face triples, which are kept
-  // only when they verifiably bound these points.
-  const shifted: readonly number[] | undefined = shiftedTriples(points);
-  const carried: physicalHullPlanes.IResult | null =
-    shifted === undefined
-      ? null
-      : physicalHullPlanes(points, extent, tolerance, shifted, true);
-  const planes: physicalHullPlanes.IResult =
-    carried !== null
-      ? carried
-      : physicalHullPlanes(
-          points,
-          extent,
-          tolerance,
-          physicalHullTriangles(points, tolerance),
-          false,
-        )!;
+  const planes: physicalHullPlanes.IResult = physicalHullPlanes(
+    points,
+    extent,
+    tolerance,
+    physicalHullTriangles(points, tolerance),
+    false,
+  )!;
   const used: boolean[] = points.map((): boolean => false);
   const faces: IAutoMoviePhysicalHullFaces.IFace[] = planes.faces.map(
     (face: physicalHullPlanes.IFace): IAutoMoviePhysicalHullFaces.IFace => {
@@ -92,119 +59,16 @@ export function physicalHullFaces(
       };
     },
   );
-  TRIPLES.set(points, planes.triples);
-  const hull: IAutoMoviePhysicalHullFaces.IHull = summarize(
-    points,
-    faces,
-    used,
-    tolerance,
-  );
-  HULLS.set(points, hull);
-  return hull;
+  return summarize(points, faces, used, tolerance);
 }
-
-/**
- * Each searched points array's face triples, which a translation of it starts
- * from.
- */
-const TRIPLES: WeakMap<readonly IAutoMovieVector3[], readonly number[]> =
-  new WeakMap();
-
-/**
- * Fresh translated definitions with the source and offset they came from, until
- * their first hull read.
- */
-const SHIFTS: WeakMap<
-  readonly IAutoMovieVector3[],
-  { source: readonly IAutoMovieVector3[]; by: IAutoMovieVector3 }
-> = new WeakMap();
-
-/**
- * The face triples of the points a translated array came from, when the array
- * still is that translation coordinate for coordinate; undefined for any other
- * array, which is then searched on its own.
- */
-function shiftedTriples(
-  points: readonly IAutoMovieVector3[],
-): readonly number[] | undefined {
-  const origin:
-    | { source: readonly IAutoMovieVector3[]; by: IAutoMovieVector3 }
-    | undefined = SHIFTS.get(points);
-  if (origin === undefined) return undefined;
-  SHIFTS.delete(points);
-  const {
-    source,
-    by,
-  }: { source: readonly IAutoMovieVector3[]; by: IAutoMovieVector3 } = origin;
-  if (
-    points.length !== source.length ||
-    !points.every(
-      (point: IAutoMovieVector3, i: number): boolean =>
-        Object.is(point.x, source[i]!.x - by.x) &&
-        Object.is(point.y, source[i]!.y - by.y) &&
-        Object.is(point.z, source[i]!.z - by.z),
-    )
-  )
-    return undefined;
-  physicalHullFaces(source);
-  return TRIPLES.get(source);
-}
-
-/** One hull per live points array, released with the array. */
-const HULLS: WeakMap<
-  readonly IAutoMovieVector3[],
-  IAutoMoviePhysicalHullFaces.IHull
-> = new WeakMap();
-
-/**
- * Fresh reflected definitions defer topology work until their first actual hull
- * query.
- */
-const REFLECTIONS: WeakMap<
-  readonly IAutoMovieVector3[],
-  readonly IAutoMovieVector3[]
-> = new WeakMap();
 
 /** The hull record and its face. */
 export namespace physicalHullFaces {
   /**
-   * Produce fresh points reflected in X and prepare lazy topology transfer.
+   * Produce fresh points reflected in X, the isometry M=diag(-1,1,1).
    *
-   * Reflection is the isometry M=diag(-1,1,1): a supporting plane n dot p=d
-   * becomes (M n) dot (M p)=d. Face order and tolerance stay the source's; the
-   * same planar loop owner orders actual reflected points against each
-   * reflected outward normal, retaining winding and canonical loop starts. The
-   * first hull read validates those coordinates before transfer; edits to the
-   * fresh points instead receive their own ordinary face search. Input points
-   * keep the hull owner's existing no-mutation-after-use premise.
-   *
-   * States X reflection, fresh ownership, lazy first-read validation,
-   * edited-output fallback, supporting-plane identity, winding and source
-   * stability. An orthogonal reflection preserves support-plane membership,
-   * point distances and convex hull incidence. Reflecting each normal with the
-   * same M keeps it outward; rerunning the existing planarLoop on those actual
-   * coordinates handles orientation reversal without a caller-authored face
-   * list. This producer only constructs points and registers their source. The
-   * first physicalHullFaces read validates the reflection, then shares source
-   * planes, planarLoop and the common hull summary; edited geometry keeps the
-   * ordinary supporting-plane path. No unchecked reflected array or cached-hull
-   * flag is accepted. Every actual output coordinate must still equal its exact
-   * source reflection before reuse; each reflected face membership and loop
-   * uses the unchanged extent-relative tolerance, without omitted geometry or
-   * admission. Construction costs O(V) and performs no topology work. The first
-   * actual hull read validates O(V) coordinates, then costs O(F V log V) planar
-   * ordering and O(F V) summary work instead of another cubic-to-quartic
-   * supporting-triple search. The original source search still runs once if
-   * needed. The producer constructs all reflected coordinates, and first-use
-   * Object.is checks reconfirm the exact isometry against source geometry
-   * before deriving its planes. HumanColliderPlacement consumes the fresh
-   * points; ordinary hull readers then share the existing registered result.
-   * Changed fresh geometry runs a genuine independent search. A weak
-   * fresh-points registration borrows its source only until the first attempted
-   * topology read, then releases provenance in finally on success, edit
-   * detection or failure. The existing weak cache owns the resulting numeric
-   * hull. Source/reflected vectors do not alias, and local membership/index
-   * arrays release on return or throw.
+   * @param points Shape-local points, metres.
+   * @returns The reflected points, owned by the caller.
    */
   export function mirrorX(
     points: readonly IAutoMovieVector3[],
@@ -216,26 +80,13 @@ export namespace physicalHullFaces {
         z: point.z,
       }),
     );
-    REFLECTIONS.set(reflected, points);
     return reflected;
   }
 
   /**
-   * Produce fresh points translated by `-by` and prepare their hull from the
-   * source's.
+   * Produce fresh points translated by `-by`.
    *
-   * A translation maps a convex hull onto the hull of the translated points
-   * with every incidence kept, so the source's face triples name every plane of
-   * the result. The first hull read checks that the fresh points still are
-   * `source - by` coordinate for coordinate, then reads each plane again from
-   * the translated points themselves, by the arithmetic and in the order of an
-   * ordinary search. The carried faces are kept only when every one supports
-   * the translated points within the tolerance and every boundary edge lies on
-   * a second face, so a face rounding added or removed is detected; such
-   * points, and edited points, receive an ordinary search.
-   *
-   * @param points Shape-local points, metres; not mutated after their first
-   *   hull read.
+   * @param points Shape-local points, metres.
    * @param by The offset subtracted from every point, metres.
    * @returns The translated points, each `point - by` by component.
    */
@@ -250,8 +101,23 @@ export namespace physicalHullFaces {
         z: point.z - by.z,
       }),
     );
-    SHIFTS.set(moved, { source: points, by: { x: by.x, y: by.y, z: by.z } });
     return moved;
+  }
+
+  /**
+   * The hull of reflected points from the hull of their source: face order and
+   * tolerance stay the source's, each normal is reflected with the points, and
+   * each loop is ordered again on the reflected coordinates.
+   *
+   * @param points The source's points reflected by `mirrorX`.
+   * @param source The hull of the source points.
+   * @returns The hull of `points`.
+   */
+  export function mirrorHull(
+    points: readonly IAutoMovieVector3[],
+    source: IAutoMoviePhysicalHullFaces.IHull,
+  ): IAutoMoviePhysicalHullFaces.IHull {
+    return reflectedHull(points, source);
   }
 
   /** One supporting plane of the hull with its boundary. */
@@ -282,22 +148,6 @@ export namespace physicalHullFaces {
       IAutoMovieVector3,
     ][];
   }
-}
-
-/** Reconfirm actual fresh geometry before deriving any cached supporting plane. */
-function isMirrorX(
-  points: readonly IAutoMovieVector3[],
-  source: readonly IAutoMovieVector3[],
-): boolean {
-  return (
-    points.length === source.length &&
-    points.every(
-      (point: IAutoMovieVector3, i: number): boolean =>
-        Object.is(point.x, -source[i]!.x) &&
-        Object.is(point.y, source[i]!.y) &&
-        Object.is(point.z, source[i]!.z),
-    )
-  );
 }
 
 /**

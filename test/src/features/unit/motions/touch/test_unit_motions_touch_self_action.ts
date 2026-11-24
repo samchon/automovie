@@ -15,8 +15,8 @@ import { humanFixtureBody } from "../../../internal/fixtures/humanFixtureBody";
 import { motionActionContext } from "../../../internal/motionActionContext";
 
 /**
- * `selfAction.plan` stages a whole-body self action as a phrase: the parts
- * rise to their place, hold and return. Victory raises both arms overhead and
+ * `selfAction.plan` stages a whole-body self action as a phrase: the parts rise
+ * to their place, hold and return. Victory raises both arms overhead and
  * outside the shoulders, as winners raise their arms above the shoulders and
  * away from the body (Hwang and Matsumoto 2014); a fist pump raises one.
  *
@@ -33,6 +33,7 @@ import { motionActionContext } from "../../../internal/motionActionContext";
  * posture.
  */
 export async function test_unit_motions_touch_self_action(): Promise<void> {
+  // Plans both arms on the whole body: the rig, the arm chains and the pose resolution.
   const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");
   const plan = (
     params: IAutoMovieMotionHumanSelfAction.IParams,

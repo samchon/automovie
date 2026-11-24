@@ -4,7 +4,7 @@ import type {
 } from "@automovie/interface";
 
 import { Vector3 } from "../math/Vector3";
-import { physicalHullFaces } from "./physicalHullFaces";
+import { resolvePhysicalHull } from "./resolvePhysicalHull";
 
 /**
  * The vertices of a convex hull shrunk inward by a depth: every face plane
@@ -22,10 +22,10 @@ import { physicalHullFaces } from "./physicalHullFaces";
  * @throws {Error} When the depth leaves no volume.
  */
 export function physicalHullErode(
-  points: readonly IAutoMovieVector3[],
+  points: readonly IAutoMovieVector3[] | IAutoMoviePhysicalHullFaces.IHull,
   depth: number,
 ): IAutoMovieVector3[] {
-  const hull: IAutoMoviePhysicalHullFaces.IHull = physicalHullFaces(points);
+  const hull: IAutoMoviePhysicalHullFaces.IHull = resolvePhysicalHull(points);
   if (!(depth < hull.depth))
     throw new Error("A hull's erosion must leave a volume");
   const faces: IAutoMoviePhysicalHullFaces.IFace[] = hull.faces;

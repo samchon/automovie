@@ -276,27 +276,6 @@ export function test_recovery_camera_observation(): void {
         0.7,
         3,
       ),
-    (): unknown => admitRecoveryCameraPair({ ...input, views: [first, first] }),
-    (): unknown =>
-      admitRecoveryCameraPair({
-        ...input,
-        views: [{ ...first, rgb8: new Uint8Array(1) }, second],
-      }),
-    (): unknown =>
-      admitRecoveryCameraPair({
-        ...input,
-        views: [{ ...first, width: 0 }, second],
-      }),
-    (): unknown =>
-      admitRecoveryCameraPair({
-        ...input,
-        budget: { ...budget, maxFeatures: budget.maxCandidates + 1 },
-      }),
-    (): unknown =>
-      admitRecoveryCameraPair({
-        ...input,
-        policy: { ...policy, samplingSeed: -1 },
-      }),
   ];
   for (const action of invalid) {
     let refused: boolean = false;

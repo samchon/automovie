@@ -27,6 +27,7 @@ const SOLE: number = 0.03;
  * 2. Rooted 1 m higher, it is exactly 1 m higher.
  */
 export async function test_unit_motions_sport_gymnastics_flight_lowest(): Promise<void> {
+  // Whole body: the lowest point resolves the posture and reads every collider of the profile.
   const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");
   const standing: IAutoMovieMotionHumanPosture = {
     root: { x: 0, y: 0, z: 0 },

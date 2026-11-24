@@ -2,9 +2,9 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
 
 /**
  * Where a line of a length pulls its far end to: kept at its height and slid
- * level toward the near end until the line reaches it, `sqrt(L² − rise²)`
- * from the near end along the level run between them. A far end straight over
- * the near one stays over it.
+ * level toward the near end until the line reaches it, `sqrt(L² − rise²)` from
+ * the near end along the level run between them. A far end straight over the
+ * near one stays over it.
  *
  * @param near The line's near end.
  * @param far The far end where it rests, out of the line's reach.

@@ -8,6 +8,7 @@ import {
   type IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
+import { swingTwistRange } from "../kinematics/swingTwistRange";
 import { abductionRange } from "./abductionRange";
 import { scanJointRom } from "./scanJointRom";
 
@@ -93,6 +94,10 @@ export const validateJointRom: (
           overshoot,
         );
     },
-    props.rig,
+    props.rig === undefined ||
+      constraint.swingTwist === undefined ||
+      constraint.swingTwist === null
+      ? undefined
+      : swingTwistRange.prepare(joint.bone, props.rig, constraint),
   );
 };

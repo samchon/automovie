@@ -21,7 +21,7 @@ import { AutoMovieMotionHumanHand } from "../compose/AutoMovieMotionHumanHand";
  * @returns The posture with the hand's fingers written.
  */
 export function seatedFlatHand(
-  body: IAutoMovieMotionHumanBody,
+  body: Pick<IAutoMovieMotionHumanBody, "flatThumb">,
   posture: IAutoMovieMotionHumanPosture,
   side: AutoMovieHumanSide,
   share: number,

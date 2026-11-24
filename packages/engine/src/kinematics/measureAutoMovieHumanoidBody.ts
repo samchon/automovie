@@ -13,6 +13,7 @@ import type {
 
 import { Vector3 } from "../math/Vector3";
 import { physicalHullFaces } from "../physics/physicalHullFaces";
+import { physicalShapeHull } from "../physics/physicalShapeHull";
 import { physicalShapeBounds } from "../physics/physicalShapeBounds";
 import { AutoMovieHumanoidNeutralBounds } from "./AutoMovieHumanoidNeutralBounds";
 import { resolveAutoMovieHumanoidSurfaces } from "./resolveAutoMovieHumanoidSurfaces";
@@ -115,9 +116,7 @@ export function measureAutoMovieHumanoidBody(
         if (shape.kind === "hull") {
           // Half the hull's least width: the narrowest slab between a face
           // plane and the vertex farthest behind it.
-          const hull: IAutoMoviePhysicalHullFaces.IHull = physicalHullFaces(
-            shape.points,
-          );
+          const hull: IAutoMoviePhysicalHullFaces.IHull = physicalShapeHull(shape);
           let width: number = Infinity;
           for (const face of hull.faces) {
             let back: number = Infinity;

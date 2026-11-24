@@ -44,7 +44,8 @@ export namespace swingTwistRegion {
   ): IAutoMovieSwingTwistRegion {
     const table: Float64Array = build(constraint, joint);
     return { constraint, table, greatest: Math.max(...table) };
-  }}
+  }
+}
 
 /**
  * The fastest the region's radius may change with the azimuth, degrees per

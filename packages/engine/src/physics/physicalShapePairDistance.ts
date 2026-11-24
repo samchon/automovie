@@ -11,6 +11,7 @@ import { Vector3 } from "../math/Vector3";
 import { closestPointsBetweenSegments } from "../math/closestPointsBetweenSegments";
 import { physicalHullEdges } from "./physicalHullEdges";
 import { physicalHullFaces } from "./physicalHullFaces";
+import { physicalShapeHull } from "./physicalShapeHull";
 import { physicalShapeBounds } from "./physicalShapeBounds";
 import { physicalShapeNearest } from "./physicalShapeNearest";
 
@@ -162,9 +163,7 @@ const frameOf = (
     return { segments, radius: 0 };
   }
   if (shape.kind === "hull") {
-    const hull: IAutoMoviePhysicalHullFaces.IHull = physicalHullFaces(
-      shape.points,
-    );
+    const hull: IAutoMoviePhysicalHullFaces.IHull = physicalShapeHull(shape);
     return { segments: hull.edges ?? physicalHullEdges(hull), radius: 0 };
   }
   shape satisfies never;
