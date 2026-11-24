@@ -393,7 +393,9 @@ export namespace readHumanSegmentLeaf {
       // 1985, J Neurosci 5:1688, `HumanMinimumJerkSpline`): a quintic between
       // each two anchors whose position, velocity and acceleration carry
       // across each anchor, so an anchor second shows its interval's limit.
-      const on = (i: number): IAutoMovieSwivelSeed | undefined => {
+      const on: (i: number) => IAutoMovieSwivelSeed | undefined = (
+        i: number,
+      ): IAutoMovieSwivelSeed | undefined => {
         const seed: IAutoMovieSwivelSeed | null | undefined = anchor(
           person,
           segment,

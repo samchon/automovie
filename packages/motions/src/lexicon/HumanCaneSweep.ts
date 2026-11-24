@@ -131,7 +131,9 @@ function planHumanCaneSweep(
     side,
     p.prop,
   );
-  const site = (id: string): IAutoMovieVector3 => {
+  const site: (id: string) => IAutoMovieVector3 = (
+    id: string,
+  ): IAutoMovieVector3 => {
     const found: IAutoMovieAffordance | undefined = held.affordances.find(
       (a: IAutoMovieAffordance): boolean => a.id === id,
     );
@@ -199,7 +201,9 @@ function planHumanCaneSweep(
 
   // The cane's frame at a second: the hand's grip at the midline, the tip at
   // its touch, and the cane turned about its shaft so the thumb stays on top.
-  const frameAt = (seconds: number): IAutoMovieRigidTransform => {
+  const frameAt: (seconds: number) => IAutoMovieRigidTransform = (
+    seconds: number,
+  ): IAutoMovieRigidTransform => {
     const posture: IAutoMovieMotionHumanPosture = carrier.posture(seconds);
     const frame: IAutoMovieMotionHumanFrame = {
       origin: posture.root,
@@ -214,7 +218,8 @@ function planHumanCaneSweep(
       (touch: ITouch): boolean => touch.at > seconds,
     );
     if (i === -1) i = touches.length;
-    const sideOf = (touch: ITouch): number => (touch.side === "left" ? 1 : -1);
+    const sideOf: (touch: ITouch) => number = (touch: ITouch): number =>
+      touch.side === "left" ? 1 : -1;
     let lateral: number;
     let height: number = 0;
     if (i === 0) lateral = sideOf(touches[0]!) * wide;
@@ -259,7 +264,9 @@ function planHumanCaneSweep(
     );
     const swung: IAutoMovieQuaternion = rotationBetween(shaft, line);
     const up: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
-    const across = (v: IAutoMovieVector3): IAutoMovieVector3 =>
+    const across: (v: IAutoMovieVector3) => IAutoMovieVector3 = (
+      v: IAutoMovieVector3,
+    ): IAutoMovieVector3 =>
       Vector3.subtract(v, Vector3.scale(line, Vector3.dot(v, line)));
     const turned: IAutoMovieVector3 = across(
       Quaternion.rotateVector(swung, thumb),
