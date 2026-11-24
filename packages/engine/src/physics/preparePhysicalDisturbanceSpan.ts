@@ -10,6 +10,7 @@ import { physicalBipedPlan } from "./physicalBipedPlan";
 import { physicalBipedTouchdown } from "./physicalBipedTouchdown";
 import { physicalIcpController } from "./physicalIcpController";
 import { physicalIcpPlanner } from "./physicalIcpPlanner";
+import { physicalIcpPlannerCmps as Cmps } from "./physicalIcpPlannerCmps";
 import { physicalIcpPlannerTools as Tools } from "./physicalIcpPlannerTools";
 import { physicalPlanarPolygon as Polygon } from "./physicalPlanarPolygon";
 import { physicalPushRecovery as Recovery } from "./physicalPushRecovery";
@@ -40,6 +41,9 @@ import { physicalPushRecovery as Recovery } from "./physicalPushRecovery";
  *   capture point is within `maxErrorToStanding` of its hold
  *   (`TransferToStandingState.isDone`), found in closed form from the error's
  *   decay.
+ * - A fall: no capturable footstep, the one-step capture region empty at the
+ *   trigger or after a push in single support, ends the response there; the
+ *   body is handed back to the physics, which takes the fall's contacts.
  * - Standing: the cubic to the authored capture point
  *   (`physicalIcpPlanner.standing`), and at its end the authored capture point
  *   at rest.
@@ -157,6 +161,25 @@ export function preparePhysicalDisturbanceSpan(
     | undefined;
   let standingEnd: number | undefined;
   let footstep: preparePhysicalDisturbanceSpan.ISpan["footstep"];
+  let fallen: number | undefined;
+
+  // The standing target: the authored capture point while the feet stand as
+  // authored; after a step, the reference's own, the final pivot between the
+  // feet at rest, the right foot first (`physicalIcpPlannerCmps.between`
+  // l.345-350, l.399-401), as the authored stance no longer says where the
+  // body stands.
+  const target = (): Tools.IState => {
+    if (swings.length === 0) return authored;
+    const feet: Foot[] = [...placed.values()];
+    const right: Foot =
+      feet.find((foot: Foot): boolean => foot.side === "right") ?? feet[0]!;
+    const left: Foot =
+      feet.find((foot: Foot): boolean => foot !== right) ?? feet[0]!;
+    return {
+      position: Cmps.between(right, left, physicalIcpPlanner.DEFAULTS),
+      velocity: { x: 0, z: 0 },
+    };
+  };
 
   // The push recovery's double-support fall test at a branch point.
   const test = (): void => {
@@ -302,6 +325,11 @@ export function preparePhysicalDisturbanceSpan(
       });
       const from: Tools.IState = swingAt(swings, s.swing.bone, t);
       const moved = place(s.support, s.swing, from.position, s.touchdown - t);
+      if (!moved.viable) {
+        branches.push({ kind: "fall", seconds: t, bone: s.swing.bone });
+        fallen = t;
+        break;
+      }
       if (!moved.adjusted) continue;
       s.target = moved.target;
       s.viable = moved.viable;
@@ -331,6 +359,14 @@ export function preparePhysicalDisturbanceSpan(
         swing.frame.origin,
         physicalBipedPlan.SWING_TIME,
       );
+
+      // No capturable step: the response ends in a fall, which the physics
+      // takes from here with the fall's contacts.
+      if (!placedAt.viable) {
+        branches.push({ kind: "fall", seconds: t, bone: swing.bone });
+        fallen = t;
+        break;
+      }
 
       // The swing sped up to the time the capture region prefers, no shorter
       // than a recovery's minimum (`WalkingSingleSupportState
@@ -426,7 +462,7 @@ export function preparePhysicalDisturbanceSpan(
         physicalIcpPlanner.standing({
           soles: soles(),
           from: { position: point, velocity: { x: 0, z: 0 } },
-          to: authored,
+          to: target(),
         }),
         soles(),
       );
@@ -439,9 +475,9 @@ export function preparePhysicalDisturbanceSpan(
       continue;
     }
 
-    // The standing cubic's end: the authored capture point at rest.
+    // The standing cubic's end: its target at rest.
     branches.push({ kind: "end", seconds: t });
-    reference = constant(t, authored.position);
+    reference = constant(t, target().position);
     mode = "after";
     standingEnd = undefined;
     test();
@@ -454,13 +490,18 @@ export function preparePhysicalDisturbanceSpan(
     (sum: number, error): number => sum + Math.hypot(error.b.x, error.b.z),
     0,
   );
-  const settled: number = Math.max(
-    t,
-    residual > tolerance
-      ? last.start + Math.log(residual / tolerance) / (omega * across)
-      : last.start,
-  );
-  if (!branches.some((branch): boolean => branch.kind === "end"))
+  const settled: number =
+    fallen ??
+    Math.max(
+      t,
+      residual > tolerance
+        ? last.start + Math.log(residual / tolerance) / (omega * across)
+        : last.start,
+    );
+  if (
+    fallen === undefined &&
+    !branches.some((branch): boolean => branch.kind === "end")
+  )
     branches.push({ kind: "end", seconds: settled });
   return span({
     pieces,
@@ -567,7 +608,7 @@ export namespace preparePhysicalDisturbanceSpan {
   /** A branch point of the span. */
   export interface IBranch {
     /** What happens there. */
-    kind: "push" | "trigger" | "touchdown" | "standing" | "end";
+    kind: "push" | "trigger" | "touchdown" | "standing" | "end" | "fall";
 
     /** When, local seconds. */
     seconds: number;
@@ -626,7 +667,8 @@ export namespace preparePhysicalDisturbanceSpan {
 
     /**
      * When the response has settled within `maxErrorToStanding` of its plan
-     * after its last branch point, local seconds.
+     * after its last branch point, or falls, local seconds: where the body is
+     * handed back to the physics.
      */
     until: number;
 
@@ -993,7 +1035,7 @@ function follow(
         c: center(piece, piece.end, omega),
       };
   };
-  for (let guard: number = 0; guard < 64 && t < input.end; ++guard) {
+  for (let guard: number = 0; guard < 65536 && t < input.end; ++guard) {
     const form: IForm = formAt(input.reference, t);
     const next: number | undefined = input.reference.find(
       (candidate: IForm): boolean => candidate.start > t,
@@ -1046,8 +1088,12 @@ function follow(
             input.support,
             omega,
           )
-        : until;
-    const stop: number = exit > t && exit < until ? exit : until;
+        : crossing(form, held, d, split, input.support, t, until, omega);
+    // The program's active constraint is taken again each control period,
+    // as the controller solves it once per update (`physicalBipedPlan
+    // .CONTROL_DT`), the projection held over the period.
+    const period: number = Math.min(until, t + physicalBipedPlan.CONTROL_DT);
+    const stop: number = exit > t && exit < period ? exit : period;
     push({
       start: t,
       end: stop,
@@ -1060,6 +1106,55 @@ function follow(
     t = stop;
   }
   return state;
+}
+
+/**
+ * When the unconstrained pivot comes back inside the support while the pivot is
+ * held over a cubic reference: its path, the cubic's pivot xi_d - xi_d' / omega
+ * plus the gain on xi - xi_d with xi = cmp + d e^(omega u), mixes a polynomial
+ * and an exponential, so its first entry is bracketed on a grid of the interval
+ * and refined by bisection, once as the response is prepared. The interval's
+ * end, when it stays outside.
+ */
+function crossing(
+  form: IForm,
+  held: Tools.IFloor,
+  d: Tools.IFloor,
+  split: readonly { b: Tools.IFloor; gain: number }[],
+  support: readonly Polygon.IPoint[],
+  start: number,
+  until: number,
+  omega: number,
+): number {
+  if (!Number.isFinite(until)) return until;
+  const gain: number = 1 + (split[0]?.gain ?? 0);
+  const inside = (time: number): boolean => {
+    const desired: Tools.IState = value(form, time, omega);
+    const xi: Tools.IFloor = add(held, d, Math.exp(omega * (time - start)));
+    const pivot: Tools.IFloor = add(
+      add(desired.position, desired.velocity, -1 / omega),
+      add(xi, desired.position, -1),
+      gain,
+    );
+    return Polygon.inside(support, toLocal(pivot));
+  };
+  const grid: number = 64;
+  let before: number = start;
+  for (let i: number = 1; i <= grid; ++i) {
+    const time: number = start + ((until - start) * i) / grid;
+    if (inside(time)) {
+      let low: number = before;
+      let high: number = time;
+      for (let j: number = 0; j < 48; ++j) {
+        const middle: number = (low + high) / 2;
+        if (inside(middle)) high = middle;
+        else low = middle;
+      }
+      return high;
+    }
+    before = time;
+  }
+  return until;
 }
 
 /**
