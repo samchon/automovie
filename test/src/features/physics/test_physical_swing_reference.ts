@@ -22,6 +22,7 @@ import type {
 import { TestValidator } from "@nestia/e2e";
 
 import { PhysicalBalanceReplay } from "../internal/PhysicalBalanceReplay";
+import { PhysicalHumanProfiles } from "../internal/PhysicalHumanProfiles";
 
 /**
  * A lifted swing's joint references are one path, continuous at lift-off:
@@ -43,9 +44,9 @@ import { PhysicalBalanceReplay } from "../internal/PhysicalBalanceReplay";
  *    level attitude, so the swing's goal is unchanged by the pitch; read at its
  *    own pitched attitude its toe would hang more than 1 cm and raise its own
  *    goal (Pratt et al., M2V2, Section VII-D1).
- * 5. Pose: the canonical Human's right leg, its profile, support pattern and
- *    standing targets as the recovery fixture stores them
- *    (`PhysicalBalanceReplay.HUMAN_PROFILE`), fitted to a foot pose 10 cm ahead
+ * 5. Pose: the canonical Human's right leg, its stored profile
+ *    (`PhysicalHumanProfiles`, `m-average`) with the support pattern and
+ *    standing targets of its quiet recording (`human_p0_z`), fitted to a foot pose 10 cm ahead
  *    and 8 cm up at its planned level attitude, on ten successive frames each
  *    seeded from the last, keeps every chain joint within 1 degree of the first
  *    fit, its endpoint within the tolerance of the goal, and the foot's
@@ -58,7 +59,7 @@ import { PhysicalBalanceReplay } from "../internal/PhysicalBalanceReplay";
  * @evidence contracts/development/testing.md#behavioral-verification Calls `physicalSwingReference` and `physicalRecoverySupportGoals` and reads their poses and goals.
  * @evidence contracts/development/testing.md#independent-expectations Joint angles are read back as relative rotations about one axis; the path is checked against the shared sampler plus the stated hang, and against the closed form 16 h (p (1 - p))^2 at mid-swing.
  * @evidence contracts/development/testing.md#distinguishing-cases Separates share zero, one half and one, a pelvis reference apart from the actual pelvis, the start, middle and end of the swing, a drive's path from the policy's, and a reference rate at lift-off, within the fade and past it.
- * @evidence contracts/development/testing.md#execution-ownership Pure arithmetic in memory over one stored fixture read from the repository; no figure built, no native world, viewer or file host.
+ * @evidence contracts/development/testing.md#execution-ownership Pure arithmetic in memory over the stored profile and the quiet recording read from the repository; no figure built, no native world, viewer or file host.
  */
 export function test_physical_swing_reference(): void {
   const failures: string[] = [];
@@ -306,14 +307,16 @@ export function test_physical_swing_reference(): void {
   // up, on ten successive frames from the previous fit: the canonical Human's
   // stored profile, support pattern and standing targets, as its recorded
   // quiet stance handed them to the controller.
-  const recording: PhysicalBalanceReplay.IFixture = PhysicalBalanceReplay.load(
-    PhysicalBalanceReplay.HUMAN_PROFILE,
-  );
+  const recording: PhysicalBalanceReplay.IFixture =
+    PhysicalBalanceReplay.load("human_p0_z.json");
   const human: {
     profile: IAutoMoviePhysicalProfile;
     targets: Record<string, IAutoMovieRigidTransform>;
   } = {
-    profile: PhysicalBalanceReplay.stored(recording),
+    profile: PhysicalBalanceReplay.stored({
+      ...recording,
+      profile: PhysicalHumanProfiles.load("m-average"),
+    }),
     targets: recording.records.find(
       (record: PhysicalBalanceReplay.IRecord): boolean =>
         record.kind === "advance" && record.reason === "fixed 0.1",

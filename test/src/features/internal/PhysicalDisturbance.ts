@@ -31,7 +31,8 @@ const CHECKPOINT: number = 6;
 
 /**
  * The steps of quiet stance before the push in a judged record, a tenth of a
- * second, within which the stance settles (`test_physical_human_quiet_support`).
+ * second: the records' convention, which the verdicts read the push's end
+ * from.
  */
 const PREFIX: number = 12;
 

@@ -3,6 +3,7 @@ import {
   Vector3,
   physicalIcpController,
   physicalStanceBalance,
+  physicalSupportPoint,
 } from "@automovie/engine";
 import type {
   IAutoMovieCollectPhysicalSupports,
@@ -11,15 +12,15 @@ import type {
   IAutoMoviePhysicalProfile,
   IAutoMoviePhysicalRecoveryPolicy,
   IAutoMoviePhysicalSegment,
+  IAutoMoviePhysicalShape,
   IAutoMoviePhysicalSimulationInput,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-import fs from "node:fs";
-import path from "node:path";
 
 import { PhysicalBalanceReplay } from "../internal/PhysicalBalanceReplay";
-import { repositoryRoot } from "../internal/repositoryRoot";
+import { PhysicalHumanProfiles } from "../internal/PhysicalHumanProfiles";
 
 /** The quiet stance's recording: the canonical Human standing unpushed. */
 const QUIET: string = "human_p0_z.json";
@@ -49,13 +50,24 @@ const WINDOW: number = 0.15;
 const SHIFT: number = -0.02;
 
 /**
+ * How far above a sole's lowest corner a corner still bears, metres: the
+ * project's foot lift bound (`AutoMovieMotionHumanAuditLimits.lift`).
+ */
+const LIFT: number = 0.005;
+
+/**
  * The canonical Human's stance demand asks its soles for its weight where its
  * mass center puts it (`physicalStanceBalance.demand`).
  *
- * The demand is computed on the last quiet frame of the unpushed recording
- * (`human_p0_z`), with the profile the recovery fixture stores, both feet flat
- * and bearing on their planted poses, the capture-point controller fresh and
- * the body at rest at its authored mass center.
+ * The demand is computed, both feet flat and bearing on their planted poses,
+ * the capture-point controller fresh and the body at rest at its authored mass
+ * center, on two kinds of frame:
+ *
+ * - the last quiet frame of the unpushed recording (`human_p0_z`), with the
+ *   profile it ran with (`PhysicalHumanProfiles`, `m-average`);
+ * - each stored body size's neutral standing pose, the average and the tall
+ *   man (`m-average`, `m-tall`), lowered onto the floor by its soles' lowest
+ *   corner, every segment planted where it stands.
  *
  * Scenarios:
  *
@@ -78,29 +90,17 @@ const SHIFT: number = -0.02;
  * @evidence contracts/development/common.md#meaningful-documentation States the frame, the two stances and what each demand must show.
  * @evidence contracts/development/testing.md#behavioral-verification Calls `physicalStanceBalance.demand` on the recorded bodies and planted poses and reads its force and commanded centre of pressure.
  * @evidence contracts/development/testing.md#independent-expectations The weight is the profile's mass times the recorded gravity; the drift bound is the constant acceleration a t^2 / 2 that moves the mass center `DRIFT` in `WINDOW`; the band follows from moment balance with the mass center computed from the recorded segments' centres and the profile's masses, and each footprint from the frame's measured sole points.
- * @evidence contracts/development/testing.md#distinguishing-cases A quiet and a shifted stance, shifted against the quiet one's lean, and a band that tells a balanced split from one foot bearing the body; the second body size of the former simulation has no recording, so one size is checked.
- * @evidence contracts/development/testing.md#execution-ownership Pure computation over two fixture files in the repository; no figure built, no native world, viewer or simulation run.
+ * @evidence contracts/development/testing.md#distinguishing-cases A quiet and a shifted stance, the recorded one shifted against its own lean, on two body sizes, and a band that tells a balanced split from one foot bearing the body.
+ * @evidence contracts/development/testing.md#execution-ownership Pure computation over the stored profiles and the quiet recording in the repository; no figure built, no native world, viewer or simulation run.
  */
 export function test_physical_human_quiet_support(): void {
   const failures: string[] = [];
-  // Only the recovery fixture's stored profile is read, so its records stay
-  // packed.
-  const recovery: PhysicalBalanceReplay.IFile = JSON.parse(
-    fs.readFileSync(
-      path.join(
-        repositoryRoot(),
-        PhysicalBalanceReplay.FOLDER,
-        PhysicalBalanceReplay.HUMAN_PROFILE,
-      ),
-      "utf8",
-    ),
-  ) as PhysicalBalanceReplay.IFile;
-  const profile: IAutoMoviePhysicalProfile =
-    PhysicalBalanceReplay.stored(recovery);
   const quiet: PhysicalBalanceReplay.IFixture =
     PhysicalBalanceReplay.load(QUIET);
-  if (quiet.body.profileDigest !== recovery.body.profileDigest)
-    throw new Error(`${QUIET} records another profile than the stored one`);
+  const profile: IAutoMoviePhysicalProfile = PhysicalBalanceReplay.stored({
+    ...quiet,
+    profile: PhysicalHumanProfiles.load("m-average"),
+  });
   const record: PhysicalBalanceReplay.IRecord | undefined = [...quiet.records]
     .reverse()
     .find(
@@ -118,19 +118,139 @@ export function test_physical_human_quiet_support(): void {
       label,
       failures,
     );
-  shares("quiet", 0);
-  const shifted: IShares | undefined = shares("shifted", SHIFT);
-  if (
-    shifted &&
-    !(
-      Math.abs(shifted.lever - 0.5) > SHARE &&
-      Math.sign(shifted.left - 0.5) === Math.sign(shifted.lever - 0.5)
+  const follows = (label: string, shifted: IShares | undefined): void => {
+    if (
+      shifted &&
+      !(
+        Math.abs(shifted.lever - 0.5) > SHARE &&
+        Math.sign(shifted.left - 0.5) === Math.sign(shifted.lever - 0.5)
+      )
     )
-  )
-    failures.push(
-      `shifted: the command did not follow the shifted mass center ${JSON.stringify(shifted)}`,
+      failures.push(
+        `${label}: the command did not follow the shifted mass center ${JSON.stringify(shifted)}`,
+      );
+  };
+  shares("quiet", 0);
+  follows("shifted", shares("shifted", SHIFT));
+
+  // Each body size's neutral standing pose, the same checks.
+  for (const name of ["m-average", "m-tall"] as const) {
+    const size: IAutoMoviePhysicalProfile = PhysicalHumanProfiles.load(name);
+    const stand: Record<string, any> = standing(size, quiet);
+    demand(quiet, size, stand, `${name} standing`, failures);
+    follows(
+      `${name} shifted`,
+      demand(
+        quiet,
+        size,
+        shift(stand, size, quiet, SHIFT),
+        `${name} shifted`,
+        failures,
+      ),
     );
+  }
   TestValidator.equals("Human quiet support and weight transfer", failures, []);
+}
+
+/**
+ * A profile's neutral standing pose as a root tracker's input: every segment
+ * at rest at its neutral pose, lowered so the support limbs' lowest sole
+ * corner is on the floor, every segment planted where it stands, the authored
+ * mass center the pose's own, and each support limb's bearing corners, those
+ * within `LIFT` of the lowest, as its measured sole points.
+ */
+function standing(
+  profile: IAutoMoviePhysicalProfile,
+  fixture: PhysicalBalanceReplay.IFixture,
+): Record<string, any> {
+  const limbs: IAutoMovieFootfallPattern["limbs"] = (
+    fixture.body.balance as IAutoMoviePhysicalRecoveryPolicy
+  ).pattern.limbs;
+  const corners = (
+    bone: string,
+    pose: IAutoMovieRigidTransform,
+  ): IAutoMovieVector3[] =>
+    profile.segments
+      .filter((segment: IAutoMoviePhysicalSegment): boolean => segment.bone === bone)
+      .flatMap((segment: IAutoMoviePhysicalSegment): IAutoMovieVector3[] =>
+        [...segment.shapes, ...(segment.contactShapes ?? [])].flatMap(
+          (shape: IAutoMoviePhysicalShape): IAutoMovieVector3[] =>
+            vertices(shape).map(
+              (point: IAutoMovieVector3): IAutoMovieVector3 =>
+                physicalSupportPoint(pose, physicalSupportPoint(shape.transform, point)),
+            ),
+        ),
+      );
+  const neutral = (bone: string): IAutoMovieRigidTransform =>
+    profile.segments.find(
+      (segment: IAutoMoviePhysicalSegment): boolean => segment.bone === bone,
+    )!.neutral;
+  const lowest: number = Math.min(
+    ...limbs.flatMap((limb: IAutoMovieFootfallPattern["limbs"][number]) =>
+      (limb.contacts ?? [limb.bone]).flatMap((bone: string): number[] =>
+        corners(bone, neutral(bone)).map((point: IAutoMovieVector3): number => point.y),
+      ),
+    ),
+  );
+  const pose = (bone: string): IAutoMovieRigidTransform => ({
+    position: Vector3.add(neutral(bone).position, { x: 0, y: -lowest, z: 0 }),
+    rotation: { ...neutral(bone).rotation },
+  });
+  const segments: Record<string, PhysicalBalanceReplay.ISegment> =
+    Object.fromEntries(
+      profile.segments.map(
+        (segment: IAutoMoviePhysicalSegment): [string, PhysicalBalanceReplay.ISegment] => {
+          const at: IAutoMovieRigidTransform = pose(segment.bone);
+          return [
+            segment.bone,
+            {
+              center: physicalSupportPoint(at, segment.centerOfMass),
+              orientation: at.rotation,
+              centerOfMass: { ...segment.centerOfMass },
+              inertia: { ...segment.inertia },
+              inertiaRotation: { ...segment.inertiaRotation },
+              velocity: { x: 0, y: 0, z: 0 },
+              angularVelocity: { x: 0, y: 0, z: 0 },
+              dynamic: true,
+            },
+          ];
+        },
+      ),
+    );
+  return {
+    segments,
+    planted: Object.fromEntries(
+      profile.segments.map((segment: IAutoMoviePhysicalSegment) => [
+        segment.bone,
+        pose(segment.bone),
+      ]),
+    ),
+    center: centerOf(profile, segments),
+    supports: limbs.map((limb: IAutoMovieFootfallPattern["limbs"][number]) => ({
+      bone: limb.bone,
+      points: (limb.contacts ?? [limb.bone])
+        .flatMap((bone: string): IAutoMovieVector3[] => corners(bone, pose(bone)))
+        .filter((point: IAutoMovieVector3): boolean => point.y <= LIFT),
+    })),
+  };
+}
+
+/** A polytope collider's vertices in its own frame: a hull's points or a box's corners. */
+function vertices(shape: IAutoMoviePhysicalShape): IAutoMovieVector3[] {
+  if (shape.kind === "hull") return shape.points;
+  if (shape.kind !== "box") return [];
+  const half: IAutoMovieVector3 = shape.halfExtents;
+  return [-1, 1].flatMap((x: number): IAutoMovieVector3[] =>
+    [-1, 1].flatMap((y: number): IAutoMovieVector3[] =>
+      [-1, 1].map(
+        (z: number): IAutoMovieVector3 => ({
+          x: x * half.x,
+          y: y * half.y,
+          z: z * half.z,
+        }),
+      ),
+    ),
+  );
 }
 
 /**

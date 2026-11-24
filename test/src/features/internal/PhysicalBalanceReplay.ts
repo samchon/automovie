@@ -21,6 +21,7 @@ import fs from "node:fs";
 import path from "node:path";
 
 import { PhysicalDisturbance } from "./PhysicalDisturbance";
+import { PhysicalHumanProfiles } from "./PhysicalHumanProfiles";
 import { PhysicalModelFixtures } from "./PhysicalModelFixtures";
 import { motionHumanBody } from "./motionHumanBody";
 import { repositoryRoot } from "./repositoryRoot";
@@ -307,7 +308,7 @@ export namespace PhysicalBalanceReplay {
   export function stored(fixture: IFixture): IAutoMoviePhysicalProfile {
     if (fixture.profile === undefined)
       return fixture.subject === "human"
-        ? stored(load(HUMAN_PROFILE))
+        ? stored({ ...fixture, profile: PhysicalHumanProfiles.load("m-average") })
         : PhysicalModelFixtures.quadrupod();
     const found: string = digest(JSON.stringify(fixture.profile));
     if (found !== fixture.body.profileDigest)
