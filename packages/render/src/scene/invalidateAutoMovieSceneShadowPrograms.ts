@@ -1,4 +1,5 @@
 import type * as THREE from "three";
+import { AutoMovieThreeKind } from "./AutoMovieThreeKind.js";
 
 /**
  * Invalidate unique scene materials after the effective shadow enablement or
@@ -13,12 +14,14 @@ export const invalidateAutoMovieSceneShadowPrograms: (
   const materials: Set<THREE.Material> = new Set();
   if (scene.overrideMaterial !== null) materials.add(scene.overrideMaterial);
   scene.traverse((object: THREE.Object3D): void => {
-    const material: THREE.Material | THREE.Material[] | undefined = (
-      object as THREE.Mesh
-    ).material;
-    if (Array.isArray(material))
-      for (const value of material) materials.add(value);
-    else if (material !== undefined) materials.add(material);
+    // Every drawable that carries materials: meshes, lines, points, sprites.
+    if (
+      AutoMovieThreeKind.isMesh(object) ||
+      AutoMovieThreeKind.isLine(object) ||
+      AutoMovieThreeKind.isPoints(object)
+    )
+      for (const value of [object.material].flat()) materials.add(value);
+    else if (AutoMovieThreeKind.isSprite(object)) materials.add(object.material);
   });
   for (const material of materials) material.needsUpdate = true;
 };

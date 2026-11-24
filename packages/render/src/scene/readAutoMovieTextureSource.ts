@@ -6,6 +6,7 @@ import * as THREE from "three";
 
 import { readAutoMovieEnvironmentColorSpace } from "./readAutoMovieEnvironmentColorSpace.js";
 import { readAutoMovieTextureUploadFormat } from "./readAutoMovieTextureUploadFormat.js";
+import { AutoMovieThreeKind } from "./AutoMovieThreeKind.js";
 
 /**
  * Observe positive two-dimensional decoded texture extents and current
@@ -33,29 +34,29 @@ export function readAutoMovieTextureSource(
 ): IAutoMovieRenderTextureSource {
   const image: unknown = texture.image;
   const data: boolean =
-    "isDataTexture" in texture && texture.isDataTexture === true;
+    AutoMovieThreeKind.isDataTexture(texture);
   const original: ReturnType<typeof decodedExtent> = decodedExtent(image, data);
   if (typeof image !== "object" || image === null || original === undefined)
     throw new Error(
       `Texture asset "${asset}" has no decoded two-dimensional extent.`,
     );
-  const mipmaps: unknown = texture.mipmaps;
-  const manual: boolean = !Array.isArray(mipmaps) || mipmaps.length !== 0;
-  const framebuffer: boolean = "isFramebufferTexture" in texture;
+  const mipmaps: THREE.Texture["mipmaps"] = texture.mipmaps;
+  const manual: boolean = mipmaps.length !== 0;
+  const framebuffer: boolean = AutoMovieThreeKind.isFramebufferTexture(texture);
   const usesManualBase: boolean =
     manual &&
     !framebuffer &&
-    !("isDepthTexture" in texture) &&
+    !AutoMovieThreeKind.isDepthTexture(texture) &&
     !texture.isRenderTargetTexture;
   const extent: { width: number; height: number } =
-    usesManualBase && Array.isArray(mipmaps)
+    usesManualBase
       ? (decodedExtent(mipmaps[0], data) ?? original)
       : original;
   const unsupportedExtent: boolean =
     ("depth" in image && image.depth !== 1) ||
-    "isDataArrayTexture" in texture ||
-    "isData3DTexture" in texture ||
-    "isCompressedArrayTexture" in texture ||
+    AutoMovieThreeKind.isDataArrayTexture(texture) ||
+    AutoMovieThreeKind.isData3DTexture(texture) ||
+    AutoMovieThreeKind.isCompressedArrayTexture(texture) ||
     texture.isRenderTargetTexture;
   const format: ReturnType<typeof readAutoMovieTextureUploadFormat> =
     unsupportedExtent ? undefined : readAutoMovieTextureUploadFormat(texture);
@@ -150,8 +151,8 @@ export function readAutoMovieTextureSource(
       !manual &&
       !framebuffer &&
       !unsupportedExtent &&
-      !("isCompressedTexture" in texture) &&
-      !("isDepthTexture" in texture) &&
+      !AutoMovieThreeKind.isCompressedTexture(texture) &&
+      !AutoMovieThreeKind.isDepthTexture(texture) &&
       "width" in image &&
       "height" in image &&
       original.width === image.width &&
@@ -199,9 +200,9 @@ export function readAutoMovieTextureSource(
       ].map((value: unknown): string => (value === null ? "" : String(value))),
     ),
     generateMipmaps: texture.generateMipmaps,
-    explicitMipmaps: Array.isArray(mipmaps) && mipmaps.length > 1,
+    explicitMipmaps: mipmaps.length > 1,
     mipmapped:
-      (Array.isArray(mipmaps) && mipmaps.length > 1) ||
+      mipmaps.length > 1 ||
       texture.generateMipmaps ||
       (framebuffer &&
         texture.minFilter !== THREE.NearestFilter &&

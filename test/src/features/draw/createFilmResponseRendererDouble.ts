@@ -42,8 +42,7 @@ export function createFilmResponseRendererDouble(props: {
         autoClear: renderer.autoClear,
         shadowUpdate: renderer.shadowMap.autoUpdate,
         cameraMask: camera.layers.mask,
-        background:
-          object instanceof THREE.Scene ? object.background : undefined,
+        background: backgroundOf(object),
         seen: (props.watched ?? []).map((watched: THREE.Object3D): boolean =>
           watched.layers.test(camera.layers),
         ),
@@ -109,22 +108,40 @@ export namespace createFilmResponseRendererDouble {
  * objects across its passes and draws.
  */
 function programOf(object: THREE.Object3D): Record<string, unknown> | null {
-  const only: THREE.Object3D | undefined =
-    object.children.length === 1 ? object.children[0] : undefined;
-  const material: unknown =
-    only instanceof THREE.Mesh ? (only.material as unknown) : undefined;
-  if (!(material instanceof THREE.RawShaderMaterial)) return null;
+  // three's literal class flags tell the stage's quad and its raw program.
+  const only: THREE.Mesh | undefined =
+    object.children.length === 1
+      ? (object.children[0] as THREE.Mesh)
+      : undefined;
+  if (only?.isMesh !== true) return null;
+  const material: THREE.RawShaderMaterial =
+    only.material as THREE.RawShaderMaterial;
+  if (material.isRawShaderMaterial !== true) return null;
   return Object.fromEntries(
     Object.entries(material.uniforms).map(
       ([name, uniform]: [string, THREE.IUniform]): [string, unknown] => {
-        const value: unknown = uniform.value;
-        if (typeof value === "number") return [name, value];
-        if (value instanceof THREE.Vector2) return [name, value.toArray()];
-        if (value instanceof THREE.Vector3) return [name, value.toArray()];
-        if (value instanceof THREE.Matrix3) return [name, value.toArray()];
-        if (value instanceof THREE.Matrix4) return [name, value.toArray()];
+        const value: THREE.Vector2 | THREE.Vector3 | THREE.Matrix3 | THREE.Matrix4 | number | null =
+          uniform.value;
+        if (value === null) return [name, null];
+        if (value === +value) return [name, value];
+        const vector: THREE.Vector2 = value as THREE.Vector2;
+        if (
+          vector.isVector2 === true ||
+          (value as THREE.Vector3).isVector3 === true ||
+          (value as THREE.Matrix3).isMatrix3 === true ||
+          (value as THREE.Matrix4).isMatrix4 === true
+        )
+          return [name, (value as THREE.Vector2).toArray()];
         return [name, null];
       },
     ),
   );
+}
+
+/** The drawn scene's background, read by three's scene flag. */
+function backgroundOf(
+  object: THREE.Object3D,
+): THREE.Scene["background"] | undefined {
+  const scene: THREE.Scene = object as THREE.Scene;
+  return scene.isScene === true ? scene.background : undefined;
 }

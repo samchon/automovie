@@ -101,8 +101,9 @@ export function createAutoMovieInspectionDiagnosticOverlay(): IAutoMovieInspecti
             xray: true,
           });
         for (const child of overlay.object.children)
-          if (AutoMovieThreeKind.isMesh(child) && !Array.isArray(child.material))
-            child.material.opacity = 0.78;
+          if (AutoMovieThreeKind.isMesh(child))
+            for (const material of [child.material].flat())
+              material.opacity = 0.78;
         kept = { overlay, marks, signature, width: 0, height: 0 };
       } else
         witnesses.forEach(

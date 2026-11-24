@@ -1,3 +1,8 @@
+import type {
+  IAutoMovieDrawDescription,
+  IAutoMovieDrawResult,
+} from "@automovie/interface";
+
 import type { IAutoMovieDrawPageRequest } from "./IAutoMovieDrawPageRequest.js";
 
 /**
@@ -32,12 +37,22 @@ export interface IAutoMovieDrawPage {
   /**
    * Run `task(arg)` in the page and resolve with its JSON result, awaiting a
    * returned promise; a throw in the page rejects with its message. The
-   * argument is one of the session's typed requests.
+   * argument is one of the session's typed requests, each with its answer.
    */
-  evaluate<R, T extends IAutoMovieDrawPageRequest>(
-    task: (arg: T) => R | Promise<R>,
-    arg: T,
-  ): Promise<R>;
+  evaluate(
+    task: (
+      arg: IAutoMovieDrawPageRequest.IDescribe,
+    ) => Promise<IAutoMovieDrawDescription>,
+    arg: IAutoMovieDrawPageRequest.IDescribe,
+  ): Promise<IAutoMovieDrawDescription>;
+  evaluate(
+    task: (arg: IAutoMovieDrawPageRequest.ISpeak) => Promise<void>,
+    arg: IAutoMovieDrawPageRequest.ISpeak,
+  ): Promise<void>;
+  evaluate(
+    task: (arg: IAutoMovieDrawPageRequest.IDraw) => Promise<IAutoMovieDrawResult>,
+    arg: IAutoMovieDrawPageRequest.IDraw,
+  ): Promise<IAutoMovieDrawResult>;
 
   /** Close the page. */
   close(): Promise<unknown>;

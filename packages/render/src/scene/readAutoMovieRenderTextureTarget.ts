@@ -2,6 +2,7 @@ import type { IAutoMovieRenderTextureTarget } from "@automovie/interface";
 import * as THREE from "three";
 
 import { readAutoMovieTextureUploadFormat } from "./readAutoMovieTextureUploadFormat.js";
+import { AutoMovieThreeKind } from "./AutoMovieThreeKind.js";
 
 /**
  * Read a host-owned 2D target's complete attachment profile before drawing.
@@ -19,12 +20,13 @@ export function readAutoMovieRenderTextureTarget(
   target: THREE.RenderTarget,
   transmissionScope?: string,
 ): IAutoMovieRenderTextureTarget {
-  const cube: boolean = "isWebGLCubeRenderTarget" in target;
+  const cube: boolean = AutoMovieThreeKind.isWebGLCubeRenderTarget(target);
   const unsupported: boolean =
     target.depth !== 1 ||
     target.textures.some(
       (texture: THREE.Texture): boolean =>
-        "isDataArrayTexture" in texture || "isData3DTexture" in texture,
+        AutoMovieThreeKind.isDataArrayTexture(texture) ||
+        AutoMovieThreeKind.isData3DTexture(texture),
     );
   const depth: THREE.DepthTexture | null = target.depthTexture;
   const depthBytesPerTexel: number | null = !target.depthBuffer

@@ -202,4 +202,69 @@ export namespace AutoMovieThreeKind {
   export function isUint16Array(array: THREE.TypedArray): array is Uint16Array {
     return array[Symbol.toStringTag] === "Uint16Array";
   }
+
+  /** Whether an object draws with materials: a mesh, line, point cloud or sprite. */
+  export function isDrawn(
+    object: THREE.Object3D,
+  ): object is THREE.Mesh | THREE.Line | THREE.Points | THREE.Sprite {
+    return (
+      isMesh(object) || isLine(object) || isPoints(object) || isSprite(object)
+    );
+  }
+
+  /** Whether a texture holds raw data. */
+  export function isDataTexture(texture: THREE.Texture): texture is THREE.DataTexture {
+    return (texture as THREE.DataTexture).isDataTexture === true;
+  }
+
+  /** Whether a texture is a layered raw-data texture. */
+  export function isDataArrayTexture(
+    texture: THREE.Texture,
+  ): texture is THREE.DataArrayTexture {
+    return (texture as THREE.DataArrayTexture).isDataArrayTexture === true;
+  }
+
+  /** Whether a texture is a volume raw-data texture. */
+  export function isData3DTexture(
+    texture: THREE.Texture,
+  ): texture is THREE.Data3DTexture {
+    return (texture as THREE.Data3DTexture).isData3DTexture === true;
+  }
+
+  /** Whether a texture is a framebuffer copy. */
+  export function isFramebufferTexture(
+    texture: THREE.Texture,
+  ): texture is THREE.FramebufferTexture {
+    return (texture as THREE.FramebufferTexture).isFramebufferTexture === true;
+  }
+
+  /** Whether a texture is a depth texture. */
+  export function isDepthTexture(
+    texture: THREE.Texture,
+  ): texture is THREE.DepthTexture {
+    return (texture as THREE.DepthTexture).isDepthTexture === true;
+  }
+
+  /** Whether a texture is block-compressed. */
+  export function isCompressedTexture(
+    texture: THREE.Texture,
+  ): texture is THREE.CompressedTexture {
+    return (texture as THREE.CompressedTexture).isCompressedTexture === true;
+  }
+
+  /** Whether a texture is a layered block-compressed texture. */
+  export function isCompressedArrayTexture(
+    texture: THREE.Texture,
+  ): texture is THREE.CompressedArrayTexture {
+    return (
+      (texture as THREE.CompressedArrayTexture).isCompressedArrayTexture === true
+    );
+  }
+
+  /** Whether a render target is a WebGL render target. */
+  export function isWebGLRenderTarget(
+    target: object,
+  ): target is THREE.WebGLRenderTarget {
+    return (target as THREE.WebGLRenderTarget).isWebGLRenderTarget === true;
+  }
 }

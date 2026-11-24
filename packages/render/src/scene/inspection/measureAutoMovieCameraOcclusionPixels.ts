@@ -166,7 +166,7 @@ export function measureAutoMovieCameraOcclusionPixels(
       return;
     }
     const material: THREE.Material | THREE.Material[] = object.material;
-    if (!Array.isArray(material) && !material.visible) return;
+    if (AutoMovieThreeKind.isMaterial(material) && !material.visible) return;
     const position: THREE.BufferAttribute | THREE.InterleavedBufferAttribute =
       object.geometry.getAttribute("position");
     if (
@@ -174,7 +174,7 @@ export function measureAutoMovieCameraOcclusionPixels(
       !nativeRenderCallbacks(object) ||
       object.geometry.morphAttributes.position?.length ||
       !(AutoMovieThreeKind.isBufferAttribute(position)) ||
-      Array.isArray(material) ||
+      !AutoMovieThreeKind.isMaterial(material) ||
       !nativeOpaqueMaterial(material)
     ) {
       reason = "unsupported opaque coverage in delivery scene";

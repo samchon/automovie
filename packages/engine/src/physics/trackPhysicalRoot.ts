@@ -310,9 +310,15 @@ export namespace trackPhysicalRoot {
 
   /** The same pre-integration state used by endpoint and joint controllers. */
   export interface IInput {
-    /** Admitted global physical settings. */ settings: IAutoMoviePhysicalSimulationInput.IInput;
+    /** Admitted global physical settings. */ settings: Pick<
+      IAutoMoviePhysicalSimulationInput.IInput,
+      "gravity" | "floor" | "rate" | "substeps"
+    >;
     /** Admitted provider and controller. */ body: IAutoMoviePhysicalSimulationInput.IBody;
-    /** Transient native maps and prediction destination. */ bound: Bound;
+    /** Transient native maps and prediction destination. */ bound: Pick<
+      Bound,
+      "segments" | "order" | "supportWrenches"
+    >;
     /** Native root wrapper. */ base: AutoMovieXpbdBody;
     /** Whether the root is currently dynamically owned. */ rootDynamic: boolean;
     /** Independent root motor intent captured before actual-root fitting. */ rootIntent: IAutoMovieSamplePhysicalTarget.IResult;
@@ -390,7 +396,10 @@ export namespace trackPhysicalRoot {
     /** Enclosing cache interval. */ step: number;
     /** Exact declared native tick time. */ seconds: number;
     /** Native integration duration. */ dt: number;
-    /** The world whose motors' solve takes the root's task. */ world: AutoMovieXpbdWorld;
+    /** The world whose motors' solve takes the root's task. */ world: Pick<
+      AutoMovieXpbdWorld,
+      "rootTasks"
+    >;
     /**
      * Every segment's sampled goal, with the balance's root offset; the
      * momentum task's reference pose.

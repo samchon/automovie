@@ -185,10 +185,8 @@ export class AutoMovieFilmIndirectStage {
       return;
     }
     props.scene.traverse((object: THREE.Object3D): void => {
-      const material: unknown =
-        "material" in object ? object.material : undefined;
-      for (const entry of [material].flat())
-        if (AutoMovieThreeKind.isMaterial(entry))
+      if (AutoMovieThreeKind.isDrawn(object))
+        for (const entry of [object.material].flat())
           applyFilmIndirectPatch(entry, this.uniforms_);
     });
     const { renderer, scene, camera }: typeof props = props;

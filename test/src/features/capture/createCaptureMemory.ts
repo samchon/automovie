@@ -6,7 +6,7 @@ import type { IAutoMovieCaptureStorage } from "@automovie/interface";
  * It follows the `node:fs/promises` behaviour the capture relies on: `readdir` and `readFile` reject a missing path with a message naming it, `writeFile` rejects a file whose folder does not exist, `mkdir` with `recursive` creates every missing parent, and `rm` with `force` ignores a missing file. Text is stored as UTF-8 bytes.
  */
 export function createCaptureMemory(
-  seed: Readonly<Record<string, Uint8Array | string>> = {},
+  seed: Readonly<Record<string, string>> = {},
 ): createCaptureMemory.IMemory {
   const files: Map<string, Uint8Array> = new Map();
   const folders: Set<string> = new Set([""]);
@@ -17,7 +17,7 @@ export function createCaptureMemory(
   };
   for (const [path, data] of Object.entries(seed)) {
     makeFolders(parent(path));
-    files.set(path, bytes(data));
+    files.set(path, new TextEncoder().encode(data));
   }
 
   const storage: IAutoMovieCaptureStorage = {
@@ -51,7 +51,8 @@ export function createCaptureMemory(
       log.push(`writeFile ${path}`);
       if (!folders.has(parent(path)))
         throw new Error(`ENOENT: no folder for ${path}`);
-      files.set(path, bytes(data));
+      // A Blob takes either form the storage accepts and yields its bytes.
+      files.set(path, new Uint8Array(await new Blob([data]).arrayBuffer()));
     },
     rm: async (path: string): Promise<void> => {
       log.push(`rm ${path}`);
@@ -86,11 +87,4 @@ export namespace createCaptureMemory {
 /** The folder of a path: everything before its last `/`. */
 function parent(path: string): string {
   return path.slice(0, Math.max(0, path.lastIndexOf("/")));
-}
-
-/** A file's bytes, text encoded as UTF-8 and bytes copied. */
-function bytes(data: Uint8Array | string): Uint8Array {
-  return typeof data === "string"
-    ? new TextEncoder().encode(data)
-    : new Uint8Array(data);
 }

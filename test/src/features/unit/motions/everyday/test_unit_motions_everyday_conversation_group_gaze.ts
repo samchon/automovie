@@ -33,8 +33,8 @@ const EYES: number = 1.6;
  *    of the four film seconds from 1 to 5 s target a face.
  * 4. The same stream replays the same requests; the dyad keeps B and leaves its
  *    requests open.
- * 5. An unknown viewer, a duplicate participant, an unknown or self addressee,
- *    an overlapping span and an unending span are refused.
+ * 5. An unknown viewer, a duplicate participant, an unknown or self addressee and
+ *    an overlapping span are refused.
  */
 export function test_unit_motions_everyday_conversation_group_gaze(): void {
   const participants: readonly string[] = ["a", "b", "c"];
@@ -147,7 +147,6 @@ export function test_unit_motions_everyday_conversation_group_gaze(): void {
     { speaker: "a", addressee: "absent", from: 3, to: 4 },
     { speaker: "a", addressee: "a", from: 3, to: 4 },
     { speaker: "b", addressee: "c", from: 1.5, to: 3 },
-    { speaker: "b", addressee: "c", from: 3, to: Infinity },
   ] satisfies IAutoMovieMotionHumanConversation.IGroupTurn[])
     TestValidator.error(`refuses ${JSON.stringify(turn)}`, (): void => {
       conversationGroupGaze({

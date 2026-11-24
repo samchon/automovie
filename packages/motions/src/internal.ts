@@ -307,3 +307,4 @@ export * from "./terrain/climbStairsPrints";
 export * from "./carrier/HumanSupportCarry";
 export * from "./everyday/HumanAffect";
 export * from "./everyday/conversationGroupGaze";
+export * from "./carrier/HumanSupportFrame";

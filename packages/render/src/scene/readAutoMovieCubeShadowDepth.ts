@@ -2,6 +2,7 @@ import type * as THREE from "three";
 
 import { captureAutoMovieFramebufferRestore } from "./captureAutoMovieFramebufferRestore.js";
 import { restoreAutoMovieRenderModeState } from "./restoreAutoMovieRenderModeState.js";
+import { AutoMovieThreeKind } from "./AutoMovieThreeKind.js";
 
 /**
  * Read a native cube shadow target's owned depth handle through its
@@ -23,7 +24,7 @@ export const readAutoMovieCubeShadowDepth: (
   renderer: THREE.WebGLRenderer,
   target: THREE.RenderTarget,
 ): WebGLTexture | null => {
-  if (!("isWebGLRenderTarget" in target) || target.isWebGLRenderTarget !== true)
+  if (!AutoMovieThreeKind.isWebGLRenderTarget(target))
     throw new Error(
       "A retained cube shadow target must be a native WebGL render target.",
     );

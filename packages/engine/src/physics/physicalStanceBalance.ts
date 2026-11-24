@@ -135,7 +135,7 @@ export namespace physicalStanceBalance {
   /** One balance step's inputs. */
   export interface IInput {
     /** Admitted settings. */
-    settings: IAutoMoviePhysicalSimulationInput.IInput;
+    settings: Pick<IAutoMoviePhysicalSimulationInput.IInput, "gravity" | "floor">;
     /** The body. */
     body: IAutoMoviePhysicalSimulationInput.IBody;
     /** Its native segments. */

@@ -13,6 +13,7 @@ import type {
   IAutoMovieMotionHumanEntryState,
   IAutoMovieMotionHumanFoot,
   IAutoMovieMotionHumanPerformerReader,
+  IAutoMovieMotionHumanPropReader,
   IAutoMovieMotionHumanSupportFrame,
   IAutoMovieResolvedBone,
   IAutoMovieRigidTransform,
@@ -24,15 +25,6 @@ import { HumanPropFrame } from "../perform/HumanPropFrame";
 import { HumanFoot } from "../posture/HumanFoot";
 import { poseBones } from "../posture/poseBones";
 
-/** The alternatives of `AtContext`'s site. */
-type AtContext = "entry" | "prop" | "performer";
-
-/** The alternatives of `BoardContext`'s site. */
-type BoardContext = "entry" | "prop" | "performer" | "start";
-
-/** The alternatives of `OfContext`'s site. */
-type OfContext = "entry" | "carrier";
-
 /**
  * The support the action is entered on: the first bearing contact on a prop or
  * a person, else the ground.
@@ -41,7 +33,7 @@ type OfContext = "entry" | "carrier";
  * @returns The support.
  */
 export function HumanSupportFrame(
-  context: Pick<IAutoMovieMotionHumanActionContext, OfContext>,
+  context: HumanSupportFrame.IOfContext,
 ): IAutoMovieMotionHumanContactWindow.Support {
   // An overlay rides what its carrier stands on, even where its entry
   // still stood on the ground before the carrier began.
@@ -72,6 +64,41 @@ export function HumanSupportFrame(
  * over the same step.
  */
 export namespace HumanSupportFrame {
+  /**
+   * What `HumanSupportFrame` reads of an action's context: its entry's supports
+   * and its carrier's support.
+   */
+  export interface IOfContext {
+    /** The entry's supports. */
+    entry: Pick<IAutoMovieMotionHumanEntryState, "supports">;
+
+    /** The carrier an overlay rides, with what it stands on. */
+    carrier?: Pick<IAutoMovieMotionHumanActionContext.ICarrier, "support">;
+  }
+
+  /**
+   * What `HumanSupportFrame.at` reads of an action's context: the entry's
+   * support, a prop's frame and a performer's posed bones.
+   */
+  export interface IAtContext extends IOfContext {
+    /** A prop's frame over film seconds. */
+    prop(subject: string): Pick<IAutoMovieMotionHumanPropReader, "frame">;
+
+    /** A performer's body and posed bones. */
+    performer(
+      subject: string,
+    ): Pick<IAutoMovieMotionHumanPerformerReader, "body" | "bones">;
+  }
+
+  /**
+   * What `HumanSupportFrame.board` reads of an action's context: the support
+   * frames and the action's start.
+   */
+  export interface IBoardContext extends IAtContext {
+    /** Film second of the action's time zero. */
+    start: number;
+  }
+
   /**
    * The frame an entry part already bears on. Continuing a plant keeps that
    * frame; a part with no declared contact starts on the ground.
@@ -142,7 +169,7 @@ export namespace HumanSupportFrame {
    *   fix.
    */
   export function board(
-    context: Pick<IAutoMovieMotionHumanActionContext, BoardContext>,
+    context: IBoardContext,
     prop: string,
     speed: number,
   ): void {
@@ -173,7 +200,7 @@ export namespace HumanSupportFrame {
    * @returns The frame.
    */
   export function at(
-    context: Pick<IAutoMovieMotionHumanActionContext, AtContext>,
+    context: IAtContext,
     seconds: number,
     named?: IAutoMovieMotionHumanContactWindow.Support,
   ): IAutoMovieMotionHumanSupportFrame.IFrame {

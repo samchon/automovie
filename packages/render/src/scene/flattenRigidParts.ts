@@ -51,7 +51,7 @@ export const flattenRigidParts: (
           )
         )
           throw new Error(`${owner} has morph-target source geometry.`);
-        if (Array.isArray(mesh.material))
+        if (!AutoMovieThreeKind.isMaterial(mesh.material))
           throw new Error(`${owner} has a multi-material source mesh.`);
         const flattened: THREE.BufferGeometry<
           THREE.NormalBufferAttributes,

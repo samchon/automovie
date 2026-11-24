@@ -46,7 +46,7 @@ export function applyPracticalSurfaceMaterials(
     )?.parts.get(track.part);
     if (
       !(AutoMovieThreeKind.isMesh(target)) ||
-      Array.isArray(target.material) ||
+      !AutoMovieThreeKind.isMaterial(target.material) ||
       assignments.has(target)
     )
       throw new Error(

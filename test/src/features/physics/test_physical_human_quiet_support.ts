@@ -103,23 +103,25 @@ export async function test_physical_human_quiet_support(): Promise<void> {
       profile: await PhysicalHumanProfiles.load("m-average"),
     },
   );
-  const record: PhysicalBalanceReplay.IRecord | undefined = [...quiet.records]
+  const record: PhysicalBalanceReplay.IRootRecord | undefined = [
+    ...quiet.records,
+  ]
     .reverse()
     .find(
-      (candidate: PhysicalBalanceReplay.IRecord): boolean =>
+      (
+        candidate: PhysicalBalanceReplay.IRecord,
+      ): candidate is PhysicalBalanceReplay.IRootRecord =>
         candidate.kind === "root",
     );
   if (record === undefined)
     throw new Error(`${QUIET} holds no root tracker's call`);
+  const { segments, planted, center, supports } = record.input;
+  if (planted === undefined || center === undefined)
+    throw new Error(`${QUIET}'s root tracker's call holds no planted stance`);
+  const recorded: IStanding = { segments, planted, center, supports };
 
   const shares = (label: string, by: number): IShares | undefined =>
-    demand(
-      quiet,
-      profile,
-      shift(record.input, profile, quiet, by),
-      label,
-      failures,
-    );
+    demand(quiet, profile, shift(recorded, profile, quiet, by), label, failures);
   const follows = (label: string, shifted: IShares | undefined): void => {
     if (
       shifted &&
@@ -139,7 +141,7 @@ export async function test_physical_human_quiet_support(): Promise<void> {
   for (const name of ["m-average", "m-tall"] as const) {
     const size: IAutoMoviePhysicalProfile =
       await PhysicalHumanProfiles.load(name);
-    const stand: Record<string, any> = standing(size, quiet);
+    const stand: IStanding = standing(size, quiet);
     demand(quiet, size, stand, `${name} standing`, failures);
     follows(
       `${name} shifted`,
@@ -165,10 +167,9 @@ export async function test_physical_human_quiet_support(): Promise<void> {
 function standing(
   profile: IAutoMoviePhysicalProfile,
   fixture: PhysicalBalanceReplay.IFixture,
-): Record<string, any> {
-  const limbs: IAutoMovieFootfallPattern["limbs"] = (
-    fixture.body.balance as IAutoMoviePhysicalRecoveryPolicy
-  ).pattern.limbs;
+): IStanding {
+  const limbs: IAutoMovieFootfallPattern["limbs"] =
+    fixture.body.balance!.pattern.limbs;
   const corners = (
     bone: string,
     pose: IAutoMovieRigidTransform,
@@ -277,27 +278,25 @@ function vertices(shape: IAutoMoviePhysicalShape): IAutoMovieVector3[] {
 function demand(
   fixture: PhysicalBalanceReplay.IFixture,
   profile: IAutoMoviePhysicalProfile,
-  input: Record<string, any>,
+  input: IStanding,
   label: string,
   failures: string[],
 ): IShares | undefined {
-  const settings: IAutoMoviePhysicalSimulationInput.IInput =
-    fixture.settings as never;
+  const settings: PhysicalBalanceReplay.IFixture["settings"] = fixture.settings;
   const body: IAutoMoviePhysicalSimulationInput.IBody = {
     ...fixture.body,
     profile,
-  } as never;
-  const stance: IAutoMovieFootfallPattern["limbs"] = (
-    fixture.body.balance as IAutoMoviePhysicalRecoveryPolicy
-  ).pattern.limbs;
-  const segments: Map<string, PhysicalBalanceReplay.Body> =
+  };
+  const stance: IAutoMovieFootfallPattern["limbs"] =
+    fixture.body.balance!.pattern.limbs;
+  const segments: Map<string, AutoMovieXpbdBody> =
     PhysicalBalanceReplay.segments(input.segments);
   const center: IAutoMovieVector3 = centerOf(profile, input.segments);
   const result: physicalStanceBalance.IResult | undefined =
     physicalStanceBalance.demand({
       settings,
       body,
-      segments: segments as never,
+      segments,
       stance,
       feet: Object.fromEntries(
         stance.map((limb: IAutoMovieFootfallPattern["limbs"][number]) => [
@@ -340,7 +339,8 @@ function demand(
   // its load anywhere across its own support: the left share is (c - r) /
   // (l - r) for some centre of pressure l on the left footprint and r on the
   // right, so it lies in the band those footprints' ends give.
-  const supports: IAutoMovieCollectPhysicalSupports.ISupport[] = input.supports;
+  const supports: readonly IAutoMovieCollectPhysicalSupports.ISupport[] =
+    input.supports;
   const footprint = (side: string): IAutoMovieVector3[] =>
     supports
       .filter((support: IAutoMovieCollectPhysicalSupports.ISupport): boolean =>
@@ -383,26 +383,24 @@ function demand(
  * body shifted over its planted soles, at rest at its shifted target.
  */
 function shift(
-  input: Record<string, any>,
+  input: IStanding,
   profile: IAutoMoviePhysicalProfile,
   fixture: PhysicalBalanceReplay.IFixture,
   by: number,
-): Record<string, any> {
+): IStanding {
   const planted: Set<string> = new Set(
-    (
-      fixture.body.balance as IAutoMoviePhysicalRecoveryPolicy
-    ).pattern.limbs.flatMap(
+    fixture.body.balance!.pattern.limbs.flatMap(
       (limb: IAutoMovieFootfallPattern["limbs"][number]): string[] => [
         limb.bone,
         ...(limb.contacts ?? []),
       ],
     ),
   );
-  const copy: Record<string, any> = structuredClone(input);
+  const copy: IStanding = structuredClone(input);
   let moved: number = 0;
   for (const segment of profile.segments) {
     if (planted.has(segment.bone)) continue;
-    copy.segments[segment.bone].center.x += by;
+    copy.segments[segment.bone]!.center.x += by;
     moved += segment.mass;
   }
   copy.center.x += (by * moved) / profile.mass;
@@ -412,13 +410,13 @@ function shift(
 /** A limb's ankle joint centre, world metres, from its parent segment. */
 function ankleOf(
   profile: IAutoMoviePhysicalProfile,
-  segments: ReadonlyMap<string, PhysicalBalanceReplay.Body>,
+  segments: ReadonlyMap<string, AutoMovieXpbdBody>,
   bone: string,
 ): IAutoMovieVector3 {
   const joint: IAutoMoviePhysicalJoint = profile.joints.find(
     (candidate: IAutoMoviePhysicalJoint): boolean => candidate.child === bone,
   )!;
-  const parent: PhysicalBalanceReplay.Body = segments.get(joint.parent)!;
+  const parent: AutoMovieXpbdBody = segments.get(joint.parent)!;
   return Vector3.add(
     parent.translation(),
     Quaternion.rotateVector(parent.rotation(), joint.parentFrame.position),

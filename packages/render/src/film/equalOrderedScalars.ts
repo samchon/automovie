@@ -27,13 +27,11 @@ export const equalOrderedScalars: (
   for (let at: number = 0; at < left.length; ++at) {
     const one: AutoMovieOrderedEntry = left[at]!;
     const other: AutoMovieOrderedEntry = right[at]!;
-    if (Array.isArray(one) || Array.isArray(other)) {
-      if (Array.isArray(one) === false || Array.isArray(other) === false)
-        return false;
-      const row: readonly AutoMovieOrderedScalar[] =
-        one as readonly AutoMovieOrderedScalar[];
-      const otherRow: readonly AutoMovieOrderedScalar[] =
-        other as readonly AutoMovieOrderedScalar[];
+    // A row is the entry union's object member; a scalar is a number or text.
+    if (typeof one === "object" || typeof other === "object") {
+      if (typeof one !== "object" || typeof other !== "object") return false;
+      const row: readonly AutoMovieOrderedScalar[] = one;
+      const otherRow: readonly AutoMovieOrderedScalar[] = other;
       if (row.length !== otherRow.length) return false;
       for (let inner: number = 0; inner < row.length; ++inner)
         if (Object.is(row[inner], otherRow[inner]) === false) return false;

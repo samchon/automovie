@@ -120,16 +120,16 @@ export async function test_physical_disturbance_anatomy(): Promise<void> {
     fixture.records.forEach(
       (record: PhysicalBalanceReplay.IRecord, index: number): void => {
         if (!kept.has(index)) return;
-        const twin: PhysicalBalanceReplay.IRecord = rename(record);
         const original: Record<string, unknown> = rename(
           record.kind === "advance"
             ? PhysicalBalanceReplay.advance(fixture, record, built)
             : PhysicalBalanceReplay.root(fixture, record, built),
         );
+        // The record's renamed twin, of the record's own kind.
         const mirrored: Record<string, unknown> =
           record.kind === "advance"
-            ? PhysicalBalanceReplay.advance(renamed, twin, profile)
-            : PhysicalBalanceReplay.root(renamed, twin, profile);
+            ? PhysicalBalanceReplay.advance(renamed, rename(record), profile)
+            : PhysicalBalanceReplay.root(renamed, rename(record), profile);
         for (const key of Object.keys({ ...original, ...mirrored }))
           if (canonical(original[key]) !== canonical(mirrored[key]))
             failures.push(

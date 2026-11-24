@@ -152,7 +152,7 @@ export namespace readAutoMovieDisplayedBox {
   export function supportsStockMaterial(mesh: THREE.Mesh): boolean {
     const material: THREE.Material | THREE.Material[] = mesh.material;
     return (
-      !Array.isArray(material) &&
+      AutoMovieThreeKind.isMaterial(material) &&
       supportsStockSurface(material) &&
       matchesStockShader(mesh, material) &&
       mesh.onBeforeRender === THREE.Object3D.prototype.onBeforeRender

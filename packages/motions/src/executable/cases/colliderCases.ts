@@ -72,9 +72,10 @@ export function* colliderCases(
     for (const joint of body.joints) {
       const part: THREE.Mesh | undefined = drawing.parts.get(joint.bone);
       if (part === undefined || joint.bone.startsWith("right")) continue;
-      const positions: THREE.BufferAttribute = part.geometry.getAttribute(
-        "position",
-      ) as THREE.BufferAttribute;
+      const positions:
+        | THREE.BufferAttribute
+        | THREE.InterleavedBufferAttribute =
+        part.geometry.getAttribute("position");
       const index: THREE.BufferAttribute = part.geometry.getIndex()!;
       // Human's frame and the canonical frame differ by (x, y, z) -> (z, y, x).
       const corner = (i: number): THREE.Vector3 =>

@@ -4,6 +4,7 @@ import type { IAutoMovieRenderModeHandle } from "../IAutoMovieRenderModeHandle.j
 import { overrideAutoMovieRenderModeMaterials } from "../overrideAutoMovieRenderModeMaterials.js";
 import { restoreAutoMovieRenderModeOnce } from "../restoreAutoMovieRenderModeOnce.js";
 import { AUTOMOVIE_SURFACE_GRAPHIC_KEY } from "./AUTOMOVIE_SURFACE_GRAPHIC_KEY.js";
+import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
 
 /**
  * The `graphics` pass: surface graphics alone, drawn exactly as the beauty pass
@@ -43,7 +44,9 @@ export function applyAutoMovieGraphicsMode(
       (
         original: THREE.Material | THREE.Material[],
       ): THREE.Material | THREE.Material[] =>
-        Array.isArray(original) ? original.map(holdOut) : holdOut(original),
+        AutoMovieThreeKind.isMaterial(original)
+          ? holdOut(original)
+          : original.map(holdOut),
       (mesh: THREE.Mesh): boolean => graphics.has(mesh),
     );
   const background: THREE.Scene["background"] = scene.background;

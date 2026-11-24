@@ -20,6 +20,7 @@ import { restoreAutoMovieRenderModeState } from "./restoreAutoMovieRenderModeSta
 import { autoMovieSemanticMaskOf } from "./semanticMask/index.js";
 import { applyAutoMovieGraphicsMode } from "./surfaceGraphic/applyAutoMovieGraphicsMode.js";
 import { hideAutoMovieSurfaceGraphics } from "./surfaceGraphic/hideAutoMovieSurfaceGraphics.js";
+import { AutoMovieThreeKind } from "./AutoMovieThreeKind.js";
 
 /** A renderable that is NOT a mesh: a line/grid/helper, points, or a sprite. */
 const isNonMeshRenderable: (object: THREE.Object3D) => boolean = (
@@ -179,9 +180,9 @@ export const applyRenderMode: (
               (
                 original: THREE.Material | THREE.Material[],
               ): THREE.Material | THREE.Material[] =>
-                Array.isArray(original)
-                  ? original.map(createAutoMovieAlbedoMaterial)
-                  : createAutoMovieAlbedoMaterial(original),
+                AutoMovieThreeKind.isMaterial(original)
+                  ? createAutoMovieAlbedoMaterial(original)
+                  : original.map(createAutoMovieAlbedoMaterial),
             );
         default:
           throw new Error(`unknown render mode "${String(mode)}"`);

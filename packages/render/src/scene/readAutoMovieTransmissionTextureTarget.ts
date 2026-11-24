@@ -22,23 +22,12 @@ export function readAutoMovieTransmissionTextureTarget(
   },
   camera: THREE.Camera,
 ): IAutoMovieRenderTextureTarget {
-  const viewport: unknown =
-    ("viewport" in camera ? camera.viewport : undefined) ||
-    renderer.getCurrentViewport(new THREE.Vector4());
-  const width: number =
-    typeof viewport === "object" &&
-    viewport !== null &&
-    "z" in viewport &&
-    typeof viewport.z === "number"
-      ? viewport.z
-      : NaN;
-  const height: number =
-    typeof viewport === "object" &&
-    viewport !== null &&
-    "w" in viewport &&
-    typeof viewport.w === "number"
-      ? viewport.w
-      : NaN;
+  // An array camera's member carries its own viewport; any other camera
+  // draws into the renderer's current one.
+  const viewport: THREE.Vector4 =
+    camera.viewport ?? renderer.getCurrentViewport(new THREE.Vector4());
+  const width: number = viewport.z;
+  const height: number = viewport.w;
   const half: boolean =
     renderer.extensions.has("EXT_color_buffer_half_float") ||
     renderer.extensions.has("EXT_color_buffer_float");

@@ -59,7 +59,7 @@ import { physicalSupportFootprint } from "./physicalSupportFootprint";
  *   runs. The input is never written.
  */
 export function physicalRootDemand(input: {
-  settings: IAutoMoviePhysicalSimulationInput.IInput;
+  settings: Pick<IAutoMoviePhysicalSimulationInput.IInput, "gravity" | "floor">;
   body: IAutoMoviePhysicalSimulationInput.IBody;
   segments: ReadonlyMap<string, AutoMovieXpbdBody>;
   base: AutoMovieXpbdBody;
@@ -438,7 +438,7 @@ export namespace physicalRootDemand {
    * @returns The force, world newtons, and moment, world N m, to apply.
    */
   export function external(input: {
-    settings: IAutoMoviePhysicalSimulationInput.IInput;
+    settings: Pick<IAutoMoviePhysicalSimulationInput.IInput, "gravity" | "floor">;
     body: IAutoMoviePhysicalSimulationInput.IBody;
     base: AutoMovieXpbdBody;
     rootGoal: IAutoMovieVector3;

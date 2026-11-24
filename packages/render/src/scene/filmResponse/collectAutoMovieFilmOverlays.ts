@@ -11,15 +11,12 @@ export function collectAutoMovieFilmOverlays(
 ): Map<THREE.Object3D, number> {
   const overlays: Map<THREE.Object3D, number> = new Map();
   scene.traverse((object: THREE.Object3D): void => {
-    const material: unknown =
-      "material" in object ? object.material : undefined;
-    if (material === undefined || object.layers.mask === 0) return;
-    const materials: unknown[] = [material];
+    if (!AutoMovieThreeKind.isDrawn(object) || object.layers.mask === 0) return;
+    const materials: THREE.Material[] = [object.material].flat();
     if (
       materials.length !== 0 &&
       materials.every(
-        (entry: unknown): boolean =>
-          AutoMovieThreeKind.isMaterial(entry) && entry.toneMapped === false,
+        (entry: THREE.Material): boolean => entry.toneMapped === false,
       )
     )
       overlays.set(object, object.layers.mask);

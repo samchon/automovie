@@ -4,6 +4,7 @@ import { guardAutoMovieSceneShadowRetirement } from "./guardAutoMovieSceneShadow
 import { readAutoMovieCubeShadowDepth } from "./readAutoMovieCubeShadowDepth.js";
 import { restoreAutoMovieRenderModeState } from "./restoreAutoMovieRenderModeState.js";
 import { retireAutoMovieCubeShadowDepth } from "./retireAutoMovieCubeShadowDepth.js";
+import { AutoMovieThreeKind } from "./AutoMovieThreeKind.js";
 
 /**
  * Retire every scene light's retained shadow attachment after a filter change.
@@ -63,8 +64,7 @@ export const resetAutoMovieSceneShadowTargets: (
     );
   for (const target of targets) {
     if (
-      "isWebGLCubeRenderTarget" in target &&
-      target.isWebGLCubeRenderTarget === true &&
+      AutoMovieThreeKind.isWebGLCubeRenderTarget(target) &&
       target.depthTexture !== null &&
       target.depthTexture.version !== 0
     ) {

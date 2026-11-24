@@ -155,9 +155,9 @@ export function createAutoMovieSurfaceAppearance(input: {
         adapter,
       });
       surface.mesh.geometry = geometry;
-      surface.mesh.material = Array.isArray(originalMaterial)
-        ? materials
-        : materials[0]!;
+      surface.mesh.material = AutoMovieThreeKind.isMaterial(originalMaterial)
+        ? materials[0]!
+        : materials;
     }
   } catch (error: unknown) {
     dispose();

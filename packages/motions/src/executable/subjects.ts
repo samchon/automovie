@@ -159,18 +159,21 @@ function build(data: IMotionCaptureProps): IAutoMovieDrawScene {
     z += GRID_CELL
   )
     lines.push(extent.min.x, 0, z, extent.max.x, 0, z);
+  const gridMaterial: THREE.LineBasicMaterial = new THREE.LineBasicMaterial({
+    color: 0xc9c4ba,
+  });
   const grid: THREE.LineSegments = new THREE.LineSegments(
     new THREE.BufferGeometry().setAttribute(
       "position",
       new THREE.Float32BufferAttribute(lines, 3),
     ),
-    new THREE.LineBasicMaterial({ color: 0xc9c4ba }),
+    gridMaterial,
   );
   grid.name = "ground";
   scene.add(grid);
   disposers.push((): void => {
     grid.geometry.dispose();
-    (grid.material as THREE.Material).dispose();
+    gridMaterial.dispose();
   });
 
   // A delivery camera on the three-quarter side.
