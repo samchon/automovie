@@ -123,3 +123,87 @@ What the tree walks read.
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 
 None.
+
+# src/physics/solveXpbdArticulation.ts#solveXpbdArticulation.responder
+
+## @evidence contracts/development/common.md#meaningful-documentation
+
+States what the response moves, which trees are prepared, how they are factored and which axes are held.
+
+## @evidence contracts/development/implementation.md#principled-implementation
+
+Contacts through the articulation (Kokkevis 2004; Featherstone 2008, section 7.5): a unit impulse propagated through the tree's factor at h = 0 gives the row's generalised inverse mass and the displacement of every body; an axis on or past a bound is held as prescribed motion (section 7.3), the axes chosen by Bullet's joint-limit rows (bulletphysics/bullet3, src/BulletDynamics/Featherstone/btMultiBodyJointLimitConstraint.cpp, lines 104-116 at c517c434e6e017d131ba3ad97ce4ec317226a2b7, zlib, Copyright (c) 2013 Erwin Coumans): the penetrations q - lower and upper - q, a row active when its penetration is at most zero.
+
+## @evidence contracts/development/implementation.md#clear-and-simple-structure
+
+Build the forest, prepare each tree a contact touches, then per call propagate each impulse, sum per tree, read the weight, apply.
+
+## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
+
+A body in no prepared tree, or a singular tree, answers none and its caller keeps the rigid body's own correction; no correction is clamped; the bound test is Bullet's, with no threshold of its own; a swing-twist gate has no coordinate per axis, so its axes stay free and the joints' pass restores it.
+
+## @evidence contracts/development/implementation.md#efficient-algorithms
+
+One factor per touched tree per position pass, one linear propagation per impulse; untouched trees are not built.
+
+## @evidence contracts/development/implementation.md#reuse-equivalent-work
+
+Each touched tree's factor, prepared once at the pass's start, serves every contact of the pass.
+
+## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
+
+The prepared trees live for one position pass and are released with the responder.
+
+# src/physics/solveXpbdArticulation.ts#solveXpbdArticulation.IPointImpulse
+
+## @evidence contracts/development/common.md#meaningful-documentation
+
+States each member's meaning, frame and unit.
+
+## @evidence contracts/development/design.md#principled-representation
+
+A unit force direction at a world point of a body.
+
+## @evidence contracts/development/design.md#minimal-and-owned-surface
+
+Only what a propagation needs.
+
+## @evidence contracts/development/design.md#prohibited-design-shortcuts
+
+None.
+
+# src/physics/solveXpbdArticulation.ts#solveXpbdArticulation.IPointResponse
+
+## @evidence contracts/development/common.md#meaningful-documentation
+
+States the weight and the apply.
+
+## @evidence contracts/development/design.md#principled-representation
+
+A constraint row's generalised inverse mass and its displacement per multiplier.
+
+## @evidence contracts/development/design.md#minimal-and-owned-surface
+
+What a positional correction reads and writes.
+
+## @evidence contracts/development/design.md#prohibited-design-shortcuts
+
+None.
+
+# src/physics/solveXpbdArticulation.ts#solveXpbdArticulation.IResponder
+
+## @evidence contracts/development/common.md#meaningful-documentation
+
+States both members.
+
+## @evidence contracts/development/design.md#principled-representation
+
+Whether a body moves through a prepared tree, and the response of the trees to impulses.
+
+## @evidence contracts/development/design.md#minimal-and-owned-surface
+
+The two questions the contact pass asks.
+
+## @evidence contracts/development/design.md#prohibited-design-shortcuts
+
+None.

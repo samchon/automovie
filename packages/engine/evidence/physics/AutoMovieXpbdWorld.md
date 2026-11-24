@@ -114,7 +114,7 @@ States the phases in order, the single passes, the pair exclusions and what the 
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-The substep of Mueller et al. 2020, Algorithm 2: predict, solve positions, derive velocities, solve velocities; the inverse inertia is held fixed over the substep's corrections.
+The substep of Mueller et al. 2020, Algorithm 2: predict, solve positions, derive velocities, solve velocities; the inverse inertia is held fixed over the substep's corrections. The joints' position pass solves each tree directly (`solveXpbdJointTree`) and the contacts' corrections move jointed bodies through their trees (`solveXpbdArticulation.responder`), prepared only for the trees the substep's contacts touch.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 

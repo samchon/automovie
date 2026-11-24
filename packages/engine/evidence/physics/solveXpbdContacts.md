@@ -72,11 +72,11 @@ States the compliant depth correction and the friction projection.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-Macklin et al. 2016 compliance alpha = w / omega^2 on depth beyond the allowed error; static friction as a Coulomb projection of the accumulated tangential multiplier onto mu lambda_n.
+Macklin et al. 2016 compliance alpha = w / omega^2 on depth beyond the allowed error; static friction as a Coulomb projection of the accumulated tangential multiplier onto mu lambda_n. A jointed body's row reads its whole tree (Kokkevis 2004; Featherstone 2008, section 7.5, `solveXpbdArticulation.responder`): w is the tree's generalised inverse mass at the point and the correction moves every body of the tree along its joints' free axes.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-One loop over the contacts: normal, then tangential.
+One loop over the contacts: normal, then tangential, each through the pair's row (`pair`).
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
