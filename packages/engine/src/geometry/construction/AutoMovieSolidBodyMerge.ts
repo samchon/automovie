@@ -6,6 +6,7 @@ import type {
   IAutoMovieSolidClip,
   IAutoMovieSolidCycle,
   IAutoMovieSolidJoin,
+  IAutoMovieSolidMeshConstraints,
   IAutoMovieSolidSurface,
 } from "@automovie/interface";
 
@@ -16,10 +17,10 @@ import { AutoMovieSolidCycle } from "./AutoMovieSolidCycle";
 import { AutoMovieSolidDiff } from "./AutoMovieSolidDiff";
 import { AutoMovieSolidMerge } from "./AutoMovieSolidMerge";
 import { AutoMovieSolidMesh } from "./AutoMovieSolidMesh";
+import { AutoMovieSolidMeshAuthorities } from "./AutoMovieSolidMeshAuthorities";
+import { AutoMovieSolidMeshConstraints } from "./AutoMovieSolidMeshConstraints";
 
-/**
- * Existing transactional body assembly and frozen host snapshots.
- */
+/** Existing transactional body assembly and frozen host snapshots. */
 export namespace AutoMovieSolidBodyMerge {
   /** A surface/grid descriptor before body assembly adds cycles. */
   type IFaceInput = IAutoMovieSolidBody.IFaceInput;
@@ -130,7 +131,8 @@ export namespace AutoMovieSolidBodyMerge {
           // as well as at them (`AutoMovieSolidCycle.piece`), so the point reached lies on the same physical boundary point as the
           // foot; a segment a clip made maps by its chord's share.
           const exact: IAutoMovieSolidCycle.IExact | null =
-            AutoMovieSolidCycle.piece(best.cycle, best.foot.segment)?.exact ?? null;
+            AutoMovieSolidCycle.piece(best.cycle, best.foot.segment)?.exact ??
+            null;
           if (exact !== null) {
             const [eu, ev]: [number, number] = exact.across(u, v);
             return { face: to, u: eu, v: ev };
@@ -153,7 +155,12 @@ export namespace AutoMovieSolidBodyMerge {
    *
    * @param body The body; its faces, cycles and mesh grow in place.
    * @param input The merge.
-   * @returns The blend or null with observed diagnostics. Returned rail/trim failures restore face count, copied cycles and mesh populations; thrown callbacks are not caught or rolled back.
+   * @returns The blend or null with observed diagnostics. Returned rail/trim
+   *   failures restore face count, copied cycles and mesh populations. A
+   *   callback exception preserves the state at the throw and propagates to
+   *   the caller. An existing part's new rail must
+   *   remain on its retained chart. Its constraints may not cross earlier trim
+   *   segments without a shared vertex.
    */
   export function merge(
     body: IAutoMovieSolidBody.IBody,
@@ -168,7 +175,8 @@ export namespace AutoMovieSolidBodyMerge {
 
     /** Cycle copies isolate rollback from in-place clipping. */
     const cycles: IAutoMovieSolidCycle.ICycle[][] = body.faces.map(
-      (f: IAutoMovieSolidBody.IFace): IAutoMovieSolidCycle.ICycle[] => f.cycles.map(AutoMovieSolidCycle.copy),
+      (f: IAutoMovieSolidBody.IFace): IAutoMovieSolidCycle.ICycle[] =>
+        f.cycles.map(AutoMovieSolidCycle.copy),
     );
 
     /** Scalar-array and owner populations, rather than vertex counts. */
@@ -240,6 +248,28 @@ export namespace AutoMovieSolidBodyMerge {
     if (blend === null)
       return fail("rails", "a column of the blend has no rail");
 
+    const retained: IAutoMovieSolidBody.IFace | undefined = body.faces[known];
+    if (
+      retained !== undefined &&
+      (retained.sourceAtlas !== undefined || retained.cycles.length !== 0)
+    ) {
+      const reads = retained.cycles.map((cycle) =>
+        AutoMovieSolidCycle.prepare(cycle, partSurface.period),
+      );
+      const inherited = retained.sourceAtlas;
+      const outside: number = blend.part.chart.findIndex(
+        ([u, v]): boolean =>
+          (inherited !== undefined &&
+            !inherited.atlas.kept(inherited.face, u, v)) ||
+          reads.some((keeps) => !keeps(u, v)),
+      );
+      if (outside !== -1)
+        return fail(
+          "part rail domain",
+          `${partSurface.name}'s rail column ${outside} at [${blend.part.chart[outside]}] leaves its retained chart`,
+        );
+    }
+
     /** Original analytic surface adapter for the published chain. */
     const blendSurface: IAutoMovieSolidSurface | null =
       AutoMovieSolidChain.surface(blend.chain);
@@ -303,6 +333,45 @@ export namespace AutoMovieSolidBodyMerge {
     const phase: (k: number) => number = (k: number): number =>
       (2 * Math.PI * k) / input.count;
 
+    const partCycle: IAutoMovieSolidCycle.ICycle = {
+      kind: blend.part.kind,
+      vertices: partVertices,
+      chart: blend.part.chart.map(([u, v]): [number, number] => [u, v]),
+      neighbours: partVertices.map(
+        (_: number, k: number): IAutoMovieSolidCycle.INeighbour => ({
+          face: blendFace,
+          from: [blend.length, phase(k)],
+          to: [
+            blend.length,
+            phase((k + 1) % partVertices.length) +
+              (k + 1 === partVertices.length ? 2 * Math.PI : 0),
+          ],
+        }),
+      ),
+    };
+    if (retained !== undefined && retained.cycles.length !== 0) {
+      // Two valid rail columns can straddle a thinner removed chart region.
+      // Use the same authoritative segments and predicates as face drawing.
+      const chart: Map<number, readonly [number, number]> = new Map();
+      const segments: IAutoMovieSolidMeshConstraints.ISegment[] | string =
+        AutoMovieSolidMeshAuthorities.collect(
+          body.mesh,
+          [...retained.cycles, partCycle],
+          chart,
+          partSurface.period,
+        );
+      const checked: IAutoMovieSolidMeshConstraints.IEdge[] | string =
+        typeof segments === "string"
+          ? segments
+          : AutoMovieSolidMeshConstraints.split(
+              chart,
+              segments,
+              partSurface.period,
+            );
+      if (typeof checked === "string")
+        return fail("part rail domain", `${partSurface.name}: ${checked}`);
+    }
+
     // The blend face's two station-end cycles.
     body.faces[blendFace]!.cycles.push(
       {
@@ -353,25 +422,7 @@ export namespace AutoMovieSolidBodyMerge {
     );
 
     // The part face's rail cycle.
-    body.faces[part]!.cycles.push({
-      kind: blend.part.kind,
-      vertices: partVertices,
-      chart: blend.part.chart.map((c: [number, number]): [number, number] => [
-        c[0],
-        c[1],
-      ]),
-      neighbours: partVertices.map(
-        (_: number, k: number): IAutoMovieSolidCycle.INeighbour => ({
-          face: blendFace,
-          from: [blend.length, phase(k)],
-          to: [
-            blend.length,
-            phase((k + 1) % partVertices.length) +
-              (k + 1 === partVertices.length ? 2 * Math.PI : 0),
-          ],
-        }),
-      ),
-    });
+    body.faces[part]!.cycles.push(partCycle);
 
     // Every host face the rail runs over.
 

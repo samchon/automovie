@@ -15,20 +15,33 @@ const { cross, cylinder, distance, dot, plane } = HumanSolidShapes;
 
 /**
  * A body built by two merges, the second traced against the first's faces,
- * tessellates as one closed, outward skin: a column merged onto a floor, then
- * a beam merged onto the column where its curve crosses from the column's
- * face onto the column's blend.
+ * tessellates as one closed, outward skin: a column merged onto a floor, then a
+ * beam merged onto the column where its curve crosses from the column's face
+ * onto the column's blend.
  *
  * Scenarios:
- * 1. A 10 mm cylinder along `z` merged onto the plane `z = 0` (chords 6 mm), then a 6 mm cylinder along `-x` at height 9 merged onto that body (chords 3 mm on the beam, 2 mm on the body): both merges publish a blend with no diagnostic, and the second's host rail runs over more than one face of the body (the column's face and its blend).
- * 2. The drawn mesh: every edge used once each way but on the open ends `draw` returns, every floor triangle facing up (so, with the edges paired, every triangle faces out), every vertex's owner coordinates evaluating back to it, and no vertex twice.
- * 3. Red: the same mesh with one triangle turned, one triangle dropped and one coordinate moved must each fail its own check.
+ *
+ * 1. A 10 mm cylinder along `z` merged onto the plane `z = 0` (chords 6 mm), then
+ *    a 6 mm cylinder along `-x` at height 9 merged onto that body (chords 3 mm
+ *    on the beam, 2 mm on the body): both merges publish a blend with no
+ *    diagnostic, and the second's host rail runs over more than one face of the
+ *    body (the column's face and its blend).
+ * 2. The drawn mesh: every edge used once each way but on the open ends `draw`
+ *    returns, every floor triangle facing up (so, with the edges paired, every
+ *    triangle faces out), every vertex's owner coordinates evaluating back to
+ *    it, and no vertex twice.
+ * 3. Red: the same mesh with one triangle turned, one triangle dropped and one
+ *    coordinate moved must each fail its own check.
+ * 4. The reversed nesting puts the beam onto the raw column before it goes onto
+ *    the floor. The floor contact's part rail crosses the beam's existing hole,
+ *    so the new merge must refuse before face publication and keep its previous
+ *    geometry intact.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Builds the body with `AutoMovieSolidBody.create`, `.merge` twice and `.draw`, and reads the blends' host rail faces and actual mesh triangles, positions and coordinates (`AutoMovieSolidMesh.evaluate`). Caller-owned input wrappers invoke each original jet once with its original receiver and record index offsets at the first draw reading of each face; they replace no producer method. Failure-only public records include every emission range, cycle chart and mesh buffer, distinguishing emitter faces from vertex provenance. Original manifold, orientation, coordinate and duplicate checks remain unchanged.
  * @evidence contracts/development/testing.md#independent-expectations The expectations are what a closed oriented two-manifold with boundary is (each interior edge in two triangles, opposite in direction; a connected orientable skin is outward everywhere once it is outward on one face, the floor's `+z`), and the owner coordinates' contract (a vertex's coordinates evaluate to its own point, within 1e-9 mm). The beam's bottom line at height 3 lies between the floor and the column's part rail at 6 mm, so its curve meets the column's blend there and the column's face above it; this is the kernel worker's suggested case for merging onto a merged body (b84ae180d). Oracle limit: the curve's own shape is read by the intersection and merge tests, not here.
- * @evidence contracts/development/testing.md#distinguishing-cases Positive: the two-merge body. Negative: the turned, dropped and moved made meshes. Single merges and their rails belong to `test_construction_operator_merge` and `test_construction_operator_mesh`; continuity at the rails to the seam audit.
+ * @evidence contracts/development/testing.md#distinguishing-cases Positive: the two-merge body. Negative: the reversed nesting through the removed part chart and the turned, dropped and moved made meshes. Single merges and their rails belong to `test_construction_operator_merge` and `test_construction_operator_mesh`; continuity at the rails to the seam audit.
  * @evidence contracts/development/testing.md#execution-ownership A discoverable synchronous CPU unit reached by `--include construction_operator_body`; it builds closed-form surfaces in process, generates no person and starts no host, browser or GPU.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A 10 mm cylinder along `z` merged onto the plane `z = 0` (chords 6 mm), then a 6 mm cylinder along `-x` at height 9 merged onto that body...).
+ * @evidence contracts/development/common.md#meaningful-documentation States the analytic fixture dimensions, both nesting orders, retained-rail refusal and mesh geometry checks.
  */
 export function test_construction_operator_body(): void {
   const failures: string[] = [];
@@ -73,6 +86,64 @@ export function test_construction_operator_body(): void {
     d
       .map((x: IAutoMovieLoftContract.IDiagnostic): string => x.detail)
       .join("; ");
+
+  // In the reverse nesting, the 6 mm column rail crosses the existing
+  // hole of the beam centred at height 9 (its lower generator is at 3).
+  const nested: IAutoMovieSolidBody.IBody = AutoMovieSolidBody.create(
+    "nested",
+    [
+      {
+        surface: floor,
+        stations: range(-40, 40, 2),
+        phases: range(-40, 40, 2),
+      },
+      { surface: column, stations: range(0, 40, 1), phases: turn },
+    ],
+  );
+  const inner: IMerged = AutoMovieSolidBody.merge(nested, {
+    name: "blend.beam.first",
+    kind: "merge",
+    part: { surface: beam, stations: range(0, 26, 0.5), phases: turn },
+    join: {
+      seed: { phi: 0, s: 19.6, y: 14.7, theta: 0.05, face: 1 },
+      count: 48,
+      tolerance: 1e-12,
+      grazing: 0.05,
+      width: { part: (): number => 3, host: (): number => 2 },
+    },
+    count: 48,
+    rows: 3,
+  });
+  if (inner.blend === null)
+    throw new Error(`nested beam: ${details(inner.diagnostics)}`);
+  const population = (): number[] => [
+    nested.faces.length,
+    nested.blends.length,
+    nested.mesh.positions.length,
+    nested.mesh.indices.length,
+    ...nested.faces.map((face) => face.cycles.length),
+  ];
+  const before: number[] = population();
+  const outer: IMerged = AutoMovieSolidBody.merge(nested, {
+    name: "blend.column.second",
+    kind: "merge",
+    part: 1,
+    join: {
+      seed: { phi: 0, s: 0.5, y: 9.6, theta: 0.3 },
+      count: 48,
+      tolerance: 1e-12,
+      grazing: 0.05,
+      width: { part: (): number => 6, host: (): number => 6 },
+    },
+    count: 48,
+    rows: 4,
+  });
+  if (
+    outer.blend !== null ||
+    outer.diagnostics[0]?.contract !== "part rail domain" ||
+    population().some((size, i) => size !== before[i])
+  )
+    failures.push(`nested outer rail: ${details(outer.diagnostics)}`);
 
   // 1. The column onto the floor, then the beam onto the body.
   const body: IAutoMovieSolidBody.IBody = AutoMovieSolidBody.create("made", [
@@ -209,10 +280,10 @@ export function test_construction_operator_body(): void {
 }
 
 /**
- * Every finding on a drawn body, each led by its check's name: `edge` (an
- * edge not used once each way, unless both its ends lie on an open end),
- * `outward` (a floor triangle facing down), `coordinates` (a vertex whose
- * coordinates evaluate elsewhere), `duplicate` (two vertices at one point).
+ * Every finding on a drawn body, each led by its check's name: `edge` (an edge
+ * not used once each way, unless both its ends lie on an open end), `outward`
+ * (a floor triangle facing down), `coordinates` (a vertex whose coordinates
+ * evaluate elsewhere), `duplicate` (two vertices at one point).
  */
 function audit(
   m: IAutoMovieSolidMesh.IMesh,
