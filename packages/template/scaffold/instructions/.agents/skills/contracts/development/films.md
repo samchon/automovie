@@ -1,6 +1,6 @@
 # Films
 
-Each exported function and method of a screenplay film in `src/composition/films/<film>.ts` answers these items in its doc comment, beside [implementation](implementation.md). A film plays a screenplay folder rather than serving callers, so it documents that realization here instead of under [common](common.md). Without narrative passes, the film also cites the instructions it realizes. The catalog film answers [composition](composition.md) instead.
+Each exported function and method of a screenplay film in `src/composition/films/<film>.ts` answers these items in its doc comment, beside [implementation](implementation.md). A film plays a screenplay folder rather than serving callers, so it documents that realization here instead of under [common](common.md). Without narrative passes, the film also cites the instructions it realizes. The catalog film answers [catalog](catalog.md) instead.
 
 ## Scene order
 

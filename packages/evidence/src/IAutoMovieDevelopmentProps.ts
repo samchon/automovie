@@ -6,12 +6,12 @@
  * answered in their doc comments: entities in `src/entities/` answer
  * `entities.md`, laws, interactions and consequences in `src/laws/`,
  * `src/interactions/` and `src/consequences/` answer `behaviors.md`, a law
- * naming the study it follows in its answer, scenes and the catalog in
- * `src/composition/` answer `composition.md`, scenes citing the screenplay
- * scene file or the sections and beats of it they realize, and screenplay
- * films answer `films.md`, citing the scene files they order. An omitted stage
- * stays `"disabled"`, so ordinary coding and narrative-only work owe none of
- * them.
+ * naming the study it follows in its answer, scenes in `src/composition/`
+ * answer `composition.md`, citing the screenplay scene file or the sections
+ * and beats of it they realize, screenplay films answer `films.md`, citing the
+ * scene files they order, and the catalog answers `catalog.md`. An omitted
+ * stage stays `"disabled"`, so ordinary coding and narrative-only work owe
+ * none of them.
  */
 export interface IAutoMovieDevelopmentProps {
   /**
@@ -35,9 +35,9 @@ export interface IAutoMovieDevelopmentProps {
    * those under `src/composition/films/` answer
    * `contracts/development/films.md` and cite the scene files they order,
    * every one of which must belong to a film. Catalog sources, the catalog
-   * film included, answer the composition checklist alone. Submitting
-   * programmed film or scene sources requires the catalog film, case sources
-   * and acceptance record.
+   * film included, answer `contracts/development/catalog.md` alone.
+   * Submitting programmed film or scene sources requires the catalog film,
+   * case sources and acceptance record.
    */
   composition?: "disabled" | "evidence";
 }

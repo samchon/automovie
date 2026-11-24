@@ -43,7 +43,9 @@ import { repositoryRoot } from "../internal/repositoryRoot";
  *    realized: one realized section of two fails, excluding the other fails,
  *    and a film realizing it passes.
  * 10. Film composition reports all three missing catalog inputs together. A catalog
- *     case cannot supply a beat missing from the production scene.
+ *     case cannot supply a beat missing from the production scene, and a case
+ *     answering the composition checklist instead of the catalog checklist
+ *     fails.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Evaluates the public configuration's real source/test and narrative claims through native Evidence, preserving engineering selection, additional claim coverage, outline stage inheritance, discovery after a closed layer turns disabled and the scene-file composition relations.
  * @evidence contracts/development/testing.md#independent-expectations Explicitly authored answers satisfy the shipped common, design, implementation and testing checklists for one interface, one function and one test; an unrelated unfinished story creates no engineering obligation. Established one-scene fixtures supply reviewed content; removing the outline principle answer must fail when its omitted stage inherits active settings, just as an added unanswered work question must block a ready short pass. The route contract supplies the closed-layer expectation: a layer the user disabled after it closed must not break the layers still running, so its findings in the shared discovery record must still resolve. The layout contract supplies the composition expectations: each scene file maps to one scene composition and the film orders every scene file of its folder.
@@ -346,6 +348,7 @@ export async function test_evidence_package(): Promise<void> {
     // inside the behaviors checklist answer.
     for (const file of [
       "development/behaviors.md",
+      "development/catalog.md",
       "development/composition.md",
       "development/films.md",
       "story/principles/research.md",
@@ -496,6 +499,22 @@ export async function test_evidence_package(): Promise<void> {
         " */",
         'export function bout(): string { return "bout"; }',
       ].join("\n");
+    // A catalog case and the catalog film answer the catalog checklist.
+    const exhibit: (name: string, citation: string) => string = (
+      name: string,
+      citation: string,
+    ): string =>
+      [
+        `/** Exhibits ${name}.`,
+        ...implementation,
+        " * @evidence contracts/development/catalog.md#exhibited-fact The case parameters exhibit the named foot support.",
+        " * @evidence contracts/development/catalog.md#catalog-film The catalog film plays each case in its labeled interval from one seed.",
+        " * @evidence contracts/development/catalog.md#realization-comments The comment ties each value to the fact it exhibits.",
+        " * @evidence contracts/development/catalog.md#composition-only The case calls the capability the scene calls.",
+        citation,
+        " */",
+        `export function ${name}(): string { return "${name}"; }`,
+      ].join("\n");
     const film: string[] = [
       " * @evidence docs/body/screenplay/bout/001-ring.md The film opens on the ring.",
       " * @evidence docs/body/screenplay/bout/002-count.md The film ends on the count.",
@@ -524,12 +543,12 @@ export async function test_evidence_package(): Promise<void> {
     ProductionWorkflowFixture.write(
       production,
       "src/composition/films/catalog.ts",
-      compose("catalog", ""),
+      exhibit("catalog", ""),
     );
     ProductionWorkflowFixture.write(
       production,
       "src/composition/scenes/catalog/step/case.ts",
-      compose("step", ""),
+      exhibit("step", ""),
     );
     ProductionWorkflowFixture.write(
       production,
@@ -549,7 +568,7 @@ export async function test_evidence_package(): Promise<void> {
     ProductionWorkflowFixture.write(
       production,
       "src/composition/scenes/catalog/step/case.ts",
-      compose(
+      exhibit(
         "step",
         " * @evidence docs/body/screenplay/bout/001-ring.md#s01-b02 The catalog exhibits this action.",
       ),
@@ -561,7 +580,7 @@ export async function test_evidence_package(): Promise<void> {
     ProductionWorkflowFixture.write(
       production,
       "src/composition/scenes/catalog/step/case.ts",
-      compose("step", ""),
+      exhibit("step", ""),
     );
     ProductionWorkflowFixture.write(
       production,
@@ -594,6 +613,22 @@ export async function test_evidence_package(): Promise<void> {
       production,
       "src/composition/films/bout.ts",
       play(film.join("\n")),
+    );
+    // A catalog case answers the catalog checklist, not composition.
+    ProductionWorkflowFixture.write(
+      production,
+      "src/composition/scenes/catalog/step/case.ts",
+      compose("step", ""),
+    );
+    const caseChecklist: IEvidenceCheckAnalysis =
+      await EvidenceChecker.evaluate(
+        createEvidenceConfigPlan(composed, stagedFile),
+      );
+    assert.equal(caseChecklist.report.success, false);
+    ProductionWorkflowFixture.write(
+      production,
+      "src/composition/scenes/catalog/step/case.ts",
+      exhibit("step", ""),
     );
     const whole: IEvidenceCheckAnalysis = await EvidenceChecker.evaluate(
       createEvidenceConfigPlan(composed, stagedFile),
