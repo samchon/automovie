@@ -11,7 +11,9 @@ Work as a single agent. Start subagents only on the user's explicit order and in
 
 ## Supervision
 
-The main session supervises by periodic, after-the-fact audits. Subagents never ask it for permission.
+The main session audits the subagents' work periodically and after the fact. It checks the work against the user's orders and decisions and the skills' rules. It warns on each violation and orders its correction.
+
+Subagents never ask the main session for permission, and it approves nothing in advance.
 
 ## Agents
 
