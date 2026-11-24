@@ -167,8 +167,12 @@ function mean(contact: physicalSupportSpanContacts.IContact): {
  * The least-norm nonnegative weights w with sum w = 1 and sum w d = pivot -
  * mean over the centred points d: the equalities as pairs of opposite rows
  * and -w_i <= 0, for `solveDenseActiveSet`. The pivot is projected into the
- * points' hull first. On a line the coordinate along it alone, clamped to the
- * points' span; at one point, one.
+ * points' hull first. A pivot on the hull's boundary, within 1e-9 of the
+ * points' spread, is carried by the boundary's face alone, since a convex
+ * combination on a supporting line weights only the points on it: at a
+ * vertex the points there share evenly, the least norm among them, and on an
+ * edge the points on its line split as on a line. On a line the coordinate
+ * along it alone, clamped to the points' span; at one point, one.
  */
 function split(
   points: readonly { x: number; z: number }[],
@@ -187,6 +191,16 @@ function split(
   const det: number = sxx * szz - sxz * sxz;
   const trace: number = sxx + szz;
   if (!(trace > 0)) return points.map(() => 1 / n);
+  const tolerance: number = 1e-9 * Math.sqrt(trace);
+
+  // The points at a place, sharing evenly.
+  const at = (place: { x: number; z: number }): number[] | undefined => {
+    const near: boolean[] = points.map(
+      (p) => Math.hypot(p.x - place.x, p.z - place.z) <= tolerance,
+    );
+    const count: number = near.filter(Boolean).length;
+    return count > 0 ? near.map((v) => (v ? 1 / count : 0)) : undefined;
+  };
 
   // The equality rows and their values: the plane's two coordinates, or the
   // line's one.
@@ -202,16 +216,70 @@ function split(
     const inside: { x: number; z: number } = Polygon.inside(polygon, local)
       ? pivot
       : Polygon.world(frame, Polygon.project(polygon, local));
+
+    // On the boundary: the face's points alone.
+    if (
+      Polygon.signedDistance(polygon, Polygon.local(frame, inside)) >
+      -tolerance
+    ) {
+      const vertex: number[] | undefined = at(inside);
+      if (vertex) return vertex;
+      let edge: { a: Polygon.IPoint; b: Polygon.IPoint } | undefined;
+      let best: number = Number.POSITIVE_INFINITY;
+      const q: Polygon.IPoint = Polygon.local(frame, inside);
+      for (let i: number = 0; i < polygon.length; i++) {
+        const a: Polygon.IPoint = polygon[i]!;
+        const b: Polygon.IPoint = polygon[(i + 1) % polygon.length]!;
+        const length: number = Math.hypot(b.x - a.x, b.y - a.y);
+        const distance: number = Math.abs(
+          ((b.x - a.x) * (q.y - a.y) - (b.y - a.y) * (q.x - a.x)) / length,
+        );
+        if (distance < best) {
+          best = distance;
+          edge = { a, b };
+        }
+      }
+      const { a, b } = edge!;
+      const length: number = Math.hypot(b.x - a.x, b.y - a.y);
+      const face: number[] = [];
+      points.forEach((p, i) => {
+        const l: Polygon.IPoint = Polygon.local(frame, p);
+        if (
+          Math.abs(
+            ((b.x - a.x) * (l.y - a.y) - (b.y - a.y) * (l.x - a.x)) / length,
+          ) <= tolerance
+        )
+          face.push(i);
+      });
+      const shares: number[] = split(
+        face.map((i) => points[i]!),
+        inside,
+      );
+      const out: number[] = points.map(() => 0);
+      face.forEach((i, k) => (out[i] = shares[k]!));
+      return out;
+    }
     equalities.push({ a: dx, b: inside.x - cx }, { a: dz, b: inside.z - cz });
   } else {
     const ux: number = Math.sqrt(sxx / trace) * (sxz < 0 ? -1 : 1);
     const uz: number = Math.sqrt(szz / trace);
     const s: number[] = dx.map((v, i) => v * ux + dz[i]! * uz);
     const ps: number = (pivot.x - cx) * ux + (pivot.z - cz) * uz;
-    equalities.push({
-      a: s,
-      b: Math.min(Math.max(...s), Math.max(Math.min(...s), ps)),
-    });
+    const clamped: number = Math.min(
+      Math.max(...s),
+      Math.max(Math.min(...s), ps),
+    );
+
+    // At an end of the line: the points there.
+    const end: number | undefined = [Math.min(...s), Math.max(...s)].find(
+      (e) => Math.abs(clamped - e) <= tolerance,
+    );
+    if (end !== undefined) {
+      const near: boolean[] = s.map((v) => Math.abs(v - end) <= tolerance);
+      const count: number = near.filter(Boolean).length;
+      return near.map((v) => (v ? 1 / count : 0));
+    }
+    equalities.push({ a: s, b: clamped });
   }
   const solved: number[] | null = solveDenseActiveSet({
     quadratic: points.map((_, i) => points.map((__, j) => (i === j ? 1 : 0))),

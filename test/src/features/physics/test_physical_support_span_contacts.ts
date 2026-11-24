@@ -77,4 +77,40 @@ export function test_physical_support_span_contacts(): void {
         shares.every((share: number): boolean => share >= -1e-12),
     );
   }
+
+  // 5. A pivot on the boundary, where a saturated pivot sits: two 0.06 x 0.1 m
+  // soles' corners, the pivot at a corner takes it all, on an edge's middle
+  // its two ends half each.
+  const x0: number = 0.25980762113533150 - 0.03;
+  const corners: Contacts.IContact[] = [
+    [x0, 0.1],
+    [x0, 0.2],
+    [x0 + 0.06, 0.2],
+    [x0 + 0.06, 0.1],
+    [x0 + 0.03, 0.7],
+    [x0 + 0.03, 0.8],
+    [x0 + 0.09, 0.8],
+    [x0 + 0.09, 0.7],
+  ].map(
+    ([x, z], i: number): Contacts.IContact => ({
+      bone: `corner${i}`,
+      points: [{ x: x!, z: z! }],
+    }),
+  );
+  const shares = (pivot: { x: number; z: number }): number[] =>
+    Contacts.loads(corners, pivot).map((load: Contacts.ILoad) => load.share);
+  TestValidator.predicate(
+    "boundary: a corner",
+    shares({ x: x0 + 0.03, z: 0.8 }).every(
+      (share: number, i: number): boolean =>
+        Math.abs(share - (i === 5 ? 1 : 0)) < 1e-9,
+    ),
+  );
+  TestValidator.predicate(
+    "boundary: an edge",
+    shares({ x: x0, z: 0.15 }).every(
+      (share: number, i: number): boolean =>
+        Math.abs(share - (i < 2 ? 0.5 : 0)) < 1e-9,
+    ),
+  );
 }
