@@ -17,6 +17,7 @@ import { renderAutoMovie } from "./renderAutoMovie";
 import { renderAutoMovieScaffoldNextSteps } from "./renderAutoMovieScaffoldNextSteps";
 import { reviewAutoMovie } from "./reviewAutoMovie";
 import { selectAutoMovieProjectName } from "./selectAutoMovieProjectName";
+import { verifyAutoMovie } from "./verifyAutoMovie";
 
 const USAGE: string = `automovie: scaffold an automovie project, and capture, render and review it
 
@@ -26,8 +27,11 @@ Usage:
   automovie capture --module <file> [--props <json>] [--backend software|gpu] [--out <dir>] [<request>]
   automovie capture --file <video> [--out <dir>] [<request>]
   automovie inspect --module <file> [--props <json>] [--port <n>] [<request>]
+  automovie verify [--module <file>] [--subject <id>] [--only <check>] [--run] [--require <stage>] [--json]
   automovie render --module <file> [--subject <name>] [--props <json>] [--out <dir>] [--backend software|gpu]
   automovie review --url <inspector address> --seconds <s> [--out <dir>]
+  automovie review --file <video> (--at <s> | --from <s> --to <s>) --note <text> [--out <dir>]
+  automovie review --mark <review.json> [--file <video>] [--out <dir>]
 
 Commands:
   create          A single production, or with --workspace a pnpm workspace
@@ -42,6 +46,8 @@ Commands:
                   subjects a module offers and print its address, whose query
                   is the request. Needs @automovie/render, @automovie/viewer,
                   react, react-dom and vite there; Ctrl+C stops it.
+  verify          Read selected production observations or run their declared
+                  checks. --require gates an adopted stage.
   render          In a production, draw every frame of one subject through the
                   draw page in headless Chromium and encode film.mp4 with
                   render-report.json. Needs what capture needs, and FFmpeg.
@@ -65,7 +71,11 @@ Options:
                   render: default media/automovie/<subject>/videos.
                   review: default media/automovie/review.
   --url           review: the running inspector page's address.
-  --seconds       review: wall-clock seconds of playback recorded.
+  --seconds       review: wall-clock seconds of Inspector playback recorded.
+  --at            review: point in film seconds, or select --from and --to.
+  --mark          review: reopen exact source bytes or rebind with --file and a new time.
+  --reviewer      review: with --decision accepted|needs-repair and --viewed still|playback|listening,
+                  explicitly record the named reviewer's scoped decision.
   <request>       capture, inspect: --subject, --at, --from, --to, --rate, --events,
                   --views, --passes, --marks, --label, --round, --compare and
                   every other key of the capture request grammar; render takes
@@ -115,6 +125,12 @@ export async function run(argv: readonly string[]): Promise<number> {
       return await inspectAutoMovie({
         args: command.args,
         root: process.cwd(),
+      });
+    if (command.command === "verify")
+      return await verifyAutoMovie({
+        args: command.args,
+        root: process.cwd(),
+        env: process.env,
       });
     if (command.command === "render")
       return await renderAutoMovie({

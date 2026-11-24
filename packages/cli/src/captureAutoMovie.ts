@@ -47,6 +47,12 @@ export async function captureAutoMovie(props: {
 
   /** The environment, read for `CHROME_PATH` and `FFMPEG_PATH`. */
   env: Readonly<Record<string, string | undefined>>;
+
+  /** The caller's output sink, default standard output. */
+  write?: (text: string) => void;
+
+  /** Receives the absolute path of this attempt's completed capture record. */
+  recorded?: (record: string) => void;
 }): Promise<number> {
   const { root } = props;
   const render: typeof Render = loadAutoMovieProductionModule(
@@ -156,7 +162,16 @@ export async function captureAutoMovie(props: {
       ? []
       : describeFindings(record.comparison.findings)),
   ];
-  process.stdout.write(`${lines.join("\n")}\n`);
+  props.recorded?.(
+    path.join(
+      folder,
+      ...(request.round === null ? [] : ["rounds", request.round]),
+      "record.json",
+    ),
+  );
+  const output: string = `${lines.join("\n")}\n`;
+  if (props.write === undefined) process.stdout.write(output);
+  else props.write(output);
   return failed.length === 0 ? 0 : 1;
 }
 
