@@ -60,18 +60,24 @@ const spyDispose: (target: THREE.Material | THREE.BufferGeometry) => {
 
 const materialsOf: (mesh: THREE.Mesh) => THREE.Material[] = (
   mesh: THREE.Mesh,
-): THREE.Material[] =>
-  Array.isArray(mesh.material) ? mesh.material : [mesh.material];
+): THREE.Material[] => [mesh.material].flat();
 
 /**
- * A successful restore retires the observed override materials and pose resources once and preserves borrowed originals. Outline observes its fill materials here; shell-material retirement has no independent event assertion in this unit. Public events do not measure WebGL allocations or physical release.
+ * A successful restore retires the observed override materials and pose
+ * resources once and preserves borrowed originals. Outline observes its fill
+ * materials here; shell-material retirement has no independent event assertion
+ * in this unit. Public events do not measure WebGL allocations or physical
+ * release.
  *
  * Scenarios:
  *
- * 1. Depth retires every created override once, preserves borrowed materials and repeats restore without another event.
+ * 1. Depth retires every created override once, preserves borrowed materials and
+ *    repeats restore without another event.
  * 2. Outline's observed replacement fill materials retire once.
- * 3. Mask retires created flat materials, preserves originals and restores the background instance.
- * 4. Pose retires the observed line geometries and shared line material once; overlay removal is asserted by the render-modes and restoration units.
+ * 3. Mask retires created flat materials, preserves originals and restores the
+ *    background instance.
+ * 4. Pose retires the observed line geometries and shared line material once;
+ *    overlay removal is asserted by the render-modes and restoration units.
  * 5. Beauty creates no override and leaves original disposal counts at zero.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Applies and restores actual guide modes on a built generic scene while observing real owned material/geometry dispose events; catches leaking temporary overrides, double retirement and disposal of borrowed source materials.

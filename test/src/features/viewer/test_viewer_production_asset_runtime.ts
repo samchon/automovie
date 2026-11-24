@@ -6,6 +6,7 @@ import {
 } from "@automovie/interface";
 import {
   AutoMoviePlayer,
+  AutoMovieThreeKind,
   type IAutoMovieModelObject,
   type IAutoMovieViewerFrame,
   IAutoMovieViewerSnapshotRenderer,
@@ -27,15 +28,24 @@ import {
 import { namedFacts, nclose, throwsError } from "../internal/predicates";
 
 /**
- * Existing generic model cases bind skinned parts, preserve rigid-attachment precedence and deliver pose/expression/runtime updates through one player timestamp. The snapshot case observes a supplied render callback before its supplied canvas encoder; no GPU renderer or new Human driver is acquired.
+ * Existing generic model cases bind skinned parts, preserve rigid-attachment
+ * precedence and deliver pose/expression/runtime updates through one player
+ * timestamp. The snapshot case observes a supplied render callback before its
+ * supplied canvas encoder; no GPU renderer or new Human driver is acquired.
  *
  * Scenarios:
  *
- * 1. A skin creates a SkinnedMesh with skinIndex/skinWeight attributes bound to the requested bones.
- * 2. attachedBone takes precedence over a skin payload; a missing skin joint refuses.
- * 3. Expression application drives morph dictionaries and imported sinks, with explicit ARKit channels overriding preset expansion.
- * 4. Player update delivers pose, expression and imported-runtime callbacks on one timestamp; wrapper-root application preserves the caller's baked Group transform and null-root restores the staged base.
- * 5. Snapshot requests render once before encoding and returns the supplied canvas metadata.
+ * 1. A skin creates a SkinnedMesh with skinIndex/skinWeight attributes bound to
+ *    the requested bones.
+ * 2. AttachedBone takes precedence over a skin payload; a missing skin joint
+ *    refuses.
+ * 3. Expression application drives morph dictionaries and imported sinks, with
+ *    explicit ARKit channels overriding preset expansion.
+ * 4. Player update delivers pose, expression and imported-runtime callbacks on one
+ *    timestamp; wrapper-root application preserves the caller's baked Group
+ *    transform and null-root restores the staged base.
+ * 5. Snapshot requests render once before encoding and returns the supplied canvas
+ *    metadata.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Builds the existing skinned/rigid generic asset, applies morph/sink expressions and Player frames, then invokes the public snapshot adapter; catches wrong skin binding, overwritten imported-root state, stale null roots and canvas encoding requested before drawing.
  * @evidence contracts/development/testing.md#independent-expectations Literal bone names, authored expression overrides, metre translations, preserved baked yaw and elapsed timestamp differences define expectations. The existing snapshot port records request order and supplied metadata only, without proving a native image, VRM loader or rendered pixels.
@@ -334,7 +344,7 @@ const collectSkinnedMeshes: (root: THREE.Object3D) => THREE.SkinnedMesh[] = (
 ): THREE.SkinnedMesh[] => {
   const out: THREE.SkinnedMesh[] = [];
   root.traverse((object: THREE.Object3D<THREE.Object3DEventMap>): void => {
-    if (object instanceof THREE.SkinnedMesh) out.push(object);
+    if (AutoMovieThreeKind.isSkinnedMesh(object)) out.push(object);
   });
   return out;
 };

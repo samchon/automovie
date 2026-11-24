@@ -4,7 +4,11 @@ import type {
   IAutoMovieScene,
   IAutoMovieTrack,
 } from "@automovie/interface";
-import { applyLightMotion, buildScene } from "@automovie/render";
+import {
+  AutoMovieThreeKind,
+  applyLightMotion,
+  buildScene,
+} from "@automovie/render";
 import { strict as assert } from "node:assert";
 import * as THREE from "three";
 
@@ -66,7 +70,12 @@ export function test_viewer_motion_light_channels(): void {
   );
   const fill: THREE.Light | undefined = built.lights.get("fill");
   const key: THREE.Light | undefined = built.lights.get("key");
-  assert.ok(fill instanceof THREE.PointLight && key instanceof THREE.SpotLight);
+  assert.ok(
+    fill !== undefined &&
+      AutoMovieThreeKind.isPointLight(fill) &&
+      key !== undefined &&
+      AutoMovieThreeKind.isSpotLight(key),
+  );
   assert.deepEqual(built.scene.children, [fill, key]);
   assert.deepEqual(
     [fill.intensity, fill.distance, ...fill.color.toArray(), key.angle],

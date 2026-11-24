@@ -69,10 +69,9 @@ export function HumanQuadraticAdmission(
   let lastIndices: readonly number[] | undefined;
   for (let r: number = 0; r < rows.length; ++r) {
     const row: IAutoMovieMotionHumanQuadraticProgram.IRow | undefined = rows[r];
-    if (row === undefined) throw new RangeError(`DBGUNDEF ` + r + ` of ` + rows.length + ` n ` + n + ` holes ` + rows.filter((x) => x === undefined).length + ` prev ` + JSON.stringify(rows[r - 1]).slice(0, 200));
+    if (row === undefined) throw new RangeError(`Malformed quadratic row ${r}`);
     const indices: readonly number[] = row.index;
     const coefficients: readonly number[] = row.coef;
-    if (indices.length !== coefficients.length || !(row.l < Infinity) || !(row.u > -Infinity) || row.l > row.u || (row.weight !== undefined && !(row.weight >= 0))) throw new RangeError(DBGROW  + r +  of  + rows.length +   + JSON.stringify([row.l, row.u, row.weight, row.key, indices.length, coefficients.length]));
     if (
       indices.length !== coefficients.length ||
       !(row.l < Infinity) ||

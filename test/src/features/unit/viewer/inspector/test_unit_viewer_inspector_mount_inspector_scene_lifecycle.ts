@@ -11,7 +11,7 @@ import {
 import { TestValidator } from "@nestia/e2e";
 import type * as THREE from "three";
 
-import { InspectorMountRecording } from "../internal/InspectorMountRecording";
+import { InspectorMountRecording } from "../../../internal/InspectorMountRecording";
 
 /**
  * The inspector's scene mount keeps one renderer and one frame loop alive
@@ -42,14 +42,8 @@ import { InspectorMountRecording } from "../internal/InspectorMountRecording";
  * 7. A subject whose creation fails, and one whose duration is zero, report the
  *    reason, create no renderer that stays alive and dispose the instance they
  *    got.
- *
- * @evidence contracts/development/testing.md#behavioral-verification Runs the public mount against a recording host (renderer, frame clock and size) and a subject double with a real three.js scene, and asserts the host's and subject's records and the reports.
- * @evidence contracts/development/testing.md#independent-expectations Counts follow the fixture's one live mount, one pending frame and one contact on [1, 1.25) seconds. The expectation uses the authored contact interval and scene children.
- * @evidence contracts/development/testing.md#distinguishing-cases Contrasts early and late disposal, changed and unchanged frames, prompt and delayed seeks, continued playback and its end, declared empty and undeclared kinds, and contact and expiration.
- * @evidence contracts/development/testing.md#execution-ownership Portable in-memory unit test entered through `test_inspector_mount_lifecycle`; the renderer and frame clock are recording doubles, so no browser, WebGL or React runs. Pictures belong to review.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 7 numbered scenarios it runs, each naming its input and the behaviour it pins.
  */
-export async function test_inspector_mount_lifecycle(): Promise<void> {
+export async function test_unit_viewer_inspector_mount_inspector_scene_lifecycle(): Promise<void> {
   const host: InspectorMountRecording.Host = new InspectorMountRecording.Host();
   const playhead: AutoMovieInspectorPlayhead = new AutoMovieInspectorPlayhead();
   const request: IAutoMovieCapturePlanRequest = readAutoMovieInspectorAddress(

@@ -20,6 +20,7 @@ import * as THREE from "three";
 import { flatBasin } from "../internal/fluidFixtures";
 import { observeThrownValue } from "../internal/observeThrownValue";
 import { namedFacts, nclose, throwsError } from "../internal/predicates";
+import { singleMaterial } from "../internal/singleMaterial";
 
 const pool: (
   overrides?: Partial<IAutoMovieFluidDomain>,
@@ -65,18 +66,30 @@ const surfaceAt: (
   fluidSurfaceGeometry({ domain, state: simulateFluidDomain(domain, step) });
 
 /**
- * The Viewer places the Engine's water arrays in a mesh whose material participates in beauty, normal, depth and mask projection. This unit observes CPU-side attributes, material swaps and visibility, without drawing pixels.
+ * The Viewer places the Engine's water arrays in a mesh whose material
+ * participates in beauty, normal, depth and mask projection. This unit observes
+ * CPU-side attributes, material swaps and visibility, without drawing pixels.
  *
- * Structural passes replace the water mesh's material and hide its spray Points. The assertions establish the scene state supplied to a draw, rather than depth values or segmentation coverage.
+ * Structural passes replace the water mesh's material and hide its spray
+ * Points. The assertions establish the scene state supplied to a draw, rather
+ * than depth values or segmentation coverage.
  *
  * Scenarios:
  *
- * 1. Buffer attributes preserve the Engine's vertex count, index count, first position and each flow X value; the name, step and wet-surface bounding extent remain attached to the projection. Flow Y values are not independently compared here.
- * 2. Flowing mode records flow metadata, while a still surface omits it. The default material's animated ripple appearance is not asserted.
- * 3. Depth, normal and mask replace the material and restore the original; beauty retains it.
+ * 1. Buffer attributes preserve the Engine's vertex count, index count, first
+ *    position and each flow X value; the name, step and wet-surface bounding
+ *    extent remain attached to the projection. Flow Y values are not
+ *    independently compared here.
+ * 2. Flowing mode records flow metadata, while a still surface omits it. The
+ *    default material's animated ripple appearance is not asserted.
+ * 3. Depth, normal and mask replace the material and restore the original; beauty
+ *    retains it.
  * 4. A structural pass hides the spray and restores its visibility.
- * 5. Updating replaces the attributes on the existing mesh, a drained pool hides it and another domain's surface refuses.
- * 6. Disposal attempts owned geometry and default material independently in that order, preserves borrowed materials and retains original failure causes; events measure public retirement attempts.
+ * 5. Updating replaces the attributes on the existing mesh, a drained pool hides
+ *    it and another domain's surface refuses.
+ * 6. Disposal attempts owned geometry and default material independently in that
+ *    order, preserves borrowed materials and retains original failure causes;
+ *    events measure public retirement attempts.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Builds water/spray projections from Engine-derived surface and particle records, updates them and reads real Three attributes, bounds, visibility and disposal events; catches omitted upload fields, wrong pass participation, borrowed-material disposal and geometry failure skipping owned material retirement.
  * @evidence contracts/development/testing.md#independent-expectations Engine arrays are the reference for Viewer projection, while independent attribute sizes, Float32 tolerance, wet-bound arithmetic and counted disposal events pin adaptation. Matching the solver's output does not independently validate fluid physics, shader appearance or hardware release.
@@ -383,7 +396,7 @@ export function test_viewer_fluid_surface(): void {
 
   let ownedDisposed: number = 0;
   let borrowedDisposed: number = 0;
-  (water.object.material as THREE.Material).addEventListener(
+  singleMaterial(water.object.material).addEventListener(
     "dispose",
     (): void => {
       ownedDisposed += 1;
@@ -425,7 +438,7 @@ export function test_viewer_fluid_surface(): void {
     retirementOrder.push("water geometry");
     throw waterGeometryFailure;
   });
-  (water.object.material as THREE.Material).addEventListener(
+  singleMaterial(water.object.material).addEventListener(
     "dispose",
     (): void => {
       retirementOrder.push("water material");

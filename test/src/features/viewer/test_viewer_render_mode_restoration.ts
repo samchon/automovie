@@ -8,6 +8,8 @@ import {
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
+import { singleMaterial } from "../internal/singleMaterial";
+
 const caught: (operation: () => void) => unknown = (
   operation: () => void,
 ): unknown => {
@@ -137,7 +139,7 @@ export function test_viewer_render_mode_restoration(): void {
         scene,
         pass,
       ),
-      override: THREE.Material = mesh.material as THREE.Material;
+      override: THREE.Material = singleMaterial(mesh.material);
     let attempts: number = 0;
     override.addEventListener("dispose", (): void => {
       ++attempts;

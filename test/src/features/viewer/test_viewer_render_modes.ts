@@ -1,4 +1,5 @@
 import {
+  AutoMovieThreeKind,
   DEPTH_NORMALIZATION_RANGE,
   EDGE_SHELL_NAME,
   EDGE_WIDTH,
@@ -61,16 +62,25 @@ const meshesOf: (root: THREE.Object3D) => THREE.Mesh[] = (
 };
 
 /**
- * Guide modes temporarily override native scene materials, visibility, background and overlays, then restore their borrowed state. The assertions read CPU-side scene state and generated shader programs, without capturing pixels or compiling GLSL.
+ * Guide modes temporarily override native scene materials, visibility,
+ * background and overlays, then restore their borrowed state. The assertions
+ * read CPU-side scene state and generated shader programs, without capturing
+ * pixels or compiling GLSL.
  *
  * Scenarios:
  *
  * 1. `beauty` is a no-op: materials keep their exact instances.
- * 2. Depth installs the normalized-metric depth program with a default or supplied range and black background; restore returns the original materials and background.
+ * 2. Depth installs the normalized-metric depth program with a default or supplied
+ *    range and black background; restore returns the original materials and
+ *    background.
  * 3. `normal` swaps to `MeshNormalMaterial` (the surface-normal hint, #1166).
- * 4. Outline installs black fills and back-face shells with the selected edge width and skinning program chunks; restore removes them. Program text is observed, not native shader compilation.
- * 5. Mask assigns deterministic flat node colors on black and restores materials and background.
- * 6. Pose hides meshes and adds bone-to-child lines in a named overlay; restore removes it and unhides the meshes.
+ * 4. Outline installs black fills and back-face shells with the selected edge
+ *    width and skinning program chunks; restore removes them. Program text is
+ *    observed, not native shader compilation.
+ * 5. Mask assigns deterministic flat node colors on black and restores materials
+ *    and background.
+ * 6. Pose hides meshes and adds bone-to-child lines in a named overlay; restore
+ *    removes it and unhides the meshes.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Applies each actual guide mode to a generic built scene and an InstancedMesh, reading temporary materials, generated shader fields, overlays and restored state; catches omitted instancing/skinning support and overrides left on borrowed sources.
  * @evidence contracts/development/testing.md#independent-expectations Supported mode classes, authored depth/edge values, original object identities and the fixture's 22 bone edges define expectations. The public mask palette is a delegation reference, while shader strings and CPU fields do not establish observed guide pixels.
@@ -165,7 +175,8 @@ export function test_viewer_render_modes(): void {
           THREE.Object3DEventMap
         >,
       ): boolean =>
-        mesh.material instanceof THREE.ShaderMaterial &&
+        AutoMovieThreeKind.isMaterial(mesh.material) &&
+        AutoMovieThreeKind.isShaderMaterial(mesh.material) &&
         nclose(
           mesh.material.uniforms.depthRange!.value as number,
           DEPTH_NORMALIZATION_RANGE,
@@ -189,7 +200,8 @@ export function test_viewer_render_modes(): void {
           THREE.Object3DEventMap
         >,
       ): boolean =>
-        mesh.material instanceof THREE.ShaderMaterial &&
+        AutoMovieThreeKind.isMaterial(mesh.material) &&
+        AutoMovieThreeKind.isShaderMaterial(mesh.material) &&
         mesh.material.vertexShader.includes("skinning_vertex"),
     ),
   );
@@ -252,7 +264,8 @@ export function test_viewer_render_modes(): void {
           THREE.Object3DEventMap
         >,
       ): boolean =>
-        mesh.material instanceof THREE.ShaderMaterial &&
+        AutoMovieThreeKind.isMaterial(mesh.material) &&
+        AutoMovieThreeKind.isShaderMaterial(mesh.material) &&
         nclose(mesh.material.uniforms.depthRange!.value as number, 8, 0),
     ),
   );
@@ -302,7 +315,8 @@ export function test_viewer_render_modes(): void {
           THREE.Object3DEventMap
         >,
       ): boolean =>
-        mesh.material instanceof THREE.MeshBasicMaterial &&
+        AutoMovieThreeKind.isMaterial(mesh.material) &&
+        AutoMovieThreeKind.isMeshBasicMaterial(mesh.material) &&
         mesh.material.color.getHex() === 0x000000,
     ),
   );
@@ -346,7 +360,8 @@ export function test_viewer_render_modes(): void {
           THREE.Object3DEventMap
         >,
       ): boolean =>
-        shell.material instanceof THREE.ShaderMaterial &&
+        AutoMovieThreeKind.isMaterial(shell.material) &&
+        AutoMovieThreeKind.isShaderMaterial(shell.material) &&
         shell.material.side === THREE.BackSide &&
         nclose(
           shell.material.uniforms.edgeWidth!.value as number,
@@ -457,7 +472,8 @@ export function test_viewer_render_modes(): void {
             THREE.Object3DEventMap
           >,
         ): boolean =>
-          shell.material instanceof THREE.ShaderMaterial &&
+          AutoMovieThreeKind.isMaterial(shell.material) &&
+          AutoMovieThreeKind.isShaderMaterial(shell.material) &&
           nclose(shell.material.uniforms.edgeWidth!.value as number, 0.05, 0),
       ),
   );
@@ -486,9 +502,8 @@ export function test_viewer_render_modes(): void {
   );
   TestValidator.predicate(
     "mask uses flat unlit materials",
-    maskMaterials.every(
-      (material: THREE.MeshBasicMaterial): boolean =>
-        material instanceof THREE.MeshBasicMaterial,
+    maskMaterials.every((material: THREE.MeshBasicMaterial): boolean =>
+      AutoMovieThreeKind.isMeshBasicMaterial(material),
     ),
   );
   TestValidator.predicate(
@@ -591,5 +606,4 @@ export function test_viewer_render_modes(): void {
     ]),
     { sceneGetObjectByNamePOSE_OVERLAY_NAME: true, meshesEveryMesh: true },
   );
-
 }

@@ -10,13 +10,20 @@ import { createFormationShadowInputs } from "../internal/createFormationShadowIn
 import { throwsError } from "../internal/predicates";
 
 /**
- * Static, empty and promoted-only formations avoid fabricated cycle resources; invalid runtime identities and unavailable declared gaits refuse before any draw is requested by this unit.
+ * Static, empty and promoted-only formations avoid fabricated cycle resources;
+ * invalid runtime identities and unavailable declared gaits refuse before any
+ * draw is requested by this unit.
  *
  * Scenarios:
+ *
  * 1. A noncyclic tier uses Three's normal shadows and remains disposable.
- * 2. Empty and hero-only populations create no anonymous meshes, and dispose leaves the host's promoted object and material untouched.
- * 3. Missing first/late LOD models and an unavailable gait refuse, while a foreign formation cue or an omitted gait does not trigger that refusal.
- * 4. A failing chunk-geometry and shadow-depth listener cannot skip instance, shadow-distance, palette-material or gait-texture retirement; repeated disposal preserves one completion failure without repeating attempts.
+ * 2. Empty and hero-only populations create no anonymous meshes, and dispose
+ *    leaves the host's promoted object and material untouched.
+ * 3. Missing first/late LOD models and an unavailable gait refuse, while a foreign
+ *    formation cue or an omitted gait does not trigger that refusal.
+ * 4. A failing chunk-geometry and shadow-depth listener cannot skip instance,
+ *    shadow-distance, palette-material or gait-texture retirement; repeated
+ *    disposal preserves one completion failure without repeating attempts.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Builds real static, cyclic, empty and promoted-only formations and observes their public meshes, texture facts and dispose events; catches fabricated cyclic storage, invalid identity/gait acceptance and cleanup that stops after one throwing listener.
  * @evidence contracts/development/testing.md#independent-expectations Authored fixture population, two declared palette materials and two gait takes determine counts; real Three dispose events count attempts independently of runtime statistics, and original injected Error references must remain present in the repeated aggregate completion.
@@ -164,9 +171,7 @@ export function test_viewer_formation_shadow_boundaries(): void {
     buildInstancedFormation(createFormationShadowInputs());
   const fragileMesh: THREE.InstancedMesh = fragile.object
     .children[0] as THREE.InstancedMesh;
-  const palette: THREE.Material[] = Array.isArray(fragileMesh.material)
-    ? fragileMesh.material
-    : [fragileMesh.material];
+  const palette: THREE.Material[] = [fragileMesh.material].flat();
   const cycle: NonNullable<ReturnType<typeof formationCycleOf>> =
     formationCycleOf(fragileMesh)!;
   const retainedTables: ReturnType<typeof fragile.describeTextureSources> =

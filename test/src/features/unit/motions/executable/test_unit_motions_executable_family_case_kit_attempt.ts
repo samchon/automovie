@@ -27,12 +27,9 @@ export function test_unit_motions_executable_family_case_kit_attempt(): void {
       throw new Error("no place");
     },
   );
-  TestValidator.predicate(
+  TestValidator.equals(
     "a refused case",
-    failed === null &&
-      out.length === 1 &&
-      out[0]!.name === "refused" &&
-      out[0]!.verdicts[0]!.passed === false &&
-      out[0]!.verdicts[0]!.detail === "no place",
+    [failed, out],
+    [null, [FamilyCaseKit.refused("refused", new Error("no place"))]],
   );
 }

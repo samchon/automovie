@@ -8,7 +8,11 @@ import {
   IAutoMovieModel,
   IAutoMovieWorldDesign,
 } from "@automovie/interface";
-import { buildInstancedInstanceSet, buildMaterial } from "@automovie/render";
+import {
+  AutoMovieThreeKind,
+  buildInstancedInstanceSet,
+  buildMaterial,
+} from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
@@ -16,20 +20,29 @@ import { createModel } from "../internal/fixtures";
 import { nclose, throwsError } from "../internal/predicates";
 
 /**
- * One authored swatch reaches the same linear albedo through the material and instance-palette paths.
+ * One authored swatch reaches the same linear albedo through the material and
+ * instance-palette paths.
  *
- * Both paths interpret authored hex swatches as sRGB and supply linear values to native material or instance color state. The independent transfer function distinguishes a shared correct decode from two paths agreeing on byte transcription.
+ * Both paths interpret authored hex swatches as sRGB and supply linear values
+ * to native material or instance color state. The independent transfer function
+ * distinguishes a shared correct decode from two paths agreeing on byte
+ * transcription.
  *
- * The unit reads CPU-side instance and diffuse colors with a white batch material, without observing rendered pixels. Repeated slot equality establishes output consistency rather than a measured decode-cache hit count.
+ * The unit reads CPU-side instance and diffuse colors with a white batch
+ * material, without observing rendered pixels. Repeated slot equality
+ * establishes output consistency rather than a measured decode-cache hit
+ * count.
  *
  * Scenarios:
  *
  * 1. The midtone #7d828c reaches the same linear triple through both paths.
- * 2. The independent sRGB transfer reference distinguishes decode from divide-by-255 transcription.
+ * 2. The independent sRGB transfer reference distinguishes decode from
+ *    divide-by-255 transcription.
  * 3. A contrasting palette entry stays different from the material swatch.
  * 4. Black and white endpoints agree within Float32 tolerance.
  * 5. Two slots using one palette entry receive equal color values.
- * 6. Instance retirement attempts later resources after a geometry listener throws, preserves its failure without retry and refuses later updates.
+ * 6. Instance retirement attempts later resources after a geometry listener
+ *    throws, preserves its failure without retry and refuses later updates.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Decodes an authored material swatch with the engine color seam and materializes a compact instance set, reads real material/instance albedo and observes actual dispose events; catches sRGB transcription, color collapse and instance lifetime that skips later releases after a listener failure.
  * @evidence contracts/development/testing.md#independent-expectations W3C CSS Color 4's sRGB transfer function independently maps authored hex bytes to linear channels, with 1e-7 tolerance covering Float32 attributes; dispose event counts follow one attempt per owned visible resource and the supplied listener Error must remain the repeated completion.
@@ -88,9 +101,7 @@ export function test_viewer_palette_color_space(): void {
   mesh.addEventListener("dispose", (): void => {
     ++instances;
   });
-  for (const material of new Set(
-    Array.isArray(mesh.material) ? mesh.material : [mesh.material],
-  ))
+  for (const material of new Set([mesh.material].flat()))
     material.addEventListener("dispose", (): void => {
       ++materials;
     });
@@ -124,7 +135,10 @@ export function test_viewer_palette_color_space(): void {
   );
 }
 
-/** Byte-to-linear reference from https://www.w3.org/TR/css-color-4/#predefined-sRGB. */
+/**
+ * Byte-to-linear reference from
+ * https://www.w3.org/TR/css-color-4/#predefined-sRGB.
+ */
 function referenceSrgbChannel(byte: number): number {
   const encoded: number = byte / 255;
   return encoded <= 0.04045
@@ -159,7 +173,7 @@ const instanceAlbedos: (swatch: string) => THREE.Color[] = (
   try {
     const mesh: THREE.InstancedMesh = built.object.children.find(
       (child: THREE.Object3D): child is THREE.InstancedMesh =>
-        child instanceof THREE.InstancedMesh,
+        AutoMovieThreeKind.isInstancedMesh(child),
     )!;
     return [0, 1].map((index: number): THREE.Color => {
       const color: THREE.Color = new THREE.Color();
@@ -223,7 +237,9 @@ function paletteModel(swatch: string): IAutoMovieModel {
 }
 
 /**
- * Float32 instance attributes introduce rounding relative to the double-precision material color, so both paths use the same finite 1e-7 comparison tolerance.
+ * Float32 instance attributes introduce rounding relative to the
+ * double-precision material color, so both paths use the same finite 1e-7
+ * comparison tolerance.
  */
 const sameRendered: (left: THREE.Color, right: THREE.Color) => boolean = (
   left: THREE.Color,

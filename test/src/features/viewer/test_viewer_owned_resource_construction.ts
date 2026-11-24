@@ -1,6 +1,7 @@
 import type { IAutoMovieMaterial, IAutoMovieModel } from "@automovie/interface";
 import {
   AutoMovieTextureCache,
+  AutoMovieThreeKind,
   type IAutoMovieModelObject,
   buildGeometry,
   buildMaterial,
@@ -16,12 +17,22 @@ import {
 } from "../internal/renderFixtures";
 
 /**
- * Owned-resource construction registers every resource a producer acquires, rolls them back independently when the producer fails, and hands them to the caller when it succeeds. The material and model producers built on it refuse a native cache-copy failure without partial output. Public dispose events count attempts, not physical GPU release.
+ * Owned-resource construction registers every resource a producer acquires,
+ * rolls them back independently when the producer fails, and hands them to the
+ * caller when it succeeds. The material and model producers built on it refuse
+ * a native cache-copy failure without partial output. Public dispose events
+ * count attempts, not physical GPU release.
  *
  * Scenarios:
- * 1. Producer initialization registers geometry, material and skeleton before a later failure; rollback attempts each distinct resource once and keeps the initialization cause before the rollback failure.
- * 2. A successful producer transfers the actual resource identity without retiring it, and a failure before any allocation keeps its original identity.
- * 3. The material and model producers preserve a native texture cache-copy refusal, then build the normal part population once the metadata is ordinary; the geometry producer keeps its position attribute.
+ *
+ * 1. Producer initialization registers geometry, material and skeleton before a
+ *    later failure; rollback attempts each distinct resource once and keeps the
+ *    initialization cause before the rollback failure.
+ * 2. A successful producer transfers the actual resource identity without retiring
+ *    it, and a failure before any allocation keeps its original identity.
+ * 3. The material and model producers preserve a native texture cache-copy
+ *    refusal, then build the normal part population once the metadata is
+ *    ordinary; the geometry producer keeps its position attribute.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Exercises the actual owned-resource constructor and the material, model and geometry producers with real dispose listeners and a real texture cache; catches partial rollback, repeated disposal of a shared resource, premature retirement of a transferred resource and a swallowed cache-copy failure.
  * @evidence contracts/development/testing.md#independent-expectations The initialization-before-cleanup cause order, one dispose event per distinct owner and the identity of the transferred resource are observed independently of the constructor; the native cache-copy failure is the getter's own Error instance.
@@ -166,12 +177,9 @@ export async function test_viewer_owned_resource_construction(): Promise<void> {
   const returned: Set<{ dispose(): void }> = new Set<{ dispose(): void }>();
   repaired.object.traverse(
     (object: THREE.Object3D<THREE.Object3DEventMap>): void => {
-      if (object instanceof THREE.Mesh) {
+      if (AutoMovieThreeKind.isMesh(object)) {
         returned.add(object.geometry);
-        for (const finish of Array.isArray(object.material)
-          ? object.material
-          : [object.material])
-          returned.add(finish);
+        for (const finish of [object.material].flat()) returned.add(finish);
       }
     },
   );

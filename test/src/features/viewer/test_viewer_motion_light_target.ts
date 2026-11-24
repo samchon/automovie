@@ -1,5 +1,9 @@
 import type { IAutoMovieClip, IAutoMovieLight } from "@automovie/interface";
-import { applyLightMotion, buildLight } from "@automovie/render";
+import {
+  AutoMovieThreeKind,
+  applyLightMotion,
+  buildLight,
+} from "@automovie/render";
 import { strict as assert } from "node:assert";
 import * as THREE from "three";
 
@@ -7,7 +11,8 @@ import { IDENTITY_TRANSFORM } from "../internal/fixtures";
 
 /**
  * 1. Inspect the staged spotlight's origin and target in world space.
- * 2. Translate the light while turning it a quarter turn, checking origin and ray independently.
+ * 2. Translate the light while turning it a quarter turn, checking origin and ray
+ *    independently.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Identifies the native origin and direction observed at three times.
  * @evidence contracts/development/testing.md#behavioral-verification Applies real light motion, reads the native target and subtracts the native light position.
@@ -26,7 +31,7 @@ export function test_viewer_motion_light_target(): void {
     transform: { ...IDENTITY_TRANSFORM, translation: { x: 2, y: 4, z: 0 } },
   };
   const native: THREE.Light = buildLight(spec);
-  assert.ok(native instanceof THREE.SpotLight);
+  assert.ok(AutoMovieThreeKind.isSpotLight(native));
   const clip: IAutoMovieClip = {
     id: "turn",
     name: null,

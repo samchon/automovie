@@ -1,5 +1,6 @@
 import type { IAutoMovieModel } from "@automovie/interface";
 import {
+  AutoMovieThreeKind,
   type IAutoMovieModelObject,
   type IAutoMovieRenderModeHandle,
   applyAutoMovieSemanticMask,
@@ -14,6 +15,7 @@ import * as THREE from "three";
 import { compileMaterialShaderSource } from "../internal/compileMaterialShaderSource";
 import { createSkinnedTubeModel } from "../internal/createSkinnedTubeModel";
 import { throwsError } from "../internal/predicates";
+import { singleMaterial } from "../internal/singleMaterial";
 
 /**
  * A dual-quaternion skin builds a material variant and shadow materials
@@ -62,8 +64,8 @@ export function test_viewer_dual_quaternion_skinning(): void {
   TestValidator.equals(
     "a dual-quaternion skin patches its material and shadows",
     [
-      dual instanceof THREE.SkinnedMesh,
-      keyOf(dual.material as THREE.Material).includes(KEY),
+      AutoMovieThreeKind.isSkinnedMesh(dual),
+      keyOf(singleMaterial(dual.material)).includes(KEY),
       keyOf(dual.customDepthMaterial).includes(KEY),
       keyOf(dual.customDistanceMaterial).includes(KEY),
     ],
@@ -79,8 +81,8 @@ export function test_viewer_dual_quaternion_skinning(): void {
     TestValidator.equals(
       `a ${String(method)} skin keeps linear blending`,
       [
-        plain instanceof THREE.SkinnedMesh,
-        keyOf(plain.material as THREE.Material).includes(KEY),
+        AutoMovieThreeKind.isSkinnedMesh(plain),
+        keyOf(singleMaterial(plain.material)).includes(KEY),
         plain.customDepthMaterial,
         plain.customDistanceMaterial,
       ],
@@ -166,8 +168,8 @@ export function test_viewer_dual_quaternion_skinning(): void {
     linearTube.material as THREE.Material,
   ];
   const patched: () => [boolean, boolean] = (): [boolean, boolean] => [
-    keyOf(dualTube.material as THREE.Material).includes(KEY),
-    keyOf(linearTube.material as THREE.Material).includes(KEY),
+    keyOf(singleMaterial(dualTube.material)).includes(KEY),
+    keyOf(singleMaterial(linearTube.material)).includes(KEY),
   ];
   for (const mode of ["depth", "normal", "mask"] as const) {
     const handle: IAutoMovieRenderModeHandle = applyRenderMode(scene, mode);
@@ -191,8 +193,8 @@ export function test_viewer_dual_quaternion_skinning(): void {
     "the outline fill and shell patch only the dual skin",
     [
       ...patched(),
-      keyOf(shells[0]!.material as THREE.Material).includes(KEY),
-      keyOf(shells[1]!.material as THREE.Material).includes(KEY),
+      keyOf(singleMaterial(shells[0]!.material)).includes(KEY),
+      keyOf(singleMaterial(shells[1]!.material)).includes(KEY),
     ],
     [true, false, true, false],
   );

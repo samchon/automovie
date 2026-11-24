@@ -13,8 +13,8 @@ import { createRecoveryConflictingSceneFixture } from "../../../internal/createR
  * Scenarios:
  *
  * 1. With one reciprocal index link joining the seam tracks of identities 0 and
- *    48, the seed keeps 24 - 1 = 23 matches and the whole global component is excluded from seed geometry and final points;
- *    other qualified tracks retain a complete component.
+ *    48, the whole conflicting component is excluded from the seed's matches
+ *    and from the final points, which keep the other 70 tracks.
  */
 export function test_unit_recovery_internal_create_camera_scene_conflicts(): void {
   const fixture: ReturnType<typeof createRecoveryConflictingSceneFixture> =

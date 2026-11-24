@@ -2,7 +2,10 @@ import type {
   IAutoMovieMotionClock,
   IAutoMovieMotionManner,
 } from "@automovie/interface";
-import { AutoMovieMotionManner, racketClock } from "@automovie/motions/internal";
+import {
+  AutoMovieMotionManner,
+  racketClock,
+} from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../../internal/nclose";
@@ -18,11 +21,15 @@ import { nclose } from "../../../internal/nclose";
  *
  * 1. A split step reaches its position at 1.2 s, lands its unslowed 0.3 s hop at
  *    1.5 s, holds 1.5 s to 3 s and returns by 4.2 s.
- * 2. A golf address settles over 2.4 s to 3.6 s, holds to 5.1 s and returns by
- *    6.3 s.
+ * 2. A golf address settles over 2.4 s to 3.6 s, holds to 5.1 s and returns by 6.3
+ *    s.
  */
 export function test_unit_motions_sport_racket_clock(): void {
-  const manner: IAutoMovieMotionManner.IModifiers = { ...AutoMovieMotionManner.NEUTRAL, tempo: 2, hold: 3 };
+  const manner: IAutoMovieMotionManner.IModifiers = {
+    ...AutoMovieMotionManner.NEUTRAL,
+    tempo: 2,
+    hold: 3,
+  };
   const split: IAutoMovieMotionClock = racketClock("splitStep", 0.5, manner);
   TestValidator.predicate(
     "the split step",

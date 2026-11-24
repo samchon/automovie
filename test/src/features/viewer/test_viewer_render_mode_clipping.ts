@@ -1,4 +1,5 @@
 import {
+  AutoMovieThreeKind,
   EDGE_SHELL_NAME,
   type IAutoMovieRenderModeHandle,
   applyAutoMovieInspectionShade,
@@ -8,16 +9,35 @@ import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
 /**
- * The hand-written shader materials the viewer installs, the depth pass, the outline shell and the faces shade, carry everything three.js needs to cut them by a clipping plane, so a section given to one of them cuts it on the page.
+ * The hand-written shader materials the viewer installs, the depth pass, the
+ * outline shell and the faces shade, carry everything three.js needs to cut
+ * them by a clipping plane, so a section given to one of them cuts it on the
+ * page.
  *
- * three.js cuts a `ShaderMaterial` only when its `clipping` switch is on and both stages hold the clipping chunks in their places: the vertex stage declares the clip position before `main` and assigns it inside `main` from an `mvPosition` declared earlier, and the fragment stage declares the planes before `main` and discards inside it. three.js resolves an include only where it starts its line, so one behind a comment marker or another statement brings no chunk in, and it throws when it builds a program that names a chunk it does not ship.
+ * Three.js cuts a `ShaderMaterial` only when its `clipping` switch is on and
+ * both stages hold the clipping chunks in their places: the vertex stage
+ * declares the clip position before `main` and assigns it inside `main` from an
+ * `mvPosition` declared earlier, and the fragment stage declares the planes
+ * before `main` and discards inside it. three.js resolves an include only where
+ * it starts its line, so one behind a comment marker or another statement
+ * brings no chunk in, and it throws when it builds a program that names a chunk
+ * it does not ship.
  *
  * Scenarios:
  *
  * 1. The material the depth pass gives a mesh meets every condition.
- * 2. The shell the outline pass adds beside a mesh meets every condition, and the fill it gives the mesh is a built-in basic material, which three.js cuts by itself.
- * 3. The material the faces shade gives a mesh meets every condition, its `mvPosition` coming from three.js's own projection chunk.
- * 4. A bare shader material without clipping fails the six clipping conditions, the depth program in a material whose switch is off fails the switch alone, and the depth program fails a known set for each of three edits: one chunk name misspelt fails that chunk's condition and the shipped-chunk condition, the fragment discard commented out fails that discard, and the vertex assignment moved behind another statement on its line fails that assignment and the `mvPosition` before it.
+ * 2. The shell the outline pass adds beside a mesh meets every condition, and the
+ *    fill it gives the mesh is a built-in basic material, which three.js cuts
+ *    by itself.
+ * 3. The material the faces shade gives a mesh meets every condition, its
+ *    `mvPosition` coming from three.js's own projection chunk.
+ * 4. A bare shader material without clipping fails the six clipping conditions,
+ *    the depth program in a material whose switch is off fails the switch
+ *    alone, and the depth program fails a known set for each of three edits:
+ *    one chunk name misspelt fails that chunk's condition and the shipped-chunk
+ *    condition, the fragment discard commented out fails that discard, and the
+ *    vertex assignment moved behind another statement on its line fails that
+ *    assignment and the `mvPosition` before it.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Applies the public passes and shade to an actual three.js scene and reads the program text and clipping switch of the materials they install, which is what three.js compiles. It does not compile GLSL or draw a pixel, so it fails for a dropped switch, a chunk that is missing, misspelt, on the wrong side of `main` or not at the start of its line, and an `mvPosition` declared too late, and not for a program that holds every chunk and still draws wrongly.
  * @evidence contracts/development/testing.md#independent-expectations The conditions are three.js's own rule for clipping a shader material, stated above, and the shipped chunk names are read from the installed `THREE.ShaderChunk`, not from the viewer's sources. Whether the pixels are cut is outside this oracle and was observed on a browser page.
@@ -65,8 +85,16 @@ export function test_viewer_render_mode_clipping(): void {
     );
 
   // The conditions of a cut a material does not meet, by name; empty when three.js can cut it.
-  const lacks = (material: unknown): string[] => {
-    if (!(material instanceof THREE.ShaderMaterial))
+  const lacks: (
+    material: THREE.Material | THREE.Material[] | null,
+  ) => string[] = (
+    material: THREE.Material | THREE.Material[] | null,
+  ): string[] => {
+    if (
+      material === null ||
+      !AutoMovieThreeKind.isMaterial(material) ||
+      !AutoMovieThreeKind.isShaderMaterial(material)
+    )
       return ["a shader material"];
     const vertex: string = material.vertexShader;
     const fragment: string = material.fragmentShader;
@@ -144,12 +172,17 @@ export function test_viewer_render_mode_clipping(): void {
     lined.scene.getObjectByName(EDGE_SHELL_NAME);
   TestValidator.equals(
     "the outline shell material can be cut",
-    lacks(shell instanceof THREE.Mesh ? shell.material : null),
+    lacks(
+      shell !== undefined && AutoMovieThreeKind.isMesh(shell)
+        ? shell.material
+        : null,
+    ),
     [],
   );
   TestValidator.predicate(
     "the outline fill is a built-in basic material",
-    lined.mesh.material instanceof THREE.MeshBasicMaterial,
+    AutoMovieThreeKind.isMaterial(lined.mesh.material) &&
+      AutoMovieThreeKind.isMeshBasicMaterial(lined.mesh.material),
   );
   outline.restore();
 

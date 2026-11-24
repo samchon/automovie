@@ -35,6 +35,7 @@ import { HumanHand } from "../posture/HumanHand";
 import { poseBones } from "../posture/poseBones";
 import { throwObjectCurve } from "../throwing/throwObjectCurve";
 import { admitPuckContact } from "./admitPuckContact";
+import { stickBallClock } from "./stickBallClock";
 import { stickBallModel } from "./stickBallModel";
 import { stickBallPoint } from "./stickBallPoint";
 
@@ -145,14 +146,7 @@ export namespace stickBall {
         ),
       );
     }
-    const clock: IAutoMovieMotionClock = AutoMovieMotionClock(
-      taken + duration,
-      [
-        { name: "gripped", seconds: taken },
-        { name: "stroke", seconds: taken + duration * 0.55 },
-        { name: "strokeEnd", seconds: taken + duration * 0.85 },
-      ],
-    );
+    const clock: IAutoMovieMotionClock = stickBallClock(taken, duration);
     const seconds: number = clock.at("stroke");
     const filmSecond: number = context.start + seconds;
     const base: IAutoMovieMotionHumanActionPlan =

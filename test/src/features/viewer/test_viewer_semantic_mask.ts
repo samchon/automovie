@@ -22,6 +22,7 @@ import {
   modelsFixture,
   sceneFixture,
 } from "../internal/renderFixtures";
+import { singleMaterial } from "../internal/singleMaterial";
 import {
   plantingCluster,
   plantingRecipe,
@@ -29,15 +30,23 @@ import {
 } from "../internal/softFixtures";
 
 /**
- * Exercises semantic palette installation and reversible CPU material, background, helper visibility and per-slot color state on the existing assembled graph.
+ * Exercises semantic palette installation and reversible CPU material,
+ * background, helper visibility and per-slot color state on the existing
+ * assembled graph.
  *
  * Scenarios:
- * 1. Nearest semantic roots determine mesh colors and painted/unaddressed populations while helper and atmosphere state is suspended; the supplied route-only cycle retains its key.
- * 2. Repeated slots receive their own colors and a white material base; missing/empty slot metadata retains the set color.
+ *
+ * 1. Nearest semantic roots determine mesh colors and painted/unaddressed
+ *    populations while helper and atmosphere state is suspended; the supplied
+ *    route-only cycle retains its key.
+ * 2. Repeated slots receive their own colors and a white material base;
+ *    missing/empty slot metadata retains the set color.
  * 3. Reversing designed nodes preserves each selected id's CPU material color.
- * 4. Repeated restore returns original material/color state, removes a newly created instance-color attribute and restores atmosphere/helpers.
+ * 4. Repeated restore returns original material/color state, removes a newly
+ *    created instance-color attribute and restores atmosphere/helpers.
  * 5. A scene with too few top-level children refuses semantic resolution.
- * 6. Existing soft-body, planting and water projections receive their palette entries while an unclaimed mesh receives background.
+ * 6. Existing soft-body, planting and water projections receive their palette
+ *    entries while an unclaimed mesh receives background.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls Engine palette derivation and the actual viewer painter, checking nearest-root colors, unclaimed membership, repeated slots, node reordering, short-scene refusal and restoration.
  * @evidence contracts/development/testing.md#independent-expectations The palette is an Engine-produced viewer input; literal populations and retained material/attribute identities independently judge its projection. Color multiplication and the cycle key are CPU metadata, not pixels, shader deformation or rendered bounds.
@@ -147,7 +156,7 @@ export function test_viewer_semantic_mask(): void {
 
   // The replacement inherits the existing route-only cycle's hook key. This CPU observation does not compile a shader or measure vertex deformation.
   const programKey: (mesh: THREE.Mesh) => string = (mesh: THREE.Mesh): string =>
-    (mesh.material as THREE.Material).customProgramCacheKey();
+    singleMaterial(mesh.material).customProgramCacheKey();
   TestValidator.equals(
     "the mask inherits the formation-cycle hook key only where supplied",
     {

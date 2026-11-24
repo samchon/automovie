@@ -244,17 +244,19 @@ export namespace HumanArmTrajectoryKnots {
     model: IAutoMovieMotionHumanQuadraticProgram.IProblem,
   ): IAutoMovieMotionHumanQuadraticProgram.IProblem {
     const width: number = c.width;
-    const vars: number = (c.open ? c.n - 1 : c.n - 2) * width;
+    const stride: number = 3 * width;
+    const vars: number = (c.open ? c.n - 1 : c.n - 2) * stride;
 
-    // Each grid instant's moving knots and their weights.
+    // Each grid instant's moving knot values, as each one's first variable
+    // within the knots' steps and its weight; a fixed knot's never move.
     const spread: [number, number][][] = w.map(
-      (row: readonly number[]): [number, number][] => {
-        const out: [number, number][] = [];
-        row.forEach((weight: number, j: number): void => {
-          if (weight !== 0 && M.inner(c, j)) out.push([j, weight]);
-        });
-        return out;
-      },
+      (row: readonly IWeight[]): [number, number][] =>
+        row
+          .filter((v: IWeight): boolean => M.inner(c, v.knot))
+          .map((v: IWeight): [number, number] => [
+            (v.knot - 1) * stride + v.block * width,
+            v.weight,
+          ]),
     );
     // The widest coupling the curvature can write: two grid instants it
     // couples touch knots between the least and the greatest of theirs.

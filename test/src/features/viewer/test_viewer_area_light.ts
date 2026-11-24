@@ -4,7 +4,11 @@ import {
   IAutoMovieLight,
   type IAutoMovieVector3,
 } from "@automovie/interface";
-import { applyLightState, buildLight } from "@automovie/render";
+import {
+  AutoMovieThreeKind,
+  applyLightState,
+  buildLight,
+} from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
@@ -63,7 +67,7 @@ export function test_viewer_area_light(): void {
   TestValidator.equals(
     "the panel reaches Three.js whole",
     namedFacts([
-      ["kind", (): boolean => built instanceof THREE.RectAreaLight],
+      ["kind", (): boolean => AutoMovieThreeKind.isRectAreaLight(built)],
       ["width", (): boolean => nclose(built.width, 2.4)],
       ["height", (): boolean => nclose(built.height, 1.8)],
       ["intensity", (): boolean => nclose(built.intensity, 12)],
@@ -106,7 +110,7 @@ export function test_viewer_area_light(): void {
   TestValidator.equals(
     "a second panel retains its own extent and native class",
     namedFacts([
-      ["kind", (): boolean => second instanceof THREE.RectAreaLight],
+      ["kind", (): boolean => AutoMovieThreeKind.isRectAreaLight(second)],
       ["width", (): boolean => nclose(second.width, 2.4)],
       ["noTarget", (): boolean => second.children.length === 0],
     ]),

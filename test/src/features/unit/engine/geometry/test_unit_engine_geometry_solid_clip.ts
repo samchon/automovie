@@ -151,4 +151,85 @@ export function test_unit_engine_geometry_solid_clip(): void {
     ).length,
     24,
   );
+  // 6. The trim of that rail across the two faces' shared ring.
+  const ring = across.body.faces.map(
+    (face: { cycles: { kind: string; vertices: number[] }[] }): number =>
+      face.cycles[0]?.vertices.length ?? 0,
+  );
+  TestValidator.equals("shared ring before", ring, [64, 64, 0]);
+  across.body.faces.push({
+    surface: across.surface,
+    stations: [0, across.blend.length],
+    phases: Array.from(
+      { length: across.count },
+      (_: unknown, k: number): number => (2 * Math.PI * k) / across.count,
+    ),
+    cycles: [],
+  });
+  TestValidator.equals(
+    "trim across",
+    AutoMovieSolidClip.trim(across.body, crossing, 3, across.blend.host.kind),
+    null,
+  );
+  const left = across.body.faces[0]!.cycles;
+  const right = across.body.faces[1]!.cycles;
+  TestValidator.equals("one cycle each", [left.length, right.length], [1, 1]);
+  TestValidator.equals(
+    "kinds",
+    [left[0]!.kind, right[0]!.kind],
+    ["end", "start"],
+  );
+  TestValidator.equals(
+    "sizes",
+    [
+      left[0]!.vertices.length,
+      left[0]!.chart.length,
+      left[0]!.neighbours.length,
+    ],
+    [75, 75, 75],
+  );
+  TestValidator.equals(
+    "right sizes",
+    [
+      right[0]!.vertices.length,
+      right[0]!.chart.length,
+      right[0]!.neighbours.length,
+    ],
+    [75, 75, 75],
+  );
+  const faces = (
+    cycle: { neighbours: { face: number }[] },
+    face: number,
+  ): number =>
+    cycle.neighbours.filter(
+      (neighbour: { face: number }): boolean => neighbour.face === face,
+    ).length;
+  TestValidator.equals(
+    "left neighbours",
+    [faces(left[0]!, 1), faces(left[0]!, 3)],
+    [50, 25],
+  );
+  TestValidator.equals(
+    "right neighbours",
+    [faces(right[0]!, 0), faces(right[0]!, 3)],
+    [50, 25],
+  );
+  TestValidator.equals(
+    "post and blend untouched",
+    [across.body.faces[2]!.cycles.length, across.body.faces[3]!.cycles.length],
+    [0, 0],
+  );
+  const shared: number[] = left[0]!.vertices.filter((vertex: number): boolean =>
+    right[0]!.vertices.includes(vertex),
+  );
+  TestValidator.equals("shared vertices", shared.length, 51);
+  for (const fork of forks)
+    TestValidator.equals(
+      `crossing ${fork.vertex} in both`,
+      [
+        left[0]!.vertices.includes(fork.vertex),
+        right[0]!.vertices.includes(fork.vertex),
+      ],
+      [true, true],
+    );
 }

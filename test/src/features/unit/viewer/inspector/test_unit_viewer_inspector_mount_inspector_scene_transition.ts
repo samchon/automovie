@@ -13,9 +13,9 @@ import {
 import { TestValidator } from "@nestia/e2e";
 import type * as THREE from "three";
 
-import { createRecordedFilmSubject } from "../draw/createRecordedFilmSubject";
-import { filmResponseRendererFields } from "../internal/filmResponseRendererFields";
-import { nclose } from "../internal/nclose";
+import { createRecordedFilmSubject } from "../../../draw/createRecordedFilmSubject";
+import { filmResponseRendererFields } from "../../../internal/filmResponseRendererFields";
+import { nclose } from "../../../internal/nclose";
 
 /**
  * The Viewer places last the shot a painted picture shows most of, so its
@@ -30,14 +30,8 @@ import { nclose } from "../internal/nclose";
  *    synchronous `place`, and reads the marks, with no `seek` after it.
  * 2. Painting 1.75 s, its second half, places the live B by `seek`, and the sample
  *    offers `place`.
- *
- * @evidence contracts/development/testing.md#behavioral-verification Runs the public mount over a recording subject and frame host and asserts the order of placements, observations and mark readings; a Viewer that seeks the live second last, observes before the shown placement or offers `place` for a shot placement fails.
- * @evidence contracts/development/testing.md#independent-expectations The shown layer follows from the dissolve's weights by hand: A at 0.75 at 1.25 s and B at 0.75 at 1.75 s; A's clock is 1 + t, its trim starting at its 1 s mark.
- * @evidence contracts/development/testing.md#distinguishing-cases Both halves of the dissolve; the compositing itself belongs to `test_inspector_transition_layers` and the pixels to the SwiftShader capture.
- * @evidence contracts/development/testing.md#execution-ownership An in-memory unit discovered as `test_inspector_scene_transition`; no browser, timer or graphics context runs.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 2 numbered scenarios it runs, each naming the second and the order it pins.
  */
-export async function test_inspector_scene_transition(): Promise<void> {
+export async function test_unit_viewer_inspector_mount_inspector_scene_transition(): Promise<void> {
   const recorded: createRecordedFilmSubject.IDouble = createRecordedFilmSubject(
     {
       transition: { kind: "crossDissolve", duration: 1 },

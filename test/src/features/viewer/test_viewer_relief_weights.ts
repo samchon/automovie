@@ -12,6 +12,7 @@ import type {
   IAutoMovieScene,
 } from "@automovie/interface";
 import {
+  AutoMovieThreeKind,
   type IAutoMovieModelObject,
   RELIEF_WEIGHT_TARGET,
   buildModel,
@@ -25,6 +26,7 @@ import * as THREE from "three";
 
 import { hasViolation, namedFacts, nclose } from "../internal/predicates";
 import { instanceSetFixture, sceneFixture } from "../internal/renderFixtures";
+import { singleMaterial } from "../internal/singleMaterial";
 import {
   vertexColourMesh,
   vertexColourModel,
@@ -83,10 +85,10 @@ export function test_viewer_relief_weights(): void {
   );
   const meshes: THREE.Mesh[] = [];
   built.object.traverse((one: THREE.Object3D<THREE.Object3DEventMap>): void => {
-    if (one instanceof THREE.Mesh) meshes.push(one);
+    if (AutoMovieThreeKind.isMesh(one)) meshes.push(one);
   });
   const keyOf: (mesh: THREE.Mesh) => string = (mesh: THREE.Mesh): string =>
-    (mesh.material as THREE.Material).customProgramCacheKey();
+    singleMaterial(mesh.material).customProgramCacheKey();
   const plain: IAutoMovieModelObject = buildModel(
     vertexColourModel([weighted]),
   );

@@ -2,7 +2,11 @@ import type {
   AutoMovieTextureBinding,
   IAutoMovieMaterial,
 } from "@automovie/interface";
-import { applyRenderMode, buildMaterial } from "@automovie/render";
+import {
+  AutoMovieThreeKind,
+  applyRenderMode,
+  buildMaterial,
+} from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
@@ -117,9 +121,7 @@ export function test_viewer_render_mode_albedo(): void {
   );
   const overrides: THREE.MeshBasicMaterial[] = meshes.flatMap(
     (mesh: THREE.Mesh): THREE.MeshBasicMaterial[] =>
-      (Array.isArray(mesh.material)
-        ? mesh.material
-        : [mesh.material]) as THREE.MeshBasicMaterial[],
+      [mesh.material].flat() as THREE.MeshBasicMaterial[],
   );
   /** The eight overrides, in mesh order. */
   type Overrides = [
@@ -156,7 +158,7 @@ export function test_viewer_render_mode_albedo(): void {
         (): boolean =>
           overrides.every(
             (override: THREE.MeshBasicMaterial): boolean =>
-              override instanceof THREE.MeshBasicMaterial &&
+              AutoMovieThreeKind.isMeshBasicMaterial(override) &&
               override.toneMapped === false &&
               override.fog === false,
           ),

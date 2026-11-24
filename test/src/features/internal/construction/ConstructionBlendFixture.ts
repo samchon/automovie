@@ -1,4 +1,6 @@
 import {
+  AutoMovieConstructionContinuation,
+  AutoMovieConstructionRing,
   AutoMovieSolidBody,
   AutoMovieSolidChain,
   realizeAutoMovieConstruction,
@@ -137,6 +139,22 @@ export namespace ConstructionBlendFixture {
       "made",
       faces,
     );
+
+    // The continuation's shared ring: one vertex ring on the beams' junction,
+    // each beam's boundary cycle through it.
+    if (across) {
+      const first: IAutoMovieLoftChain = real.chains[0]!;
+      AutoMovieConstructionRing.create(body, {
+        host: 0,
+        hostStation: first.layers[first.layers.length - 1]!.y,
+        hostKind: "end",
+        part: 1,
+        partStation: real.chains[1]!.layers[0]!.y,
+        partKind: "start",
+        count: first.samples,
+        sign: AutoMovieConstructionContinuation.sign("top", "bottom"),
+      });
+    }
     const blendSurface: IAutoMovieSolidSurface | null =
       AutoMovieSolidChain.surface(joined.blend.chain);
     if (blendSurface === null)
