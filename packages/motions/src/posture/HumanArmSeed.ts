@@ -10,32 +10,36 @@ import { HumanArmConnect } from "./HumanArmConnect";
 import { HumanArmDifferential } from "./HumanArmDifferential";
 import { HumanArmGeometry as G } from "./HumanArmGeometry";
 import { HumanArmOptimiser } from "./HumanArmOptimiser";
+import { HumanArmSeedSpace as Space } from "./HumanArmSeedSpace";
 import { HumanArmTrajectoryContext } from "./HumanArmTrajectoryContext";
 import { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
 
 /**
- * The seed of an arms' trajectory, as a manipulation planner seeds its
- * optimiser (MoveIt's pipeline: a goal by inverse kinematics, a path to it by a
- * sampling planner, then trajectory optimisation, Schulman et al. 2014, IJRR
- * 33:1251, which starts from a collision-free path where a straight line
- * fails).
+ * The seed of an arms' trajectory, as MoveIt seeds a trajectory optimiser: a
+ * goal by inverse kinematics, a path to it by a sampling planner, and the path
+ * handed to the optimiser as its start (`OptimizerAdapter::adaptAndPlan`,
+ * moveit/moveit
+ * moveit_planners/chomp/chomp_optimizer_adapter/src/chomp_optimizer_adapter.cpp
+ * lines 177-209 at commit 811328b1ba700f5d2dff69afc9737ac6cab66c9b,
+ * BSD-3-Clause, Copyright (c) 2018, Raghavender Sahdev), every solve seeded so;
+ * a sampling planner that finds no path ends the plan, as the adapter returns
+ * the planner's failure, with a refusal that says so.
  *
  * The goal is the hold's first waypoint: the arms' configuration with every
  * hand on its site and every arm clear, solved as a still problem of that one
- * instant (`HumanArmTrajectoryModel`, its ends left out) from starts in a fixed
- * order, the goal's own arm, the rest arm, then configurations drawn from a
- * seeded generator within the ranges, the first feasible kept (random restarts,
- * Beeson and Ames 2015, "TRAC-IK", Humanoids). The hold's later waypoints carry
- * it by the sites' motion (differential inverse kinematics, the map the
- * follower uses), and the trajectory's optimiser solves them. The reach is
- * RRT-Connect's path in the arms' joint space, indexed by the share of the
- * reach, from the rest arms to the hold's first configuration
+ * instant (`HumanArmTrajectoryModel`, its ends left out) once from the caller's
+ * seed, as MoveIt's inverse kinematics solves at a zero timeout. The hold's
+ * later waypoints carry it by the sites' motion (differential inverse
+ * kinematics, the map the follower uses), and the trajectory's optimiser solves
+ * them. The reach is RRT-Connect's path in the arms' joint space, indexed by
+ * the share of the reach, from the rest arms to the hold's first configuration
  * (`HumanArmConnect`), the return its path from the exit arms to the hold's
  * last, each state valid by the one reading the trajectory refuses by
  * (`HumanArmTrajectoryModel.invalid`) at the waypoint its share reaches, the
  * hold's task points only for the hold itself, so every state is read where it
- * happens (time-indexed RRT-Connect, EXOTica). A reach waypoint is the path's
- * state at the share the carry has made at its second.
+ * happens (EXOTica's time-indexed RRT-Connect over OMPL's box sampler, the
+ * shoulder chart's disc left to the validity reading). A reach waypoint is the
+ * path's state at the share the carry has made at its second.
  */
 export namespace HumanArmSeed {
   /** What the seed reads. */
@@ -81,7 +85,7 @@ export namespace HumanArmSeed {
     const first: number = holds[0]!;
     const last: number = holds[holds.length - 1]!;
     const held: number[][][] = goal(problem, context, first, last, hold);
-    const space: ISpace = sampler(context);
+    const space: Space.ISpace = Space.sampler(context);
     // A path from an end of the action to the hold, through the waypoints
     // `passes` from that end's to the hold's: each configuration carries its
     // share of the reach (0 at rest, 1 on the hold) as its last coordinate,
@@ -93,7 +97,11 @@ export namespace HumanArmSeed {
     // allowed its grasp's contact (MoveIt's pick approach), but not the hold's
     // task points, which would wall the hold off from every edge that leaves
     // it; read before the hold's waypoint instead, the contact itself would.
-    const path = (
+    const path: (
+      from: number[][],
+      to: number[][],
+      passes: readonly number[],
+    ) => number[][] = (
       from: number[][],
       to: number[][],
       passes: readonly number[],
@@ -118,28 +126,31 @@ export namespace HumanArmSeed {
       const found: number[][] | null = HumanArmConnect.connect({
         start,
         goal,
-        sample: (random: () => number): number[] => [
-          ...space.sample(random),
-          random(),
-        ],
+        low: space.low,
+        high: space.high,
         valid: (q: readonly number[]): boolean =>
           M.invalid(
             context,
             where(q[dims]!),
-            split(q.slice(0, dims)),
+            Space.split(q.slice(0, dims)),
             false,
             q[dims]! >= 1,
           ).value <= M.TOLERANCE,
-        extent: space.extent,
-        rising: dims,
       });
-      // A sampling planner that spends its budget without joining the two
-      // ends has found no path, not shown that none exists (OMPL reports a
-      // timeout, not infeasibility): the reach is then the straight
-      // interpolation in the arms' joint space between them, the start
-      // TrajOpt itself takes (Schulman et al. 2014), and only the solved
-      // trajectory's own reading refuses.
-      return found ?? [start, goal];
+
+      // The sampling planner seeds the optimiser, as MoveIt's optimiser
+      // adapter seeds it (`chomp_optimizer_adapter.cpp`, `adaptAndPlan`), and
+      // a planner that finds no path ends the plan there.
+      if (found === null)
+        throw new HumanRefusal({
+          kind: "reach",
+          axis: "region",
+          value: context.times[passes[passes.length - 1]!]!,
+          feasible: null,
+          reason: `the sampling planner finds no path of the ${problem.arms.map((arm: IProblem["arms"][number]): string => arm.side).join(" and ")} arm between its rest and the hold within its iterations`,
+          fix: "put the hand on a site its arm reaches with the body clear",
+        });
+      return found;
     };
     const span: (a: number, b: number) => number[] = (
       a: number,
@@ -171,7 +182,7 @@ export namespace HumanArmSeed {
           if (k === 0) return [...context.rest[a]!];
           if (!M.inner(context, k)) return [...context.back[a]!];
           if (k >= first && k <= last) return [...held[k - first]![a]!];
-          const along: number[] = at(
+          const along: number[] = Space.at(
             k < first ? reach : back,
             Math.min(1, Math.max(0, problem.share(t))),
           );
@@ -251,8 +262,7 @@ export namespace HumanArmSeed {
   }
   /**
    * The arms' configuration at one waypoint of the hold with every hand on its
-   * site and every arm clear: the first feasible from the starts in order, a
-   * given one, the goal's own arm, the rest arm, then the seeded draws.
+   * site and every arm clear, solved once from the caller's seed.
    */
   function instant(
     problem: IProblem,
@@ -287,12 +297,18 @@ export namespace HumanArmSeed {
       ),
       still: true,
     });
-    const random: () => number = HumanArmConnect.generator(SEED);
-    const space: ISpace = sampler(context);
+    // One attempt from the caller's seed, MoveIt's deterministic inverse
+    // kinematics: a zero timeout limits the search to a single attempt
+    // (`KDLKinematicsPlugin::searchPositionIK`, moveit/moveit
+    // moveit_kinematics/kdl_kinematics_plugin/src/kdl_kinematics_plugin.cpp
+    // line 280 at commit fdb79acafb24efd9e138b0d309fb2463186d4ab2,
+    // BSD-3-Clause), MoveIt having no attempt count (MIGRATION.md, #1288);
+    // the seed is the one the caller hands (`ik_seed_state`): a given
+    // configuration, else the law's goal arm, else the current arm, the rest.
     function* starts(): Generator<number[][]> {
       if (given !== undefined)
         yield given.map((v: number[]): number[] => [...v]);
-      if (
+      else if (
         problem.arms.every(
           (arm: IProblem["arms"][number]): boolean => arm.guess !== undefined,
         )
@@ -301,11 +317,12 @@ export namespace HumanArmSeed {
           (arm: IProblem["arms"][number], a: number): number[] =>
             G.encode(context.setups[a]!, arm.guess!),
         );
-      yield context.rest.map((v: number[]): number[] => [...v]);
-      for (let r: number = 0; r < RESTARTS; ++r)
-        yield split(space.sample(random));
+      else yield context.rest.map((v: number[]): number[] => [...v]);
     }
-    const frame = (
+    const frame: (
+      c: M.IContext,
+      q: readonly (readonly number[])[],
+    ) => number[][][] = (
       c: M.IContext,
       q: readonly (readonly number[])[],
     ): number[][][] =>
@@ -319,9 +336,7 @@ export namespace HumanArmSeed {
         ),
       );
     let closest: M.IEvaluation | undefined;
-    let tried: number = 0;
     for (const q of starts()) {
-      ++tried;
       const candidate: number[][][] = frame(point, q);
       if (M.evaluate(point, candidate).worst.value <= M.TOLERANCE)
         return candidate.map((arm: number[][]): number[] => arm[1]!);
@@ -340,7 +355,7 @@ export namespace HumanArmSeed {
       axis: closest!.worst.axis,
       value: closest!.worst.value,
       feasible: null,
-      reason: `no configuration of the ${problem.arms.map((arm: IProblem["arms"][number]): string => arm.side).join(" and ")} arm keeps the hand on its site and the arm clear at ${context.times[k]!.toFixed(3)} s, from any of ${tried} starts; the closest: ${closest!.worst.what}`,
+      reason: `no configuration of the ${problem.arms.map((arm: IProblem["arms"][number]): string => arm.side).join(" and ")} arm keeps the hand on its site and the arm clear at ${context.times[k]!.toFixed(3)} s, from its seed; the closest: ${closest!.worst.what}`,
       fix: "put the hand on a site its arm reaches with the body clear",
     });
   }
@@ -363,7 +378,12 @@ export namespace HumanArmSeed {
     first: number,
     last: number,
   ): number[][][] {
-    const contact = (
+    const contact: (
+      a: number,
+      k: number,
+      q: readonly number[],
+      site: M.ISite,
+    ) => IAutoMovieVector3 = (
       a: number,
       k: number,
       q: readonly number[],
@@ -418,97 +438,7 @@ export namespace HumanArmSeed {
     }
     return out;
   }
-
-  /**
-   * A uniform draw of the arms' coordinates within their ranges, and the
-   * space's largest extent.
-   */
-  function sampler(c: M.IContext): ISpace {
-    const radius: number[] = c.rest.map((rest: number[], a: number): number =>
-      Math.max(
-        G.SCALE,
-        Math.hypot(rest[0]!, rest[1]!),
-        Math.hypot(c.back[a]![0]!, c.back[a]![1]!),
-      ),
-    );
-    let extent: number = 0;
-    c.free.forEach((free: number[], a: number): void => {
-      for (const d of free) {
-        const b: [number, number] | null | undefined = c.bounds[a]![d];
-        if (d < 2) extent += (2 * radius[a]!) ** 2;
-        else if (b !== null && b !== undefined) extent += (b[1] - b[0]) ** 2;
-      }
-    });
-    return {
-      extent: Math.sqrt(extent),
-      sample: (random: () => number): number[] =>
-        c.rest.flatMap((rest: number[], a: number): number[] => {
-          const out: number[] = [...rest];
-          const free: number[] = c.free[a]!;
-          if (free.includes(0) || free.includes(1)) {
-            const r: number = radius[a]! * Math.sqrt(random());
-            const theta: number = 2 * Math.PI * random();
-            if (free.includes(0)) out[0] = r * Math.cos(theta);
-            if (free.includes(1)) out[1] = r * Math.sin(theta);
-          }
-          for (const d of free) {
-            const b: [number, number] | null | undefined = c.bounds[a]![d];
-            if (d >= 2 && b !== null && b !== undefined)
-              out[d] = b[0] + (b[1] - b[0]) * random();
-          }
-          return out;
-        }),
-    };
-  }
-
-  /** Each arm's coordinates from a concatenation. */
-  function split(q: readonly number[]): number[][] {
-    const out: number[][] = [];
-    for (let i: number = 0; i < q.length; i += G.DIMENSIONS)
-      out.push(q.slice(i, i + G.DIMENSIONS));
-    return out;
-  }
-
-  /**
-   * The configuration of a path, without its share coordinate, where its share
-   * (its last coordinate, rising along it) reaches a value.
-   */
-  function at(path: readonly (readonly number[])[], share: number): number[] {
-    const s: (q: readonly number[]) => number = (
-      q: readonly number[],
-    ): number => q[q.length - 1]!;
-    for (let i: number = 1; i < path.length; ++i)
-      if (share <= s(path[i]!) || i === path.length - 1) {
-        const piece: number = s(path[i]!) - s(path[i - 1]!);
-        return HumanArmConnect.lerp(
-          path[i - 1]!,
-          path[i]!,
-          piece > 0
-            ? Math.min(1, Math.max(0, (share - s(path[i - 1]!)) / piece))
-            : 1,
-        ).slice(0, -1);
-      }
-    return path[0]!.slice(0, -1);
-  }
 }
-
-/**
- * A uniform draw of the arms' coordinates within their ranges, and the space's
- * largest extent, coordinate units.
- */
-interface ISpace {
-  sample: (random: () => number) => number[];
-  extent: number;
-}
-
-/**
- * Random starts of the hold's inverse kinematics after the goal's own arm and
- * the rest arm.
- */
-const RESTARTS: number = 8;
-
-/** The restarts' generator's seed. */
-const SEED: number = 2;
 
 /**
  * The waypoints inside the action at which every arm has a site, in order: the

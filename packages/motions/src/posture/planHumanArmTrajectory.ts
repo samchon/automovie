@@ -3,7 +3,6 @@ import type {
   IAutoMovieMotionHumanArmTrajectory,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanAuditSkin } from "../audit/AutoMovieMotionHumanAuditSkin";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanArmGeometry as G } from "./HumanArmGeometry";
 import { HumanArmRefine } from "./HumanArmRefine";
@@ -27,9 +26,9 @@ import { nameArmTrajectoryPair } from "./nameArmTrajectoryPair";
  * frame on the swivel, the arm's one freedom there (Tolani, Goswami and Badler
  * 2000, section 3.2); an earlier solution of the action admitted as it stands
  * is the plan; otherwise the whole span is optimised once, from that earlier
- * solution, the laid course or one seed, and the solve's own verdict admits or
- * refuses. It records in `told` whether it reads the mirror image, so `solve`
- * can tell a refusal in the author's names.
+ * solution or else the sampling planner's path (`HumanArmSeed`), and the
+ * solve's own verdict admits or refuses. It records in `told` whether it reads
+ * the mirror image, so `solve` can tell a refusal in the author's names.
  *
  * @param read The problem on given waypoints' seconds.
  * @param times The first knots' seconds, ascending, on the frame grid.
@@ -41,11 +40,11 @@ import { nameArmTrajectoryPair } from "./nameArmTrajectoryPair";
  * @throws {HumanRefusal} When no trajectory meets the constraints at its knots
  *   and on the frame grid.
  * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the mirror record and the refusal; HumanArmTrajectory.solve documents the method.
- * @evidence contracts/development/implementation.md#principled-implementation TrajOpt's few knots with a continuous reading between them through every frame, the whole span solved once from the laid course (Schulman et al. 2014), or, where the laid course lies a skin deeper in a body than its clearance allows, from the sampling planner's collision-free seed (the same paper's section V-A; MoveIt's OMPL seed).
+ * @evidence contracts/development/implementation.md#principled-implementation TrajOpt's few knots with a continuous reading between them through every frame (Schulman et al. 2014), the whole span solved once from the sampling planner's path, as MoveIt's optimiser adapter seeds every optimisation (`OptimizerAdapter::adaptAndPlan`, moveit/moveit moveit_planners/chomp/chomp_optimizer_adapter/src/chomp_optimizer_adapter.cpp lines 177-209 at commit 811328b1ba700f5d2dff69afc9737ac6cab66c9b, BSD-3-Clause), or from an earlier solution of the same action on refined waypoints.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure The tracked hold, the memoised solution, then one solve per span; solve keeps only the mirror-name translation.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A trajectory is returned only when its frame-grid reading admits it; otherwise the refusal stands. A rest inside a body, the span's fixed first instant no solve moves, is refused at that instant before any solve. A prescribed hold's frame that no swivel clears at the exact asked attitude leaves the course as laid: the hold's task limits bound points within metres, so the optimiser trades the attitude within them, and the course's own reading refuses what they cannot hold.
  * @evidence contracts/development/implementation.md#efficient-algorithms One solve per span, no restart and no nested solve, its knots split only in the intervals whose course between knots fails; the optimiser's variables are the knots' and its clearance reads the knots and their intervals.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work A warm solution and a laid course's reading are reused only for this action's span.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work A warm solution and a laid course's reading (its knot times, its tracked hold and its pace) are reused only for this action's span.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returned readers retain only the setups, final times and solution state.
  */
 export function planHumanArmTrajectory(
@@ -254,34 +253,21 @@ export function planHumanArmTrajectory(
     if (Stretch.met(earlier)) return Stretch.played(earlier);
   }
 
-  // A laid course whose arm lies deeper in a body than a skin (`BUILT`) past
-  // what the clearance allows is no start for the solve: from inside a body's hull
-  // the convexified clearance rows lead to its nearest face, which need not
-  // be the side the path leaves by, and the solve settles inside (TrajOpt is
-  // seeded collision-free where its straight start collides deeply, Schulman
-  // et al. 2014, section V-A; MoveIt seeds it from a sampling planner). Such a
-  // course is replaced by the sampling planner's seed (`HumanArmSeed`, a
-  // budget it overruns seeding the straight line, never a refusal).
-  const laid: M.IEvaluation | undefined = course?.read.evaluation;
-  const blocked: boolean =
-    laid !== undefined &&
-    BLOCKING.has(laid.placement.term) &&
-    laid.placement.value > AutoMovieMotionHumanAuditSkin.BUILT * 1000;
-
-  // The one solve: the whole span from one seed, the earlier solution where
-  // there is one, else the laid course read at the knots, else the sampling
-  // planner's seed.
+  // The one solve: the whole span from one start, the earlier solution where
+  // there is one, else the sampling planner's path, as MoveIt's optimiser
+  // adapter seeds every optimisation from the sampling planner's path
+  // (`OptimizerAdapter::adaptAndPlan`, moveit/moveit
+  // moveit_planners/chomp/chomp_optimizer_adapter/src/chomp_optimizer_adapter.cpp
+  // lines 177-209 at commit 811328b1ba700f5d2dff69afc9737ac6cab66c9b,
+  // BSD-3-Clause), whose failure ends the plan (`HumanArmSeed`).
   const solved: Stretch.ISolved =
     earlier !== undefined
       ? Stretch.optimise(whole, earlier, earlier.x, earlier.penalty)
       : Stretch.optimise(
           whole,
           initial,
-          course === undefined || blocked
-            ? HumanArmSeed.seed(problem, initial.context)
-            : Pace.coursed(initial.context, course.trajectories),
-        );
-  // The path a refusal for time was reached at is the replan's start
+          HumanArmSeed.seed(problem, initial.context),
+        ); // The path a refusal for time was reached at is the replan's start
   // (`Stretch.refused` tells it): over the span the refusal names, the same
   // path moves within the bound (Hollerbach 1984).
   if (!Stretch.met(solved)) throw Stretch.refused(whole, solved, told);
@@ -382,15 +368,3 @@ function entered(
   }
   return best;
 }
-
-/**
- * The clearance terms of a reading (`HumanArmTrajectoryEvaluate`): an arm's
- * probe in a body, a body's corner in the arm, a probe's sweep and the two arms
- * in each other.
- */
-const BLOCKING: ReadonlySet<string> = new Set([
-  "probe",
-  "embedded",
-  "swept",
-  "crossing",
-]);

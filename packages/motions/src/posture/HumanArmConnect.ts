@@ -1,258 +1,135 @@
-﻿/**
- * A valid path between two configurations of a joint space, by RRT-Connect
- * (Kuffner and LaValle 2000, "RRT-Connect: an efficient approach to
- * single-query path planning", ICRA): two trees grown from the start and the
- * goal, each extended a step toward a sample and the other connected toward the
- * new vertex by repeated steps, the roles swapped every iteration. The first
- * sample is the goal itself, so where the straight segment is valid the trees
- * meet on it at once. The path is then shortcut, each vertex joined to the
- * farthest later one its straight segment reaches. Samples come from a seeded
- * generator, and the iterations are counted rather than timed, so a query has
- * one answer; the step and the edge's check spacing are OMPL's defaults, a
- * fifth and a hundredth of the space's extent.
+import { HumanArmPathSimplify as Simplify } from "./HumanArmPathSimplify";
+import { HumanMersenneTwister as MT } from "./HumanMersenneTwister";
+import { HumanRandomSeeds } from "./HumanRandomSeeds";
+
+/**
+ * A valid path between two configurations of a time-indexed joint space:
+ * EXOTica's time-indexed RRT-Connect (`OMPLTimeIndexedRRTConnect`,
+ * github.com/ipab-slmc/exotica
+ * exotations/solvers/exotica_time_indexed_rrt_connect_solver/src/time_indexed_rrt_connect.cpp
+ * and
+ * include/exotica_time_indexed_rrt_connect_solver/time_indexed_rrt_connect.h at
+ * commit cb0124423e7e22c0018a6ff8d5bfb0b5feee7f97, BSD-3-Clause, Copyright (c)
+ * 2018, University of Edinburgh), itself OMPL's RRT-Connect
+ * (`ompl::geometric::RRTConnect`, github.com/ompl/ompl
+ * src/ompl/geometric/planners/rrt/src/RRTConnect.cpp at commit
+ * 340bd214be6e87fe758a75e04203d665429b020f, BSD-3-Clause, Copyright (c) 2008,
+ * Willow Garage, Inc.; Kuffner and LaValle 2000, ICRA) over a compound space of
+ * the joint coordinates and a time coordinate: the start tree reaches only
+ * forward in time and the goal tree only backward (`reverseTimeDistance`,
+ * `forwardTimeDistance`, `correctTime`); the trees swap each iteration, the one
+ * grown toward a uniform sample, the other connected toward the state it added.
+ * The space is OMPL's `CompoundStateSpace` of a `RealVectorStateSpace` and a
+ * `TimeStateSpace`, each weighted 1: its distance the sum of the joint
+ * coordinates' Euclidean distance and the time's, its extent the sum of theirs,
+ * a tree's step a fifth of it (`SelfConfig::configurePlannerRange`,
+ * `MAX_MOTION_LENGTH_AS_SPACE_EXTENT_FRACTION`), and a motion checked by
+ * `DiscreteMotionValidator::checkMotion`, the end state first, then the
+ * midpoints of a queue of intervals, at a hundredth of each component's extent
+ * (`longestValidSegmentFraction_`). The planner stops when OMPL's iteration
+ * condition fires (`IterationTerminationCondition`, its count `ITERATIONS`),
+ * asked as OMPL's planner asks it; its draws are OMPL's generators'
+ * (`HumanMersenneTwister`), each seeded by OMPL's seed generator
+ * (`HumanRandomSeeds`) from its engine's default first seed. The path found is
+ * smoothed as EXOTica smooths it (`HumanArmPathSimplify`).
  *
- * A query whose validity changes along the path, as a body moves while an arm
- * reaches, indexes its configurations by a coordinate that rises from the start
- * to the goal (`IQuery.rising`), and each state is valid or not where that
- * coordinate puts it: the time-indexed RRT-Connect of EXOTica
- * (ipab-slmc/exotica, `time_indexed_rrt_connect`), whose start tree grows only
- * forward in time and whose goal tree only backward, by directional distances
- * that refuse the other way.
- *
- * A start the validity reading refuses (an arm shown a hair deeper in the body
- * than the planner's margin lets a state lie) is repaired as MoveIt's
- * start-state adapter repairs it (`FixStartStateCollision`): a valid state is
- * drawn near it, each coordinate perturbed by up to `JIGGLE` of the space's
- * extent, `ATTEMPTS` times at most, and the path leaves the start for that
- * state, the planner growing its tree from there; a start no draw repairs has
- * no path.
- *
- * Every step of a tree is `RANGE` of the extent long, so connecting a tree to a
- * vertex `d` away ends after at most `d / range` steps; a space whose extent is
- * zero or not finite steps no length (or none that is a number), a connection
- * would add the same vertex without end, and such a query is refused.
+ * An invalid start is repaired as MoveIt's start-state adapter repairs it
+ * (`FixStartStateCollision`, `repair`), and the path leaves the start for the
+ * repaired state, as the adapter prefixes it.
  */
 export namespace HumanArmConnect {
   /** A query. */
   export interface IQuery {
-    /** The configuration the path leaves. */
+    /** The configuration the path leaves, its time coordinate last. */
     start: readonly number[];
-    /** The configuration it reaches. */
+
+    /** The configuration it reaches, its time coordinate last. */
     goal: readonly number[];
-    /**
-     * A configuration drawn uniformly from the space, from the generator's
-     * numbers in [0, 1).
-     */
-    sample: (random: () => number) => number[];
-    /** Whether a configuration is valid. */
+
+    /** Each joint coordinate's least value (`RealVectorBounds::low`). */
+    low: readonly number[];
+
+    /** Each joint coordinate's greatest value (`RealVectorBounds::high`). */
+    high: readonly number[];
+
+    /** Whether a configuration is valid at the time it carries. */
     valid: (q: readonly number[]) => boolean;
-    /** The space's largest extent, coordinate units. */
-    extent: number;
-    /**
-     * The index of the coordinate that rises from the start to the goal along
-     * every edge; none when absent.
-     */
-    rising?: number;
   }
 
   /**
    * The path from the start to the goal.
    *
    * @param query The query.
-   * @returns The path's vertices from the start to the goal, or `null` when the
-   *   goal is invalid, the start is invalid and no draw near it repairs it, or
-   *   the trees did not meet.
-   * @throws {RangeError} For an extent that is not positive and finite, across
-   *   which no step advances a tree.
+   * @returns The path's states from the start to the goal, or `null` when the
+   *   goal is invalid, the start is invalid and no draw repairs it, or the
+   *   trees did not meet before the iteration condition fired.
    */
-  export function connect(input: IQuery): number[][] | null {
-    if (!(Number.isFinite(input.extent) && input.extent > 0))
-      throw new RangeError(
-        `A joint space's extent must be positive and finite for a tree to step across it, not ${input.extent}`,
-      );
-    // Each state is checked once: the trees, their extensions and the
-    // shortcut meet the same states again, and a state's validity is a pure
-    // function of it, so it is kept by its coordinates for the query.
-    const known: Map<string, boolean> = new Map();
-    const query: IQuery = {
-      ...input,
-      valid: (q: readonly number[]): boolean => {
-        const key: string = q.join(",");
-        let found: boolean | undefined = known.get(key);
-        if (found === undefined) {
-          found = input.valid(q);
-          known.set(key, found);
-        }
-        return found;
-      },
-    };
+  export function connect(query: IQuery): number[][] | null {
+    const space: ISpace = spaceOf(query);
+
+    // Each generator draws its own local seed from OMPL's seed generator,
+    // in the order a MoveIt request creates them: the simplifier with the
+    // planning context, the start repair before planning, the planner's
+    // sampler when it solves (`RNG::RNG`, `RNGSeedGenerator::nextSeed`).
+    const seeds: HumanRandomSeeds.IState = HumanRandomSeeds.create(
+      HumanRandomSeeds.DEFAULT_SEED,
+    );
+    const simplifying: MT.IState = MT.create(HumanRandomSeeds.next(seeds));
+    const repairing: MT.IState = MT.create(HumanRandomSeeds.next(seeds));
+    const sampling: MT.IState = MT.create(HumanRandomSeeds.next(seeds));
+    const ptc: Simplify.ITermination = { calls: 0, max: ITERATIONS };
     if (!query.valid(query.goal)) return null;
-    const range: number = RANGE * query.extent;
-    const resolution: number = RESOLUTION * query.extent;
-    const random: () => number = generator(SEED);
-    const fixed: boolean = !query.valid(query.start);
-    const root: number[] | undefined = fixed
-      ? repaired(query, random)
+    const repaired: boolean = !query.valid(query.start);
+    const root: number[] | null = repaired
+      ? repair(query, repairing)
       : [...query.start];
-    if (root === undefined) return null;
+    if (root === null) return null;
 
-    // A repaired start's path leaves the start itself for the repaired state.
-    const leave = (path: number[][]): number[][] =>
-      fixed ? [[...query.start], ...path] : path;
-    // Each edge is checked once, whichever tree or the shortcut asks.
-    const edges: Map<string, boolean> = new Map();
-    const clear = (a: readonly number[], b: readonly number[]): boolean => {
-      const key: string = `${a.join(",")}|${b.join(",")}`;
-      const seen: boolean | undefined = edges.get(key);
-      if (seen !== undefined) return seen;
-      // The edge is open where every state at its spacing is valid. They are
-      // read the far end first, then by bisection, OMPL's discrete motion
-      // validator's order: an obstacle across the edge is met after a few
-      // states rather than after the states before it, and an open edge
-      // reads every state once all the same.
-      const steps: number = Math.ceil(distance(a, b) / resolution);
-      let open: boolean = steps < 1 || query.valid(lerp(a, b, 1));
-      const intervals: [number, number][] = [[0, steps]];
-      for (let next: number = 0; open && next < intervals.length; ++next) {
-        const [low, high]: [number, number] = intervals[next]!;
-        if (high - low < 2) continue;
-        const middle: number = Math.floor((low + high) / 2);
-        if (!query.valid(lerp(a, b, middle / steps))) open = false;
-        intervals.push([low, middle], [middle, high]);
-      }
-      edges.set(key, open);
-      return open;
-    };
-    const from: ITree = {
-      nodes: [root],
-      parent: [-1],
-      forward: true,
-    };
-    const to: ITree = {
-      nodes: [[...query.goal]],
-      parent: [-1],
-      forward: false,
-    };
+    const start: ITree = { nodes: [root], parent: [-1], forward: true };
+    const goal: ITree = { nodes: [], parent: [], forward: false };
+    let startTree: boolean = true;
+    while (!Simplify.fired(ptc)) {
+      const tree: ITree = startTree ? start : goal;
+      startTree = !startTree;
+      const other: ITree = startTree ? start : goal;
 
-    // An edge of a tree runs the way its tree grows in the rising
-    // coordinate: up from the start, down from the goal.
-    const admits = (
-      tree: ITree,
-      node: readonly number[],
-      q: readonly number[],
-    ): boolean =>
-      query.rising === undefined ||
-      (tree.forward
-        ? q[query.rising]! > node[query.rising]!
-        : q[query.rising]! < node[query.rising]!);
-    // Extend a tree one step toward a configuration.
-    const extend = (tree: ITree, q: readonly number[]): Status => {
-      let near: number = 0;
-      let least: number = Infinity;
-      tree.nodes.forEach((node: readonly number[], i: number): void => {
-        if (!admits(tree, node, q)) return;
-        const d: number = distance(node, q);
-        if (d < least) {
-          least = d;
-          near = i;
-        }
-      });
-      if (least === Infinity) return "trapped";
-      const reached: boolean = least <= range;
-      const next: number[] = reached
-        ? [...q]
-        : lerp(tree.nodes[near]!, q, range / least);
-      if (!clear(tree.nodes[near]!, next)) return "trapped";
-      tree.nodes.push(next);
-      tree.parent.push(near);
-      return reached ? "reached" : "advanced";
-    };
-    let a: ITree = from;
-    let b: ITree = to;
-    for (let i: number = 0; i < ITERATIONS; ++i) {
-      const target: number[] = i === 0 ? [...query.goal] : query.sample(random);
-      if (extend(a, target) !== "trapped") {
-        const made: number[] = a.nodes[a.nodes.length - 1]!;
-        let status: Status;
-        do status = extend(b, made);
-        while (status === "advanced");
-        if (status === "reached")
-          return leave(shortcut(joined(from, to), clear));
+      // The goal state joins its tree at the first iteration, a valid goal
+      // sampled without asking the condition (`PlannerInputStates::nextGoal`).
+      if (goal.nodes.length === 0) {
+        goal.nodes.push([...query.goal]);
+        goal.parent.push(-1);
       }
-      [a, b] = [b, a];
+
+      // Grow toward a uniform sample, then connect the other tree toward the
+      // state added.
+      const sample: number[] = space.sample(sampling);
+      const grown: IGrowth = grow(tree, sample, space);
+      if (grown.state === "trapped") continue;
+      const target: number[] = tree.nodes[grown.added]!;
+      let connected: IGrowth = { state: "advanced", added: -1 };
+      while (!Simplify.fired(ptc) && connected.state === "advanced")
+        connected = grow(other, target, space);
+      if (connected.state !== "reached") continue;
+
+      // The path: the start tree's branch, then the goal tree's, the joined
+      // state once (the reaching tree's own copy dropped).
+      let startEnd: number = tree.forward ? grown.added : connected.added;
+      let goalEnd: number = tree.forward ? connected.added : grown.added;
+      if (start.parent[startEnd]! >= 0) startEnd = start.parent[startEnd]!;
+      else goalEnd = goal.parent[goalEnd]!;
+      const path: number[][] = [
+        ...branch(start, startEnd).reverse(),
+        ...branch(goal, goalEnd),
+      ];
+      Simplify.smooth(path, space, simplifying, ptc);
+      return repaired ? [[...query.start], ...path] : path;
     }
     return null;
   }
 
   /**
-   * A valid state near an invalid start, MoveIt's start-state repair: each
-   * coordinate but the rising one moved by a uniform draw of up to `JIGGLE`'s
-   * share of the space's extent either way, the first valid draw of at most
-   * `ATTEMPTS` kept.
-   *
-   * @param query The query.
-   * @param random The query's generator.
-   * @returns The state, or undefined when no draw is valid.
-   */
-  function repaired(query: IQuery, random: () => number): number[] | undefined {
-    const reach: number = JIGGLE * query.extent;
-    for (let i: number = 0; i < ATTEMPTS; ++i) {
-      const q: number[] = query.start.map((v: number, d: number): number =>
-        d === query.rising ? v : v + (2 * random() - 1) * reach,
-      );
-      if (query.valid(q)) return q;
-    }
-    return undefined;
-  }
-
-  /**
-   * The path through the two trees' last vertices, which coincide: the start
-   * tree's from its root, then the goal tree's to its root.
-   */
-  function joined(from: ITree, to: ITree): number[][] {
-    const trace = (tree: ITree): number[][] => {
-      const out: number[][] = [];
-      for (let i: number = tree.nodes.length - 1; i >= 0; i = tree.parent[i]!)
-        out.push(tree.nodes[i]!);
-      return out;
-    };
-    return [...trace(from).reverse(), ...trace(to).slice(1)];
-  }
-
-  /**
-   * The path with each vertex joined to the farthest later one its straight
-   * segment reaches.
-   */
-  function shortcut(
-    path: number[][],
-    clear: (a: readonly number[], b: readonly number[]) => boolean,
-  ): number[][] {
-    const out: number[][] = [path[0]!];
-    let i: number = 0;
-    while (i < path.length - 1) {
-      let j: number = path.length - 1;
-      while (j > i + 1 && !clear(path[i]!, path[j]!)) --j;
-      out.push(path[j]!);
-      i = j;
-    }
-    return out;
-  }
-
-  /**
-   * The Euclidean distance of two configurations.
-   *
-   * @param a One configuration.
-   * @param b The other.
-   * @returns The distance, coordinate units.
-   */
-  export function distance(a: readonly number[], b: readonly number[]): number {
-    let s: number = 0;
-    for (let i: number = 0; i < a.length; ++i) s += (a[i]! - b[i]!) ** 2;
-    return Math.sqrt(s);
-  }
-
-  /**
-   * The configuration a share of the way from one to another.
+   * The configuration a share of the way from one to another
+   * (`StateSpace::interpolate`, component by component).
    *
    * @param a The configuration at share 0.
    * @param b The configuration at share 1.
@@ -268,7 +145,8 @@ export namespace HumanArmConnect {
   }
 
   /**
-   * A seeded generator of numbers in [0, 1) (mulberry32).
+   * A seeded generator of numbers in [0, 1) (mulberry32), kept for its caller
+   * outside the planner (`floor/sleep.ts`).
    *
    * @param seed The seed.
    * @returns The generator; each call returns the next number.
@@ -283,39 +161,244 @@ export namespace HumanArmConnect {
       return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
     };
   }
+
+  /**
+   * OMPL's compound space of the query: its metric, its uniform sampler, its
+   * motion validator and a tree's step.
+   */
+  function spaceOf(query: IQuery): ISpace {
+    const dims: number = query.low.length;
+    const time: [number, number] = [query.start[dims]!, query.goal[dims]!];
+    const joints: number = Math.hypot(
+      ...query.low.map(
+        (low: number, i: number): number => query.high[i]! - low,
+      ),
+    );
+    const span: number = time[1] - time[0];
+    const distance: Metric = (
+      a: readonly number[],
+      b: readonly number[],
+    ): number =>
+      Math.hypot(
+        ...a.slice(0, dims).map((v: number, i: number): number => v - b[i]!),
+      ) + Math.abs(a[dims]! - b[dims]!);
+
+    // `CompoundStateSpace::validSegmentCount`: the larger of the components'
+    // counts, each its distance over a hundredth of its extent.
+    const segments: Metric = (
+      a: readonly number[],
+      b: readonly number[],
+    ): number =>
+      Math.max(
+        Math.ceil(
+          Math.hypot(
+            ...a
+              .slice(0, dims)
+              .map((v: number, i: number): number => v - b[i]!),
+          ) /
+            (LONGEST_VALID * joints),
+        ),
+        Math.ceil(Math.abs(a[dims]! - b[dims]!) / (LONGEST_VALID * span)),
+      );
+    const checkMotion: Motion = (
+      a: readonly number[],
+      b: readonly number[],
+    ): boolean => {
+      if (!query.valid(b)) return false;
+      const nd: number = segments(a, b);
+      if (nd < 2) return true;
+      const queue: [number, number][] = [[1, nd - 1]];
+      for (let next: number = 0; next < queue.length; ++next) {
+        const [first, second]: [number, number] = queue[next]!;
+        const mid: number = Math.floor((first + second) / 2);
+        if (!query.valid(lerp(a, b, mid / nd))) return false;
+        if (first < mid) queue.push([first, mid - 1]);
+        if (second > mid) queue.push([mid + 1, second]);
+      }
+      return true;
+    };
+    return {
+      distance,
+      interpolate: lerp,
+      checkMotion,
+      valid: query.valid,
+      sample: (rng: MT.IState): number[] => [
+        ...query.low.map((low: number, i: number): number =>
+          MT.uniformReal(rng, low, query.high[i]!),
+        ),
+        MT.uniformReal(rng, time[0], time[1]),
+      ],
+      range: STEP * (joints + span),
+      time,
+      dims,
+    };
+  }
+
+  /**
+   * EXOTica's `growTree`: the tree's nearest state that the time order admits,
+   * the sample's time corrected (`correctTime`), a step of the tree's range
+   * toward it, kept where its motion is valid.
+   */
+  function grow(
+    tree: ITree,
+    sample: readonly number[],
+    space: ISpace,
+  ): IGrowth {
+    // The nearest by the time-ordered distance: a state the time order
+    // refuses is 1e10 away (`reverseTimeDistance`, `forwardTimeDistance`).
+    let near: number = 0;
+    let least: number = Infinity;
+    tree.nodes.forEach((node: readonly number[], i: number): void => {
+      const late: boolean = tree.forward
+        ? node[space.dims]! > sample[space.dims]!
+        : node[space.dims]! < sample[space.dims]!;
+      const d: number = late ? REFUSED : space.distance(sample, node);
+      if (d < least) {
+        least = d;
+        near = i;
+      }
+    });
+    const from: readonly number[] = tree.nodes[near]!;
+
+    // correctTime: with no joint velocity limit the least time step is none,
+    // so only the time's bounds refuse.
+    if (
+      sample[space.dims]! < space.time[0] ||
+      sample[space.dims]! > space.time[1]
+    )
+      return { state: "trapped", added: -1 };
+    let reach: boolean = true;
+    let state: number[] = [...sample];
+    const d: number = space.distance(from, sample);
+    if (d > space.range) {
+      state = lerp(from, sample, space.range / d);
+      reach = false;
+    }
+    const valid: boolean = tree.forward
+      ? space.checkMotion(from, state)
+      : space.valid(state) && space.checkMotion(state, from);
+    if (!valid) return { state: "trapped", added: -1 };
+    tree.nodes.push(state);
+    tree.parent.push(near);
+    return {
+      state: reach ? "reached" : "advanced",
+      added: tree.nodes.length - 1,
+    };
+  }
+
+  /** A tree's states from one to its root. */
+  function branch(tree: ITree, from: number): number[][] {
+    const out: number[][] = [];
+    for (let i: number = from; i >= 0; i = tree.parent[i]!)
+      out.push(tree.nodes[i]!);
+    return out;
+  }
+
+  /**
+   * MoveIt's start repair (`FixStartStateCollision::adaptAndPlan`,
+   * moveit/moveit
+   * moveit_ros/planning/planning_request_adapter_plugins/src/fix_start_state_collision.cpp
+   * lines 125-149 at commit f6a684f979ded4ac93c6c66a699d74b2c7d52864,
+   * BSD-3-Clause, Copyright (c) 2012, Willow Garage, Inc.): each attempt walks
+   * the joint coordinates in order, draws one uniformly within `JIGGLE` of its
+   * range about its original value, clipped to the range
+   * (`getVariableRandomPositionsNearBy`), keeps it in the state, and stops at
+   * the first valid state; the time is kept.
+   */
+  function repair(query: IQuery, rng: MT.IState): number[] | null {
+    const dims: number = query.low.length;
+    const state: number[] = [...query.start];
+    for (let c: number = 0; c < ATTEMPTS; ++c)
+      for (let i: number = 0; i < dims; ++i) {
+        const reach: number = JIGGLE * (query.high[i]! - query.low[i]!);
+        state[i] = MT.uniformReal(
+          rng,
+          Math.max(query.low[i]!, query.start[i]! - reach),
+          Math.min(query.high[i]!, query.start[i]! + reach),
+        );
+        if (query.valid(state)) return state;
+      }
+    return null;
+  }
+  /** The compound space as the planner reads it. */
+  interface ISpace extends Simplify.ISpace {
+    /** A uniform sample (`CompoundStateSampler::sampleUniform`). */
+    sample: (rng: MT.IState) => number[];
+
+    /** Whether a state is valid (`StateValidityChecker::isValid`). */
+    valid: (q: readonly number[]) => boolean;
+
+    /** A tree's step (`maxDistance_`). */
+    range: number;
+
+    /** The time coordinate's bounds, the start's and the goal's. */
+    time: [number, number];
+
+    /** The joint coordinates' count; the time coordinate's index. */
+    dims: number;
+  }
+
+  /** A tree: its states and each one's parent, -1 at its root. */
+  interface ITree {
+    /** The states. */
+    nodes: number[][];
+
+    /** Each state's parent's index. */
+    parent: number[];
+
+    /** Whether the tree grows from the start, forward in time. */
+    forward: boolean;
+  }
+
+  /** What growing a tree did, and the index of the state it added. */
+  interface IGrowth {
+    /** `REACHED`, `ADVANCED` or `TRAPPED`. */
+    state: GrowState;
+
+    /** The added state's index; -1 when trapped. */
+    added: number;
+  }
+
+  /** A number of two states: a distance or a segment count. */
+  type Metric = (a: readonly number[], b: readonly number[]) => number;
+
+  /** Whether the motion between two states is valid. */
+  type Motion = (a: readonly number[], b: readonly number[]) => boolean;
+
+  /** EXOTica's and OMPL's `GrowState`. */
+  type GrowState = "reached" | "advanced" | "trapped";
 }
 
 /**
- * What extending a tree toward a configuration did: reached it, moved a step
- * toward it, or was stopped by an invalid edge.
+ * A tree's step, a share of the space's extent: OMPL's
+ * `MAX_MOTION_LENGTH_AS_SPACE_EXTENT_FRACTION` (src/ompl/tools/config/
+ * MagicConstants.h at the same commit).
  */
-type Status = "reached" | "advanced" | "trapped";
+const STEP: number = 0.2;
 
 /**
- * A tree: its vertices, each one's parent, -1 at the root, and whether it grows
- * from the start.
+ * A motion's check spacing, a share of each component's extent: OMPL's
+ * `longestValidSegmentFraction_` default (StateSpace.cpp line 93).
  */
-interface ITree {
-  nodes: number[][];
-  parent: number[];
-  forward: boolean;
-}
+const LONGEST_VALID: number = 0.01;
+
+/** The distance EXOTica gives a state the time order refuses. */
+const REFUSED: number = 1e10;
 
 /**
- * A step of a tree toward a sample, a share of the space's extent: OMPL's
- * default range.
+ * The iteration condition's count: OMPL's own deterministic test of a
+ * time-indexed RRT bounds its planner by `IterationTerminationCondition
+ * itc(1000)` (tests/geometric/spacetime/STRRTstar_test.cpp line 142 at the same
+ * commit), the form MoveIt exposes as `termination_condition: Iteration[n]`
+ * (moveit/moveit2 moveit_planners/ompl/ompl_interface/src/
+ * model_based_planning_context.cpp lines 571-584 at commit
+ * 8c99e523bc23149d24a61990c64d53c9c7d2905f, BSD-3-Clause).
  */
-const RANGE: number = 0.2;
+const ITERATIONS: number = 1000;
 
 /**
- * The spacing of the validity checks along an edge, a share of the space's
- * extent: OMPL's longest valid segment.
- */
-const RESOLUTION: number = 0.01;
-
-/**
- * How far a repaired start's coordinates may move, a share of the space's
- * extent: MoveIt's `FixStartStateCollision` default `jiggle_fraction`.
+ * How far a repaired start's coordinates may move, a share of each one's range:
+ * MoveIt's `FixStartStateCollision` default `jiggle_fraction`.
  */
 const JIGGLE: number = 0.02;
 
@@ -324,9 +407,3 @@ const JIGGLE: number = 0.02;
  * `max_sampling_attempts`.
  */
 const ATTEMPTS: number = 100;
-
-/** Iterations before the query is given up. */
-const ITERATIONS: number = 1000;
-
-/** The generator's seed. */
-const SEED: number = 1;
