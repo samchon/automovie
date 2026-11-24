@@ -237,7 +237,8 @@ export namespace AutoMovieSolidIntersectionWalk {
       let p: IPoint = start;
 
       /** Current consistently directed tangent. */
-      let T: Heading = heading(sense);
+      const startDirection: Heading = heading(sense);
+      let T: Heading = startDirection;
 
       /** Accumulated world chords of the first walk, mm. */
       let length: number = 0;
@@ -258,7 +259,13 @@ export namespace AutoMovieSolidIntersectionWalk {
       for (let k: number = 0; k < walkSteps * count; k++) {
         /** Displacement from the current point back toward its start. */
         const ahead: Vec3 = sub(start.point, p.point);
-        if (k > 2 && norm(ahead) <= h && dot(ahead, T.world) > 0)
+        if (
+          k > 2 &&
+          norm(ahead) <= h &&
+          dot(ahead, T.world) > 0 &&
+          dot(ahead, startDirection.world) > 0 &&
+          dot(T.world, startDirection.world) > 0
+        )
           return length + norm(ahead);
 
         /** Candidate retained through the original failed-halving loop. */
@@ -315,10 +322,12 @@ export namespace AutoMovieSolidIntersectionWalk {
     /** Original reference point population from the public walkPoints control. */
     const n: number = walkPoints * count;
 
-    /** Repeat the original fixed-chord walk for one secant candidate. */
-    const equal: (chord: number) => Vec3[] | string = (
-      chord: number,
-    ): Vec3[] | string => {
+    type EqualWalk = { points: Vec3[]; directed: boolean; mismatch: number };
+    const startDirection: Heading = heading(sense);
+    /** Repeat the fixed-chord walk and keep the direction of its closing chord. */
+    const equal = (chord: number): EqualWalk | string => {
+      if (!(chord > 0 && Number.isFinite(chord)))
+        return "the equal-chord walk needs a finite positive chord";
       /** Accepted world points for this one reference candidate. */
       const points: Vec3[] = [start.point];
 
@@ -326,7 +335,7 @@ export namespace AutoMovieSolidIntersectionWalk {
       let q: IPoint = start;
 
       /** Original consistently oriented equal-walk tangent, the way round the first walk went. */
-      let along: Heading = heading(sense);
+      let along: Heading = startDirection;
       for (let k: number = 1; k < n; k++) {
         /** Next accepted point of this fixed-chord reference walk. */
         let next: IPoint | null = step(q, along, chord);
@@ -382,42 +391,44 @@ export namespace AutoMovieSolidIntersectionWalk {
           return `the original charts have no regular continuation at step ${k} of the equal-chord walk`;
         along = t;
       }
-      return points;
+      const closing: Vec3 = sub(start.point, q.point);
+      const directed: boolean =
+        dot(closing, along.world) > 0 && dot(closing, startDirection.world) > 0;
+      const distance: number = norm(closing);
+      return { points, directed, mismatch: (directed ? distance : -distance) - chord };
     };
-
-    /** Closing chord minus the chosen chord, with the original sign. */
-    const mismatch: (points: Vec3[], chord: number) => number = (
-      points: Vec3[],
-      chord: number,
-    ): number => norm(sub(points[0]!, points[points.length - 1]!)) - chord;
 
     /** Current secant chord candidate from the first measured length. */
     let c0: number = length / n;
 
     /** Last accepted reference-point candidate. */
-    let p0: Vec3[] | string = equal(c0);
+    let p0: EqualWalk | string = equal(c0);
     if (typeof p0 === "string") return p0;
 
     /** Closing mismatch at that accepted candidate. */
-    let g0: number = mismatch(p0, c0);
+    let g0: number = p0.mismatch;
 
     /** Original next secant trial chord. */
     let c1: number = c0 + g0 / n;
     for (let i: number = 0; i < closingSteps && Math.abs(g0) > 1e-9 * c0; i++) {
       /** Reference points for the next trial, or its original failure. */
-      const p1: Vec3[] | string = equal(c1);
+      const p1: EqualWalk | string = equal(c1);
       if (typeof p1 === "string") break;
 
       /** Closing mismatch for the successful trial. */
-      const g1: number = mismatch(p1, c1);
+      const g1: number = p1.mismatch;
 
       /** Original secant update, including its equal-residual fallback. */
       const c2: number = g1 === g0 ? c1 : c1 - (g1 * (c1 - c0)) / (g1 - g0);
       [c0, p0, g0, c1] = [c1, p1, g1, c2];
     }
+    // Admit the closing chord at the same physical allowance as an ordinary
+    // corrected step. A nearby opposite side cannot close the periodic guide.
+    if (!p0.directed || !(Math.abs(g0) <= 0.25 * c0 + 10 * tolerance))
+      return `the equal-chord reference does not close in its starting direction (chord ${c0} mm, signed mismatch ${g0} mm)`;
     // Walked against `T0`, the points are read back in its order from the seed, so the parameter still increases along `n_part x n_host`.
     const ordered: Vec3[] =
-      sense === 1 ? p0 : [p0[0]!, ...p0.slice(1).reverse()];
+      sense === 1 ? p0.points : [p0.points[0]!, ...p0.points.slice(1).reverse()];
     return {
       law: AutoMovieSolidTraceLaw.arc(ordered),
       x: [start.s, start.phi, start.y, start.theta],
