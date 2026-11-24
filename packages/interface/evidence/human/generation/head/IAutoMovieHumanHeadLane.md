@@ -22,15 +22,15 @@ AutoMovieHumanHeadLane exchanges the named IOutput, ISkeleton, IPrepared contrac
 
 The complete head subtree, its source context and shared records.
 
-## @evidence contracts/development/design.md#principled-representation `root`: The head's subtree, metres. `source`: The same composed source object used to make root; studies remain explicitly outside that tree. `face`: The head's face the body meets.
+## @evidence contracts/development/design.md#principled-representation `root`: The head's subtree, metres. `source`: The same composed source object used to make root; studies remain explicitly outside that tree. The invocation owns `loopSources`, which the tree's shared loop references identify. The host and part charts read the same physical contact in mm and radians. `face`: The head's face the body meets.
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
-Returned by AutoMovieHumanHeadLane.create. Also types AutoMovieHumanBodyLaw.headLane.
+Returned by AutoMovieHumanHeadLane.create. The neutral head capture and AutoMovieHumanBodyLane.define pass its paired charts to construction realization. Also types AutoMovieHumanBodyLaw.headLane.
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 
-Required fields are `root`, `source`, `face`, `search`, `radius`, `vermilion`, `cap`, `skeleton`, `eyes`, `landmarks`, `stature`; callers supply the complete record.
+Required fields are `root`, `source`, `loopSources`, `face`, `search`, `radius`, `vermilion`, `cap`, `skeleton`, `eyes`, `landmarks`, `stature`. Each source-backed join resolves its named entry in the same invocation.
 
 # src/human/generation/head/IAutoMovieHumanHeadLane.ts#IAutoMovieHumanHeadLane.ISkeleton
 
