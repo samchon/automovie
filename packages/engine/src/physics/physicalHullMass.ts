@@ -29,7 +29,28 @@ import { physicalPrincipalAxes } from "./physicalPrincipalAxes";
 export function physicalHullMass(
   points: readonly IAutoMovieVector3[],
 ): IAutoMoviePhysicalHullMass.IResult {
-  const hull: IAutoMoviePhysicalHullFaces.IHull = physicalHullFaces(points);
+  return physicalHullMass.fromHull(physicalHullFaces(points));
+}
+
+/** Integration of the prepared hull's actual outward face loops. */
+export namespace physicalHullMass {
+  /**
+   * Integrate a supporting hull prepared by the caller for this request.
+   *
+   * @param hull Admitted supporting faces and their mean vertex, in metres.
+   * @returns The uniform hull's volume, centre and principal inertia.
+   */
+  export function fromHull(
+    hull: IAutoMoviePhysicalHullFaces.IHull,
+  ): IAutoMoviePhysicalHullMass.IResult {
+    return integrate(hull);
+  }
+}
+
+/** Integrate the existing ordered tetrahedra and centroidal principal frame. */
+function integrate(
+  hull: IAutoMoviePhysicalHullFaces.IHull,
+): IAutoMoviePhysicalHullMass.IResult {
   const axes: ("x" | "y" | "z")[] = ["x", "y", "z"];
   let volume: number = 0;
   let moment: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };

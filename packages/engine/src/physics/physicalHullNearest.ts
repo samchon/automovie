@@ -1,4 +1,5 @@
 import type {
+  IAutoMoviePhysicalHullFaces,
   IAutoMoviePhysicalHullNearest,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -55,4 +56,20 @@ export function physicalHullNearest(
   details: boolean = true,
 ): IAutoMoviePhysicalHullNearest.IResult | number {
   return readPhysicalHullPoint(points, p, details);
+}
+
+/** A scalar nearest-point reader for a fixed set of supporting faces. */
+export namespace physicalHullNearest {
+  /**
+   * Prepare signed-distance reads against the supplied hull. Keep the
+   * caller's supporting faces unchanged while the returned reader is in use.
+   *
+   * @param hull A volumetric hull produced by the supporting-face owner.
+   * @returns Signed distance in metres at a changing point in the hull's frame.
+   */
+  export function prepare(
+    hull: IAutoMoviePhysicalHullFaces.IHull,
+  ): (p: IAutoMovieVector3) => number {
+    return readPhysicalHullPoint.prepare(hull);
+  }
 }

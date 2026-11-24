@@ -27,3 +27,33 @@ Both modes share this one distance calculation and the existing physicalHullFace
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
 Existing weak flat forms live with their hull records, and the existing distance buffer grows to the largest queried hull and is overwritten per call. Scalar mode returns only a number; full mode keeps its original contact ownership, with no new persistent state.
+
+# src/physics/physicalHullNearest.ts#physicalHullNearest.prepare
+
+## @evidence contracts/development/common.md#meaningful-documentation
+
+Names the fixed supporting faces, the changing point in shape-local metres, the signed scalar result and the caller's responsibility to keep the preparation unchanged.
+
+## @evidence contracts/development/implementation.md#principled-implementation
+
+Uses the existing point-to-half-space and closest-edge search in scalar mode.
+
+## @evidence contracts/development/implementation.md#clear-and-simple-structure
+
+The wrapper supplies the fixed hull to the same proximity computation that serves the standalone scalar and contact entries.
+
+## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
+
+Preserves all plane and edge admissions, exact ordering and the refusal when the hull has no volume.
+
+## @evidence contracts/development/implementation.md#efficient-algorithms
+
+Packs planes and edges once, then reads each query in linear face and reached-edge work.
+
+## @evidence contracts/development/implementation.md#reuse-equivalent-work
+
+The caller supplies the same supports it already prepared. Changing points reuse only their fixed packed representation.
+
+## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
+
+Only the returned reader owns its packed arrays and one working distance array. Each call writes and reads the working distances synchronously.

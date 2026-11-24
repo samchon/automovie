@@ -27,3 +27,33 @@ A profile integrates each hull once while it is built; the face search behind it
 ## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
 
 Keeps nothing between calls; its temporaries die with the call.
+
+# src/physics/physicalHullMass.ts#physicalHullMass.fromHull
+
+## @evidence contracts/development/common.md#meaningful-documentation
+
+Names the supplied supporting faces at metre scale and the uniform solid properties returned.
+
+## @evidence contracts/development/implementation.md#principled-implementation
+
+Integrates the ordered outward face loops with the same exact tetrahedron quadrature and principal-frame solver as the point-set entry.
+
+## @evidence contracts/development/implementation.md#clear-and-simple-structure
+
+Both API entries call one integrator. Supporting face admission remains with physicalHullFaces.
+
+## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
+
+No triangulated surface or sampled moment substitute enters the calculation. An empty or zero-volume hull keeps the original refusal.
+
+## @evidence contracts/development/implementation.md#efficient-algorithms
+
+Integration is linear in the number of triangles of the outward face fans.
+
+## @evidence contracts/development/implementation.md#reuse-equivalent-work
+
+A caller that already used the supporting planes for geometry checks passes that same hull without a second topology search.
+
+## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
+
+Face loops are borrowed only while integrating. The fresh mass record holds no preparation or point-set reference.

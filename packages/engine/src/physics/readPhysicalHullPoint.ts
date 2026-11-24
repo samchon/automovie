@@ -34,10 +34,37 @@ export function readPhysicalHullPoint(
   const hull: IAutoMoviePhysicalHullFaces.IHull = physicalHullFaces(points);
   if (!hull.faces.length) throw new Error("A hull must span a volume");
   const flat: IFlat = flattened(hull);
-  const planes: Float64Array = flat.planes;
   const count: number = hull.faces.length;
   if (DISTANCES.length < count) DISTANCES = new Float64Array(count);
-  const distances: Float64Array = DISTANCES;
+  return query(hull, flat, DISTANCES, p, details, witness);
+}
+
+/** The prepared scalar projection and one-shot full contact use one search. */
+function query(
+  hull: IAutoMoviePhysicalHullFaces.IHull,
+  flat: IFlat,
+  distances: Float64Array,
+  p: IAutoMovieVector3,
+  details: false,
+): number;
+function query(
+  hull: IAutoMoviePhysicalHullFaces.IHull,
+  flat: IFlat,
+  distances: Float64Array,
+  p: IAutoMovieVector3,
+  details: boolean,
+  witness?: PhysicalHullScalarWitness,
+): IAutoMoviePhysicalHullNearest.IResult | number;
+function query(
+  hull: IAutoMoviePhysicalHullFaces.IHull,
+  flat: IFlat,
+  distances: Float64Array,
+  p: IAutoMovieVector3,
+  details: boolean,
+  witness?: PhysicalHullScalarWitness,
+): IAutoMoviePhysicalHullNearest.IResult | number {
+  const planes: Float64Array = flat.planes;
+  const count: number = hull.faces.length;
   const px: number = p.x;
   const py: number = p.y;
   const pz: number = p.z;
@@ -139,6 +166,20 @@ export function readPhysicalHullPoint(
   };
 }
 
+/** Readers scoped to actual supporting faces. */
+export namespace readPhysicalHullPoint {
+  /** Prepare the fixed planes, edges and working storage of a scalar reader. */
+  export function prepare(
+    hull: IAutoMoviePhysicalHullFaces.IHull,
+  ): (p: IAutoMovieVector3) => number {
+    if (!hull.faces.length) throw new Error("A hull must span a volume");
+    const flat: IFlat = pack(hull);
+    const distances: Float64Array = new Float64Array(hull.faces.length);
+    return (p: IAutoMovieVector3): number =>
+      query(hull, flat, distances, p, false);
+  }
+}
+
 /** The numbers stored per edge. */
 const EDGE: number = 11;
 
@@ -174,6 +215,13 @@ const flattened: (hull: IAutoMoviePhysicalHullFaces.IHull) => IFlat = (
 ): IFlat => {
   const known: IFlat | undefined = FLATS.get(hull);
   if (known !== undefined) return known;
+  const flat: IFlat = pack(hull);
+  FLATS.set(hull, flat);
+  return flat;
+};
+
+/** Pack the exact planes and directed edges for the reader's fixed domain. */
+function pack(hull: IAutoMoviePhysicalHullFaces.IHull): IFlat {
   const PlaneArray: Float64ArrayConstructor = Float64Array;
   const planes: Float64Array = new PlaneArray(4 * hull.faces.length);
   const StartArray: Int32ArrayConstructor = Int32Array;
@@ -224,10 +272,8 @@ const flattened: (hull: IAutoMoviePhysicalHullFaces.IHull) => IFlat = (
     },
   );
   starts[hull.faces.length] = e;
-  const flat: IFlat = { planes, starts, edges, owned };
-  FLATS.set(hull, flat);
-  return flat;
-};
+  return { planes, starts, edges, owned };
+}
 
 /** Original mutable global bindings and private typed storage setter. */
 const DOUBLE: Float64ArrayConstructor = Float64Array;

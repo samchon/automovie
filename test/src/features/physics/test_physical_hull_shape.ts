@@ -5,6 +5,7 @@ import {
   physicalHullErode,
   physicalHullFaces,
   physicalHullMass,
+  physicalHullNearest,
   physicalShapeBounds,
   physicalShapeNearest,
   physicalShapePairDistance,
@@ -169,6 +170,20 @@ export function test_physical_hull_shape(): void {
       Vector3.add(p, { x: 1, y: 2, z: 3 }),
   );
   const mass: ReturnType<typeof physicalHullMass> = physicalHullMass(moved);
+  const prepared: IAutoMoviePhysicalHullFaces.IHull =
+    physicalHullFaces.prepare(moved);
+  assert.deepEqual(physicalHullMass.fromHull(prepared), mass);
+  const nearest: ReturnType<typeof physicalHullNearest.prepare> =
+    physicalHullNearest.prepare(prepared);
+  for (const [query, expected] of [
+    [{ x: 1, y: 2, z: 3.03 }, -0.07],
+    [{ x: 1.8, y: 2.6, z: 3.1 }, 0.5],
+    [{ x: 1, y: 2, z: 3.03 }, -0.07],
+  ] as const) {
+    const read: number = nearest(query);
+    assert.equal(read, physicalHullNearest(moved, query, false));
+    assert(Math.abs(read - expected) < 1e-12);
+  }
   const axes: IAutoMovieVector3[] = [
     { x: 1, y: 0, z: 0 },
     { x: 0, y: 1, z: 0 },

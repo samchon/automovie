@@ -62,6 +62,31 @@ export function physicalHullFaces(
     // A caller may edit its fresh points before their first topology read.
     // Such geometry needs its own actual supporting-plane search.
   }
+  const { hull, triples, nativeFaces }: IReadHull = readHull(
+    points,
+    (): readonly number[] | undefined => shiftedTriples(points),
+  );
+  TRIPLES.set(points, triples);
+  HULLS.set(points, hull);
+  if (nativeFaces) PhysicalHullScalarWitness.topology(hull, hull.faces);
+  return hull;
+}
+
+/** Supporting geometry and the receipt consumed by the legacy entry point. */
+interface IReadHull {
+  /** The exact supporting faces and volume-independent summary. */
+  hull: IAutoMoviePhysicalHullFaces.IHull;
+  /** Face triples in source point order. */
+  triples: readonly number[];
+  /** Whether the face objects came from the native map. */
+  nativeFaces: boolean;
+}
+
+/** Build faces and their reductions from the points owned by this call. */
+function readHull(
+  points: readonly IAutoMovieVector3[],
+  carriedTriples?: () => readonly number[] | undefined,
+): IReadHull {
   const count: number = points.length;
   let extent: number = 0;
   for (let i: number = 0; i < count; i++) {
@@ -76,7 +101,7 @@ export function physicalHullFaces(
   // A tolerance that is not finite admits no plane: no triple's area exceeds
   // it. A translated array first tries its source's face triples, which are
   // kept only when they verifiably bound these points.
-  const shifted: readonly number[] | undefined = shiftedTriples(points);
+  const shifted: readonly number[] | undefined = carriedTriples?.();
   const carried: physicalHullPlanes.IResult | null =
     shifted === undefined || !Number.isFinite(tolerance)
       ? null
@@ -106,16 +131,11 @@ export function physicalHullFaces(
       };
     },
   );
-  TRIPLES.set(points, planes.triples);
-  const hull: IAutoMoviePhysicalHullFaces.IHull = summarize(
-    points,
-    faces,
-    used,
-    tolerance,
-  );
-  HULLS.set(points, hull);
-  if (nativeFaces) PhysicalHullScalarWitness.topology(hull, faces);
-  return hull;
+  return {
+    hull: summarize(points, faces, used, tolerance),
+    triples: planes.triples,
+    nativeFaces,
+  };
 }
 
 /** Built-in face-array producer identities before any caller supplies points. */
@@ -201,6 +221,25 @@ const REFLECTIONS: WeakMap<
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No any, unknown, cast or duplicated hull type is introduced. MirrorX accepts no external derived hull or supplied reflected coordinates; private provenance plus first-use exact coordinates establish the isometry, and changed geometry uses ordinary search.
  */
 export namespace physicalHullFaces {
+  /**
+   * Prepare the supporting hull for one fixed point set and the caller's
+   * subsequent proximity and mass reads. The result borrows its input
+   * vertices, which must remain unchanged for this request.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the fixed metre input, returned supporting geometry and borrowed vertices.
+   * @evidence contracts/development/implementation.md#principled-implementation Uses the existing Quickhull and the same supporting-plane admission and ordered reductions.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The shared hull builder serves both entries and prepares one complete numerical record.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Recomputes actual support of the supplied points without stored topology or unchecked face identities.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One supporting hull per scoped point set, with the existing search and ordered reduction costs.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The supplied hull can serve both distance and mass reads without reconstructing supporting planes.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned object and its borrowed vertices belong to the caller. This entry writes no global state.
+   */
+  export function prepare(
+    points: readonly IAutoMovieVector3[],
+  ): IAutoMoviePhysicalHullFaces.IHull {
+    return readHull(points).hull;
+  }
+
   /**
    * Produce fresh points reflected in X and prepare lazy topology transfer.
    *

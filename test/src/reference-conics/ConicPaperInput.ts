@@ -7,9 +7,6 @@ import { AutoMovieRecoveryConicApproximation as C } from "@automovie/recovery";
 
 /** Explicit section-curve inputs and their exact cubic chart evaluation. */
 export namespace ConicPaperInput {
-  /** Weak source-identity reuse shares exact preprocessing between the two methods without retaining source curves. */
-  const criticalCache: WeakMap<Span, IAutoMovieCubicCriticalParameters> =
-    new WeakMap();
   /** Spatial coefficients retain the saved millimetre, +X forward/+Y up/+Z left chart. */
   export type V = readonly [number, number, number];
   /** Four actual Bernstein controls, not interpolated display points. */
@@ -79,11 +76,7 @@ export namespace ConicPaperInput {
     selectedBreaks: number;
     /** Roots lost to a source endpoint or another root after ordinal mapping; these refuse the chart. */
     collapsedBreaks: number;
-    /** Charts whose source coefficients were newly processed. */
-    computedCharts: number;
-    /** Charts reusing preprocessing of the identical unchanged source span. */
-    cachedCharts: number;
-    /** Source-critical evaluation, mapping and cache lookup time, in milliseconds. */
+    /** Source preparation and critical-boundary mapping time, in milliseconds. */
     milliseconds: number;
   }
   /** Evaluate one cubic's exact Bernstein derivatives; derivatives four and five vanish inside its chart. */
@@ -93,59 +86,48 @@ export namespace ConicPaperInput {
     order: 0 | 1 | 2 | 3 | 4 | 5,
   ): Readonly<AutoMovieVector2Tuple> {
     if (order >= 4) return [0, 0];
-    let controls: Readonly<AutoMovieVector2Tuple>[] = span.map(
-      (p: V): Readonly<AutoMovieVector2Tuple> => [p[0], p[2]],
-    );
-    for (let k: number = 0; k < order; ++k) {
-      const degree: number = controls.length - 1;
-      controls = controls
-        .slice(1)
-        .map(
-          (
-            p: Readonly<AutoMovieVector2Tuple>,
-            i: number,
-          ): Readonly<AutoMovieVector2Tuple> => [
-            degree * (p[0] - controls[i]![0]),
-            degree * (p[1] - controls[i]![1]),
-          ],
-        );
-    }
-    while (controls.length > 1)
-      controls = controls
-        .slice(1)
-        .map(
-          (
-            p: Readonly<AutoMovieVector2Tuple>,
-            i: number,
-          ): Readonly<AutoMovieVector2Tuple> => [
-            (1 - u) * controls[i]![0] + u * p[0],
-            (1 - u) * controls[i]![1] + u * p[1],
-          ],
-        );
-    return controls[0]!;
+    let controls: readonly Readonly<AutoMovieVector2Tuple>[] = project(span);
+    for (let k: number = 0; k < order; ++k) controls = differentiate(controls);
+    return bernstein(controls, u);
   }
 
-  /** Exact critical boundaries split the original cubic without changing its values, jets, controls or phase registration. */
-  export function chart(
+  /**
+   * Prepare one fixed cubic for either paper's critical-boundary rule.
+   * The projected controls, derivative polygons and exact critical candidates
+   * are shared by the chart readers created within this span's scope.
+   */
+  export function prepareChart(
     span: Span,
     ordinal: number,
+  ): (
+    query: () => void,
+    method: "ahn" | "ghosh",
+    report: (summary: CriticalSummary, diagnostics: readonly string[]) => void,
+  ) => IAutoMoviePlanarCurveSource {
+    const started: number = performance.now();
+    const controls: ReturnType<typeof project> = project(span);
+    const first: ReturnType<typeof differentiate> = differentiate(controls);
+    const second: ReturnType<typeof differentiate> = differentiate(first);
+    const third: ReturnType<typeof differentiate> = differentiate(second);
+    const derivatives = [controls, first, second, third] as const;
+    const critical: IAutoMovieCubicCriticalParameters =
+      C.cubicCriticalParameters(controls);
+    const preparation: number = performance.now() - started;
+    return (query, method, report): IAutoMoviePlanarCurveSource =>
+      chart(ordinal, derivatives, critical, preparation, query, method, report);
+  }
+
+  /** Select and map critical boundaries without changing the original cubic. */
+  function chart(
+    ordinal: number,
+    derivatives: readonly (readonly Readonly<AutoMovieVector2Tuple>[])[],
+    critical: IAutoMovieCubicCriticalParameters,
+    preparation: number,
     query: () => void,
     method: "ahn" | "ghosh",
     report: (summary: CriticalSummary, diagnostics: readonly string[]) => void,
   ): IAutoMoviePlanarCurveSource {
     const started: number = performance.now();
-    let critical: IAutoMovieCubicCriticalParameters | undefined =
-      criticalCache.get(span);
-    const cached: boolean = critical !== undefined;
-    if (critical === undefined) {
-      critical = C.cubicCriticalParameters([
-        [span[0][0], span[0][2]],
-        [span[1][0], span[1][2]],
-        [span[2][0], span[2][2]],
-        [span[3][0], span[3][2]],
-      ]);
-      criticalCache.set(span, critical);
-    }
     const selected: number[] = [
       ...new Set([
         ...critical.stationary,
@@ -167,9 +149,7 @@ export namespace ConicPaperInput {
         collinearCharts: Number(critical.collinear),
         selectedBreaks: selected.length,
         collapsedBreaks: collapsed,
-        computedCharts: Number(!cached),
-        cachedCharts: Number(cached),
-        milliseconds: performance.now() - started,
+        milliseconds: preparation + (performance.now() - started),
       },
       critical.diagnostics,
     );
@@ -187,15 +167,54 @@ export namespace ConicPaperInput {
       closed: false,
       evaluate: (t: number): Readonly<AutoMovieVector2Tuple> => {
         query();
-        return value(span, t - ordinal, 0);
+        return bernstein(derivatives[0]!, t - ordinal);
       },
       derivative: (
         t: number,
         order: 1 | 2 | 3 | 4 | 5,
       ): Readonly<AutoMovieVector2Tuple> => {
         query();
-        return value(span, t - ordinal, order);
+        return order >= 4 ? [0, 0] : bernstein(derivatives[order]!, t - ordinal);
       },
     };
+  }
+
+  /** The four controls in the section's XZ plane, in millimetres. */
+  function project(
+    span: Span,
+  ): [AutoMovieVector2Tuple, AutoMovieVector2Tuple, AutoMovieVector2Tuple, AutoMovieVector2Tuple] {
+    return [
+      [span[0][0], span[0][2]],
+      [span[1][0], span[1][2]],
+      [span[2][0], span[2][2]],
+      [span[3][0], span[3][2]],
+    ];
+  }
+
+  /** Differentiate the Bernstein polygon by its degree times first differences. */
+  function differentiate(
+    controls: readonly Readonly<AutoMovieVector2Tuple>[],
+  ): Readonly<AutoMovieVector2Tuple>[] {
+    const degree: number = controls.length - 1;
+    return controls.slice(1).map(
+      (p: Readonly<AutoMovieVector2Tuple>, i: number): Readonly<AutoMovieVector2Tuple> =>
+        [degree * (p[0] - controls[i]![0]), degree * (p[1] - controls[i]![1])],
+    );
+  }
+
+  /** Evaluate an already prepared polygon by de Casteljau interpolation. */
+  function bernstein(
+    controls: readonly Readonly<AutoMovieVector2Tuple>[],
+    u: number,
+  ): Readonly<AutoMovieVector2Tuple> {
+    let level: readonly Readonly<AutoMovieVector2Tuple>[] = controls;
+    while (level.length > 1) {
+      const prior: readonly Readonly<AutoMovieVector2Tuple>[] = level;
+      level = prior.slice(1).map(
+        (p: Readonly<AutoMovieVector2Tuple>, i: number): Readonly<AutoMovieVector2Tuple> =>
+          [(1 - u) * prior[i]![0] + u * p[0], (1 - u) * prior[i]![1] + u * p[1]],
+      );
+    }
+    return level[0]!;
   }
 }
