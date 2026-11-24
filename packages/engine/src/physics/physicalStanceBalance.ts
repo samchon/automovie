@@ -341,6 +341,10 @@ export namespace physicalStanceBalance {
     const height: number = input.center.y - floor;
     if (!(height > 0) || !(input.strength > 0)) return undefined;
     const omega: number = input.omega ?? Math.sqrt(gravity / height);
+
+    // Without gravity there is no pendulum to balance: the root's task is the
+    // mass centre's servo (`physicalRootDemand`).
+    if (!(omega > 0)) return undefined;
     const outlines: { limb: Limb; outline: IAutoMovieVector3[] }[] =
       input.stance
         .map((limb: Limb) => ({
