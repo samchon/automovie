@@ -175,3 +175,81 @@ Constant work with no algorithm to choose.
 ## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
 
 A pure function that retains nothing.
+
+# src/compose/AutoMovieMotionHumanTarget.ts#AutoMovieMotionHumanTarget.feasible
+
+## @evidence contracts/development/common.md#meaningful-documentation
+
+States the paper and its passage, that feasibility is the whole test, the order and the refusal.
+
+## @evidence contracts/development/implementation.md#principled-implementation
+
+Miller and Allen 2004, "GraspIt! A versatile simulator for robotic grasping", IEEE Robotics and Automation Magazine 11(4):110-122, "Future Directions" (p. 122): each candidate grasp is tested and evaluated only if feasible, no conflict with the arm kinematics and the hand or arm not blocked. The grasp quality (the ε1 of "Quality Measures") is not read, so the feasible candidates tie and the law's order decides.
+
+## @evidence contracts/development/implementation.md#clear-and-simple-structure
+
+One call of the stance choice's candidate loop (`AutoMovieMotionHumanTouchStance.choose`).
+
+## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
+
+An infeasible candidate is passed over only on its reach refusal; an exhausted set refuses with every candidate's reason.
+
+## @evidence contracts/development/implementation.md#efficient-algorithms
+
+At most one test per candidate, none after the first feasible.
+
+## @evidence contracts/development/implementation.md#reuse-equivalent-work
+
+Shares the stance choice's loop and refusal.
+
+## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
+
+Retains nothing past its return.
+
+# src/compose/AutoMovieMotionHumanTarget.ts#AutoMovieMotionHumanTarget.IFeasible
+
+## @evidence contracts/development/common.md#meaningful-documentation
+
+Each member states its meaning and order.
+
+## @evidence contracts/development/design.md#principled-representation
+
+The paper's candidate grasps and their feasibility test, as a law declares them.
+
+## @evidence contracts/development/design.md#minimal-and-owned-surface
+
+Two members: the candidates and the test.
+
+## @evidence contracts/development/design.md#prohibited-design-shortcuts
+
+No quality score is carried, since none is read.
+
+# src/compose/AutoMovieMotionHumanTarget.ts#AutoMovieMotionHumanTarget.IFeasible.test
+
+## @evidence contracts/development/common.md#meaningful-documentation
+
+States its result and the refusal that marks a candidate infeasible.
+
+## @evidence contracts/development/implementation.md#principled-implementation
+
+The paper's feasibility: the arm reaches the candidate and neither hand nor arm is blocked.
+
+## @evidence contracts/development/implementation.md#clear-and-simple-structure
+
+One call per candidate.
+
+## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
+
+An infeasible candidate refuses its reach; it never returns a partial result.
+
+## @evidence contracts/development/implementation.md#efficient-algorithms
+
+The law's own test, run at most once per candidate.
+
+## @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work
+
+Each law supplies its own.
+
+## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
+
+Each law's own.

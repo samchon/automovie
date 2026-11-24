@@ -21,6 +21,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { AutoMovieMotionHumanTarget } from "../compose/AutoMovieMotionHumanTarget";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanCarriedCouplingFit } from "./HumanCarriedCouplingFit";
@@ -173,31 +174,27 @@ export namespace HumanCarriedCouplingCouple {
               second.row.theirs,
             ).y,
           };
-    const choose: (k: number) => IGripFit = (k: number): IGripFit => {
-      try {
-        return {
-          read: HumanCarriedCouplingFit.read(
-            bearer,
-            borne,
-            row,
-            rules.HOLDS[carry],
-            second === undefined,
-            grips[k]!,
-            planted,
-          ),
-          held: grips[k]!,
-        };
-      } catch (error) {
-        if (
-          error instanceof HumanRefusal &&
-          error.kind === "reach" &&
-          k + 1 < grips.length
-        )
-          return choose(k + 1);
-        throw error;
-      }
-    };
-    const chosen: IGripFit = choose(0);
+    // The grips are the carry's candidates in its order, each tested for
+    // feasibility by the bearer's fit, and the first feasible one is held
+    // (`AutoMovieMotionHumanTarget.feasible`, Miller and Allen 2004).
+    const chosen: IGripFit = AutoMovieMotionHumanTarget.feasible<
+      Grip,
+      IGripFit
+    >({
+      candidates: grips,
+      test: (grip: Grip): IGripFit => ({
+        read: HumanCarriedCouplingFit.read(
+          bearer,
+          borne,
+          row,
+          rules.HOLDS[carry],
+          second === undefined,
+          grip,
+          planted,
+        ),
+        held: grip,
+      }),
+    });
     // The borne body is pitched forward over its supports where its centre
     // lies behind all of them (`HumanCarriedPitch`), and then its pelvis set
     // back off the bearer's neck where the pitched key rests it there

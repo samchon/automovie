@@ -36,6 +36,7 @@ import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMo
 import { courseArmGoal } from "../compose/courseArmGoal";
 import { HumanTrunkLean } from "../handling/HumanTrunkLean";
 import { HumanRefusal } from "../law/HumanRefusal";
+import { HumanColliders } from "../posture/HumanColliders";
 import { HumanHand } from "../posture/HumanHand";
 import { poseBones } from "../posture/poseBones";
 import { StrikingBody } from "../striking/StrikingBody";
@@ -63,20 +64,21 @@ const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
  * Slip a ring onto a partner's finger. The partner's presented hand is read
  * where it is at the action's start, so the partner presents it first
  * (`presentHand`). The dresser's other hand takes the partner's forearm from
- * its own side, its fingers toward the partner's wrist, before the ring hand
- * leaves its rest, and lets go once the ring hand is back at it (Guiard 1987:
- * the non-dominant hand leads and lags). The ring hand brings the ring's hole
- * onto the finger's axis `LINE_UP` beyond the fingertip by `ready`, then slides
- * it along the axis to `SEAT` of the proximal phalanx over the stroke: the
- * ring's `wear` axis lies along the finger, from the fingertip toward the hand,
- * its roll about the finger the one, by `ROLL` steps, that turns the holding
- * hand least from how it holds the ring. From `strokeEnd` the ring is worn on
- * the partner's proximal bone and the ring hand's grip ends, so custody passes
- * without a gap; both hands then return. Both arms are laid in one course
- * (`courseArmGoal` with `with`), the hands excused from each other. A presented
- * hand beyond the standing arms is reached by the least hinge at the hips that
- * brings both wrists within their arms (`HumanTrunkLean`), as `dressPartner`
- * reaches a region, so the dresser keeps its standoff.
+ * its own side, the palm laid on the forearm's own collider
+ * (`HumanColliders.cast`), its fingers toward the partner's wrist, before the
+ * ring hand leaves its rest, and lets go once the ring hand is back at it
+ * (Guiard 1987: the non-dominant hand leads and lags). The ring hand brings the
+ * ring's hole onto the finger's axis `LINE_UP` beyond the fingertip by `ready`,
+ * then slides it along the axis to `SEAT` of the proximal phalanx over the
+ * stroke: the ring's `wear` axis lies along the finger, from the fingertip
+ * toward the hand, its roll about the finger the one, by `ROLL` steps, that
+ * turns the holding hand least from how it holds the ring. From `strokeEnd` the
+ * ring is worn on the partner's proximal bone and the ring hand's grip ends, so
+ * custody passes without a gap; both hands then return. Both arms are laid in
+ * one course (`courseArmGoal` with `with`), the hands excused from each other.
+ * A presented hand beyond the standing arms is reached by the least hinge at
+ * the hips that brings both wrists within their arms (`HumanTrunkLean`), as
+ * `dressPartner` reaches a region, so the dresser keeps its standoff.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States who holds what, the ring's path, the custody change, the timing and the course.
  * @evidence contracts/development/design.md#principled-representation The ring's frame along the partner's finger axis is the plan; the ring hand follows from it and the steadying hand from the partner's forearm.
@@ -257,6 +259,36 @@ export const slipRing: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanSlipR
           Vector3.scale(along, Vector3.dot(toward, along)),
         ),
       );
+      // The palm lies on the partner's forearm collider itself, not one
+      // radius off the axis shared by the whole limb (contacts.md, "Contact
+      // between performers": penetration is measured against each part's own
+      // collider): a ray in from the steadying side onto the forearm's
+      // colliders finds the place and its facing (`HumanColliders.cast`), as
+      // the embrace lays its palms. It starts a forearm's length out, beyond
+      // any of the forearm's colliders, and runs twice that.
+      const lowerArm: AutoMovieHumanoidBone =
+        `${hand}LowerArm` as AutoMovieHumanoidBone;
+      const hit: IAutoMovieMotionHumanColliders.IHit | undefined =
+        HumanColliders.cast(
+          partner.body,
+          new Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>([
+            [lowerArm, bones.get(lowerArm)!],
+          ]),
+          Vector3.add(
+            grasped,
+            Vector3.scale(outward, partner.body.measure.forearm),
+          ),
+          Vector3.scale(outward, -1),
+          2 * partner.body.measure.forearm,
+        );
+      if (hit === undefined)
+        throw new HumanRefusal({
+          kind: "reach",
+          axis: "partner",
+          value: p.partner,
+          reason: `no collider of the partner's ${lowerArm} lies on the steadying hand's way in`,
+          fix: "have the partner present the forearm toward the steadying hand",
+        });
       const under: IAutoMovieMotionHumanArmTarget.ITarget =
         AutoMovieMotionHumanArmTarget.prepareTarget(
           body,
@@ -264,15 +296,17 @@ export const slipRing: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanSlipR
           "palm",
           "flat",
         )({
-          point: Vector3.add(
-            grasped,
-            Vector3.scale(outward, partner.body.measure.forearmRadius),
-          ),
+          point: hit.point,
           rotation: HumanHand.align(
             HumanHand.offset(body, steady, "palm", "flat"),
             {
-              normal: Vector3.scale(outward, -1),
-              forward: along,
+              normal: Vector3.scale(hit.normal, -1),
+              forward: Vector3.normalize(
+                Vector3.subtract(
+                  along,
+                  Vector3.scale(hit.normal, Vector3.dot(along, hit.normal)),
+                ),
+              ),
             },
           ),
           bend: bend(steady),

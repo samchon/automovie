@@ -19,6 +19,7 @@ import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHandTarget } from "../posture/HumanHandTarget";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
+import { AutoMovieMotionHumanTouchStance } from "./AutoMovieMotionHumanTouchStance";
 
 /**
  * Where an action is directed: a target resolved to a place, and a place turned
@@ -230,6 +231,49 @@ export namespace AutoMovieMotionHumanTarget {
     options: IAutoMovieMotionHumanTarget.IHand = {},
   ): ReturnType<typeof HumanHandTarget.prepare> {
     return HumanHandTarget.prepare(body, side, normal, options);
+  }
+
+  /**
+   * The first feasible of a law's candidate sites or grips (Miller and Allen
+   * 2004, "GraspIt! A versatile simulator for robotic grasping", IEEE Robotics
+   * and Automation Magazine 11(4):110-122, "Future Directions", p. 122: each
+   * candidate grasp "is tested ... and if the grasp is feasible (there is no
+   * conflict with the arm kinematics and the hand or arm is not blocked by an
+   * obstacle), it is evaluated").
+   *
+   * Feasibility is the whole test here: a candidate's `test` is the law's own
+   * reach and clearance of the hand and arm, and a reach refusal it raises
+   * marks it infeasible. The paper's grasp quality, the friction-based ε1 of
+   * its "Quality Measures", is not read, so the feasible candidates are equal
+   * and the law's declared order decides, as a stance's does
+   * (`AutoMovieMotionHumanTouchStance.choose`, whose candidate loop and refusal
+   * this shares): the first feasible candidate is taken and those after it are
+   * not tested.
+   *
+   * @param props The candidates in the law's order and the test of one.
+   * @returns The first feasible candidate's result.
+   * @throws {HumanRefusal} When none is feasible: the first candidate's
+   *   refusal, its reason followed by every other candidate's.
+   */
+  export function feasible<Candidate, Result>(
+    props: IFeasible<Candidate, Result>,
+  ): Result {
+    return AutoMovieMotionHumanTouchStance.choose<Candidate, Result>({
+      candidates: props.candidates,
+      reach: props.test,
+    });
+  }
+
+  /** A law's candidate sites or grips and the feasibility test of one. */
+  export interface IFeasible<Candidate, Result> {
+    /** The candidates, in the law's declared order of preference. */
+    candidates: readonly Candidate[];
+
+    /**
+     * The feasibility test of one candidate: its result when the arm reaches it
+     * and neither hand nor arm is blocked, a reach refusal when not.
+     */
+    test: (candidate: Candidate) => Result;
   }
 
   /**

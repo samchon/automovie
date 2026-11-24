@@ -24,7 +24,7 @@ States the inputs, the frame of the result and both refusals.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-The key pose places the borne resting region on the bearer's at the bearer's fitted stance and turns it about that point to the row's hold places, a lone bearer's stance and the borne legs changed least so the arms reach (`HumanCarriedCouplingFit.fit`) by the described grip or, where it misses, the first nearer one that reaches, and the record keeps both so the bearer takes that stance and the borne body those legs; each contact is read on both key bodies; the bearing shares are the least-norm solution of the three equilibrium equations (the shares sum to one and their centre lies under the borne centre) with none a pull; the capacity is the moment-balance bound of `HumanLoad.lean`.
+The key pose places the borne resting region on the bearer's at the bearer's fitted stance and turns it about that point to the row's hold places, a lone bearer's stance and the borne legs changed least so the arms reach (`HumanCarriedCouplingFit.fit`) by the described grip or, where it misses, the first nearer one that reaches, each tested for feasibility in the carry's order (`AutoMovieMotionHumanTarget.feasible`, Miller and Allen 2004), and the record keeps both so the bearer takes that stance and the borne body those legs; each contact is read on both key bodies; the bearing shares are the least-norm solution of the three equilibrium equations (the shares sum to one and their centre lies under the borne centre) with none a pull; the capacity is the moment-balance bound of `HumanLoad.lean`.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
