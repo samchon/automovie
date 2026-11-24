@@ -107,8 +107,9 @@ export namespace courseLimbSwivels {
    * whose position, velocity and acceleration carry across each knot,
    * `courseLimbSwivelKnots.rates` and `between`). The goals stay the displayed
    * ones; only the branch, swivel and twist come from the course, so no read
-   * searches. The knots are made in order the first time a read reaches them
-   * and kept, so the course is the same in any reading order.
+   * searches. The knots and the path through them are made in order when the
+   * course is made, so a read only evaluates them and the course is the same
+   * in any reading order.
    *
    * @param props The posture reader, the limbs, the span and the knotted
    *   instants.
@@ -261,29 +262,23 @@ export namespace courseLimbSwivels {
       props.entry === undefined
         ? undefined
         : { seconds: span.start, seeds: props.entry };
+    // Every knot is fitted here, in order, and the minimum-jerk path through
+    // them (`courseLimbSwivelKnots.rates`, Flash and Hogan 1985) is prepared
+    // over all of them: the course returned only evaluates them.
     const knots: ISwivelKnot[] = [];
-    const knot = (i: number): ISwivelKnot => {
-      while (knots.length <= i)
-        knots.push(
-          knots.length === 0
-            ? fit(times[0]!, entered, true)
-            : fit(times[knots.length]!, knots[knots.length - 1]),
-        );
-      return knots[i]!;
-    };
-    // The minimum-jerk path through the knots (`courseLimbSwivelKnots.rates`,
-    // Flash and Hogan 1985) is prepared over all of them the first time a
-    // second between two is read.
-    let rates: courseLimbSwivelKnots.Rates[] | undefined;
+    for (let i: number = 0; i < times.length; ++i)
+      knots.push(
+        i === 0 ? fit(times[0]!, entered, true) : fit(times[i]!, knots[i - 1]),
+      );
+    const rates: courseLimbSwivelKnots.Rates[] = courseLimbSwivelKnots.rates(
+      knots,
+      limbs,
+    );
     return (
       seconds: number,
     ): ReadonlyMap<AutoMovieHumanLimb, IAutoMovieSwivelSeed> => {
       const at: number = Math.min(Math.max(seconds, span.start), span.end);
-      if (times.length === 1) return knot(0).seeds;
-      rates ??= courseLimbSwivelKnots.rates(
-        times.map((_: number, i: number): ISwivelKnot => knot(i)),
-        limbs,
-      );
+      if (times.length === 1) return knots[0]!.seeds;
       let low: number = 0;
       let high: number = times.length - 1;
       while (high - low > 1) {
@@ -293,8 +288,8 @@ export namespace courseLimbSwivels {
       }
       return courseLimbSwivelKnots.between(
         at,
-        knot(low),
-        knot(high),
+        knots[low]!,
+        knots[high]!,
         rates[low]!,
         rates[high]!,
       );
