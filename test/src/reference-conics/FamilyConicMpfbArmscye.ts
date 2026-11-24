@@ -236,6 +236,7 @@ export namespace FamilyConicMpfbArmscye {
       reversedLocations, minimumIncidence: Math.min(...incidences), stations: [Math.min(...stations), Math.max(...stations)] };
   }
 
+  /** Measure the pinned public contour and write its provenance and chart diagnostics. */
   export async function main(): Promise<void> {
     const mesh = process.argv.find((arg): boolean => arg.startsWith("--mesh="))?.slice(7);
     const out = process.argv.find((arg): boolean => arg.startsWith("--out="))?.slice(6);

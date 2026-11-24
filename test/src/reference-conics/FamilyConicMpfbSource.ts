@@ -15,16 +15,23 @@ export namespace FamilyConicMpfbSource {
 
   /** Triangulated skin and original `joint-*` group centres in one frame. */
   export interface IGeometry {
+    /** Indexed skin triangles in millimetres, without helper geometry. */
     body: IAutoMovieMillimeterMesh;
+    /** Published rig markers by their original group names, in the skin frame. */
     joints: ReadonlyMap<string, Point>;
   }
 
   /** Source identity retained with the observations made on this skin. */
   export interface ISource extends IGeometry {
+    /** The public asset's identity before any coordinate conversion. */
     source: {
+      /** Exact Git revision selected for reproducible downloads. */
       revision: string;
+      /** SHA-256 of the unmodified OBJ bytes. */
       sha256: string;
+      /** SPDX identifier of the original asset licence. */
       license: string;
+      /** Download URL pinned to the selected revision. */
       url: string;
     };
   }
