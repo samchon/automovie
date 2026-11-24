@@ -109,11 +109,17 @@ async function stance(
   };
   const root: IAutoMoviePhysicalProfile["segments"][number] =
     profile.segments[0]!;
+  // The hip anchor in the world: the joint's child frame turned by the bent
+  // thigh's own neutral rotation.
+  const thigh: IAutoMoviePhysicalProfile["segments"][number] =
+    profile.segments.find((segment): boolean => segment.bone === "upper-0")!;
   const hip: IAutoMovieVector3 = Vector3.add(
-    profile.segments.find((segment): boolean => segment.bone === "upper-0")!
-      .neutral.position,
-    profile.joints.find((joint): boolean => joint.child === "upper-0")!
-      .childFrame.position,
+    thigh.neutral.position,
+    Quaternion.rotateVector(
+      thigh.neutral.rotation,
+      profile.joints.find((joint): boolean => joint.child === "upper-0")!
+        .childFrame.position,
+    ),
   );
   const length: number = hip.y - lean("upper-0").y;
   const angle: number = -Math.asin(shift / length);
@@ -143,6 +149,27 @@ async function stance(
         // neutral rotation kept under the lean.
         pose.rotation = Quaternion.multiply(turn, segment.neutral.rotation);
       }
+    }
+  // The leaned targets stay articulated: every joint's anchors meet, as a
+  // rigid turn about the support pivots keeps them, before any simulation.
+  for (const target of subject.targets)
+    for (const joint of profile.joints) {
+      const parent: IAutoMovieRigidTransform = target.segments[joint.parent]!;
+      const child: IAutoMovieRigidTransform = target.segments[joint.child]!;
+      const gap: number = Vector3.length(
+        Vector3.subtract(
+          Vector3.add(
+            parent.position,
+            Quaternion.rotateVector(parent.rotation, joint.parentFrame.position),
+          ),
+          Vector3.add(
+            child.position,
+            Quaternion.rotateVector(child.rotation, joint.childFrame.position),
+          ),
+        ),
+      );
+      if (gap > 1e-9)
+        failures.push(`${label}: ${joint.id} target anchors ${gap} m apart`);
     }
   const input: IAutoMoviePhysicalSimulationInput.IInput =
     createPhysicalBalanceInput(profile, "internal", 0, DURATION, subject);
