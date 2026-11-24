@@ -6,11 +6,11 @@ Gives the purpose (A pure, counter-based random stream keyed by a 64-bit seed) a
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-Implements the documented behavior (A pure, counter-based random stream keyed by a 64-bit seed) directly over its typed inputs (`seed`) as recursive, so its cost follows the recursion depth the input structure allows, delegating to `parseInt`, `seed.slice`, `Number.isSafeInteger`, `philoxAutoMovie4x32`, `Math.floor`; the premises are the units, frames and ranges stated in its parameter documentation, enforced only where the body throws (2 throw sites). Beyond structural 0, 1 and 2 the body uses the literals 8, 16, 4294967296, 5, 67108864, whose basis this answer does not independently establish and a reviewer must confirm.
+Implements the documented behavior (A pure, counter-based random stream keyed by a 64-bit seed) directly over its typed inputs (`seed`) as recursive, so its cost follows the recursion depth the input structure allows, delegating to `parseInt`, `seed.slice`, `philoxAutoMovie4x32`, `Math.floor`; the premises (a sixteen-digit hexadecimal seed, a nonnegative safe-integer index) are the typed contract stated in its documentation and IAutoMovieRandom, which the caller holds, so the body runs no runtime check of them. Beyond structural 0, 1 and 2 the body uses the literals 8, 16, 4294967296, 5, 67108864, whose basis this answer does not independently establish and a reviewer must confirm.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-One operation of 32 lines and 4 top-level statements that reuses `parseInt`, `seed.slice`, `Number.isSafeInteger`, `philoxAutoMovie4x32`, `Math.floor` from their owners instead of copying them; it adds no option, layer or abstraction beyond its documented parameters.
+One operation of 26 lines and 3 top-level statements that reuses `parseInt`, `seed.slice`, `philoxAutoMovie4x32`, `Math.floor` from their owners instead of copying them; it adds no option, layer or abstraction beyond its documented parameters.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 

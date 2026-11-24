@@ -20,24 +20,15 @@ import { philoxAutoMovie4x32 } from "./philoxAutoMovie4x32";
  * @returns The stream.
  */
 export function createAutoMovieRandom(seed: string): IAutoMovieRandom {
-  if (!/^[0-9a-fA-F]{16}$/.test(seed))
-    throw new Error(
-      `An AutoMovie random seed is sixteen hexadecimal digits: ${seed}`,
-    );
   const key: [number, number] = [
     parseInt(seed.slice(8), 16) >>> 0,
     parseInt(seed.slice(0, 8), 16) >>> 0,
   ];
-  const block = (index: number): [number, number, number, number] => {
-    if (!Number.isSafeInteger(index) || index < 0)
-      throw new Error(
-        `An AutoMovie random index is a nonnegative safe integer: ${index}`,
-      );
-    return philoxAutoMovie4x32(
+  const block = (index: number): [number, number, number, number] =>
+    philoxAutoMovie4x32(
       [index >>> 0, Math.floor(index / 0x100000000) >>> 0, 0, 0],
       key,
     );
-  };
   return {
     seed: seed.toLowerCase(),
     block,
