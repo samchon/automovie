@@ -86,6 +86,8 @@ export function test_render_flame_passes(): void {
         scene,
         models: [candle],
         resolveNode: (): ReturnType<typeof buildModel> => object,
+        resolveLight: (light: string): THREE.Light | undefined =>
+          mounted.lights.get(light),
       }),
       mounted,
       object,

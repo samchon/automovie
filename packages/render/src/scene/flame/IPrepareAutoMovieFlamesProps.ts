@@ -3,6 +3,7 @@ import type {
   IAutoMovieScene,
   IAutoMovieShot,
 } from "@automovie/interface";
+import type * as THREE from "three";
 
 import type { IAutoMovieModelObject } from "../IAutoMovieModelObject.js";
 
@@ -25,4 +26,13 @@ export interface IPrepareAutoMovieFlamesProps {
    * `object`.
    */
   resolveNode: (node: string) => IAutoMovieModelObject | undefined;
+
+  /**
+   * The built light for a staged light id, such as `buildScene`'s `lights`
+   * index gives it; each `apply` writes a bound flame's light clip onto it, so
+   * the light flickers and switches with its flame. Only bound flames call it,
+   * once each when the flames are prepared; a light it does not find is
+   * refused.
+   */
+  resolveLight: (light: string) => THREE.Light | undefined;
 }

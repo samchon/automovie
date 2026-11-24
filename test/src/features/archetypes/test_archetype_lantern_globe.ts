@@ -89,6 +89,8 @@ export function test_archetype_lantern_globe(): void {
       scene,
       models: [lantern],
       resolveNode: (): ReturnType<typeof buildModel> => object,
+      resolveLight: (light: string): THREE.Light | undefined =>
+        mounted.lights.get(light),
     });
   applyAutoMovieShadowParticipation(mounted.scene);
   const globeMesh: THREE.Object3D = object.parts.get("globe")!;
