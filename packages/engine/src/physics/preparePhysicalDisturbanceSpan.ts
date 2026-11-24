@@ -6,8 +6,6 @@
 // integrateCoMPositionOverPolynomial l.355-370. See NOTICE.
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-import { physicalBipedPlan } from "./physicalBipedPlan";
-import { physicalBipedTouchdown } from "./physicalBipedTouchdown";
 import { physicalIcpController } from "./physicalIcpController";
 import { physicalIcpPlanner } from "./physicalIcpPlanner";
 import { physicalIcpPlannerCmps as Cmps } from "./physicalIcpPlannerCmps";
@@ -34,14 +32,13 @@ import { physicalSupportSpanContacts as Contacts } from "./physicalSupportSpanCo
  *   made again from then (`WalkingSingleSupportState` l.136-163) and the swing
  *   foot's cubic re-aimed from where it is.
  * - The trigger: the footstep in the support foot's one-step capture region
- *   (`physicalPushRecovery.checkAndUpdate`, as `physicalBipedPlan` checks it)
- *   and the single-support plan to it (`physicalIcpPlanner.singleSupport`).
- * - The touchdown, the swing time after the trigger
- *   (`physicalBipedPlan.SWING_TIME`): the transfer to standing
- *   (`physicalIcpPlanner.toStanding`), done once its duration has run and the
- *   capture point is within `maxErrorToStanding` of its hold
- *   (`TransferToStandingState.isDone`), found in closed form from the error's
- *   decay.
+ *   (`physicalPushRecovery.checkAndUpdate`) and the single-support plan to it
+ *   (`physicalIcpPlanner.singleSupport`).
+ * - The touchdown, the swing time after the trigger (`ZULU.swingTime`): the
+ *   transfer to standing (`physicalIcpPlanner.toStanding`), done once its
+ *   duration has run and the capture point is within `maxErrorToStanding` of
+ *   its hold (`TransferToStandingState.isDone`), found in closed form from the
+ *   error's decay.
  * - A fall: no capturable footstep, the one-step capture region empty at the
  *   trigger or after a push in single support, ends the response there; the
  *   body is handed back to the physics, which takes the fall's contacts.
@@ -230,8 +227,8 @@ export function preparePhysicalDisturbanceSpan(
           bone: foot.bone,
           centroid: Polygon.centroid(supportOf([foot])),
         })),
-        dt: physicalBipedPlan.CONTROL_DT,
-        period: physicalBipedPlan.CONTROL_DT,
+        dt: ZULU.controlDt,
+        period: ZULU.controlDt,
       });
     recovery = fall.state;
     if (fall.swing === undefined) {
@@ -244,7 +241,7 @@ export function preparePhysicalDisturbanceSpan(
   };
 
   // The footstep in the support foot's one-step capture region with a swing
-  // time left (`physicalBipedPlan.check`).
+  // time left (`physicalPushRecovery.checkAndUpdate`).
   const place = (
     support: Foot,
     swing: Foot,
@@ -273,8 +270,8 @@ export function preparePhysicalDisturbanceSpan(
       Recovery.checkAndUpdate({
         state: recovery,
         remaining,
-        dt: physicalBipedPlan.CONTROL_DT,
-        period: physicalBipedPlan.CONTROL_DT,
+        dt: ZULU.controlDt,
+        period: ZULU.controlDt,
         region,
         position: Polygon.local(frame, from),
         outline: Polygon.hull(
@@ -290,7 +287,7 @@ export function preparePhysicalDisturbanceSpan(
       adjusted: checked.adjusted,
       preferred: Recovery.preferredSwingTime({
         remaining,
-        dt: physicalBipedPlan.CONTROL_DT,
+        dt: ZULU.controlDt,
         region,
       }),
     };
@@ -393,7 +390,7 @@ export function preparePhysicalDisturbanceSpan(
         support,
         swing,
         swing.frame.origin,
-        physicalBipedPlan.SWING_TIME,
+        ZULU.swingTime,
       );
 
       // No capturable step: the response ends in a fall, which the physics
@@ -411,10 +408,10 @@ export function preparePhysicalDisturbanceSpan(
       const duration: number =
         placedAt.preferred > 0
           ? Math.max(
-              physicalBipedTouchdown.MINIMUM_SWING_TIME,
-              Math.min(physicalBipedPlan.SWING_TIME, placedAt.preferred),
+              ZULU.minimumSwingTime,
+              Math.min(ZULU.swingTime, placedAt.preferred),
             )
-          : physicalBipedPlan.SWING_TIME;
+          : ZULU.swingTime;
       step = {
         support,
         stance,
@@ -622,7 +619,7 @@ export namespace preparePhysicalDisturbanceSpan {
     /**
      * The two planted feet: each its endpoint bone, its side, its sole frame
      * and its contact outline in that frame, x forward and y to the left
-     * (`physicalBipedDesired.foot`).
+     * (`physicalSupportSole.foot`).
      */
     feet: readonly IFoot[];
 
@@ -751,6 +748,25 @@ export namespace preparePhysicalDisturbanceSpan {
 }
 
 type Foot = preparePhysicalDisturbanceSpan.IFoot;
+
+/**
+ * Zulu's walking timing the response is laid with: its default swing time
+ * (`ZuluWalkingControllerParameters` l.709-712), which IHMC 201903 gives a
+ * swing out of a double-support fall (`WalkingSingleSupportState` l.206-216);
+ * its controller's period (`ZuluRobotModel.DEFAULT_CONTROL_DT` l.68), over
+ * which the push recovery's windows count and the program's active constraint
+ * is taken again; and the shortest swing out of a fall
+ * (`WalkingSingleSupportState.hasMinimumTimePassed` l.412-413).
+ */
+const ZULU: Readonly<{
+  swingTime: number;
+  controlDt: number;
+  minimumSwingTime: number;
+}> = {
+  swingTime: 0.6,
+  controlDt: 0.003,
+  minimumSwingTime: 0.15,
+};
 
 /** A capture point and centre of mass at an instant. */
 interface IState {
@@ -1162,9 +1178,8 @@ function follow(
           )
         : crossing(form, held, d, split, input.support, t, until, omega);
     // The program's active constraint is taken again each control period,
-    // as the controller solves it once per update (`physicalBipedPlan
-    // .CONTROL_DT`), the projection held over the period.
-    const period: number = Math.min(until, t + physicalBipedPlan.CONTROL_DT);
+    // as the controller solves it once per update (Zulu's period), the projection held over the period.
+    const period: number = Math.min(until, t + ZULU.controlDt);
     const stop: number = exit > t && exit < period ? exit : period;
     push({
       start: t,
@@ -1361,19 +1376,28 @@ function span(input: {
 
       // The weight's split over the planted limbs' outlines at the pivot,
       // for any number (`physicalSupportSpanContacts.loads`).
-      const loads: Record<string, number> = Object.fromEntries(
-        Contacts.loads(
-          planted.map(
-            (bone: string): Contacts.IContact => ({
-              bone,
-              points: input.outline(bone, feet[bone]!),
+      // Each outline vertex is a contact of its own, so the pivot held on the
+      // outlines' hull has a split; a limb's share is its vertices' sum.
+      const vertices: Contacts.IContact[] = planted.flatMap(
+        (bone: string): Contacts.IContact[] =>
+          input.outline(bone, feet[bone]!).map(
+            (point: Tools.IFloor, k: number): Contacts.IContact => ({
+              bone: `${bone}#${k}`,
+              points: [point],
             }),
           ),
-          cmp,
-        ).map((load: Contacts.ILoad): [string, number] => [
-          load.bone,
-          load.share,
-        ]),
+      );
+      const loads: Record<string, number> = Object.fromEntries(
+        planted.map((bone: string): [string, number] => [bone, 0]),
+      );
+      Contacts.loads(vertices, cmp).forEach(
+        (load: Contacts.ILoad, k: number): void => {
+          const bone: string = vertices[k]!.bone.slice(
+            0,
+            vertices[k]!.bone.lastIndexOf("#"),
+          );
+          loads[bone] = (loads[bone] ?? 0) + load.share;
+        },
       );
       return {
         phase: piece.phase,
