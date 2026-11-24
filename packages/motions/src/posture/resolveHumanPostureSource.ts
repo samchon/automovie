@@ -9,7 +9,6 @@ import type {
 import { HumanDigitFit } from "./HumanDigitFit";
 import type { HumanLimbPair } from "./HumanLimbPair";
 import { assembleHumanPosture } from "./assembleHumanPosture";
-import { deriveHumanPosture } from "./deriveHumanPosture";
 import { prepareHumanPoseResolution } from "./prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "./prepareHumanPostureProjection";
 import { refitHumanPosture } from "./refitHumanPosture";
@@ -129,10 +128,6 @@ export namespace resolveHumanPostureSource {
    *   The same ordered refit and digit fit as `owned`, so fitting the posture's
    *   own goals on its assembly is the owned resolve of that posture. Each call
    *   pays its fits only; the assembly's records are shared, never written.
-   *   With `solved`, a completed cold fit of another assembly, a cold fit of
-   *   this assembly's own goals is taken from it when every limb's fit reads
-   *   exactly what it read there (`deriveHumanPosture.inherited`), and solved
-   *   as ever otherwise.
    */
   export function fit(
     body: IAutoMovieMotionHumanBody,
@@ -140,21 +135,9 @@ export namespace resolveHumanPostureSource {
     limbs?: IAutoMovieMotionHumanPosture["limbs"],
     near: IAutoMovieMotionHumanResolveHumanPosture.INear = {},
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
-    solved?: deriveHumanPosture.ISolved,
     requested?: ReadonlySet<AutoMovieHumanoidBone>,
     assess?: HumanLimbPair.Assessment,
   ): IAutoMovieMotionHumanResolveHumanPosture.ISeeded {
-    if (
-      solved !== undefined &&
-      assess === undefined &&
-      limbs === undefined &&
-      Object.keys(near).length === 0
-    ) {
-      const taken:
-        | IAutoMovieMotionHumanResolveHumanPosture.ISeeded
-        | undefined = deriveHumanPosture.inherited(body, assembled, solved);
-      if (taken !== undefined) return taken;
-    }
     return fitted(
       body,
       limbs === undefined

@@ -66,17 +66,10 @@ export function courseArmGoalBase(
         return undefined;
     }
     if (unread.length === 0) return undefined;
-    const key: string = unread.join();
-    let found: readonly AutoMovieMotionHumanChannel[] | undefined =
-      demands.get(key);
-    if (found === undefined) {
-      found = HumanChannels.ORDER.filter(
-        (channel: AutoMovieMotionHumanChannel): boolean =>
-          !unread.some((limb: courseArmGoal.Limb): boolean => limb === channel),
-      );
-      demands.set(key, found);
-    }
-    return found;
+    return HumanChannels.ORDER.filter(
+      (channel: AutoMovieMotionHumanChannel): boolean =>
+        !unread.some((limb: courseArmGoal.Limb): boolean => limb === channel),
+    );
   };
   const base: IAutoMovieMotionHumanActionPlan = {
     ...plan,
@@ -136,7 +129,6 @@ export function courseArmGoalBase(
               composed().posture(span.end).joints;
             for (const bone of courseArmGoal.bones(arm.side))
               if (ended[bone] !== undefined) angles[bone] = ended[bone];
-            kept.set(limb, angles);
           } else {
             const back: IAutoMoviePose = resolveHumanPosture(
               props.context.body,
@@ -151,7 +143,6 @@ export function courseArmGoalBase(
                   joint.abduction ?? 0,
                   joint.twist ?? 0,
                 ];
-            returned.set(limb, angles);
           }
         }
         joints = { ...joints, ...angles };

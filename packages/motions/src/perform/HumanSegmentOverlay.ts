@@ -251,7 +251,6 @@ export namespace HumanSegmentOverlay {
                   undefined,
                   seedsForLeaf,
                   resolution,
-                  undefined,
                   demand,
                 );
               }

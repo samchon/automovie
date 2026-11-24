@@ -20,7 +20,6 @@ import type {
 import { stand } from "../actions/stand";
 import { standUpright } from "../actions/standUpright";
 import { walk } from "../actions/walk";
-import { walkLeg } from "../actions/walkLeg";
 import { walkRoot } from "../actions/walkRoot";
 import { HumanSupportCarry } from "../carrier/HumanSupportCarry";
 import { swungArms } from "../carrier/swungArms";
@@ -44,7 +43,9 @@ import { climbStairsPelvis } from "./climbStairsPelvis";
 import { climbStairsPrints } from "./climbStairsPrints";
 import { climbStairsProfile } from "./climbStairsProfile";
 import { climbStairsRail } from "./climbStairsRail";
+import { climbStairsPlants } from "./climbStairsPlants";
 import { climbStairsRocker } from "./climbStairsRocker";
+import { climbStairsToes } from "./climbStairsToes";
 import { climbStairsSwing } from "./climbStairsSwing";
 import { climbStairsWeight } from "./climbStairsWeight";
 
@@ -352,6 +353,46 @@ export namespace climbStairs {
       left: HumanFoot.offset(body, "left", "mtp"),
       right: HumanFoot.offset(body, "right", "mtp"),
     };
+    // The pelvis and both feet at a second, the root as high as both legs
+    // reach (`lowerHumanPosture`, closed form) and the hips under it.
+    const frameAt: climbStairsToes.IScope["frameAt"] = (
+      posture: IAutoMovieMotionHumanPosture,
+      seconds: number,
+      read: ReturnType<typeof prepareHumanPoseResolution>,
+    ): climbStairsToes.IFrame => {
+      const placed: IAutoMovieMotionHumanPosture =
+        AutoMovieMotionHumanLean.pivot(
+          body,
+          {
+            ...posture,
+            root: rootAt(seconds),
+            yaw,
+            joints: { ...posture.joints, ...inclined.joints },
+          },
+          { pitch: inclined.pitch, roll: 0 },
+        );
+      // The root stays where the swinging leg reaches its foot too, so the
+      // foot keeps its clearing path.
+      const feet: Record<AutoMovieHumanSide, ReturnType<typeof footAt>> = {
+        left: footAt("left", seconds),
+        right: footAt("right", seconds),
+      };
+      const root: IAutoMovieVector3 = reached(
+        placed,
+        { left: feet.left.placement, right: feet.right.placement },
+        read,
+      );
+      const hips: ReturnType<typeof hipJoints> = hipJoints(
+        body,
+        root,
+        humanPostureHeading(placed),
+        placed.joints.hips,
+        read(),
+      );
+      return { placed, feet, root, hips };
+    };
+    const flexions: Record<AutoMovieHumanSide, (seconds: number) => number[]> =
+      climbStairsToes({ duration, clock, steps, frameAt, rightLoad, rock, standing });
     const climb: IAutoMovieMotionHumanPrimitive = {
       channels: ["root", "trunk", "leftLeg", "rightLeg"],
       reads: ["root", "trunk", "leftLeg", "rightLeg"],
@@ -363,57 +404,22 @@ export namespace climbStairs {
         _before?: IAutoMovieMotionHumanPrimitive.Reader,
         resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
       ): IAutoMovieMotionHumanPosture => {
-        const placed: IAutoMovieMotionHumanPosture =
-          AutoMovieMotionHumanLean.pivot(
-            body,
-            {
-              ...posture,
-              root: rootAt(seconds),
-              yaw,
-              joints: { ...posture.joints, ...inclined.joints },
-            },
-            { pitch: inclined.pitch, roll: 0 },
-          );
-        // The root stays where the swinging leg reaches its foot too, so
-        // the foot keeps its clearing path.
-        const feet: Record<AutoMovieHumanSide, ReturnType<typeof footAt>> = {
-          left: footAt("left", seconds),
-          right: footAt("right", seconds),
-        };
-        const read: ReturnType<typeof prepareHumanPoseResolution> =
-          prepareHumanPoseResolution(resolution);
-        const root: IAutoMovieVector3 = reached(
-          placed,
-          {
-            left: feet.left.placement,
-            right: feet.right.placement,
-          },
-          read,
+        const { placed, feet, root }: climbStairsToes.IFrame = frameAt(
+          posture,
+          seconds,
+          prepareHumanPoseResolution(resolution),
         );
-        // As the other foot takes the weight, the heel can rise around its
-        // fixed forefoot before toe-off. The same rocker follows the swing
-        // and settles continuously as the newly landed foot accepts weight.
         const limbs: IAutoMovieMotionHumanPosture["limbs"] = {
           ...posture.limbs,
         };
         const joints: IAutoMovieMotionHumanPosture["joints"] = {
           ...placed.joints,
         };
-        const hips: ReturnType<typeof hipJoints> = hipJoints(
-          body,
-          root,
-          humanPostureHeading(placed),
-          placed.joints.hips,
-          read(),
-        );
-        const load: number = rightLoad(seconds);
         for (const side of ["left", "right"] as const) {
-          const { placement, flexion }: ReturnType<typeof rock> = rock(
-            side,
-            feet[side].placement,
-            hips[side],
-            walkLeg.dorsal(side === "right" ? load : 1 - load),
-          );
+          // The heel risen about the ball by the toes' prepared extension.
+          const flexion: number = Math.max(0, flexions[side](seconds)[0]!);
+          const placement: IAutoMovieMotionHumanFoot.IPlacement =
+            climbStairsToes.place(body, side, feet[side].placement, flexion);
           if (flexion !== 0) joints[`${side}Toes`] = [flexion, 0, 0];
           limbs[`${side}Leg`] = {
             ...goals[side]({ root, yaw }, placement, feet[side].planted),
@@ -425,34 +431,17 @@ export namespace climbStairs {
     };
 
     // Plant windows between each foot's swings, on the floor or on the flight.
-    const contacts: IAutoMovieMotionHumanContactWindow[] = [];
-    for (const side of ["left", "right"] as const) {
-      const list: (typeof prints)["left"] = prints[side];
-      for (let i: number = 0; i < list.length; i++) {
-        const level: number = list[i]!.print.level;
-        const from: number =
-          i === 0 ? 0 : clock.at(`treadContact${list[i]!.step}`) / duration;
-        const to: number =
-          i + 1 < list.length
-            ? clock.at(`toeOff${list[i + 1]!.step}`) / duration
-            : 1;
-        contacts.push({
-          part: side === "left" ? "leftFoot" : "rightFoot",
-          kind: "plant",
-          from,
-          to,
-          support:
-            level === 0
-              ? { kind: "ground" }
-              : p.on === undefined
-                ? {
-                    kind: "ground",
-                    height: stairs.frame.origin.y + sign * level * stairs.riser,
-                  }
-                : { kind: "prop", subject: p.on },
-        });
-      }
-    }
+    const contacts: IAutoMovieMotionHumanContactWindow[] = climbStairsPlants(
+      prints,
+      clock,
+      duration,
+      {
+        floor: stairs.frame.origin.y,
+        riser: stairs.riser,
+        sign,
+        ...(p.on === undefined ? {} : { on: p.on }),
+      },
+    );
 
     const plan: IAutoMovieMotionHumanActionPlan =
       composeAutoMovieMotionHumanAction({

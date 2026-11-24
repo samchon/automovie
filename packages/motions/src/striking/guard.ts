@@ -21,6 +21,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { AutoMovieMotionPrepared } from "../compose/AutoMovieMotionPrepared";
 import { lowerHumanPosture } from "../posture/lowerHumanPosture";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { StrikingFootPoint } from "./StrikingFootPoint";
@@ -105,8 +106,9 @@ export namespace guard {
     // The stance the plan solved when it was prepared, on a faced person as
     // the placed performance shows them; before that, each read builds it
     // cold on the performance as placed so far.
-    let built: IGeometry | undefined;
-    const geometry = (): IGeometry => built ?? build(context, duration);
+    const shape: AutoMovieMotionPrepared.IValue<IGeometry> =
+      AutoMovieMotionPrepared((): IGeometry => build(context, duration));
+    const geometry = (): IGeometry => shape.read();
     const events: IAutoMovieMotionEvent[] = [
       { name: "set", share: SET / duration },
     ];
@@ -128,9 +130,7 @@ export namespace guard {
           resolution,
           projection,
         ),
-      prepare: (): void => {
-        built = build(context, duration);
-      },
+      prepare: (): void => void shape.prepare(),
     };
   }
 

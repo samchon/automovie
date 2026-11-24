@@ -12,6 +12,7 @@ import { AutoMovieBernsteinSubdivision64 as S } from "./AutoMovieBernsteinSubdiv
 import { AutoMovieCanonicalBoundary64 as Q } from "./AutoMovieCanonicalBoundary64";
 import { AutoMovieCurveMath64 as V } from "./AutoMovieCurveMath64";
 import { prepareAutoMovieBicubicAtlasBoundary64 } from "./prepareAutoMovieBicubicAtlasBoundary64";
+import { overflowsBinary64 } from "../../math/overflowsBinary64";
 
 type Patch = IAutoMovieBicubicAtlas64.Patch;
 
@@ -132,6 +133,9 @@ export function AutoMovieBicubicAtlasPlan64(
               ),
             ),
         );
+    // Second differences of finite controls can overflow binary64.
+    if ([uu, uv, vv].some(overflowsBinary64))
+      throw new Error("nonfinite tensor derivative estimate");
     return [uu / 8, uv / 4, vv / 8];
   };
   let allocated: number = Math.min(input.maxCells, input.patches.length);

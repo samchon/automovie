@@ -85,8 +85,6 @@ export function staggerResolved(
           deriveHumanPosture(body, knot.assembled, posture),
           undefined,
           {},
-          undefined,
-          knot,
         ).pose;
       return HumanBalance.centre(body, posture, undefined, undefined, pose);
     },

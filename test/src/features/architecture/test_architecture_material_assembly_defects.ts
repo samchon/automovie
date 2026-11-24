@@ -109,6 +109,15 @@ export function test_architecture_material_assembly_defects(): void {
           ),
       ],
       [
+        "offset",
+        (): boolean =>
+          hasViolation(
+            judge(twoLayer({ offset: Number.NaN })),
+            "range",
+            "$input.offset",
+          ),
+      ],
+      [
         "faceFirst",
         (): boolean =>
           hasViolation(
@@ -154,6 +163,7 @@ export function test_architecture_material_assembly_defects(): void {
     {
       axis: true,
       sense: true,
+      offset: true,
       faceFirst: true,
       faceLast: true,
       empty: true,
@@ -213,6 +223,106 @@ export function test_architecture_material_assembly_defects(): void {
       [layer("core", thickness, core), layer("skin", 0.01, { finish: true })],
       { faces: { first: "concealed", last: "exposed" } },
     );
+  TestValidator.equals(
+    "layer substance conflicts are refused, and a zero-thickness membrane is not",
+    namedFacts([
+      [
+        "unknownSubstance",
+        (): boolean =>
+          hasViolation(
+            judge(
+              withCore({
+                substance:
+                  "foam" as IAutoMovieMaterialAssembly["layers"][number]["substance"],
+              }),
+            ),
+            "type",
+            "$input.layers[0].substance",
+          ),
+      ],
+      [
+        "negativeThickness",
+        (): boolean =>
+          hasViolation(
+            judge(withCore({}, -0.1)),
+            "range",
+            "$input.layers[0].thickness",
+          ),
+      ],
+      [
+        "nonFiniteThickness",
+        (): boolean =>
+          hasViolation(
+            judge(withCore({}, Number.POSITIVE_INFINITY)),
+            "range",
+            "$input.layers[0].thickness",
+          ),
+      ],
+      [
+        "zeroSolid",
+        (): boolean =>
+          hasViolation(
+            judge(withCore({}, 0)),
+            "range",
+            "$input.layers[0].thickness",
+          ),
+      ],
+      [
+        "zeroCavity",
+        (): boolean =>
+          hasViolation(
+            judge(withCore({ substance: "cavity", material: null }, 0)),
+            "range",
+            "$input.layers[0].thickness",
+          ),
+      ],
+      [
+        "cavityWithSubstance",
+        (): boolean =>
+          hasViolation(
+            judge(withCore({ substance: "cavity" })),
+            "type",
+            "$input.layers[0].material",
+          ),
+      ],
+      [
+        "cavityAsFinish",
+        (): boolean =>
+          hasViolation(
+            judge(
+              withCore({ substance: "cavity", material: null, finish: true }),
+            ),
+            "type",
+            "$input.layers[0].finish",
+          ),
+      ],
+      [
+        "solidWithoutSubstance",
+        (): boolean =>
+          hasViolation(
+            judge(withCore({ material: null })),
+            "type",
+            "$input.layers[0].material",
+          ),
+      ],
+      [
+        "membraneMayMeasureNothing",
+        (): boolean =>
+          judge(withCore({ substance: "membrane" }, 0)).success === true,
+      ],
+    ]),
+    {
+      unknownSubstance: true,
+      negativeThickness: true,
+      nonFiniteThickness: true,
+      zeroSolid: true,
+      zeroCavity: true,
+      cavityWithSubstance: true,
+      cavityAsFinish: true,
+      solidWithoutSubstance: true,
+      membraneMayMeasureNothing: true,
+    },
+  );
 
   TestValidator.equals(
     "an unresolved substance fires only when a table is supplied",
@@ -298,5 +408,48 @@ export function test_architecture_material_assembly_defects(): void {
       nothingWraps: true,
       everythingWraps: true,
     },
+  );
+
+  TestValidator.equals(
+    "a host thickness must itself be a positive finite number",
+    namedFacts([
+      [
+        "zero",
+        (): boolean => {
+          const judged: IAutoMovieValidation = judge(twoLayer(), {
+            thickness: 0,
+          });
+          return (
+            hasViolation(judged, "range", "$input.layers") &&
+            judged.success === false &&
+            judged.violations.length === 1 &&
+            judged.violations[0]!.expected.includes(
+              "host thickness must be a finite number > 0",
+            )
+          );
+        },
+      ],
+      [
+        "nonFinite",
+        (): boolean => {
+          const judged: IAutoMovieValidation = judge(twoLayer(), {
+            thickness: Number.NaN,
+          });
+          return (
+            hasViolation(judged, "range", "$input.layers") &&
+            judged.success === false &&
+            judged.violations.length === 1 &&
+            judged.violations[0]!.expected.includes(
+              "host thickness must be a finite number > 0",
+            )
+          );
+        },
+      ],
+      [
+        "matching",
+        (): boolean => judge(twoLayer(), { thickness: 0.11 }).success === true,
+      ],
+    ]),
+    { zero: true, nonFinite: true, matching: true },
   );
 }

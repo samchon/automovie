@@ -15,6 +15,7 @@ import { AutoMovieBicubicAtlasVertex64 } from "./AutoMovieBicubicAtlasVertex64";
 import { AutoMovieCanonicalBoundary64 as Q } from "./AutoMovieCanonicalBoundary64";
 import { AutoMovieCurveMath64 as V } from "./AutoMovieCurveMath64";
 import { triangulateAutoMovieParameterCell64 } from "./triangulateAutoMovieParameterCell64";
+import { overflowsBinary64 } from "../../math/overflowsBinary64";
 
 type Patch = IAutoMovieBicubicAtlas64.Patch;
 
@@ -81,7 +82,8 @@ export function* AutoMovieBicubicAtlasEmit64(
       ),
       n: AutoMovieVector3Tuple = cross(du, dv),
       length: number = norm(n);
-    const regular: boolean = length > 0;
+    // A cross product of finite tangents can overflow binary64.
+    const regular: boolean = length > 0 && !overflowsBinary64(length);
     return {
       position: B.value(poly, u),
       normal: regular ? V.scale(n, 1 / length) : [0, 0, 0],
@@ -390,6 +392,9 @@ export function* AutoMovieBicubicAtlasEmit64(
           const area: number = norm(
             cross(V.sub(b.position, a.position), V.sub(c.position, a.position)),
           );
+          // A norm is nonnegative unless its cross product overflowed.
+          if (!(area >= 0) || overflowsBinary64(area))
+            throw new Error("nonfinite triangle arithmetic");
           if (area === 0) {
             chunk.counts.omittedZeroAreaTriangles++;
             range.omittedZeroAreaTriangles++;

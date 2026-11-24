@@ -76,7 +76,8 @@ export function sprintStartSet(
     "leftUpperLeg",
     "rightUpperLeg",
   ]);
-  let projector: ReturnType<typeof prepareHumanPostureProjection> | undefined;
+  const projector: ReturnType<typeof prepareHumanPostureProjection> =
+    prepareHumanPostureProjection(body);
   const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
   const frame: IAutoMovieMotionHumanFrame = sprintStartSetHands.frame(
     body,
@@ -249,8 +250,6 @@ export function sprintStartSet(
         shoulders,
         mid("leftUpperArm", "rightUpperArm"),
       );
-      if (projector === undefined)
-        projector = prepareHumanPostureProjection(body);
       return {
         pitch: tilt.pitch,
         joints: tilt.joints,

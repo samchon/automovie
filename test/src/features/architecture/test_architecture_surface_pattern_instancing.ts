@@ -407,4 +407,117 @@ export function test_architecture_surface_pattern_instancing(): void {
       noTable: true,
     },
   );
+
+  TestValidator.equals(
+    "a frame that is not orthonormal and a table that cannot cover a variant are refused",
+    namedFacts([
+      [
+        "thickness",
+        (): boolean =>
+          throwsError(
+            (): IAutoMoviePatternInstancing =>
+              autoMoviePatternInstanceTransforms({
+                result: laid,
+                frame: WALL,
+                thickness: 0,
+              }),
+            "pattern module thickness must be a finite number > 0",
+          ),
+      ],
+      [
+        "nonFiniteU",
+        (): boolean =>
+          throwsError(
+            (): IAutoMoviePatternInstancing =>
+              autoMoviePatternInstanceTransforms({
+                result: laid,
+                frame: { ...WALL, u: { x: Number.NaN, y: 0, z: 0 } },
+                thickness: 0.01,
+              }),
+            "pattern face frame u must be finite",
+          ),
+      ],
+      [
+        "shortU",
+        (): boolean =>
+          throwsError(
+            (): IAutoMoviePatternInstancing =>
+              autoMoviePatternInstanceTransforms({
+                result: laid,
+                frame: { ...WALL, u: { x: 2, y: 0, z: 0 } },
+                thickness: 0.01,
+              }),
+            "pattern face frame u must be a unit vector",
+          ),
+      ],
+      [
+        "shortV",
+        (): boolean =>
+          throwsError(
+            (): IAutoMoviePatternInstancing =>
+              autoMoviePatternInstanceTransforms({
+                result: laid,
+                frame: { ...WALL, v: { x: 0, y: 0.5, z: 0 } },
+                thickness: 0.01,
+              }),
+            "pattern face frame v must be a unit vector",
+          ),
+      ],
+      [
+        "nonFiniteOrigin",
+        (): boolean =>
+          throwsError(
+            (): IAutoMoviePatternInstancing =>
+              autoMoviePatternInstanceTransforms({
+                result: laid,
+                frame: {
+                  ...WALL,
+                  origin: { x: 0, y: Number.POSITIVE_INFINITY, z: 0 },
+                },
+                thickness: 0.01,
+              }),
+            "pattern face frame origin must be finite",
+          ),
+      ],
+      [
+        "notPerpendicular",
+        (): boolean =>
+          throwsError(
+            (): IAutoMoviePatternInstancing =>
+              autoMoviePatternInstanceTransforms({
+                result: laid,
+                frame: {
+                  ...WALL,
+                  v: { x: Math.SQRT1_2, y: Math.SQRT1_2, z: 0 },
+                },
+                thickness: 0.01,
+              }),
+            "pattern face frame axes must be perpendicular",
+          ),
+      ],
+      [
+        "emptyTable",
+        (): boolean =>
+          throwsError(
+            (): IAutoMoviePatternInstancing =>
+              autoMoviePatternInstanceTransforms({
+                result: laid,
+                frame: WALL,
+                thickness: 0.01,
+                prototypes: [],
+              }),
+            ["which the 0 declared prototypes do not cover"],
+          ),
+      ],
+    ]),
+    {
+      thickness: true,
+      nonFiniteU: true,
+      shortU: true,
+      shortV: true,
+      nonFiniteOrigin: true,
+      notPerpendicular: true,
+      emptyTable: true,
+    },
+  );
 }

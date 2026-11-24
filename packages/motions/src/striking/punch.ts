@@ -22,11 +22,13 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanVariation } from "../compose/AutoMovieMotionHumanVariation";
+import { AutoMovieMotionPrepared } from "../compose/AutoMovieMotionPrepared";
 import { poseBones } from "../posture/poseBones";
 import { HumanSkill } from "../skill/HumanSkill";
 import { StrikingBody } from "./StrikingBody";
 import { StrikingQuality } from "./StrikingQuality";
 import { StrikingRide } from "./StrikingRide";
+import { StrikingStopRide } from "./StrikingStopRide";
 import { StrikingSkill } from "./StrikingSkill";
 import { StrikingStance } from "./StrikingStance";
 import { StrikingTarget } from "./StrikingTarget";
@@ -212,8 +214,6 @@ export namespace punch {
       { name: "recovered", share: 1 },
     ];
 
-    // Geometry reads the target, which may only be read from postures: it is
-    // built on first use and dropped when the performance settles.
     // A contact resolved jointly by the performance (null: it met nothing).
     // A punch that offers its arm as a weapon is shown on its free path until
     // the performance commits its stop, as the joint resolution assumes of
@@ -285,28 +285,23 @@ export namespace punch {
     // The contact the performance committed, and the stopped arm's ride on
     // the body it met ({@link StrikingRide}), solved when the plan is
     // prepared; none before.
-    let met: IAutoMovieMotionWeaponContact | null = null;
-    let ride: StrikingRide.IRide | undefined;
-    const carried = (
-      posture: IAutoMovieMotionHumanPosture,
-      seconds: number,
-    ): IAutoMovieMotionHumanPosture =>
-      ride === undefined
-        ? posture
-        : ride.carry(posture, limb, context.start + seconds);
-    const rode = (
-      event: IAutoMovieMotionWeaponContact,
-      shape: punchGeometry.IGeometry,
-    ): StrikingRide.IRide =>
-      StrikingRide.create({
+    const stops: StrikingStopRide.IStop = StrikingStopRide(
+      (event: IAutoMovieMotionWeaponContact): StrikingRide.IRide =>
+        StrikingRide.create({
         other: (): IAutoMovieMotionHumanPerformerReader =>
           context.performer(event.against),
         stop: event.seconds,
         goal: (at: number): IAutoMovieVector3 =>
-          shape.posture(at - context.start).limbs[limb]!.point,
+          geometry().posture(at - context.start).limbs[limb]!.point,
         axis: (at: number): readonly [IAutoMovieVector3, IAutoMovieVector3] =>
           StrikingWeapon.axis(chain, event.weapon, at),
-      });
+      }),
+    );
+    const carried = (
+      posture: IAutoMovieMotionHumanPosture,
+      seconds: number,
+    ): IAutoMovieMotionHumanPosture =>
+      stops.carry(posture, limb, context.start + seconds);
     // The point aimed at within a person's region, varied per repeat: one
     // offset on the region's tangent plane, read by the aim, by the defence
     // that answers this punch and so by the record. The region's radius comes
@@ -347,21 +342,15 @@ export namespace punch {
     // The geometry the plan solved when it was prepared, on the target and
     // the committed stop as the placed performance shows them; before that,
     // each read builds it cold on the performance as placed so far.
-    let built: punchGeometry.IGeometry | undefined;
-    let building: boolean = false;
-
     // What the punch reads of its own entry alone, made once for the plan.
     const launched: punchLaunch.ILaunch = punchLaunch(context, timing);
-    const build = (): punchGeometry.IGeometry => {
-      if (building) throw strikingReadBack("punch", context.subject);
-      building = true;
-      try {
-        return punchGeometry.build(context, timing, fixed, aimed(), launched);
-      } finally {
-        building = false;
-      }
-    };
-    const geometry = (): punchGeometry.IGeometry => built ?? build();
+    const shape: AutoMovieMotionPrepared.IValue<punchGeometry.IGeometry> =
+      AutoMovieMotionPrepared(
+        (): punchGeometry.IGeometry =>
+          punchGeometry.build(context, timing, fixed, aimed(), launched),
+        (): Error => strikingReadBack("punch", context.subject),
+      );
+    const geometry = (): punchGeometry.IGeometry => shape.read();
     const out: IAutoMovieMotionHumanStrikingRecord.IPlan = {
       duration,
       events,
@@ -383,24 +372,19 @@ export namespace punch {
         return carried(geometry().posture(t, source, projection), t);
       },
       prepare: (): void => {
-        built = undefined;
-        ride = undefined;
-        const shape: punchGeometry.IGeometry = build();
-        built = shape;
-        if (met !== null) ride = rode(met, shape);
+        shape.prepare();
+        stops.prepare();
       },
       ...(strikes
         ? {
             weapons: StrikingWeapon.capsules(chain),
             stop: (found: readonly IAutoMovieMotionWeaponContact[]): void => {
-              met = StrikingWeapon.first(found);
-              fixed = met === null ? null : met.seconds;
+              fixed = stops.stop(found);
 
               // The geometry is solved on the stop it was given: a stop
               // committed now makes it another, which the next preparation
               // solves.
-              ride = undefined;
-              built = undefined;
+              shape.clear();
             },
           }
         : {}),

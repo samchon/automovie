@@ -66,7 +66,6 @@ export function jumpAirborneTurning(
     rotation?.way === "left" || rotation?.way === "right";
   let rotated: ((seconds: number) => IAutoMovieHumanPostureRotation) | null =
     null;
-  let known: boolean = false;
   let offset: ITouchdown = STILL;
   const declared: Pick<IAutoMovieMotionHumanActionPlan, FlightMember> =
     somersault === 0 && twist === 0
@@ -98,8 +97,12 @@ export function jumpAirborneTurning(
             if (touchdownRequirement?.turnedLanding === true)
               touchdownRequirement.check(handed(to));
             rotated = handed;
-            known = false;
-            offset = STILL;
+            // The touchdown attitude the landing settles, read once as the
+            // flight's rotation is handed over.
+            offset =
+              touchdownRequirement?.turnedLanding !== true && settled > to
+                ? touchdownOf(handed(to))
+                : STILL;
           },
         };
   // Every reader reconstructs seconds from the public shares. Use those
@@ -108,34 +111,29 @@ export function jumpAirborneTurning(
     declared.flight === undefined ? takeoff : declared.flight.from * duration;
   const to: number =
     declared.flight === undefined ? touchdown : declared.flight.to * duration;
-  // Read the actual touchdown attitude once. The planted ground phase
-  // absorbs the landing and settles this pose offset after contact.
-  const touched = (): ITouchdown => {
-    if (known || rotated === null) return offset;
-    known = true;
-    const at: IAutoMovieHumanPostureRotation = rotated(to);
+  // The actual touchdown attitude: the planted ground phase absorbs the
+  // landing and settles this pose offset after contact.
+  const touchdownOf = (at: IAutoMovieHumanPostureRotation): ITouchdown => {
     const turn: IAutoMovieQuaternion =
       at.turn.w < 0
         ? { x: -at.turn.x, y: -at.turn.y, z: -at.turn.z, w: -at.turn.w }
         : at.turn;
     const sine: number = Math.hypot(turn.x, turn.y, turn.z);
-    if (!(sine > 0)) return offset;
+    if (!(sine > 0)) return STILL;
     const axis: IAutoMovieVector3 = {
       x: turn.x / sine,
       y: turn.y / sine,
       z: turn.z / sine,
     };
     const angle: number = (2 * Math.atan2(sine, turn.w) * 180) / Math.PI;
-    return (offset = { about: at.about, axis, angle });
+    return { about: at.about, axis, angle };
   };
   return {
     from,
     to,
     declared,
-    prepareLanding: (): void => {
-      if (touchdownRequirement?.turnedLanding !== true && settled > to)
-        touched();
-    },
+    // The touchdown offset is solved as the rotation is handed over.
+    prepareLanding: (): void => {},
     turned: (
       placed: HumanPosturePreparation.IPlaced,
       t: number,
@@ -158,7 +156,7 @@ export function jumpAirborneTurning(
         !(settled > to)
       )
         return posture;
-      const touch: ITouchdown = touched();
+      const touch: ITouchdown = offset;
       const decayed: number = inertializeOffset(
         touch.angle,
         0,

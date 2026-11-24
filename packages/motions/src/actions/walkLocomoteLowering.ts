@@ -8,6 +8,7 @@ import type {
 
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { prepareHumanSampledCourse } from "../posture/prepareHumanSampledCourse";
+import { prepareHumanSplitCourse } from "../posture/prepareHumanSplitCourse";
 import { WALK_TICK } from "./WALK_TICK";
 import { walkDescent } from "./walkDescent";
 import { walkLeg } from "./walkLeg";
@@ -114,59 +115,25 @@ export namespace walkLocomoteLowering {
     exact: (t: number) => Readonly<Record<AutoMovieHumanSide, number>>,
   ): (seconds: number) => Record<AutoMovieHumanSide, number> {
     const knots: number[] = times(duration, swings);
-    const intervals: Record<AutoMovieHumanSide, IStance[]> = {
-      left: [],
-      right: [],
-    };
-    for (const side of walkReach.SIDES) {
-      const marks: number[] = [
-        0,
-        ...swings
-          .filter((s: walkLocomoteSwings.ISwing): boolean => s.side === side)
-          .flatMap((s: walkLocomoteSwings.ISwing): number[] => [s.off, s.on])
-          .filter((t: number): boolean => t > GAP && t < duration - GAP),
+    const course: (
+      side: AutoMovieHumanSide,
+    ) => (seconds: number) => number[] = (
+      side: AutoMovieHumanSide,
+    ): ((seconds: number) => number[]) =>
+      prepareHumanSplitCourse(
         duration,
-      ].sort((a: number, b: number): number => a - b);
-      for (let i: number = 0; i + 1 < marks.length; i++) {
-        const from: number = marks[i]!;
-        const to: number = marks[i + 1]!;
-        if (!(to > from)) continue;
-        const at: number[] = [
-          from,
-          ...knots.filter((t: number): boolean => t > from + GAP && t < to - GAP),
-          to,
-        ];
-        intervals[side].push({
-          from,
-          to,
-          course: prepareHumanSampledCourse(at, (t: number): number[] => [
-            exact(t)[side],
-          ]),
-        });
-      }
-    }
-    const pitch = (side: AutoMovieHumanSide, t: number): number => {
-      const list: IStance[] = intervals[side];
-      const found: IStance =
-        list.find((s: IStance): boolean => t <= s.to) ?? list[list.length - 1]!;
-      return found.course(t)[0]!;
-    };
+        swings
+          .filter((s: walkLocomoteSwings.ISwing): boolean => s.side === side)
+          .flatMap((s: walkLocomoteSwings.ISwing): number[] => [s.off, s.on]),
+        knots,
+        (t: number): number[] => [exact(t)[side]],
+      );
+    const left: (seconds: number) => number[] = course("left");
+    const right: (seconds: number) => number[] = course("right");
     return (seconds: number): Record<AutoMovieHumanSide, number> => ({
-      left: pitch("left", seconds),
-      right: pitch("right", seconds),
+      left: left(seconds)[0]!,
+      right: right(seconds)[0]!,
     });
-  }
-
-  /** One foot's stance or swing interval and its pitch's course over it. */
-  interface IStance {
-    /** The interval's first second. */
-    from: number;
-
-    /** Its last second. */
-    to: number;
-
-    /** The foot's pitch over it, degrees. */
-    course: (seconds: number) => number[];
   }
 
   /**

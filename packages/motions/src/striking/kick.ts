@@ -15,6 +15,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { AutoMovieMotionPrepared } from "../compose/AutoMovieMotionPrepared";
 import { HumanSkill } from "../skill/HumanSkill";
 import { KickClear } from "./KickClear";
 import { KickGeometry } from "./KickGeometry";
@@ -22,6 +23,7 @@ import { KickLaunch } from "./KickLaunch";
 import { KickRedirect } from "./KickRedirect";
 import { StrikingQuality } from "./StrikingQuality";
 import { StrikingRide } from "./StrikingRide";
+import { StrikingStopRide } from "./StrikingStopRide";
 import { StrikingSkill } from "./StrikingSkill";
 import { StrikingStance } from "./StrikingStance";
 import { StrikingTarget } from "./StrikingTarget";
@@ -212,38 +214,31 @@ export namespace kick {
     // The contact the performance committed, and the stopped leg's ride on
     // the body it met ({@link StrikingRide}), solved when the plan is
     // prepared; none before.
-    let met: IAutoMovieMotionWeaponContact | null = null;
-    let ride: StrikingRide.IRide | undefined;
-    const carried = (
-      posture: IAutoMovieMotionHumanPosture,
-      seconds: number,
-    ): IAutoMovieMotionHumanPosture =>
-      ride === undefined ? posture : ride.carry(posture, limb, t0 + seconds);
-    const rode = (
-      event: IAutoMovieMotionWeaponContact,
-      shape: IAutoMovieMotionHumanKickGeometry,
-    ): StrikingRide.IRide =>
-      StrikingRide.create({
+    const stops: StrikingStopRide.IStop = StrikingStopRide(
+      (event: IAutoMovieMotionWeaponContact): StrikingRide.IRide =>
+        StrikingRide.create({
         other: (): IAutoMovieMotionHumanPerformerReader =>
           context.performer(event.against),
         stop: event.seconds,
         goal: (at: number): IAutoMovieVector3 =>
-          shape.posture(at - t0).limbs[limb]!.point,
+          geometry().posture(at - t0).limbs[limb]!.point,
         axis: (at: number): readonly [IAutoMovieVector3, IAutoMovieVector3] =>
           StrikingWeapon.axis(chain, event.weapon, at),
-      });
+      }),
+    );
+    const carried = (
+      posture: IAutoMovieMotionHumanPosture,
+      seconds: number,
+    ): IAutoMovieMotionHumanPosture => stops.carry(posture, limb, t0 + seconds);
 
     // The geometry the plan solved when it was prepared, on what the kick
     // fixed at its launch (`KickLaunch`, its way cleared of the person
     // kicked at, `KickClear`), the partner as shown and the committed stop;
     // before that, each read builds it cold on the performance as placed so
     // far.
-    let built: IAutoMovieMotionHumanKickGeometry | undefined;
-    let building: boolean = false;
-    const build = (): IAutoMovieMotionHumanKickGeometry => {
-      if (building) throw strikingReadBack("kick", context.subject);
-      building = true;
-      try {
+    const shape: AutoMovieMotionPrepared.IValue<IAutoMovieMotionHumanKickGeometry> =
+      AutoMovieMotionPrepared(
+        (): IAutoMovieMotionHumanKickGeometry => {
         const launched: KickLaunch.ILaunch = KickClear(
           context,
           timing,
@@ -255,11 +250,10 @@ export namespace kick {
         return source === undefined
           ? KickGeometry.build(context, timing, t0, fixed, launched)
           : KickRedirect.build(context, source, fixed, launched);
-      } finally {
-        building = false;
-      }
-    };
-    const geometry = (): IAutoMovieMotionHumanKickGeometry => built ?? build();
+        },
+        (): Error => strikingReadBack("kick", context.subject),
+      );
+    const geometry = (): IAutoMovieMotionHumanKickGeometry => shape.read();
     return {
       duration,
       events,
@@ -303,24 +297,19 @@ export namespace kick {
         return carried(geometry().posture(t, undefined, source, projection), t);
       },
       prepare: (): void => {
-        built = undefined;
-        ride = undefined;
-        const shape: IAutoMovieMotionHumanKickGeometry = build();
-        built = shape;
-        if (met !== null) ride = rode(met, shape);
+        shape.prepare();
+        stops.prepare();
       },
       ...(strikes
         ? {
             weapons: StrikingWeapon.capsules(chain),
             stop: (found: readonly IAutoMovieMotionWeaponContact[]): void => {
-              met = StrikingWeapon.first(found);
-              fixed = met === null ? null : met.seconds;
+              fixed = stops.stop(found);
 
               // The geometry is solved on the stop it was given: a stop
               // committed now makes it another, which the next preparation
               // solves.
-              ride = undefined;
-              built = undefined;
+              shape.clear();
             },
           }
         : {}),

@@ -236,6 +236,23 @@ export function courseArmGoal(
   const coursed: IAutoMovieMotionHumanActionPlan = {
     ...plan,
     posture: composed.posture,
+    // The composition's preparation runs the law's own and solves the arms'
+    // courses on it, and then each arm's ending angles the base keeps after
+    // its course.
+    prepare: (): void => {
+      composed.prepare?.();
+      kept.clear();
+      for (const arm of arms) {
+        const span: IAutoMovieMotionHumanArmPlanned.ISpan =
+          arm.span ?? props.span;
+        const ended: IAutoMovieMotionHumanPosture["joints"] =
+          composed.posture(span.end).joints;
+        const angles: IAutoMovieMotionHumanPosture["joints"] = {};
+        for (const bone of courseArmGoal.bones(arm.side))
+          if (ended[bone] !== undefined) angles[bone] = ended[bone];
+        kept.set(${arm.side}Arm, angles);
+      }
+    },
     ...(composed.follows === undefined ? {} : { follows: composed.follows }),
     goals: plan,
   };

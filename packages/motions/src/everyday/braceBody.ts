@@ -14,6 +14,7 @@ import { prepareHumanPostureCorrection } from "../compose/prepareHumanPostureCor
 import type { HumanPhysics } from "../law/HumanPhysics";
 import { lowerHumanPosture } from "../posture/lowerHumanPosture";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
+import { prepareHumanSampledCourse } from "../posture/prepareHumanSampledCourse";
 import { HumanTrunk } from "./HumanTrunk";
 import type { prepareGroundedBalance } from "./prepareGroundedBalance";
 
@@ -104,6 +105,34 @@ export function braceBody(scope: braceBody.IScope): braceBody.BodyAt {
             t: number,
           ): IAutoMovieMotionHumanPosture => adjust(posture, t),
         );
+  // The rear foot unloads over the preparatory shift and accepts weight
+  // over the same transfer time on landing.
+  const transfer: number = swing[0];
+  const load: (t: number) => number = (t: number): number =>
+    t < swing[0]
+      ? 1 - minimumJerk.share(t / transfer)
+      : minimumJerk.share(Math.max(0, t - swing[1]) / transfer);
+  // Its heel's rise, the one search of a read, solved at the shift's and the
+  // landing's ends and the middles between them and read from their course.
+  const rise: (seconds: number) => number[] = ((): ((
+    seconds: number,
+  ) => number[]) => {
+    const read: ReturnType<typeof prepareHumanPoseResolution> =
+      prepareHumanPoseResolution();
+    const marks: number[] = [0, swing[0], swing[1], swing[1] + transfer];
+    const knots: number[] = marks.flatMap((m: number, i: number): number[] =>
+      i === 0 ? [m] : [(marks[i - 1]! + m) / 2, m],
+    );
+    return prepareHumanSampledCourse(knots, (t: number): number[] => [
+      rangeSteppingFoot.pitch(
+        body,
+        corrected(rawAt(t), t),
+        back,
+        read,
+        walkLeg.dorsal(load(t)),
+      ),
+    ]);
+  })();
   const bodyAt: (
     seconds: number,
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
@@ -117,23 +146,17 @@ export function braceBody(scope: braceBody.IScope): braceBody.BodyAt {
       rawAt(t, resolution),
       t,
     );
-    // The rear foot unloads over the preparatory shift and accepts weight
-    // over the same transfer time on landing. Its forefoot keeps the
-    // planned trajectory while its heel gives to the actual shank.
-    const transfer: number = swing[0];
-    if (t > 0 && t < swing[1] + transfer) {
-      const load: number =
-        t < swing[0]
-          ? 1 - minimumJerk.share(t / transfer)
-          : minimumJerk.share(Math.max(0, t - swing[1]) / transfer);
+    // The rear foot's forefoot keeps the planned trajectory while its heel
+    // gives to the actual shank, at its prepared pitch.
+    if (t > 0 && t < swing[1] + transfer)
       posture = rangeSteppingFoot(
         body,
         posture,
         back,
         prepareHumanPoseResolution(resolution),
-        walkLeg.dorsal(load),
+        walkLeg.dorsal(load(t)),
+        rise(t)[0]!,
       );
-    }
     // The hands open on the set's own share: written flat at once from
     // the first instant past zero, the fingers jumped from the entry's.
     return s <= 0

@@ -25,6 +25,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { AutoMovieMotionPrepared } from "../compose/AutoMovieMotionPrepared";
 import { HumanPerception } from "../law/HumanPerception";
 import { lowerHumanPosture } from "../posture/lowerHumanPosture";
 import { poseBones } from "../posture/poseBones";
@@ -37,6 +38,7 @@ import { KneeGeometry } from "./KneeGeometry";
 import { KneeReach } from "./KneeReach";
 import { StrikingBody } from "./StrikingBody";
 import { StrikingRide } from "./StrikingRide";
+import { StrikingStopRide } from "./StrikingStopRide";
 import { StrikingSkill } from "./StrikingSkill";
 import { StrikingStance } from "./StrikingStance";
 import { StrikingStroke } from "./StrikingStroke";
@@ -175,13 +177,15 @@ export namespace knee {
     // performance shows it, and each read before that solves it cold.
     // `shown` is the record the weapon's posed ends are kept on, renewed
     // whenever what the leg shows may have changed.
-    let built: KneeGeometry.IGeometry | undefined;
     let shown: object = {};
     const partner: IAutoMovieMotionHumanPerformerReader | undefined =
       p.at.kind === "person" ? context.performer(p.at.subject) : undefined;
-    const solve = (): KneeGeometry.IGeometry =>
-      KneeGeometry.solve(context, side, feet, carriage);
-    const geometry = (): KneeGeometry.IGeometry => built ?? solve();
+    const key: AutoMovieMotionPrepared.IValue<KneeGeometry.IGeometry> =
+      AutoMovieMotionPrepared(
+        (): KneeGeometry.IGeometry =>
+          KneeGeometry.solve(context, side, feet, carriage),
+      );
+    const geometry = (): KneeGeometry.IGeometry => key.read();
     const events: IAutoMovieMotionEvent[] = [
       { name: "launch", share: prep / duration },
       { name: "impact", share: impact / duration },
@@ -370,15 +374,9 @@ export namespace knee {
     // The contact the performance committed, and the stopped leg's ride on
     // the body it met ({@link StrikingRide}), solved when the plan is
     // prepared; none before.
-    let met: IAutoMovieMotionWeaponContact | null = null;
-    let ride: StrikingRide.IRide | undefined;
-    const carried = (
-      posture: IAutoMovieMotionHumanPosture,
-      seconds: number,
-    ): IAutoMovieMotionHumanPosture =>
-      ride === undefined ? posture : ride.carry(posture, leg, t0 + seconds);
-    const rode = (event: IAutoMovieMotionWeaponContact): StrikingRide.IRide =>
-      StrikingRide.create({
+    const stops: StrikingStopRide.IStop = StrikingStopRide(
+      (event: IAutoMovieMotionWeaponContact): StrikingRide.IRide =>
+        StrikingRide.create({
         other: (): IAutoMovieMotionHumanPerformerReader =>
           context.performer(event.against),
         stop: event.seconds,
@@ -386,7 +384,12 @@ export namespace knee {
           free(at - t0, at).limbs[leg]!.point,
         axis: (at: number): readonly [IAutoMovieVector3, IAutoMovieVector3] =>
           StrikingWeapon.axis(chain, event.weapon, at),
-      });
+      }),
+    );
+    const carried = (
+      posture: IAutoMovieMotionHumanPosture,
+      seconds: number,
+    ): IAutoMovieMotionHumanPosture => stops.carry(posture, leg, t0 + seconds);
     // What the knee decided, built on demand (`StrikingRecord`): its front
     // where the leg's free course puts it at the planned impact, with the
     // solve's own status; the performer's own displayed bones read the
@@ -435,18 +438,14 @@ export namespace knee {
       record,
       prepare: (): void => {
         shown = {};
-        built = undefined;
-        ride = undefined;
-        built = solve();
-        if (met !== null) ride = rode(met);
+        key.prepare();
+        stops.prepare();
       },
       ...(p.at.kind === "person"
         ? {
             weapons: StrikingWeapon.capsules(chain),
             stop: (found: readonly IAutoMovieMotionWeaponContact[]): void => {
-              met = StrikingWeapon.first(found);
-              fixed = met === null ? null : met.seconds;
-              ride = undefined;
+              fixed = stops.stop(found);
 
               // A committed stop changes what the leg shows from then on,
               // not the key it was launched with.

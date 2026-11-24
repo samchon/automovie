@@ -169,6 +169,13 @@ export function jumpPush(props: jumpPush.IProps): jumpPush.IPush {
             ],
     };
   };
+  // The push's end, where its heel-rise rule is read once: a posture read
+  // holds the push at its end (`jumpPushPosture`), so its root there is
+  // the path's at `P`.
+  const ended: Pick<IAutoMovieMotionHumanPosture, OfEnd> = jumpPushEnd(
+    props,
+    rootAt(P),
+  );
   const { swinging, armAt, elbowAt }: jumpPushArms.IArms = jumpPushArms({
     entry,
   });
@@ -214,13 +221,8 @@ export function jumpPush(props: jumpPush.IProps): jumpPush.IPush {
       const t: number = phase.seconds;
       const root: IAutoMovieVector3 = phase.root;
       if (t >= P) {
-        const end: Pick<IAutoMovieMotionHumanPosture, OfEnd> = jumpPushEnd(
-          props,
-          root,
-          resolution,
-        );
-        Object.assign(joints, end.joints);
-        Object.assign(limbs, end.limbs);
+        Object.assign(joints, ended.joints);
+        Object.assign(limbs, ended.limbs);
         return;
       }
       joints.hips = phase.pelvis;

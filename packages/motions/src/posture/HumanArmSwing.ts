@@ -362,8 +362,8 @@ export namespace HumanArmSwing {
     const out: Record<AutoMovieHumanSide, number> = { left: 0, right: 0 };
     const resolution: ReturnType<typeof prepareHumanPoseResolution> =
       prepareHumanPoseResolution(source);
-    let project: ReturnType<typeof prepareHumanPostureProjection> | undefined =
-      projection;
+    const project: ReturnType<typeof prepareHumanPostureProjection> =
+      projection ?? prepareHumanPostureProjection(body);
     for (const seconds of times) {
       const at: IAutoMovieMotionHumanPosture = posture(
         seconds,
@@ -371,7 +371,6 @@ export namespace HumanArmSwing {
         resolution,
         project,
       );
-      if (project === undefined) project = prepareHumanPostureProjection(body);
       const phase: IAutoMovieMotionHumanPosture = cleared(
         body,
         at,

@@ -18,6 +18,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { AutoMovieMotionPrepared } from "../compose/AutoMovieMotionPrepared";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
@@ -179,7 +180,6 @@ export namespace closeStrike {
     // The geometry reads the target as the placed performance shows it: the
     // plan solves it when it is prepared, as the punch's is, and each read
     // before that builds it cold on the performance as placed so far.
-    let built: IAutoMovieMotionHumanActionPlan | undefined;
     const make = (): IAutoMovieMotionHumanActionPlan => {
       // The target, the line and the effector's travel at contact.
       const target: IAutoMovieVector3 = StrikingTarget.aim(
@@ -471,7 +471,9 @@ export namespace closeStrike {
         primitives,
       });
     };
-    const build = (): IAutoMovieMotionHumanActionPlan => built ?? make();
+    const shape: AutoMovieMotionPrepared.IValue<IAutoMovieMotionHumanActionPlan> =
+      AutoMovieMotionPrepared(make);
+    const build = (): IAutoMovieMotionHumanActionPlan => shape.read();
     const events: IAutoMovieMotionHumanActionPlan["events"] = clock.events();
     return {
       duration,
@@ -483,12 +485,7 @@ export namespace closeStrike {
       posture: (
         ...args: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>
       ): IAutoMovieMotionHumanPosture => build().posture(...args),
-      prepare: (): void => {
-        built = undefined;
-        const made: IAutoMovieMotionHumanActionPlan = make();
-        built = made;
-        made.prepare?.();
-      },
+      prepare: (): void => shape.prepare().prepare?.(),
     };
   }
 }

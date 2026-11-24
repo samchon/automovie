@@ -19,7 +19,6 @@ import { HumanColliders } from "../posture/HumanColliders";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
-import { deriveHumanPosture } from "../posture/deriveHumanPosture";
 import { hipJoints } from "../posture/hipJoints";
 import { humanPostureHeading } from "../posture/humanPostureHeading";
 import { poseBones } from "../posture/poseBones";
@@ -55,15 +54,13 @@ type Angles = [
   twist: number,
 ];
 
-/**
- * Current residuals and the canonical leg fit eligible to serve its
- * derivatives.
- */
+/** A trial's residuals and the lower posture they were read on. */
 interface ITrial {
+  /** The residual rows. */
   rows: number[];
+
+  /** The lower posture. */
   legs: IAutoMovieMotionHumanPosture;
-  coordinates: readonly number[];
-  solved?: deriveHumanPosture.ISolved;
 }
 
 const SIDES: readonly AutoMovieHumanSide[] = ["left", "right"];
@@ -224,37 +221,18 @@ export function prepareBendSquat(
   });
   const resolution: ReturnType<typeof prepareHumanPoseResolution> =
     prepareHumanPoseResolution();
-  /** Inspect one actual proposed posture, deriving only equivalent leg work. */
-  const residual = (q: readonly number[], before?: ITrial): ITrial => {
-    const coordinates: readonly number[] = q.slice(0, 4);
-    const legs: IAutoMovieMotionHumanPosture =
-      before !== undefined &&
-      coordinates.every((value: number, i: number): boolean =>
-        Object.is(value, before.coordinates[i]),
-      )
-        ? before.legs
-        : lowerBody(q);
+  /** Inspect one proposed posture: its legs, trunk and fit, solved afresh. */
+  const residual = (q: readonly number[]): ITrial => {
+    const legs: IAutoMovieMotionHumanPosture = lowerBody(q);
     const p: IAutoMovieMotionHumanPosture = trunk(legs, q);
-    const previous: deriveHumanPosture.ISolved | undefined = before?.solved;
-    const assembled: resolveHumanPostureSource.IAssembled =
-      previous === undefined
-        ? resolveHumanPostureSource.assemble(body, p)
-        : deriveHumanPosture(body, previous.assembled, p);
-    const retained: deriveHumanPosture.ISolved["seeded"] | undefined =
-      previous === undefined
-        ? undefined
-        : deriveHumanPosture.inherited(body, assembled, previous);
-    const seeded: deriveHumanPosture.ISolved["seeded"] =
-      retained ??
+    const seeded: ReturnType<typeof resolveHumanPostureSource.fit> =
       resolveHumanPostureSource.fit(
         body,
-        assembled,
+        resolveHumanPostureSource.assemble(body, p),
         undefined,
         undefined,
         resolution,
       );
-    const inherited: boolean = retained !== undefined;
-    const solved: deriveHumanPosture.ISolved = { assembled, seeded };
     const bones: ReturnType<typeof poseBones> = poseBones(
       body,
       seeded.pose,
@@ -283,12 +261,6 @@ export function prepareBendSquat(
       ),
       ...depths.map((depth) => depth(placed)),
     ];
-    // The crossed leg hulls and foot sockets read only the inherited leg FK.
-    // The torso-to-leg hulls and the wrist terms above still read this trial.
-    if (inherited) {
-      rows.push(...before!.rows.slice(rows.length));
-      return { rows, solved, legs, coordinates };
-    }
     rows.push(...crossed.map((depth) => depth(placed)));
     SIDES.forEach((s, i) => {
       const foot = bones.get(`${s}Foot`)!,
@@ -310,7 +282,7 @@ export function prepareBendSquat(
         ),
       );
     });
-    return { rows, solved, legs, coordinates };
+    return { rows, legs };
   };
   const q: number[] = initial.map((v, i) =>
     Math.max(lo[i]!, Math.min(hi[i]!, v)),
@@ -324,7 +296,7 @@ export function prepareBendSquat(
     const gradients = q.map((_, i) => {
       const moved = q.slice();
       moved[i]! += ROM_TOLERANCE;
-      return residual(moved, at).rows.reduce(
+      return residual(moved).rows.reduce(
         (s, v, j) => s + ((v - at.rows[j]!) * at.rows[j]!) / ROM_TOLERANCE,
         0,
       );
@@ -341,7 +313,7 @@ export function prepareBendSquat(
         ),
       );
       if (next.every((v, i) => Math.abs(v - q[i]!) < ROM_TOLERANCE)) continue;
-      const trial: ITrial = residual(next, at);
+      const trial: ITrial = residual(next);
       if (cost(trial.rows) >= best) continue;
       q.splice(0, q.length, ...next);
       at = trial;

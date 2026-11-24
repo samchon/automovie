@@ -18,6 +18,7 @@ import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import { HumanPreparedPlayback } from "../perform/HumanPreparedPlayback";
 import { lowerHumanPosture } from "../posture/lowerHumanPosture";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
+import { prepareHumanSampledCourse } from "../posture/prepareHumanSampledCourse";
 import { fitJumpAbsorption } from "./fitJumpAbsorption";
 import type { jumpAirborne } from "./jumpAirborne";
 import type { jumpEndpoints } from "./jumpEndpoints";
@@ -28,8 +29,10 @@ import type { jumpLanding } from "./jumpLanding";
 import { jumpPath } from "./jumpPath";
 import { jumpPush } from "./jumpPush";
 import { jumpPushPosture } from "./jumpPushPosture";
+import { jumpPushRocker } from "./jumpPushRocker";
 import { jumpTouchdownRotation } from "./jumpTouchdownRotation";
 import { prepareJumpPosture } from "./prepareJumpPosture";
+import { rangeSteppingFoot } from "./rangeSteppingFoot";
 
 /**
  * A jump's timed phases and its plan (`jump.plan`): the push, the flight, the
@@ -162,6 +165,26 @@ export function jumpPhases(
     joints: jumpJoints.prepare(body, upright.joints),
     lower: lowerHumanPosture.prepare(body),
   };
+  // The reaching foot's heel rise over the push, the one search of a push
+  // read, solved at the push's knots (`jumpPushRocker.RISE`) and read
+  // between them from a knot course.
+  const reachingPitch: (seconds: number) => number[] = ((): ((
+    seconds: number,
+  ) => number[]) => {
+    const read: ReturnType<typeof prepareHumanPoseResolution> =
+      prepareHumanPoseResolution();
+    return prepareHumanSampledCourse(
+      jumpPushRocker.RISE.map((k: number): number => k * pushProps.push),
+      (t: number): number[] => [
+        rangeSteppingFoot.pitch(
+          body,
+          jumpPushPosture(pushProps, push, t, read, writers),
+          reaching,
+          read,
+        ),
+      ],
+    );
+  })();
   const shape: jumpAirborne.IShape = {
     body,
     takeoff,
@@ -245,6 +268,7 @@ export function jumpPhases(
         jumpPushPosture(pushProps, push, seconds, read, writers),
         reaching,
         read,
+        reachingPitch(seconds)[0]!,
       );
     },
     after: (seconds, _channels, resolution) => {
@@ -261,6 +285,7 @@ export function jumpPhases(
         reaching,
         read,
         projection,
+        reachingPitch(seconds)[0]!,
       );
     },
     sampleAfter: (seconds, _channels, resolution, projection) => {

@@ -16,6 +16,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { AutoMovieMotionPrepared } from "../compose/AutoMovieMotionPrepared";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
@@ -153,9 +154,9 @@ export namespace footStrike {
         ? minimumJerk.share(seconds / shown)
         : 1 - minimumJerk.share((seconds - shown) / recoil);
 
-    // The geometry reads the target: it is built once when the plan is made,
-    // and built again once when placement settles (`settle`), as the close
-    // strike's is; a read only reads the built plan.
+    // The geometry reads the target as the placed performance shows it: the
+    // plan solves it when it is prepared, as the close strike's is, and each
+    // read before that builds it cold on the performance as placed so far.
     const build = (): IAutoMovieMotionHumanActionPlan => {
       // The target, the line and the form's directions.
       const target: IAutoMovieVector3 = StrikingTarget.aim(
@@ -456,21 +457,19 @@ export namespace footStrike {
         primitives: [lower, leg],
       });
     };
-    let built: IAutoMovieMotionHumanActionPlan = build();
+    const shape: AutoMovieMotionPrepared.IValue<IAutoMovieMotionHumanActionPlan> =
+      AutoMovieMotionPrepared(build);
     return {
       duration,
       events: clock.events(),
       contact: shown,
       get contacts(): IAutoMovieMotionHumanActionPlan["contacts"] {
-        return built.contacts;
+        return shape.read().contacts;
       },
       posture: (
         ...args: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>
-      ): IAutoMovieMotionHumanPosture => built.posture(...args),
-      prepare: (): void => {
-        built = build();
-        built.prepare?.();
-      },
+      ): IAutoMovieMotionHumanPosture => shape.read().posture(...args),
+      prepare: (): void => shape.prepare().prepare?.(),
     };
   }
 }

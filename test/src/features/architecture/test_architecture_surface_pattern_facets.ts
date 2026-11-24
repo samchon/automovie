@@ -546,4 +546,84 @@ export function test_architecture_surface_pattern_facets(): void {
         }),
       message,
     );
+  TestValidator.equals(
+    "a facet must name one zone that was laid, once, on an orthonormal panel",
+    namedFacts([
+      [
+        "unknown",
+        (): boolean =>
+          refuse(
+            { ...returned[0]!, zone: "north" },
+            'pattern facet names zone "north", which pattern "corner" did not lay',
+          ),
+      ],
+      [
+        "duplicate",
+        (): boolean =>
+          refuse(returned[0]!, 'pattern facet zone "east" must be unique'),
+      ],
+      [
+        "anchor",
+        (): boolean =>
+          refuse(
+            {
+              ...returned[0]!,
+              zone: "south",
+              anchor: { u: Number.NaN, v: 0 },
+            },
+            'pattern facet "south" frame anchor must be finite',
+          ),
+      ],
+      [
+        "unit",
+        (): boolean =>
+          refuse(
+            {
+              ...returned[0]!,
+              zone: "south",
+              frame: { ...returned[0]!.frame, u: { x: 2, y: 0, z: 0 } },
+            },
+            'pattern facet "south" frame u must be a unit vector',
+          ),
+      ],
+      [
+        "origin",
+        (): boolean =>
+          refuse(
+            {
+              ...returned[0]!,
+              zone: "south",
+              frame: {
+                ...returned[0]!.frame,
+                origin: { x: Number.POSITIVE_INFINITY, y: 0, z: 0 },
+              },
+            },
+            'pattern facet "south" frame origin must be finite',
+          ),
+      ],
+      [
+        "perpendicular",
+        (): boolean =>
+          refuse(
+            {
+              ...returned[0]!,
+              zone: "south",
+              frame: {
+                ...returned[0]!.frame,
+                v: { x: 0, y: Math.SQRT1_2, z: -Math.SQRT1_2 },
+              },
+            },
+            'pattern facet "south" frame axes must be perpendicular',
+          ),
+      ],
+    ]),
+    {
+      unknown: true,
+      duplicate: true,
+      anchor: true,
+      unit: true,
+      origin: true,
+      perpendicular: true,
+    },
+  );
 }

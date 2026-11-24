@@ -1,7 +1,5 @@
 import { Transform } from "@automovie/engine";
 import type {
-  AutoMovieHumanLimb,
-  IAutoMovieHumanLimbGoal,
   IAutoMovieJointPose,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPosture,
@@ -10,8 +8,6 @@ import type {
   IAutoMoviePose,
 } from "@automovie/interface";
 
-import { HumanLimbView } from "./HumanLimbView";
-import { HumanPosture } from "./HumanPosture";
 import { prepareHumanPostureProjection } from "./prepareHumanPostureProjection";
 import { resolveHumanPostureSource } from "./resolveHumanPostureSource";
 import { turnHumanPosture } from "./turnHumanPosture";
@@ -99,10 +95,7 @@ export function deriveHumanPosture(
   };
 }
 
-/**
- * Companion of {@link deriveHumanPosture}: a fit of one assembly taken for
- * another.
- */
+/** Companion of {@link deriveHumanPosture}. */
 export namespace deriveHumanPosture {
   /** A completed cold fit: the assembly it ran on and what it returned. */
   export interface ISolved {
@@ -116,107 +109,4 @@ export namespace deriveHumanPosture {
     seeded: IAutoMovieMotionHumanResolveHumanPosture.ISeeded;
   }
 
-  /**
-   * The cold fit of an assembly's own goals, taken from a completed cold fit of
-   * another assembly when every limb's fit reads exactly what it read there;
-   * undefined otherwise, for the ordinary fit.
-   *
-   * A limb fit is a function of the records it reads (`HumanLimbView.of`: its
-   * chain, its toes and their ancestors for a leg), the root, the goal and the
-   * body. The fit is taken when both assemblies have the same limbs, all legs
-   * with unattached goals that are equal value for value, the same root, and
-   * the very same record objects at every index a leg's fit reads; the result
-   * is then the completed fit's pose with the records the two assemblies differ
-   * in replaced by this assembly's, which is the pose the ordinary fit builds,
-   * record for record and in the same order, because the fits' filters and
-   * appends never touch a record outside what they read. Seeds and values are
-   * copied. A posture with digit goals, an arm goal, an attached goal, or a
-   * differing record that is not finite (which the ordinary fit's admission
-   * refuses) is not taken.
-   *
-   * @param body The performer's body.
-   * @param assembled The assembly to fit.
-   * @param solved A completed cold fit of another assembly of this body.
-   * @returns The fit, or undefined.
-   */
-  export function inherited(
-    body: IAutoMovieMotionHumanBody,
-    assembled: resolveHumanPostureSource.IAssembled,
-    solved: ISolved,
-  ): IAutoMovieMotionHumanResolveHumanPosture.ISeeded | undefined {
-    const before: resolveHumanPostureSource.IAssembled = solved.assembled;
-    const limbs: AutoMovieHumanLimb[] = HumanPosture.LIMBS.filter(
-      (limb: AutoMovieHumanLimb): boolean =>
-        assembled.limbs[limb] !== undefined,
-    );
-    if (
-      limbs.length === 0 ||
-      Object.keys(assembled.limbs).length !== limbs.length ||
-      Object.keys(before.limbs).length !== limbs.length ||
-      assembled.posture.digits !== undefined ||
-      before.posture.digits !== undefined ||
-      assembled.pose.joints.length !== before.pose.joints.length ||
-      !same(assembled.pose.root, before.pose.root)
-    )
-      return undefined;
-    for (const limb of limbs) {
-      const goal: IAutoMovieHumanLimbGoal | undefined = assembled.limbs[limb];
-      if (
-        goal === undefined ||
-        !limb.endsWith("Leg") ||
-        goal.on !== undefined ||
-        !same(goal, before.limbs[limb]) ||
-        solved.seeded.seeds[limb] === undefined
-      )
-        return undefined;
-      for (const index of HumanLimbView(body, assembled.pose, limb, goal, [])
-        .at)
-        if (assembled.pose.joints[index] !== before.pose.joints[index])
-          return undefined;
-    }
-
-    // The records the two assemblies differ in, none of which a fit read.
-    const swapped: Map<IAutoMovieJointPose, IAutoMovieJointPose> = new Map();
-    for (let i: number = 0; i < before.pose.joints.length; ++i) {
-      const now: IAutoMovieJointPose = assembled.pose.joints[i]!;
-      if (now === before.pose.joints[i]) continue;
-      swapped.set(before.pose.joints[i]!, now);
-    }
-    const seeds: IAutoMovieMotionHumanResolveHumanPosture.ISeeded["seeds"] = {};
-    const values: IAutoMovieMotionHumanResolveHumanPosture.ISeeded["values"] =
-      {};
-    for (const limb of limbs) {
-      const seed: IAutoMovieMotionHumanResolveHumanPosture.ISeeded["seeds"][AutoMovieHumanLimb] =
-        solved.seeded.seeds[limb];
-      seeds[limb] = seed === null || seed === undefined ? null : { ...seed };
-      const value: IAutoMovieMotionHumanResolveHumanPosture.ISeeded["values"][AutoMovieHumanLimb] =
-        solved.seeded.values[limb];
-      if (value !== undefined) values[limb] = { ...value };
-    }
-    return {
-      pose: {
-        ...assembled.pose,
-        joints:
-          swapped.size === 0
-            ? solved.seeded.pose.joints.slice()
-            : solved.seeded.pose.joints.map(
-                (joint: IAutoMovieJointPose): IAutoMovieJointPose =>
-                  swapped.get(joint) ?? joint,
-              ),
-      },
-      seeds,
-      values,
-    };
-  }
-}
-
-/**
- * Whether two records of the assembly are equal value for value: the same
- * members with the same values in the same order, as the assembly writes them.
- */
-function same(
-  a: IAutoMoviePose["root"] | IAutoMovieHumanLimbGoal | undefined,
-  b: IAutoMoviePose["root"] | IAutoMovieHumanLimbGoal | undefined,
-): boolean {
-  return a === b || JSON.stringify(a) === JSON.stringify(b);
 }

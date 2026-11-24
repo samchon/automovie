@@ -188,4 +188,53 @@ export function test_architecture_material_substance_bounds(): void {
       serviceLifeZero: true,
     },
   );
+
+  TestValidator.equals(
+    "a non-finite property is refused wherever a finite one is required",
+    namedFacts([
+      [
+        "density",
+        (): boolean =>
+          hasViolation(
+            judge({ density: Number.POSITIVE_INFINITY }),
+            "range",
+            "$input.density",
+          ),
+      ],
+      [
+        "conductivity",
+        (): boolean =>
+          hasViolation(
+            judge({ thermalConductivity: Number.NaN }),
+            "range",
+            "$input.thermalConductivity",
+          ),
+      ],
+      [
+        "absorption",
+        (): boolean =>
+          hasViolation(
+            judge({ soundAbsorption: Number.NaN }),
+            "range",
+            "$input.soundAbsorption",
+          ),
+      ],
+      [
+        "onlyOneFires",
+        (): boolean =>
+          violationCount(judge({ specificHeat: Number.NaN })) === 1 &&
+          hasViolation(
+            judge({ specificHeat: Number.NaN }),
+            "range",
+            "$input.specificHeat",
+          ),
+      ],
+    ]),
+    {
+      density: true,
+      conductivity: true,
+      absorption: true,
+      onlyOneFires: true,
+    },
+  );
 }

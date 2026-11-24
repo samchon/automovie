@@ -142,7 +142,6 @@ export class WorkingSeatRidePlan implements WorkingSeatRidePlan.IPlan {
         {},
         args[2],
         undefined,
-        undefined,
         {
           analytic: !next.done,
           inspect: (

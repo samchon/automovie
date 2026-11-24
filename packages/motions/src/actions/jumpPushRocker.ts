@@ -133,7 +133,7 @@ export function jumpPushRocker(
     const read: ReturnType<typeof prepareHumanPoseResolution> =
       prepareHumanPoseResolution();
     return prepareHumanSampledCourse(
-      RISE_KNOTS.map((k: number): number => lowered + k * span),
+      jumpPushRocker.RISE.map((k: number): number => lowered + k * span),
       (t: number): number[] => [ruled(sample(t), read)],
     );
   })();
@@ -161,6 +161,13 @@ export function jumpPushRocker(
 
 /** What a jump push's rocker reads and what it is. */
 export namespace jumpPushRocker {
+  /**
+   * A heel rise's knots as shares of its span: its two ends, its middle and the
+   * middle of each half, the knots a walking stance's heel rise is solved at
+   * over a single support (`walkLocomoteLowering.times`).
+   */
+  export const RISE: readonly number[] = [0, 0.25, 0.5, 0.75, 1];
+
   /** What a jump push builds its rocker from. */
   export interface IScope {
     /** The body. */
@@ -227,12 +234,6 @@ export namespace jumpPushRocker {
 /** The finite-difference step of the heel rule's slope, seconds. */
 const STEP: number = 1e-3;
 
-/**
- * The rise's knots as shares of it: its two ends, its middle and the middle of
- * each half, the knots the walking stance's heel rise is solved at over a
- * single support (`walkLocomoteLowering.times`).
- */
-const RISE_KNOTS: readonly number[] = [0, 0.25, 0.5, 0.75, 1];
 
 /** The record of `IOfEdgeResult`'s site. */
 type IOfEdgeResult = {

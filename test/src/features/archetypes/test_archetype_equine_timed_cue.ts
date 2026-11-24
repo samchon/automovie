@@ -63,6 +63,7 @@ export function test_archetype_equine_timed_cue(): void {
     issues.push(`uncued, the canter changes at ${changes(plain).join(", ")} s`);
 
   const cued = rideQuadruped(horse, {
+    kind: "cued",
     plan,
     cues: [{ from: FROM, to: TO, gait: "gallop" }],
   });
@@ -75,6 +76,7 @@ export function test_archetype_equine_timed_cue(): void {
   let refusal: unknown;
   try {
     rideQuadruped(horse, {
+      kind: "cued",
       plan,
       cues: [{ from: TO, to: FROM, gait: "gallop" }],
     });

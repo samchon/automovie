@@ -9,6 +9,7 @@ import { createMeshEdgeKey } from "../math/createMeshEdgeKey";
 import { boundAutoMovieMeshQueryPoint as bound } from "./boundAutoMovieMeshQueryPoint";
 import { buildAutoMovieMeshQueryHierarchy } from "./buildAutoMovieMeshQueryHierarchy";
 import { triangleIndicesOf } from "./triangleIndicesOf";
+import { overflowsBinary64 } from "../math/overflowsBinary64";
 
 /**
  * Compile a closed oriented surface, or an open oriented sheet, into a
@@ -103,7 +104,7 @@ export function createAutoMovieSignedMeshQuery(
     const bb: number = dot(ac, ac);
     const abac: number = dot(ab, ac);
     const determinant: number = aa * bb - abac * abac;
-    if (!(determinant > 0))
+    if (!(determinant > 0) || overflowsBinary64(determinant))
       throw new Error(
         `Signed mesh triangle arithmetic must have finite positive rank: triangle ${at / 3}, vertices ${source.join(",")}, determinant ${determinant}, points ${JSON.stringify(points)}.`,
       );
@@ -222,6 +223,9 @@ export function createAutoMovieSignedMeshQuery(
           Math.abs(point[axis]! - root.low[axis]!),
           Math.abs(point[axis]! - root.high[axis]!),
         ) ** 2;
+    // A finite query far from the mesh can overflow its squared extent.
+    if (overflowsBinary64(extent2))
+      throw new Error("Signed mesh query arithmetic must remain finite.");
     const best: IBest = {
       seed: recent,
       hit: undefined,
@@ -330,7 +334,7 @@ const cross = (a: readonly number[], b: readonly number[]): number[] => [
 ];
 const unit = (vector: readonly number[]): number[] => {
   const length: number = Math.hypot(...vector);
-  if (!(length > 0))
+  if (!(length > 0) || overflowsBinary64(length))
     throw new Error("Signed mesh features need finite nonzero normals.");
   return vector.map((value: number): number => value / length);
 };

@@ -15,6 +15,7 @@ import type {
   IAutoMovieMotionHumanPunch,
 } from "@automovie/interface";
 
+import { AutoMovieMotionPrepared } from "../compose/AutoMovieMotionPrepared";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { DefenceOutcome } from "./DefenceOutcome";
 import { StrikingSkill } from "./StrikingSkill";
@@ -221,18 +222,13 @@ export namespace defend {
     // so two performers reading each other never recurse at one instant.
     // The geometry the plan solved when it was prepared; before that, each
     // read builds it cold on the performance as placed so far.
-    let built: defendGeometry.IGeometry | undefined;
-    let building: boolean = false;
-    const build = (): defendGeometry.IGeometry => {
-      if (building) throw strikingReadBack("defend", context.subject);
-      building = true;
-      try {
-        return defendGeometry.build(context, timing, support);
-      } finally {
-        building = false;
-      }
-    };
-    const geometry = (): defendGeometry.IGeometry => built ?? build();
+    const shape: AutoMovieMotionPrepared.IValue<defendGeometry.IGeometry> =
+      AutoMovieMotionPrepared(
+        (): defendGeometry.IGeometry =>
+          defendGeometry.build(context, timing, support),
+        (): Error => strikingReadBack("defend", context.subject),
+      );
+    const geometry = (): defendGeometry.IGeometry => shape.read();
     const contacts: IAutoMovieMotionHumanContactWindow[] =
       defendGeometry.windows(checking, timing, support);
     const waiting: IAutoMovieMotionHumanActionPlan["posture"] = idle(
@@ -255,10 +251,7 @@ export namespace defend {
           ? waiting(t, channels, resolution, projection)
           : geometry().posture(t, channels, resolution, projection);
       },
-      prepare: (): void => {
-        built = undefined;
-        built = build();
-      },
+      prepare: (): void => void shape.prepare(),
     };
     return out;
   }

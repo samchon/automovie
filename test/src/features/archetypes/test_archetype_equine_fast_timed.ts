@@ -92,7 +92,7 @@ export function test_archetype_equine_fast_timed(): void {
       createHorse({ withersHeight: withers, tempo: 0 }, 1001),
       gait === undefined
         ? plan
-        : { plan, cues: [{ from: 0, to: plan.duration, gait }] },
+        : { kind: "cued", plan, cues: [{ from: 0, to: plan.duration, gait }] },
     );
     const instants: number[] = [
       ...Array.from(
