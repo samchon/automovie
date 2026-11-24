@@ -4247,6 +4247,16 @@ export namespace FamilyConicFit {
     let u: number[] = [];
     const R: number[][] = [];
     const inActive = new Uint8Array(sides.length);
+
+    /** Derive an orthogonal Givens rotation in the scaled pivot plane (Goldfarb and Idnani, 1983, section 4). */
+    const rotation = (w: number, v: number): { c: number; s: number; h: number } => {
+      const scale: number = Math.max(Math.abs(w), Math.abs(v));
+      const a: number = w / scale, b: number = v / scale;
+      const norm: number = Math.hypot(a, b);
+
+      // The stored pivot may round in the subnormal range. The rotation coefficients already have unit norm at full precision.
+      return { c: a / norm, s: b / norm, h: scale * norm };
+    };
     const rotate = (a: number, b: number, c: number, s: number): void => {
       const A = J[a]!, B = J[b]!;
       for (let i = 0; i < n; ++i) { const p = A[i]!, q = B[i]!; A[i] = c * p + s * q; B[i] = -s * p + c * q; }
@@ -4257,10 +4267,15 @@ export namespace FamilyConicFit {
       multipliers.splice(k, 1);
       R.splice(k, 1);
       for (let j = k; j < R.length; ++j) {
-        const a = R[j]![j]!, b = R[j]![j + 1]!, h = Math.hypot(a, b);
-        if (h > 0) {
-          const c = a / h, s = b / h;
-          for (let m = j; m < R.length; ++m) { const p = R[m]![j]!, q = R[m]![j + 1]!; R[m]![j] = c * p + s * q; R[m]![j + 1] = -s * p + c * q; }
+        const a: number = R[j]![j]!, b: number = R[j]![j + 1]!;
+        if (a !== 0 || b !== 0) {
+          const { c, s, h } = rotation(a, b);
+          R[j]![j] = h;
+          for (let m: number = j + 1; m < R.length; ++m) {
+            const p: number = R[m]![j]!, q: number = R[m]![j + 1]!;
+            R[m]![j] = c * p + s * q;
+            R[m]![j + 1] = -s * p + c * q;
+          }
           rotate(j, j + 1, c, s);
         }
         R[j]!.length = j + 1;
@@ -4306,9 +4321,9 @@ export namespace FamilyConicFit {
         if (t === t2) {
           // Take p: rotate d's tail into its q-th entry, which closes R's new column.
           for (let j = n - 1; j > q; --j) {
-            const a = d[j - 1]!, b = d[j]!, h = Math.hypot(a, b);
-            if (b === 0 || h === 0) continue;
-            const c = a / h, s = b / h;
+            const a: number = d[j - 1]!, b: number = d[j]!;
+            if (b === 0) continue;
+            const { c, s, h } = rotation(a, b);
             d[j - 1] = h; d[j] = 0;
             rotate(j - 1, j, c, s);
           }

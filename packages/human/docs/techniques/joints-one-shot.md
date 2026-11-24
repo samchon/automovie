@@ -1073,3 +1073,22 @@ Joint worker 2 (Claude) hands campaign 3's joints work to the next session. Noth
 - Profiles: `campaign3-claude2-profile-20261124-1{42802,43748,50651,51714}-c59f11c9901f`.
 - Focused tests: `campaign3-claude2-focus-20261124-1{23147,30129,32428,34433,35942,42443,44515,45514,51714}-c59f11c9901f`.
 - The arm's bounded and full refits and the slope measurement: `campaign3-claude2-fits-20261124-1{32428,34433,35942,43436}-c59f11c9901f` (`side-root*`).
+
+### The leg's first elastic step, diagnosed 2026-11-24
+
+At the handoff start the dual iterate had relative stationarity `0.00318634`, affine violation `5.15e-13`, complementarity `1.95e-14` and slack `0.0791040`. The equality polish reduced stationarity to `3.32e-16` but violated an inactive row by `3.54e-5`. The affine admission check was correct to refuse the raw result. A polish can restore the active equalities only for the working set it receives.
+
+The replay of the first affine program from the preparation branch isolated a rotation on free columns 357 and 358. Both pivots were the least positive binary64 number. Their rounded hypotenuse equalled each pivot, so division gave `c = s = 1`. The active factor still satisfied `J^T N_A = [R; 0]` within `3.61e-15` but the free basis lost the metric identity `H J J^T = I`. One subsequent partial step carried a spurious stationarity residual into an otherwise feasible point.
+
+The add and drop paths now divide both pivots by their largest magnitude before forming the Givens cosine and sine. The rescaled norm is used only as the output diagonal. This follows the scaled rotation in [Goldfarb and Idnani, 1983, section 4](https://link.springer.com/article/10.1007/BF02591962).
+
+| Quantity on identical affine replay | Original | Scaled rotations |
+| --- | ---: | ---: |
+| Maximum `abs(c^2 + s^2 - 1)` | 1 | 4.44e-16 |
+| Raw relative stationarity | 8.39e-4 | 1.70e-14 |
+| Raw maximum row violation | 4.12e-13 | 3.13e-13 |
+| Raw relative complementarity | 5.46e-15 | 1.03e-15 |
+| Accepted polish relative stationarity | Unavailable | 3.25e-16 |
+| Active-set iterations | 235 | 236 |
+
+The original affine tolerances and polish gate still apply. The independent `test_human_fit_active_set` control has a subnormal tail in the first active row and an exact optimum where two later rows meet. The old code missed the second row's multiplier and returned `(y, w) = (0, 1)` in place of `(0.25, 0.75)`. The control passes with the scaled rotations.
