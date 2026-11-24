@@ -47,7 +47,6 @@ export namespace FamilyConicFanFit {
     tolerance: number;
     /** Maximum accepted group updates. */
     updates: number;
-    /** Maximum accepted raw restoration updates. */
     /**
      * Optional relative objective and predicted-decrease exit on feasible
      * steps.
@@ -58,6 +57,7 @@ export namespace FamilyConicFanFit {
     finalOnly?: boolean;
     /** Clearance of the fitted polygon from the exact host rail, millimetres. */
     hostRailReserve?: number;
+    /** Maximum accepted raw restoration updates. */
     restorationUpdates: number;
     /** Realization chord length in metres. */
     chord: number;

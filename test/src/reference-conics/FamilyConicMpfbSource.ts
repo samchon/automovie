@@ -23,6 +23,8 @@ export namespace FamilyConicMpfbSource {
 
   /** Source identity retained with the observations made on this skin. */
   export interface ISource extends IGeometry {
+    /** Original zero-based OBJ position index at each compact skin vertex. */
+    bodyVertexIds: readonly number[];
     /** The public asset's identity before any coordinate conversion. */
     source: {
       /** Exact Git revision selected for reproducible downloads. */
@@ -73,7 +75,9 @@ export namespace FamilyConicMpfbSource {
    * @evidence contracts/development/implementation.md#principled-implementation The pinned source's body group and rig markers own all observed geometry and landmarks.
    * @evidence contracts/development/implementation.md#efficient-algorithms Read the data and compact the body indices in linear passes.
    */
-  export function parse(obj: string): IGeometry {
+  export function parse(
+    obj: string,
+  ): IGeometry & Pick<ISource, "bodyVertexIds"> {
     const vertices: Point[] = [];
     const quads: number[][] = [];
     const cubes: Map<string, Set<number>> = new Map();
@@ -126,10 +130,12 @@ export namespace FamilyConicMpfbSource {
     ];
     const positions: number[] = [];
     const indices: number[] = [];
+    const bodyVertexIds: number[] = [];
     const remap: Int32Array = new Int32Array(vertices.length).fill(-1);
     const vertex = (i: number): number => {
       if (remap[i] === -1) {
         remap[i] = positions.length / 3;
+        bodyVertexIds.push(i);
         positions.push(...world(vertices[i]!));
       }
       return remap[i]!;
@@ -141,7 +147,7 @@ export namespace FamilyConicMpfbSource {
     const joints: Map<string, Point> = new Map();
     for (const [name, cube] of cubes)
       joints.set(name, world(centre(vertices, cube)));
-    return { body: { positions, indices }, joints };
+    return { body: { positions, indices }, joints, bodyVertexIds };
   }
 
   /**
