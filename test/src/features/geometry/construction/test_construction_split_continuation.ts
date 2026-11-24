@@ -10,8 +10,11 @@ import type { AutoMovieVector3Tuple as V3, IAutoMovieSolidSurface } from "@autom
  * rail between columns. A variable-radius cylinder and its analytic station
  * graph provide an independent 2-jet, with nonzero phase shear.
  *
- * @evidence contracts/development/testing.md#behavioral-verification The reflected chart samples only the kept side and matches all six native vectors at an off-column phase.
- * @evidence contracts/development/testing.md#execution-ownership A synchronous CPU scenario with one analytic source and no external assets.
+ * @evidence contracts/development/common.md#meaningful-documentation Names the analytic 2-jet, phase shear and retained material boundary that the continuation reads.
+ * @evidence contracts/development/testing.md#behavioral-verification The reflected chart samples the kept side and matches all six native vectors between columns. The shared fork retains both end jets and smooths the interior clock crease.
+ * @evidence contracts/development/testing.md#independent-expectations The analytic cylinder and its station graph give the expected continuation by the chain rule. At the fork, centered differences of positions and first derivatives independently check the reported derivatives.
+ * @evidence contracts/development/testing.md#distinguishing-cases The continuation exercises nonzero phase shear and detects a read outside the retained angular range. The fork checks both end jets, its center, the interior and the limit of its support.
+ * @evidence contracts/development/testing.md#execution-ownership This synchronous unit test runs its own in-memory analytic surfaces from the exported scenario.
  */
 export function test_construction_split_continuation(): void {
   const cut = (v: number): [number, number, number] => [2 + Math.cos(v) / 2, -Math.sin(v) / 2, -Math.cos(v) / 2];
@@ -73,11 +76,7 @@ export function test_construction_split_continuation(): void {
   forkClock();
 }
 
-/**
- * A shared fork retains both end jets and removes the interior clock crease.
- *
- * @evidence contracts/development/testing.md#behavioral-verification An analytic two-sided surface keeps its planar clock and gives six finite, consistent vectors on and off the fork.
- */
+/** A shared fork retains both end jets and removes the interior clock crease. */
 function forkClock(): void {
   const base = (u: number, c: number): IAutoMovieSolidSurface.IJet => {
     const q: number = u * (1 - u);

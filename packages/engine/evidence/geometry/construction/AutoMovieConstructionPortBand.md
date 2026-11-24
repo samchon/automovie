@@ -75,3 +75,33 @@ A pure reader coordinates no work.
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
 The surface retains the three surfaces.
+
+# src/geometry/construction/AutoMovieConstructionPortBand.ts#AutoMovieConstructionPortBand.sigma
+
+## @evidence contracts/development/common.md#meaningful-documentation
+
+States the rational cross parameter and the order of its returned derivatives. The band passes a dimensionless cross share from 0 to 1.
+
+## @evidence contracts/development/implementation.md#principled-implementation
+
+Applies the quotient rule twice to the band's rational cross map. The denominator has negative discriminant and positive leading coefficient, so each quotient is defined throughout the band's cross interval.
+
+## @evidence contracts/development/implementation.md#clear-and-simple-structure
+
+Names the numerator, denominator and their first derivatives before evaluating the value and its derivatives in one function.
+
+## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
+
+Returns the analytic derivatives of the same cross map used for the read parameter. The computation introduces no clamps or finite differences.
+
+## @evidence contracts/development/implementation.md#efficient-algorithms
+
+Evaluates fixed-degree polynomials and returns three scalars in constant time and space.
+
+## @evidence contracts/development/implementation.md#reuse-equivalent-work
+
+The value and both derivatives share the evaluated numerator and denominator. Both derivatives share their evaluated first derivatives.
+
+## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
+
+Each call returns a fresh scalar tuple and retains no references.
