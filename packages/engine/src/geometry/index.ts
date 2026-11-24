@@ -64,6 +64,7 @@ export * from "./meshOf";
 export * from "./minimizeAutoMovieMeshClearance";
 export * from "./normalizeAutoMovieSurfaceFrame";
 export * from "./placeAutoMovieSurfaceFrame";
+export * from "./planAutoMovieSegmentBudget";
 export * from "./planAutoMovieSupportLoft64";
 export * from "./planarCross";
 export * from "./planarSegmentsMeet";

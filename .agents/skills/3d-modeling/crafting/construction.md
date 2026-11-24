@@ -58,7 +58,7 @@ At distance `d` meters, with vertical field of view `θ` and an image `H` pixels
 
 Give a crafted or lofted curved section of radius `r` the fewest segments `n` whose chords stray from the arc by at most one pixel footprint, `e = 1 / p` meters. A chord spanning the angle `2π / n` strays from the arc by its sagitta `r (1 - cos(π / n))`. The budget is therefore `n = ceil(π / acos(1 - e / r))`. It falls roughly as one over the square root of the distance.
 
-For example, with `H` 1080, `θ` 50 degrees and `r` 0.25 m, the budget is 17 segments at 5 m and 9 at 20 m.
+Compute `p`, `e` and `n` with `planAutoMovieSegmentBudget` from `@automovie/engine`. It keeps at least 3 segments, also where `e` reaches the diameter `2r` and the formula has no value. For example, with `H` 1080, `θ` 50 degrees and `r` 0.25 m, it gives 17 segments at 5 m and 9 at 20 m.
 
 Hold the chords along a profile to the same tolerance `e`.
 
