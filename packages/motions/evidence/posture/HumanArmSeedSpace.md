@@ -42,7 +42,7 @@ States the context and the space.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-OMPL's RealVectorStateSpace bounds (RealVectorStateSampler::sampleUniform draws within them, src/ompl/base/spaces/src/RealVectorStateSpace.cpp at 340bd214, BSD-3-Clause): the chart's two over [-R, R], the disc left to the validity reading; the other free coordinates over their ranges; fixed coordinates at their rests.
+The space's own bounds, which OMPL's sampler draws uniformly within (StateSampler::sampleUniform; RealVectorStateSampler for the ranges, src/ompl/base/spaces/src/RealVectorStateSpace.cpp at 340bd214, BSD-3-Clause): the chart's two within its disc of radius R, handed on as a disc so no draw falls outside the domain; the other free coordinates over their ranges; fixed coordinates at their rests.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 

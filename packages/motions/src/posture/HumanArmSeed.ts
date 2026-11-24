@@ -139,6 +139,7 @@ export namespace HumanArmSeed {
         goal,
         low: space.low,
         high: space.high,
+        discs: space.discs,
         valid: (q: readonly number[]): boolean =>
           M.invalid(
             scene,

@@ -37,6 +37,18 @@ import { HumanRandomSeeds } from "./HumanRandomSeeds";
  * repaired state, as the adapter prefixes it.
  */
 export namespace HumanArmConnect {
+  /** A pair of coordinates whose domain is a disc about the origin. */
+  export interface IDisc {
+    /** The first coordinate's index. */
+    x: number;
+
+    /** The second coordinate's index. */
+    y: number;
+
+    /** The disc's radius, coordinate units. */
+    radius: number;
+  }
+
   /** A query. */
   export interface IQuery {
     /** The configuration the path leaves, its time coordinate last. */
@@ -50,6 +62,12 @@ export namespace HumanArmConnect {
 
     /** Each joint coordinate's greatest value (`RealVectorBounds::high`). */
     high: readonly number[];
+
+    /**
+     * The coordinate pairs whose domain is a disc about the origin, sampled
+     * within the disc rather than its bounding box.
+     */
+    discs: readonly IDisc[];
 
     /** Whether a configuration is valid at the time it carries. */
     valid: (q: readonly number[]) => boolean;
@@ -232,12 +250,27 @@ export namespace HumanArmConnect {
       interpolate: lerp,
       checkMotion,
       valid: query.valid,
-      sample: (rng: MT.IState): number[] => [
-        ...query.low.map((low: number, i: number): number =>
-          MT.uniformReal(rng, low, query.high[i]!),
-        ),
-        MT.uniformReal(rng, time[0], time[1]),
-      ],
+      // `sampleUniform` within the space's own bounds: a disc's pair
+      // uniformly within the disc (r = R sqrt(u), theta = 2 pi v), every other
+      // coordinate within its range, then the time.
+      sample: (rng: MT.IState): number[] => {
+        const q: number[] = new Array<number>(dims + 1).fill(0);
+        for (let i: number = 0; i < dims; ++i) {
+          const disc: IDisc | undefined = query.discs.find(
+            (d: IDisc): boolean => d.x === i || d.y === i,
+          );
+          if (disc === undefined)
+            q[i] = MT.uniformReal(rng, query.low[i]!, query.high[i]!);
+          else if (disc.x === i) {
+            const r: number = disc.radius * Math.sqrt(MT.uniform01(rng));
+            const theta: number = 2 * Math.PI * MT.uniform01(rng);
+            q[disc.x] = r * Math.cos(theta);
+            q[disc.y] = r * Math.sin(theta);
+          }
+        }
+        q[dims] = MT.uniformReal(rng, time[0], time[1]);
+        return q;
+      },
       range: RANGE,
       time,
       dims,

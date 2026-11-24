@@ -15,22 +15,25 @@ export namespace HumanArmSeedSpace {
 
     /** Each coordinate's greatest value. */
     high: number[];
+
+    /** Each arm's shoulder chart, a disc of its radius. */
+    discs: HumanArmConnect.IDisc[];
   }
 
   /** A coordinate's hard range, as the context holds it. */
   export type Bound = M.IContext["bounds"][number][number];
 
   /**
-   * The arms' coordinates as OMPL's real vector space bounds them
-   * (`RealVectorBounds`), which its sampler draws uniformly within
-   * (`RealVectorStateSampler::sampleUniform`): the shoulder chart's two over
-   * the box about its disc, [-R, R] each, the disc itself left to the validity
-   * reading; every other free coordinate over its range; every fixed coordinate
-   * at its rest value.
+   * The arms' coordinates within the space's own bounds, which OMPL's sampler
+   * draws uniformly within (`StateSampler::sampleUniform`): the shoulder
+   * chart's two within its disc of radius R (`discs`, the box [-R, R] about it
+   * its bounding box only); every other free coordinate over its range; every
+   * fixed coordinate at its rest value.
    */
   export function sampler(c: M.IContext): ISpace {
     const low: number[] = [];
     const high: number[] = [];
+    const discs: HumanArmConnect.IDisc[] = [];
     const radii: number[] = c.rest.map((rest: number[], a: number): number =>
       Math.max(
         G.SCALE,
@@ -40,6 +43,12 @@ export namespace HumanArmSeedSpace {
     );
     c.rest.forEach((rest: number[], a: number): void => {
       const radius: number = radii[a]!;
+      if (c.free[a]!.includes(0) && c.free[a]!.includes(1))
+        discs.push({
+          x: a * G.DIMENSIONS,
+          y: a * G.DIMENSIONS + 1,
+          radius,
+        });
       rest.forEach((v: number, d: number): void => {
         const bound: Bound = c.bounds[a]![d] ?? null;
         if (!c.free[a]!.includes(d)) {
@@ -57,7 +66,7 @@ export namespace HumanArmSeedSpace {
         }
       });
     });
-    return { low, high };
+    return { low, high, discs };
   }
   /** Each arm's coordinates from a concatenation. */
   export function split(q: readonly number[]): number[][] {
