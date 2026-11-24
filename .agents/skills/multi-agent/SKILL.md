@@ -15,7 +15,8 @@ Do not add roles, gates, phases or schedules the user did not order.
 
 The main session audits the subagents' work for violations of:
 
-- the user's orders;
+- the user's instructions;
+- the decisions settled for the work;
 - the skills' rules.
 
 It audits every 10 minutes unless the user sets another interval.
