@@ -100,6 +100,12 @@ For an alternate, register a separate take and a `branch` with the saved origina
 
 To draw an admitted take in the browser, use a trusted project subject module that admits the artifact props with `admitMotionTake` and calls [the replay adapter](src/executable/motionTake/replayMotionTake.ts) with its explicitly imported source recipe and, for a branch, the original recipe. Use the returned `performanceAt(sourceSeconds, entry)` in the draw scene's seek, with the film's normal mapping from edited to source time. Passing the entry keeps occurrences before the save's selected entry on the original take. Run `motion:take open` to verify current files, then capture or render the same verified artifact and source in a separate output directory for each alternative.
 
+```sh
+pnpm exec automovie capture --module src/takeSubjects.ts --props rehearsal.take.json --subject rehearsal --from 0.5 --to 0.75 --out media/capture/rehearsal
+```
+
+Version 1 reconstructs authored Human performance, including its supported prop, articulation, contact and event evaluation. It refuses opaque owner callbacks or missing inputs. Native solver snapshot restore and partial raster export resume use separate workflows.
+
 ## Verify a correction
 
 Declare useful checks beside the model, motion case or film they serve and export their targets from [`src/executable/verify.ts`](src/executable/verify.ts). Give each check a short title and a source comment explaining the criterion, its scope and how its evidence is read. Share a definition when several targets use the same known inputs. Use explicit `.ts` suffixes on relative imports in the verification modules so the script can load them in Node without compiling unrelated source.
@@ -107,12 +113,6 @@ Declare useful checks beside the model, motion case or film they serve and expor
 Run `pnpm run verify --subject <id>` to read current observations. Repeat `--subject` for an intentional multi-target read. Use `--run --only <check>` to repeat one bounded measurement or declared capture. A measurement names the input files, unit and accepted range. A capture names its record, view, pass, diagnostic and sample or frame range. Delivery checks compare the actual movie bytes with the render report and required controls. Review checks read a named observation of the actual movie and required frame range.
 
 Status distinguishes passed, failed, not run, disabled, stale, unobserved and awaiting review. It names what to reopen or rerun. `--json` writes the same result as data. Use `--require <stage>` at an adopted handoff to exit nonzero when its required checks remain open, even when `--only` selects one check to run. `enabled: false` keeps an optional check visible during investigation. Remove the temporary definition when its investigation ends. Keep any capture, review and acceptance records that support completed work. Local measurement and refresh receipts live under `.cache/automovie/verify/`. A `.first-failure.json` beside the latest receipt preserves the first failure through retries.
-
-```sh
-pnpm exec automovie capture --module src/takeSubjects.ts --props rehearsal.take.json --subject rehearsal --from 0.5 --to 0.75 --out media/capture/rehearsal
-```
-
-Version 1 reconstructs authored Human performance, including its supported prop, articulation, contact and event evaluation. It refuses opaque owner callbacks or missing inputs. Native solver snapshot restore and partial raster export resume use separate workflows.
 
 ## Commands
 
@@ -129,6 +129,7 @@ Version 1 reconstructs authored Human performance, including its supported prop,
 | `pnpm run motion:take save`, `open` or `branch` | Persist, verify or branch a registered Human take |
 | `pnpm run render --subject <film>` | Export one film as a video, with its soundtrack when it has one |
 | `pnpm run review --url <address> --seconds <s>` | Record real-time playback of the running inspector page |
+| `pnpm run verify --subject <id>` | Read current checks for a model, motion case or film |
 | `pnpm run capture --subject <film> [request]` | Stills, sheets and a record of a film, with views, passes, marks and round comparison |
 | `pnpm exec automovie capture --file <video> [request]` | Stills of an encoded file's own frames, around its cuts |
 

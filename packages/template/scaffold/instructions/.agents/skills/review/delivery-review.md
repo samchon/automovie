@@ -50,6 +50,8 @@ For text or a standalone asset, include the revision, checks, observations and r
 - disputed findings and their times, the evidence resolving them, and any open repairs or user-approved exclusions;
 - the director's decision on that cut.
 
+At an adopted handoff, read the required evidence with `pnpm run verify --subject <id> --require <stage>` and record the director's decision for the candidate and scope they reviewed.
+
 A retake verdict covers the interval checked. Promote only a cut with current whole-film approval. Retain withdrawn decisions as history. Keep these observations [outside the contract graph](../contracts/items.md#outside-the-graph).
 
 ## Repairs
