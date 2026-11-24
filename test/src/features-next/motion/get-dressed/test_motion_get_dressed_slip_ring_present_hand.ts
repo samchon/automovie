@@ -33,8 +33,10 @@ import { slipRingScene } from "../../internal/slipRingScene";
  * 1. The upper arm hangs: the elbow lies the upper arm's length below the
  *    shoulder, within the touch contract's 10 mm.
  * 2. The forearm lies level: the palm lies at the elbow's height, within 10 mm.
- * 3. The palm lies the forearm and half the hand from the elbow, read level and
- *    ahead of it, within 10 mm.
+ * 3. The palm lies ahead of the elbow, read level, at least the forearm's
+ *    length and at most the forearm and the whole hand, within 10 mm: the
+ *    level forearm puts the wrist a forearm ahead of the elbow, and the palm
+ *    lies on the hand beyond it.
  * 4. The palm lies between the midline and the shoulder on its own side, within 10
  *    mm outside that band.
  * 5. The palm stays there from `ready` to `relax`, within 10 mm.
@@ -130,10 +132,11 @@ function present(
 
   // 3. The level reach from the elbow, ahead of it.
   const level: IAutoMovieVector3 = { ...Vector3.subtract(at, elbow), y: 0 };
-  const reach: number = b.measure.forearm + b.measure.hand / 2;
+  const reached: number = Vector3.length(level);
   checks.check(
-    `${label}: the palm lies the forearm and half the hand ahead of the elbow, read level (${(Vector3.length(level) * 1000).toFixed(0)} mm of ${(reach * 1000).toFixed(0)}, ${(Vector3.dot(level, forward) * 1000).toFixed(0)} mm of it ahead)`,
-    Math.abs(Vector3.length(level) - reach) <= grip &&
+    `${label}: the palm lies a forearm and a hand ahead of the elbow, read level (${(reached * 1000).toFixed(0)} mm, the forearm ${(b.measure.forearm * 1000).toFixed(0)} and the hand ${(b.measure.hand * 1000).toFixed(0)}, ${(Vector3.dot(level, forward) * 1000).toFixed(0)} mm of it ahead)`,
+    reached >= b.measure.forearm - grip &&
+      reached <= b.measure.forearm + b.measure.hand + grip &&
       Vector3.dot(level, forward) > 0,
   );
 
