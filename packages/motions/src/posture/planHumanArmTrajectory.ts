@@ -283,13 +283,19 @@ export function planHumanArmTrajectory(
           HumanArmSeed.seed(
             problem,
             initial.context,
-            // The hold's inverse kinematics is seeded with the planned
-            // course's state at that instant, as MoveIt seeds `setFromIK`
-            // with the state's own joint values (`ik_seed_state`,
+            // The hold's inverse kinematics is seeded with the law's goal
+            // arm, its fit at the hold that keeps the goal's cleared segments
+            // (another body's among them) clear; where an arm has none, with
+            // the planned course's state at that instant, as MoveIt seeds
+            // `setFromIK` with the state's own joint values (`ik_seed_state`,
             // moveit_core/robot_state/src/robot_state.cpp, `setFromIK`, at
             // commit fdb79acafb24efd9e138b0d309fb2463186d4ab2,
-            // BSD-3-Clause); with no course, the law's goal arm.
-            course === undefined
+            // BSD-3-Clause).
+            course === undefined ||
+              problem.arms.every(
+                (arm: HumanArmTrajectory.IArm): boolean =>
+                  arm.guess !== undefined,
+              )
               ? undefined
               : HumanArmSeed.held(
                   problem,

@@ -74,7 +74,6 @@ export function crutchHeldLeg(
   const { body, side, lifted, held, read } = props;
   const leg: `${AutoMovieHumanSide}Leg` = `${side}Leg`;
   const cleared: number = lifted + (held - lifted) / 3;
-  let raised: crutchHeldLeg.IRaised | undefined;
   // The held leg's course from the bearing pose, planned as TrajOpt
   // plans a chain (Schulman et al. 2014, IJRR 33:1251): the hip's flexion,
   // abduction and twist and the knee's flexion at the law's phase instants
@@ -329,43 +328,34 @@ export function crutchHeldLeg(
     );
     return knots.map((_: number, j: number): number[] => angles(solved.x, j));
   };
-  let planned: number[][] | undefined;
+  // The leg as it bears, at the bearing stance's last representable instant
+  // (at `lifted` itself a support plan has already let the foot's goal go):
+  // the course's first knot, so the leg leaves its stance without a step.
+  const bearing: IAutoMoviePose = resolveHumanPosture(
+    body,
+    read(lifted - Math.abs(lifted) * Number.EPSILON),
+  );
+  const ankle: IAutoMovieJointPose | undefined = bearing.joints.find(
+    (j: IAutoMovieJointPose): boolean => j.bone === `${side}Foot`,
+  );
+  const from: crutchHeldLeg.IRaised = {
+    ...HumanLimbFit.reference(bearing, leg),
+    foot: [ankle?.flexion ?? 0, ankle?.abduction ?? 0, ankle?.twist ?? 0],
+  };
+  // The course, solved once here; a read only evaluates its path.
+  const course: ReturnType<typeof HumanArmRefine.prepareHermite> =
+    HumanArmRefine.prepareHermite(knots, plan(from));
   return (
     base: IAutoMovieMotionHumanPosture,
     seconds: number,
   ): IAutoMovieMotionHumanPosture => {
     if (seconds <= lifted) return base;
-    // The leg as it bears, at the bearing stance's last representable
-    // instant (at `lifted` itself a support plan has already let the foot's
-    // goal go): the course's first knot, so the leg leaves its stance
-    // without a step.
-    if (raised === undefined) {
-      const pose: IAutoMoviePose = resolveHumanPosture(
-        body,
-        read(lifted - Math.abs(lifted) * Number.EPSILON),
-      );
-      const ankle: IAutoMovieJointPose | undefined = pose.joints.find(
-        (j: IAutoMovieJointPose): boolean => j.bone === `${side}Foot`,
-      );
-      raised = {
-        ...HumanLimbFit.reference(pose, leg),
-        foot: [ankle?.flexion ?? 0, ankle?.abduction ?? 0, ankle?.twist ?? 0],
-      };
-    }
-    const from: crutchHeldLeg.IRaised = raised;
-    planned ??= plan(from);
     const s: number = minimumJerk(
       Math.min(1, (seconds - lifted) / (held - lifted)),
     ).s;
-    return posed(
-      base,
-      from,
-      HumanArmRefine.hermite(knots, planned, seconds),
-      s,
-    );
+    return posed(base, from, course(seconds).coordinates, s);
   };
 }
-
 /** Companion types of {@link crutchHeldLeg}. */
 export namespace crutchHeldLeg {
   /** The leg to hold and when. */

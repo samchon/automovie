@@ -105,3 +105,21 @@ Nothing to share.
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
 One word per generator.
+
+# src/posture/HumanArmConnect.ts#HumanArmConnect.IDisc
+
+## @evidence contracts/development/common.md#meaningful-documentation
+
+x, y: the pair's coordinate indices. radius: the disc's radius.
+
+## @evidence contracts/development/design.md#principled-representation
+
+A coordinate pair whose domain is a disc about the origin, so the sampler draws within the space's own bounds (`StateSampler::sampleUniform`) rather than the disc's bounding box.
+
+## @evidence contracts/development/design.md#minimal-and-owned-surface
+
+Runtime boundary references: posture/HumanArmSeedSpace.ts (sampler); posture/HumanArmSeed.ts (seed).
+
+## @evidence contracts/development/design.md#prohibited-design-shortcuts
+
+The radius is the seed space's own; nothing is derived here.

@@ -194,6 +194,12 @@ export namespace HumanArmConnect {
    */
   function spaceOf(query: IQuery): ISpace {
     const dims: number = query.low.length;
+    // Each coordinate's disc, read once when the space is prepared.
+    const owner: (IDisc | undefined)[] = new Array<IDisc | undefined>(dims);
+    for (const disc of query.discs) {
+      owner[disc.x] = disc;
+      owner[disc.y] = disc;
+    }
     const time: [number, number] = [query.start[dims]!, query.goal[dims]!];
     const joints: number = Math.hypot(
       ...query.low.map(
@@ -256,9 +262,7 @@ export namespace HumanArmConnect {
       sample: (rng: MT.IState): number[] => {
         const q: number[] = new Array<number>(dims + 1).fill(0);
         for (let i: number = 0; i < dims; ++i) {
-          const disc: IDisc | undefined = query.discs.find(
-            (d: IDisc): boolean => d.x === i || d.y === i,
-          );
+          const disc: IDisc | undefined = owner[i];
           if (disc === undefined)
             q[i] = MT.uniformReal(rng, query.low[i]!, query.high[i]!);
           else if (disc.x === i) {
@@ -373,6 +377,12 @@ export namespace HumanArmConnect {
    */
   function repair(query: IQuery, rng: MT.IState): number[] | null {
     const dims: number = query.low.length;
+    // Each coordinate's disc, read once when the space is prepared.
+    const owner: (IDisc | undefined)[] = new Array<IDisc | undefined>(dims);
+    for (const disc of query.discs) {
+      owner[disc.x] = disc;
+      owner[disc.y] = disc;
+    }
     const state: number[] = [...query.start];
     for (let c: number = 0; c < ATTEMPTS; ++c)
       for (let i: number = 0; i < dims; ++i) {
