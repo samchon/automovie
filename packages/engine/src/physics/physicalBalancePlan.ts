@@ -13,15 +13,15 @@ import { physicalPlanarPolygon as Polygon } from "./physicalPlanarPolygon";
 import { physicalSupportSpanContacts as Contacts } from "./physicalSupportSpanContacts";
 
 /**
- * The balance controller's plan phase (`advancePhysicalBalance`), one for
- * every body whatever its contacts: the pendulum's rate, the plan's capture
- * point and the assessment the settle phase reads. A step out of a fall is the
- * prepared disturbance response's (`preparePhysicalDisturbanceSpan`), never
- * this phase's.
+ * The balance controller's plan phase (`advancePhysicalBalance`), one for every
+ * body whatever its contacts: the pendulum's rate, the plan's capture point and
+ * the assessment the settle phase reads. A step out of a fall is the prepared
+ * disturbance response's (`preparePhysicalDisturbanceSpan`), never this
+ * phase's.
  *
- * - The pendulum's rate is IHMC's omega0, sqrt(g / z0), z0 the authored centre
- *   of mass's height over the floor at the controller's first update, held for
- *   the run as IHMC holds it from its nominal height (201903
+ * - The pendulum's rate is IHMC's omega0, sqrt(g / z0), z0 the authored centre of
+ *   mass's height over the floor at the controller's first update, held for the
+ *   run as IHMC holds it from its nominal height (201903
  *   `HighLevelHumanoidControllerToolbox` l.155, l.204;
  *   `WalkingControllerParameters.getOmega0` l.45-51), the authored motion being
  *   this engine's nominal.
@@ -71,6 +71,14 @@ export function physicalBalancePlan(input: {
     hull.length === 0
       ? Infinity
       : Math.max(0, Polygon.signedDistance(hull, point));
+  // Back over its planted support, the body has recovered: the supported
+  // state clears the outside clock and a failed landing, as the push
+  // recovery's double-support update does when the capture point is inside
+  // (`physicalPushRecovery.doubleSupport` l.137-183).
+  if (hull.length > 0 && outside === 0) {
+    delete state.outsideSince;
+    delete state.failedLanding;
+  }
   state.last = state.failedLanding ? "unrecoverable" : "supported";
   const assessment: IAutoMoviePhysicalBalance.IResult = {
     state: state.last,
@@ -115,8 +123,8 @@ export namespace physicalBalancePlan {
   }
 
   /**
-   * The pendulum's rate, IHMC's omega0: sqrt(g / z0), z0 the authored centre
-   * of mass's height over the floor (`physicalAuthoredCapture.center`).
+   * The pendulum's rate, IHMC's omega0: sqrt(g / z0), z0 the authored centre of
+   * mass's height over the floor (`physicalAuthoredCapture.center`).
    *
    * @param sense The body's readings.
    * @param state The recovery's state.
