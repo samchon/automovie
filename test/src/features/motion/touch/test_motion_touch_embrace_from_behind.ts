@@ -1,10 +1,12 @@
 import { Vector3, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
 import type {
+  AutoMovieHumanoidBone,
   AutoMovieHumanoidRegion,
   IAutoMovieMotionEvent,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanSegment,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
@@ -13,6 +15,7 @@ import {
   HumanPerformance,
   HumanRefusal,
 } from "@automovie/motions";
+import { HumanColliders } from "@automovie/motions/internal";
 
 import { assertTakeClean } from "../../internal/assertTakeClean";
 import { everydayTake } from "../../internal/everydayTake";
@@ -57,8 +60,9 @@ const GAP: number = 0.2;
  * Scenarios, the average man embracing another average man and the small woman
  * embracing another small woman, each take clean:
  *
- * 1. Through the hold, the chest lies on the partner's upper back, the chin on the
- *    top of the partner's left shoulder (its region; rested halfway to the
+ * 1. Through the hold, the sternum lies on the partner's back (the torso's
+ *    colliders: the spine's, the chest's and the upper chest's), the chin on
+ *    the top of the partner's left shoulder (its region; rested halfway to the
  *    neck's side, the head lay in the partner's neck), and each palm on the
  *    partner's abdomen within a hand's length of its middle: the palms lie
  *    either side of the midline, their fingertips meeting at it.
@@ -69,7 +73,7 @@ const GAP: number = 0.2;
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the scenes, the bounds and the refusal.
  * @evidence contracts/development/testing.md#behavioral-verification Reads the displayed regions of both bodies through the hold and the plan's windows; a chest off the back, a chin off the shoulder, a palm off the abdomen, a missing or unloaded window, or an admitted unreachable shoulder fails.
- * @evidence contracts/development/testing.md#independent-expectations The skin-contact bound; the palm bound adds the palm's thickness.
+ * @evidence contracts/development/testing.md#independent-expectations The skin-contact bound; the palm bound adds the palm's thickness. The chest is read against the partner's back colliders, not the upper back's region point: with the chin on the shoulder no stance can also lay the sternum on that point, since over the full range of the upper chest, neck and head (flexion, side bend, twist) the least mismatch between the embracer's chin-to-sternum offset and the partner's shoulder-to-upper-back offset is 155 mm for the average man and 124 mm for the small woman, against the 20 mm the two 10 mm bounds allow; the chest's contact is the shared target both bodies' reach computes (contacts.md, "Contact between performers").
  * @evidence contracts/development/testing.md#distinguishing-cases Two pairs of equal heights, and a large height difference refused.
  * @evidence contracts/development/testing.md#execution-ownership In-memory two-performer performances through the public chain.
  */
@@ -91,9 +95,12 @@ export function test_motion_touch_embrace_from_behind(): void {
       const from: number = mark(act, "ready");
       const to: number = mark(act, "relax");
       for (const t of [from, (from + to) / 2, to]) {
-        const chest: number = Vector3.distance(
-          region(film, "a", a, "sternum", t),
-          region(film, "b", b, "upperBack", t),
+        const chest: number = Math.abs(
+          HumanColliders.distance(
+            b,
+            torso(film.bones("b", t)),
+            region(film, "a", a, "sternum", t),
+          ).distance,
         );
         const top: IAutoMovieVector3 = region(film, "b", b, "shoulderLeft", t);
         const chin: number = Vector3.distance(
@@ -199,6 +206,22 @@ function scene(
         }),
       ).node,
   });
+}
+
+/** The partner's torso bones, whose colliders are the back the chest lies on. */
+const TORSO: ReadonlySet<AutoMovieHumanoidBone> =
+  new Set<AutoMovieHumanoidBone>(["spine", "chest", "upperChest"]);
+
+/** A body's displayed torso bones. */
+function torso(
+  bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
+): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> {
+  return new Map(
+    [...bones].filter(
+      ([bone]: [AutoMovieHumanoidBone, IAutoMovieResolvedBone]): boolean =>
+        TORSO.has(bone),
+    ),
+  );
 }
 
 /** A body region's displayed point. */
