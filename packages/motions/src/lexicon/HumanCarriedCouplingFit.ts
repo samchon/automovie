@@ -93,7 +93,14 @@ export namespace HumanCarriedCouplingFit {
   /**
    * Register the carried region on the bearer at the authored key. If any wrist
    * cannot reach its grip, find the least change to the bearer's stance and
-   * borne legs that preserves the resting contact and reaches every grip.
+   * borne legs that preserves the resting contact and reaches every grip:
+   * trajopt's sequential convex loop (`HumanSequentialConvex`, the port of
+   * `sco::BasicTrustRegionSQP::optimize`) at sco's defaults, the grips' gaps
+   * its constraints, in metres as sco's are, met to its `cnt_tolerance_` (1e-4
+   * m), the tolerance the admission below reads too, each convex model solved
+   * by the operator splitting (`HumanQuadraticProgram.prepare`); a model the
+   * splitting leaves unsolved ends the fit failed, as sco's ends where its
+   * convex solver fails.
    *
    * @param bearer The bearer's body.
    * @param borne The borne body.
@@ -215,22 +222,20 @@ export namespace HumanCarriedCouplingFit {
       s > 0 ? 1 / s ** 2 : 0,
     );
     const n: number = start.length;
-    const curvatures: readonly Float64Array[][] = [false, true].map(
-      (objective: boolean): Float64Array[] =>
-        weight.map((w: number): Float64Array => {
-          const diagonal: Float64Array = new Float64Array(n);
-          diagonal[0] = objective ? w : 0;
-          return diagonal;
-        }),
-    );
+    // The change's curvature, diagonal, the same at every iterate.
+    const curvature: Float64Array[] = weight.map((w: number): Float64Array => {
+      const diagonal: Float64Array = new Float64Array(n);
+      diagonal[0] = w;
+      return diagonal;
+    });
     const all: number[] = Array.from(
       { length: n },
       (_: unknown, k: number): number => k,
     );
-    const arm: number = bearer.measure.upperArm + bearer.measure.forearm;
-    const accuracy: number = arm * Number.EPSILON ** 0.5;
     const origin: Float64Array = Float64Array.from(start);
-    const evaluate = (x: Float64Array): IReading => {
+    const evaluate: (x: Float64Array) => IReading = (
+      x: Float64Array,
+    ): IReading => {
       const read: IRead =
         x === origin ? keyed : at([...x], undefined, keyBones);
       const g: number[] = x === origin ? keyGaps : gaps(read);
@@ -245,7 +250,7 @@ export namespace HumanCarriedCouplingFit {
           (s: number, v: number): number => s + Math.max(0, v),
           0,
         ),
-        worst: Math.max(0, ...g),
+        greatest: Math.max(0, ...g),
         gaps: g,
       };
     };
@@ -254,14 +259,16 @@ export namespace HumanCarriedCouplingFit {
       IReading
     > = SCO.minimise(
       {
+        // getClosestFeasiblePoint: each coordinate clamped into its range.
+        closest: (x: Float64Array): Float64Array =>
+          Float64Array.from(x, (v: number, k: number): number =>
+            Math.min(ranges[k]!.max, Math.max(ranges[k]!.min, v)),
+          ),
         evaluate,
-        feasible: (e: IReading): boolean => e.worst <= accuracy,
         convexify: (
           x: Float64Array,
           e: IReading,
-          mu: number,
-          _radius: number,
-          objective: boolean,
+          coefficient: number,
         ): IAutoMovieMotionHumanSequentialConvex.IModel<Float64Array> => {
           // Central differences at the step that balances their truncation
           // against round-off, one-sided at a range's end; an angle pinned
@@ -284,155 +291,108 @@ export namespace HumanCarriedCouplingFit {
                 (v - b[i]!) / (up[k]! - down[k]!),
             );
           });
-          let prepared: ReturnType<typeof QP.prepare> | undefined;
-          const q: Float64Array = Float64Array.from(all, (k: number): number =>
-            objective ? weight[k]! * (x[k]! - start[k]!) : 0,
+          const q: Float64Array = Float64Array.from(
+            all,
+            (k: number): number => weight[k]! * (x[k]! - start[k]!),
           );
-          const priced: (
-            price: number,
-          ) => IAutoMovieMotionHumanSequentialConvex.IModel<Float64Array> = (
-            price: number,
-          ): IAutoMovieMotionHumanSequentialConvex.IModel<Float64Array> => {
-            const model: IAutoMovieMotionHumanQuadraticProgram.IProblem = {
-              n,
-              band: n - 1,
-              p: curvatures[objective ? 1 : 0]!,
-              q,
-              rows: [
-                ...e.gaps.map(
-                  (
-                    g: number,
-                    i: number,
-                  ): IAutoMovieMotionHumanQuadraticProgram.IRow => ({
-                    key: `g|${i}`,
-                    index: all,
-                    coef: all.map((k: number): number => slope[k]![i]!),
-                    l: -Infinity,
-                    u: -g,
-                    weight: price,
-                  }),
-                ),
-                ...all.map(
-                  (k: number): IAutoMovieMotionHumanQuadraticProgram.IRow => ({
-                    key: `r|${k}`,
-                    index: [k],
-                    coef: [1],
-                    l: ranges[k]!.min - x[k]!,
-                    u: ranges[k]!.max - x[k]!,
-                  }),
-                ),
-              ],
-            };
-            const zero: number = QP.value(model);
-            let warm: IAutoMovieMotionHumanQuadraticProgram.IState | undefined;
-            return {
-              reprice: priced,
-              solve: (
-                r: number,
-              ): IAutoMovieMotionHumanSequentialConvex.IStep<Float64Array> => {
-                const problem: IAutoMovieMotionHumanQuadraticProgram.IProblem =
-                  {
-                    ...model,
-                    rows: [
-                      ...model.rows,
-                      ...all.map(
-                        (
-                          k: number,
-                        ): IAutoMovieMotionHumanQuadraticProgram.IRow => ({
-                          key: `t|${k}`,
-                          index: [k],
-                          coef: [1],
-                          l: (-r * spans[k]!) / widest,
-                          u: (r * spans[k]!) / widest,
-                        }),
-                      ),
-                    ],
-                  };
-                prepared ??= QP.prepare(problem);
-                warm = prepared.solve(problem.rows, warm);
-                const solved: Float64Array = warm.x;
-                const longest: number = Math.max(
-                  ...all.map((k: number): number =>
-                    spans[k]! > 0
-                      ? (Math.abs(solved[k]!) * widest) / spans[k]!
-                      : 0,
-                  ),
-                );
-                // The gaps the step leaves on the linearisation, which the
-                // steered penalty reads.
-                const left: number[] = e.gaps.map(
-                  (g: number, i: number): number =>
-                    Math.max(
-                      0,
-                      g +
-                        all.reduce(
-                          (s: number, k: number): number =>
-                            s + slope[k]![i]! * solved[k]!,
-                          0,
-                        ),
-                    ),
-                );
-                let trial: Float64Array | undefined;
-                return {
-                  violation: left.reduce(
-                    (s: number, v: number): number => s + v,
-                    0,
-                  ),
-                  met: Math.max(0, ...left) <= accuracy,
-                  get trial(): Float64Array {
-                    return (trial ??= Float64Array.from(
-                      x,
-                      (v: number, k: number): number => v + solved[k]!,
-                    ));
-                  },
-                  predicted: zero - QP.value(model, solved),
-                  length: longest,
-                  full: longest >= r * (1 - QP.TOLERANCE),
-                };
-              },
-            };
+
+          // The model's rows: the gaps priced at the coefficient, the ranges
+          // hard; then the box's rows, whose ends each solve sets
+          // (`setTrustBoxConstraints`), the box scaled to each coordinate's
+          // span as the problem's variables are.
+          const model: IAutoMovieMotionHumanQuadraticProgram.IProblem = {
+            n,
+            band: n - 1,
+            p: curvature,
+            q,
+            rows: [
+              ...e.gaps.map(
+                (
+                  g: number,
+                  i: number,
+                ): IAutoMovieMotionHumanQuadraticProgram.IRow => ({
+                  key: `g|${i}`,
+                  index: all,
+                  coef: all.map((k: number): number => slope[k]![i]!),
+                  l: -Infinity,
+                  u: -g,
+                  weight: coefficient,
+                }),
+              ),
+              ...all.map(
+                (k: number): IAutoMovieMotionHumanQuadraticProgram.IRow => ({
+                  key: `r|${k}`,
+                  index: [k],
+                  coef: [1],
+                  l: ranges[k]!.min - x[k]!,
+                  u: ranges[k]!.max - x[k]!,
+                }),
+              ),
+            ],
           };
-          return priced(mu);
+          const trust: IAutoMovieMotionHumanQuadraticProgram.IRow[] = all.map(
+            (k: number): IAutoMovieMotionHumanQuadraticProgram.IRow => ({
+              key: `t|${k}`,
+              index: [k],
+              coef: [1],
+              l: 0,
+              u: 0,
+            }),
+          );
+          const trusted: IAutoMovieMotionHumanQuadraticProgram.IProblem = {
+            ...model,
+            rows: [...model.rows, ...trust],
+          };
+          const prepared: ReturnType<typeof QP.prepare> = QP.prepare(trusted);
+          const warm: IWarm = {};
+          return {
+            solve: (
+              box: number,
+            ): IAutoMovieMotionHumanSequentialConvex.IStep<Float64Array> => {
+              all.forEach((k: number): void => {
+                trust[k]!.l = (-box * spans[k]!) / widest;
+                trust[k]!.u = (box * spans[k]!) / widest;
+              });
+              const state: IAutoMovieMotionHumanQuadraticProgram.IState =
+                prepared.solve(trusted.rows, warm.state);
+              warm.state = state;
+              if (state.status !== "solved" && state.status !== "polished")
+                return { trial: x, merit: Infinity, failed: true };
+
+              // The model merit at the solution: the change's quadratic about
+              // the iterate and the priced linearised gaps, plus the change's
+              // value at the iterate, the constant the model omits.
+              return {
+                trial: Float64Array.from(
+                  x,
+                  (v: number, k: number): number => v + state.x[k]!,
+                ),
+                merit: e.objective + QP.value(model, state.x),
+                failed: false,
+              };
+            },
+          };
         },
       },
       origin,
-      {
-        schedule: {
-          eta: ACCEPTED,
-          low: POOR,
-          high: GOOD,
-          shrink: SHRINK,
-          expand: EXPAND,
-          boundary: true,
-          widest,
-          trust: widest,
-          least: widest * Number.EPSILON ** 0.5,
-          tries: Math.ceil(
-            Math.log(Number.EPSILON ** -0.5) / Math.log(1 / SHRINK),
-          ),
-          improved: (merit: number): number =>
-            Number.EPSILON ** 0.5 * Math.max(accuracy, merit),
-        },
-        penalties: [1],
-        rounds: Math.ceil(Math.log2(Number.EPSILON ** -0.5)),
-        steer: true,
-      },
+      SCO.DEFAULTS,
     );
     const met: IReading = solved.evaluation;
     const clear: boolean =
-      met.worst <= accuracy ||
+      met.greatest < SCO.DEFAULTS.cntTolerance ||
       (planted === undefined &&
         row.straddles === true &&
         sides.every(
-          (_, index: number): boolean => met.gaps[index]! <= accuracy,
+          (_, index: number): boolean =>
+            met.gaps[index]! < SCO.DEFAULTS.cntTolerance,
         ) &&
         HumanCarriedStraddle.clear(bearer, met.read));
     if (!clear)
       throw new HumanRefusal({
         kind: "reach",
         axis: "carry",
-        value: solved.evaluation.worst,
-        reason: `the ${row.mine}-to-${row.theirs} carry's ${sides[met.gaps.indexOf(met.worst)] ?? "knee envelope"} clearance misses by ${(met.worst * 1000).toFixed(2)} mm; the contact-preserving fit stopped on ${solved.reason}`,
+        value: solved.evaluation.greatest,
+        reason: `the ${row.mine}-to-${row.theirs} carry's ${sides[met.gaps.indexOf(met.greatest)] ?? "knee envelope"} clearance misses by ${(met.greatest * 1000).toFixed(2)} mm; the contact-preserving fit ended ${solved.status}`,
         fix: "choose a carry whose holds lie within the bearer's arms, or a bearer of a longer reach",
       });
     // Downstream mass and contact consumers receive the full winning key.
@@ -457,37 +417,20 @@ export namespace HumanCarriedCouplingFit {
   const BENT: number = 110;
 
   /**
-   * A step is taken where the merit falls by more than this share of the
-   * model's prediction: Nocedal and Wright's Algorithm 4.1 asks for one in [0,
-   * 1/4).
-   */
-  const ACCEPTED: number = 0.1;
-
-  /**
-   * The ratio below which the region shrinks: Nocedal and Wright's Algorithm
-   * 4.1.
-   */
-  const POOR: number = 1 / 4;
-
-  /**
-   * The ratio above which a step at the region's edge grows it: Nocedal and
-   * Wright's Algorithm 4.1.
-   */
-  const GOOD: number = 3 / 4;
-
-  /** The region's factor where it shrinks: Nocedal and Wright's Algorithm 4.1. */
-  const SHRINK: number = 1 / 4;
-
-  /** The region's factor where it grows: Nocedal and Wright's Algorithm 4.1. */
-  const EXPAND: number = 2;
-
-  /**
-   * A stance and legs' reading: the change, the summed and the worst gap past
-   * the arms, and each gap, metres.
+   * A stance and legs' reading: the change, the summed and the greatest gap
+   * past the arms, and each gap, metres.
    */
   interface IReading extends IAutoMovieMotionHumanSequentialConvex.IEvaluation {
+    /** The registration read at the iterate. */
     read: IRead;
-    worst: number;
+
+    /** Each grip's gap past its arm, metres. */
     gaps: number[];
+  }
+
+  /** The last solve of a model's rows, from which its next solve starts. */
+  interface IWarm {
+    /** The last state; absent before the first solve. */
+    state?: IAutoMovieMotionHumanQuadraticProgram.IState;
   }
 }

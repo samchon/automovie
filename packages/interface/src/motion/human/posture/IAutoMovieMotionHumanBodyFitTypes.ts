@@ -115,18 +115,7 @@ export namespace IAutoMovieMotionHumanBodyFitTypes {
      * error in degrees; laws compare these with their declared physical
      * bounds.
      */
-    residuals: {
-      /**
-       * This target's Euclidean point error over selected axes, MILLIMETRES,
-       * without subtracting the allowed radius.
-       */
-      point: number;
-      /**
-       * This target's rotation or normal-direction residual norm, degrees; zero
-       * when neither is requested.
-       */
-      turn: number;
-    }[];
+    residuals: IAutoMovieMotionHumanBodyFitTypes.IResidual[];
 
     /**
      * How far the centre of mass lies outside the base of support, millimetres;
@@ -141,8 +130,8 @@ export namespace IAutoMovieMotionHumanBodyFitTypes {
     feasible: boolean;
 
     /**
-     * Whether the loop settled (its model's own accuracy or a step under the
-     * least) at a posture meeting every row to the tolerance.
+     * Whether the loop ended converged (sco's `OPT_CONVERGED`) at a posture
+     * meeting every row to the tolerance.
      */
     converged: boolean;
 
@@ -158,8 +147,23 @@ export namespace IAutoMovieMotionHumanBodyFitTypes {
      */
     centre: number;
 
-    /** Why the loop stopped. */
-    reason: IAutoMovieMotionHumanSequentialConvex.Reason;
+    /** How the loop ended (sco's `OptStatus`). */
+    reason: IAutoMovieMotionHumanSequentialConvex.Status;
+  }
+
+  /** One target's residual measured on the fitted posture. */
+  export interface IResidual {
+    /**
+     * This target's Euclidean point error over selected axes, MILLIMETRES,
+     * without subtracting the allowed radius.
+     */
+    point: number;
+
+    /**
+     * This target's rotation or normal-direction residual norm, degrees; zero
+     * when neither is requested.
+     */
+    turn: number;
   }
 
   /** One whole-body static contact problem. */

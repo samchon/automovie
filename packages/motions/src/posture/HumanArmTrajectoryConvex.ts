@@ -32,15 +32,17 @@ export namespace HumanArmTrajectoryConvex {
    * The convex subproblem about an iterate: the objective's quadratic model
    * (exact in the accelerations, Gauss-Newton in the steps and the rotation)
    * and each constraint linearised, as soft l1 rows of weight `mu`, the domain
-   * ranges too (only the trust region is hard). A pair that cannot come within
-   * its bound by what the trust region lets its probe move is left out.
+   * ranges too (only the trust region is hard). A pair enters only within
+   * trajopt's contact distance of its bound (`HumanArmTrajectoryTerms.CHECK`,
+   * the fixed `max(dist_pen) + .04` m of `problem_description.cpp` line 549 at
+   * commit 8da5bb00b690647318a12fa4f5dd7e6c8a0f501c, BSD-2-Clause; Schulman et
+   * al. 2014, section IV-A, `d_check > d_safe`); every other constraint enters
+   * at every convexification, as trajopt's do.
    *
    * @param c The context.
    * @param x Each arm's coordinates at each waypoint.
    * @param at0 The iterate's evaluation.
    * @param mu The penalty's weight.
-   * @param radius How far a coordinate may move, coordinate units: the trust
-   *   region, which bounds the active set.
    * @param smooth The context's exact quadratic terms
    *   (`HumanArmTrajectorySmooth.of` of this context), built once by the
    *   caller.
@@ -52,7 +54,6 @@ export namespace HumanArmTrajectoryConvex {
     x: readonly (readonly number[])[][],
     at0: M.IEvaluation,
     mu: number,
-    radius: number,
     smooth: HumanArmTrajectorySmooth.ISmooth,
   ): IAutoMovieMotionHumanQuadraticProgram.IProblem {
     const at: M.IEvaluation = at0;
@@ -108,9 +109,6 @@ export namespace HumanArmTrajectoryConvex {
       owner: "upper" | "lower" | "hand",
       p: IAutoMovieVector3,
     ): IAutoMovieVector3[] => J.carried(at, jac, b, k, owner, p);
-    // What a probe can move within the trust region, millimetres.
-    const reach = (a: number, k: number): number =>
-      inner(k) ? jac[a]![k]!.move * radius : 0;
     x.forEach((arm, a: number): void => {
       for (let k: number = 0; k + 1 < n; ++k) {
         // Cartesian steps and speed, read against the arm's own base
@@ -156,11 +154,7 @@ export namespace HumanArmTrajectoryConvex {
                 square(T.LENGTH, Vector3.dot(d, e), s.idx, s.coef);
             }
           const length: number = Vector3.length(d);
-          if (
-            T.SPEED.includes(probe) &&
-            length > 1e-6 &&
-            length + reach(a, k) + reach(a, k + 1) > M.stepLimit(c, k)
-          ) {
+          if (T.SPEED.includes(probe) && length > 1e-6) {
             const s: ILinear = step(Vector3.scale(d, 1 / length));
             if (s.idx.length > 0)
               rows.push({
@@ -194,12 +188,7 @@ export namespace HumanArmTrajectoryConvex {
           // A step clear of its allowance gives no row: each of its ends lies
           // no nearer the shape than the step does, the step's distance the
           // least over its points.
-          if (
-            d0 > lower ||
-            d0 - lower >
-              Math.min(T.CHECK, reach(a, start) + reach(a, other) + 2)
-          )
-            continue;
+          if (d0 - lower > T.CHECK) continue;
 
           // The swept distance's gradient in each end, exact: the distance
           // is the least over the segment of a point's distance, so by the
@@ -357,7 +346,7 @@ export namespace HumanArmTrajectoryConvex {
         for (const pair of (
           at.pairs[a]?.[k]?.deepest ?? new Map<number, P.IPair>()
         ).values()) {
-          if (-pair.short > Math.min(T.CHECK, reach(a, k) + 2)) continue;
+          if (-pair.short > T.CHECK) continue;
           const v: ILinear = along(
             a,
             k,
@@ -384,7 +373,7 @@ export namespace HumanArmTrajectoryConvex {
         for (const pair of (
           at.pairs[a]?.[k]?.embedded ?? new Map<number, P.IEmbedded>()
         ).values()) {
-          if (-pair.short > Math.min(T.CHECK, reach(a, k) + 2)) continue;
+          if (-pair.short > T.CHECK) continue;
           const p: IAutoMovieVector3 =
             c.frames[a]![k]!.body[pair.corner]!.point;
           const g: IAutoMovieVector3 = physicalShapeNormal(
@@ -415,8 +404,7 @@ export namespace HumanArmTrajectoryConvex {
         for (const pair of inner(k)
           ? (at.crossing[k] ?? new Map<string, P.ICrossing>()).values()
           : []) {
-          if (-pair.short > Math.min(T.CHECK, reach(0, k) + reach(1, k) + 2))
-            continue;
+          if (-pair.short > T.CHECK) continue;
           const a: number = pair.a;
           const b: number = 1 - a;
           const p: IAutoMovieVector3 = at.placed[a]![k]!.probes[pair.probe]![0];

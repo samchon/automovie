@@ -329,19 +329,26 @@ export namespace HumanBodyFitMerit {
             0.5 *
             HumanFitVariables.weight(variables[i]!) *
             (x[i]! - key[i]!) ** 2;
-        let violation: number = 0;
-        for (const d of m.floor) violation += beyond(d);
-        for (const d of m.balance) violation += beyond(d);
-        for (const d of m.pairs) violation += beyond(d);
+        // Each row's violation is one of sco's `cnt_viols`: the loop reads
+        // their sum and their greatest.
+        const summed: ISummed = { violation: 0, greatest: 0 };
+        const add: (term: number) => void = (term: number): void => {
+          summed.violation += term;
+          summed.greatest = Math.max(summed.greatest, term);
+        };
+        for (const d of m.floor) add(beyond(d));
+        for (const d of m.balance) add(beyond(d));
+        for (const d of m.pairs) add(beyond(d));
         m.goals.forEach((g: number[], k: number): void => {
           const share: number = (targets[k]!.price ?? price) / price;
           g.forEach((d: number, j: number): void => {
             // A physical maximum distance has no extra numerical radius.
-            violation +=
+            add(
               share *
-              (targets[k]!.bound !== undefined && j === 0
-                ? Math.max(0, d)
-                : beyond(Math.abs(d)));
+                (targets[k]!.bound !== undefined && j === 0
+                  ? Math.max(0, d)
+                  : beyond(Math.abs(d))),
+            );
           });
         });
         m.angles.forEach((d: number, k: number): void => {
@@ -350,16 +357,17 @@ export namespace HumanBodyFitMerit {
           const [lo, hi]: readonly [number, number] = HumanFitGoals.bounds(
             props.angles[k]!,
           );
-          violation +=
+          add(
             ((props.angles[k]!.price ?? price) / price) *
-            (hi > lo ? Math.abs(d) : beyond(Math.abs(d)));
+              (hi > lo ? Math.abs(d) : beyond(Math.abs(d))),
+          );
         });
         for (const d of m.centre)
-          violation +=
-            ((props.centre?.price ?? price) / price) * beyond(Math.abs(d));
+          add(((props.centre?.price ?? price) / price) * beyond(Math.abs(d)));
         return {
           objective: pull,
-          violation: violation * MM,
+          violation: summed.violation * MM,
+          greatest: summed.greatest * MM,
           r,
           misses: m,
           touching,
@@ -381,5 +389,14 @@ export namespace HumanBodyFitMerit {
           ),
         ),
     };
+  }
+
+  /** The rows' violations as they are added: their sum and their greatest. */
+  interface ISummed {
+    /** The sum, in the misses' units. */
+    violation: number;
+
+    /** The greatest single row's, in the same units. */
+    greatest: number;
   }
 }

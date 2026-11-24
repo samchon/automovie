@@ -62,9 +62,17 @@ export namespace HumanArmTrajectoryTerms {
 
   /**
    * TrajOpt's active set: a pair enters the convex subproblem only within this
-   * of its bound, millimetres.
+   * of its bound, millimetres. trajopt's collision checker reads every pair
+   * within its contact distance, the largest safety distance plus 0.04 m
+   * (`cc->SetContactDistance(*std::max_element(dist_pen.begin(),
+   * dist_pen.end()) + .04)`, github.com/joschu/trajopt
+   * src/trajopt/problem_description.cpp line 549 at commit
+   * 8da5bb00b690647318a12fa4f5dd7e6c8a0f501c, BSD-2-Clause, Copyright (c) 2013,
+   * John Schulman), Schulman et al. 2014's `d_check > d_safe` (section IV-A);
+   * here each pair's own bound is its safety distance, so a pair enters within
+   * 40 mm beyond it.
    */
-  export const CHECK: number = 20;
+  export const CHECK: number = 0.04 * 1000;
 
   /** The reach within which a shape is read against a probe, metres. */
   export const REACH: number = 0.05;

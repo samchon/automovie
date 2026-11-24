@@ -5,81 +5,112 @@ import { TestValidator } from "@nestia/e2e";
 import { nclose } from "../internal/nclose";
 
 /**
- * A steered solve's convergence: the stationary stop needs a violation step
- * that misses the linearised constraints, and a solve that settles
- * infeasible goes on at a tenfold penalty up to its ceiling.
+ * The ported loop's merit schedule and its ends (trajopt's
+ * `sco::BasicTrustRegionSQP::optimize`, github.com/joschu/trajopt
+ * src/sco/optimizers.cpp at commit 8da5bb00b690647318a12fa4f5dd7e6c8a0f501c,
+ * BSD-2-Clause, Copyright (c) 2013, John Schulman).
  *
- * Scenarios:
- * 1. The objective step at penalty 10 misses the linearised constraints;
- *    the step of the violation alone meets them while reducing the summed
- *    violation (1.05 to 1.00) by less than the stationary tolerance 1. The
- *    iterate is not stationary: the solve must go on, steer to penalty 100,
- *    take x = 1 (largest row 0.5, feasible) and settle on the model, never
- *    stop `infeasible` at x = 0.
- * 2. The constraint x >= 1 is read 1.25 times steeper than the model's
- *    linearisation, and each model step leaves a linear residual of 0.09 /
- *    mu, met within the tolerance 0.01. At penalty 10 the next prediction
- *    (0.0225) falls under a tenth of the merit, so the solve settles at
- *    x = 0.991 with the actual violation 0.01125, a hair past the tolerance.
- *    With the ceiling 1000 it goes on at penalty 100 and settles feasible at
- *    x = 0.9991; without a ceiling it ends where it settled, infeasible, at
- *    penalty 10.
+ * Scenarios, on the scripted scalar problem "minimise x²/2 subject to x >= 1",
+ * whose exact violation reads 1.25 times the model's linearisation and whose
+ * model step at coefficient mu aims at 1 - 0.09 / mu inside the box:
  *
- * @evidence contracts/development/common.md#meaningful-documentation States both scripted problems, their tolerances, the expected iterates, penalties and stop reasons.
- * @evidence contracts/development/testing.md#behavioral-verification Runs the public SCO.minimise on owned scalar problems and checks the returned iterate, penalty, reason and feasibility.
- * @evidence contracts/development/testing.md#independent-expectations Scenario 1's merit falls 100 x 0.05 = 5, exactly its prediction, so x = 1 is taken; scenario 2's iterates are 1 - 0.09/mu at mu = 10 and 100, and their actual violations 1.25 x 0.009 and 1.25 x 0.0009 straddle the tolerance 0.01.
- * @evidence contracts/development/testing.md#distinguishing-cases A met against a missed violation step, a settled infeasible solve with and without a ceiling.
- * @evidence contracts/development/testing.md#execution-ownership One in-memory unit owns both scripted problems; it calls the actual public loop and replaces nothing.
+ * 1. At coefficient 10 the solve takes x = 0.991 (exact violation 0.01125), after
+ *    which the model's predicted improvement (0.0225) is never realised, so the
+ *    box shrinks under its least and the SQP converges with the constraint
+ *    violated past the tolerance 0.01. The coefficient rises to 100, the box is
+ *    floored at 1e-4 / 0.1 × 1.5, and the solve converges at x = 0.9991 with
+ *    the violation 0.001125, under the tolerance.
+ * 2. With one coefficient only, the same solve ends `penaltyIterationLimit` at x =
+ *    0.991 with the coefficient already raised to 100, as sco's member is.
+ * 3. With one SQP iteration only, it ends `scoIterationLimit` after the first step
+ *    taken, at x = 0.991.
+ * 4. A model the convex solver cannot solve ends the solve `failed` at the start.
+ *
+ * The box each solve is tried in is recorded too: at coefficient 10 the solves
+ * are at 2 (taken, the box grows to 3), then at 3, 0.3, 0.03, 0.003 and 0.0003
+ * (none taken).
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States the scripted problem, its parameters and each scenario's expected iterate, coefficient, status and the boxes its solves are tried in.
+ * @evidence contracts/development/testing.md#behavioral-verification Runs the public SCO.minimise and checks the returned iterate, status, coefficient and violation, and the box each solve is tried in.
+ * @evidence contracts/development/testing.md#independent-expectations Each step is worked by hand from sco's rules: the first step's ratio (12.5 - 0.6035) / (12.5 - 0.5810) = 0.998 is taken and the box grows to 3; at 0.991 the exact improvement is 0, so the box shrinks by tens to 3e-5 under 1e-4; the raised box is max(3e-5, 1.5e-3); each step at coefficient 100 is taken at a ratio above 0.25 until x = 1 - 0.0009.
+ * @evidence contracts/development/testing.md#distinguishing-cases Constraints met after a raise, still violated after the last coefficient, the SQP iteration limit, and a failed convex solve.
+ * @evidence contracts/development/testing.md#execution-ownership One in-memory unit owns the scripted problems; it calls the actual public loop and replaces nothing.
  */
 export function test_geometry_sequential_outer_penalty(): void {
-  // 1. A met step of the violation alone is no stationary point.
-  const met: IResult = SCO.minimise(stationaryProblem(), 0, {
-    schedule: SCHEDULE,
-    penalties: [10],
-    rounds: 3,
-    steer: true,
-    ceiling: 1000,
-    stationary: 1,
-  });
+  // 1. Converged violated, raised, converged met.
+  const solves: IBox[] = [];
+  const raised: IResult = SCO.minimise(hairProblem(solves), 0, PARAMETERS);
   TestValidator.predicate(
-    "a met violation step does not stop the solve infeasible",
-    met.x === 1 &&
-      met.reason === "model" &&
-      met.settled &&
-      nclose(met.penalty, 100, 1e-12) &&
-      met.evaluation.worst <= 1,
+    "a solve converged with a violation past the tolerance goes on at a tenfold coefficient",
+    raised.status === "converged" &&
+      nclose(raised.x, 1 - 0.09 / 100, 1e-12) &&
+      nclose(raised.coefficient, 100, 1e-12) &&
+      nclose(raised.evaluation.greatest, 1.25 * 0.0009, 1e-12) &&
+      raised.evaluation.greatest < PARAMETERS.cntTolerance,
+  );
+  const tried: number[] = solves
+    .filter((b: IBox): boolean => b.coefficient === 10)
+    .map((b: IBox): number => b.box);
+  TestValidator.predicate(
+    "the box grows by 1.5 on a step taken and shrinks by a tenth on each step not taken, until it falls under its least",
+    tried.length === 6 &&
+      [2, 3, 0.3, 0.03, 0.003, 0.0003].every(
+        (box: number, i: number): boolean => nclose(tried[i]!, box, 1e-12),
+      ),
+  );
+  const raisedFirst: IBox | undefined = solves.find(
+    (b: IBox): boolean => b.coefficient === 100,
+  );
+  TestValidator.predicate(
+    "the box is floored at 1e-4 / 0.1 × 1.5 when the coefficient rises",
+    raisedFirst !== undefined &&
+      nclose(raisedFirst.box, (1e-4 / 0.1) * 1.5, 1e-12),
   );
 
-  // 2. A solve settled a hair outside the tolerance goes on at a raised penalty.
-  for (const ceiling of [1000, undefined]) {
-    const solved: IResult = SCO.minimise(hairProblem(), 0, {
-      schedule: {
-        ...SCHEDULE,
-        improved: (merit: number): number => IMPROVED * merit,
-      },
-      penalties: [10],
-      rounds: 5,
-      steer: true,
-      stationary: TOLERANCE,
-      ...(ceiling === undefined ? {} : { ceiling }),
-    });
-    const raised: boolean = ceiling !== undefined;
-    TestValidator.predicate(
-      `a settled infeasible solve ${raised ? "rises to penalty 100" : "stays at penalty 10 without a ceiling"}`,
-      nclose(solved.x, raised ? 0.9991 : 0.991, 1e-12) &&
-        nclose(solved.penalty, raised ? 100 : 10, 1e-12) &&
-        solved.reason === "model" &&
-        solved.evaluation.worst <= TOLERANCE === raised,
-    );
-  }
+  // 2. Still violated after the last coefficient.
+  const limited: IResult = SCO.minimise(hairProblem([]), 0, {
+    ...PARAMETERS,
+    maxMeritCoeffIncreases: 1,
+  });
+  TestValidator.predicate(
+    "a solve still violated after its last coefficient ends penaltyIterationLimit",
+    limited.status === "penaltyIterationLimit" &&
+      nclose(limited.x, 1 - 0.09 / 10, 1e-12) &&
+      nclose(limited.coefficient, 100, 1e-12) &&
+      limited.evaluation.greatest >= PARAMETERS.cntTolerance,
+  );
+
+  // 3. The SQP iteration limit ends the whole solve.
+  const iterated: IResult = SCO.minimise(hairProblem([]), 0, {
+    ...PARAMETERS,
+    maxIter: 1,
+  });
+  TestValidator.predicate(
+    "maxIter iterations at one coefficient end the solve scoIterationLimit",
+    iterated.status === "scoIterationLimit" &&
+      nclose(iterated.x, 1 - 0.09 / 10, 1e-12) &&
+      nclose(iterated.coefficient, 10, 1e-12),
+  );
+
+  // 4. A failed convex solve ends the solve.
+  const failed: IResult = SCO.minimise(
+    {
+      ...hairProblem([]),
+      convexify: (x: number): IModel => ({
+        solve: (): IStep => ({ trial: x, merit: Infinity, failed: true }),
+      }),
+    },
+    0,
+    PARAMETERS,
+  );
+  TestValidator.predicate(
+    "a model its solver cannot solve ends the solve failed at the start",
+    failed.status === "failed" && failed.x === 0,
+  );
 }
 
-/** A scalar reading with its largest row beside the summed violation. */
-interface IEvaluation
-  extends IAutoMovieMotionHumanSequentialConvex.IEvaluation {
-  /** The largest row's violation, what feasibility reads. */
-  worst: number;
-}
+/** A scalar reading. */
+type IEvaluation = IAutoMovieMotionHumanSequentialConvex.IEvaluation;
 
 /** A problem over one scalar. */
 type IProblem = IAutoMovieMotionHumanSequentialConvex.IProblem<
@@ -96,94 +127,52 @@ type IResult = IAutoMovieMotionHumanSequentialConvex.IResult<
 /** A model over one scalar. */
 type IModel = IAutoMovieMotionHumanSequentialConvex.IModel<number>;
 
-/** A step over one scalar. */
+/** A solution over one scalar. */
 type IStep = IAutoMovieMotionHumanSequentialConvex.IStep<number>;
 
-/** Scenario 2's feasibility tolerance and the model's linear one. */
-const TOLERANCE: number = 0.01;
+/** The box a solve was tried in, and its coefficient. */
+interface IBox {
+  /** The merit coefficient. */
+  coefficient: number;
 
-/** Scenario 2's actual violation over its linearisation's. */
-const STEEPER: number = 1.25;
+  /** The box. */
+  box: number;
+}
 
-/** Scenario 2's least model improvement, a share of the merit. */
-const IMPROVED: number = 0.1;
-
-/** A wide region that no step reaches; the model's own accuracy settles. */
-const SCHEDULE: IAutoMovieMotionHumanSequentialConvex.ISchedule = {
-  eta: 0.1,
-  low: 0.1,
-  high: 0.9,
-  shrink: 0.25,
-  expand: 1.5,
-  boundary: false,
-  widest: 2,
-  trust: 2,
-  least: 1e-9,
-  tries: 4,
-  improved: (): number => 0,
+/** Sco's defaults with the scripted problem's box and tolerance. */
+const PARAMETERS: IAutoMovieMotionHumanSequentialConvex.IParameters = {
+  ...SCO.DEFAULTS,
+  trustBoxSize: 2,
+  cntTolerance: 0.01,
 };
 
-/** Scenario 1: two rows whose sum is 1.05 at 0, 1.04 at 0.5 and 1.00 at 1, the largest row 0.5 at 1. */
-function stationaryProblem(): IProblem {
-  const evaluate = (x: number): IEvaluation =>
-    x === 1
-      ? { objective: 0, violation: 1, worst: 0.5 }
-      : x === 0.5
-        ? { objective: 0, violation: 1.04, worst: 1.04 }
-        : { objective: 0, violation: 1.05, worst: 1.05 };
-  const step = (
-    x: number,
-    trial: number,
-    mu: number,
-    radius: number,
-  ): IStep => ({
-    trial,
-    predicted: mu * (evaluate(x).violation - evaluate(trial).violation),
-    length: Math.abs(trial - x),
-    full: Math.abs(trial - x) >= radius,
-    violation: evaluate(trial).violation,
-    met: evaluate(trial).worst <= 1,
-    accuracy: 0,
-  });
+/** The exact violation over the linearisation's. */
+const STEEPER: number = 1.25;
+
+/** The scripted problem; each solve's box is recorded. */
+function hairProblem(solves: IBox[]): IProblem {
+  const evaluate: (x: number) => IEvaluation = (x: number): IEvaluation => {
+    const violation: number = STEEPER * Math.max(0, 1 - x);
+    return { objective: (x * x) / 2, violation, greatest: violation };
+  };
   return {
+    closest: (x: number): number => x,
     evaluate,
-    feasible: (e: IEvaluation): boolean => e.worst <= 1,
     convexify: (
       x: number,
       _current: IEvaluation,
-      mu: number,
-      _radius: number,
-      objective: boolean,
+      coefficient: number,
     ): IModel => ({
-      // At 0 the objective's step meets the rows only from penalty 100;
-      // the violation's own step always does. At 1 nothing moves.
-      solve: (radius: number): IStep =>
-        step(x, x === 1 || !objective || mu >= 100 ? 1 : 0.5, mu, radius),
-    }),
-  };
-}
-
-/** Scenario 2: x >= 1 read STEEPER times its linearisation, each step leaving 0.09 / mu of it. */
-function hairProblem(): IProblem {
-  const evaluate = (x: number): IEvaluation => {
-    const violation: number = STEEPER * Math.max(0, 1 - x);
-    return { objective: (x * x) / 2, violation, worst: violation };
-  };
-  return {
-    evaluate,
-    feasible: (e: IEvaluation): boolean => e.worst <= TOLERANCE,
-    convexify: (x: number, current: IEvaluation, mu: number): IModel => ({
-      solve: (radius: number): IStep => {
-        const trial: number = 1 - 0.09 / mu;
-        const left: number = Math.max(0, 1 - trial);
+      solve: (box: number): IStep => {
+        solves.push({ coefficient, box });
+        const trial: number = Math.min(
+          x + box,
+          Math.max(x - box, 1 - 0.09 / coefficient),
+        );
         return {
           trial,
-          predicted:
-            (x * x) / 2 - (trial * trial) / 2 + mu * (current.violation - left),
-          length: Math.abs(trial - x),
-          full: Math.abs(trial - x) >= radius,
-          violation: left,
-          met: left <= TOLERANCE,
+          merit: (trial * trial) / 2 + coefficient * Math.max(0, 1 - trial),
+          failed: false,
         };
       },
     }),

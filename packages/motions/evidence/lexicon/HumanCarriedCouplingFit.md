@@ -54,7 +54,7 @@ States what is fitted, what is held exactly, the inputs and the refusal.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-The stance and the legs: the least range-weighted change from upright and the carry's own subject to each held region's gap past its arm being none, by the l1 exact penalty's trust-region sequential convex optimisation with a steered penalty (Nocedal and Wright's Algorithm 4.1 schedule), each model the quadratic program of the change with the gaps linearised by central differences, one-sided at a range's end; it settles at the square root of machine epsilon of the arm. The turn about the resting point is Wahba's problem over the hold directions, solved by Horn's absolute orientation (`fitRigidMeshTransform`) on each direction and its mirror about the resting point, so both clouds' centroids are the resting points and only the turn is fitted. With fewer than two holds the key pose's own axes join the directions, so its heading is kept where no hold decides it.
+The stance and the legs: the least range-weighted change from upright and the carry's own subject to each held region's gap past its arm being none, by the l1 exact penalty's trust-region sequential convex optimisation of trajopt (`HumanSequentialConvex`, the port of `sco::BasicTrustRegionSQP::optimize`, github.com/joschu/trajopt src/sco/optimizers.cpp at commit 8da5bb00b690647318a12fa4f5dd7e6c8a0f501c, BSD-2-Clause, Copyright (c) 2013, John Schulman) at sco's defaults, its constraints, the gaps in metres as sco's are, met to sco's `cnt_tolerance_` 1e-4 m, which the admission reads too; each model the quadratic program of the change with the gaps linearised by central differences, one-sided at a range's end, solved by the operator splitting in the box scaled to each coordinate's span and intersected with its range. A program the splitting leaves unsolved ends the fit failed, as sco's does. The turn about the resting point is Wahba's problem over the hold directions, solved by Horn's absolute orientation (`fitRigidMeshTransform`) on each direction and its mirror about the resting point, so both clouds' centroids are the resting points and only the turn is fitted. With fewer than two holds the key pose's own axes join the directions, so its heading is kept where no hold decides it.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
@@ -66,12 +66,12 @@ The resting contact is kept exact and every angle stays within its range: the le
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
-A reachable key takes one registration and one reach check per grip. Fallback linearises at most five angles using two points each, and reuses the current stance for leg derivatives and the current gaps at each one-sided endpoint. Penalty changes reprice the model without new geometry.
+A reachable key takes one registration and one reach check per grip. Fallback linearises at most six coordinates using two points each, and reuses the current stance for leg derivatives and the current gaps at each one-sided endpoint; at most 5 coefficients × 50 convexifications, each prepared once and solved once per box tried.
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 
-The fallback starts with the measured key and returns its winning reading. The curvature is built once per objective flag and costs from one linearisation share slopes and solver preparation across penalties.
+The fallback starts with the measured key and returns its winning reading. The curvature is built once per fit; one linearisation's slopes and its prepared program serve every box of its iteration, each solve starting from the last.
 
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
-The fit holds two curvatures and the current linearisation until it returns or throws. Only the winning placement and two maps leave the fit.
+The fit holds one curvature and the current linearisation until it returns or throws. Only the winning placement and two maps leave the fit.
