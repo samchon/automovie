@@ -43,11 +43,14 @@ export namespace AutoMovieHumanHandParentRead {
     return {
       read: (point: AutoMovieVector3Tuple): Sample | null =>
         locate(parent, field.values, point),
-      complete: (sample: Sample): IAutoMovieHumanHandAttachment.ISection => ({
-        ...sample,
-        jets: field.jets(sample.station),
-        axisJet: parent.part.axis.jet?.(sample.station) ?? null,
-      }),
+      complete(sample: Sample): IAutoMovieHumanHandAttachment.ISection {
+        if (sample.kind === "regular") validate(section(sample.values));
+        return {
+          ...sample,
+          jets: field.jets(sample.station),
+          axisJet: parent.part.axis.jet?.(sample.station) ?? null,
+        };
+      },
     };
   }
 
@@ -125,7 +128,7 @@ export namespace AutoMovieHumanHandParentRead {
         frame,
         local,
         values,
-        margin: (zero ? 0 : radius(values)(phase)) - Math.hypot(...local),
+        margin: (zero ? 0 : trialRadius(values, phase)) - Math.hypot(...local),
       };
       distance = squared;
     }
@@ -139,28 +142,61 @@ export namespace AutoMovieHumanHandParentRead {
   export function radius(
     values: IAutoMovieLoftViewRead.IValues,
   ): (phase: number) => number {
-    const extents: Quarters = values.extents as Quarters;
-    const ops = AutoMovieConicFieldJet.NUMBER;
-    const curvatures: Quarters = AutoMovieViewConic.curvatures(
-      ops,
-      extents,
-      values.shoulders,
-    );
-    const conics: IAutoMovieViewConic.ICurve =
-      AutoMovieViewConic.prepareGeometry(
-        ops,
-        extents,
-        values.shoulders,
-        curvatures,
-      );
-    const box: IAutoMovieViewSection.IBox = { extents };
-    const fault: string | null = AutoMovieViewSectionConic.fault({
-      box,
-      conics,
-      girth: 0,
-    });
-    if (fault !== null) throw new Error(fault);
-    return (phase: number): number =>
-      AutoMovieViewConic.radius(conics, phase)[0];
+    const conics: IAutoMovieViewConic.ICurve = section(values);
+    validate(conics);
+    return (phase: number): number => value(conics, phase);
   }
+}
+
+/**
+ * Each ray-search trial uses one value from the admitted positive-weight conics
+ * and convex G2 end supports. Completed sections additionally retain the
+ * existing four-quarter numerical sweep before they publish jets.
+ */
+function trialRadius(
+  values: IAutoMovieLoftViewRead.IValues,
+  phase: number,
+): number {
+  return value(section(values), phase);
+}
+
+function section(
+  values: IAutoMovieLoftViewRead.IValues,
+): IAutoMovieViewConic.ICurve {
+  const extents: Quarters = values.extents as Quarters;
+  const ops = AutoMovieConicFieldJet.NUMBER;
+  const curvatures: Quarters = AutoMovieViewConic.curvatures(
+    ops,
+    extents,
+    values.shoulders,
+  );
+  const conics: IAutoMovieViewConic.ICurve = AutoMovieViewConic.prepareGeometry(
+    ops,
+    extents,
+    values.shoulders,
+    curvatures,
+  );
+  if (conics.failure !== null) throw new Error(conics.failure);
+  return conics;
+}
+
+function validate(conics: IAutoMovieViewConic.ICurve): void {
+  const box: IAutoMovieViewSection.IBox = {
+    extents: conics.quarters.map(({ extents }) => extents[0]) as Quarters,
+  };
+  const fault: string | null = AutoMovieViewSectionConic.fault({
+    box,
+    conics,
+    girth: 0,
+  });
+  if (fault !== null) throw new Error(fault);
+}
+
+function value(conics: IAutoMovieViewConic.ICurve, phase: number): number {
+  const radius: number = AutoMovieViewConic.value(conics, phase);
+  if (!(Number.isFinite(radius) && radius > 0))
+    throw new Error(
+      `The actual hand-parent radius is ${radius} at phase ${phase}`,
+    );
+  return radius;
 }
