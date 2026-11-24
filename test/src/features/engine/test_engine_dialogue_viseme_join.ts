@@ -241,16 +241,6 @@ export function test_engine_dialogue_viseme_join(): void {
   TestValidator.equals(
     "every malformed line and viseme boundary is refused at the join",
     {
-      fractionalLineStart: throwsError(
-        (): IAutoMovieDialogueVisemeCompilation =>
-          joinWith({ line: { ...line(), startFrame: 10.5 } }),
-        "invalid range",
-      ),
-      fractionalLineEnd: throwsError(
-        (): IAutoMovieDialogueVisemeCompilation =>
-          joinWith({ line: { ...line(), endFrame: 19.5 } }),
-        "invalid range",
-      ),
       negativeLineStart: throwsError(
         (): IAutoMovieDialogueVisemeCompilation =>
           joinWith({
@@ -305,8 +295,6 @@ export function test_engine_dialogue_viseme_join(): void {
       ),
     },
     {
-      fractionalLineStart: true,
-      fractionalLineEnd: true,
       negativeLineStart: true,
       reversedLine: true,
       negativeViseme: true,

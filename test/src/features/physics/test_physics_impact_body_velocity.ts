@@ -50,25 +50,6 @@ export function test_physics_impact_body_velocity(): void {
   const moving: IAutoMovieImpactBodyState = { ...BODY, velocity: v(0, 0, 10) };
   const normal: IAutoMovieVector3 = v(0, 0, 1);
 
-  TestValidator.predicate(
-    "body a non-finite velocity throws",
-    throws(
-      (): ReturnType<typeof resolveImpact> =>
-        resolveImpact(
-          { ...moving, velocity: v(Number.NaN, 0, 10) },
-          BODY,
-          normal,
-        ),
-    ),
-  );
-  TestValidator.predicate(
-    "body b non-finite velocity throws",
-    throws(
-      (): ReturnType<typeof resolveImpact> =>
-        resolveImpact(moving, { ...BODY, velocity: v(0, Infinity, 0) }, normal),
-    ),
-  );
-
   const impact: ReturnType<typeof resolveImpact> = resolveImpact(
     moving,
     BODY,

@@ -450,7 +450,12 @@ export namespace armWrestle {
         return carrier.carry(t, {
           posture:
             bend > 0
-              ? HumanTrunkTurn.turned(body, posed, bend * pinned * envelope, side)
+              ? HumanTrunkTurn.turned(
+                  body,
+                  posed,
+                  bend * pinned * envelope,
+                  side,
+                )
               : posed,
           sides: ["right"],
           held: (): Parameters<typeof AutoMovieMotionHumanArm.carry>[2] => ({

@@ -58,8 +58,8 @@ export async function test_unit_motions_posture_limb_fit(): Promise<void> {
   };
   const pose: IAutoMoviePose = resolveHumanPosture(body, standing);
   const hand = (of: IAutoMoviePose): IAutoMovieVector3 =>
-    poseBones(body, of)
-      .get("leftHand" satisfies AutoMovieHumanoidBone)!.worldPosition;
+    poseBones(body, of).get("leftHand" satisfies AutoMovieHumanoidBone)!
+      .worldPosition;
   const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
     body,
     pose,
@@ -76,13 +76,14 @@ export async function test_unit_motions_posture_limb_fit(): Promise<void> {
   };
 
   // 1. Chains.
-  TestValidator.equals("an arm's and a leg's chains", [
-    HumanLimbFit.chain("leftArm"),
-    HumanLimbFit.chain("rightLeg"),
-  ], [
-    { upper: "leftUpperArm", lower: "leftLowerArm", effector: "leftHand" },
-    { upper: "rightUpperLeg", lower: "rightLowerLeg", effector: "rightFoot" },
-  ]);
+  TestValidator.equals(
+    "an arm's and a leg's chains",
+    [HumanLimbFit.chain("leftArm"), HumanLimbFit.chain("rightLeg")],
+    [
+      { upper: "leftUpperArm", lower: "leftLowerArm", effector: "leftHand" },
+      { upper: "rightUpperLeg", lower: "rightLowerLeg", effector: "rightFoot" },
+    ],
+  );
 
   // 2. The fit.
   const fitted: IAutoMovieSeededChainFit = HumanLimbFit.fit(

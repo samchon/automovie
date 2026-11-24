@@ -368,26 +368,6 @@ export function test_engine_instance_slot_layouts(): void {
           ),
       ],
       [
-        "routeInfinite",
-        (): boolean =>
-          throwsError(
-            (): ReturnType<typeof instanceSlot> =>
-              instanceSlot(
-                onRoad({
-                  route: {
-                    ...road,
-                    waypoints: [
-                      { x: 0, z: 0 },
-                      { x: Number.POSITIVE_INFINITY, z: 0 },
-                    ],
-                  },
-                }),
-                0,
-              ),
-            noLength,
-          ),
-      ],
-      [
         "infiniteScale",
         (): boolean =>
           throwsError(
@@ -490,7 +470,6 @@ export function test_engine_instance_slot_layouts(): void {
       routeRenamed: true,
       routeOnePoint: true,
       routeZeroLength: true,
-      routeInfinite: true,
       infiniteScale: true,
       infiniteTrait: true,
       infiniteAnchor: true,

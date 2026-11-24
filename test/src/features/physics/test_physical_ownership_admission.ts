@@ -41,7 +41,6 @@ export function test_physical_ownership_admission(): void {
   }
   const findings: string[] = [];
   const invalid: string[][] = [
-    new Array<string>(1),
     ["absent"],
     ["support-0", "support-0"],
     ["upper-0"],

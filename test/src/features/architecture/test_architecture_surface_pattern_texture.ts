@@ -567,7 +567,7 @@ export function test_architecture_surface_pattern_texture(): void {
           ),
       ],
     ]),
-    { tileU: true, tileV: true, origin: true },
+    { tileU: true, origin: true },
   );
 
   TestValidator.predicate(

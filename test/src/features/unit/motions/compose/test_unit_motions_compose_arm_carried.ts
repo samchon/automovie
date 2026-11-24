@@ -1,5 +1,6 @@
 import type {
   IAutoMovieHumanLimbGoal,
+  IAutoMovieMotionClock,
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanArmAngles,
   IAutoMovieMotionHumanBody,
@@ -29,6 +30,12 @@ import { vclose } from "../../../internal/vclose";
 const REACH: number = 1e-3;
 
 /**
+ * The resting shoulder's abduction, degrees: enough to hold the upper arm off
+ * the trunk's colliders, which a hanging arm at clinical zero touches.
+ */
+const ABDUCTION: number = 15;
+
+/**
  * `AutoMovieMotionHumanArm.carried` writes an arm planned once over its span
  * (`AutoMovieMotionHumanArmPlanned.planned`, the sampled path refined by
  * sequential convex optimisation) and, off the span, the joint-space carry from
@@ -36,9 +43,9 @@ const REACH: number = 1e-3;
  * action is (`prepare`) and the off-span carry is solved at knots when the
  * action is prepared (`ready`).
  *
- * The average man stands still for 2 s; his right hand reaches from where it
- * hangs to 0.25 m up and 0.25 m forward over 0.2 to 0.8 s, holds there to
- * 1.4 s and returns by 1.8 s.
+ * The average man stands still for 2 s, his right arm hanging abducted 15
+ * degrees; his right hand reaches from where it hangs to 0.25 m up and 0.25 m forward over 0.2 to 0.8 s, holds there to 1.4 s
+ * and returns by 1.8 s.
  *
  * Scenarios:
  *
@@ -48,12 +55,14 @@ const REACH: number = 1e-3;
  */
 export async function test_unit_motions_compose_arm_carried(): Promise<void> {
   const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");
+  // The right arm hangs abducted clear of the trunk: an arm's plan leaves its
+  // action only from outside every body.
   const standing: IAutoMovieMotionHumanPosture = {
     root: { x: 0, y: body.measure.hipHeight, z: 0 },
     yaw: 0,
     pitch: 0,
     roll: 0,
-    joints: {},
+    joints: { rightUpperArm: [0, ABDUCTION, 0] },
     limbs: {},
   };
   const rest: IAutoMoviePose = resolveHumanPosture(body, standing);
@@ -71,7 +80,7 @@ export async function test_unit_motions_compose_arm_carried(): Promise<void> {
     point,
     bend: AutoMovieMotionHumanBend.hang(body, standing, "right"),
   };
-  const clock = linearMotionClock(2, [
+  const clock: IAutoMovieMotionClock = linearMotionClock(2, [
     { name: "reach", seconds: 0.2 },
     { name: "ready", seconds: 0.8 },
     { name: "relax", seconds: 1.4 },

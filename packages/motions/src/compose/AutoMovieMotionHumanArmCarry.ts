@@ -2,6 +2,7 @@ import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   AutoMovieMotionHumanChannel,
+  IAutoMovieMotionHumanArmAngles,
   IAutoMovieMotionHumanArmCarry,
   IAutoMovieMotionHumanArmClearance,
   IAutoMovieMotionHumanArmPlanned,
@@ -244,8 +245,7 @@ export namespace AutoMovieMotionHumanArmCarry {
           chain = AutoMovieMotionHumanArmChain.continued(
             props.body,
             props.to,
-            (t: number): IAutoMovieMotionHumanPosture =>
-              goaled(before(t), t),
+            (t: number): IAutoMovieMotionHumanPosture => goaled(before(t), t),
             [props.side],
           );
         else if (props.tracked === true)
@@ -334,7 +334,8 @@ export namespace AutoMovieMotionHumanArmCarry {
             source,
             projection,
             undefined,
-            handed ?? AutoMovieMotionHumanArmCarryHung.entering(props, so(props.from)),
+            handed ??
+              AutoMovieMotionHumanArmCarryHung.entering(props, so(props.from)),
           );
         if (props.attitude === undefined || !(weight > 0 && weight < 1))
           return out;

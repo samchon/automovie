@@ -37,6 +37,7 @@ import { lowerHumanPosture } from "../posture/lowerHumanPosture";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { HumanLadder } from "./HumanLadder";
 import { climbLadderBeats } from "./climbLadderBeats";
+import { climbLadderContacts } from "./climbLadderContacts";
 import { climbLadderHands } from "./climbLadderHands";
 import { climbLadderHolds } from "./climbLadderHolds";
 import { planLadderAccess } from "./planLadderAccess";
@@ -417,35 +418,14 @@ export namespace climbLadder {
       );
     }
 
-    // Contact windows between each limb's moves.
-    const contacts: IAutoMovieMotionHumanContactWindow[] = [];
-    for (const limb of ORDER) {
-      const own: (typeof moves)[IAutoMovieMotionHumanClimbLadder.Limb] =
-        moves[limb];
-      const hand: boolean = limb.endsWith("Hand");
-      let from: number = hand ? beat : 0;
-      for (let i: number = 0; i <= own.length; i++) {
-        const to: number = i < own.length ? own[i]!.from : duration;
-
-        // The first hand to move leaves its rung the instant both hands are
-        // on: it holds nothing in between, so it declares no window.
-        if (to <= from) {
-          if (i < own.length) from = own[i]!.to;
-          continue;
-        }
-        contacts.push({
-          part: limb,
-          kind: hand ? "grip" : "plant",
-          from: from / duration,
-          to: to / duration,
-          support:
-            !hand && i === 0
-              ? { kind: "ground" }
-              : { kind: "prop", subject: context.params.ladder },
-        });
-        if (i < own.length) from = own[i]!.to;
-      }
-    }
+    // Contact windows between each limb's moves (`climbLadderContacts`).
+    const contacts: IAutoMovieMotionHumanContactWindow[] = climbLadderContacts(
+      moves,
+      ORDER,
+      beat,
+      duration,
+      context.params.ladder,
+    );
 
     const planned: IAutoMovieMotionHumanClimbLadder.IPlan = {
       ...composeAutoMovieMotionHumanAction({
@@ -460,7 +440,8 @@ export namespace climbLadder {
 
     // The first reach's joint-space carry, solved at knots from the plan's
     // own posture once the performance is prepared.
-    const composed: IAutoMovieMotionHumanActionPlan["prepare"] = planned.prepare;
+    const composed: IAutoMovieMotionHumanActionPlan["prepare"] =
+      planned.prepare;
     planned.prepare = (): void => {
       composed?.call(planned);
       carrier.prepare(duration, exact);

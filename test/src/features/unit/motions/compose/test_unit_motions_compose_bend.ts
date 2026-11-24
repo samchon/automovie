@@ -34,8 +34,8 @@ const LENGTH: number = 1e-6;
  * Scenarios:
  *
  * 1. The solved elbow keeps the upper arm's and the forearm's lengths.
- * 2. It is the least strained: a place turned 30 degrees either way about the
- *    line strains no less.
+ * 2. It is the least strained: a place turned 30 degrees either way about the line
+ *    strains no less.
  * 3. A turned place stays as far from the shoulder.
  * 4. A wrist beyond reach is refused, and with a fallback gives a hint.
  */

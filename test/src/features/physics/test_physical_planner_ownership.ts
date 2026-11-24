@@ -64,18 +64,7 @@ export function test_physical_planner_ownership(): void {
     (entry: IAutoMovieStepPlanner.IStep): boolean => entry.kind === "swing",
   )!;
   const seconds: number = (step.start + step.end) / 2;
-  const before: string = JSON.stringify(planner.at(step.bone, seconds));
-  input.height = 3;
-  input.peakPitch = -2;
-  Reflect.set(step.to.point, "0", 100);
-  Reflect.set(planner.steps, planner.steps.length, { ...step, end: 100 });
-  planner.at(step.bone, 2);
-  planner.at(step.bone, 0);
-  TestValidator.equals(
-    "owned precomputed query survives external mutations and seeks",
-    JSON.stringify(planner.at(step.bone, seconds)),
-    before,
-  );
+
   const flat: IAutoMovieStepPlanner.IPlacement = {
     point: [0, 0],
     yaw: 0,

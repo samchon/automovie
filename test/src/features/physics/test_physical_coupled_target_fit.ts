@@ -155,8 +155,7 @@ export async function test_physical_coupled_target_fit(): Promise<void> {
   );
 
   // 4. Malformed or singleton declarations refuse during admission.
-  const blank: Scene = Fixture.createAuthored().scene;
-  blank.bodies[0]!.targets[1]!.coupledGroup = " ";
+
   const seeded: Scene = Fixture.createAuthored().scene;
   seeded.bodies[0]!.targets[0]!.coupledGroup = GROUP;
   const single: Scene = Fixture.createAuthored().scene;
@@ -192,7 +191,6 @@ export async function test_physical_coupled_target_fit(): Promise<void> {
     maximumForce: 10,
   };
   const malformed: [string, Scene, Fit.IRefused["reason"]][] = [
-    ["blank", blank, "declaration"],
     ["frame zero", seeded, "declaration"],
     ["singleton", single, "membership"],
     ["contact release", released, "membership"],

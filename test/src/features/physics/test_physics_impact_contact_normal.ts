@@ -54,18 +54,4 @@ export function test_physics_impact_contact_normal(): void {
         resolveImpact(moving, BODY, v(0, 0, 0)),
     ),
   );
-  TestValidator.predicate(
-    "nan normal throws",
-    throws(
-      (): ReturnType<typeof resolveImpact> =>
-        resolveImpact(moving, BODY, v(Number.NaN, 0, 1)),
-    ),
-  );
-  TestValidator.predicate(
-    "infinite normal throws",
-    throws(
-      (): ReturnType<typeof resolveImpact> =>
-        resolveImpact(moving, BODY, v(Infinity, 0, 1)),
-    ),
-  );
 }

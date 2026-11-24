@@ -75,6 +75,9 @@ export function projectileDragFlight(
     throw new RangeError(
       "projectile drag factor must retain its positive magnitude",
     );
+  // The density, coefficient and area product can overflow binary64.
+  if (k === Infinity)
+    throw new RangeError("projectile drag factor overflows binary64");
   const g: IAutoMovieVector3 = projectile.gravity;
   const f = (
     _: number,

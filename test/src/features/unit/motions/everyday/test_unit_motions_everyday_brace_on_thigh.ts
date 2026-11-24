@@ -4,16 +4,16 @@ import type {
   IAutoMovieMotionHumanPrimitive,
   IAutoMoviePose,
 } from "@automovie/interface";
-import { AutoMovieMotionHumanStance } from "@automovie/motions";
 import {
   AutoMovieMotionHumanArm,
   AutoMovieMotionHumanLean,
+  braceOnThigh,
   poseBones,
   resolveHumanPosture,
 } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
-import { motionContactArmFixture as fixture } from "../../internal/motionContactArmFixture";
+import { motionContactArmFixture as fixture } from "../../../internal/motionContactArmFixture";
 
 /**
  * The right palm braces on the posed right thigh and releases to its entering
@@ -25,13 +25,8 @@ import { motionContactArmFixture as fixture } from "../../internal/motionContact
  *    thigh capsule in the held phase.
  * 2. Compare the released wrist to its independent starting frame.
  *
- * @evidence contracts/development/testing.md#behavioral-verification The right palm braces on the posed right thigh and releases to its entering wrist position.
- * @evidence contracts/development/testing.md#independent-expectations A brace needs contact with the thigh skin, measured by posed colliders, and may indent the skin by at most 10 mm.
- * @evidence contracts/development/testing.md#distinguishing-cases Prepare a forward-leaning body and observe the outer hand against the actual thigh capsule in the held phase. Compare the released wrist to its independent starting frame.
- * @evidence contracts/development/testing.md#execution-ownership Runs the named public operation in memory and samples its observable outputs.
- * @evidence contracts/development/common.md#meaningful-documentation States the phase, coordinate frame and quantitative basis of the check.
  */
-export function test_motion_stance_brace_on_thigh(): void {
+export function test_unit_motions_everyday_brace_on_thigh(): void {
   const f: fixture.IInputs = fixture();
   const rest: IAutoMovieMotionHumanPosture = AutoMovieMotionHumanLean.pivot(
     f.body,
@@ -41,7 +36,7 @@ export function test_motion_stance_brace_on_thigh(): void {
   const entry: IAutoMoviePose = resolveHumanPosture(f.body, rest);
   const original: ReturnType<typeof poseBones> = poseBones(f.body, entry);
   const arm: IAutoMovieMotionHumanPrimitive =
-    AutoMovieMotionHumanStance.braceOnThigh(
+    braceOnThigh(
       f.body,
       "right",
       AutoMovieMotionHumanArm.angles(entry, "right"),

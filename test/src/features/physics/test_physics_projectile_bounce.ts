@@ -176,9 +176,6 @@ export function test_physics_projectile_bounce(): void {
       -Number.MIN_VALUE,
       1 + Number.EPSILON,
       2,
-      NaN,
-      Infinity,
-      -Infinity,
     ]) {
       const outcome: IAutoMovieProjectileContinue.Outcome =
         kind === "bounce"

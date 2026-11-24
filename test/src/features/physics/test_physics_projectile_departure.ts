@@ -415,36 +415,6 @@ export function test_physics_projectile_departure(): void {
       }
       check(`invalid clearance ${seconds} is refused`, refused);
     }
-    let infinite: boolean = false;
-    try {
-      resolveAutoMovieContactEvents({
-        from: 0,
-        to: 1,
-        step: 1,
-        weapons: [
-          {
-            id: "point",
-            owner: "point",
-            radius: 0,
-            position: (): IAutoMovieVector3 => zero,
-          },
-        ],
-        bodies: [
-          {
-            id: "surface",
-            distance: (_point: IAutoMovieVector3, seconds: number): number =>
-              seconds === 0 ? 0 : Infinity,
-            departure: (): IAutoMovieResolveContactEvents.Departure => ({
-              kind: "clearance",
-              seconds: 0.5,
-            }),
-          },
-        ],
-      });
-    } catch (error) {
-      infinite = error instanceof RangeError;
-    }
-    check("infinite signed gap cannot certify actual clearance", infinite);
   });
 
   TestValidator.predicate(

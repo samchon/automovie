@@ -1,3 +1,4 @@
+import type { IAutoMovieMotionClock } from "@automovie/interface";
 import { AutoMovieMotionWave } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
@@ -25,7 +26,7 @@ const ROUNDING: number = 1e-12;
  * 4. The prepared reader reads the same; a count of 0 is refused.
  */
 export function test_unit_motions_compose_motion_wave(): void {
-  const clock = linearMotionClock(2, [
+  const clock: IAutoMovieMotionClock = linearMotionClock(2, [
     { name: "open", seconds: 0 },
     { name: "close", seconds: 2 },
   ]);

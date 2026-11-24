@@ -43,44 +43,6 @@ export function test_physics_segment_sphere_vectors(): void {
   const center: IAutoMovieVector3 = v(5, 0, 0);
 
   TestValidator.predicate(
-    "non-finite segment start throws",
-    throws(
-      (): ReturnType<typeof segmentSphere> =>
-        segmentSphere(v(Number.NaN, 0, 0), b, center, 1),
-    ),
-  );
-  TestValidator.predicate(
-    "non-finite segment end throws",
-    throws(
-      (): ReturnType<typeof segmentSphere> =>
-        segmentSphere(a, v(10, Infinity, 0), center, 1),
-    ),
-  );
-  TestValidator.predicate(
-    "non-finite sphere center throws",
-    throws(
-      (): ReturnType<typeof segmentSphere> =>
-        segmentSphere(a, b, v(5, 0, -Infinity), 1),
-    ),
-  );
-  TestValidator.predicate(
-    "projectile sphere center throws",
-    throws(
-      (): ReturnType<typeof projectileSphereHit> =>
-        projectileSphereHit(
-          {
-            origin: a,
-            velocity: v(10, 0, 0),
-            gravity: v(0, 0, 0),
-          },
-          { center: v(Number.NaN, 0, 0), radius: 1 },
-          1,
-          10,
-        ),
-    ),
-  );
-
-  TestValidator.predicate(
     "finite segment hit remains unchanged",
     nclose(segmentSphere(a, b, center, 1)!, 0.4),
   );

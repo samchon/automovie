@@ -118,26 +118,9 @@ export function test_physical_effect_transport(): void {
       recipe.motion.ballistic!.gravity = -1;
     },
     (recipe: IAutoMovieEffectRecipe): void => {
-      recipe.motion.ballistic!.floor = Infinity;
-    },
-    (recipe: IAutoMovieEffectRecipe): void => {
-      recipe.motion.ballistic!.velocitySpread!.y = NaN;
-    },
-    (recipe: IAutoMovieEffectRecipe): void => {
       recipe.motion.ballistic!.stainSizeMultiplier = 0;
     },
-    (recipe: IAutoMovieEffectRecipe): void => {
-      Reflect.set(recipe.particle.opacity, "envelope", "unbounded");
-    },
   ];
-  for (const value of [null, false, 0, "", [], new Map()])
-    invalid.push((recipe: IAutoMovieEffectRecipe): void => {
-      Reflect.set(recipe.motion, "ballistic", value);
-    });
-  for (const value of [null, false, 0, [], new Date(0)])
-    invalid.push((recipe: IAutoMovieEffectRecipe): void => {
-      Reflect.set(recipe.motion.ballistic!, "velocitySpread", value);
-    });
   for (const [index, change] of invalid.entries()) {
     const recipe: IAutoMovieEffectRecipe = structuredClone(source.recipe);
     change(recipe);

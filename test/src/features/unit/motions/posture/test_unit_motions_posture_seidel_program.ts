@@ -13,8 +13,8 @@ const ROUNDING: number = 1e-12;
  *
  * Scenarios:
  *
- * 1. One variable under x ≤ 3 and x ≥ −1: maximising gives 3, minimising −1,
- *    and with no objective the middle, 1.
+ * 1. One variable under x ≤ 3 and x ≥ −1: maximising gives 3, minimising −1, and
+ *    with no objective the middle, 1.
  * 2. One variable under x ≤ −1 and x ≥ 1 is infeasible.
  * 3. Two variables in the unit box under x₀ + x₁ ≤ 1: maximising x₀ + 2x₁ gives
  *    (0, 1); maximising x₀ alone, the corner (1, 0).

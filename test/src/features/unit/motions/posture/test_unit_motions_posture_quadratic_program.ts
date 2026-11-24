@@ -13,15 +13,15 @@ const AGREEMENT: number = 1e-3;
 
 /**
  * `HumanQuadraticProgram` minimises `½ xᵀPx + qᵀx` over hard and soft rows
- * (OSQP, Stellato et al. 2020), the curvature stored as its band
- * (`p[i][j]` the entry `(i, i + j)`).
+ * (OSQP, Stellato et al. 2020), the curvature stored as its band (`p[i][j]` the
+ * entry `(i, i + j)`).
  *
  * Scenarios:
  *
  * 1. Free: P = diag(2, 4), q = (−2, −8); the minimiser is −P⁻¹q = (1, 2) and the
  *    value there `½(2 + 16) − 18` = −9.
- * 2. One hard row: P = I, q = (−2, −2) under x₀ + x₁ ≤ 2; the free minimiser
- *    (2, 2) is projected onto the row: (1, 1), the row's multiplier read by its
+ * 2. One hard row: P = I, q = (−2, −2) under x₀ + x₁ ≤ 2; the free minimiser (2,
+ *    2) is projected onto the row: (1, 1), the row's multiplier read by its
  *    key; the interior-point method finds the same point.
  * 3. A hard equality x₀ = ½ with P = I, q = 0: x = (½, 0).
  * 4. Rows x₀ ≥ 1 and x₀ ≤ 0 together are infeasible.
