@@ -12,6 +12,8 @@ export * from "./skill/HumanResponse";
 export * from "./posture/humanRig";
 export * from "./posture/HumanSequentialConvex";
 export * from "./posture/HumanSequentialConvexFunctions";
+export * from "./posture/HumanPathParameterization";
+export * from "./posture/HumanSeidelProgram";
 export * from "./skill/HumanSkill";
 export * from "./everyday/HumanTrunk";
 export * from "./posture/HumanTrunkTurn";
