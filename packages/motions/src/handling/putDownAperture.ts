@@ -34,11 +34,6 @@ import type { putDownTravel } from "./putDownTravel";
  * opening to the seat: the object rides the guide's socket while the placement
  * drives the guide's slider back to the seat, as a scabbard guides its blade
  * home, and the hand follows on its grip.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the installed law, the support requirement and the study underlying the phase split.
- * @evidence contracts/development/design.md#principled-representation An installed placement law with an opening, a seat, optional fixed receiver waypoints and a shared rigid grip.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Uses the placement family's cut and grasp rules and adds the aperture and its optional approach and insertion sites.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts A separate registered law keeps built-in placement inputs and behavior intact.
  */
 export const putDownAperture: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanPutDownAperture> =
   {
@@ -57,6 +52,7 @@ export const putDownAperture: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHum
  * @param context The action entry state, grip and authored receptacle.
  * @returns The staged placement plan with an aperture event before seating.
  * @throws {HumanRefusal} If the named grip, opening or seat cannot be used.
+ * @evidence contracts/development/common.md#meaningful-documentation Names the installed law, the support requirement and the study underlying the phase split.
  */
 function plan(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanPutDownAperture>,

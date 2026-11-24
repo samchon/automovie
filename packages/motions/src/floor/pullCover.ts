@@ -62,253 +62,256 @@ const WAY: Readonly<
  * less than half the chest's depth above the upper back) is refused.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the way, the grip on the soft prop, the timing, the hands' turn, the course and the refusal.
- * @evidence contracts/development/design.md#principled-representation Two strokes of the arm phrase over the body's own regions, gripping the soft prop.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Adds the way and the grips; the phrase, the transport, the course and the soft prop's binding are their owners'.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Every place is the lying body's own region; the cover is never posed here.
+ */
+function planPullCover(
+  context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanPullCover>,
+): IAutoMovieMotionHumanActionPlan {
+  const p: IAutoMovieMotionHumanPullCover = context.params;
+  const body: IAutoMovieMotionHumanBody = context.body;
+  const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
+  const sternum: IAutoMovieVector3 = HumanTrunk.region(
+    body,
+    entry,
+    "sternum",
+  ).point;
+  const back: IAutoMovieVector3 = HumanTrunk.region(
+    body,
+    entry,
+    "upperBack",
+  ).point;
+  // Lying on the back, the sternum lies a chest's depth above the upper
+  // back; standing or on a side, the two are about level, and face down
+  // the sternum lies below.
+  if (sternum.y - back.y < body.measure.chestDepth / 2)
+    throw new HumanRefusal({
+      kind: "base",
+      axis: "base",
+      value: context.entry.base.kind,
+      feasible: { kind: "alternatives", values: ["lying on the back"] },
+      reason: "a cover is drawn over a body lying on its back",
+      fix: "lie down on the back first",
+    });
+
+  // Each hand's way, from where it grips to where it lets go, read on
+  // the displayed entry pose: the thighs ride the legs, which a
+  // trunk-only reading leaves out.
+  const pose: ReturnType<typeof poseBones> = poseBones(
+    body,
+    context.entry.pose,
+  );
+  const ways: Record<AutoMovieHumanSide, IAutoMovieVector3[]> = {
+    left: points("left"),
+    right: points("right"),
+  };
+  function points(side: AutoMovieHumanSide): IAutoMovieVector3[] {
+    const placed: IAutoMovieVector3[] = WAY[side].map(
+      (name: AutoMovieHumanoidRegion): IAutoMovieVector3 => {
+        const frame: IAutoMovieHumanoidSurfaces.IFrame =
+          body.surfaces.regions[name];
+        const bone: IAutoMovieResolvedBone = pose.get(frame.bone)!;
+        return Vector3.add(
+          Vector3.add(
+            bone.worldPosition,
+            Quaternion.rotateVector(bone.worldRotation, frame.point),
+          ),
+          Vector3.scale(
+            Quaternion.rotateVector(bone.worldRotation, frame.normal),
+            OVER,
+          ),
+        );
+      },
+    );
+    return p.off === true ? placed.reverse() : placed;
+  }
+  const toward: IAutoMovieVector3 = Vector3.normalize(
+    Vector3.subtract(HumanTrunk.region(body, entry, "groin").point, sternum),
+  );
+  const up: IAutoMovieVector3 = Vector3.normalize(
+    Vector3.subtract(sternum, back),
+  );
+  // Each hand's fingers point across the body toward its midline, so
+  // the forearm comes in from the side, clear of the trunk, as hands
+  // drawing a cover's edge hold it.
+  const medial = (side: AutoMovieHumanSide): IAutoMovieVector3 => {
+    const across: IAutoMovieVector3 = Vector3.subtract(sternum, ways[side][0]!);
+    const level: IAutoMovieVector3 = Vector3.subtract(
+      across,
+      Vector3.scale(up, Vector3.dot(across, up)),
+    );
+    return Vector3.normalize(
+      Vector3.subtract(
+        level,
+        Vector3.scale(toward, Vector3.dot(level, toward)),
+      ),
+    );
+  };
+  const target = (
+    side: AutoMovieHumanSide,
+    at: IAutoMovieVector3,
+  ): IAutoMovieMotionHumanArmTarget.ITarget =>
+    AutoMovieMotionHumanArmTarget.prepareTarget(
+      body,
+      side,
+      "grip",
+      "relaxed",
+    )({
+      point: at,
+      rotation: HumanHand.align(HumanHand.offset(body, side, "grip"), {
+        normal: Vector3.scale(up, -1),
+        forward: medial(side),
+      }),
+      bend: AutoMovieMotionHumanBend.hang(body, entry, side, 0.2),
+    });
+  const along = (
+    way: readonly IAutoMovieVector3[],
+    progress: number,
+  ): IAutoMovieVector3 => {
+    const lengths: number[] = way
+      .slice(1)
+      .map((q: IAutoMovieVector3, i: number): number =>
+        Vector3.distance(way[i]!, q),
+      );
+    let left: number =
+      Math.min(1, Math.max(0, progress)) *
+      lengths.reduce((a: number, b: number): number => a + b, 0);
+    for (let i: number = 0; i < lengths.length; ++i) {
+      if (left <= lengths[i]! || i === lengths.length - 1)
+        return Vector3.lerp(
+          way[i]!,
+          way[i + 1]!,
+          Math.min(1, left / Math.max(1e-9, lengths[i]!)),
+        );
+      left -= lengths[i]!;
+    }
+    return way.at(-1)!;
+  };
+  const length = (way: readonly IAutoMovieVector3[]): number =>
+    way
+      .slice(1)
+      .reduce(
+        (sum: number, q: IAutoMovieVector3, i: number): number =>
+          sum + Vector3.distance(way[i]!, q),
+        0,
+      );
+
+  const frame: IAutoMovieMotionHumanFrame = {
+    origin: entry.root,
+    yaw: entry.yaw,
+  };
+  const origins: Record<
+    AutoMovieHumanSide,
+    IAutoMovieMotionHumanArmTarget.IOrigin
+  > = {
+    left: AutoMovieMotionHumanArmTarget.origin(
+      body,
+      pose,
+      frame,
+      "left",
+      "grip",
+    ),
+    right: AutoMovieMotionHumanArmTarget.origin(
+      body,
+      pose,
+      frame,
+      "right",
+      "grip",
+    ),
+  };
+  const reach = (side: AutoMovieHumanSide, at: IAutoMovieVector3): number =>
+    Vector3.distance(
+      AutoMovieMotionHumanArmTarget.point(entry, origins[side]),
+      at,
+    );
+  const clock: IAutoMovieMotionClock = AutoMovieMotionClock.phrase({
+    prepare: AutoMovieMotionHumanTiming.transport(
+      Math.max(reach("left", ways.left[0]!), reach("right", ways.right[0]!)),
+    ),
+    attack: AutoMovieMotionHumanTiming.transport(
+      Math.max(length(ways.left), length(ways.right)),
+    ),
+    hold: AutoMovieMotionHumanTiming.seconds("beat"),
+    retract: AutoMovieMotionHumanTiming.transport(
+      Math.max(
+        reach("left", ways.left.at(-1)!),
+        reach("right", ways.right.at(-1)!),
+      ),
+    ),
+  });
+  const stroke = (
+    side: AutoMovieHumanSide,
+  ): IAutoMovieMotionHumanPrimitive => ({
+    ...AutoMovieMotionHumanArmPhrase.stroke({
+      body,
+      clock,
+      side,
+      origin: origins[side],
+      path: (
+        _posture: IAutoMovieMotionHumanPosture,
+        _seconds: number,
+        progress: number,
+      ): IAutoMovieMotionHumanArmTarget.ITarget =>
+        target(side, along(ways[side], progress)),
+    }),
+    reads: ["root", `${side}Arm`, `${side}Hand`],
+  });
+  const plan: IAutoMovieMotionHumanActionPlan =
+    composeAutoMovieMotionHumanAction({
+      base: AutoMovieMotionHumanBase.under(context, clock.duration),
+      clock,
+      primitives: [stroke("left"), stroke("right")],
+      contact: "strokeEnd",
+    });
+  const coursed: IAutoMovieMotionHumanActionPlan = courseArmGoal({
+    context,
+    plan,
+    side: "left",
+    span: {
+      start: 0,
+      ready: clock.at("ready"),
+      relax: clock.at("relax"),
+      end: clock.duration,
+    },
+    with: [
+      {
+        side: "right",
+      },
+    ],
+  });
+  const from: number = clock.at("ready") / clock.duration;
+  const to: number = clock.at("strokeEnd") / clock.duration;
+  return {
+    ...coursed,
+    contacts: [
+      ...coursed.contacts,
+      ...(["left", "right"] as const).map(
+        (side: AutoMovieHumanSide): IAutoMovieMotionHumanContactWindow => ({
+          part: side === "left" ? "leftHand" : "rightHand",
+          kind: "grip",
+          from,
+          to,
+          support: { kind: "prop", subject: p.prop },
+        }),
+      ),
+    ],
+  };
+}
+
+/**
+ * Pull a cover up while lying, or push it off. Each hand's way runs over its
+ * own side of the lying body, from the thigh's front over the upper abdomen to
+ * the chest (`WAY`), each region `OVER` out along its normal, read on the
+ * posture the body lies in at the start. Pulling, both hands go to the thigh
+ * end by `ready`, grip the soft cover there (the soft prop binds its particle
+ * nearest each hand's grip socket when the grip closes) and draw it up the way
+ * to the chest by `strokeEnd`, where they let go and return; pushing runs the
+ * way from the chest down. The hands face the body, the palms down onto the
+ * cover, the fingers across the body toward its midline. Both arms are laid in
+ * one course (`courseArmGoal`). A performer not lying on the back (the sternum
+ * less than half the chest's depth above the upper back) is refused.
  */
 export const pullCover: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanPullCover> =
   {
     name: "pullCover",
     interrupts: {},
-    plan: (
-      context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanPullCover>,
-    ): IAutoMovieMotionHumanActionPlan => {
-      const p: IAutoMovieMotionHumanPullCover = context.params;
-      const body: IAutoMovieMotionHumanBody = context.body;
-      const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
-      const sternum: IAutoMovieVector3 = HumanTrunk.region(
-        body,
-        entry,
-        "sternum",
-      ).point;
-      const back: IAutoMovieVector3 = HumanTrunk.region(
-        body,
-        entry,
-        "upperBack",
-      ).point;
-      // Lying on the back, the sternum lies a chest's depth above the upper
-      // back; standing or on a side, the two are about level, and face down
-      // the sternum lies below.
-      if (sternum.y - back.y < body.measure.chestDepth / 2)
-        throw new HumanRefusal({
-          kind: "base",
-          axis: "base",
-          value: context.entry.base.kind,
-          feasible: { kind: "alternatives", values: ["lying on the back"] },
-          reason: "a cover is drawn over a body lying on its back",
-          fix: "lie down on the back first",
-        });
-
-      // Each hand's way, from where it grips to where it lets go, read on
-      // the displayed entry pose: the thighs ride the legs, which a
-      // trunk-only reading leaves out.
-      const pose: ReturnType<typeof poseBones> = poseBones(
-        body,
-        context.entry.pose,
-      );
-      const ways: Record<AutoMovieHumanSide, IAutoMovieVector3[]> = {
-        left: points("left"),
-        right: points("right"),
-      };
-      function points(side: AutoMovieHumanSide): IAutoMovieVector3[] {
-        const placed: IAutoMovieVector3[] = WAY[side].map(
-          (name: AutoMovieHumanoidRegion): IAutoMovieVector3 => {
-            const frame: IAutoMovieHumanoidSurfaces.IFrame =
-              body.surfaces.regions[name];
-            const bone: IAutoMovieResolvedBone = pose.get(frame.bone)!;
-            return Vector3.add(
-              Vector3.add(
-                bone.worldPosition,
-                Quaternion.rotateVector(bone.worldRotation, frame.point),
-              ),
-              Vector3.scale(
-                Quaternion.rotateVector(bone.worldRotation, frame.normal),
-                OVER,
-              ),
-            );
-          },
-        );
-        return p.off === true ? placed.reverse() : placed;
-      }
-      const toward: IAutoMovieVector3 = Vector3.normalize(
-        Vector3.subtract(
-          HumanTrunk.region(body, entry, "groin").point,
-          sternum,
-        ),
-      );
-      const up: IAutoMovieVector3 = Vector3.normalize(
-        Vector3.subtract(sternum, back),
-      );
-      // Each hand's fingers point across the body toward its midline, so
-      // the forearm comes in from the side, clear of the trunk, as hands
-      // drawing a cover's edge hold it.
-      const medial = (side: AutoMovieHumanSide): IAutoMovieVector3 => {
-        const across: IAutoMovieVector3 = Vector3.subtract(
-          sternum,
-          ways[side][0]!,
-        );
-        const level: IAutoMovieVector3 = Vector3.subtract(
-          across,
-          Vector3.scale(up, Vector3.dot(across, up)),
-        );
-        return Vector3.normalize(
-          Vector3.subtract(
-            level,
-            Vector3.scale(toward, Vector3.dot(level, toward)),
-          ),
-        );
-      };
-      const target = (
-        side: AutoMovieHumanSide,
-        at: IAutoMovieVector3,
-      ): IAutoMovieMotionHumanArmTarget.ITarget =>
-        AutoMovieMotionHumanArmTarget.prepareTarget(
-          body,
-          side,
-          "grip",
-          "relaxed",
-        )({
-          point: at,
-          rotation: HumanHand.align(HumanHand.offset(body, side, "grip"), {
-            normal: Vector3.scale(up, -1),
-            forward: medial(side),
-          }),
-          bend: AutoMovieMotionHumanBend.hang(body, entry, side, 0.2),
-        });
-      const along = (
-        way: readonly IAutoMovieVector3[],
-        progress: number,
-      ): IAutoMovieVector3 => {
-        const lengths: number[] = way
-          .slice(1)
-          .map((q: IAutoMovieVector3, i: number): number =>
-            Vector3.distance(way[i]!, q),
-          );
-        let left: number =
-          Math.min(1, Math.max(0, progress)) *
-          lengths.reduce((a: number, b: number): number => a + b, 0);
-        for (let i: number = 0; i < lengths.length; ++i) {
-          if (left <= lengths[i]! || i === lengths.length - 1)
-            return Vector3.lerp(
-              way[i]!,
-              way[i + 1]!,
-              Math.min(1, left / Math.max(1e-9, lengths[i]!)),
-            );
-          left -= lengths[i]!;
-        }
-        return way.at(-1)!;
-      };
-      const length = (way: readonly IAutoMovieVector3[]): number =>
-        way
-          .slice(1)
-          .reduce(
-            (sum: number, q: IAutoMovieVector3, i: number): number =>
-              sum + Vector3.distance(way[i]!, q),
-            0,
-          );
-
-      const frame: IAutoMovieMotionHumanFrame = {
-        origin: entry.root,
-        yaw: entry.yaw,
-      };
-      const origins: Record<
-        AutoMovieHumanSide,
-        IAutoMovieMotionHumanArmTarget.IOrigin
-      > = {
-        left: AutoMovieMotionHumanArmTarget.origin(
-          body,
-          pose,
-          frame,
-          "left",
-          "grip",
-        ),
-        right: AutoMovieMotionHumanArmTarget.origin(
-          body,
-          pose,
-          frame,
-          "right",
-          "grip",
-        ),
-      };
-      const reach = (side: AutoMovieHumanSide, at: IAutoMovieVector3): number =>
-        Vector3.distance(
-          AutoMovieMotionHumanArmTarget.point(entry, origins[side]),
-          at,
-        );
-      const clock: IAutoMovieMotionClock = AutoMovieMotionClock.phrase({
-        prepare: AutoMovieMotionHumanTiming.transport(
-          Math.max(
-            reach("left", ways.left[0]!),
-            reach("right", ways.right[0]!),
-          ),
-        ),
-        attack: AutoMovieMotionHumanTiming.transport(
-          Math.max(length(ways.left), length(ways.right)),
-        ),
-        hold: AutoMovieMotionHumanTiming.seconds("beat"),
-        retract: AutoMovieMotionHumanTiming.transport(
-          Math.max(
-            reach("left", ways.left.at(-1)!),
-            reach("right", ways.right.at(-1)!),
-          ),
-        ),
-      });
-      const stroke = (
-        side: AutoMovieHumanSide,
-      ): IAutoMovieMotionHumanPrimitive => ({
-        ...AutoMovieMotionHumanArmPhrase.stroke({
-          body,
-          clock,
-          side,
-          origin: origins[side],
-          path: (
-            _posture: IAutoMovieMotionHumanPosture,
-            _seconds: number,
-            progress: number,
-          ): IAutoMovieMotionHumanArmTarget.ITarget =>
-            target(side, along(ways[side], progress)),
-        }),
-        reads: ["root", `${side}Arm`, `${side}Hand`],
-      });
-      const plan: IAutoMovieMotionHumanActionPlan =
-        composeAutoMovieMotionHumanAction({
-          base: AutoMovieMotionHumanBase.under(context, clock.duration),
-          clock,
-          primitives: [stroke("left"), stroke("right")],
-          contact: "strokeEnd",
-        });
-      const coursed: IAutoMovieMotionHumanActionPlan = courseArmGoal({
-        context,
-        plan,
-        side: "left",
-        span: {
-          start: 0,
-          ready: clock.at("ready"),
-          relax: clock.at("relax"),
-          end: clock.duration,
-        },
-        with: [
-          {
-            side: "right",
-          },
-        ],
-      });
-      const from: number = clock.at("ready") / clock.duration;
-      const to: number = clock.at("strokeEnd") / clock.duration;
-      return {
-        ...coursed,
-        contacts: [
-          ...coursed.contacts,
-          ...(["left", "right"] as const).map(
-            (side: AutoMovieHumanSide): IAutoMovieMotionHumanContactWindow => ({
-              part: side === "left" ? "leftHand" : "rightHand",
-              kind: "grip",
-              from,
-              to,
-              support: { kind: "prop", subject: p.prop },
-            }),
-          ),
-        ],
-      };
-    },
+    plan: planPullCover,
   };

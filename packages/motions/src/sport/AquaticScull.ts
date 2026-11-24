@@ -23,7 +23,7 @@ import { ExerciseKey } from "../exercise/ExerciseKey";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { precisionStrokePeak } from "../lexicon/precisionStrokePeak";
 import { HumanFoot } from "../posture/HumanFoot";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { humanPostureHeading } from "../posture/humanPostureHeading";
 import { AquaticCrew } from "./AquaticCrew";
 import { AquaticPosture } from "./AquaticPosture";
 import { AquaticProp } from "./AquaticProp";
@@ -200,7 +200,7 @@ export namespace AquaticScull {
         );
         const posture: IAutoMovieMotionHumanPosture = {
           ...shape,
-          ...resolveHumanPosture.angles(seat.world.rotation),
+          ...humanPostureHeading.angles(seat.world.rotation),
         };
         posture.root = seated.root(body, seatPoint(seat), posture);
         for (const [side, title] of SIDES) {
@@ -336,7 +336,7 @@ function admitRail(
   slide: AquaticProp.IContact,
 ): number {
   const { body } = context;
-  const heading = resolveHumanPosture.angles(seat.world.rotation);
+  const heading = humanPostureHeading.angles(seat.world.rotation);
   const root: IAutoMovieVector3 = seated.root(body, seatPoint(seat), heading);
   const along: IAutoMovieVector3 = Quaternion.rotateVector(
     slide.world.rotation,

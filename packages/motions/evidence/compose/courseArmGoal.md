@@ -28,7 +28,7 @@ The last evaluated posture is reused while the second, the borrowed readers and 
 
 Retains the plan, the course, one posture and the arm's ending angles, released with the plan.
 
-# src/compose/courseArmGoal.ts#courseArmGoal.knotted
+# src/compose/courseArmGoal.ts#courseArmGoalKnotted
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -57,7 +57,7 @@ A pure function of its arguments.
 ## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
 
 Returns a new span and retains nothing.
-# src/compose/courseArmGoal.ts#courseArmGoal.rest
+# src/compose/courseArmGoal.ts#courseArmGoalRest
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -87,7 +87,7 @@ A pure reading of its arguments.
 
 Returns the angles and retains nothing.
 
-# src/compose/courseArmGoal.ts#courseArmGoal.IContext
+# src/compose/courseArmGoal.ts#ICourseArmGoalContext
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

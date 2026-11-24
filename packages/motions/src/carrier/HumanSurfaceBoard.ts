@@ -151,7 +151,7 @@ export function HumanSurfaceBoard(
     },
   );
 
-  const ankles: Record<"left" | "right", IAutoMovieVector3> = {
+  const ankles: Record<AutoMovieHumanSide, IAutoMovieVector3> = {
     left: entry.feet.left.ankle,
     right: entry.feet.right.ankle,
   };
@@ -171,7 +171,7 @@ export function HumanSurfaceBoard(
     },
   };
   const contacts: IAutoMovieMotionHumanContactWindow[] = sides.map(
-    (side: "left" | "right"): IAutoMovieMotionHumanContactWindow => ({
+    (side: AutoMovieHumanSide): IAutoMovieMotionHumanContactWindow => ({
       part: `${side}Foot`,
       kind: "plant",
       from: 0,

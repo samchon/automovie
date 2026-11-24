@@ -16,8 +16,8 @@ import { unloadedFoot } from "../carrier/unloadedFoot";
 import { courseArmGoal } from "../compose/courseArmGoal";
 import { ExerciseKey } from "../exercise/ExerciseKey";
 import { HumanFoot } from "../posture/HumanFoot";
+import { lowerHumanPosture } from "../posture/lowerHumanPosture";
 import { poseBones } from "../posture/poseBones";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { AquaticCrew } from "./AquaticCrew";
 import { AquaticPosture } from "./AquaticPosture";
 import { AquaticProp } from "./AquaticProp";
@@ -562,7 +562,7 @@ export namespace AquaticSail {
                 : { bend: Vector3.add(turned.bend, shift) }),
             };
           }
-          posture = resolveHumanPosture.lower(body, posture);
+          posture = lowerHumanPosture(body, posture);
         }
         if (controls.length !== 0) {
           // Pose the rig at this instant's own drive travels, so the hands

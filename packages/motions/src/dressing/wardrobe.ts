@@ -47,9 +47,69 @@ type Params = wardrobeModes.Params;
  * The jacket here uses explicit short openings and imposes staged rigid poses.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Explains entry ownership, what can be reversed, closure composition and coarse model scope.
- * @evidence contracts/development/design.md#principled-representation Distinct registered modes describe which contact travels relative to which named sleeve or foot before a native custody transfer.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Reuses stock prop span, posture and approach owners and adds only the new fitting choreography.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Model-local contacts, real hand/foot goals and the native wear path keep one persistent prop identity.
+ */
+function planWardrobe(
+  context: IAutoMovieMotionHumanActionContext<Params>,
+): IAutoMovieMotionHumanActionPlan {
+  const params: Params = context.params;
+  if (typeof params.prop !== "string" || params.prop.length === 0)
+    throw wardrobeHands.refusal(
+      "prop",
+      params.prop,
+      "name a declared wearable prop",
+    );
+  const side: AutoMovieHumanSide =
+    params.kind === "jacketOn" ? (params.hand ?? "right") : params.side;
+  if (side !== "left" && side !== "right")
+    throw wardrobeHands.refusal(
+      "side",
+      side,
+      "choose the actual left or right limb",
+    );
+  switch (params.kind) {
+    case "jacketOn":
+      return jacket(context, side);
+    case "sleeveIn":
+    case "sleeveOut":
+      return thread(context, side, params.kind === "sleeveOut");
+    case "closeZip":
+    case "openZip":
+      return wardrobeHands.zipper(context, side, params.kind === "openZip");
+    case "footwearOn":
+    case "footwearOff": {
+      const hand: AutoMovieHumanSide = params.hand ?? opposite(side);
+      if (hand !== "left" && hand !== "right")
+        throw wardrobeHands.refusal(
+          "hand",
+          hand,
+          "choose the hand taking the footwear",
+        );
+      return wardrobeFoot(context, side, hand, params.kind === "footwearOff");
+    }
+    default:
+      throw wardrobeHands.refusal(
+        "kind",
+        params,
+        "choose a supported wardrobe action kind",
+      );
+  }
+}
+
+/**
+ * Put coarse stage wearables onto or take them off a real performer.
+ *
+ * A previously held open-front jacket is carried into position while the other
+ * hand passes into its named sleeve. It transfers from the grasping hand to the
+ * chest. The remaining sleeve can be threaded, and either sleeve can be
+ * cleared, with the pose on that same jacket. The zip moves with the hand on
+ * its actual slider. Its travel is retained by the native prop drive. The
+ * seated footwear modes reuse a chair and an opposite foot plant while
+ * transferring the shell onto or out of the raised foot.
+ *
+ * Clegg et al. describe independent alignment and sleeve passage phases in
+ * Animating Human Dressing (2015),
+ * https://sites.cc.gatech.edu/gvu/people/faculty/greg.turk/paper_pages/2015_animating_human_dressing/index.html.
+ * The jacket here uses explicit short openings and imposes staged rigid poses.
  */
 export const wardrobe: IAutoMovieMotionHumanActionLaw<Params> = {
   name: "wardrobe",
@@ -62,52 +122,7 @@ export const wardrobe: IAutoMovieMotionHumanActionLaw<Params> = {
       { window: ["lifted", 1], kind: "inertialize", entry: 0, keep: ["grip"] },
     ],
   },
-  plan: (
-    context: IAutoMovieMotionHumanActionContext<Params>,
-  ): IAutoMovieMotionHumanActionPlan => {
-    const params: Params = context.params;
-    if (typeof params.prop !== "string" || params.prop.length === 0)
-      throw wardrobeHands.refusal(
-        "prop",
-        params.prop,
-        "name a declared wearable prop",
-      );
-    const side: AutoMovieHumanSide =
-      params.kind === "jacketOn" ? (params.hand ?? "right") : params.side;
-    if (side !== "left" && side !== "right")
-      throw wardrobeHands.refusal(
-        "side",
-        side,
-        "choose the actual left or right limb",
-      );
-    switch (params.kind) {
-      case "jacketOn":
-        return jacket(context, side);
-      case "sleeveIn":
-      case "sleeveOut":
-        return thread(context, side, params.kind === "sleeveOut");
-      case "closeZip":
-      case "openZip":
-        return wardrobeHands.zipper(context, side, params.kind === "openZip");
-      case "footwearOn":
-      case "footwearOff": {
-        const hand: AutoMovieHumanSide = params.hand ?? opposite(side);
-        if (hand !== "left" && hand !== "right")
-          throw wardrobeHands.refusal(
-            "hand",
-            hand,
-            "choose the hand taking the footwear",
-          );
-        return wardrobeFoot(context, side, hand, params.kind === "footwearOff");
-      }
-      default:
-        throw wardrobeHands.refusal(
-          "kind",
-          params,
-          "choose a supported wardrobe action kind",
-        );
-    }
-  },
+  plan: planWardrobe,
 };
 
 /** Transport the held jacket and thread the free hand before attaching it. */

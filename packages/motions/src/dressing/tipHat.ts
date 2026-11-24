@@ -52,8 +52,6 @@ const CONTACT: number = 0.015;
  * apex and `strokeEnd` reseats the hat. The action uses a still base. Stage the
  * hat on the performer's crown with its wear socket facing inward and keep it
  * worn until the action starts.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the source, movement, event order, provisional lift and supported starting state.
  */
 export const tipHat: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanTipHat> =
   {
@@ -68,10 +66,14 @@ export const tipHat: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanTipHat>
     },
     plan,
   };
+/** The alternatives of `PlanLimb`'s site. */
+type PlanLimb = "leftArm" | "rightArm";
 
 /**
  * Plan the right or left arm's grasp, lift, reseat and return over the entry
  * stance.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States the source, movement, event order, provisional lift and supported starting state.
  */
 function plan(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanTipHat>,
@@ -212,7 +214,7 @@ function plan(
       contact: "stroke",
       primitives: [arm],
     });
-  const limb: "leftArm" | "rightArm" = `${side}Arm`;
+  const limb: PlanLimb = `${side}Arm`;
   const fitted = (seconds: number): IAutoMovieMotionHumanPosture => {
     const at: IAutoMovieMotionHumanPosture = composed.posture(seconds);
     if (at.limbs[limb] === undefined) return at;
@@ -348,6 +350,11 @@ function plan(
     wears: [{ prop: params.prop, bone: "head", from: to }],
   };
 }
+/** The record of `IWornFrameResult`'s site. */
+type IWornFrameResult = {
+  frame: IAutoMovieRigidTransform;
+  socket: IAutoMovieVector3;
+};
 
 /** Admit the staged attachment only when the displayed socket meets the crown. */
 function wornFrame(
@@ -356,7 +363,7 @@ function wornFrame(
   head: IAutoMovieResolvedBone,
   crown: ReturnType<typeof resolveAutoMovieHumanoidSurfaces.place>,
   seconds: number,
-): { frame: IAutoMovieRigidTransform; socket: IAutoMovieVector3 } {
+): IWornFrameResult {
   const { prop } = reader;
   const worn: typeof prop.worn = prop.worn;
   const wear: IAutoMovieAffordance | undefined = prop.affordances?.find(

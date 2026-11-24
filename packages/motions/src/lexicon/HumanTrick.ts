@@ -23,11 +23,13 @@ import { HumanUnseatPose } from "./HumanUnseatPose";
 
 /** The law's context. */
 type Context = IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanTrick>;
+/** The alternatives of `BindLimb`'s site. */
+type BindLimb = "leftLeg" | "rightLeg" | "leftArm" | "rightArm";
 
 /** A limb's binding to a carrier contact in a figure. */
 interface IBind {
   /** The limb. */
-  limb: "leftLeg" | "rightLeg" | "leftArm" | "rightArm";
+  limb: BindLimb;
 
   /** The carrier contact, or `object` for a pickup's prop. */
   contact: string;
@@ -43,37 +45,36 @@ interface IKey {
 }
 
 /**
+ * Admit the figures, lay each key once, then sample.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States the refusals: no figure or a last figure out of the seat, a bad time, a pickup without its prop, and a pickup whose prop lies beyond the leaning hand's reach.
+ * @evidence contracts/development/implementation.md#principled-implementation Keys from the body's measures in the seat's frame; bound limbs take their contact's point each sample; the pickup's reach is checked against the leaned shoulder at the figure's hold.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Admission, keys, clock and windows, then the sampler.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An unreachable pickup is refused, never stretched.
+ * @evidence contracts/development/implementation.md#efficient-algorithms A sample blends two keys and reads one frame and at most four contacts.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work The keys are shared by every sample.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains the keys and the carrier reader.
+ */
+function planHumanTrick(context: Context): IAutoMovieMotionHumanActionPlan {
+  return plan(context);
+}
+
+/**
  * Trick-riding figures (`IAutoMovieMotionHumanTrick`): each figure is a key
  * posture in the seat contact's moving frame whose feet and hands are bound to
  * the trick saddle's own straps, horn and handholds (or a pickup's prop) read
  * where the carrier has them at each second; keys blend by a minimum-jerk share
  * over each transfer and are carried by the seat contact. Every attitude and
  * offset is a provisional stage reading. Register `HumanTrick` to use it.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the keys, the bindings, the blend and that the values are provisional.
- * @evidence contracts/development/design.md#principled-representation One law over a closed figure vocabulary and the saddle's named contacts.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The law's name, cut table and planner.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Every bound point is the carrier's own moving contact or the prop's own place.
  */
 export const HumanTrick: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanTrick> =
   {
     name: "trick",
     interrupts: {},
-    /**
-     * Admit the figures, lay each key once, then sample.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States the refusals: no figure or a last figure out of the seat, a bad time, a pickup without its prop, and a pickup whose prop lies beyond the leaning hand's reach.
-     * @evidence contracts/development/implementation.md#principled-implementation Keys from the body's measures in the seat's frame; bound limbs take their contact's point each sample; the pickup's reach is checked against the leaned shoulder at the figure's hold.
-     * @evidence contracts/development/implementation.md#clear-and-simple-structure Admission, keys, clock and windows, then the sampler.
-     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An unreachable pickup is refused, never stretched.
-     * @evidence contracts/development/implementation.md#efficient-algorithms A sample blends two keys and reads one frame and at most four contacts.
-     * @evidence contracts/development/implementation.md#reuse-equivalent-work The keys are shared by every sample.
-     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains the keys and the carrier reader.
-     */
-    plan(context: Context): IAutoMovieMotionHumanActionPlan {
-      return plan(context);
-    },
+    plan: planHumanTrick,
   };
+/** The record of `IPlanAtResult`'s site. */
+type IPlanAtResult = { index: number; share: number };
 
 /** Admit, lay the keys and sample. */
 function plan(context: Context): IAutoMovieMotionHumanActionPlan {
@@ -127,7 +128,7 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
     clock += figure.transfer + figure.hold;
   }
   const duration: number = clock;
-  const at = (t: number): { index: number; share: number } => {
+  const at = (t: number): IPlanAtResult => {
     let index: number = 0;
     while (index + 1 < figures.length && t >= starts[index + 1]!) ++index;
     return {

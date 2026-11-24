@@ -1,5 +1,6 @@
 import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieAffordance,
   IAutoMovieHumanLimbGoal,
@@ -22,12 +23,32 @@ import { courseArmGoal } from "../compose/courseArmGoal";
 import { bendLower } from "../everyday/bendLower";
 import { pickUpPosture } from "../handling/pickUpPosture";
 import { HumanRefusal } from "../law/HumanRefusal";
+import { humanPostureHeading } from "../posture/humanPostureHeading";
+import { lowerHumanPosture } from "../posture/lowerHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanMountRider } from "./HumanMountRider";
 import { HumanTravelLeafWalk } from "./HumanTravelLeafWalk";
+
+/** The record of `IOpenDoorWalkedResult`'s site. */
+type IOpenDoorWalkedResult = {
+  point: IAutoMovieVector3;
+  normal: IAutoMovieVector3;
+};
+
+/** The alternatives of `OpenDoorAcross`'s site. */
+type OpenDoorAcross = 1 | -1;
+
+/** The record of `IOpenDoorHandleMoved`'s site. */
+type IOpenDoorHandleMoved = {
+  point: IAutoMovieVector3;
+  normal: IAutoMovieVector3;
+};
+
+/** The record of `IOpenDoorRest`'s site. */
+type IOpenDoorRest = { point: IAutoMovieVector3; normal: IAutoMovieVector3 };
 
 /**
  * Opening a door by its handle and holding it: the hand reaches the handle,
@@ -96,7 +117,7 @@ export namespace HumanTravelLeaf {
         context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanTravelLeaf.IParams>,
       ): IAutoMovieMotionHumanActionPlan => {
         const body: IAutoMovieMotionHumanBody = context.body;
-        const side: "left" | "right" = context.params.hand ?? "right";
+        const side: AutoMovieHumanSide = context.params.hand ?? "right";
         const seconds: number = context.params.duration;
         if (!(seconds > TAKE))
           throw new HumanRefusal({
@@ -117,9 +138,7 @@ export namespace HumanTravelLeaf {
           context.params.door,
         );
         const id: string = context.params.handle;
-        const rest:
-          | { point: IAutoMovieVector3; normal: IAutoMovieVector3 }
-          | undefined = door.prop.points[id];
+        const rest: IOpenDoorRest | undefined = door.prop.points[id];
         if (rest === undefined)
           throw new HumanRefusal({
             kind: "affordance",
@@ -144,9 +163,10 @@ export namespace HumanTravelLeaf {
           film: number,
         ): Parameters<typeof HumanMountRider.hold>[3] => {
           const frame: IAutoMovieRigidTransform = door.frame(film);
-          const moved:
-            | { point: IAutoMovieVector3; normal: IAutoMovieVector3 }
-            | undefined = door.prop.point?.(id, film);
+          const moved: IOpenDoorHandleMoved | undefined = door.prop.point?.(
+            id,
+            film,
+          );
           const turn: IAutoMovieQuaternion | undefined =
             affordance?.frame.rotation;
           return {
@@ -193,10 +213,10 @@ export namespace HumanTravelLeaf {
           context.start + TAKE,
         );
         const facing: IAutoMovieVector3 = Quaternion.rotateVector(
-          resolveHumanPosture.heading(start),
+          humanPostureHeading(start),
           { x: 0, y: 0, z: 1 },
         );
-        const across: 1 | -1 =
+        const across: OpenDoorAcross =
           taken.axis !== undefined &&
           Vector3.dot(Vector3.cross(taken.axis, taken.normal), facing) < 0
             ? -1
@@ -356,9 +376,7 @@ export namespace HumanTravelLeaf {
                 context,
                 seconds,
                 take: TAKE,
-                handle: (
-                  t: number,
-                ): { point: IAutoMovieVector3; normal: IAutoMovieVector3 } => {
+                handle: (t: number): IOpenDoorWalkedResult => {
                   const target: Parameters<typeof HumanMountRider.hold>[3] =
                     grip(context.start + t);
                   return {
@@ -411,13 +429,12 @@ export namespace HumanTravelLeaf {
             if (goal !== undefined && goal.planted !== true)
               legs[leg] = { ...goal, planted: true };
           }
-          const reaching: IAutoMovieMotionHumanPosture =
-            resolveHumanPosture.lower(
-              body,
-              { ...leant, limbs: legs },
-              undefined,
-              resolution,
-            );
+          const reaching: IAutoMovieMotionHumanPosture = lowerHumanPosture(
+            body,
+            { ...leant, limbs: legs },
+            undefined,
+            resolution,
+          );
           return { ...leant, root: reaching.root };
         };
 

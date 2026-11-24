@@ -391,22 +391,22 @@ export namespace courseArmGoal {
   ): IAutoMovieMotionHumanActionPlan {
     return SOURCES.get(plan) ?? plan;
   }
+  /** The alternatives of `CourseArmGoalArm`'s site. */
+  type CourseArmGoalArm =
+    | "disc"
+    | "skinDistance"
+    | "grasp"
+    | "perceived"
+    | "tracked"
+    | "on"
+    | "hold";
 
   /**
    * One arm a course lays: its side, its rest, its span and the carry's own
    * per-arm members.
    */
   export interface IArm extends Partial<
-    Pick<
-      IAutoMovieMotionHumanArmCarry.ICarry,
-      | "disc"
-      | "skinDistance"
-      | "grasp"
-      | "perceived"
-      | "tracked"
-      | "on"
-      | "hold"
-    >
+    Pick<IAutoMovieMotionHumanArmCarry.ICarry, CourseArmGoalArm>
   > {
     /** The arm. */
     side: AutoMovieHumanSide;
@@ -429,17 +429,14 @@ export namespace courseArmGoal {
      */
     span?: IAutoMovieMotionHumanArmPlanned.ISpan;
   }
+  /** The alternatives of `CourseArmGoalProps`'s site. */
+  type CourseArmGoalProps = "together" | "beside" | "pace";
 
   /** A plan whose arm goals are to be planned as one course. */
   export interface IProps
     extends
       Omit<IArm, "span">,
-      Partial<
-        Pick<
-          IAutoMovieMotionHumanArmCarry.ICarry,
-          "together" | "beside" | "pace"
-        >
-      > {
+      Partial<Pick<IAutoMovieMotionHumanArmCarry.ICarry, CourseArmGoalProps>> {
     /**
      * The action's context: its body, and the arms it is entered with, every
      * course's rest where its arm states none (`IArm.rest`).
@@ -540,6 +537,8 @@ export namespace courseArmGoal {
     /** The body. */
     body: IAutoMovieMotionHumanBody;
   }
+  /** The alternatives of `CourseArmGoalRestArm`'s site. */
+  type CourseArmGoalRestArm = "side" | "rest";
 
   /**
    * An arm's rest: the one its law states, else the arm as the action is
@@ -552,7 +551,7 @@ export namespace courseArmGoal {
    */
   export function rest(
     context: IContext,
-    arm: Pick<IArm, "side" | "rest">,
+    arm: Pick<IArm, CourseArmGoalRestArm>,
   ): IAutoMovieMotionHumanArmAngles.IAngles {
     return arm.rest ?? AutoMovieMotionHumanArm.entered(context, arm.side);
   }

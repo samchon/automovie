@@ -30,6 +30,7 @@ import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanIn
 import { courseArmGoal } from "../compose/courseArmGoal";
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanRefusal } from "../law/HumanRefusal";
+import { HumanLimbFit } from "../posture/HumanLimbFit";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { StrikingBlade } from "../striking/StrikingBlade";
@@ -70,11 +71,6 @@ import { putDownTarget } from "./putDownTarget";
  * the drawing shoulder, each by the least that brings the drawn wrist within
  * reach (`pivoting`), while the trunk turns away, and the blade leaves low and
  * in front along the moving line.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the entry state, the path, the timing, the held body, the events and the cut.
- * @evidence contracts/development/design.md#principled-representation The object rides the carrier's own slide socket on the authored line, so the displayed object follows the line exactly; the hand follows it within `GRIP` and owns it from the opening.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One law beside `putDownAperture`, reading the same two affordances in the same roles.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No object kind is special-cased; the line and its guide are the carrier's.
  */
 export const drawFromCarrier: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanDrawFromCarrier> =
   {
@@ -314,7 +310,7 @@ function plan(
     held,
     side,
   );
-  const reference: IAutoMovieHumanLimbReference = resolveHumanPosture.reference(
+  const reference: IAutoMovieHumanLimbReference = HumanLimbFit.reference(
     context.entry.pose,
     limb,
   );

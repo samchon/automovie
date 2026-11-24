@@ -31,6 +31,7 @@ import { courseArmGoal } from "../compose/courseArmGoal";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanPropFrame } from "../perform/HumanPropFrame";
 import { HumanHand } from "../posture/HumanHand";
+import { HumanLimbFit } from "../posture/HumanLimbFit";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { StrikingHeld } from "../striking/StrikingHeld";
@@ -300,11 +301,10 @@ export namespace putDown {
             : holding(context.params.yaw);
 
     // The arm keeps the configuration it carried the prop in.
-    const reference: IAutoMovieHumanLimbReference =
-      resolveHumanPosture.reference(
-        context.entry.pose,
-        side === "left" ? "leftArm" : "rightArm",
-      );
+    const reference: IAutoMovieHumanLimbReference = HumanLimbFit.reference(
+      context.entry.pose,
+      side === "left" ? "leftArm" : "rightArm",
+    );
     const rotation: IAutoMovieQuaternion = chosen.rotation;
     const place: IAutoMovieVector3 = chosen.point;
 

@@ -24,7 +24,9 @@ import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { courseArmGoal } from "../compose/courseArmGoal";
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
+import { HumanBoneGroups } from "../posture/HumanBoneGroups";
 import { HumanHand } from "../posture/HumanHand";
+import { humanPostureHeading } from "../posture/humanPostureHeading";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { StrikingHeld } from "../striking/StrikingHeld";
@@ -32,13 +34,15 @@ import { HumanMountedFrame } from "./HumanMountedFrame";
 
 /** The law's context. */
 type Context = IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanLasso>;
+/** The alternatives of `SWINGEntryItem`'s site. */
+type SWINGEntryItem = "radius" | "throw" | "wrap" | "turn";
 
 /**
  * The swinging wrist's circle overhead, metres, the hand turning mostly at the
  * wrist; the throw's reach-out time, seconds; the dally's radius round the
  * horn, metres, and seconds per turn (provisional stage readings).
  */
-const SWING: Readonly<Record<"radius" | "throw" | "wrap" | "turn", number>> = {
+const SWING: Readonly<Record<SWINGEntryItem, number>> = {
   radius: 0.15,
   throw: 0.25,
   wrap: 0.08,
@@ -55,10 +59,6 @@ const ELBOW: number = 60;
 /** The farthest a loop is thrown, metres (provisional). */
 const REACH: number = 12;
 
-/** The bone whose joint the swing is laid from: the right shoulder. */
-const SHOULDER: ReadonlySet<AutoMovieHumanoidBone> =
-  new Set<AutoMovieHumanoidBone>(["rightUpperArm"]);
-
 /** The bone whose joint the entry holds the hand at: the right hand. */
 const HAND: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>(
   ["rightHand"],
@@ -66,6 +66,21 @@ const HAND: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>(
 
 /** The world up. */
 const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
+
+/**
+ * Admit the throw, lay the swing and the launch, then sample.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States the refusals: a non-seated entry, bad counts or times, a stride track with fewer than two instants inside the swing, and a target beyond `REACH`.
+ * @evidence contracts/development/implementation.md#principled-implementation The swing's period is the stride track's mean interval and its phase puts the wrist ahead of the circle's centre at each stride instant; the circle lies level over the entry's own right shoulder joint and out to its side, its outermost point at the distance the arm's lengths give at the elbow's flexion and every other point nearer, so the wrist is reachable all round by construction and the arm never crosses the head; the wrist first rises to the circle's front at the swing's own speed under a minimum-jerk profile, whose peak rate is its closed form's at mid-course, and the swing starts on the first stride instant after; the hand is given no turn, since the swinging loop touches nothing, so the course leaves it to the arm's least strain rather than spin the hand a whole turn a stride; the launch velocity is the projectile's from the loop's place at the release to the target's contact in the flight time under standard gravity; after the release the wrist runs on from the throw's point, with a dally back to the horn under a minimum-jerk profile over the loop's flight and then round it, so the arm never leaps back to its entry hold.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Admission, the clock, the circle, the launch, then the sampler.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A target out of reach is refused, never pulled in.
+ * @evidence contracts/development/implementation.md#efficient-algorithms One shoulder resolve restricted to the upper arm; a sample reads one carrier frame and writes one arm goal.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work The tool, the circle and the launch are shared by every sample.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains the tool, the circle and the carrier reader.
+ */
+function planHumanLasso(context: Context): IAutoMovieMotionHumanActionPlan {
+  return plan(context);
+}
 
 /**
  * Rope from the saddle (`IAutoMovieMotionHumanLasso`): carried on the saddle,
@@ -76,30 +91,12 @@ const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
  * the lariat is launched so its loop's centre flies the projectile that meets
  * the target's contact at the catch; with a dally the hand then circles the
  * horn its turns and holds there. Register `HumanLasso` to use it.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the swing and its timing, the throw, the catch and the dally.
- * @evidence contracts/development/design.md#principled-representation One law; the swing as a phase locked to the stride, the throw as a closed-form launch.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The law's name, cut table and planner.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The catch point is the target's own contact at the catch; the stride is the author's cue track of the horse's own.
  */
 export const HumanLasso: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLasso> =
   {
     name: "lasso",
     interrupts: {},
-    /**
-     * Admit the throw, lay the swing and the launch, then sample.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States the refusals: a non-seated entry, bad counts or times, a stride track with fewer than two instants inside the swing, and a target beyond `REACH`.
-     * @evidence contracts/development/implementation.md#principled-implementation The swing's period is the stride track's mean interval and its phase puts the wrist ahead of the circle's centre at each stride instant; the circle lies level over the entry's own right shoulder joint and out to its side, its outermost point at the distance the arm's lengths give at the elbow's flexion and every other point nearer, so the wrist is reachable all round by construction and the arm never crosses the head; the wrist first rises to the circle's front at the swing's own speed under a minimum-jerk profile, whose peak rate is its closed form's at mid-course, and the swing starts on the first stride instant after; the hand is given no turn, since the swinging loop touches nothing, so the course leaves it to the arm's least strain rather than spin the hand a whole turn a stride; the launch velocity is the projectile's from the loop's place at the release to the target's contact in the flight time under standard gravity; after the release the wrist runs on from the throw's point, with a dally back to the horn under a minimum-jerk profile over the loop's flight and then round it, so the arm never leaps back to its entry hold.
-     * @evidence contracts/development/implementation.md#clear-and-simple-structure Admission, the clock, the circle, the launch, then the sampler.
-     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A target out of reach is refused, never pulled in.
-     * @evidence contracts/development/implementation.md#efficient-algorithms One shoulder resolve restricted to the upper arm; a sample reads one carrier frame and writes one arm goal.
-     * @evidence contracts/development/implementation.md#reuse-equivalent-work The tool, the circle and the launch are shared by every sample.
-     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains the tool, the circle and the carrier reader.
-     */
-    plan(context: Context): IAutoMovieMotionHumanActionPlan {
-      return plan(context);
-    },
+    plan: planHumanLasso,
   };
 
 /** Admit, lay the circle and the launch, and sample. */
@@ -168,10 +165,10 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
       undefined,
       {},
       undefined,
-      SHOULDER,
+      HumanBoneGroups.RIGHT_SHOULDER,
     ).pose,
     undefined,
-    SHOULDER,
+    HumanBoneGroups.RIGHT_SHOULDER,
   ).get("rightUpperArm")!.worldPosition;
   const upper: number = context.body.measure.upperArm;
   const fore: number = context.body.measure.forearm;
@@ -180,7 +177,7 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
       fore * fore +
       2 * upper * fore * Math.cos((ELBOW * Math.PI) / 180),
   );
-  const heading: IAutoMovieQuaternion = resolveHumanPosture.heading(local);
+  const heading: IAutoMovieQuaternion = humanPostureHeading(local);
   const forward: IAutoMovieVector3 = Vector3.normalize({
     ...Quaternion.rotateVector(heading, { x: 0, y: 0, z: 1 }),
     y: 0,

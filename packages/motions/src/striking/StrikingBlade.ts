@@ -24,12 +24,19 @@ import { courseArmGoal } from "../compose/courseArmGoal";
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { precisionStrokePeak } from "../lexicon/precisionStrokePeak";
 import { HumanHand } from "../posture/HumanHand";
+import { HumanLimbFit } from "../posture/HumanLimbFit";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { StrikingAdvance } from "./StrikingAdvance";
 import { StrikingHeld } from "./StrikingHeld";
 import { StrikingSupport } from "./StrikingSupport";
+
+/** The alternatives of `TurnedAddBone`'s site. */
+type TurnedAddBone = "chest" | "spine";
+
+/** The alternatives of `ShoulderContext`'s site. */
+type ShoulderContext = "body" | "entry";
 
 /**
  * The stroke of a held tool, shared by every blade and firearm action: the tool
@@ -66,7 +73,7 @@ export namespace StrikingBlade {
    * @returns The shoulder joint at the decisive instant, world metres.
    */
   export function shoulder(
-    context: Pick<IAutoMovieMotionHumanActionContext, "body" | "entry">,
+    context: Pick<IAutoMovieMotionHumanActionContext, ShoulderContext>,
     side: AutoMovieHumanSide,
     advance: IAutoMovieMotionHumanStrikingAdvance.Advance,
     line: IAutoMovieVector3,
@@ -94,7 +101,7 @@ export namespace StrikingBlade {
   ): IAutoMovieMotionHumanPosture {
     if (degrees === 0) return posture;
     const add = (
-      bone: "chest" | "spine",
+      bone: TurnedAddBone,
       share: number,
     ): readonly [number, number, number] => {
       const held: readonly [number, number, number] = posture.joints[bone] ?? [
@@ -389,7 +396,7 @@ export namespace StrikingBlade {
           bones.get(`${tool.side}UpperArm`)!.worldPosition,
         ),
       );
-      anchored = resolveHumanPosture.reference(posed, `${tool.side}Arm`);
+      anchored = HumanLimbFit.reference(posed, `${tool.side}Arm`);
       return anchored;
     };
     return {

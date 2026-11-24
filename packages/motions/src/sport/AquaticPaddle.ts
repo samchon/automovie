@@ -20,6 +20,12 @@ import { AquaticCrew } from "./AquaticCrew";
 import { AquaticPaddleCraft } from "./AquaticPaddleCraft";
 import { AquaticPosture } from "./AquaticPosture";
 
+/** The record of `IScullRailResult`'s site. */
+type IScullRailResult = {
+  root: IAutoMovieVector3;
+  travel: IAutoMovieVector3;
+};
+
 /**
  * Loaded drive and airborne recovery for rowing and racing paddle strokes.
  * Double-scull landmarks follow Cuijpers et al. at 26 strokes/min
@@ -262,10 +268,7 @@ export namespace AquaticPaddle {
   function scullRail(
     context: AquaticPosture.Context,
     hull: AquaticCrew.IHull,
-  ): {
-    root: IAutoMovieVector3;
-    travel: IAutoMovieVector3;
-  } {
+  ): IScullRailResult {
     const { body, entry } = context;
     const upright: IAutoMovieMotionHumanPosture = AquaticPosture.key(
       entry.posture,

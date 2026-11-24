@@ -36,6 +36,8 @@ const CONTACT_BLEND: number = 0.22;
  * provisional, an unhurried sculling arm.
  */
 const BASE_REACH: number = 0.5;
+/** The alternatives of `PlanLimbIndex`'s site. */
+type PlanLimbIndex = 0 | 1;
 
 /**
  * An artistic figure with optional team support. Flat and vertical sculls
@@ -299,7 +301,7 @@ export namespace AquaticTeam {
           legsAt(shaped);
         const limb = (
           side: AutoMovieHumanSide,
-          index: 0 | 1,
+          index: PlanLimbIndex,
         ): IAutoMovieHumanLimbGoal => {
           const base: IAutoMovieMotionHumanPerformerReader = partners[index];
           const region: IAutoMovieHumanoidSurfaces.IFrame =

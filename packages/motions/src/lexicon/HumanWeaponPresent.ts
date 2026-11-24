@@ -41,6 +41,9 @@ import { HumanWeaponHeld } from "./HumanWeaponHeld";
 import { HumanWeaponPose } from "./HumanWeaponPose";
 import { HumanWeaponTrack } from "./HumanWeaponTrack";
 
+/** The alternatives of `SHOTEntryItem`'s site. */
+type SHOTEntryItem = "press" | "rise" | "recover";
+
 /**
  * Presenting any held launcher with the weapon as the effector, and the shot's
  * press and recoil: a pistol, a long gun, a crossbow, a bow, a couched lance
@@ -144,7 +147,7 @@ export namespace HumanWeaponPresent {
    * The trigger press, the rise to the recoil's peak and the return onto the
    * line, seconds (provisional).
    */
-  export const SHOT: Readonly<Record<"press" | "rise" | "recover", number>> = {
+  export const SHOT: Readonly<Record<SHOTEntryItem, number>> = {
     press: 0.1,
     rise: 0.07,
     recover: 0.25,

@@ -99,11 +99,6 @@ const BPM: number = 120;
  * over one beat after the last. A beat is a delivered stroke, so the arm is
  * coursed at its goal's own peak speed (`courseArmAtPace`), not a reach's pace.
  * Events: `strokeStart` at the first ictus and `strokeEnd` at the last.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the held lever, the plane, the figure, the rebound, the beat clock and the events.
- * @evidence contracts/development/design.md#principled-representation A law record over the shared beat clock and the held tool's lever.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The name, the cancel table and the plan.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The figure is the meter's; the tempo is the shared clock's.
  */
 export const conduct: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanConduct.IParams> =
   {
@@ -114,7 +109,11 @@ export const conduct: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanConduc
     plan,
   };
 
-/** Read the beats and the lever, then aim the baton hand along the figure. */
+/**
+ * Read the beats and the lever, then aim the baton hand along the figure.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States the held lever, the plane, the figure, the rebound, the beat clock and the events.
+ */
 function plan(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanConduct.IParams>,
 ): IAutoMovieMotionHumanActionPlan {
