@@ -22,9 +22,13 @@ import type { IAutoMovieDrawScene } from "./IAutoMovieDrawScene.js";
  * clips clamp, holding their first state. So a frame at a hard cut integrates
  * only the incoming shot.
  *
- * It rejects, before placing anything, when the layer needs `seekShot` and the
- * subject supplies none, naming the subject, the second, the entry and
- * `seekShot`.
+ * A subject without `seekShot`, which only a transition requires, has no clock
+ * but `seek`: a sample before the entry's in-point is placed by `seek` at the
+ * in-point, the entry's first state, so a cut's first frame still shows nothing
+ * of the previous shot and only its shutter trail is shorter. A second after
+ * the in-point that the entry is not live at, a transition's outgoing tail, is
+ * refused before anything is placed, naming the subject, the second, the entry
+ * and `seekShot`.
  *
  * @param name The subject's name, which a refusal names.
  * @param scene The created subject.
@@ -47,13 +51,12 @@ export async function placeAutoMovieDrawLayer(
     playbackEntryAt(entries, seconds).entry === layer.entry
   )
     return scene.seek(seconds);
+  const entry: IAutoMoviePlaybackEntry = entries[layer.entry]!;
+  if (scene.seekShot === undefined && seconds < entry.start)
+    return scene.seek(entry.start);
   if (scene.seekShot === undefined)
     throw new Error(
       `Subject "${name}" places sequence entry ${layer.entry} at ${seconds} s, outside the span it is live in, but supplies no seekShot to place the shot "${layer.shot}" on its own clock`,
     );
-  return scene.seekShot(
-    layer.shot,
-    playbackEntryTime(entries[layer.entry]!, seconds),
-    seconds,
-  );
+  return scene.seekShot(layer.shot, playbackEntryTime(entry, seconds), seconds);
 }

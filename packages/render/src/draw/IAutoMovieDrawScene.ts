@@ -209,9 +209,10 @@ export interface IAutoMovieDrawScene {
    * picture shows last, so a fade's or a dissolve's first half reads every
    * record on this placement rather than on a later `seek`.
    *
-   * Required when `sequence` has a transition, or when a shutter's samples
-   * reach back across a cut: a picture that needs a shot placed without it is
-   * refused, naming the subject, the entry and `seekShot`.
+   * Required when `sequence` has a transition: a picture inside one is refused
+   * without it, naming the subject, the entry and `seekShot`. Without it a
+   * shutter sample before an entry's start is placed by `seek` at that start,
+   * the entry's first state, instead of its handle.
    */
   seekShot?(shot: string, time: number, seconds: number): Promise<void>;
 

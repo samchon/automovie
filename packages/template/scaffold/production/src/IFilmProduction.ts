@@ -215,9 +215,9 @@ export interface IFilmProduction {
 
   /**
    * The film's cut, layout and declared breaks, so motion is never examined
-   * across a cut or break, and whose sequence's transitions, and shutter
-   * samples before an entry's start, every film picture draws through
-   * `seekShot`. Absent treats the whole film as one continuous shot.
+   * across a cut or break, and whose sequence's transitions every film picture
+   * draws through `seekShot`, as it places a shutter sample before an entry's
+   * start. Absent treats the whole film as one continuous shot.
    */
   playback?: Pick<
     ISelectAutoMoviePlacedChecks.IContinuity,
@@ -334,8 +334,10 @@ export interface IFilmProduction {
    * entry's transition says. `seconds` can fall before the trim's start, by up
    * to one shutter interval, into the shot's handle, or before the shot's zero,
    * where the shot holds its first state as its clips clamp. Required when the
-   * sequence has a transition, or when `optics` sets a shutter and the film has
-   * cuts: a picture that needs it is refused without it.
+   * sequence has a transition: a picture inside one is refused without it.
+   * Without it, a shutter sample before a shot's first frame is placed by
+   * `seek` at that frame, so a cut's first frame still shows nothing of the
+   * previous shot, with a shorter blur trail.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what the call places, on which two clocks, which members then describe it, the order the hosts place shots in, what they do with the picture, the times it can be asked for and when it is required.
    * @evidenceExclude contracts/development/implementation.md#principled-implementation A signature has no body; the film that implements it answers.

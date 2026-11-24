@@ -89,8 +89,9 @@ const SUPERSAMPLE = 2 as const;
  * the renderer's own curve and exposure. The film camera's aspect is set to the
  * picture's, as the page sets it to its canvas. A picture outside every
  * transition is drawn exactly as a subject without a sequence is, except that a
- * shutter sample before the live entry's start places that entry's handle by
- * `seekShot` rather than the previous shot.
+ * shutter sample before the live entry's start places that entry rather than
+ * the previous shot: its handle by `seekShot`, or without `seekShot` its start
+ * by `seek`.
  *
  * `speak` hands a subject with `speak` the film's dialogue mouths; each
  * result's `mouths` are what the subject read for the drawn second.

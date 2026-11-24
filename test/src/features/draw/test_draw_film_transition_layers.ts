@@ -8,7 +8,6 @@ import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
 import { nclose } from "../internal/nclose";
-import { rejectsError } from "../internal/rejectsError";
 import { createRecordedFilmSubject } from "./createRecordedFilmSubject";
 
 /** One step of a picture: the subject's calls and the beauty owner's. */
@@ -53,13 +52,13 @@ interface IStep {
  *    weights toward alpha 0, and restores the backdrop.
  * 7. At a hard cut's first frame, 2 s, with optics, B's two shutter samples before
  *    its start are placed by `seekShot` at B's handle, −1/64 and −1/192 s, and
- *    the frame by `seek`; without `seekShot` the frame is refused naming the
- *    subject, the entry and `seekShot`.
+ *    the frame by `seek`; without `seekShot` the frame is drawn, both samples
+ *    held at B's in-point by `seek` at 2 s, and no sample places A.
  * 8. An inspection picture inside the dissolve's first half composites nothing and
  *    samples nothing, and its `seekShown` still places the outgoing shot.
  * 9. The canvas's clear alpha is set before the shown layer's samples are drawn.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Drives `AutoMovieDrawFilm`, the draw page's picture, over a recording subject and beauty owner and asserts the order and arguments of every placement, reading, draw, hold and composite; a swapped slot, a missing hold, a live entry placed last, an outgoing shot on the film clock, a dropped `beforeDraw`, a weight-0 layer drawn, a plate cut at the transition or a sample on the previous shot fails.
+ * @evidence contracts/development/testing.md#behavioral-verification Drives `AutoMovieDrawFilm`, the draw page's picture, over a recording subject and beauty owner and asserts the order and arguments of every placement, reading, draw, hold and composite; a swapped slot, a missing hold, a live entry placed last, an outgoing shot on the film clock, a dropped `beforeDraw`, a weight-0 layer drawn, a plate cut at the transition, a sample on the previous shot or a cut refused without `seekShot` fails.
  * @evidence contracts/development/testing.md#independent-expectations The weights follow from the dissolve's linear mix and the fade's dip by hand, the shot clocks from the hand-laid cut, and the sample seconds from the strata midpoints of the trailing 1/48 s interval.
  * @evidence contracts/development/testing.md#distinguishing-cases Both halves of a dissolve and of a fade, their zero-weight frames, the plate, a hard cut with and without `seekShot`, an inspection picture, with and without optics; pixels belong to the SwiftShader capture and the layer weights to `test_film_playback_layers`.
  * @evidence contracts/development/testing.md#execution-ownership A portable unit discovered as `test_draw_film_transition_layers`; the subject and the beauty owner are recording doubles and no GPU starts.
@@ -231,16 +230,16 @@ export async function test_draw_film_transition_layers(): Promise<void> {
   const handles: IStep[] = cut
     .steps()
     .filter((entry: IStep): boolean => entry.name.startsWith("seek"));
-  const refused: boolean = await rejectsError(
-    (): Promise<void> =>
-      picture({
-        kind: null,
-        seconds: 2,
-        optics: true,
-        seekShot: false,
-      }).film.prepare(),
-    ['Subject "film"', "entry 1", "seekShot"],
-  );
+  const bare: IPicture = picture({
+    kind: null,
+    seconds: 2,
+    optics: true,
+    seekShot: false,
+  });
+  await bare.film.prepare();
+  const held: IStep[] = bare
+    .steps()
+    .filter((entry: IStep): boolean => entry.name.startsWith("seek"));
   TestValidator.predicate(
     "a cut's first frame samples only the incoming shot, from its handle",
     cut.film.layers === null &&
@@ -251,7 +250,12 @@ export async function test_draw_film_transition_layers(): Promise<void> {
         step("seekShot", "shot:b", -1 / 192, 2 - 1 / 192),
         step("seek", null, 2),
       ]) &&
-      refused,
+      same(held, [
+        step("seek", null, 2),
+        step("seek", null, 2),
+        step("seek", null, 2),
+        step("seek", null, 2),
+      ]),
   );
 
   // 8. An inspection picture.

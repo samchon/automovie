@@ -32,7 +32,7 @@ Holding a layer and sampling a layer are private steps; placement is `placeAutoM
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
-A layer of weight 0 is skipped, not drawn and mixed at nothing; a shot that needs `seekShot` without it is refused rather than placed by the film second.
+A layer of weight 0 is skipped, not drawn and mixed at nothing; an outgoing shot without `seekShot` is refused rather than placed by the film second, and a cut's sample without it is held at the incoming entry's start rather than placed on the previous shot.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 

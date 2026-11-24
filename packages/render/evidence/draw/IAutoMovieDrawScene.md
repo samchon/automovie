@@ -10,7 +10,7 @@ Every member is read by `installAutoMovieDraw`: the scene and camera to draw, th
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 
-No member names a film, a figure or a case. A positive clock and raster are checked by the capture planner at runtime. `sequence` without `seekShot` is a state the type admits, because a cut whose transitions are all outside the drawn seconds needs no shot placement; a picture that needs one refuses by name in `planAutoMovieDrawLayers`, or in `placeAutoMovieDrawLayer` for a shutter sample before a cut.
+No member names a film, a figure or a case. A positive clock and raster are checked by the capture planner at runtime. `sequence` without `seekShot` is a state the type admits, because a cut whose transitions are all outside the drawn seconds needs no shot placement; a picture that needs one refuses by name in `planAutoMovieDrawLayers`; without it a shutter sample before a cut holds the incoming entry's start.
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

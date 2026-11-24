@@ -16,7 +16,9 @@ import { rejectsError } from "../internal/rejectsError";
 /**
  * A layer of a film picture is placed on its own entry's clock: by `seek` at a
  * second its entry is live at, and otherwise by `seekShot` at the entry's
- * shot-local time, which before the entry's in-point runs into its handle.
+ * shot-local time, which before the entry's in-point runs into its handle; a
+ * subject without `seekShot` holds a sample before the in-point at the
+ * in-point.
  *
  * Scenarios, on shot A for 3 s cut hard to shot B trimmed from its 1 s mark, so
  * B starts at 3 s:
@@ -26,10 +28,12 @@ import { rejectsError } from "../internal/rejectsError";
  * 3. B at 3 − 1/64 s, a shutter sample before its start, is placed by `seekShot`
  *    at its handle 1 − 1/64 s with the output second 3 − 1/64 s.
  * 4. A at 3.25 s, past its own span, is placed by `seekShot` at its clock 3.25 s.
- * 5. Without `seekShot`, the sample of 3 is refused naming the subject, the entry
- *    and `seekShot`, and nothing is placed.
+ * 5. Without `seekShot`, B's sample at 3 − 1/64 s is placed by `seek` at B's
+ *    in-point, 3 s, never on A; A's tail at 3.25 s, which only `seekShot` can
+ *    place, is refused naming the subject, the entry and `seekShot`, and
+ *    nothing is placed.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Calls `placeAutoMovieDrawLayer` on a recording subject and asserts which placement it made with which clock; a sample placed by the film second, a handle clamped to the trim, a live layer placed by `seekShot` or a silent fallback without `seekShot` fails.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls `placeAutoMovieDrawLayer` on a recording subject and asserts which placement it made with which clock; a sample placed by the film second, a handle clamped to the trim, a live layer placed by `seekShot`, a sample without `seekShot` placed on the previous shot or refused, or a tail without `seekShot` placed silently fails.
  * @evidence contracts/development/testing.md#independent-expectations The cut is hand-laid: A over 0 to 3 s and B from 3 s with its clock starting at its 1 s trim, so B's clock at 3 − 1/64 s is 1 − 1/64 s by the affine entry clock.
  * @evidence contracts/development/testing.md#distinguishing-cases No cut, a live layer, a sample before an in-point, a tail past its span and a subject without `seekShot`; the draw page's use of it belongs to `test_draw_film_transition_layers`.
  * @evidence contracts/development/testing.md#execution-ownership A portable unit discovered as `test_draw_film_layer_clock`; the subject records its placements and nothing is drawn.
@@ -111,20 +115,23 @@ export async function test_draw_film_layer_clock(): Promise<void> {
   );
 
   // 5. Without seekShot.
+  const bare: Pick<IAutoMovieDrawScene, "cut" | "seek"> = {
+    cut,
+    seek: subject.seek,
+  };
+  await placeAutoMovieDrawLayer("film", bare, b, 3 - 1 / 64);
+  const held: [string, string | null, number, number] = last();
   const count: number = placed.length;
   const refused: boolean = await rejectsError(
-    (): Promise<void> =>
-      placeAutoMovieDrawLayer(
-        "film",
-        { cut, seek: subject.seek },
-        b,
-        3 - 1 / 64,
-      ),
-    ['Subject "film"', "entry 1", "seekShot"],
+    (): Promise<void> => placeAutoMovieDrawLayer("film", bare, a, 3.25),
+    ['Subject "film"', "entry 0", "seekShot"],
   );
   TestValidator.predicate(
-    "a subject without seekShot is refused before anything is placed",
-    refused && placed.length === count,
+    "without seekShot a sample is held at the in-point and a tail is refused",
+    held[0] === "seek" &&
+      nclose(held[3], 3, 0) &&
+      refused &&
+      placed.length === count,
   );
 }
 
