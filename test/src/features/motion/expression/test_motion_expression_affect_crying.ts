@@ -24,9 +24,10 @@ import {
   HumanPerformance,
 } from "@automovie/motions";
 import { HUMAN_EVERYDAY_LAWS, HumanHand } from "@automovie/motions/internal";
-import { TestValidator } from "@nestia/e2e";
 
 import { assertTakeClean } from "../../internal/assertTakeClean";
+import { everydayTake } from "../../internal/everydayTake";
+import { motionComplaints } from "../../internal/motionComplaints";
 import { motionHumanBody } from "../../internal/motionHumanBody";
 import { throwsError } from "../../internal/throwsError";
 
@@ -35,10 +36,16 @@ const { hug } = AutoMovieMotionHumanTouch;
 const { HumanAffect } = AutoMovieMotionHumanExpression;
 const { AutoMovieMotionHumanTouchEffector } = AutoMovieMotionHumanTouch;
 
-/** The nominal interval between sob inspirations at intensity 1, seconds, and its documented ±30 % seeded variation. */
+/**
+ * The nominal interval between sob inspirations at intensity 1, seconds, and
+ * its documented ±30 % seeded variation.
+ */
 const SOB: readonly [number, number, number] = [0.5, 0.7, 1.3];
 
-/** The shortest interval 24 Hz film shows as separate pulses, seconds: the 12 Hz Nyquist limit. */
+/**
+ * The shortest interval 24 Hz film shows as separate pulses, seconds: the 12 Hz
+ * Nyquist limit.
+ */
 const NYQUIST: number = 1 / 12;
 
 /** The sampling step of the angle reads, seconds. */
@@ -61,17 +68,18 @@ const PALM: IAutoMovieMotionHumanTouchEffector.IEffector = {
  * contacts of the action under them.
  *
  * Scenarios:
- * 1. A sob's shoulder lift peaks once per inspiration. The intervals vary,
- *    each within ±30 % of 0.5 s, never closer than the 12 Hz Nyquist limit
- *    of 24 Hz film, and the same seed repeats the train while another seed
- *    changes it. Intensity 2 makes the train denser than intensity 1.
- * 2. A weep lowers the head while it plays, and a gasp's head extension
- *    peaks 0.25 s in, returns to rest at its end, and a gasp too short for
- *    its inspiration is refused.
- * 3. On the average man and the small woman, a sob over `coverFace` leaves
- *    both hands where the plain cover puts them while the shoulders heave.
- * 4. A seated sob leaves the hips on the seat, and a sob over a `hug`
- *    leaves the sobbing performer's palms within 10 mm of the partner's back.
+ *
+ * 1. A sob's shoulder lift peaks once per inspiration. The intervals vary, each
+ *    within ±30 % of 0.5 s, never closer than the 12 Hz Nyquist limit of 24 Hz
+ *    film, and the same seed repeats the train while another seed changes it.
+ *    Intensity 2 makes the train denser than intensity 1.
+ * 2. A weep lowers the head while it plays, and a gasp's head extension peaks 0.25
+ *    s in, returns to rest at its end, and a gasp too short for its inspiration
+ *    is refused.
+ * 3. On the average man and the small woman, a sob over `coverFace` leaves both
+ *    hands where the plain cover puts them while the shoulders heave.
+ * 4. A seated sob leaves the hips on the seat, and a sob over a `hug` leaves the
+ *    sobbing performer's palms within 10 mm of the partner's back.
  * 5. Reading the sobbing cover backwards gives the same poses as forwards.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the five scenarios and what each pins.
@@ -81,6 +89,7 @@ const PALM: IAutoMovieMotionHumanTouchEffector.IEffector = {
  * @evidence contracts/development/testing.md#execution-ownership An in-memory unit over the public layer and HumanPerformance on canonical bodies; the feature runner discovers it.
  */
 export function test_motion_expression_affect_crying(): void {
+  const checks: motionComplaints.IGatherer = motionComplaints();
   const lifts: number[] = peaks("sob", 4, 1, "a");
 
   // Between the envelope's ramps every inspiration peaks at full height, so
@@ -91,7 +100,7 @@ export function test_motion_expression_affect_crying(): void {
   const gaps: number[] = steady
     .slice(1)
     .map((t: number, i: number): number => t - steady[i]!);
-  TestValidator.predicate(
+  checks.check(
     "a sob heaves once per inspiration at irregular seeded intervals",
     gaps.length >= 3 &&
       gaps.every(
@@ -102,88 +111,93 @@ export function test_motion_expression_affect_crying(): void {
       ) &&
       Math.max(...gaps) - Math.min(...gaps) > 4 * STEP,
   );
-  TestValidator.equals("the same seed repeats", peaks("sob", 4, 1, "a"), lifts);
-  TestValidator.predicate(
+  checks.equals("the same seed repeats", peaks("sob", 4, 1, "a"), lifts);
+  checks.check(
     "another seed changes the train",
     peaks("sob", 4, 1, "b").join() !== lifts.join(),
   );
-  TestValidator.predicate(
+  checks.check(
     "a stronger sob is denser",
     peaks("sob", 4, 2, "a").length > lifts.length,
   );
 
   const weep: number = HumanAffect.angles("weep", 3, 6).head![0];
-  TestValidator.predicate("a weep lowers the head", weep > 6);
+  checks.check("a weep lowers the head", weep > 6);
   const gasp: number[] = samples("gasp", 1.5, 1, "a", "head", 0);
   const deepest: number = gasp.indexOf(Math.min(...gasp));
-  TestValidator.predicate(
+  checks.check(
     "a gasp peaks at its rise and returns to rest",
     Math.abs(deepest * STEP - 0.25) <= 2 * STEP &&
       Math.abs(gasp.at(-1)!) < 0.05,
   );
-  TestValidator.predicate(
+  checks.check(
     "a gasp shorter than its inspiration is refused",
     throwsError(() => HumanAffect.angles("gasp", 0.1, 0.2)),
   );
 
   for (const fit of ["m-average", "f-small"] as const) {
-    const body: IAutoMovieMotionHumanBody = motionHumanBody(fit);
-    const cover = (sob: boolean): HumanPerformance =>
-      solo(
-        body,
-        HumanChain.extend(HUMAN_EVERYDAY_LAWS)
-          .subject("a")
-          .coverFace({ hold: 3 }),
-        [],
-        sob,
+    try {
+      const body: IAutoMovieMotionHumanBody = motionHumanBody(fit);
+      const cover = (sob: boolean): HumanPerformance =>
+        solo(
+          body,
+          HumanChain.extend(HUMAN_EVERYDAY_LAWS)
+            .subject("a")
+            .coverFace({ hold: 3 }),
+          [],
+          sob,
+        );
+      const plain: HumanPerformance = cover(false);
+      const sobbing: HumanPerformance = cover(true);
+      verdict(checks, `${fit} sob over a cover`, sobbing);
+      const face: IAutoMovieMotionHumanSegment = sobbing.segments("a")[0]!;
+      const from: number = event(face, "atFace");
+      const to: number = event(face, "relax");
+      const times: number[] = [0, 0.25, 0.5, 0.75, 1].map(
+        (share: number): number => from + share * (to - from),
       );
-    const plain: HumanPerformance = cover(false);
-    const sobbing: HumanPerformance = cover(true);
-    assertTakeClean(`${fit} sob over a cover`, sobbing);
-    const face: IAutoMovieMotionHumanSegment = sobbing.segments("a")[0]!;
-    const from: number = event(face, "atFace");
-    const to: number = event(face, "relax");
-    const times: number[] = [0, 0.25, 0.5, 0.75, 1].map(
-      (share: number): number => from + share * (to - from),
-    );
 
-    // The cover's own bound: each palm within a quarter hand of its cheek.
-    TestValidator.predicate(
-      `${fit}: the palms stay on the cheeks while the shoulders heave`,
-      times.every(
-        (t: number): boolean =>
-          cheek(sobbing, body, "left", t) <= body.measure.hand / 4 &&
-          cheek(sobbing, body, "right", t) <= body.measure.hand / 4,
-      ) &&
-        times.some(
-          (t: number): boolean => apart(plain, sobbing, t, "leftShoulder") > 0,
+      // The cover's own bound: each palm within a quarter hand of its cheek.
+      checks.check(
+        `${fit}: the palms stay on the cheeks while the shoulders heave`,
+        times.every(
+          (t: number): boolean =>
+            cheek(sobbing, body, "left", t) <= body.measure.hand / 4 &&
+            cheek(sobbing, body, "right", t) <= body.measure.hand / 4,
+        ) &&
+          times.some(
+            (t: number): boolean =>
+              apart(plain, sobbing, t, "leftShoulder") > 0,
+          ),
+      );
+      const forward: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>[] =
+        times.map((t: number) => sobbing.bones("a", t));
+      const fresh: HumanPerformance = cover(true);
+      const backward: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>[] = [
+        ...times,
+      ]
+        .reverse()
+        .map(
+          (t: number): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =>
+            fresh.bones("a", t),
+        )
+        .reverse();
+      checks.check(
+        `${fit}: reading backwards gives the same poses`,
+        forward.every(
+          (
+            bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
+            i: number,
+          ) =>
+            Vector3.distance(
+              bones.get("head")!.worldPosition,
+              backward[i]!.get("head")!.worldPosition,
+            ) <= 1e-9,
         ),
-    );
-    const forward: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>[] =
-      times.map((t: number) => sobbing.bones("a", t));
-    const fresh: HumanPerformance = cover(true);
-    const backward: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>[] = [
-      ...times,
-    ]
-      .reverse()
-      .map(
-        (t: number): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =>
-          fresh.bones("a", t),
-      )
-      .reverse();
-    TestValidator.predicate(
-      `${fit}: reading backwards gives the same poses`,
-      forward.every(
-        (
-          bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
-          i: number,
-        ) =>
-          Vector3.distance(
-            bones.get("head")!.worldPosition,
-            backward[i]!.get("head")!.worldPosition,
-          ) <= 1e-9,
-      ),
-    );
+      );
+    } catch (error: unknown) {
+      checks.check(`${String(fit)}: ${everydayTake.describe(error)}`, false);
+    }
   }
 
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
@@ -202,7 +216,7 @@ export function test_motion_expression_affect_crying(): void {
     solo(body, HumanChain.subject("a").sit({ seat, hold: 4 }), [placed], sob);
   const sitting: HumanPerformance = seated(false);
   const sitSob: HumanPerformance = seated(true);
-  TestValidator.predicate(
+  checks.check(
     "a seated sob leaves the hips on the seat",
     [2, 2.5, 3].every(
       (t: number): boolean => apart(sitting, sitSob, t, "hips") <= KEEP,
@@ -257,7 +271,7 @@ export function test_motion_expression_affect_crying(): void {
       ]);
   const palms: number[] = reach(heldSob);
   const plainPalms: number[] = reach(embrace(false));
-  TestValidator.predicate(
+  checks.check(
     `a sob over a hug leaves the palms on the partner's back (${palms
       .map((gap: number): string => (1000 * gap).toFixed(1))
       .join(", ")} mm; plain ${plainPalms
@@ -265,6 +279,7 @@ export function test_motion_expression_affect_crying(): void {
       .join(", ")} mm)`,
     dwellTo > dwellFrom && palms.every((gap: number): boolean => gap <= TOUCH),
   );
+  checks.assert("expression affect crying");
 }
 
 /** How far performer `a`'s flat palm is from a region of partner `b`, metres. */
@@ -286,7 +301,10 @@ function back(
   );
 }
 
-/** One performer `a` at the origin playing a chain, with or without a sob from 0.3 s. */
+/**
+ * One performer `a` at the origin playing a chain, with or without a sob from
+ * 0.3 s.
+ */
 function solo(
   body: IAutoMovieMotionHumanBody,
   chain: IAutoMovieMotionHumanChain,
@@ -352,7 +370,10 @@ function crying(at: number): IAutoMovieMotionHumanLayer {
   return HumanAffect.layer([display]);
 }
 
-/** How far one bone's displayed position differs between two performances, metres. */
+/**
+ * How far one bone's displayed position differs between two performances,
+ * metres.
+ */
 function apart(
   a: HumanPerformance,
   b: HumanPerformance,
@@ -365,7 +386,10 @@ function apart(
   );
 }
 
-/** One angle of one bone of a display, sampled every STEP from its start through its end. */
+/**
+ * One angle of one bone of a display, sampled every STEP from its start through
+ * its end.
+ */
 function samples(
   kind: IAutoMovieMotionHumanAffect.Kind,
   seconds: number,
@@ -402,4 +426,20 @@ function peaks(
     if (lift[i]! > lift[i - 1]! && lift[i]! >= lift[i + 1]! && lift[i]! > 0.5)
       times.push(i * STEP);
   return times;
+}
+
+/** Gather a take's shipped verdicts as one check. */
+function verdict(
+  checks: motionComplaints.IGatherer,
+  label: string,
+  film: HumanPerformance,
+): void {
+  try {
+    assertTakeClean(label, film);
+  } catch (error: unknown) {
+    checks.check(
+      `${label}: ${error instanceof Error ? error.message : String(error)}`,
+      false,
+    );
+  }
 }

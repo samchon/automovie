@@ -13,9 +13,10 @@ import {
   HumanPerformance,
 } from "@automovie/motions";
 import { HumanFoot } from "@automovie/motions/internal";
-import { TestValidator } from "@nestia/e2e";
 
 import { assertTakeClean } from "../../internal/assertTakeClean";
+import { everydayTake } from "../../internal/everydayTake";
+import { motionComplaints } from "../../internal/motionComplaints";
 import { motionHumanBody } from "../../internal/motionHumanBody";
 
 /** The strike's contact bound, metres. */
@@ -28,11 +29,11 @@ const BPM: number = 120;
  * Tap a single time step and a cramp roll on the beat (#3991's tap).
  *
  * Scenarios, on two body proportions:
- * 1. Every sounding strike's event falls on a quarter-beat subdivision of
- *    the 120 bpm clock, to the microsecond.
- * 2. At that instant the named part meets the floor: the ball socket for a
- *    ball tap, the heel socket for a heel drop, both for a flat step,
- *    within 5 mm.
+ *
+ * 1. Every sounding strike's event falls on a quarter-beat subdivision of the 120
+ *    bpm clock, to the microsecond.
+ * 2. At that instant the named part meets the floor: the ball socket for a ball
+ *    tap, the heel socket for a heel drop, both for a flat step, within 5 mm.
  * 3. Each take passes the shipped verdicts.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the beat rule, the contact rule and the verdicts.
@@ -42,45 +43,52 @@ const BPM: number = 120;
  * @evidence contracts/development/testing.md#execution-ownership In-memory performances on the shared Human fixture.
  */
 export function test_motion_dance_tap_dance(): void {
+  const checks: motionComplaints.IGatherer = motionComplaints();
   const quarter: number = 60 / BPM / 4;
-  for (const name of ["f-small", "m-average"] as const)
-    for (const step of ["timeStep", "crampRoll"] as const) {
-      const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
-      const film: HumanPerformance = take(body, step);
-      const tap: IAutoMovieMotionHumanSegment = film.segments("a")[1]!;
-      const strikes: readonly IAutoMovieMotionEvent[] = tap.plan.events.filter(
-        (e: IAutoMovieMotionEvent): boolean => e.name.startsWith("strike"),
-      );
-      for (const e of strikes) {
-        const local: number = e.share * tap.plan.duration;
-        const grid: number = local / quarter;
-        const t: number = tap.start + local;
-        const match: RegExpMatchArray = e.name.match(
-          /^strike\d+(Left|Right)(Ball|Heel|Flat)$/,
-        )!;
-        const side: AutoMovieHumanSide = match[1] === "Left" ? "left" : "right";
-        const sockets: readonly IAutoMovieMotionHumanFoot.Socket[] =
-          match[2] === "Ball"
-            ? ["ball"]
-            : match[2] === "Heel"
-              ? ["heel"]
-              : ["heel", "ball"];
-        const high: number = Math.max(
-          ...sockets.map((s: IAutoMovieMotionHumanFoot.Socket): number =>
-            height(film, body, t, side, s),
-          ),
-        );
-        TestValidator.predicate(
-          `${name} ${step} ${e.name} on its subdivision (${grid.toFixed(6)}) and down (${(high * 1000).toFixed(1)} mm)`,
-          Math.abs(grid - Math.round(grid)) <= 1e-6 / quarter && high <= TOUCH,
-        );
+  for (const name of ["f-small", "m-average"] as const) {
+    try {
+      for (const step of ["timeStep", "crampRoll"] as const) {
+        const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
+        const film: HumanPerformance = take(body, step);
+        const tap: IAutoMovieMotionHumanSegment = film.segments("a")[1]!;
+        const strikes: readonly IAutoMovieMotionEvent[] =
+          tap.plan.events.filter((e: IAutoMovieMotionEvent): boolean =>
+            e.name.startsWith("strike"),
+          );
+        for (const e of strikes) {
+          const local: number = e.share * tap.plan.duration;
+          const grid: number = local / quarter;
+          const t: number = tap.start + local;
+          const match: RegExpMatchArray = e.name.match(
+            /^strike\d+(Left|Right)(Ball|Heel|Flat)$/,
+          )!;
+          const side: AutoMovieHumanSide =
+            match[1] === "Left" ? "left" : "right";
+          const sockets: readonly IAutoMovieMotionHumanFoot.Socket[] =
+            match[2] === "Ball"
+              ? ["ball"]
+              : match[2] === "Heel"
+                ? ["heel"]
+                : ["heel", "ball"];
+          const high: number = Math.max(
+            ...sockets.map((s: IAutoMovieMotionHumanFoot.Socket): number =>
+              height(film, body, t, side, s),
+            ),
+          );
+          checks.check(
+            `${name} ${step} ${e.name} on its subdivision (${grid.toFixed(6)}) and down (${(high * 1000).toFixed(1)} mm)`,
+            Math.abs(grid - Math.round(grid)) <= 1e-6 / quarter &&
+              high <= TOUCH,
+          );
+        }
+        checks.check(`${name} ${step} sounds its strikes`, strikes.length >= 4);
+        verdict(checks, `${name} ${step}`, film);
       }
-      TestValidator.predicate(
-        `${name} ${step} sounds its strikes`,
-        strikes.length >= 4,
-      );
-      assertTakeClean(`${name} ${step}`, film);
+    } catch (error: unknown) {
+      checks.check(`${String(name)}: ${everydayTake.describe(error)}`, false);
     }
+  }
+  checks.assert("dance tap dance");
 }
 
 /** A performer dancing one tap step. */
@@ -121,4 +129,20 @@ function height(
     ankle: foot.worldPosition,
     rotation: foot.worldRotation,
   }).y;
+}
+
+/** Gather a take's shipped verdicts as one check. */
+function verdict(
+  checks: motionComplaints.IGatherer,
+  label: string,
+  film: HumanPerformance,
+): void {
+  try {
+    assertTakeClean(label, film);
+  } catch (error: unknown) {
+    checks.check(
+      `${label}: ${error instanceof Error ? error.message : String(error)}`,
+      false,
+    );
+  }
 }

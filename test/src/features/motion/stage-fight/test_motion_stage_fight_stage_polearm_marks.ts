@@ -26,8 +26,9 @@ import {
   HumanPerformance,
 } from "@automovie/motions";
 import { HumanColliders } from "@automovie/motions/internal";
-import { TestValidator } from "@nestia/e2e";
 
+import { everydayTake } from "../../internal/everydayTake";
+import { motionComplaints } from "../../internal/motionComplaints";
 import { motionHumanBody } from "../../internal/motionHumanBody";
 
 /** The pole-blade display marks a profile can expose. */
@@ -48,13 +49,23 @@ const HOLDS: readonly Hold[] = [
   ["grip-upper", "leftHand"],
 ];
 
-/** The least separation between two screen marks on a different part of the blade, metres: 4 percent of the staged 0.72 m display, about one hand's width on a medium shot. */
+/**
+ * The least separation between two screen marks on a different part of the
+ * blade, metres: 4 percent of the staged 0.72 m display, about one hand's width
+ * on a medium shot.
+ */
 const APART: number = 0.03;
 
-/** The least separation between an edge and its rear across the blade, metres: half the narrowest profile's 2 × 0.02 × 0.72 m width. */
+/**
+ * The least separation between an edge and its rear across the blade, metres:
+ * half the narrowest profile's 2 × 0.02 × 0.72 m width.
+ */
 const WIDTH: number = 0.01;
 
-/** The largest gap between a holding hand's colliders and the shaft, metres: the 10 mm grip bound the catalogue contact tests use. */
+/**
+ * The largest gap between a holding hand's colliders and the shaft, metres: the
+ * 10 mm grip bound the catalogue contact tests use.
+ */
 const CONTACT: number = 0.01;
 
 /** One placed hand collider group, as the collider reader returns it. */
@@ -63,19 +74,20 @@ type HandPart = ReturnType<
 >[number];
 
 /**
- * Every pole-blade display profile keeps its two selected grips in the
- * hands through a public figure-eight take and shows tip, edge and rear
- * marks a camera can tell apart.
+ * Every pole-blade display profile keeps its two selected grips in the hands
+ * through a public figure-eight take and shows tip, edge and rear marks a
+ * camera can tell apart.
  *
  * Scenarios:
+ *
  * 1. The saved `createStageWeaponProp` and the named `createStagePoleBladeProp`
  *    build the same model for each profile at three seeds.
- * 2. Each profile is picked up by `grip-lower` in the right hand and
- *    `grip-upper` in the left and carried through the figure-eight beat. At
- *    five times across the beat each hand's colliders stay within 10 mm of
- *    the shaft and the lower hand stays below the upper. The lead hand's wrist
- *    stays within its grip's handle length; the support hand may slide, as a
- *    figure-eight's guiding hand does, but stays on the shaft.
+ * 2. Each profile is picked up by `grip-lower` in the right hand and `grip-upper`
+ *    in the left and carried through the figure-eight beat. At five times
+ *    across the beat each hand's colliders stay within 10 mm of the shaft and
+ *    the lower hand stays below the upper. The lead hand's wrist stays within
+ *    its grip's handle length; the support hand may slide, as a figure-eight's
+ *    guiding hand does, but stays on the shaft.
  * 3. At those times the tip is at least 30 mm from every other mark, the side
  *    blade's `side-edge` at least 30 mm from its main edge, and the edge and
  *    rear at least 10 mm apart, facing away from each other.
@@ -87,6 +99,7 @@ type HandPart = ReturnType<
  * @evidence contracts/development/testing.md#execution-ownership Runs in memory on the scenario runner with a prepared polygon body and the public prop, chain and performance readers.
  */
 export function test_motion_stage_fight_stage_polearm_marks(): void {
+  const checks: motionComplaints.IGatherer = motionComplaints();
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const hands: ReturnType<typeof HumanColliders.preparePlaced> =
     HumanColliders.preparePlaced(
@@ -99,108 +112,126 @@ export function test_motion_stage_fight_stage_polearm_marks(): void {
       ),
     );
   for (const kind of createStagePoleBladeProp.KINDS) {
-    for (const seed of [undefined, 0, "film"])
-      TestValidator.equals(
-        `${kind} replays the saved recipe at seed ${String(seed)}`,
-        JSON.stringify(
-          createStagePoleBladeProp({ kind, height: HEIGHT }, seed),
-        ),
-        JSON.stringify(createStageWeaponProp({ kind, height: HEIGHT }, seed)),
-      );
-
-    const model: ReturnType<typeof createStagePoleBladeProp> =
-      createStagePoleBladeProp({ kind, height: HEIGHT });
-    const performance: HumanPerformance = beat(body, model);
-    const segment: IAutoMovieMotionHumanSegment | undefined = performance
-      .segments("carrier")
-      .find(
-        (entry: IAutoMovieMotionHumanSegment): boolean =>
-          entry.law.name === "stageProp",
-      );
-    if (segment === undefined) throw new Error(`${kind} has no stage beat`);
-    const times: number[] = [0, 0.25, 0.5, 0.75, 1].map(
-      (u: number): number =>
-        segment.entryTime + u * (segment.end - segment.entryTime),
-    );
-
-    const shaft: IAutoMoviePhysicalShape = model
-      .shapes()
-      .find((shape: IAutoMoviePhysicalShape): boolean => shape.id === "shaft")!;
-    const along: Map<Grip, number[]> = new Map();
-    for (const [grip, hand] of HOLDS) {
-      const side: string = hand.startsWith("right") ? "right" : "left";
-      const gaps: number[] = [];
-      const places: number[] = [];
-      for (const time of times) {
-        const prop: IAutoMovieRigidTransform = performance.prop("shaft", time);
-        gaps.push(
-          Math.min(
-            ...hands(performance.bones("carrier", time))
-              .filter((part: HandPart): boolean => part.bone.startsWith(side))
-              .flatMap((part: HandPart): number[] =>
-                part.shapes.map((shape: IAutoMoviePhysicalShape): number =>
-                  physicalShapePairDistance(part.pose, shape, prop, shaft),
-                ),
-              ),
+    try {
+      for (const seed of [undefined, 0, "film"])
+        checks.equals(
+          `${kind} replays the saved recipe at seed ${String(seed)}`,
+          JSON.stringify(
+            createStagePoleBladeProp({ kind, height: HEIGHT }, seed),
           ),
+          JSON.stringify(createStageWeaponProp({ kind, height: HEIGHT }, seed)),
         );
-        places.push(
-          inFrame(prop, handFrame(performance, hand, time)).position.y,
+
+      const model: ReturnType<typeof createStagePoleBladeProp> =
+        createStagePoleBladeProp({ kind, height: HEIGHT });
+      const performance: HumanPerformance = beat(body, model);
+      const segment: IAutoMovieMotionHumanSegment | undefined = performance
+        .segments("carrier")
+        .find(
+          (entry: IAutoMovieMotionHumanSegment): boolean =>
+            entry.law.name === "stageProp",
+        );
+      if (segment === undefined) throw new Error(`${kind} has no stage beat`);
+      const times: number[] = [0, 0.25, 0.5, 0.75, 1].map(
+        (u: number): number =>
+          segment.entryTime + u * (segment.end - segment.entryTime),
+      );
+
+      const shaft: IAutoMoviePhysicalShape = model
+        .shapes()
+        .find(
+          (shape: IAutoMoviePhysicalShape): boolean => shape.id === "shaft",
+        )!;
+      const along: Map<Grip, number[]> = new Map();
+      for (const [grip, hand] of HOLDS) {
+        const side: string = hand.startsWith("right") ? "right" : "left";
+        const gaps: number[] = [];
+        const places: number[] = [];
+        for (const time of times) {
+          const prop: IAutoMovieRigidTransform = performance.prop(
+            "shaft",
+            time,
+          );
+          gaps.push(
+            Math.min(
+              ...hands(performance.bones("carrier", time))
+                .filter((part: HandPart): boolean => part.bone.startsWith(side))
+                .flatMap((part: HandPart): number[] =>
+                  part.shapes.map((shape: IAutoMoviePhysicalShape): number =>
+                    physicalShapePairDistance(part.pose, shape, prop, shaft),
+                  ),
+                ),
+            ),
+          );
+          places.push(
+            inFrame(prop, handFrame(performance, hand, time)).position.y,
+          );
+        }
+        along.set(grip, places);
+
+        // The lead hand stays at its grip; the support hand may slide along the
+        // shaft as a figure-eight's guiding hand does, but never off it.
+        const handle: number = model.affordance(grip).length!;
+        const shaftTop: number = model.affordance("shaft").length!;
+        checks.check(
+          `${kind} keeps the ${hand} closed on ${grip} through the beat`,
+          gaps.every((gap: number): boolean => gap <= CONTACT) &&
+            places.every((place: number): boolean =>
+              grip === "grip-lower"
+                ? Math.abs(place - places[0]!) <= handle
+                : place > 0 && place < shaftTop,
+            ),
         );
       }
-      along.set(grip, places);
-
-      // The lead hand stays at its grip; the support hand may slide along the
-      // shaft as a figure-eight's guiding hand does, but never off it.
-      const handle: number = model.affordance(grip).length!;
-      const shaftTop: number = model.affordance("shaft").length!;
-      TestValidator.predicate(
-        `${kind} keeps the ${hand} closed on ${grip} through the beat`,
-        gaps.every((gap: number): boolean => gap <= CONTACT) &&
-          places.every((place: number): boolean =>
-            grip === "grip-lower"
-              ? Math.abs(place - places[0]!) <= handle
-              : place > 0 && place < shaftTop,
+      checks.check(
+        `${kind} keeps the lower grip below the upper through the beat`,
+        along
+          .get("grip-lower")!
+          .every(
+            (lower: number, i: number): boolean =>
+              lower < along.get("grip-upper")![i]!,
           ),
       );
-    }
-    TestValidator.predicate(
-      `${kind} keeps the lower grip below the upper through the beat`,
-      along
-        .get("grip-lower")!
-        .every(
-          (lower: number, i: number): boolean =>
-            lower < along.get("grip-upper")![i]!,
-        ),
-    );
 
-    const marks: Mark[] = ["tip", "edge", "rear"];
-    if (kind === "sideBlade") marks.push("side-edge");
-    for (const time of times) {
-      const world: Map<Mark, IAutoMovieRigidTransform> = new Map(
-        marks.map((mark: Mark): [Mark, IAutoMovieRigidTransform] => [
-          mark,
-          place(performance.prop("shaft", time), model.affordance(mark).frame),
-        ]),
-      );
-      const gap: (a: Mark, b: Mark) => number = (a: Mark, b: Mark): number =>
-        Vector3.distance(world.get(a)!.position, world.get(b)!.position);
+      const marks: Mark[] = ["tip", "edge", "rear"];
+      if (kind === "sideBlade") marks.push("side-edge");
+      for (const time of times) {
+        const world: Map<Mark, IAutoMovieRigidTransform> = new Map(
+          marks.map((mark: Mark): [Mark, IAutoMovieRigidTransform] => [
+            mark,
+            place(
+              performance.prop("shaft", time),
+              model.affordance(mark).frame,
+            ),
+          ]),
+        );
+        const gap: (a: Mark, b: Mark) => number = (a: Mark, b: Mark): number =>
+          Vector3.distance(world.get(a)!.position, world.get(b)!.position);
 
-      // The tip stands apart from every other mark, the side blade's edge from
-      // the main edge; the edge and its rear share the blade's width and are
-      // told apart by facing away from each other.
-      TestValidator.predicate(
-        `${kind} shows separate ${marks.join(", ")} marks at ${time.toFixed(2)} s`,
-        marks.every(
-          (mark: Mark): boolean => mark === "tip" || gap("tip", mark) >= APART,
-        ) &&
-          (!marks.includes("side-edge") || gap("edge", "side-edge") >= APART) &&
-          gap("edge", "rear") >= WIDTH &&
-          -0.5 >
-            Vector3.dot(normal(world.get("edge")!), normal(world.get("rear")!)),
-      );
+        // The tip stands apart from every other mark, the side blade's edge from
+        // the main edge; the edge and its rear share the blade's width and are
+        // told apart by facing away from each other.
+        checks.check(
+          `${kind} shows separate ${marks.join(", ")} marks at ${time.toFixed(2)} s`,
+          marks.every(
+            (mark: Mark): boolean =>
+              mark === "tip" || gap("tip", mark) >= APART,
+          ) &&
+            (!marks.includes("side-edge") ||
+              gap("edge", "side-edge") >= APART) &&
+            gap("edge", "rear") >= WIDTH &&
+            -0.5 >
+              Vector3.dot(
+                normal(world.get("edge")!),
+                normal(world.get("rear")!),
+              ),
+        );
+      }
+    } catch (error: unknown) {
+      checks.check(`${String(kind)}: ${everydayTake.describe(error)}`, false);
     }
   }
+  checks.assert("stage fight stage polearm marks");
 }
 
 /** Stage one profile in the figure-eight beat, held at its two grips. */

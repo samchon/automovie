@@ -16,8 +16,9 @@ import {
   HumanRefusal,
 } from "@automovie/motions";
 import { HumanFoot, HumanHand } from "@automovie/motions/internal";
-import { TestValidator } from "@nestia/e2e";
 
+import { everydayTake } from "../../internal/everydayTake";
+import { motionComplaints } from "../../internal/motionComplaints";
 import { motionHumanBody } from "../../internal/motionHumanBody";
 import { nclose } from "../../internal/nclose";
 import { qclose } from "../../internal/qclose";
@@ -88,10 +89,11 @@ const MARKS: Record<Lift, readonly string[]> = {
  * A loaded workout preserves its actual bar, the grip and both foot plants.
  *
  * Scenarios:
- * 1. Show separate rack and overhead receives, squat, deadlift and press for
- *    small and average figures, then put each competition bar on a rack.
- * 2. Refuse coincident handles and a grip the small figure cannot fit,
- *    even when the requested separation is admitted by the bar archetype.
+ *
+ * 1. Show separate rack and overhead receives, squat, deadlift and press for small
+ *    and average figures, then put each competition bar on a rack.
+ * 2. Refuse coincident handles and a grip the small figure cannot fit, even when
+ *    the requested separation is admitted by the bar archetype.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names the film actions, distinct outcomes and mechanical contacts.
  * @evidence contracts/development/testing.md#behavioral-verification Uses the public chain, prop playback and displayed skeleton at the actual phase and placement events.
@@ -100,30 +102,49 @@ const MARKS: Record<Lift, readonly string[]> = {
  * @evidence contracts/development/testing.md#execution-ownership Builds in-memory Human performance over a real seeded barbell model, without a render host.
  */
 export function test_motion_support_competition_lift_support(): void {
-  for (const name of ["f-small", "m-average"] as const)
-    for (const kind of Object.keys(MARKS) as Lift[]) accept(name, kind);
+  const checks: motionComplaints.IGatherer = motionComplaints();
+  for (const name of ["f-small", "m-average"] as const) {
+    try {
+      for (const kind of Object.keys(MARKS) as Lift[])
+        accept(checks, name, kind);
+    } catch (error: unknown) {
+      checks.check(`${String(name)}: ${everydayTake.describe(error)}`, false);
+    }
+  }
 
   for (const [grip, handle, expected] of [
     [1.2, "gripRight", "reach"],
     [0.5, "gripLeft", "affordance"],
   ] as const) {
-    let refusal: unknown;
     try {
-      take("f-small", "cleanAndJerk", grip, handle);
-    } catch (error) {
-      refusal = error;
+      let refusal: unknown;
+      try {
+        take("f-small", "cleanAndJerk", grip, handle);
+      } catch (error) {
+        refusal = error;
+      }
+      checks.check(
+        `the two-hand request ${grip} / ${handle} is refused at planning`,
+        refusal instanceof HumanRefusal &&
+          refusal.kind === expected &&
+          refusal.axis === "load",
+      );
+    } catch (error: unknown) {
+      checks.check(
+        `${String(grip)} ${String(handle)} ${String(expected)}: ${everydayTake.describe(error)}`,
+        false,
+      );
     }
-    TestValidator.predicate(
-      `the two-hand request ${grip} / ${handle} is refused at planning`,
-      refusal instanceof HumanRefusal &&
-        refusal.kind === expected &&
-        refusal.axis === "load",
-    );
   }
+  checks.assert("support competition lift support");
 }
 
 /** Check authored and displayed support, joint and bar events in one take. */
-function accept(name: Specimen, kind: Lift): void {
+function accept(
+  checks: motionComplaints.IGatherer,
+  name: Specimen,
+  kind: Lift,
+): void {
   const { body, bar, film, rest } = take(
     name,
     kind,
@@ -142,7 +163,7 @@ function accept(name: Specimen, kind: Lift): void {
     segment.plan.contacts.find(
       (window): boolean => window.part === "leftHand" && window.kind === "grip",
     );
-  TestValidator.predicate(
+  checks.check(
     `${label} only the right hand carries the prop`,
     grip?.support.kind === "prop" &&
       grip.support.subject === "bar" &&
@@ -206,11 +227,11 @@ function accept(name: Specimen, kind: Lift): void {
     );
     const prop: IAutoMovieRigidTransform = film.prop("bar", sample);
     const held = contact(bones, prop);
-    TestValidator.predicate(
+    checks.check(
       `${label} fitted bar grip at ${sample.toFixed(3)} s (${held.secondary.toFixed(4)} m)`,
       held.secondary <= GRIP && vclose(held.primary, rightOffset),
     );
-    TestValidator.predicate(
+    checks.check(
       `${label} both visible soles remain on their marks at ${sample.toFixed(3)} s`,
       feet(sample).every(
         (foot, i) => foot.y >= -PLANT && vclose(foot, referenceFeet[i]!, PLANT),
@@ -232,7 +253,7 @@ function accept(name: Specimen, kind: Lift): void {
   if (kind === "snatch" || kind === "cleanAndJerk") {
     const overhead: string = kind === "snatch" ? "overhead1" : "jerkOverhead1";
     const catchName: string = kind === "snatch" ? "catch1" : "jerkCatch1";
-    TestValidator.predicate(
+    checks.check(
       `${label} lowers the hips under the catch and stands to settle`,
       read("loadReady") < read("extension1") &&
         read("extension1") < read("catch1") &&
@@ -245,7 +266,7 @@ function accept(name: Specimen, kind: Lift): void {
         lean(catchName) > lean(overhead),
     );
     if (kind === "cleanAndJerk")
-      TestValidator.predicate(
+      checks.check(
         `${label} shoulders receive the first catch before the separate jerk`,
         read("catch1") < read("rack1") &&
           read("rack1") < read("jerkDip1") &&
@@ -266,7 +287,7 @@ function accept(name: Specimen, kind: Lift): void {
       "bar",
       putDown.end + 0.15,
     );
-    TestValidator.predicate(
+    checks.check(
       `${label} transfers the same bar to the authored rest frame before fingers open`,
       placed < mark(putDown, "release") &&
         vclose(arrived.position, rest) &&
@@ -280,14 +301,14 @@ function accept(name: Specimen, kind: Lift): void {
         ),
     );
   } else if (kind === "overheadPress") {
-    TestValidator.predicate(
+    checks.check(
       `${label} the bar rises without a squat and returns to the rack`,
       height("lockout1") > height("rack1") &&
         nclose(hip("lockout1"), hip("rack1"), PLANT),
     );
   } else {
     const settled: string = kind === "frontSquat" ? "top1" : "stood1";
-    TestValidator.predicate(
+    checks.check(
       `${label} hip and bar rise as the trunk recovers`,
       height(settled) > height("bottom1") &&
         hip(settled) > hip("bottom1") &&

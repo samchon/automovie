@@ -15,20 +15,27 @@ import {
   HumanPerformance,
   HumanRefusal,
 } from "@automovie/motions";
-import { TestValidator } from "@nestia/e2e";
 
 import { assertTakeClean } from "../../internal/assertTakeClean";
+import { everydayTake } from "../../internal/everydayTake";
+import { motionComplaints } from "../../internal/motionComplaints";
 import { motionHumanBody } from "../../internal/motionHumanBody";
 
 const { backToBack } = AutoMovieMotionHumanTouch;
 
-/** How near the two upper backs stay, metres: twice the law's skin contact, one each side of the meeting point. */
+/**
+ * How near the two upper backs stay, metres: twice the law's skin contact, one
+ * each side of the meeting point.
+ */
 const NEAR: number = 0.02;
 
 /** How long the two lean, seconds. */
 const HOLD: number = 2;
 
-/** The gap left between the seated upper backs before leaning, metres (provisional staging: each lean closes half). */
+/**
+ * The gap left between the seated upper backs before leaning, metres
+ * (provisional staging: each lean closes half).
+ */
 const GAP: number = 0.08;
 
 /** One pair seated back to back. */
@@ -43,13 +50,14 @@ interface IPair {
 /**
  * Two people sitting back to back and leaning on each other (#4012).
  *
- * Scenarios, the average man with the small woman and two small women,
- * each take clean:
- * 1. Through the hold, the two upper backs meet: they lie within 20 mm of
- *    each other across the floor, each at its own height.
+ * Scenarios, the average man with the small woman and two small women, each
+ * take clean:
+ *
+ * 1. Through the hold, the two upper backs meet: they lie within 20 mm of each
+ *    other across the floor, each at its own height.
  * 2. Each back bears on the other's in a loaded window.
- * 3. One partner sitting up while the other still leans is refused, naming
- *    the lean left on nothing.
+ * 3. One partner sitting up while the other still leans is refused, naming the
+ *    lean left on nothing.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the scenes, the bounds and the refusal.
  * @evidence contracts/development/testing.md#behavioral-verification Reads both displayed upper backs through the hold and both plans' windows; backs apart, pressed through each other, unloaded windows, or an admitted withdrawn support fails.
@@ -58,59 +66,65 @@ interface IPair {
  * @evidence contracts/development/testing.md#execution-ownership In-memory two-performer performances through the public chain, each body's seated back read once from its own sit alone to stage the pair.
  */
 export function test_motion_touch_back_to_back(): void {
+  const checks: motionComplaints.IGatherer = motionComplaints();
   const pairs: readonly IPair[] = [
     { a: "m-average", b: "f-small" },
     { a: "f-small", b: "f-small" },
   ];
   for (const pair of pairs) {
-    const label: string = `${pair.a} and ${pair.b} sit back to back`;
-    const a: IAutoMovieMotionHumanBody = motionHumanBody(pair.a);
-    const b: IAutoMovieMotionHumanBody = motionHumanBody(pair.b);
-    const film: HumanPerformance = scene(a, b, HOLD);
-    assertTakeClean(label, film);
-    const lean: IAutoMovieMotionHumanSegment = film
-      .segments("b")
-      .find(
-        (s: IAutoMovieMotionHumanSegment): boolean => s.name === "backToBack",
-      )!;
-    const from: number = mark(lean, "lean");
-    const to: number = mark(lean, "part");
-    // Across the floor: two bodies of unequal stature carry their upper
-    // backs at unequal heights, and the backs meet on the upright plane
-    // between them, each at its own height.
-    const gaps: readonly number[] = [from, (from + to) / 2, to].map(
-      (t: number): number => {
-        const apart: IAutoMovieVector3 = Vector3.subtract(
-          back(film, "a", a, t),
-          back(film, "b", b, t),
-        );
-        return Math.hypot(apart.x, apart.z);
-      },
-    );
-    TestValidator.predicate(
-      `${label}: the upper backs meet (${gaps.map((g: number): string => (g * 1000).toFixed(0)).join(", ")} mm)`,
-      gaps.every((g: number): boolean => g <= NEAR),
-    );
-    for (const subject of ["a", "b"] as const) {
-      const window: IAutoMovieMotionHumanContactWindow | undefined = film
-        .segments(subject)
+    try {
+      const label: string = `${pair.a} and ${pair.b} sit back to back`;
+      const a: IAutoMovieMotionHumanBody = motionHumanBody(pair.a);
+      const b: IAutoMovieMotionHumanBody = motionHumanBody(pair.b);
+      const film: HumanPerformance = scene(a, b, HOLD);
+      verdict(checks, label, film);
+      const lean: IAutoMovieMotionHumanSegment = film
+        .segments("b")
         .find(
           (s: IAutoMovieMotionHumanSegment): boolean => s.name === "backToBack",
-        )!
-        .plan.contacts.find(
-          (w: IAutoMovieMotionHumanContactWindow): boolean =>
-            w.part === "back" && w.support.kind === "person",
-        );
-      TestValidator.predicate(
-        `${label}: ${subject}'s back bears on the other's in a loaded window`,
-        window !== undefined &&
-          window.load !== undefined &&
-          window.load > 0 &&
-          window.load < 1,
+        )!;
+      const from: number = mark(lean, "lean");
+      const to: number = mark(lean, "part");
+      // Across the floor: two bodies of unequal stature carry their upper
+      // backs at unequal heights, and the backs meet on the upright plane
+      // between them, each at its own height.
+      const gaps: readonly number[] = [from, (from + to) / 2, to].map(
+        (t: number): number => {
+          const apart: IAutoMovieVector3 = Vector3.subtract(
+            back(film, "a", a, t),
+            back(film, "b", b, t),
+          );
+          return Math.hypot(apart.x, apart.z);
+        },
       );
+      checks.check(
+        `${label}: the upper backs meet (${gaps.map((g: number): string => (g * 1000).toFixed(0)).join(", ")} mm)`,
+        gaps.every((g: number): boolean => g <= NEAR),
+      );
+      for (const subject of ["a", "b"] as const) {
+        const window: IAutoMovieMotionHumanContactWindow | undefined = film
+          .segments(subject)
+          .find(
+            (s: IAutoMovieMotionHumanSegment): boolean =>
+              s.name === "backToBack",
+          )!
+          .plan.contacts.find(
+            (w: IAutoMovieMotionHumanContactWindow): boolean =>
+              w.part === "back" && w.support.kind === "person",
+          );
+        checks.check(
+          `${label}: ${subject}'s back bears on the other's in a loaded window`,
+          window !== undefined &&
+            window.load !== undefined &&
+            window.load > 0 &&
+            window.load < 1,
+        );
+      }
+    } catch (error: unknown) {
+      checks.check(`${String(pair)}: ${everydayTake.describe(error)}`, false);
     }
   }
-  TestValidator.predicate(
+  checks.check(
     "one sitting up while the other still leans is refused",
     (() => {
       try {
@@ -128,9 +142,13 @@ export function test_motion_touch_back_to_back(): void {
       }
     })(),
   );
+  checks.assert("touch back to back");
 }
 
-/** `a` and `b` sit back to back and lean on each other, `b` holding its lean `second` seconds against `a`'s `HOLD`. */
+/**
+ * `a` and `b` sit back to back and lean on each other, `b` holding its lean
+ * `second` seconds against `a`'s `HOLD`.
+ */
 function scene(
   a: IAutoMovieMotionHumanBody,
   b: IAutoMovieMotionHumanBody,
@@ -239,4 +257,20 @@ function mark(segment: IAutoMovieMotionHumanSegment, name: string): number {
         (e: IAutoMovieMotionEvent): boolean => e.name === name,
       )!.share
   );
+}
+
+/** Gather a take's shipped verdicts as one check. */
+function verdict(
+  checks: motionComplaints.IGatherer,
+  label: string,
+  film: HumanPerformance,
+): void {
+  try {
+    assertTakeClean(label, film);
+  } catch (error: unknown) {
+    checks.check(
+      `${label}: ${error instanceof Error ? error.message : String(error)}`,
+      false,
+    );
+  }
 }

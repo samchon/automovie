@@ -9,16 +9,21 @@ import {
   AutoMovieMotionHumanWorkout,
 } from "@automovie/motions";
 import { HUMAN_LEXICON } from "@automovie/motions/internal";
-import { TestValidator } from "@nestia/e2e";
 
+import { everydayTake } from "../../../internal/everydayTake";
+import { motionComplaints } from "../../../internal/motionComplaints";
 import { motionHumanBody } from "../../../internal/motionHumanBody";
 
 /**
- * The public sport catalogue resolves exercise, dance, swimming and ball techniques to their authored law parameters.
+ * The public sport catalogue resolves exercise, dance, swimming and ball
+ * techniques to their authored law parameters.
  *
  * Scenarios:
- * 1. Each authored name occurs exactly once in the public catalogue and identifies its expected law.
- * 2. Each named technique fixes its intended kind even if the caller supplies another kind.
+ *
+ * 1. Each authored name occurs exactly once in the public catalogue and identifies
+ *    its expected law.
+ * 2. Each named technique fixes its intended kind even if the caller supplies
+ *    another kind.
  * 3. An alias without a fixed kind forwards the caller's parameters.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names the public catalogue, its lookup and its fixed-parameter contract.
@@ -28,27 +33,41 @@ import { motionHumanBody } from "../../../internal/motionHumanBody";
  * @evidence contracts/development/testing.md#execution-ownership Reads the public catalogue in memory and needs no performer or host.
  */
 export function test_motion_catalogue_alias_admission(): void {
-  checkSupportRoles();
-  checkWorkoutRoutes();
-  for (const rows of Object.values(HUMAN_LEXICON))
-    for (const row of rows) {
-      if (row.resolve === undefined) continue;
-      const fixed: object = row.resolve({});
-      const conflicts: Record<string, unknown> = Object.fromEntries(
-        Object.keys(fixed).map((key: string) => [key, null]),
-      );
-      const input = Object.freeze({ ...conflicts, callerArgument: row.name });
-      TestValidator.equals(
-        row.name + " fixed assignments override caller values",
-        row.resolve(input),
-        { ...fixed, callerArgument: row.name },
-      );
-      TestValidator.equals(
-        row.name + " default remains independent",
-        row.resolve({}),
-        fixed,
-      );
+  const checks: motionComplaints.IGatherer = motionComplaints();
+  try {
+    checkSupportRoles(checks);
+  } catch (error: unknown) {
+    checks.check(`checkSupportRoles: ${everydayTake.describe(error)}`, false);
+  }
+  try {
+    checkWorkoutRoutes(checks);
+  } catch (error: unknown) {
+    checks.check(`checkWorkoutRoutes: ${everydayTake.describe(error)}`, false);
+  }
+  for (const rows of Object.values(HUMAN_LEXICON)) {
+    try {
+      for (const row of rows) {
+        if (row.resolve === undefined) continue;
+        const fixed: object = row.resolve({});
+        const conflicts: Record<string, unknown> = Object.fromEntries(
+          Object.keys(fixed).map((key: string) => [key, null]),
+        );
+        const input = Object.freeze({ ...conflicts, callerArgument: row.name });
+        checks.equals(
+          row.name + " fixed assignments override caller values",
+          row.resolve(input),
+          { ...fixed, callerArgument: row.name },
+        );
+        checks.equals(
+          row.name + " default remains independent",
+          row.resolve({}),
+          fixed,
+        );
+      }
+    } catch (error: unknown) {
+      checks.check(`${String(rows)}: ${everydayTake.describe(error)}`, false);
     }
+  }
   const bindings: readonly Binding[] = [
     ["stance", "handsOnHips", "rest", { left: "hip", right: "hip" }],
     ["stance", "thinking", "rest", { left: "elbowSupport", right: "chinRest" }],
@@ -69,13 +88,20 @@ export function test_motion_catalogue_alias_admission(): void {
     ["sportGym", "curl", "workout", { kind: "curl" }],
   ];
   for (const [category, name, family, fixed] of bindings) {
-    const row = HUMAN_LEXICON[category]?.find((law) => law.name === name);
-    TestValidator.equals(name + " named owner", row?.family, family);
-    TestValidator.equals(
-      name + " authored fixed parameters",
-      row?.resolve?.({}),
-      fixed,
-    );
+    try {
+      const row = HUMAN_LEXICON[category]?.find((law) => law.name === name);
+      checks.equals(name + " named owner", row?.family, family);
+      checks.equals(
+        name + " authored fixed parameters",
+        row?.resolve?.({}),
+        fixed,
+      );
+    } catch (error: unknown) {
+      checks.check(
+        `${String(category)} ${String(name)} ${String(family)} ${String(fixed)}: ${everydayTake.describe(error)}`,
+        false,
+      );
+    }
   }
   const techniques: readonly Technique[] = [
     ["lunges", "exercise", "lunge"],
@@ -109,23 +135,37 @@ export function test_motion_catalogue_alias_admission(): void {
   const catalogue: readonly IAutoMovieMotionHumanActionLaw<never>[] =
     HUMAN_LEXICON.sport!;
   const byName: Map<string, IAutoMovieMotionHumanActionLaw<never>> = new Map();
-  for (const row of catalogue) byName.set(row.name, row);
-  TestValidator.equals("sport names are unique", byName.size, catalogue.length);
-  for (const [name, family, kind] of techniques) {
-    const row: IAutoMovieMotionHumanActionLaw<never> | undefined =
-      byName.get(name);
-    TestValidator.equals(name, row?.family, family);
-    TestValidator.equals(
-      name + " default parameters",
-      row?.resolve?.({}),
-      kind === undefined ? {} : { kind },
-    );
-    TestValidator.equals(
-      `${name} resolves the authored parameters`,
-      row?.resolve?.({ kind: "caller" }),
-      { kind: kind ?? "caller" },
-    );
+  for (const row of catalogue) {
+    try {
+      byName.set(row.name, row);
+    } catch (error: unknown) {
+      checks.check(`${String(row)}: ${everydayTake.describe(error)}`, false);
+    }
   }
+  checks.equals("sport names are unique", byName.size, catalogue.length);
+  for (const [name, family, kind] of techniques) {
+    try {
+      const row: IAutoMovieMotionHumanActionLaw<never> | undefined =
+        byName.get(name);
+      checks.equals(name, row?.family, family);
+      checks.equals(
+        name + " default parameters",
+        row?.resolve?.({}),
+        kind === undefined ? {} : { kind },
+      );
+      checks.equals(
+        `${name} resolves the authored parameters`,
+        row?.resolve?.({ kind: "caller" }),
+        { kind: kind ?? "caller" },
+      );
+    } catch (error: unknown) {
+      checks.check(
+        `${String(name)} ${String(family)} ${String(kind)}: ${everydayTake.describe(error)}`,
+        false,
+      );
+    }
+  }
+  checks.assert("catalogue alias admission");
 }
 
 /** Public name, underlying action and the kind fixed by this alias, if any. */
@@ -134,8 +174,11 @@ type Technique = readonly [string, string, string?];
 /** Catalogue category, authored name, owning law and declared fixed arguments. */
 type Binding = readonly [string, string, string, object];
 
-/** Check both helpers and the supported actor before a performance binds their bodies. */
-function checkSupportRoles(): void {
+/**
+ * Check both helpers and the supported actor before a performance binds their
+ * bodies.
+ */
+function checkSupportRoles(checks: motionComplaints.IGatherer): void {
   const law = AutoMovieMotionHumanCarryPerson.HumanCoupled.supportWalk;
   const cast = {
     helper: "left escort",
@@ -157,20 +200,23 @@ function checkSupportRoles(): void {
     },
   ];
   const ordered = ["helper", "second", "helped"] as const;
-  TestValidator.equals(
+  checks.equals(
     "omitted duration leaves timing to each selected law",
     ordered.map((role) => law.act(role, {}, cast)),
     expected,
   );
   const seconds = 2;
-  TestValidator.equals(
+  checks.equals(
     "authored duration reaches all three role-specific bindings",
     ordered.map((role) => law.act(role, { duration: seconds }, cast)),
     expected.map((act) => ({ ...act, params: { ...act.params, seconds } })),
   );
 }
-/** Check fixed workout kinds against their defining joint and direction on both body sizes. */
-function checkWorkoutRoutes(): void {
+/**
+ * Check fixed workout kinds against their defining joint and direction on both
+ * body sizes.
+ */
+function checkWorkoutRoutes(checks: motionComplaints.IGatherer): void {
   const movements: readonly Movement[] = [
     ["curl", "rightLowerArm", 0, 1],
     ["tricepsExtension", "rightLowerArm", 0, -1],
@@ -186,21 +232,19 @@ function checkWorkoutRoutes(): void {
         (entry: IAutoMovieMotionHumanActionLaw<never>): boolean =>
           entry.name === name,
       );
-    TestValidator.equals(name + " belongs to workout", row?.family, "workout");
-    TestValidator.equals(
-      name + " fixes the named workout",
-      row?.resolve?.({}),
-      { kind: name },
-    );
+    checks.equals(name + " belongs to workout", row?.family, "workout");
+    checks.equals(name + " fixes the named workout", row?.resolve?.({}), {
+      kind: name,
+    });
     for (const performer of ["m-average", "f-small"] as const) {
       const steps: readonly IAutoMovieMotionHumanWorkoutKind.IStep[] =
         AutoMovieMotionHumanWorkout.WorkoutGym.KINDS[name].route(
           motionHumanBody(performer),
         );
-      TestValidator.equals(name + " has two postures", steps.length, 2);
+      checks.equals(name + " has two postures", steps.length, 2);
       const initial: number | undefined = steps[0]!.key.joints[joint]?.[axis];
       const final: number | undefined = steps[1]!.key.joints[joint]?.[axis];
-      TestValidator.predicate(
+      checks.check(
         name + " moves " + joint + " on " + performer,
         initial !== undefined &&
           final !== undefined &&
@@ -209,7 +253,10 @@ function checkWorkoutRoutes(): void {
     }
   }
 }
-/** Workout, observed anatomical joint, flexion or abduction coordinate, and expected change sign. */
+/**
+ * Workout, observed anatomical joint, flexion or abduction coordinate, and
+ * expected change sign.
+ */
 type Movement = readonly [
   IAutoMovieMotionHumanWorkoutGym.Name,
   AutoMovieHumanoidBone,

@@ -21,18 +21,25 @@ import {
   HumanPerformance,
   HumanRefusal,
 } from "@automovie/motions";
-import { TestValidator } from "@nestia/e2e";
 
 import { assertTakeClean } from "../../internal/assertTakeClean";
+import { everydayTake } from "../../internal/everydayTake";
+import { motionComplaints } from "../../internal/motionComplaints";
 import { motionHumanBody } from "../../internal/motionHumanBody";
 
 /** The rigid custody bound: a worn ring's drift on its bone, metres. */
 const RIGID: number = 0.001;
 
-/** How near the worn ring's centre lies to the finger's axis, metres: the ring's own wire, a band seated round the finger. */
+/**
+ * How near the worn ring's centre lies to the finger's axis, metres: the ring's
+ * own wire, a band seated round the finger.
+ */
 const SEATED: number = 0.005;
 
-/** How far apart the two stand, metres (staging: the presented hand before the dresser, clear of the dresser's hips; provisional). */
+/**
+ * How far apart the two stand, metres (staging: the presented hand before the
+ * dresser, clear of the dresser's hips; provisional).
+ */
 const APART: number = 0.75;
 
 /** A ring model. */
@@ -61,15 +68,15 @@ interface ICase {
  * from below and slides a ring along the ring finger to its base.
  *
  * Scenarios, each take clean, the average man giving the small woman a ring
- * with his right hand on her left hand, the small woman giving the average
- * man one with her left hand on his right hand (the mirrored hands):
- * 1. The ring is worn from the slide's end on the partner's ring proximal
- *    bone, its centre on the finger's axis, and the ring hand's grip on it
- *    ends at that instant.
- * 2. The worn ring keeps its offset on that bone through the rest of the
- *    take while the partner's arm returns.
- * 3. The other hand holds the partner's palm in a grip window on the
- *    partner.
+ * with his right hand on her left hand, the small woman giving the average man
+ * one with her left hand on his right hand (the mirrored hands):
+ *
+ * 1. The ring is worn from the slide's end on the partner's ring proximal bone,
+ *    its centre on the finger's axis, and the ring hand's grip on it ends at
+ *    that instant.
+ * 2. The worn ring keeps its offset on that bone through the rest of the take
+ *    while the partner's arm returns.
+ * 3. The other hand holds the partner's palm in a grip window on the partner.
  * 4. Naming the dresser as the partner is refused.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the scenes, the bounds and the refusal.
@@ -79,80 +86,87 @@ interface ICase {
  * @evidence contracts/development/testing.md#execution-ownership In-memory two-performer performances through the public chain.
  */
 export function test_motion_get_dressed_slip_ring(): void {
+  const checks: motionComplaints.IGatherer = motionComplaints();
   const cases: readonly ICase[] = [
     { dresser: "m-average", partner: "f-small", side: "right", hand: "left" },
     { dresser: "f-small", partner: "m-average", side: "left", hand: "right" },
   ];
   for (const c of cases) {
-    const label: string = `${c.dresser} rings ${c.partner}'s ${c.hand} hand`;
-    const b: IAutoMovieMotionHumanBody = motionHumanBody(c.partner);
-    const film: HumanPerformance = exchange(
-      motionHumanBody(c.dresser),
-      b,
-      c,
-      "b",
-    );
-    assertTakeClean(label, film);
-    const act: IAutoMovieMotionHumanSegment = film
-      .segments("a")
-      .find(
-        (s: IAutoMovieMotionHumanSegment): boolean => s.name === "slipRing",
-      )!;
-    const worn: number = mark(act, "strokeEnd");
-    const grip: IAutoMovieMotionHumanContactWindow | undefined =
-      act.plan.contacts.find(
-        (w: IAutoMovieMotionHumanContactWindow): boolean =>
-          w.kind === "grip" &&
-          w.support.kind === "prop" &&
-          w.support.subject === "ring",
+    try {
+      const label: string = `${c.dresser} rings ${c.partner}'s ${c.hand} hand`;
+      const b: IAutoMovieMotionHumanBody = motionHumanBody(c.partner);
+      const film: HumanPerformance = exchange(
+        motionHumanBody(c.dresser),
+        b,
+        c,
+        "b",
       );
-    TestValidator.predicate(
-      `${label}: the ring hand lets go as the ring is worn`,
-      grip !== undefined &&
-        Math.abs(act.start + grip.to * act.plan.duration - worn) <= 1e-9,
-    );
-    TestValidator.predicate(
-      `${label}: the other hand holds the partner's palm`,
-      act.plan.contacts.some(
-        (w: IAutoMovieMotionHumanContactWindow): boolean =>
-          w.kind === "grip" &&
-          w.support.kind === "person" &&
-          w.support.subject === "b",
-      ),
-    );
-    const bone: AutoMovieHumanoidBone = `${c.hand}RingProximal`;
-    const middle: AutoMovieHumanoidBone = `${c.hand}RingIntermediate`;
-    const at: number = worn + 0.02;
-    const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
-      film.bones("b", at);
-    const centre: IAutoMovieVector3 = film.prop("ring", at).position;
-    const off: number = toAxis(
-      centre,
-      bones.get(bone)!.worldPosition,
-      bones.get(middle)!.worldPosition,
-    );
-    TestValidator.predicate(
-      `${label}: the worn ring lies on the finger's axis (${(off * 1000).toFixed(1)} mm)`,
-      off <= SEATED,
-    );
-    const first: IAutoMovieVector3 = local(
-      film.prop("ring", at),
-      bones.get(bone)!,
-    );
-    const drifts: readonly number[] = [0.5, 1].map((share: number): number => {
-      const t: number = at + share * (film.duration - at);
-      return Vector3.distance(
-        local(film.prop("ring", t), film.bones("b", t).get(bone)!),
-        first,
+      verdict(checks, label, film);
+      const act: IAutoMovieMotionHumanSegment = film
+        .segments("a")
+        .find(
+          (s: IAutoMovieMotionHumanSegment): boolean => s.name === "slipRing",
+        )!;
+      const worn: number = mark(act, "strokeEnd");
+      const grip: IAutoMovieMotionHumanContactWindow | undefined =
+        act.plan.contacts.find(
+          (w: IAutoMovieMotionHumanContactWindow): boolean =>
+            w.kind === "grip" &&
+            w.support.kind === "prop" &&
+            w.support.subject === "ring",
+        );
+      checks.check(
+        `${label}: the ring hand lets go as the ring is worn`,
+        grip !== undefined &&
+          Math.abs(act.start + grip.to * act.plan.duration - worn) <= 1e-9,
       );
-    });
-    TestValidator.predicate(
-      `${label}: the ring rides the finger (${drifts.map((d: number): string => (d * 1000).toFixed(2)).join(", ")} mm)`,
-      drifts.every((d: number): boolean => d <= RIGID),
-    );
+      checks.check(
+        `${label}: the other hand holds the partner's palm`,
+        act.plan.contacts.some(
+          (w: IAutoMovieMotionHumanContactWindow): boolean =>
+            w.kind === "grip" &&
+            w.support.kind === "person" &&
+            w.support.subject === "b",
+        ),
+      );
+      const bone: AutoMovieHumanoidBone = `${c.hand}RingProximal`;
+      const middle: AutoMovieHumanoidBone = `${c.hand}RingIntermediate`;
+      const at: number = worn + 0.02;
+      const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
+        film.bones("b", at);
+      const centre: IAutoMovieVector3 = film.prop("ring", at).position;
+      const off: number = toAxis(
+        centre,
+        bones.get(bone)!.worldPosition,
+        bones.get(middle)!.worldPosition,
+      );
+      checks.check(
+        `${label}: the worn ring lies on the finger's axis (${(off * 1000).toFixed(1)} mm)`,
+        off <= SEATED,
+      );
+      const first: IAutoMovieVector3 = local(
+        film.prop("ring", at),
+        bones.get(bone)!,
+      );
+      const drifts: readonly number[] = [0.5, 1].map(
+        (share: number): number => {
+          const t: number = at + share * (film.duration - at);
+          return Vector3.distance(
+            local(film.prop("ring", t), film.bones("b", t).get(bone)!),
+            first,
+          );
+        },
+      );
+      checks.check(
+        `${label}: the ring rides the finger (${drifts.map((d: number): string => (d * 1000).toFixed(2)).join(", ")} mm)`,
+        drifts.every((d: number): boolean => d <= RIGID),
+      );
+    } catch (error: unknown) {
+      checks.check(`${String(c)}: ${everydayTake.describe(error)}`, false);
+    }
   }
   const self: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
-  TestValidator.predicate(
+  checks.check(
     "ringing oneself is refused",
     (() => {
       try {
@@ -163,9 +177,13 @@ export function test_motion_get_dressed_slip_ring(): void {
       }
     })(),
   );
+  checks.assert("get dressed slip ring");
 }
 
-/** `b` presents a hand; `a` takes the ring up and slips it on `partner`'s finger. */
+/**
+ * `b` presents a hand; `a` takes the ring up and slips it on `partner`'s
+ * finger.
+ */
 function exchange(
   a: IAutoMovieMotionHumanBody,
   b: IAutoMovieMotionHumanBody,
@@ -255,4 +273,20 @@ function local(
     Quaternion.inverse(bone.worldRotation),
     Vector3.subtract(prop.position, bone.worldPosition),
   );
+}
+
+/** Gather a take's shipped verdicts as one check. */
+function verdict(
+  checks: motionComplaints.IGatherer,
+  label: string,
+  film: HumanPerformance,
+): void {
+  try {
+    assertTakeClean(label, film);
+  } catch (error: unknown) {
+    checks.check(
+      `${label}: ${error instanceof Error ? error.message : String(error)}`,
+      false,
+    );
+  }
 }

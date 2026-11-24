@@ -25,33 +25,38 @@ import {
   HumanRefusal,
 } from "@automovie/motions";
 import { HumanFoot } from "@automovie/motions/internal";
-import { TestValidator } from "@nestia/e2e";
 
 import { assertTakeClean } from "../../internal/assertTakeClean";
+import { everydayTake } from "../../internal/everydayTake";
+import { motionComplaints } from "../../internal/motionComplaints";
 import { motionHumanBody } from "../../internal/motionHumanBody";
 
 /** The planted-contact bound, metres (the campaign's 5 mm). */
 const PLANT: number = 0.005;
 
-/** The tolerance on the recorded result, metres: a landing mark read to a decimetre. */
+/**
+ * The tolerance on the recorded result, metres: a landing mark read to a
+ * decimetre.
+ */
 const MARK: number = 0.1;
 
 /**
- * Throw the shot, the discus and the hammer from a circle and the javelin
- * out of a run, each to its recorded result.
+ * Throw the shot, the discus and the hammer from a circle and the javelin out
+ * of a run, each to its recorded result.
  *
  * Scenarios:
- * 1. For each circle event the thrower picks the implement up, turns over
- *    both feet (each ball held within 5 mm while the body turns), and lets
- *    the implement go at `release`: it rides the hand within 10 mm before
- *    and has left it a quarter second after.
- * 2. The released implement comes down at the authored distance from the
- *    circle's inside edge within 0.1 m: the event's recorded result.
- * 3. A thrower standing across the circle's rim fouls and is refused on `area`;
- *    a shot put farther than the event's release speed allows is refused on
+ *
+ * 1. For each circle event the thrower picks the implement up, turns over both
+ *    feet (each ball held within 5 mm while the body turns), and lets the
+ *    implement go at `release`: it rides the hand within 10 mm before and has
+ *    left it a quarter second after.
+ * 2. The released implement comes down at the authored distance from the circle's
+ *    inside edge within 0.1 m: the event's recorded result.
+ * 3. A thrower standing across the circle's rim fouls and is refused on `area`; a
+ *    shot put farther than the event's release speed allows is refused on
  *    `distance`.
- * 4. A javelin cut from a run at the left foot's footfall lands at its
- *    distance from the arc.
+ * 4. A javelin cut from a run at the left foot's footfall lands at its distance
+ *    from the arc.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the events, the supports, the release, the result and the refusals with their bounds.
  * @evidence contracts/development/testing.md#behavioral-verification Composes pick-up and throw through the public chain over real implements and throwing places and reads the displayed feet, hands and implement flights.
@@ -60,6 +65,7 @@ const MARK: number = 0.1;
  * @evidence contracts/development/testing.md#execution-ownership In-memory performances on the shared Human fixture, without a render or external process.
  */
 export function test_motion_throw_catch_field_throws(): void {
+  const checks: motionComplaints.IGatherer = motionComplaints();
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const cases: readonly ICase[] = [
     {
@@ -82,47 +88,52 @@ export function test_motion_throw_catch_field_throws(): void {
     },
   ];
   for (const c of cases) {
-    const area: ReturnType<typeof createThrowingCircle> = createThrowingCircle({
-      event: c.event,
-    });
-    const film: HumanPerformance = take(body, c, area, { x: 0, y: 0, z: 0 });
-    assertTakeClean("field throws", film);
-    const toss: IAutoMovieMotionHumanSegment = film
-      .segments("a")
-      .find(
-        (s: IAutoMovieMotionHumanSegment): boolean => s.name === "fieldThrow",
-      )!;
-    const release: number =
-      toss.start +
-      toss.plan.events.find((e): boolean => e.name === "release")!.share *
-        toss.plan.duration;
+    try {
+      const area: ReturnType<typeof createThrowingCircle> =
+        createThrowingCircle({
+          event: c.event,
+        });
+      const film: HumanPerformance = take(body, c, area, { x: 0, y: 0, z: 0 });
+      verdict(checks, "field throws", film);
+      const toss: IAutoMovieMotionHumanSegment = film
+        .segments("a")
+        .find(
+          (s: IAutoMovieMotionHumanSegment): boolean => s.name === "fieldThrow",
+        )!;
+      const release: number =
+        toss.start +
+        toss.plan.events.find((e): boolean => e.name === "release")!.share *
+          toss.plan.duration;
 
-    // 1. Supports and the hand's custody.
-    for (const side of ["left", "right"] as const) {
-      const slip: number = Vector3.distance(
-        ball(film, body, toss.start + 1e-3, side),
-        ball(film, body, release - 1e-3, side),
+      // 1. Supports and the hand's custody.
+      for (const side of ["left", "right"] as const) {
+        const slip: number = Vector3.distance(
+          ball(film, body, toss.start + 1e-3, side),
+          ball(film, body, release - 1e-3, side),
+        );
+        checks.check(
+          `${c.event} ${side} ball holds through the turn (${(slip * 1000).toFixed(1)} mm)`,
+          slip <= PLANT,
+        );
+      }
+      const seat0: IAutoMovieVector3 = seat(film, toss.start + 0.01);
+      checks.check(
+        `${c.event} rides the hand to the release and leaves it`,
+        Vector3.distance(seat(film, release - 0.01), seat0) <= 0.01 &&
+          Vector3.distance(seat(film, release + 0.25), seat0) > 0.05,
       );
-      TestValidator.predicate(
-        `${c.event} ${side} ball holds through the turn (${(slip * 1000).toFixed(1)} mm)`,
-        slip <= PLANT,
+
+      // 2. The recorded result.
+      const landed: IAutoMovieVector3 = landing(film, release);
+      const radius: number = area.affordance("circle").width! / 2;
+      const result: number = Math.hypot(landed.x, landed.z) - radius;
+      checks.check(
+        `${c.event} lands at its distance (${result.toFixed(2)} of ${c.distance} m)`,
+        Math.abs(result - c.distance) <= MARK,
       );
+    } catch (error: unknown) {
+      checks.check(`${String(c)}: ${everydayTake.describe(error)}`, false);
     }
-    const seat0: IAutoMovieVector3 = seat(film, toss.start + 0.01);
-    TestValidator.predicate(
-      `${c.event} rides the hand to the release and leaves it`,
-      Vector3.distance(seat(film, release - 0.01), seat0) <= 0.01 &&
-        Vector3.distance(seat(film, release + 0.25), seat0) > 0.05,
-    );
-
-    // 2. The recorded result.
-    const landed: IAutoMovieVector3 = landing(film, release);
-    const radius: number = area.affordance("circle").width! / 2;
-    const result: number = Math.hypot(landed.x, landed.z) - radius;
-    TestValidator.predicate(
-      `${c.event} lands at its distance (${result.toFixed(2)} of ${c.distance} m)`,
-      Math.abs(result - c.distance) <= MARK,
-    );
   }
 
   // 3. A foul and an unreachable distance.
@@ -146,11 +157,11 @@ export function test_motion_throw_catch_field_throws(): void {
     return undefined;
   };
   const foul: HumanRefusal | undefined = refused(shot, { x: 0, y: 0, z: 1.3 });
-  TestValidator.predicate(
+  checks.check(
     "a thrower standing across the rim fouls",
     foul?.axis === "area",
   );
-  TestValidator.predicate(
+  checks.check(
     "a put past the shot's release speed is refused",
     refused({ ...shot, distance: 40 }, { x: 0, y: 0, z: 0 })?.axis ===
       "distance",
@@ -169,12 +180,16 @@ export function test_motion_throw_catch_field_throws(): void {
   let cut: string = "";
   let toe: number = 0;
   for (const event of run.plan.events) {
-    if (!event.name.startsWith("leftHeelStrike")) continue;
-    const at: number = run.start + event.share * run.plan.duration + 1e-3;
-    const z: number = socket(plain, body, at, "left", "toe").z;
-    if (Math.abs(z - 12) < Math.abs(toe - 12)) {
-      toe = z;
-      cut = event.name;
+    try {
+      if (!event.name.startsWith("leftHeelStrike")) continue;
+      const at: number = run.start + event.share * run.plan.duration + 1e-3;
+      const z: number = socket(plain, body, at, "left", "toe").z;
+      if (Math.abs(z - 12) < Math.abs(toe - 12)) {
+        toe = z;
+        cut = event.name;
+      }
+    } catch (error: unknown) {
+      checks.check(`${String(event)}: ${everydayTake.describe(error)}`, false);
     }
   }
   const arc: number = toe + 0.5;
@@ -191,13 +206,17 @@ export function test_motion_throw_catch_field_throws(): void {
   const landed: IAutoMovieVector3 = landing(thrown, release);
   // The arc's centre lies its 8 m radius behind the arc's middle.
   const result: number = Math.hypot(landed.x, landed.z - (arc - 8)) - 8;
-  TestValidator.predicate(
+  checks.check(
     `the javelin lands at its distance from the arc (${result.toFixed(2)} of 40 m)`,
     Math.abs(result - javelin.distance) <= MARK,
   );
+  checks.assert("throw catch field throws");
 }
 
-/** A javelin thrower running down the runway, cut into the throw at a footfall when given. */
+/**
+ * A javelin thrower running down the runway, cut into the throw at a footfall
+ * when given.
+ */
 function runUp(
   body: IAutoMovieMotionHumanBody,
   c: ICase,
@@ -269,7 +288,10 @@ interface ICase {
   distance: number;
 }
 
-/** A thrower standing in the circle at `at`, taking the implement off a box beside them and throwing it. */
+/**
+ * A thrower standing in the circle at `at`, taking the implement off a box
+ * beside them and throwing it.
+ */
 function take(
   body: IAutoMovieMotionHumanBody,
   c: ICase,
@@ -339,7 +361,10 @@ function seat(film: HumanPerformance, time: number): IAutoMovieVector3 {
   );
 }
 
-/** Where the implement's origin first comes down to the floor after the release, sampled every 5 ms. */
+/**
+ * Where the implement's origin first comes down to the floor after the release,
+ * sampled every 5 ms.
+ */
 function landing(film: HumanPerformance, release: number): IAutoMovieVector3 {
   let last: IAutoMovieVector3 = film.prop("implement", release).position;
   for (let t: number = release + 0.005; t < release + 10; t += 0.005) {
@@ -384,4 +409,20 @@ function ball(
     ankle: foot.worldPosition,
     rotation: foot.worldRotation,
   });
+}
+
+/** Gather a take's shipped verdicts as one check. */
+function verdict(
+  checks: motionComplaints.IGatherer,
+  label: string,
+  film: HumanPerformance,
+): void {
+  try {
+    assertTakeClean(label, film);
+  } catch (error: unknown) {
+    checks.check(
+      `${label}: ${error instanceof Error ? error.message : String(error)}`,
+      false,
+    );
+  }
 }

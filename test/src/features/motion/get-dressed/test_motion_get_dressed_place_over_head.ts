@@ -23,30 +23,46 @@ import {
   HumanPerformance,
   HumanRefusal,
 } from "@automovie/motions";
-import { TestValidator } from "@nestia/e2e";
 
 import { assertTakeClean } from "../../internal/assertTakeClean";
+import { everydayTake } from "../../internal/everydayTake";
+import { motionComplaints } from "../../internal/motionComplaints";
 import { motionHumanBody } from "../../internal/motionHumanBody";
 
 /** The rigid custody bound: a worn loop's drift on its bone, metres. */
 const RIGID: number = 0.001;
 
-/** How near the worn loop's back lies to the nape, metres: the ribbon's thickness and a skin contact (provisional). */
+/**
+ * How near the worn loop's back lies to the nape, metres: the ribbon's
+ * thickness and a skin contact (provisional).
+ */
 const NAPE: number = 0.015;
 
-/** How far ahead of the dresser a partner seated facing away has the seat's front edge, metres (staging: the dresser behind the seated back). */
+/**
+ * How far ahead of the dresser a partner seated facing away has the seat's
+ * front edge, metres (staging: the dresser behind the seated back).
+ */
 const BEHIND: number = 0.75;
 
-/** How far ahead of the dresser a partner seated facing the dresser has the seat's front edge, metres (staging: the dresser at the knees). */
+/**
+ * How far ahead of the dresser a partner seated facing the dresser has the
+ * seat's front edge, metres (staging: the dresser at the knees).
+ */
 const FRONT: number = 0.3;
 
 /** The partner's sitting's anchor, which the dresser waits for. */
 const SEATING: string = "seating";
 
-/** How long the dresser may stand waiting for the partner to sit, seconds: an upper bound past any sitting's `seated`. */
+/**
+ * How long the dresser may stand waiting for the partner to sit, seconds: an
+ * upper bound past any sitting's `seated`.
+ */
 const SIT: number = 6;
 
-/** How the partner waits for the loop: seated facing the dresser, seated facing away, or standing facing the dresser. */
+/**
+ * How the partner waits for the loop: seated facing the dresser, seated facing
+ * away, or standing facing the dresser.
+ */
 type Pose = "front" | "behind" | "stand";
 
 /** A performer's chain. */
@@ -71,19 +87,20 @@ interface ICase {
 }
 
 /**
- * A medal ceremony and a necklace (#4015): a ribbon medal set over a
- * seated partner's head from in front, and a necklace set over a seated
- * partner's head from behind.
+ * A medal ceremony and a necklace (#4015): a ribbon medal set over a seated
+ * partner's head from in front, and a necklace set over a seated partner's head
+ * from behind.
  *
- * Scenarios, each take clean, the average man dressing the small woman and
- * the reverse for each kind:
+ * Scenarios, each take clean, the average man dressing the small woman and the
+ * reverse for each kind:
+ *
  * 1. Both hands' grips on the loop end as it is worn, on the partner's upper
  *    chest, the second hand's grip carrying nothing.
  * 2. The worn loop's back lies on the partner's nape.
- * 3. The worn loop keeps its offset on the partner's upper chest as the
- *    partner rises.
- * 4. A small woman cannot set a loop over a standing tall man's head: the
- *    refusal names the reach.
+ * 3. The worn loop keeps its offset on the partner's upper chest as the partner
+ *    rises.
+ * 4. A small woman cannot set a loop over a standing tall man's head: the refusal
+ *    names the reach.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the scenes, the bounds and the refusal.
  * @evidence contracts/development/testing.md#behavioral-verification Reads the plan's windows and the displayed loop against the partner's displayed nape and upper chest; grips that outlast the wear, a loop off the nape or sliding on the chest, or an admitted unreachable crown fails.
@@ -92,6 +109,7 @@ interface ICase {
  * @evidence contracts/development/testing.md#execution-ownership In-memory two-performer performances through the public chain.
  */
 export function test_motion_get_dressed_place_over_head(): void {
+  const checks: motionComplaints.IGatherer = motionComplaints();
   const cases: readonly ICase[] = [
     { kind: "ribbon", dresser: "m-average", partner: "f-small" },
     { kind: "ribbon", dresser: "f-small", partner: "m-average" },
@@ -99,82 +117,88 @@ export function test_motion_get_dressed_place_over_head(): void {
     { kind: "chain", dresser: "f-small", partner: "m-average" },
   ];
   for (const c of cases) {
-    const label: string = `${c.dresser} sets a ${c.kind} on ${c.partner}`;
-    const b: IAutoMovieMotionHumanBody = motionHumanBody(c.partner);
-    const loop: Loop = createNecklace({ id: "loop", kind: c.kind });
-    const film: HumanPerformance = scene(
-      motionHumanBody(c.dresser),
-      b,
-      loop,
-      c.kind === "ribbon" ? "front" : "behind",
-    );
-    assertTakeClean(label, film);
-    const act: IAutoMovieMotionHumanSegment = film
-      .segments("a")
-      .find(
-        (s: IAutoMovieMotionHumanSegment): boolean =>
-          s.name === "placeOverHead",
-      )!;
-    const worn: number =
-      act.start +
-      act.plan.duration *
-        act.plan.events.find(
-          (e: IAutoMovieMotionEvent): boolean => e.name === "strokeEnd",
-        )!.share;
-    const grips: readonly IAutoMovieMotionHumanContactWindow[] =
-      act.plan.contacts.filter(
-        (w: IAutoMovieMotionHumanContactWindow): boolean =>
-          w.kind === "grip" &&
-          w.support.kind === "prop" &&
-          w.support.subject === "loop",
+    try {
+      const label: string = `${c.dresser} sets a ${c.kind} on ${c.partner}`;
+      const b: IAutoMovieMotionHumanBody = motionHumanBody(c.partner);
+      const loop: Loop = createNecklace({ id: "loop", kind: c.kind });
+      const film: HumanPerformance = scene(
+        motionHumanBody(c.dresser),
+        b,
+        loop,
+        c.kind === "ribbon" ? "front" : "behind",
       );
-    TestValidator.predicate(
-      `${label}: both grips end as the loop is worn, one carrying it`,
-      grips.length === 2 &&
-        grips.every(
+      verdict(checks, label, film);
+      const act: IAutoMovieMotionHumanSegment = film
+        .segments("a")
+        .find(
+          (s: IAutoMovieMotionHumanSegment): boolean =>
+            s.name === "placeOverHead",
+        )!;
+      const worn: number =
+        act.start +
+        act.plan.duration *
+          act.plan.events.find(
+            (e: IAutoMovieMotionEvent): boolean => e.name === "strokeEnd",
+          )!.share;
+      const grips: readonly IAutoMovieMotionHumanContactWindow[] =
+        act.plan.contacts.filter(
           (w: IAutoMovieMotionHumanContactWindow): boolean =>
-            Math.abs(act.start + w.to * act.plan.duration - worn) <= 1e-9,
-        ) &&
-        grips.filter(
-          (w: IAutoMovieMotionHumanContactWindow): boolean =>
-            w.support.kind === "prop" && w.support.carries === false,
-        ).length === 1,
-    );
-    const at: number = worn + 0.02;
-    const frame: IAutoMovieRigidTransform = film.prop("loop", at);
-    const back: IAutoMovieVector3 = Vector3.add(
-      frame.position,
-      Quaternion.rotateVector(
-        frame.rotation,
-        loop.affordance("wear").frame.translation,
-      ),
-    );
-    const nape: IAutoMovieVector3 = resolveAutoMovieHumanoidSurfaces.place(
-      b.surfaces.regions.nape,
-      film.bones("b", at).get(b.surfaces.regions.nape.bone)!,
-    ).point;
-    TestValidator.predicate(
-      `${label}: the loop's back lies on the nape (${(Vector3.distance(back, nape) * 1000).toFixed(0)} mm)`,
-      Vector3.distance(back, nape) <= NAPE,
-    );
-    const bone: AutoMovieHumanoidBone = b.surfaces.regions.sternum.bone;
-    const first: IAutoMovieVector3 = local(
-      frame,
-      film.bones("b", at).get(bone)!,
-    );
-    const drifts: readonly number[] = [0.5, 1].map((share: number): number => {
-      const t: number = at + share * (film.duration - at);
-      return Vector3.distance(
-        local(film.prop("loop", t), film.bones("b", t).get(bone)!),
-        first,
+            w.kind === "grip" &&
+            w.support.kind === "prop" &&
+            w.support.subject === "loop",
+        );
+      checks.check(
+        `${label}: both grips end as the loop is worn, one carrying it`,
+        grips.length === 2 &&
+          grips.every(
+            (w: IAutoMovieMotionHumanContactWindow): boolean =>
+              Math.abs(act.start + w.to * act.plan.duration - worn) <= 1e-9,
+          ) &&
+          grips.filter(
+            (w: IAutoMovieMotionHumanContactWindow): boolean =>
+              w.support.kind === "prop" && w.support.carries === false,
+          ).length === 1,
       );
-    });
-    TestValidator.predicate(
-      `${label}: the loop rides the partner (${drifts.map((d: number): string => (d * 1000).toFixed(2)).join(", ")} mm)`,
-      drifts.every((d: number): boolean => d <= RIGID),
-    );
+      const at: number = worn + 0.02;
+      const frame: IAutoMovieRigidTransform = film.prop("loop", at);
+      const back: IAutoMovieVector3 = Vector3.add(
+        frame.position,
+        Quaternion.rotateVector(
+          frame.rotation,
+          loop.affordance("wear").frame.translation,
+        ),
+      );
+      const nape: IAutoMovieVector3 = resolveAutoMovieHumanoidSurfaces.place(
+        b.surfaces.regions.nape,
+        film.bones("b", at).get(b.surfaces.regions.nape.bone)!,
+      ).point;
+      checks.check(
+        `${label}: the loop's back lies on the nape (${(Vector3.distance(back, nape) * 1000).toFixed(0)} mm)`,
+        Vector3.distance(back, nape) <= NAPE,
+      );
+      const bone: AutoMovieHumanoidBone = b.surfaces.regions.sternum.bone;
+      const first: IAutoMovieVector3 = local(
+        frame,
+        film.bones("b", at).get(bone)!,
+      );
+      const drifts: readonly number[] = [0.5, 1].map(
+        (share: number): number => {
+          const t: number = at + share * (film.duration - at);
+          return Vector3.distance(
+            local(film.prop("loop", t), film.bones("b", t).get(bone)!),
+            first,
+          );
+        },
+      );
+      checks.check(
+        `${label}: the loop rides the partner (${drifts.map((d: number): string => (d * 1000).toFixed(2)).join(", ")} mm)`,
+        drifts.every((d: number): boolean => d <= RIGID),
+      );
+    } catch (error: unknown) {
+      checks.check(`${String(c)}: ${everydayTake.describe(error)}`, false);
+    }
   }
-  TestValidator.predicate(
+  checks.check(
     "the small woman cannot set a loop over the standing tall man's head",
     (() => {
       try {
@@ -194,9 +218,13 @@ export function test_motion_get_dressed_place_over_head(): void {
       }
     })(),
   );
+  checks.assert("get dressed place over head");
 }
 
-/** `b` sits facing `a`, sits facing away or stands facing `a`; `a` takes the loop up and sets it over `b`'s head, then a seated `b` rises. */
+/**
+ * `b` sits facing `a`, sits facing away or stands facing `a`; `a` takes the
+ * loop up and sets it over `b`'s head, then a seated `b` rises.
+ */
 function scene(
   a: IAutoMovieMotionHumanBody,
   b: IAutoMovieMotionHumanBody,
@@ -307,7 +335,10 @@ function scene(
   });
 }
 
-/** How far the dresser walks off a partner seated facing it before the partner rises, metres (staging: clear of a rising trunk's forward lean). */
+/**
+ * How far the dresser walks off a partner seated facing it before the partner
+ * rises, metres (staging: clear of a rising trunk's forward lean).
+ */
 const AWAY: number = 0.6;
 
 /** A prop's position in a displayed bone's frame. */
@@ -319,4 +350,20 @@ function local(
     Quaternion.inverse(bone.worldRotation),
     Vector3.subtract(prop.position, bone.worldPosition),
   );
+}
+
+/** Gather a take's shipped verdicts as one check. */
+function verdict(
+  checks: motionComplaints.IGatherer,
+  label: string,
+  film: HumanPerformance,
+): void {
+  try {
+    assertTakeClean(label, film);
+  } catch (error: unknown) {
+    checks.check(
+      `${label}: ${error instanceof Error ? error.message : String(error)}`,
+      false,
+    );
+  }
 }

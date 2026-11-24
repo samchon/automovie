@@ -16,9 +16,10 @@ import {
   HumanPerformance,
   HumanRefusal,
 } from "@automovie/motions";
-import { TestValidator } from "@nestia/e2e";
 
 import { assertTakeClean } from "../../internal/assertTakeClean";
+import { everydayTake } from "../../internal/everydayTake";
+import { motionComplaints } from "../../internal/motionComplaints";
 import { motionHumanBody } from "../../internal/motionHumanBody";
 
 /** Standard gravity, m/s² (third CGPM, 1901). */
@@ -28,15 +29,16 @@ const G: number = 9.80665;
  * Bounce on a trampoline (#4006).
  *
  * Scenarios, on two body proportions:
- * 1. Each contact's deepest bed deflection matches the bed's
- *    force-deflection law for the body's mass and the fall within 10 mm.
- * 2. Each flight is ballistic: its time is the take-off speed's, so a
- *    straight body's feet rise to the height that time gives within 20 mm
- *    (a shape folds the feet toward the hips), and the apexes build toward
- *    the authored one and do not exceed it.
+ *
+ * 1. Each contact's deepest bed deflection matches the bed's force-deflection law
+ *    for the body's mass and the fall within 10 mm.
+ * 2. Each flight is ballistic: its time is the take-off speed's, so a straight
+ *    body's feet rise to the height that time gives within 20 mm (a shape folds
+ *    the feet toward the hips), and the apexes build toward the authored one
+ *    and do not exceed it.
  * 3. A tuck's apex folds the knees past 90 degrees.
- * 4. An apex beyond what the legs' push sustains is refused on `apex` with
- *    the reachable height.
+ * 4. An apex beyond what the legs' push sustains is refused on `apex` with the
+ *    reachable height.
  * 5. Each take passes the shipped verdicts.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States each rule and bound.
@@ -46,61 +48,67 @@ const G: number = 9.80665;
  * @evidence contracts/development/testing.md#execution-ownership In-memory performances on the shared Human fixture.
  */
 export function test_motion_acrobatics_trampoline(): void {
+  const checks: motionComplaints.IGatherer = motionComplaints();
   const bed: number = createTrampoline().affordance("bed").frame.translation.y;
   for (const name of ["f-small", "m-average"] as const) {
-    const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
-    for (const shape of ["straight", "tuck"] as const) {
-      const apex: number = 1.2;
-      const film: HumanPerformance = take(body, bed, {
-        on: "tramp",
-        bounces: 4,
-        apex,
-        shape,
-      });
-      const s: IAutoMovieMotionHumanSegment = film.segments("a")[0]!;
-      const at: (n: string) => number = (n: string): number =>
-        s.start +
-        s.plan.events.find((e: IAutoMovieMotionEvent): boolean => e.name === n)!
-          .share *
-          s.plan.duration;
-      const ankle: number = body.rest.get("leftFoot")!.y;
-      const feet: (t: number) => number = (t: number): number =>
-        film.bones("a", t).get("leftFoot")!.worldPosition.y - ankle - bed;
-      let last: number = 0;
-      for (let k: number = 1; k <= 4; k++) {
-        const flight: number = at(`touchdown${k}`) - at(`takeoff${k}`);
-        const height: number = (G * flight * flight) / 8;
-        const peak: number = feet(at(`apex${k}`));
-        TestValidator.predicate(
-          `${name} ${shape} flight ${k} is ballistic (${peak.toFixed(3)} m apex for ${height.toFixed(3)} m)`,
-          (shape !== "straight" || Math.abs(peak - height) <= 0.02) &&
-            height <= apex + 1e-9 &&
-            height >= last - 1e-9,
-        );
-        last = height;
-        // The deepest point of the contact after it.
-        const from: number = at(`touchdown${k}`);
-        let deepest: number = 0;
-        for (let t: number = from; t <= from + 0.5; t += 1 / 240)
-          deepest = Math.min(deepest, feet(t));
-        const expected: number =
-          AutoMovieMotionHumanAcrobatics.trampoline.deflection(
-            body.profile.mass,
-            height,
+    try {
+      const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
+      for (const shape of ["straight", "tuck"] as const) {
+        const apex: number = 1.2;
+        const film: HumanPerformance = take(body, bed, {
+          on: "tramp",
+          bounces: 4,
+          apex,
+          shape,
+        });
+        const s: IAutoMovieMotionHumanSegment = film.segments("a")[0]!;
+        const at: (n: string) => number = (n: string): number =>
+          s.start +
+          s.plan.events.find(
+            (e: IAutoMovieMotionEvent): boolean => e.name === n,
+          )!.share *
+            s.plan.duration;
+        const ankle: number = body.rest.get("leftFoot")!.y;
+        const feet: (t: number) => number = (t: number): number =>
+          film.bones("a", t).get("leftFoot")!.worldPosition.y - ankle - bed;
+        let last: number = 0;
+        for (let k: number = 1; k <= 4; k++) {
+          const flight: number = at(`touchdown${k}`) - at(`takeoff${k}`);
+          const height: number = (G * flight * flight) / 8;
+          const peak: number = feet(at(`apex${k}`));
+          checks.check(
+            `${name} ${shape} flight ${k} is ballistic (${peak.toFixed(3)} m apex for ${height.toFixed(3)} m)`,
+            (shape !== "straight" || Math.abs(peak - height) <= 0.02) &&
+              height <= apex + 1e-9 &&
+              height >= last - 1e-9,
           );
-        TestValidator.predicate(
-          `${name} ${shape} contact ${k} deflects the bed ${(-deepest * 1000).toFixed(0)} mm for ${(expected * 1000).toFixed(0)} mm`,
-          Math.abs(-deepest - expected) <= 0.01,
-        );
+          last = height;
+          // The deepest point of the contact after it.
+          const from: number = at(`touchdown${k}`);
+          let deepest: number = 0;
+          for (let t: number = from; t <= from + 0.5; t += 1 / 240)
+            deepest = Math.min(deepest, feet(t));
+          const expected: number =
+            AutoMovieMotionHumanAcrobatics.trampoline.deflection(
+              body.profile.mass,
+              height,
+            );
+          checks.check(
+            `${name} ${shape} contact ${k} deflects the bed ${(-deepest * 1000).toFixed(0)} mm for ${(expected * 1000).toFixed(0)} mm`,
+            Math.abs(-deepest - expected) <= 0.01,
+          );
+        }
+        if (shape === "tuck") {
+          const knee: number = bend(film, at("apex2"));
+          checks.check(
+            `${name} tucks at the apex (${knee.toFixed(0)} degrees)`,
+            knee >= 90,
+          );
+        }
+        verdict(checks, `${name} ${shape} bounces`, film);
       }
-      if (shape === "tuck") {
-        const knee: number = bend(film, at("apex2"));
-        TestValidator.predicate(
-          `${name} tucks at the apex (${knee.toFixed(0)} degrees)`,
-          knee >= 90,
-        );
-      }
-      assertTakeClean(`${name} ${shape} bounces`, film);
+    } catch (error: unknown) {
+      checks.check(`${String(name)}: ${everydayTake.describe(error)}`, false);
     }
   }
 
@@ -112,12 +120,13 @@ export function test_motion_acrobatics_trampoline(): void {
     if (!(error instanceof HumanRefusal)) throw error;
     refused = error;
   }
-  TestValidator.predicate(
+  checks.check(
     "an apex beyond the push is refused with the reachable height",
     refused?.axis === "apex" &&
       refused.feasible?.kind === "range" &&
       (refused.feasible.maximum ?? Infinity) < 10,
   );
+  checks.assert("acrobatics trampoline");
 }
 
 /** A jumper standing on the bed's middle. */
@@ -170,4 +179,20 @@ function bend(film: HumanPerformance, time: number): number {
     (Math.acos(Math.max(-1, Math.min(1, Vector3.dot(thigh, shank)))) * 180) /
     Math.PI
   );
+}
+
+/** Gather a take's shipped verdicts as one check. */
+function verdict(
+  checks: motionComplaints.IGatherer,
+  label: string,
+  film: HumanPerformance,
+): void {
+  try {
+    assertTakeClean(label, film);
+  } catch (error: unknown) {
+    checks.check(
+      `${label}: ${error instanceof Error ? error.message : String(error)}`,
+      false,
+    );
+  }
 }

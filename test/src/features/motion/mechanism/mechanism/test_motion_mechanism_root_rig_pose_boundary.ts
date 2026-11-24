@@ -6,9 +6,10 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import { poseBones } from "@automovie/motions/internal";
-import { TestValidator } from "@nestia/e2e";
 
+import { everydayTake } from "../../../internal/everydayTake";
 import { joint } from "../../../internal/joint";
+import { motionComplaints } from "../../../internal/motionComplaints";
 import { motionHumanBody } from "../../../internal/motionHumanBody";
 import { nclose } from "../../../internal/nclose";
 import { vclose } from "../../../internal/vclose";
@@ -17,6 +18,7 @@ import { vclose } from "../../../internal/vclose";
  * A borrowed fixed human rig reads changing world placement and elbow pose.
  *
  * Scenarios:
+ *
  * 1. Rigid placement translates both requested bones equally.
  * 2. A local elbow bend moves the wrist while preserving segment length.
  *
@@ -27,6 +29,7 @@ import { vclose } from "../../../internal/vclose";
  * @evidence contracts/development/testing.md#execution-ownership One anatomical rig, a fixed pair of requested bones and three direct FK reads.
  */
 export function test_motion_mechanism_root_rig_pose_boundary(): void {
+  const checks: motionComplaints.IGatherer = motionComplaints();
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const names: ReadonlySet<AutoMovieHumanoidBone> = new Set([
     "rightLowerArm",
@@ -61,31 +64,36 @@ export function test_motion_mechanism_root_rig_pose_boundary(): void {
   );
   // The model spans metres. This allows round-off in several transform products.
   const rounding: number = 128 * Number.EPSILON;
-  TestValidator.equals(
+  checks.equals(
     "the borrowed rig returns only requested bones",
     [...moved.keys()],
     [...names],
   );
   for (const name of names) {
-    const original: IAutoMovieVector3 = straight.get(name)!.worldPosition;
-    TestValidator.predicate(
-      `${name} follows the world translation`,
-      vclose(
-        moved.get(name)!.worldPosition,
-        { x: original.x + 1, y: original.y + 2, z: original.z - 1 },
-        rounding,
-      ),
-    );
+    try {
+      const original: IAutoMovieVector3 = straight.get(name)!.worldPosition;
+      checks.check(
+        `${name} follows the world translation`,
+        vclose(
+          moved.get(name)!.worldPosition,
+          { x: original.x + 1, y: original.y + 2, z: original.z - 1 },
+          rounding,
+        ),
+      );
+    } catch (error: unknown) {
+      checks.check(`${String(name)}: ${everydayTake.describe(error)}`, false);
+    }
   }
   const elbow: IAutoMovieVector3 = moved.get("rightLowerArm")!.worldPosition;
   const wrist: IAutoMovieVector3 = moved.get("rightHand")!.worldPosition;
   const folded: IAutoMovieVector3 = bent.get("rightHand")!.worldPosition;
-  TestValidator.predicate(
+  checks.check(
     "elbow articulation moves the wrist along a fixed-length chord radius",
     vclose(bent.get("rightLowerArm")!.worldPosition, elbow, rounding) &&
       distance(wrist, folded) > rounding &&
       nclose(distance(wrist, elbow), distance(folded, elbow), rounding),
   );
+  checks.assert("mechanism root rig pose boundary");
 }
 
 /** The Euclidean distance between two independently observed world points. */

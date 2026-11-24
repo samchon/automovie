@@ -8,8 +8,9 @@ import {
   HumanChain,
   HumanPerformance,
 } from "@automovie/motions";
-import { TestValidator } from "@nestia/e2e";
 
+import { everydayTake } from "../../internal/everydayTake";
+import { motionComplaints } from "../../internal/motionComplaints";
 import { motionHumanBody } from "../../internal/motionHumanBody";
 import { nclose } from "../../internal/nclose";
 import { throwsError } from "../../internal/throwsError";
@@ -17,20 +18,21 @@ import { throwsError } from "../../internal/throwsError";
 const { HumanAffect } = AutoMovieMotionHumanExpression;
 
 /**
- * Affect displays start and end at rest, move smoothly, leave limb goals
- * alone and keep their cited rhythms.
+ * Affect displays start and end at rest, move smoothly, leave limb goals alone
+ * and keep their cited rhythms.
  *
  * Scenarios:
- * 1. Every display adds nothing before its start, at its start, at its end
- *    and after it, and every angle it adds changes by less than 1.5 degrees
- *    between samples 1 ms apart (no jumps).
- * 2. A laugh's trunk pulses repeat every 210 ms (Provine 1996): the chest
- *    flexion peaks are spaced by the note interval within 2 ms.
- * 3. The layer adds onto the posture's own joint angles and returns the
- *    posture's limb goals and root unchanged; displays that overlap add.
+ *
+ * 1. Every display adds nothing before its start, at its start, at its end and
+ *    after it, and every angle it adds changes by less than 1.5 degrees between
+ *    samples 1 ms apart (no jumps).
+ * 2. A laugh's trunk pulses repeat every 210 ms (Provine 1996): the chest flexion
+ *    peaks are spaced by the note interval within 2 ms.
+ * 3. The layer adds onto the posture's own joint angles and returns the posture's
+ *    limb goals and root unchanged; displays that overlap add.
  * 4. A display of non-positive length is refused on the seconds axis.
- * 5. Sigh and yawn agree on the authored inhale and exhale phases. An
- *    installed yawn displays the same jaw excursions over a standing actor.
+ * 5. Sigh and yawn agree on the authored inhale and exhale phases. An installed
+ *    yawn displays the same jaw excursions over a standing actor.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Evaluates the display angles and the layer on a posture; a display that starts or ends off zero, jumps, loses the laugh's rhythm, touches a limb goal or ignores the base angles fails.
  * @evidence contracts/development/testing.md#independent-expectations The note interval is Provine's 210 ms; zero ends, continuity and untouched goals are the layer contract stated by IHumanLayer. The two half-phase samples follow the published 40 percent inhalation and the minimum-jerk midpoint of one half.
@@ -39,6 +41,7 @@ const { HumanAffect } = AutoMovieMotionHumanExpression;
  * @evidence contracts/development/common.md#meaningful-documentation Lists each scenario and what it pins.
  */
 export function test_motion_expression_affect_signal(): void {
+  const checks: motionComplaints.IGatherer = motionComplaints();
   const kinds: IAutoMovieMotionHumanAffect.Kind[] = [
     "laugh",
     "sigh",
@@ -58,35 +61,38 @@ export function test_motion_expression_affect_signal(): void {
       0,
     );
   for (const kind of kinds) {
-    const length: number = HumanAffect.LENGTH[kind];
-    TestValidator.predicate(
-      `${kind} rests at its ends`,
-      [-1, 0, length, length + 1].every(
-        (t: number): boolean =>
-          total(HumanAffect.angles(kind, t, length)) === 0,
-      ),
-    );
-    let jump: number = 0;
-    let previous = HumanAffect.angles(kind, 0, length);
-    for (let t: number = 0.001; t <= length; t += 0.001) {
-      const now = HumanAffect.angles(kind, t, length);
-      for (const bone of new Set([
-        ...Object.keys(now),
-        ...Object.keys(previous),
-      ])) {
-        const a = (now as Record<string, readonly number[]>)[bone] ?? [0, 0, 0];
-        const b = (previous as Record<string, readonly number[]>)[bone] ?? [
-          0, 0, 0,
-        ];
-        for (let i: number = 0; i < 3; i++)
-          jump = Math.max(jump, Math.abs(a[i]! - b[i]!));
+    try {
+      const length: number = HumanAffect.LENGTH[kind];
+      checks.check(
+        `${kind} rests at its ends`,
+        [-1, 0, length, length + 1].every(
+          (t: number): boolean =>
+            total(HumanAffect.angles(kind, t, length)) === 0,
+        ),
+      );
+      let jump: number = 0;
+      let previous = HumanAffect.angles(kind, 0, length);
+      for (let t: number = 0.001; t <= length; t += 0.001) {
+        const now = HumanAffect.angles(kind, t, length);
+        for (const bone of new Set([
+          ...Object.keys(now),
+          ...Object.keys(previous),
+        ])) {
+          const a = (now as Record<string, readonly number[]>)[bone] ?? [
+            0, 0, 0,
+          ];
+          const b = (previous as Record<string, readonly number[]>)[bone] ?? [
+            0, 0, 0,
+          ];
+          for (let i: number = 0; i < 3; i++)
+            jump = Math.max(jump, Math.abs(a[i]! - b[i]!));
+        }
+        previous = now;
       }
-      previous = now;
+      checks.check(`${kind} moves smoothly (${jump.toFixed(3)})`, jump < 1.5);
+    } catch (error: unknown) {
+      checks.check(`${String(kind)}: ${everydayTake.describe(error)}`, false);
     }
-    TestValidator.predicate(
-      `${kind} moves smoothly (${jump.toFixed(3)})`,
-      jump < 1.5,
-    );
   }
 
   const peaks: number[] = [];
@@ -104,7 +110,7 @@ export function test_motion_expression_affect_signal(): void {
   const gaps: number[] = full
     .slice(1)
     .map((p: number, i: number): number => p - full[i]!);
-  TestValidator.predicate(
+  checks.check(
     `laugh notes every 210 ms (${gaps.map((g) => g.toFixed(3)).join(", ")})`,
     gaps.length >= 2 &&
       gaps.every(
@@ -157,16 +163,16 @@ export function test_motion_expression_affect_signal(): void {
     0.22,
     HumanAffect.LENGTH.cough,
   ).chest![0];
-  TestValidator.predicate(
+  checks.check(
     "adds onto the base angle",
     Math.abs(layered.joints.chest![0] - (5 + cough)) < 1e-12,
   );
-  TestValidator.predicate(
+  checks.check(
     "limb goals and root unchanged",
     layered.limbs === posture.limbs ||
       JSON.stringify(layered.limbs) === JSON.stringify(posture.limbs),
   );
-  TestValidator.predicate(
+  checks.check(
     "root unchanged",
     layered.root === posture.root && layered.yaw === 30,
   );
@@ -179,7 +185,7 @@ export function test_motion_expression_affect_signal(): void {
     0.22,
     HumanAffect.LENGTH.laugh,
   ).chest![0];
-  TestValidator.predicate(
+  checks.check(
     "overlapping displays add",
     Math.abs(both.joints.chest![0] - (5 + cough + laugh)) < 1e-12,
   );
@@ -197,33 +203,41 @@ export function test_motion_expression_affect_signal(): void {
     [0.7, 2, 12.5],
   ];
   for (const [phase, shoulder, jaw] of phases) {
-    const local: number = phase * duration;
-    TestValidator.predicate(
-      `sigh shoulder at share ${phase}`,
-      nclose(
-        HumanAffect.angles("sigh", local, duration).leftShoulder![1],
-        shoulder,
-        1e-12,
-      ),
-    );
-    TestValidator.predicate(
-      `yawn jaw at share ${phase}`,
-      nclose(HumanAffect.angles("yawn", local, duration).jaw![0], jaw, 1e-12),
-    );
-    const time: number = at + local;
-    const plainJaw: number =
-      stage.pose("a", time).joints.find((joint) => joint.bone === "jaw")
-        ?.flexion ?? 0;
-    const posedJaw: number =
-      installed.pose("a", time).joints.find((joint) => joint.bone === "jaw")
-        ?.flexion ?? 0;
-    TestValidator.predicate(
-      `installed yawn jaw at share ${phase}`,
-      nclose(posedJaw - plainJaw, jaw, 1e-8),
-    );
+    try {
+      const local: number = phase * duration;
+      checks.check(
+        `sigh shoulder at share ${phase}`,
+        nclose(
+          HumanAffect.angles("sigh", local, duration).leftShoulder![1],
+          shoulder,
+          1e-12,
+        ),
+      );
+      checks.check(
+        `yawn jaw at share ${phase}`,
+        nclose(HumanAffect.angles("yawn", local, duration).jaw![0], jaw, 1e-12),
+      );
+      const time: number = at + local;
+      const plainJaw: number =
+        stage.pose("a", time).joints.find((joint) => joint.bone === "jaw")
+          ?.flexion ?? 0;
+      const posedJaw: number =
+        installed.pose("a", time).joints.find((joint) => joint.bone === "jaw")
+          ?.flexion ?? 0;
+      checks.check(
+        `installed yawn jaw at share ${phase}`,
+        nclose(posedJaw - plainJaw, jaw, 1e-8),
+      );
+    } catch (error: unknown) {
+      checks.check(
+        `${String(phase)} ${String(shoulder)} ${String(jaw)}: ${everydayTake.describe(error)}`,
+        false,
+      );
+    }
   }
-  TestValidator.predicate(
+  checks.check(
     "non-positive length refused on seconds",
     throwsError((): unknown => HumanAffect.angles("sigh", 0.1, 0), "seconds"),
   );
+  checks.assert("expression affect signal");
 }

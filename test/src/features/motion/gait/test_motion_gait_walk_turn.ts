@@ -3,9 +3,10 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import { HumanChain, HumanPerformance } from "@automovie/motions";
-import { TestValidator } from "@nestia/e2e";
 
 import { assertTakeClean } from "../../internal/assertTakeClean";
+import { everydayTake } from "../../internal/everydayTake";
+import { motionComplaints } from "../../internal/motionComplaints";
 import { motionHumanBody } from "../../internal/motionHumanBody";
 
 /** One walk's turn from the previous walk's heading. */
@@ -39,9 +40,10 @@ const TURNS: readonly ITurn[] = [
  * turn, never a crossover through the stance leg.
  *
  * Scenarios, on the average man and the small woman, for each turn:
- * 1. A walk straight ahead, then a walk turned 30° left, 60° left, 60°
- *    right or 90° right, passes the take verdicts: no leg passes through
- *    the other, no pop at the join, contacts hold and joints stay in range.
+ *
+ * 1. A walk straight ahead, then a walk turned 30° left, 60° left, 60° right or
+ *    90° right, passes the take verdicts: no leg passes through the other, no
+ *    pop at the join, contacts hold and joints stay in range.
  * 2. The turned walk arrives where it was sent.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the cases and the checks.
@@ -51,37 +53,59 @@ const TURNS: readonly ITurn[] = [
  * @evidence contracts/development/testing.md#execution-ownership An in-memory performance through the public chain.
  */
 export function test_motion_gait_walk_turn(): void {
+  const checks: motionComplaints.IGatherer = motionComplaints();
   for (const fit of ["m-average", "f-small"] as const) {
-    const body: IAutoMovieMotionHumanBody = motionHumanBody(fit);
-    for (const turn of TURNS) {
-      const radians: number = (turn.degrees * Math.PI) / 180;
-      const to: IAutoMovieVector3 = {
-        x: TURNED * Math.sin(radians),
-        y: 0,
-        z: AHEAD + TURNED * Math.cos(radians),
-      };
-      const take: HumanPerformance = new HumanPerformance({
-        seed: "walk-turn",
-        performers: [
-          {
-            subject: "a",
-            body,
-            at: { x: 0, y: 0, z: 0 },
-            yaw: 0,
-            proficiency: { level: "trained" },
-          },
-        ],
-        composition: HumanChain.subject("a")
-          .walk({ to: { x: 0, y: 0, z: AHEAD } })
-          .walk({ to }).node,
-      });
-      const label: string = `${fit} walking on, turned ${turn.label}`;
-      assertTakeClean(label, take);
-      const root: IAutoMovieVector3 = take.posture("a", take.duration).root;
-      TestValidator.predicate(
-        `${label}: arrives within ${ARRIVE} m`,
-        Math.hypot(root.x - to.x, root.z - to.z) <= ARRIVE,
-      );
+    try {
+      const body: IAutoMovieMotionHumanBody = motionHumanBody(fit);
+      for (const turn of TURNS) {
+        const radians: number = (turn.degrees * Math.PI) / 180;
+        const to: IAutoMovieVector3 = {
+          x: TURNED * Math.sin(radians),
+          y: 0,
+          z: AHEAD + TURNED * Math.cos(radians),
+        };
+        const take: HumanPerformance = new HumanPerformance({
+          seed: "walk-turn",
+          performers: [
+            {
+              subject: "a",
+              body,
+              at: { x: 0, y: 0, z: 0 },
+              yaw: 0,
+              proficiency: { level: "trained" },
+            },
+          ],
+          composition: HumanChain.subject("a")
+            .walk({ to: { x: 0, y: 0, z: AHEAD } })
+            .walk({ to }).node,
+        });
+        const label: string = `${fit} walking on, turned ${turn.label}`;
+        verdict(checks, label, take);
+        const root: IAutoMovieVector3 = take.posture("a", take.duration).root;
+        checks.check(
+          `${label}: arrives within ${ARRIVE} m`,
+          Math.hypot(root.x - to.x, root.z - to.z) <= ARRIVE,
+        );
+      }
+    } catch (error: unknown) {
+      checks.check(`${String(fit)}: ${everydayTake.describe(error)}`, false);
     }
+  }
+  checks.assert("gait walk turn");
+}
+
+/** Gather a take's shipped verdicts as one check. */
+function verdict(
+  checks: motionComplaints.IGatherer,
+  label: string,
+  film: HumanPerformance,
+): void {
+  try {
+    assertTakeClean(label, film);
+  } catch (error: unknown) {
+    checks.check(
+      `${label}: ${error instanceof Error ? error.message : String(error)}`,
+      false,
+    );
   }
 }

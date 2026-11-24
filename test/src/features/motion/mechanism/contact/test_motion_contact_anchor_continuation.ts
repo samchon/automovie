@@ -15,29 +15,46 @@ import type {
 } from "@automovie/interface";
 import { HumanChain, HumanObject, HumanPerformance } from "@automovie/motions";
 import { poseBones, resolveHumanPosture } from "@automovie/motions/internal";
-import { TestValidator } from "@nestia/e2e";
 
+import { everydayTake } from "../../../internal/everydayTake";
+import { motionComplaints } from "../../../internal/motionComplaints";
 import { motionHumanBody } from "../../../internal/motionHumanBody";
 
-/** The bodies read: the smallest woman and the largest man of the test population. */
+/**
+ * The bodies read: the smallest woman and the largest man of the test
+ * population.
+ */
 const BODIES: readonly motionHumanBody.Name[] = ["f-small", "m-large"];
 
-/** How far the hand's goal moves between two anchors, metres: the farthest a goal at a daily reach's peak speed moves between them (the arm plan's waypoint spacing). */
+/**
+ * How far the hand's goal moves between two anchors, metres: the farthest a
+ * goal at a daily reach's peak speed moves between them (the arm plan's
+ * waypoint spacing).
+ */
 const SPAN: number = 0.08;
 
 /** The shares of the span read between the two anchors. */
 const SHARES: readonly number[] = [0.125, 0.375, 0.5, 0.75];
 
-/** How long after the walk's entry its frames are read, seconds: past the cut's half-second decay, so the carry is the walk's own. */
+/**
+ * How long after the walk's entry its frames are read, seconds: past the cut's
+ * half-second decay, so the carry is the walk's own.
+ */
 const SETTLED: number = 0.5;
 
-/** The displayed seconds read after `SETTLED`, every 1/120 s over half a second: off the anchor grid, and across several anchors. */
+/**
+ * The displayed seconds read after `SETTLED`, every 1/120 s over half a second:
+ * off the anchor grid, and across several anchors.
+ */
 const FRAMES: readonly number[] = Array.from(
   { length: 61 },
   (_: unknown, i: number): number => 0.0013 + i / 120,
 );
 
-/** Every how many frames the cold display is read: each of its reads sweeps, so it is read every twentieth of a second. */
+/**
+ * Every how many frames the cold display is read: each of its reads sweeps, so
+ * it is read every twentieth of a second.
+ */
 const COLD: number = 6;
 
 /** The arms read. */
@@ -53,10 +70,16 @@ const JOINTS: readonly AutoMovieHumanoidBone[] = SIDES.flatMap(
   ],
 );
 
-/** The hand placement two fits of one goal must share, metres: a tenth of a millimetre. */
+/**
+ * The hand placement two fits of one goal must share, metres: a tenth of a
+ * millimetre.
+ */
 const HAND: number = 1e-4;
 
-/** The most a joint centre may move between two displayed frames 1/120 s apart, metres: the motion audit's 5 mm step. */
+/**
+ * The most a joint centre may move between two displayed frames 1/120 s apart,
+ * metres: the motion audit's 5 mm step.
+ */
 const STEP: number = 0.005;
 
 /**
@@ -64,29 +87,29 @@ const STEP: number = 0.005;
  * reader of a displayed second reads one placement.
  *
  * Scenarios, on the small woman and the large man:
- * 1. A hand goal ahead of the chest moves forward and up by the farthest a
- *    daily reach moves between two anchors. Each end is fitted cold, as
- *    two anchors on one branch; each goal between them is fitted cold and
- *    placed at the shortest-turn interpolation of the ends' swivels,
- *    prescribed. The placement keeps the cold fit's branch, stands as
- *    placed (the closed form reached the goal within the range of motion
- *    and clear of the trunk, so its seed is the prescribed swivel: a legal
- *    fit), puts the hand where the cold fit does, and its swivel, lying
- *    between the ends' swivels, is no farther from the cold swivel than the
- *    farther end's is.
- * 2. A basketball picked up from the floor and carried on a 2 m walk, every
- *    1/120 s of half a second of the walk, off the anchor grid:
- *    - the verdicts' bone read and playback's pose read of a frame are the
- *      same pose, though the two performances read the frames in opposite
- *      orders;
- *    - the walk keeps anchors holding a carried arm's fit;
- *    - each carried elbow and wrist moves about its shoulder by at most the
- *      audit's 5 mm between neighbouring frames, across every anchor
- *      boundary;
- *    - against the same display with every anchor emptied (each fit cold),
- *      read every twentieth of a second, each carried wrist is on the same
- *      goal within a tenth of a millimetre and each carried elbow on the
- *      same side of its shoulder-wrist axis (the same branch).
+ *
+ * 1. A hand goal ahead of the chest moves forward and up by the farthest a daily
+ *    reach moves between two anchors. Each end is fitted cold, as two anchors
+ *    on one branch; each goal between them is fitted cold and placed at the
+ *    shortest-turn interpolation of the ends' swivels, prescribed. The
+ *    placement keeps the cold fit's branch, stands as placed (the closed form
+ *    reached the goal within the range of motion and clear of the trunk, so its
+ *    seed is the prescribed swivel: a legal fit), puts the hand where the cold
+ *    fit does, and its swivel, lying between the ends' swivels, is no farther
+ *    from the cold swivel than the farther end's is.
+ * 2. A basketball picked up from the floor and carried on a 2 m walk, every 1/120
+ *    s of half a second of the walk, off the anchor grid:
+ *
+ *    - The verdicts' bone read and playback's pose read of a frame are the same
+ *         pose, though the two performances read the frames in opposite
+ *         orders;
+ *    - The walk keeps anchors holding a carried arm's fit;
+ *    - Each carried elbow and wrist moves about its shoulder by at most the audit's
+ *         5 mm between neighbouring frames, across every anchor boundary;
+ *    - Against the same display with every anchor emptied (each fit cold), read
+ *         every twentieth of a second, each carried wrist is on the same goal
+ *         within a tenth of a millimetre and each carried elbow on the same
+ *         side of its shoulder-wrist axis (the same branch).
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the bodies, the goal motion, the take, the frames, each pinned property and the source of each tolerance.
  * @evidence contracts/development/testing.md#behavioral-verification Fits goals through resolveHumanPosture.seeded cold and prescribed, and reads a performance's displayed bones and poses at frames through its anchors, in two read orders and with every anchor emptied.
@@ -94,15 +117,42 @@ const STEP: number = 0.005;
  * @evidence contracts/development/testing.md#distinguishing-cases Two extreme bodies, four shares between two anchors, both arms, and sixty-one frames spanning several anchor boundaries.
  * @evidence contracts/development/testing.md#execution-ownership Pure posture fits and in-memory performances of a polygon body and a ball.
  */ export function test_motion_contact_anchor_continuation(): void {
+  const checks: motionComplaints.IGatherer = motionComplaints();
   for (const name of BODIES) {
-    const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
-    fits(name, body);
-    display(name, body);
+    try {
+      const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
+      try {
+        fits(checks, name, body);
+      } catch (error: unknown) {
+        checks.check(
+          `${String(name)} fits: ${everydayTake.describe(error)}`,
+          false,
+        );
+      }
+      try {
+        display(checks, name, body);
+      } catch (error: unknown) {
+        checks.check(
+          `${String(name)} display: ${everydayTake.describe(error)}`,
+          false,
+        );
+      }
+    } catch (error: unknown) {
+      checks.check(`${String(name)}: ${everydayTake.describe(error)}`, false);
+    }
   }
+  checks.assert("contact anchor continuation");
 }
 
-/** Scenario 1: placements at interpolated anchor swivels against cold fits of the same goals. */
-function fits(name: string, body: IAutoMovieMotionHumanBody): void {
+/**
+ * Scenario 1: placements at interpolated anchor swivels against cold fits of
+ * the same goals.
+ */
+function fits(
+  checks: motionComplaints.IGatherer,
+  name: string,
+  body: IAutoMovieMotionHumanBody,
+): void {
   const raw: IAutoMovieMotionHumanPosture = {
     root: { x: 0, y: 0, z: 0 },
     yaw: 0,
@@ -146,7 +196,7 @@ function fits(name: string, body: IAutoMovieMotionHumanBody): void {
     body,
     goal(SPAN),
   ).seeds.rightArm;
-  TestValidator.predicate(
+  checks.check(
     `${name}: both anchors fit on one branch`,
     !!a && !!b && a.branch === b.branch,
   );
@@ -172,19 +222,19 @@ function fits(name: string, body: IAutoMovieMotionHumanBody): void {
       });
     const c: IAutoMovieSwivelSeed | null | undefined = cold.seeds.rightArm;
     const p: IAutoMovieSwivelSeed | null | undefined = placed.seeds.rightArm;
-    TestValidator.predicate(
+    checks.check(
       `${name} at ${share} of the span: the placement keeps the cold fit's branch (${c?.branch} vs ${p?.branch})`,
       !!c && !!p && c.branch === p.branch,
     );
-    TestValidator.predicate(
+    checks.check(
       `${name} at ${share} of the span: the placement stands at the prescribed swivel, a legal fit (${p === null || p === undefined ? "none" : turn(p.swivel, swivel).toFixed(6)} degrees off)`,
       !!p && turn(p.swivel, swivel) <= 1e-9,
     );
-    TestValidator.predicate(
+    checks.check(
       `${name} at ${share} of the span: the placement puts the hand where the cold fit does`,
       apart(body, cold.pose, placed.pose, "rightHand") <= HAND,
     );
-    TestValidator.predicate(
+    checks.check(
       `${name} at ${share} of the span: the swivel is no farther from the cold swivel than the farther anchor (${c ? turn(c.swivel, swivel).toFixed(4) : "none"} of ${c ? Math.max(turn(c.swivel, a!.swivel), turn(c.swivel, b!.swivel)).toFixed(4) : "none"} degrees, anchors ${span.toFixed(4)} apart)`,
       !!c &&
         turn(c.swivel, swivel) <=
@@ -193,15 +243,19 @@ function fits(name: string, body: IAutoMovieMotionHumanBody): void {
   }
 }
 
-/** Scenario 2: one placement for every reader of a displayed frame, continuous across anchors, on the cold display's branch and goal. */
-function display(name: string, body: IAutoMovieMotionHumanBody): void {
+/**
+ * Scenario 2: one placement for every reader of a displayed frame, continuous
+ * across anchors, on the cold display's branch and goal.
+ */
+function display(
+  checks: motionComplaints.IGatherer,
+  name: string,
+  body: IAutoMovieMotionHumanBody,
+): void {
   const verdicts: IAutoMovieMotionHumanPerformance = carrying(body);
   const walk: IAutoMovieMotionHumanSegment | undefined =
     verdicts.segments("a")[1];
-  TestValidator.predicate(
-    `${name}: the pickup is followed by the walk`,
-    !!walk,
-  );
+  checks.check(`${name}: the pickup is followed by the walk`, !!walk);
   const seconds: number[] = FRAMES.map(
     (s: number): number => walk!.entryTime + SETTLED + s,
   );
@@ -226,7 +280,7 @@ function display(name: string, body: IAutoMovieMotionHumanBody): void {
         angles(shown[i]!, poses[i]!, bone),
       ),
     );
-    TestValidator.predicate(
+    checks.check(
       `${name} at ${t.toFixed(4)} s: the verdicts' pose is playback's (${worst} degrees apart)`,
       worst <= 1e-9,
     );
@@ -246,7 +300,7 @@ function display(name: string, body: IAutoMovieMotionHumanBody): void {
           ),
       ),
   );
-  TestValidator.predicate(
+  checks.check(
     `${name}: the frames are placed from anchors holding a carried arm's fit`,
     carried.length !== 0,
   );
@@ -266,7 +320,7 @@ function display(name: string, body: IAutoMovieMotionHumanBody): void {
             bones[i]!.get(`${side}UpperArm`)!.worldPosition,
           ),
         );
-        TestValidator.predicate(
+        checks.check(
           `${name} ${bone} from ${seconds[i - 1]!.toFixed(4)} s: moves ${(moved * 1000).toFixed(3)} mm in a frame`,
           moved <= STEP,
         );
@@ -293,11 +347,11 @@ function display(name: string, body: IAutoMovieMotionHumanBody): void {
         bones[i]!.get(`${side}Hand`)!.worldPosition,
         own.get(`${side}Hand`)!.worldPosition,
       );
-      TestValidator.predicate(
+      checks.check(
         `${name} ${side} at ${t.toFixed(4)} s: the wrist is on the cold read's goal (${(wrist * 1000).toFixed(4)} mm apart)`,
         wrist <= HAND,
       );
-      TestValidator.predicate(
+      checks.check(
         `${name} ${side} at ${t.toFixed(4)} s: the elbow is on the cold read's side of the shoulder-wrist axis`,
         elbows(bones[i]!, own, side) > 0,
       );
@@ -338,7 +392,10 @@ function turn(a: number, b: number): number {
   return Math.abs(d - 360 * Math.round(d / 360));
 }
 
-/** The largest clinical angle difference of one joint between two poses, degrees. */
+/**
+ * The largest clinical angle difference of one joint between two poses,
+ * degrees.
+ */
 function angles(
   a: IAutoMoviePose,
   b: IAutoMoviePose,
@@ -359,7 +416,10 @@ function angles(
   );
 }
 
-/** The cosine-signed agreement of two reads' elbow offsets from one arm's shoulder-wrist axis: positive where both elbows sit on the same side. */
+/**
+ * The cosine-signed agreement of two reads' elbow offsets from one arm's
+ * shoulder-wrist axis: positive where both elbows sit on the same side.
+ */
 function elbows(
   a: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
   b: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,

@@ -22,9 +22,10 @@ import {
   HumanRefusal,
 } from "@automovie/motions";
 import { HumanHand } from "@automovie/motions/internal";
-import { TestValidator } from "@nestia/e2e";
 
 import { assertTakeClean } from "../../internal/assertTakeClean";
+import { everydayTake } from "../../internal/everydayTake";
+import { motionComplaints } from "../../internal/motionComplaints";
 import { motionHumanBody } from "../../internal/motionHumanBody";
 
 const { HumanLabour } = AutoMovieMotionHumanLabour;
@@ -51,14 +52,15 @@ const REST: IAutoMovieVector3 = { x: -0.3, y: 0, z: 0.3 };
  * Two-handed long-tool work, for two canonical bodies.
  *
  * Scenarios:
- * 1. An axe chops onto a chopping block, a level chop meets a trunk point
- *    and a sledgehammer strikes the ground: at each contact the displayed
- *    face is on the work point, having come down (or across) to it, and the
- *    lead hand stays on the tool's line through every stroke.
- * 2. A shovel's blade is below the ground when it is driven and above it
- *    when the load is thrown.
- * 3. A rake's tines stay on the ground through the pull and are off it on
- *    the return.
+ *
+ * 1. An axe chops onto a chopping block, a level chop meets a trunk point and a
+ *    sledgehammer strikes the ground: at each contact the displayed face is on
+ *    the work point, having come down (or across) to it, and the lead hand
+ *    stays on the tool's line through every stroke.
+ * 2. A shovel's blade is below the ground when it is driven and above it when the
+ *    load is thrown.
+ * 3. A rake's tines stay on the ground through the pull and are off it on the
+ *    return.
  * 4. A work point beyond the arm's reach is refused with the distance.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names the strokes, the bodies, the readings and the refusal.
@@ -68,52 +70,62 @@ const REST: IAutoMovieVector3 = { x: -0.3, y: 0, z: 0.3 };
  * @evidence contracts/development/testing.md#execution-ownership In-memory performances of generated bodies and archetypes.
  */
 export function test_motion_operate_tool_long_work(): void {
+  const checks: motionComplaints.IGatherer = motionComplaints();
   for (const profile of ["m-average", "f-average"] as const) {
-    const body: IAutoMovieMotionHumanBody = motionHumanBody(profile);
-    const stages: readonly IStage[] = [
-      {
-        row: "chop",
-        tool: createForestAxe({}, 1),
-        at: { x: 0, y: 0.5, z: 0.6 },
-      },
-      {
-        row: "sideChop",
-        tool: createForestAxe({}, 1),
-        at: { x: 0, y: 1, z: 0.6 },
-      },
-      {
-        row: "sledge",
-        tool: createSledgehammer({}, 1),
-        at: { x: 0, y: 0, z: 0.7 },
-      },
-      { row: "dig", tool: createShovel({}, 1), at: { x: 0, y: 0, z: 0.55 } },
-      { row: "rake", tool: createRake({}, 1), at: { x: 0, y: 0, z: 0.9 } },
-    ];
-    for (const stage of stages) strokes(body, profile, stage);
-
-    let refusal: unknown;
     try {
-      take(body, { ...stages[0]!, at: { x: 0, y: 0.5, z: 3 } });
+      const body: IAutoMovieMotionHumanBody = motionHumanBody(profile);
+      const stages: readonly IStage[] = [
+        {
+          row: "chop",
+          tool: createForestAxe({}, 1),
+          at: { x: 0, y: 0.5, z: 0.6 },
+        },
+        {
+          row: "sideChop",
+          tool: createForestAxe({}, 1),
+          at: { x: 0, y: 1, z: 0.6 },
+        },
+        {
+          row: "sledge",
+          tool: createSledgehammer({}, 1),
+          at: { x: 0, y: 0, z: 0.7 },
+        },
+        { row: "dig", tool: createShovel({}, 1), at: { x: 0, y: 0, z: 0.55 } },
+        { row: "rake", tool: createRake({}, 1), at: { x: 0, y: 0, z: 0.9 } },
+      ];
+      for (const stage of stages) strokes(checks, body, profile, stage);
+
+      let refusal: unknown;
+      try {
+        take(body, { ...stages[0]!, at: { x: 0, y: 0.5, z: 3 } });
+      } catch (error: unknown) {
+        refusal = error;
+      }
+      checks.check(
+        `${profile}: a work point beyond the arm's reach is refused with the distance`,
+        refusal instanceof HumanRefusal &&
+          refusal.axis === "at" &&
+          refusal.reason.includes(" m from the trailing shoulder"),
+      );
     } catch (error: unknown) {
-      refusal = error;
+      checks.check(
+        `${String(profile)}: ${everydayTake.describe(error)}`,
+        false,
+      );
     }
-    TestValidator.predicate(
-      `${profile}: a work point beyond the arm's reach is refused with the distance`,
-      refusal instanceof HumanRefusal &&
-        refusal.axis === "at" &&
-        refusal.reason.includes(" m from the trailing shoulder"),
-    );
   }
+  checks.assert("operate tool long work");
 }
 
 /** One stroke's take and its readings. */
 function strokes(
+  checks: motionComplaints.IGatherer,
   body: IAutoMovieMotionHumanBody,
   profile: string,
   stage: IStage,
 ): void {
   const film: HumanPerformance = take(body, stage);
-  assertTakeClean(`${profile} ${stage.row}`, film);
+  verdict(checks, `${profile} ${stage.row}`, film);
   const segment: IAutoMovieMotionHumanSegment = film
     .segments("worker")
     .find((s: IAutoMovieMotionHumanSegment): boolean => s.name === stage.row)!;
@@ -157,13 +169,13 @@ function strokes(
       ),
     );
   }
-  TestValidator.predicate(
+  checks.check(
     `${profile} ${stage.row}: the lead hand stays on the tool's line (${off.toFixed(4)} m)`,
     off < 0.05,
   );
 
   if (stage.row === "dig") {
-    TestValidator.predicate(
+    checks.check(
       `${profile} dig: the blade is below the ground when driven and above it when thrown`,
       face(when("drive1")).y < -0.02 && face(when("throw1")).y > 0.1,
     );
@@ -178,7 +190,7 @@ function strokes(
     }
     const back: number =
       when("pull1") + (when("contact2") - when("pull1")) * 0.6;
-    TestValidator.predicate(
+    checks.check(
       `${profile} rake: the tines keep to the ground through the pull (${ground.toFixed(4)} m) and lift on the return`,
       ground < 0.03 && face(back).y > 0.05,
     );
@@ -193,7 +205,7 @@ function strokes(
       stage.row === "sideChop"
         ? Vector3.distance(before, stage.at) > Vector3.distance(at, stage.at)
         : before.y > at.y;
-    TestValidator.predicate(
+    checks.check(
       `${profile} ${stage.row}: stroke ${k}'s face meets the work point (${Vector3.distance(at, stage.at).toFixed(4)} m) from its stroke`,
       Vector3.distance(at, stage.at) < 0.05 && arrives,
     );
@@ -257,4 +269,20 @@ function point(
     frame.position,
     Quaternion.rotateVector(frame.rotation, local),
   );
+}
+
+/** Gather a take's shipped verdicts as one check. */
+function verdict(
+  checks: motionComplaints.IGatherer,
+  label: string,
+  film: HumanPerformance,
+): void {
+  try {
+    assertTakeClean(label, film);
+  } catch (error: unknown) {
+    checks.check(
+      `${label}: ${error instanceof Error ? error.message : String(error)}`,
+      false,
+    );
+  }
 }

@@ -13,9 +13,10 @@ import {
   HumanPerformance,
   HumanRefusal,
 } from "@automovie/motions";
-import { TestValidator } from "@nestia/e2e";
 
 import { assertTakeClean } from "../../internal/assertTakeClean";
+import { everydayTake } from "../../internal/everydayTake";
+import { motionComplaints } from "../../internal/motionComplaints";
 import { motionHumanBody } from "../../internal/motionHumanBody";
 
 const { embraceFromBehind } = AutoMovieMotionHumanTouch;
@@ -23,32 +24,48 @@ const { embraceFromBehind } = AutoMovieMotionHumanTouch;
 /** How near two regions in contact stay, metres: the law's skin contact. */
 const NEAR: number = 0.01;
 
-/** How near a palm lies to the abdomen, metres: a skin contact and the palm's own thickness (provisional). */
+/**
+ * How near a palm lies to the abdomen, metres: a skin contact and the palm's
+ * own thickness (provisional).
+ */
 const PALM: number = 0.03;
 
-/** How far toward the partner's left the embracer stands, metres: none, centred behind the partner with the shoulders square, so both arms pass around the partner's flanks to the clasp on the midline (staged 0.08 m aside, the right shoulder stood inside the partner's chest's breadth and the right arm's way to the clasp ran through the partner's chest). The head leans and turns to the shoulder the chin rests on. */
+/**
+ * How far toward the partner's left the embracer stands, metres: none, centred
+ * behind the partner with the shoulders square, so both arms pass around the
+ * partner's flanks to the clasp on the midline (staged 0.08 m aside, the right
+ * shoulder stood inside the partner's chest's breadth and the right arm's way
+ * to the clasp ran through the partner's chest). The head leans and turns to
+ * the shoulder the chin rests on.
+ */
 const ASIDE: number = 0;
 
 /** How long the embrace is held, seconds. */
 const HOLD: number = 2;
 
-/** The gap left between the chest and the back standing upright for the average man, metres, scaled with the embracer's stature (provisional staging: a short step back, so the lean that closes it carries the head forward over the shoulder). */
+/**
+ * The gap left between the chest and the back standing upright for the average
+ * man, metres, scaled with the embracer's stature (provisional staging: a short
+ * step back, so the lean that closes it carries the head forward over the
+ * shoulder).
+ */
 const GAP: number = 0.2;
 
 /**
  * Embracing a partner from behind (#4012).
  *
- * Scenarios, the average man embracing another average man and the small
- * woman embracing another small woman, each take clean:
- * 1. Through the hold, the chest lies on the partner's upper back, the chin
- *    on the top of the partner's left shoulder (its region; rested halfway
- *    to the neck's side, the head lay in the partner's neck), and each palm on
- *    the partner's abdomen within a hand's length of its middle: the palms
- *    lie either side of the midline, their fingertips meeting at it.
- * 2. The chest, the chin and the palms bear on the partner in windows, the
- *    chest's loaded.
- * 3. The small woman cannot rest her chin on the tall man's shoulder from
- *    behind: the refusal states the miss.
+ * Scenarios, the average man embracing another average man and the small woman
+ * embracing another small woman, each take clean:
+ *
+ * 1. Through the hold, the chest lies on the partner's upper back, the chin on the
+ *    top of the partner's left shoulder (its region; rested halfway to the
+ *    neck's side, the head lay in the partner's neck), and each palm on the
+ *    partner's abdomen within a hand's length of its middle: the palms lie
+ *    either side of the midline, their fingertips meeting at it.
+ * 2. The chest, the chin and the palms bear on the partner in windows, the chest's
+ *    loaded.
+ * 3. The small woman cannot rest her chin on the tall man's shoulder from behind:
+ *    the refusal states the miss.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the scenes, the bounds and the refusal.
  * @evidence contracts/development/testing.md#behavioral-verification Reads the displayed regions of both bodies through the hold and the plan's windows; a chest off the back, a chin off the shoulder, a palm off the abdomen, a missing or unloaded window, or an admitted unreachable shoulder fails.
@@ -57,61 +74,67 @@ const GAP: number = 0.2;
  * @evidence contracts/development/testing.md#execution-ownership In-memory two-performer performances through the public chain.
  */
 export function test_motion_touch_embrace_from_behind(): void {
+  const checks: motionComplaints.IGatherer = motionComplaints();
   for (const name of ["m-average", "f-small"] as const) {
-    const label: string = `${name} embraces ${name} from behind`;
-    const a: IAutoMovieMotionHumanBody = motionHumanBody(name);
-    const b: IAutoMovieMotionHumanBody = motionHumanBody(name);
-    const film: HumanPerformance = scene(a, b);
-    assertTakeClean(label, film);
-    const act: IAutoMovieMotionHumanSegment = film
-      .segments("a")
-      .find(
-        (s: IAutoMovieMotionHumanSegment): boolean =>
-          s.name === "embraceFromBehind",
-      )!;
-    const from: number = mark(act, "ready");
-    const to: number = mark(act, "relax");
-    for (const t of [from, (from + to) / 2, to]) {
-      const chest: number = Vector3.distance(
-        region(film, "a", a, "sternum", t),
-        region(film, "b", b, "upperBack", t),
-      );
-      const top: IAutoMovieVector3 = region(film, "b", b, "shoulderLeft", t);
-      const chin: number = Vector3.distance(
-        region(film, "a", a, "chin", t),
-        top,
-      );
-      const palms: readonly number[] = (["palmLeft", "palmRight"] as const).map(
-        (palm: AutoMovieHumanoidRegion): number =>
+    try {
+      const label: string = `${name} embraces ${name} from behind`;
+      const a: IAutoMovieMotionHumanBody = motionHumanBody(name);
+      const b: IAutoMovieMotionHumanBody = motionHumanBody(name);
+      const film: HumanPerformance = scene(a, b);
+      verdict(checks, label, film);
+      const act: IAutoMovieMotionHumanSegment = film
+        .segments("a")
+        .find(
+          (s: IAutoMovieMotionHumanSegment): boolean =>
+            s.name === "embraceFromBehind",
+        )!;
+      const from: number = mark(act, "ready");
+      const to: number = mark(act, "relax");
+      for (const t of [from, (from + to) / 2, to]) {
+        const chest: number = Vector3.distance(
+          region(film, "a", a, "sternum", t),
+          region(film, "b", b, "upperBack", t),
+        );
+        const top: IAutoMovieVector3 = region(film, "b", b, "shoulderLeft", t);
+        const chin: number = Vector3.distance(
+          region(film, "a", a, "chin", t),
+          top,
+        );
+        const palms: readonly number[] = (
+          ["palmLeft", "palmRight"] as const
+        ).map((palm: AutoMovieHumanoidRegion): number =>
           Vector3.distance(
             region(film, "a", a, palm, t),
             region(film, "b", b, "abdomen", t),
           ),
-      );
-      TestValidator.predicate(
-        `${label}: at ${t.toFixed(2)} s the chest (${(chest * 1000).toFixed(0)} mm) and the chin (${(chin * 1000).toFixed(0)} mm) rest on the partner`,
-        chest <= NEAR && chin <= NEAR,
-      );
-      TestValidator.predicate(
-        `${label}: at ${t.toFixed(2)} s the palms lie on the abdomen (${palms.map((p: number): string => (p * 1000).toFixed(0)).join(", ")} mm)`,
-        palms.every((p: number): boolean => p <= PALM + a.measure.hand),
-      );
-    }
-    const windows: readonly IAutoMovieMotionHumanContactWindow[] =
-      act.plan.contacts.filter(
-        (w: IAutoMovieMotionHumanContactWindow): boolean =>
-          w.support.kind === "person" && w.support.subject === "b",
-      );
-    TestValidator.predicate(
-      `${label}: chest, chin and palms bear on the partner, the chest loaded`,
-      windows.length === 4 &&
-        windows.some(
+        );
+        checks.check(
+          `${label}: at ${t.toFixed(2)} s the chest (${(chest * 1000).toFixed(0)} mm) and the chin (${(chin * 1000).toFixed(0)} mm) rest on the partner`,
+          chest <= NEAR && chin <= NEAR,
+        );
+        checks.check(
+          `${label}: at ${t.toFixed(2)} s the palms lie on the abdomen (${palms.map((p: number): string => (p * 1000).toFixed(0)).join(", ")} mm)`,
+          palms.every((p: number): boolean => p <= PALM + a.measure.hand),
+        );
+      }
+      const windows: readonly IAutoMovieMotionHumanContactWindow[] =
+        act.plan.contacts.filter(
           (w: IAutoMovieMotionHumanContactWindow): boolean =>
-            w.part === "chest" && w.load !== undefined && w.load > 0,
-        ),
-    );
+            w.support.kind === "person" && w.support.subject === "b",
+        );
+      checks.check(
+        `${label}: chest, chin and palms bear on the partner, the chest loaded`,
+        windows.length === 4 &&
+          windows.some(
+            (w: IAutoMovieMotionHumanContactWindow): boolean =>
+              w.part === "chest" && w.load !== undefined && w.load > 0,
+          ),
+      );
+    } catch (error: unknown) {
+      checks.check(`${String(name)}: ${everydayTake.describe(error)}`, false);
+    }
   }
-  TestValidator.predicate(
+  checks.check(
     "the small woman cannot rest her chin on the tall man's shoulder",
     (() => {
       try {
@@ -129,6 +152,7 @@ export function test_motion_touch_embrace_from_behind(): void {
       }
     })(),
   );
+  checks.assert("touch embrace from behind");
 }
 
 /** `b` stands ahead facing away; `a` steps in behind and embraces. */
@@ -200,4 +224,20 @@ function mark(segment: IAutoMovieMotionHumanSegment, name: string): number {
         (e: IAutoMovieMotionEvent): boolean => e.name === name,
       )!.share
   );
+}
+
+/** Gather a take's shipped verdicts as one check. */
+function verdict(
+  checks: motionComplaints.IGatherer,
+  label: string,
+  film: HumanPerformance,
+): void {
+  try {
+    assertTakeClean(label, film);
+  } catch (error: unknown) {
+    checks.check(
+      `${label}: ${error instanceof Error ? error.message : String(error)}`,
+      false,
+    );
+  }
 }

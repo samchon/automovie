@@ -16,19 +16,23 @@ import type {
 } from "@automovie/interface";
 import { AutoMovieMotionHumanTouch, HumanChain } from "@automovie/motions";
 import { HumanSkill } from "@automovie/motions/internal";
-import { TestValidator } from "@nestia/e2e";
 
+import { everydayTake } from "../../internal/everydayTake";
+import { motionComplaints } from "../../internal/motionComplaints";
 import { motionHumanBody } from "../../internal/motionHumanBody";
 import { motionHumanLaw } from "../../internal/motionHumanLaw";
 
 const { touchSite } = AutoMovieMotionHumanTouch;
 
 /**
- * A site belongs to the tangent plane of its region. The reach rule chooses the closest point of its closed disk.
+ * A site belongs to the tangent plane of its region. The reach rule chooses the
+ * closest point of its closed disk.
  *
  * Scenarios:
+ *
  * 1. Project the shoulder at the centre, inside, on and outside a disk.
- * 2. Fix a site on the horizontal tangent plane, then move a seeded site with its region.
+ * 2. Fix a site on the horizontal tangent plane, then move a seeded site with its
+ *    region.
  * 3. Collapse the disk to zero radius and refuse negative radii.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Reads site frames under changing shoulder and region positions. A fixed centre, wrong axis, inverted radius or fresh draw changes the returned coordinates.
@@ -38,8 +42,20 @@ const { touchSite } = AutoMovieMotionHumanTouch;
  * @evidence contracts/development/common.md#meaningful-documentation Describes the projection, coordinate frames and domain.
  */
 export function test_motion_ride_target_surface(): void {
-  checkCheekNormals();
-  checkAnatomicalExtents();
+  const checks: motionComplaints.IGatherer = motionComplaints();
+  try {
+    checkCheekNormals(checks);
+  } catch (error: unknown) {
+    checks.check(`checkCheekNormals: ${everydayTake.describe(error)}`, false);
+  }
+  try {
+    checkAnatomicalExtents(checks);
+  } catch (error: unknown) {
+    checks.check(
+      `checkAnatomicalExtents: ${everydayTake.describe(error)}`,
+      false,
+    );
+  }
   const skill: IAutoMovieMotionHumanSkill = HumanSkill.resolve(
     { p: 0 },
     "site",
@@ -65,29 +81,36 @@ export function test_motion_ride_target_surface(): void {
     [1, 1],
     [2, 1],
   ] as const) {
-    const shoulder: IAutoMovieVector3 = Vector3.add(frame.point, {
-      x: 0.03 * scale,
-      y: 0.04 * scale,
-      z: 0.4,
-    });
-    const target: IAutoMovieVector3 = Vector3.add(frame.point, {
-      x: 0.03 * expected,
-      y: 0.04 * expected,
-      z: 0,
-    });
-    const site: IAutoMovieMotionHumanTouchSite.IFrame = nearest(
-      frame,
-      shoulder,
-    );
-    TestValidator.predicate(
-      `nearest point at ${scale} radii`,
-      Vector3.distance(site.point, target) <= 1e-12,
-    );
-    TestValidator.equals(
-      "the normal remains the region normal",
-      site.normal,
-      frame.normal,
-    );
+    try {
+      const shoulder: IAutoMovieVector3 = Vector3.add(frame.point, {
+        x: 0.03 * scale,
+        y: 0.04 * scale,
+        z: 0.4,
+      });
+      const target: IAutoMovieVector3 = Vector3.add(frame.point, {
+        x: 0.03 * expected,
+        y: 0.04 * expected,
+        z: 0,
+      });
+      const site: IAutoMovieMotionHumanTouchSite.IFrame = nearest(
+        frame,
+        shoulder,
+      );
+      checks.check(
+        `nearest point at ${scale} radii`,
+        Vector3.distance(site.point, target) <= 1e-12,
+      );
+      checks.equals(
+        "the normal remains the region normal",
+        site.normal,
+        frame.normal,
+      );
+    } catch (error: unknown) {
+      checks.check(
+        `${String(scale)} ${String(expected)}: ${everydayTake.describe(error)}`,
+        false,
+      );
+    }
   }
   const upward: IAutoMovieMotionHumanTouchSite.IFrame = {
     point: frame.point,
@@ -97,7 +120,7 @@ export function test_motion_ride_target_surface(): void {
     up: 0.02,
     out: 0.04,
   });
-  TestValidator.predicate(
+  checks.check(
     "a horizontal plane carries the stated offset",
     Vector3.distance(fixed(upward, frame.point).point, {
       x: 0.96,
@@ -112,7 +135,7 @@ export function test_motion_ride_target_surface(): void {
     draw(frame, frame.point).point,
     frame.point,
   );
-  TestValidator.predicate(
+  checks.check(
     "the drawn site belongs to the disk",
     offset.z === 0 && Vector3.length(offset) <= radius,
   );
@@ -120,7 +143,7 @@ export function test_motion_ride_target_surface(): void {
     ...frame,
     point: { x: 3, y: 2, z: 1 },
   };
-  TestValidator.predicate(
+  checks.check(
     "the offset rides a translated frame",
     Vector3.distance(
       draw(moved, frame.point).point,
@@ -131,40 +154,41 @@ export function test_motion_ride_target_surface(): void {
     rule: "reach",
     within: 0,
   });
-  TestValidator.equals(
+  checks.equals(
     "zero radius keeps the centre",
     zero(frame, moved.point).point,
     frame.point,
   );
-  TestValidator.error("negative reach radius", () =>
+  checks.refuses("negative reach radius", () =>
     touchSite.of(context, { rule: "reach", within: -radius }),
   );
-  TestValidator.error("negative draw radius", () =>
+  checks.refuses("negative draw radius", () =>
     touchSite.of(context, { draw: -radius }),
   );
+  checks.assert("ride target surface");
 }
 
 /**
- * The cheek regions lie on the zygomatic prominence over the buccal area:
- * the place a palm washing the face, cupping it or slapping it meets, beside
- * the nose and above the jaw, facing forward and out.
+ * The cheek regions lie on the zygomatic prominence over the buccal area: the
+ * place a palm washing the face, cupping it or slapping it meets, beside the
+ * nose and above the jaw, facing forward and out.
  *
  * Each body stands quietly heading +Z (its right toward -X); the regions are
  * placed on its displayed head at 0.25 s.
  *
  * Scenarios, on the average man and the small woman:
+ *
  * 1. Each cheek lies between the mouth's and the nose bridge's heights, the
  *    cheekbone's band of the face.
- * 2. Each cheek lies at least 25 mm out from the nose toward its own side,
- *    behind the nose's point and ahead of its side's ear.
+ * 2. Each cheek lies at least 25 mm out from the nose toward its own side, behind
+ *    the nose's point and ahead of its side's ear.
  * 3. Each cheek lies above its side's jaw region.
- * 4. Each cheek's normal faces forward (its forward part over 0.6), out to
- *    its own side (over 0.4) and within 10 degrees of level.
- * 5. The left cheek is the right cheek mirrored in the head's median plane
- *    within 1 mm, and its normal the mirrored normal within 0.01.
- *
+ * 4. Each cheek's normal faces forward (its forward part over 0.6), out to its own
+ *    side (over 0.4) and within 10 degrees of level.
+ * 5. The left cheek is the right cheek mirrored in the head's median plane within
+ *    1 mm, and its normal the mirrored normal within 0.01.
  */
-function checkCheekNormals(): void {
+function checkCheekNormals(checks: motionComplaints.IGatherer): void {
   const complaints: string[] = [];
   const mm = (metres: number): string => (metres * 1000).toFixed(1);
   for (const name of ["m-average"] as const) {
@@ -236,23 +260,23 @@ function checkCheekNormals(): void {
         `${name}: the left cheek is ${mm(mirror)} mm and ${turned.toFixed(3)} in its normal off the right cheek's mirror`,
       );
   }
-  TestValidator.equals("the cheeks lie on the cheekbones", complaints, []);
+  checks.equals("the cheeks lie on the cheekbones", complaints, []);
 }
 
 /**
- * Every region of a body is an area: a disc about its point, reaching half
- * way to its nearest neighbour that faces the same way, no farther than its
- * segment allows and never smaller than the 10 mm contact tolerance.
+ * Every region of a body is an area: a disc about its point, reaching half way
+ * to its nearest neighbour that faces the same way, no farther than its segment
+ * allows and never smaller than the 10 mm contact tolerance.
  *
  * Scenarios, on the average man and the small woman:
- * 1. Every region has an extent of at least 10 mm.
- * 2. No two regions that face the same way overlap: their extents together
- *    are no more than the distance between their points, unless both sit at
- *    the 10 mm floor.
- * 3. A region and its mirror have the same extent.
  *
+ * 1. Every region has an extent of at least 10 mm.
+ * 2. No two regions that face the same way overlap: their extents together are no
+ *    more than the distance between their points, unless both sit at the 10 mm
+ *    floor.
+ * 3. A region and its mirror have the same extent.
  */
-function checkAnatomicalExtents(): void {
+function checkAnatomicalExtents(checks: motionComplaints.IGatherer): void {
   const findings: string[] = [];
   for (const name of ["m-average"] as const) {
     const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
@@ -294,5 +318,5 @@ function checkAnatomicalExtents(): void {
           findings.push(`${name} ${a.region} and ${b.region} overlap`);
     }
   }
-  TestValidator.equals("region extents", findings, []);
+  checks.equals("region extents", findings, []);
 }

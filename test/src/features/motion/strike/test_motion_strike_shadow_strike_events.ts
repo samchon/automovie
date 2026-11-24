@@ -3,8 +3,9 @@ import type {
   IAutoMovieMotionHumanSegment,
 } from "@automovie/interface";
 import { HumanChain, HumanPerformance } from "@automovie/motions";
-import { TestValidator } from "@nestia/e2e";
 
+import { everydayTake } from "../../internal/everydayTake";
+import { motionComplaints } from "../../internal/motionComplaints";
 import { motionHumanBody } from "../../internal/motionHumanBody";
 
 /**
@@ -17,69 +18,76 @@ import { motionHumanBody } from "../../internal/motionHumanBody";
  * @evidence contracts/development/testing.md#execution-ownership Builds two real-body performances through the public chain and reads their public authoring and playback methods.
  */
 export function test_motion_strike_shadow_strike_events(): void {
+  const checks: motionComplaints.IGatherer = motionComplaints();
   for (const name of ["f-small", "m-average"] as const) {
-    const chain = HumanChain.subject("actor").guard({ duration: 0.8 });
-    const kicking: boolean = name === "f-small";
-    const composition = kicking
-      ? chain
-          .kick({ technique: "round", at: { kind: "none" } })
-          .until({ share: 0.05 })
-          .kick({ technique: "round", at: { kind: "none", line: "low" } })
-      : chain.punch({
-          technique: "straight",
-          at: { kind: "none" },
-          feint: 0.6,
-        });
-    const film = new HumanPerformance({
-      seed: "shadow-events",
-      performers: [
-        {
-          subject: "actor",
-          body: motionHumanBody(name),
-          at: { x: 1, y: 0, z: 2 },
-          yaw: 27,
-          proficiency: { level: "trained" },
-        },
-      ],
-      composition: composition.node,
-    });
-    const segment: IAutoMovieMotionHumanSegment = film
-      .segments("actor")
-      .at(-1)!;
-    const seconds: number[] = segment.plan.events.map(
-      (event): number => segment.start + event.share * segment.plan.duration,
-    );
-    const shown = seconds.map((at: number) => film.pose("actor", at));
-    const authored: IAutoMovieMotionHumanPosture[] = seconds.map(
-      (at: number): IAutoMovieMotionHumanPosture => film.posture("actor", at),
-    );
-    const final: IAutoMovieMotionHumanPosture = authored.at(-1)!;
-    if (kicking)
-      TestValidator.predicate(
-        "both feet return to planted goals",
-        final.limbs.leftLeg?.planted === true &&
-          final.limbs.rightLeg?.planted === true,
+    try {
+      const chain = HumanChain.subject("actor").guard({ duration: 0.8 });
+      const kicking: boolean = name === "f-small";
+      const composition = kicking
+        ? chain
+            .kick({ technique: "round", at: { kind: "none" } })
+            .until({ share: 0.05 })
+            .kick({ technique: "round", at: { kind: "none", line: "low" } })
+        : chain.punch({
+            technique: "straight",
+            at: { kind: "none" },
+            feint: 0.6,
+          });
+      const film = new HumanPerformance({
+        seed: "shadow-events",
+        performers: [
+          {
+            subject: "actor",
+            body: motionHumanBody(name),
+            at: { x: 1, y: 0, z: 2 },
+            yaw: 27,
+            proficiency: { level: "trained" },
+          },
+        ],
+        composition: composition.node,
+      });
+      const segment: IAutoMovieMotionHumanSegment = film
+        .segments("actor")
+        .at(-1)!;
+      const seconds: number[] = segment.plan.events.map(
+        (event): number => segment.start + event.share * segment.plan.duration,
       );
-    else
-      TestValidator.predicate(
-        "the feint keeps both authored glove goals",
-        final.limbs.leftArm !== undefined && final.limbs.rightArm !== undefined,
+      const shown = seconds.map((at: number) => film.pose("actor", at));
+      const authored: IAutoMovieMotionHumanPosture[] = seconds.map(
+        (at: number): IAutoMovieMotionHumanPosture => film.posture("actor", at),
       );
-    TestValidator.equals(
-      "shadow-strike playback is independent of seek order",
-      [...seconds]
-        .reverse()
-        .map((at: number) => film.pose("actor", at))
-        .reverse(),
-      shown,
-    );
-    TestValidator.equals(
-      "raw authoring remains independently seekable",
-      [...seconds]
-        .reverse()
-        .map((at: number) => film.posture("actor", at))
-        .reverse(),
-      authored,
-    );
+      const final: IAutoMovieMotionHumanPosture = authored.at(-1)!;
+      if (kicking)
+        checks.check(
+          "both feet return to planted goals",
+          final.limbs.leftLeg?.planted === true &&
+            final.limbs.rightLeg?.planted === true,
+        );
+      else
+        checks.check(
+          "the feint keeps both authored glove goals",
+          final.limbs.leftArm !== undefined &&
+            final.limbs.rightArm !== undefined,
+        );
+      checks.equals(
+        "shadow-strike playback is independent of seek order",
+        [...seconds]
+          .reverse()
+          .map((at: number) => film.pose("actor", at))
+          .reverse(),
+        shown,
+      );
+      checks.equals(
+        "raw authoring remains independently seekable",
+        [...seconds]
+          .reverse()
+          .map((at: number) => film.posture("actor", at))
+          .reverse(),
+        authored,
+      );
+    } catch (error: unknown) {
+      checks.check(`${String(name)}: ${everydayTake.describe(error)}`, false);
+    }
   }
+  checks.assert("strike shadow strike events");
 }

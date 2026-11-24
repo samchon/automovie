@@ -17,9 +17,10 @@ import {
   HumanRefusal,
 } from "@automovie/motions";
 import { HumanFoot, HumanHand } from "@automovie/motions/internal";
-import { TestValidator } from "@nestia/e2e";
 
 import { assertTakeClean } from "../../internal/assertTakeClean";
+import { everydayTake } from "../../internal/everydayTake";
+import { motionComplaints } from "../../internal/motionComplaints";
 import { motionHumanBody } from "../../internal/motionHumanBody";
 
 /** The pool's water surface, world metres. */
@@ -38,19 +39,20 @@ const BAND: readonly [number, number] = [0.4, 1];
  * Distress, rescue and exit from the water, for two canonical bodies.
  *
  * Scenarios:
- * 1. A swimmer in the instinctive drowning response keeps the mouth within
- *    the band of the surface and the hands pressing under it, then goes under.
- * 2. A rescuer swims to the struggling victim, takes a cross-chest hold and
- *    tows it toward the edge inside the rescue band with its face clear.
- * 3. A victim beyond a rescuer's swim in the time allowed is refused with
- *    the distance.
- * 4. A swimmer at the pool wall loads both palms on the deck before rising,
- *    climbs out without entering the wall and stands on the deck; a deck too
- *    high above the water is refused.
- * 5. A rescuer on the deck grips a victim's wrists, lifts its hips to the
- *    deck and lets go; the victim lies on the deck without entering the wall,
- *    and the rescuer's feet stay planted on it; a deck too high to lift onto
- *    is refused.
+ *
+ * 1. A swimmer in the instinctive drowning response keeps the mouth within the
+ *    band of the surface and the hands pressing under it, then goes under.
+ * 2. A rescuer swims to the struggling victim, takes a cross-chest hold and tows
+ *    it toward the edge inside the rescue band with its face clear.
+ * 3. A victim beyond a rescuer's swim in the time allowed is refused with the
+ *    distance.
+ * 4. A swimmer at the pool wall loads both palms on the deck before rising, climbs
+ *    out without entering the wall and stands on the deck; a deck too high
+ *    above the water is refused.
+ * 5. A rescuer on the deck grips a victim's wrists, lifts its hips to the deck and
+ *    lets go; the victim lies on the deck without entering the wall, and the
+ *    rescuer's feet stay planted on it; a deck too high to lift onto is
+ *    refused.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names the four acts, both bodies, the bounds and the refusals.
  * @evidence contracts/development/testing.md#behavioral-verification Composes the registered aquatic kinds over a real pool edge and reads displayed head, hand, chest, hip and foot sites.
@@ -59,17 +61,57 @@ const BAND: readonly [number, number] = [0.4, 1];
  * @evidence contracts/development/testing.md#execution-ownership In-memory performances of generated bodies and one archetype.
  */
 export function test_motion_rescue_water_rescue(): void {
+  const checks: motionComplaints.IGatherer = motionComplaints();
   for (const profile of ["m-average", "f-average"] as const) {
-    const body: IAutoMovieMotionHumanBody = motionHumanBody(profile);
-    distress(body);
-    rescue(body);
-    exit(body);
-    liftOut(body);
+    try {
+      const body: IAutoMovieMotionHumanBody = motionHumanBody(profile);
+      try {
+        distress(checks, body);
+      } catch (error: unknown) {
+        checks.check(
+          `${String(profile)} distress: ${everydayTake.describe(error)}`,
+          false,
+        );
+      }
+      try {
+        rescue(checks, body);
+      } catch (error: unknown) {
+        checks.check(
+          `${String(profile)} rescue: ${everydayTake.describe(error)}`,
+          false,
+        );
+      }
+      try {
+        exit(checks, body);
+      } catch (error: unknown) {
+        checks.check(
+          `${String(profile)} exit: ${everydayTake.describe(error)}`,
+          false,
+        );
+      }
+      try {
+        liftOut(checks, body);
+      } catch (error: unknown) {
+        checks.check(
+          `${String(profile)} liftOut: ${everydayTake.describe(error)}`,
+          false,
+        );
+      }
+    } catch (error: unknown) {
+      checks.check(
+        `${String(profile)}: ${everydayTake.describe(error)}`,
+        false,
+      );
+    }
   }
+  checks.assert("rescue water rescue");
 }
 
 /** The struggle keeps the mouth at the surface until it goes under. */
-function distress(body: IAutoMovieMotionHumanBody): void {
+function distress(
+  checks: motionComplaints.IGatherer,
+  body: IAutoMovieMotionHumanBody,
+): void {
   const film: HumanPerformance = new HumanPerformance({
     seed: "distress",
     laws: [AutoMovieMotionHumanSwim.aquatic],
@@ -82,11 +124,11 @@ function distress(body: IAutoMovieMotionHumanBody): void {
   });
   const segment: IAutoMovieMotionHumanSegment = film.segments("victim")[0]!;
   const submerge: number = at(segment, "submerge");
-  TestValidator.predicate(
+  checks.check(
     "the struggle starts submerging at the authored seconds",
     Math.abs(submerge - 20) < 1e-6,
   );
-  assertTakeClean("the struggle passes the generic audit", film);
+  verdict(checks, "the struggle passes the generic audit", film);
   let mouth: number = 0;
   let hands: number = -Infinity;
   for (let i: number = 1; i <= 60; ++i) {
@@ -105,19 +147,22 @@ function distress(body: IAutoMovieMotionHumanBody): void {
       bones.get("rightHand")!.worldPosition.y,
     );
   }
-  TestValidator.predicate(
+  checks.check(
     `the mouth stays within the band of the surface (${mouth.toFixed(4)} m)`,
     mouth <= AutoMovieMotionHumanSwim.AquaticDistress.BAND + 0.01,
   );
-  TestValidator.predicate("the hands press under the surface", hands < WATER);
-  TestValidator.predicate(
+  checks.check("the hands press under the surface", hands < WATER);
+  checks.check(
     "the head goes under at the end",
     site(film, body, "victim", "crown", film.duration).y < WATER,
   );
 }
 
 /** The rescuer reaches the victim and tows it toward the edge. */
-function rescue(body: IAutoMovieMotionHumanBody): void {
+function rescue(
+  checks: motionComplaints.IGatherer,
+  body: IAutoMovieMotionHumanBody,
+): void {
   const take = (from: IAutoMovieVector3, seconds: number): HumanPerformance =>
     new HumanPerformance({
       seed: "rescue",
@@ -159,7 +204,7 @@ function rescue(body: IAutoMovieMotionHumanBody): void {
     });
   const film: HumanPerformance = take({ x: 1.5, y: WATER - 1.4, z: 6 }, 20);
   const tow: IAutoMovieMotionHumanSegment = film.segments("victim")[1]!;
-  assertTakeClean("the rescue passes the generic audit", film);
+  verdict(checks, "the rescue passes the generic audit", film);
   const begin: number = tow.start;
   const end: number = tow.start + tow.plan.duration;
   let clear: number = Infinity;
@@ -184,15 +229,15 @@ function rescue(body: IAutoMovieMotionHumanBody): void {
     film.bones("victim", begin).get("hips")!.worldPosition,
   );
   const speed: number = travel / (end - begin);
-  TestValidator.predicate(
+  checks.check(
     `the towed face stays clear of the water (${clear.toFixed(4)} m)`,
     clear > 0,
   );
-  TestValidator.predicate(
+  checks.check(
     `the rescuer's arm lies across the victim's chest (${hold.toFixed(4)} m)`,
     hold < 0.2,
   );
-  TestValidator.predicate(
+  checks.check(
     `the pair advances toward the edge inside the rescue band (${speed.toFixed(3)} m/s)`,
     speed >= BAND[0] &&
       speed <= BAND[1] &&
@@ -206,7 +251,7 @@ function rescue(body: IAutoMovieMotionHumanBody): void {
   } catch (error: unknown) {
     refusal = error;
   }
-  TestValidator.predicate(
+  checks.check(
     "a victim beyond the rescuer's swim is refused with the distance",
     refusal instanceof HumanRefusal &&
       refusal.axis === "partner" &&
@@ -215,7 +260,10 @@ function rescue(body: IAutoMovieMotionHumanBody): void {
 }
 
 /** The unaided exit loads the palms first and stands on the deck. */
-function exit(body: IAutoMovieMotionHumanBody): void {
+function exit(
+  checks: motionComplaints.IGatherer,
+  body: IAutoMovieMotionHumanBody,
+): void {
   const deck: number = WATER + 0.3;
   const edge: IAutoMovieMotionHumanProp = HumanObject.prop(
     "edge",
@@ -238,7 +286,7 @@ function exit(body: IAutoMovieMotionHumanBody): void {
     });
   const film: HumanPerformance = take(WATER);
   const segment: IAutoMovieMotionHumanSegment = film.segments("swimmer")[0]!;
-  assertTakeClean("the exit passes the generic audit", film);
+  verdict(checks, "the exit passes the generic audit", film);
   const hands: number = at(segment, "hands");
   const start: number = film.bones("swimmer", 0).get("hips")!.worldPosition.y;
   const palms: number = Math.max(
@@ -249,7 +297,7 @@ function exit(body: IAutoMovieMotionHumanBody): void {
       ),
     ),
   );
-  TestValidator.predicate(
+  checks.check(
     `both palms are on the deck before the body rises (${palms.toFixed(4)} m)`,
     palms < 0.03 &&
       Math.abs(
@@ -273,7 +321,7 @@ function exit(body: IAutoMovieMotionHumanBody): void {
       if (p.y < deck - 0.02) inside = Math.max(inside, -p.z);
     }
   }
-  TestValidator.predicate(
+  checks.check(
     `no joint below the deck enters the wall (${inside.toFixed(4)} m)`,
     inside < 0.02,
   );
@@ -286,7 +334,7 @@ function exit(body: IAutoMovieMotionHumanBody): void {
       Math.abs(HumanFoot.sockets(body, last, side)[1]!.point.y - deck),
     ),
   );
-  TestValidator.predicate(
+  checks.check(
     `the swimmer stands on the deck behind the edge (${sole.toFixed(4)} m)`,
     sole < 0.03 && last.get("hips")!.worldPosition.z < 0,
   );
@@ -297,14 +345,20 @@ function exit(body: IAutoMovieMotionHumanBody): void {
   } catch (error: unknown) {
     refusal = error;
   }
-  TestValidator.predicate(
+  checks.check(
     "a deck too high above the water is refused",
     refusal instanceof HumanRefusal && refusal.axis === "support",
   );
 }
 
-/** The assisted removal: wrists held before the hips rise, the victim laid on the deck. */
-function liftOut(body: IAutoMovieMotionHumanBody): void {
+/**
+ * The assisted removal: wrists held before the hips rise, the victim laid on
+ * the deck.
+ */
+function liftOut(
+  checks: motionComplaints.IGatherer,
+  body: IAutoMovieMotionHumanBody,
+): void {
   const deck: number = WATER + 0.3;
   const edge: IAutoMovieMotionHumanProp = HumanObject.prop(
     "edge",
@@ -340,7 +394,7 @@ function liftOut(body: IAutoMovieMotionHumanBody): void {
       },
     });
   const film: HumanPerformance = take(WATER);
-  assertTakeClean("the lift-out passes the generic audit", film);
+  verdict(checks, "the lift-out passes the generic audit", film);
   const rescuer: IAutoMovieMotionHumanSegment = film.segments("rescuer")[0]!;
   const victim: IAutoMovieMotionHumanSegment = film.segments("victim")[0]!;
   const grip: number = at(rescuer, "grip");
@@ -373,11 +427,11 @@ function liftOut(body: IAutoMovieMotionHumanBody): void {
       );
   }
   const rose: number = film.bones("victim", grip).get("hips")!.worldPosition.y;
-  TestValidator.predicate(
+  checks.check(
     `the rescuer holds the wrists from the grip to the release (${held.toFixed(4)} m)`,
     held < 0.08 && rose < WATER,
   );
-  TestValidator.predicate(
+  checks.check(
     "the victim's hips reach the deck while held",
     film.bones("victim", at(victim, "lifted")).get("hips")!.worldPosition.y >
       deck,
@@ -414,11 +468,11 @@ function liftOut(body: IAutoMovieMotionHumanBody): void {
         Math.abs(HumanFoot.sockets(body, own, side)[1]!.point.y - deck),
       );
   }
-  TestValidator.predicate(
+  checks.check(
     `no victim joint below the deck enters the wall (${inside.toFixed(4)} m)`,
     inside < 0.02,
   );
-  TestValidator.predicate(
+  checks.check(
     `the rescuer's soles stay on the deck (${sole.toFixed(4)} m)`,
     sole < 0.03,
   );
@@ -427,7 +481,7 @@ function liftOut(body: IAutoMovieMotionHumanBody): void {
     film.duration,
   );
   const chest: IAutoMovieVector3 = last.get("chest")!.worldPosition;
-  TestValidator.predicate(
+  checks.check(
     "the victim lies on the deck behind the edge",
     chest.z < 0 &&
       chest.y > deck &&
@@ -441,7 +495,7 @@ function liftOut(body: IAutoMovieMotionHumanBody): void {
   } catch (error: unknown) {
     refusal = error;
   }
-  TestValidator.predicate(
+  checks.check(
     "a deck too high to lift a victim onto is refused",
     refusal instanceof HumanRefusal && refusal.axis === "support",
   );
@@ -479,4 +533,20 @@ function at(segment: IAutoMovieMotionHumanSegment, name: string): number {
     segment.plan.duration *
       segment.plan.events.find((event): boolean => event.name === name)!.share
   );
+}
+
+/** Gather a take's shipped verdicts as one check. */
+function verdict(
+  checks: motionComplaints.IGatherer,
+  label: string,
+  film: HumanPerformance,
+): void {
+  try {
+    assertTakeClean(label, film);
+  } catch (error: unknown) {
+    checks.check(
+      `${label}: ${error instanceof Error ? error.message : String(error)}`,
+      false,
+    );
+  }
 }

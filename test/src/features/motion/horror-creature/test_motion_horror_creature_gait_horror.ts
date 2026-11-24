@@ -12,8 +12,9 @@ import {
   HumanChain,
   HumanPerformance,
 } from "@automovie/motions";
-import { TestValidator } from "@nestia/e2e";
 
+import { everydayTake } from "../../internal/everydayTake";
+import { motionComplaints } from "../../internal/motionComplaints";
 import { motionHumanBody } from "../../internal/motionHumanBody";
 
 /** The read bones of one frame. */
@@ -21,9 +22,16 @@ type Bones = Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
 
 /** Where every walk ends, metres ahead. */
 const AHEAD: IAutoMovieVector3 = { x: 0, y: 0, z: 4 };
-/** The largest knee flexion of a stiff knee, degrees: under the normal walk's peak swing flexion of about 60 degrees, which a stiff-knee gait does not reach (Perry and Burnfield 2010). */
+/**
+ * The largest knee flexion of a stiff knee, degrees: under the normal walk's
+ * peak swing flexion of about 60 degrees, which a stiff-knee gait does not
+ * reach (Perry and Burnfield 2010).
+ */
 const STIFF: number = 60;
-/** How far apart two strikes or two step periods are to read as different, seconds: a tenth of a 24 fps frame. */
+/**
+ * How far apart two strikes or two step periods are to read as different,
+ * seconds: a tenth of a 24 fps frame.
+ */
 const STEP: number = 1 / 240;
 /** Frames read per second. */
 const RATE: number = 30;
@@ -32,13 +40,14 @@ const RATE: number = 30;
  * Horror and fantasy gaits against an ordinary walk on the same course.
  *
  * Scenarios:
+ *
  * 1. The shamble's dragged foot rises less in swing than either foot of a walk.
  * 2. The lurch's stiff knee stays under the stiff threshold; the walk's knee
  *    passes it.
- * 3. The stalk's pelvis rides lower than the walk's by more than the
- *    walk's own rise and fall.
- * 4. Ten shamblers on one course, each at its own seeded pace: no two
- *    strike together at the same cadence.
+ * 3. The stalk's pelvis rides lower than the walk's by more than the walk's own
+ *    rise and fall.
+ * 4. Ten shamblers on one course, each at its own seeded pace: no two strike
+ *    together at the same cadence.
  * 5. Each holds on both canonical bodies.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States each signature, its comparison and its bound.
@@ -48,102 +57,110 @@ const RATE: number = 30;
  * @evidence contracts/development/testing.md#execution-ownership In-memory performances on polygon men.
  */
 export function test_motion_horror_creature_gait_horror(): void {
+  const checks: motionComplaints.IGatherer = motionComplaints();
   for (const cast of ["m-average", "f-small"] as const) {
-    const body: IAutoMovieMotionHumanBody = motionHumanBody(cast);
-    const play = (chain: IAutoMovieMotionHumanChain): HumanPerformance =>
-      new HumanPerformance({
-        seed: "horror-gait",
-        performers: [
-          {
-            subject: "a",
-            body,
-            at: { x: 0, y: 0, z: 0 },
-            yaw: 0,
-            proficiency: { level: "trained" },
-          },
-        ],
-        laws: [
-          AutoMovieMotionHumanHorrorCreature.HumanHorrorGait.shamble,
-          AutoMovieMotionHumanHorrorCreature.HumanHorrorGait.lurch,
-          AutoMovieMotionHumanHorrorCreature.HumanHorrorGait.stalk,
-        ],
-        composition: chain.node,
-      });
-    const frames = (film: HumanPerformance): Bones[] => {
-      const out: Bones[] = [];
-      for (let i: number = 0; i <= film.duration * RATE; ++i)
-        out.push(film.bones("a", i / RATE));
-      return out;
-    };
-    const walked: Bones[] = frames(
-      play(HumanChain.subject("a").walk({ to: AHEAD })),
-    );
-    const shambled: Bones[] = frames(
-      play(
-        HumanChain.subject("a").registered("shamble", {
-          to: AHEAD,
-          side: "right",
-        }),
-      ),
-    );
-    const lurched: Bones[] = frames(
-      play(
-        HumanChain.subject("a").registered("lurch", {
-          to: AHEAD,
-          side: "right",
-        }),
-      ),
-    );
-    const stalked: Bones[] = frames(
-      play(HumanChain.subject("a").registered("stalk", { to: AHEAD })),
-    );
-    const top = (bones: Bones[], bone: AutoMovieHumanoidBone): number =>
-      Math.max(
-        ...bones.map((one: Bones): number => one.get(bone)!.worldPosition.y),
+    try {
+      const body: IAutoMovieMotionHumanBody = motionHumanBody(cast);
+      const play = (chain: IAutoMovieMotionHumanChain): HumanPerformance =>
+        new HumanPerformance({
+          seed: "horror-gait",
+          performers: [
+            {
+              subject: "a",
+              body,
+              at: { x: 0, y: 0, z: 0 },
+              yaw: 0,
+              proficiency: { level: "trained" },
+            },
+          ],
+          laws: [
+            AutoMovieMotionHumanHorrorCreature.HumanHorrorGait.shamble,
+            AutoMovieMotionHumanHorrorCreature.HumanHorrorGait.lurch,
+            AutoMovieMotionHumanHorrorCreature.HumanHorrorGait.stalk,
+          ],
+          composition: chain.node,
+        });
+      const frames = (film: HumanPerformance): Bones[] => {
+        const out: Bones[] = [];
+        for (let i: number = 0; i <= film.duration * RATE; ++i)
+          out.push(film.bones("a", i / RATE));
+        return out;
+      };
+      const walked: Bones[] = frames(
+        play(HumanChain.subject("a").walk({ to: AHEAD })),
       );
-    // The middle half of a course, where the gait cruises.
-    const cruise = (bones: Bones[], bone: AutoMovieHumanoidBone): number[] =>
-      bones
-        .slice(Math.floor(bones.length / 4), Math.ceil((3 * bones.length) / 4))
-        .map((one: Bones): number => one.get(bone)!.worldPosition.y);
-    const mean = (bones: Bones[], bone: AutoMovieHumanoidBone): number => {
-      const heights: number[] = cruise(bones, bone);
-      return (
-        heights.reduce((sum: number, y: number): number => sum + y, 0) /
-        heights.length
-      );
-    };
-    // Half the rise and fall over the cruise.
-    const swing = (bones: Bones[], bone: AutoMovieHumanoidBone): number => {
-      const heights: number[] = cruise(bones, bone);
-      return (Math.max(...heights) - Math.min(...heights)) / 2;
-    };
-    const knee = (bones: Bones[], side: "left" | "right"): number =>
-      Math.max(
-        ...bones.map((one: Bones): number =>
-          flexion(
-            one.get(`${side}UpperLeg`)!.worldPosition,
-            one.get(`${side}LowerLeg`)!.worldPosition,
-            one.get(`${side}Foot`)!.worldPosition,
-          ),
+      const shambled: Bones[] = frames(
+        play(
+          HumanChain.subject("a").registered("shamble", {
+            to: AHEAD,
+            side: "right",
+          }),
         ),
       );
+      const lurched: Bones[] = frames(
+        play(
+          HumanChain.subject("a").registered("lurch", {
+            to: AHEAD,
+            side: "right",
+          }),
+        ),
+      );
+      const stalked: Bones[] = frames(
+        play(HumanChain.subject("a").registered("stalk", { to: AHEAD })),
+      );
+      const top = (bones: Bones[], bone: AutoMovieHumanoidBone): number =>
+        Math.max(
+          ...bones.map((one: Bones): number => one.get(bone)!.worldPosition.y),
+        );
+      // The middle half of a course, where the gait cruises.
+      const cruise = (bones: Bones[], bone: AutoMovieHumanoidBone): number[] =>
+        bones
+          .slice(
+            Math.floor(bones.length / 4),
+            Math.ceil((3 * bones.length) / 4),
+          )
+          .map((one: Bones): number => one.get(bone)!.worldPosition.y);
+      const mean = (bones: Bones[], bone: AutoMovieHumanoidBone): number => {
+        const heights: number[] = cruise(bones, bone);
+        return (
+          heights.reduce((sum: number, y: number): number => sum + y, 0) /
+          heights.length
+        );
+      };
+      // Half the rise and fall over the cruise.
+      const swing = (bones: Bones[], bone: AutoMovieHumanoidBone): number => {
+        const heights: number[] = cruise(bones, bone);
+        return (Math.max(...heights) - Math.min(...heights)) / 2;
+      };
+      const knee = (bones: Bones[], side: "left" | "right"): number =>
+        Math.max(
+          ...bones.map((one: Bones): number =>
+            flexion(
+              one.get(`${side}UpperLeg`)!.worldPosition,
+              one.get(`${side}LowerLeg`)!.worldPosition,
+              one.get(`${side}Foot`)!.worldPosition,
+            ),
+          ),
+        );
 
-    TestValidator.predicate(
-      cast + " shamble drags its foot lower than a walk lifts either",
-      top(shambled, "rightFoot") <
-        Math.min(top(walked, "leftFoot"), top(walked, "rightFoot")),
-    );
-    TestValidator.predicate(
-      cast +
-        ` lurch keeps its stiff knee under the threshold the walk passes (${knee(lurched, "right").toFixed(1)}, ${knee(walked, "right").toFixed(1)})`,
-      knee(lurched, "right") < STIFF && knee(walked, "right") > STIFF,
-    );
-    TestValidator.predicate(
-      cast +
-        ` stalk rides lower than a walk (${mean(walked, "hips").toFixed(3)}, ${mean(stalked, "hips").toFixed(3)})`,
-      mean(walked, "hips") - mean(stalked, "hips") > swing(walked, "hips"),
-    );
+      checks.check(
+        cast + " shamble drags its foot lower than a walk lifts either",
+        top(shambled, "rightFoot") <
+          Math.min(top(walked, "leftFoot"), top(walked, "rightFoot")),
+      );
+      checks.check(
+        cast +
+          ` lurch keeps its stiff knee under the threshold the walk passes (${knee(lurched, "right").toFixed(1)}, ${knee(walked, "right").toFixed(1)})`,
+        knee(lurched, "right") < STIFF && knee(walked, "right") > STIFF,
+      );
+      checks.check(
+        cast +
+          ` stalk rides lower than a walk (${mean(walked, "hips").toFixed(3)}, ${mean(stalked, "hips").toFixed(3)})`,
+        mean(walked, "hips") - mean(stalked, "hips") > swing(walked, "hips"),
+      );
+    } catch (error: unknown) {
+      checks.check(`${String(cast)}: ${everydayTake.describe(error)}`, false);
+    }
   }
 
   // Ten shamblers: no two strike the floor first at the same instant.
@@ -186,7 +203,7 @@ export function test_motion_horror_creature_gait_horror(): void {
       return [strikes[2]!, strikes[3]! - strikes[2]!];
     },
   );
-  TestValidator.predicate(
+  checks.check(
     "no two shamblers move in step",
     steps.every(([a, p]: [number, number], i: number): boolean =>
       steps.every(
@@ -195,6 +212,7 @@ export function test_motion_horror_creature_gait_horror(): void {
       ),
     ),
   );
+  checks.assert("horror creature gait horror");
 }
 
 /** The knee's flexion from the hip, knee and ankle joints, degrees. */

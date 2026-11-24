@@ -19,9 +19,10 @@ import {
   HumanPerformance,
   HumanRefusal,
 } from "@automovie/motions";
-import { TestValidator } from "@nestia/e2e";
 
 import { assertTakeClean } from "../../internal/assertTakeClean";
+import { everydayTake } from "../../internal/everydayTake";
+import { motionComplaints } from "../../internal/motionComplaints";
 import { motionHumanBody } from "../../internal/motionHumanBody";
 
 /** The rigid custody bound: a worn item's drift on its bone, metres. */
@@ -35,11 +36,17 @@ interface ICase {
   /** The partner's region. */
   region: AutoMovieHumanoidRegion;
 
-  /** Whether the partner kneels to receive it, as a crown is received; otherwise the partner presents the left hand, as a wrist is dressed. */
+  /**
+   * Whether the partner kneels to receive it, as a crown is received; otherwise
+   * the partner presents the left hand, as a wrist is dressed.
+   */
   kneels: boolean;
 }
 
-/** How long the partner keeps the receiving pose, seconds: past the dresser's pick-up and carry. */
+/**
+ * How long the partner keeps the receiving pose, seconds: past the dresser's
+ * pick-up and carry.
+ */
 const RECEIVE: number = 4;
 
 /** The partner's receiving action's anchor, which the dresser waits for. */
@@ -48,21 +55,25 @@ const RECEIVING: string = "receiving";
 /** How far apart the two stand, metres, where nothing else asks more. */
 const APART: number = 0.55;
 
-/** The skin a hand may lie within on another body, metres: the audit's 10 mm partner bound. */
+/**
+ * The skin a hand may lie within on another body, metres: the audit's 10 mm
+ * partner bound.
+ */
 const SKIN: number = 0.01;
 
 /**
  * A held wearable passes from the dresser's hand to the partner's body.
  *
  * Scenarios, for a hat on the partner's kneeling crown and a watch on the
- * partner's presented left wrist, with the average man dressing the small
- * woman and the reverse; the dresser waits until the partner has knelt or
- * presented the hand, since the dresser reads the region where it is as the
- * dressing starts:
- * 1. The dresser's grip on the item ends at the arm phrase's stroke and the
- *    item is worn on the partner's bone under the region from then.
- * 2. The worn item keeps its offset on the partner's bone through the rest
- *    of the take, while the partner turns.
+ * partner's presented left wrist, with the average man dressing the small woman
+ * and the reverse; the dresser waits until the partner has knelt or presented
+ * the hand, since the dresser reads the region where it is as the dressing
+ * starts:
+ *
+ * 1. The dresser's grip on the item ends at the arm phrase's stroke and the item
+ *    is worn on the partner's bone under the region from then.
+ * 2. The worn item keeps its offset on the partner's bone through the rest of the
+ *    take, while the partner turns.
  * 3. Naming the dresser as the partner is refused.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the custody change, the cases and the refusal.
@@ -72,6 +83,7 @@ const SKIN: number = 0.01;
  * @evidence contracts/development/testing.md#execution-ownership An in-memory two-performer performance through the public chain.
  */
 export function test_motion_get_dressed_dress_partner(): void {
+  const checks: motionComplaints.IGatherer = motionComplaints();
   const cases: readonly ICase[] = [
     { kind: "hat", region: "crown", kneels: true },
     { kind: "watch", region: "wristLeft", kneels: false },
@@ -79,57 +91,67 @@ export function test_motion_get_dressed_dress_partner(): void {
   for (const [dresser, dressed] of [
     ["m-average", "f-small"],
     ["f-small", "m-average"],
-  ] as const)
-    for (const item of cases) {
-      const a: IAutoMovieMotionHumanBody = motionHumanBody(dresser);
-      const b: IAutoMovieMotionHumanBody = motionHumanBody(dressed);
-      const model: AutoMovieArchetype<
-        createWearable.Affordance,
-        createWearable.Dimension
-      > = createWearable({ kind: item.kind });
-      const film: HumanPerformance = stage(a, b, model, item, "b");
-      assertTakeClean(`${dresser} dresses ${dressed}: ${item.kind}`, film);
-      const dress: IAutoMovieMotionHumanSegment = film
-        .segments("a")
-        .find(
-          (segment: IAutoMovieMotionHumanSegment): boolean =>
-            segment.name === "dressPartner",
-        )!;
-      const worn: number = event(dress, "stroke");
-      const grip: IAutoMovieMotionHumanContactWindow | undefined =
-        dress.plan.contacts.find(
-          (window: IAutoMovieMotionHumanContactWindow): boolean =>
-            window.kind === "grip" &&
-            window.support.kind === "prop" &&
-            window.support.subject === "item",
-        );
-      const label: string = `${dresser} dresses ${dressed} with a ${item.kind}`;
-      TestValidator.predicate(
-        `${label}: the grip ends as the item is worn`,
-        grip !== undefined &&
-          Math.abs(dress.start + grip.to * dress.plan.duration - worn) <= 1e-9,
-      );
-      const bone: AutoMovieHumanoidBone = b.surfaces.regions[item.region].bone;
-      const first: IAutoMovieVector3 = local(
-        film.prop("item", worn + 0.01),
-        film.bones("b", worn + 0.01).get(bone)!,
-      );
-      const drifts: readonly number[] = [0.5, 1].map(
-        (share: number): number => {
-          const t: number = worn + share * (film.duration - worn);
-          return Vector3.distance(
-            local(film.prop("item", t), film.bones("b", t).get(bone)!),
-            first,
+  ] as const) {
+    try {
+      for (const item of cases) {
+        const a: IAutoMovieMotionHumanBody = motionHumanBody(dresser);
+        const b: IAutoMovieMotionHumanBody = motionHumanBody(dressed);
+        const model: AutoMovieArchetype<
+          createWearable.Affordance,
+          createWearable.Dimension
+        > = createWearable({ kind: item.kind });
+        const film: HumanPerformance = stage(a, b, model, item, "b");
+        verdict(checks, `${dresser} dresses ${dressed}: ${item.kind}`, film);
+        const dress: IAutoMovieMotionHumanSegment = film
+          .segments("a")
+          .find(
+            (segment: IAutoMovieMotionHumanSegment): boolean =>
+              segment.name === "dressPartner",
+          )!;
+        const worn: number = event(dress, "stroke");
+        const grip: IAutoMovieMotionHumanContactWindow | undefined =
+          dress.plan.contacts.find(
+            (window: IAutoMovieMotionHumanContactWindow): boolean =>
+              window.kind === "grip" &&
+              window.support.kind === "prop" &&
+              window.support.subject === "item",
           );
-        },
-      );
-      TestValidator.predicate(
-        `${label}: the item rides the partner's bone (${drifts.map((d: number): string => (d * 1000).toFixed(2)).join(", ")} mm)`,
-        drifts.every((d: number): boolean => d <= RIGID),
+        const label: string = `${dresser} dresses ${dressed} with a ${item.kind}`;
+        checks.check(
+          `${label}: the grip ends as the item is worn`,
+          grip !== undefined &&
+            Math.abs(dress.start + grip.to * dress.plan.duration - worn) <=
+              1e-9,
+        );
+        const bone: AutoMovieHumanoidBone =
+          b.surfaces.regions[item.region].bone;
+        const first: IAutoMovieVector3 = local(
+          film.prop("item", worn + 0.01),
+          film.bones("b", worn + 0.01).get(bone)!,
+        );
+        const drifts: readonly number[] = [0.5, 1].map(
+          (share: number): number => {
+            const t: number = worn + share * (film.duration - worn);
+            return Vector3.distance(
+              local(film.prop("item", t), film.bones("b", t).get(bone)!),
+              first,
+            );
+          },
+        );
+        checks.check(
+          `${label}: the item rides the partner's bone (${drifts.map((d: number): string => (d * 1000).toFixed(2)).join(", ")} mm)`,
+          drifts.every((d: number): boolean => d <= RIGID),
+        );
+      }
+    } catch (error: unknown) {
+      checks.check(
+        `${String(dresser)} ${String(dressed)}: ${everydayTake.describe(error)}`,
+        false,
       );
     }
+  }
   const self: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
-  TestValidator.predicate(
+  checks.check(
     "dressing oneself is refused",
     (() => {
       try {
@@ -146,6 +168,7 @@ export function test_motion_get_dressed_dress_partner(): void {
       }
     })(),
   );
+  checks.assert("get dressed dress partner");
 }
 
 /** The dresser `a` takes the item and dresses `partner`, then `b` turns. */
@@ -272,4 +295,20 @@ function local(
     Quaternion.inverse(bone.worldRotation),
     Vector3.subtract(prop.position, bone.worldPosition),
   );
+}
+
+/** Gather a take's shipped verdicts as one check. */
+function verdict(
+  checks: motionComplaints.IGatherer,
+  label: string,
+  film: HumanPerformance,
+): void {
+  try {
+    assertTakeClean(label, film);
+  } catch (error: unknown) {
+    checks.check(
+      `${label}: ${error instanceof Error ? error.message : String(error)}`,
+      false,
+    );
+  }
 }

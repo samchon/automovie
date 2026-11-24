@@ -15,19 +15,26 @@ import {
   HumanPerformance,
   HumanRefusal,
 } from "@automovie/motions";
-import { TestValidator } from "@nestia/e2e";
 
 import { assertTakeClean } from "../../internal/assertTakeClean";
+import { everydayTake } from "../../internal/everydayTake";
+import { motionComplaints } from "../../internal/motionComplaints";
 import { motionHumanBody } from "../../internal/motionHumanBody";
 
 const { sitOnLap } = AutoMovieMotionHumanTouch;
 
-/** How near the sitter's seat comes to the top of the lap, metres: the seat socket's own depth under the buttocks and a skin contact (provisional). */
+/**
+ * How near the sitter's seat comes to the top of the lap, metres: the seat
+ * socket's own depth under the buttocks and a skin contact (provisional).
+ */
 const LAP: number = 0.03;
 
 /** How near the partner's seat stays to the chair, metres: the same contact. */
 
-/** How far ahead of the lap's front edge the sitter waits, facing away, metres (staging: clear of the partner leaning forward to sit). */
+/**
+ * How far ahead of the lap's front edge the sitter waits, facing away, metres
+ * (staging: clear of the partner leaning forward to sit).
+ */
 const APPROACH: number = 0.32;
 const CHAIR: number = 0.03;
 
@@ -43,10 +50,11 @@ interface IPair {
 /**
  * Sitting on a seated partner's lap and getting off (#4012).
  *
- * Scenarios, the small woman and the average man each on an average man's
- * lap, each take clean:
- * 1. Once seated, the sitter's seat lies on the top of the partner's
- *    thighs, and the partner's own seat still on the chair.
+ * Scenarios, the small woman and the average man each on an average man's lap,
+ * each take clean:
+ *
+ * 1. Once seated, the sitter's seat lies on the top of the partner's thighs, and
+ *    the partner's own seat still on the chair.
  * 2. The sitter's seat bears on the partner's two thighs, half each.
  * 3. The sitter gets off by rising, back on the feet.
  * 4. A lap sit on a standing partner is refused.
@@ -58,56 +66,61 @@ interface IPair {
  * @evidence contracts/development/testing.md#execution-ownership In-memory two-performer performances through the public chain.
  */
 export function test_motion_touch_lap_sit(): void {
+  const checks: motionComplaints.IGatherer = motionComplaints();
   const pairs: readonly IPair[] = [
     { sitter: "f-small", partner: "m-average" },
     { sitter: "m-average", partner: "m-average" },
   ];
   for (const pair of pairs) {
-    const label: string = `${pair.sitter} sits on ${pair.partner}'s lap`;
-    const a: IAutoMovieMotionHumanBody = motionHumanBody(pair.sitter);
-    const b: IAutoMovieMotionHumanBody = motionHumanBody(pair.partner);
-    const { film, chair }: IScene = scene(a, b, true);
-    assertTakeClean(label, film);
-    const sat: IAutoMovieMotionHumanSegment = film
-      .segments("a")
-      .find(
-        (s: IAutoMovieMotionHumanSegment): boolean => s.name === "sitOnLap",
-      )!;
-    const at: number = sat.end;
-    const lap: IAutoMovieVector3 = Vector3.lerp(
-      region(film, "b", b, "thighFrontLeft", at),
-      region(film, "b", b, "thighFrontRight", at),
-      0.5,
-    );
-    const seat: IAutoMovieVector3 = socket(film, "a", a, at);
-    TestValidator.predicate(
-      `${label}: the sitter's seat lies on the lap (${((seat.y - lap.y) * 1000).toFixed(0)} mm above it)`,
-      Math.abs(seat.y - lap.y) <= LAP,
-    );
-    const own: IAutoMovieVector3 = socket(film, "b", b, at);
-    TestValidator.predicate(
-      `${label}: the partner's seat still bears on the chair (${((own.y - chair.y) * 1000).toFixed(0)} mm)`,
-      Math.abs(own.y - chair.y) <= CHAIR,
-    );
-    const windows: readonly IAutoMovieMotionHumanContactWindow[] =
-      sat.plan.contacts.filter(
-        (w: IAutoMovieMotionHumanContactWindow): boolean => w.part === "seat",
+    try {
+      const label: string = `${pair.sitter} sits on ${pair.partner}'s lap`;
+      const a: IAutoMovieMotionHumanBody = motionHumanBody(pair.sitter);
+      const b: IAutoMovieMotionHumanBody = motionHumanBody(pair.partner);
+      const { film, chair }: IScene = scene(a, b, true);
+      verdict(checks, label, film);
+      const sat: IAutoMovieMotionHumanSegment = film
+        .segments("a")
+        .find(
+          (s: IAutoMovieMotionHumanSegment): boolean => s.name === "sitOnLap",
+        )!;
+      const at: number = sat.end;
+      const lap: IAutoMovieVector3 = Vector3.lerp(
+        region(film, "b", b, "thighFrontLeft", at),
+        region(film, "b", b, "thighFrontRight", at),
+        0.5,
       );
-    TestValidator.predicate(
-      `${label}: the seat bears on the partner's two thighs`,
-      windows.length === 2 &&
-        windows.every(
-          (w: IAutoMovieMotionHumanContactWindow): boolean =>
-            w.support.kind === "person" && w.support.subject === "b",
-        ),
-    );
-    const end: number = film.duration;
-    TestValidator.predicate(
-      `${label}: the sitter is back on the feet`,
-      socket(film, "a", a, end).y > lap.y + a.measure.thigh / 2,
-    );
+      const seat: IAutoMovieVector3 = socket(film, "a", a, at);
+      checks.check(
+        `${label}: the sitter's seat lies on the lap (${((seat.y - lap.y) * 1000).toFixed(0)} mm above it)`,
+        Math.abs(seat.y - lap.y) <= LAP,
+      );
+      const own: IAutoMovieVector3 = socket(film, "b", b, at);
+      checks.check(
+        `${label}: the partner's seat still bears on the chair (${((own.y - chair.y) * 1000).toFixed(0)} mm)`,
+        Math.abs(own.y - chair.y) <= CHAIR,
+      );
+      const windows: readonly IAutoMovieMotionHumanContactWindow[] =
+        sat.plan.contacts.filter(
+          (w: IAutoMovieMotionHumanContactWindow): boolean => w.part === "seat",
+        );
+      checks.check(
+        `${label}: the seat bears on the partner's two thighs`,
+        windows.length === 2 &&
+          windows.every(
+            (w: IAutoMovieMotionHumanContactWindow): boolean =>
+              w.support.kind === "person" && w.support.subject === "b",
+          ),
+      );
+      const end: number = film.duration;
+      checks.check(
+        `${label}: the sitter is back on the feet`,
+        socket(film, "a", a, end).y > lap.y + a.measure.thigh / 2,
+      );
+    } catch (error: unknown) {
+      checks.check(`${String(pair)}: ${everydayTake.describe(error)}`, false);
+    }
   }
-  TestValidator.predicate(
+  checks.check(
     "sitting on a standing partner's lap is refused",
     (() => {
       try {
@@ -122,6 +135,7 @@ export function test_motion_touch_lap_sit(): void {
       }
     })(),
   );
+  checks.assert("touch lap sit");
 }
 
 /** One staged lap sit and the partner's chair. */
@@ -220,4 +234,20 @@ function region(
     body.surfaces.regions[name],
     film.bones(subject, t).get(body.surfaces.regions[name].bone)!,
   ).point;
+}
+
+/** Gather a take's shipped verdicts as one check. */
+function verdict(
+  checks: motionComplaints.IGatherer,
+  label: string,
+  film: HumanPerformance,
+): void {
+  try {
+    assertTakeClean(label, film);
+  } catch (error: unknown) {
+    checks.check(
+      `${label}: ${error instanceof Error ? error.message : String(error)}`,
+      false,
+    );
+  }
 }

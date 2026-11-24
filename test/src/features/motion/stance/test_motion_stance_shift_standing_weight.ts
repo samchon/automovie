@@ -15,8 +15,9 @@ import {
   HumanRefusal,
 } from "@automovie/motions";
 import { HumanFrame } from "@automovie/motions/internal";
-import { TestValidator } from "@nestia/e2e";
 
+import { everydayTake } from "../../internal/everydayTake";
+import { motionComplaints } from "../../internal/motionComplaints";
 import { motionHumanBody } from "../../internal/motionHumanBody";
 import { nclose, qclose, vclose } from "../../internal/predicates";
 
@@ -24,11 +25,12 @@ import { nclose, qclose, vclose } from "../../internal/predicates";
  * A standing performer shifts the pelvis sideways with both feet fixed.
  *
  * Scenarios:
- * 1. The average man and small woman each shift 20 mm left and right at
- *    a 37 degree heading. The intermediate point lies between entry and
- *    target. During the hold the pelvis is shifted by exactly the request.
- * 2. Both shifts keep each displayed foot fixed throughout the witnesses.
- *    The left shift returns. The right shift finishes held.
+ *
+ * 1. The average man and small woman each shift 20 mm left and right at a 37
+ *    degree heading. The intermediate point lies between entry and target.
+ *    During the hold the pelvis is shifted by exactly the request.
+ * 2. Both shifts keep each displayed foot fixed throughout the witnesses. The left
+ *    shift returns. The right shift finishes held.
  * 3. A one-metre request on the same body is refused on the distance axis.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the movement, two bodies, and the successful and refused scenarios.
@@ -38,138 +40,143 @@ import { nclose, qclose, vclose } from "../../internal/predicates";
  * @evidence contracts/development/testing.md#execution-ownership Builds short performances of two polygon men in memory.
  */
 export function test_motion_stance_shift_standing_weight(): void {
+  const checks: motionComplaints.IGatherer = motionComplaints();
   const yaw: number = 37;
   for (const name of ["m-average", "f-small"] as const) {
-    const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
-    const perform = (
-      params: IAutoMovieMotionHumanShiftStandingWeight,
-    ): IAutoMovieMotionHumanPerformance =>
-      new HumanPerformance({
-        seed: "planted-shift",
-        performers: [
-          {
-            subject: "actor",
-            body,
-            at: { x: 1, y: 0, z: -1 },
-            yaw,
-            proficiency: { level: "trained" },
-          },
-        ],
-        laws: [AutoMovieMotionHumanStance.shiftStandingWeight],
-        composition: HumanChain.subject("actor")
-          .stand({ hold: 0.6, sway: 0 })
-          .registered("shiftStandingWeight", params).node,
-      });
-
-    for (const by of [-0.02, 0.02] as const) {
-      const returns: boolean = by > 0;
-      const performance: IAutoMovieMotionHumanPerformance = perform({
-        by,
-        duration: 0.8,
-        hold: 0.3,
-        ...(returns ? { returnSeconds: 0.6 } : {}),
-      });
-      const shift: IAutoMovieMotionHumanSegment =
-        performance.segments("actor")[1]!;
-      const start: number = shift.start;
-      const centre = (
-        bones: ReturnType<typeof performance.bones>,
-      ): IAutoMovieVector3 => {
-        const left: IAutoMovieVector3 =
-          bones.get("leftUpperLeg")!.worldPosition;
-        const right: IAutoMovieVector3 =
-          bones.get("rightUpperLeg")!.worldPosition;
-        return {
-          x: (left.x + right.x) / 2,
-          y: (left.y + right.y) / 2,
-          z: (left.z + right.z) / 2,
-        };
-      };
-      const initial: ReturnType<typeof performance.bones> = performance.bones(
-        "actor",
-        start,
-      );
-      const heldAt: number = start + 0.95;
-      const heldBones: ReturnType<typeof performance.bones> = performance.bones(
-        "actor",
-        heldAt,
-      );
-      const finalBones: ReturnType<typeof performance.bones> =
-        performance.bones("actor", shift.end);
-      const frame: IAutoMovieMotionHumanFrame = {
-        origin: centre(initial),
-        yaw,
-      };
-      const halfway: IAutoMovieVector3 = HumanFrame.local(
-        frame,
-        centre(performance.bones("actor", start + 0.4)),
-      );
-      const held: IAutoMovieVector3 = HumanFrame.local(
-        frame,
-        centre(heldBones),
-      );
-      const final: IAutoMovieVector3 = HumanFrame.local(
-        frame,
-        centre(finalBones),
-      );
-      TestValidator.predicate(
-        name + " signed shift with stationary height and heading",
-        halfway.x / by > 0.1 &&
-          halfway.x / by < 0.9 &&
-          vclose(held, { x: by, y: 0, z: 0 }, 0.001) &&
-          vclose(final, { x: returns ? 0 : by, y: 0, z: 0 }, 0.001),
-      );
-
-      for (const [time, bones] of [
-        [start + 0.19, performance.bones("actor", start + 0.19)],
-        [start + 0.73, performance.bones("actor", start + 0.73)],
-        [heldAt, heldBones],
-        [shift.end, finalBones],
-      ] as const) {
-        for (const foot of ["leftFoot", "rightFoot"] as const) {
-          const a: IAutoMovieResolvedBone = initial.get(foot)!;
-          const b: IAutoMovieResolvedBone = bones.get(foot)!;
-          TestValidator.predicate(
-            name + " fixes " + foot + " at " + time,
-            vclose(b.worldPosition, a.worldPosition, 0.004) &&
-              qclose(b.worldRotation, a.worldRotation, 0.00002),
-          );
-        }
-      }
-      const eventTime = (name: string): number | undefined => {
-        const event: IAutoMovieMotionEvent | undefined = shift.plan.events.find(
-          (candidate: IAutoMovieMotionEvent): boolean =>
-            candidate.name === name,
-        );
-        return event === undefined
-          ? undefined
-          : event.share * shift.plan.duration;
-      };
-      const shifted: number | undefined = eventTime("shifted");
-      const release: number | undefined = eventTime("release");
-      const returned: number | undefined = eventTime("returned");
-      TestValidator.predicate(
-        name + " declares the authored phase boundaries",
-        shifted !== undefined &&
-          nclose(shifted, 0.8) &&
-          (returns
-            ? release !== undefined &&
-              returned !== undefined &&
-              nclose(release, 1.1) &&
-              nclose(returned, 1.7)
-            : release === undefined && returned === undefined),
-      );
-    }
-
-    let refused: unknown;
     try {
-      perform({ by: 1 });
-    } catch (error) {
-      refused = error;
+      const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
+      const perform = (
+        params: IAutoMovieMotionHumanShiftStandingWeight,
+      ): IAutoMovieMotionHumanPerformance =>
+        new HumanPerformance({
+          seed: "planted-shift",
+          performers: [
+            {
+              subject: "actor",
+              body,
+              at: { x: 1, y: 0, z: -1 },
+              yaw,
+              proficiency: { level: "trained" },
+            },
+          ],
+          laws: [AutoMovieMotionHumanStance.shiftStandingWeight],
+          composition: HumanChain.subject("actor")
+            .stand({ hold: 0.6, sway: 0 })
+            .registered("shiftStandingWeight", params).node,
+        });
+
+      for (const by of [-0.02, 0.02] as const) {
+        const returns: boolean = by > 0;
+        const performance: IAutoMovieMotionHumanPerformance = perform({
+          by,
+          duration: 0.8,
+          hold: 0.3,
+          ...(returns ? { returnSeconds: 0.6 } : {}),
+        });
+        const shift: IAutoMovieMotionHumanSegment =
+          performance.segments("actor")[1]!;
+        const start: number = shift.start;
+        const centre = (
+          bones: ReturnType<typeof performance.bones>,
+        ): IAutoMovieVector3 => {
+          const left: IAutoMovieVector3 =
+            bones.get("leftUpperLeg")!.worldPosition;
+          const right: IAutoMovieVector3 =
+            bones.get("rightUpperLeg")!.worldPosition;
+          return {
+            x: (left.x + right.x) / 2,
+            y: (left.y + right.y) / 2,
+            z: (left.z + right.z) / 2,
+          };
+        };
+        const initial: ReturnType<typeof performance.bones> = performance.bones(
+          "actor",
+          start,
+        );
+        const heldAt: number = start + 0.95;
+        const heldBones: ReturnType<typeof performance.bones> =
+          performance.bones("actor", heldAt);
+        const finalBones: ReturnType<typeof performance.bones> =
+          performance.bones("actor", shift.end);
+        const frame: IAutoMovieMotionHumanFrame = {
+          origin: centre(initial),
+          yaw,
+        };
+        const halfway: IAutoMovieVector3 = HumanFrame.local(
+          frame,
+          centre(performance.bones("actor", start + 0.4)),
+        );
+        const held: IAutoMovieVector3 = HumanFrame.local(
+          frame,
+          centre(heldBones),
+        );
+        const final: IAutoMovieVector3 = HumanFrame.local(
+          frame,
+          centre(finalBones),
+        );
+        checks.check(
+          name + " signed shift with stationary height and heading",
+          halfway.x / by > 0.1 &&
+            halfway.x / by < 0.9 &&
+            vclose(held, { x: by, y: 0, z: 0 }, 0.001) &&
+            vclose(final, { x: returns ? 0 : by, y: 0, z: 0 }, 0.001),
+        );
+
+        for (const [time, bones] of [
+          [start + 0.19, performance.bones("actor", start + 0.19)],
+          [start + 0.73, performance.bones("actor", start + 0.73)],
+          [heldAt, heldBones],
+          [shift.end, finalBones],
+        ] as const) {
+          for (const foot of ["leftFoot", "rightFoot"] as const) {
+            const a: IAutoMovieResolvedBone = initial.get(foot)!;
+            const b: IAutoMovieResolvedBone = bones.get(foot)!;
+            checks.check(
+              name + " fixes " + foot + " at " + time,
+              vclose(b.worldPosition, a.worldPosition, 0.004) &&
+                qclose(b.worldRotation, a.worldRotation, 0.00002),
+            );
+          }
+        }
+        const eventTime = (name: string): number | undefined => {
+          const event: IAutoMovieMotionEvent | undefined =
+            shift.plan.events.find(
+              (candidate: IAutoMovieMotionEvent): boolean =>
+                candidate.name === name,
+            );
+          return event === undefined
+            ? undefined
+            : event.share * shift.plan.duration;
+        };
+        const shifted: number | undefined = eventTime("shifted");
+        const release: number | undefined = eventTime("release");
+        const returned: number | undefined = eventTime("returned");
+        checks.check(
+          name + " declares the authored phase boundaries",
+          shifted !== undefined &&
+            nclose(shifted, 0.8) &&
+            (returns
+              ? release !== undefined &&
+                returned !== undefined &&
+                nclose(release, 1.1) &&
+                nclose(returned, 1.7)
+              : release === undefined && returned === undefined),
+        );
+      }
+
+      let refused: unknown;
+      try {
+        perform({ by: 1 });
+      } catch (error) {
+        refused = error;
+      }
+      checks.check(
+        name + " refuses a shift outside the fixed-foot stance",
+        refused instanceof HumanRefusal && refused.axis === "by",
+      );
+    } catch (error: unknown) {
+      checks.check(`${String(name)}: ${everydayTake.describe(error)}`, false);
     }
-    TestValidator.predicate(
-      name + " refuses a shift outside the fixed-foot stance",
-      refused instanceof HumanRefusal && refused.axis === "by",
-    );
   }
+  checks.assert("stance shift standing weight");
 }

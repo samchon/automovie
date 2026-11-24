@@ -19,27 +19,29 @@ import {
   HumanRefusal,
 } from "@automovie/motions";
 import { HumanFoot, HumanSport } from "@automovie/motions/internal";
-import { TestValidator } from "@nestia/e2e";
 
 import { assertTakeClean } from "../../internal/assertTakeClean";
+import { everydayTake } from "../../internal/everydayTake";
+import { motionComplaints } from "../../internal/motionComplaints";
 import { motionHumanBody } from "../../internal/motionHumanBody";
 
 /**
  * Seat a sprint start's feet on a placed starting block's plates.
  *
  * Scenarios:
- * 1. On a block set to the athlete's own body-scaled set (its front plate's
- *    lower edge at that set's right ball), each ball rests within 10 mm of its
- *    plate's lower edge and each displayed ankle stands off its
- *    plate's face by the same body's standing ankle height within 10 mm and
- *    within half the plate's width across it, for two body proportions.
- * 2. Each ankle holds its place from the set to the gun within 2 mm, and both
- *    foot windows bear on the block prop.
+ *
+ * 1. On a block set to the athlete's own body-scaled set (its front plate's lower
+ *    edge at that set's right ball), each ball rests within 10 mm of its
+ *    plate's lower edge and each displayed ankle stands off its plate's face by
+ *    the same body's standing ankle height within 10 mm and within half the
+ *    plate's width across it, for two body proportions.
+ * 2. Each ankle holds its place from the set to the gun within 2 mm, and both foot
+ *    windows bear on the block prop.
  * 3. The front plate lies on the runner's right, so with a drive the left foot
  *    leaves its plate at `rearBlockOff` and the right foot at `blockExit`.
  * 4. Authoring the left foot in front of that block is refused on `front` with
- *    `right` as the alternative, and a block turned to face away is refused
- *    on `on`.
+ *    `right` as the alternative, and a block turned to face away is refused on
+ *    `on`.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the seating, hold, side and refusal cases and their metre bounds.
  * @evidence contracts/development/testing.md#behavioral-verification Plans through the public lexicon with a placed archetype and measures resolved skeletons against the prop's own plate frames.
@@ -48,108 +50,131 @@ import { motionHumanBody } from "../../internal/motionHumanBody";
  * @evidence contracts/development/testing.md#execution-ownership Uses the shared Human fixture and in-memory performances without a render or external process.
  */
 export function test_motion_gait_sprint_blocks(): void {
+  const checks: motionComplaints.IGatherer = motionComplaints();
   let last: IPlacedBlock | undefined;
   for (const name of ["m-average", "f-average"] as const) {
-    const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
+    try {
+      const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
 
-    // The athlete sets the block to their own set: the front plate where
-    // the body-scaled setting puts the right foot's sole, the rear plate as
-    // far behind as that setting puts the left one, within the block's band.
-    const free: HumanPerformance = perform(body, undefined, 0, {
-      hold: 0.4,
-      front: "right",
-    });
-    const freeSet: number = when(free.segments("a")[1]!, "set") + 1e-3;
-    const front: IAutoMovieVector3 = socket(
-      free,
-      body,
-      freeSet,
-      "right",
-      "ball",
-    );
-    const rear: IAutoMovieVector3 = socket(free, body, freeSet, "left", "ball");
-    const block: ReturnType<typeof createStartingBlock> = createStartingBlock({
-      model: "PBS-01",
-      spacing: Math.min(0.45, Math.max(0.25, front.z - rear.z)),
-      angle: 90 - 50,
-    });
-    const plate: IAutoMovieVector3 = lowerEdge(block, "front");
-    const blockAt: IAutoMovieVector3 = {
-      x: front.x - plate.x,
-      y: 0,
-      z: front.z - plate.z,
-    };
-    last = { body, block, at: blockAt };
-    const width: number = block.affordance("front").width!;
-    const start: HumanPerformance = perform(body, last, 0, {
-      hold: 0.4,
-      drive: 0.3,
-    });
-    assertTakeClean("sprint blocks", start);
-    const action: IAutoMovieMotionHumanSegment = start.segments("a")[1]!;
-    const set: number = when(action, "set");
-    const gun: number = when(action, "gun");
-    const placed: IAutoMovieRigidTransform = {
-      position: blockAt,
-      rotation: Quaternion.identity(),
-    };
-    for (const [foot, plate] of [
-      ["rightFoot", "front"],
-      ["leftFoot", "rear"],
-    ] as const) {
-      const face: IAutoMovieRigidTransform = worldFace(block, placed, plate);
-      const normal: IAutoMovieVector3 = Quaternion.rotateVector(face.rotation, {
-        x: 0,
-        y: 1,
-        z: 0,
+      // The athlete sets the block to their own set: the front plate where
+      // the body-scaled setting puts the right foot's sole, the rear plate as
+      // far behind as that setting puts the left one, within the block's band.
+      const free: HumanPerformance = perform(body, undefined, 0, {
+        hold: 0.4,
+        front: "right",
       });
-      const across: IAutoMovieVector3 = Quaternion.rotateVector(face.rotation, {
-        x: 1,
-        y: 0,
-        z: 0,
-      });
-      const standing: number = ankle(start, 0.1, foot).y;
-      const seated: IAutoMovieVector3 = ankle(start, set + 1e-3, foot);
-      const offset: IAutoMovieVector3 = Vector3.subtract(seated, face.position);
-      const edge: IAutoMovieVector3 = Vector3.add(
-        blockAt,
-        lowerEdge(block, plate),
-      );
-      const ball: IAutoMovieVector3 = socket(
-        start,
+      const freeSet: number = when(free.segments("a")[1]!, "set") + 1e-3;
+      const front: IAutoMovieVector3 = socket(
+        free,
         body,
-        set + 1e-3,
-        foot === "leftFoot" ? "left" : "right",
+        freeSet,
+        "right",
         "ball",
       );
-      TestValidator.predicate(
-        `${name} ${foot} rests its ball on the ${plate} plate's lower edge (${(Vector3.distance(ball, edge) * 1000).toFixed(1)} mm)`,
-        Vector3.distance(ball, edge) <= 0.01,
+      const rear: IAutoMovieVector3 = socket(
+        free,
+        body,
+        freeSet,
+        "left",
+        "ball",
       );
-      TestValidator.predicate(
-        `${name} ${foot} stands its sole's height off the ${plate} plate`,
-        Math.abs(Vector3.dot(offset, normal) - standing) <= 0.01 &&
-          Math.abs(Vector3.dot(offset, across)) <= width / 2,
+      const block: ReturnType<typeof createStartingBlock> = createStartingBlock(
+        {
+          model: "PBS-01",
+          spacing: Math.min(0.45, Math.max(0.25, front.z - rear.z)),
+          angle: 90 - 50,
+        },
       );
-      TestValidator.predicate(
-        `${name} ${foot} holds its plate from the set to the gun`,
-        Vector3.distance(seated, ankle(start, gun - 1e-3, foot)) <= 0.002,
+      const plate: IAutoMovieVector3 = lowerEdge(block, "front");
+      const blockAt: IAutoMovieVector3 = {
+        x: front.x - plate.x,
+        y: 0,
+        z: front.z - plate.z,
+      };
+      last = { body, block, at: blockAt };
+      const width: number = block.affordance("front").width!;
+      const start: HumanPerformance = perform(body, last, 0, {
+        hold: 0.4,
+        drive: 0.3,
+      });
+      verdict(checks, "sprint blocks", start);
+      const action: IAutoMovieMotionHumanSegment = start.segments("a")[1]!;
+      const set: number = when(action, "set");
+      const gun: number = when(action, "gun");
+      const placed: IAutoMovieRigidTransform = {
+        position: blockAt,
+        rotation: Quaternion.identity(),
+      };
+      for (const [foot, plate] of [
+        ["rightFoot", "front"],
+        ["leftFoot", "rear"],
+      ] as const) {
+        const face: IAutoMovieRigidTransform = worldFace(block, placed, plate);
+        const normal: IAutoMovieVector3 = Quaternion.rotateVector(
+          face.rotation,
+          {
+            x: 0,
+            y: 1,
+            z: 0,
+          },
+        );
+        const across: IAutoMovieVector3 = Quaternion.rotateVector(
+          face.rotation,
+          {
+            x: 1,
+            y: 0,
+            z: 0,
+          },
+        );
+        const standing: number = ankle(start, 0.1, foot).y;
+        const seated: IAutoMovieVector3 = ankle(start, set + 1e-3, foot);
+        const offset: IAutoMovieVector3 = Vector3.subtract(
+          seated,
+          face.position,
+        );
+        const edge: IAutoMovieVector3 = Vector3.add(
+          blockAt,
+          lowerEdge(block, plate),
+        );
+        const ball: IAutoMovieVector3 = socket(
+          start,
+          body,
+          set + 1e-3,
+          foot === "leftFoot" ? "left" : "right",
+          "ball",
+        );
+        checks.check(
+          `${name} ${foot} rests its ball on the ${plate} plate's lower edge (${(Vector3.distance(ball, edge) * 1000).toFixed(1)} mm)`,
+          Vector3.distance(ball, edge) <= 0.01,
+        );
+        checks.check(
+          `${name} ${foot} stands its sole's height off the ${plate} plate`,
+          Math.abs(Vector3.dot(offset, normal) - standing) <= 0.01 &&
+            Math.abs(Vector3.dot(offset, across)) <= width / 2,
+        );
+        checks.check(
+          `${name} ${foot} holds its plate from the set to the gun`,
+          Vector3.distance(seated, ankle(start, gun - 1e-3, foot)) <= 0.002,
+        );
+        const support: IAutoMovieMotionHumanContactWindow["support"] = contact(
+          action,
+          foot,
+        ).support;
+        checks.check(
+          `${name} ${foot} bears on the block`,
+          support?.kind === "prop" && support.subject === "blocks",
+        );
+      }
+      checks.check(
+        `${name} leaves the rear plate with the left foot first`,
+        Math.abs(end(action, "leftFoot") - when(action, "rearBlockOff")) <=
+          1e-6 &&
+          Math.abs(end(action, "rightFoot") - when(action, "blockExit")) <=
+            1e-6,
       );
-      const support: IAutoMovieMotionHumanContactWindow["support"] = contact(
-        action,
-        foot,
-      ).support;
-      TestValidator.predicate(
-        `${name} ${foot} bears on the block`,
-        support?.kind === "prop" && support.subject === "blocks",
-      );
+    } catch (error: unknown) {
+      checks.check(`${String(name)}: ${everydayTake.describe(error)}`, false);
     }
-    TestValidator.predicate(
-      `${name} leaves the rear plate with the left foot first`,
-      Math.abs(end(action, "leftFoot") - when(action, "rearBlockOff")) <=
-        1e-6 &&
-        Math.abs(end(action, "rightFoot") - when(action, "blockExit")) <= 1e-6,
-    );
   }
 
   const refusal: (
@@ -171,15 +196,16 @@ export function test_motion_gait_sprint_blocks(): void {
     return undefined;
   };
   const contrary: HumanRefusal | undefined = refusal(0, "left");
-  TestValidator.predicate(
+  checks.check(
     "a left front foot on a right-front block is refused on front",
     contrary?.kind === "parameter" && contrary.axis === "front",
   );
   const reversed: HumanRefusal | undefined = refusal(180, undefined);
-  TestValidator.predicate(
+  checks.check(
     "a block facing away from the runner is refused on on",
     reversed?.kind === "affordance" && reversed.axis === "on",
   );
+  checks.assert("gait sprint blocks");
 }
 
 /** A starting block set for one athlete. */
@@ -194,7 +220,10 @@ interface IPlacedBlock {
   at: IAutoMovieVector3;
 }
 
-/** Stand, then crouch into the set: on the placed block when one is given, otherwise on the body-scaled setting. */
+/**
+ * Stand, then crouch into the set: on the placed block when one is given,
+ * otherwise on the body-scaled setting.
+ */
 function perform(
   body: IAutoMovieMotionHumanBody,
   placed: IPlacedBlock | undefined,
@@ -279,7 +308,10 @@ function end(
   return segment.start + contact(segment, part).to * segment.plan.duration;
 }
 
-/** The middle of a plate's lower edge in the block's own frame: half the plate's depth down its face from the face's centre. */
+/**
+ * The middle of a plate's lower edge in the block's own frame: half the plate's
+ * depth down its face from the face's centre.
+ */
 function lowerEdge(
   block: ReturnType<typeof createStartingBlock>,
   plate: createStartingBlock.Affordance,
@@ -323,4 +355,20 @@ function ankle(
   bone: AutoMovieHumanoidBone,
 ): IAutoMovieVector3 {
   return film.bones("a", time).get(bone)!.worldPosition;
+}
+
+/** Gather a take's shipped verdicts as one check. */
+function verdict(
+  checks: motionComplaints.IGatherer,
+  label: string,
+  film: HumanPerformance,
+): void {
+  try {
+    assertTakeClean(label, film);
+  } catch (error: unknown) {
+    checks.check(
+      `${label}: ${error instanceof Error ? error.message : String(error)}`,
+      false,
+    );
+  }
 }

@@ -21,9 +21,10 @@ import {
   HumanRefusal,
 } from "@automovie/motions";
 import { HumanHand } from "@automovie/motions/internal";
-import { TestValidator } from "@nestia/e2e";
 
 import { assertTakeClean } from "../../internal/assertTakeClean";
+import { everydayTake } from "../../internal/everydayTake";
+import { motionComplaints } from "../../internal/motionComplaints";
 import { motionHumanBody } from "../../internal/motionHumanBody";
 
 const { HumanLabour } = AutoMovieMotionHumanLabour;
@@ -37,7 +38,10 @@ const ROCK: IAutoMovieMotionHumanHoldInfant.IRock = {
   frequency: 0.8,
 };
 
-/** An infant lying face up, its head away from the carer: `+Y` to `+Z`, `+Z` to `+Y`. */
+/**
+ * An infant lying face up, its head away from the carer: `+Y` to `+Z`, `+Z` to
+ * `+Y`.
+ */
 const LYING: ReturnType<typeof Quaternion.fromAxisAngle> =
   Quaternion.fromAxisAngle({ x: 0, y: Math.SQRT1_2, z: Math.SQRT1_2 }, 180);
 
@@ -45,11 +49,12 @@ const LYING: ReturnType<typeof Quaternion.fromAxisAngle> =
  * Infant care, for two canonical adult bodies.
  *
  * Scenarios:
- * 1. A carer lifts an infant from a crib, cradles and rocks it, raises it
- *    to the shoulder and pats its back, and lays it back in the crib: in the
- *    cradle the holding forearm stays under the nape, the rocking stays
- *    within its amplitude, each pat meets the back, and the infant lies on
- *    the crib's surface after it is laid down.
+ *
+ * 1. A carer lifts an infant from a crib, cradles and rocks it, raises it to the
+ *    shoulder and pats its back, and lays it back in the crib: in the cradle
+ *    the holding forearm stays under the nape, the rocking stays within its
+ *    amplitude, each pat meets the back, and the infant lies on the crib's
+ *    surface after it is laid down.
  * 2. A cradled infant is fed from a bottle: the teat stays at its mouth.
  * 3. Laying the infant down on a point out of reach is refused.
  *
@@ -60,15 +65,42 @@ const LYING: ReturnType<typeof Quaternion.fromAxisAngle> =
  * @evidence contracts/development/testing.md#execution-ownership In-memory performances of generated bodies and archetypes.
  */
 export function test_motion_care_infant_care(): void {
+  const checks: motionComplaints.IGatherer = motionComplaints();
   for (const profile of ["m-average", "f-average"] as const) {
-    const body: IAutoMovieMotionHumanBody = motionHumanBody(profile);
-    care(body, profile);
-    feed(body, profile);
+    try {
+      const body: IAutoMovieMotionHumanBody = motionHumanBody(profile);
+      try {
+        care(checks, body, profile);
+      } catch (error: unknown) {
+        checks.check(
+          `${String(profile)} care: ${everydayTake.describe(error)}`,
+          false,
+        );
+      }
+      try {
+        feed(checks, body, profile);
+      } catch (error: unknown) {
+        checks.check(
+          `${String(profile)} feed: ${everydayTake.describe(error)}`,
+          false,
+        );
+      }
+    } catch (error: unknown) {
+      checks.check(
+        `${String(profile)}: ${everydayTake.describe(error)}`,
+        false,
+      );
+    }
   }
+  checks.assert("care infant care");
 }
 
 /** Lift, cradle and rock, burp and lay down. */
-function care(body: IAutoMovieMotionHumanBody, profile: string): void {
+function care(
+  checks: motionComplaints.IGatherer,
+  body: IAutoMovieMotionHumanBody,
+  profile: string,
+): void {
   const crib: ReturnType<typeof createCrib> = createCrib({}, 1);
   const infant: ReturnType<typeof createInfant> = createInfant({}, 1);
   const surface: IAutoMovieVector3 = Vector3.add(
@@ -103,7 +135,7 @@ function care(body: IAutoMovieMotionHumanBody, profile: string): void {
   const film: HumanPerformance = take(
     Vector3.add(surface, { x: 0, y: 0.06, z: 0 }),
   );
-  assertTakeClean(`${profile} infant care`, film);
+  verdict(checks, `${profile} infant care`, film);
   const cradle: IAutoMovieMotionHumanSegment = segment(film, "cradleInfant");
   const burp: IAutoMovieMotionHumanSegment = segment(film, "burpInfant");
   const held: number = at(cradle, "held");
@@ -132,11 +164,11 @@ function care(body: IAutoMovieMotionHumanBody, profile: string): void {
       Vector3.distance(site(film, infant, "seat", seconds), first),
     );
   }
-  TestValidator.predicate(
+  checks.check(
     `${profile}: the holding forearm stays under the nape (${nape.toFixed(4)} m)`,
     nape < 0.08,
   );
-  TestValidator.predicate(
+  checks.check(
     `${profile}: the rocking stays within its amplitude (${sway.toFixed(4)} m)`,
     sway <= 2 * ROCK.amplitude + 0.01,
   );
@@ -163,14 +195,14 @@ function care(body: IAutoMovieMotionHumanBody, profile: string): void {
         ),
       ),
     );
-  TestValidator.predicate(
+  checks.check(
     `${profile}: each pat meets the infant's back (${pat.toFixed(4)} m)`,
     pat < 0.03,
   );
 
   // Laid down, the infant lies on the crib's surface.
   const lying: IAutoMovieVector3 = site(film, infant, "back", film.duration);
-  TestValidator.predicate(
+  checks.check(
     `${profile}: the infant lies on the crib's surface (${(lying.y - surface.y).toFixed(4)} m)`,
     Math.abs(lying.y - surface.y) < 0.03,
   );
@@ -181,14 +213,18 @@ function care(body: IAutoMovieMotionHumanBody, profile: string): void {
   } catch (error: unknown) {
     refusal = error;
   }
-  TestValidator.predicate(
+  checks.check(
     `${profile}: laying the infant down out of reach is refused`,
     refusal instanceof HumanRefusal,
   );
 }
 
 /** A cradled infant fed from a bottle in the other hand. */
-function feed(body: IAutoMovieMotionHumanBody, profile: string): void {
+function feed(
+  checks: motionComplaints.IGatherer,
+  body: IAutoMovieMotionHumanBody,
+  profile: string,
+): void {
   const crib: ReturnType<typeof createCrib> = createCrib({}, 1);
   const infant: ReturnType<typeof createInfant> = createInfant({}, 1);
   const bottle: ReturnType<typeof createFeedingBottle> = createFeedingBottle(
@@ -225,7 +261,7 @@ function feed(body: IAutoMovieMotionHumanBody, profile: string): void {
         hold: 3,
       }).node,
   });
-  assertTakeClean(`${profile} infant feed`, film);
+  verdict(checks, `${profile} infant feed`, film);
   const feeding: IAutoMovieMotionHumanSegment = segment(film, "feedInfant");
   const held: number = at(feeding, "held");
   let gap: number = 0;
@@ -240,7 +276,7 @@ function feed(body: IAutoMovieMotionHumanBody, profile: string): void {
       ),
     );
   }
-  TestValidator.predicate(
+  checks.check(
     `${profile}: the teat stays at the infant's mouth (${gap.toFixed(4)} m)`,
     gap < 0.03,
   );
@@ -311,4 +347,20 @@ function segmentDistance(
     ),
   );
   return Vector3.distance(point, Vector3.add(a, Vector3.scale(ab, t)));
+}
+
+/** Gather a take's shipped verdicts as one check. */
+function verdict(
+  checks: motionComplaints.IGatherer,
+  label: string,
+  film: HumanPerformance,
+): void {
+  try {
+    assertTakeClean(label, film);
+  } catch (error: unknown) {
+    checks.check(
+      `${label}: ${error instanceof Error ? error.message : String(error)}`,
+      false,
+    );
+  }
 }

@@ -11,44 +11,45 @@ import {
   HumanPerformance,
   HumanRefusal,
 } from "@automovie/motions";
-import { TestValidator } from "@nestia/e2e";
 
+import { everydayTake } from "../../../internal/everydayTake";
+import { motionComplaints } from "../../../internal/motionComplaints";
 import { motionHumanBody } from "../../../internal/motionHumanBody";
 
 /**
- * An action is timed to an instant of speech, of music or of another
- * person's action: the instant of its own that carries its meaning falls
- * there, and it begins as early as its body needs to get there.
+ * An action is timed to an instant of speech, of music or of another person's
+ * action: the instant of its own that carries its meaning falls there, and it
+ * begins as early as its body needs to get there.
  *
- * A speaker's gesture stroke meets the stressed syllable it goes with
- * (McNeill 1992, Hand and Mind: the stroke coincides with or just precedes
- * the stressed syllable), and a film shows a meeting of two instants as one
- * when they fall in the same frame, so the bound on every meeting below is
- * one frame at 24 Hz, 1/24 s.
+ * A speaker's gesture stroke meets the stressed syllable it goes with (McNeill
+ * 1992, Hand and Mind: the stroke coincides with or just precedes the stressed
+ * syllable), and a film shows a meeting of two instants as one when they fall
+ * in the same frame, so the bound on every meeting below is one frame at 24 Hz,
+ * 1/24 s.
  *
- * Scenarios:
- * with a dialogue line from 1 s to 4 s stressed at 2.0 s and
- * 3.2 s and a score at 96 beats a minute:
- * 1. On the average man and the small woman, a wave synced by its
- *    `strokeStart` to the first accent has that instant within a frame of
- *    2.0 s, begins before it by its own preparation, and the stand before
- *    it ends where the wave begins.
- * 2. The same wave synced to the second accent has every instant 1.2 s
- *    later than in scenario 1, within a millisecond: moving the cue moves
- *    the action and changes nothing else.
+ * Scenarios: with a dialogue line from 1 s to 4 s stressed at 2.0 s and 3.2 s
+ * and a score at 96 beats a minute:
+ *
+ * 1. On the average man and the small woman, a wave synced by its `strokeStart` to
+ *    the first accent has that instant within a frame of 2.0 s, begins before
+ *    it by its own preparation, and the stand before it ends where the wave
+ *    begins.
+ * 2. The same wave synced to the second accent has every instant 1.2 s later than
+ *    in scenario 1, within a millisecond: moving the cue moves the action and
+ *    changes nothing else.
  * 3. A stand cut on the score's fifth beat ends at 4 x 60 / 96 = 2.5 s.
- * 4. A listener's nod synced by its `strokeStart` to the end of the
- *    speaker's wave stroke, 0.2 s later, has that instant within a frame of
- *    the speaker's `strokeEnd` plus 0.2 s.
+ * 4. A listener's nod synced by its `strokeStart` to the end of the speaker's wave
+ *    stroke, 0.2 s later, has that instant within a frame of the speaker's
+ *    `strokeEnd` plus 0.2 s.
  * 5. The same composition and seed give the same placed instants twice.
- * 6. Refused, each naming what to change: a wave whose stroke would have to
- *    be prepared before the film begins, with the earliest second it can
- *    meet; a stand synced to a beat that falls inside a wave's stroke, as
- *    the cut the wave does not allow; an instant the action does not have,
- *    with the ones it has.
- * 7. The tracks: beat `i` of a score lies `i x 60 / bpm` s after its first
- *    and every fourth is also a `downbeat`; a dialogue's instants come in
- *    film order; an accent outside its line is refused.
+ * 6. Refused, each naming what to change: a wave whose stroke would have to be
+ *    prepared before the film begins, with the earliest second it can meet; a
+ *    stand synced to a beat that falls inside a wave's stroke, as the cut the
+ *    wave does not allow; an instant the action does not have, with the ones it
+ *    has.
+ * 7. The tracks: beat `i` of a score lies `i x 60 / bpm` s after its first and
+ *    every fourth is also a `downbeat`; a dialogue's instants come in film
+ *    order; an accent outside its line is refused.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Builds performances through the public chain, cue builders and input and reads the placed actions' instants and refusals; an action that misses its instant, moves with something other than its cue, or is placed where it cannot be fails.
  * @evidence contracts/development/testing.md#independent-expectations The instants are the cue track's own seconds and the frame is the film's; the beat arithmetic is the tempo's definition; no expected value is read from a law.
@@ -57,6 +58,7 @@ import { motionHumanBody } from "../../../internal/motionHumanBody";
  * @evidence contracts/development/common.md#meaningful-documentation States the rule with its source and bound and the 7 scenarios.
  */
 export function test_motion_posture_two_actor_notification(): void {
+  const checks: motionComplaints.IGatherer = motionComplaints();
   const FRAME: number = 1 / 24;
   const cues: CueTracks = {
     dialogue: HumanCue.dialogue([{ from: 1, to: 4, accents: [2.0, 3.2] }]),
@@ -103,41 +105,45 @@ export function test_motion_posture_two_actor_notification(): void {
       .sync({ of: "dialogue", event: "accent", index, align: "strokeStart" });
 
   for (const name of ["f-small"] as const) {
-    const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
+    try {
+      const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
 
-    // 1. The stroke meets the accent, and the stand gives way where needed.
-    const waved: readonly IAutoMovieMotionHumanSegment[] = perform(
-      { a: body },
-      waving(0),
-    ).segments("a");
-    const stood: IAutoMovieMotionHumanSegment | undefined = waved[0];
-    const wave: IAutoMovieMotionHumanSegment | undefined = waved[1];
-    const met: number = instant(wave!, "strokeStart");
-    if (!(Math.abs(met - 2.0) <= FRAME))
-      complaints.push(
-        `${name}: the wave's stroke starts at ${met.toFixed(3)} s, within a frame of the accent at 2.000 s expected`,
-      );
-    if (!(wave!.entryTime < met - FRAME))
-      complaints.push(
-        `${name}: the wave begins at ${wave!.entryTime.toFixed(3)} s, before its stroke at ${met.toFixed(3)} s expected`,
-      );
-    if (Math.abs(stood!.end - wave!.entryTime) > 1e-6)
-      complaints.push(
-        `${name}: the stand ends at ${stood!.end.toFixed(3)} s and the wave begins at ${wave!.entryTime.toFixed(3)} s, the same second expected`,
-      );
-
-    // 2. Moving the cue moves the action and nothing else.
-    const later: IAutoMovieMotionHumanSegment = perform(
-      { a: body },
-      waving(1),
-    ).segments("a")[1]!;
-    for (const event of wave!.plan.events) {
-      const moved: number =
-        instant(later, event.name) - instant(wave!, event.name);
-      if (Math.abs(moved - 1.2) > 1e-3)
+      // 1. The stroke meets the accent, and the stand gives way where needed.
+      const waved: readonly IAutoMovieMotionHumanSegment[] = perform(
+        { a: body },
+        waving(0),
+      ).segments("a");
+      const stood: IAutoMovieMotionHumanSegment | undefined = waved[0];
+      const wave: IAutoMovieMotionHumanSegment | undefined = waved[1];
+      const met: number = instant(wave!, "strokeStart");
+      if (!(Math.abs(met - 2.0) <= FRAME))
         complaints.push(
-          `${name}: synced to the accent 1.2 s later, the wave's ${event.name} moves ${moved.toFixed(4)} s`,
+          `${name}: the wave's stroke starts at ${met.toFixed(3)} s, within a frame of the accent at 2.000 s expected`,
         );
+      if (!(wave!.entryTime < met - FRAME))
+        complaints.push(
+          `${name}: the wave begins at ${wave!.entryTime.toFixed(3)} s, before its stroke at ${met.toFixed(3)} s expected`,
+        );
+      if (Math.abs(stood!.end - wave!.entryTime) > 1e-6)
+        complaints.push(
+          `${name}: the stand ends at ${stood!.end.toFixed(3)} s and the wave begins at ${wave!.entryTime.toFixed(3)} s, the same second expected`,
+        );
+
+      // 2. Moving the cue moves the action and nothing else.
+      const later: IAutoMovieMotionHumanSegment = perform(
+        { a: body },
+        waving(1),
+      ).segments("a")[1]!;
+      for (const event of wave!.plan.events) {
+        const moved: number =
+          instant(later, event.name) - instant(wave!, event.name);
+        if (Math.abs(moved - 1.2) > 1e-3)
+          complaints.push(
+            `${name}: synced to the accent 1.2 s later, the wave's ${event.name} moves ${moved.toFixed(4)} s`,
+          );
+      }
+    } catch (error: unknown) {
+      checks.check(`${String(name)}: ${everydayTake.describe(error)}`, false);
     }
   }
 
@@ -282,7 +288,7 @@ export function test_motion_posture_two_actor_notification(): void {
     { from: 5, to: 6, accents: [5.5] },
     { from: 1, to: 4, accents: [2, 3.2], phrases: [2.6] },
   ]).map((c): string => c.name);
-  TestValidator.equals("a dialogue's instants in film order", spoken, [
+  checks.equals("a dialogue's instants in film order", spoken, [
     "lineStart",
     "accent",
     "phraseEnd",
@@ -298,7 +304,8 @@ export function test_motion_posture_two_actor_notification(): void {
   )
     complaints.push("an accent after its line ends is accepted");
 
-  TestValidator.equals("actions meet their instants", complaints, []);
+  checks.equals("actions meet their instants", complaints, []);
+  checks.assert("posture two actor notification");
 }
 
 /** The named speech and music tracks used by the performance. */

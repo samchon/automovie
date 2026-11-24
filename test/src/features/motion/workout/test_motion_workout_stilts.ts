@@ -16,9 +16,10 @@ import {
   HumanPerformance,
   HumanRefusal,
 } from "@automovie/motions";
-import { TestValidator } from "@nestia/e2e";
 
 import { assertTakeClean } from "../../internal/assertTakeClean";
+import { everydayTake } from "../../internal/everydayTake";
+import { motionComplaints } from "../../internal/motionComplaints";
 import { motionHumanBody } from "../../internal/motionHumanBody";
 
 /** The stilts' platform height, metres. */
@@ -28,13 +29,14 @@ const HEIGHT: number = 0.6;
  * Walk on stilts and stand still by stepping in place (#3997's stilts).
  *
  * Scenarios, on two body proportions:
- * 1. The stilt tips are the only floor contacts: no displayed foot comes
- *    below the platforms' height less 10 mm, and every stilt's tip is on
- *    the floor within 10 mm while its foot bears.
- * 2. The strapped stilts stay fixed to the feet: each stilt keeps its
- *    offset from its foot within 10 mm throughout.
- * 3. A walk to a stop ends within a step of it, and a stop where the
- *    walker stands steps in place within 50 mm.
+ *
+ * 1. The stilt tips are the only floor contacts: no displayed foot comes below the
+ *    platforms' height less 10 mm, and every stilt's tip is on the floor within
+ *    10 mm while its foot bears.
+ * 2. The strapped stilts stay fixed to the feet: each stilt keeps its offset from
+ *    its foot within 10 mm throughout.
+ * 3. A walk to a stop ends within a step of it, and a stop where the walker stands
+ *    steps in place within 50 mm.
  * 4. A walker off the platforms is refused on `stilts`.
  * 5. Each take passes the shipped verdicts.
  *
@@ -45,51 +47,56 @@ const HEIGHT: number = 0.6;
  * @evidence contracts/development/testing.md#execution-ownership In-memory performances on the shared Human fixture.
  */
 export function test_motion_workout_stilts(): void {
+  const checks: motionComplaints.IGatherer = motionComplaints();
   for (const name of ["f-small", "m-average"] as const) {
-    const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
-    const half: number = Math.abs(body.rest.get("leftUpperLeg")!.x);
-    for (const stop of [1.2, 0] as const) {
-      const film: HumanPerformance = take(body, half, stop, HEIGHT);
-      const walk: IAutoMovieMotionHumanSegment = film.segments("a")[0]!;
-      const ankle: number = body.rest.get("leftFoot")!.y;
-      let low: number = Infinity;
-      let strap: number = 0;
-      const offset: Record<AutoMovieHumanSide, IAutoMovieVector3> = {
-        left: relative(film, "left", walk.start),
-        right: relative(film, "right", walk.start),
-      };
-      for (let t: number = walk.start; t <= walk.end; t += 1 / 24)
-        for (const side of ["left", "right"] as const) {
-          low = Math.min(
-            low,
-            film.bones("a", t).get(`${side}Foot`)!.worldPosition.y - ankle,
-          );
-          strap = Math.max(
-            strap,
-            Vector3.distance(relative(film, side, t), offset[side]),
-          );
+    try {
+      const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
+      const half: number = Math.abs(body.rest.get("leftUpperLeg")!.x);
+      for (const stop of [1.2, 0] as const) {
+        const film: HumanPerformance = take(body, half, stop, HEIGHT);
+        const walk: IAutoMovieMotionHumanSegment = film.segments("a")[0]!;
+        const ankle: number = body.rest.get("leftFoot")!.y;
+        let low: number = Infinity;
+        let strap: number = 0;
+        const offset: Record<AutoMovieHumanSide, IAutoMovieVector3> = {
+          left: relative(film, "left", walk.start),
+          right: relative(film, "right", walk.start),
+        };
+        for (let t: number = walk.start; t <= walk.end; t += 1 / 24)
+          for (const side of ["left", "right"] as const) {
+            low = Math.min(
+              low,
+              film.bones("a", t).get(`${side}Foot`)!.worldPosition.y - ankle,
+            );
+            strap = Math.max(
+              strap,
+              Vector3.distance(relative(film, side, t), offset[side]),
+            );
+          }
+        let tip: number = 0;
+        for (const c of walk.plan.contacts) {
+          if (c.kind !== "plant") continue;
+          const side: AutoMovieHumanSide =
+            c.part === "leftFoot" ? "left" : "right";
+          const t: number =
+            walk.start + 0.5 * (c.from + c.to) * walk.plan.duration;
+          tip = Math.max(tip, Math.abs(film.prop(side, t).position.y));
         }
-      let tip: number = 0;
-      for (const c of walk.plan.contacts) {
-        if (c.kind !== "plant") continue;
-        const side: AutoMovieHumanSide =
-          c.part === "leftFoot" ? "left" : "right";
-        const t: number =
-          walk.start + 0.5 * (c.from + c.to) * walk.plan.duration;
-        tip = Math.max(tip, Math.abs(film.prop(side, t).position.y));
+        const end: IAutoMovieVector3 = film
+          .bones("a", walk.end)
+          .get("hips")!.worldPosition;
+        checks.check(
+          `${name} on stilts to ${stop} m: feet above the platforms (${((low - HEIGHT) * 1000).toFixed(0)} mm), tips down (${(tip * 1000).toFixed(0)} mm), straps fast (${(strap * 1000).toFixed(0)} mm), stopping at ${end.z.toFixed(2)} m`,
+          low >= HEIGHT - 0.01 &&
+            tip <= 0.01 &&
+            strap <= 0.01 &&
+            Math.abs(end.z - stop) <=
+              (stop === 0 ? 0.05 : 0.35 * body.measure.hipHeight),
+        );
+        verdict(checks, `${name} stilts to ${stop} m`, film);
       }
-      const end: IAutoMovieVector3 = film
-        .bones("a", walk.end)
-        .get("hips")!.worldPosition;
-      TestValidator.predicate(
-        `${name} on stilts to ${stop} m: feet above the platforms (${((low - HEIGHT) * 1000).toFixed(0)} mm), tips down (${(tip * 1000).toFixed(0)} mm), straps fast (${(strap * 1000).toFixed(0)} mm), stopping at ${end.z.toFixed(2)} m`,
-        low >= HEIGHT - 0.01 &&
-          tip <= 0.01 &&
-          strap <= 0.01 &&
-          Math.abs(end.z - stop) <=
-            (stop === 0 ? 0.05 : 0.35 * body.measure.hipHeight),
-      );
-      assertTakeClean(`${name} stilts to ${stop} m`, film);
+    } catch (error: unknown) {
+      checks.check(`${String(name)}: ${everydayTake.describe(error)}`, false);
     }
   }
 
@@ -101,10 +108,11 @@ export function test_motion_workout_stilts(): void {
     if (!(error instanceof HumanRefusal)) throw error;
     refused = error;
   }
-  TestValidator.predicate(
+  checks.check(
     "a walker off the stilts is refused",
     refused?.axis === "stilts",
   );
+  checks.assert("workout stilts");
 }
 
 /** A walker standing on two stilts at the origin, facing +Z, walking to a stop. */
@@ -154,4 +162,20 @@ function relative(
     Quaternion.inverse(foot.worldRotation),
     Vector3.subtract(stilt.position, foot.worldPosition),
   );
+}
+
+/** Gather a take's shipped verdicts as one check. */
+function verdict(
+  checks: motionComplaints.IGatherer,
+  label: string,
+  film: HumanPerformance,
+): void {
+  try {
+    assertTakeClean(label, film);
+  } catch (error: unknown) {
+    checks.check(
+      `${label}: ${error instanceof Error ? error.message : String(error)}`,
+      false,
+    );
+  }
 }

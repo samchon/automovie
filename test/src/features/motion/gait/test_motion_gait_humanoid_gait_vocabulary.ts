@@ -5,16 +5,20 @@ import type {
   IAutoMovieGaitLimb,
 } from "@automovie/interface";
 import { AutoMovieMotionHumanGait } from "@automovie/motions";
-import { TestValidator } from "@nestia/e2e";
 
+import { everydayTake } from "../../internal/everydayTake";
+import { motionComplaints } from "../../internal/motionComplaints";
 import { motionHumanBody } from "../../internal/motionHumanBody";
 import { nclose } from "../../internal/nclose";
 
 /**
- * The five public humanoid gait declarations produce admissible contralateral motion.
+ * The five public humanoid gait declarations produce admissible contralateral
+ * motion.
  *
  * Scenarios:
- * 1. Bake each declared gait once against a canonical rig; read its authored opposing phases and compare the three increasing locomotion amplitudes.
+ *
+ * 1. Bake each declared gait once against a canonical rig; read its authored
+ *    opposing phases and compare the three increasing locomotion amplitudes.
  *
  * @evidence contracts/development/testing.md#behavioral-verification The five public humanoid gait declarations produce admissible contralateral motion.
  * @evidence contracts/development/testing.md#independent-expectations A contralateral arm follows the opposite leg by definition; sprint has greater hip and knee swing than ordinary walking.
@@ -23,8 +27,9 @@ import { nclose } from "../../internal/nclose";
  * @evidence contracts/development/common.md#meaningful-documentation States the quantities observed and their relation.
  */
 export function test_motion_gait_humanoid_gait_vocabulary(): void {
+  const checks: motionComplaints.IGatherer = motionComplaints();
   const names = ["march", "run", "sneak", "sprint", "walk"] as const;
-  TestValidator.equals(
+  checks.equals(
     "public vocabulary",
     Object.keys(AutoMovieMotionHumanGait.HUMANOID_GAITS).sort((a, b) =>
       a.localeCompare(b, "en"),
@@ -37,33 +42,38 @@ export function test_motion_gait_humanoid_gait_vocabulary(): void {
     bone: AutoMovieHumanoidBone,
   ): IAutoMovieGaitLimb => gait.limbs.find((row) => row.bone === bone)!;
   for (const name of names) {
-    const gait = AutoMovieMotionHumanGait.HUMANOID_GAITS[name];
-    const clip = gaitMotion(name, skeleton.id, gait, 24);
-    TestValidator.predicate(
-      "bound gait and rig admission",
-      gait.name === name && validateMotion({ motion: clip, skeleton }).success,
-    );
-    for (const [arm, leg] of [
-      ["leftUpperArm", "rightUpperLeg"],
-      ["rightUpperArm", "leftUpperLeg"],
-    ] as const) {
-      const swing = limb(gait, arm);
-      TestValidator.predicate(
-        "opposite arm phase",
-        swing.amplitude > 0 && nclose(swing.phase, limb(gait, leg).phase),
+    try {
+      const gait = AutoMovieMotionHumanGait.HUMANOID_GAITS[name];
+      const clip = gaitMotion(name, skeleton.id, gait, 24);
+      checks.check(
+        "bound gait and rig admission",
+        gait.name === name &&
+          validateMotion({ motion: clip, skeleton }).success,
       );
+      for (const [arm, leg] of [
+        ["leftUpperArm", "rightUpperLeg"],
+        ["rightUpperArm", "leftUpperLeg"],
+      ] as const) {
+        const swing = limb(gait, arm);
+        checks.check(
+          "opposite arm phase",
+          swing.amplitude > 0 && nclose(swing.phase, limb(gait, leg).phase),
+        );
+      }
+    } catch (error: unknown) {
+      checks.check(`${String(name)}: ${everydayTake.describe(error)}`, false);
     }
   }
   const hip = (gait: IAutoMovieGait): number =>
     limb(gait, "leftUpperLeg").amplitude;
-  TestValidator.predicate(
+  checks.check(
     "hip swing grows with speed",
     hip(AutoMovieMotionHumanGait.HUMANOID_GAITS.walk) <
       hip(AutoMovieMotionHumanGait.HUMANOID_GAITS.run) &&
       hip(AutoMovieMotionHumanGait.HUMANOID_GAITS.run) <
         hip(AutoMovieMotionHumanGait.HUMANOID_GAITS.sprint),
   );
-  TestValidator.predicate(
+  checks.check(
     "largest sprint knee and slow sneak",
     names
       .filter((n) => n !== "sprint")
@@ -77,4 +87,5 @@ export function test_motion_gait_humanoid_gait_vocabulary(): void {
       AutoMovieMotionHumanGait.HUMANOID_GAITS.sneak.period >
         AutoMovieMotionHumanGait.HUMANOID_GAITS.walk.period,
   );
+  checks.assert("gait humanoid gait vocabulary");
 }

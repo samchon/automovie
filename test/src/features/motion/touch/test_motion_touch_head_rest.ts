@@ -16,14 +16,18 @@ import {
   HumanPerformance,
   HumanRefusal,
 } from "@automovie/motions";
-import { TestValidator } from "@nestia/e2e";
 
 import { assertTakeClean } from "../../internal/assertTakeClean";
+import { everydayTake } from "../../internal/everydayTake";
+import { motionComplaints } from "../../internal/motionComplaints";
 import { motionHumanBody } from "../../internal/motionHumanBody";
 
 const { headRest } = AutoMovieMotionHumanTouch;
 
-/** How near the resting region stays to the partner's region, metres (provisional: a skin contact). */
+/**
+ * How near the resting region stays to the partner's region, metres
+ * (provisional: a skin contact).
+ */
 const NEAR: number = 0.01;
 
 /** How long the head rests, seconds. */
@@ -35,13 +39,24 @@ type BenchSubject = "a" | "b";
 /** How long each sit holds before what follows, seconds (staging). */
 const SAT: number = 1.5;
 
-/** How much deeper the resting one sits on the bench, metres (provisional: sitting back, the temple comes over the partner's shoulder rather than ahead of it). */
+/**
+ * How much deeper the resting one sits on the bench, metres (provisional:
+ * sitting back, the temple comes over the partner's shoulder rather than ahead
+ * of it).
+ */
 const DEEPER: number = 0.08;
 
-/** The gap left between the two on the bench, metres (provisional: the resting one sits a little apart, so the side lean carries the head over onto the shoulder). */
+/**
+ * The gap left between the two on the bench, metres (provisional: the resting
+ * one sits a little apart, so the side lean carries the head over onto the
+ * shoulder).
+ */
 const GAP: number = 0.2;
 
-/** How far apart the two sit, metres between their hips: each one's hip joint half width and thigh radius, the seated hips' half breadth, and the gap. */
+/**
+ * How far apart the two sit, metres between their hips: each one's hip joint
+ * half width and thigh radius, the seated hips' half breadth, and the gap.
+ */
 function apart(
   a: IAutoMovieMotionHumanBody,
   b: IAutoMovieMotionHumanBody,
@@ -67,18 +82,18 @@ interface IPair {
 /**
  * Resting the head on a partner's shoulder on a bench (#4012).
  *
- * Scenarios, the small woman on the average man and on
- * the tall man, each take clean (the neck within its range, no body in the
- * other):
- * 1. The resting temple stays on the partner's shoulder through the rest.
- * 2. The rest is a loaded contact window of the head on the partner's
- *    shoulder, sharing the load.
- * 3. Standing, the small woman cannot rest on the tall man's shoulder: the
- *    refusal states the miss.
+ * Scenarios, the small woman on the average man and on the tall man, each take
+ * clean (the neck within its range, no body in the other):
  *
- * The second scenario and the following of the partner's turn need the
- * head as a contact part and a per-second aim at the partner's region
- * (motion-core); until those land, this specification fails there.
+ * 1. The resting temple stays on the partner's shoulder through the rest.
+ * 2. The rest is a loaded contact window of the head on the partner's shoulder,
+ *    sharing the load.
+ * 3. Standing, the small woman cannot rest on the tall man's shoulder: the refusal
+ *    states the miss.
+ *
+ * The second scenario and the following of the partner's turn need the head as
+ * a contact part and a per-second aim at the partner's region (motion-core);
+ * until those land, this specification fails there.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the cases, the bounds and what is pending.
  * @evidence contracts/development/testing.md#behavioral-verification Reads the displayed temple against the partner's displayed shoulder region through the rest and the plan's contact windows; a head off the shoulder, an unloaded or missing head window, or an admitted unreachable rest fails.
@@ -87,53 +102,58 @@ interface IPair {
  * @evidence contracts/development/testing.md#execution-ownership In-memory two-performer performances through the public chain.
  */
 export function test_motion_touch_head_rest(): void {
+  const checks: motionComplaints.IGatherer = motionComplaints();
   const pairs: readonly IPair[] = [
     { resting: "f-small", partner: "m-average" },
     { resting: "f-small", partner: "m-tall" },
   ];
   for (const pair of pairs) {
-    const label: string = `${pair.resting} rests on ${pair.partner}`;
-    const a: IAutoMovieMotionHumanBody = motionHumanBody(pair.resting);
-    const b: IAutoMovieMotionHumanBody = motionHumanBody(pair.partner);
-    const film: HumanPerformance = bench(a, b);
-    assertTakeClean(label, film);
-    const rest: IAutoMovieMotionHumanSegment = film
-      .segments("a")
-      .find(
-        (segment: IAutoMovieMotionHumanSegment): boolean =>
-          segment.name === "headRest",
-      )!;
-    const contact: number = mark(rest, "contact");
-    const part: number = mark(rest, "part");
-    const misses: readonly number[] = [0, 0.25, 0.5, 0.75, 1].map(
-      (share: number): number => {
-        const t: number = contact + share * (part - contact);
-        return Vector3.distance(
-          region(film, "a", a, "templeLeft", t),
-          region(film, "b", b, "shoulderRight", t),
-        );
-      },
-    );
-    TestValidator.predicate(
-      `${label}: the temple stays on the shoulder (${misses.map((m: number): string => (m * 1000).toFixed(1)).join(", ")} mm)`,
-      misses.every((m: number): boolean => m <= NEAR),
-    );
-    const window: IAutoMovieMotionHumanContactWindow | undefined =
-      rest.plan.contacts.find(
-        (w: IAutoMovieMotionHumanContactWindow): boolean =>
-          (w.part as string) === "head" &&
-          w.support.kind === "person" &&
-          w.support.subject === "b",
+    try {
+      const label: string = `${pair.resting} rests on ${pair.partner}`;
+      const a: IAutoMovieMotionHumanBody = motionHumanBody(pair.resting);
+      const b: IAutoMovieMotionHumanBody = motionHumanBody(pair.partner);
+      const film: HumanPerformance = bench(a, b);
+      verdict(checks, label, film);
+      const rest: IAutoMovieMotionHumanSegment = film
+        .segments("a")
+        .find(
+          (segment: IAutoMovieMotionHumanSegment): boolean =>
+            segment.name === "headRest",
+        )!;
+      const contact: number = mark(rest, "contact");
+      const part: number = mark(rest, "part");
+      const misses: readonly number[] = [0, 0.25, 0.5, 0.75, 1].map(
+        (share: number): number => {
+          const t: number = contact + share * (part - contact);
+          return Vector3.distance(
+            region(film, "a", a, "templeLeft", t),
+            region(film, "b", b, "shoulderRight", t),
+          );
+        },
       );
-    TestValidator.predicate(
-      `${label}: the head bears on the partner in a loaded window`,
-      window !== undefined &&
-        window.load !== undefined &&
-        window.load > 0 &&
-        window.load < 1,
-    );
+      checks.check(
+        `${label}: the temple stays on the shoulder (${misses.map((m: number): string => (m * 1000).toFixed(1)).join(", ")} mm)`,
+        misses.every((m: number): boolean => m <= NEAR),
+      );
+      const window: IAutoMovieMotionHumanContactWindow | undefined =
+        rest.plan.contacts.find(
+          (w: IAutoMovieMotionHumanContactWindow): boolean =>
+            (w.part as string) === "head" &&
+            w.support.kind === "person" &&
+            w.support.subject === "b",
+        );
+      checks.check(
+        `${label}: the head bears on the partner in a loaded window`,
+        window !== undefined &&
+          window.load !== undefined &&
+          window.load > 0 &&
+          window.load < 1,
+      );
+    } catch (error: unknown) {
+      checks.check(`${String(pair)}: ${everydayTake.describe(error)}`, false);
+    }
   }
-  TestValidator.predicate(
+  checks.check(
     "the small woman cannot rest standing on the tall man's shoulder",
     (() => {
       try {
@@ -151,9 +171,13 @@ export function test_motion_touch_head_rest(): void {
       }
     })(),
   );
+  checks.assert("touch head rest");
 }
 
-/** `a` and `b` sit side by side, `b` on `a`'s left; `a` rests on `b`'s right shoulder while `b`'s right arm wraps around `a`. */
+/**
+ * `a` and `b` sit side by side, `b` on `a`'s left; `a` rests on `b`'s right
+ * shoulder while `b`'s right arm wraps around `a`.
+ */
 function bench(
   a: IAutoMovieMotionHumanBody,
   b: IAutoMovieMotionHumanBody,
@@ -300,4 +324,20 @@ function mark(segment: IAutoMovieMotionHumanSegment, name: string): number {
         (event: IAutoMovieMotionEvent): boolean => event.name === name,
       )!.share
   );
+}
+
+/** Gather a take's shipped verdicts as one check. */
+function verdict(
+  checks: motionComplaints.IGatherer,
+  label: string,
+  film: HumanPerformance,
+): void {
+  try {
+    assertTakeClean(label, film);
+  } catch (error: unknown) {
+    checks.check(
+      `${label}: ${error instanceof Error ? error.message : String(error)}`,
+      false,
+    );
+  }
 }

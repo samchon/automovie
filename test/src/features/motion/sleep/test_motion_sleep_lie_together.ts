@@ -17,21 +17,31 @@ import {
   HumanRefusal,
 } from "@automovie/motions";
 import { HumanColliders } from "@automovie/motions/internal";
-import { TestValidator } from "@nestia/e2e";
 
 import { assertTakeClean } from "../../internal/assertTakeClean";
+import { everydayTake } from "../../internal/everydayTake";
+import { motionComplaints } from "../../internal/motionComplaints";
 import { motionHumanBody } from "../../internal/motionHumanBody";
 
-/** How near the resting region stays to the partner's, metres: the law's skin contact and its rest gap. */
+/**
+ * How near the resting region stays to the partner's, metres: the law's skin
+ * contact and its rest gap.
+ */
 const NEAR: number = 0.015;
 
-/** How far below the floor any bone may lie, metres: the verdicts' floor tolerance, read on the joints (provisional). */
+/**
+ * How far below the floor any bone may lie, metres: the verdicts' floor
+ * tolerance, read on the joints (provisional).
+ */
 const FLOOR: number = 0.01;
 
 /** How long the two lie together, seconds. */
 const HOLD: number = 3;
 
-/** How far from its settled place the performer is staged to lie, metres: clear of the partner while lying down, within the settling arm's reach. */
+/**
+ * How far from its settled place the performer is staged to lie, metres: clear
+ * of the partner while lying down, within the settling arm's reach.
+ */
 const NEARBY: number = 0.6;
 
 /** One way of lying together and the regions it brings together. */
@@ -53,18 +63,18 @@ interface IWay {
 }
 
 /**
- * Lying together on the floor (#4012): spooning, and the head on the
- * partner's chest.
+ * Lying together on the floor (#4012): spooning, and the head on the partner's
+ * chest.
  *
  * Scenarios, the average man with the small woman for each way, each take
  * clean:
- * 1. Through the hold, the performer's chest lies on the partner's back
- *    (spooning, at the height the performer's own lying width gives its
- *    midline) or its lower cheek on the partner's surface by the chest, as
- *    the partner breathes. With the head on the chest the performer is
- *    staged out to the partner's side along the shoulders, its head toward
- *    the partner, since a chest's level normal on a body lying on its back
- *    points along the body.
+ *
+ * 1. Through the hold, the performer's chest lies on the partner's back (spooning,
+ *    at the height the performer's own lying width gives its midline) or its
+ *    lower cheek on the partner's surface by the chest, as the partner
+ *    breathes. With the head on the chest the performer is staged out to the
+ *    partner's side along the shoulders, its head toward the partner, since a
+ *    chest's level normal on a body lying on its back points along the body.
  * 2. Both bodies stay on the floor: no bone under it.
  * 3. The resting region bears on the partner in a window.
  * 4. Lying far from the partner is refused.
@@ -76,6 +86,7 @@ interface IWay {
  * @evidence contracts/development/testing.md#execution-ownership In-memory two-performer performances through the public chain, each body's lying place read once from its own lie alone to stage the pair.
  */
 export function test_motion_sleep_lie_together(): void {
+  const checks: motionComplaints.IGatherer = motionComplaints();
   const ways: readonly IWay[] = [
     {
       way: "spoon",
@@ -95,64 +106,70 @@ export function test_motion_sleep_lie_together(): void {
   const a: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const b: IAutoMovieMotionHumanBody = motionHumanBody("f-small");
   for (const w of ways) {
-    const label: string = `m-average and f-small lie together (${w.way})`;
-    const film: HumanPerformance = scene(a, b, w, NEARBY);
-    assertTakeClean(label, film);
-    const act: IAutoMovieMotionHumanSegment = film
-      .segments("a")
-      .find(
-        (s: IAutoMovieMotionHumanSegment): boolean => s.name === "lieTogether",
-      )!;
-    const from: number =
-      act.start +
-      act.plan.duration *
-        act.plan.events.find(
-          (e: IAutoMovieMotionEvent): boolean => e.name === "settled",
-        )!.share;
-    // Spooning, both bodies lie on the same side on one floor, so each
-    // midline stands at its own lying height: the resting point is the
-    // partner's region raised by the two bodies' difference in that height,
-    // read from each lying alone.
-    const raised: number =
-      w.way === "spoon"
-        ? lain(a, w.own, w.mine).point.y - lain(b, w.partner, w.theirs).point.y
-        : 0;
-    // With the head on the chest, the cheek rests on the partner's surface
-    // by the shoulder, wherever the body beside the partner lets it reach,
-    // so it is read against the partner's colliders, not a region's centre.
-    const misses: readonly number[] = [0, 0.5, 1].map((k: number): number => {
-      const t: number = from + k * (act.end - from);
-      const mine: IAutoMovieVector3 = region(film, "a", a, w.mine, t);
-      if (w.way === "chest")
-        return Math.abs(
-          HumanColliders.distance(b, film.bones("b", t), mine).distance,
-        );
-      const theirs: IAutoMovieVector3 = region(film, "b", b, w.theirs, t);
-      return Vector3.distance(mine, { ...theirs, y: theirs.y + raised });
-    });
-    TestValidator.predicate(
-      `${label}: the ${w.mine} stays on the partner's ${w.theirs} (${misses.map((m: number): string => (m * 1000).toFixed(1)).join(", ")} mm)`,
-      misses.every((m: number): boolean => m <= NEAR),
-    );
-    for (const subject of ["a", "b"] as const)
-      TestValidator.predicate(
-        `${label}: ${subject} stays on the floor`,
-        [from, act.end].every((t: number): boolean =>
-          [...film.bones(subject, t).values()].every(
-            (bone: IAutoMovieResolvedBone): boolean =>
-              bone.worldPosition.y >= -FLOOR,
+    try {
+      const label: string = `m-average and f-small lie together (${w.way})`;
+      const film: HumanPerformance = scene(a, b, w, NEARBY);
+      verdict(checks, label, film);
+      const act: IAutoMovieMotionHumanSegment = film
+        .segments("a")
+        .find(
+          (s: IAutoMovieMotionHumanSegment): boolean =>
+            s.name === "lieTogether",
+        )!;
+      const from: number =
+        act.start +
+        act.plan.duration *
+          act.plan.events.find(
+            (e: IAutoMovieMotionEvent): boolean => e.name === "settled",
+          )!.share;
+      // Spooning, both bodies lie on the same side on one floor, so each
+      // midline stands at its own lying height: the resting point is the
+      // partner's region raised by the two bodies' difference in that height,
+      // read from each lying alone.
+      const raised: number =
+        w.way === "spoon"
+          ? lain(a, w.own, w.mine).point.y -
+            lain(b, w.partner, w.theirs).point.y
+          : 0;
+      // With the head on the chest, the cheek rests on the partner's surface
+      // by the shoulder, wherever the body beside the partner lets it reach,
+      // so it is read against the partner's colliders, not a region's centre.
+      const misses: readonly number[] = [0, 0.5, 1].map((k: number): number => {
+        const t: number = from + k * (act.end - from);
+        const mine: IAutoMovieVector3 = region(film, "a", a, w.mine, t);
+        if (w.way === "chest")
+          return Math.abs(
+            HumanColliders.distance(b, film.bones("b", t), mine).distance,
+          );
+        const theirs: IAutoMovieVector3 = region(film, "b", b, w.theirs, t);
+        return Vector3.distance(mine, { ...theirs, y: theirs.y + raised });
+      });
+      checks.check(
+        `${label}: the ${w.mine} stays on the partner's ${w.theirs} (${misses.map((m: number): string => (m * 1000).toFixed(1)).join(", ")} mm)`,
+        misses.every((m: number): boolean => m <= NEAR),
+      );
+      for (const subject of ["a", "b"] as const)
+        checks.check(
+          `${label}: ${subject} stays on the floor`,
+          [from, act.end].every((t: number): boolean =>
+            [...film.bones(subject, t).values()].every(
+              (bone: IAutoMovieResolvedBone): boolean =>
+                bone.worldPosition.y >= -FLOOR,
+            ),
           ),
+        );
+      checks.check(
+        `${label}: the ${w.mine} bears on the partner`,
+        act.plan.contacts.some(
+          (c: IAutoMovieMotionHumanContactWindow): boolean =>
+            c.support.kind === "person" && c.support.subject === "b",
         ),
       );
-    TestValidator.predicate(
-      `${label}: the ${w.mine} bears on the partner`,
-      act.plan.contacts.some(
-        (c: IAutoMovieMotionHumanContactWindow): boolean =>
-          c.support.kind === "person" && c.support.subject === "b",
-      ),
-    );
+    } catch (error: unknown) {
+      checks.check(`${String(w)}: ${everydayTake.describe(error)}`, false);
+    }
   }
-  TestValidator.predicate(
+  checks.check(
     "lying far from the partner is refused",
     (() => {
       try {
@@ -163,9 +180,13 @@ export function test_motion_sleep_lie_together(): void {
       }
     })(),
   );
+  checks.assert("sleep lie together");
 }
 
-/** Where a body's region lies, and which way it faces, once the body has lain down alone from the origin at a heading, degrees. */
+/**
+ * Where a body's region lies, and which way it faces, once the body has lain
+ * down alone from the origin at a heading, degrees.
+ */
 function lain(
   body: IAutoMovieMotionHumanBody,
   position: IAutoMovieMotionHumanLieDown.Position,
@@ -192,7 +213,10 @@ function lain(
   );
 }
 
-/** `b` lies down; `a` lies down `apart` from where it settles against `b`, then they lie together. */
+/**
+ * `b` lies down; `a` lies down `apart` from where it settles against `b`, then
+ * they lie together.
+ */
 function scene(
   a: IAutoMovieMotionHumanBody,
   b: IAutoMovieMotionHumanBody,
@@ -262,7 +286,10 @@ function flatten(v: IAutoMovieVector3): IAutoMovieVector3 {
   return Vector3.normalize({ x: v.x, y: 0, z: v.z });
 }
 
-/** The level direction out to a lying body's side of a chest region, along its shoulders' axis. */
+/**
+ * The level direction out to a lying body's side of a chest region, along its
+ * shoulders' axis.
+ */
 function side(
   body: IAutoMovieMotionHumanBody,
   position: IAutoMovieMotionHumanLieDown.Position,
@@ -286,4 +313,20 @@ function region(
     body.surfaces.regions[name],
     film.bones(subject, t).get(body.surfaces.regions[name].bone)!,
   ).point;
+}
+
+/** Gather a take's shipped verdicts as one check. */
+function verdict(
+  checks: motionComplaints.IGatherer,
+  label: string,
+  film: HumanPerformance,
+): void {
+  try {
+    assertTakeClean(label, film);
+  } catch (error: unknown) {
+    checks.check(
+      `${label}: ${error instanceof Error ? error.message : String(error)}`,
+      false,
+    );
+  }
 }

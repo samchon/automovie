@@ -23,9 +23,10 @@ import {
   HumanRefusal,
 } from "@automovie/motions";
 import { HumanFoot, HumanHand } from "@automovie/motions/internal";
-import { TestValidator } from "@nestia/e2e";
 
 import { assertTakeClean } from "../../internal/assertTakeClean";
+import { everydayTake } from "../../internal/everydayTake";
+import { motionComplaints } from "../../internal/motionComplaints";
 import { motionHumanBody } from "../../internal/motionHumanBody";
 import { vclose } from "../../internal/vclose";
 
@@ -39,10 +40,12 @@ const SIDES = [
  * drives and tracks the handles of their own station through three strokes.
  *
  * Scenarios:
- * 1. Measure the body seat, both forefeet and both grip centers against
- *    the visible articulated model in film coordinates from catch through recovery.
- * 2. Measure blade wet and dry states, phase separation, progressive motion of
- *    the hull, and replay identical samples in reverse order.
+ *
+ * 1. Measure the body seat, both forefeet and both grip centers against the
+ *    visible articulated model in film coordinates from catch through
+ *    recovery.
+ * 2. Measure blade wet and dry states, phase separation, progressive motion of the
+ *    hull, and replay identical samples in reverse order.
  * 3. Refuse two concurrent owners of one station's carriage and oars.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the real moving shell, actuated contacts, sample boundaries and conflict.
@@ -52,12 +55,25 @@ const SIDES = [
  * @evidence contracts/development/testing.md#execution-ownership Coordinates no external simulation and owns its film, bodies and hull in memory.
  */
 export function test_motion_ride_racing_scull(): void {
-  for (const profile of ["m-average", "f-average"] as const)
-    verifyCrew(motionHumanBody(profile));
+  const checks: motionComplaints.IGatherer = motionComplaints();
+  for (const profile of ["m-average", "f-average"] as const) {
+    try {
+      verifyCrew(checks, motionHumanBody(profile));
+    } catch (error: unknown) {
+      checks.check(
+        `${String(profile)}: ${everydayTake.describe(error)}`,
+        false,
+      );
+    }
+  }
+  checks.assert("ride racing scull");
 }
 
 /** Use the same moving shell and signed station timings with one body profile. */
-function verifyCrew(body: IAutoMovieMotionHumanBody): void {
+function verifyCrew(
+  checks: motionComplaints.IGatherer,
+  body: IAutoMovieMotionHumanBody,
+): void {
   const shell = createDoubleScull({ id: "shell" }, 4);
   const course: AutoMovieArchetypeCourse.IPlan = AutoMovieArchetypeCourse.plan(
     "doubleScull",
@@ -97,7 +113,7 @@ function verifyCrew(body: IAutoMovieMotionHumanBody): void {
       },
     });
   const film: HumanPerformance = take("stroke");
-  assertTakeClean("racing scull", film);
+  verdict(checks, "racing scull", film);
   const world = (
     model: typeof shell,
     name: createDoubleScull.Affordance,
@@ -117,7 +133,7 @@ function verifyCrew(body: IAutoMovieMotionHumanBody): void {
   const catch2: number = at(first, "catch2");
   const extract2: number = at(first, "extract2");
   const next: number = at(first, "catch3");
-  TestValidator.predicate(
+  checks.check(
     "the same moving hull starts, turns, and advances over three cycles",
     course.at(0).speed === 0 &&
       course.at(catch2).speed > 1.5 &&
@@ -127,7 +143,7 @@ function verifyCrew(body: IAutoMovieMotionHumanBody): void {
         film.prop("shell", catch2).position,
       ) > 3,
   );
-  TestValidator.predicate(
+  checks.check(
     "both stations' catches retain the authored phase",
     Math.abs(
       at(first, "catch2") -
@@ -227,33 +243,33 @@ function verifyCrew(body: IAutoMovieMotionHumanBody): void {
         ).translation.y > 0.12;
     }
   }
-  TestValidator.predicate(
+  checks.check(
     "all four visible blade tips have a wet drive and dry recovery",
     allWet && allDry,
   );
-  TestValidator.predicate(
+  checks.check(
     `seat sockets remain on moving sliders (${seatError.toFixed(4)} m max)`,
     seatError < 0.01,
   );
-  TestValidator.predicate(
+  checks.check(
     `all grips follow their actual oars (${handError.toFixed(4)} m max)`,
     handError < 0.01,
   );
-  TestValidator.predicate(
+  checks.check(
     `the forefeet stay on their angled stretchers (${soleError.toFixed(4)} m max)`,
     soleError < 0.01,
   );
 
   const catchSlide: number = film.state("shell", catch2).bowSlide!;
   const driveSlide: number = film.state("shell", extract2).bowSlide!;
-  TestValidator.predicate(
+  checks.check(
     "the visible seat moves along its rail and recovers to the same place",
     driveSlide - catchSlide > 0.2 &&
       Math.abs(film.state("shell", next).bowSlide! - catchSlide) < 1.0e-8,
   );
   const before = film.bones("stroke", extract2).get("hips")!.worldPosition;
   film.bones("stroke", next);
-  TestValidator.predicate(
+  checks.check(
     "reverse scrub reuses the same phase",
     vclose(
       before,
@@ -264,7 +280,7 @@ function verifyCrew(body: IAutoMovieMotionHumanBody): void {
   try {
     take("bow");
   } catch (error) {
-    TestValidator.predicate(
+    checks.check(
       "conflicting station ownership refuses",
       error instanceof HumanRefusal &&
         error.kind === "cut" &&
@@ -297,4 +313,20 @@ function at(segment: IAutoMovieMotionHumanSegment, name: string): number {
     segment.plan.duration *
       segment.plan.events.find((event) => event.name === name)!.share
   );
+}
+
+/** Gather a take's shipped verdicts as one check. */
+function verdict(
+  checks: motionComplaints.IGatherer,
+  label: string,
+  film: HumanPerformance,
+): void {
+  try {
+    assertTakeClean(label, film);
+  } catch (error: unknown) {
+    checks.check(
+      `${label}: ${error instanceof Error ? error.message : String(error)}`,
+      false,
+    );
+  }
 }
