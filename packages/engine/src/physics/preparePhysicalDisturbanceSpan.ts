@@ -487,10 +487,37 @@ export function preparePhysicalDisturbanceSpan(
         c: state.c,
         omega,
       });
+      // The sole's outline is placed to contain xi(T), as the footstep
+      // adjustor places the foot's outline rather than its point
+      // (`physicalFootstepAdjustor`): the endpoints whose sole holds xi(T)
+      // are xi(T) less the sole's outline about its endpoint, and the
+      // footstep is the one of them in the region nearest the sole centred
+      // on xi(T); with none in the region, xi(T)'s projection into it.
+      const facing: Polygon.IFrame = {
+        origin: { x: 0, z: 0 },
+        forward: swing.frame.forward,
+      };
+      const holding: Polygon.IPoint[] = Polygon.hull(
+        swing.polygon.map(
+          (v: Polygon.IPoint): Polygon.IPoint =>
+            toLocal(add(trial.xi, Polygon.world(facing, v), -1)),
+        ),
+      );
+      const centred: Polygon.IPoint = toLocal(
+        add(
+          trial.xi,
+          Polygon.world(facing, Polygon.centroid(Polygon.hull(swing.polygon))),
+          -1,
+        ),
+      );
+      const both: Polygon.IPoint[] =
+        region.length >= 3 ? Polygon.intersect(region, holding) : [];
       const under: Tools.IFloor =
-        region.length >= 3
-          ? toWorld(Polygon.project(region, toLocal(trial.xi)))
-          : placedAt.target;
+        both.length >= 3
+          ? toWorld(Polygon.project(both, centred))
+          : region.length >= 3
+            ? toWorld(Polygon.project(region, toLocal(trial.xi)))
+            : placedAt.target;
       placedAt.target = under;
       step = {
         support,
