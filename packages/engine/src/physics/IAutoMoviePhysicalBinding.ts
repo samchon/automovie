@@ -4,6 +4,7 @@ import type {
   IAutoMoviePhysicalJoint,
   IAutoMoviePhysicalOwnershipEvent,
   IAutoMoviePhysicalProfile,
+  IAutoMoviePhysicalRecoveryState,
   IAutoMoviePhysicalSegment,
   IAutoMoviePhysicalSupportWrench,
   IAutoMoviePhysicalTargetInterval,
@@ -15,6 +16,7 @@ import type {
 import type { AutoMovieXpbdBody } from "./AutoMovieXpbdBody";
 import type { AutoMovieXpbdJoint } from "./AutoMovieXpbdJoint";
 import type { IPhysicalCoupledTargetRun } from "./IPhysicalCoupledTargetRun";
+import type { preparePhysicalDisturbanceSpan } from "./preparePhysicalDisturbanceSpan";
 
 /**
  * Solver handles are transient and rebuilt in creation order after snapshot
@@ -60,6 +62,19 @@ export interface IAutoMoviePhysicalBinding {
    * Virtual requested/allocated support demand, never a measured solver
    * impulse.
    */ supportWrenches: IAutoMoviePhysicalSupportWrench[];
+  /**
+   * Each body's prepared disturbance response and the recorded inputs it was
+   * prepared from (`preparePhysicalDisturbanceSpan`), held until a new span
+   * replaces it; rebuilt from the inputs after a restore.
+   */ spans: Map<
+    string,
+    {
+      input: NonNullable<IAutoMoviePhysicalRecoveryState["span"]>;
+      span: preparePhysicalDisturbanceSpan.ISpan;
+      handed?: boolean;
+      started?: boolean;
+    }
+  >;
 
   /**
    * At most one transient set of recovery motor goals per body and cached

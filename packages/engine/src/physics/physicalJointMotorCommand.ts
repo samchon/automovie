@@ -18,10 +18,11 @@ import { projectPhysicalJointVelocity } from "./projectPhysicalJointVelocity";
  * (c + k dt) strength-scaled plus passive damping and target speed (k e +
  * c_active w_target + f strength) / d_active+passive, the backward-Euler form
  * of PD with stiffness k = stiffness strength. With positive strength the
- * requested velocity is projected into the joint's twist-limit box for the next
- * substep. The cap is the axis torque when any gain is active and zero
- * otherwise. Saturation is a demand forecast |d (speed - velocity)| > cap at
- * the command's velocity, before the substeps run.
+ * requested velocity is projected into the joint's limit box for the next
+ * substep, read in its chart when it declares one, as the solver limits it. The
+ * cap is the axis torque when any gain is active and zero otherwise. Saturation
+ * is a demand forecast |d (speed - velocity)| > cap at the command's velocity,
+ * before the substeps run.
  */
 export function physicalJointMotorCommand(
   input: IAutoMoviePhysicalJointMotorCommand.IInput,
@@ -45,9 +46,11 @@ export function physicalJointMotorCommand(
   // Implicit PD target speed per declared axis.
   const requested: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
   for (const axis of input.joint.axes) {
-    const k: number = axis.stiffness * input.strength;
+    const k: number =
+      axis.stiffness * input.strength * (input.stiffnessScale ?? 1);
     const activeDamping: number =
-      axis.damping * input.strength + k * input.timestep;
+      axis.damping * input.strength * (input.dampingScale ?? 1) +
+      k * input.timestep;
     const damping: number = activeDamping + (axis.passiveDamping ?? 0);
     requested[axis.axis] =
       damping > 0
@@ -64,6 +67,7 @@ export function physicalJointMotorCommand(
           input.joint.axes,
           requested,
           input.timestep,
+          input.joint.order,
         )
       : requested;
   const output: IAutoMoviePhysicalJointMotorCommand.IOutput = {
@@ -72,20 +76,24 @@ export function physicalJointMotorCommand(
     saturated: [],
   };
   for (const axis of input.joint.axes) {
-    const k: number = axis.stiffness * input.strength;
+    const k: number =
+      axis.stiffness * input.strength * (input.stiffnessScale ?? 1);
     const damping: number =
-      axis.damping * input.strength +
+      axis.damping * input.strength * (input.dampingScale ?? 1) +
       (axis.passiveDamping ?? 0) +
       k * input.timestep;
     const speed: number = velocity[axis.axis];
-    const maximumTorque: number = k + damping > 0 ? axis.maximumTorque : 0;
+    // The torque this step drives toward one end of the axis; a joint whose
+    // two directions differ in strength is bounded by that direction's.
+    const demand: number = damping * (speed - input.velocity[axis.axis]);
+    const bound: number =
+      demand < 0
+        ? (axis.reverseTorque ?? axis.maximumTorque)
+        : axis.maximumTorque;
+    const maximumTorque: number = k + damping > 0 ? bound : 0;
     output.axes.push({ axis: axis.axis, speed, damping, maximumTorque });
     output.error += error[axis.axis] ** 2;
-    if (
-      Math.abs(damping * (speed - input.velocity[axis.axis])) >
-      axis.maximumTorque
-    )
-      output.saturated.push(axis.axis);
+    if (Math.abs(demand) > bound) output.saturated.push(axis.axis);
   }
   output.error = Math.sqrt(output.error);
   return output;

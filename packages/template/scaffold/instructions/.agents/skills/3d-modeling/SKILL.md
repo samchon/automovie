@@ -35,7 +35,4 @@ For a commissioned [detail option](../development/entities.md#detail), use the s
 | [Conditioning](conditioning.md) | Take a found or generated mesh into the production, or vary it by a parameter |
 | [Mesh recovery](crafting/recovery.md) | Rebuild a fixed mesh as curves or surfaces |
 | [Rigging](rigging.md) | Add or change a skeleton, skin, attachment or deformation control |
-
-Give a detailed surface without a sourced image a `procedural` surface on its material. It generates wood, stone, plaster, clay, fabric or brushed metal from a seed, a feature size in metres, two linear colours, two roughness values and a relief in metres. Set `axis` along the grain, warp or brushing direction for wood, fabric and brushed metal. On a laid surface pattern, set `piece` from the occurrence's sheet kind, tile and texture transform: a `face` sheet runs on across joints and `module` pieces differ like separately made tiles.
-
-Give a used object `wear` on its material: an `edge` layer for paint chipped off convex edges and a `grime` layer for dirt in concave creases, each with a colour, a roughness, a band width in metres and an amount. Wear follows the mesh's sharp edges at bind pose, so it needs no extra vertices and stays put on a skinned mesh. Darkening where separate objects touch comes from the film's occlusion, not from wear.
+| [Materials](materials.md) | Give the form its surfaces: record materials, generated finishes and wear |

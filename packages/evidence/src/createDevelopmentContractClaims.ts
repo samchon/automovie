@@ -11,21 +11,22 @@ import { SKILLS_ROOT } from "./internal/SKILLS_ROOT";
  * Creates the claims of the enabled production-specific development contracts.
  *
  * Each enabled stage selects the exported declarations of its source folders
- * and requires each to answer every item of `contracts/development/<stage>.md`
- * in its doc comment, read from the skills tree at `props.skills`, by default
- * the production's own `.agents/skills`. Entities answer with their types,
- * classes, functions and methods, because an entity is a class whose methods
- * are its capabilities. Behaviors (laws, interactions and consequences) answer
- * the behaviors checklist. For skilled practice, the studied laws answer cites
- * the observations used to coordinate even installed actions. A study can also
- * serve the screenplay alone. Scenes cite the screenplay scene file, or the
- * sections and beats of it they realize, and every H2 section and H3 beat must
- * be realized; films cite each scene file they order, and every scene file must
- * belong to a film. Catalog scenes and the catalog film answer the composition
- * checklist alone. With `instructions`, the composition and entities must also
- * realize every instruction section, which no narrative layer then cites, with
- * no exclusion. The public configuration adds coverage of the route's subject
- * records when entities or composition are submitted.
+ * and requires each to answer every item of its checklist under
+ * `contracts/development/` in its doc comment, read from the skills tree at
+ * `props.skills`, by default the production's own `.agents/skills`. Entities
+ * answer `entities.md` with their types, classes, functions and methods,
+ * because an entity is a class whose methods are its capabilities. Behaviors
+ * (laws, interactions and consequences) answer `behaviors.md`. For skilled
+ * practice, the studied laws answer cites the observations used to coordinate
+ * even installed actions. A study can also serve the screenplay alone. Scenes
+ * answer `composition.md` and cite the screenplay scene file, or the sections
+ * and beats of it they realize, and every H2 section and H3 beat must be
+ * realized; screenplay films answer `films.md` and cite each scene file they
+ * order, and every scene file must belong to a film. Catalog cases and the
+ * catalog film answer `catalog.md` alone. With `instructions`, the composition
+ * and entities must also realize every instruction section, which no narrative
+ * layer then cites, with no exclusion. The public configuration adds coverage
+ * of the route's subject records when entities or composition are submitted.
  */
 export function createDevelopmentContractClaims(
   props: IAutoMovieDevelopmentProps & {
@@ -51,6 +52,7 @@ export function createDevelopmentContractClaims(
   const populations: {
     stage: keyof IAutoMovieDevelopmentProps;
     name: string;
+    checklist: string;
     files: string[];
     symbol: EvidenceProgrammingSymbol[];
     cited?: IEvidenceMarkdownReference;
@@ -58,12 +60,14 @@ export function createDevelopmentContractClaims(
     {
       stage: "entities",
       name: "entities",
+      checklist: "entities",
       files: ["src/entities/**/*.ts"],
       symbol: ["type", "function"],
     },
     {
       stage: "behaviors",
       name: "behaviors",
+      checklist: "behaviors",
       files: [
         "src/laws/**/*.ts",
         "src/interactions/**/*.ts",
@@ -74,6 +78,7 @@ export function createDevelopmentContractClaims(
     {
       stage: "composition",
       name: "scenes",
+      checklist: "composition",
       files: [
         "src/composition/scenes/**/*.ts",
         "!src/composition/scenes/catalog/**",
@@ -84,6 +89,7 @@ export function createDevelopmentContractClaims(
     {
       stage: "composition",
       name: "films",
+      checklist: "films",
       files: [
         "src/composition/films/**/*.ts",
         "!src/composition/films/catalog.ts",
@@ -94,6 +100,7 @@ export function createDevelopmentContractClaims(
     {
       stage: "composition",
       name: "review catalog",
+      checklist: "catalog",
       files: [
         "src/composition/scenes/catalog/**/*.ts",
         "src/composition/films/catalog.ts",
@@ -113,7 +120,7 @@ export function createDevelopmentContractClaims(
           {
             type: "markdown",
             root: props.skills ?? SKILLS_ROOT,
-            files: [`contracts/development/${entry.stage}.md`],
+            files: [`contracts/development/${entry.checklist}.md`],
             symbol: "h2",
             checklist: true,
           },

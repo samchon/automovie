@@ -51,6 +51,7 @@ export function bindPhysicalWorld(
     handoffs: new Map(),
     ownership: [],
     supportWrenches: [],
+    spans: new Map(),
 
     planned: new Map(),
     supportPlanned: new Map(),

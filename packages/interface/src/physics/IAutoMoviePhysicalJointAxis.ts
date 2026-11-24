@@ -30,8 +30,11 @@ export interface IAutoMoviePhysicalJointAxis {
    */
   passiveDamping?: number;
 
-  /** Positive maximum motor torque, N m. */
+  /** Positive maximum motor torque, N m; toward the axis maximum when `reverseTorque` is given, both ways otherwise. */
   maximumTorque: number;
+
+  /** Positive maximum motor torque toward the axis minimum, N m, where it differs from `maximumTorque`, as a joint's extensors and flexors differ. */
+  reverseTorque?: number;
 
   /** Provider's authoring coordinate, for honest ROM correspondence. */
   channel: string;

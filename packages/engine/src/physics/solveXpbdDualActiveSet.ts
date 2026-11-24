@@ -55,42 +55,53 @@ export function solveXpbdDualActiveSet(
 
   const dense = (row: solveXpbdDualActiveSet.IRow): Float64Array => {
     const values: Float64Array = new Float64Array(n);
-    row.indices.forEach((index: number, k: number): void => {
-      values[index]! += row.weights[k]!;
-    });
+    for (let k: number = 0; k < row.indices.length; ++k)
+      values[row.indices[k]!]! += row.weights[k]!;
     return values;
+  };
+  // A dense row's nonzero entries in ascending order: the products the
+  // dense inner products add, the zero ones adding nothing.
+  const support = (a: Float64Array): number[] => {
+    const at: number[] = [];
+    for (let i: number = 0; i < n; ++i) if (a[i] !== 0) at.push(i);
+    return at;
   };
   const slack = (row: solveXpbdDualActiveSet.IRow): number => {
     let sum: number = -row.value;
-    row.indices.forEach((index: number, k: number): void => {
-      sum += row.weights[k]! * x[index]!;
-    });
+    for (let k: number = 0; k < row.indices.length; ++k)
+      sum += row.weights[k]! * x[row.indices[k]!]!;
     return sum;
   };
   // The rounding scale of a row's value at x: gamma_m (|v| + |a|^T |x|),
   // m the inner product's length (Higham 2002, sec. 3.1).
   const rounding = (row: solveXpbdDualActiveSet.IRow): number => {
     let sum: number = Math.abs(row.value);
-    row.indices.forEach((index: number, k: number): void => {
-      sum += Math.abs(row.weights[k]! * x[index]!);
-    });
+    for (let k: number = 0; k < row.indices.length; ++k)
+      sum += Math.abs(row.weights[k]! * x[row.indices[k]!]!);
     return (row.indices.length + 1) * Number.EPSILON * sum;
   };
   // d = J^T a, z = J2 d2 (the step direction), change = R^-1 d1 (the
-  // multipliers' change); returns d2^T d2 = z^T a.
-  const direction = (a: Float64Array): number => {
+  // multipliers' change); returns d2^T d2 = z^T a. J^T a reads only a's
+  // nonzero entries (`support`), in the dense product's order, so it costs
+  // O(n nnz) rather than O(n^2) (Goldfarb and Idnani 1983, sec. 4, d = J^T n+).
+  const direction = (a: Float64Array, at: readonly number[]): number => {
     const q: number = active.length;
-    for (let col: number = 0; col < n; ++col) {
-      let sum: number = 0;
-      for (let row: number = 0; row < n; ++row) sum += j[row]![col]! * a[row]!;
-      d[col] = sum;
+    // Each entry's terms are added in the same order as a column-by-column
+    // product, row by row, so the loops run along J's stored rows.
+    d.fill(0);
+    for (const row of at) {
+      const line: Float64Array = j[row]!;
+      const coefficient: number = a[row]!;
+      for (let col: number = 0; col < n; ++col)
+        d[col]! += line[col]! * coefficient;
     }
-    z.fill(0);
     let outside: number = 0;
-    for (let col: number = q; col < n; ++col) {
-      outside += d[col]! * d[col]!;
-      for (let row: number = 0; row < n; ++row)
-        z[row]! += j[row]![col]! * d[col]!;
+    for (let col: number = q; col < n; ++col) outside += d[col]! * d[col]!;
+    for (let row: number = 0; row < n; ++row) {
+      const line: Float64Array = j[row]!;
+      let sum: number = 0;
+      for (let col: number = q; col < n; ++col) sum += line[col]! * d[col]!;
+      z[row] = sum;
     }
     for (let i: number = q - 1; i >= 0; --i) {
       let sum: number = d[i]!;
@@ -109,25 +120,23 @@ export function solveXpbdDualActiveSet(
   // Rotate d's tail onto its q-th entry, carrying J, and append it to R.
   const add = (): void => {
     const q: number = active.length;
+    // The rotations depend on d alone, so they are found first and then
+    // carried along each of J's rows in the same order.
+    const rotations: number[] = [];
     for (let col: number = n - 1; col > q; --col) {
       const length: number = Math.hypot(d[col - 1]!, d[col]!);
       if (length === 0) continue;
-      const cos: number = d[col - 1]! / length;
-      const sin: number = d[col]! / length;
+      rotations.push(col, d[col - 1]! / length, d[col]! / length);
       d[col - 1] = length;
       d[col] = 0;
-      for (let row: number = 0; row < n; ++row) {
-        const first: number = j[row]![col - 1]!;
-        const second: number = j[row]![col]!;
-        j[row]![col - 1] = cos * first + sin * second;
-        j[row]![col] = -sin * first + cos * second;
-      }
     }
+    rotate(rotations, -1);
     for (let row: number = 0; row <= q; ++row) r[row]![q] = d[row]!;
   };
   // Drop the active row at position l and restore R's triangle.
   const drop = (l: number): void => {
     const q: number = active.length;
+    if (active[l]! >= 0) holding[active[l]!] = 0;
     active.splice(l, 1);
     u.splice(l, 1);
     normals.splice(l, 1);
@@ -136,6 +145,9 @@ export function solveXpbdDualActiveSet(
       for (let row: number = 0; row < q; ++row)
         r[row]![col] = r[row]![col + 1]!;
     for (let row: number = 0; row < q; ++row) r[row]![q - 1] = 0;
+    // R's rotations depend on R alone, so J's are carried after them, along
+    // each of its rows in the same order.
+    const rotations: number[] = [];
     for (let col: number = l; col < q - 1; ++col) {
       const length: number = Math.hypot(r[col]![col]!, r[col + 1]![col]!);
       if (length === 0) continue;
@@ -147,11 +159,25 @@ export function solveXpbdDualActiveSet(
         r[col]![k] = cos * first + sin * second;
         r[col + 1]![k] = -sin * first + cos * second;
       }
-      for (let row: number = 0; row < n; ++row) {
-        const first: number = j[row]![col]!;
-        const second: number = j[row]![col + 1]!;
-        j[row]![col] = cos * first + sin * second;
-        j[row]![col + 1] = -sin * first + cos * second;
+      rotations.push(col, cos, sin);
+    }
+    rotate(rotations, 0);
+  };
+  // Givens rotations of J's column pairs (col + offset, col + offset + 1)
+  // for each (col, cos, sin) in order, applied row by row (Golub and Van
+  // Loan 2013, sec. 5.1.8).
+  const rotate = (rotations: readonly number[], offset: number): void => {
+    if (rotations.length === 0) return;
+    for (let row: number = 0; row < n; ++row) {
+      const line: Float64Array = j[row]!;
+      for (let k: number = 0; k < rotations.length; k += 3) {
+        const lower: number = rotations[k]! + offset;
+        const cos: number = rotations[k + 1]!;
+        const sin: number = rotations[k + 2]!;
+        const first: number = line[lower]!;
+        const second: number = line[lower + 1]!;
+        line[lower] = cos * first + sin * second;
+        line[lower + 1] = -sin * first + cos * second;
       }
     }
   };
@@ -192,7 +218,7 @@ export function solveXpbdDualActiveSet(
   const omitted: solveXpbdDualActiveSet.IRow[] = [];
   for (const row of problem.equalities) {
     const a: Float64Array = dense(row);
-    const outside: number = direction(a);
+    const outside: number = direction(a, support(a));
     if (dependent(outside, Math.sqrt(Number.EPSILON))) {
       omitted.push(row);
       continue;
@@ -208,6 +234,8 @@ export function solveXpbdDualActiveSet(
   const equalities: number = active.length;
 
   const preferred: ReadonlySet<number> = new Set(problem.prefer);
+  // Whether each inequality is active.
+  const holding: Uint8Array = new Uint8Array(problem.inequalities.length);
   const limit: number =
     10 * (problem.equalities.length + problem.inequalities.length + 1);
   for (let round: number = 0; round < limit; ++round) {
@@ -216,7 +244,7 @@ export function solveXpbdDualActiveSet(
     let preferredPick: boolean = false;
     problem.inequalities.forEach(
       (row: solveXpbdDualActiveSet.IRow, i: number): void => {
-        if (active.includes(i)) return;
+        if (holding[i] === 1) return;
         const value: number = slack(row);
         if (!(value < -rounding(row))) return;
         const norm: number = Math.hypot(...row.weights);
@@ -253,10 +281,11 @@ export function solveXpbdDualActiveSet(
         : null;
     const row: solveXpbdDualActiveSet.IRow = problem.inequalities[pick]!;
     const a: Float64Array = dense(row);
+    const at: number[] = support(a);
     let multiplier: number = 0;
     for (;;) {
       if (++round > limit) return null;
-      const outside: number = direction(a);
+      const outside: number = direction(a, at);
       let partial: number = Infinity;
       let leaving: number = -1;
       for (let k: number = equalities; k < active.length; ++k)
@@ -280,6 +309,7 @@ export function solveXpbdDualActiveSet(
       if (length === full) {
         add();
         active.push(pick);
+        holding[pick] = 1;
         u.push(multiplier);
         normals.push(a);
         values.push(row.value);

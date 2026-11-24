@@ -7,6 +7,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { Vector3 } from "../math/Vector3";
 import type { AutoMovieXpbdBody } from "./AutoMovieXpbdBody";
 import type { AutoMovieXpbdWorld } from "./AutoMovieXpbdWorld";
 import { physicalSupportPoint } from "./physicalSupportPoint";
@@ -47,6 +48,9 @@ export function collectPhysicalSupports(
       const samples: IAutoMovieCollectPhysicalSupports.IPoint[] = [];
       const seen: Set<string> = new Set();
       let loaded: boolean = false;
+      let impulse: number = 0;
+      let pressure: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
+      let weighted: number = 0;
       for (const manifold of input.world.manifolds()) {
         const first: IAutoMovieContactReceipt["a"] | undefined =
           input.colliders.get(manifold.a.handle);
@@ -60,7 +64,15 @@ export function collectPhysicalSupports(
         const carrier: string = (ours ? first : second)!.bone;
         for (const point of manifold.points) {
           if (point.separation > 0) continue;
-          if (point.impulse > 0) loaded = true;
+          if (point.impulse > 0) {
+            loaded = true;
+            impulse += point.impulse;
+            pressure = Vector3.add(
+              pressure,
+              Vector3.scale(point.point, point.impulse),
+            );
+            weighted += point.impulse;
+          }
           append(point.point, manifold.friction, carrier);
         }
       }
@@ -114,6 +126,9 @@ export function collectPhysicalSupports(
         )
           continue;
         loaded = true;
+        impulse +=
+          (sample.appliedImpulse![first ? "a" : "b"]! * input.dt) /
+          Math.max(input.dt, sample.duration);
         append(
           sample.point,
           (material.friction + 0.7) / 2,
@@ -136,6 +151,10 @@ export function collectPhysicalSupports(
               ),
               samples,
               loaded,
+              impulse,
+              ...(weighted > 0
+                ? { pressure: Vector3.scale(pressure, 1 / weighted) }
+                : {}),
             },
           ]
         : [];

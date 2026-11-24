@@ -257,7 +257,7 @@ const validatePattern: (
 
   const zoneIds: Set<string> = new Set();
   pattern.zones.forEach(
-    (zone: IAutoMovieSurfacePatternZone, index: number): void => {
+    (zone: IAutoMovieSurfacePatternZone): void => {
       if (zoneIds.has(zone.id))
         throw new Error(`pattern zone id "${zone.id}" must be unique`);
       zoneIds.add(zone.id);
@@ -271,10 +271,7 @@ const validatePattern: (
 
   const exclusionIds: Set<string> = new Set();
   const exclusions: IAutoMoviePatternPoint[][] = pattern.exclusions.map(
-    (
-      exclusion: IAutoMoviePatternExclusion,
-      index: number,
-    ): IAutoMoviePatternPoint[] => {
+    (exclusion: IAutoMoviePatternExclusion): IAutoMoviePatternPoint[] => {
       if (exclusionIds.has(exclusion.id))
         throw new Error(
           `pattern exclusion id "${exclusion.id}" must be unique`,

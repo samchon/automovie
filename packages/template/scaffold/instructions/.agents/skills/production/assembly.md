@@ -4,11 +4,9 @@ Assemble the delivered video to the scope in [project context](project-context.m
 
 ## Film assembly
 
-Build one film per screenplay folder. Check the [compositions](../contracts/development/composition.md#screenplay-realization) for missing or unintended repeated beats. Preserve scene order, cuts, pauses, transitions and titles. Use [frame evaluation](../motion/frame-evaluation.md) for scheduling and cut boundaries. Preserve the meaning of each [control channel](../motion/control-channels.md).
+Build one film per screenplay folder. Check the [scenes](../contracts/development/composition.md#screenplay-realization) and the film's [scene order](../contracts/development/films.md#scene-order) for missing or unintended repeated beats. Preserve scene order, cuts, pauses, transitions and titles. Use [frame evaluation](../motion/frame-evaluation.md) for scheduling and cut boundaries. Preserve the meaning of each [control channel](../motion/control-channels.md).
 
-The render, captures and the Viewer draw the transitions of the film's `playback` sequence: a `crossDissolve` mixes the two shots across its overlap, and a `fade` dips through black, the outgoing shot fading out over the first half and the incoming shot fading up over the second. The `graphics` plate is mixed the same way, so it composites over the delivered film.
-
-When the sequence has a transition, give the film a `seekShot` member. It places one shot at its own shot-local second during a film second: a transition's outgoing shot while the incoming one is live, or a shutter sample or inspection trail time outside a shot's span, from the shot's handles. Read only the dialogue mouths at the film second. Every other member, `optics`, `shading`, `softPropsAt`, `beforeDraw`, `marks`, `views` and the inspection sources, describes the shot last placed, at its own shot-local second, so the outgoing tail keeps its own exposure, focus and soft props. Without `seekShot`, every picture inside a transition is refused, and so is every cell of a fitted view whose framing seconds include a second inside one; a shutter sample or trail time outside a shot's span takes the shot's nearest live second, so the blur trail at a cut is shorter.
+The render, captures and the inspector draw the transitions of the film's `playback` sequence: a `crossDissolve` mixes the two shots across its overlap, and a `fade` dips through black. A film with a transition needs the `seekShot` member [modules](../development/modules.md#shots-and-films) sets.
 
 ## Render
 
@@ -16,9 +14,9 @@ When the sequence has a transition, give the film a `seekShot` member. It places
 
 Before scaling a new host or a changed export path, take a shot through a join and decode the result. Compare matched frames with the delivery renderer's output or the graded take supplied for assembly. If a conversion or lossy intermediate intervenes, compare on both sides of it. Check that decoded darks, highlights and colors reproduce the intended picture under the declared color range.
 
-After [segment review](../motion/segment-review.md), use the README render command for the complete motion hint or direct 3D film. For a generated film, assemble the accepted finished takes.
+After [segment review](../motion/segment-review.md), use the README render command for the complete motion hint or direct 3D film. For a generated film, assemble the accepted finished takes. Then composite clean renders under [compositing](../video/finishing.md#compositing).
 
-Keep only the commissioned [sound](../audio/film-sound.md) and [caption tracks](captions.md). When the film declares a `sound` list, the scaffold's render command mixes it and encodes the soundtrack with the picture; a soundtrack supplied as `delivery.audio.path` is encoded as given; with neither it produces picture only. To add caption tracks or any other stream, use a documented assembly command that supports them or an approved production tool. [Measure](../review/delivery-review.md#measurement-and-comparison) the assembled file against the [profile](project-context.md#the-delivery-profile).
+Keep only the commissioned [sound](../audio/film-sound.md) and [caption tracks](captions.md). The README render command encodes the picture and, as the README describes, the film's soundtrack, but no other stream. To add caption tracks or any other stream, use a documented assembly command that supports them or an approved production tool. [Measure](../review/delivery-review.md#measurement-and-comparison) the assembled file against the [profile](project-context.md#the-delivery-profile).
 
 ## Repair and delivery
 

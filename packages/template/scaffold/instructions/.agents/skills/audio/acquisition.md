@@ -28,7 +28,11 @@ Ask the user to play it alongside the motion hint and listen. A preview is never
 
 ### Take adoption
 
-Keep accepted bytes and their record under [media records](../production/media-records.md#records); a regeneration is a new take until the user has heard it. Convert the take to a format the installed packages admit, at the sample rate the output requires, keeping the original.
+Keep accepted bytes and their record under [media records](../production/media-records.md#records); a regeneration is a new take until the user has heard it.
+
+Store each generated line of a direct 3D film's [sound list](soundtrack.md#sound-list) as a mono 32-bit float WAVE file at the model's own rate, with a version 7 `IAutoMovieProductionTtsReceipt` beside it, whose JSDoc defines its fields. Generate the file once and keep the bytes, because the receipt pins its samples and the render resamples the line itself. Record a line again rather than editing its file or receipt.
+
+Convert a take for any other output to a format the installed packages admit, at the sample rate that output requires, keeping the original.
 
 Measure durations and trims from the accepted bytes, and place dialogue, captions, cuts and cues against them. When a line does not fit, edit the take, script or shot deliberately and have the user listen to the result.
 

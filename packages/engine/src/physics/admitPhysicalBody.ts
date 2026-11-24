@@ -171,11 +171,7 @@ export function admitPhysicalBody(
     )
       throw new Error(`${body.id}: invalid support-reach or IK budget`);
     if (
-      [
-        policy.landingTolerance,
-        policy.landingSpeed,
-        policy.landingTimeout,
-      ].some(
+      [policy.landingTimeout].some(
         (value: number | undefined): boolean =>
           value !== undefined && !positive(value),
       ) ||

@@ -9,7 +9,6 @@ import {
   createPhysicalHullShape,
   physicalSupportPoint,
   rotationBetween,
-  swingTwistRange,
   toRigAngle,
 } from "@automovie/engine";
 import type {
@@ -17,8 +16,6 @@ import type {
   IAutoMovieCombinePhysicalMassProperties,
   IAutoMovieHumanCanonicalSolids,
   IAutoMovieJointAxes,
-  IAutoMovieJointConstraint,
-  IAutoMovieJointRotationFrame,
   IAutoMoviePhysicalJoint,
   IAutoMoviePhysicalJointAxis,
   IAutoMoviePhysicalSegment,
@@ -29,63 +26,71 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieHumanCanonicalSolids as Solids } from "./AutoMovieHumanCanonicalSolids";
+import { AutoMovieHumanJointStrength } from "./AutoMovieHumanJointStrength";
 
 /**
- * The contact and mass profile of a polygon man, built from the same joints and
- * girth radii its drawing is built from, at the canonical T-pose rest.
+ * The contact and mass profile of a polygon man, built from the same joints
+ * and girth radii its drawing is built from, at the canonical T-pose rest.
  *
  * Colliders are the drawn solids. The trunk, the neck, the head, each limb
- * segment, the palm, the rear foot and every toe phalanx collide as the convex
- * hulls of the very ring points the drawing lofts its mesh through
+ * segment, the palm, the rear foot and every toe phalanx collide as the
+ * convex hulls of the very ring points the drawing lofts its mesh through
  * (`AutoMovieHumanCanonicalSolids`), so the collision surface is the drawn
  * surface: no corner stands outside what is seen and no drawn surface lies
- * outside its collider. A rig bone carries the hulls of every drawn module that
- * rides it: the foot its two modules through the subtalar and midfoot joints,
- * the toes bone every toe phalanx, so the toes bend at the ball as drawn. Each
- * phalanx of the hand is a capsule of its girth radius from its joint to its
- * child joint, a distal one ending with its cap on the fingertip, because a
- * curl solves its contact in closed form on capsules and the drawn phalanx is
- * that round.
+ * outside its collider. A rig bone carries the hulls of every drawn module
+ * that rides it: the foot its two modules through the subtalar and midfoot
+ * joints, the toes bone every toe phalanx, so the toes bend at the ball as
+ * drawn. Each phalanx of the hand is a capsule of its girth radius from its
+ * joint to its child joint, a distal one ending with its cap on the
+ * fingertip, because a curl solves its contact in closed form on capsules
+ * and the drawn phalanx is that round.
  *
- * Each foot also carries one simulation-only collider (`contactShapes`), a flat
- * sole box from heel to ball (`soleOf`): the drawn heel and forefoot hulls each
- * meet the floor at a single vertex, so a foot planted on them stands on a line
- * and rolls about it. The sole box gives the planted foot a face, the way game
- * engines give a character's foot a simple contact body apart from its drawn
- * shape. It carries no mass and only the physical world reads it, so every
- * motion audit still reads the drawn hulls.
+ * Each foot also carries one simulation-only collider (`contactShapes`), a
+ * flat sole box from heel to ball (`soleOf`): the drawn heel and forefoot
+ * hulls each meet the floor at a single vertex, so a foot planted on them
+ * stands on a line and rolls about it. The sole box gives the planted foot
+ * a face, the way game engines give a character's foot a simple contact
+ * body apart from its drawn shape. It carries no mass and only the physical
+ * world reads it, so every motion audit still reads the drawn hulls.
  *
  * Masses are Dempster's shares of body mass as tabulated by Winter
- * (Biomechanics and Motor Control of Human Movement, 4th ed., table 4.1): hand
- * 0.006, forearm 0.016, upper arm 0.028, thigh 0.100, leg 0.0465, foot 0.0145,
- * thorax 0.216, abdomen 0.139, pelvis 0.142 and head with neck 0.081, the head
- * taking de Leva's (1996) 0.0694 and the neck the rest; the hand's share is
- * split over the palm and the phalanges by collider volume, a uniform density
- * within the hand, and the foot's over the rear foot and the toes the same way.
- * Each segment's centre of mass and inertia are those of its colliders as
- * uniform solids, combined by the parallel-axis theorem, the way physics
- * engines derive inertia from shapes. Joints sit at each child joint with
- * identity frames; every clinical axis of `DEFAULT_HUMANOID_ROM` becomes a
- * physical axis along its `HUMANOID_JOINT_AXES` direction with limits read
- * through `HUMANOID_REST_FRAME`, so the physical zero is the T-pose; a joint
- * the range-of-motion gate reads by swing and twist (a shoulder, a thumb's
- * base) is admitted on that gate instead of its axes' box (`rangeOf`). Drive
- * gains are placeholders kinematic motion never reads: 50 N m per downstream
- * kilogram. Self-contact is excluded between joint neighbours, among the palm
- * and digits of one hand, between the abdomen and each upper arm and between
- * the two thighs. The last two are body pairs that overlap in the reference
- * pose: the shoulder lies inside the chest's girth, so a hanging arm's root
- * runs about 47 mm into the ring the chest shares with the abdomen, and the hip
+ * (Biomechanics and Motor Control of Human Movement, 4th ed., table 4.1):
+ * hand 0.006, forearm 0.016, upper arm 0.028, thigh 0.100, leg 0.0465, foot
+ * 0.0145, thorax 0.216, abdomen 0.139, pelvis 0.142 and head with neck 0.081,
+ * the head taking de Leva's (1996) 0.0694 and the neck the rest; the hand's
+ * share is split over the palm and the phalanges by collider volume, a
+ * uniform density within the hand, and the foot's over the rear foot and the
+ * toes the same way. Each segment's centre of mass and inertia are those of
+ * its colliders as uniform solids, combined by the parallel-axis theorem,
+ * the way physics engines derive inertia from shapes. Joints sit at each
+ * child joint with identity frames; every clinical axis of
+ * `DEFAULT_HUMANOID_ROM` becomes a physical axis along its
+ * `HUMANOID_JOINT_AXES` direction with limits read through
+ * `HUMANOID_REST_FRAME`, so the physical zero is the T-pose. A drive's
+ * strength is the person's peak joint torque where Harbo, Brincks and
+ * Andersen (2012) measured the motion, each direction its own
+ * (`AutoMovieHumanJointStrength`): hip and knee flexion and extension,
+ * ankle dorsi- and plantar flexion, shoulder abduction and adduction, elbow
+ * and wrist flexion and extension; the hip's abduction, adduction and
+ * rotations take McNabb et al.'s (2024) per-kilogram means instead. The axes
+ * neither measured keep an unsourced placeholder, 50 N m per downstream
+ * kilogram, still open. Every drive is critically damped on the moment of
+ * inertia of the subtree it turns about its axis, kd = 2 sqrt(kp I).
+ * Self-contact is excluded between joint neighbours, among the palm and
+ * digits of one hand, between the abdomen and each upper arm and between the
+ * two thighs. The last two are body pairs that overlap in the reference pose:
+ * the shoulder lies inside the chest's girth, so a hanging arm's root runs
+ * about 47 mm into the ring the chest shares with the abdomen, and the hip
  * joints sit closer together than a thigh's root is wide, so the two roots
- * cross the midline by 12 to 17 mm. Neither overlap leaves within a natural arm
- * or leg abduction, and left live, the solver ejects those limbs on the first
- * substep and splays the planted feet. Disabling collision for pairs that
- * overlap in the reference pose is the standard practice (MuJoCo's `<contact>
- * <exclude>` pairs).
- * The known limitation: an upper arm passes through the abdomen and a thigh
- * through the other thigh, as in crossed legs or a clinch, while every other
- * pair, such as the shins with each other and the forearms with the abdomen,
- * still collides.
+ * cross the midline by 12 to 17 mm. Neither overlap leaves within a natural
+ * arm or leg abduction, and left live, the solver ejects those limbs on the
+ * first substep and splays the planted feet. Disabling collision for pairs
+ * that overlap in the reference pose is the standard practice (Unreal
+ * Engine's Physics Asset collision-disable table; MuJoCo's `<contact>
+ * <exclude>` pairs). The known limitation: an upper arm passes through the
+ * abdomen and a thigh through the other thigh, as in crossed legs or a
+ * clinch, while every other pair, such as the shins with each other and the
+ * forearms with the abdomen, still collides.
  */
 export namespace AutoMovieHumanCanonicalProfile {
   /**
@@ -94,12 +99,14 @@ export namespace AutoMovieHumanCanonicalProfile {
    * @param joints Every drawn Human joint by id, parent before child.
    * @param mass Body mass, kilograms.
    * @param id Profile id.
+   * @param person The person whose joint strength the drives take.
    * @returns The profile on the rig's bones.
    */
   export function build(
     joints: ReadonlyMap<string, IAutoMovieHumanCanonicalSolids.IJoint>,
     mass: number,
     id: string,
+    person: AutoMovieHumanJointStrength.IPerson,
   ): P {
     const j = (name: string): IAutoMovieHumanCanonicalSolids.IJoint => {
       const found: IAutoMovieHumanCanonicalSolids.IJoint | undefined =
@@ -228,6 +235,8 @@ export namespace AutoMovieHumanCanonicalProfile {
       const flexion: IAutoMoviePhysicalJointAxis | undefined = axesOf(
         b("Foot"),
         0,
+        person,
+        (): number => 0,
       ).find(
         (axis: IAutoMoviePhysicalJointAxis): boolean =>
           axis.channel === `${b("Foot")}.flexion`,
@@ -304,6 +313,52 @@ export namespace AutoMovieHumanCanonicalProfile {
         (sum: number, c: AutoMovieHumanoidBone): number => sum + downstream(c),
         0,
       );
+    // The moment of inertia of a joint's subtree about one of its axes through
+    // its pivot, at the T-pose the axes are read on: each segment's principal
+    // moments projected onto the axis, plus its mass at its centre's distance
+    // from the axis (the parallel-axis theorem).
+    const inertiaAbout = (
+      child: AutoMovieHumanoidBone,
+      letter: IAutoMoviePhysicalJointAxis["axis"],
+    ): number => {
+      const pivot: IAutoMovieVector3 = origin(child);
+      const axis: IAutoMovieVector3 = {
+        x: letter === "x" ? 1 : 0,
+        y: letter === "y" ? 1 : 0,
+        z: letter === "z" ? 1 : 0,
+      };
+      const of = (bone: AutoMovieHumanoidBone): number => {
+        const s: IAutoMoviePhysicalSegment = segments.find(
+          (candidate: IAutoMoviePhysicalSegment): boolean =>
+            candidate.bone === bone,
+        )!;
+        const principal: IAutoMovieVector3 = Quaternion.rotateVector(
+          Quaternion.inverse(
+            Quaternion.multiply(s.neutral.rotation, s.inertiaRotation),
+          ),
+          axis,
+        );
+        const arm: IAutoMovieVector3 = Vector3.subtract(
+          Vector3.add(
+            s.neutral.position,
+            Quaternion.rotateVector(s.neutral.rotation, s.centerOfMass),
+          ),
+          pivot,
+        );
+        const along: number = Vector3.dot(arm, axis);
+        return (
+          s.inertia.x * principal.x * principal.x +
+          s.inertia.y * principal.y * principal.y +
+          s.inertia.z * principal.z * principal.z +
+          s.mass * (Vector3.dot(arm, arm) - along * along) +
+          children(bone).reduce(
+            (sum: number, c: AutoMovieHumanoidBone): number => sum + of(c),
+            0,
+          )
+        );
+      };
+      return of(child);
+    };
     const links: IAutoMoviePhysicalJoint[] = (
       Object.keys(parentOf) as AutoMovieHumanoidBone[]
     ).map((child: AutoMovieHumanoidBone): IAutoMoviePhysicalJoint => {
@@ -317,9 +372,10 @@ export namespace AutoMovieHumanCanonicalProfile {
           rotation: identity,
         },
         childFrame: { position: { x: 0, y: 0, z: 0 }, rotation: identity },
-        axes: axesOf(child, 50 * downstream(child)),
+        axes: axesOf(child, 50 * downstream(child), person, (letter) =>
+          inertiaAbout(child, letter),
+        ),
         ...orderOf(child),
-        ...rangeOf(child),
       };
     });
     const total: number = segments.reduce(
@@ -426,10 +482,7 @@ export namespace AutoMovieHumanCanonicalProfile {
   }
 }
 
-/**
- * One collider of a segment with the uniform solid's properties about its own
- * centre.
- */
+/** One collider of a segment with the uniform solid's properties about its own centre. */
 interface IPart {
   /** The collider, its transform in the segment's frame. */
   shape: IAutoMoviePhysicalShape;
@@ -444,10 +497,7 @@ interface IPart {
   inertiaRotation: IAutoMovieQuaternion;
 }
 
-/**
- * One foot hull vertex in the foot's frame, with the region its hull belongs
- * to.
- */
+/** One foot hull vertex in the foot's frame, with the region its hull belongs to. */
 interface ISoleVertex {
   /** The vertex, metres, in the foot's frame. */
   point: IAutoMovieVector3;
@@ -467,11 +517,11 @@ interface ISoleTangent {
  * along the ankle's flexion axis that touches the heel hull and the forefoot
  * hull from below, their lower common tangent. It is the plane the standing
  * handoff turns the foot onto the floor about that axis, so the sole lands
- * flat. The box spans heel to ball between the two tangent points and the foot
- * hulls' own medial-lateral extent, and rises to the nearer hull's centroid,
- * inside the drawn foot. Its bottom gives a planted foot a face on the floor
- * where the drawn hulls touch only at a vertex each, so it cannot roll about
- * the line between them.
+ * flat. The box spans heel to ball between the two tangent points and the
+ * foot hulls' own medial-lateral extent, and rises to the nearer hull's
+ * centroid, inside the drawn foot. Its bottom gives a planted foot a face on
+ * the floor where the drawn hulls touch only at a vertex each, so it cannot
+ * roll about the line between them.
  *
  * @param side The foot's side.
  * @param parts The foot bone's colliders.
@@ -489,7 +539,10 @@ function soleOf(
     z: axis === "z" ? 1 : 0,
   };
   const up: IAutoMovieVector3 = Vector3.normalize(
-    Vector3.subtract({ x: 0, y: 1, z: 0 }, Vector3.scale(lateral, lateral.y)),
+    Vector3.subtract(
+      { x: 0, y: 1, z: 0 },
+      Vector3.scale(lateral, lateral.y),
+    ),
   );
   const forward: IAutoMovieVector3 = Vector3.cross(up, lateral);
   const vertices: ISoleVertex[] = [];
@@ -509,19 +562,15 @@ function soleOf(
     centroids.push(
       Vector3.scale(
         points.reduce(
-          (
-            sum: IAutoMovieVector3,
-            point: IAutoMovieVector3,
-          ): IAutoMovieVector3 => Vector3.add(sum, point),
+          (sum: IAutoMovieVector3, point: IAutoMovieVector3): IAutoMovieVector3 =>
+            Vector3.add(sum, point),
           { x: 0, y: 0, z: 0 },
         ),
         1 / points.length,
       ),
     );
   }
-  const heels: ISoleVertex[] = vertices.filter(
-    (v: ISoleVertex): boolean => v.heel,
-  );
+  const heels: ISoleVertex[] = vertices.filter((v: ISoleVertex): boolean => v.heel);
   const fores: ISoleVertex[] = vertices.filter(
     (v: ISoleVertex): boolean => !v.heel,
   );
@@ -574,7 +623,10 @@ function soleOf(
   if (!(thickness > 0) || !(high > low)) return undefined;
   const base: IAutoMovieVector3 = Vector3.add(
     best.heel,
-    Vector3.scale(lateral, (low + high) / 2 - Vector3.dot(best.heel, lateral)),
+    Vector3.scale(
+      lateral,
+      (low + high) / 2 - Vector3.dot(best.heel, lateral),
+    ),
   );
   const centre: IAutoMovieVector3 = Vector3.add(
     base,
@@ -586,10 +638,7 @@ function soleOf(
   // The box's local Y is the sole's normal and its local X the flexion axis
   // (either way along it: the box is symmetric), so the second turn is about
   // the normal and never a half turn.
-  const tilt: IAutoMovieQuaternion = rotationBetween(
-    { x: 0, y: 1, z: 0 },
-    normal,
-  );
+  const tilt: IAutoMovieQuaternion = rotationBetween({ x: 0, y: 1, z: 0 }, normal);
   const turned: IAutoMovieVector3 = Quaternion.rotateVector(tilt, {
     x: 1,
     y: 0,
@@ -624,10 +673,7 @@ const DIGITS: readonly (readonly string[])[] = [
   ]),
 ];
 
-/**
- * The joint frame's axis a clinical axis turns about: its dominant rig letter,
- * as `axesOf` reads it.
- */
+/** The joint frame's axis a clinical axis turns about: its dominant rig letter, as `axesOf` reads it. */
 function letterOf(d: IAutoMovieVector3): IAutoMoviePhysicalJointAxis["axis"] {
   return Math.abs(d.x) >= Math.abs(d.y) && Math.abs(d.x) >= Math.abs(d.z)
     ? "x"
@@ -637,21 +683,16 @@ function letterOf(d: IAutoMovieVector3): IAutoMoviePhysicalJointAxis["axis"] {
 }
 
 /**
- * The joint's sequential chart: its three clinical axes' letters in the order
- * the rig composes them (`jointToQuaternion`): flexion, abduction, twist for
- * the declared ISB order, abduction, flexion, twist for a distal twist, and
- * twist, abduction, flexion otherwise. Absent when two clinical axes share a
- * letter, which leaves the independent coordinates.
+ * The joint's sequential chart: its three clinical axes' letters in the
+ * order the rig composes them (`jointToQuaternion`): flexion, abduction,
+ * twist for the declared ISB order, abduction, flexion, twist for a distal
+ * twist, and twist, abduction, flexion otherwise. Absent when two clinical
+ * axes share a letter, which leaves the independent coordinates.
  */
-function orderOf(
-  bone: AutoMovieHumanoidBone,
-): Pick<IAutoMoviePhysicalJoint, "order"> {
-  const axes: IAutoMovieJointAxes =
-    HUMANOID_JOINT_AXES[bone] ?? DEFAULT_JOINT_AXES;
+function orderOf(bone: AutoMovieHumanoidBone): Pick<IAutoMoviePhysicalJoint, "order"> {
+  const axes: IAutoMovieJointAxes = HUMANOID_JOINT_AXES[bone] ?? DEFAULT_JOINT_AXES;
   const flexion: IAutoMoviePhysicalJointAxis["axis"] = letterOf(axes.flexion);
-  const abduction: IAutoMoviePhysicalJointAxis["axis"] = letterOf(
-    axes.abduction,
-  );
+  const abduction: IAutoMoviePhysicalJointAxis["axis"] = letterOf(axes.abduction);
   const twist: IAutoMoviePhysicalJointAxis["axis"] = letterOf(axes.twist);
   const order: IAutoMoviePhysicalJointAxis["axis"][] =
     axes.rotationOrder === "flexion-abduction-twist"
@@ -663,36 +704,14 @@ function orderOf(
 }
 
 /**
- * The anatomical range a joint gated by swing and twist admits: a bone whose
- * `DEFAULT_HUMANOID_ROM` constraint declares `swingTwist` (the shoulders, the
- * thumbs' bases) is admitted and measured by that gate on its humanoid frame
- * (`swingTwistRange.of`), the set the range-of-motion gate and the take's range
- * verdict read, in place of its axes' box, whose clinical twist interval is
- * then a reading only. The joint frames are the T-pose's own, so the joint's
- * relative rotation is the bone's rest-relative one: the basis is the
- * identity.
- */
-function rangeOf(
-  bone: AutoMovieHumanoidBone,
-): Pick<IAutoMoviePhysicalJoint, "range"> {
-  const constraint: IAutoMovieJointConstraint | undefined =
-    DEFAULT_HUMANOID_ROM[bone];
-  const frame: IAutoMovieJointRotationFrame | undefined =
-    swingTwistRange.of(bone);
-  return constraint?.swingTwist === undefined ||
-    constraint.swingTwist === null ||
-    frame === undefined
-    ? {}
-    : { range: { constraint, frame, basis: Quaternion.identity() } };
-}
-
-/**
- * The physical axes of one joint from its clinical ranges, read onto the T-pose
- * rig.
+ * The physical axes of one joint from its clinical ranges, read onto the
+ * T-pose rig, each drive critically damped on the subtree it turns.
  */
 function axesOf(
   bone: AutoMovieHumanoidBone,
   torque: number,
+  person: AutoMovieHumanJointStrength.IPerson,
+  inertia: (letter: IAutoMoviePhysicalJointAxis["axis"]) => number,
 ): IAutoMoviePhysicalJointAxis[] {
   const rom = DEFAULT_HUMANOID_ROM[bone];
   const axes: IAutoMovieJointAxes =
@@ -714,15 +733,36 @@ function axesOf(
     const ends: number[] = [physical(range.min), physical(range.max)].sort(
       (a: number, b: number): number => a - b,
     );
+    const coordinateSign: 1 | -1 = (sign * (frame?.sign ?? 1)) as 1 | -1;
+    // A measured motion's peak torque drives toward that end of the axis;
+    // the drive's stiffness is their mean (SIMBICON: torque limited to kp;
+    // Yin, Loken and van de Panne 2007, Section 7), and its damping the
+    // critical one on the subtree's moment of inertia I about the axis,
+    // kd = 2 sqrt(kp I), so the joint's second-order response has damping
+    // ratio one and tracks without overshoot (Ogata, Modern Control
+    // Engineering, Section 5-3).
+    const measured = AutoMovieHumanJointStrength.of(person, bone, clinical);
+    const up: number = measured
+      ? coordinateSign > 0
+        ? measured.toMaximum
+        : measured.toMinimum
+      : torque;
+    const down: number = measured
+      ? coordinateSign > 0
+        ? measured.toMinimum
+        : measured.toMaximum
+      : torque;
+    const stiffness: number = (up + down) / 2;
     out.push({
       axis: letter,
       minimum: Math.max(-Math.PI, ends[0]!),
       maximum: Math.min(Math.PI, ends[1]!),
-      stiffness: torque,
-      damping: torque / 10,
-      maximumTorque: torque,
+      stiffness,
+      damping: 2 * Math.sqrt(stiffness * inertia(letter)),
+      maximumTorque: up,
+      ...(down !== up ? { reverseTorque: down } : {}),
       channel: `${bone}.${clinical}`,
-      coordinateSign: (sign * (frame?.sign ?? 1)) as 1 | -1,
+      coordinateSign,
     });
   }
   return out;

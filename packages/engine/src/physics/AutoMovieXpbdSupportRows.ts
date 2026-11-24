@@ -17,7 +17,15 @@ import { solveXpbdContacts } from "./solveXpbdContacts";
  * sequential-impulse solver's velocity rows also cover (Catto 2006, "Fast and
  * Simple Physics using Sequential Impulses"). Each such point gives a normal
  * row along its push direction; each patch gives two tangential rows at its
- * points' centroid (patch friction).
+ * points' centroid (patch friction) and, when asked, a torsional row, a unit
+ * moment about its normal. A sole's friction resists its turning about the
+ * normal through the lever of each pressed point, as TSID's six-dimensional
+ * contact models a sole by its four corner points, each in its own friction
+ * cone, and sums their moments into the contact wrench (`contact-6d.cpp`,
+ * `updateForceGeneratorMatrix` and `updateForceInequalityConstraints`); the
+ * torsional row carries that moment, bounded by the points' levers and never
+ * held, as the patch's turning is the contact passes'
+ * (`solveXpbdSupportCascade`).
  */
 export namespace AutoMovieXpbdSupportRows {
   /**
@@ -26,12 +34,15 @@ export namespace AutoMovieXpbdSupportRows {
    * @param tree The tree.
    * @param contacts The step's contacts.
    * @param h The substep, seconds.
-   * @returns The rows and patches, normals then tangents per patch.
+   * @param torsion Whether each patch also gives its torsional row.
+   * @returns The rows and patches, normals then tangents then the torsional row
+   *   per patch.
    */
   export function collect(
     tree: AutoMovieXpbdArticulation.ITree,
     contacts: readonly solveXpbdContacts.IContact[],
     h: number,
+    torsion: boolean = false,
   ): Contacts.ISet {
     const index: Map<AutoMovieXpbdBody, number> = new Map();
     tree.states.forEach(
@@ -143,6 +154,46 @@ export namespace AutoMovieXpbdSupportRows {
           contact: head,
         });
       }
+      // Only a patch whose cone is open has torsional friction to give: its
+      // moment comes from the levers between its pressed points (TSID
+      // `contact-6d.cpp`, `updateForceGeneratorMatrix`, each point's
+      // `skew(p_i)`), so the capacity mu sum_i (|r_i . t1| + |r_i . t2|) N_i
+      // of the contact passes' normal impulses must be positive. A patch
+      // pressed at one point, or loaded only where it has no lever, has a
+      // cone that is the single point zero, its two bounds and its normals'
+      // lower bounds all active and linearly dependent, which the dual
+      // active-set method cannot take; TSID's contact keeps a least normal
+      // force for the same reason (`updateForceInequalityConstraints`,
+      // `m_fMin`).
+      if (
+        torsion &&
+        head.friction *
+          capacity(
+            points.map(
+              (point: IAutoMovieVector3): IAutoMovieVector3 =>
+                Vector3.subtract(point, centroid),
+            ),
+            basis,
+            pressed.map(
+              (contact: solveXpbdContacts.IContact): number =>
+                contact.normalLambda / h + contact.velocityImpulse,
+            ),
+          ) >
+          0
+      ) {
+        entry.torsion = set.rows.length;
+        set.rows.push({
+          state,
+          point: centroid,
+          direction: push,
+          moment: true,
+          velocity: Vector3.dot(
+            push,
+            Vector3.subtract(body.angvel(), other.angvel()),
+          ),
+          contact: head,
+        });
+      }
       set.patches.push(entry);
     }
     return set;
@@ -150,31 +201,67 @@ export namespace AutoMovieXpbdSupportRows {
 
   /**
    * A row's unit spatial impulse on its body: a force along the direction at
-   * the point.
+   * the point, or a torsional row's moment about the direction.
    *
    * @param row The row.
    * @returns The spatial impulse, moment then force, about the tree origin.
    */
   export function impulse(row: Contacts.IRow): number[] {
-    return AutoMovieXpbdArticulation.spatialImpulse(row.point, row.direction);
+    return row.moment === true
+      ? [row.direction.x, row.direction.y, row.direction.z, 0, 0, 0]
+      : AutoMovieXpbdArticulation.spatialImpulse(row.point, row.direction);
   }
 
   /**
    * A row's velocity change under a response, along its direction: the point's
-   * linear change.
+   * linear change, or a torsional row's angular change about the direction.
    *
    * @param row The row.
    * @param response The response.
-   * @returns Metres per second.
+   * @returns Metres per second, or radians per second for a torsional row.
    */
   export function along(
     row: Contacts.IRow,
     response: AutoMovieXpbdArticulation.IResponse,
   ): number {
     const change: number[] = response.change[row.state]!;
+    if (row.moment === true)
+      return (
+        row.direction.x * change[0]! +
+        row.direction.y * change[1]! +
+        row.direction.z * change[2]!
+      );
     return Vector3.dot(
       row.direction,
       AutoMovieXpbdArticulation.pointChange(change, row.point),
+    );
+  }
+
+  /**
+   * A patch's torsional capacity per unit friction coefficient: each pressed
+   * point's normal impulse on its pyramid lever from the centroid, sum_i (|r_i
+   * . t1| + |r_i . t2|) N_i, the most moment about the normal its points'
+   * linearized cones give (TSID `contact-6d.cpp`); zero for a patch pressed at
+   * one point or loaded only where it has no lever.
+   *
+   * @param levers Each pressed point's offset from the centroid, metres.
+   * @param tangents The patch's two unit tangents.
+   * @param normals Each point's normal impulse, newton seconds; a negative one
+   *   counts as none.
+   * @returns The capacity, newton metre seconds.
+   */
+  export function capacity(
+    levers: readonly IAutoMovieVector3[],
+    tangents: readonly IAutoMovieVector3[],
+    normals: readonly number[],
+  ): number {
+    return levers.reduce(
+      (sum: number, lever: IAutoMovieVector3, i: number): number =>
+        sum +
+        (Math.abs(Vector3.dot(lever, tangents[0]!)) +
+          Math.abs(Vector3.dot(lever, tangents[1]!))) *
+          Math.max(0, normals[i] ?? 0),
+      0,
     );
   }
 

@@ -8,7 +8,7 @@ import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { prepareLinearSystem } from "../math/prepareLinearSystem";
 import type { AutoMovieXpbdBody } from "./AutoMovieXpbdBody";
-import type { AutoMovieXpbdJoint } from "./AutoMovieXpbdJoint";
+import { AutoMovieXpbdJoint } from "./AutoMovieXpbdJoint";
 import { AutoMovieXpbdMath } from "./AutoMovieXpbdMath";
 import type { AutoMovieXpbdWorld } from "./AutoMovieXpbdWorld";
 import { PhysicalRotationVector } from "./PhysicalRotationVector";
@@ -177,8 +177,8 @@ export namespace solveXpbdJoints {
   }
 
   /**
-   * Hold every free motor whose impulse exceeds its cap at the cap; true when
-   * any was newly held.
+   * Hold every free motor whose impulse exceeds its cap on that impulse's
+   * direction at the cap; true when any was newly held.
    */
   function clamp(
     rows: readonly IMotorRow[],
@@ -187,8 +187,8 @@ export namespace solveXpbdJoints {
   ): boolean {
     let clamped: boolean = false;
     rows.forEach((row: IMotorRow, index: number): void => {
-      const cap: number = row.motor.maximumTorque * h;
       const mu: number = solution[3 + index]!;
+      const cap: number = AutoMovieXpbdJoint.cap(row.motor, mu, h);
       if (row.fixed === null && Math.abs(mu) > cap) {
         row.fixed = Math.sign(mu) * cap;
         clamped = true;

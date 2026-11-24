@@ -10,6 +10,7 @@ import type {
 
 import { Vector3 } from "../math/Vector3";
 import { physicalRecoverySupportGoals } from "./physicalRecoverySupportGoals";
+import { physicalRecoverySwing } from "./physicalRecoverySwing";
 import { physicalShapeBounds } from "./physicalShapeBounds";
 import { physicalSupportPoint } from "./physicalSupportPoint";
 
@@ -102,7 +103,7 @@ export function physicalContactSupportGoals(
         ...(stationary &&
         height <= tolerance &&
         !target.unavailableSupports?.includes(limb.bone) &&
-        state?.swing?.bone !== limb.bone
+        physicalRecoverySwing.of(state, limb.bone) === undefined
           ? { patch: { contacts, floorPoints: limb.floorPoints, floor } }
           : {}),
       });

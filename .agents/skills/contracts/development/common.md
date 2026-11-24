@@ -1,6 +1,6 @@
 # Common
 
-Every exported declaration answers this item alongside its design, implementation or testing items.
+The router that links this page names the declarations that answer this item beside their design, implementation or testing items, and where each answers.
 
 ## Meaningful documentation
 

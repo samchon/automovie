@@ -56,5 +56,7 @@ export namespace IAutoMoviePhysicalJointMotorCommand {
     /** Tracking fraction in [0, 1]. */ strength: number;
     /** Optional joint-frame torque feed-forward, N m, scaled by strength. */ feedForward?: IAutoMovieVector3;
     /** Native substep, seconds; positive. */ timestep: number;
+    /** Fraction of the declared stiffness kept, in [0, 1]; a stance chain driven by its allocated wrench keeps only a small posture bias. Absent keeps all of it. */ stiffnessScale?: number;
+    /** Fraction of the declared active damping kept, in (0, 1]; a held stance ankle keeps a minimal share so its explicit hold torque is not dragged by the shank. Absent keeps all of it. */ dampingScale?: number;
   };
 }

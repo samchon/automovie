@@ -36,11 +36,11 @@ States the reading of a joint whose locked axes lead its order, then both triple
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-A joint whose locked axes lead its order moves only on `R_j(b) R_k(c)` (or `R_k(c)`): `b` is read from the last axis's image, `R_j(b) e_k = cos b e_k + sin b (e_j x e_k)`, and `c` as the twist about `e_k` of `R_j(-b) R` (the swing-twist decomposition, Dobrowolski 2015), which has no singularity at a quarter turn of the middle axis where the extraction trades a locked first angle against the twist. Any other joint: a Tait-Bryan chart covers each rotation twice away from the aligned case, and the joint's ranges pick the branch its coordinates live on.
+A joint whose locked axes lead its order moves only on `R_j(b) R_k(c)` (or `R_k(c)`): `b` is read from the last axis's image, `R_j(b) e_k = cos b e_k + sin b (e_j x e_k)`, and `c` as the twist about `e_k` of `R_j(-b) R` (the swing-twist decomposition, Dobrowolski 2015), which has no singularity at a quarter turn of the middle axis where the extraction trades a locked first angle against the twist. Any other joint: a Tait-Bryan chart covers each rotation twice away from the aligned case, and the joint's ranges pick the branch its coordinates live on. An angle and the same angle a whole turn away are one rotation, so each angle is read at the turn nearest its range, and a half turn on a range ending at -pi does not depend on the sign rounding gave it.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-Mark the free axes; a leading-locked joint takes the family reading, any other joint extracts, forms the twin and compares two distances.
+Mark the free axes; a leading-locked joint takes the family reading, any other joint extracts and forms the twin; each angle is taken at its turn nearest the range, and the two branches are compared by distance.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 

@@ -339,6 +339,88 @@ export namespace AutoMovieXpbdWorld {
 
     /** The requested moment about the origin, newton metres. */
     torque: IAutoMovieVector3;
+
+    /**
+     * Supports the controller is taking out of the stance: each group's largest
+     * total normal force from the floor this step, newtons, its contacts still
+     * held. A foot ramps its bound to zero before it lifts, so its load leaves
+     * it continuously (Herzog et al. 2016, Section 5.3).
+     */
+    bounds?: readonly AutoMovieXpbdWorld.IBound[];
+
+    /**
+     * Tree bodies whose floor contacts the task neither holds nor counts, as a
+     * lifted swing foot: the contact passes alone act on them, so the motors
+     * move them off the floor.
+     */
+    released?: ReadonlySet<AutoMovieXpbdBody>;
+
+    /**
+     * Tree bodies the task keeps as stance supports whether or not they press
+     * the floor this step: the joints from each to the root stay among the
+     * task's unknowns with their motion rows, so a planted foot at zero load
+     * keeps its leg's posture rather than dropping to its motors' own damping.
+     */
+    stance?: readonly AutoMovieXpbdBody[];
+
+    /**
+     * The root body's world angular velocity the task asks after the step,
+     * radians per second: a motion row beside the posture's, so the trunk's
+     * servo also acts through whatever joint motion the wrench leaves free.
+     * None when absent.
+     */
+    spin?: IAutoMovieVector3;
+
+    /**
+     * The weighted objective the supports' wrench is solved against, IHMC's
+     * whole-body controller's, in place of the force and moment rows' unit
+     * weights; absent, those rows (`AutoMovieXpbdWorld.IObjective`).
+     */
+    objective?: AutoMovieXpbdWorld.IObjective;
+  }
+
+  /**
+   * IHMC's whole-body objective over the contact wrench: the linear momentum
+   * rate command with its per-axis weights and its yaw angular momentum rate
+   * when selected (develop `LinearMomentumRateControlModule
+   * .computeMomentumRateCommand` l.417-424; 201903
+   * `QuadrupedMomentumRateOfChangeModule` l.36, l.68, l.119-120), and the
+   * centre of pressure command, the ground reaction's moment about the desired
+   * centre of pressure at zero over the contacting body's rows, weighted
+   * (`WrenchMatrixCalculator.getNextCenterOfPressureInput` l.251-299,
+   * `CoPObjectiveCalculator.computeTask` l.15-48). The force rows read the
+   * task's force; the moment rows are not asked.
+   */
+  export interface IObjective {
+    /** Each axis's weight on the force's residual, world x, y and z. */
+    force: IAutoMovieVector3;
+
+    /**
+     * The yaw angular momentum rate command, the ground reaction's moment about
+     * the vertical through the centre of mass at zero, and its weight; absent
+     * when not selected.
+     */
+    yaw?: { center: IAutoMovieVector3; weight: number };
+
+    /**
+     * The centre of pressure command: the desired centre of pressure on the
+     * floor, world metres, its weight on both horizontal rows, and the bodies
+     * whose contacts count, all the supports' when absent.
+     */
+    pressure?: {
+      point: IAutoMovieVector3;
+      weight: number;
+      bodies?: readonly AutoMovieXpbdBody[];
+    };
+  }
+
+  /** One group of a root task's bounded supports. */
+  export interface IBound {
+    /** The tree bodies whose floor patches share the bound. */
+    bodies: readonly AutoMovieXpbdBody[];
+
+    /** Their largest total normal force, newtons, never negative. */
+    force: number;
   }
 
   /** A responding pair of the last step. */

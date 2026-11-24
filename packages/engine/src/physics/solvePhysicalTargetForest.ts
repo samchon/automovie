@@ -344,7 +344,17 @@ export function solvePhysicalTargetForest(
     );
     const poses: Record<string, IAutoMovieRigidTransform> = base
       ? { ...base }
-      : structuredClone(input.targets);
+      : Object.fromEntries(
+          Object.entries(input.targets).map(
+            ([bone, pose]: [string, IAutoMovieRigidTransform]): [
+              string,
+              IAutoMovieRigidTransform,
+            ] => [
+              bone,
+              { position: { ...pose.position }, rotation: { ...pose.rotation } },
+            ],
+          ),
+        );
     if (base) {
       const owned: Set<string> = new Set();
       for (const joint of changed)

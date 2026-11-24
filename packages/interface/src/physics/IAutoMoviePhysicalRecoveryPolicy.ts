@@ -17,10 +17,12 @@ export interface IAutoMoviePhysicalRecoveryPolicy {
   /** Recovery coordinate-descent budget, 1..64; defaults to 24. */ iterations?: number;
   /** Recovery target residual early-out, metres; defaults to 0.001. */ targetTolerance?: number;
   /** Maximum reach-derived root lowering, metres; defaults to 0.15. */ maximumRootDrop?: number;
-  /** Maximum horizontal landing error, metres; defaults to 0.025. */ landingTolerance?: number;
-  /** Maximum endpoint speed at accepted landing, m/s; defaults to 1. */ landingSpeed?: number;
   /** Seconds to await actual contact after swing, defaulting to duration. */ landingTimeout?: number;
-  /** Sustained support loss before a recovery request, seconds; defaults to 0.1. */ reactionSeconds?: number;
+  /**
+   * Sustained support loss before a recovery request, seconds; defaults to 0, a
+   * step as soon as one is needed (Koolen et al., capturability, Section
+   * III-E).
+   */ reactionSeconds?: number;
   /**
    * Retain bounded muscular effort after a missed step until measured recovery
    * geometry is lost.

@@ -219,9 +219,10 @@ export interface IFilmProduction {
    * `seekShot` read each speaking actor's mouth at the film second placed:
    * `jaw(actor, seconds)` as the jaw opening of a Human or polygon man, or
    * `visemes(actor, seconds)` for `applyExpression` on a VRM or imported model,
-   * layered over the authored expression. The render measures each
-   * phoneme-driven line's lip sync on the mouths read here. Absent, no mouth
-   * follows the sound. The Viewer hands none and shows the authored mouth.
+   * layered over the authored expression. The render measures the lip sync of
+   * each phoneme-driven line whose actor the film moved by `visemes`, on the
+   * mouths read here. Absent, no mouth follows the sound. The inspector hands
+   * none and shows the authored mouth.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States when the mouths arrive, how and where the film reads each form, what the render measures, and what absence and the Viewer show.
    * @evidenceExclude contracts/development/implementation.md#principled-implementation The film owns its figures; this signature has no algorithm.

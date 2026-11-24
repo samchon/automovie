@@ -6,7 +6,7 @@ States the pose domains and the body ownership of binding, support, floor and av
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-Uses the unchanged contact/support geometry, self-separation, projected point intervals and scalar dependency memoization.
+Uses the unchanged contact/support geometry, self-separation and projected point intervals.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
@@ -18,7 +18,7 @@ The admitted floor, support, point and self rows still contribute to the same me
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
-Computes pair selectors and affected keys before probes and reuses exact geometry while its pose dependencies agree.
+Computes pair selectors and affected keys before probes. Each row then reads its exact geometry directly at the poses it is given.
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 

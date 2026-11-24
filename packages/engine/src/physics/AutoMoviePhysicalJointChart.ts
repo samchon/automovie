@@ -70,6 +70,10 @@ export namespace AutoMoviePhysicalJointChart {
    * a locked axis. A middle angle past a quarter turn, which the extraction
    * folds back, is then read as the rig composes it.
    *
+   * Either way, an angle and the same angle a whole turn either way are one
+   * rotation, so each is read at the turn nearest its range: a half turn on a
+   * range ending at -pi reads -pi, whichever sign the rounding gave it.
+   *
    * @param joint The joint's chart and free axes.
    * @param rotation A unit quaternion.
    * @returns The angles, in the chart's order, radians.
@@ -82,6 +86,23 @@ export namespace AutoMoviePhysicalJointChart {
     if (joint.order === undefined)
       throw new Error("A joint without a chart has no chart angles");
     const order: readonly IAutoMoviePhysicalJointAxis["axis"][] = joint.order;
+    const excess = (value: number, at: number): number => {
+      const range: IRange | undefined = joint.axes.find(
+        (candidate: IRange): boolean => candidate.axis === order[at],
+      );
+      const low: number = range?.minimum ?? 0;
+      const high: number = range?.maximum ?? 0;
+      return Math.max(0, low - value, value - high);
+    };
+    const turn: number = 2 * Math.PI;
+    const nearestTurn = (values: readonly number[]): number[] =>
+      values.map((value: number, at: number): number =>
+        [value - turn, value + turn].reduce(
+          (best: number, candidate: number): number =>
+            excess(candidate, at) < excess(best, at) ? candidate : best,
+          value,
+        ),
+      );
     const free: boolean[] = order.map(
       (axis: IAutoMoviePhysicalJointAxis["axis"]): boolean =>
         joint.axes.some((range: IRange): boolean => range.axis === axis),
@@ -91,22 +112,19 @@ export namespace AutoMoviePhysicalJointChart {
       (leading === 1 || leading === 2) &&
       free.slice(leading).every((f: boolean): boolean => f)
     )
-      return led(order, leading, rotation);
-    const first: number[] = angles(order, rotation);
-    const second: number[] = [
+      return nearestTurn(led(order, leading, rotation));
+    const first: number[] = nearestTurn(angles(order, rotation));
+    const second: number[] = nearestTurn([
       wrap(first[0]! + Math.PI),
       wrap(Math.PI - first[1]!),
       wrap(first[2]! + Math.PI),
-    ];
+    ]);
     const distance = (values: readonly number[]): number =>
-      values.reduce((sum: number, value: number, at: number): number => {
-        const range: IRange | undefined = joint.axes.find(
-          (candidate: IRange): boolean => candidate.axis === order[at],
-        );
-        const low: number = range?.minimum ?? 0;
-        const high: number = range?.maximum ?? 0;
-        return sum + Math.max(0, low - value, value - high);
-      }, 0);
+      values.reduce(
+        (sum: number, value: number, at: number): number =>
+          sum + excess(value, at),
+        0,
+      );
     return distance(second) < distance(first) ? second : first;
   }
 

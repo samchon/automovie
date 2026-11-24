@@ -30,6 +30,10 @@ export namespace IAutoMovieCollectPhysicalSupports {
      * wrench allocation.
      */
     loaded: boolean;
+    /** The upward normal impulse the floor applied to the limb's patches over this native step, newton seconds: the actual native contact impulses, or a compliant receipt's applied impulse over its share of the step. */
+    impulse: number;
+    /** The actual native contact points of this step weighted by their normal impulses, world metres: the patch's realized centre of pressure; absent without a native load. */
+    pressure?: IAutoMovieVector3;
     /** Actual floor constraints, not a complete nominal sole. */
     samples: IAutoMovieCollectPhysicalSupports.IPoint[];
   }

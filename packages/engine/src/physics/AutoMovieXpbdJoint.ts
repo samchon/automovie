@@ -82,7 +82,40 @@ export namespace AutoMovieXpbdJoint {
     /** Implicit damping, newton metre seconds per radian. */
     damping: number;
 
-    /** Torque cap, newton metres. */
+    /** Torque cap toward the axis's positive direction, newton metres. */
     maximumTorque: number;
+
+    /**
+     * Torque cap toward the axis's negative direction, newton metres;
+     * `maximumTorque` both ways when absent. A joint whose two directions
+     * differ in strength bounds each one by its own (Herzog et al. 2016,
+     * Section 2.1).
+     */
+    reverseTorque?: number;
+
+    /**
+     * The relative speed the PD alone asks, without its feed-forward torque,
+     * radians per second: the posture a support cascade moves the joint toward
+     * (`solveXpbdSupportCascade`); `speed` when absent.
+     */
+    target?: number;
+  }
+
+  /**
+   * A motor's cap on an impulse's direction over a substep: the positive
+   * direction's for a positive impulse, the negative direction's otherwise.
+   *
+   * @param motor The motor.
+   * @param impulse The impulse whose direction picks the cap, newton metre
+   *   seconds.
+   * @param h The substep, seconds.
+   * @returns The cap, newton metre seconds, never negative.
+   */
+  export function cap(motor: IMotor, impulse: number, h: number): number {
+    return (
+      (impulse < 0
+        ? (motor.reverseTorque ?? motor.maximumTorque)
+        : motor.maximumTorque) * h
+    );
   }
 }

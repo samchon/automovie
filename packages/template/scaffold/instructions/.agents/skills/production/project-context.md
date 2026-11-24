@@ -45,7 +45,7 @@ Record these choices, each with the reasons and limits that affect later choices
 
 ### Finishing approach
 
-For a generated film, record the frame-rate conform and working color space. For a direct 3D film, record the exposure and tone curve.
+For a generated film, record the frame-rate conform and working color space. For a direct 3D film, record the tone curve and metering rule.
 
 ### Tools and operating constraints
 
@@ -73,11 +73,11 @@ The profile records, for each delivered video:
 - caption tracks, with their format and style guide;
 - for generated video, the disclosure its release owes.
 
-For a film with sound, it also records the audio tracks and sample rate, the loudness target with its measurement method and true-peak limit, and any stems or music-and-effects mix the release requires. A direct 3D film carries the loudness target, tolerance and true-peak limit into its delivery intent's `loudness` record, which the render mixes and checks against, as [film sound](../audio/film-sound.md#loudness) explains.
+For a film with sound, it also records the audio tracks and sample rate, the loudness target with its measurement method and true-peak limit, and any stems or music-and-effects mix the release requires.
 
 For standalone audio, record the promised format, sample rate and any required loudness targets.
 
-This file owns the profile. The film implements it, and long-form settings state matching runtime and frame conditions. Resolve conflicts from the user's commission through the profile.
+This file owns the profile, and the delivered render implements it. A [channel render](../video/requests.md#inputs) departs from it. Long-form settings state matching runtime and frame conditions. Resolve conflicts from the user's commission through the profile.
 
 ## When to read and update it
 

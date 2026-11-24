@@ -6,7 +6,7 @@ Gives the purpose (Recover original declared world endpoints at a single clock) 
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-Implements the documented behavior (Recover original declared world endpoints at a single clock) directly over its typed inputs (`body`, `target`, `pattern`, `state`, `seconds`) as nested iteration of depth 2 (map over pattern.limbs; find over body.balance?.pattern.limbs), delegating to `Object.fromEntries`, `physicalSupportPoint`, `samplePhysicalRecoveryGoal`, `Vector3.add`, `Vector3.subtract`; the premises are the units, frames and ranges stated in its parameter documentation, enforced only where the body performs no validation and relies on its callers. Apart from structural 0, 1 and 2 the body uses no numeric literal.
+Implements the documented behavior (Recover original declared world endpoints at a single clock) directly over its typed inputs (`body`, `target`, `pattern`, `state`, `seconds`, `path`) as nested iteration of depth 2 (map over pattern.limbs; find over body.balance?.pattern.limbs), delegating to `Object.fromEntries`, `physicalSupportPoint`, `samplePhysicalRecoveryGoal`, `Vector3.add`, `Vector3.subtract`; the premises are the units, frames and ranges stated in its parameter documentation, enforced only where the body performs no validation and relies on its callers. Apart from structural 0, 1 and 2 the body uses no numeric literal.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
@@ -18,7 +18,7 @@ The body contains 0 `any`, 0 type assertion(s), 2 non-null assertion(s); these a
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
-Cost is driven by the sizes of `body`, `target`, `pattern`, `state`, `seconds`; the dominant cost is nested iteration of depth 2 (map over pattern.limbs; find over body.balance?.pattern.limbs), performed once per call with 5 allocation sites (literals and constructed values). No speedup is claimed and none is measured.
+Cost is driven by the sizes of `body`, `target`, `pattern`, `state`, `seconds`, `path`; the dominant cost is nested iteration of depth 2 (map over pattern.limbs; find over body.balance?.pattern.limbs), performed once per call with 5 allocation sites (literals and constructed values). No speedup is claimed and none is measured.
 
 ## @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work
 
