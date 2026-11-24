@@ -52,6 +52,7 @@ export type { IAutoMovieRenderBudgetEvidenceProps } from "./IAutoMovieRenderBudg
 export type { IAutoMovieRenderChunk } from "./IAutoMovieRenderChunk";
 export type { IAutoMovieRenderChunkPlan } from "./IAutoMovieRenderChunkPlan";
 export type { IAutoMovieRenderContributor } from "./IAutoMovieRenderContributor";
+export type { IAutoMovieRenderFilm } from "./IAutoMovieRenderFilm";
 export type { IAutoMovieRenderFinding } from "./IAutoMovieRenderFinding";
 export type { IAutoMovieRenderGraphicsIdentity } from "./IAutoMovieRenderGraphicsIdentity";
 export type { IAutoMovieRenderInstanceSetCost } from "./IAutoMovieRenderInstanceSetCost";
@@ -63,7 +64,6 @@ export type { IAutoMovieRenderObservationAuditRequest } from "./IAutoMovieRender
 export type { IAutoMovieRenderObservationBreach } from "./IAutoMovieRenderObservationBreach";
 export type { IAutoMovieRenderOwnerCost } from "./IAutoMovieRenderOwnerCost";
 export type { IAutoMovieRenderPassManifest } from "./IAutoMovieRenderPassManifest";
-export type { IAutoMovieRenderFilm } from "./IAutoMovieRenderFilm";
 export type { IAutoMovieRenderPlanting } from "./IAutoMovieRenderPlanting";
 export type { IAutoMovieRenderPrototypeCost } from "./IAutoMovieRenderPrototypeCost";
 export type { IAutoMovieRenderReassembly } from "./IAutoMovieRenderReassembly";

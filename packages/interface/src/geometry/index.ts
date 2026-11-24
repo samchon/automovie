@@ -23,6 +23,7 @@ export type { IAutoMovieEuler } from "./IAutoMovieEuler";
 export type { IAutoMovieEvaluateSupportSection } from "./IAutoMovieEvaluateSupportSection";
 export type { IAutoMovieExtrudeProfile } from "./IAutoMovieExtrudeProfile";
 export type { IAutoMovieExtrudeRegion } from "./IAutoMovieExtrudeRegion";
+export type { IAutoMovieFeatureEdgeDistance } from "./IAutoMovieFeatureEdgeDistance";
 export type { IAutoMovieFilmEffectClock } from "./IAutoMovieFilmEffectClock";
 export type { IAutoMovieFitSubdivisionDomain } from "./IAutoMovieFitSubdivisionDomain";
 export type { IAutoMovieFitSubdivisionRegions } from "./IAutoMovieFitSubdivisionRegions";
@@ -35,7 +36,6 @@ export type { IAutoMovieLimitSubdivisionLevel } from "./IAutoMovieLimitSubdivisi
 export type { IAutoMovieLimitSubdivisionRing } from "./IAutoMovieLimitSubdivisionRing";
 export type { IAutoMovieMark } from "./IAutoMovieMark";
 export type { IAutoMovieMarkMeshClearance } from "./IAutoMovieMarkMeshClearance";
-export type { IAutoMovieFeatureEdgeDistance } from "./IAutoMovieFeatureEdgeDistance";
 export type { IAutoMovieMeasureFeatureEdges } from "./IAutoMovieMeasureFeatureEdges";
 export type { IAutoMovieMeasureMeshClearance } from "./IAutoMovieMeasureMeshClearance";
 export type { IAutoMovieMeasureMeshDefects } from "./IAutoMovieMeasureMeshDefects";
