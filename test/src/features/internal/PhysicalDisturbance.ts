@@ -5,6 +5,7 @@ import {
   Vector3,
   physicalShapeBounds,
   physicalStanceBalance,
+  physicalSupportPoint,
 } from "@automovie/engine";
 import { fitHumanPhysicalStandingPose } from "@automovie/human";
 import type {
@@ -78,9 +79,15 @@ const MARGIN: number = 0.02;
 /**
  * How far a support's sole edge may rise off its plant and stay flat, metres:
  * the project's foot lift verdict bound
- * (`AutoMovieMotionHumanAuditLimits.lift`).
+ * (`AutoMovieMotionHumanAuditLimits.lift`), the sole geometry #3092 keeps.
  */
 const LIFT: number = 0.005;
+
+/**
+ * The rounding a contact witness's place may carry beyond half its
+ * separation, metres: a millimetre, far under any collider's size.
+ */
+const WITNESS: number = 0.001;
 
 /**
  * The root tilt past which a body has tipped over, degrees: the hip strategy's
@@ -658,7 +665,10 @@ export namespace PhysicalDisturbance {
    *   percent of the weight (Newton's second law): an external force holding
    *   the body, or a floor load left out of the record, breaks it.
    * - Contact provenance: every solver sample of the floor's contact with the
-   *   body lies at the floor and on the bone it names, within the margin.
+   *   body, a world witness midpoint merged over its step's substeps
+   *   (`readXpbdManifolds`, `recordPhysicalContact`), lies within half its
+   *   separation of the floor and of the bone it names, as the bone sweeps
+   *   from the frame before to the sample's own.
    * - Bounded effort: no support wrench exceeds the body's force bound.
    * - Honest steps: every landed step's limb left the floor after the step
    *   began and touched it again by its landing.
@@ -703,12 +713,15 @@ export namespace PhysicalDisturbance {
         let set: Set<number> | undefined = loaded.get(bone);
         if (!set) loaded.set(bone, (set = new Set()));
         set.add(step);
+        // The sample merges the step's substeps, so the bone sweeps from the
+        // frame before to this one: its bounds over both.
         const key: string = `${bone}@${step}`;
         let box = bounds.get(key);
         if (!box) {
-          const pose: IAutoMovieRigidTransform = frames[step]!.bodies[id]![bone]!;
-          const boxes = [...segment.shapes, ...(segment.contactShapes ?? [])].map(
-            (shape) => physicalShapeBounds(pose, shape),
+          const boxes = [step - 1, step].flatMap((k: number) =>
+            [...segment.shapes, ...(segment.contactShapes ?? [])].map((shape) =>
+              physicalShapeBounds(frames[k]!.bodies[id]![bone]!, shape),
+            ),
           );
           box = {
             min: {
@@ -724,15 +737,19 @@ export namespace PhysicalDisturbance {
           };
           bounds.set(key, box);
         }
+        // A world witness midpoint lies within half the contact's separation
+        // of each witness's surface (`readXpbdManifolds`), the floor's and the
+        // bone's, up to rounding.
+        const reach: number = Math.abs(sample.separation) / 2 + WITNESS;
         const p: IAutoMovieVector3 = sample.point;
         if (
-          Math.abs(p.y) > MARGIN ||
-          p.x < box.min.x - MARGIN ||
-          p.x > box.max.x + MARGIN ||
-          p.y < box.min.y - MARGIN ||
-          p.y > box.max.y + MARGIN ||
-          p.z < box.min.z - MARGIN ||
-          p.z > box.max.z + MARGIN
+          Math.abs(p.y) > reach ||
+          p.x < box.min.x - reach ||
+          p.x > box.max.x + reach ||
+          p.y < box.min.y - reach ||
+          p.y > box.max.y + reach ||
+          p.z < box.min.z - reach ||
+          p.z > box.max.z + reach
         ) {
           failures.push(
             `a floor sample at ${sample.seconds} s, ${JSON.stringify(p)}, lies off the floor or off ${bone}`,
@@ -932,8 +949,11 @@ export namespace PhysicalDisturbance {
   }
 
   /**
-   * How far the supports' sole edges stand off their plants, metres: each
-   * support's span times the sine of its tilt from its plant.
+   * How far the supports' sole edges have risen off their plants, metres:
+   * the largest rise, over the supports, of the bearing face's height spread
+   * at the pose over its spread when planted, the face's corners carried
+   * rigidly with the bone. The controller's seating latches the same spread
+   * when a stance begins (`IAutoMoviePhysicalRecoveryState.seating`).
    */
   function lift(
     subject: ISubject,
@@ -941,63 +961,55 @@ export namespace PhysicalDisturbance {
   ): number {
     return Math.max(
       ...[...supportsOf(subject)].map((bone: string): number => {
-        const xs: number[] = outline(subject, [bone], "x");
-        const zs: number[] = outline(subject, [bone], "z");
-        const span: number = Math.hypot(
-          Math.max(...xs) - Math.min(...xs),
-          Math.max(...zs) - Math.min(...zs),
-        );
-        return (
-          span *
-          Math.sin(
-            (lean(poses[bone]!.rotation, subject.targets[bone]!.rotation) *
-              Math.PI) /
-              180,
-          )
-        );
+        const face: IAutoMovieVector3[] = bearing(subject, bone);
+        if (face.length === 0) return 0;
+        const spread = (pose: IAutoMovieRigidTransform): number => {
+          const heights: number[] = face.map(
+            (local: IAutoMovieVector3): number =>
+              physicalSupportPoint(pose, local).y,
+          );
+          return Math.max(...heights) - Math.min(...heights);
+        };
+        return spread(poses[bone]!) - spread(subject.targets[bone]!);
       }),
     );
   }
 
   /**
-   * The coordinates along an axis of the named carriers' bearing face projected
-   * to the floor: the shape points within the foot-lift bound of their lowest,
-   * so a side or a toe held off the floor is not support.
+   * A support bone's bearing face in its own frame: its shapes' vertices, a
+   * hull's points or a box's corners, within the foot-lift bound of the
+   * lowest at the planted pose, so a side or a raised toe is not bearing.
    */
-  function outline(
-    subject: ISubject,
-    carriers: readonly string[],
-    axis: Axis,
-  ): number[] {
-    const points: IAutoMovieVector3[] = [];
-    for (const segment of subject.profile.segments) {
-      if (!carriers.includes(segment.bone)) continue;
-      const pose: IAutoMovieRigidTransform = subject.targets[segment.bone]!;
-      for (const shape of [...segment.shapes, ...(segment.contactShapes ?? [])]) {
-        const box = physicalShapeBounds(pose, shape);
-        for (const x of [box.min.x, box.max.x])
-          for (const z of [box.min.z, box.max.z])
-            points.push({ x, y: box.min.y, z });
-      }
-    }
-    const lowest: number = Math.min(...points.map((point) => point.y));
-    return points
-      .filter((point: IAutoMovieVector3): boolean => point.y <= lowest + LIFT)
-      .map((point: IAutoMovieVector3): number => point[axis]);
-  }
-
-  /**
-   * How far a segment's planted up direction has tipped, degrees: a turn about
-   * the vertical raises no sole edge, so only the tilt lifts one.
-   */
-  function lean(a: IAutoMovieQuaternion, b: IAutoMovieQuaternion): number {
-    const up: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
-    const before: IAutoMovieVector3 = Quaternion.rotateVector(b, up);
-    const after: IAutoMovieVector3 = Quaternion.rotateVector(a, up);
-    return (
-      (Math.acos(Math.max(-1, Math.min(1, Vector3.dot(before, after)))) * 180) /
-      Math.PI
+  function bearing(subject: ISubject, bone: string): IAutoMovieVector3[] {
+    const segment: IAutoMoviePhysicalSegment | undefined =
+      subject.profile.segments.find(
+        (candidate: IAutoMoviePhysicalSegment): boolean =>
+          candidate.bone === bone,
+      );
+    if (!segment) return [];
+    const pose: IAutoMovieRigidTransform = subject.targets[bone]!;
+    const local: IAutoMovieVector3[] = [];
+    for (const shape of [...segment.shapes, ...(segment.contactShapes ?? [])])
+      if (shape.kind === "hull")
+        for (const point of shape.points)
+          local.push(physicalSupportPoint(shape.transform, point));
+      else if (shape.kind === "box")
+        for (const x of [-1, 1])
+          for (const y of [-1, 1])
+            for (const z of [-1, 1])
+              local.push(
+                physicalSupportPoint(shape.transform, {
+                  x: x * shape.halfExtents.x,
+                  y: y * shape.halfExtents.y,
+                  z: z * shape.halfExtents.z,
+                }),
+              );
+    if (local.length === 0) return [];
+    const heights: number[] = local.map(
+      (point: IAutoMovieVector3): number => physicalSupportPoint(pose, point).y,
     );
+    const lowest: number = Math.min(...heights);
+    return local.filter((_, i: number): boolean => heights[i]! <= lowest + LIFT);
   }
 
   /** The angle between two orientations, degrees. */
