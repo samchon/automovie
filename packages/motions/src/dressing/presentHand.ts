@@ -39,8 +39,6 @@ const INWARD: number = 0.3;
  * the body's own measure; it stays the authored seconds and returns. The arm is
  * laid as one course (`courseArmGoal`). Events: `ready` once presented, `relax`
  * as it starts back.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the place, the hand's turn, the timing, the course and the events.
  */
 function planPresentHand(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanPresentHand>,

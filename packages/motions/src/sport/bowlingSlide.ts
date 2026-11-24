@@ -81,7 +81,6 @@ export const bowlingSlide: IAutoMovieMotionHumanActionLaw<Parameters> = {
  * @returns Timed leg targets and the supporting foot windows.
  * @throws {HumanRefusal} When the timing or the body-scaled distance cannot be
  *   used.
- * @evidence contracts/development/common.md#meaningful-documentation Names the measured phase order, authored times, stance geometry and use as a delivery carrier.
  */
 function plan(
   context: IAutoMovieMotionHumanActionContext<Parameters>,

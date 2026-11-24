@@ -72,8 +72,6 @@ type PlanLimb = "leftArm" | "rightArm";
 /**
  * Plan the right or left arm's grasp, lift, reseat and return over the entry
  * stance.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the source, movement, event order, provisional lift and supported starting state.
  */
 function plan(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanTipHat>,

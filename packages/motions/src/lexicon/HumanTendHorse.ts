@@ -43,14 +43,6 @@ const CONTACT: number = 0.01;
 /**
  * Fit and verify the displayed hand against one of the horse's actual moving
  * contacts.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Defines the carrier-owned stance, the held material point, the stroke, the authored phase and the typed refusals.
- * @evidence contracts/development/implementation.md#principled-implementation Read the contact's world frame at each second, add the stroke along its line, acquire and release by minimum jerk and fit the arm with the ride's hand fit; while fully held, measure the realized hand against the contact's surface.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit timing and contact, reuse the grip reader and finger closure, fit and measure per sample.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The carrier's stance is not moved to reach; a hand that cannot reach refuses instead of marking a false contact.
- * @evidence contracts/development/implementation.md#efficient-algorithms One contact read and one arm fit per sample; one selected-hand pose observation while fully held.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The ride's grip reader, finger closure and hand fit supply the hand.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains the admitted contact reader, the closure and the carrier's plan for this action.
  */
 function planHumanTendHorse(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanTendHorse>,

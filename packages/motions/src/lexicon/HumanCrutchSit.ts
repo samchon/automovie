@@ -29,8 +29,6 @@ import { crutchSitUp } from "./crutchSitUp";
  * Both arms are laid as one course (`courseArmGoal`) from the second the hands
  * hold the crutches. The crutches are held, never leaned on: the hands carry
  * them by grip windows, a wear and holds.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States both orders, their source, the course and the custody.
  */
 function planHumanCrutchSit(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanCrutchSit>,

@@ -41,8 +41,6 @@ const CLEARANCE: number = 0.05;
  * seat, the feet hanging. The sit's seat window bears instead on the partner:
  * half on each thigh. A partner whose thighs are not near level is refused as
  * not seated.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States where the lap is read, how the sit is reused, the windows and the refusal.
  */
 function planSitOnLap(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanSitOnLap>,

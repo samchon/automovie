@@ -35,7 +35,6 @@ export const cymbalStrike: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanC
  * @returns The held-stick plan with `contact1` as its decisive instant.
  * @throws {HumanRefusal} When the hand or either subject is invalid, the hand
  *   lacks the stick or its required contacts, or the edge fails admission.
- * @evidence contracts/development/common.md#meaningful-documentation States the site, reference, inherited timing, cue and stage premise.
  */
 function plan(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanCymbalStrike>,

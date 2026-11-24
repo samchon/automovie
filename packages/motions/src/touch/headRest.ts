@@ -81,8 +81,6 @@ type PlanHeadRestPlanLimb = "leftArm" | "rightArm";
  * region the lean, the neck and the side bend cannot bring the head to within
  * `NEAR` is refused with the miss and the angles, so a much shorter partner's
  * shoulder is out of reach standing.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the regions, the solve, the per-second correction, the timing, the window and the refusal.
  */
 function planHeadRest(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanHeadRest>,

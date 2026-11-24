@@ -46,8 +46,6 @@ const SETTLE: number = 0.28;
  * the jacket is worn on the partner's chest from that instant, and the hand
  * returns. The jacket thus has one carrier at a time: the dresser's grip, then
  * the partner's chest.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the carry, the still hold, the partner's part, the custody change and when the collar is read.
  */
 function planCoatPartner(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanCoatPartner>,

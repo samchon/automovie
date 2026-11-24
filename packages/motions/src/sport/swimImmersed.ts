@@ -36,7 +36,6 @@ import { SwimStroke } from "./SwimStroke";
  * prescribed. The sphere approximation gives quasi-steady isotropic drag and
  * omits added mass, free heave, rotation and water entry.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the registration route, stroke choice, initial conditions, force models and scope.
  * @see https://doi.org/10.1299/jfst.2.56
  */
 function planSwimImmersed(

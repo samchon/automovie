@@ -46,14 +46,6 @@ interface IKey {
 
 /**
  * Admit the figures, lay each key once, then sample.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the refusals: no figure or a last figure out of the seat, a bad time, a pickup without its prop, and a pickup whose prop lies beyond the leaning hand's reach.
- * @evidence contracts/development/implementation.md#principled-implementation Keys from the body's measures in the seat's frame; bound limbs take their contact's point each sample; the pickup's reach is checked against the leaned shoulder at the figure's hold.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Admission, keys, clock and windows, then the sampler.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An unreachable pickup is refused, never stretched.
- * @evidence contracts/development/implementation.md#efficient-algorithms A sample blends two keys and reads one frame and at most four contacts.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The keys are shared by every sample.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains the keys and the carrier reader.
  */
 function planHumanTrick(context: Context): IAutoMovieMotionHumanActionPlan {
   return plan(context);

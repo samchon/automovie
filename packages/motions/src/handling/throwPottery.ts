@@ -83,8 +83,6 @@ export const throwPottery: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanT
 
 /**
  * Admit the wheel, then place both palms on the rising wall and drive it.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the two contacts, the drives, why the contact holds in the turning frame, the timing and the refusals.
  */
 function plan(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanThrowPottery.IParams>,

@@ -70,7 +70,7 @@ The engine's angles at a swivel (`fitHingedChainAt.free`, Tolani, Goswami and Ba
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-`at` and `free` share one builder of the mirrored request (`mirrored`), so the two read the limb identically.
+The readers `at` and `free` share one builder of the mirrored request (`mirrored`), so the two read the limb identically.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 

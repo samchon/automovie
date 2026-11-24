@@ -60,8 +60,6 @@ type PlanCrossAnkleOverKneeLifted = "leftFoot" | "rightFoot";
  * calibrated thigh-axis rotation order. The planner fits the seated leg's
  * actual bearing surface and checks the sweep outside and above the carrying
  * leg before settling the ankle. The return retraces that fit.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the entry, staged contact, source, provisional timing and return.
  */
 function planCrossAnkleOverKnee(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanCrossAnkleOverKnee>,

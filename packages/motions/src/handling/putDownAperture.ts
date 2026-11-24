@@ -52,7 +52,6 @@ export const putDownAperture: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHum
  * @param context The action entry state, grip and authored receptacle.
  * @returns The staged placement plan with an aperture event before seating.
  * @throws {HumanRefusal} If the named grip, opening or seat cannot be used.
- * @evidence contracts/development/common.md#meaningful-documentation Names the installed law, the support requirement and the study underlying the phase split.
  */
 function plan(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanPutDownAperture>,

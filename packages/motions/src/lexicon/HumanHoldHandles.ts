@@ -36,14 +36,6 @@ const REACH: number = 0.01;
 
 /**
  * Fit and verify both displayed hands against two actual moving handles.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Defines the arms-only overlay, held material points, authored phase and typed refusal.
- * @evidence contracts/development/implementation.md#principled-implementation Sample the carrier and each world handle frame, then acquire and release by minimum jerk. During the held phase each realized arm must place its actual hand effector on its handle's skin.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit the carrier, timing and both grips, reuse current grip geometry, fit each arm and measure each held point after fitting.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The base steps are kept. A hand that cannot reach refuses instead of marking a false contact.
- * @evidence contracts/development/implementation.md#efficient-algorithms Read one carrier and two grips per sample; one pose observation checks both hands in the fully held interval.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The existing carrier reader, grip resolver, finger closure and selected-bone FK supply the hand motion.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains the admitted carrier, grip closures and both arms for this action; query frames and postures stay local.
  */
 function planHumanHoldHandles(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanHoldHandles>,

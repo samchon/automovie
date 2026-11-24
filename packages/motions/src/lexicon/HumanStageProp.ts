@@ -170,13 +170,6 @@ export const HumanStageProp: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHuma
  *
  * @param context Entry body, held digital prop and authored beat.
  * @returns A fitted kinematic action with the `stroke` editing cue.
- * @evidence contracts/development/common.md#meaningful-documentation Defines entry scope, cue, body plan and held grip.
- * @evidence contracts/development/implementation.md#principled-implementation Read the actual held transform and the selected mark's visible articulation at the stroke, then evaluate the authored path with the shared clock and arm fitting. The actor's stance and turn carry the tool.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit hold and parameters, resolve one primary frame and any established support grip, then delegate the phase plan.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The screen cue and target are authored. Grip contacts and supported feet remain available while hit metadata is omitted.
- * @evidence contracts/development/implementation.md#efficient-algorithms Read the visible articulation once during planning when either selected site rides a mechanism. The authored path does constant work per sample before the existing body solver.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The fixed mark, held offset, support and actor coordinate transform serve every pose in the beat.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The action owns one independent closure over its clock and input frames.
  */
 function plan(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanStageProp>,

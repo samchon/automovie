@@ -77,8 +77,6 @@ export const extinguish: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanFir
 
 /**
  * Admit the extinguisher, then aim, squeeze and sweep it.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the PASS source, the held lever, the aim, the sweep, the squeeze, the timing and the refusals.
  */
 function plan(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanFirefight.IExtinguish>,

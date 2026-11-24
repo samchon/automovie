@@ -89,8 +89,6 @@ export const hoseLine: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanFiref
 
 /**
  * Plan the member's role.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States both roles, the reaction's source, the shared lean, the timing and the refusals.
  */
 function plan(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanFirefight.IHoseLine>,

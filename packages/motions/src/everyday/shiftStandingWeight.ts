@@ -72,7 +72,6 @@ export const shiftStandingWeight: IAutoMovieMotionHumanActionLaw<IAutoMovieMotio
  * @returns The fixed-foot plan.
  * @throws {HumanRefusal} For invalid parameters, an unsupported entry or
  *   failure to fit the path witnesses.
- * @evidence contracts/development/common.md#meaningful-documentation States the required support, author-controlled distance and events, and distinguishes published measurements from the authored motion.
  */
 function plan(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanShiftStandingWeight>,

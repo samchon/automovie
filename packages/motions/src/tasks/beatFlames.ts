@@ -72,8 +72,6 @@ export const beatFlames: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanFir
 
 /**
  * Admit the cloth and the region, then beat.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the held lever, the beat, the clearance, the timing and the refusals.
  */
 function plan(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanFirefight.IBeatFlames>,

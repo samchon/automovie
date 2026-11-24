@@ -55,8 +55,6 @@ const LOG: IAutoMovieMotionHumanPosture["joints"] = {
  * turns; a place gives as many as bring the pelvis nearest it, rounded to the
  * `end` position's parity. Naming both or neither, or a body not lying, is
  * refused.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the posture, the turn, the rolling advance and its source, the count rule and the refusals.
  */
 function planLogRoll(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanLogRoll>,

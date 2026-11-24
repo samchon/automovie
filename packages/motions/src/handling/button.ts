@@ -53,14 +53,6 @@ export const button: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanButton>
 
 /**
  * Admit the model and its passage, then plan the two reaching hands together.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Gives the authoring entry, two hands, persistent outcome and geometric premise.
- * @evidence contracts/development/implementation.md#principled-implementation Checks the button's enclosing sphere against both sides of the panel and both ends of the passage interval in the aperture plane, then runs the hand goals on the articulation's stroke clock.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Checks prop and slider, admits geometric passage, sets the clock, then composes the two arms and digits.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Uses the shared writer and planner, and refuses incomplete geometry, inadequate passage or an inadmissible slider trajectory.
- * @evidence contracts/development/implementation.md#efficient-algorithms Admits a straight passage with endpoint checks, then samples it with two existing arm trajectories and their fingertip corrections.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Arm and fingertip targets use the same part reader and progress as the drive.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan holds only the prop readers and the two arm trajectories, and acquires no external resources.
  */
 function plan(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanButton>,

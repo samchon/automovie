@@ -60,8 +60,6 @@ const WAY: Readonly<
  * cover, the fingers across the body toward its midline. Both arms are laid in
  * one course (`courseArmGoal`). A performer not lying on the back (the sternum
  * less than half the chest's depth above the upper back) is refused.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the way, the grip on the soft prop, the timing, the hands' turn, the course and the refusal.
  */
 function planPullCover(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanPullCover>,

@@ -62,14 +62,6 @@ export const guitarNote: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanGui
  * @returns The held base and two time-addressable fingertip motions.
  * @throws {HumanRefusal} For invalid times, an incompatible guitar or occupied
  *   hands, or a wrist beyond the arm's geometric reach.
- * @evidence contracts/development/implementation.md#principled-implementation Derives both goals in the prop frame, preserves the entry support and uses minimum jerk to bring each index into the engagement.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit clock and prop, derive geometry and arm placements, then evaluate each fingertip by its phase.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Invalid bar geometry, occupied hands and a wrist outside the geometric reach band are refused before the plan is returned.
- * @evidence contracts/development/implementation.md#efficient-algorithms Scans the instrument and rig once during planning, and evaluates two hands per requested posture.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Geometry and entry bones are read once per plan.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains its base and the geometry for these hands only.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the sources, the authoring requirements and how both targets and the sweep are located.
  */
 function plan(context: Context): IAutoMovieMotionHumanActionPlan {
   const {

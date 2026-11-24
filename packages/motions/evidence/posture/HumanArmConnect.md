@@ -54,7 +54,7 @@ States the two configurations, the share and the result.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-`StateSpace::interpolate`, component by component: a + (b - a) · u, as RealVectorStateSpace and TimeStateSpace interpolate.
+OMPL's `StateSpace::interpolate`, component by component: a + (b - a) · u, as RealVectorStateSpace and TimeStateSpace interpolate.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 

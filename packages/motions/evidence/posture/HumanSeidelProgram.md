@@ -96,7 +96,7 @@ States the program, its rows and the solution.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-`solve_lp1d` of TOPP-RA's seidel-internal.hpp line for line: each row tightens the current interval from above or below, a row with no variable is feasible within ABS_TOLERANCE, bounds crossed by under 2 ABS_TOLERANCE are widened, and the optimum is the bound in the objective's direction (the middle for a zero objective).
+The `solve_lp1d` of TOPP-RA's seidel-internal.hpp line for line: each row tightens the current interval from above or below, a row with no variable is feasible within ABS_TOLERANCE, bounds crossed by under 2 ABS_TOLERANCE are widened, and the optimum is the bound in the objective's direction (the middle for a zero objective).
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
@@ -126,7 +126,7 @@ States the program, its rows, its bounds and the solution.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-`solve_lp2d` of TOPP-RA's seidel.cpp line for line. Crossed bounds within tolerance hold a variable at their middle and leave a one-variable program. Otherwise the optimum starts at the bounds' corner in the objective's direction. Each violated row in turn projects the earlier rows and the four bounds onto its line (`project_linear_constraint`) and solves that one-variable program (Seidel 1991).
+The `solve_lp2d` of TOPP-RA's seidel.cpp line for line. Crossed bounds within tolerance hold a variable at their middle and leave a one-variable program. Otherwise the optimum starts at the bounds' corner in the objective's direction. Each violated row in turn projects the earlier rows and the four bounds onto its line (`project_linear_constraint`) and solves that one-variable program (Seidel 1991).
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
@@ -156,7 +156,7 @@ States the in-place changes and the result.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-`presolve` of TOPP-RA's seidel.cpp line for line: rows normalised, one-variable rows folded into the bounds, and of parallel rows within REL_TOLERANCE only the tightest kept.
+The `presolve` of TOPP-RA's seidel.cpp line for line: rows normalised, one-variable rows folded into the bounds, and of parallel rows within REL_TOLERANCE only the tightest kept.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
@@ -186,7 +186,7 @@ States the value and its infinite-variable rule.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-`value` of TOPP-RA's seidel.cpp: a zero coefficient of an infinite variable counts as zero.
+The `value` of TOPP-RA's seidel.cpp: a zero coefficient of an infinite variable counts as zero.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 

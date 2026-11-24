@@ -19,14 +19,6 @@ type Context = IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanRoman>;
 
 /**
  * Admit the times and the span, then sample.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the refusals: bad times and a span out of the legs' reach.
- * @evidence contracts/development/implementation.md#principled-implementation The root over the seats' middle; the heading the mean of the two seats' forward axes; the span checked at sixteen seconds of the hold.
- * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure Admission, then the sampler.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A span out of reach is refused, never clamped.
- * @evidence contracts/development/implementation.md#efficient-algorithms A sample reads two seat frames.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure read per sample.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains the two readers.
  */
 function planHumanRoman(context: Context): IAutoMovieMotionHumanActionPlan {
   const params: IAutoMovieMotionHumanRoman = context.params;

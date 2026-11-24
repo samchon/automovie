@@ -21,13 +21,6 @@ import { HumanBound } from "../law/HumanBound";
  *   windows.
  * @throws {HumanRefusal} If `degrees` is outside [-20, 20] or `seconds` is
  *   nonfinite or below 0.6.
- * @evidence contracts/development/common.md#meaningful-documentation States the decisive instant, return onset, input, output and refusals.
- * @evidence contracts/development/implementation.md#principled-implementation Shares the requested roll over both cervical joints and uses the minimum-jerk clock envelope to add it smoothly to the base and release it.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Checks both authored quantities, builds one clock and composes one head primitive over the existing base.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Angles and seconds are checked with HumanBound. The law needs no target, transfers no supports and does not fit a pose to a fixture.
- * @evidence contracts/development/implementation.md#efficient-algorithms Plans a fixed number of events and adds two joint deltas per sample in addition to evaluating the base.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates the cervical split to the head primitive and the time profile to the shared clock.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan holds one base, one clock and one primitive for its lifetime and accumulates no samples.
  */
 function planHeadTilt(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanHeadTilt>,

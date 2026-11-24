@@ -24,14 +24,6 @@ import { HumanRideHands } from "./HumanRideHands";
 
 /**
  * Fit and verify the displayed hand against one actual moving lead.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Defines the arm-only overlay, held material point, authored phase and typed refusal.
- * @evidence contracts/development/implementation.md#principled-implementation Sample the original carrier and world rope frame, then acquire and release by minimum jerk. During the held phase the realized arm must place the actual hand effector at the declared material point.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit the carrier, timing and physical grip, reuse current grip geometry and measure the actual held point after fitting the displayed arm.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Each hand keeps the base steps. A projected hand that cannot reach refuses instead of marking a false contact.
- * @evidence contracts/development/implementation.md#efficient-algorithms Read one carrier and one grip per sample. One selected-hand pose observation checks the fully held interval.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The existing carrier reader, tack grip and finger closure and selected-bone FK supply the actual hand motion.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains the admitted carrier, grip closure and selected arm for this action. Actual query frames and postures remain local.
  */
 function planHumanLeadHorse(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanLeadHorse>,

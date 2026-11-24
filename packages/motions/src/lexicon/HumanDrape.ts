@@ -33,14 +33,6 @@ const HANGING: IAutoMovieMotionHumanPosture["joints"] = {
 
 /**
  * Admit the times, lay the posture once, then sample.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the refusals: a non-positive carriage or a negative lay.
- * @evidence contracts/development/implementation.md#principled-implementation The lie's attitude is a quarter turn of heading to the head's side and a quarter pitch face down; the entry is blended into it in the contact's frame and carried by `HumanMountedFrame.move`.
- * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure One posture, one blend.
- * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts None.
- * @evidence contracts/development/implementation.md#efficient-algorithms A sample reads one carrier frame.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The lie is shared by every sample.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains the lie and the carrier reader.
  */
 function planHumanDrape(context: Context): IAutoMovieMotionHumanActionPlan {
   const params: IAutoMovieMotionHumanDrape = context.params;

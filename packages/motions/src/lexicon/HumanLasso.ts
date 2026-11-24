@@ -69,14 +69,6 @@ const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
 
 /**
  * Admit the throw, lay the swing and the launch, then sample.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the refusals: a non-seated entry, bad counts or times, a stride track with fewer than two instants inside the swing, and a target beyond `REACH`.
- * @evidence contracts/development/implementation.md#principled-implementation The swing's period is the stride track's mean interval and its phase puts the wrist ahead of the circle's centre at each stride instant; the circle lies level over the entry's own right shoulder joint and out to its side, its outermost point at the distance the arm's lengths give at the elbow's flexion and every other point nearer, so the wrist is reachable all round by construction and the arm never crosses the head; the wrist first rises to the circle's front at the swing's own speed under a minimum-jerk profile, whose peak rate is its closed form's at mid-course, and the swing starts on the first stride instant after; the hand is given no turn, since the swinging loop touches nothing, so the course leaves it to the arm's least strain rather than spin the hand a whole turn a stride; the launch velocity is the projectile's from the loop's place at the release to the target's contact in the flight time under standard gravity; after the release the wrist runs on from the throw's point, with a dally back to the horn under a minimum-jerk profile over the loop's flight and then round it, so the arm never leaps back to its entry hold.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Admission, the clock, the circle, the launch, then the sampler.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A target out of reach is refused, never pulled in.
- * @evidence contracts/development/implementation.md#efficient-algorithms One shoulder resolve restricted to the upper arm; a sample reads one carrier frame and writes one arm goal.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The tool, the circle and the launch are shared by every sample.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains the tool, the circle and the carrier reader.
  */
 function planHumanLasso(context: Context): IAutoMovieMotionHumanActionPlan {
   return plan(context);

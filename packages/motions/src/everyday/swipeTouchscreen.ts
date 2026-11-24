@@ -49,13 +49,6 @@ const CONTACT_SHARE_TOLERANCE: number = 1e-9;
  * @throws {HumanRefusal} On invalid hand, endpoints or duration, a screen
  *   without a width, a movable or articulated screen, or a wrist path outside
  *   geometric reach.
- * @evidence contracts/development/common.md#meaningful-documentation States the plan, its inputs and its refusals.
- * @evidence contracts/development/implementation.md#principled-implementation Interpolates the displayed endpoints and aligns the index tip against the plane normal on the phrase clock. Tests reach at both ends and at the path's closest approach to the shoulder.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Resolve the screen, build the clock, check reach, then compose one arm stroke.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Screen bounds come from its authored width. The only duration specific to this gesture comes from the measured tablet swipe.
- * @evidence contracts/development/implementation.md#efficient-algorithms One lookup and one frame read per plan. Per-frame work is constant-size interpolation and arm fit.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares the clock, reach/withdraw timing and arm stroke with other arm phrases.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains only the acting body, entry posture and fixed stroke data.
  */
 function planSwipeTouchscreen(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanSwipeTouchscreen>,

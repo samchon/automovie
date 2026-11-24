@@ -85,8 +85,6 @@ type PlanLieOnSurfaceContactsPart = "leftFoot" | "rightFoot";
  * travel on a straight line. A surface shorter than the body and `MARGIN`, or
  * narrower than the shoulders and twice `MARGIN`, is refused with the
  * dimension, as is a lie not entered seated.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the route each way, the keys' source, the rest rule and the refusals.
  */
 function planLieOnSurface(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanLieOnSurface>,

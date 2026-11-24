@@ -26,14 +26,6 @@ const REACH: number = 0.3;
 
 /**
  * Admit the holds, then sample.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the refusals: a bad time, a carrier without its frame, a hold naming neither a bone nor a contact, and no hold at all.
- * @evidence contracts/development/implementation.md#principled-implementation The entry carried by `HumanMountedFrame.move`; each held hand laid by a planned course (`courseArmGoal`): the reach over `REACH`, then the hold; a partner's bone is held on its surface, out from the partner's hips by the limb's radius.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Admission, windows, then the sampler.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
- * @evidence contracts/development/implementation.md#efficient-algorithms A sample reads at most one carrier frame and two held points.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure read per sample.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains the readers.
  */
 function planHumanClasp(context: Context): IAutoMovieMotionHumanActionPlan {
   return plan(context);

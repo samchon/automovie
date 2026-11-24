@@ -67,8 +67,6 @@ type PlanAddedBone = "neck" | "head";
  * partner's own lean (`with`), the two must lean and sit up together within a
  * frame: one that sits up or leaves while the other still leans is refused,
  * naming who would be left leaning on nothing.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the meeting point, the lean, the load, the refusals and the mutual check.
  */
 function planBackToBack(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanBackToBack>,

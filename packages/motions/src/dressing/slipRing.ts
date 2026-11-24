@@ -78,8 +78,6 @@ const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
  * A presented hand beyond the standing arms is reached by the least hinge at
  * the hips that brings both wrists within their arms (`HumanTrunkLean`), as
  * `dressPartner` reaches a region, so the dresser keeps its standoff.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States who holds what, the ring's path, the custody change, the timing and the course.
  */
 function planSlipRing(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanSlipRing>,

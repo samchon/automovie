@@ -167,7 +167,7 @@ States the gridpoints, the parameterisation and the time map returned.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-`ConstAccel::process_internals` of toppra's const_accel.cpp: ṡ = √x, `u_i = (ṡ_{i+1}² - ṡ_i²) / (2 Δs)`, `t_{i+1} = t_i + 2 Δs / (ṡ_{i+1} + ṡ_i)`.
+The `ConstAccel::process_internals` of toppra's const_accel.cpp: ṡ = √x, `u_i = (ṡ_{i+1}² - ṡ_i²) / (2 Δs)`, `t_{i+1} = t_i + 2 Δs / (ṡ_{i+1} + ṡ_i)`.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 

@@ -42,7 +42,7 @@ States the condition and whether the planner must stop.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-`IterationTerminationCondition::eval`: ++timesCalled_ > maxCalls_.
+OMPL's `IterationTerminationCondition::eval`: ++timesCalled_ > maxCalls_.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 

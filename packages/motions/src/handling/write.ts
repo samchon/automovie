@@ -77,14 +77,6 @@ export const write: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanWrite> =
 /**
  * Plan once against the surface and the existing grip, then sample the arm
  * trajectory.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States registration, both fixed frames, the stroke phases, edge timing, corner rule and scope.
- * @evidence contracts/development/implementation.md#principled-implementation The rigid transform fixes the tip relative to the wrist. Each target is on the surface plane, along a minimum-jerk leg of the authored stroke. The hand's turn about the wrist-to-tip line, free since it keeps the tip in place, is resolved once at plan time to the nearest the arm meets on an admitted arc (Tolani, Goswami and Badler 2000, section 3.2.4).
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit the input, place the surface and tool frames, then compose one planned arm over the entered base.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The tip and surface come from the props' affordances. The contact radius is the radius the tip declares, a point when it declares none.
- * @evidence contracts/development/implementation.md#efficient-algorithms Linear preparation in the stroke's vertices. The shared arm planner reads target sites by binary edge lookup and solves one trajectory.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The posture reads the planned arm trajectory through the carried-arm primitive. The world surface path is formed once for that plan.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The action owns the path and trajectory samples. It starts no process and acquires no external handle.
  */
 function planWrite(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanWrite>,

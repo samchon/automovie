@@ -111,8 +111,6 @@ export const conduct: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanConduc
 
 /**
  * Read the beats and the lever, then aim the baton hand along the figure.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the held lever, the plane, the figure, the rebound, the beat clock and the events.
  */
 function plan(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanConduct.IParams>,

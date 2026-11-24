@@ -159,8 +159,6 @@ export const stageBladeFootwork: IAutoMovieMotionHumanActionLaw<IAutoMovieMotion
 /**
  * Resolve the parameters once and transport the carried upper posture over the
  * same floor frame as the two foot paths.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the action's profiles, frame, independent events and inherited grip.
  */
 function plan(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanStageBladeFootwork.IParams>,

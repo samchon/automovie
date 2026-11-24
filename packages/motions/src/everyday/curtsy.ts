@@ -70,8 +70,6 @@ export const curtsy: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanCurtsy>
 
 /**
  * Plan a single curtsy and reject key poses that fail the displayed foot fit.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the sequence, support, source, provisional parameters, fit and registration.
  */
 function plan(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanCurtsy>,

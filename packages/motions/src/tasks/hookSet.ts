@@ -35,8 +35,6 @@ const LIFT: number = 90;
  * the hand's goal. The set is held a beat. A rod not held, a lift outside 0 to
  * `LIFT` or a time of no length is refused; a grip the arm cannot keep is
  * refused by the reach check.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the turn, its axis, its course, the hold and the refusals.
  */
 function planHookSet(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanHookSet>,

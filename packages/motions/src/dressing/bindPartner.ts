@@ -24,14 +24,6 @@ import { HumanRefusal } from "../law/HumanRefusal";
  * target, and the slack. The performance then keeps the bound parts where they
  * were when the restraint went on (`HumanPerformanceBonds`) until a later grip
  * takes it off.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the arm phrase reused, the facing, when custody passes, what the link names and who enforces it.
- * @evidence contracts/development/implementation.md#principled-implementation The partner's region resolves to the bone under it; the restraint is worn there from the phrase's stroke, where the hand's grip on it ends, so custody passes without a gap or an overlap.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One admission, one arm phrase, one trimmed grip and one wear.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A link naming both or neither end, a negative or non-finite slack, or a second region on the worn bone is refused.
- * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work over the phrase's plan.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing is repeated.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing beyond the plan.
  */
 function planBindPartner(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanBindPartner>,

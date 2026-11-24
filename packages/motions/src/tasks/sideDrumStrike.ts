@@ -36,7 +36,6 @@ export const sideDrumStrike: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHuma
  * @returns The held-tool plan with its `contact1` decisive instant.
  * @throws {HumanRefusal} When the hand, stick or drum is absent, or the drum
  *   head is missing, moving or tilted.
- * @evidence contracts/development/common.md#meaningful-documentation States the stage, the inherited motion, the timing seam and the grip outcome.
  */
 function plan(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanSideDrumStrike>,

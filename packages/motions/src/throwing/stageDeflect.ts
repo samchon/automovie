@@ -28,8 +28,6 @@ import { stageCatch } from "./stageCatch";
  * outgoing velocity is `v - (1 + e)(v . n) n = -e v`, the normal impact of a
  * sphere on a surface held still through the touch (no tangential friction
  * along a head-on normal).
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the registered use, the shared interception, the published launch, the hand handback and the rebound rule with its premise.
  */
 function planStageDeflect(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanCatchObject.IStageParams>,

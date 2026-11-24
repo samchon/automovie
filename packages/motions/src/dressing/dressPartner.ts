@@ -37,8 +37,6 @@ const UP: number = Math.SQRT1_2;
  * reached by the least hinge at the hips that brings the wrist within the arm
  * (`HumanTrunkLean`), so the dresser keeps its standoff; no hinge within the
  * hip's range is refused as a reach.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the carry, the custody change and when the target is read.
  */
 function planDressPartner(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanDressPartner>,

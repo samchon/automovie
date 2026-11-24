@@ -24,7 +24,7 @@ States the seed and the state it returns.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-`init_genrand` of Matsumoto and Nishimura's mt19937ar.c (BSD-3-Clause, Copyright (C) 1997 - 2002, Makoto Matsumoto and Takuji Nishimura), line for line: mt[0] = seed, mt[i] = 1812433253 · (mt[i-1] ^ (mt[i-1] >> 30)) + i, modulo 2^32.
+The `init_genrand` of Matsumoto and Nishimura's mt19937ar.c (BSD-3-Clause, Copyright (C) 1997 - 2002, Makoto Matsumoto and Takuji Nishimura), line for line: mt[0] = seed, mt[i] = 1812433253 · (mt[i-1] ^ (mt[i-1] >> 30)) + i, modulo 2^32.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
@@ -54,7 +54,7 @@ States the state it advances and the 32-bit word it returns.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-`genrand_int32` of mt19937ar.c line for line: the 624-word twist with MATRIX_A, UPPER_MASK and LOWER_MASK when the index runs out, then the tempering by 11, 7 and 0x9d2c5680, 15 and 0xefc60000, 18.
+The `genrand_int32` of mt19937ar.c line for line: the 624-word twist with MATRIX_A, UPPER_MASK and LOWER_MASK when the index runs out, then the tempering by 11, 7 and 0x9d2c5680, 15 and 0xefc60000, 18.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 

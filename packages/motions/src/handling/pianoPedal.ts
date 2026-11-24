@@ -47,14 +47,6 @@ export const pianoPedal: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanPia
 
 /**
  * Resolve a seated right-foot path and independent pedal travel.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the seated path, target and references for an independent damper clock.
- * @evidence contracts/development/implementation.md#principled-implementation Intersects the body's heel-centred forefoot circle with the rigidly rotated pedal plane. One minimum-jerk angular signal drives the hinge and the target plane.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit the clock and prop, fit the forefoot on the available plate, then publish the sampled posture and drive.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Measures the plate on the staged prop and checks the solved leg's ball and heel against the target. Transport clearance is an authored-path allowance, independent of pedal depth.
- * @evidence contracts/development/implementation.md#efficient-algorithms Sets up the reusable foot geometry once and locates an active stroke by binary search.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the foot sockets, heel-pivot geometry, seated base, leg fit and articulation admission.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Each plan owns its stroke boundaries and staged geometry through its callbacks.
  */
 function plan(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanPianoPedal>,

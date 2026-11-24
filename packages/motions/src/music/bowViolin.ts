@@ -72,8 +72,6 @@ export const bowViolin: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanBowV
 /**
  * Place the bow from its held frame, then pose its hand on the four stroke
  * phases.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Gives registration, phases, measurements, staging and limits.
  */
 function planStroke(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanBowViolinParams>,

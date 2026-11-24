@@ -76,7 +76,6 @@ export const guitarChord: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanGu
  * @returns The carried base, named crossings and three digit goals.
  * @throws {HumanRefusal} For invalid clocks, instruments, occupied hands or
  *   unreachable wrist paths.
- * @evidence contracts/development/common.md#meaningful-documentation Gives the contacts, decisive instant, source, scope and admission rule.
  */
 function plan(context: Context): IAutoMovieMotionHumanActionPlan {
   const {

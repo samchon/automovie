@@ -44,8 +44,6 @@ type PlanPart = "leftHand" | "rightHand";
 /**
  * Resolve the handrails once, then evaluate an analytic root path and one grip
  * goal.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the contact premise, source, scene constraints and author controls.
  */
 function plan(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanSpacecraftGlide>,

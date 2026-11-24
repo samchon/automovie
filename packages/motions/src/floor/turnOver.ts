@@ -51,8 +51,6 @@ const KEYS: readonly IAutoMovieMotionHumanLieDown.IPose[] = [
  * support and the root rests the lowest collision shape on the floor or the
  * named surface at every second (`knockdown.rest`). A body not lying is
  * refused.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the turn, the route, the keys' source, the rest rule and the refusal.
  */
 function planTurnOver(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanTurnOver>,
