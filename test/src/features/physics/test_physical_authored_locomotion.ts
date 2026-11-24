@@ -37,12 +37,15 @@ import { PhysicalPerformanceFixtures } from "../internal/PhysicalPerformanceFixt
  *    within one percent of the 0.35 m stride of where it struck.
  * 2. Holding: at every key frame, each joint's target lies within two
  *    degrees of its range (`measurePhysicalJointLimits`), the joint bound a
- *    tracked walk keeps, and its drive held at that target, with the gravity
- *    moment of everything below it as feed-forward (`physicalGravityTorques`),
- *    forecasts no demand past its torque cap (`physicalJointMotorCommand`).
- *    PD with gravity compensation has its equilibrium at the target
- *    (Takegaki and Arimoto 1981), so a held target leaves no static error
- *    while it is reachable and the compensation fits within the caps.
+ *    tracked walk keeps, and its drive at that target, at rest and asked to
+ *    follow the target's rate toward the neighbouring key frame, with the
+ *    gravity moment of everything below it as feed-forward
+ *    (`physicalGravityTorques`), forecasts no demand past its torque cap
+ *    (`physicalJointMotorCommand`): the gravity moment plus the damping's kd
+ *    w fit within the cap. PD with gravity compensation has its equilibrium
+ *    at the target (Takegaki and Arimoto 1981), so a held target leaves no
+ *    static error while it is reachable and the compensation fits within the
+ *    caps.
  * 3. Push: the stickman's root servo (`AutoMoviePhysicalTracking.force`) on
  *    its mass, pushed at 0.15 and 0.3 m/s along the walk, stays below its
  *    force bound, so its displacement scales with the push, the larger
@@ -101,9 +104,31 @@ export async function test_physical_authored_locomotion(): Promise<void> {
 
     // 2. Holding, at the key frames.
     const order: IAutoMoviePhysicalJoint[] = postorder(profile);
-    for (const step of frames) {
+    const relative = (
+      joint: IAutoMoviePhysicalJoint,
+      poses: Readonly<Record<string, IAutoMovieRigidTransform>>,
+    ): IAutoMovieQuaternion =>
+      Quaternion.multiply(
+        Quaternion.inverse(
+          Quaternion.multiply(
+            poses[joint.parent]!.rotation,
+            joint.parentFrame.rotation,
+          ),
+        ),
+        Quaternion.multiply(
+          poses[joint.child]!.rotation,
+          joint.childFrame.rotation,
+        ),
+      );
+    for (const [index, step] of frames.entries()) {
       const poses: Record<string, IAutoMovieRigidTransform> =
         targets[step]!.segments;
+      // The target's rate toward the neighbouring key frame, in the parent's
+      // anchor frame: the rotation between them over their interval.
+      const neighbour: number = frames[index + 1] ?? frames[index - 1]!;
+      const beside: Record<string, IAutoMovieRigidTransform> =
+        targets[neighbour]!.segments;
+      const interval: number = (neighbour - step) / 120;
       const bodies: Map<string, AutoMovieXpbdBody> = new Map(
         profile.segments.map(
           (segment: IAutoMoviePhysicalSegment, i: number): [string, AutoMovieXpbdBody] => {
@@ -131,31 +156,37 @@ export async function test_physical_authored_locomotion(): Promise<void> {
       });
       const rest: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
       for (const joint of profile.joints) {
-        const now: IAutoMovieQuaternion = Quaternion.multiply(
-          Quaternion.inverse(
-            Quaternion.multiply(
-              poses[joint.parent]!.rotation,
-              joint.parentFrame.rotation,
-            ),
-          ),
-          Quaternion.multiply(
-            poses[joint.child]!.rotation,
-            joint.childFrame.rotation,
-          ),
+        const now: IAutoMovieQuaternion = relative(joint, poses);
+        const turn: IAutoMovieQuaternion = Quaternion.multiply(
+          relative(joint, beside),
+          Quaternion.inverse(now),
         );
+        const sign: number = turn.w < 0 ? -1 : 1;
+        const norm: number = Math.hypot(turn.x, turn.y, turn.z);
+        const scale: number =
+          norm < 1e-12
+            ? (2 * sign) / interval
+            : (2 * sign * Math.atan2(norm, Math.abs(turn.w))) / norm / interval;
+        const rate: IAutoMovieVector3 = {
+          x: turn.x * scale,
+          y: turn.y * scale,
+          z: turn.z * scale,
+        };
+        // The drive at rest asked to follow the target's rate: its demand is
+        // the damping's kd w on top of the gravity moment.
         const command = physicalJointMotorCommand({
           joint,
           current: now,
           target: now,
           velocity: rest,
-          targetVelocity: rest,
+          targetVelocity: rate,
           strength: 1,
           timestep: substep,
           feedForward: gravity.joints.get(joint.id) ?? rest,
         });
         if (command.saturated.length > 0)
           failures.push(
-            `${label}: ${joint.id} holding its target at ${step / 120} s passes its cap on ${command.saturated.join(",")}`,
+            `${label}: ${joint.id} following its target at ${step / 120} s, ${JSON.stringify(rate)} rad/s, passes its cap on ${command.saturated.join(",")}`,
           );
         const excess: number = Math.max(
           ...measurePhysicalJointLimits(
