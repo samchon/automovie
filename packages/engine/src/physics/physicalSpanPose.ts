@@ -306,9 +306,7 @@ export namespace physicalSpanPose {
     delete state.desired;
     delete state.swing;
     delete state.seating;
-    delete state.push;
     delete state.icp;
-    delete state.switches;
     state.revision = (state.revision ?? 0) + 1;
   }
 }
