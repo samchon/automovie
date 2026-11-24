@@ -1,15 +1,11 @@
-import { playbackEntryTime, playbackShownLayer } from "@automovie/engine";
 import type {
   IAutoMovieDialogueMouthTrack,
   IAutoMovieDrawCall,
   IAutoMovieDrawDescription,
   IAutoMovieDrawResult,
-  IAutoMovieFilmOptics,
   IAutoMovieInspectionDiagnostics,
   IAutoMovieInspectionLegendEntry,
   IAutoMovieInspectionView,
-  IAutoMoviePlaybackEntry,
-  IAutoMoviePlaybackLayer,
 } from "@automovie/interface";
 import * as THREE from "three";
 
@@ -21,6 +17,7 @@ import { resolveAutoMovieInspectionView } from "../scene/inspection/resolveAutoM
 import type { IAutoMovieViewerSubjectBounds } from "../scene/subjectViewpoint/IAutoMovieViewerSubjectBounds.js";
 import { AUTO_MOVIE_DRAW_GLOBALS } from "./AUTO_MOVIE_DRAW_GLOBALS.js";
 import { AutoMovieDrawBeauty } from "./AutoMovieDrawBeauty.js";
+import { AutoMovieDrawFilm } from "./AutoMovieDrawFilm.js";
 import { AutoMovieDrawPlacement } from "./AutoMovieDrawPlacement.js";
 import type { AutoMovieDrawSubjects } from "./AutoMovieDrawSubjects.js";
 import type { IAutoMovieDrawFunction } from "./IAutoMovieDrawFunction.js";
@@ -30,7 +27,6 @@ import type { IAutoMovieDrawSubject } from "./IAutoMovieDrawSubject.js";
 import { describeAutoMovieDrawScene } from "./describeAutoMovieDrawScene.js";
 import { isAutoMoviePlainBeautyRequest } from "./isAutoMoviePlainBeautyRequest.js";
 import { observeAutoMoviePlacedInspection } from "./observeAutoMoviePlacedInspection.js";
-import { planAutoMovieDrawLayers } from "./planAutoMovieDrawLayers.js";
 import { readAutoMovieDrawResult } from "./readAutoMovieDrawResult.js";
 import { selectAutoMovieDrawSubject } from "./selectAutoMovieDrawSubject.js";
 
@@ -58,31 +54,32 @@ const SUPERSAMPLE = 2 as const;
  * 2. For a fitted view, places and inspects each framing second through
  *    `AutoMovieDrawPlacement` and frames the union of what the inspection
  *    leaves drawn, or its focus, measured once per view and selection;
- * 3. For a delivery or plain `beauty` draw, the film picture, reads the layers
- *    `planAutoMovieDrawLayers` gives at the second. A transition's outgoing
- *    shot is placed by the subject's `seekShot` on its own entry's clock,
- *    sampled and drawn by `AutoMovieDrawBeauty`, and its picture held. When the
- *    live entry is drawn and the subject has optics, its shutter and lens
- *    samples are accumulated;
+ * 3. Plans the second through `AutoMovieDrawFilm`: the shot it shows,
+ *    `playbackShownLayer` of the layers `planAutoMovieDrawLayers` gives, and,
+ *    for the film picture, a delivered or plain `beauty` picture or `graphics`
+ *    plate, a transition's layers. Every layer of positive weight but the shown
+ *    one is placed on its own entry's clock, drawn and held, and a sampled
+ *    film's shutter and lens samples of the shown layer are accumulated, each
+ *    on that layer's own clock;
  * 4. Places the second itself through `AutoMovieDrawPlacement.inspect`, which
  *    restores the previous inspection, samples the request's trails and seeks
- *    the call's second, or, when `playbackShownLayer` says the picture shows
- *    more of a transition's outgoing shot, places that shot, so marks,
- *    diagnostics, mouths, the camera record and every pass follow the shot on
- *    screen; a live layer drawn under it is drawn and held first. When the
- *    subject supplies diagnostics, the draw observes the settled scene before
- *    the fresh inspection is applied, and no seek occurs between this
- *    application and drawing. The subject's `beforeDraw` runs right after this
- *    and every other placement, a transition shot's and each sample's, before
- *    any pass's render mode applies;
+ *    the call's second, or, when the shown layer is a transition's outgoing
+ *    shot, places that shot by `seekShot`, trails included, so marks,
+ *    diagnostics, mouths, the camera record and every structural pass follow
+ *    the shot on screen. When the subject supplies diagnostics, the draw
+ *    observes the settled scene before the fresh inspection is applied, and no
+ *    seek occurs between this application and drawing. The subject's
+ *    `beforeDraw` runs right after this and every other placement, a layer's
+ *    and each sample's, before any pass's render mode applies;
  * 5. Draws through the camera `resolveAutoMovieInspectionView` gives, mark lines
  *    at the supersampling factor's width: the `beauty` shade by
  *    `AutoMovieDrawBeauty`, whose stages give a subject's optics and shading
  *    their response; the `graphics` plate by its `plate`; every other pass
- *    straight to the canvas. A film picture inside a transition holds the live
- *    picture too and composites the held layers by their weights through
- *    `renderAutoMovieFilmFrame`, a fade over a transparent background falling
- *    to alpha 0;
+ *    straight to the canvas. A film picture inside a transition holds the shown
+ *    layer too and composites the held layers by their weights through
+ *    `renderAutoMovieFilmFrame`, toward alpha 0 over a transparent background
+ *    and for the plate, then draws the witness cubes of the shown shot's
+ *    diagnostics over the composite at full strength;
  * 6. Reads the picture back and assembles the result by `readAutoMovieDrawResult`.
  *
  * It reads the renderer's own canvas back in the same task. Without optics the
@@ -91,7 +88,9 @@ const SUPERSAMPLE = 2 as const;
  * stage's final pass writes the canvas, so the response is the film's whatever
  * the renderer's own curve and exposure. The film camera's aspect is set to the
  * picture's, as the page sets it to its canvas. A picture outside every
- * transition is drawn exactly as a subject without a sequence is.
+ * transition is drawn exactly as a subject without a sequence is, except that a
+ * shutter sample before the live entry's start places that entry's handle by
+ * `seekShot` rather than the previous shot.
  *
  * `speak` hands a subject with `speak` the film's dialogue mouths; each
  * result's `mouths` are what the subject read for the drawn second.
@@ -213,7 +212,7 @@ async function drawCall(
   loaded: ILoaded,
   call: IAutoMovieDrawCall,
 ): Promise<IAutoMovieDrawResult> {
-  const { scene, renderer, placement, beauty } = loaded;
+  const { scene, renderer, placement, beauty }: ILoaded = loaded;
   const shade: IAutoMovieDrawCall["request"]["shade"] = call.request.shade;
 
   // 1. The background, admitted before anything is placed or drawn. A
@@ -268,117 +267,27 @@ async function drawCall(
   const cameraAt: (at: number) => THREE.Camera = (at: number): THREE.Camera =>
     resolveAt(at).camera;
 
-  // The subject's render-target work, such as surface feeds, runs right after
-  // each placement, shot or sample, before any pass's render mode applies, so
-  // every pass shows feeds drawn with the scene's own materials.
-  const fed: (
-    seek: (at: number) => Promise<void>,
-  ) => (at: number) => Promise<void> =
-    (seek: (at: number) => Promise<void>): ((at: number) => Promise<void>) =>
-    async (at: number): Promise<void> => {
-      await seek(at);
-      scene.beforeDraw?.(renderer, at);
-    };
-
-  // 3. The film picture: its transition's layers, the outgoing shot drawn and
-  // held before the live second is placed.
+  // 3. The picture's plan: the shot it shows and, for the film picture, every
+  // other layer of its transition placed, drawn and held, and the shown
+  // layer's samples accumulated, before the shown layer is placed.
   const delivery: boolean = call.inspectionDiagnostics === "delivery";
-  const film: boolean =
-    shade === "beauty" &&
-    (delivery || isAutoMoviePlainBeautyRequest(call.request));
-  const planned: IAutoMoviePlaybackLayer[] | null = planAutoMovieDrawLayers(
-    loaded.name,
-    scene,
-    call.seconds,
-  );
-  const layers: IAutoMoviePlaybackLayer[] | null = film ? planned : null;
+  const picture: AutoMovieDrawFilm = new AutoMovieDrawFilm({
+    ...{ name: loaded.name, scene, renderer, beauty, shade, width, height },
+    seconds: call.seconds,
+    ...(alpha === undefined ? {} : { alpha }),
+    transparent,
+    film:
+      (shade === "beauty" || shade === "graphics") &&
+      (delivery ||
+        isAutoMoviePlainBeautyRequest({ ...call.request, shade: "beauty" })),
+    camera: cameraAt,
+    prepare,
+    restore: (): void => placement.restore(),
+  });
+  await picture.prepare();
 
-  // Every record of the frame, from marks and diagnostics to the camera, the
-  // mouths and a structural pass, follows the shot the picture shows most of:
-  // inside a transition, before its midpoint, the outgoing shot.
-  const shown: IAutoMoviePlaybackLayer | null =
-    planned === null ? null : playbackShownLayer(planned);
-  const seekShown: ((at: number) => Promise<void>) | undefined =
-    shown === null || shown.live
-      ? undefined
-      : (at: number): Promise<void> =>
-          scene.seekShot!(
-            shown.shot,
-            playbackEntryTime(scene.cut!.entries[shown.entry]!, at),
-            at,
-          );
-  const outgoing: IAutoMoviePlaybackLayer | undefined = layers?.find(
-    (layer: IAutoMoviePlaybackLayer): boolean => !layer.live,
-  );
-  const drawsLive: boolean =
-    layers === null ||
-    layers.some((layer: IAutoMoviePlaybackLayer): boolean => layer.live);
-  if (outgoing !== undefined) {
-    placement.restore();
-    const entry: IAutoMoviePlaybackEntry = scene.cut!.entries[outgoing.entry]!;
-    const sampled: IAutoMovieFilmOptics | undefined = await beauty.sample({
-      scene,
-      seconds: call.seconds,
-      width,
-      height,
-      seek: fed(
-        (at: number): Promise<void> =>
-          scene.seekShot!(outgoing.shot, playbackEntryTime(entry, at), at),
-      ),
-      camera: cameraAt,
-      ...(alpha === undefined ? {} : { alpha }),
-    });
-    prepare();
-    beauty.draw({
-      scene,
-      camera: cameraAt(call.seconds),
-      seconds: call.seconds,
-      width,
-      height,
-      sampled,
-      ...(alpha === undefined ? {} : { alpha }),
-    });
-    beauty.hold(0);
-  }
-
-  // The live second's shutter and lens samples, accumulated before the
-  // inspection seeks the second again.
-  let sampled: IAutoMovieFilmOptics | undefined;
-  if (film && drawsLive && scene.optics !== undefined) {
-    placement.restore();
-    sampled = await beauty.sample({
-      scene,
-      seconds: call.seconds,
-      width,
-      height,
-      seek: fed((at: number): Promise<void> => scene.seek(at)),
-      camera: cameraAt,
-      ...(alpha === undefined ? {} : { alpha }),
-    });
-  }
-
-  // A live layer under an outgoing shot that the picture shows more of is
-  // drawn and held before the shown shot is placed for the frame's records.
-  let heldLive: boolean = false;
-  if (layers !== null && drawsLive && seekShown !== undefined) {
-    placement.restore();
-    if (sampled === undefined)
-      await fed((at: number): Promise<void> => scene.seek(at))(call.seconds);
-    prepare();
-    beauty.draw({
-      scene,
-      camera: cameraAt(call.seconds),
-      seconds: call.seconds,
-      width,
-      height,
-      sampled,
-      ...(alpha === undefined ? {} : { alpha }),
-    });
-    beauty.hold(1);
-    heldLive = true;
-  }
-
-  // 4. The second itself, once the subject is ready.
+  // 4. The second itself, once the subject is ready: the shown layer, placed
+  // by `seekShot` when it is a transition's outgoing shot.
   let diagnostics: IAutoMovieInspectionDiagnostics | undefined;
   const handle: IAutoMovieInspectionHandle = await placement.inspect(
     { ...call.request, stroke: call.request.stroke * factor },
@@ -389,61 +298,30 @@ async function drawCall(
         call.seconds,
         delivery ? "delivery" : "capture",
         { renderer, factor: SUPERSAMPLE },
+        picture.seekShown !== undefined,
       );
       scene.beforeDraw?.(renderer, call.seconds);
     },
-    seekShown,
+    picture.seekShown,
   );
 
-  // 5. Draw through the resolved camera at the drawn raster.
+  // 5. Draw through the resolved camera at the drawn raster. Only the beauty
+  // shade and the graphics plate have a camera response; the other structural
+  // passes never ask for optics. A composited transition takes the witness
+  // cubes over its composite, at full strength.
   const resolved: ReturnType<typeof resolveAt> = resolveAt(call.seconds);
   prepare();
   handle.resize(width, height);
+  if (picture.composites) picture.draw(resolved.camera);
   const diagnosticLegend: readonly IAutoMovieInspectionLegendEntry[] =
     renderWithAutoMovieInspectionDiagnostics({
-      scene: scene.scene,
+      scene: picture.composites ? beauty.overlay : scene.scene,
       diagnostics: delivery || shade !== "beauty" ? undefined : diagnostics,
       render: (): void => {
-        // Only the beauty shade and the graphics plate have a camera
-        // response; the other structural passes never ask for optics.
-        if (shade !== "beauty") {
-          if (shade === "graphics")
-            beauty.plate({
-              scene,
-              camera: resolved.camera,
-              seconds: call.seconds,
-              width,
-              height,
-            });
-          else renderer.render(scene.scene, resolved.camera);
-          return;
-        }
-        if (drawsLive && !heldLive)
-          beauty.draw({
-            scene,
-            camera: resolved.camera,
-            seconds: call.seconds,
-            width,
-            height,
-            sampled,
-            ...(alpha === undefined ? {} : { alpha }),
-          });
-        if (layers === null) return;
-
-        // The held layers, mixed by their weights: the outgoing shot in slot
-        // 0 and the live one in slot 1.
-        if (drawsLive && !heldLive) beauty.hold(1);
-        beauty.composite(
-          layers.map(
-            (
-              layer: IAutoMoviePlaybackLayer,
-            ): { weight: number; slot: number } => ({
-              weight: layer.weight,
-              slot: layer.live ? 1 : 0,
-            }),
-          ),
-          transparent,
-        );
+        if (picture.composites) beauty.over(resolved.camera);
+        else if (shade === "beauty" || shade === "graphics")
+          picture.draw(resolved.camera);
+        else renderer.render(scene.scene, resolved.camera);
       },
       width,
       height,

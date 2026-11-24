@@ -2,29 +2,29 @@
 
 ## @evidence contracts/development/design.md#principled-representation
 
-The planned layers of the picture being painted, null for one live layer, and the held copies of a transition's pictures.
+The plan of the picture being painted, its composited layers or null and its shown layer or null, the compositor it was planned on, the held copies of a transition's pictures and their overlay scene.
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
-The scene mount, `mountAutoMovieInspectorScene`, is the one consumer of `prepare`, `drawsLive`, `finish` and `dispose`; planning and composition are render's.
+The scene mount, `mountAutoMovieInspectorScene`, is the one consumer of `place`, `byShot`, `composites`, `finish`, `overlay`, `over` and `dispose`; planning, placement and composition are render's.
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 
-No subject, kind or shot is named; the plan's condition is the draw page's own, a plain beauty request.
+No subject, kind or shot is named; the composite's condition is the draw page's own, a plain beauty request, and the shown layer is render's plan, so the two hosts cannot disagree.
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-The class comment states when layers are planned, what `prepare` places, paints and holds and in which order, what `finish` composites, what other pictures do, and what still differs from delivery.
+The class comment states what `place` plans and places and in which order, which pictures composite, what a weight-0 layer and a fade's midpoint do, what `finish` composites, where the witness cubes go, what other pictures do, and what still differs from delivery.
 
-# src/inspector/AutoMovieInspectorTransition.ts#AutoMovieInspectorTransition.prototype.prepare
+# src/inspector/AutoMovieInspectorTransition.ts#AutoMovieInspectorTransition.prototype.place
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States what is planned and what is placed, painted and held before the caller's seek.
+States what is planned, what is placed, painted and held, and that the shown layer is placed last.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-Plans with render's `planAutoMovieDrawLayers`, the draw page's planner, for a plain beauty request on a WebGL renderer, the condition under which the page composites; the outgoing layer carries its shot-local second at the painted second, so `seekShot` places it without the engine, and `beforeDraw` runs after the placement as the page runs it. Without an outgoing shot it returns null, so the mount seeks the live second in the same frame, as it did before transitions were painted; a mount disposed during the placement paints and holds nothing.
+Plans with render's `planAutoMovieDrawPicture`, the draw page's planner, and places through `placeAutoMovieDrawLayer`, so each layer is placed on its own entry's clock and the shot `playbackShownLayer` names is placed last, by `seekShot` when it is the outgoing shot; for a plain beauty request on a WebGL compositor every other layer of positive weight is placed, fed by `beforeDraw`, painted and held first, as the page does. A transition disposed during a placement paints and holds nothing.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
@@ -32,15 +32,15 @@ Painting is the caller's, so the camera and response stay with the mount; holdin
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
-A renderer double, which has no framebuffer to copy, plans no layers and paints as before; a missing `seekShot` is refused by the planner.
+A renderer double, which has no framebuffer to copy, composites nothing but still places the shown shot last; a missing `seekShot` is refused by the planner.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
-The planner's O(log E) search; inside a transition one placement, one paint and one copy.
+The planner's O(log E) search and one placement, plus inside a composited transition one placement, one paint and one copy per other drawn layer; a layer of weight 0 costs nothing.
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 
-The held copy is reused while the drawing buffer keeps its size.
+The held copies are reused while the drawing buffer keeps its size.
 
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
@@ -50,11 +50,11 @@ Holds the plan of the picture being painted, replaced by the next.
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States when it runs and what it composites.
+States when it runs, what it paints and composites, and what it returns.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-Holds the live picture when it is drawn and mixes the held layers by the plan's weights through `AutoMovieTransitionDisplays`, render's compositor path, over an opaque canvas.
+Paints and holds the shown layer when it has weight and mixes the held layers of positive weight by the plan's weights through `AutoMovieTransitionDisplays`, render's compositor path, over an opaque canvas; a fade's midpoint, with no layer of weight, is the cleared canvas, the black the fade reaches.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
@@ -62,11 +62,11 @@ Composition is render's; this method assigns slots.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
-Does nothing without a plan or on a renderer double.
+Does nothing and returns false without a composited plan, so the mount paints as before.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
-At most one copy and one composite.
+At most one paint, one copy and one composite.
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 
@@ -76,15 +76,45 @@ The renderer's compositor state is reused across frames.
 
 Allocates through the displays only.
 
+# src/inspector/AutoMovieInspectorTransition.ts#AutoMovieInspectorTransition.prototype.over
+
+## @evidence contracts/development/common.md#meaningful-documentation
+
+States what is drawn over the composite and that it does not clear.
+
+## @evidence contracts/development/implementation.md#principled-implementation
+
+Delegates to `AutoMovieTransitionDisplays.over` on the compositor, so the witness cubes stand over the composite at full strength, as the draw page draws them.
+
+## @evidence contracts/development/implementation.md#clear-and-simple-structure
+
+The displays own the overlay scene and its draw.
+
+## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
+
+Draws nothing without a compositor or with an empty overlay.
+
+## @evidence contracts/development/implementation.md#efficient-algorithms
+
+One render of the overlay's objects.
+
+## @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work
+
+Each picture's overlay is drawn once.
+
+## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
+
+Allocates nothing.
+
 # src/inspector/AutoMovieInspectorTransition.ts#AutoMovieInspectorTransition.prototype.dispose
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States what is released.
+States what is released and what a pending placement then does.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-Disposes the held copies and the compositor states through `AutoMovieTransitionDisplays.dispose`.
+Marks the owner disposed, so a pending placement paints and holds nothing, and disposes the held copies and the compositor states through `AutoMovieTransitionDisplays.dispose`.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 

@@ -79,6 +79,7 @@ export * from "./placeTransformedPoint";
 export * from "./plantPerformShotStanceFeet";
 export * from "./plantsAtEnd";
 export * from "./playbackCursor";
+export * from "./playbackEntryAt";
 export * from "./playbackEntryTime";
 export * from "./playbackFrameSamples";
 export * from "./playbackLayersAt";

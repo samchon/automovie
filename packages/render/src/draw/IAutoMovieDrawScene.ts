@@ -16,10 +16,19 @@ import type * as THREE from "three";
  * raster, and how to put it at a second.
  *
  * The draw function holds one for the life of the page. Before every picture it
- * calls `seek` and waits for it, then asks `marks` for the same second, applies
- * the cell's inspection to `scene`, and draws through the camera the cell's
- * view resolves to. A production's film and a motion case both fit it; nothing
- * in it names what kind of subject it is.
+ * places the subject by `seek`, or by `seekShot` for a transition's outgoing
+ * shot, and waits for it, then asks `marks` for the same second, applies the
+ * cell's inspection to `scene`, and draws through the camera the cell's view
+ * resolves to. A production's film and a motion case both fit it; nothing in it
+ * names what kind of subject it is.
+ *
+ * Every reader, `marks`, `views`, `optics`, `shading`, `inspectPlaced` and
+ * `beforeDraw`, describes the subject as last placed, by `seek` or `seekShot`,
+ * and is asked right after that placement; its `seconds` is the output second
+ * drawn. After `seekShot` it describes the placed shot at its own shot-local
+ * time, so a transition's outgoing tail takes its own exposure, white balance,
+ * focus and feeds, not the live entry's. Only what the subject reads on the
+ * output clock, such as the dialogue mouths, follows `seconds`.
  */
 export interface IAutoMovieDrawScene {
   /** The scene drawn, owned by the subject until `dispose`. */
@@ -65,19 +74,22 @@ export interface IAutoMovieDrawScene {
    * is the live placement alone.
    *
    * With it, a delivered or plain `beauty` picture, in the draw page and the
-   * interactive viewer alike, draws the layers `playbackLayersAt` gives at its
-   * second: the live entry placed by `seek` and a transition's outgoing entry
-   * placed by `seekShot`, each with its own optics and shading read after its
-   * placement, composited by `renderAutoMovieFilmFrame`. A cross dissolve mixes
-   * the two shots and a fade dips through black, or through alpha 0 over a
-   * transparent background, as `IAutoMovieTransition` states. Inspection
-   * pictures, marks, labels and diagnostics read the live placement alone.
+   * interactive viewer alike, and the draw page's `graphics` plate draw the
+   * layers `playbackLayersAt` gives at their second: the live entry placed by
+   * `seek` and a transition's outgoing entry placed by `seekShot`, each with
+   * its own optics and shading read after its placement, composited by
+   * `renderAutoMovieFilmFrame`. A cross dissolve mixes the two shots and a fade
+   * dips through black, or through alpha 0 over a transparent background and
+   * for the plate, as `IAutoMovieTransition` states. Inspection pictures,
+   * structural passes, marks, labels, the camera record and diagnostics follow
+   * the shot `playbackShownLayer` names, placed last, and the witness cubes
+   * stand over a composite at full strength.
    */
   sequence?: IAutoMovieSequence;
 
   /**
-   * The subject's own named views, each placing a camera in world metres at a
-   * second; absent when it has none.
+   * The subject's own named views, each placing a camera in world metres for
+   * the last placement at a second; absent when it has none.
    */
   views?: Readonly<
     Record<
@@ -106,16 +118,16 @@ export interface IAutoMovieDrawScene {
   markKinds?: readonly string[];
 
   /**
-   * The marks the subject's owners supply at a second, asked for after `seek`;
-   * absent when it supplies none.
+   * The marks the subject's owners supply for the last placement at a second,
+   * asked for right after it; absent when it supplies none.
    */
   marks?: (seconds: number) => readonly IAutoMovieMark[];
 
   /**
-   * The film's camera response at a second, asked for after `seek`, or after
-   * `seekShot` for a transition's outgoing shot, before each beauty draw;
-   * absent draws the beauty pass straight to the canvas under the renderer's
-   * own curve, as before optics existed.
+   * The film's camera response for the last placement at a second, asked for
+   * right after `seek` or `seekShot` before each beauty draw; absent draws the
+   * beauty pass straight to the canvas under the renderer's own curve, as
+   * before optics existed.
    *
    * When present, the draw host and the inspector render the beauty pass into a
    * linear target with the renderer's curve at none and exposure at one, and
@@ -127,9 +139,9 @@ export interface IAutoMovieDrawScene {
   optics?: (seconds: number) => IAutoMovieFilmOptics;
 
   /**
-   * The film's indirect shading at a second, asked for after `seek` before each
-   * beauty draw; absent leaves indirect light as the scene's image lighting
-   * gives it.
+   * The film's indirect shading for the last placement at a second, asked for
+   * right after it before each beauty draw and each sub-frame sample; absent
+   * leaves indirect light as the scene's image lighting gives it.
    *
    * `AutoMovieFilmIndirectStage` measures what it asks for and the lit
    * materials read it while the beauty pass draws. A member without `optics` at
@@ -139,8 +151,9 @@ export interface IAutoMovieDrawScene {
   shading?: (seconds: number) => IAutoMovieFilmShading;
 
   /**
-   * Optional production diagnostics, read synchronously after the outer seek is
-   * ready and before any inspection changes the scene.
+   * Optional production diagnostics of the last placement, read synchronously
+   * once the shown shot is placed and ready and before any inspection changes
+   * the scene.
    */
   inspectPlaced?: (
     sample: IAutoMovieDrawScene.IPlacedSample,
@@ -150,10 +163,10 @@ export interface IAutoMovieDrawScene {
    * Optional work on the page's renderer after each placement and before any
    * pass's render mode applies, such as drawing surface feeds into their render
    * targets with `IAutoMovieSurfaceGraphicsObject.renderFeeds`: right after the
-   * drawn second's seek, after a transition shot's placement and after each
-   * sub-frame sample's, with that placement's second. It sees the scene's own
-   * materials, so every pass of a second, the graphics plate's holdouts
-   * included, shows the feeds the beauty pass shows. It must leave the
+   * drawn second's placement, after each transition layer's and after each
+   * sub-frame sample's, for that placement, with its output second. It sees the
+   * scene's own materials, so every pass of a second, the graphics plate's
+   * holdouts included, shows the feeds the beauty pass shows. It must leave the
    * renderer's render target as it found it.
    */
   beforeDraw?: (renderer: THREE.WebGLRenderer, seconds: number) => void;
@@ -182,16 +195,23 @@ export interface IAutoMovieDrawScene {
 
   /**
    * Put every object and the delivery camera as one shot of `sequence` shows
-   * them at its own shot-local `time`, during the output second `seconds`: the
-   * outgoing shot of a transition, whose tail `seek` cannot place because the
-   * incoming entry is live there. Anything the subject reads on the output
-   * clock, such as the dialogue mouths, is read at `seconds`. The returned
-   * promise resolves once the subject is ready; the draw host places the output
-   * second again with `seek` before it draws the live entry.
+   * them at its own shot-local `time`, during the output second `seconds`: a
+   * transition's outgoing shot, whose tail `seek` cannot place because the
+   * incoming entry is live there, or an entry's shutter sample before its
+   * start. Anything the subject reads on the output clock, such as the dialogue
+   * mouths, is read at `seconds`; every other reader then describes this shot.
+   * The returned promise resolves once the subject is ready.
    *
-   * Required when `sequence` has a transition: a picture that must draw an
-   * outgoing shot without it is refused, naming the subject, the entry and
-   * `seekShot`.
+   * `time` is the entry's clock, `playbackEntryTime`, at `seconds`. A sample
+   * before the entry's in-point asks for the shot's handle, its source before
+   * the trim's start, and before the shot's zero the shot holds what its clips
+   * clamp to. The hosts place a transition's layers in any order and the shot a
+   * picture shows last, so a fade's or a dissolve's first half reads every
+   * record on this placement rather than on a later `seek`.
+   *
+   * Required when `sequence` has a transition, or when a shutter's samples
+   * reach back across a cut: a picture that needs a shot placed without it is
+   * refused, naming the subject, the entry and `seekShot`.
    */
   seekShot?(shot: string, time: number, seconds: number): Promise<void>;
 
@@ -233,9 +253,10 @@ export namespace IAutoMovieDrawScene {
     readonly mode: "viewer" | "capture" | "delivery";
 
     /**
-     * The subject's synchronous placement, when it offers one. A caller that
-     * places another second must place this sample's second again before
-     * returning.
+     * The subject's synchronous placement, when it offers one and this sample
+     * was placed by `seek`; absent for a shot placed by `seekShot`, whose clock
+     * it cannot reach. A caller that places another second must place this
+     * sample's second again before returning.
      */
     readonly place?: (seconds: number) => void;
 

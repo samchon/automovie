@@ -78,7 +78,8 @@ export class AutoMovieDrawPlacement {
    * Place the subject at `seconds` and bind a fresh inspection of `request`,
    * calling `onPlaced` on the settled scene before the inspection changes it.
    * `seek` places the subject instead of its own `seek`, as a transition's
-   * outgoing shot is placed; trails are still sampled on the subject's clock.
+   * outgoing shot is placed, and the request's trails are sampled through it
+   * too, so they trace the shot the picture shows.
    */
   public async inspect(
     request: IAutoMovieInspectionRequest,
@@ -141,7 +142,7 @@ export class AutoMovieDrawPlacement {
     onPlaced?: () => void,
     seek?: (seconds: number) => Promise<void>,
   ): Promise<IAutoMovieMark[]> {
-    const { scene } = this;
+    const scene: IAutoMovieDrawScene = this.scene;
     const trails: IAutoMovieInspectionTrail[] = [];
     if (request.trail.length !== 0) {
       const times: number[] = planAutoMovieInspectionTrailTimes({
@@ -155,7 +156,7 @@ export class AutoMovieDrawPlacement {
             scene: scene.scene,
             pattern,
             times,
-            seek: (at: number): Promise<void> => scene.seek(at),
+            seek: seek ?? ((at: number): Promise<void> => scene.seek(at)),
           })),
         );
     }

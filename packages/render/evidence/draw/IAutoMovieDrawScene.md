@@ -10,11 +10,11 @@ Every member is read by `installAutoMovieDraw`: the scene and camera to draw, th
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 
-No member names a film, a figure or a case. A positive clock and raster are checked by the capture planner at runtime. `sequence` without `seekShot` is a state the type admits, because a cut whose transitions are all outside the drawn seconds needs no shot placement; a picture that needs one refuses by name in `planAutoMovieDrawLayers`.
+No member names a film, a figure or a case. A positive clock and raster are checked by the capture planner at runtime. `sequence` without `seekShot` is a state the type admits, because a cut whose transitions are all outside the drawn seconds needs no shot placement; a picture that needs one refuses by name in `planAutoMovieDrawLayers`, or in `placeAutoMovieDrawLayer` for a shutter sample before a cut.
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States who holds it, the order the draw function calls its members in, and each member's unit and absent meaning.
+States who holds it, the order the draw function calls its members in, which placement every reader describes and what alone follows the output second, and each member's unit and absent meaning.
 
 # src/draw/IAutoMovieDrawScene.ts#IAutoMovieDrawScene.marks
 
@@ -230,7 +230,7 @@ A signature has no body; the subject that implements it answers.
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States what is placed, on which two clocks, what the subject reads at the output second, when the host places the live second again, and the refusal without it.
+States what is placed, on which two clocks, what the subject reads at the output second and what every other reader then describes, the handle and pre-zero times it can be asked for, the order the hosts place a transition's shots in, and when it is required.
 
 ## @evidenceExclude contracts/development/implementation.md#principled-implementation
 
@@ -338,7 +338,7 @@ Specifies the origin of the projection, the raster dimensions and when the rende
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States where it comes from and the caller's obligation after placing another second.
+States where it comes from, that a shot placed by `seekShot` offers none, and the caller's obligation after placing another second.
 
 ## @evidenceExclude contracts/development/implementation.md#principled-implementation
 

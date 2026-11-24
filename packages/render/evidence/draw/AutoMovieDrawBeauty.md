@@ -6,7 +6,7 @@ One page's beauty stages, the response, indirect and lens scratch, and the held 
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
-The draw host, `installAutoMovieDraw`, calls every public member; the stages are owned by their own classes and only composed here.
+The draw host, `installAutoMovieDraw`, and its picture, `AutoMovieDrawFilm`, call every public member; the stages are owned by their own classes and only composed here.
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 
@@ -14,7 +14,7 @@ No member names a subject, a pass other than the graphics plate it draws, or a f
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-The class comment states what `sample`, `draw`, `plate`, `hold` and `composite` draw and through which stage, the transparent backdrop rule, why the plate is one sample without indirect shading and when that reopens, and the stages' lifetime.
+The class comment states what `sample`, `draw`, `plate`, `hold`, `composite`, `overlay` and `over` draw and through which stage, the transparent backdrop rule, why the plate is one sample without indirect shading and when that reopens, and the stages' lifetime.
 
 # src/draw/AutoMovieDrawBeauty.ts#AutoMovieDrawBeauty.ILayer
 
@@ -243,6 +243,36 @@ The compositor state of the renderer is reused across frames.
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
 Compositor states are released by `dispose`.
+
+# src/draw/AutoMovieDrawBeauty.ts#AutoMovieDrawBeauty.prototype.over
+
+## @evidence contracts/development/common.md#meaningful-documentation
+
+States what is drawn over the canvas and that it does not clear.
+
+## @evidence contracts/development/implementation.md#principled-implementation
+
+Delegates to `AutoMovieTransitionDisplays.over` on the page's renderer, so a composited picture's witness cubes stand over the composite.
+
+## @evidence contracts/development/implementation.md#clear-and-simple-structure
+
+The displays own the overlay scene and its draw.
+
+## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
+
+An empty overlay draws nothing.
+
+## @evidence contracts/development/implementation.md#efficient-algorithms
+
+One render of the overlay's objects.
+
+## @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work
+
+Each picture's overlay is drawn once.
+
+## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
+
+Allocates nothing.
 
 # src/draw/AutoMovieDrawBeauty.ts#AutoMovieDrawBeauty.prototype.dispose
 

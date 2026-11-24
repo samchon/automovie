@@ -6,7 +6,7 @@ Held RGBA8 copies of the drawing buffer, one per slot at the buffer's pixel size
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
-The draw page's beauty owner and the interactive viewer's transition use `hold`, `composite` and `dispose`; the mix is `renderAutoMovieFilmFrame`'s and the compositor's.
+The draw page's beauty owner and the interactive viewer's transition use `hold`, `composite`, `overlay`, `over` and `dispose`; the mix is `renderAutoMovieFilmFrame`'s and the compositor's.
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 
@@ -14,7 +14,7 @@ Slots are numbers the caller assigns per layer; no shot, kind or host is named.
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-The class comment states why the layers are held, what `hold` copies, how `composite` replays and mixes, the fade's transparent target and the copies' lifetime.
+The class comment states why the layers are held, what `hold` copies, how `composite` replays and mixes, the fade's transparent target, what `overlay` and `over` draw over the composite and the copies' lifetime.
 
 # src/scene/AutoMovieTransitionDisplays.ts#AutoMovieTransitionDisplays.prototype.hold
 
@@ -75,6 +75,36 @@ The renderer's compositor state is reused across frames, as `renderFadeToBlackFr
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
 Records the renderer so `dispose` releases its compositor states.
+
+# src/scene/AutoMovieTransitionDisplays.ts#AutoMovieTransitionDisplays.prototype.over
+
+## @evidence contracts/development/common.md#meaningful-documentation
+
+States what is drawn over what, that nothing is cleared, what is restored and that an empty overlay draws nothing.
+
+## @evidence contracts/development/implementation.md#principled-implementation
+
+The overlay scene holds only the display overlays a host attached, whose materials state display colours and ignore depth, so one render onto the canvas with clearing off stands them over the composite at full strength, as the film response stage draws its overlays after the response.
+
+## @evidence contracts/development/implementation.md#clear-and-simple-structure
+
+One render between saving and restoring the target and the clear policy.
+
+## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
+
+The target and clear policy are restored in a finally block; nothing is drawn for an empty overlay.
+
+## @evidence contracts/development/implementation.md#efficient-algorithms
+
+One render of the overlay's objects, none when it is empty.
+
+## @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work
+
+Each picture's overlay is drawn once.
+
+## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
+
+Allocates nothing; the host attaches and removes the overlay's objects.
 
 # src/scene/AutoMovieTransitionDisplays.ts#AutoMovieTransitionDisplays.prototype.dispose
 

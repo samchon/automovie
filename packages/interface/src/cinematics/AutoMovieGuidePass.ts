@@ -26,7 +26,11 @@
  *   other mesh writing depth only so whatever stands in front hides them, on a
  *   transparent background whose alpha is the graphics' coverage; the plate a
  *   finishing step composites legible screens and lettering from. Raised
- *   lettering is ordinary geometry and stays out.
+ *   lettering is ordinary geometry and stays out. Unlike the structural passes,
+ *   which show the shot a frame shows most of, the plate goes through a
+ *   transition as `beauty` does: a dissolve mixes the two shots' plates by
+ *   their weights and a fade dips its coverage to 0 at the midpoint, so it
+ *   composites over the delivered film.
  *
  * The closed union makes an unknown pass name a type error at the authoring
  * surface; render's `AUTOMOVIE_GUIDE_PASSES` carries the matching runtime list

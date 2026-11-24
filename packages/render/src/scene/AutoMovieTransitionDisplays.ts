@@ -19,12 +19,25 @@ import { renderAutoMovieFilmFrame } from "./renderAutoMovieFilmFrame.js";
  * `transparent` toward alpha 0. A replay writes the held bytes unchanged, so
  * the compositor sees exactly the display bytes each layer drew.
  *
+ * `overlay` is an empty scene a host attaches a picture's display overlays to,
+ * such as the witness cubes of its diagnostics, and `over` draws it onto the
+ * canvas after the composite without clearing, so an overlay stands at full
+ * strength over a dissolve or a fade instead of being mixed with a layer. An
+ * overlay's materials state display colours and ignore depth, as the witness
+ * cubes do, so it draws as the film response stage draws its overlays.
+ *
  * Each slot's copy is made at the drawing buffer's size on its first hold and
  * remade when that size changes; `dispose` releases the copies, the replay
  * program and the compositor states the renderer holds for this owner's fades
  * and dissolves.
  */
 export class AutoMovieTransitionDisplays {
+  /**
+   * The scene a picture's display overlays are attached to while `over` draws
+   * them; it holds nothing else.
+   */
+  public readonly overlay: THREE.Scene = new THREE.Scene();
+
   /** The held copies, by slot. */
   private readonly copies_: (THREE.FramebufferTexture | undefined)[] = [];
 
@@ -104,6 +117,25 @@ export class AutoMovieTransitionDisplays {
       undefined,
       transparent,
     );
+  }
+
+  /**
+   * Draw `overlay` onto the canvas through `camera` over what the canvas holds,
+   * without clearing it; the renderer's clear policy and target are restored.
+   * An empty overlay draws nothing.
+   */
+  public over(renderer: THREE.WebGLRenderer, camera: THREE.Camera): void {
+    if (this.overlay.children.length === 0) return;
+    const target: THREE.WebGLRenderTarget | null = renderer.getRenderTarget();
+    const autoClear: boolean = renderer.autoClear;
+    renderer.setRenderTarget(null);
+    renderer.autoClear = false;
+    try {
+      renderer.render(this.overlay, camera);
+    } finally {
+      renderer.autoClear = autoClear;
+      renderer.setRenderTarget(target);
+    }
   }
 
   /** Release the copies, the replay program and the compositor states. */

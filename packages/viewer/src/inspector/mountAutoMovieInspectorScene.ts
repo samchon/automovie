@@ -46,8 +46,8 @@ import { writeAutoMovieInspectorInspection } from "./writeAutoMovieInspectorInsp
  * playhead's duration and second, reports `ready` and schedules the first
  * frame. Each frame advances a playing playhead by the wall time since the last
  * frame, follows the host's size, and redraws when the playhead's snapshot or
- * the request changed: seek the instance and, once its promise resolves, run
- * the subject's `beforeDraw` on a WebGL renderer, as the draw host does, so its
+ * the request changed: place the instance and, once it is ready, run the
+ * subject's `beforeDraw` on a WebGL renderer, as the draw host does, so its
  * surface feeds show the second drawn with the scene's own materials, then
  * update the inspection with the second's marks, resolve the view and render.
  * An inspection that changes the scene's materials or layers is lifted around
@@ -77,12 +77,11 @@ import { writeAutoMovieInspectorInspection } from "./writeAutoMovieInspectorInsp
  * observed span. Its witness cubes are drawn under the beauty shade unless
  * `overlay(false)` hid them; hiding them stops no check and no report.
  *
- * A plain beauty request paints a subject's transition as the draw page
- * delivers and captures it: before the seek, `AutoMovieInspectorTransition`
- * places, paints and holds a transition's outgoing shot, and after the live
- * entry is painted it composites the held layers by the weights
- * `playbackLayersAt` gives, so a cross dissolve mixes the shots and a fade dips
- * through black at the same second in all three.
+ * `AutoMovieInspectorTransition` places the subject, the shown shot last, so
+ * diagnostics, marks, camera and inspection pictures follow it as in the draw
+ * page; a plain beauty transition paints and holds its other layers first and
+ * composites them by their `playbackLayersAt` weights, under the witness cubes
+ * at full strength, so a dissolve and a fade match delivery.
  *
  * The page draws the first view and the first pass of the request; the capture
  * command draws them all. While paused, the labels the request asks for are
@@ -246,8 +245,8 @@ export function mountAutoMovieInspectorScene(props: {
   }
 
   /**
-   * Seek one second and draw it once the subject is ready there; frames skip
-   * drawing while a seek is pending.
+   * Place one second and draw it once the subject is ready there; frames skip
+   * drawing while a placement is pending.
    */
   function draw(
     now: IAutoMovieInspectorLive,
@@ -264,20 +263,17 @@ export function mountAutoMovieInspectorScene(props: {
         changesAutoMovieObservedScene(now.applied.inspection)
       )
         now.inspection.restore();
-      // A transition's outgoing shot is placed, painted and held before the live second.
-      const held: Promise<void> | null = now.transition.prepare({
+      // A transition's other layers are placed, painted and held, and the shot the picture shows most of is placed last.
+      ready = now.transition.place({
         name: props.name,
         instance: now.instance,
         request: now.applied.inspection,
-        renderer: now.renderer,
+        compositor:
+          now.renderer instanceof THREE.WebGLRenderer ? now.renderer : null,
         seconds: snapshot.seconds,
         paint: (): void =>
           beauty(now, filmCamera(now, snapshot.seconds), snapshot.seconds),
       });
-      ready =
-        held === null
-          ? now.instance.seek(snapshot.seconds)
-          : held.then((): Promise<void> => now.instance.seek(snapshot.seconds));
     } catch (error) {
       ready = Promise.reject(
         error instanceof Error ? error : new Error(String(error)),
@@ -305,7 +301,13 @@ export function mountAutoMovieInspectorScene(props: {
     const { instance } = now;
     try {
       const diagnostics: IAutoMovieInspectionDiagnostics | undefined =
-        observeAutoMoviePlacedInspection(instance, snapshot.seconds, "viewer");
+        observeAutoMoviePlacedInspection(
+          instance,
+          snapshot.seconds,
+          "viewer",
+          undefined,
+          now.transition.byShot,
+        );
       // The subject's render-target work, such as surface feeds, runs once on the placed scene's own materials before any shade applies, as the draw host runs it; only a WebGL renderer has render targets.
       if (now.renderer instanceof THREE.WebGLRenderer)
         instance.beforeDraw?.(now.renderer, snapshot.seconds);
@@ -323,21 +325,20 @@ export function mountAutoMovieInspectorScene(props: {
       } else now.inspection.update(instance.marks?.(snapshot.seconds));
 
       const camera: THREE.Camera = filmCamera(now, snapshot.seconds);
+      const shaded: boolean = now.applied.inspection.shade === "beauty";
+      const shown: () => void = (): void =>
+        beauty(now, camera, snapshot.seconds);
+      // A composited transition takes its witness cubes over the composite, at full strength.
+      const composited: boolean = shaded && now.transition.finish(shown);
       const diagnosticLegend: ReturnType<typeof witnessCubes.render> =
         witnessCubes.render({
-          scene: instance.scene,
-          diagnostics:
-            witnesses && now.applied.inspection.shade === "beauty"
-              ? diagnostics
-              : undefined,
+          scene: composited ? now.transition.overlay : instance.scene,
+          diagnostics: witnesses && shaded ? diagnostics : undefined,
           render: (): void => {
             // The beauty shade shows the delivered picture: the subject's optics, through the stage delivery draws with.
-            if (now.applied.inspection.shade !== "beauty") {
-              now.renderer.render(instance.scene, camera);
-              return;
-            }
-            if (now.transition.drawsLive) beauty(now, camera, snapshot.seconds);
-            now.transition.finish(now.renderer);
+            if (composited) now.transition.over(camera);
+            else if (shaded) shown();
+            else now.renderer.render(instance.scene, camera);
           },
           width: now.size!.width,
           height: now.size!.height,
@@ -486,6 +487,7 @@ export function mountAutoMovieInspectorScene(props: {
           now.frame = undefined;
         },
         (): void => now.inspection.restore(),
+        (): void => now.transition.dispose(),
         (): void => now.beauty.dispose(),
         (): void => now.renderer.dispose(),
         (): void => now.instance.dispose(),

@@ -64,7 +64,7 @@ export function readAutoMovieDrawResult(props: {
   /** The mouths read for the drawn second, if the subject speaks. */
   mouths: IAutoMovieDrawnMouth[] | undefined;
 }): IAutoMovieDrawResult {
-  const { call, width, height, handle } = props;
+  const { call, width, height, handle }: typeof props = props;
   const context: WebGLRenderingContext | WebGL2RenderingContext =
     props.renderer.getContext();
   const bytes: Uint8Array = new Uint8Array(width * height * 4);

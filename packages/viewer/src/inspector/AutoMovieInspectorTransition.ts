@@ -6,59 +6,75 @@ import {
   AutoMovieTransitionDisplays,
   type IAutoMovieDrawScene,
   isAutoMoviePlainBeautyRequest,
-  planAutoMovieDrawLayers,
+  placeAutoMovieDrawLayer,
+  planAutoMovieDrawPicture,
 } from "@automovie/render";
-import * as THREE from "three";
-
-import type { IAutoMovieInspectorSceneHost } from "./IAutoMovieInspectorSceneHost.js";
+import type * as THREE from "three";
 
 /**
- * The inspector's half of a film picture inside a transition, so the Viewer
- * paints the frame the draw page delivers and captures at the same second.
+ * The inspector's placement of a subject at a painted second and its half of a
+ * film picture inside a transition, so the Viewer paints the frame and keeps
+ * the records the draw page delivers and captures at the same second.
  *
- * `prepare` reads the layers `planAutoMovieDrawLayers` gives for a plain
- * `beauty` request on a WebGL renderer, the condition under which the draw page
- * composites them. When one is a transition's outgoing shot it places that shot
- * through the subject's `seekShot` at the layer's own shot-local second, runs
- * the subject's `beforeDraw`, has the caller paint it and holds the canvas
- * picture, all before the mount places the live second. `finish`, after the
- * mount painted the live entry when `drawsLive` says it is drawn, holds that
- * picture too and composites the held layers by their weights through
- * `AutoMovieTransitionDisplays`. Any other picture is painted as before: no
- * layer is planned, `drawsLive` is true and `finish` does nothing.
+ * `place` plans the second by `planAutoMovieDrawPicture` and places the shot
+ * the picture shows most of last, by `seekShot` when it is a transition's
+ * outgoing shot and by `seek` otherwise, so the mount's diagnostics, marks,
+ * camera and every non-film picture follow that shot. For a plain `beauty`
+ * request on a WebGL compositor, the condition under which the draw page
+ * composites, it first places, paints and holds every other layer of positive
+ * weight on its own entry's clock, the outgoing shot in slot 0 and the live
+ * entry in slot 1, running the subject's `beforeDraw` after each placement. A
+ * layer of weight 0 is neither placed nor painted. `finish`, in the mount's
+ * paint after the shown layer's records, paints the shown layer when it has
+ * weight, holds it, and composites the held layers by their weights through
+ * `AutoMovieTransitionDisplays`; a picture none of whose layers has weight, a
+ * fade's midpoint, is the cleared canvas. The witness cubes then go to
+ * `overlay` and `over` draws them over the composite at full strength. Any
+ * other picture is painted by the mount as before and `finish` does nothing.
  *
- * The Viewer paints one sharp sample without the film's indirect shading, as it
- * does outside transitions, so a subject whose optics set `samples` or whose
- * shading asks for occlusion or probes still differs from delivery by those,
- * not by its transitions.
+ * The Viewer paints one sample of each layer with the film's indirect shading,
+ * through `AutoMovieInspectorBeauty`, as it does outside transitions, so a
+ * subject whose optics set `samples` differs from delivery by its shutter and
+ * lens, not by its transitions.
  */
 export class AutoMovieInspectorTransition {
-  /** The held layers of the planned picture. */
+  /** The held layers of the planned picture and its overlay. */
   private readonly displays_: AutoMovieTransitionDisplays =
     new AutoMovieTransitionDisplays();
 
-  /** The layers of the picture being painted, or null for one live layer. */
+  /** The layers of the picture being composited, or null for one layer. */
   private layers_: IAutoMoviePlaybackLayer[] | null = null;
+
+  /** The shown layer of the planned second, or null outside a transition. */
+  private shown_: IAutoMoviePlaybackLayer | null = null;
+
+  /** The compositor of the picture being painted, or null. */
+  private compositor_: THREE.WebGLRenderer | null = null;
 
   /** Whether `dispose` ran, after which nothing is painted or held. */
   private disposed_: boolean = false;
 
-  /** Whether the live entry is drawn in the picture being painted. */
-  public get drawsLive(): boolean {
-    return (
-      this.layers_ === null ||
-      this.layers_.some((layer: IAutoMoviePlaybackLayer): boolean => layer.live)
-    );
+  /** Whether the picture being painted composites a transition's layers. */
+  public get composites(): boolean {
+    return this.layers_ !== null;
+  }
+
+  /** Whether the shown layer was placed by `seekShot`, off the film clock. */
+  public get byShot(): boolean {
+    return this.shown_ !== null && !this.shown_.live;
+  }
+
+  /** The scene a composited picture's witness cubes are attached to. */
+  public get overlay(): THREE.Scene {
+    return this.displays_.overlay;
   }
 
   /**
-   * Plan the picture at `seconds` and, inside a transition, place, paint and
-   * hold its outgoing shot; the caller places the live second afterwards.
-   * Returns null when there is no outgoing shot, so the caller seeks the live
-   * second at once, as it did before transitions were drawn, and otherwise the
-   * promise of the held outgoing picture. A refused plan throws at once.
+   * Plan the picture at `seconds`, place, paint and hold every other layer of a
+   * composited transition, and place the shown layer last. Resolves once the
+   * shown layer is ready; a refused plan throws at once.
    */
-  public prepare(props: {
+  public async place(props: {
     /** The subject's name, which a refusal names. */
     name: string;
 
@@ -68,57 +84,77 @@ export class AutoMovieInspectorTransition {
     /** The inspection the picture is drawn with. */
     request: IAutoMovieInspectionRequest;
 
-    /** The renderer, which composites only when it is a WebGL renderer. */
-    renderer: IAutoMovieInspectorSceneHost.IRenderer;
+    /** The WebGL renderer that composites, or null when there is none. */
+    compositor: THREE.WebGLRenderer | null;
 
     /** The second painted. */
     seconds: number;
 
     /** Paint the placed scene's beauty picture onto the canvas. */
     paint: () => void;
-  }): Promise<void> | null {
-    const renderer: THREE.WebGLRenderer | null =
-      props.renderer instanceof THREE.WebGLRenderer ? props.renderer : null;
+  }): Promise<void> {
+    const { instance, seconds, compositor }: typeof props = props;
+    const plan: ReturnType<typeof planAutoMovieDrawPicture> =
+      planAutoMovieDrawPicture(props.name, instance, seconds);
+    this.shown_ = plan.shown;
     this.layers_ =
-      renderer !== null && isAutoMoviePlainBeautyRequest(props.request)
-        ? planAutoMovieDrawLayers(props.name, props.instance, props.seconds)
+      compositor !== null && isAutoMoviePlainBeautyRequest(props.request)
+        ? plan.layers
         : null;
-    const outgoing: IAutoMoviePlaybackLayer | undefined = this.layers_?.find(
-      (layer: IAutoMoviePlaybackLayer): boolean => !layer.live,
-    );
-    if (renderer === null || outgoing === undefined) return null;
+    this.compositor_ = compositor;
+    for (const layer of this.drawn()) {
+      if (layer === this.shown_) continue;
+      await placeAutoMovieDrawLayer(props.name, instance, layer, seconds);
 
-    // A planned outgoing layer implies `seekShot`, which the plan requires. The
-    // subject's render-target work runs after the placement, as the draw page
-    // runs it.
-    return props.instance.seekShot!(
-      outgoing.shot,
-      outgoing.time,
-      props.seconds,
-    ).then((): void => {
-      // A mount disposed during the placement paints and holds nothing.
+      // A mount disposed during the placement paints and holds nothing; the
+      // subject's render-target work runs after the placement, as the draw
+      // page runs it.
       if (this.disposed_) return;
-      props.instance.beforeDraw?.(renderer, props.seconds);
+      instance.beforeDraw?.(compositor!, seconds);
       props.paint();
-      this.displays_.hold(renderer, 0);
-    });
+      this.displays_.hold(compositor!, slotOf(layer));
+    }
+    await placeAutoMovieDrawLayer(props.name, instance, this.shown_, seconds);
   }
 
-  /** Composite the planned layers after the live entry was painted. */
-  public finish(renderer: IAutoMovieInspectorSceneHost.IRenderer): void {
+  /**
+   * Composite a planned transition after the shown layer's records: paint the
+   * shown layer through `paint` when it has weight, hold it and composite the
+   * held layers. Returns whether it composited; otherwise the mount paints.
+   */
+  public finish(paint: () => void): boolean {
     const layers: IAutoMoviePlaybackLayer[] | null = this.layers_;
-    if (layers === null || !(renderer instanceof THREE.WebGLRenderer)) return;
-    if (this.drawsLive) this.displays_.hold(renderer, 1);
+    const renderer: THREE.WebGLRenderer | null = this.compositor_;
+    if (layers === null || renderer === null) return false;
+    if (this.shown_!.weight > 0) {
+      paint();
+      this.displays_.hold(renderer, slotOf(this.shown_!));
+    }
+
+    // A fade's midpoint shows no shot: the cleared canvas.
+    const drawn: IAutoMoviePlaybackLayer[] = this.drawn();
+    if (drawn.length === 0) {
+      renderer.setRenderTarget(null);
+      renderer.clear();
+      return true;
+    }
     this.displays_.composite(
       renderer,
-      layers.map(
+      drawn.map(
         (layer: IAutoMoviePlaybackLayer): { weight: number; slot: number } => ({
           weight: layer.weight,
-          slot: layer.live ? 1 : 0,
+          slot: slotOf(layer),
         }),
       ),
       false,
     );
+    return true;
+  }
+
+  /** Draw `overlay` over the composite through `camera`, without clearing. */
+  public over(camera: THREE.Camera): void {
+    if (this.compositor_ !== null)
+      this.displays_.over(this.compositor_, camera);
   }
 
   /** Release the held layers; a placement still pending then paints nothing. */
@@ -126,4 +162,16 @@ export class AutoMovieInspectorTransition {
     this.disposed_ = true;
     this.displays_.dispose();
   }
+
+  /** The composited layers of positive weight, outgoing first. */
+  private drawn(): IAutoMoviePlaybackLayer[] {
+    return (this.layers_ ?? []).filter(
+      (layer: IAutoMoviePlaybackLayer): boolean => layer.weight > 0,
+    );
+  }
+}
+
+/** The slot a transition layer is held in: the outgoing 0, the live 1. */
+function slotOf(layer: IAutoMoviePlaybackLayer): number {
+  return layer.live ? 1 : 0;
 }

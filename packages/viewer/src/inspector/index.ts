@@ -7,6 +7,7 @@ export * from "./AutoMovieInspectorSelectionPanel.js";
 export * from "./AutoMovieInspectorShadePanel.js";
 export * from "./AutoMovieInspectorTimePanel.js";
 export * from "./AutoMovieInspectorTimeReadout.js";
+export * from "./AutoMovieInspectorTransition.js";
 export * from "./AutoMovieInspectorViewPanel.js";
 export * from "./buildAutoMovieInspectorPathTree.js";
 export * from "./createAutoMovieInspectorAddressWriter.js";

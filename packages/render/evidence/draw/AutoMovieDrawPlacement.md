@@ -114,7 +114,7 @@ States what is placed, when `onPlaced` runs and what is bound.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-Placement goes through `replaceAutoMovieDrawInspection`, which restores the previous handle before placement, so a subject may replace its objects during a seek, and binds the request to the objects the placement left with their current marks and sampled trails; the observer reads the settled scene before any inspection change.
+Placement goes through `replaceAutoMovieDrawInspection`, which restores the previous handle before placement, so a subject may replace its objects during a seek, and binds the request to the objects the placement left with their current marks and sampled trails; a caller's placement, a transition's outgoing shot, places the trail samples too, so they trace the shot the picture shows; the observer reads the settled scene before any inspection change.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 

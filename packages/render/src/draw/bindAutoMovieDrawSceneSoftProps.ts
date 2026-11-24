@@ -7,9 +7,11 @@ import { restoreAutoMovieRenderModeState } from "../scene/restoreAutoMovieRender
 import type { IAutoMovieDrawScene } from "./IAutoMovieDrawScene.js";
 
 /**
- * Route soft prop surfaces from a producer into the draw subject's scene. Each
- * requested second is read after the subject has placed its other objects, by
- * `seek`, `place` or a transition's `seekShot`, whose output second it reads.
+ * Route soft prop surfaces from a producer into the draw subject's scene. The
+ * producer is read right after the subject has placed its other objects, by
+ * `seek`, `place` or `seekShot`, with the output second, and describes that
+ * placement, as every reader of a draw subject does: after `seekShot`, the
+ * placed shot at its own shot-local time.
  */
 export function bindAutoMovieDrawSceneSoftProps(
   subject: IAutoMovieDrawScene,
@@ -36,8 +38,8 @@ export function bindAutoMovieDrawSceneSoftProps(
           },
         }),
 
-    // A transition's outgoing shot reads the producer on the output clock, as
-    // every other output-clock reading of a shot placement does.
+    // A shot placement reads the producer right after it, with the output
+    // second, so the producer describes the shot just placed.
     ...(subject.seekShot === undefined
       ? {}
       : {

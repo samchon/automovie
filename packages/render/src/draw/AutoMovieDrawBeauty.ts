@@ -39,8 +39,10 @@ import { accumulateAutoMovieFilmSamples } from "./accumulateAutoMovieFilmSamples
  * the pass.
  *
  * `hold` and `composite` hand the layers of a transition to
- * `AutoMovieTransitionDisplays`. Every stage allocates nothing for a subject
- * that never asks for it, and `dispose` releases them all.
+ * `AutoMovieTransitionDisplays`, a beauty picture's or a plate's alike, and
+ * `overlay` and `over` draw a picture's witness cubes over their composite.
+ * Every stage allocates nothing for a subject that never asks for it, and
+ * `dispose` releases them all.
  */
 export class AutoMovieDrawBeauty {
   /** The stage giving a subject's optics their response. */
@@ -71,7 +73,7 @@ export class AutoMovieDrawBeauty {
   public async sample(
     props: AutoMovieDrawBeauty.ILayer,
   ): Promise<IAutoMovieFilmOptics | undefined> {
-    const { scene, seconds } = props;
+    const { scene, seconds }: AutoMovieDrawBeauty.ILayer = props;
     await props.seek(seconds);
     const optics: IAutoMovieFilmOptics | undefined = scene.optics?.(seconds);
     if (optics?.samples === undefined) return undefined;
@@ -141,7 +143,8 @@ export class AutoMovieDrawBeauty {
     /** How the picture's alpha is kept; absent draws it opaque. */
     alpha?: AutoMovieFilmAlpha;
   }): void {
-    const { scene, sampled } = props;
+    const { scene, sampled }: Parameters<AutoMovieDrawBeauty["draw"]>[0] =
+      props;
     const renderer: THREE.WebGLRenderer = this.renderer;
     const optics: IAutoMovieFilmOptics | undefined =
       sampled ?? scene.optics?.(props.seconds);
@@ -228,6 +231,16 @@ export class AutoMovieDrawBeauty {
     transparent: boolean,
   ): void {
     this.displays_.composite(this.renderer, layers, transparent);
+  }
+
+  /** The scene a composited picture's display overlays are attached to. */
+  public get overlay(): THREE.Scene {
+    return this.displays_.overlay;
+  }
+
+  /** Draw `overlay` over the canvas through `camera`, without clearing. */
+  public over(camera: THREE.Camera): void {
+    this.displays_.over(this.renderer, camera);
   }
 
   /** Release every stage and the held layers. */
