@@ -1,0 +1,178 @@
+import { subdivideAutoMovieSurface } from "@automovie/engine";
+import type { IAutoMovieSubdivisionCage } from "@automovie/interface";
+import { TestValidator } from "@nestia/e2e";
+
+import { throwsError } from "../internal/throwsError";
+
+/** Two unit quads sharing the edge 1-4, with one UV per vertex. */
+const VALID: IAutoMovieSubdivisionCage = {
+  positions: [0, 0, 0, 1, 0, 0, 2, 0, 0, 0, 1, 0, 1, 1, 0, 2, 1, 0],
+  faces: [
+    [0, 1, 4, 3],
+    [1, 2, 5, 4],
+  ],
+  uvs: [0, 0, 0.5, 0, 1, 0, 0, 1, 0.5, 1, 1, 1],
+  uvFaces: [
+    [0, 1, 4, 3],
+    [1, 2, 5, 4],
+  ],
+  creases: [{ from: 1, to: 4, sharpness: 2.5 }],
+};
+
+const refuses: (
+  cage: IAutoMovieSubdivisionCage,
+  message: string,
+  levels?: number,
+) => boolean = (
+  cage: IAutoMovieSubdivisionCage,
+  message: string,
+  levels: number = 1,
+): boolean =>
+  throwsError(
+    (): unknown => subdivideAutoMovieSurface({ cage, levels }),
+    message,
+  );
+
+/**
+ * Pins every refusal of `subdivideAutoMovieSurface`, each one property away
+ * from a cage that subdivides.
+ *
+ * Scenarios:
+ *
+ * 1. The valid two-quad cage with UVs and a semi-sharp crease subdivides, and
+ *    sharpness 0 and 10 at the range ends are admitted.
+ * 2. Levels: 0, 7 (one past the cap), a fraction and NaN are refused, while
+ *    6, the cap, turns one quad into 4,096.
+ * 3. Positions: empty, not packed in threes, and non-finite are refused.
+ * 4. Faces: none, a two-corner face, an out-of-range or fractional corner, and
+ *    a repeated vertex are refused.
+ * 5. Manifold: an edge in three faces, two faces traversing an edge the same
+ *    way, an unused vertex, and two fans meeting at one vertex are refused.
+ * 6. Creases: an out-of-range end, equal ends, a sharpness below 0, above 10
+ *    or NaN, a repeated edge in either direction, and a pair that is not a
+ *    cage edge are refused.
+ * 7. UVs: one array without the other, an odd or non-finite array, a row count
+ *    or row length that differs from the faces, an out-of-range index, a UV
+ *    shared by two vertices, and an unused UV are refused.
+ * 8. A vanishing limit normal, at the valence-2 interior vertices of a cage
+ *    made of one quad and its reverse, is refused after refinement.
+ *
+ * @evidence contracts/development/testing.md#behavioral-verification Calls `subdivideAutoMovieSurface` on each malformed cage and asserts a synchronous Error naming the defect; a guard that is missing, misplaced or silently repairs the input fails.
+ * @evidence contracts/development/testing.md#independent-expectations Each refusal follows from the documented cage contract (manifold, consistent winding, vertex-owned UVs, sharpness range, integer level from one to six, the cap that bounds the fourfold growth per level) and the expected message fragment names the offending index, not an implementation detail.
+ * @evidence contracts/development/testing.md#distinguishing-cases Every negative case is one property away from the valid cage, and the valid cage, both sharpness range ends and the six-level cap prove the guards do not over-reach; rules, limits, boundaries, creases and UVs are owned by the other `test_geometry_subdivision_*` tests.
+ * @evidence contracts/development/testing.md#execution-ownership A discoverable unit entry calling the portable engine function on synthetic cages; no consumer, native build, process, browser or GPU.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 8 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: The valid two-quad cage with UVs and a semi-sharp crease subdivides, and).
+ */
+export function test_geometry_subdivision_refusals(): void {
+  TestValidator.predicate(
+    "the valid cage and both sharpness ends subdivide",
+    [
+      VALID,
+      { ...VALID, creases: [{ from: 4, to: 1, sharpness: 0 }] },
+      {
+        ...VALID,
+        creases: [{ from: 1, to: 4, sharpness: 10 }],
+      },
+    ].every(
+      (cage: IAutoMovieSubdivisionCage): boolean =>
+        subdivideAutoMovieSurface({ cage, levels: 2 }).faces.length === 32 * 4,
+    ),
+  );
+  TestValidator.equals(
+    "six levels, the cap, refine one quad into 4^6 quads",
+    subdivideAutoMovieSurface({
+      cage: {
+        positions: [0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0],
+        faces: [[0, 1, 2, 3]],
+      },
+      levels: 6,
+    }).faces.length,
+    4 ** 6 * 4,
+  );
+  TestValidator.predicate(
+    "faces must be polygons of distinct cage vertices",
+    refuses({ ...VALID, faces: [], uvFaces: [] }, "needs at least one face") &&
+      refuses(
+        {
+          ...VALID,
+          faces: [
+            [0, 1],
+            [1, 2, 5, 4],
+          ],
+        },
+        "face 0 needs at least three corners",
+      ) &&
+      refuses(
+        {
+          ...VALID,
+          faces: [
+            [0, 1, 9, 3],
+            [1, 2, 5, 4],
+          ],
+        },
+        "face 0 corner 2 must index a cage vertex",
+      ) &&
+
+      refuses(
+        {
+          ...VALID,
+          faces: [
+            [0, 1, 4, 1],
+            [1, 2, 5, 4],
+          ],
+        },
+        "face 0 repeats vertex 1",
+      ),
+  );
+  const strip: IAutoMovieSubdivisionCage = {
+    positions: [0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 1, 1, 2, 0, 0],
+    faces: [
+      [0, 1, 3, 2],
+      [1, 4, 5, 3],
+    ],
+  };
+  TestValidator.predicate(
+    "the cage must be an oriented manifold with one fan per vertex",
+    refuses(
+      { ...strip, faces: [...strip.faces, [1, 3, 6]] },
+      "edge 1-3 belongs to more than two faces",
+    ) &&
+      refuses(
+        {
+          ...strip,
+          faces: [
+            [0, 1, 3, 2],
+            [3, 5, 4, 1],
+          ],
+        },
+        "faces 0 and 1 traverse edge 1-3 in the same direction",
+      ) &&
+      refuses(
+        { ...strip, faces: [strip.faces[0]!] },
+        "vertex 4 belongs to no face",
+      ) &&
+      refuses(
+        {
+          positions: [0, 0, 0, 1, 0, 0, 0, 1, 0, -1, 0, 0, 0, -1, 0],
+          faces: [
+            [0, 1, 2],
+            [0, 3, 4],
+          ],
+        },
+        "vertex 0 joins more than one fan of faces",
+      ),
+  );
+  TestValidator.predicate(
+    "a vanishing limit normal is refused",
+    refuses(
+      {
+        positions: [0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0],
+        faces: [
+          [0, 1, 2, 3],
+          [3, 2, 1, 0],
+        ],
+      },
+      "limit normal at vertex",
+    ),
+  );
+}

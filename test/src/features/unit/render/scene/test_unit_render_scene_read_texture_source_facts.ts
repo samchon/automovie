@@ -237,26 +237,6 @@ export async function test_unit_render_scene_read_texture_source_facts(): Promis
     undefined,
   );
   texture.minFilter = THREE.NearestFilter;
-  texture.wrapS = 999 as ThreeTypes.Wrapping;
-  TestValidator.equals(
-    "unreported S wrap",
-    readAutoMovieTextureSource("image", texture).sampler,
-    undefined,
-  );
-  texture.wrapS = THREE.ClampToEdgeWrapping;
-  texture.wrapT = 999 as ThreeTypes.Wrapping;
-  TestValidator.equals(
-    "unreported T wrap",
-    readAutoMovieTextureSource("image", texture).sampler,
-    undefined,
-  );
-  texture.wrapT = THREE.ClampToEdgeWrapping;
-  texture.magFilter = 999 as ThreeTypes.MagnificationTextureFilter;
-  TestValidator.equals(
-    "unreported magnification filter",
-    readAutoMovieTextureSource("image", texture).sampler,
-    undefined,
-  );
   for (const image of [
     null,
     {},

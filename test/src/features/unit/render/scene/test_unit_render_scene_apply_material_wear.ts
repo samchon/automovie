@@ -10,7 +10,11 @@ import type {
   IAutoMovieTessellation,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { applyMaterialWear, readAutoMovieBufferAttribute } from "@automovie/render";
+import {
+  AutoMovieThreeKind,
+  applyMaterialWear,
+  readAutoMovieBufferAttribute,
+} from "@automovie/render";
 import type { IMaterialShaderSource } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
@@ -89,7 +93,10 @@ export function test_unit_render_scene_apply_material_wear(): void {
   const data: THREE.TypedArray | null = worn.texture.image.data;
   if (data === null || !AutoMovieThreeKind.isFloat32Array(data))
     throw new Error("Expected a float wear texture");
-  const list: THREE.BufferAttribute = readAutoMovieBufferAttribute(worn.geometry, "wearList");
+  const list: THREE.BufferAttribute = readAutoMovieBufferAttribute(
+    worn.geometry,
+    "wearList",
+  );
 
   // 1. Non-indexed with per-triangle lists.
   let lists: boolean = worn.geometry.index === null && list.count === 36;

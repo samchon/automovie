@@ -14,6 +14,7 @@ import type { IAutoMovieSkeleton } from "../../../skeleton/IAutoMovieSkeleton";
 import type { IAutoMoviePrepareChainConstants } from "../../IAutoMoviePrepareChainConstants";
 import type { IAutoMovieMotionHumanStandUpright } from "../actions/IAutoMovieMotionHumanStandUpright";
 import type { IAutoMovieMotionHumanAuditTangleModel } from "../audit/IAutoMovieMotionHumanAuditTangleModel";
+import type { IAutoMovieMotionHumanColliders } from "../posture/IAutoMovieMotionHumanColliders";
 import type { IAutoMovieMotionHumanLimbReads } from "../posture/IAutoMovieMotionHumanLimbReads";
 
 /**
@@ -106,6 +107,13 @@ export interface IAutoMovieMotionHumanBody {
    * through it.
    */
   colliderBones: IAutoMovieSkeletonPoseResolution.IBoneDemand;
+
+  /**
+   * The colliders at rest (HumanColliderPlacement.neutral), made once when the
+   * body is made, left segments mirrored from their right twins, so a placement
+   * of the posed body only turns and moves them.
+   */
+  colliders: IAutoMovieMotionHumanColliders.INeutral;
 
   /**
    * Bone-local mass/inertia model, derived once when the body is made from its

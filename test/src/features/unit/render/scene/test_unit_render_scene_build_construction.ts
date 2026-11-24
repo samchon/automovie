@@ -37,8 +37,15 @@ export async function test_unit_render_scene_build_construction(): Promise<void>
   ];
   const result: ReturnType<typeof buildAutoMovieConstruction> =
     buildAutoMovieConstruction(lines, { color: 0xff9900, maxPoints: 5 });
-  const section: THREE.Line = result.object.children[0] as THREE.Line;
-  const guide: THREE.Line = result.object.children[1] as THREE.Line;
+  const [section, guide]: (THREE.Object3D | undefined)[] =
+    result.object.children;
+  if (
+    section === undefined ||
+    guide === undefined ||
+    !AutoMovieThreeKind.isLine(section) ||
+    !AutoMovieThreeKind.isLine(guide)
+  )
+    throw new Error("Expected a section and a guide line");
   TestValidator.predicate(
     "closure remains explicit",
     section.type === "LineLoop" && guide.type !== "LineLoop",

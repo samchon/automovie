@@ -7,7 +7,6 @@ import type {
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanActionPlan,
-  IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanConduct,
   IAutoMovieMotionHumanDanceBeats,
   IAutoMovieMotionHumanHeld,
@@ -26,48 +25,12 @@ import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMo
 import { courseArmAtPace } from "../compose/courseArmAtPace";
 import { prepareDanceBeats } from "../exercise/prepareDanceBeats";
 import { writeWith } from "../handling/writeWith";
-import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
+import { conductFigure } from "./conductFigure";
 import { conductTip } from "./conductTip";
 
 /**
- * Each meter's ictus points, `[in, up]` in shares of the figure's half width
- * and half height about its centre: Rudolf's figures (_The Grammar of
- * Conducting_, 3rd ed., 1995), each beat's ictus reached by its direction from
- * the one before (4/4: down to the first, in to the second, out to the third,
- * up to the fourth). The shares themselves are provisional.
- */
-const FIGURES: Readonly<
-  Record<
-    IAutoMovieMotionHumanConduct.Meter,
-    readonly (readonly [number, number])[]
-  >
-> = {
-  "2/4": [
-    [0, -1],
-    [-0.2, -0.4],
-  ],
-  "3/4": [
-    [0, -1],
-    [-1, -0.6],
-    [-0.3, -0.2],
-  ],
-  "4/4": [
-    [0, -1],
-    [1, -0.6],
-    [-1, -0.6],
-    [-0.3, -0.2],
-  ],
-};
-
-/**
- * The figure's half width and half height, metres: provisional, a forearm's
- * sweep.
- */
-const HALF: number = 0.18;
-
-/**
- * The rebound's height between ictuses, as a share of `HALF`: provisional,
+ * The rebound's height between ictuses, as a share of `conductFigure.HALF`: provisional,
  * above the largest rise between ictuses times 1/π so each ictus is a lowest
  * point.
  */
@@ -115,7 +78,8 @@ function plan(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanConduct.IParams>,
 ): IAutoMovieMotionHumanActionPlan {
   const p: IAutoMovieMotionHumanConduct.IParams = context.params;
-  const figure: readonly (readonly [number, number])[] = FIGURES[p.meter];
+  const figure: readonly (readonly [number, number])[] =
+    conductFigure.FIGURES[p.meter];
   const bars: number = p.bars ?? 2;
   const beats: IAutoMovieMotionHumanDanceBeats = prepareDanceBeats(
     context,
@@ -147,29 +111,15 @@ function plan(
 
   // The figure's centre a forearm ahead of the chest, on the baton's side.
   const posture: IAutoMovieMotionHumanPosture = context.entry.posture;
-  const m: IAutoMovieMotionHumanBody["measure"] = context.body.measure;
-  const inward: number = side === "right" ? 1 : -1;
-  const place: (x: number, y: number) => IAutoMovieVector3 = (
-    x: number,
-    y: number,
-  ): IAutoMovieVector3 =>
-    HumanFrame.point(
-      {
-        origin: { x: posture.root.x, y: 0, z: posture.root.z },
-        yaw: posture.yaw,
-      },
-      {
-        x: -inward * m.shoulderHalfWidth * 0.5 + inward * x * HALF,
-        y: m.shoulderHeight - 0.1 + y * HALF,
-        z: m.forearm + m.upperArm * 0.6,
-      },
-    );
-  const ictus: IAutoMovieVector3[] = [];
-  for (let k: number = 0; k < beats.count; ++k) {
-    const share: readonly [number, number] = figure[k % figure.length]!;
-    ictus.push(place(share[0], share[1]));
-  }
-  const top: IAutoMovieVector3 = place(0, 1);
+  const figured: ReturnType<typeof conductFigure> = conductFigure(
+    posture,
+    context.body.measure,
+    side,
+    p.meter,
+    beats.count,
+  );
+  const ictus: IAutoMovieVector3[] = figured.ictus;
+  const top: IAutoMovieVector3 = figured.top;
   writeWith.reach(context, side, [...ictus, top], lever);
   const first: number = beats.at(1);
   const last: number = beats.at(beats.count);
@@ -182,7 +132,7 @@ function plan(
     ictus,
     top,
     beats,
-    REBOUND * HALF,
+    REBOUND * conductFigure.HALF,
   );
   const bend: IAutoMovieVector3 = AutoMovieMotionHumanBend.hang(
     context.body,

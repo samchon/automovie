@@ -1,4 +1,5 @@
 import {
+  AutoMovieThreeKind,
   type IAutoMovieInspectionHandle,
   applyAutoMovieInspection,
 } from "@automovie/render";
@@ -41,8 +42,12 @@ export function test_unit_render_scene_apply_inspection_color(): void {
   ];
   const hex: (mesh: THREE.Mesh) => number = (mesh: THREE.Mesh): number => {
     const material: THREE.Material = singleMaterial(mesh.material);
-    if (!AutoMovieThreeKind.isMeshBasicMaterial(material))
-      throw new Error("Expected a basic material");
+    if (
+      !AutoMovieThreeKind.isMeshBasicMaterial(material) &&
+      !AutoMovieThreeKind.isMeshLambertMaterial(material) &&
+      !AutoMovieThreeKind.isMeshStandardMaterial(material)
+    )
+      throw new Error("Expected a coloured material");
     return material.color.getHex();
   };
 

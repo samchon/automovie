@@ -25,7 +25,7 @@ import { standUpright } from "../actions/standUpright";
 import { AutoMovieMotionHumanAuditTangleModel } from "../audit/AutoMovieMotionHumanAuditTangleModel";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { bendFloorThumb } from "../everyday/bendFloorThumb";
-import { HumanColliders } from "../posture/HumanColliders";
+import { HumanColliderPlacement } from "../posture/HumanColliderPlacement";
 import { humanLimbReads } from "../posture/humanLimbReads";
 import { humanSettledJoints } from "../posture/humanSettledJoints";
 
@@ -105,12 +105,13 @@ export function createHumanBody(
   const massModel: IAutoMovieMotionHumanBody["massModel"] =
     resolveAutoMovieCenterOfMass.fromRig(poseResolution, profile);
 
-  // The bones the colliders ride are read off the rig, its rest joints and the
-  // profile alone.
+  // The colliders at rest, mirrored left from right once here, and the bones
+  // they ride, read off the rig, its rest joints and the profile alone.
+  const hulled: IAutoMoviePhysicalProfile = attachPhysicalProfileHulls(profile);
+  const colliders: IAutoMovieMotionHumanBody["colliders"] =
+    HumanColliderPlacement.neutral({ skeleton, profile: hulled, rest });
   const colliderBones: IAutoMovieMotionHumanBody["colliderBones"] =
-    poseResolution.prepareBones(
-      HumanColliders.bones({ skeleton, profile, rest }),
-    );
+    poseResolution.prepareBones(colliders.bones);
   const bones: Map<AutoMovieHumanoidBone, IAutoMovieBone> = new Map();
   for (const record of skeleton.bones as IAutoMovieBone[])
     if (!bones.has(record.bone)) bones.set(record.bone, record);
@@ -134,7 +135,7 @@ export function createHumanBody(
     CreateHumanBodySolved
   >): IAutoMovieMotionHumanBody => ({
     skeleton,
-    profile: attachPhysicalProfileHulls(profile),
+    profile: hulled,
     measure,
     surfaces,
     topology,
@@ -150,6 +151,7 @@ export function createHumanBody(
     reads,
     tangle,
     colliderBones,
+    colliders,
     massModel,
     upright,
     relaxed,

@@ -26,6 +26,7 @@ import * as THREE from "three";
 import { InspectionScene } from "../../../internal/InspectionScene";
 import { PhysicalFixtures } from "../../../internal/PhysicalFixtures";
 import { nclose } from "../../../internal/nclose";
+import { readMarkArrows } from "../../../internal/readMarkArrows";
 import { singleMaterial } from "../../../internal/singleMaterial";
 
 /**

@@ -334,16 +334,6 @@ export namespace HumanColliders {
   }
 
   /**
-   * Prepare the body's neutral mirrored metadata and every hull's faces.
-   * Current world placement remains a fresh read of the posed bones.
-   *
-   * @param body The body.
-   */
-  export function prepare(body: IAutoMovieMotionHumanBody): void {
-    HumanColliderPlacement.prepare(body);
-  }
-
-  /**
    * The sphere about a shape's centre that contains it: a sphere's own radius,
    * a capsule's half length plus radius, a box's half diagonal, a hull's vertex
    * radius about its vertex mean. A point outside it is outside the shape, so a

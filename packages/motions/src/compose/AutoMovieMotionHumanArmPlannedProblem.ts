@@ -116,7 +116,7 @@ export function AutoMovieMotionHumanArmPlannedProblem(
     // (`HumanArmTrajectoryTerms.TOLERANCE`), no finer than the frame grid, so
     // the course meets a fast site on waypoints of its own instead of the
     // optimiser fighting an interpolant too coarse for it.
-    if (span.relax < span.ready)
+    if (span.relax > span.ready)
       for (const t of moving(span.ready, span.relax))
         if (!times.some((u: number): boolean => Math.abs(u - t) < 1e-9))
           times.push(t);

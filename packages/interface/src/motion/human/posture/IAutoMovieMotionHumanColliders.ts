@@ -20,6 +20,35 @@ import type { AutoMovieHumanoidBone } from "../../../skeleton/AutoMovieHumanoidB
  */
 export namespace IAutoMovieMotionHumanColliders {
   /**
+   * A body's colliders at rest, prepared once when the body is made: each
+   * profile segment's offset from its bone's rest joint, its turn and its
+   * shapes, a left segment its right twin's mirror image in the median plane,
+   * and the bones they ride.
+   */
+  export interface INeutral {
+    /** The segments, in profile order. */
+    segments: readonly ISegment[];
+
+    /** The canonical bones the segments ride. */
+    bones: ReadonlySet<AutoMovieHumanoidBone>;
+  }
+
+  /** One segment's colliders at rest. */
+  export interface ISegment {
+    /** The profile bone the segment rides. */
+    bone: string;
+
+    /** Its offset from the bone's rest joint, metres. */
+    offset: IAutoMovieVector3;
+
+    /** Its neutral turn. */
+    rotation: IAutoMovieRigidTransform["rotation"];
+
+    /** Its shapes, reflected for a mirrored side. */
+    shapes: readonly IAutoMoviePhysicalShape[];
+  }
+
+  /**
    * One profile segment placed by its posed bone: the parent pose its shapes
    * compose with.
    */

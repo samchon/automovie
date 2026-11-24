@@ -12,7 +12,7 @@ import { TestValidator } from "@nestia/e2e";
 import { nclose } from "../../../internal/nclose";
 import { qclose } from "../../../internal/qclose";
 import { qunit } from "../../../internal/qunit";
-import { rotationLogarithm } from "../../../internal/rotationLogarithm";
+import { airborneBodyRate } from "../../../internal/airborneBodyRate";
 
 /** Orientation agreement with a closed form, in radians. */
 const ANGLE: number = 1e-6;
@@ -29,29 +29,6 @@ const ROUNDING: number = 1e-12;
 /** The identity orientation. */
 const IDENTITY: IAutoMovieQuaternion = { x: 0, y: 0, z: 0, w: 1 };
 
-/** The centered body rate of an orientation curve at a time, in rad/s. */
-const bodyRate: (
-  flight: IAutoMovieIntegrateAirborneRotation.IFlight,
-  seconds: number,
-) => IAutoMovieVector3 = (
-  flight: IAutoMovieIntegrateAirborneRotation.IFlight,
-  seconds: number,
-): IAutoMovieVector3 => {
-  const origin: IAutoMovieQuaternion = flight.orientation(seconds);
-  const low: IAutoMovieVector3 = rotationLogarithm(
-    origin,
-    flight.orientation(seconds - OFFSET),
-  );
-  const high: IAutoMovieVector3 = rotationLogarithm(
-    origin,
-    flight.orientation(seconds + OFFSET),
-  );
-  return {
-    x: (high.x - low.x) / (2 * OFFSET),
-    y: (high.y - low.y) / (2 * OFFSET),
-    z: (high.z - low.z) / (2 * OFFSET),
-  };
-};
 
 /**
  * `integrateAirborneRotation` turns a body by its conserved angular momentum
@@ -104,6 +81,7 @@ export function test_unit_engine_motion_integrate_airborne_rotation(): void {
   let orientations: boolean = true;
   let rates: boolean = true;
   let momentum: boolean = true;
+  let observed: number = 0;
   for (let step: number = 0; step <= 20; ++step) {
     const t: number = step / 20;
     const q: IAutoMovieQuaternion = flight.orientation(t);
@@ -118,7 +96,11 @@ export function test_unit_engine_motion_integrate_airborne_rotation(): void {
         w: Math.cos(a) * Math.cos(b),
       }) <= ANGLE;
     if (step === 0 || step === 20) continue;
-    const omega: IAutoMovieVector3 = bodyRate(flight, t);
+    ++observed;
+    orientations &&=
+      qunit(flight.orientation(t - OFFSET), 1e-12) &&
+      qunit(flight.orientation(t + OFFSET), 1e-12);
+    const omega: IAutoMovieVector3 = airborneBodyRate(flight, t, OFFSET);
     rates &&=
       Math.hypot(
         omega.x - 0.01 * Math.cos(t),
@@ -132,7 +114,10 @@ export function test_unit_engine_motion_integrate_airborne_rotation(): void {
     });
     momentum &&= Math.hypot(world.x - 0.01, world.y, world.z) <= 0.01 * 0.01;
   }
-  TestValidator.predicate("gyrostat orientations", orientations);
+  TestValidator.predicate(
+    "gyrostat orientations",
+    orientations && observed === 19,
+  );
   TestValidator.predicate("gyrostat body rates", rates);
   TestValidator.predicate("gyrostat world momentum", momentum);
   const needed: IAutoMovieVector3 = integrateAirborneRotation.rate(spin, {
@@ -210,7 +195,9 @@ function counterspin(): boolean {
         tolerance: { relative: 1e-10, absolute: 1e-10 },
         momentumTolerance: { relative: 0.01, absolute: 0 },
       });
-    let holds: boolean = rate.x === -1 && rate.y === 0 && rate.z === 0;
+    let holds: boolean =
+      rate.x === -1 && rate.y === 0 && rate.z === 0 && 2 * rate.x + 2 === 0;
+    let observed: number = 0;
     for (let step: number = 0; step <= 20; ++step) {
       const t: number = step / 20;
       holds &&=
@@ -221,10 +208,14 @@ function counterspin(): boolean {
           w: Math.cos(t / 2),
         }) <= ANGLE;
       if (step === 0 || step === 20) continue;
-      const omega: IAutoMovieVector3 = bodyRate(flight, t);
+      ++observed;
+      holds &&=
+        qunit(flight.orientation(t - OFFSET), 1e-12) &&
+        qunit(flight.orientation(t + OFFSET), 1e-12);
+      const omega: IAutoMovieVector3 = airborneBodyRate(flight, t, OFFSET);
       holds &&= Math.hypot(omega.x + 1, omega.y, omega.z) <= RATE;
     }
-    return holds;
+    return holds && observed === 19;
   } finally {
     numeric.clear();
   }
@@ -288,45 +279,94 @@ function frames(): boolean {
   return holds;
 }
 
-/** The body-frame sensitivities of scenario 5. */
-function sensitivities(): boolean {
+/** The rotated-world, mixed-basis, scaled cells of scenario 6. */
+function scaled(): boolean {
+  const units: readonly IAutoMovieVector3[] = [
+    { x: 1, y: 0, z: 0 },
+    { x: 0, y: 1, z: 0 },
+    { x: 0, y: 0, z: 1 },
+  ];
+  const turned: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+    { x: 1, y: 2, z: 3 },
+    97,
+  );
+  const mixed: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+    { x: 2, y: -1, z: 1 },
+    53,
+  );
   let holds: boolean = true;
-  for (const adaptive of [false, true]) {
-    const flight: IAutoMovieIntegrateAirborneRotation.IFlight =
-      integrateAirborneRotation({
-        history: (): IAutoMovieIntegrateAirborneRotation.IInstant => ({
-          inertia: { moments: { x: 2, y: 2, z: 2 }, rotation: IDENTITY },
-          relative: { x: 0, y: 0, z: 0 },
-        }),
-        t0: 0,
-        t1: 1,
-        q0: IDENTITY,
-        momentum: { x: 3, y: 0, z: 0 },
-        variations: [
-          { x: 1, y: 0, z: 0 },
-          { x: 0, y: 1, z: 0 },
-          { x: 0, y: 0, z: 1 },
-        ],
-        h: 1 / 60,
-        ...(adaptive ? { tolerance: { relative: 1e-10, absolute: 0 } } : {}),
-      });
-    for (let step: number = 0; step <= 10; ++step) {
-      const t: number = step / 10;
-      const sine: number = Math.sin(1.5 * t);
-      const cosine: number = Math.cos(1.5 * t);
-      const tangents: readonly IAutoMovieVector3[] = flight.variations(t);
-      const expected: readonly IAutoMovieVector3[] = [
-        { x: t / 2, y: 0, z: 0 },
-        { x: 0, y: sine / 3, z: (cosine - 1) / 3 },
-        { x: 0, y: (1 - cosine) / 3, z: sine / 3 },
-      ];
-      holds &&= expected.every(
-        (want: IAutoMovieVector3, index: number): boolean =>
-          nclose(tangents[index]!.x, want.x, RATE) &&
-          nclose(tangents[index]!.y, want.y, RATE) &&
-          nclose(tangents[index]!.z, want.z, RATE),
-      );
-    }
-  }
+  for (const world of [IDENTITY, turned])
+    for (const basis of [IDENTITY, mixed])
+      for (const scale of [1e-3, 1, 1e3]) {
+        const columns: IAutoMovieVector3[] = units.map(
+          (unit: IAutoMovieVector3): IAutoMovieVector3 =>
+            Quaternion.rotateVector(basis, unit),
+        );
+        const flight: IAutoMovieIntegrateAirborneRotation.IFlight =
+          integrateAirborneRotation({
+            history: (): IAutoMovieIntegrateAirborneRotation.IInstant => ({
+              inertia: {
+                moments: { x: 2 * scale, y: 2 * scale, z: 2 * scale },
+                rotation: IDENTITY,
+              },
+              relative: { x: 0, y: 0, z: 0 },
+            }),
+            t0: 0,
+            t1: 1,
+            q0: world,
+            momentum: Quaternion.rotateVector(world, {
+              x: 3 * scale,
+              y: 0,
+              z: 0,
+            }),
+            variations: columns.map(
+              (column: IAutoMovieVector3): IAutoMovieVector3 =>
+                Quaternion.rotateVector(world, column),
+            ),
+            tolerance: { relative: 1e-10, absolute: 0 },
+          });
+        for (let step: number = 0; step <= 10; ++step) {
+          const t: number = step / 10;
+          const angle: number = 1.5 * t;
+          const expected: IAutoMovieVector3[] = [
+            { x: t / 2, y: 0, z: 0 },
+            { x: 0, y: Math.sin(angle) / 3, z: -(1 - Math.cos(angle)) / 3 },
+            { x: 0, y: (1 - Math.cos(angle)) / 3, z: Math.sin(angle) / 3 },
+          ];
+          holds &&=
+            Quaternion.angle(
+              flight.orientation(t),
+              Quaternion.multiply(
+                world,
+                Quaternion.fromAxisAngle(units[0]!, (angle * 180) / Math.PI),
+              ),
+            ) <= ANGLE;
+          flight
+            .variations(t)
+            .forEach((value: IAutoMovieVector3, index: number): void => {
+              const column: IAutoMovieVector3 = columns[index]!;
+              const target: IAutoMovieVector3 = {
+                x:
+                  expected[0]!.x * column.x +
+                  expected[1]!.x * column.y +
+                  expected[2]!.x * column.z,
+                y:
+                  expected[0]!.y * column.x +
+                  expected[1]!.y * column.y +
+                  expected[2]!.y * column.z,
+                z:
+                  expected[0]!.z * column.x +
+                  expected[1]!.z * column.y +
+                  expected[2]!.z * column.z,
+              };
+              holds &&=
+                Math.hypot(
+                  scale * value.x - target.x,
+                  scale * value.y - target.y,
+                  scale * value.z - target.z,
+                ) <= ANGLE;
+            });
+        }
+      }
   return holds;
 }

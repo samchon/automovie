@@ -52,6 +52,7 @@ export function test_unit_engine_motion_solve_airborne_takeoff(): void {
   isotropic(complaints);
   tilted(complaints);
   admissions(complaints);
+  ringPair(complaints);
   TestValidator.equals(
     "shooting preserves the physical request",
     complaints,
@@ -321,5 +322,77 @@ function admissions(complaints: string[]): void {
   if (!(unmet.met === false && starts > 0 && starts <= 1075 + 1))
     complaints.push(
       `an underflowing share ended met=${unmet.met} after ${starts} starts`,
+    );
+}
+
+/** The ring pair of scenario 5: I = 4 and a constant relative momentum X. */
+function ringPair(complaints: string[]): void {
+  const identity: IAutoMovieQuaternion = Quaternion.identity();
+  const history: IAutoMovieIntegrateAirborneRotation.IHistory =
+    (): IAutoMovieIntegrateAirborneRotation.IInstant => ({
+      inertia: { moments: { x: 4, y: 4, z: 4 }, rotation: identity },
+      relative: { x: 1, y: 0, z: 0 },
+    });
+  const integration: { relative: number; absolute: number } = {
+    relative: 1e-10,
+    absolute: 0,
+  };
+  const solution: IAutoMovieSolveAirborneTakeoff.ISolution =
+    solveAirborneTakeoff({
+      history,
+      t0: 0,
+      t1: 1,
+      q0: identity,
+      somersault: 1,
+      twist: 0,
+      integration,
+    });
+  if (
+    !solution.met ||
+    !(
+      Math.abs(solution.momentum.x - (8 * Math.PI + 1)) <=
+      4 * solveAirborneTakeoff.TOLERANCE
+    ) ||
+    !(Math.hypot(solution.momentum.y, solution.momentum.z) <= 1e-9)
+  )
+    complaints.push(
+      `a turned ring pair needs (8 pi + 1) X, got ${JSON.stringify(solution.momentum)}`,
+    );
+  let winding: number = 0;
+  let previous: number = 0;
+  for (let step: number = 0; step <= 10; ++step) {
+    const t: number = step / 10;
+    const actual: IAutoMovieQuaternion = solution.flight.orientation(t);
+    if (
+      !(
+        Quaternion.angle(
+          actual,
+          Quaternion.fromAxisAngle(
+            { x: 1, y: 0, z: 0 },
+            ((solution.momentum.x - 1) * t * 45) / Math.PI,
+          ),
+        ) <= 1e-6
+      )
+    )
+      complaints.push(`the ring attitude misses its closed form at ${t}`);
+    const up: IAutoMovieVector3 = Quaternion.rotateVector(actual, {
+      x: 0,
+      y: 1,
+      z: 0,
+    });
+    const angle: number = Math.atan2(up.z, up.y);
+    if (step > 0)
+      winding += Math.atan2(
+        Math.sin(angle - previous),
+        Math.cos(angle - previous),
+      );
+    previous = angle;
+  }
+  if (!(Math.abs(winding - 2 * Math.PI) <= solveAirborneTakeoff.TOLERANCE))
+    complaints.push(`the ring flight winds ${winding / (2 * Math.PI)} turns`);
+  const miss: number = (solution.momentum.x - 1) / (8 * Math.PI) - 1;
+  if (!(Math.abs(solution.residual.somersault - miss) <= 1e-6 / (2 * Math.PI)))
+    complaints.push(
+      `the residual ${solution.residual.somersault} is not the miss ${miss}`,
     );
 }

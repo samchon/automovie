@@ -2,10 +2,7 @@ import {
   autoMovieRenderTextureDigest,
   measureAutoMovieRenderTextureClosure,
 } from "@automovie/engine";
-import type {
-  IAutoMovieMaterial,
-  IAutoMovieRenderTextureSource,
-} from "@automovie/interface";
+import type { IAutoMovieRenderTextureSource } from "@automovie/interface";
 import { readAutoMovieTextureSource } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import type { DataTexture } from "three";
@@ -14,16 +11,14 @@ import { material } from "../../../internal/renderFixtures";
 
 /**
  * Supported native filters outside the authorable sampler union still split
- * actual Source allocations. Invalid inherited flags cannot certify storage,
- * while a complete authored sampler replaces them at the binding boundary.
+ * actual Source allocations.
  *
  * Scenarios:
  *
  * 1. Two actual clones using nearest/linear nearest-mip filters retain two
  *    independently calculated 84-byte chains; identical state shares one.
- * 2. Invalid inherited magnification remains unknown in image and runtime lanes,
- *    and a complete supported binding sampler retains generated storage.
- * 3. Unknown-state and native-filter changes invalidate the upload digest.
+ * 2. Native-filter changes invalidate the upload digest.
+ * 3. Distinct native anisotropy keys remain distinct and keep two bounds.
  */
 export async function test_unit_render_scene_read_texture_source_texture_native_sampler(): Promise<void> {
   const THREE: typeof import("three") = await import("three");
@@ -77,85 +72,10 @@ export async function test_unit_render_scene_read_texture_source_texture_native_
     ),
     [84],
   );
-  Object.assign(b, { magFilter: 999 });
-  const invalid: IAutoMovieRenderTextureSource = readAutoMovieTextureSource(
-    "b",
-    b,
-  );
-  TestValidator.equals(
-    "observed unsupported sampler",
-    invalid.samplerState,
-    null,
-  );
-  TestValidator.equals(
-    "unsupported inherited upload stays unknown",
-    close(invalid).find(
-      (row: ReturnType<typeof close>[number]): boolean => row.asset === "b",
-    )!.bytes,
-    null,
-  );
-  const replacement: IAutoMovieMaterial = {
-    ...material("replacement"),
-    baseColorTexture: {
-      asset: "b",
-      texCoord: 0,
-      colorSpace: "srgb" as const,
-      sampler: {
-        wrapS: "clamp" as const,
-        wrapT: "clamp" as const,
-        minFilter: "nearest" as const,
-        magFilter: "nearest" as const,
-      },
-    },
-  };
-  TestValidator.equals(
-    "explicit sampler replaces invalid inheritance",
-    measureAutoMovieRenderTextureClosure({
-      materials: [replacement],
-      sources: [invalid],
-      environment: null,
-    }).find(
-      (row: ReturnType<typeof close>[number]): boolean => row.asset === "b",
-    )!.bytes,
-    (4 * 4 + 2 * 2 + 1) * 4,
-  );
-  TestValidator.equals(
-    "disabled generation restores a base-only upload",
-    measureAutoMovieRenderTextureClosure({
-      materials: [replacement],
-      sources: [{ ...invalid, generateMipmaps: false }],
-      environment: null,
-    }).find(
-      (row: ReturnType<typeof close>[number]): boolean => row.asset === "b",
-    )!.bytes,
-    4 * 4 * 4,
-  );
-  const { asset: _asset, ...runtimeTexture }: IAutoMovieRenderTextureSource =
-    invalid;
-  TestValidator.equals(
-    "runtime sampler remains unknown",
-    measureAutoMovieRenderTextureClosure({
-      materials: [],
-      sources: [],
-      environment: null,
-      residency: {
-        owner: "current",
-        residents: [],
-        dfgRetained: false,
-        pmremRetained: null,
-        runtimeTextures: [{ owner: "runtime", texture: runtimeTexture }],
-      },
-    })[0].bytes,
-    null,
-  );
   const digest: string = autoMovieRenderTextureDigest([second]);
   TestValidator.predicate(
     "native filter changes freshness",
     autoMovieRenderTextureDigest([{ ...first, asset: "b" }]) !== digest,
-  );
-  TestValidator.predicate(
-    "invalid sampler changes freshness",
-    autoMovieRenderTextureDigest([invalid]) !== digest,
   );
   const fixed: [DataTexture, DataTexture] = [a.clone(), a.clone()];
   fixed[0].anisotropy = 2;

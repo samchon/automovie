@@ -412,8 +412,9 @@ export function test_unit_engine_motion_integrate_motion_trajectory(): void {
     }
     if (!(foreign instanceof MotionTrajectoryFailure))
       throw new Error("expected the inner time-resolution failure");
-    const before: PropertyDescriptorMap =
-      Object.getOwnPropertyDescriptors(foreign);
+    const before: ReturnType<
+      typeof Object.getOwnPropertyDescriptors<MotionTrajectoryFailure>
+    > = Object.getOwnPropertyDescriptors(foreign);
     let reads: number = 0;
     let kept: boolean = true;
     for (const outer of [undefined, Symbol("airborne")]) {

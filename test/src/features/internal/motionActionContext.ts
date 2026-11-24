@@ -83,10 +83,33 @@ export function motionActionContext<P extends object>(
   const refuse = (what: string): never => {
     throw new Error(`A unit context reads no ${what}`);
   };
+  const SIDES: readonly AutoMovieHumanSide[] = ["left", "right"];
+  // A held prop rides its hand: the entry hand's displayed frame composed with
+  // the prop's grip offset in that hand's frame (`carried`).
+  const held = (prop: IAutoMovieMotionHumanProp): IAutoMovieMotionHumanProp => {
+    for (const side of SIDES) {
+      const offset: IAutoMovieRigidTransform | undefined =
+        options.carried?.[side];
+      if (offset === undefined || options.holds?.[side] !== prop.subject)
+        continue;
+      const hand: IAutoMovieResolvedBone = bones.get(`${side}Hand`)!;
+      const frame: IAutoMovieRigidTransform = {
+        position: Vector3.add(
+          hand.worldPosition,
+          Quaternion.rotateVector(hand.worldRotation, offset.position),
+        ),
+        rotation: Quaternion.multiply(hand.worldRotation, offset.rotation),
+      };
+      return { ...prop, frame, motion: (): IAutoMovieRigidTransform => frame };
+    }
+    return prop;
+  };
   const props = (name: string): IAutoMovieMotionHumanProp =>
-    options.props?.find(
-      (prop: IAutoMovieMotionHumanProp): boolean => prop.subject === name,
-    ) ?? refuse(`prop ${name}`);
+    held(
+      options.props?.find(
+        (prop: IAutoMovieMotionHumanProp): boolean => prop.subject === name,
+      ) ?? refuse(`prop ${name}`),
+    );
   const performer = (name: string): IAutoMovieMotionHumanPerformerReader => {
     const other: IPartner =
       options.partners?.find((p: IPartner): boolean => p.subject === name) ??
@@ -277,6 +300,13 @@ export namespace motionActionContext {
     /** The prop each hand holds at the entry; none when absent. */
     holds?: IAutoMovieMotionHumanEntryState["holds"];
 
+    /**
+     * Each held prop's grip offset, its frame in its hand bone's frame: the
+     * prop then rides the entry hand, its frame the hand's composed with the
+     * offset; a held prop without one stays where its own frame puts it.
+     */
+    carried?: Partial<Record<"left" | "right", IAutoMovieRigidTransform>>;
+
     /** How each held prop is used at the entry; none when absent. */
     uses?: IAutoMovieMotionHumanEntryState["uses"];
 
@@ -296,9 +326,9 @@ export namespace motionActionContext {
     start?: number;
 
     /**
-     * The arm solutions the action's plans hand each other, as the
-     * performance gives every placed action one (`HumanPerformancePlace`); none
-     * when absent.
+     * The arm solutions the action's plans hand each other, as the performance
+     * gives every placed action one (`HumanPerformancePlace`); none when
+     * absent.
      */
     handover?: IAutoMovieMotionHumanActionContext["handover"];
 

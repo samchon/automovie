@@ -9,6 +9,7 @@ import * as THREE from "three";
 
 import { createModel } from "../../../internal/fixtures";
 import { nclose } from "../../../internal/nclose";
+import { singleMaterial } from "../../../internal/singleMaterial";
 
 /**
  * Eligible rigid anisotropic meshes receive unit tangents without replacing

@@ -13,6 +13,8 @@ import { nclose } from "../../../internal/predicates";
  * 2. A skew pair whose lines pass at y = 1 is 1 apart.
  * 3. Crossing segments are 0 apart.
  * 4. Collinear segments with a gap of 2 are 2 apart.
+ * 5. A segment collapsed at the origin lying on the x-axis segment (-1..1) is 0
+ *    away; collapsed at (0, 2, 0) it is 2 away, finite and exact.
  */
 export function test_unit_engine_math_segment_segment_distance(): void {
   const p = (x: number, y: number, z: number): IAutoMovieVector3 => ({
@@ -42,5 +44,14 @@ export function test_unit_engine_math_segment_segment_distance(): void {
   TestValidator.predicate(
     "collinear gap",
     near(p(0, 0, 0), p(1, 0, 0), p(3, 0, 0), p(4, 0, 0), 2),
+  );
+  const origin: IAutoMovieVector3 = p(0, 0, 0);
+  TestValidator.predicate(
+    "collapsed on a segment",
+    near(origin, origin, p(-1, 0, 0), p(1, 0, 0), 0),
+  );
+  TestValidator.predicate(
+    "collapsed clear of a segment",
+    near(p(0, 2, 0), p(0, 2, 0), p(-1, 0, 0), p(1, 0, 0), 2),
   );
 }

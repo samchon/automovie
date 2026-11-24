@@ -32,7 +32,7 @@ export function HumanColliderPlacement(
   body: IAutoMovieMotionHumanBody,
   bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
 ): HumanColliderPlacement.IPlaced[] {
-  return place(sided(body).segments, bones);
+  return place(body.colliders.segments, bones);
 }
 
 /**
@@ -62,7 +62,7 @@ export namespace HumanColliderPlacement {
   ) => IPlaced[] {
     const names: Set<string> = new Set();
     for (const bone of requested) names.add(bone);
-    const selected: ISided[] = sided(body).segments.filter(
+    const selected: ISided[] = body.colliders.segments.filter(
       (segment: ISided): boolean => names.has(segment.bone),
     );
     return (
@@ -75,7 +75,7 @@ export namespace HumanColliderPlacement {
     body: IAutoMovieMotionHumanBody,
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
   ): number {
-    return minima(sided(body).segments, bones)[0]!;
+    return minima(body.colliders.segments, bones)[0]!;
   }
 
   /**
@@ -89,7 +89,7 @@ export namespace HumanColliderPlacement {
   ): (
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
   ) => number[] {
-    if (groups === undefined) return bindMinima(sided(body).segments);
+    if (groups === undefined) return bindMinima(body.colliders.segments);
     const membership: Map<string, number[]> = new Map();
     let count: number = 0;
     for (const group of groups) {
@@ -104,19 +104,23 @@ export namespace HumanColliderPlacement {
         entries.push(index);
       }
     }
-    const selected: ISided[] = sided(body).segments.filter(
+    const selected: ISided[] = body.colliders.segments.filter(
       (segment: ISided): boolean => membership.has(segment.bone),
     );
     return bindMinima(selected, { count, membership });
   }
 
   /**
-   * Prepare the existing neutral definitions; hull faces ride the shapes.
+   * The colliders at rest of a rig, mirrored left from right: what a body
+   * carries (IAutoMovieMotionHumanBody.colliders), made once when it is made.
    *
-   * @param body The unchanged body definition to prepare.
+   * @param body The rig, its rest joints and its profile, hulls attached.
+   * @returns The neutral segments and the bones they ride.
    */
-  export function prepare(body: IAutoMovieMotionHumanBody): void {
-    sided(body);
+  export function neutral(
+    body: Pick<IAutoMovieMotionHumanBody, HumanColliderRig>,
+  ): INeutral {
+    return sided(body);
   }
 
   /**
@@ -245,28 +249,10 @@ function place(
 }
 
 /** Fixed neutral segment data, before current bone placement. */
-interface ISided {
-  /** Profile bone name, read through the posed name map. */
-  bone: string;
+type ISided = IAutoMovieMotionHumanColliders.ISegment;
 
-  /** Neutral offset from its canonical rest joint, metres. */
-  offset: IAutoMovieVector3;
-
-  /** Original neutral rotation. */
-  rotation: IAutoMovieRigidTransform["rotation"];
-
-  /** Original shapes, or their median-plane reflection for a mirrored side. */
-  shapes: IAutoMoviePhysicalShape[];
-}
-
-/**
- * Existing neutral records and the exact canonical names their placement
- * consumes.
- */
-interface INeutral {
-  segments: ISided[];
-  bones: ReadonlySet<AutoMovieHumanoidBone>;
-}
+/** The neutral records and the canonical names their placement consumes. */
+type INeutral = IAutoMovieMotionHumanColliders.INeutral;
 
 /**
  * Read unchanged neutral data, lazily indexing first profile names in original

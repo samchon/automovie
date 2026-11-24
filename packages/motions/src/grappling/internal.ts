@@ -2,6 +2,7 @@
 
 export * from "./HumanForceDrawn";
 export * from "./clinch";
+export * from "./grapple";
 export * from "./grappleArms";
 export * from "./grappleFront";
 export * from "./grappleStances";

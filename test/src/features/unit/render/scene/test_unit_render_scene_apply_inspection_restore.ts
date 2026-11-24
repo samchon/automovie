@@ -1,4 +1,5 @@
 import {
+  AutoMovieThreeKind,
   type IAutoMovieInspectionHandle,
   type IAutoMovieSectionRenderer,
   applyAutoMovieInspection,
@@ -47,15 +48,25 @@ export function test_unit_render_scene_apply_inspection_restore(): void {
   const watched: Set<object> = new Set<object>();
   const watch: () => void = (): void =>
     stage.traverse((object: THREE.Object3D): void => {
-      if (!AutoMovieThreeKind.isMesh(object)) return;
-      const resources: (THREE.BufferGeometry | THREE.Material)[] = [
+      if (
+        !AutoMovieThreeKind.isMesh(object) &&
+        !AutoMovieThreeKind.isPoints(object) &&
+        !AutoMovieThreeKind.isLine(object)
+      )
+        return;
+      const resources: THREE.EventDispatcher<{ dispose: {} }>[] = [
         object.geometry,
         ...[object.material].flat(),
       ];
       for (const resource of resources)
         if (
           !watched.has(resource) &&
-          !own.some((material: THREE.Material): boolean => material === resource)
+          !own
+            .flat()
+            .some(
+              (material: THREE.Material | THREE.Material[]): boolean =>
+                material === resource,
+            )
         ) {
           if (resource === left.geometry || resource === right.geometry)
             continue;

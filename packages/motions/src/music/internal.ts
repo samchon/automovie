@@ -5,4 +5,5 @@ export * from "./bowViolinHairAxis";
 export * from "./bowViolinStroke";
 export * from "./conduct";
 export * from "./conductArc";
+export * from "./conductFigure";
 export * from "./conductTip";

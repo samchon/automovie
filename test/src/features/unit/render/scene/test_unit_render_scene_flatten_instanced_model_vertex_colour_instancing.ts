@@ -57,9 +57,7 @@ export function test_unit_render_scene_flatten_instanced_model_vertex_colour_ins
   ]);
   TestValidator.equals(
     "only coloured material reads RGB",
-    (mixed.materials as THREE.MeshStandardMaterial[]).map(
-      (m: THREE.MeshStandardMaterial): boolean => m.vertexColors,
-    ),
+    mixed.materials.map((m: THREE.Material): boolean => m.vertexColors),
     [true, false],
   );
   TestValidator.predicate(

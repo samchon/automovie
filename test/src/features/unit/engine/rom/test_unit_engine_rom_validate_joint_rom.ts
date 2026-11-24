@@ -1,4 +1,8 @@
-import { ViolationCollector, validateJointRom } from "@automovie/engine";
+import {
+  ViolationCollector,
+  getConstraint,
+  validateJointRom,
+} from "@automovie/engine";
 import type {
   IAutoMovieConstraintViolation,
   IAutoMovieJointConstraint,
@@ -63,6 +67,10 @@ const faults: (
  *    one `swing` fault, overshoot 20; 30/30, a lone abduction 50 and a lone
  *    flexion 50 file nothing; a lone flexion 150 files one fault whether the
  *    other axis is null or an explicit 0.
+ * 8. The default shoulder read without its swing-twist gate at flexion 999 and
+ *    twist 999 files exactly the flexion, swing and twist paths; with the
+ *    table's gate, a hanging arm turned 170 degrees (past the 135 allowed from
+ *    rest) files exactly a twist fault.
  */
 export function test_unit_engine_rom_validate_joint_rom(): void {
   TestValidator.equals(
@@ -157,5 +165,31 @@ export function test_unit_engine_rom_validate_joint_rom(): void {
       zero.length === 1 &&
       resting[0]!.path === zero[0]!.path &&
       nclose(resting[0]!.overshoot!, zero[0]!.overshoot!, EXACT),
+  );
+  const shoulder: IAutoMovieJointConstraint = getConstraint(
+    "leftUpperArm",
+    null,
+  )!;
+  const upper: (
+    axes: Partial<Pick<IAutoMovieJointPose, "flexion" | "abduction" | "twist">>,
+  ) => IAutoMovieJointPose = (
+    axes: Partial<Pick<IAutoMovieJointPose, "flexion" | "abduction" | "twist">>,
+  ): IAutoMovieJointPose => ({ ...pose(axes), bone: "leftUpperArm" });
+  TestValidator.equals(
+    "each bad axis and the swing file their own",
+    faults(upper({ flexion: 999, twist: 999 }), {
+      ...shoulder,
+      swingTwist: null,
+    })
+      .map((item: IAutoMovieConstraintViolation): string => item.path)
+      .sort(),
+    ["$input.flexion", "$input.swing", "$input.twist"],
+  );
+  TestValidator.equals(
+    "a hanging arm turned 170 degrees",
+    faults(upper({ flexion: 0, abduction: 0, twist: 170 }), shoulder).map(
+      (item: IAutoMovieConstraintViolation): string => item.path,
+    ),
+    ["$input.twist"],
   );
 }

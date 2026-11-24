@@ -7,6 +7,7 @@ export * from "./AquaticCrew";
 export * from "./AquaticEdge";
 export * from "./AquaticPosture";
 export * from "./AquaticTeamBase";
+export * from "./athletics";
 export * from "./AthleticsRunUp";
 export * from "./AthleticsSwing";
 export * from "./bowlingPinfall";

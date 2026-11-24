@@ -10,7 +10,7 @@ import { TestValidator } from "@nestia/e2e";
  * 2. Angles outside wrap by whole turns: 190 to -170, -190 to 170, 540 to -180.
  */
 export function test_unit_engine_math_wrap_degrees(): void {
-  for (const [input, expected] of [
+  const cases: [number, number][] = [
     [0, 0],
     [90, 90],
     [-180, -180],
@@ -18,6 +18,7 @@ export function test_unit_engine_math_wrap_degrees(): void {
     [190, -170],
     [-190, 170],
     [540, -180],
-  ] as const)
+  ];
+  for (const [input, expected] of cases)
     TestValidator.equals(`wrap ${input}`, wrapDegrees(input), expected);
 }

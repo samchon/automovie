@@ -1,5 +1,6 @@
 import type { IAutoMovieMark } from "@automovie/interface";
 import {
+  AutoMovieThreeKind,
   type IAutoMovieInspectionHandle,
   applyAutoMovieInspection,
 } from "@automovie/render";
@@ -10,6 +11,7 @@ import type { LineSegments2 } from "three/examples/jsm/lines/LineSegments2.js";
 
 import { InspectionScene } from "../../../internal/InspectionScene";
 import { compileMaterialShaderSource } from "../../../internal/compileMaterialShaderSource";
+import { singleMaterial } from "../../../internal/singleMaterial";
 
 /**
  * Each of the four mark shapes is built into screen-space line and point

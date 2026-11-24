@@ -4,7 +4,11 @@ import {
   IAutoMovieStageLight,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { type IAutoMovieModelObject, buildScene } from "@automovie/render";
+import {
+  AutoMovieThreeKind,
+  type IAutoMovieModelObject,
+  buildScene,
+} from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
@@ -62,8 +66,7 @@ const lightsOf: (scene: THREE.Scene) => THREE.Light[] = (
 ): THREE.Light[] => {
   const found: THREE.Light[] = [];
   scene.traverse((object: THREE.Object3D<THREE.Object3DEventMap>): void => {
-    if ((object as THREE.Light).isLight === true)
-      found.push(object as THREE.Light);
+    if (AutoMovieThreeKind.isLight(object)) found.push(object);
   });
   return found;
 };
@@ -126,9 +129,9 @@ export function test_unit_render_scene_build_scene_light_direction(): void {
         { node: "sun", type: "directional", direction, intensity: 1 },
       ]),
     );
-    const light: THREE.DirectionalLight = lightsOf(
-      scene,
-    )[0] as THREE.DirectionalLight;
+    const light: THREE.Light | undefined = lightsOf(scene)[0];
+    if (light === undefined || !AutoMovieThreeKind.isDirectionalLight(light))
+      throw new Error("Expected a directional light");
     const shine: IAutoMovieVector3 = shineDirection(light);
     TestValidator.predicate(
       `a directional light shines along ${JSON.stringify(direction)}`,
@@ -158,7 +161,9 @@ export function test_unit_render_scene_build_scene_light_direction(): void {
       },
     ]),
   );
-  const spot: THREE.SpotLight = lightsOf(spotScene)[0] as THREE.SpotLight;
+  const spot: THREE.Light | undefined = lightsOf(spotScene)[0];
+  if (spot === undefined || !AutoMovieThreeKind.isSpotLight(spot))
+    throw new Error("Expected a spot light");
   TestValidator.predicate(
     "a spot light shines along its authored direction, not at the origin",
     vclose(shineDirection(spot), unit(spotDirection), 1e-6),
@@ -181,7 +186,9 @@ export function test_unit_render_scene_build_scene_light_direction(): void {
       },
     ]),
   );
-  const point: THREE.PointLight = lightsOf(pointScene)[0] as THREE.PointLight;
+  const point: THREE.Light | undefined = lightsOf(pointScene)[0];
+  if (point === undefined || !AutoMovieThreeKind.isPointLight(point))
+    throw new Error("Expected a point light");
   TestValidator.equals(
     "a point light keeps its position and range and carries no aiming target",
     namedFacts([

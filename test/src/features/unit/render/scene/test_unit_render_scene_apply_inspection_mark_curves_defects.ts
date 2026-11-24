@@ -5,11 +5,14 @@ import type {
 } from "@automovie/interface";
 import {
   type IAutoMovieInspectionHandle,
-  applyAutoMovieInspection, readAutoMovieBufferAttribute } from "@automovie/render";
+  applyAutoMovieInspection,
+  readAutoMovieBufferAttribute,
+} from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
 import { InspectionScene } from "../../../internal/InspectionScene";
+import { readMarkPolyline } from "../../../internal/readMarkPolyline";
 
 /**
  * Construction curves handed over as marks, and mesh defects the inspection
@@ -207,7 +210,10 @@ export function test_unit_render_scene_apply_inspection_mark_curves_defects(): v
   );
 
   // 4. The marks follow a moved vertex.
-  const position: THREE.BufferAttribute = readAutoMovieBufferAttribute(open.geometry, "position");
+  const position: THREE.BufferAttribute = readAutoMovieBufferAttribute(
+    open.geometry,
+    "position",
+  );
   const corner: number[] = [
     position.getX(0),
     position.getY(0),

@@ -9,8 +9,8 @@ import * as THREE from "three";
 
 import { observeThrownValue } from "../../../internal/observeThrownValue";
 import { namedFacts, nclose } from "../../../internal/predicates";
-import { softFurnishing, softPanel } from "../../../internal/softFixtures";
 import { singleMaterial } from "../../../internal/singleMaterial";
+import { softFurnishing, softPanel } from "../../../internal/softFixtures";
 
 /** A hanging panel and its derived surface at one step. */
 const drape: (step: number) => ReturnType<typeof softBodySurfaceGeometry> = (
@@ -312,11 +312,7 @@ export function test_unit_render_scene_build_soft_body_object(): void {
   TestValidator.equals(
     "material ownership decides what is disposed",
     namedFacts([
-      [
-        "doubleSided",
-        (): boolean =>
-          (owned as THREE.MeshStandardMaterial).side === THREE.DoubleSide,
-      ],
+      ["doubleSided", (): boolean => owned.side === THREE.DoubleSide],
       ["used", (): boolean => lent.object.material === borrowed],
       ["borrowedNotDisposed", (): boolean => borrowedDisposals === 0],
       ["defaultDisposedOnce", (): boolean => defaultDisposals === 1],

@@ -30,8 +30,7 @@ export function test_unit_render_scene_create_detail_normal_shader_patch(): void
     uniforms: {} as Record<string, THREE.IUniform>,
   };
   patch.apply(shader);
-  const captured: THREE.Matrix3 = shader.uniforms.detailNormalTransform!
-    .value;
+  const captured: THREE.Matrix3 = shader.uniforms.detailNormalTransform!.value;
   const expected: number[] = [2, 0, 0, 0, 3, 0, 0.25, 0.5, 1];
   TestValidator.predicate(
     "the captured affine transform retains its registration values",

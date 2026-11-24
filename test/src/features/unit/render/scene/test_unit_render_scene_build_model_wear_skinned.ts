@@ -10,6 +10,7 @@ import {
   AutoMovieThreeKind,
   type IAutoMovieModelObject,
   buildModel,
+  readAutoMovieBufferAttribute,
 } from "@automovie/render";
 import type { IMaterialShaderSource } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
@@ -85,9 +86,9 @@ export function test_unit_render_scene_build_model_wear_skinned(): void {
     });
   const material: THREE.Material = singleMaterial(mesh.material);
   const shader: IMaterialShaderSource = compileMaterialShaderSource(material);
-  const data: Float32Array = (
-    shader.uniforms.uWearEdges!.value
-  ).image.data as Float32Array;
+  const texture: THREE.DataTexture = shader.uniforms.uWearEdges!.value;
+  const data: THREE.TypedArray | null = texture.image.data;
+  if (data === null) throw new Error("Expected wear edge data");
   TestValidator.predicate(
     `the texture holds the ${expected.edges.length} bind-pose edges`,
     expected.edges.every(
@@ -100,9 +101,10 @@ export function test_unit_render_scene_build_model_wear_skinned(): void {
   );
 
   // 3. Bend and compare.
-  const position: THREE.BufferAttribute = geometry.getAttribute(
+  const position: THREE.BufferAttribute = readAutoMovieBufferAttribute(
+    geometry,
     "position",
-  ) as THREE.BufferAttribute;
+  );
   const before: number[] = Array.from(position.array);
   const spine: THREE.Bone = mesh.skeleton.bones.find(
     (bone: THREE.Bone): boolean => bone.name === "spine",
@@ -134,8 +136,6 @@ export function test_unit_render_scene_build_model_wear_skinned(): void {
   );
 
   // 4. Disposing the part's material releases its edge texture.
-  const texture: THREE.DataTexture = shader.uniforms.uWearEdges!
-    .value;
   let released: boolean = false;
   texture.addEventListener("dispose", (): void => {
     released = true;

@@ -1,52 +1,60 @@
 import { bracketedRoot } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
+import { throwsError } from "../../../internal/predicates";
+
 /**
- * A bracketed root search returns the argument where a continuous function
- * crosses zero inside its bracket, in far fewer evaluations than bisection.
+ * `bracketedRoot` returns the argument where a continuous function crosses zero
+ * inside its bracket.
  *
  * Scenarios:
  *
- * 1. `x² - 2` on [0, 2] returns √2 within the tolerance, with the bracket given in
- *    either order.
- * 2. `cos x - x` on [0, 1] returns the Dottie number 0.7390851332151607.
- * 3. A function that is zero at an end returns that end without a search.
- * 4. `x³ - 2x - 5` on [2, 3] to 1e-12 takes fewer than 20 evaluations, where
- *    bisection needs 40.
- * 5. A steep and flat function, `exp(8x) - 2` on [-1, 1], where plain false
- *    position stalls on one end, still returns `ln 2 / 8`.
- * 6. Ends of one sign and a non-positive tolerance throw.
+ * 1. X^2 - 2 on [0, 2], given in either order, returns the square root of two
+ *    within 1e-11 at tolerance 1e-12.
+ * 2. Cos x - x on [0, 1] returns the fixed point 0.7390851332151607 within 1e-12.
+ * 3. A function that is zero at an end returns that end: x - 3 on [3, 5] and on
+ *    [1, 3] both return exactly 3 after four reads in all.
+ * 4. X^3 - 2x - 5 on [2, 3] to 1e-12 returns 2.0945514815423265 within 1e-11 in
+ *    fewer than 20 evaluations (bisection needs about 40).
+ * 5. The steep and flat exp(8x) - 2 on [-1, 1] returns ln 2 / 8 within 1e-11.
+ * 6. Ends of one sign, and a zero tolerance, are refused.
  */
 export function test_unit_engine_math_bracketed_root(): void {
-  const close = (a: number, b: number, e: number): boolean =>
-    Math.abs(a - b) <= e;
+  const close = (a: number, b: number, tolerance: number): boolean =>
+    Math.abs(a - b) <= tolerance;
   const square = (x: number): number => x * x - 2;
   TestValidator.predicate(
-    "square root of two in either order",
-    close(bracketedRoot(square, 0, 2, 1e-12), Math.SQRT2, 1e-11) &&
-      close(bracketedRoot(square, 2, 0, 1e-12), Math.SQRT2, 1e-11),
+    "sqrt two upward",
+    close(bracketedRoot(square, 0, 2, 1e-12), Math.SQRT2, 1e-11),
   );
   TestValidator.predicate(
-    "the fixed point of the cosine",
+    "sqrt two downward",
+    close(bracketedRoot(square, 2, 0, 1e-12), Math.SQRT2, 1e-11),
+  );
+  TestValidator.predicate(
+    "cosine fixed point",
     close(
       bracketedRoot((x: number): number => Math.cos(x) - x, 0, 1, 1e-13),
       0.7390851332151607,
       1e-12,
     ),
   );
-
   let calls: number = 0;
   const counted = (x: number): number => {
     calls++;
     return x - 3;
   };
-  TestValidator.predicate(
-    "a root at an end is returned as it is",
-    bracketedRoot(counted, 3, 5, 1e-9) === 3 &&
-      bracketedRoot(counted, 1, 3, 1e-9) === 3 &&
-      calls === 4,
+  TestValidator.equals(
+    "end root, upper",
+    bracketedRoot(counted, 3, 5, 1e-9),
+    3,
   );
-
+  TestValidator.equals(
+    "end root, lower",
+    bracketedRoot(counted, 1, 3, 1e-9),
+    3,
+  );
+  TestValidator.equals("reads", calls, 4);
   calls = 0;
   const cubic: number = bracketedRoot(
     (x: number): number => {
@@ -58,22 +66,24 @@ export function test_unit_engine_math_bracketed_root(): void {
     1e-12,
   );
   TestValidator.predicate(
-    "the cubic's root in fewer than twenty evaluations",
-    close(cubic, 2.0945514815423265, 1e-11) && calls < 20,
+    "cubic root",
+    close(cubic, 2.0945514815423265, 1e-11),
   );
+  TestValidator.predicate("few evaluations", calls < 20);
   TestValidator.predicate(
-    "a steep function does not stall the search",
+    "steep function",
     close(
       bracketedRoot((x: number): number => Math.exp(8 * x) - 2, -1, 1, 1e-12),
       Math.LN2 / 8,
       1e-11,
     ),
   );
-
-  TestValidator.error("ends of one sign", (): unknown =>
-    bracketedRoot(square, 2, 3, 1e-9),
+  TestValidator.predicate(
+    "one sign",
+    throwsError(() => bracketedRoot(square, 2, 3, 1e-9)),
   );
-  TestValidator.error("zero tolerance", (): unknown =>
-    bracketedRoot(square, 0, 2, 0),
+  TestValidator.predicate(
+    "zero tolerance",
+    throwsError(() => bracketedRoot(square, 0, 2, 0)),
   );
 }

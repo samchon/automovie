@@ -5,55 +5,37 @@ import {
   pointHullDistance,
   pointInHull,
 } from "@automovie/engine";
-import {
-  type IAutoMovieHullEdge,
+import type {
+  IAutoMovieHullEdge,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import {
-  namedFacts,
-  nclose,
-  throwsError,
-  vclose,
-} from "../../../internal/predicates";
-
-const v: (x: number, z: number) => IAutoMovieVector3 = (
-  x: number,
-  z: number,
-): IAutoMovieVector3 => ({ x, y: 0, z });
+import { throwsError } from "../../../internal/predicates";
 
 /**
- * Planar hull construction and point queries retain the authored degenerate
- * populations and hand-calculated horizontal distances.
+ * Planar hull construction and point queries on the XZ plane.
  *
  * Scenarios:
  *
- * 1. A square with an interior point gives four hull vertices and the declared
- *    interior/exterior distance behavior; individual hull coordinates are not
- *    asserted.
- * 2. Duplicate points collapse; three collinear points give two hull vertices;
- *    one/zero points pass through; an equal-x column exercises the secondary
- *    sort key.
- * 3. PointInHull: inside true, outside false, a degenerate (<3-vertex) hull
- *    encloses nothing.
- * 4. PointHullDistance: 0 inside, the edge gap outside, the vertex distance for a
- *    point hull, the segment distance for a 2-vertex hull, Infinity for empty.
- * 5. NearestHullEdge: the nearest boundary edge and its distance; a single-vertex
- *    hull degenerates to a zero-length edge.
- * 6. ClosestPointOnSegmentXZ clamps before the start, projects onto the middle,
- *    clamps past the end, and survives a zero-length segment.
- * 7. An empty hull refuses a nearest-edge query rather than returning absent
- *    endpoints.
+ * 1. The square (0,0) (2,0) (2,2) (0,2) with the interior point (1,1) has four
+ *    hull vertices; duplicates collapse ((0,0) twice and (1,0) gives two);
+ *    three collinear points give two; one point gives one; none gives none; the
+ *    equal-x column (0,2) (0,0) with (2,1) gives three.
+ * 2. `pointInHull`: (1,1) is inside the square, (3,1) is outside, and a two-vertex
+ *    hull encloses nothing.
+ * 3. `pointHullDistance`: 0 inside, 1 for (3,1) beside the square, 3 for (3,0)
+ *    from a one-vertex hull, 1 for (1,1) from the segment hull (0,0)-(2,0),
+ *    Infinity for the empty hull.
+ * 4. `nearestHullEdge` of (3,1) on the square has distance 1; of (3,0) on a
+ *    one-vertex hull has distance 3 and a collapsed edge; of any point on an
+ *    empty hull is refused.
+ * 5. `closestPointOnSegmentXZ` on (0,0)-(2,0): (-1,0) clamps to (0,0), (1,1)
+ *    projects to (1,0), (3,0) clamps to (2,0); a zero-length segment gives its
+ *    own point.
  */
 export function test_unit_engine_math_convex_hull(): void {
-  TestValidator.predicate(
-    "an empty hull has no boundary edge to return",
-    throwsError(
-      (): IAutoMovieHullEdge => nearestHullEdge(v(0, 0), []),
-      "nonempty hull",
-    ),
-  );
+  const v = (x: number, z: number): IAutoMovieVector3 => ({ x, y: 0, z });
   const square: IAutoMovieVector3[] = convexHull2D([
     v(0, 0),
     v(2, 0),
@@ -61,84 +43,87 @@ export function test_unit_engine_math_convex_hull(): void {
     v(0, 2),
     v(1, 1),
   ]);
-  TestValidator.equals("square hull drops interior point", square.length, 4);
+  TestValidator.equals("square", square.length, 4);
   TestValidator.equals(
-    "duplicate points collapse",
+    "duplicates",
     convexHull2D([v(0, 0), v(0, 0), v(1, 0)]).length,
     2,
   );
   TestValidator.equals(
-    "collinear collapses to two extremes",
+    "collinear",
     convexHull2D([v(0, 0), v(1, 0), v(2, 0)]).length,
     2,
   );
-  TestValidator.equals("single point hull", convexHull2D([v(5, 5)]).length, 1);
-  TestValidator.equals("empty hull", convexHull2D([]).length, 0);
+  TestValidator.equals("single", convexHull2D([v(5, 5)]).length, 1);
+  TestValidator.equals("empty", convexHull2D([]).length, 0);
   TestValidator.equals(
-    "equal-x column builds a triangle",
+    "equal x",
     convexHull2D([v(0, 2), v(0, 0), v(2, 1)]).length,
     3,
   );
 
-  TestValidator.equals("inside the square", pointInHull(v(1, 1), square), true);
+  TestValidator.equals("inside", pointInHull(v(1, 1), square), true);
+  TestValidator.equals("outside", pointInHull(v(3, 1), square), false);
   TestValidator.equals(
-    "outside the square",
-    pointInHull(v(3, 1), square),
-    false,
-  );
-  TestValidator.equals(
-    "a segment hull encloses nothing",
+    "segment hull",
     pointInHull(v(0, 0), convexHull2D([v(0, 0), v(1, 0)])),
     false,
   );
 
-  TestValidator.predicate(
-    "distance inside is 0",
-    nclose(pointHullDistance(v(1, 1), square), 0),
+  TestValidator.equals(
+    "distance inside",
+    pointHullDistance(v(1, 1), square),
+    0,
   );
-  TestValidator.predicate(
-    "distance outside is the edge gap",
-    nclose(pointHullDistance(v(3, 1), square), 1),
+  TestValidator.equals(
+    "distance beside",
+    pointHullDistance(v(3, 1), square),
+    1,
   );
-  TestValidator.predicate(
-    "distance to a single vertex",
-    nclose(pointHullDistance(v(3, 0), [v(0, 0)]), 3),
+  TestValidator.equals(
+    "distance to vertex",
+    pointHullDistance(v(3, 0), [v(0, 0)]),
+    3,
   );
-  TestValidator.predicate(
-    "distance to empty is Infinity",
-    pointHullDistance(v(0, 0), []) === Infinity,
+  TestValidator.equals(
+    "distance to nothing",
+    pointHullDistance(v(0, 0), []),
+    Infinity,
   );
-  TestValidator.predicate(
-    "distance to a segment hull",
-    nclose(pointHullDistance(v(1, 1), [v(0, 0), v(2, 0)]), 1),
+  TestValidator.equals(
+    "distance to segment",
+    pointHullDistance(v(1, 1), [v(0, 0), v(2, 0)]),
+    1,
   );
 
   const edge: IAutoMovieHullEdge = nearestHullEdge(v(3, 1), square);
-  TestValidator.predicate("nearest edge distance", nclose(edge.distance, 1));
+  TestValidator.equals("nearest edge distance", edge.distance, 1);
   const single: IAutoMovieHullEdge = nearestHullEdge(v(3, 0), [v(0, 0)]);
-  TestValidator.equals(
-    "single-vertex hull yields a zero-length edge",
-    namedFacts([
-      ["vertexDistance", (): boolean => nclose(single.distance, 3)],
-      ["edgeCollapsed", (): boolean => vclose(single.start, single.end)],
-    ]),
-    { vertexDistance: true, edgeCollapsed: true },
+  TestValidator.equals("single vertex distance", single.distance, 3);
+  TestValidator.equals("collapsed edge", single.start, single.end);
+  TestValidator.predicate(
+    "empty hull",
+    throwsError(() => nearestHullEdge(v(0, 0), []), ["nonempty hull"]),
   );
 
-  TestValidator.predicate(
-    "clamp before the start",
-    vclose(closestPointOnSegmentXZ(v(-1, 0), v(0, 0), v(2, 0)), v(0, 0)),
+  TestValidator.equals(
+    "clamp before",
+    closestPointOnSegmentXZ(v(-1, 0), v(0, 0), v(2, 0)),
+    v(0, 0),
   );
-  TestValidator.predicate(
-    "project onto the middle",
-    vclose(closestPointOnSegmentXZ(v(1, 1), v(0, 0), v(2, 0)), v(1, 0)),
+  TestValidator.equals(
+    "project",
+    closestPointOnSegmentXZ(v(1, 1), v(0, 0), v(2, 0)),
+    v(1, 0),
   );
-  TestValidator.predicate(
-    "clamp past the end",
-    vclose(closestPointOnSegmentXZ(v(3, 0), v(0, 0), v(2, 0)), v(2, 0)),
+  TestValidator.equals(
+    "clamp after",
+    closestPointOnSegmentXZ(v(3, 0), v(0, 0), v(2, 0)),
+    v(2, 0),
   );
-  TestValidator.predicate(
-    "zero-length segment returns its point",
-    vclose(closestPointOnSegmentXZ(v(1, 1), v(5, 5), v(5, 5)), v(5, 5)),
+  TestValidator.equals(
+    "zero length",
+    closestPointOnSegmentXZ(v(1, 1), v(5, 5), v(5, 5)),
+    v(5, 5),
   );
 }

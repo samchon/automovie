@@ -1,8 +1,9 @@
-import { buildModel } from "@automovie/render";
+import { AutoMovieThreeKind, buildModel } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
 import { nclose } from "../../../internal/nclose";
+import { singleMaterial } from "../../../internal/singleMaterial";
 import {
   vertexColourMesh,
   vertexColourModel,
@@ -42,30 +43,14 @@ export function test_unit_render_scene_build_model_vertex_colour(): void {
   });
   const built: import("@automovie/render").IAutoMovieModelObject =
     buildModel(model);
-  const parts: THREE.Mesh<
-    THREE.BufferGeometry<
-      THREE.NormalBufferAttributes,
-      THREE.BufferGeometryEventMap
-    >,
-    THREE.MeshStandardMaterial,
-    THREE.Object3DEventMap
-  >[] = [...built.parts.values()] as THREE.Mesh<
-    THREE.BufferGeometry,
-    THREE.MeshStandardMaterial
-  >[];
+  const parts: THREE.Mesh[] = [...built.parts.values()].filter(
+    (part: THREE.Object3D): part is THREE.Mesh =>
+      AutoMovieThreeKind.isMesh(part),
+  );
   TestValidator.equals(
     "variant flags",
     parts.map(
-      (
-        p: THREE.Mesh<
-          THREE.BufferGeometry<
-            THREE.NormalBufferAttributes,
-            THREE.BufferGeometryEventMap
-          >,
-          THREE.MeshStandardMaterial,
-          THREE.Object3DEventMap
-        >,
-      ): boolean => p.material.vertexColors,
+      (p: THREE.Mesh): boolean => singleMaterial(p.material).vertexColors,
     ),
     [true, false, true, false, true, false, false],
   );
@@ -93,27 +78,19 @@ export function test_unit_render_scene_build_model_vertex_colour(): void {
     model.materials[0]!.baseColor;
   TestValidator.predicate(
     "base colour is not pre-multiplied",
-    [parts[0]!, parts[1]!].every(
-      (part: (typeof parts)[number]): boolean =>
-        nclose(part.material.color.r, baseColor.r, 0) &&
-        nclose(part.material.color.g, baseColor.g, 0) &&
-        nclose(part.material.color.b, baseColor.b, 0),
-    ),
+    [parts[0]!, parts[1]!].every((part: THREE.Mesh): boolean => {
+      const material: THREE.Material = singleMaterial(part.material);
+      return (
+        AutoMovieThreeKind.isMeshStandardMaterial(material) &&
+        nclose(material.color.r, baseColor.r, 0) &&
+        nclose(material.color.g, baseColor.g, 0) &&
+        nclose(material.color.b, baseColor.b, 0)
+      );
+    }),
   );
   for (const part of parts) part.geometry.dispose();
   for (const mat of new Set(
-    parts.map(
-      (
-        p: THREE.Mesh<
-          THREE.BufferGeometry<
-            THREE.NormalBufferAttributes,
-            THREE.BufferGeometryEventMap
-          >,
-          THREE.MeshStandardMaterial,
-          THREE.Object3DEventMap
-        >,
-      ): THREE.MeshStandardMaterial => p.material,
-    ),
+    parts.map((p: THREE.Mesh): THREE.Material => singleMaterial(p.material)),
   ))
     mat.dispose();
 }

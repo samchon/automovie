@@ -16,7 +16,10 @@ import { throwsError } from "../../../internal/predicates";
  * 3. A line of no samples is refused.
  */
 export function test_unit_engine_sound_speech_end_frame(): void {
-  const clock = { fps: 30, sampleRate: 48000 } as const;
+  const clock: Parameters<typeof productionSpeechEndFrame>[0] = {
+    fps: 30,
+    sampleRate: 48000,
+  };
   TestValidator.equals(
     "one second",
     productionSpeechEndFrame(clock, 0, 48000),
