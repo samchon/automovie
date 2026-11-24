@@ -16,6 +16,7 @@ import type {
 import { AutoMovieMotionHumanArmPlanned } from "../compose/AutoMovieMotionHumanArmPlanned";
 import { courseLimbSwivels } from "../compose/courseLimbSwivels";
 import { HumanLimbFit } from "../posture/HumanLimbFit";
+import { HumanMinimumJerkSpline } from "../posture/HumanMinimumJerkSpline";
 import type { resolveHumanPostureSource } from "../posture/resolveHumanPostureSource";
 import { HumanPreparedPlayback } from "./HumanPreparedPlayback";
 import { HumanSegmentCarry } from "./HumanSegmentCarry";
@@ -310,10 +311,13 @@ export namespace readHumanSegmentLeaf {
    * a daily reach's peak speed travels at most that plan's spacing. Each anchor
    * is read once, the first continuing the arms the entry displays and each
    * later one continuing the one before it (`anchor`), and kept by the segment;
-   * that read is never shown. A second between two anchors takes each fit's
-   * shortest-turn interpolation of their swivels where both give it on one
-   * branch, and otherwise the nearer anchor's seed (the other's where only it
-   * gives the fit); an anchor second takes its own seeds. The closed form
+   * that read is never shown. A fit both anchors around a second give on one
+   * branch lies on the minimum-jerk path through its run of anchors (Flash and
+   * Hogan 1985, `HumanMinimumJerkSpline`: a quintic between each two whose
+   * position, velocity and acceleration carry across each anchor), its forearm
+   * twist too where the whole run gives one, so an anchor second shows its
+   * interval's limit; any other fit takes the nearer anchor's seed (the other's
+   * where only it gives the fit). The closed form
    * places each arm at that swivel on its displayed goal and falls back to
    * refining from it only where the placement misses the goal, leaves the range
    * of motion or meets what the arm keeps clear of (Tolani, Goswami and Badler
@@ -326,8 +330,8 @@ export namespace readHumanSegmentLeaf {
    * @param prepared The read's preparation.
    * @returns The arm fits' seeds by name, or none.
    * @evidence contracts/development/common.md#meaningful-documentation States the grid and its source, the chained anchor reads, the interpolation, the fallback and when nothing is given.
-   * @evidence contracts/development/implementation.md#principled-implementation The swivel is the one free coordinate of an arm on its goal (Tolani §3.2.4); interpolating it between anchor fits chained from the action's start keeps the branch and the elbow continuous across anchors, and the anchors are fixed seconds of the action read under the placed state, so a second's pose never depends on the order seconds are read in.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Two bracketing anchors, each one kept-map lookup or the chain's missing reads, then one pass over their fit names.
+   * @evidence contracts/development/implementation.md#principled-implementation The swivel is the one free coordinate of an arm on its goal (Tolani §3.2.4); placing it on the minimum-jerk path through the anchor fits chained from the action's start (Flash and Hogan 1985: quintics whose position, velocity and acceleration carry across each anchor) keeps the branch, the elbow and the forearm's twist continuous across anchors, and the anchors are fixed seconds of the action read under the placed state, so a second's pose never depends on the order seconds are read in.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Two bracketing anchors, each one kept-map lookup or the chain's missing reads, then one pass over their fit names, each a run lookup and one minimum-jerk solve over the run.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The goals stay the displayed ones; only the swivel and branch come from the anchors, prescribed for an arm and only continued for a free leg, and a planted leg keeps its own fit.
    * @evidence contracts/development/implementation.md#efficient-algorithms One read per anchor, overlay count and placed state; every other read is a closed-form placement.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The anchors' fits are kept by the segment for every second between them.
@@ -345,10 +349,14 @@ export namespace readHumanSegmentLeaf {
       segment.plan.duration,
       Math.max(0, t - segment.start),
     );
-    const nearest: number = Math.round(local / spacing);
-    if (Math.abs(second(segment, nearest, spacing) - t) <= 1e-12)
-      return new Map(anchor(person, segment, nearest, spacing, prepared));
-    const lower: number = Math.floor(local / spacing);
+    // The anchor at or before the second and the one after it; an anchor
+    // second is the start of its interval, so it reads the same path as the
+    // seconds around it.
+    const last: number = Math.ceil(segment.plan.duration / spacing - 1e-9);
+    const lower: number = Math.min(
+      Math.max(0, last - 1),
+      Math.floor(local / spacing + 1e-9),
+    );
     const from: IAutoMovieMotionHumanSegment.IAnchorFits = anchor(
       person,
       segment,
@@ -356,6 +364,7 @@ export namespace readHumanSegmentLeaf {
       spacing,
       prepared,
     );
+    if (last === 0) return new Map(from);
     const to: IAutoMovieMotionHumanSegment.IAnchorFits = anchor(
       person,
       segment,
@@ -364,10 +373,8 @@ export namespace readHumanSegmentLeaf {
       prepared,
     );
     const start: number = second(segment, lower, spacing);
-    const share: number = Math.min(
-      1,
-      Math.max(0, (t - start) / (second(segment, lower + 1, spacing) - start)),
-    );
+    const h: number = second(segment, lower + 1, spacing) - start;
+    const share: number = Math.min(1, Math.max(0, (t - start) / h));
     const near: IAutoMovieMotionHumanSegment.IAnchorFits =
       share < 0.5 ? from : to;
     const far: IAutoMovieMotionHumanSegment.IAnchorFits =
@@ -376,13 +383,67 @@ export namespace readHumanSegmentLeaf {
     for (const name of new Set<string>([...from.keys(), ...to.keys()])) {
       const a: IAutoMovieSwivelSeed | null | undefined = from.get(name);
       const b: IAutoMovieSwivelSeed | null | undefined = to.get(name);
-      if (a && b && a.branch === b.branch) {
-        const turn: number = b.swivel - a.swivel;
-        out.set(name, {
-          swivel: a.swivel + (turn - 360 * Math.round(turn / 360)) * share,
-          branch: a.branch,
-        });
-      } else out.set(name, near.get(name) ?? far.get(name) ?? null);
+      if (!(a && b && a.branch === b.branch)) {
+        out.set(name, near.get(name) ?? far.get(name) ?? null);
+        continue;
+      }
+      // The fit's run: the anchors around the interval that give it on its
+      // branch. Its swivel, and its forearm twist where the whole run gives
+      // one, lie on the minimum-jerk path through the run (Flash and Hogan
+      // 1985, J Neurosci 5:1688, `HumanMinimumJerkSpline`): a quintic between
+      // each two anchors whose position, velocity and acceleration carry
+      // across each anchor, so an anchor second shows its interval's limit.
+      const on = (i: number): IAutoMovieSwivelSeed | undefined => {
+        const seed: IAutoMovieSwivelSeed | null | undefined = anchor(
+          person,
+          segment,
+          i,
+          spacing,
+          prepared,
+        ).get(name);
+        return seed && seed.branch === a.branch ? seed : undefined;
+      };
+      let first: number = lower;
+      while (first > 0 && on(first - 1) !== undefined) --first;
+      let end: number = lower + 1;
+      while (end < last && on(end + 1) !== undefined) ++end;
+      const run: IAutoMovieSwivelSeed[] = [];
+      for (let i: number = first; i <= end; ++i) run.push(on(i)!);
+      const twisted: boolean = run.every(
+        (seed: IAutoMovieSwivelSeed): boolean => seed.twist !== undefined,
+      );
+      const values: number[][] = [];
+      for (const seed of run) {
+        const before: number[] | undefined = values.at(-1);
+        const turn: number =
+          before === undefined ? 0 : seed.swivel - before[0]!;
+        const swivel: number =
+          before === undefined
+            ? seed.swivel
+            : before[0]! + turn - 360 * Math.round(turn / 360);
+        values.push(twisted ? [swivel, seed.twist!] : [swivel]);
+      }
+      const times: number[] = [];
+      for (let i: number = first; i <= end; ++i)
+        times.push(second(segment, i, spacing));
+      const rates: HumanMinimumJerkSpline.IDerivatives =
+        HumanMinimumJerkSpline.derivatives(times, values);
+      const k: number = lower - first;
+      const at: number[] = HumanMinimumJerkSpline.quintic(
+        values[k]!,
+        values[k + 1]!,
+        rates.velocities[k]!,
+        rates.velocities[k + 1]!,
+        rates.accelerations[k]!,
+        rates.accelerations[k + 1]!,
+        h,
+        share,
+      );
+      out.set(name, {
+        swivel: at[0]!,
+        branch: a.branch,
+        ...(at.length > 1 ? { twist: at[1]! } : {}),
+      });
     }
     return out;
   }
