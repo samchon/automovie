@@ -6,7 +6,7 @@ States the LIPM height, the standing setpoint, the reused trigger, stepping's en
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-201903's quadruped step controller entered by the biped's `updateForDoubleSupport` (main's wiring plan): the LIPM height from the desired, the authored centre (main's Q6); the authored capture point standing (Q-q1); the xGait stream with its 0.5 s first-step delay (Q5); the triggers, the DCM planner and the step adjustment in `doAction`'s order; the biped's back-to-safe rule then `halt` (Q-q2), the end on an empty sequence.
+201903's quadruped step controller entered by the biped's `updateForDoubleSupport` (main's wiring plan): the LIPM height from the desired, the authored centre of mass over the authored soles' support frame, as IHMC holds its nominal height in the support frame (`QuadrupedCenterOfMassHeightManager` l.203-217, l.246-249; main's Q6, standing rule 3); the authored capture point standing (Q-q1); the xGait stream with its 0.5 s first-step delay (Q5); the triggers, the DCM planner and the step adjustment in `doAction`'s order; the biped's back-to-safe rule then `halt` (Q-q2), the end on an empty sequence.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 

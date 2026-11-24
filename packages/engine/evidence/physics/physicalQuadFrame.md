@@ -139,7 +139,7 @@ States the soles' points.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-IHMC's sole frames' origins are the feet's soles; each limb's support endpoint is this engine's, mapped to IHMC's frame.
+IHMC's sole frames' origins are the feet's soles; each limb's support endpoint is this engine's, where it is now or where the authored motion puts it (the desired support, standing rule 3), mapped to IHMC's frame.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
@@ -197,7 +197,7 @@ States the controller, its estimate, its setpoint and why the pivot is the press
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-201903 `QuadrupedBalanceManager.compute` l.297-322: the DCM estimate xi = c + v / omega driven by `physicalQuadrupedDcmController` to the plan's setpoint; the balance manager commands no centre of pressure, so the virtual repellent point is both (main's approval of the wiring).
+201903 `QuadrupedBalanceManager.compute` l.297-322: the DCM estimate xi = c + v / omega driven by `physicalQuadrupedDcmController` to the plan's setpoint, with the generic quadruped's gains of 2 from its force controller's parameter file (`simulation_force_controller.xml` l.99-101, loaded by `GenericQuadrupedModelFactory` l.100-107; standing rules 1 and 5).
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 

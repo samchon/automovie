@@ -12,6 +12,17 @@ import { physicalQuadrupedStep as Step } from "./physicalQuadrupedStep";
 const FORWARD: IAutoMovieVector3 = { x: 0, y: 0, z: 1 };
 
 /**
+ * The generic quadruped's DCM gains, per second: its force controller's
+ * parameter file sets `kpX_DcmPosition` and `kpY_DcmPosition` to 2 and
+ * `kpZ_DcmPosition` to 0 (201903 example-simulations
+ * `parameters/simulation_force_controller.xml` l.99-101, which
+ * `GenericQuadrupedModelFactory.getParameterResourceName` l.100-107 loads),
+ * over the code's defaults of 1 (`DivergentComponentOfMotionController`
+ * l.51-53).
+ */
+const DCM_GAINS: Readonly<Step.IPoint> = { x: 2.0, y: 2.0, z: 0.0 };
+
+/**
  * How a four-support body maps onto IHMC's quadruped controller
  * (`physicalQuadPlan`, `physicalQuadTouchdown`): IHMC's z-up world frame, its
  * quadrants and its soles.
@@ -94,23 +105,27 @@ export namespace physicalQuadFrame {
   }
 
   /**
-   * The four soles where they are now, IHMC's sole frames' origins: each limb's
-   * support endpoint, in IHMC's frame.
+   * The four soles, IHMC's sole frames' origins: each limb's support endpoint
+   * where it is now, or where the authored motion puts it, in IHMC's frame.
    *
    * @param sense The body's readings.
    * @param quadrants Each support bone's quadrant.
+   * @param authored Whether to read the authored endpoints, false by default.
    * @returns Each quadrant's sole, metres.
    */
   export function soles(
     sense: physicalBalanceSense.ISense,
     quadrants: Readonly<Record<string, Step.Quadrant>>,
+    authored: boolean = false,
   ): Record<Step.Quadrant, Step.IPoint> {
     const bone: Record<Step.Quadrant, string> = bones(quadrants);
+    const at = (name: string): Step.IPoint =>
+      ihmc(authored ? sense.authored(name) : sense.actual(name));
     return {
-      frontLeft: ihmc(sense.actual(bone.frontLeft)),
-      frontRight: ihmc(sense.actual(bone.frontRight)),
-      hindRight: ihmc(sense.actual(bone.hindRight)),
-      hindLeft: ihmc(sense.actual(bone.hindLeft)),
+      frontLeft: at(bone.frontLeft),
+      frontRight: at(bone.frontRight),
+      hindRight: at(bone.hindRight),
+      hindLeft: at(bone.hindLeft),
     };
   }
 
@@ -140,8 +155,7 @@ export namespace physicalQuadFrame {
    * 201903 `QuadrupedBalanceManager.compute` l.297-322): the DCM estimate xi = c
    * + v / omega (`DivergentComponentOfMotionEstimator`) driven to the plan's
    * xi_d and rate, which the plan phase writes (`physicalQuadPlan`), else the
-   * authored centre of mass's at rest. The balance manager commands no centre
-   * of pressure, so the pivot is the pressure too.
+   * authored centre of mass's at rest, with the generic quadruped's gains.
    *
    * @param input The plan's capture point and rate, world x and z, if any, the
    *   authored centre of mass, the actual centre of mass and velocity, the
@@ -166,6 +180,7 @@ export namespace physicalQuadFrame {
       desired: point(input.desired?.position ?? input.authored),
       desiredVelocity: point(input.desired?.velocity ?? { x: 0, z: 0 }),
       omega: input.omega,
+      gains: DCM_GAINS,
     });
     const at: IAutoMovieVector3 = world(vrp);
     return { x: at.x, y: input.floor, z: at.z };

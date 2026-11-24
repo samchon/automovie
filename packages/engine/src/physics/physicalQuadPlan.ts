@@ -98,11 +98,18 @@ export function physicalQuadPlan(input: {
     ? Step.support(soles)
     : undefined;
 
-  // The LIPM height over the support frame and its rate.
+  // The LIPM height, the desired centre of mass's over the support frame:
+  // IHMC's desired height is its nominal one held in the support frame
+  // (`QuadrupedCenterOfMassHeightManager.initialize` l.203-217, `update`
+  // l.246-249), here the authored centre of mass's over the authored soles'
+  // support frame; and its rate.
   const ground: number = support?.position.z ?? stance.plane;
+  const nominal: number = quadrants
+    ? Step.support(Frame.soles(sense, quadrants, true)).position.z
+    : stance.plane;
   const height: number = Math.max(
     1e-6,
-    physicalAuthoredCapture.center(sense, state).y - ground,
+    physicalAuthoredCapture.center(sense, state).y - nominal,
   );
   const omega: number = Math.sqrt(sense.gravity / height);
   state.omega = omega;

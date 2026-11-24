@@ -25,12 +25,12 @@ import { PhysicalBalanceReplay } from "../internal/PhysicalBalanceReplay";
  * 2. Quadrants: the authored stance names its legs, +z ahead and +x left, one
  *    leg per quadrant.
  * 3. Pivot: the DCM controller's virtual repellent point is the estimate
- *    itself at a setpoint on the estimate at rest, and xi - (xi_d - xi) /
- *    omega with K_p = 1 at a setpoint off it.
+ *    itself at a setpoint on the estimate at rest, and xi - K_p (xi_d - xi) /
+ *    omega with the generic quadruped's K_p = 2 at a setpoint off it.
  * 4. Trigger: at the fall case's push the plan enters stepping, its first
  *    step 0.5 s later (`FIRST_STEP_DELAY`), no leg lifted, the setpoint still
  *    the authored one, and omega sqrt(g / h) over the authored centre's height
- *    above the support frame.
+ *    above the authored soles' support frame.
  * 5. Lift: when the first step begins its leg lifts, its seat given up, its
  *    swing timed by the step and rising by its 0.1 m clearance, its foot's
  *    first trigger spent.
@@ -120,7 +120,7 @@ export function test_physical_quad_gait(): void {
     omega,
     floor: 0,
   });
-  if (!near(off.x, xi.x - 0.08 / 4) || !near(off.z, xi.z + 0.04 / 4))
+  if (!near(off.x, xi.x - (2 * 0.08) / 4) || !near(off.z, xi.z + (2 * 0.04) / 4))
     failures.push(`pivot: a setpoint off the estimate gives ${JSON.stringify(off)}`);
 
   // 4. The trigger enters stepping.
@@ -156,7 +156,7 @@ export function test_physical_quad_gait(): void {
       failures.push("trigger: a leg lifted at the entry");
     if (!entered.state.push?.fall)
       failures.push("trigger: the push recovery is not recovering a fall");
-    const soles = physicalQuadFrame.soles(sense, gait.quadrants);
+    const soles = physicalQuadFrame.soles(sense, gait.quadrants, true);
     const ground: number =
       (Math.min(soles.frontLeft.z, soles.frontRight.z) +
         Math.min(soles.hindLeft.z, soles.hindRight.z)) /

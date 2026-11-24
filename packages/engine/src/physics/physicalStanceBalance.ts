@@ -210,8 +210,8 @@ export namespace physicalStanceBalance {
      * (`physicalBipedPressure`): its state, the plan's capture point and rate,
      * world x and z, absent for the authored centre of mass's at rest, and the
      * controller's update period, seconds. With it the controller sets the
-     * centre of pressure and pivot, and the law, the allocation, the bias and
-     * the trunk's horizontal moment are not used.
+     * pivot and the centre of pressure the trunk's moment moves (`demand`), and
+     * the law, the allocation and the bias are not used.
      */
     icp?: {
       state: physicalIcpController.IState;
@@ -226,8 +226,9 @@ export namespace physicalStanceBalance {
      * IHMC's DCM controller for a four-support body (`physicalQuadFrame
      * .pivot`): the plan's DCM setpoint and rate, world x and z, absent for the
      * authored centre of mass's at rest. With it the controller's virtual
-     * repellent point is the centre of pressure and pivot, and the law, the
-     * allocation, the bias and the trunk's horizontal moment are not used.
+     * repellent point is the pivot and the centre of pressure the trunk's
+     * moment moves (`demand`), and the law, the allocation and the bias are
+     * not used.
      */
     dcm?: {
       desired?: {
@@ -491,11 +492,30 @@ export namespace physicalStanceBalance {
           floor,
         })
       : undefined;
+    // IHMC commands the controllers' linear momentum only, the centre of
+    // pressure a weighted objective, and realizes the trunk's orientation
+    // tasks through the same contacts, which bear only inside the support
+    // (develop `LinearMomentumRateControlModule.computeMomentumRateCommand`
+    // l.417-433; 201903 `QuadrupedMomentumRateOfChangeModule` l.68, l.119-120,
+    // `QuadrupedBodyOrientationManager`): the force is aimed through the
+    // controller's pivot, and the centre of pressure is the controller's moved
+    // by the trunk's moment, (tau_z, -tau_x) / F_y, then held on the bearing
+    // support at its point nearest.
+    const held = (base: IAutoMovieVector3): IAutoMovieVector3 =>
+      AutoMoviePhysicalBalance.nearest(bearable.hull, {
+        x: base.x + input.torque.z / lift,
+        y: floor,
+        z: base.z - input.torque.x / lift,
+      });
     const { pressure, pivot, clamped, strategy }: ReturnType<typeof allocate> =
       icp
-        ? { pressure: icp.pressure, pivot: icp.pivot, clamped: !icp.converged }
+        ? {
+            pressure: held(icp.pressure),
+            pivot: icp.pivot,
+            clamped: !icp.converged,
+          }
         : vrp
-          ? { pressure: vrp, pivot: vrp, clamped: false }
+          ? { pressure: held(vrp), pivot: vrp, clamped: false }
           : allocate({
             capture,
             reference,
@@ -543,7 +563,7 @@ export namespace physicalStanceBalance {
                 }
               : {}),
           });
-    const force: IAutoMovieVector3 = Vector3.scale(
+    const aimed: IAutoMovieVector3 = Vector3.scale(
       {
         x: mass * omega * omega * (center.x - pivot.x),
         y: lift,
@@ -551,6 +571,15 @@ export namespace physicalStanceBalance {
       },
       input.strength,
     );
+
+    // The controllers' pivots are not bounded, so their force is held within
+    // the body's maximum root force, as the root's other tasks hold theirs
+    // (`physicalRootDemand.external`, `physicalCentroidalTask`).
+    const most: number = body.maximumRootForce * input.strength;
+    const force: IAutoMovieVector3 =
+      (icp || vrp) && Vector3.length(aimed) > most
+        ? Vector3.scale(aimed, most / Vector3.length(aimed))
+        : aimed;
     const reaction: IAutoMovieVector3 = {
       x: -(pressure.z - pivot.z) * lift,
       y: input.torque.y,
