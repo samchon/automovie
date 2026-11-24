@@ -123,6 +123,18 @@ export async function test_unit_motions_handling_button(): Promise<void> {
     "on the button",
     start < event("strokeEnd") && Vector3.distance(thumb, face) <= CONTACT,
   );
+  // The button rides its slider down through the opening: none of its travel
+  // at the stroke's start, all of it at the end, and half way, where its
+  // centre (25 mm above the panel less the travel) lies within the panel.
+  const drive = plan.drives?.find((d) => d.articulation === "slide");
+  const end: number = event("strokeEnd");
+  TestValidator.predicate(
+    "through the opening",
+    drive !== undefined &&
+      Math.abs(drive.travel(start)) <= 1e-6 &&
+      Math.abs(drive.travel(end) - TRAVEL) <= 1e-6 &&
+      Math.abs(ABOVE - drive.travel((start + end) / 2)) < PANEL / 2,
+  );
   let refused: boolean = false;
   try {
     button.plan(

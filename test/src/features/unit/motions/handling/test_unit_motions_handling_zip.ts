@@ -78,6 +78,14 @@ export async function test_unit_motions_handling_zip(): Promise<void> {
           w.support.subject === "pouch",
       ),
   );
+  // The slider rides the full stroke: none of it at the start, all at the end.
+  const slider = opened.drives?.find((d) => d.prop === "pouch");
+  TestValidator.predicate(
+    "the full stroke",
+    slider !== undefined &&
+      Math.abs(slider.travel(0)) <= 1e-6 &&
+      Math.abs(slider.travel(opened.duration) - STROKE) <= 1e-6,
+  );
   const refusals: readonly (readonly [IAutoMovieMotionHumanZip, string])[] = [
     [{ ...params, brace: "missing" }, "brace"],
     [{ ...params, brace: "thumb" }, "brace"],

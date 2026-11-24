@@ -31,6 +31,7 @@ import { HumanBound } from "../law/HumanBound";
 import { HumanFrame } from "../posture/HumanFrame";
 import { blendHumanJoint } from "../posture/blendHumanJoint";
 import { humanPostureHeading } from "../posture/humanPostureHeading";
+import { athleticsClock } from "./athleticsClock";
 import { athleticsSetPrimitives } from "./athleticsSetPrimitives";
 import { sprintStartBlocks } from "./sprintStartBlocks";
 import { sprintStartSet } from "./sprintStartSet";
@@ -144,8 +145,8 @@ export namespace athletics {
    */
   export const REACH: number = sprintStartSet.REACH;
 
-  /** The crouch's seconds (provisional). */
-  export const CROUCH: number = 1.5;
+  /** The crouch's seconds (provisional, `athleticsClock.CROUCH`). */
+  export const CROUCH: number = athleticsClock.CROUCH;
 
   /**
    * Plan a sprint start.
@@ -182,34 +183,18 @@ export namespace athletics {
       p.sex ?? "male",
       blocks?.feet,
     );
-    const timed: IAutoMovieMotionClock = AutoMovieMotionManner.time(
-      AutoMovieMotionClock.phrase({
-        prepare: CROUCH,
-        attack: 0,
-        hold,
-        retract: p.drive ?? 0.001,
-      }),
+    const clock: IAutoMovieMotionClock = athleticsClock(
+      hold,
+      p.drive,
       modifiers,
     );
-    const gun: number = timed.at("relax");
-    const end: number = timed.duration;
+    const gun: number = clock.at("gun");
+    const end: number = clock.duration;
     const rearOff: number = gun + (end - gun) / 2;
     const drive: (seconds: number) => number = (seconds: number): number =>
       p.drive === undefined
         ? 0
         : Math.max(0, Math.min(1, (seconds - gun) / (end - gun)));
-    const clock: IAutoMovieMotionClock = AutoMovieMotionClock(timed.duration, [
-      ...timed.instants,
-      { name: "onYourMarks", seconds: 0 },
-      { name: "set", seconds: timed.at("ready") },
-      { name: "gun", seconds: gun },
-      ...(p.drive === undefined
-        ? []
-        : [
-            { name: "rearBlockOff", seconds: rearOff },
-            { name: "blockExit", seconds: end },
-          ]),
-    ]);
     const ready: number = clock.at("ready");
     const into: (seconds: number) => number = AutoMovieMotionClock.prepare(
       clock,

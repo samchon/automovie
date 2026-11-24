@@ -151,4 +151,11 @@ export async function test_unit_motions_handling_write(): Promise<void> {
     "on the sheet",
     Vector3.distance(nib, surface) <= BOUND,
   );
+  // The pen stays in the hand through the trace and the return.
+  TestValidator.predicate(
+    "the pen held throughout",
+    (plan.holds ?? []).some(
+      (h) => h.side === "right" && h.prop === "pen" && h.from === 0,
+    ),
+  );
 }

@@ -141,7 +141,7 @@ export function test_viewer_render_observation_boundary(): void {
     "unobservable metrics cannot claim agreement",
     auditAutoMovieRenderObservation({
       report,
-      observed: frame.observed as IAutoMovieRenderObservation,
+      observed: frame.observed,
     }),
     {
       agrees: false,

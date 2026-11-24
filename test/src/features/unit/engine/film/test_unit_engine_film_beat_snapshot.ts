@@ -43,10 +43,6 @@ export function test_unit_engine_film_beat_snapshot(): void {
     },
     motions: [first, second],
   };
-  TestValidator.predicate(
-    "distinct",
-    !throwsError(() => resolveBeatSnapshot(props, 0)) || true,
-  );
   resolveBeatSnapshot(props, 0);
   TestValidator.predicate(
     "duplicate",

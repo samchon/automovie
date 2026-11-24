@@ -4,7 +4,6 @@ import {
   resolveAutoMovieHumanoidSurfaces,
 } from "@automovie/engine";
 import type {
-  IAutoMovieAffordance,
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPerformance,
@@ -19,7 +18,8 @@ import { HumanChain } from "../../HumanChain";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
 import { FamilyCaseKit } from "./FamilyCaseKit";
 import { everydayVerdicts } from "./everydayVerdicts";
-import { toolCaseContact } from "./toolCaseContact";
+import { toolCaseHeld } from "./toolCaseHeld";
+import { toolCasePot } from "./toolCasePot";
 
 /** The record of `IToolCasesWorst`'s site. */
 type IToolCasesWorst = { value: number; where: string };
@@ -57,10 +57,10 @@ export function toolCases(
       who.body.measure.shoulderHeight - who.body.measure.upperArm - 0.15;
     for (const [tool, point] of tools) {
       const props: IAutoMovieMotionHumanProp[] = [
-        held(tool, { x: -0.2, y: bench, z: 0.3 }),
+        toolCaseHeld(tool, { x: -0.2, y: bench, z: 0.3 }),
       ];
       if (tool === "stir")
-        props.push(pot({ x: point.x, y: point.y - 0.1, z: point.z }));
+        props.push(toolCasePot({ x: point.x, y: point.y - 0.1, z: point.z }));
       const params: IAutoMovieMotionHumanUseTool.IParams = {
         tool,
         prop: "tool",
@@ -145,97 +145,4 @@ export function toolCases(
     }
   }
   return out;
-}
-
-/**
- * A one-hand tool shaped as `createTool` shapes it, lying level on a bench with
- * its working end ahead: a 0.3 m handle along its `+Y`, its `grip` taken from
- * `-Z` near the butt and its `face` at the working end (a hammer's on the
- * head's `+Z` side, a saw's teeth along `+Z`, a screwdriver's tip and a spoon's
- * bowl).
- *
- * @param kind The work the tool serves.
- * @param at Where its butt lies, world metres.
- * @returns The tool.
- */
-function held(
-  kind: IAutoMovieMotionHumanToolWork.Kind,
-  at: IAutoMovieVector3,
-): IAutoMovieMotionHumanProp {
-  const x: IAutoMovieVector3 = { x: 1, y: 0, z: 0 };
-  const y: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
-  const z: IAutoMovieVector3 = { x: 0, y: 0, z: 1 };
-  const face: IAutoMovieAffordance =
-    kind === "hammer"
-      ? toolCaseContact("face", "surface", { x: 0, y: 0.285, z: 0.055 }, z, x)
-      : kind === "saw"
-        ? toolCaseContact("face", "ledge", { x: 0, y: 0.2, z: 0.05 }, z, y)
-        : kind === "screwdriver"
-          ? toolCaseContact("face", "surface", { x: 0, y: 0.3, z: 0 }, y, x)
-          : toolCaseContact(
-              "face",
-              "surface",
-              { x: 0, y: 0.27, z: 0.001 },
-              z,
-              x,
-            );
-  return {
-    subject: "tool",
-    frame: {
-      position: at,
-      rotation: Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, 90),
-    },
-    points: {},
-    shapes: [
-      {
-        id: "handle",
-        material: "wood",
-        transform: {
-          position: { x: 0, y: 0.15, z: 0 },
-          rotation: Quaternion.identity(),
-        },
-        kind: "capsule",
-        radius: 0.015,
-        halfLength: 0.135,
-      },
-    ],
-    affordances: [
-      toolCaseContact(
-        "grip",
-        "handle",
-        { x: 0, y: 0.06, z: 0 },
-        { x: 0, y: 0, z: -1 },
-        y,
-        { grip: "power", aperture: 0.03, length: 0.1 },
-      ),
-      face,
-    ],
-  };
-}
-
-/**
- * A pot standing on a counter: a 0.24 m wide, 0.2 m deep vessel whose `inside`
- * floor and `rim` are the contacts `createVessel` declares.
- *
- * @param at Where its base stands, world metres.
- * @returns The pot.
- */
-function pot(at: IAutoMovieVector3): IAutoMovieMotionHumanProp {
-  const up: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
-  const x: IAutoMovieVector3 = { x: 1, y: 0, z: 0 };
-  return {
-    subject: "pot",
-    frame: { position: at, rotation: Quaternion.identity() },
-    points: {},
-    affordances: [
-      toolCaseContact("rim", "surface", { x: 0, y: 0.2, z: 0 }, up, x, {
-        width: 0.24,
-        depth: 0.24,
-      }),
-      toolCaseContact("inside", "surface", { x: 0, y: 0.005, z: 0 }, up, x, {
-        width: 0.23,
-        depth: 0.23,
-      }),
-    ],
-  };
 }

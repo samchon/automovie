@@ -7,8 +7,8 @@ import {
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
-import { createScenePassRendererDouble } from "../internal/createScenePassRendererDouble";
-import { nclose } from "../internal/predicates";
+import { createScenePassRendererDouble } from "../../../internal/createScenePassRendererDouble";
+import { nclose } from "../../../internal/predicates";
 
 /**
  * Scene-pass admission reaches the same point/VSM refusal as an authored scene
@@ -21,14 +21,8 @@ import { nclose } from "../internal/predicates";
  * 2. Directional, spot and non-shadow light populations retain supported VSM.
  * 3. Scene-owned and inherited host VSM refuse before changing host state;
  *    structural guides bypass shadows and restore the original policy.
- *
- * @evidence contracts/development/testing.md#behavioral-verification Runs scene shadow admission and the actual scene-pass coordinator with existing native light objects and the supplied policy port; catches point/VSM refusal occurring after policy mutation or a draw request.
- * @evidence contracts/development/testing.md#independent-expectations The supported point/VSM restriction defines refusal, original renderer fields define preflight preservation, and structural guides disable shadows then restore policy. Recorded draw requests are not native shadow allocations or rendered pixels.
- * @evidence contracts/development/testing.md#distinguishing-cases Covers hidden casting points, PCF, disabled/noncasting VSM, directional/spot/non-shadow lights, scene-owned/inherited VSM and structural bypass; actual shadow target retirement has its own lifecycle tests.
- * @evidence contracts/development/testing.md#execution-ownership This named synchronous unit uses actual CPU-side Three lights/scene and the existing narrow local renderer policy port through maintained source, with no browser, GPU context, process or new driver.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Casting point VSM refuses, including hidden lights, while adjacent PCF, disabled VSM and noncasting point VSM remain supported.).
  */
-export function test_viewer_scene_shadow_admission(): void {
+export function test_unit_render_scene_render_scene_pass_shadow_admission(): void {
   const scene: THREE.Scene<THREE.Object3DEventMap> = new THREE.Scene(),
     point: THREE.PointLight = new THREE.PointLight();
   point.name = "point-caster";

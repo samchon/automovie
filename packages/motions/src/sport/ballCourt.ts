@@ -10,10 +10,8 @@ import type {
   IAutoMovieMotionHumanPlaced,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanPrimitive,
-  IAutoMovieMotionHumanPropReader,
   IAutoMovieMotionManner,
   IAutoMovieMotionPropLaunch,
-  IAutoMoviePhysicalShape,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -28,6 +26,8 @@ import { lookPrimitive } from "../compose/lookPrimitive";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFrame } from "../posture/HumanFrame";
 import { throwObjectLaunch } from "../throwing/throwObjectLaunch";
+import { ballCourtHand } from "./ballCourtHand";
+import { ballCourtSphere } from "./ballCourtSphere";
 
 /** The court phrases handled by this planner. */
 type Kind =
@@ -88,68 +88,6 @@ const PHRASES: Readonly<Record<Kind, IPHRASESEntryItem>> = {
     flight: 0,
   },
 };
-/** The record of `ISphericalBallResult`'s site. */
-type ISphericalBallResult = {
-  reader: IAutoMovieMotionHumanPropReader;
-  sphere: NonNullable<IAutoMovieMotionPropLaunch["sphere"]>;
-};
-
-/**
- * Resolve the one spherical ball the release moves. The collider's centre need
- * not coincide with the prop origin.
- */
-function sphericalBall(
-  context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanBallSport.IParams>,
-  subject: string,
-  hands: readonly AutoMovieHumanSide[],
-): ISphericalBallResult {
-  const reader: IAutoMovieMotionHumanPropReader = context.prop(subject);
-  if (
-    !hands.some(
-      (side: AutoMovieHumanSide): boolean =>
-        context.entry.holds[side] === subject,
-    )
-  )
-    throw new HumanRefusal({
-      kind: "affordance",
-      axis: "prop",
-      value: subject,
-      reason: "a court release needs the ball already held by a releasing hand",
-      fix: "pick up or catch the ball before releasing it, or choose its holding hand",
-    });
-  const shape: IAutoMoviePhysicalShape | undefined = reader.prop.shapes?.[0];
-  if (
-    reader.prop.shapes?.length !== 1 ||
-    shape?.kind !== "sphere" ||
-    reader.prop.fixed === true ||
-    reader.prop.worn !== undefined ||
-    reader.prop.motion !== undefined
-  )
-    throw new HumanRefusal({
-      kind: "affordance",
-      axis: "prop",
-      value: subject,
-      reason: "a court release needs one portable spherical prop",
-      fix: "give the held ball's subject with its spherical collider",
-    });
-  const body: IAutoMovieMotionHumanPropReader["prop"]["body"] =
-    reader.prop.body;
-  const friction: number | null | undefined =
-    body?.kineticFriction ?? body?.friction;
-  return {
-    reader,
-    sphere: {
-      radius: shape.radius,
-      centre: shape.transform.position,
-      // An underside-height drop determines normal restitution only. Use
-      // no tangential loss in that provisional isolated court-ball fixture.
-      ...(body?.restitution !== undefined &&
-      (friction === null || friction === undefined)
-        ? { tangentialFriction: 0 }
-        : {}),
-    },
-  };
-}
 
 /** Rotate a direction or body-relative offset into the performer's heading. */
 function turn(yaw: number, local: IAutoMovieVector3): IAutoMovieVector3 {
@@ -227,10 +165,10 @@ export function ballCourt(
       reason: `${kind} needs an aim point`,
       fix: "give a world point for the flight or its first floor contact",
     });
-  const ball: ReturnType<typeof sphericalBall> | undefined =
+  const ball: ballCourtSphere.IResult | undefined =
     guard || prop === undefined
       ? undefined
-      : sphericalBall(context, prop, hands);
+      : ballCourtSphere(context, prop, hands);
   const radius: number = ball?.sphere.radius ?? 0;
   const primitives: IAutoMovieMotionHumanPrimitive[] = [
     AutoMovieMotionHumanTrunk.crouch({
@@ -268,64 +206,20 @@ export function ballCourt(
           t,
           resolution,
         ): ReturnType<IAutoMovieMotionHumanPlaced.IArm["place"]> => {
-          const sign: number = side === "left" ? 1 : -1;
           const u: number = clock.progress("strokeStart", "stroke", t);
           const follow: number = clock.progress("stroke", "strokeEnd", t);
           const shoulders: IAutoMovieVector3 =
             AutoMovieMotionHumanPlaced.shoulders(body, posture, resolution);
-          const width: number = body.measure.shoulderHalfWidth;
           const yaw: number = posture.yaw;
-          let offset: IAutoMovieVector3;
-          let facing: IAutoMovieVector3;
-          switch (kind) {
-            case "highHandContest": {
-              const wave: number = Math.sin(4 * Math.PI * u) * arm * 0.13;
-              offset = {
-                x: sign * (width + 0.1 * arm + wave),
-                y: arm * (0.49 + 0.24 * u),
-                z: 0.21 * arm,
-              };
-              facing = { x: 0, y: 0, z: 1 };
-              break;
-            }
-            case "dribbleRelease":
-              offset = {
-                x: sign * (width + 0.09 * arm),
-                y: -(0.39 + 0.34 * u) * arm,
-                z: 0.27 * arm,
-              };
-              facing = { x: 0, y: -1, z: 0 };
-              break;
-            case "handballThrow":
-              offset = {
-                x: sign * (width + (0.37 - 0.19 * u) * arm),
-                y: (0.4 + 0.2 * u - 0.36 * follow) * arm,
-                z: (-0.2 + 0.71 * u + 0.15 * follow) * arm,
-              };
-              facing = { x: 0, y: 0, z: 1 };
-              break;
-            case "setShot":
-              offset = {
-                x: sign * radius,
-                y: (0.18 + 0.67 * u) * arm,
-                z: (0.34 + 0.08 * u) * arm,
-              };
-              facing = { x: -sign * (1 - u), y: u, z: 0.4 * u };
-              break;
-            case "bouncePass":
-            case "chestPass":
-              offset = {
-                x: sign * (radius + 0.06 * arm * follow),
-                y: (-0.2 - (kind === "bouncePass" ? 0.27 : 0.05) * u) * arm,
-                z: (0.31 + 0.45 * u + 0.08 * follow) * arm,
-              };
-              facing = {
-                x: -sign,
-                y: kind === "bouncePass" ? -0.4 * u : 0,
-                z: u,
-              };
-              break;
-          }
+          const { offset, facing }: ballCourtHand.ITarget = ballCourtHand(
+            kind,
+            side,
+            u,
+            follow,
+            body.measure.shoulderHalfWidth,
+            arm,
+            radius,
+          );
           return {
             point: Vector3.add(shoulders, turn(yaw, offset)),
             facing: Vector3.normalize(turn(yaw, facing)),

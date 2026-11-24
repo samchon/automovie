@@ -1,5 +1,6 @@
 import {
   type IAutoMovieScenePassRenderer,
+  type IAutoMovieShadowTextureHost,
   readAutoMovieShadowTextureTargets,
   renderAutoMovieScenePass,
   resetAutoMovieSceneShadowTargets,
@@ -7,8 +8,8 @@ import {
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
-import { createScenePassRendererDouble } from "../internal/createScenePassRendererDouble";
-import { observeThrownValue as caughtFailure } from "../internal/observeThrownValue";
+import { createScenePassRendererDouble } from "../../../internal/createScenePassRendererDouble";
+import { observeThrownValue as caughtFailure } from "../../../internal/observeThrownValue";
 
 /** Observe the public mutable slots after an operation that owns their change. */
 const readShadowSlots: (shadow: THREE.LightShadow) => {
@@ -28,8 +29,14 @@ const readShadowSlots: (shadow: THREE.LightShadow) => {
 });
 
 /** Reuse the existing inline orchestration facts with an owned draw callback. */
-function rendererFacts(draw: () => void): IAutoMovieScenePassRenderer {
-  return createScenePassRendererDouble(draw);
+/** A scene-pass renderer that also reports its texture size limit. */
+type Renderer = IAutoMovieScenePassRenderer & IAutoMovieShadowTextureHost;
+
+function rendererFacts(draw: () => void): Renderer {
+  return {
+    ...createScenePassRendererDouble(draw),
+    capabilities: { maxTextureSize: 4096 },
+  };
 }
 
 /**
@@ -47,16 +54,10 @@ function rendererFacts(draw: () => void): IAutoMovieScenePassRenderer {
  *    draw.
  * 4. Failed retirement keeps its original outcome without another disposal
  *    attempt; later scene passes, including another scene, request no draw.
- *
- * @evidence contracts/development/testing.md#behavioral-verification Calls production shadow retirement and scene passes with the existing inline fact producer and real Three target/depth events; checks independent attempts, withdrawn slots, original failure identity and later draw refusal.
- * @evidence contracts/development/testing.md#independent-expectations Literal shared-owner counts, original Error identities, authored filter state and separately counted draw requests define expectations; orchestration facts do not prove native allocations, GPU pixels or kernel release.
- * @evidence contracts/development/testing.md#distinguishing-cases Covers empty/nonshadow/hidden/shared resources, independent disposal errors, healthy filter transition, failed post-draw retirement and repeated or another-scene admission refusal with no native retry.
- * @evidence contracts/development/testing.md#execution-ownership The named entry reuses the existing inline fact producer in isolated lifetimes and actual CPU Three objects/listeners; it starts no native renderer, new mock implementation, Human fixture or driver and replaces no foreign/global method.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Empty, ordinary and non-shadow lights remain valid; hidden shadow lights release shared targets/depth exactly once and clear their public...).
  */
-export function test_viewer_shadow_target_lifecycle(): void {
+export function test_unit_render_scene_render_scene_pass_shadow_target_lifecycle(): void {
   let draws: number = 0;
-  const renderer: IAutoMovieScenePassRenderer = rendererFacts((): void => {
+  const renderer: Renderer = rendererFacts((): void => {
     ++draws;
     directional.shadow.map = new THREE.WebGLRenderTarget(4, 4);
   });
@@ -177,12 +178,10 @@ export function test_viewer_shadow_target_lifecycle(): void {
     attempts,
     [1, 1],
   );
-  const healthyRenderer: IAutoMovieScenePassRenderer = rendererFacts(
-    (): void => {
-      ++draws;
-      directional.shadow.map = new THREE.WebGLRenderTarget(4, 4);
-    },
-  );
+  const healthyRenderer: Renderer = rendererFacts((): void => {
+    ++draws;
+    directional.shadow.map = new THREE.WebGLRenderTarget(4, 4);
+  });
   renderAutoMovieScenePass(
     healthyRenderer,
     scene,
@@ -208,7 +207,7 @@ export function test_viewer_shadow_target_lifecycle(): void {
     [THREE.PCFShadowMap, true, null],
   );
   let postAttempts: number = 0;
-  const postRenderer: IAutoMovieScenePassRenderer = rendererFacts((): void => {
+  const postRenderer: Renderer = rendererFacts((): void => {
     ++draws;
     const target: THREE.WebGLRenderTarget = new THREE.WebGLRenderTarget(4, 4);
     target.addEventListener("dispose", (): void => {

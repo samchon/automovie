@@ -1,7 +1,8 @@
-﻿import { Quaternion, Vector3, projectileAt } from "@automovie/engine";
+import { Quaternion, Vector3, projectileAt } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanPropFlight,
   IAutoMovieMotionHumanWaterPolo,
   IAutoMovieMotionPropLaunch,
   IAutoMovieQuaternion,
@@ -29,7 +30,7 @@ const LEVEL: number = 1e-8;
  * @returns Each credited goal, in film order.
  */
 export function scoreWaterPoloGoal(
-  params: IAutoMovieMotionHumanWaterPolo.IGoal,
+  params: scoreWaterPoloGoal.IGoal,
 ): readonly IAutoMovieMotionHumanWaterPolo.ICue[] {
   const { film, ball, goal } = params;
   const mouth: IAutoMovieAffordance | undefined = goal.affordances?.find(
@@ -119,4 +120,42 @@ function invalidGoal(goal: IAutoMovieMotionHumanProp): HumanRefusal {
       "a water polo goal needs a fixed, upright mouth aperture at the waterline",
     fix: "bind the goal as a fixed prop with its mouth facing into the field",
   });
+}
+
+/** What a goal credit reads of the film and its flights. */
+export namespace scoreWaterPoloGoal {
+  /** A displayed flight of the ball: its timing, projectile, sphere and thrower. */
+  export interface IFlight extends Pick<
+    IAutoMovieMotionHumanPropFlight.IFlight,
+    "launch" | "end" | "supersededAt" | "capturedAt" | "projectile"
+  > {
+    /** The launch as published: its sphere. */
+    published: Pick<IAutoMovieMotionPropLaunch, "sphere">;
+
+    /** The segment that threw it: its performer. */
+    source: Pick<IAutoMovieMotionHumanPropFlight.IFlight["source"], "subject">;
+  }
+
+  /** The film a credit reads: its length, its props' frames and the flights. */
+  export interface IFilm extends Pick<
+    IAutoMovieMotionHumanWaterPolo.IFilm,
+    "duration" | "prop"
+  > {
+    /**
+     * A prop's flights in film order.
+     *
+     * @param subject The prop.
+     * @returns Its flights.
+     */
+    flights(subject: string): readonly IFlight[];
+  }
+
+  /** The goal to credit: the film, the ball and the fixed placed goal. */
+  export interface IGoal extends Omit<
+    IAutoMovieMotionHumanWaterPolo.IGoal,
+    "film"
+  > {
+    /** The film displaying the ball and the goal. */
+    film: IFilm;
+  }
 }

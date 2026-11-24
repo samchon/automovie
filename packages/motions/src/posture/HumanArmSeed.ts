@@ -316,14 +316,16 @@ export namespace HumanArmSeed {
       ),
       still: true,
     });
-    // One attempt from the caller's seed, MoveIt's deterministic inverse
-    // kinematics: a zero timeout limits the search to a single attempt
-    // (`KDLKinematicsPlugin::searchPositionIK`, moveit/moveit
-    // moveit_kinematics/kdl_kinematics_plugin/src/kdl_kinematics_plugin.cpp
-    // line 280 at commit fdb79acafb24efd9e138b0d309fb2463186d4ab2,
-    // BSD-3-Clause), MoveIt having no attempt count (MIGRATION.md, #1288);
-    // the seed is the one the caller hands (`ik_seed_state`): a given
-    // configuration, else the law's goal arm, else the current arm, the rest.
+    // One deterministic attempt from each seed the caller has, in turn: the
+    // configuration it hands, the law's goal arm, the rest. MoveIt's KDL
+    // inverse kinematics makes its first attempt from the caller's seed
+    // (`ik_seed_state`) and, when that attempt fails, attempts again from
+    // another seed until its timeout (`KDLKinematicsPlugin::searchPositionIK`,
+    // moveit/moveit moveit_kinematics/kdl_kinematics_plugin/src/
+    // kdl_kinematics_plugin.cpp, BSD-3-Clause); here the other seeds are the
+    // caller's own, so the search stays deterministic. One start alone refused
+    // holds another start clears (the karate stance transfer's last hold
+    // instant, its hand 13.1 mm off its site from the carried start).
     function* starts(): Generator<number[][]> {
       if (given !== undefined)
         yield given.map((v: number[]): number[] => [...v]);

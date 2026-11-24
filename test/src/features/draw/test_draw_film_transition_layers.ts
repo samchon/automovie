@@ -5,7 +5,6 @@ import type {
 } from "@automovie/interface";
 import {
   AutoMovieDrawFilm,
-  type IAutoMovieFilmResponseRenderer,
   placeAutoMovieDrawLayer,
   planAutoMovieDrawPicture,
 } from "@automovie/render";
@@ -392,8 +391,7 @@ function picture(props: {
         transparent ? 1 : 0,
       ),
   };
-  const renderer: IAutoMovieFilmResponseRenderer &
-    Pick<THREE.WebGLRenderer, "clear"> = {
+  const renderer: AutoMovieDrawFilm.IRenderer = {
     render: (): void => {},
     getRenderTarget: (): null => null,
     setRenderTarget: (): void => {},
@@ -404,21 +402,22 @@ function picture(props: {
     clear: (): void => record("clear"),
   };
   const camera: THREE.Camera = new THREE.PerspectiveCamera();
-  const film: AutoMovieDrawFilm = new AutoMovieDrawFilm({
-    name: "film",
-    scene: subject.subject,
-    renderer,
-    beauty,
-    shade: props.shade ?? "beauty",
-    seconds: props.seconds,
-    width: 64,
-    height: 36,
-    transparent: props.shade === "graphics",
-    film: props.film ?? true,
-    camera: (): THREE.Camera => camera,
-    prepare: (): void => record("prepare"),
-    restore: (): void => record("restore"),
-  });
+  const film: AutoMovieDrawFilm<AutoMovieDrawFilm.IRenderer> =
+    new AutoMovieDrawFilm({
+      name: "film",
+      scene: subject.subject,
+      renderer,
+      beauty,
+      shade: props.shade ?? "beauty",
+      seconds: props.seconds,
+      width: 64,
+      height: 36,
+      transparent: props.shade === "graphics",
+      film: props.film ?? true,
+      camera: (): THREE.Camera => camera,
+      prepare: (): void => record("prepare"),
+      restore: (): void => record("restore"),
+    });
   return {
     film,
     subject,

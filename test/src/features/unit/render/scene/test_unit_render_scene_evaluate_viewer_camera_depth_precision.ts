@@ -8,7 +8,7 @@ import {
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
-import { namedFacts, nclose, throwsError } from "../internal/predicates";
+import { namedFacts, nclose, throwsError } from "../../../internal/predicates";
 
 const sourceCamera: (
   overrides?: Partial<IAutoMovieCamera>,
@@ -107,14 +107,8 @@ const evaluate: (
  *    source or capability operands retain their addressed refusal status.
  * 3. Nonfinite observations serialize as null, while the assertion wrapper returns
  *    the supported report and throws for insufficient bits.
- *
- * @evidence contracts/development/testing.md#behavioral-verification Calls the actual depth-capability evaluator/wrapper with native cameras and a supplied query port, checking satisfied, mismatched, insufficient, invalid-source/capability and nonstandard-mode reports. Nonfinite observations must become null and the throwing wrapper must distinguish the passing and refused operands.
- * @evidence contracts/development/testing.md#independent-expectations Authored clips 0.25/250 and required 24 bits define the expected source/native fields; supplied observations 24 versus 23 distinguish the capability threshold. These are explicit operands, not actual GPU measurements, and this unit does not independently certify a metric maximum-step bound or custom projection matrix.
- * @evidence contracts/development/testing.md#distinguishing-cases Contrasts exact clips with far=251, standard with logarithmic/reversed modes, integer capability with string/fractional/negative operands, and finite positive source fields with invalid identity/clip/bit/budget boundaries. Native framebuffer integration and engine depth-error derivation belong to their owners.
- * @evidence contracts/development/testing.md#execution-ownership The named portable unit directly invokes observation semantics through an owned structural renderer query port and actual Three camera construction. It starts no WebGL renderer, browser or GPU; local predicates own every case without dynamic registration.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Exact source/native clips and supplied 24-bit depth satisfy the declared capability; changed far clip and 23 bits refuse distinctly.).
  */
-export function test_viewer_camera_depth_precision(): void {
+export function test_unit_render_scene_evaluate_viewer_camera_depth_precision(): void {
   const accepted: ReturnType<typeof evaluate> = evaluate({});
   TestValidator.equals(
     "buildScene and a supplied standard 24-bit capability preserve the declaration",

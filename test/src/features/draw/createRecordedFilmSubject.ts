@@ -5,10 +5,7 @@ import type {
   IAutoMovieShot,
   IAutoMovieTransition,
 } from "@automovie/interface";
-import type {
-  IAutoMovieDrawScene,
-  IAutoMovieFilmResponseRenderer,
-} from "@automovie/render";
+import type { AutoMovieDrawFilm, IAutoMovieDrawScene } from "@automovie/render";
 import * as THREE from "three";
 
 /**
@@ -64,7 +61,7 @@ export function createRecordedFilmSubject(props: {
     hero.position.x = shot === "shot:a" ? -1 : 1;
     scene.updateMatrixWorld(true);
   };
-  const subject: IAutoMovieDrawScene = {
+  const subject: IAutoMovieDrawScene<AutoMovieDrawFilm.IRenderer> = {
     scene,
     camera: new THREE.PerspectiveCamera(45, 16 / 9, 0.1, 100),
     durationSeconds: props.transition === null ? 6 : 5,
@@ -94,7 +91,7 @@ export function createRecordedFilmSubject(props: {
         }
       : {}),
     beforeDraw: (
-      _renderer: IAutoMovieFilmResponseRenderer,
+      _renderer: AutoMovieDrawFilm.IRenderer,
       seconds: number,
     ): void => {
       calls.push({ name: "beforeDraw", shot: null, numbers: [seconds] });
@@ -136,7 +133,7 @@ export namespace createRecordedFilmSubject {
   /** The subject and what was asked of it. */
   export interface IDouble {
     /** The draw subject. */
-    subject: IAutoMovieDrawScene;
+    subject: IAutoMovieDrawScene<AutoMovieDrawFilm.IRenderer>;
 
     /** Every placement and reading, in order. */
     calls: ICall[];
