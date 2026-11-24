@@ -302,7 +302,6 @@ export namespace physicalSpanPose {
       };
     }
     state.offsets = offsets;
-    delete state.plan;
     delete state.desired;
     delete state.swing;
     delete state.seating;

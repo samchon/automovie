@@ -111,43 +111,6 @@ export interface IAutoMoviePhysicalRecoveryState {
     velocity: { x: number; z: number };
   };
   /**
-   * The biped's recovery plan (IHMC 201903 `ContinuousCMPBasedICPPlanner`),
-   * kept as the inputs it is built from: its phase, single support from a
-   * recovery trigger, the transfer to standing from a landing, or the standing
-   * re-plan; when it was made, local seconds; its feet, each its endpoint bone,
-   * its side, its sole frame as the plan was made (origin and forward unit
-   * direction, world x and z) and its contact outline in that frame (x forward,
-   * y left), the support then the footstep in single support, both feet
-   * otherwise; and the pendulum's rate per second, the step's support side, the
-   * last planned capture point of single support and the centre of mass at the
-   * landing, or the capture point and rate the re-plan starts from and ends at,
-   * each world x and z, as the phase needs.
-   */ plan?: {
-    phase: "single" | "toStanding" | "standing";
-    since: number;
-    feet: {
-      bone: string;
-      side: "left" | "right";
-      frame: {
-        origin: { x: number; z: number };
-        forward: { x: number; z: number };
-      };
-      polygon: { x: number; y: number }[];
-    }[];
-    omega?: number;
-    support?: "left" | "right";
-    desired?: { x: number; z: number };
-    center?: { x: number; z: number };
-    from?: {
-      position: { x: number; z: number };
-      velocity: { x: number; z: number };
-    };
-    to?: {
-      position: { x: number; z: number };
-      velocity: { x: number; z: number };
-    };
-  };
-  /**
    * A body's response to a stated disturbance, prepared once at its first push
    * (`preparePhysicalDisturbanceSpan`): the branch point's inputs only, from
    * which the response is prepared again once on a resume. The push's time,
