@@ -114,7 +114,7 @@ States the phases in order, the single passes, the pair exclusions and what the 
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-The substep of Mueller et al. 2020, Algorithm 2: predict, solve positions, derive velocities, solve velocities; the inverse inertia is held fixed over the substep's corrections. The joints' position pass solves each tree directly (`solveXpbdJointTree`) and the contacts' corrections move jointed bodies through their trees (`solveXpbdArticulation.responder`), both on the kept forest.
+The substep of Mueller et al. 2020, Algorithm 2: predict, solve positions, derive velocities, solve velocities; the inverse inertia is held fixed over the substep's corrections.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
@@ -130,7 +130,7 @@ For b bodies, j joints, c colliders and k found contacts, integration is O(b), t
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 
-The contacts found at the predicted poses serve every position and velocity pass of the substep and the readers after it; the forest is the world's, built once.
+The contacts found at the predicted poses serve every position and velocity pass of the substep and the readers after it.
 
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
@@ -417,33 +417,3 @@ Read by the compliant contacts.
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 
 No measurement is attached; the reader measures what it needs.
-
-# src/physics/AutoMovieXpbdWorld.ts#AutoMovieXpbdWorld.prototype.forest
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States what is returned and when it is rebuilt.
-
-## @evidence contracts/development/implementation.md#principled-implementation
-
-The forest depends only on the joints and the bodies' `dynamic` (`solveXpbdArticulation.forest`), so it is built on first use and again only after `createJoint` or a body's `setDynamic` changes it.
-
-## @evidence contracts/development/implementation.md#clear-and-simple-structure
-
-One kept field, cleared by the two changes that stale it.
-
-## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
-
-No staleness test per step: the two changes clear it.
-
-## @evidence contracts/development/implementation.md#efficient-algorithms
-
-Constant per read; one build per change.
-
-## @evidence contracts/development/implementation.md#reuse-equivalent-work
-
-Every pass of every step reads the one forest.
-
-## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
-
-Retains one forest for the world's life, replaced on a change.
