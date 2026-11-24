@@ -2778,69 +2778,107 @@ export namespace FamilyConicFit {
     elastic: { gamma: number; slackDual: number; slack: number } | null;
   }
 
+  /** One row's undamped coefficients and the affine extent across a unit-scope box. */
+  type GroupAffineRow = {
+    upper: IAutoMovieQuadraticRow;
+    reach: number;
+    margin: number;
+    constant: boolean;
+  };
+
+  /** Sparse rows and objective shared by all trust scopes of one nonlinear reading. */
+  type GroupStepPreparation = {
+    elastic: boolean;
+    unheld: readonly GroupAffineRow[];
+    hardAll: readonly GroupAffineRow[];
+    equalities: readonly IAutoMovieQuadraticRow[];
+    marginOverReach: readonly [number, number, number] | null;
+    undamped: readonly (readonly number[])[];
+    linear: number[];
+    held: number;
+    slackFloor: readonly IAutoMovieQuadraticRow[];
+    blocks: readonly (readonly number[])[];
+  };
+
   /**
-   * Restore physical incidence with one elastic variable, or optimize the full damped Gauss-Newton model.
+   * Prepare the unchanged affine coefficients, objective and block ordering for the reading's trust-scope attempts.
    *
    * @evidence contracts/development/implementation.md#principled-implementation The first phase minimizes maximum signed excess. The second factors the unchanged positive-definite Hessian and uses the exact change of coordinates y=L^T delta. All original rows and the original-coordinate stationarity are checked.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts True equalities and one-sided ownership bounds keep their senses, including initially satisfied inequalities. Solver convergence is followed by an independent nonlinear material read.
    */
-  function groupStep(
-    current: IGroupReading,
-    units: readonly number[],
-    scope: number,
-    damping: readonly number[],
-    tolerance: number,
-  ): IGroupStep | string {
-    const started: number = performance.now();
+  function prepareStep(
+    current: IGroupReading, units: readonly number[], tolerance: number,
+  ): (scope: number, damping: readonly number[]) => IGroupStep | string {
     const n = units.length, elastic = current.incidence > tolerance;
-    const phase = elastic ? "elastic incidence" : "constrained measured fit";
-    const row = (r: IGroupRow, equal: boolean): IAutoMovieQuadraticRow => {
-      const entries = [...r.gradient];
-      return { indices: entries.map(([i]) => i), weights: entries.map(([, a]) => a),
-        lower: equal ? -r.value : null, upper: -r.value };
+    const row = (r: IGroupRow, equal: boolean, slack: boolean) => {
+      const indices: number[] = [], weights: number[] = [];
+      let reach: number = 0;
+      for (const [i, a] of r.gradient) {
+        indices.push(i);
+        weights.push(a);
+        reach += Math.abs(a) * units[i]!;
+      }
+      const upper: IAutoMovieQuadraticRow = slack
+        ? { indices: [...indices, n], weights: [...weights, -1], lower: null, upper: -r.value }
+        : { indices, weights, lower: equal ? -r.value : null, upper: -r.value };
+      const opposite: IAutoMovieQuadraticRow | null = slack && equal
+        ? { indices: upper.indices, weights: [...weights.map((a): number => -a), -1], lower: null, upper: r.value }
+        : null;
+      return { upper, opposite, reach, margin: -r.value, constant: indices.length === 0 };
     };
     const held = new Set(current.preservation.filter((family): boolean => family.rows.every((r): boolean => r.value <= 0))
       .flatMap((family) => family.rows));
-    const unheld: IGroupRow[] = current.inside.filter((r): boolean => !held.has(r));
+    const unheld = current.inside.filter((r): boolean => !held.has(r)).map((r) => row(r, false, elastic));
+    const hardAll = [...current.hard, ...held].filter((r): boolean => r.gradient.size > 0).map((r) => row(r, false, false));
+    const equalities = current.equal.flatMap((r): IAutoMovieQuadraticRow[] => {
+      const { upper, opposite } = row(r, true, elastic);
+      return opposite === null ? [upper] : [upper, opposite];
+    });
     // Exact screening of the hard rows (as the restoration's): inside the trust box |d_i| <= scope u_i a row's affine part reaches at most
     // `scope sum |a_i| u_i`, so a satisfied row whose bound `-value` lies beyond that never binds and cannot change the step. Only the rows
     // that may bind enter the program; every row is read again by the nonlinear trial. The bound is the exact maximum over the box, so a
     // row survives exactly when the box can reach its bound; the log gives the margin over the reach to say how far the box reaches.
-    const ratios: number[] = [];
-    const binds = (r: IGroupRow): boolean => {
-      let reach = 0;
-      for (const [i, a] of r.gradient) reach += Math.abs(a) * units[i]!;
-      if (reach > 0) ratios.push(-r.value / (scope * reach));
-      return scope * reach >= -r.value;
-    };
-    const hardAll: IGroupRow[] = [...current.hard, ...held].filter((r): boolean => r.gradient.size > 0);
-    const hard = hardAll.filter(binds).map((r) => row(r, false));
+    const ratios: number[] = [...hardAll, ...unheld].filter(({ reach }): boolean => reach > 0)
+      .map(({ reach, margin }): number => margin / reach).sort((a, b): number => a - b);
+    const quartile = (q: number): number => ratios[Math.min(ratios.length - 1, Math.floor(q * ratios.length))]!;
+    const undamped: number[][] = elastic ? [] : zeros(n, n);
+    const linear: number[] = new Array<number>(n).fill(0);
+    if (!elastic) for (const r of current.measured) for (const [i, a] of r.gradient) {
+      linear[i]! += a * r.value;
+      for (const [j, b] of r.gradient) undamped[i]![j]! += a * b;
+    }
+    const slackFloor: IAutoMovieQuadraticRow[] = elastic ? [{ indices: [n], weights: [1], lower: 0, upper: null }] : [];
+    const blocks: readonly (readonly number[])[] = elastic ? Array.from({ length: n + 1 }, (_, i): number[] => [i])
+      : current.equal.length === 0 ? prepareHessianBlocks(undamped) : [];
+    const prepared: GroupStepPreparation = { elastic, unheld, hardAll, equalities,
+      marginOverReach: ratios.length === 0 ? null : [quartile(0.25), quartile(0.5), quartile(0.75)],
+      undamped, linear, held: held.size, slackFloor, blocks };
+    return (scope, damping) => groupStep(current, units, scope, damping, tolerance, prepared);
+  }
+
+  /** Solve and verify the prepared affine rows at one trust scope. */
+  function groupStep(
+    current: IGroupReading, units: readonly number[], scope: number, damping: readonly number[], tolerance: number,
+    prepared: GroupStepPreparation,
+  ): IGroupStep | string {
+    const started: number = performance.now();
+    const n: number = units.length;
+    const { elastic, unheld, hardAll, equalities, marginOverReach, undamped, linear, held, slackFloor, blocks } = prepared;
+    const phase = elastic ? "elastic incidence" : "constrained measured fit";
+    const binds = ({ reach, margin }: { reach: number; margin: number }): boolean => scope * reach >= margin;
+    const hard = hardAll.filter(binds).map(({ upper }) => upper);
     // The same exact screening holds for the inside rows in both phases: in the elastic program a row reads `a d - slack <= -value` with
     // the slack non-negative, so a satisfied row the box cannot bring to its bound never binds there either; a violated row always passes.
     // Without it every junction row entered the elastic program, and its steps took 11 to 34 s (2026-11-24, run 143436).
-    const insideKept: IGroupRow[] = unheld.filter((r): boolean => r.gradient.size === 0 ? r.value > 0 : binds(r));
-    const rows = [...current.equal.map((r) => row(r, true)), ...insideKept.map((r) => row(r, false))];
-    ratios.sort((x, y): number => x - y);
-    const quartile = (q: number): number => ratios[Math.min(ratios.length - 1, Math.floor(q * ratios.length))]!;
+    const insideKept = unheld.filter((r): boolean => r.constant ? r.margin < 0 : binds(r)).map(({ upper }) => upper);
     const box = units.map((u, i): IAutoMovieQuadraticRow =>
       ({ indices: [i], weights: [1], lower: -scope * u, upper: scope * u }));
-    const hessian = zeros(n, n), linear = new Array<number>(n).fill(0);
-    if (!elastic) {
-      for (let i = 0; i < n; ++i) hessian[i]![i] = damping[i]!;
-      for (const r of current.measured) for (const [i, a] of r.gradient) {
-        linear[i]! += a * r.value;
-        for (const [j, b] of r.gradient) hessian[i]![j]! += a * b;
-      }
-    }
-    const originals = elastic ? [
-      ...rows.flatMap((r): IAutoMovieQuadraticRow[] => {
-        const upper: IAutoMovieQuadraticRow = { ...r, indices: [...r.indices, n], weights: [...r.weights, -1], lower: null };
-        return r.lower === null ? [upper] : [upper, {
-          ...upper, weights: [...r.weights.map((a) => -a), -1], upper: -r.lower,
-        }];
-      }),
-      ...hard, ...box, { indices: [n], weights: [1], lower: 0, upper: null },
-    ] : [...rows, ...hard, ...box];
+    const hessian = undamped.map((r, i): number[] => {
+      const damped = [...r];
+      damped[i]! += damping[i]!;
+      return damped;
+    });
+    const originals = [...equalities, ...insideKept, ...hard, ...box, ...slackFloor];
     const assembled: number = performance.now();
     let delta: number[], dual: number[], slack: number = 0, status: number = 1, refinements: number = 0;
     let active: Omit<IActiveSet, "primal" | "dual"> | null = null;
@@ -2871,7 +2909,7 @@ export namespace FamilyConicFit {
       gammaUsed = (n * muY) / Math.max(current.incidence, tolerance);
       const lin: number[] = new Array<number>(m).fill(0);
       lin[n] = gammaUsed;
-      const best: IActiveSet | string = activeSet(H, lin, originals, tolerance);
+      const best: IActiveSet | string = activeSet(H, lin, originals, tolerance, blocks);
       if (typeof best === "string") return phase + ": " + best;
       objectiveLinear = lin;
       originals.forEach((r, i): void => { if (r.indices.includes(n)) slackDual += Math.abs(best.dual[i]!); });
@@ -2883,7 +2921,7 @@ export namespace FamilyConicFit {
       active = { iterations: chosen.iterations, warm: chosen.warm, working: chosen.working, blocks: chosen.blocks };
     } else if (current.equal.length === 0) {
       // The constrained phase starts feasible at d = 0, so the active set solves it on its own rows, unwhitened (`activeSet`).
-      const solved: IActiveSet | string = activeSet(hessian, linear, originals, tolerance);
+      const solved: IActiveSet | string = activeSet(hessian, linear, originals, tolerance, blocks);
       if (typeof solved === "string") return phase + ": " + solved;
       delta = solved.primal;
       dual = solved.dual;
@@ -2963,8 +3001,8 @@ export namespace FamilyConicFit {
     const complementarity = Math.max(product / (Math.max(gScale, aScale) * dScale), stray / largest);
     const detail: IGroupStepDetail = { solver: active === null ? "kernel" : "active set", equal: current.equal.length, inside: unheld.length,
       insideKept: insideKept.length, elastic: elastic ? { gamma: gammaUsed, slackDual, slack } : null,
-      held: held.size, hardRows: hardAll.length, hardKept: hard.length,
-      marginOverReach: ratios.length === 0 ? null : [quartile(0.25), quartile(0.5), quartile(0.75)], columns: n, active,
+      held, hardRows: hardAll.length, hardKept: hard.length,
+      marginOverReach: marginOverReach === null ? null : [marginOverReach[0] / scope, marginOverReach[1] / scope, marginOverReach[2] / scope], columns: n, active,
       componentStationarity, complementarityAbsolute: product,
       ms: { assemble: assembled - started, solve: solvedAt - assembled, check: performance.now() - solvedAt } };
     if (![...delta, maximumViolation, complementarity, stationarity, slack].every(Number.isFinite) ||
@@ -2977,27 +3015,56 @@ export namespace FamilyConicFit {
     return { phase, delta, slack, maximumViolation, stationarity, status, refinements, predicted, detail };
   }
 
+  /** The leading inside rows known before a trial failed its acceptance ceiling. */
+  export interface IGroupPartialReading {
+    /** The first measured reason the trial cannot be accepted. */
+    refusal: string;
+    /** Contiguous inside rows in the same order as a complete reading. */
+    inside: readonly number[];
+  }
+
+  /** The source reader prepared for one fixed trial point. */
+  export type GroupTrial = (derivatives: boolean, ceiling?: IGroupCeiling) => IGroupReading | IGroupPartialReading | string;
+
+  /** The fit's final variables and exact-state receipt when certification was attempted. */
+  interface IGroupFit<Proof> {
+    values: number[];
+    iteration: number;
+    objective: number;
+    incidence: number;
+    stopped: string;
+    outlineRefusal: string | null;
+    timings: { geometryMs: number; solveMs: number };
+    steps: Omit<IGroupStep, "delta">[];
+    seal?: Proof;
+  }
+
   /** Fit one declared sibling list, accepting each affine step through its independent nonlinear read. */
-  export function fitGroup(
+  export function fitGroup<Proof = boolean>(
     initial: readonly number[],
-    read: (state: readonly number[], derivatives: boolean, ceiling?: IGroupCeiling) => IGroupReading | string,
+    read: (state: readonly number[], derivatives: boolean, ceiling?: IGroupCeiling) => ReturnType<GroupTrial>,
     tolerance: number,
     updates: number,
     observe?: (reading: object) => void,
-    screen?: (point: readonly number[]) => string | null,
-    staged?: { transfer: (point: readonly number[]) => number[] | null; certify: (point: readonly number[]) => boolean },
-    trialRows?: () => readonly number[] | null,
+    screen?: (point: readonly number[]) => string | null | (() => GroupTrial),
+    staged?: {
+      transfer: (point: readonly number[]) => number[] | null;
+      certify: (point: readonly number[]) => { admitted: boolean; receipt: Proof };
+      initial?: GroupTrial;
+    },
     convergence?: { tolerance: number; steps: number },
-  ): { values: number[]; iteration: number; objective: number; incidence: number; stopped: string; outlineRefusal: string | null;
-    timings: { geometryMs: number; solveMs: number }; steps: Omit<IGroupStep, "delta">[] } | string {
+  ): IGroupFit<Proof> | string {
     let values: number[] = [...initial];
     let units = values.map((v) => Math.max(1, Math.abs(v)));
     const timings = { geometryMs: 0, solveMs: 0 }, steps: Omit<IGroupStep, "delta">[] = [];
     let geometryReads: number = 0;
-    const geometry = (point: readonly number[], derivatives: boolean, ceiling?: IGroupCeiling): IGroupReading | string => {
+    const geometry = (point: readonly number[], derivatives: boolean, ceiling?: IGroupCeiling, scope?: GroupTrial) => {
       const index: number = ++geometryReads;
       observe?.({ action: "geometry", state: "start", index, derivatives, variables: point.length });
-      const start: number = performance.now(), result: IGroupReading | string = read(point, derivatives, ceiling);
+      const start: number = performance.now();
+      const reading = scope === undefined ? read(point, derivatives, ceiling) : scope(derivatives, ceiling);
+      const partial = typeof reading !== "string" && "refusal" in reading ? reading : undefined;
+      const result: IGroupReading | string = typeof reading === "string" || !("refusal" in reading) ? reading : reading.refusal;
       const elapsed: number = performance.now() - start;
       timings.geometryMs += elapsed;
       observe?.({ action: "geometry", state: "returned", index, derivatives, phaseMs: Math.round(elapsed),
@@ -3009,43 +3076,49 @@ export namespace FamilyConicFit {
           commonIncidence: result.commonIncidence, outline: result.outline?.kind ?? null,
           outlineRows: result.outline?.kind === "formed" ? result.outline.rows.length : 0,
           outlineRefusal: result.outline?.kind === "refused" ? result.outline.detail : null }) });
-      return result;
+      return { reading: result, partial: partial?.inside };
     };
     // The last state that passed the complete physical seal. Once sealed, the fit goes on minimizing the measured objective under the
     // same constraints (restoration alone degrades the fit: Gould, Loh and Robinson, SIAM J. Optim. 2015); each accepted step is sealed
     // again, and a feasible step the seal refuses ends the fit on the last sealed state.
-    let sealed: { values: number[]; reading: IGroupReading } | undefined;
+    let sealed: { values: number[]; reading: IGroupReading; proof: Proof } | undefined;
     let unsealed: boolean = false;
-    const prepare = (accepted?: IGroupReading, differentiate: boolean = true): IGroupReading | string => {
+    const prepare = (accepted?: IGroupReading, differentiate: boolean = true, scope?: GroupTrial):
+      { reading: IGroupReading | string; seal?: Proof } => {
+      let seal: Proof | undefined;
       if (staged !== undefined) {
-        let plain = accepted ?? geometry(values, false);
-        if (typeof plain === "string") return plain;
+        let plain = accepted ?? geometry(values, false, undefined, scope).reading;
+        if (typeof plain === "string") return { reading: plain };
         if (plain.outline?.kind === "formed") {
           const stock = staged.transfer(values);
           if (stock !== null) {
             observe?.({ action: "formed scope", state: "transfer", before: values.length, after: stock.length });
             values = stock;
             units = units.slice(0, stock.length);
-            plain = geometry(values, false);
-            if (typeof plain === "string") return plain;
+            scope = undefined;
+            plain = geometry(values, false).reading;
+            if (typeof plain === "string") return { reading: plain };
           }
           if (plain.outline?.kind === "formed" && plain.incidence <= tolerance) {
-            if (staged.certify(values)) {
-              sealed = { values: [...values], reading: plain };
+            const verdict = staged.certify(values);
+            seal = verdict.receipt;
+            if (verdict.admitted) {
+              sealed = { values: [...values], reading: plain, proof: verdict.receipt };
               observe?.({ action: "physical seal", state: "passed", objective: plain.objective });
             } else if (sealed !== undefined) {
               unsealed = true;
-              return plain;
+              return { reading: plain, seal };
             }
           }
         }
-        if (!differentiate) return plain;
+        if (!differentiate) return { reading: plain, seal };
       }
-      return geometry(values, true);
+      return { reading: geometry(values, true, undefined, scope).reading, seal };
     };
-    const first: IGroupReading | string = prepare();
-    if (typeof first === "string") return "initial coupled source: " + first;
-    let current: IGroupReading = first;
+    const first = prepare(undefined, true, staged?.initial);
+    if (typeof first.reading === "string") return "initial coupled source: " + first.reading;
+    let current: IGroupReading = first.reading;
+    let currentSeal: Proof | undefined = first.seal;
 
     /** Whether a trial reading is accepted against the current one: null, or why not. */
     const judge = (trial: IGroupReading | string): string | null => {
@@ -3070,14 +3143,13 @@ export namespace FamilyConicFit {
     /**
      * The second-order correction of a refused trial (Nocedal and Wright, Numerical Optimization, 2nd ed., eq. 15.36): the least-norm
      * step `p = -A^T (A A^T)^-1 c(x + d)` over the rows the trial violates, with the current rows' gradients `A` and the residuals
-     * `c(x + d)` the trial measured (all its inside rows when it read them all, else the leading rows `trialRows` reports). The
+     * `c(x + d)` the trial measured (all its inside rows when it read them all, else its leading rows). The
      * corrected point is screened and read under the same ceiling. It costs one small solve and one reading, and no derivative.
      */
-    const correction = (moved: readonly number[], trial: IGroupReading | null,
-      ceiling: IGroupCeiling | undefined): { point: number[]; reading: IGroupReading | string } | undefined => {
-      const known: readonly number[] | null = trial !== null && trial.inside.length === current.inside.length
-        ? trial.inside.map((row): number => row.value) : (trialRows?.() ?? null);
-      if (known === null || known.length === 0 || known.length > current.inside.length) return undefined;
+    const correction = (moved: readonly number[], trial: ReturnType<typeof geometry>, ceiling: IGroupCeiling | undefined) => {
+      const known: readonly number[] | undefined = typeof trial.reading !== "string" && trial.reading.inside.length === current.inside.length
+        ? trial.reading.inside.map((row): number => row.value) : trial.partial;
+      if (known === undefined || known.length === 0 || known.length > current.inside.length) return undefined;
       const violated: { value: number; gradient: ReadonlyMap<number, number> }[] = known.flatMap((value: number, k: number) =>
         value > 0 && current.inside[k]!.gradient.size > 0 ? [{ value, gradient: current.inside[k]!.gradient }] : []);
       if (violated.length === 0 || violated.length > 256) return undefined;
@@ -3109,8 +3181,11 @@ export namespace FamilyConicFit {
       }
       const point: number[] = [...moved];
       violated.forEach((row, a: number): void => { for (const [i, x] of row.gradient) point[i]! -= x * y[a]!; });
-      if (!point.every(Number.isFinite) || (screen !== undefined && screen(point) !== null)) return undefined;
-      return { point, reading: geometry(point, false, ceiling) };
+      if (!point.every(Number.isFinite)) return undefined;
+      const screened = screen?.(point);
+      if (typeof screened === "string") return undefined;
+      const scope = screened?.();
+      return { point, scope, reading: geometry(point, false, ceiling, scope).reading };
     };
     let lambda: number = 1e-3;
     let iteration: number = 0;
@@ -3127,13 +3202,19 @@ export namespace FamilyConicFit {
     // leg's 196 s of steps on scopes already refused (run 144515).
     let startAttempt: number = 0;
     while (!unsealed && iteration < updates) {
-      let accepted: { point: number[]; reading: IGroupReading; predicted: number; attempt: number } | undefined;
+      observe?.({ action: "affine preparation", state: "start", iteration });
+      const prepareStart: number = performance.now();
+      const stepFor = prepareStep(current, units, tolerance);
+      const prepareMs: number = performance.now() - prepareStart;
+      timings.solveMs += prepareMs;
+      observe?.({ action: "affine preparation", state: "returned", iteration, phaseMs: Math.round(prepareMs) });
+      let accepted: { point: number[]; reading: IGroupReading; predicted: number; attempt: number; scope?: GroupTrial } | undefined;
       for (let attempt: number = startAttempt; attempt < startAttempt + attempts; attempt++) {
         const local: number = attempt - startAttempt;
         const damping: number[] = current.scale.map((diagonal): number => lambda * diagonal + 1e-12);
         observe?.({ action: "affine step", state: "start", iteration, attempt });
         const start: number = performance.now();
-        const step: ReturnType<typeof groupStep> = groupStep(current, units, 2 ** -attempt, damping, tolerance);
+        const step: IGroupStep | string = stepFor(2 ** -attempt, damping);
         const elapsed: number = performance.now() - start;
         timings.solveMs += elapsed;
         observe?.({ action: "affine step", state: "returned", iteration, attempt, phaseMs: Math.round(elapsed),
@@ -3148,6 +3229,7 @@ export namespace FamilyConicFit {
           break;
         }
         let moved: number[] | undefined;
+        let prepareTrial: (() => GroupTrial) | undefined;
         const extents: number = screen !== undefined && step.phase === "elastic incidence" ? attempts : local + 1;
         for (let extent: number = local; extent < extents; ++extent) {
           const scale: number = 2 ** (local - extent);
@@ -3169,17 +3251,20 @@ export namespace FamilyConicFit {
             for (const row of current.inside) incidence = Math.max(incidence, at(row));
             if (!(incidence < current.incidence)) continue;
           }
-          const started: number = performance.now(), fault: string | null = screen(point);
+          const started: number = performance.now();
+          const screened = screen(point);
+          const fault: string | null = typeof screened === "string" ? screened : null;
           observe?.({ action: "raw extent", state: "returned", iteration, attempt, extent, scale,
             phaseMs: Math.round(performance.now() - started), refusal: fault });
-          if (fault === null) { moved = point; break; }
-          stopped = fault;
+          if (typeof screened !== "string") { moved = point; prepareTrial = screened ?? undefined; break; }
+          stopped = screened;
         }
         if (moved === undefined) { lambda *= 4; continue; }
         const ceiling: IGroupCeiling | undefined = current.outline?.kind === "formed" ? ceilingOf(current.incidence, tolerance) : undefined;
-        const trial = geometry(moved, false, ceiling);
-        const verdict: string | null = judge(trial);
-        if (verdict === null) { accepted = { point: moved, reading: trial as IGroupReading, predicted: step.predicted, attempt }; break; }
+        const scope = prepareTrial?.();
+        const trial = geometry(moved, false, ceiling, scope);
+        const verdict: string | null = judge(trial.reading);
+        if (verdict === null) { accepted = { point: moved, reading: trial.reading as IGroupReading, predicted: step.predicted, attempt, scope }; break; }
         stopped = verdict;
         if (verdict.startsWith("the trial reopens")) {
           observe?.({ action: "physical preservation", state: "refused", iteration, attempt, refusal: stopped });
@@ -3190,11 +3275,11 @@ export namespace FamilyConicFit {
         // The second-order correction (Nocedal and Wright, sections 15.6 and 18.3): the trial's measured constraint residuals pulled
         // back along the current gradients, tested before the region shrinks (the Maratos effect: a good step refused because the
         // constraints' linearization misses their curvature).
-        const corrected = correction(moved, typeof trial === "string" ? null : trial, ceiling);
+        const corrected = correction(moved, trial, ceiling);
         if (corrected !== undefined) {
           const second: string | null = judge(corrected.reading);
           observe?.({ action: "second-order correction", state: second === null ? "accepted" : "refused", iteration, attempt, refusal: second });
-          if (second === null) { accepted = { point: corrected.point, reading: corrected.reading as IGroupReading, predicted: step.predicted, attempt }; break; }
+          if (second === null) { accepted = { point: corrected.point, reading: corrected.reading as IGroupReading, predicted: step.predicted, attempt, scope: corrected.scope }; break; }
         }
         lambda *= 4;
       }
@@ -3208,9 +3293,10 @@ export namespace FamilyConicFit {
       values = accepted.point;
       ++iteration;
       const converged: boolean = convergence !== undefined && small >= convergence.steps;
-      const next: IGroupReading | string = prepare(accepted.reading, iteration < updates && !converged);
-      if (typeof next === "string") return "accepted source cannot continue: " + next;
-      current = next;
+      const next = prepare(accepted.reading, iteration < updates && !converged, accepted.scope);
+      if (typeof next.reading === "string") return "accepted source cannot continue: " + next.reading;
+      current = next.reading;
+      currentSeal = next.seal;
       lambda = Math.max(lambda / 3, 1e-9);
       if (converged && convergence !== undefined) {
         stopped = "converged: " + small + " successive accepted steps each changed and predicted at most " + convergence.tolerance +
@@ -3222,9 +3308,9 @@ export namespace FamilyConicFit {
       stopped = "the same canonical stock passed the independent complete physical seal; the constrained fit then ended: " +
         (unsealed ? "the next feasible state did not pass the seal" : stopped);
       return { values: sealed.values, iteration, objective: sealed.reading.objective, incidence: sealed.reading.incidence, stopped,
-        timings, steps, outlineRefusal: null };
+        timings, steps, outlineRefusal: null, seal: sealed.proof };
     }
-    return { values, iteration, objective: current.objective, incidence: current.incidence, stopped, timings, steps,
+    return { values, iteration, objective: current.objective, incidence: current.incidence, stopped, timings, steps, seal: currentSeal,
       outlineRefusal: current.outline?.kind === "refused" ? current.outline.detail : null };
   }
 
@@ -3895,11 +3981,20 @@ export namespace FamilyConicFit {
       const indices = new Map(columns.map((col, i) => [col, i] as const));
       const slack: number = columns.length;
       const strictBoundary: boolean = now.minimum >= 0;
-      const all: IAutoMovieQuadraticRow[] = base.margins.map((row): IAutoMovieQuadraticRow => {
-        const entries = [...row.gradient];
-        return { indices: [...entries.map(([field]): number => indices.get(field)!), slack],
-          weights: [...entries.map(([field, derivative]): number => derivative * units[field]! / row.scale), strictBoundary && row.closed ? 0 : 1],
-          lower: -row.value / row.scale, upper: null };
+      const all = base.margins.map((row) => {
+        const columns: number[] = [], weights: number[] = [];
+        let reach: number = 0;
+        for (const [field, derivative] of row.gradient) {
+          const weight: number = derivative * units[field]! / row.scale;
+          columns.push(indices.get(field)!);
+          weights.push(weight);
+          reach += Math.abs(weight);
+        }
+        const elastic: boolean = !strictBoundary || !row.closed;
+        const lower: number = -row.value / row.scale;
+        const affine: IAutoMovieQuadraticRow = { indices: [...columns, slack],
+          weights: [...weights, elastic ? 1 : 0], lower, upper: null };
+        return { affine, elastic, lower, reach };
       });
       let accepted: number[] | undefined;
       for (let attempt: number = 0; attempt < 12; ++attempt) {
@@ -3910,10 +4005,10 @@ export namespace FamilyConicFit {
         // never binds; a row without the slack binds only if `lower + reach > 0`. Only the rows that may bind enter the program; the
         // nonlinear trial below still reads every row. (El Ghaoui, Viallon and Rabbani, Safe feature elimination in sparse supervised
         // learning, Pacific J Optim 8(4), 2012, the same bound applied to inequality rows.)
-        const reach = (row: IAutoMovieQuadraticRow): number => scope * row.weights.slice(0, -1).reduce((sum: number, w: number): number => sum + Math.abs(w), 0);
-        const level: number = Math.max(-Infinity, ...all.filter((row): boolean => row.weights.at(-1) !== 0).map((row): number => row.lower! - reach(row)));
-        const binding: IAutoMovieQuadraticRow[] = all.filter((row): boolean =>
-          row.weights.at(-1) !== 0 ? row.lower! + reach(row) >= level : row.lower! + reach(row) > 0);
+        const level: number = all.reduce((bound, { elastic, lower, reach }): number =>
+          elastic ? Math.max(bound, lower - scope * reach) : bound, -Infinity);
+        const binding: IAutoMovieQuadraticRow[] = all.filter(({ elastic, lower, reach }): boolean =>
+          elastic ? lower + scope * reach >= level : lower + scope * reach > 0).map(({ affine }) => affine);
         // The rows are block-diagonal: a member's raw rows read its own values only. The program separates into one per connected block
         // of rows and columns, each with its own slack; the joint slack is the largest of theirs, so solving the blocks apart gives the
         // joint program's optimum. A block with no violated row is not solved: its step is zero and its slack its own worst row.
@@ -4171,6 +4266,27 @@ export namespace FamilyConicFit {
     blocks: number;
   }
 
+  /** The connected components of the Hessian's off-diagonal graph. A diagonal shift changes no edge. */
+  function prepareHessianBlocks(hessian: readonly (readonly number[])[]): readonly (readonly number[])[] {
+    const n: number = hessian.length;
+    const parent: number[] = Array.from({ length: n }, (_, i: number): number => i);
+    const find = (i: number): number => {
+      while (parent[i] !== i) { parent[i] = parent[parent[i]!]!; i = parent[i]!; }
+      return i;
+    };
+    for (let i = 0; i < n; ++i)
+      for (let j = 0; j < i; ++j)
+        if (hessian[i]![j] !== 0) parent[find(i)] = find(j);
+    const members = new Map<number, number[]>();
+    for (let i = 0; i < n; ++i) {
+      const root: number = find(i);
+      const list = members.get(root);
+      if (list === undefined) members.set(root, [i]);
+      else list.push(i);
+    }
+    return [...members.values()];
+  }
+
   /**
    * A strictly convex QP `min 1/2 d^T H d + c^T d` over affine rows `lower <= a d <= upper`, by the dual active-set method of Goldfarb and
    * Idnani (Math. Programming 27, 1983, 1-33; the method of R's `quadprog`). It starts from the unconstrained minimum `-H^-1 c` and takes
@@ -4190,24 +4306,17 @@ export namespace FamilyConicFit {
    * @param linear The linear term.
    * @param rows The rows.
    * @param tolerance The feasibility tolerance, in the rows' own units.
+   * @param ordering The connected components of this Hessian's graph, reusable across its diagonal shifts.
    * @returns The solution, or why the method does not apply or did not finish.
    */
   export function activeSet(
     hessian: readonly (readonly number[])[], linear: readonly number[], rows: readonly IAutoMovieQuadraticRow[], tolerance: number,
+    ordering: readonly (readonly number[])[] = prepareHessianBlocks(hessian),
   ): IActiveSet | string {
     const n: number = linear.length;
-    // The blocks: union-find over the Hessian's off-diagonal nonzeros.
-    const parent: number[] = Array.from({ length: n }, (_, i: number): number => i);
-    const find = (i: number): number => {
-      while (parent[i] !== i) { parent[i] = parent[parent[i]!]!; i = parent[i]!; }
-      return i;
-    };
-    for (let i = 0; i < n; ++i) for (let j = 0; j < i; ++j) if (hessian[i]![j] !== 0) parent[find(i)] = find(j);
-    const members = new Map<number, number[]>();
-    for (let i = 0; i < n; ++i) { const r = find(i), list = members.get(r); if (list === undefined) members.set(r, [i]); else list.push(i); }
-    const blocks: { columns: number[]; factor: number[][] }[] = [];
+    const blocks: { columns: readonly number[]; factor: number[][] }[] = [];
     const blockOf: number[] = new Array<number>(n).fill(0), local: number[] = new Array<number>(n).fill(0);
-    for (const columns of members.values()) {
+    for (const columns of ordering) {
       const factor = columns.map((i): number[] => columns.map((j): number => hessian[i]![j]!));
       if (!cholesky(factor)) return "the step's Hessian block is not positive definite";
       columns.forEach((i, k): void => { blockOf[i] = blocks.length; local[i] = k; });

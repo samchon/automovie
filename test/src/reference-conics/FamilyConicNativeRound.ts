@@ -507,9 +507,9 @@ namespace FamilyConicNativeRound {
     const started: number = performance.now(),
       original = Figure.assemble(),
       framesPrepared: number = performance.now(),
-      originalConstruction = Figure.constructionBareFrom(original),
-      originals = Figure.originalSources(original, new Set(originalConstruction.sources.keys())),
+      originals = Figure.originalSources(original),
       bankPrepared: number = performance.now();
+    // This round uses tape-only candidates and complete assemblies from one original bank.
     const preparation = Law.prepare(original, originals),
       base = preparation.fields,
       calibrationMs: number = preparation.calibration.milliseconds;

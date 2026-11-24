@@ -4,7 +4,6 @@ import type {
   IAutoMovieConstructionProfileGuide,
   IAutoMovieConstructionProfileSource,
   IAutoMovieLoftSectionJet,
-  IAutoMovieLoftSectionPhase,
   IAutoMovieLoftViewRead,
   IAutoMovieLoftViewSource,
   IAutoMovieViewPart,
@@ -15,27 +14,13 @@ import { AutoMovieLoftSectionNative } from "./AutoMovieLoftSectionNative";
 import { AutoMovieLoftViewRead } from "./AutoMovieLoftViewRead";
 import { AutoMovieLoftViewSource } from "./AutoMovieLoftViewSource";
 
-/** One caller-owned actual station preparation, independent of output density. */
-interface Station {
-  /** Physical station, kernel millimetres. */
-  at: number;
-  /** Existing numeric Point0 closure; a collapsed original has no regular curve. */
-  point: ((phase: number) => [number, number]) | null;
-  /** Same immutable original values for the independently requested phase capability. */
-  values: IAutoMovieLoftViewRead.IValues;
-  /** Lazy original phase2 does not require physical station2. */
-  phase: ((phi: number) => IAutoMovieLoftSectionPhase) | undefined;
-  /** Lazily prepared actual physical2; failures are never cached as success. */
-  jet: ((phi: number) => IAutoMovieLoftSectionJet) | undefined;
-}
-
 /**
  * Exact native-source adapter to the original piecewise-profile reader.
  *
  * No raw loft or compatibility coefficients are constructed. Existing scalar,
  * cap, conic and physical2 owners remain authoritative; the actual axis is
- * borrowed. The source has one full-period piece with its original polar
- * clock, without imposing that representation on composed profile families.
+ * borrowed. The source has one full-period piece with its original polar clock,
+ * without imposing that representation on composed profile families.
  */
 export function AutoMovieConstructionNativeProfile(
   part: IAutoMovieViewPart,
@@ -104,9 +89,10 @@ export function AutoMovieConstructionNativeProfile(
     revisions: { ...identity.revisions },
   };
 
-  /** Caller lifetime bounds reuse to the latest immutable station only. */
-  let latest: Station | undefined;
-  const at: (station: number) => Station = (station: number): Station => {
+  const reader: ReturnType<typeof AutoMovieLoftViewRead.prepare> =
+    AutoMovieLoftViewRead.prepare(source);
+  /** Read the value fields only where this immutable profile owns the station. */
+  const valuesAt = (station: number): IAutoMovieLoftViewRead.IValues => {
     if (
       !Number.isFinite(station) ||
       station < source.domain[0] ||
@@ -115,56 +101,62 @@ export function AutoMovieConstructionNativeProfile(
       throw new AutoMovieLoftAdmissionError(
         "Native profile query is outside its actual source domain.",
       );
-    if (latest?.at === station) return latest;
     const values: IAutoMovieLoftViewRead.IValues | string =
-      AutoMovieLoftViewRead.values(source, station);
+      reader.values(station);
     if (typeof values === "string")
       throw new AutoMovieLoftAdmissionError(values);
-    const value: Station = {
-      at: station,
-      point: values.extents.every((extent: number): boolean => extent === 0)
-        ? null
-        : AutoMovieLoftSectionNative.point(values),
-      values,
-      phase: undefined,
-      jet: undefined,
-    };
-    latest = value;
-    return value;
+    return values;
+  };
+  /** Point0 remains available at a collapsed original station. */
+  const pointAt: NonNullable<
+    IAutoMovieConstructionProfileSource.ICurve["pointAt"]
+  > = (station) => {
+    const values: IAutoMovieLoftViewRead.IValues = valuesAt(station);
+    return collapsed(values)
+      ? () => [0, 0]
+      : AutoMovieLoftSectionNative.point(values);
+  };
+  /** Prepare physical2 independently, with no invented derivatives at a pole. */
+  const jetAt: NonNullable<
+    IAutoMovieConstructionProfileSource.ICurve["jetAt"]
+  > = (station) => {
+    if (collapsed(valuesAt(station))) return () => null;
+    const inputs: IAutoMovieLoftViewRead.IJets | string = reader.jets(station);
+    if (typeof inputs === "string") return () => null;
+    const jet: (phase: number) => IAutoMovieLoftSectionJet =
+      AutoMovieLoftSectionNative.jet(inputs);
+    return jet;
   };
   const curve: IAutoMovieConstructionProfileSource.ICurve = {
     domain: source.domain,
     clock: [0, 2 * Math.PI],
     period: 2 * Math.PI,
     point: (station: number, phase: number): [number, number] =>
-      at(station).point?.(phase) ?? [0, 0],
+      pointAt(station)(phase),
+    pointAt,
     phase: (
       station: number,
       phase: number,
     ): IAutoMovieConstructionProfileSource.IPhase => {
-      const current: Station = at(station);
-      if (current.point === null) return { p: [0, 0], t: [0, 0], tt: [0, 0] };
-      current.phase ??= AutoMovieLoftSectionNative.phase(current.values);
-      return current.phase(phase);
+      const values: IAutoMovieLoftViewRead.IValues = valuesAt(station);
+      return collapsed(values)
+        ? { p: [0, 0], t: [0, 0], tt: [0, 0] }
+        : AutoMovieLoftSectionNative.phase(values)(phase);
     },
     jet: (
       station: number,
       phase: number,
-    ): IAutoMovieConstructionProfileSource.IJet | null => {
-      const current: Station = at(station);
-      if (current.point === null) return null;
-      if (current.jet === undefined) {
-        const inputs: IAutoMovieLoftViewRead.IJets | string =
-          AutoMovieLoftViewRead.jets(source, station);
-        if (typeof inputs === "string") return null;
-        current.jet = AutoMovieLoftSectionNative.jet(inputs);
-      }
-      return current.jet(phase);
-    },
+    ): IAutoMovieConstructionProfileSource.IJet | null => jetAt(station)(phase),
+    jetAt,
   };
   return {
     definition,
     plane: { id: definition.plane, axis: part.axis },
     curves: new Map([[curveId, curve]]),
   };
+}
+
+/** A full collapse leaves a finite Point0 and no regular physical2. */
+function collapsed(values: IAutoMovieLoftViewRead.IValues): boolean {
+  return values.extents.every((extent: number): boolean => extent === 0);
 }

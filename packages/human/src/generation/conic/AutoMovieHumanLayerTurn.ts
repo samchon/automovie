@@ -35,9 +35,10 @@ export namespace AutoMovieHumanLayerTurn {
     stations: readonly number[],
     bound: { turn: number; phases: number; least: number },
   ): number[] {
-    const ring = (s: number): number[][] =>
-      Array.from({ length: bound.phases }, (_: unknown, j: number): number[] =>
-        AutoMovieLoftChain.point(chain, s, (2 * Math.PI * j) / bound.phases));
+    const phases: number[] = Array.from(
+      { length: bound.phases }, (_: unknown, j: number): number => (2 * Math.PI * j) / bound.phases,
+    );
+    const ring = (s: number): number[][] => AutoMovieLoftChain.ring(chain, s, phases);
     const turned = (low: readonly number[], mid: readonly number[], high: readonly number[]): number => {
       const u: number[] = [0, 1, 2].map((k: number): number => mid[k]! - low[k]!);
       const w: number[] = [0, 1, 2].map((k: number): number => high[k]! - mid[k]!);

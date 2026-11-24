@@ -195,6 +195,17 @@ export namespace IAutoMovieHumanConicLoft {
      * Original source producer, including every scalar, cap and actual requested relief scope.
      */
     part: (family: IFamily, stations: number[]) => IAutoMovieViewPart;
+
+    /**
+     * Prepare one family's scalar controls and caps for successive layer and
+     * phase sampling requests. Sampling may vary the layer stations, pitch in
+     * mm, turn and phase limits in radians, and active reliefs. Sources
+     * without this operation serve each grid directly through `part`.
+     */
+    preparePart?: (family: IFamily) => (
+      stations: number[],
+      sampling: Pick<IFamily, "pitch" | "phase" | "turn" | "reliefs">,
+    ) => IAutoMovieViewPart;
     /**
      * The same original law in the reflected chart, retaining its source clock and all native derivatives.
      */

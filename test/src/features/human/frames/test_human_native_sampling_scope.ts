@@ -11,10 +11,11 @@ import type { IAutoMovieHumanConicLoft, IAutoMovieViewPart } from "@automovie/in
  * Scenarios:
  * 1. A two-millimetre circle's three wall rings require the minimum48 phases at pitch100/turnpi, with one closing cap.
  * 2. The same source closes at both ends; both reflected sides retain48 finite ordered phases and the declared pole stations.
+ * 3. Two layer grids sampled in one prepared scope carry the same outline, caps and finite phase ordering.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls ordinary and actual NativeFamily/ConicLoft part/mirror consumers with turn sampling; passing collapsed pole rings into the wall sampler produces an empty clock and fails.
  * @evidence contracts/development/testing.md#independent-expectations Each convex radius2 wall ring has perimeter4pi and total turn2pi. Three such rings at pitch100/turnpi plus phasepi need fewer than48 density units even under the sum bound, so the fixed minimum48 is the independent count.
- * @evidence contracts/development/testing.md#distinguishing-cases Includes one/two caps, ordinary/native sources, both reflected sides, finite/order/count and retained-cap counterparts.
+ * @evidence contracts/development/testing.md#distinguishing-cases Includes one/two caps, ordinary/native sources, both reflected sides, and distinct grids sampled from one prepared source.
  * @evidence contracts/development/testing.md#execution-ownership Tiny made circles and their direct native sampling consumer only; no person, reference, whole realization, host or process.
  * @evidence contracts/development/common.md#meaningful-documentation Names the regular-wall sampling contract and separates that from retaining all emitted cap layers.
  */
@@ -59,6 +60,17 @@ export function test_human_native_sampling_scope(): void {
       features: [],
       protection: [],
     });
+    const sample = native.native!.preparePart!(native);
+    const coarse: IAutoMovieViewPart = sample([0, 2, 4], native);
+    const fine: IAutoMovieViewPart = sample([0, 1, 2, 3, 4], { ...native, turn: Math.PI });
+    if (fine.front !== coarse.front || fine.side !== coarse.side || fine.fullness !== coarse.fullness)
+      failures.push("layer sampling replaced the prepared scalar controls");
+    if (fine.stations.includes(1) === false || fine.stations.includes(3) === false || coarse.stations.includes(1))
+      failures.push("preparation retained the previous sampling grid");
+    if (coarse.stations[0] !== (both ? -2 : 0) || fine.stations[0] !== coarse.stations[0] ||
+      coarse.stations.at(-1) !== 6 || fine.stations.at(-1) !== 6)
+      failures.push("layer sampling changed a prepared cap extent");
+
     for (const [kind, family] of [
       ["ordinary", prior],
       ["native", native],

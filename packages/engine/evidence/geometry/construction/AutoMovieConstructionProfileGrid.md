@@ -2,7 +2,7 @@
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States mm tolerance, original guide marks, copied point-cache lifetime, sampled criterion and explicit resource/depth failures.
+States millimetre tolerance, original guide marks, indexed sample layout, the sampled criterion and resource/depth failures.
 
 ## @evidence contracts/development/design.md#principled-representation
 
@@ -38,9 +38,9 @@ Scanning the body finds no `any`, type assertion, non-null assertion, suppressio
 
 Cost is driven by the sizes of `prepared`, `tolerance`; the dominant cost is a single pass (for-of over prepared.definition.loops), performed once per call with 1 allocation site (literals and constructed values). No speedup is claimed and none is measured.
 
-## @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work
+## @evidence contracts/development/implementation.md#reuse-equivalent-work
 
-The operation coordinates no requests, phases or consumers and holds no cache: each call recomputes from its arguments and shares nothing, which is correct because its result depends only on them.
+Each level evaluates its complete rectangular sample domain once. The chord and boundary observations reuse the same numeric rows by index.
 
 ## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
 

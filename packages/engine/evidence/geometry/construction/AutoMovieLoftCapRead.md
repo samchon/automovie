@@ -70,8 +70,37 @@ O(K+N) ownership checks, original scalar lookups, one actual axis2 call and fixe
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 
-Native and frame plans are returned together for the existing eight-station Jet cache.
+One fixed-station consumer shares the actual local and frame plans across its phase queries.
 
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
 The retaining caller owns the native closure and three copied frame rows; no module cache or registry is acquired.
+# src/geometry/construction/AutoMovieLoftCapRead.ts#AutoMovieLoftCapRead.prepare
+
+## @evidence contracts/development/implementation.md#principled-implementation
+
+Uses previously admitted cap intervals and the original scalar and frame owners.
+
+## @evidence contracts/development/implementation.md#clear-and-simple-structure
+
+The preparation supplies the common ownership lookups to the existing phase and jet station readers.
+
+## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
+
+A regular station reports cap absence. A collapsed original cap lacks physical2.
+
+## @evidence contracts/development/common.md#meaningful-documentation
+
+Documents repeated reads under the same immutable chain.
+
+## @evidence contracts/development/implementation.md#efficient-algorithms
+
+One scalar structure check serves the cap scope. Each read builds the requested station plan only if a retained cap owns it.
+
+## @evidence contracts/development/implementation.md#reuse-equivalent-work
+
+Fixed-station phase work shares numeric geometry and frame preparation. Different stations use the same admitted intervals.
+
+## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
+
+Only the caller retains the immutable source and cap interval reader.

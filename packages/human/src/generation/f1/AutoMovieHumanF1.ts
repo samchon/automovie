@@ -42,6 +42,8 @@ import {
   AutoMovieLoftChain,
   AutoMovieLoftViewFullSource,
   AutoMovieNaturalSpline,
+  AutoMovieSolidVector,
+  AutoMovieViewLoft,
   realizeAutoMovieConstruction,
 } from "@automovie/engine";
 import type {
@@ -400,36 +402,20 @@ export namespace AutoMovieHumanF1 {
         AutoMovieHumanF1Placement.direction(name, frames),
     };
     if (legacy && (pose !== undefined || chain !== undefined)) {
-      let roots: IAutoMovieHumanF1.IAssembly["roots"] | undefined;
-      let archivedArm: IAutoMovieHumanF1.IAssembly["roots"]["arm"] | undefined;
-      let archivedBreast: IAutoMovieHumanF1.IAssembly["roots"]["breast"] | undefined;
-      let nose: IAutoMovieConstructionPortLoop | undefined;
-
-      // Frame-only assembly consumers do not request or build root geometry.
-      Object.defineProperty(assembled, "roots", {
-        enumerable: true,
-        configurable: true,
-        get: (): IAutoMovieHumanF1.IAssembly["roots"] => {
-          roots ??= {
-            get arm() {
-              archivedArm ??= [legacyArmscye(1, assembled), legacyArmscye(-1, assembled)];
-              return archivedArm;
-            },
-            get breast() {
-              archivedBreast ??= [legacyMammary(1, assembled), legacyMammary(-1, assembled)];
-              return archivedBreast;
-            },
-            get nose() {
-              nose ??= legacyNostril(assembled);
-              return nose;
-            },
-          };
-          return roots;
+      // The archived pose roots share the prepared parent chart. Only the requested root is drawn.
+      const chart: (p: readonly number[]) => IChart = trunkChart(assembled);
+      assembled.roots = {
+        get arm(): IAutoMovieHumanF1.IAssembly["roots"]["arm"] {
+          return [legacyArmscye(1, assembled, chart), legacyArmscye(-1, assembled, chart)];
         },
-        set: (value: IAutoMovieHumanF1.IAssembly["roots"]): void => {
-          roots = value;
+        get breast(): IAutoMovieHumanF1.IAssembly["roots"]["breast"] {
+          const draw = prepareLegacyMammary(assembled, chart);
+          return [draw(1), draw(-1)];
         },
-      });
+        get nose(): IAutoMovieConstructionPortLoop {
+          return legacyNostril(assembled, chart);
+        },
+      };
     }
     return assembled;
   }
@@ -458,7 +444,7 @@ export namespace AutoMovieHumanF1 {
   ): IAutoMovieHumanF1.IAssembly {
     const original: IAutoMovieHumanF1.IAssembly = assemble();
     const originals: ReadonlyMap<string, IAutoMovieViewPart> =
-      constructionBareFrom(original).sources;
+      originalSources(original);
     const prepared = AutoMovieHumanF1NativeLaw.prepare(original, originals);
     return nativeFrom(
       {
@@ -489,7 +475,7 @@ export namespace AutoMovieHumanF1 {
       fields,
       AutoMovieHumanF1NativeLaw.prepare(
         original,
-        constructionBareFrom(original).sources,
+        originalSources(original),
       ),
     );
   }
@@ -1038,7 +1024,8 @@ export namespace AutoMovieHumanF1 {
   /** Original non-native pose producer; no supplied native field falls back through this path. */
   function legacyArmscye(
     side: 1 | -1,
-    placed: IAutoMovieHumanF1.IAssembly = assemble(),
+    placed: IAutoMovieHumanF1.IAssembly,
+    chart: (p: readonly number[]) => IChart,
   ): IAutoMovieConstructionPortLoop {
     const family: IAutoMovieHumanConicLoft.IFamily =
       side > 0
@@ -1050,7 +1037,6 @@ export namespace AutoMovieHumanF1 {
     // Stations past the arm's first knot as the stored arm dates them, carried to the pose: the first sections lie in the shoulder's turn.
     const past = (mm: number): number =>
       placed.station(BODY.arm.name, BODY.arm.knots[0]! + mm);
-    const chart: (p: readonly number[]) => IChart = trunkChart(placed);
     const armpit: IChart = chart(placed.point("armpit"));
 
     // The arm's ring at its rail curve (`armRails`), read from a loft of its first stations alone.
@@ -1101,11 +1087,11 @@ export namespace AutoMovieHumanF1 {
     return around(outline, SHOULDER_COLUMNS, ARMSCYE_MARGIN_MM, armpit.v, side);
   }
 
-  /** Original non-native pose producer; no supplied native field falls back through this path. */
-  function legacyMammary(
-    side: 1 | -1,
-    placed: IAutoMovieHumanF1.IAssembly = assemble(),
-  ): IAutoMovieConstructionPortLoop {
+  /** Prepare the archived breast ring on the original pose for both sides' chart loops. */
+  function prepareLegacyMammary(
+    placed: IAutoMovieHumanF1.IAssembly,
+    chart: (p: readonly number[]) => IChart,
+  ): (side: 1 | -1) => IAutoMovieConstructionPortLoop {
     const family: IAutoMovieHumanConicLoft.IFamily = placed.body.breast;
     const first: number = family.knots[0]!;
     const rail: number = first + RAIL_MM.breast;
@@ -1140,14 +1126,11 @@ export namespace AutoMovieHumanF1 {
     ];
     const chest: (clock: number) => number =
       AutoMovieNaturalSpline.periodic(BREAST_CHEST_MM);
+    const point: (phase: number) => AutoMovieVector3Tuple = AutoMovieLoftChain.sampler(chain, rail);
     const ring: number[][] = Array.from(
       { length: 4 * SHOULDER_COLUMNS },
       (_: unknown, j: number): number[] => {
-        const p: number[] = AutoMovieLoftChain.point(
-          chain,
-          rail,
-          (2 * Math.PI * j) / (4 * SHOULDER_COLUMNS),
-        );
+        const p: number[] = point((2 * Math.PI * j) / (4 * SHOULDER_COLUMNS));
         const off: number[] = [0, 1, 2].map(
           (k: number): number => p[k]! - frame.origin[k]!,
         );
@@ -1162,28 +1145,22 @@ export namespace AutoMovieHumanF1 {
         );
       },
     );
-    const chart: (p: readonly number[]) => IChart = trunkChart(placed);
     const seen: IChart[] = ring.map(chart);
     const radius: number =
       seen.reduce(
         (sum: number, p: IChart): number => sum + Math.hypot(p.u, p.v),
         0,
       ) / seen.length;
-    return around(
-      seen.map((p: IChart): [number, number] => [
-        p.station,
-        side * Math.atan2(p.v, p.u),
-      ]),
-      SHOULDER_COLUMNS,
-      0,
-      radius,
-      side,
+    return (side: 1 | -1): IAutoMovieConstructionPortLoop => around(
+      seen.map((p: IChart): [number, number] => [p.station, side * Math.atan2(p.v, p.u)]),
+      SHOULDER_COLUMNS, 0, radius, side,
     );
   }
 
   /** Original non-native pose producer; no supplied native field falls back through this path. */
   function legacyNostril(
-    placed: IAutoMovieHumanF1.IAssembly = assemble(),
+    placed: IAutoMovieHumanF1.IAssembly,
+    chart: (p: readonly number[]) => IChart,
   ): IAutoMovieConstructionPortLoop {
     const family: IAutoMovieHumanConicLoft.IFamily = placed.body.nose;
     const first: number = family.knots[0]!;
@@ -1198,7 +1175,6 @@ export namespace AutoMovieHumanF1 {
     if (loft.chain === null)
       throw new Error("the nose's first stations do not loft");
     const chain: NonNullable<IAutoMovieViewLoft.IResult["chain"]> = loft.chain;
-    const chart: (p: readonly number[]) => IChart = trunkChart(placed);
     const ring: IChart[] = Array.from(
       { length: 4 * NOSE_COLUMNS },
       (_: unknown, j: number): IChart => {
@@ -1538,8 +1514,9 @@ export namespace AutoMovieHumanF1 {
       d[2]! * up[0]! - d[0]! * up[2]!,
       d[0]! * up[1]! - d[1]! * up[0]!,
     ];
+    const point: (phase: number) => AutoMovieVector3Tuple = AutoMovieLoftChain.sampler(chain, station);
     const side = (t: number): number => {
-      const p: number[] = AutoMovieLoftChain.point(chain, station, t);
+      const p: number[] = point(t);
       return (
         (p[0]! - m1[0]!) * normal[0]! +
         (p[1]! - m1[1]!) * normal[1]! +
@@ -1671,13 +1648,15 @@ export namespace AutoMovieHumanF1 {
     if (loft.chain === null)
       throw new Error("rootSection: " + child.name + " does not loft at its root");
     const chain: NonNullable<IAutoMovieViewLoft.IResult["chain"]> = loft.chain;
+    const atFrom: (phase: number) => AutoMovieVector3Tuple = AutoMovieLoftChain.sampler(chain, from);
+    const atTo: (phase: number) => AutoMovieVector3Tuple = AutoMovieLoftChain.sampler(chain, to);
     const loop: [number, number][] = Array.from(
       { length: phases },
       (_: unknown, k: number): [number, number] => {
         const phase: number = (2 * Math.PI * k) / phases;
         const line = (s: number): number =>
           off(AutoMovieLoftChain.point(chain, s, phase));
-        if (line(from) * line(to) >= 0)
+        if (off(atFrom(phase)) * off(atTo(phase)) >= 0)
           throw new Error(
             "rootSection: the station line of " +
               child.name +
@@ -1839,12 +1818,9 @@ export namespace AutoMovieHumanF1 {
       if (loft.chain === null)
         throw new Error("fanSeams: " + name + " does not loft");
       const chain: NonNullable<IAutoMovieViewLoft.IResult["chain"]> = loft.chain;
+      const point: (phase: number) => AutoMovieVector3Tuple = AutoMovieLoftChain.sampler(chain, digit.knots[0]!);
       return Array.from({ length: 256 }, (_: unknown, k: number): number[] =>
-        AutoMovieLoftChain.point(
-          chain,
-          digit.knots[0]!,
-          (2 * Math.PI * k) / 256,
-        ),
+        point((2 * Math.PI * k) / 256),
       );
     });
     const centre = (ring: number[][]): number[] =>
@@ -1853,6 +1829,7 @@ export namespace AutoMovieHumanF1 {
           ring.reduce((sum: number, p: number[]): number => sum + p[c]!, 0) /
           ring.length,
       );
+    const terminal: (phase: number) => AutoMovieVector3Tuple = AutoMovieLoftChain.sampler(end.chain, station);
     const headings: [number, number, number][] = seams.map(
       ([phase]: [number, number], i: number): [number, number, number] => {
         const [one, two]: number[][][] = [firstRings[i]!, firstRings[i + 1]!];
@@ -1869,7 +1846,7 @@ export namespace AutoMovieHumanF1 {
         );
         const d: number[] = sub(
           [0, 1, 2].map((c: number): number => (near[c]! + far[c]!) / 2),
-          AutoMovieLoftChain.point(end.chain!, station, phase),
+          terminal(phase),
         );
         const l: number = Math.hypot(d[0]!, d[1]!, d[2]!);
         return [
@@ -1964,7 +1941,7 @@ export namespace AutoMovieHumanF1 {
 
   /**
    * The already placed tree and its sources without an additional nail pass.
-   * Native preparation uses this entry on its original family bank.
+   * The tree retains its declared attachment contacts.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Uses the passed placed source as supplied, in figure-world mm.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The same tree builder receives production bedded inputs or the original inputs.
@@ -2028,7 +2005,10 @@ export namespace AutoMovieHumanF1 {
   }
 
   /**
-   * Prepare only explicitly registered physical source faces from this same placed declaration.
+   * Prepare the placed declaration's original wall and cap controls before
+   * attachment fields are bound.
+   *
+   * @param names Registered physical source faces. Omit for the complete original bank.
    *
    * @param held Per face, the complete emitted station array of a base source whose discrete choices a derivative holds fixed. The face
    *   is resolved at exactly those stations without refinement, and is kept only when it emits the same array element by element;
@@ -2036,13 +2016,14 @@ export namespace AutoMovieHumanF1 {
    */
   export function originalSources(
     placed: IAutoMovieHumanF1.IAssembly,
-    names: ReadonlySet<string>,
+    names?: ReadonlySet<string>,
     layer: number = LAYER_MM,
     held?: ReadonlyMap<string, readonly number[]>,
   ): ReadonlyMap<string, IAutoMovieViewPart> {
-    if (names.size === 0) throw new Error("a material source query needs at least one registered face");
-    const sources = declaration(placed, layer, names, undefined, false, held).sources;
-    for (const name of names) if (!sources.has(name)) throw new Error("the material source face is absent: " + name);
+    if (names?.size === 0) throw new Error("a material source query needs at least one registered face");
+    const sources = declaration(placed, layer, names, undefined, false, held, false).sources;
+    if (names !== undefined)
+      for (const name of names) if (!sources.has(name)) throw new Error("the material source face is absent: " + name);
     return sources;
   }
 
@@ -2054,9 +2035,9 @@ export namespace AutoMovieHumanF1 {
     observeContact?: IAutoMovieHumanJoinLoop.IMeasure,
     nailsRequested: boolean = false,
     held?: ReadonlyMap<string, readonly number[]>,
+    withContacts: boolean = true,
   ): IAutoMovieHumanF1.IConstructionWithNails {
     const sources: Map<string, IAutoMovieViewPart> = new Map();
-    const digits: Map<string, { original: IAutoMovieViewPart; made: IAutoMovieHumanF1Nails.IMade }> = new Map();
     const faceLayers: [number, number, number] = [
       placed.station(placed.body.trunk.name, TRUNK_FACE_LAYERS[0]),
       placed.station(placed.body.trunk.name, TRUNK_FACE_LAYERS[1]),
@@ -2066,6 +2047,8 @@ export namespace AutoMovieHumanF1 {
         TRUNK_FACE_LAYERS[2],
       ),
     ];
+    /** Read one declaration's fixed family/cap scope on a requested layer grid. */
+    type LayerSource = (stations: number[], bare?: boolean, refine?: boolean) => IAutoMovieViewPart;
     const leafSource = (
       family: IAutoMovieHumanConicLoft.IFamily,
       fine: number = -Infinity,
@@ -2075,6 +2058,14 @@ export namespace AutoMovieHumanF1 {
       dome: number = Infinity,
       since: number = -Infinity,
     ): IAutoMovieViewPart => {
+      const sample = family.native?.preparePart?.(family);
+      const part: LayerSource = (stations, bare = false, refine = true) => {
+        const scope: IAutoMovieHumanConicLoft.IFamily = bare ? { ...family, reliefs: undefined } : family;
+        return sample === undefined
+          ? AutoMovieHumanConicLoft.part(scope, stations, refine)
+          : sample(stations, scope);
+      };
+
       // A held face keeps the base source's stations: the caps' rings come from the family's own tips, and the face is kept only when
       // the whole emitted array is the base's, so every discrete choice of the base stands.
       const fixed: readonly number[] | undefined = held?.get(family.name);
@@ -2082,7 +2073,7 @@ export namespace AutoMovieHumanF1 {
         const [low, high] = family.tips ?? [null, null];
         const interior: number[] = fixed.filter((s: number): boolean =>
           (low === null || s >= low.from) && (high === null || s <= high.from));
-        const made: IAutoMovieViewPart = AutoMovieHumanConicLoft.part(family, interior, false);
+        const made: IAutoMovieViewPart = part(interior, false, false);
         if (made.stations.length === fixed.length && made.stations.every((s: number, i: number): boolean => s === fixed[i]))
           return made;
       }
@@ -2133,10 +2124,10 @@ export namespace AutoMovieHumanF1 {
           );
         },
       );
-      const refined: number[] = folded(family, domed(family, swept(family, stations), dome));
+      const refined: number[] = folded(family, part, domed(part, swept(family, part, stations), dome));
       // Refinement inserts interior stations; the declared terminal plane is exact.
       refined[refined.length - 1] = to;
-      return AutoMovieHumanConicLoft.part(family, refined);
+      return part(refined);
     };
     // Whether a family's source (or its twin's) is declared: a carried start that needs a side join's loop is made only then.
     const declares = (name: string): boolean => names === undefined || names.has(name) || names.has(name + ".mirror");
@@ -2155,37 +2146,32 @@ export namespace AutoMovieHumanF1 {
     // `head.high-oblique`. Measured on the wall alone, without the reliefs, and only over the crown, so the head's rings below, which the
     // ear's band is triangulated against, stay where they were.
     const domed = (
-      family: IAutoMovieHumanConicLoft.IFamily,
+      part: LayerSource,
       stations: number[],
       from: number,
     ): number[] => {
       if (!Number.isFinite(from)) return stations;
-      const loft: IAutoMovieViewLoft.IResult = AutoMovieHumanConicLoft.create(
-        { ...family, reliefs: undefined },
-        stations,
-      );
+      const loft: IAutoMovieViewLoft.IResult = AutoMovieViewLoft.create(part(stations, true));
       if (loft.chain === null) return stations;
       const chain: NonNullable<IAutoMovieViewLoft.IResult["chain"]> = loft.chain;
-      const moved = (s: number, t: number): number =>
-        Math.max(
+      const moved = (s: number, t: number): number => {
+        const low: (phase: number) => AutoMovieVector3Tuple = AutoMovieLoftChain.sampler(chain, s);
+        const high: (phase: number) => AutoMovieVector3Tuple = AutoMovieLoftChain.sampler(chain, t);
+        return Math.max(
           ...Array.from(
             { length: FOLD.phases },
             (_: unknown, j: number): number => {
-              const [p, q]: number[][] = [s, t].map((x: number): number[] =>
-                AutoMovieLoftChain.point(
-                  chain,
-                  x,
-                  (2 * Math.PI * j) / FOLD.phases,
-                ),
-              );
+              const phase: number = (2 * Math.PI * j) / FOLD.phases;
+              const p: AutoMovieVector3Tuple = low(phase), q: AutoMovieVector3Tuple = high(phase);
               return Math.hypot(
-                p![0]! - q![0]!,
-                p![1]! - q![1]!,
-                p![2]! - q![2]!,
+                p[0] - q[0],
+                p[1] - q[1],
+                p[2] - q[2],
               );
             },
           ),
         );
+      };
       return stations.flatMap((s: number, i: number): number[] => {
         if (i === 0) return [s];
         const before: number = stations[i - 1]!;
@@ -2207,13 +2193,11 @@ export namespace AutoMovieHumanF1 {
     // the frame alone, not by the rings' whole change, so a section that changes shape on a straight course keeps its layers.
     const swept = (
       family: IAutoMovieHumanConicLoft.IFamily,
+      part: LayerSource,
       stations: number[],
     ): number[] => {
       if (family.centres.length < 3) return stations;
-      const loft: IAutoMovieViewLoft.IResult = AutoMovieHumanConicLoft.create(
-        { ...family, reliefs: undefined },
-        stations,
-      );
+      const loft: IAutoMovieViewLoft.IResult = AutoMovieViewLoft.create(part(stations, true));
       if (loft.chain === null) return stations;
       const chain: NonNullable<IAutoMovieViewLoft.IResult["chain"]> = loft.chain;
       const course: IAutoMovieViewAxis.IAxis =
@@ -2223,15 +2207,12 @@ export namespace AutoMovieHumanF1 {
           course.at(s),
           course.at(t),
         ];
+        const point: (phase: number) => AutoMovieVector3Tuple = AutoMovieLoftChain.sampler(chain, s);
         return Math.max(
           ...Array.from(
             { length: FOLD.phases },
             (_: unknown, j: number): number => {
-              const p: number[] = AutoMovieLoftChain.point(
-                chain,
-                s,
-                (2 * Math.PI * j) / FOLD.phases,
-              );
+              const p: number[] = point((2 * Math.PI * j) / FOLD.phases);
               const r: number[] = [0, 1, 2].map(
                 (k: number): number => p[k]! - from.origin[k]!,
               );
@@ -2268,18 +2249,18 @@ export namespace AutoMovieHumanF1 {
     // more than `FOLD.turn` between an interval's halves, a band's chord angle on the skin's own radius along the course.
     const folded = (
       family: IAutoMovieHumanConicLoft.IFamily,
+      part: LayerSource,
       stations: number[],
     ): number[] => {
-      const loft: IAutoMovieViewLoft.IResult = AutoMovieHumanConicLoft.create(
-        family,
-        stations,
-      );
+      const loft: IAutoMovieViewLoft.IResult = AutoMovieViewLoft.create(part(stations));
       if (loft.chain === null) return stations;
       const chain: NonNullable<IAutoMovieViewLoft.IResult["chain"]> = loft.chain;
-      const ring = (s: number): number[][] =>
-        Array.from({ length: FOLD.phases }, (_: unknown, j: number): number[] =>
-          AutoMovieLoftChain.point(chain, s, (2 * Math.PI * j) / FOLD.phases),
+      const ring = (s: number): number[][] => {
+        const point: (phase: number) => AutoMovieVector3Tuple = AutoMovieLoftChain.sampler(chain, s);
+        return Array.from({ length: FOLD.phases }, (_: unknown, j: number): number[] =>
+          point((2 * Math.PI * j) / FOLD.phases),
         );
+      };
       const between = (
         a: number,
         low: number[][],
@@ -2340,8 +2321,6 @@ export namespace AutoMovieHumanF1 {
     type Attachment = { name: string; hostFace: string; partFace: string; count: number;
       side: 1 | -1; key: string; read?: (h: IAutoMovieViewPart, p: IAutoMovieViewPart) => Located; refusal?: string };
     const attachments = new Map<string, Attachment>();
-    const contacts = new Map<string, Contact>();
-    const originalSources = new Map<string, IAutoMovieViewPart>();
     const attachmentTolerance: number = ATTACHMENT_TOLERANCE;
     const attachmentGrazing: number = ATTACHMENT_GRAZING;
     const reflected = ([s, phase]: readonly [number, number]): [number, number] => [s, -phase];
@@ -2356,16 +2335,16 @@ export namespace AutoMovieHumanF1 {
       jet: (s, p) => { const x = field.jet(s, -p);
         return { p: reflectLocal(x.p), s: reflectLocal(x.s), t: odd(x.t), ss: reflectLocal(x.ss), st: odd(x.st), tt: reflectLocal(x.tt) }; },
     });
-    const contact = (key: string): Contact => {
-      const cached = contacts.get(key);
-      if (cached !== undefined) return cached;
-      let result: Contact;
+    /** Prepare the shared sections and measured incidences from the original source bank of one attachment pair. */
+    const prepareContact = (
+      main: Attachment,
+      other: Attachment,
+      originals: ReadonlyMap<string, IAutoMovieViewPart>,
+    ): Contact => {
       try {
-        const main = [...attachments.values()].find((a) => a.key === key && a.side === 1)!;
-        const other = [...attachments.values()].find((a) => a.key === key && a.side === -1)!;
         if (main.read === undefined) throw new AutoMovieLoftAdmissionError(main.refusal ?? "the attachment has no original divider");
         const readFace = (name: string): IAutoMovieViewPart => {
-          const view = originalSources.get(name);
+          const view = originals.get(name);
           if (view === undefined) throw new AutoMovieLoftAdmissionError("the original attachment source is absent: " + name);
           return view;
         };
@@ -2383,19 +2362,27 @@ export namespace AutoMovieHumanF1 {
         let gap = 0;
         for (let i = 0; i < 2 * main.count; ++i) {
           const clock = Math.PI * i / main.count;
-          const own = AutoMovieHumanJoinLoop.columnGap(h, p, from.hostAt(clock).point, from.childAt(clock).point);
-          const mirror = AutoMovieHumanJoinLoop.columnGap(hm, pm, twin.hostAt(clock).point, twin.childAt(clock).point);
+          const host = from.hostAt(clock).point, child = from.childAt(clock).point;
+          const hostTwin = reflected(host), childTwin = reflected(child);
+          const own = AutoMovieHumanJoinLoop.columnGap(h, p, host, child);
+          const mirror = AutoMovieHumanJoinLoop.columnGap(hm, pm, hostTwin, childTwin);
           observeContact?.(main.name, clock, i % 2 === 1, own, mirror);
-          if (!(own <= attachmentTolerance * 1000 && mirror <= attachmentTolerance * 1000))
-            throw new AutoMovieLoftAdmissionError("the original shared source has gap " + own + " mm and reflected gap " + mirror + " mm at " + clock);
-          gap = Math.max(gap, own);
+          if (!(own <= attachmentTolerance * 1000 && mirror <= attachmentTolerance * 1000)) {
+            const reflectionError = (a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple): number =>
+              Math.hypot(a[0] - b[0], a[1] - b[1], a[2] + b[2]);
+            const hostError: number = reflectionError(h.point(...host), hm.point(...hostTwin));
+            const partError: number = reflectionError(p.point(...child), pm.point(...childTwin));
+            throw new AutoMovieLoftAdmissionError(
+              "the original shared source has gap " + own + " mm and reflected gap " + mirror + " mm at " + clock +
+              " (host reflection error " + hostError + " mm, part reflection error " + partError + " mm)",
+            );
+          }
+          gap = Math.max(gap, own, mirror);
         }
-        result = { kind: "ready", from, twin, gap };
+        return { kind: "ready", from, twin, gap };
       } catch (error: unknown) {
-        result = { kind: "refused", detail: error instanceof Error ? error.message : String(error) };
+        return { kind: "refused", detail: error instanceof Error ? error.message : String(error) };
       }
-      contacts.set(key, result);
-      return result;
     };
     const attached = (
       label: string, host: IAutoMovieConstructionNode, hostFace: string,
@@ -2420,7 +2407,7 @@ export namespace AutoMovieHumanF1 {
       };
     };
     const bind = (parent: IAutoMovieViewPart, child: IAutoMovieViewPart, family: IAutoMovieHumanConicLoft.IFamily,
-      cut: ReturnType<typeof armscyeCut> | ReturnType<typeof thumbCut> | AutoMovieHumanF1Mammary.ILoop |
+      cut: ReturnType<typeof thumbCut> | AutoMovieHumanF1Mammary.ILoop |
         ReturnType<typeof AutoMovieHumanJoinLoop.master>, count: number,
       reach: number | ((size: Size) => number)): Located => {
       const tol = attachmentTolerance * 1000;
@@ -2508,8 +2495,8 @@ export namespace AutoMovieHumanF1 {
     // own source and shared by both sides: the twin's loop is this one reflected (`contact`). The breast is carried back past the loop's
     // deepest station by its fold's reach (`AutoMovieHumanF1Mammary.FOLD_SHARE.reach` of the footprint's height), so every loop point has
     // a section plane of the breast and the fold's band has the breast's own skin under it. The preparation holds the footprint and the
-    // loop on the trunk's source; `on` cuts any other parent's skin by the same footprint.
-    type Mammary = { from: number; fold: IAutoMovieConstructionFoldWidth; reach: number; on: (host: IAutoMovieViewPart) => AutoMovieHumanF1Mammary.ILoop };
+    // loop on the trunk's source.
+    type Mammary = { from: number; fold: IAutoMovieConstructionFoldWidth; reach: number; loop: AutoMovieHumanF1Mammary.ILoop };
     const prepareMammary = (host: IAutoMovieViewPart): Mammary => {
       const thorax = frame("thorax");
       const landmarks = AutoMovieHumanF1Armscye.landmarks(thorax);
@@ -2527,54 +2514,73 @@ export namespace AutoMovieHumanF1 {
         from: Math.min(...own.stations) - attachmentTolerance * 1000,
         fold: { type: "fold", radius: sized.radii[0]! / 1000, radii: sized.radii.map((r: number): number => r / 1000), reach: sized.reach / 1000, cap: sized.cap / 1000 },
         reach: sized.reach,
-        on: (parent: IAutoMovieViewPart): AutoMovieHumanF1Mammary.ILoop => (parent === host ? own : AutoMovieHumanF1Mammary.loop(parent, print)),
+        loop: own,
       };
     };
 
     // The armscye's master, prepared once per declaration on the trunk's own source and shared by the arm's start and its bind. The
     // port starts at the loop's shallowest station on the arm's course, less one address tolerance. A refused trace leaves the arm at
-    // its stored start and refuses again at its bind, so the join fails with its one diagnostic. `on` traces any other parent afresh.
-    type Armscye = { from: number; on: (host: IAutoMovieViewPart) => ReturnType<typeof AutoMovieHumanJoinLoop.master> };
+    // its stored start and refuses again at its bind, so the join fails with its one diagnostic.
+    type Armscye = { from: number; master: () => ReturnType<typeof AutoMovieHumanJoinLoop.master> };
     const prepareArmscye = (host: IAutoMovieViewPart): Armscye => {
       const cut = armscyeCut();
-      const trace = (parent: IAutoMovieViewPart) => AutoMovieHumanJoinLoop.master(
-        parent, SHOULDER_COLUMNS, cut.landmarks, cut.divider, cut.owns, attachmentTolerance * 1000, attachmentGrazing);
       const arm: IAutoMovieHumanConicLoft.IFamily = placed.body.arm;
       try {
-        const own = trace(host);
+        const own = AutoMovieHumanJoinLoop.master(
+          host, SHOULDER_COLUMNS, cut.landmarks, cut.divider, cut.owns, attachmentTolerance * 1000, attachmentGrazing);
         const axis = { name: arm.name, axis: AutoMovieHumanConicLoft.axis(arm) };
         const stations: number[] = Array.from({ length: 2 * SHOULDER_COLUMNS }, (_, k: number): number =>
           AutoMovieHumanJoinLoop.address(axis, [0, arm.knots.at(-1)!], own.at((Math.PI * k) / SHOULDER_COLUMNS).point, arm.knots[0]!)[0]);
-        return { from: Math.max(0, Math.min(...stations) - attachmentTolerance * 1000), on: (parent) => (parent === host ? own : trace(parent)) };
+        return { from: Math.max(0, Math.min(...stations) - attachmentTolerance * 1000), master: () => own };
       } catch (error: unknown) {
-        return { from: arm.knots[0]!, on: (): never => { throw error; } };
+        return { from: arm.knots[0]!, master: (): never => { throw error; } };
       }
     };
-    // The prepared contacts, set once the trunk's own source is declared (with the crotch's root, below) and before the arms and the
-    // breasts that read them; a part outside the declaration has none, and reading it refuses by name.
-    let armscyePrepared: Armscye | undefined, mammaryPrepared: Mammary | undefined;
+
+    /** Prepare only the side starts the requested source names need, on the trunk's own declared wall. */
+    const prepareSideSources = (): { armscye?: Armscye; mammary?: Mammary } => {
+      const needArmscye: boolean = declares(placed.body.arm.name);
+      const needMammary: boolean = declares(placed.body.breast.name);
+      if (!needArmscye && !needMammary) return {};
+      const host: IAutoMovieViewPart = sources.get(trunk) ??
+        leafSource(sourceScope(placed, "trunk").family, -Infinity, WEB_LAYER_MM, layer, Infinity, placed.station(trunk, CROWN_MM), pelvisEnd);
+      return {
+        armscye: needArmscye ? prepareArmscye(host) : undefined,
+        mammary: needMammary ? prepareMammary(host) : undefined,
+      };
+    };
     const armscyeContact = (): Armscye => {
-      if (armscyePrepared === undefined) throw new AutoMovieLoftAdmissionError("the armscye's contact was not prepared: the arm is outside this declaration");
-      return armscyePrepared;
+      if (sideSources.armscye === undefined) throw new AutoMovieLoftAdmissionError("the armscye's contact was not prepared: the arm is outside this declaration");
+      return sideSources.armscye;
     };
     const mammaryContact = (): Mammary => {
-      if (mammaryPrepared === undefined) throw new AutoMovieLoftAdmissionError("the breast's contact was not prepared: the breast is outside this declaration");
-      return mammaryPrepared;
+      if (sideSources.mammary === undefined) throw new AutoMovieLoftAdmissionError("the breast's contact was not prepared: the breast is outside this declaration");
+      return sideSources.mammary;
     };
 
-    /** Close and fit one nail on the same placed view that the digit publishes. */
-    const digitLeaf = (digit: IAutoMovieHumanF1.IDigit, side: 1 | -1): IAutoMovieConstructionNode => {
-      const own: IAutoMovieHumanConicLoft.IFamily = digit.limb === "arm" ? { ...digit.family, turn: FINGER_TURN } : digit.family;
+    /** Prepare the one placed digit source and nail shared by both declarations. */
+    const prepareDigit = (digit: IAutoMovieHumanF1.IDigit) => {
+      const rootFamily: IAutoMovieHumanConicLoft.IFamily = digit.knuckle
+        ? digit.family
+        : AutoMovieHumanConicLoft.extended(digit.family, thumbFrom());
+      const own: IAutoMovieHumanConicLoft.IFamily = digit.limb === "arm" ? { ...rootFamily, turn: FINGER_TURN } : rootFamily;
       const pitch: number = digit.limb === "arm" ? FINGER_LAYER_MM : layer;
-      if (!nailsRequested) return leaf(side === 1 ? own : twin(own), -Infinity, WEB_LAYER_MM, pitch);
+      const original: IAutoMovieViewPart | null = nailsRequested
+        ? leafSource({ ...own, turn: undefined }, -Infinity, WEB_LAYER_MM, pitch)
+        : null;
+      const prepared = original === null ? null : {
+        original,
+        made: AutoMovieHumanF1Nails.createFrom({ ...digit, family: rootFamily }, placed.frames, original),
+      };
+      return { digit, rootFamily, own, pitch, prepared };
+    };
+    type DigitSource = ReturnType<typeof prepareDigit>;
+    const digits: DigitSource[] = placed.digits.map(prepareDigit);
+    const digitByName: ReadonlyMap<string, DigitSource> = new Map(digits.map((source: DigitSource): [string, DigitSource] => [source.own.name, source]));
 
-      let prepared = digits.get(own.name);
-      if (prepared === undefined) {
-        const original: IAutoMovieViewPart = leafSource({ ...own, turn: undefined }, -Infinity, WEB_LAYER_MM, pitch);
-        const made: IAutoMovieHumanF1Nails.IMade = AutoMovieHumanF1Nails.createFrom(digit, placed.frames, original);
-        prepared = { original, made };
-        digits.set(own.name, prepared);
-      }
+    /** Read a side of the digit and fit the prepared nail's bed to its published view. */
+    const digitLeaf = ({ own, pitch, prepared }: DigitSource, side: 1 | -1): IAutoMovieConstructionNode => {
+      if (prepared === null) return leaf(side === 1 ? own : twin(own), -Infinity, WEB_LAYER_MM, pitch);
       const equipped: IAutoMovieHumanConicLoft.IFamily = { ...own, reliefs: [...(own.reliefs ?? []), prepared.made.nail.bed] };
       const family: IAutoMovieHumanConicLoft.IFamily = side === 1 ? equipped : twin(equipped);
       const reliefs: NonNullable<IAutoMovieHumanConicLoft.IFamily["reliefs"]> = family.reliefs!;
@@ -2598,32 +2604,30 @@ export namespace AutoMovieHumanF1 {
       const family: IAutoMovieHumanConicLoft.IFamily = side > 0 ? leaned : twin(leaned);
       const end: number = which === "arm" ? handEnd : footEnd;
       let node: IAutoMovieConstructionNode = leaf(family, -Infinity, WEB_LAYER_MM, layer, end);
-      for (const digit of placed.digits.filter(
-        (d: IAutoMovieHumanF1.IDigit): boolean => d.limb === which && !d.knuckle,
+      for (const source of digits.filter(
+        ({ digit }: DigitSource): boolean => digit.limb === which && !digit.knuckle,
       )) {
         // A part on its host's side is carried back as its own tube (`AutoMovieHumanConicLoft.continued`) past its loop by its fold's reach: the
         // thumb past its root's plane, on the metacarpal (`thumbFrom`).
-        const carried: IAutoMovieHumanConicLoft.IFamily = AutoMovieHumanConicLoft.extended(digit.family, thumbFrom());
-        const part: IAutoMovieConstructionNode = digitLeaf({ ...digit, family: carried }, side);
+        const { digit, rootFamily } = source;
+        const part: IAutoMovieConstructionNode = digitLeaf(source, side);
         node = attached(
           "web", node, family.name, part, part.name,
           side, 48, 4, fold(THUMB_CHORD_MM, THUMB_CHORD_MM, THUMB_CHORD_MM),
-          (parent, child) => bind(parent, child, digit.family, thumbCut(carried), 48, THUMB_CHORD_MM),
+          (parent, child) => bind(parent, child, digit.family, thumbCut(rootFamily), 48, THUMB_CHORD_MM),
         );
       }
       const children: IAutoMovieConstructionSplit.IChild[] = fanned.digits.map(
 
         (name: string): IAutoMovieConstructionSplit.IChild => {
-          const digit: IAutoMovieHumanF1.IDigit = placed.digits.find(
-            (d: IAutoMovieHumanF1.IDigit): boolean => d.family.name === name,
-          )!;
+          const digit: DigitSource = digitByName.get(name)!;
           const part: IAutoMovieConstructionNode = digitLeaf(digit, side);
           return {
             band: "band." + part.name,
             part,
             partFace: part.name,
             partEnd: "bottom",
-            rail: (fanned.rail * rootReach(digit.family)) / 1000,
+            rail: (fanned.rail * rootReach(digit.digit.family)) / 1000,
             correspondence: "length",
           };
         },
@@ -2727,12 +2731,7 @@ export namespace AutoMovieHumanF1 {
     };
     // The side contacts, prepared here in the declaration's order: the crotch's root above declared the trunk's own source, and the
     // arms and breasts below read the contacts; a declaration that leaves the arm or the breast out prepares neither for it.
-    if (declares(placed.body.arm.name) || declares(placed.body.breast.name)) {
-      const trunkSource: IAutoMovieViewPart = sources.get(trunk) ??
-        leafSource(sourceScope(placed, "trunk").family, -Infinity, WEB_LAYER_MM, layer, Infinity, placed.station(trunk, CROWN_MM), pelvisEnd);
-      if (declares(placed.body.arm.name)) armscyePrepared = prepareArmscye(trunkSource);
-      if (declares(placed.body.breast.name)) mammaryPrepared = prepareMammary(trunkSource);
-    }
+    const sideSources: ReturnType<typeof prepareSideSources> = prepareSideSources();
     for (const side of [1, -1] as const) {
       const arm: { node: IAutoMovieConstructionNode; face: string } = limb(
         "arm",
@@ -2754,7 +2753,7 @@ export namespace AutoMovieHumanF1 {
           get cap(): number { return (ARMSCYE_SHARE.cap * armExtent()) / 1000; },
           get reach(): number { return (ARMSCYE_SHARE.reach * armExtent()) / 1000; },
         },
-        (parent, child) => bind(parent, child, placed.body.arm, armscyeContact().on(parent), SHOULDER_COLUMNS, (size: Size): number => ARMSCYE_SHARE.reach * size.extent),
+        (parent, child) => bind(parent, child, placed.body.arm, armscyeContact().master(), SHOULDER_COLUMNS, (size: Size): number => ARMSCYE_SHARE.reach * size.extent),
       );
       // The plate root is a medial attachment. Upper ear geometry keeps its own owners.
       const helix: IAutoMovieHumanConicLoft.IFamily =
@@ -2865,7 +2864,7 @@ export namespace AutoMovieHumanF1 {
           get reach(): number { return mammaryContact().fold.reach!; },
           get cap(): number { return mammaryContact().fold.cap; },
         },
-        (parent, child) => bind(parent, child, placed.body.breast, mammaryContact().on(parent), SHOULDER_COLUMNS, mammaryContact().reach),
+        (parent, child) => bind(parent, child, placed.body.breast, mammaryContact().loop, SHOULDER_COLUMNS, mammaryContact().reach),
       );
     }
     const nosePort: IAutoMovieHumanF1NativeRoot.IRootSpec | undefined = placed.nativePorts?.get(
@@ -2938,42 +2937,37 @@ export namespace AutoMovieHumanF1 {
         grazing: 0.05,
       };
     }
-    for (const [face, view] of sources) originalSources.set(face, view);
-    if (names === undefined)
+    // Bind each bilateral attachment once from the unmodified sources, before publishing the port views.
+    const primary: Attachment[] = [...attachments.values()].filter(({ side }): boolean => side === 1);
+    const contacts: ReadonlyMap<string, Contact> = new Map(withContacts
+      ? primary.map((main): [string, Contact] => [main.key, prepareContact(main, attachments.get(main.name + ".mirror")!, sources)])
+      : []);
+    const contact = (key: string): Contact => contacts.get(key)!;
+    if (withContacts && names === undefined)
       for (const { partFace, side, key } of attachments.values()) {
-        const raw = originalSources.get(partFace);
-        const main = [...attachments.values()].find((part) => part.key === key && part.side === 1);
-        if (raw === undefined || main?.read === undefined) continue;
+        const raw: IAutoMovieViewPart | undefined = sources.get(partFace);
+        if (raw === undefined || !primary.some((main) => main.key === key && main.read !== undefined)) continue;
+        const made: Contact = contact(key);
         sources.set(partFace, { ...raw, get originalSection() {
-          const made = contact(key);
           if (made.kind === "refused") throw new AutoMovieLoftAdmissionError(made.detail);
           return (side === 1 ? made.from : made.twin).view.originalSection!;
         } });
       }
-    let prepared: ReadonlyMap<string, IAutoMovieConstructionSharedLoop.ISource> | undefined;
-    const loopSources = (): ReadonlyMap<string, IAutoMovieConstructionSharedLoop.ISource> => {
-      if (prepared !== undefined) return prepared;
-      const records = new Map<string, IAutoMovieConstructionSharedLoop.ISource>();
+    const loops = new Map<string, IAutoMovieConstructionSharedLoop.ISource>();
+    if (withContacts)
       for (const { name, hostFace, partFace, side, key } of attachments.values()) {
-        const made = contact(key);
-        if (made.kind === "refused") records.set(name, { hostFace, partFace, kind: "refused", detail: made.detail });
+        const made: Contact = contact(key);
+        if (made.kind === "refused") loops.set(name, { hostFace, partFace, kind: "refused", detail: made.detail });
         else {
           const bound = side === 1 ? made.from : made.twin;
-          records.set(name, Object.freeze({ hostFace, partFace, kind: "ready", at: bound.hostAt, partAt: bound.childAt }));
+          loops.set(name, Object.freeze({ hostFace, partFace, kind: "ready", at: bound.hostAt, partAt: bound.childAt }));
         }
       }
-      prepared = records;
-      return records;
-    };
     return {
-      root, sources, fills: [], loopSources,
-      nails: nailsRequested ? placed.digits.map((digit): IAutoMovieHumanF1Nails.IMade => {
-        const prepared = digits.get(digit.family.name);
-        if (prepared === undefined) throw new Error("the production digit has no original nail source: " + digit.family.name);
-        return prepared.made;
-      }) : [],
+      root, sources, fills: [], loopSources: () => loops,
+      nails: nailsRequested ? digits.map(({ prepared }: DigitSource): IAutoMovieHumanF1Nails.IMade => prepared!.made) : [],
       contactPremises: (): IAutoMovieHumanF1.IContactPremise[] =>
-        [...attachments.values()].filter((item) => item.side === 1).map(({ name, hostFace, partFace, key, count }) => {
+        primary.map(({ name, hostFace, partFace, key, count }) => {
           const made = contact(key);
           return made.kind === "ready" ? { name, hostFace, partFace, kind: "prepared", gapMm: made.gap, columns: count }
             : { name, hostFace, partFace, kind: "refused", detail: made.detail };
@@ -3045,11 +3039,12 @@ export namespace AutoMovieHumanF1 {
           .map((layer: { y: number }): number => layer.y)
           .filter((y: number): boolean => y > to),
       ];
-      const rings: number[][][] = layers.map((s: number): number[][] =>
-        Array.from({ length: phases }, (_: unknown, j: number): number[] =>
-          AutoMovieLoftChain.point(chain, s, (2 * Math.PI * j) / phases),
-        ),
-      );
+      const rings: number[][][] = layers.map((s: number): number[][] => {
+        const point: (phase: number) => AutoMovieVector3Tuple = AutoMovieLoftChain.sampler(chain, s);
+        return Array.from({ length: phases }, (_: unknown, j: number): number[] =>
+          point((2 * Math.PI * j) / phases),
+        );
+      });
       for (const sign of mirrored ? [1, -1] : [1]) {
         const positions: number[] = [];
         const indices: number[] = [];

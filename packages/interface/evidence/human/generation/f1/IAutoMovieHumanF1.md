@@ -84,7 +84,7 @@ Required fields are `frames`, `body`, `digits`, `helix`, `antihelix`, `axilla`, 
 
 The sewn body's declaration: its construction tree and the view parts its source leaves name.
 
-## @evidence contracts/development/design.md#principled-representation `root`: The tree: both arm ports over the crotch split over the trunk. `sources`: The complete source part of each named leaf, borrowed immutably for its readers' lifetime. `fills`: The skin's discs faired once it is drawn (`IAutoMovieConstruction.fills`), metres.
+## @evidence contracts/development/design.md#principled-representation `root`: The tree: both arm ports over the crotch split over the trunk. `sources`: The complete source part of each named leaf, borrowed immutably for its readers' lifetime. `loopSources`: The shared chart loops prepared on the original bank used to declare those sources. `fills`: The skin's discs faired once it is drawn (`IAutoMovieConstruction.fills`), metres.
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
@@ -92,7 +92,7 @@ Returned by AutoMovieHumanF1.construction. Also types AutoMovieHumanF1.declared.
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 
-Required fields are `root`, `sources`, `fills`; callers supply the complete record.
+The tree, sources, loop reader and fills are required, so realization can consume the same prepared chart loops as the named sources.
 
 # src/human/generation/f1/IAutoMovieHumanF1.ts#IAutoMovieHumanF1.IBody
 
@@ -254,7 +254,7 @@ A production declaration supplies the records that generated its beds.
 
 ## @evidence contracts/development/design.md#principled-representation
 
-Each actual F1 declaration owns its immutable source bank and the +Z attachment producers that consume it.
+Each F1 declaration owns its immutable source bank and the bilateral attachment readings prepared from it.
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -262,7 +262,7 @@ The aggregate prepares all named contacts before a later operator may require th
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
-Returned by AutoMovieHumanF1's construction builders and extended by IConstructionWithNails. It adds one deferred reader to IConstruction, so the premises are prepared only when asked for.
+Returned by AutoMovieHumanF1's construction builders and extended by IConstructionWithNails. Its reader borrows the same prepared contact records that supply join seeds and bound sections.
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 

@@ -7,32 +7,36 @@ import type {
 
 import { AutoMovieLoftAdmissionError } from "./AutoMovieLoftAdmissionError";
 
-/** World millimetres, copied before a cached source reading is retained. */
-type Point = [number, number, number];
-
-/** Maximum requested rectangular cells per original loop; exceeding it refuses instead of coarsening. */
+/**
+ * Maximum requested rectangular cells per original loop; exceeding it refuses
+ * instead of coarsening.
+ */
 const CELLS: number = 1_000_000;
 
-/** Maximum dyadic refinement levels; an unresolved criterion remains a named refusal. */
+/**
+ * Maximum dyadic refinement levels; an unresolved criterion remains a named
+ * refusal.
+ */
 const DEPTH: number = 16;
 
 /**
- * Source-owned piece grids for the existing mesh consumer, without a fitted curve.
+ * Source-owned piece grids for the existing mesh consumer, without a fitted
+ * curve.
  *
- * Every original guide is a phase mark. A cell reads its original corners,
- * edge midpoints and centre. It refines station/phase directions whose linear
- * chord observations exceed the requested millimetre tolerance; a remaining
- * diagonal-centre discrepancy refines both directions. This finite criterion
- * is not a certified continuous maximum. Work/depth/representability limits
- * refuse the request instead of silently returning an unresolved coarse grid.
+ * Every original guide is a phase mark. A cell reads its original corners, edge
+ * midpoints and centre. It refines station/phase directions whose linear chord
+ * observations exceed the requested millimetre tolerance; a remaining
+ * diagonal-centre discrepancy refines both directions. This finite criterion is
+ * not a certified continuous maximum. Work/depth/representability limits refuse
+ * the request instead of silently returning an unresolved coarse grid.
  *
- * Pure original functions and all their dependencies stay immutable through
- * preparation. A loop's station-major cache reuses exactly equal queries and
- * copies finite results; foreign source exceptions propagate unchanged.
+ * Each level enumerates the samples of its current rectangular cells once.
+ * Boundary checks and chord observations use their row and column positions.
  */
 export namespace AutoMovieConstructionProfileGrid {
   /**
-   * Derive grids from original Point0; malformed or unresolved requests produce no partial output.
+   * Derive grids from original Point0; malformed or unresolved requests produce
+   * no partial output.
    */
   export function create(
     prepared: IAutoMoviePreparedConstructionProfile.IPrepared,
@@ -92,48 +96,14 @@ function grid(
       [...marks].sort((a: number, b: number): number => a - b),
     );
   }
-  const cache: Map<number, Map<string, Map<number, Point>>> = new Map();
-
-  /** Cache only copied successful values of the same immutable original query. */
-  const at: (piece: string, station: number, phase: number) => Point = (
-    piece: string,
-    station: number,
-    phase: number,
-  ): Point => {
-    let row: Map<string, Map<number, Point>> | undefined = cache.get(station);
-    if (row === undefined) {
-      row = new Map();
-      cache.set(station, row);
-    }
-    let curve: Map<number, Point> | undefined = row.get(piece);
-    if (curve === undefined) {
-      curve = new Map();
-      row.set(piece, curve);
-    }
-    const old: Point | undefined = curve.get(phase);
-    if (old !== undefined) return old;
-    const owner: IAutoMovieSolidSurface = prepared.surfaces.get(piece)!;
-    const value: readonly number[] = owner.point!(station, phase);
-    if (
-      !Array.isArray(value) ||
-      value.length !== 3 ||
-      !value.every(Number.isFinite)
-    )
-      fail("Original profile grid has no finite Point0.");
-    const point: Point = [value[0]!, value[1]!, value[2]!];
-    curve.set(phase, point);
-    return point;
-  };
+  const surfaces: IAutoMovieSolidSurface[] = loop.pieces.map(
+    (piece) => prepared.surfaces.get(piece.id)!,
+  );
 
   for (let level: number = 0; level <= DEPTH; level++) {
     const sampleStations: number[] = interleave(stations);
-    const samples: Map<string, number[]> = new Map(
-      [...phases].map(
-        ([key, values]: [string, number[]]): [string, number[]] => [
-          key,
-          interleave(values),
-        ],
-      ),
+    const clocks: number[][] = loop.pieces.map((piece): number[] =>
+      interleave(phases.get(piece.id)!),
     );
     if (
       (stations.length - 1) *
@@ -144,26 +114,52 @@ function grid(
       CELLS
     )
       fail("Original profile grid exceeds its declared cell-work limit.");
-    for (const station of sampleStations)
-      for (const piece of loop.pieces)
-        for (const phase of samples.get(piece.id)!)
-          at(piece.id, station, phase);
+    const samples: Float64Array[] = clocks.map(
+      (phases): Float64Array =>
+        new Float64Array(3 * sampleStations.length * phases.length),
+    );
+    for (let row: number = 0; row < sampleStations.length; row++) {
+      const station: number = sampleStations[row]!;
+      for (let piece: number = 0; piece < surfaces.length; piece++) {
+        const owner: IAutoMovieSolidSurface = surfaces[piece]!;
+        const read: (phase: number) => readonly number[] =
+          owner.pointAt?.(station) ??
+          ((phase: number): readonly number[] => owner.point!(station, phase));
+        const phases: number[] = clocks[piece]!;
+        const values: Float64Array = samples[piece]!;
+        for (let q: number = 0; q < phases.length; q++) {
+          const point: readonly number[] = read(phases[q]!);
+          if (
+            !Array.isArray(point) ||
+            point.length !== 3 ||
+            !point.every(Number.isFinite)
+          )
+            fail("Original profile grid has no finite Point0.");
+          values.set(point, 3 * (row * phases.length + q));
+        }
+      }
+    }
 
     // These checks observe every sampled source row, without turning finite observations into a topology proof.
-    for (const station of sampleStations) {
-      for (let i: number = 0; i < loop.pieces.length; i++)
+    for (let row: number = 0; row < sampleStations.length; row++) {
+      for (let i: number = 0; i < loop.pieces.length; i++) {
+        const next: number = (i + 1) % loop.pieces.length;
         same(
-          at(loop.pieces[i]!.id, station, 1),
-          at(loop.pieces[(i + 1) % loop.pieces.length]!.id, station, 0),
+          samples[i]!,
+          3 * ((row + 1) * clocks[i]!.length - 1),
+          samples[next]!,
+          3 * row * clocks[next]!.length,
           "Original loop has a mismatched boundary in its actual grid.",
         );
-      if (poles.includes(station)) {
-        const point: Point = at(loop.pieces[0]!.id, station, 0);
-        for (const piece of loop.pieces)
-          for (const phase of samples.get(piece.id)!)
+      }
+      if (poles.includes(sampleStations[row]!)) {
+        for (let i: number = 0; i < loop.pieces.length; i++)
+          for (let q: number = 0; q < clocks[i]!.length; q++)
             same(
-              point,
-              at(piece.id, station, phase),
+              samples[0]!,
+              3 * row * clocks[0]!.length,
+              samples[i]!,
+              3 * (row * clocks[i]!.length + q),
               "Declared profile pole is not an actual point collapse at a queried original clock.",
             );
       }
@@ -178,49 +174,65 @@ function grid(
       ),
     );
     let changed: boolean = false;
-    for (const piece of loop.pieces) {
+    for (
+      let pieceIndex: number = 0;
+      pieceIndex < loop.pieces.length;
+      pieceIndex++
+    ) {
+      const piece: IAutoMovieConstructionProfileLoop["pieces"][number] =
+        loop.pieces[pieceIndex]!;
       const values: number[] = phases.get(piece.id)!;
+      const points: Float64Array = samples[pieceIndex]!;
+      const width: number = 3 * clocks[pieceIndex]!.length;
       for (let i: number = 1; i < stations.length; i++)
         for (let j: number = 1; j < values.length; j++) {
-          const a: number = stations[i - 1]!;
-          const b: number = stations[i]!;
-          const c: number = values[j - 1]!;
-          const d: number = values[j]!;
-          const u: number = middle(a, b);
-          const v: number = middle(c, d);
-          const centre: Point = at(piece.id, u, v);
+          const row: number = 2 * i - 1;
+          const column: number = 2 * j - 1;
+          const centre: number = row * width + 3 * column;
           const stationError: number = Math.max(
-            ...[c, v, d].map((phase: number): number =>
-              deviation(
-                at(piece.id, u, phase),
-                at(piece.id, a, phase),
-                at(piece.id, b, phase),
-              ),
+            deviation(
+              points,
+              centre - 3,
+              centre - 3 - width,
+              centre - 3 + width,
+            ),
+            deviation(points, centre, centre - width, centre + width),
+            deviation(
+              points,
+              centre + 3,
+              centre + 3 - width,
+              centre + 3 + width,
             ),
           );
           const phaseError: number = Math.max(
-            ...[a, u, b].map((station: number): number =>
-              deviation(
-                at(piece.id, station, v),
-                at(piece.id, station, c),
-                at(piece.id, station, d),
-              ),
+            deviation(
+              points,
+              centre - width,
+              centre - width - 3,
+              centre - width + 3,
+            ),
+            deviation(points, centre, centre - 3, centre + 3),
+            deviation(
+              points,
+              centre + width,
+              centre + width - 3,
+              centre + width + 3,
             ),
           );
           const diagonal: number = Math.max(
-            deviation(centre, at(piece.id, a, c), at(piece.id, b, d)),
-            deviation(centre, at(piece.id, a, d), at(piece.id, b, c)),
+            deviation(points, centre, centre - width - 3, centre + width + 3),
+            deviation(points, centre, centre - width + 3, centre + width - 3),
           );
           const cross: boolean =
             diagonal > tolerance &&
             stationError <= tolerance &&
             phaseError <= tolerance;
           if (stationError > tolerance || cross) {
-            nextStations.add(u);
+            nextStations.add(sampleStations[row]!);
             changed = true;
           }
           if (phaseError > tolerance || cross) {
-            nextPhases.get(piece.id)!.add(v);
+            nextPhases.get(piece.id)!.add(clocks[pieceIndex]![column]!);
             changed = true;
           }
         }
@@ -253,7 +265,10 @@ function middle(a: number, b: number): number {
   return value;
 }
 
-/** Ordered endpoint and midpoint query marks, without changing any original source support. */
+/**
+ * Ordered endpoint and midpoint query marks, without changing any original
+ * source support.
+ */
 function interleave(values: readonly number[]): number[] {
   const result: number[] = [values[0]!];
   for (let i: number = 1; i < values.length; i++)
@@ -262,28 +277,48 @@ function interleave(values: readonly number[]): number[] {
 }
 
 /** One finite midpoint-to-chord observation in world millimetres. */
-function deviation(point: Point, a: Point, b: Point): number {
+function deviation(
+  points: Float64Array,
+  point: number,
+  a: number,
+  b: number,
+): number {
   const value: number = Math.hypot(
-    ...point.map((v: number, k: number): number => v - (a[k]! / 2 + b[k]! / 2)),
+    points[point]! - (points[a]! / 2 + points[b]! / 2),
+    points[point + 1]! - (points[a + 1]! / 2 + points[b + 1]! / 2),
+    points[point + 2]! - (points[a + 2]! / 2 + points[b + 2]! / 2),
   );
   if (!Number.isFinite(value))
     fail("Original profile chord observation is not finite.");
   return value;
 }
 
-/** Binary64 evaluation budget for a queried source boundary; never a source fit or global certificate. */
-function same(a: Point, b: Point, message: string): void {
-  if (
-    a.some(
-      (v: number, k: number): boolean =>
-        Math.abs(v - b[k]!) >
-        32 * Number.EPSILON * Math.max(1, Math.abs(v), Math.abs(b[k]!)),
+/**
+ * Binary64 evaluation budget for a queried source boundary; never a source fit
+ * or global certificate.
+ */
+function same(
+  a: Float64Array,
+  left: number,
+  b: Float64Array,
+  right: number,
+  message: string,
+): void {
+  for (let k: number = 0; k < 3; k++) {
+    const x: number = a[left + k]!;
+    const y: number = b[right + k]!;
+    if (
+      Math.abs(x - y) >
+      32 * Number.EPSILON * Math.max(1, Math.abs(x), Math.abs(y))
     )
-  )
-    fail(message);
+      fail(message);
+  }
 }
 
-/** Explicit source/numeric admission leaves original callback failures untouched. */
+/**
+ * Explicit source/numeric admission leaves original callback failures
+ * untouched.
+ */
 function fail(message: string): never {
   throw new AutoMovieLoftAdmissionError(message);
 }

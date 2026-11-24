@@ -238,10 +238,14 @@ export function test_human_group_physical_constraints(): void {
     return Fit.readGroup(state, derivatives, [{ rows: () => ({ measured: [common], incidence, inside: [] }) }], outline);
   }, tolerance, 1, undefined, undefined, {
     transfer: (point) => point.length === 1 ? null : point.slice(0, 1),
-    certify: (point) => point.length === 1 && Math.abs(point[0]! - 1.5) <= tolerance && typeof circles(point[0]!) !== "string",
+    certify: (point) => ({
+      admitted: point.length === 1 && Math.abs(point[0]! - 1.5) <= tolerance && typeof circles(point[0]!) !== "string",
+      receipt: [...point],
+    }),
   });
   if (typeof staged === "string" || staged.iteration !== 1 || staged.values.length !== 1 ||
-      staged.outlineRefusal !== null || !reads.some(({ width, derivatives }): boolean => width === 2 && derivatives) ||
+      staged.outlineRefusal !== null || staged.seal?.length !== 1 || staged.seal[0] !== staged.values[0] ||
+      !reads.some(({ width, derivatives }): boolean => width === 2 && derivatives) ||
       !reads.some(({ width, derivatives }): boolean => width === 1 && !derivatives) ||
       reads.some(({ width, derivatives }): boolean => width === 1 && derivatives))
     throw new Error("recovery did not transfer the same real formed stock under one budget before unnecessary differentiation");

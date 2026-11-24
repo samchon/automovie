@@ -9,23 +9,25 @@ import type {
 
 import { AutoMovieLoftViewRead } from "./AutoMovieLoftViewRead";
 
-/**
- * Explicit original scalar ownership and numeric binding snapshots.
- */
+/** Explicit original scalar ownership and numeric binding snapshots. */
 export namespace AutoMovieLoftSectionSource {
   /**
-   * Bind original scalar ownership after ordinary/frame coefficient preparation.
+   * Bind original scalar ownership after ordinary/frame coefficient
+   * preparation.
    */
   export function retain(
     chain: IAutoMovieLoftChain,
     data: IAutoMovieLoftViewSource.ISource,
   ): IAutoMovieLoftChain {
+    const reader: ReturnType<typeof AutoMovieLoftViewRead.prepare> =
+      AutoMovieLoftViewRead.prepare(data);
     const rows: IAutoMovieLoftSectionSourceBinding[] = chain.layers.map(
       (
         layer: IAutoMovieLoftChain.ILayer,
       ): IAutoMovieLoftSectionSourceBinding => {
-        const jets: IAutoMovieLoftViewRead.IJets | string =
-          AutoMovieLoftViewRead.jets(data, layer.y);
+        const jets: IAutoMovieLoftViewRead.IJets | string = reader.jets(
+          layer.y,
+        );
         return remember(layer, typeof jets === "string" ? jets : null);
       },
     );
@@ -33,17 +35,63 @@ export namespace AutoMovieLoftSectionSource {
   }
 
   /**
-   * Validate retained original ownership at the two rows of one station bracket.
+   * Validate retained original ownership at the two rows of one station
+   * bracket.
    */
   export function validate(
     chain: IAutoMovieLoftChain,
     lo: number,
     hi: number,
   ): IAutoMovieLoftSectionSource.ISource | null {
-    const source: IAutoMovieLoftSectionSource.ISource | undefined =
-      chain.nativeSource;
     for (const index of [lo, hi])
       endpoint(chain.layers[index]!, 2 * chain.order);
+    const source: IAutoMovieLoftSectionSource.ISource | null = original(chain);
+    if (source !== null)
+      for (const index of [lo, hi]) checkOriginal(chain, source, index);
+    return source;
+  }
+
+  /**
+   * Validate all layers at the boundary of an immutable chain reading. The
+   * closure publishes the admitted original owner without comparing each
+   * compatibility snapshot again when a bracket is read.
+   */
+  export function prepare(
+    chain: IAutoMovieLoftChain,
+  ): (lo: number, hi: number) => IAutoMovieLoftSectionSource.ISource | null {
+    const source: IAutoMovieLoftSectionSource.ISource | null = original(chain);
+    const invalid: ({ error: unknown } | null)[] = chain.layers.map(
+      (
+        layer: IAutoMovieLoftChain.ILayer,
+        index: number,
+      ): { error: unknown } | null => {
+        try {
+          endpoint(layer, 2 * chain.order);
+          if (source !== null) checkOriginal(chain, source, index);
+          return null;
+        } catch (error: unknown) {
+          return { error };
+        }
+      },
+    );
+    return (
+      lo: number,
+      hi: number,
+    ): IAutoMovieLoftSectionSource.ISource | null => {
+      for (const index of [lo, hi]) {
+        const entry: { error: unknown } | null = invalid[index]!;
+        if (entry !== null) throw entry.error;
+      }
+      return source;
+    };
+  }
+
+  /** Validate the original source's shape independently of a layer bracket. */
+  function original(
+    chain: IAutoMovieLoftChain,
+  ): IAutoMovieLoftSectionSource.ISource | null {
+    const source: IAutoMovieLoftSectionSource.ISource | undefined =
+      chain.nativeSource;
     if (source === undefined) return null;
     if (
       source === null ||
@@ -57,24 +105,28 @@ export namespace AutoMovieLoftSectionSource {
       throw new Error(
         `The present native source of ${chain.name} is malformed or has a changed basis/rule.`,
       );
-    for (const index of [lo, hi]) {
-      const layer: IAutoMovieLoftChain.ILayer = chain.layers[index]!;
-      if (layer.sectionSource !== undefined) continue;
-      const binding: IAutoMovieLoftSectionSourceBinding | null = find(
-        source.rows,
-        layer.y,
-      );
-      if (binding === null || !fits(layer, binding, 2 * chain.order))
-        throw new Error(
-          `Native compatibility rows of ${chain.name} at ${layer.y} were rewritten without re-expressing their source.`,
-        );
-    }
     return source;
   }
 
-  /**
-   * Read a changed endpoint's explicit family or its genuine absence.
-   */
+  /** Compare one principal row with the original snapshot at the same station. */
+  function checkOriginal(
+    chain: IAutoMovieLoftChain,
+    source: IAutoMovieLoftSectionSource.ISource,
+    index: number,
+  ): void {
+    const layer: IAutoMovieLoftChain.ILayer = chain.layers[index]!;
+    if (layer.sectionSource !== undefined) return;
+    const binding: IAutoMovieLoftSectionSourceBinding | null = find(
+      source.rows,
+      layer.y,
+    );
+    if (binding === null || !fits(layer, binding, 2 * chain.order))
+      throw new Error(
+        `Native compatibility rows of ${chain.name} at ${layer.y} were rewritten without re-expressing their source.`,
+      );
+  }
+
+  /** Read a changed endpoint's explicit family or its genuine absence. */
   export function endpoint(
     layer: IAutoMovieLoftChain.ILayer,
     expectedWidth?: number,
@@ -95,9 +147,7 @@ export namespace AutoMovieLoftSectionSource {
     return source;
   }
 
-  /**
-   * Attach actual oriented endpoint data to a newly transformed layer.
-   */
+  /** Attach actual oriented endpoint data to a newly transformed layer. */
   export function bind(
     layer: IAutoMovieLoftChain.ILayer,
     field: IAutoMovieLoftSectionSourceFamily,
@@ -115,7 +165,8 @@ export namespace AutoMovieLoftSectionSource {
   }
 
   /**
-   * Presence/recorded availability of native physical2 at retained layer boundaries.
+   * Presence/recorded availability of native physical2 at retained layer
+   * boundaries.
    */
   export function regular(chain: IAutoMovieLoftChain): boolean {
     const source: IAutoMovieLoftSectionSource.ISource | undefined =
@@ -137,7 +188,10 @@ export namespace AutoMovieLoftSectionSource {
   }
 }
 
-/** Snapshot actual compatibility values; no missing physical jet is invented here. */
+/**
+ * Snapshot actual compatibility values; no missing physical jet is invented
+ * here.
+ */
 function remember(
   layer: IAutoMovieLoftChain.ILayer,
   unavailable: string | null,
@@ -151,7 +205,10 @@ function remember(
   };
 }
 
-/** Compare ordinary rows in their original getter order; every row must be dense finite data at the same output width. */
+/**
+ * Compare ordinary rows in their original getter order; every row must be dense
+ * finite data at the same output width.
+ */
 function fits(
   layer: IAutoMovieLoftChain.ILayer,
   binding: IAutoMovieLoftSectionSourceBinding,
@@ -201,7 +258,10 @@ function find(
   return rows[low]?.station === station ? rows[low]! : null;
 }
 
-/** Whole phase functions require either eight native source2 inputs or complete basis2 rows. */
+/**
+ * Whole phase functions require either eight native source2 inputs or complete
+ * basis2 rows.
+ */
 function family(value: IAutoMovieLoftSectionSourceFamily): boolean {
   if (value === null || value === undefined) return false;
   if (value.kind === "basis")
@@ -238,7 +298,10 @@ function family(value: IAutoMovieLoftSectionSourceFamily): boolean {
   );
 }
 
-/** Native/basis family vectors require own finite numeric entries; sparse arrays never become complete jets. */
+/**
+ * Native/basis family vectors require own finite numeric entries; sparse arrays
+ * never become complete jets.
+ */
 function finiteRow(value: unknown, width: number): boolean {
   if (!Array.isArray(value) || value.length !== width) return false;
   for (let q: number = 0; q < width; q++)
@@ -247,10 +310,11 @@ function finiteRow(value: unknown, width: number): boolean {
 }
 
 /**
- * Numeric rows and nested family tuples compare dense own entries in left/right order.
- * Matching array identity never skips admission. Optional undefined record fields
- * retain their existing absent-field meaning; unavailable curvature remains null.
- * First mismatch stops before later getters, while reached getter failures propagate.
+ * Numeric rows and nested family tuples compare dense own entries in left/right
+ * order. Matching array identity never skips admission. Optional undefined
+ * record fields retain their existing absent-field meaning; unavailable
+ * curvature remains null. First mismatch stops before later getters, while
+ * reached getter failures propagate.
  */
 function same(a: unknown, b: unknown, numeric: boolean = false): boolean {
   if (Array.isArray(a) || Array.isArray(b)) {

@@ -37,12 +37,15 @@ type Segment = readonly [AutoMovieVector2Tuple, AutoMovieVector2Tuple];
  */
 export namespace AutoMovieMeshCourse {
   /**
-   * Cut a mesh on every course plane and read each holding loop.
+   * Cut a mesh on every course plane and read each holding loop. A course with
+   * multiple planes shares one prepared mesh outline.
    *
    * @param mesh The mesh, millimetres.
    * @param planes The course planes by increasing station.
-   * @param tolerance Jump tolerance, millimetres, the features' persistence and the extraction's own flag tolerance (0.5 by default).
-   * @param bridge The extraction's outer-boundary bridge, millimetres (25 by default, `AutoMovieMeshExtract.outline`).
+   * @param tolerance Jump tolerance, millimetres, the features' persistence and
+   *   the extraction's own flag tolerance (0.5 by default).
+   * @param bridge The extraction's outer-boundary bridge, millimetres (25 by
+   *   default, `AutoMovieMeshExtract.outline`).
    * @returns One section per plane, in order.
    */
   export function cut(
@@ -51,11 +54,14 @@ export namespace AutoMovieMeshCourse {
     tolerance: number = 0.5,
     bridge: number = 25,
   ): IAutoMovieMeshCourse.ISection[] {
+    const outline: ReturnType<typeof AutoMovieMeshExtract.prepareOutline> =
+      planes.length < 2
+        ? AutoMovieMeshExtract.outline.bind(undefined, mesh)
+        : AutoMovieMeshExtract.prepareOutline(mesh);
     const sections: IAutoMovieMeshCourse.ISection[] = planes.map(
       (plane: IAutoMovieMeshCourse.IPlane): IAutoMovieMeshCourse.ISection => {
         const n: AutoMovieVector3Tuple = cross(plane.v, plane.u);
-        const cut: IAutoMovieMeshSectionCut = AutoMovieMeshExtract.outline(
-          mesh,
+        const cut: IAutoMovieMeshSectionCut = outline(
           { origin: plane.origin, axes: [n, plane.u, plane.v] },
           [0],
           0,

@@ -26,23 +26,26 @@ const KEYS: readonly (keyof IAutoMovieLoftSurfaceJet)[] = [
 ];
 
 /**
- * Surface jets keep their eager arithmetic while combining only visited spline controls.
- * Independent quadratic surfaces and literal cubic-span weights check geometry; an
- * eager reference checks compatibility for moving frames, lift and reliefs. The
- * reference deliberately shares Hermite/spline primitives and cannot prove those
- * primitives correct. Getter counts check control work, not JavaScript heap bytes.
+ * Surface jets keep their eager arithmetic while combining only visited spline
+ * controls. Independent quadratic surfaces and literal cubic-span weights check
+ * geometry; an eager reference checks compatibility for moving frames, lift and
+ * reliefs. The reference deliberately shares Hermite/spline primitives and
+ * cannot prove those primitives correct. Getter counts check control work, not
+ * JavaScript heap bytes.
  *
  * Scenarios:
+ *
  * 1. Dense eager compatibility for every derivative, moving frames, lift modes,
- *    relief boundaries and phase/station boundaries, including reversed visits.
+ *    relief boundaries and phase/station boundaries, including reversed
+ *    visits.
  * 2. Independent expanded quadratic geometry and two deliberately broken jets.
  * 3. A collapsed cap, out-of-interval refusal and independently owned outputs.
- * 4. First-support/full-sweep reads, cache hits and ninth-insertion eviction.
+ * 4. Sparse single-query reads and an explicit repeated-phase station preparation.
  * 5. Duplicate support at small orders and the old malformed-lift fallback.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Reads every jet field against an independently expanded quadratic surface at the periodic seam, and against the pre-lazy eager composition across nonuniform intervals, moving frames, cubic/quintic/one-sided lift, reliefs, caps and wrapped phases. A deliberate derivative error must fail the independent reader.
- * @evidence contracts/development/testing.md#independent-expectations Independent polynomial derivatives and literal span weights verify geometry without the production interpolation readers; the separately labelled eager oracle verifies arithmetic compatibility using those readers. Each reader rejects a derivative moved by 0.01. Eager compatibility uses exact equality; analytic checks use 1e-9 for floating polynomial interpolation. Counting accessors observe input reads without inspecting private cache layout.
- * @evidence contracts/development/testing.md#distinguishing-cases Covers normal N-control fast paths, duplicate support at N=1/2/3, first/full/repeated/reversed phase visits, wrapping, eight nonpromoting insertion slots and eviction, clone identity, poles, interval tolerance/refusal and fresh vectors. Short lift and absent basis cases only preserve old eager behavior, not valid-loft admission. The existing view-section-chain test owns fitting and C2 continuity of generated view chains. Does not measure current f1 performance.
+ * @evidence contracts/development/testing.md#independent-expectations Independent polynomial derivatives and literal span weights verify geometry without the production interpolation readers; the separately labelled eager oracle verifies arithmetic compatibility using those readers. Each reader rejects a derivative moved by 0.01. Eager compatibility uses exact equality; analytic checks use 1e-9 for floating polynomial interpolation. Counting accessors observe immutable endpoint reads. A direct query uses four control positions and a fixed-station sweep prepares the whole row. Both have three coordinates including lift and three station derivative orders.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers normal N-control fast paths, duplicate support at N=1/2/3, independent point queries, prepared sweeps in both phase orders, wrapping, clone identity, poles, interval tolerance/refusal and fresh vectors. Short lift and absent basis cases preserve eager behavior. The existing view-section-chain test owns fitting and C2 continuity of generated view chains.
  * @evidence contracts/development/testing.md#execution-ownership This discoverable test function owns its synchronous portable synthetic cases. It starts no Human generation, process, browser or GPU and imposes no host time or heap limit.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Dense eager compatibility for every derivative, moving frames, lift modes,).
  */
@@ -204,11 +207,17 @@ function same(
     }
 }
 
-/** Nonuniform layers of quadratic control fields, with optional moving frame and relief. */
+/**
+ * Nonuniform layers of quadratic control fields, with optional moving frame and
+ * relief.
+ */
 function made(n: number, lift: number, moving: boolean): IAutoMovieLoftChain {
   const layers: IAutoMovieLoftChain.ILayer[] = [0, 2, 7].map(
     (s: number): IAutoMovieLoftChain.ILayer => {
-      /** The two independent quadratic coefficient fields at a station derivative order. */
+      /**
+       * The two independent quadratic coefficient fields at a station
+       * derivative order.
+       */
       const row: (a: number, b: number) => number[] = (
         a: number,
         b: number,
@@ -277,7 +286,10 @@ function made(n: number, lift: number, moving: boolean): IAutoMovieLoftChain {
   };
 }
 
-/** Expanded quadratic surface at phase zero: literal span weights on indices 7,0,1,2. */
+/**
+ * Expanded quadratic surface at phase zero: literal span weights on indices
+ * 7,0,1,2.
+ */
 function polynomial(s: number): IAutoMovieLoftSurfaceJet {
   const x: number = 2 + 3 * s + 0.25 * s * s;
   const z: number = -1 + 0.5 * s + 0.125 * s * s;
@@ -298,7 +310,7 @@ function polynomial(s: number): IAutoMovieLoftSurfaceJet {
   };
 }
 
-/** Observe read counts through immutable input accessors, independent of array/cache layout. */
+/** Count the actual amount of input support each public reading prepares. */
 function work(failures: string[]): void {
   const chain: IAutoMovieLoftChain = made(64, 2, false);
   let reads: number = 0;
@@ -315,28 +327,38 @@ function work(failures: string[]): void {
   AutoMovieLoftJet.at(chain, 1, 0);
   if (reads !== 36) failures.push(`first support read ${reads}, expected 36`);
   AutoMovieLoftJet.at(chain, 1, 0);
-  if (reads !== 36)
-    failures.push(`repeated support recombined controls: ${reads}`);
-  for (let j: number = 0; j < 64; j++)
-    AutoMovieLoftJet.at(chain, 1, (j * 2 * Math.PI) / 64);
-  if (reads !== 9 * 64)
-    failures.push(`full sweep read ${reads}, expected ${9 * 64}`);
-  for (let j: number = 63; j >= 0; j--)
-    AutoMovieLoftJet.at(chain, 1, (j * 2 * Math.PI) / 64);
-  if (reads !== 9 * 64)
-    failures.push(`reverse sweep recombined controls: ${reads}`);
-  for (let j: number = 2; j <= 8; j++) AutoMovieLoftJet.at(chain, j / 10, 0);
+  if (reads !== 72)
+    failures.push(
+      `two independent sparse reads visited ${reads} controls, expected 72`,
+    );
   const before: number = reads;
+  const jet: (phase: number) => IAutoMovieLoftSurfaceJet =
+    AutoMovieLoftJet.sampler(chain, 1);
+  const prepared: number = reads - before;
+  if (prepared !== 9 * 64)
+    failures.push(
+      `fixed station read ${prepared} controls, expected ${9 * 64}`,
+    );
+  for (let j: number = 0; j < 64; j++) jet((j * 2 * Math.PI) / 64);
+  for (let j: number = 63; j >= 0; j--) jet((j * 2 * Math.PI) / 64);
+  if (reads !== before + prepared)
+    failures.push(
+      `prepared sweeps read ${reads - before - prepared} additional endpoint controls`,
+    );
 
-  // A hit must not promote the oldest insertion above the ninth station.
-  AutoMovieLoftJet.at(chain, 1, 0);
-  AutoMovieLoftJet.at(chain, 0.9, 0);
-  AutoMovieLoftJet.at(chain, 1, 0);
-  if (reads - before !== 72)
-    failures.push(`insertion eviction work ${reads - before}, expected 72`);
+  same(
+    jet(0.2),
+    eager(chain, 1, 0.2),
+    0,
+    "prepared station geometry",
+    failures,
+  );
 }
 
-/** Pre-lazy eager composition; a compatibility oracle, not an independent spline/Hermite oracle. */
+/**
+ * Pre-lazy eager composition; a compatibility oracle, not an independent
+ * spline/Hermite oracle.
+ */
 function eager(
   chain: IAutoMovieLoftChain,
   s: number,

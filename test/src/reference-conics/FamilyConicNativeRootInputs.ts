@@ -198,7 +198,7 @@ namespace FamilyConicNativeRootInputs {
         Figure.constructionBareFrom(original),
       prepared: IAutoMovieHumanF1NativeLaw.IPrepared = Law.prepare(
         original,
-        originalConstruction.sources,
+        Figure.originalSources(original),
       );
     const bones: Map<number, IAutoMovieHumanF1.IAssembly> = new Map([
       [prepared.fields.hipJointCentreBreadth, original],

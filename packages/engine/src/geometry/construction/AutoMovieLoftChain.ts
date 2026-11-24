@@ -313,9 +313,9 @@ export namespace AutoMovieLoftChain {
   }
 
   /**
-   * Read one point through the original bounded lazy sampler cache.
+   * Read one point using only the spline controls active at its phase.
    *
-   * @param chain Immutable chain/cache identity.
+   * @param chain Immutable chain whose retained sources remain unchanged.
    * @param s Regular station, mm.
    * @param t Phase in radians.
    */

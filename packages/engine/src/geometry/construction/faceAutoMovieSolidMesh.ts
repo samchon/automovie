@@ -14,7 +14,8 @@ import { gridAutoMovieSolidMesh } from "./gridAutoMovieSolidMesh";
 import { openAutoMovieSolidMesh } from "./openAutoMovieSolidMesh";
 
 /**
- * Prepare one complete source partition, then append its admitted face atomically.
+ * Prepare one complete source partition, then append its admitted face
+ * atomically.
  *
  * Named planning refusals call onFailure and return no face, or throw when no
  * callback was supplied. Source/keeps/callback exceptions propagate unchanged.
@@ -26,6 +27,31 @@ import { openAutoMovieSolidMesh } from "./openAutoMovieSolidMesh";
 export function faceAutoMovieSolidMesh(
   mesh: IAutoMovieSolidMesh.IMesh,
   input: IAutoMovieSolidMesh.IFace,
+): IAutoMovieSolidMesh.IOpen[] {
+  return append(mesh, input);
+}
+
+/** Fixed-scope face publication for one append-only tessellation. */
+export namespace faceAutoMovieSolidMesh {
+  /**
+   * Prepare the existing edge incidence for a batch of faces. The caller gives
+   * this closure exclusive ownership of mesh index writes during the batch.
+   * Each admitted face adds its edges to that same incidence.
+   */
+  export function prepare(
+    mesh: IAutoMovieSolidMesh.IMesh,
+  ): (input: IAutoMovieSolidMesh.IFace) => IAutoMovieSolidMesh.IOpen[] {
+    const incidence: IIncidence = edgesOf(mesh.indices);
+    return (input: IAutoMovieSolidMesh.IFace): IAutoMovieSolidMesh.IOpen[] =>
+      append(mesh, input, incidence);
+  }
+}
+
+/** Append through the same admission path for isolated and grouped faces. */
+function append(
+  mesh: IAutoMovieSolidMesh.IMesh,
+  input: IAutoMovieSolidMesh.IFace,
+  incidence?: IIncidence,
 ): IAutoMovieSolidMesh.IOpen[] {
   const prepared: IAutoMovieGridSolidMeshGrid | null | string =
     gridAutoMovieSolidMesh(mesh, input);
@@ -42,10 +68,13 @@ export function faceAutoMovieSolidMesh(
     active.set(edge.b, prepared.chart.get(edge.b)!);
   }
   for (const id of prepared.interior) active.set(id, prepared.chart.get(id)!);
-  const { occupied, directed }: ILedger = incidence(mesh);
+  const { occupied, directed }: IIncidence = incidence ?? edgesOf(mesh.indices);
   const fresh: Set<string> = new Set();
 
-  /** Last actual predicate reading; recording it neither changes nor repeats successful queries. */
+  /**
+   * Last actual predicate reading; recording it neither changes nor repeats
+   * successful queries.
+   */
   const reading: { u: number; v: number; kept: boolean } = {
     u: NaN,
     v: NaN,
@@ -188,7 +217,7 @@ export function faceAutoMovieSolidMesh(
       const a: number = triangle[corner]!;
       const b: number = triangle[(corner + 1) % 3]!;
       const key: string = positive ? `${a}/${b}` : `${b}/${a}`;
-      if ((directed.get(key) ?? 0) !== 0 || fresh.has(key))
+      if (directed.has(key) || fresh.has(key))
         return refuse(
           input,
           "published global edge already has this directed incidence",
@@ -212,90 +241,51 @@ export function faceAutoMovieSolidMesh(
       sample.chart[1],
     );
   }
+  const start: number = mesh.indices.length;
   AutoMovieSolidMeshWrite.emit(
     mesh,
     indices,
     input.surface.orientation * (input.inverted === true ? -1 : 1),
     true,
   );
+  if (incidence !== undefined) addEdges(incidence, mesh.indices, start);
   return open;
 }
 
-/** A mesh's edge incidence as its faces read it, with the index prefix it was read from. */
-interface ILedger {
-  /** The mesh's indices as last read, a copy. */
-  seen: number[];
-
-  /** Unoriented endpoint pairs `minID/maxID` of the read triangles. */
+/** Edge incidence occupied by the current append-only output. */
+interface IIncidence {
+  /** Unoriented endpoint pairs `minID/maxID` of the published triangles. */
   occupied: Set<string>;
-
-  /** How many read triangles hold each unoriented pair, so a pair leaves `occupied` with its last triangle. */
-  pairs: Map<string, number>;
-
-  /** How many read triangles hold each directed edge `a/b`. */
-  directed: Map<string, number>;
+  /** Directed edges `a/b` of the same published triangles. */
+  directed: Set<string>;
 }
 
-/** One ledger per mesh, released with the mesh. */
-const LEDGERS: WeakMap<IAutoMovieSolidMesh.IMesh, ILedger> = new WeakMap();
+/** Build the incidence once from the operation's exact starting triangles. */
+function edgesOf(indices: readonly number[]): IIncidence {
+  const result: IIncidence = { occupied: new Set(), directed: new Set() };
+  addEdges(result, indices, 0);
+  return result;
+}
+
+/** Add the oriented and unoriented edges of newly admitted triangles. */
+function addEdges(
+  incidence: IIncidence,
+  indices: readonly number[],
+  start: number,
+): void {
+  for (let index: number = start; index < indices.length; index += 3)
+    for (let corner: number = 0; corner < 3; corner++) {
+      const a: number = indices[index + corner]!;
+      const b: number = indices[index + ((corner + 1) % 3)]!;
+      incidence.occupied.add(`${Math.min(a, b)}/${Math.max(a, b)}`);
+      incidence.directed.add(`${a}/${b}`);
+    }
+}
 
 /**
- * The edge incidence of every triangle a mesh holds now.
- *
- * Each face needs the pairs and directed edges of all earlier faces. Reading them from the whole index buffer for every face cost the
- * triangle count once per face in string keys, most of a body's realization once it had dozens of faces. The ledger keeps what it read: it
- * finds the first index at which the buffer differs from its copy, takes back the triangles it read from there on, since a checkpoint
- * restore truncates the buffer and later faces refill it, and reads the triangles the buffer now holds from there. The comparison is one
- * pass of numbers; only changed triangles cost keys.
+ * Explain a failed reading against the unchanged polyline source, without
+ * another surface jet or altered admission.
  */
-function incidence(mesh: IAutoMovieSolidMesh.IMesh): ILedger {
-  let ledger: ILedger | undefined = LEDGERS.get(mesh);
-  if (ledger === undefined) {
-    ledger = {
-      seen: [],
-      occupied: new Set(),
-      pairs: new Map(),
-      directed: new Map(),
-    };
-    LEDGERS.set(mesh, ledger);
-  }
-  const { seen, occupied, pairs, directed }: ILedger = ledger;
-  const common: number = Math.min(seen.length, mesh.indices.length);
-  let same: number = 0;
-  while (same < common && seen[same] === mesh.indices[same]) ++same;
-  same -= same % 3;
-  for (let index: number = same; index < seen.length; index += 3)
-    for (let corner: number = 0; corner < 3; corner++) {
-      const a: number = seen[index + corner]!;
-      const b: number = seen[index + ((corner + 1) % 3)]!;
-      const pair: string = `${Math.min(a, b)}/${Math.max(a, b)}`;
-      const held: number = pairs.get(pair)! - 1;
-      if (held === 0) {
-        pairs.delete(pair);
-        occupied.delete(pair);
-      } else pairs.set(pair, held);
-      const key: string = `${a}/${b}`;
-      const count: number = directed.get(key)! - 1;
-      if (count === 0) directed.delete(key);
-      else directed.set(key, count);
-    }
-  seen.length = same;
-  for (let index: number = same; index < mesh.indices.length; index += 3)
-    for (let corner: number = 0; corner < 3; corner++) {
-      const a: number = mesh.indices[index + corner]!;
-      const b: number = mesh.indices[index + ((corner + 1) % 3)]!;
-      const pair: string = `${Math.min(a, b)}/${Math.max(a, b)}`;
-      pairs.set(pair, (pairs.get(pair) ?? 0) + 1);
-      occupied.add(pair);
-      const key: string = `${a}/${b}`;
-      directed.set(key, (directed.get(key) ?? 0) + 1);
-    }
-  for (let index: number = same; index < mesh.indices.length; index++)
-    seen.push(mesh.indices[index]!);
-  return ledger;
-}
-
-/** Explain a failed reading against the unchanged polyline source, without another surface jet or altered admission. */
 function membership(
   input: IAutoMovieSolidMesh.IFace,
   source: (u: number, v: number) => boolean,
@@ -360,7 +350,10 @@ function membership(
   });
 }
 
-/** Named planning refusal differs from arbitrary user/source callback exceptions. */
+/**
+ * Named planning refusal differs from arbitrary user/source callback
+ * exceptions.
+ */
 function refuse(
   input: IAutoMovieSolidMesh.IFace,
   detail: string,

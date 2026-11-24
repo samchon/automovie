@@ -13,23 +13,21 @@ import { AutoMovieViewAxisJet } from "./AutoMovieViewAxisJet";
 import { AutoMovieViewOutline } from "./AutoMovieViewOutline";
 import { AutoMovieViewParameter } from "./AutoMovieViewParameter";
 
+/** Private capability carrying the copied metre declaration on a prepared axis. */
+const DECLARATION: unique symbol = Symbol("parallel axis declaration");
+
+/** An axis prepared from an authored parallel chart. */
+type DeclaredAxis = IAutoMovieViewAxis.IAxis & {
+  /** Return an independent copy of the original declaration. */
+  [DECLARATION]?: () => IAutoMovieConstructionParallelAxis;
+};
+
 /**
- * Parallel source planes: fixed chart axes translated by three admitted source-coordinate curves, independent of the origin course's tangent.
+ * Parallel source planes: fixed chart axes translated by three admitted
+ * source-coordinate curves, independent of the origin course's tangent.
  */
 export namespace AutoMovieViewParallelAxis {
-  /**
-   * Original declarations keyed weakly by their actual prepared source axis.
-   *
-   * The weak identity lookup reuses the authored record without searching, sampling or rebuilding an interpolation. It contains only axes actually prepared from their declarations. Each live factory axis retains one copied declaration; a dead weak key releases that metadata. Public from/source own this serialization contract.
-   */
-  const DECLARATIONS: WeakMap<
-    IAutoMovieViewAxis.IAxis,
-    IAutoMovieConstructionParallelAxis
-  > = new WeakMap();
-
-  /**
-   * Admit fixed planes and their original coordinate curves.
-   */
+  /** Admit fixed planes and their original coordinate curves. */
   export function create(
     origin: IAutoMovieViewParallelAxis.IOrigin,
     u: AutoMovieVector3Tuple,
@@ -116,7 +114,8 @@ export namespace AutoMovieViewParallelAxis {
   }
 
   /**
-   * Prepare the source axis from its authoritative metre declaration, retaining that same declaration for tree serialization.
+   * Prepare the source axis from its authoritative metre declaration, retaining
+   * that same declaration for tree serialization.
    */
   export function from(
     declaration: IAutoMovieConstructionParallelAxis,
@@ -131,25 +130,34 @@ export namespace AutoMovieViewParallelAxis {
       [original.u.x, original.u.y, original.u.z],
       [original.v.x, original.v.y, original.v.z],
     );
-    if (typeof axis !== "string") DECLARATIONS.set(axis, original);
+    if (typeof axis !== "string")
+      Object.defineProperty(axis, DECLARATION, {
+        value: (): IAutoMovieConstructionParallelAxis => copy(original),
+      });
     return axis;
   }
 
   /**
-   * Copy the actual declaration of an axis prepared by from; return null for an arbitrary or other-kind axis.
+   * Copy the actual declaration of an axis prepared by from; return null for an
+   * arbitrary or other-kind axis.
    */
   export function source(
     axis: IAutoMovieViewAxis.IAxis,
   ): IAutoMovieConstructionParallelAxis | null {
-    const original: IAutoMovieConstructionParallelAxis | undefined =
-      DECLARATIONS.get(axis);
-    return original === undefined ? null : copy(original);
+    if (axis === null || typeof axis !== "object") return null;
+    return Object.hasOwn(axis, DECLARATION)
+      ? (axis as DeclaredAxis)[DECLARATION]!()
+      : null;
   }
 
   /**
    * Copy one source declaration without converting its metre units.
    *
-   * Copies every coordinate knot list, parameter record and basis to isolate retained metadata and returned declarations from caller mutation. No numeric input is fitted, sampled or replaced. O(n) copying in coordinate knot count produces fresh caller-owned curves and fixed-size basis records; it cannot alias an earlier mutable ownership copy.
+   * Copies every coordinate knot list, parameter record and basis to isolate
+   * retained metadata and returned declarations from caller mutation. No
+   * numeric input is fitted, sampled or replaced. O(n) copying in coordinate
+   * knot count produces fresh caller-owned curves and fixed-size basis records;
+   * it cannot alias an earlier mutable ownership copy.
    */
   function copy(
     declaration: IAutoMovieConstructionParallelAxis,

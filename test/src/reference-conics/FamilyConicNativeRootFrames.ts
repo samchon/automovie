@@ -161,8 +161,7 @@ namespace FamilyConicNativeRootFrames {
     await fs.mkdir(output, { recursive: true });
     const started: number = performance.now(),
       original: IAutoMovieHumanF1.IAssembly = Figure.assemble(),
-      originals: ReturnType<typeof Figure.constructionFrom>["sources"] =
-        Figure.constructionBareFrom(original).sources,
+      originals: ReturnType<typeof Figure.originalSources> = Figure.originalSources(original),
       prepared: IAutoMovieHumanF1NativeLaw.IPrepared = Law.prepare(original, originals);
     const bones: Map<number, IAutoMovieHumanF1.IAssembly> = new Map([
         [prepared.fields.hipJointCentreBreadth, original],

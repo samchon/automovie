@@ -1092,3 +1092,25 @@ The add and drop paths now divide both pivots by their largest magnitude before 
 | Active-set iterations | 235 | 236 |
 
 The original affine tolerances and polish gate still apply. The independent `test_human_fit_active_set` control has a subnormal tail in the first active row and an exact optimum where two later rows meet. The old code missed the second row's multiplier and returned `(y, w) = (0, 1)` in place of `(0.25, 0.75)`. The control passes with the scaled rotations.
+
+### Prepared fan readings, 2026-11-24
+
+A fit prepares the fixed course frames, distinct station indices, phase rays and cut interpolation factors for each member. A derivative reads the section's local point velocity in each field and multiplies it by that knot's natural-cubic cardinal weight. Trial reads still resolve the full conic fields. Seam and wedge work follows the moved section's incident pairs. Cut preparation supplies integer mesh edges and conservative spatial bounds to each section query. The row layout, elastic row signs, reach in the trust metric and Hessian block structure are fixed for a reading. The numerical solve uses the rows that can bind in the particular trial box.
+
+The initial declaration supplies the fixed host. The candidate sources, prepared end cuts, certificates and trial rows then follow the state that owns them. The fixed-station loft readers and prepared sections leave repeated frame, original binding and cap checks at their preparation scope. The nail and native source readers carry their inputs through their respective declarations.
+
+The bounded hand and leg profiles used the same authored inputs and three readings as the earlier bounded measurements. The base and derivative readings agree on the number of control groups and the base energy row count. The derivative builds fewer sections because the knot columns share the exact linear field basis.
+
+| Quantity | Hand before | Hand prepared | Leg before | Leg prepared |
+| --- | ---: | ---: | ---: | ---: |
+| Physical prefix restoration, s | 15.971 | 12.208 | 18.118 | 12.180 |
+| Initial actual stock, s | 4.471 | 2.919 | 7.790 | 0.709 |
+| First geometry reading, s | 0.872 | 0.535 | 1.333 | 0.738 |
+| First derivative, s | 5.416 | 2.784 | 7.432 | 3.869 |
+| Sections in the first derivative | 7,635 | 2,479 | 16,495 | 5,087 |
+| Grouped columns | 120 | 120 | 140 | 140 |
+| First affine solve and KKT check, s | 0.605 | 0.635 | 1.919 | 1.112 |
+
+The prepared timings separate work shared across step attempts. Affine preparation added 0.082 s for the hand and 0.113 s for the leg once per derivative reading. The first prepared trial took 0.531 s for the hand and 0.599 s for the leg. The leg solved the first elastic program with stationarity `3.25e-16` and slack `0.07957497`. The earlier leg run stopped at its first affine solve. The three-reading bound ends before acceptance of a trial, so the resulting readings carry no fit or shape verdict.
+
+On the original arm port, the side-root derivative went from 771 to 522 ms. The base and prepared runs both resolved 4,830 sections for 160 columns and returned identical base star and fold diagnostics. Compared with a complete spline rebuild, the prepared columns differed by at most `7.99e-6` on the fairing rows and `5.91e-8` on the star rows.

@@ -51,6 +51,34 @@ export namespace FamilyConicSource {
     measured?: boolean[];
   }
 
+  /** The cut readers sharing one mesh's prepared topology and spatial index. */
+  export interface IPrepared {
+    /** The outermost section that winds around the origin. */
+    cut(
+      frame: IAutoMovieLoftSectionFrame,
+      bridge?: number,
+      observeEdges?: boolean,
+    ): ICut;
+    /** All raw section chains in the frame chart. */
+    chains(
+      frame: IAutoMovieLoftSectionFrame,
+    ): { points: C.P[]; closed: boolean }[];
+    /** The closed section loops, counter-clockwise in the frame chart. */
+    loops(frame: IAutoMovieLoftSectionFrame): C.P[][];
+  }
+
+  /** Prepare one mesh for the series of section planes a course or fit observes. */
+  export function prepare(mesh: IAutoMovieMillimeterMesh): IPrepared {
+    const outline: ReturnType<typeof M.prepareOutline> = M.prepareOutline(mesh);
+    return {
+      cut: (frame, bridge = 3, observeEdges = false): ICut =>
+        cutFrom(outline, frame, bridge, observeEdges),
+      chains: (frame): ReturnType<IPrepared["chains"]> =>
+        chainsFrom(outline, frame),
+      loops: (frame): C.P[][] => loopsFrom(outline, frame),
+    };
+  }
+
   /** Load the reference from the repository root. */
   export async function load(root: string): Promise<ISource> {
     const read = async <T>(relative: string): Promise<T> =>
@@ -114,10 +142,13 @@ export namespace FamilyConicSource {
   }
 
   /**
-   * Cut a mesh by a frame's plane and read the loop round its origin in the frame's chart.
+   * Cut a mesh by a frame's plane and read the loop round its origin in the
+   * frame's chart.
    *
-   * @param bridge Longest gap between open chains' ends the outer boundary closes where no closed loop winds round the origin, mm.
-   * @param observeEdges Record exact original edges so a joined boundary's synthetic gap cannot become an observation.
+   * @param bridge Longest gap between open chains' ends the outer boundary
+   *   closes where no closed loop winds round the origin, mm.
+   * @param observeEdges Record exact original edges so a joined boundary's
+   *   synthetic gap cannot become an observation.
    */
   export function cut(
     mesh: IAutoMovieMillimeterMesh,
@@ -125,17 +156,23 @@ export namespace FamilyConicSource {
     bridge: number = 3,
     observeEdges: boolean = false,
   ): ICut {
-    const n: V = [
-      frame.v[1] * frame.u[2] - frame.v[2] * frame.u[1],
-      frame.v[2] * frame.u[0] - frame.v[0] * frame.u[2],
-      frame.v[0] * frame.u[1] - frame.v[1] * frame.u[0],
-    ];
-    const place: IAutoMovieMeshSectionFrame = {
-      origin: [...frame.origin] as V,
-      axes: [n, [...frame.u] as V, [...frame.v] as V],
-    };
-    const section: IAutoMovieMeshSectionCut = M.outline(
-      mesh,
+    return cutFrom(
+      M.outline.bind(undefined, mesh),
+      frame,
+      bridge,
+      observeEdges,
+    );
+  }
+
+  /** Read the holding loop from the selected outline source. */
+  function cutFrom(
+    outline: ReturnType<typeof M.prepareOutline>,
+    frame: IAutoMovieLoftSectionFrame,
+    bridge: number,
+    observeEdges: boolean,
+  ): ICut {
+    const place: IAutoMovieMeshSectionFrame = sectionFrame(frame);
+    const section: IAutoMovieMeshSectionCut = outline(
       place,
       [0],
       0,
@@ -155,7 +192,7 @@ export namespace FamilyConicSource {
 
     // Where the body and head skins meet their rims do not share vertices, so a cut through the seam chains into open pieces; the extractor's own bridging joins ends up to 3 mm apart into the outer boundary.
     if (round.length === 0)
-      round = closed(M.outline(mesh, place, [0], 0, 0.5, bridge)[0]!.outer);
+      round = closed(outline(place, [0], 0, 0.5, bridge)[0]!.outer);
     // Several loops round the origin are nested shells (the head mesh carries its mouth and throat lining): the skin is the outermost, the one of largest area.
     const outer: C.P[] | null =
       round.length === 0
@@ -164,45 +201,87 @@ export namespace FamilyConicSource {
             area(b) > area(a) ? b : a,
           );
     if (!observeEdges || outer === null)
-      return { loop: outer, around: round.length, pieces: section.loops.length };
+      return {
+        loop: outer,
+        around: round.length,
+        pieces: section.loops.length,
+      };
     const edge = (a: readonly number[], b: readonly number[]): string => {
       const [p, q] = [a.join(","), b.join(",")];
       return p < q ? p + "/" + q : q + "/" + p;
     };
     const recorded: Set<string> = new Set(
       section.loops.flatMap((loop: IAutoMovieMeshSectionChain): string[] =>
-        loop.points.slice(0, loop.closed ? loop.points.length : -1).map(
-          (p, i): string => edge(p, loop.points[(i + 1) % loop.points.length]!),
-        ),
+        loop.points
+          .slice(0, loop.closed ? loop.points.length : -1)
+          .map((p, i): string =>
+            edge(p, loop.points[(i + 1) % loop.points.length]!),
+          ),
       ),
     );
-    const measured = outer.map((p: C.P, i: number): boolean => recorded.has(edge(p, outer[(i + 1) % outer.length]!)));
-    return { loop: outer, around: round.length, pieces: section.loops.length, measured };
+    const measured = outer.map((p: C.P, i: number): boolean =>
+      recorded.has(edge(p, outer[(i + 1) % outer.length]!)),
+    );
+    return {
+      loop: outer,
+      around: round.length,
+      pieces: section.loops.length,
+      measured,
+    };
   }
 
-  /** Every chain of a mesh's cut by a frame's plane in the frame's chart, closed or open, in the order the cut gives them: a plane through an opening of the mesh has open chains only. */
-  export function chains(mesh: IAutoMovieMillimeterMesh, frame: IAutoMovieLoftSectionFrame): { points: C.P[]; closed: boolean }[] {
-    const n: V = [frame.v[1] * frame.u[2] - frame.v[2] * frame.u[1], frame.v[2] * frame.u[0] - frame.v[0] * frame.u[2], frame.v[0] * frame.u[1] - frame.v[1] * frame.u[0]];
-    const section: IAutoMovieMeshSectionCut = M.outline(mesh, { origin: [...frame.origin] as V, axes: [n, [...frame.u] as V, [...frame.v] as V] }, [0], 0, 0.5, 0)[0]!;
-    return section.loops.map((loop: IAutoMovieMeshSectionChain): { points: C.P[]; closed: boolean } => ({ points: [...loop.points], closed: loop.closed }));
+  /**
+   * Every chain of a mesh's cut by a frame's plane in the frame's chart, closed
+   * or open, in the order the cut gives them: a plane through an opening of the
+   * mesh has open chains only.
+   */
+  export function chains(
+    mesh: IAutoMovieMillimeterMesh,
+    frame: IAutoMovieLoftSectionFrame,
+  ): { points: C.P[]; closed: boolean }[] {
+    return chainsFrom(M.outline.bind(undefined, mesh), frame);
   }
 
-  /** Every closed loop of a mesh's cut by a frame's plane, counter-clockwise in the frame's chart, whether or not it winds round the origin. */
+  /** Read all raw chains from the selected outline source. */
+  function chainsFrom(
+    outline: ReturnType<typeof M.prepareOutline>,
+    frame: IAutoMovieLoftSectionFrame,
+  ): ReturnType<IPrepared["chains"]> {
+    const section: IAutoMovieMeshSectionCut = outline(
+      sectionFrame(frame),
+      [0],
+      0,
+      0.5,
+      0,
+    )[0]!;
+    return section.loops.map(
+      (
+        loop: IAutoMovieMeshSectionChain,
+      ): { points: C.P[]; closed: boolean } => ({
+        points: [...loop.points],
+        closed: loop.closed,
+      }),
+    );
+  }
+
+  /**
+   * Every closed loop of a mesh's cut by a frame's plane, counter-clockwise in
+   * the frame's chart, whether or not it winds round the origin.
+   */
   export function loops(
     mesh: IAutoMovieMillimeterMesh,
     frame: IAutoMovieLoftSectionFrame,
   ): C.P[][] {
-    const n: V = [
-      frame.v[1] * frame.u[2] - frame.v[2] * frame.u[1],
-      frame.v[2] * frame.u[0] - frame.v[0] * frame.u[2],
-      frame.v[0] * frame.u[1] - frame.v[1] * frame.u[0],
-    ];
-    const section: IAutoMovieMeshSectionCut = M.outline(
-      mesh,
-      {
-        origin: [...frame.origin] as V,
-        axes: [n, [...frame.u] as V, [...frame.v] as V],
-      },
+    return loopsFrom(M.outline.bind(undefined, mesh), frame);
+  }
+
+  /** Read the wound closed loops from the selected outline source. */
+  function loopsFrom(
+    outline: ReturnType<typeof M.prepareOutline>,
+    frame: IAutoMovieLoftSectionFrame,
+  ): C.P[][] {
+    const section: IAutoMovieMeshSectionCut = outline(
+      sectionFrame(frame),
       [0],
       0,
       0.5,
@@ -213,6 +292,21 @@ export namespace FamilyConicSource {
       .map((loop: IAutoMovieMeshSectionChain): C.P[] =>
         area(loop.points) < 0 ? [...loop.points].reverse() : [...loop.points],
       );
+  }
+
+  /** Express the course section as an outline frame with normal `v × u`. */
+  function sectionFrame(
+    frame: IAutoMovieLoftSectionFrame,
+  ): IAutoMovieMeshSectionFrame {
+    const n: V = [
+      frame.v[1] * frame.u[2] - frame.v[2] * frame.u[1],
+      frame.v[2] * frame.u[0] - frame.v[0] * frame.u[2],
+      frame.v[0] * frame.u[1] - frame.v[1] * frame.u[0],
+    ];
+    return {
+      origin: [...frame.origin] as V,
+      axes: [n, [...frame.u] as V, [...frame.v] as V],
+    };
   }
 
   /**

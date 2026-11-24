@@ -162,7 +162,7 @@ export namespace IAutoMovieHumanF1 {
     /** The view part of every source leaf, by its name. */
     sources: ReadonlyMap<string, IAutoMovieViewPart>;
 
-    /** Prepare and borrow the evaluated shared chart loops of this declaration and its exact source bank. */
+    /** Borrow the shared chart loops prepared from this declaration's own original source bank. */
     readonly loopSources: () => ReadonlyMap<string, IAutoMovieConstructionSharedLoop.ISource>;
 
     /** The skin's discs faired once it is drawn (`IAutoMovieConstruction.fills`), metres. */
@@ -178,10 +178,10 @@ export namespace IAutoMovieHumanF1 {
   }
 
   /**
-   * An original or bedded figure with its deferred side-attachment preparation.
+   * An original or bedded figure with its prepared side-attachment readings.
    */
   export interface IConstructionWithContacts extends IConstruction {
-    /** Observe every authored side attachment against this invocation's actual source bank before mesh admission. */
+    /** Read the prepared measurement or refusal of each authored side attachment before mesh admission. */
     readonly contactPremises: () => readonly IContactPremise[];
   }
 

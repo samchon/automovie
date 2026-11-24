@@ -19,18 +19,10 @@ import type {
 
 /** A full native source generated from qualified F1 controls, independently of any loft. */
 export namespace AutoMovieHumanNativeFamily {
-  /** Invocation-local canonical controls, cap binding and independent density estimate. */
+  /** Canonical controls and their prepared scalar reader in one cap scope. */
   interface IPreparedSource {
-    values: number[][];
-    knots: number[];
-    layout: IAutoMovieHumanConicSection.ILayout;
-    caps: string;
     source: IAutoMovieViewPart;
-    /** Selected name/source identity participates in this local cache. */
-    selected: IAutoMovieViewPart | undefined;
-    /** Named source identity in the same invocation cache. */
-    name: string;
-    girth: number;
+    values: ReturnType<typeof AutoMovieLoftViewRead.prepare>["values"];
   }
 
   /** The bound native source and control inputs for this invocation. */
@@ -199,270 +191,242 @@ export namespace AutoMovieHumanNativeFamily {
     const material: boolean =
       prior.knots.every((s: number): boolean => spec.station(s) === s) &&
       original.stations.every((s: number): boolean => spec.station(s) === s);
-    let prepared: IPreparedSource | undefined;
     /** The caller cap/scalar scope is prepared once, independently of tessellation. */
     const prepareSource = (family: IAutoMovieHumanConicLoft.IFamily): IPreparedSource => {
-      const caps: string = JSON.stringify(family.tips ?? null);
       const selected: IAutoMovieViewPart | undefined = spec.authority === undefined ? undefined :
         A.select(spec.authority, family, made, spec.originals);
-      if (
-        prepared === undefined ||
-        prepared.values !== family.values ||
-        prepared.knots !== family.knots ||
-        prepared.layout !== family.layout ||
-        prepared.caps !== caps || prepared.name !== family.name || prepared.selected !== selected
-      ) {
-        const canonical: IAutoMovieViewPart = selected ?? H.part(
-          { ...family, native: undefined, reliefs: undefined, turn: undefined },
-          original.stations.map(spec.station),
+      const canonical: IAutoMovieViewPart = selected ?? H.part(
+        { ...family, native: undefined, reliefs: undefined, turn: undefined },
+        original.stations.map(spec.station),
+      );
+      const sameControls: boolean = A.controls(family, made);
+      const sameCaps: boolean =
+        A.capEqual(family.tips?.[0], made.tips?.[0]) &&
+        A.capEqual(family.tips?.[1], made.tips?.[1]) &&
+        canonical.pole === original.pole &&
+        canonical.stations[0] === original.stations[0] &&
+        canonical.stations.at(-1) === original.stations.at(-1);
+      // A request whose caps differ from the generated family's (production drops a limb's distal cap, as its original source does)
+      // has its own source function: the original controls under the requested caps, unscaled. A jet-carrying scale applies to that
+      // function as it does to the stored original; scaling its knot controls instead would miss the law between the family's knots.
+      const uncap = (end: IAutoMovieHumanConicLoft.ITip | null): IAutoMovieHumanConicLoft.ITip | null =>
+        end === null || end.centre === undefined
+          ? end
+          : {
+              ...end,
+              centre: end.centre.map(
+                (x: number, k: number): number =>
+                  centreAt(end.from)[k]! +
+                  (x - centreAt(end.from)[k]!) / spec.scale(end.from)[k]!,
+              ) as [number, number],
+            };
+      const requested = (): IAutoMovieViewPart =>
+        H.part(
+          {
+            ...family,
+            native: undefined,
+            reliefs: undefined,
+            turn: undefined,
+            values: prior.values,
+            knots: prior.knots,
+            ...(family.tips === undefined
+              ? {}
+              : { tips: [uncap(family.tips[0]), uncap(family.tips[1])] }),
+          },
+          original.stations,
         );
-        const sameControls: boolean = A.controls(family, made);
-        const sameCaps: boolean =
-          A.capEqual(family.tips?.[0], made.tips?.[0]) &&
-          A.capEqual(family.tips?.[1], made.tips?.[1]) &&
-          canonical.pole === original.pole &&
-          canonical.stations[0] === original.stations[0] &&
-          canonical.stations.at(-1) === original.stations.at(-1);
-        // A request whose caps differ from the generated family's (production drops a limb's distal cap, as its original source does)
-        // has its own source function: the original controls under the requested caps, unscaled. A jet-carrying scale applies to that
-        // function as it does to the stored original; scaling its knot controls instead would miss the law between the family's knots.
-        const uncap = (end: IAutoMovieHumanConicLoft.ITip | null): IAutoMovieHumanConicLoft.ITip | null =>
-          end === null || end.centre === undefined
-            ? end
-            : {
-                ...end,
-                centre: end.centre.map(
-                  (x: number, k: number): number =>
-                    centreAt(end.from)[k]! +
-                    (x - centreAt(end.from)[k]!) / spec.scale(end.from)[k]!,
-                ) as [number, number],
-              };
-        const requested = (): IAutoMovieViewPart =>
-          H.part(
-            {
-              ...family,
-              native: undefined,
-              reliefs: undefined,
-              turn: undefined,
-              values: prior.values,
-              knots: prior.knots,
-              ...(family.tips === undefined
-                ? {}
-                : { tips: [uncap(family.tips[0]), uncap(family.tips[1])] }),
-            },
-            original.stations,
+      // A scaling centre moves coordinates as a station function even under a constant ratio, so only the function law can carry
+      // it; an exact unit ratio leaves every coordinate where it is and keeps the paths below.
+      const centred: boolean =
+        spec.centre !== undefined &&
+        !(
+          (uniform || (profile !== null && profile.constant !== null)) &&
+          firstScale[0] === 1 &&
+          firstScale[1] === 1
+        );
+      if (
+        centred &&
+        selected === undefined &&
+        !(sameControls && profile !== null && material)
+      )
+        throw new Error(
+          "a scaling centre needs a jet-carrying scale on unchanged controls in the family's own material stations: " +
+            family.name,
+        );
+      const source: IAutoMovieViewPart =
+        selected ??
+        (sameControls && sameCaps && uniform && !centred
+          ? AutoMovieHumanNativeSourceLaw(original, spec.axis, firstScale, [])
+          : sameControls && profile !== null && material
+            ? AutoMovieHumanNativeSourceLaw(
+                sameCaps ? original : requested(),
+                spec.axis,
+                profile,
+                [],
+                centred ? spec.centre : undefined,
+              )
+            : canonical);
+      const scalar = (
+        next: IAutoMovieViewPart.IOutline,
+        select: (part: IAutoMovieViewPart) => IAutoMovieViewPart.IOutline,
+        radial: boolean,
+        label: string,
+      ): IAutoMovieViewPart.IOutline => {
+        let result: IAutoMovieViewPart.IOutline = next;
+        for (const owner of spec.protection) {
+          const target: IAutoMovieViewPart | undefined = owner.sources.get(
+            selected === undefined ? prior.name : family.name,
           );
-        // A scaling centre moves coordinates as a station function even under a constant ratio, so only the function law can carry
-        // it; an exact unit ratio leaves every coordinate where it is and keeps the paths below.
-        const centred: boolean =
-          spec.centre !== undefined &&
-          !(
-            (uniform || (profile !== null && profile.constant !== null)) &&
-            firstScale[0] === 1 &&
-            firstScale[1] === 1
-          );
-        if (
-          centred &&
-          selected === undefined &&
-          !(sameControls && profile !== null && material)
-        )
-          throw new Error(
-            "a scaling centre needs a jet-carrying scale on unchanged controls in the family's own material stations: " +
-              family.name,
-          );
-        const source: IAutoMovieViewPart =
-          selected ??
-          (sameControls && sameCaps && uniform && !centred
-            ? AutoMovieHumanNativeSourceLaw(original, spec.axis, firstScale, [])
-            : sameControls && profile !== null && material
-              ? AutoMovieHumanNativeSourceLaw(
-                  sameCaps ? original : requested(),
-                  spec.axis,
-                  profile,
-                  [],
-                  centred ? spec.centre : undefined,
-                )
-              : canonical);
-        const scalar = (
-          next: IAutoMovieViewPart.IOutline,
-          select: (part: IAutoMovieViewPart) => IAutoMovieViewPart.IOutline,
-          radial: boolean,
-          label: string,
-        ): IAutoMovieViewPart.IOutline => {
-          let result: IAutoMovieViewPart.IOutline = next;
-          for (const owner of spec.protection) {
-            const target: IAutoMovieViewPart | undefined = owner.sources.get(
-              selected === undefined ? prior.name : family.name,
+          if (target === undefined)
+            throw new Error(
+              "native shared boundary source absent: " + prior.name,
             );
-            if (target === undefined)
-              throw new Error(
-                "native shared boundary source absent: " + prior.name,
-              );
-            try {
-              result = N.outline(
-                select(target),
-                result,
-                owner.requirement,
-                radial ? A.ends(target) : {},
-                radial ? A.ends(canonical) : {},
-              );
-            } catch (error: unknown) {
-              throw new Error(
-                `${family.name} ${label}: ${error instanceof Error ? error.message : String(error)}`,
-              );
-            }
+          try {
+            result = N.outline(
+              select(target),
+              result,
+              owner.requirement,
+              radial ? A.ends(target) : {},
+              radial ? A.ends(canonical) : {},
+            );
+          } catch (error: unknown) {
+            throw new Error(
+              `${family.name} ${label}: ${error instanceof Error ? error.message : String(error)}`,
+            );
           }
-          return result;
-        };
-        const quarters = <T>(
-          items: IAutoMovieViewPart.IQuarters<T>,
-          apply: (item: T, k: number) => T,
-        ): IAutoMovieViewPart.IQuarters<T> =>
-          items.map(apply) as IAutoMovieViewPart.IQuarters<T>;
-        const top = (part: IAutoMovieViewPart): IAutoMovieViewPart.ITop => {
-          if (part.fullness.kind !== "top")
-            throw new Error(
-              "native shared control target requires complete top source",
-            );
-          return part.fullness;
-        };
-        let fullness: IAutoMovieViewPart.Fullness = source.fullness;
-        if (spec.protection.length !== 0) {
-          if (fullness.kind !== "top")
-            throw new Error(
-              "native protected source needs complete top controls",
-            );
-          const split = (
-            item: IAutoMovieViewPart.ISplit,
-            select: (part: IAutoMovieViewPart) => IAutoMovieViewPart.ISplit,
-            label: string,
-          ): IAutoMovieViewPart.ISplit => ({
-            u: scalar(item.u, (p) => select(p).u, true, label + ".u"),
-            v: scalar(item.v, (p) => select(p).v, true, label + ".v"),
-            angle: scalar(
-              item.angle,
-              (p) => select(p).angle,
-              false,
-              label + ".angle",
-            ),
-            shoulder: scalar(
-              item.shoulder,
-              (p) => select(p).shoulder,
-              false,
-              label + ".shoulder",
-            ),
-          });
-          fullness = {
-            ...fullness,
-            shoulders: quarters(fullness.shoulders, (item, q) =>
-              scalar(item, (p) => top(p).shoulders[q]!, false, "shoulders." + q),
-            ),
-            ...(fullness.touch === undefined
-              ? {}
-              : {
-                  touch: quarters(fullness.touch, (item, q) =>
-                    scalar(item, (p) => top(p).touch![q]!, true, "touch." + q),
-                  ),
-                }),
-            ...(fullness.splits === undefined
-              ? {}
-              : {
-                  splits: quarters(fullness.splits, (item, q) =>
-                    split(item, (p) => top(p).splits![q]!, "splits." + q),
-                  ),
-                }),
-            ...(fullness.pieces === undefined
-              ? {}
-              : {
-                  pieces: quarters(fullness.pieces, (items, q) =>
-                    items.map((item, j) =>
-                      split(
-                        item,
-                        (p) => top(p).pieces![q]![j]!,
-                        "pieces." + q + "." + j,
-                      ),
+        }
+        return result;
+      };
+      const quarters = <T>(
+        items: IAutoMovieViewPart.IQuarters<T>,
+        apply: (item: T, k: number) => T,
+      ): IAutoMovieViewPart.IQuarters<T> =>
+        items.map(apply) as IAutoMovieViewPart.IQuarters<T>;
+      const top = (part: IAutoMovieViewPart): IAutoMovieViewPart.ITop => {
+        if (part.fullness.kind !== "top")
+          throw new Error(
+            "native shared control target requires complete top source",
+          );
+        return part.fullness;
+      };
+      let fullness: IAutoMovieViewPart.Fullness = source.fullness;
+      if (spec.protection.length !== 0) {
+        if (fullness.kind !== "top")
+          throw new Error(
+            "native protected source needs complete top controls",
+          );
+        const split = (
+          item: IAutoMovieViewPart.ISplit,
+          select: (part: IAutoMovieViewPart) => IAutoMovieViewPart.ISplit,
+          label: string,
+        ): IAutoMovieViewPart.ISplit => ({
+          u: scalar(item.u, (p) => select(p).u, true, label + ".u"),
+          v: scalar(item.v, (p) => select(p).v, true, label + ".v"),
+          angle: scalar(
+            item.angle,
+            (p) => select(p).angle,
+            false,
+            label + ".angle",
+          ),
+          shoulder: scalar(
+            item.shoulder,
+            (p) => select(p).shoulder,
+            false,
+            label + ".shoulder",
+          ),
+        });
+        fullness = {
+          ...fullness,
+          shoulders: quarters(fullness.shoulders, (item, q) =>
+            scalar(item, (p) => top(p).shoulders[q]!, false, "shoulders." + q),
+          ),
+          ...(fullness.touch === undefined
+            ? {}
+            : {
+                touch: quarters(fullness.touch, (item, q) =>
+                  scalar(item, (p) => top(p).touch![q]!, true, "touch." + q),
+                ),
+              }),
+          ...(fullness.splits === undefined
+            ? {}
+            : {
+                splits: quarters(fullness.splits, (item, q) =>
+                  split(item, (p) => top(p).splits![q]!, "splits." + q),
+                ),
+              }),
+          ...(fullness.pieces === undefined
+            ? {}
+            : {
+                pieces: quarters(fullness.pieces, (items, q) =>
+                  items.map((item, j) =>
+                    split(
+                      item,
+                      (p) => top(p).pieces![q]![j]!,
+                      "pieces." + q + "." + j,
                     ),
                   ),
-                }),
-          };
-        }
-        const resolved: IAutoMovieViewPart = {
-          ...source,
-          axis: selected?.axis ?? spec.axis,
-          front:
-            spec.protection.length === 0
-              ? source.front
-              : {
-                  positive: scalar(
-                    source.front.positive,
-                    (p) => p.front.positive,
-                    true,
-                    "front.positive",
-                  ),
-                  negative: scalar(
-                    source.front.negative,
-                    (p) => p.front.negative,
-                    true,
-                    "front.negative",
-                  ),
-                },
-          side:
-            spec.protection.length === 0
-              ? source.side
-              : {
-                  positive: scalar(
-                    source.side.positive,
-                    (p) => p.side.positive,
-                    true,
-                    "side.positive",
-                  ),
-                  negative: scalar(
-                    source.side.negative,
-                    (p) => p.side.negative,
-                    true,
-                    "side.negative",
-                  ),
-                },
-          fullness,
-        };
-        const native = AutoMovieLoftViewSource.create(resolved);
-        if (native === null || native.source === null)
-          throw new Error("native sampling source unavailable: " + family.name);
-        const girth: number = Math.max(
-          ...resolved.stations.map((s: number): number => {
-            const row = AutoMovieLoftViewRead.values(native.source!, s);
-            if (typeof row === "string") throw new Error(row);
-            const a: number = (row.extents[0]! + row.extents[2]!) / 2,
-              b: number = (row.extents[1]! + row.extents[3]!) / 2;
-            return (
-              Math.PI * (3 * (a + b) - Math.sqrt((3 * a + b) * (a + 3 * b)))
-            );
-          }),
-        );
-        prepared = {
-          values: family.values,
-          knots: family.knots,
-          layout: family.layout,
-          caps,
-          source: resolved,
-          selected,
-          name: family.name,
-          girth,
+                ),
+              }),
         };
       }
-      return prepared!;
+      const resolved: IAutoMovieViewPart = {
+        ...source,
+        axis: selected?.axis ?? spec.axis,
+        front:
+          spec.protection.length === 0
+            ? source.front
+            : {
+                positive: scalar(
+                  source.front.positive,
+                  (p) => p.front.positive,
+                  true,
+                  "front.positive",
+                ),
+                negative: scalar(
+                  source.front.negative,
+                  (p) => p.front.negative,
+                  true,
+                  "front.negative",
+                ),
+              },
+        side:
+          spec.protection.length === 0
+            ? source.side
+            : {
+                positive: scalar(
+                  source.side.positive,
+                  (p) => p.side.positive,
+                  true,
+                  "side.positive",
+                ),
+                negative: scalar(
+                  source.side.negative,
+                  (p) => p.side.negative,
+                  true,
+                  "side.negative",
+                ),
+              },
+        fullness,
+      };
+      const native = AutoMovieLoftViewSource.create(resolved);
+      if (native === null || native.source === null)
+        throw new Error("native sampling source unavailable: " + family.name);
+      return { source: resolved, values: AutoMovieLoftViewRead.prepare(native.source).values };
     };
-    made.native = {
-      axis: spec.authority === undefined ? spec.axis : A.named(spec.authority, made.name).axis,
-      source: (family: IAutoMovieHumanConicLoft.IFamily): IAutoMovieViewPart => ({
-        ...prepareSource(family).source,
-        name: family.name,
-        ...(family.reliefs === undefined || family.reliefs.length === 0
-          ? { reliefs: undefined }
-          : { reliefs: family.reliefs }),
-      }),
-      part: (family: IAutoMovieHumanConicLoft.IFamily, requested: number[]): IAutoMovieViewPart => {
-        const prepared: IPreparedSource = prepareSource(family);
+
+    /** Carry one canonical field, cap and density estimate through requested layer grids. */
+    const preparePart: NonNullable<IAutoMovieHumanConicLoft.INative["preparePart"]> = (family) => {
+      const prepared: IPreparedSource = prepareSource(family);
+      const girth: number = Math.max(
+        ...prepared.source.stations.map((s: number): number => {
+          const row = prepared.values(s);
+          if (typeof row === "string") throw new Error(row);
+          const a: number = (row.extents[0]! + row.extents[2]!) / 2,
+            b: number = (row.extents[1]! + row.extents[3]!) / 2;
+          return Math.PI * (3 * (a + b) - Math.sqrt((3 * a + b) * (a + 3 * b)));
+        }),
+      );
+      return (requested, sampling): IAutoMovieViewPart => {
         // Layer/refinement requests cannot select another scalar function.
         if (
           requested.length < 2 ||
@@ -493,11 +457,9 @@ export namespace AutoMovieHumanNativeFamily {
           name: family.name,
           axis: prepared.source.axis,
           stations,
-          samples: H.phaseCount(family, prepared.girth),
+          samples: H.phaseCount(sampling, girth),
           phases: undefined,
-          ...(family.reliefs === undefined || family.reliefs.length === 0
-            ? { reliefs: undefined }
-            : { reliefs: family.reliefs }),
+          reliefs: sampling.reliefs?.length === 0 ? undefined : sampling.reliefs,
         };
         // Match the ordinary producer's sampling scope: cap starts are
         // regular wall rings, while a collapsed pole has no turning chord.
@@ -506,8 +468,19 @@ export namespace AutoMovieHumanNativeFamily {
             (bottom === null || s >= bottom.from) &&
             (top === null || s <= top.from),
         );
-        return H.sampled(family, actual, wall);
-      },
+        return H.sampled(sampling, actual, wall);
+      };
+    };
+    made.native = {
+      axis: spec.authority === undefined ? spec.axis : A.named(spec.authority, made.name).axis,
+      source: (family: IAutoMovieHumanConicLoft.IFamily): IAutoMovieViewPart => ({
+        ...prepareSource(family).source,
+        name: family.name,
+        reliefs: family.reliefs?.length === 0 ? undefined : family.reliefs,
+      }),
+      part: (family: IAutoMovieHumanConicLoft.IFamily, requested: number[]): IAutoMovieViewPart =>
+        preparePart(family)(requested, family),
+      preparePart,
       mirror: (family: IAutoMovieHumanConicLoft.IFamily, name: string): IAutoMovieHumanConicLoft.IFamily => {
         if (spec.authority !== undefined) A.select(spec.authority, family, made, spec.originals);
         const mirrored: IAutoMovieHumanConicLoft.IFamily = H.mirror(

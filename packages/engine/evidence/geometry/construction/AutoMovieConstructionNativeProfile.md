@@ -22,8 +22,8 @@ Original scalar preparation has its existing knot cost; each station prepares th
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 
-One latest-station value preparation and lazily requested phase/total2 closures serve identical immutable queries; a changed station replaces that preparation and failures do not become successful cached results.
+The profile prepares scalar ownership once. A caller reading multiple clocks at one station separately prepares Point0 or physical2.
 
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
-One source instance owns its scalar preparation and at most one station's fixed native closures, released with the instance; no module cache or background task is created.
+The profile owns its scalar reader. A fixed-station closure owns that station's native geometry and is released when the caller finishes its row.

@@ -165,3 +165,32 @@ The pure predicate creates no cached availability authority.
 ## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
 
 Retains no input or result.
+# src/geometry/construction/AutoMovieLoftSectionSource.ts#AutoMovieLoftSectionSource.prepare
+
+## @evidence contracts/development/implementation.md#principled-implementation
+
+Validates the actual native source and each principal layer against its own compatibility snapshot. A bracket reports the original failed check for any principal layer it uses.
+
+## @evidence contracts/development/implementation.md#clear-and-simple-structure
+
+Reuses the single-read endpoint and compatibility validation. The returned closure handles bracket ownership only.
+
+## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
+
+Preserves numeric comparisons, endpoint provenance and original getter exceptions. A failed layer never becomes an admitted original.
+
+## @evidence contracts/development/common.md#meaningful-documentation
+
+Documents the immutable input scope and the numeric comparisons moved out of repeated station and phase queries.
+
+## @evidence contracts/development/implementation.md#efficient-algorithms
+
+Preparation visits each layer once and looks up its declared snapshot. A bracket then reads two entries in constant time.
+
+## @evidence contracts/development/implementation.md#reuse-equivalent-work
+
+Every bracket on the immutable chain shares that chain's layer admission.
+
+## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
+
+The closure retains the source and one validation entry per layer for the reading scope.

@@ -151,6 +151,7 @@ export namespace AutoMovieHumanJoinLoop {
    *
    * @evidence contracts/development/implementation.md#principled-implementation Straight and quintic-rotation runs come from the native course; the signed plane distance and its derivative bound certify each searched interval.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Missing derivatives, axes without their original placed course and unresolved branches are refused. The certified collection never chooses a nearest sampled station.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The fixed intervals own their frames and tangent derivatives; a query passes each new midpoint to the intervals and brackets it creates.
    * @evidence contracts/development/common.md#meaningful-documentation The axis, domain and section angle belong to the same placed source.
    */
   export function certifiedAddresses(
@@ -189,10 +190,9 @@ export namespace AutoMovieHumanJoinLoop {
       interval(run.end, next.start, Math.atan2(Math.hypot(...cross(a, b)), dot(a, b)));
     });
     if (intervals.length === 0) throw new Error("join loop: " + part.name + " has no certified station interval");
-    const readings = new Map<number, { value: IAutoMovieLoftSectionFrame; tangent: V; velocity: V }>();
-    const at = (s: number): { value: IAutoMovieLoftSectionFrame; tangent: V; velocity: V } => {
-      const prior = readings.get(s);
-      if (prior !== undefined) return prior;
+    /** The placed section plane and its tangent derivative at one station. */
+    type Plane = { station: number; frame: IAutoMovieLoftSectionFrame; tangent: V; velocity: V };
+    const at = (s: number): Plane => {
       const value = part.axis.at(s);
       const jet = base.jet?.(s);
       if (jet === undefined || jet === null) throw new Error("join loop: " + part.name + " has no physical course jet at " + s + " mm");
@@ -201,45 +201,63 @@ export namespace AutoMovieHumanJoinLoop {
           ![value.u, value.v].every((vector, j): boolean => vector.every((x: number, k: number): boolean => x === [own.u, own.v][j]![k]!)))
         throw new Error("join loop: " + part.name + " source axis differs from its placed course at " + s + " mm");
       const [a, b] = [cross(jet.first.v, value.u), cross(value.v, jet.first.u)];
-      const record = { value, tangent: normal(value), velocity: [a[0] + b[0], a[1] + b[1], a[2] + b[2]] as V };
-      if (readings.size < 256) readings.set(s, record);
-      return record;
+      return { station: s, frame: value, tangent: normal(value), velocity: [a[0] + b[0], a[1] + b[1], a[2] + b[2]] };
     };
+    /** The ends and midpoint a whole course interval shares across every query. */
+    type CourseInterval = { low: Plane; high: Plane; mid: Plane; rate: number; second: number };
+    const course: CourseInterval[] = [];
+    for (const { lo, hi, rate, second } of intervals) {
+      const adjacent: Plane | undefined = course.at(-1)?.high;
+      course.push({
+        low: adjacent?.station === lo ? adjacent : at(lo),
+        high: at(hi),
+        mid: at((lo + hi) / 2),
+        rate,
+        second,
+      });
+    }
+
     return (world: readonly number[]): [number, number][] => {
-      const read = (s: number): { ahead: number; q: V; slope: number; frame: IAutoMovieLoftSectionFrame } => {
-        const { value, tangent, velocity } = at(s);
-        const q: V = [world[0]! - value.origin[0], world[1]! - value.origin[1], world[2]! - value.origin[2]];
-        return { ahead: dot(q, tangent), q, slope: -1 + dot(q, velocity), frame: value };
+      /** The query's signed distance and slope at an already prepared plane. */
+      type Sample = { station: number; ahead: number; q: V; slope: number; frame: IAutoMovieLoftSectionFrame };
+      const read = ({ station, frame, tangent, velocity }: Plane): Sample => {
+        const q: V = [world[0]! - frame.origin[0], world[1]! - frame.origin[1], world[2]! - frame.origin[2]];
+        return { station, ahead: dot(q, tangent), q, slope: -1 + dot(q, velocity), frame };
       };
-      const roots: { lo: number; hi: number; first: number; straight: boolean }[] = [];
-      for (const { lo, hi, rate, second } of intervals) {
-        const pending = [{ lo, hi, first: read(lo).ahead, last: read(hi).ahead }];
+      /** Adjacent samples bound a branch and a certified one may hold one root. */
+      type Branch = { low: Sample; high: Sample; mid?: Sample };
+      const roots: (Branch & { straight: boolean })[] = [];
+      for (const { low, high, mid, rate, second } of course) {
+        const pending: Branch[] = [{ low: read(low), high: read(high), mid: read(mid) }];
         let splits: number = 0;
         while (pending.length > 0) {
-          const range = pending.pop()!;
-          const middle: number = (range.lo + range.hi) / 2;
-          const half: number = (range.hi - range.lo) / 2;
-          const { ahead, q, slope } = read(middle);
+          const { low, high, mid }: Branch = pending.pop()!;
+          const lo: number = low.station, hi: number = high.station;
+          const middle: number = (lo + hi) / 2;
+          const half: number = (hi - lo) / 2;
+          const centre: Sample = mid ?? (middle === lo ? low : middle === hi ? high : read(at(middle)));
+          const { ahead, q, slope }: Sample = centre;
           const reach: number = Math.hypot(...q) + half;
           // f'= -1 + (world-origin)·T'; f''=(world-origin)·T'' for unit arclength.
           if (Math.abs(ahead) > (1 + reach * rate) * half + ADDRESS_FLOOR_MM) continue;
           if (Math.abs(slope) > reach * second * half + Number.EPSILON * Math.max(1, Math.abs(slope))) {
-            if (range.first === 0) roots.push({ lo: range.lo, hi: range.lo, first: 0, straight: rate === 0 });
-            if (range.last === 0) roots.push({ lo: range.hi, hi: range.hi, first: 0, straight: rate === 0 });
-            if (range.first * range.last < 0) roots.push({ lo: range.lo, hi: range.hi, first: range.first, straight: rate === 0 });
+            if (low.ahead === 0) roots.push({ low, high: low, straight: rate === 0 });
+            if (high.ahead === 0) roots.push({ low: high, high, straight: rate === 0 });
+            if (low.ahead * high.ahead < 0) roots.push({ low, high, mid: centre, straight: rate === 0 });
             continue;
           }
-          if (middle === range.lo || middle === range.hi || splits >= ADDRESS_STEPS)
-            throw new Error("join loop: " + part.name + " has an uncertified plane branch " + range.lo + ".." + range.hi + " mm");
+          if (middle === lo || middle === hi || splits >= ADDRESS_STEPS)
+            throw new Error("join loop: " + part.name + " has an uncertified plane branch " + lo + ".." + hi + " mm");
           ++splits;
-          pending.push({ lo: middle, hi: range.hi, first: ahead, last: range.last }, { lo: range.lo, hi: middle, first: range.first, last: ahead });
+          pending.push({ low: centre, high }, { low, high: centre });
         }
       }
-      const unique = roots.filter((root, i): boolean => i === 0 || root.lo !== roots[i - 1]!.lo || root.hi !== roots[i - 1]!.hi);
-      return unique.map((root): [number, number] => {
-        let { lo, hi, first } = root;
-        let s: number = root.straight ? Math.min(hi, Math.max(lo, lo + first)) : (lo + hi) / 2;
-        let result = read(s);
+      const unique = roots.filter(({ low, high }, i): boolean =>
+        i === 0 || low.station !== roots[i - 1]!.low.station || high.station !== roots[i - 1]!.high.station);
+      return unique.map(({ low, high, mid, straight }): [number, number] => {
+        let lo: number = low.station, hi: number = high.station, first: number = low.ahead;
+        let s: number = straight ? Math.min(hi, Math.max(lo, lo + first)) : (lo + hi) / 2;
+        let result: Sample = s === lo ? low : s === hi ? high : s === mid?.station ? mid : read(at(s));
         for (let i: number = 0; i < ADDRESS_STEPS && Math.abs(result.ahead) > ADDRESS_MM; ++i) {
           if (s === lo || s === hi) break;
           if ((result.ahead < 0) === (first < 0)) {
@@ -247,7 +265,7 @@ export namespace AutoMovieHumanJoinLoop {
             first = result.ahead;
           } else hi = s;
           s = (lo + hi) / 2;
-          result = read(s);
+          result = read(at(s));
         }
         if (Math.abs(result.ahead) > ADDRESS_FLOOR_MM) throw new Error("join loop: " + part.name + " plane-address distance at " + s + " mm is " + result.ahead);
         return [s, Math.atan2(dot(result.q, result.frame.v), dot(result.q, result.frame.u))];
@@ -286,18 +304,21 @@ export namespace AutoMovieHumanJoinLoop {
     const bone = { ...family, native: undefined };
     const axis = AutoMovieHumanConicLoft.axis(bone);
     const map = AutoMovieHumanMaterialCourse.map(reference, bone);
-    const collect = certifiedAddresses({ name: part.name, axis }, [map(domain[0]), map(domain[1])], bone);
+    const physical: [number, number] = [map(domain[0]), map(domain[1])];
+    const collect = certifiedAddresses({ name: part.name, axis }, physical, bone);
     return (world): [number, number][] => collect(world).map(([station]): [number, number] => {
       let lo: number = domain[0], hi: number = domain[1];
+      let from: number = physical[0], to: number = physical[1];
       for (let i: number = 0; i < ADDRESS_STEPS; ++i) {
         const middle: number = (lo + hi) / 2;
         if (middle === lo || middle === hi) break;
         const value: number = map(middle);
         if (!Number.isFinite(value)) throw new Error("the material course has no finite station");
-        if (value < station) lo = middle; else hi = middle;
+        if (value < station) [lo, from] = [middle, value];
+        else [hi, to] = [middle, value];
       }
-      const s: number = Math.abs(map(lo) - station) < Math.abs(map(hi) - station) ? lo : hi;
-      const actual = part.axis.at(s), registered = axis.at(map(s));
+      const [s, resolved]: [number, number] = Math.abs(from - station) < Math.abs(to - station) ? [lo, from] : [hi, to];
+      const actual = part.axis.at(s), registered = axis.at(resolved);
       if (![actual.origin, actual.u, actual.v].every((v, k): boolean =>
           v.every((x, j): boolean => x === [registered.origin, registered.u, registered.v][k]![j]!)))
         throw new Error("the actual material course differs from its registered bone plane");
@@ -903,22 +924,27 @@ export namespace AutoMovieHumanJoinLoop {
       { length: PHASES },
       (_: unknown, j: number): number => (2 * Math.PI * j) / PHASES,
     );
-    const at = (s: number, phase: number): number => {
-      const value: number = side(from!.point(s, phase));
-      if (!Number.isFinite(value))
-        throw new Error("join loop: the dividing surface is unavailable at " + s + " mm, phase " + phase);
-      return value;
+    const at = (s: number): ((phase: number) => number) => {
+      const point: (phase: number) => V = from!.pointAt(s);
+      return (phase: number): number => {
+        const value: number = side(point(phase));
+        if (!Number.isFinite(value))
+          throw new Error("join loop: the dividing surface is unavailable at " + s + " mm, phase " + phase);
+        return value;
+      };
     };
+    const atStart: (phase: number) => number = at(start);
     const lines = phases.map((phase: number) => ({
       phase,
       station: start,
-      value: at(start, phase),
+      value: atStart(phase),
       zero: null as number | null,
       brackets: [] as { lo: number; hi: number; negative: boolean }[],
     }));
     for (const s of sections) {
+      const read: (phase: number) => number = at(s);
       for (const line of lines) {
-        const value: number = at(s, line.phase);
+        const value: number = read(line.phase);
         if (value === 0) {
           if (line.zero !== null || line.value === 0 || s === end)
             throw new Error("join loop: the dividing surface meets a station line without an interior crossing at phase " + line.phase);
@@ -955,15 +981,17 @@ export namespace AutoMovieHumanJoinLoop {
         else row.push(root);
       }
       if (sections.size === 0) break;
-      for (const [s, row] of sections)
+      for (const [s, row] of sections) {
+        const read: (phase: number) => number = at(s);
         for (const root of row) {
-          const value: number = at(s, root.phase);
+          const value: number = read(root.phase);
           if (value === 0) {
             root.lo = s;
             root.hi = s;
           } else if ((value < 0) === root.negative) root.lo = s;
           else root.hi = s;
         }
+      }
     }
     const stations: number[] = roots.map(({ lo, hi }): number => (lo + hi) / 2);
 

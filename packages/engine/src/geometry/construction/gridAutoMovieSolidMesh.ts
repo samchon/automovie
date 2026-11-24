@@ -25,13 +25,13 @@ const { cross, norm, sub }: typeof AutoMovieSolidVector = AutoMovieSolidVector;
  * Prepare a trimmed face's sampling grid without changing any mesh buffer.
  *
  * Surface jets are queried in station-major order and copied before the next
- * query can reuse a returned vector. Metric-margin corner selection is retained,
- * but a cell touching any trim segment's conservative chart bounding box is
- * left for residual triangulation. Original domain authorities prevent
- * unshared subdivision, while an exactly consumed full side or isolated
- * cell-corner contact can retain its cell. They are not cutting loops.
- * This prevents a small hole inside one cell
- * from being filled merely because its four corners are kept.
+ * call can reuse a returned vector. A fixed-station capability prepares each
+ * row once. Metric-margin corner selection is retained, but a cell touching any
+ * trim segment's conservative chart bounding box is left for residual
+ * triangulation. Original domain authorities prevent unshared subdivision,
+ * while an exactly consumed full side or isolated cell-corner contact can
+ * retain its cell. They are not cutting loops. This prevents a small hole
+ * inside one cell from being filled merely because its four corners are kept.
  *
  * Boundary points keep their original IDs and use ILoop.chart on this face,
  * independently of the coordinates their global mesh owner stores. Newly
@@ -86,10 +86,20 @@ export function gridAutoMovieSolidMesh(
   const jets: IAutoMovieSolidSurface.IJet[][] = [];
   for (const u of stations) {
     const row: IAutoMovieSolidSurface.IJet[] = [];
+    let jet: (phase: number) => IAutoMovieSolidSurface.IJet;
+    try {
+      jet =
+        surface.jetAt?.(u) ??
+        ((phase: number): IAutoMovieSolidSurface.IJet => surface.jet(u, phase));
+    } catch (error: unknown) {
+      if (error instanceof AutoMovieLoftAdmissionError)
+        return `face grid has unavailable source physical2: ${error.message}`;
+      throw error;
+    }
     for (const v of phases) {
       let read: IAutoMovieSolidSurface.IJet;
       try {
-        read = surface.jet(u, v);
+        read = jet(v);
       } catch (error: unknown) {
         if (error instanceof AutoMovieLoftAdmissionError)
           return `face grid has unavailable source physical2: ${error.message}`;
@@ -497,36 +507,39 @@ export function gridAutoMovieSolidMesh(
 /**
  * Share of the first-corner split's bend below which a full cell takes its
  * other diagonal (`bend`). A cell whose two splits bend alike, as the nearly
- * square cells over f1's upper lip do, keeps its first corner, so a face is
- * cut alike wherever no split is clearly flatter. Compared on
+ * square cells over f1's upper lip do, keeps its first corner, so a face is cut
+ * alike wherever no split is clearly flatter. Compared on
  * `shoulder.high-oblique` and `head.front`: at 0.5 the deltoid's cap kept its
  * check; at 0.9 the check is gone but for a few cells at its top edge and the
  * lip is cut as it was before any cell was turned.
  *
  * A cell neither of whose splits bends under this share of the other's is
- * undecided, and all of a face's undecided cells take one diagonal family:
- * the one whose diagonals are the shorter in sum over them. Undecided cells
- * had kept their first corner, which is the chart's, not the skin's: a
- * mirrored chart runs its phases the other way, so its first corner is the
- * original's other one, and f1's -Z hand was cut unlike the +Z hand's mirror
- * image (its vertices 0.5 mm off, 2 mm once the fork fills slid along those
- * edges). Read on lengths summed over the face, a face cut alike stays cut
- * alike and its mirror is cut as its mirror image; only a face whose two
- * families sum to exactly the same length falls back to the first corner.
+ * undecided, and all of a face's undecided cells take one diagonal family: the
+ * one whose diagonals are the shorter in sum over them. Undecided cells had
+ * kept their first corner, which is the chart's, not the skin's: a mirrored
+ * chart runs its phases the other way, so its first corner is the original's
+ * other one, and f1's -Z hand was cut unlike the +Z hand's mirror image (its
+ * vertices 0.5 mm off, 2 mm once the fork fills slid along those edges). Read
+ * on lengths summed over the face, a face cut alike stays cut alike and its
+ * mirror is cut as its mirror image; only a face whose two families sum to
+ * exactly the same length falls back to the first corner.
  */
 const BEND: number = 0.9;
 
 /**
- * Relative difference under which a face's two diagonal families count as equally long, and its undecided cells keep the first corner.
- * Summing some thousands of lengths carries a relative rounding near 1e-13, so 1e-9 stands four decades above the noise and far under
- * any difference a face's shape makes; `test_construction_determinism` realizes one assembly at two sizes and requires the same cells.
+ * Relative difference under which a face's two diagonal families count as
+ * equally long, and its undecided cells keep the first corner. Summing some
+ * thousands of lengths carries a relative rounding near 1e-13, so 1e-9 stands
+ * four decades above the noise and far under any difference a face's shape
+ * makes; `test_construction_determinism` realizes one assembly at two sizes and
+ * requires the same cells.
  */
 const DIAGONAL_ROUNDING: number = 1e-9;
 
 /**
  * The angle between the unit normals of the two triangles a quadrilateral is
- * cut into along its diagonal `p`..`r`, radians, from `(p, q, r)` and
- * `(p, r, s)`; 0 for a planar or degenerate quadrilateral.
+ * cut into along its diagonal `p`..`r`, radians, from `(p, q, r)` and `(p, r,
+ * s)`; 0 for a planar or degenerate quadrilateral.
  */
 function bend(
   p: AutoMovieVector3Tuple,
@@ -548,7 +561,10 @@ function bend(
   return Math.acos(Math.max(-1, Math.min(1, cosine)));
 }
 
-/** Copy one coherent reading before a subsequent source call can reuse its storage. */
+/**
+ * Copy one coherent reading before a subsequent source call can reuse its
+ * storage.
+ */
 function copy(
   jet: IAutoMovieSolidSurface.IJet,
 ): IAutoMovieSolidSurface.IJet | string {
@@ -587,7 +603,11 @@ function copy(
   };
 }
 
-/** True cuts retain their conservative bound; exactly consumed domain sides do not discard a source grid cell. `candidates` are the indices of the barriers whose station range meets the cell's, in increasing order. */
+/**
+ * True cuts retain their conservative bound; exactly consumed domain sides do
+ * not discard a source grid cell. `candidates` are the indices of the barriers
+ * whose station range meets the cell's, in increasing order.
+ */
 function touches(
   chart: ReadonlyMap<number, Readonly<AutoMovieVector2Tuple>>,
   trim: readonly IAutoMovieSolidMeshConstraints.ISegment[],

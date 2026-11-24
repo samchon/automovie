@@ -108,7 +108,8 @@ export namespace FamilyConicDivide {
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A source with a different actual plane or no compatible cut keeps an exact refusal; no fitting, retry or alternate axis is used.
    */
   export function composed(name: string, requested: string) {
-    return composition(name).member(requested);
+    const prepared = composition(name);
+    return { ...prepared.member(requested), cuts: prepared.readCuts() };
   }
 
   /** Gather the fixed parent plane, ordered children and registered original names once for the complete solve. */
@@ -177,7 +178,9 @@ export namespace FamilyConicDivide {
       return original;
     };
     const plane = end(owner);
-    const cuts = owner.children.map((entry) => {
+    // Only the single-child entrance asks whether the ordinary installed sources already cross the plane.
+    // Group fitting prepares their restored sources separately and observation has its own complete incidence read.
+    const readCuts = () => owner.children.map((entry) => {
       try {
         const view = source(entry.partFace);
         const actual = AutoMovieLoftViewFullSource.create(view);
@@ -204,14 +207,14 @@ export namespace FamilyConicDivide {
         wrist: AutoMovieHumanF1.wristPlane(AutoMovieHumanConicLoft.axis(figure.body.hand)),
       },
     };
-    return { ...common, owner, plane, figure, source, originalOf,
+    return { ...common, owner, plane, figure, source, originalOf, readCuts,
       member: (requested: string) => {
         if (!owner.children.some((child): boolean => child.partFace === requested))
           throw new Error(requested + " is not an authored child of " + name);
         const family = figure.families.find((item): boolean => item.name === requested);
         if (family === undefined || family.origin !== undefined)
           throw new Error("the fit reader lacks the placed original chart " + requested);
-        return { ...common, family, first: source(requested).stations[0]!, cuts };
+        return { ...common, family, first: source(requested).stations[0]! };
       },
     };
   }

@@ -4,28 +4,40 @@ import type {
 } from "@automovie/interface";
 
 /**
- * The compact forms a family's relief nets are stored in, and their expansion to the nets the engine reads.
+ * The compact forms a family's relief nets are stored in, and their expansion
+ * to the nets the engine reads.
  *
- * A net repeats numbers in two ways the body's symmetry gives. A net of a median part whose window stands about the median plane is its
- * own mirror image: its column `b` equals its column `columns - 1 - b`, the map the engine's uniform cubic gives a window reflected
- * about its middle (`AutoMovieLoftRelief.height`: control `i` of `n` stands at parameter `i - 1` of `[0, n - 3]`, and the reflection
- * `x -> n - 3 - x` sends it to `n - 1 - i`). And a net fitted on one side of such a part has a twin on the other, the same heights with
- * their columns in the other order. A module stores the half and names the twin; `list` returns the full nets.
+ * A net repeats numbers in two ways the body's symmetry gives. A net of a
+ * median part whose window stands about the median plane is its own mirror
+ * image: its column `b` equals its column `columns - 1 - b`, the map the
+ * engine's uniform cubic gives a window reflected about its middle
+ * (`AutoMovieLoftRelief.height`: control `i` of `n` stands at parameter `i - 1`
+ * of `[0, n - 3]`, and the reflection `x -> n - 3 - x` sends it to `n - 1 -
+ * i`). And a net fitted on one side of such a part has a twin on the other, the
+ * same heights with their columns in the other order. A module stores the half
+ * and names the twin; `list` returns the full nets.
  *
- * Every expansion copies stored doubles and computes nothing, so a figure built from the expanded nets is built from the same numbers
- * as one whose module wrote them all out.
+ * Every expansion copies stored doubles and computes nothing, so a figure built
+ * from the expanded nets is built from the same numbers as one whose module
+ * wrote them all out.
  */
 export namespace AutoMovieHumanConicRelief {
-  /** How many heights each expanded net's module stores, by the expanded `heights` array itself. */
-  const STORED: WeakMap<readonly number[], number> = new WeakMap();
+  /**
+   * Authoring count carried by compact nets' expanded heights without changing
+   * their numeric entries.
+   */
+  const STORED_HEIGHT_COUNT: unique symbol = Symbol("stored relief heights");
 
   /**
-   * The full heights of a net that is its own mirror image, from its stored half.
+   * The full heights of a net that is its own mirror image, from its stored
+   * half.
    *
    * @param rows The net's rows.
-   * @param columns The net's columns, odd: the middle column is its own image and is stored once.
+   * @param columns The net's columns, odd: the middle column is its own image
+   *   and is stored once.
    * @param half Columns 0 to `(columns - 1) / 2` of every row, row by row.
-   * @returns `rows * columns` heights, row by row: each row's stored columns, then the columns before the middle in reverse.
+   * @returns `rows * columns` heights, row by row: each row's stored columns,
+   *   then the columns before the middle in reverse.
    */
   export function mirrored(
     rows: number,
@@ -59,13 +71,13 @@ export namespace AutoMovieHumanConicRelief {
     for (let a: number = 0; a < rows; ++a)
       for (let b: number = 0; b < columns; ++b)
         out[a * columns + b] = half[a * kept + Math.min(b, columns - 1 - b)]!;
-    STORED.set(out, half.length);
-    return out;
+    return withStoredCount(out, half.length);
   }
 
   /**
-   * A net's twin across the median plane: the original's stations, rows, columns and heights with every row's columns in the other
-   * order, under the twin's own name, window and directions.
+   * A net's twin across the median plane: the original's stations, rows,
+   * columns and heights with every row's columns in the other order, under the
+   * twin's own name, window and directions.
    *
    * @param original The net fitted on one side.
    * @param own The twin's name, phase window and directions.
@@ -94,7 +106,6 @@ export namespace AutoMovieHumanConicRelief {
       for (let b: number = 0; b < columns; ++b)
         heights[a * columns + b] =
           original.heights[a * columns + (columns - 1 - b)]!;
-    STORED.set(heights, 0);
     return {
       name: own.name,
       stations: original.stations,
@@ -103,13 +114,14 @@ export namespace AutoMovieHumanConicRelief {
       ...(own.turn === undefined ? {} : { turn: own.turn }),
       rows,
       columns,
-      heights,
+      heights: withStoredCount(heights, 0),
     };
   }
 
   /**
-   * A family's nets from their stored list, in its order: a net written whole or through `mirrored` stands as it is, and a twin is the
-   * reflection of the net it names, which must stand before it.
+   * A family's nets from their stored list, in its order: a net written whole
+   * or through `mirrored` stands as it is, and a twin is the reflection of the
+   * net it names, which must stand before it.
    */
   export function list(
     entries: readonly (
@@ -146,8 +158,23 @@ export namespace AutoMovieHumanConicRelief {
     return out;
   }
 
-  /** How many heights a net's module stores: its half's for a mirrored net, none for a twin, and all of them for a net written whole. */
+  /**
+   * How many heights a net's module stores: its half's for a mirrored net, none
+   * for a twin, and all of them for a net written whole.
+   */
   export function stored(relief: IAutoMovieLoftRelief): number {
-    return STORED.get(relief.heights) ?? relief.heights.length;
+    const heights: number[] & { [STORED_HEIGHT_COUNT]?: number } =
+      relief.heights;
+    return heights[STORED_HEIGHT_COUNT] ?? heights.length;
+  }
+
+  /**
+   * Carry the authored count with the expansion while keeping array enumeration
+   * and serialization numerical.
+   */
+  function withStoredCount(heights: number[], count: number): number[] {
+    return Object.defineProperty(heights, STORED_HEIGHT_COUNT, {
+      value: count,
+    });
   }
 }

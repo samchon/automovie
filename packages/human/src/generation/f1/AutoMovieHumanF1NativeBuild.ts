@@ -18,7 +18,6 @@ import type {
   IAutoMovieHumanConicLoft,
   IAutoMovieHumanF1,
   IAutoMovieHumanF1NativeLaw,
-  IAutoMovieHumanF1NativeRoot,
   IAutoMovieHumanNativeProjectionCourse,
   IAutoMovieLoftRelief,
   IAutoMovieLoftSectionFrame,
@@ -31,7 +30,11 @@ import type {
 export namespace AutoMovieHumanF1NativeBuild {
   /** The actual complete-source or two-family tape request, never a padded partial figure. */
   export type Request =
-    | { scope: "all"; fields: IAutoMovieHumanF1NativeLaw.IFields }
+    | {
+        scope: "all";
+        fields: IAutoMovieHumanF1NativeLaw.IFields;
+        nose: AutoMovieHumanF1NativeRoots.NoseCalibration;
+      }
     | { scope: "tapes"; fields: IAutoMovieHumanF1NativeLaw.ITapeFields };
   /** Complete assembly or the two exact tape-family definitions from that same builder. */
   export type Result =
@@ -48,7 +51,6 @@ export namespace AutoMovieHumanF1NativeBuild {
     bone: IAutoMovieHumanF1.IAssembly,
     originals: ReadonlyMap<string, IAutoMovieViewPart>,
     zero: IFields,
-    rootCalibrations: Map<string, IAutoMovieHumanF1NativeRoot.ICalibration>,
     projectionOwner: IAutoMovieHumanNativeProjectionCourse.IProjectionOwner,
   ): Result {
     const fields: Request["fields"] = request.fields;
@@ -334,7 +336,6 @@ export namespace AutoMovieHumanF1NativeBuild {
         bone,
         originals,
         zero,
-        rootCalibrations,
         projectionOwner,
         family,
         maps,

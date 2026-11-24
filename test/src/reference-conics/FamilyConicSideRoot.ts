@@ -1,6 +1,6 @@
 import { AutoMovieLoftViewFullSource, AutoMovieNaturalSpline, AutoMovieViewChain } from "@automovie/engine";
 import { AutoMovieHumanConicLoft, AutoMovieHumanConicSection, AutoMovieHumanF1, AutoMovieHumanJoinLoop } from "@automovie/human";
-import type { AutoMovieVector3Tuple, IAutoMovieHumanConicLoft, IAutoMovieHumanF1 } from "@automovie/interface";
+import type { AutoMovieVector3Tuple, IAutoMovieHumanConicLoft, IAutoMovieHumanF1, IAutoMovieViewAxis, IAutoMovieViewChain } from "@automovie/interface";
 import fs from "node:fs/promises";
 import path from "node:path";
 
@@ -29,8 +29,8 @@ import { FamilyConicSection as C } from "./FamilyConicSection";
  *   successive points turn the same way about the course (the row is minus their cross product over the larger radius, mm). A section
  *   whose ray finds no point refuses the reading.
  * - **Start.** The first section seeded from the loop's radial profile at the port (`FamilyConicSection.seed`); the other knots as stored.
- * - **Derivatives.** Forward differences, one column per free field value, each a reading of its own; a reading builds one section per
- *   station and no loft, so a column costs milliseconds.
+ * - **Derivatives.** The course, loop and natural cubic cardinal weights are fixed for the fit. A column changes one field at each
+ *   station through its cardinal weight, then differences the nonlinear fairing and star rows.
  * - **Fit.** `FamilyConicFit.fitGroup` with the fairing fit's relative termination (`FamilyConicBody`, `FAIR_CONVERGED`).
  *
  * Usage, from `test/`: `FamilyConicSideRoot.cjs --out=<dir> [--readings=<n>]`. It logs one JSON line per event and writes `refit.json`
@@ -55,6 +55,30 @@ namespace FamilyConicSideRoot {
   /** The quintic Hermite step of the port (`AutoMovieHumanBoundSection`'s `flat`). */
   const step = (t: number): number => t * t * t * (10 - 15 * t + 6 * t * t);
 
+  /** The parent loop's station, radius and radial station slope at one phase. */
+  interface ILoopPhase {
+    /** Station on the child's course, mm. */
+    s: number;
+
+    /** Distance from the course to this phase's loop point, mm. */
+    r: number;
+
+    /** Change in radius per mm of station along the child. */
+    sigma: number;
+  }
+
+  /** The finite difference in one knot value of one field. */
+  interface IFieldChange {
+    /** Index into the section field vector. */
+    field: number;
+
+    /** Index into the common station knots. */
+    knot: number;
+
+    /** The change in this field's own units, after rounding at the knot. */
+    delta: number;
+  }
+
   /** Refit the arm's root and write the result. */
   export async function main(): Promise<void> {
     const out: string | undefined = process.argv.find((arg): boolean => arg.startsWith("--out="))?.slice("--out=".length);
@@ -66,6 +90,7 @@ namespace FamilyConicSideRoot {
     const figure: IAutoMovieHumanF1.IAssembly = AutoMovieHumanF1.assemble();
     const port = AutoMovieHumanF1.armscyePort(figure);
     const stored: IAutoMovieHumanConicLoft.IFamily = figure.body.arm;
+    if (stored.extended !== undefined) throw new Error("the side root expects the arm's authored knots before port extension");
     if (!(stored.knots[0]! > port.from)) throw new Error("the arm's stored first knot does not stand past its port");
     log("side-root-port", { from: port.from, mark: port.mark, extent: port.extent, firstKnot: stored.knots[0], elapsedMs: performance.now() - started });
 
@@ -76,21 +101,24 @@ namespace FamilyConicSideRoot {
     for (let k = -1; k <= 1; ++k) for (const row of order) { xs.push(row.phase + k * turn); ss.push(row.station); rs.push(row.radius); }
     const sSpline = AutoMovieNaturalSpline.create(xs, ss), rSpline = AutoMovieNaturalSpline.create(xs, rs);
     const base: number = order[0]!.phase;
+
     // The host's slope at each clock, as the port reads it (`AutoMovieHumanBoundSection`, `portSection`): the radius's station rate that
     // keeps the port's station tangent in the host's tangent plane, `sigma = -n . (o' + r w') / (n . e)`.
+    const armAxis: IAutoMovieViewAxis.IAxis = AutoMovieHumanConicLoft.axis(stored);
     const sigmaOf = ({ clock, station, phase, radius }: { clock: number; station: number; phase: number; radius: number }) => {
-      const jet = AutoMovieHumanConicLoft.axis(stored).jet?.(station);
+      const jet = armAxis.jet?.(station);
       if (jet === undefined || jet === null) throw new Error("the arm's course has no jet at " + station);
       const n: V = [...port.master.normal(clock)] as V, c: number = Math.cos(phase), d: number = Math.sin(phase);
       const e: V = [0, 1, 2].map((i: number): number => c * jet.value.u[i]! + d * jet.value.v[i]!) as V;
       const moving: V = [0, 1, 2].map((i: number): number => jet.first.origin[i]! + radius * (c * jet.first.u[i]! + d * jet.first.v[i]!)) as V;
-      return { e, moving, n, across: dot(n, e), sigma: -dot(n, moving) / dot(n, e) };
+      const across: number = dot(n, e);
+      return { origin: jet.value.origin, e, moving, n, across, sigma: -dot(n, moving) / across };
     };
     const host = port.clocks.map(sigmaOf);
     const gs: number[] = [];
     for (let k = -1; k <= 1; ++k) for (const row of order) gs.push(host[row.index]!.sigma);
     const sigmaSpline = AutoMovieNaturalSpline.create(xs, gs);
-    const loopAt = (phi: number): { s: number; r: number; sigma: number } => {
+    const loopAt = (phi: number): ILoopPhase => {
       const x: number = base + ((((phi - base) % turn) + turn) % turn);
       return { s: AutoMovieNaturalSpline.evaluate(sSpline, x), r: AutoMovieNaturalSpline.evaluate(rSpline, x),
         sigma: AutoMovieNaturalSpline.evaluate(sigmaSpline, x) };
@@ -98,10 +126,11 @@ namespace FamilyConicSideRoot {
     /** The first-derivative quintic Hermite basis of the port's slope term (`AutoMovieHumanBoundSection`, `leave`). */
     const leave = (t: number): number => (t <= 0 || t >= 1 ? 0 : t - 6 * t ** 3 + 8 * t ** 4 - 3 * t ** 5);
     /** The port's radius along a phase's ray, less the own section's share: the loop's share and the host's slope. */
-    const portRadius = (s: number, phi: number): { w: number; radial: number } => {
-      const loop = loopAt(phi), length: number = port.mark - loop.s;
-      const tau: number = Math.min(1, Math.max(0, (s - loop.s) / length));
-      return { w: step(tau), radial: (1 - step(tau)) * loop.r + leave((s - loop.s) / length) * length * loop.sigma };
+    const portRadius = (s: number, loop: ILoopPhase): { w: number; radial: number; tau: number } => {
+      const length: number = port.mark - loop.s;
+      const raw: number = (s - loop.s) / length, tau: number = Math.min(1, Math.max(0, raw));
+      const w: number = step(tau);
+      return { w, radial: (1 - w) * loop.r + leave(raw) * length * loop.sigma, tau };
     };
 
     // How the port leaves the loop, which no field of M changes (`q'(0) = q(0) = 0`): at each clock the port's station tangent is the
@@ -113,16 +142,14 @@ namespace FamilyConicSideRoot {
     // tangent plane by construction). `across` is the cosine between the host's normal and the arm's ray: at or below zero the host turns
     // back under the arm there (the axillary vault concave along the course), and no radial slope can lay the port on the host's skin.
     const degrees = (a: number): number => (a * 180) / Math.PI;
-    const slopes = port.clocks.map(({ clock, station }, i: number) => {
-      const jet = AutoMovieHumanConicLoft.axis(stored).jet?.(station);
-      if (jet === undefined || jet === null) throw new Error("the arm's course has no jet at " + station);
-      const { e, moving, n, across, sigma } = host[i]!;
+    const slopes = port.clocks.map(({ clock }, i: number) => {
+      const { origin, e, moving, n, across, sigma } = host[i]!;
       const loop = port.master.at(clock), tangent: V = unit([loop.first[0]!, loop.first[1]!, loop.first[2]!]);
       const point: V = [loop.point[0]!, loop.point[1]!, loop.point[2]!];
       const measure = (along: V) => {
         const leaving: V = unit(sub(along, scale(tangent, dot(along, tangent))));
         let portNormal: V = unit(cross(tangent, along));
-        if (dot(portNormal, sub(point, [jet.value.origin[0]!, jet.value.origin[1]!, jet.value.origin[2]!])) < 0) portNormal = scale(portNormal, -1);
+        if (dot(portNormal, sub(point, origin)) < 0) portNormal = scale(portNormal, -1);
         const beta: number = Math.acos(Math.max(-1, Math.min(1, dot(n, portNormal))));
         return { alpha: degrees(Math.asin(Math.max(-1, Math.min(1, dot(leaving, n))))), beta: degrees(beta),
           width: Math.hypot(port.fold.reach, port.fold.radius * Math.tan(beta / 2)) };
@@ -158,7 +185,6 @@ namespace FamilyConicSideRoot {
     // A band across the loop under the arm: at each clock whose ray is turned back or near it, the trunk's skin at trunk-station offsets
     // of -6 to 6 mm from the loop's own host station, each point's arm address, ray, n . e and sigma as the port would read them there.
     const hostSkin = AutoMovieLoftViewFullSource.create(port.host);
-    const armAxis = AutoMovieHumanConicLoft.axis(stored);
     const band = port.clocks.flatMap(({ clock }, i: number) => {
       if (!(host[i]!.across < 0.3)) return [];
       const [hs, hp] = port.master.hostAt(clock).point;
@@ -192,11 +218,15 @@ namespace FamilyConicSideRoot {
     const girth: number = firstRing.reduce((sum: number, p: V, k: number): number => sum + Math.hypot(...(sub(firstRing[(k + 1) % firstRing.length]!, p))), 0);
     const count: number = AutoMovieHumanConicLoft.phaseCount(stored, girth);
     const phases: number[] = Array.from({ length: count }, (_, k: number): number => (turn * k) / count);
+    const rays: { loop: ILoopPhase; dir: P }[] = phases.map((phase: number) => ({
+      loop: loopAt(phase),
+      dir: [Math.cos(phase), Math.sin(phase)],
+    }));
 
     // The knots: the port, then every stored knot; the free ones stand before the mark.
     const knots: number[] = [port.from, ...stored.knots];
     const free: number[] = knots.flatMap((k: number, j: number): number[] => (k < port.mark ? [j] : []));
-    const first: number[] = C.seed(phases.map((phi: number): P => { const { r } = loopAt(phi); return [r * Math.cos(phi), r * Math.sin(phi)]; }), stored.layout);
+    const first: number[] = C.seed(rays.map(({ loop, dir }): P => [loop.r * dir[0], loop.r * dir[1]]), stored.layout);
     const startValues: number[][] = stored.values.map((field: number[], f: number): number[] => [first[f]!, ...field]);
     const columns: { f: number; j: number }[] = free.flatMap((j: number) => startValues.map((_, f: number) => ({ f, j })));
     const initial: number[] = columns.map(({ f, j }): number => startValues[f]![j]!);
@@ -214,58 +244,81 @@ namespace FamilyConicSideRoot {
     const weights: number[] = stations.map((_, i: number): number =>
       (stations[Math.min(i + 1, stations.length - 1)]! - stations[Math.max(i - 1, 0)]!) / 2 / span);
     const guides: number[] = Array.from({ length: LINES }, (_, g: number): number => (g * count) / LINES);
+
+    // Only field values move during the fit. Hold the course in the new knot frame and prepare the port's fixed contributions at
+    // each station. The natural cubic is linear in its ordinates for fixed knots (de Boor, JAT 6, 1972, introduction), so changing
+    // one ordinate by delta changes its field by delta times the corresponding cardinal weight, including at the endpoints.
+    const axis: IAutoMovieViewAxis.IAxis = AutoMovieHumanConicLoft.axis({ ...stored, knots });
+    const cardinal: (station: number) => number[] = F.basisOf(knots);
+    const resolveSection = AutoMovieHumanConicSection.prepare(stored.layout);
+    const readPhases = AutoMovieViewChain.reader(phases);
+    const sectionOf = (values: readonly number[]): IAutoMovieViewChain.ISection => AutoMovieViewChain.of(resolveSection(values).input);
+    const rings = stations.map((station: number) => {
+      const { origin, u, v } = axis.at(station);
+      const blend = rays.map(({ loop, dir }) => {
+        const { w, radial, tau } = portRadius(station, loop);
+        const offset: P = [radial * dir[0], radial * dir[1]];
+        return { w, radial, tau, offset };
+      });
+      return { station, origin, u, v, normal: cross(u, v), basis: cardinal(station), blend };
+    });
+    const fieldsOf = (state: readonly number[]): number[][] => {
+      const at: (station: number) => number[] = AutoMovieHumanConicLoft.reader(familyOf(state));
+      return stations.map(at);
+    };
     let sections: number = 0;
 
     /** One reading: the fairing residuals on the port's rings and lines, and the star rows of the arm's own rings. */
-    const reading = (state: readonly number[]): { fairing: number[]; star: number[]; folds: { station: number; phase: number; turning: number }[] } | string => {
-      const family = familyOf(state), provider = Junction.sections(), axis = AutoMovieHumanConicLoft.axis(family), sectionAt = provider.prepare(family);
+    const reading = (fields: readonly number[][], moved?: IFieldChange): { fairing: number[]; star: number[]; folds: { station: number; phase: number; turning: number }[] } | string => {
       const fairing: number[] = [], star: number[] = [];
       const skin: V[][] = [];
       const folds: { station: number; phase: number; turning: number }[] = [];
-      for (const [i, s] of stations.entries()) {
-        const frame = axis.at(s), section = sectionAt(s);
-        const origin: V = [frame.origin[0]!, frame.origin[1]!, frame.origin[2]!];
-        const u: V = [frame.u[0]!, frame.u[1]!, frame.u[2]!], v: V = [frame.v[0]!, frame.v[1]!, frame.v[2]!];
+      for (const [i, { station, origin, u, v, normal, basis, blend }] of rings.entries()) {
+        let values: number[] = fields[i]!;
+        if (moved !== undefined && basis[moved.knot] !== 0) {
+          values = [...values];
+          values[moved.field]! += moved.delta * basis[moved.knot]!;
+        }
         const own: P[] = [];
-        for (const phi of phases) {
-          const read = AutoMovieViewChain.read(section, phi);
-          if (read === null) return `the arm's own section at ${s} mm has no point at phase ${phi}`;
-          own.push([read.point[0], read.point[1]]);
+        for (const [k, read] of readPhases(sectionOf(values)).entries()) {
+          if (read === null) return `the arm's own section at ${station} mm has no point at phase ${phases[k]}`;
+          own.push(read.point);
         }
         own.forEach((p: P, k: number): void => {
           const q: P = own[(k + 1) % own.length]!;
           star.push(-(p[0] * q[1] - p[1] * q[0]) / Math.max(Math.hypot(...p), Math.hypot(...q)));
         });
-        const flatRing: P[] = phases.map((phi: number, k: number): P => {
-          const { w, radial } = portRadius(s, phi);
-          return [w * own[k]![0] + radial * Math.cos(phi), w * own[k]![1] + radial * Math.sin(phi)];
+        const flatRing: P[] = own.map(([uOwn, vOwn]: P, k: number): P => {
+          const { w, offset } = blend[k]!;
+          return [w * uOwn + offset[0], w * vOwn + offset[1]];
         });
-        // The port's own star shape, the guard's question (a diagnostic, not a row): where it fails the station and phase are reported.
-        flatRing.forEach((p: P, k: number): void => {
+
+        // The port's fold diagnostic is reported for the state itself. The optimizer reads the arm's own star rows above.
+        if (moved === undefined) flatRing.forEach((p: P, k: number): void => {
           const q: P = flatRing[(k + 1) % flatRing.length]!, turning: number = -(p[0] * q[1] - p[1] * q[0]) / Math.max(Math.hypot(...p), Math.hypot(...q));
-          if (turning > 0) folds.push({ station: s, phase: phases[k]!, turning });
+          if (turning > 0) folds.push({ station, phase: phases[k]!, turning });
         });
         const ring: V[] = flatRing.map(([x, y]: P): V => [origin[0] + x * u[0] + y * v[0], origin[1] + x * u[1] + y * v[1], origin[2] + x * u[2] + y * v[2]]);
         skin.push(ring);
-        fairing.push(...Fairing.residuals(ring, true, cross(u, v), weights[i]!));
+        fairing.push(...Fairing.residuals(ring, true, normal, weights[i]!));
       }
       for (const g of guides) fairing.push(...Fairing.residuals(skin.map((ring: V[]): V => ring[g]!), false));
-      sections += provider.count;
+      sections += rings.length;
       return { fairing, star, folds };
     };
 
     let readings: number = 0;
     const read = (state: readonly number[], derivatives: boolean) => {
       const at: number = performance.now(), before: number = sections;
-      const base = reading(state);
+      const fields: number[][] = fieldsOf(state);
+      const base = reading(fields);
       if (typeof base === "string") return base;
       const fairingGradients = base.fairing.map(() => new Map<number, number>());
       const starGradients = base.star.map(() => new Map<number, number>());
       if (derivatives) for (let c = 0; c < state.length; ++c) {
-        const h: number = 1e-6 * Math.max(1, Math.abs(state[c]!));
-        const moved = [...state];
-        moved[c]! += h;
-        const next = reading(moved);
+        const value: number = state[c]!, h: number = 1e-6 * Math.max(1, Math.abs(value));
+        const { f, j } = columns[c]!;
+        const next = reading(fields, { field: f, knot: j, delta: (value + h) - value });
         if (typeof next === "string") return "column " + c + ": " + next;
         next.fairing.forEach((x: number, r: number): void => { const d = (x - base.fairing[r]!) / h; if (d !== 0) fairingGradients[r]!.set(c, d); });
         next.star.forEach((x: number, r: number): void => { const d = (x - base.star[r]!) / h; if (d !== 0) starGradients[r]!.set(c, d); });
@@ -283,25 +336,25 @@ namespace FamilyConicSideRoot {
       return F.readGroup(state, derivatives, [{ rows: () => ({ measured, incidence: [], inside, hard: [] }) }]);
     };
 
-    const fit = F.fitGroup(initial, read, TOLERANCE, 60, (detail): void => log("side-root-iteration", detail), undefined, undefined, undefined,
+    const fit = F.fitGroup(initial, read, TOLERANCE, 60, (detail): void => log("side-root-iteration", detail), undefined, undefined,
       { tolerance: CONVERGED, steps: CONVERGED_STEPS });
     if (typeof fit === "string") { log("side-root-refused", { refusal: fit, elapsedMs: performance.now() - started }); return; }
     const family = familyOf(fit.values), fields = AutoMovieHumanConicLoft.reader(family);
+    const finalFields: number[][] = stations.map(fields);
     const extents = AutoMovieHumanConicSection.extents(family.layout);
-    const along = stations.map((s: number) => ({ station: s, extents: extents.map((f: number): number => Math.abs(fields(s)[f]!)) }));
+    const along = stations.map((s: number, i: number) => ({ station: s, extents: extents.map((f: number): number => Math.abs(finalFields[i]![f]!)) }));
     // Where the port's own star shape fails on the refitted arm: each such phase's clock, the host's turn there (`across`, the cosine of
     // the host's normal on the arm's ray) and the port's radius along the phase's ray at every ring station, against `tau`.
-    const final = reading(fit.values);
+    const final = reading(finalFields);
     const folded = typeof final === "string" ? [] : [...new Set(final.folds.map((f) => f.phase))];
     const profiles = folded.slice(0, 12).map((phi: number) => {
-      const loop = loopAt(phi), nearest = port.clocks.reduce((best, c, i) => (Math.abs(Math.atan2(Math.sin(c.phase - phi), Math.cos(c.phase - phi))) <
+      const k: number = phases.indexOf(phi);
+      const loop: ILoopPhase = rays[k]!.loop, nearest = port.clocks.reduce((best, c, i) => (Math.abs(Math.atan2(Math.sin(c.phase - phi), Math.cos(c.phase - phi))) <
         Math.abs(Math.atan2(Math.sin(port.clocks[best]!.phase - phi), Math.cos(port.clocks[best]!.phase - phi))) ? i : best), 0);
-      const sectionAt = Junction.sections().prepare(family);
       return { phase: phi, clock: port.clocks[nearest]!.clock, across: host[nearest]!.across, sigma: loop.sigma, loopStation: loop.s,
-        radius: stations.map((s: number) => {
-          const own = AutoMovieViewChain.read(sectionAt(s), phi), { w, radial } = portRadius(s, phi);
-          return { station: s, tau: Math.min(1, Math.max(0, (s - loop.s) / (port.mark - loop.s))),
-            r: own === null ? null : w * Math.hypot(own.point[0], own.point[1]) + radial };
+        radius: rings.map(({ station, blend }, i: number) => {
+          const own = AutoMovieViewChain.read(sectionOf(finalFields[i]!), phi), { w, radial, tau } = blend[k]!;
+          return { station, tau, r: own === null ? null : w * Math.hypot(own.point[0], own.point[1]) + radial };
         }) };
     });
     await fs.mkdir(out, { recursive: true });

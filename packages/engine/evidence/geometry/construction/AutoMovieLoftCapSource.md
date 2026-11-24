@@ -100,8 +100,37 @@ Ordinary stations take constant comparisons; selected caps validate O(K+N) data 
 
 ## @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work
 
-This selector owns no cross-call cache; Point and Jet retain their existing station plans.
+The single-shot selector revalidates each encountered cap. Prepared consumers share bindings through the explicit cap reader.
 
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
 Returns a borrowed immutable record or null, with no retained query state.
+# src/geometry/construction/AutoMovieLoftCapSource.ts#AutoMovieLoftCapSource.prepare
+
+## @evidence contracts/development/implementation.md#principled-implementation
+
+Checks each original pole's retained source, boundary rows, axis and tip using the existing owner checks.
+
+## @evidence contracts/development/implementation.md#clear-and-simple-structure
+
+One operation publishes both the full domain and fixed end interval lookup.
+
+## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
+
+An invalid surviving cap throws before its prepared geometry is used.
+
+## @evidence contracts/development/common.md#meaningful-documentation
+
+Documents millimetre bounds and immutable ownership scope.
+
+## @evidence contracts/development/implementation.md#efficient-algorithms
+
+Examines at most two caps. Subsequent coordinate lookup compares only interval bounds.
+
+## @evidence contracts/development/implementation.md#reuse-equivalent-work
+
+All reads in the same operation reuse the end bindings checked at preparation.
+
+## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
+
+A caller-owned closure retains at most two source records.

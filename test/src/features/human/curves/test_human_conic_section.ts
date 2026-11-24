@@ -24,6 +24,8 @@ import type {
  * 11. The features of a run share one chord: moving the first off it, or turning it, leaves the second where it was.
  * 12. The lens layout reads an ellipse 6 by 40 mm, its length along `v`, from its faces' extremes on the median line and its ends' extremes, with its four guides in order.
  * 13. A least per arc holds only its own arc: on the ellipse's box with every stored shoulder 0.2, a layout listing least shoulders 0.3, 0, 0.25 and 0 reads its chain's shoulders as 0.3, 0.2, 0.25 and 0.2, and a layout with the one least 0.3 reads all four as 0.3; `continuous` at a side extreme keeps each of its two arcs at or above that arc's own least.
+ * 14. A prepared layout and phase grid keep scalar ray positions, parameter admission and exact outgoing sides across reflected offsets,
+ *    unequal shoulders, wrapped phases and a refused chain. The grid preserves the caller's order and duplicate phases.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls `AutoMovieHumanConicSection.chain`, `resolve`, `limb`, `bilateral` and `units` and reads the resulting engine chain with `AutoMovieViewChain.radius`.
  * @evidence contracts/development/testing.md#independent-expectations The ellipse's polar radius `1 / sqrt((cos / a)^2 + (sin / b)^2)` is a closed form; the subdivision weights are Farin's rational de Casteljau step at `t = 1/2` with end weights renormalised, a property of conics independent of this code; mirror symmetry is a geometric identity.
@@ -65,6 +67,33 @@ export function test_human_conic_section(): void {
         `ellipse at ${phi.toFixed(3)}: radius ${actual}, expected ${expected}`,
       );
   }
+
+  // Reuse the same phase grid across changes of first phase on both sides of zero.
+  const resolve = S.prepare(S.limb(0));
+  const sections: IAutoMovieViewChain.ISection[] = [-6, 6].map((touch: number): IAutoMovieViewChain.ISection =>
+    AutoMovieViewChain.of(resolve([38, touch, -4, 27, -45, -3, 5, -22, 0.31, 0.47, 0.55, 0.4]).input));
+  const phaseGrid: number[] = [1e25, 0, ...[...phases].reverse(), -1e25, 2 * Math.PI, 0, NaN, Infinity];
+  for (const section of sections) for (const { span: [start] } of section.arcs)
+    phaseGrid.push(start, start - 4 * Number.EPSILON, start + 4 * Number.EPSILON);
+  const sweep = AutoMovieViewChain.reader(phaseGrid);
+  for (const section of sections) {
+    if (section.fault !== null) {
+      failures.push(`phase grid fixture: ${section.fault}`);
+      continue;
+    }
+    const measured = sweep(section);
+    phaseGrid.forEach((phi: number, i: number): void => {
+      const expected = AutoMovieViewChain.read(section, phi);
+      const actual = measured[i];
+      if (expected === null ? actual !== null : actual === null || actual === undefined || expected.index !== actual.index || expected.sided !== actual.sided ||
+          Math.abs(expected.t - actual.t) > 1e-12 || Math.hypot(expected.point[0] - actual.point[0], expected.point[1] - actual.point[1]) > 1e-10)
+        failures.push(`phase grid ${i} at ${phi}: ${JSON.stringify(actual)} against the scalar ${JSON.stringify(expected)}`);
+    });
+  }
+  const refused = AutoMovieViewChain.of({ points: [], tangents: [], shoulders: [] });
+  const missing = sweep(refused);
+  if (missing.length !== phaseGrid.length || !missing.every((at) => at === null))
+    failures.push("phase grid reads points on a refused chain");
 
   // 2. Exact subdivision: an asymmetric section and its split form read the same radius.
   const rhos: number[] = [0.31, 0.47, 0.55, 0.4];

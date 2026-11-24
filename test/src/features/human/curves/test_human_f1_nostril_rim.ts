@@ -1,6 +1,7 @@
 import { AutoMovieHumanF1 } from "@automovie/human";
 import type { IAutoMovieHumanConicLoft } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
+import { nclose } from "../../internal/nclose";
 
 /**
  * A nostril cutter drawn in for its rim keeps every section's four extremes: each moves along its own normal and stays the extreme.
@@ -12,14 +13,14 @@ import { TestValidator } from "@nestia/e2e";
  *
  * Scenarios:
  *
- * 1. A made section whose front extreme leads its lateral neighbour by 0.2 mm: every extreme keeps its other coordinate, moves inward,
- *    still leads both neighbours, and moves by the whole rim, 1.5 mm, where its lead is at least twice that (the back and the lateral
- *    extremes, which lead by 3 and 4 mm).
+ * 1. A made section whose front extreme leads its lateral neighbour by 0.2 mm, and the same section at twice the scale. Every extreme
+ *    stays on its normal and keeps its lead. The back and lateral extremes have room for the full rim, whose width scales with the
+ *    mean of the four guide reaches.
  * 2. The stored cutter: the same holds at every knot.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Reads the drawn-in cutter through the public `AutoMovieHumanF1.CUTTERS[].cut`, the family the figure cuts with, on a made section and on the stored one.
- * @evidence contracts/development/testing.md#independent-expectations The expectations are the parallel curve's own properties (an extreme stays on its normal and stays the extreme) and the rim's stated width, none read from a run.
- * @evidence contracts/development/testing.md#distinguishing-cases The made section's 0.2 mm lead is under the rim's 1.5 mm: drawn toward the extremes' mean its front extreme falls 0.25 mm behind its lateral neighbour and both coordinates move, which the checks report.
+ * @evidence contracts/development/testing.md#independent-expectations The parallel curve keeps the normal and the lead. The expected rim comes from the declared 1.5 mm per 5.02 mm of mean guide reach and the four given guide coordinates.
+ * @evidence contracts/development/testing.md#distinguishing-cases The front's 0.2 mm lead limits its inset while the back and lateral guides take the full rim. Doubling the scale detects a fixed rim, and the stored cutter checks every knot.
  * @evidence contracts/development/testing.md#execution-ownership A synchronous CPU unit over one stored family's numbers, reached by `--include human_f1_nostril_rim`; it builds no person, surface or reference.
  * @evidence contracts/development/common.md#meaningful-documentation States the geometric identity, the two scenarios and the made defect's size.
  */
@@ -27,34 +28,43 @@ export function test_human_f1_nostril_rim(): void {
   const cutter = AutoMovieHumanF1.CUTTERS.find((candidate): boolean => candidate.family.name === "nostril");
   if (cutter === undefined) throw new Error("f1 has no nostril cutter");
 
-  // 1. A made section at every knot: front (5, -1), medial (-3, 4), back (-6, 2), lateral (4.8, -5), with the stored shoulders.
+  // 1. The four guide reaches are 5, 4, 6 and 5 mm before scaling.
   const section: number[] = [5, -1, -3, 4, -6, 2, 4.8, -5];
-  const made: IAutoMovieHumanConicLoft.IFamily = {
-    ...cutter.family,
-    values: cutter.family.values.map((row: number[], f: number): number[] => (f < section.length ? row.map((): number => section[f]!) : row)),
-  };
-  const found: string[] = faults(made, cutter.cut(made));
-  TestValidator.predicate("a section with a 0.2 mm lead keeps its extremes: " + found.join("; "), found.length === 0);
-  const drawn: IAutoMovieHumanConicLoft.IFamily = cutter.cut(made);
-  TestValidator.predicate("the back extreme, leading by 3 mm, comes in by the whole rim", Math.abs(drawn.values[4]![0]! - (-6 + RIM_MM)) < 1e-9);
-  TestValidator.predicate("the lateral extreme, leading by 4 mm, comes in by the whole rim", Math.abs(drawn.values[7]![0]! - (-5 + RIM_MM)) < 1e-9);
+  for (const scale of [1, 2]) {
+    const made: IAutoMovieHumanConicLoft.IFamily = {
+      ...cutter.family,
+      values: cutter.family.values.map((row: number[], f: number): number[] =>
+        f < section.length ? row.map((): number => scale * section[f]!) : row,
+      ),
+    };
+    const rim: number = 5 * scale * RIM_PER_REACH;
+    const drawn: IAutoMovieHumanConicLoft.IFamily = cutter.cut(made);
+    const found: string[] = faults(made, drawn, rim);
+    TestValidator.predicate(`scale ${scale}: the guides keep their extremes: ${found.join(", ")}`, found.length === 0);
+    TestValidator.predicate(`scale ${scale}: the back extreme comes in by the whole rim`, nclose(drawn.values[4]![0]!, -6 * scale + rim, 1e-9));
+    TestValidator.predicate(`scale ${scale}: the lateral extreme comes in by the whole rim`, nclose(drawn.values[7]![0]!, -5 * scale + rim, 1e-9));
+  }
 
   // 2. The stored cutter.
-  const stored: string[] = faults(cutter.family, cutter.cut(cutter.family));
+  const meanReach: number = [0, 3, 4, 7].reduce((sum, field): number =>
+    sum + Math.abs(cutter.family.values[field]![0]!), 0,
+  ) / 4;
+  const stored: string[] = faults(cutter.family, cutter.cut(cutter.family), meanReach * RIM_PER_REACH);
   TestValidator.predicate("the stored nostril keeps its extremes when drawn in: " + stored.join("; "), stored.length === 0);
 }
 
-/** The nostril's rim, mm: the reference's alar rim and sill roll with a radius of 1.5 to 2 mm, and the cut's blend is that wide. */
-const RIM_MM: number = 1.5;
+/** The declared rim share from the 1.5 mm accepted rim over the 5.02 mm reference reach. */
+const RIM_PER_REACH: number = 1.5 / 5.02;
 
 /**
  * Every extreme of a drawn-in four-extreme family that left its normal, moved outward or stopped leading a neighbour.
  *
  * @param before The family as stored: fields 0 to 7 are its front, medial, back and lateral extremes as `(u, v)` pairs.
  * @param after The family drawn in.
+ * @param rim The expected full inset, mm.
  * @returns One line per fault, its knot first.
  */
-function faults(before: IAutoMovieHumanConicLoft.IFamily, after: IAutoMovieHumanConicLoft.IFamily): string[] {
+function faults(before: IAutoMovieHumanConicLoft.IFamily, after: IAutoMovieHumanConicLoft.IFamily, rim: number): string[] {
   const names: string[] = ["front", "medial", "back", "lateral"];
   const out: string[] = [];
   before.knots.forEach((_: number, k: number): void => {
@@ -65,7 +75,7 @@ function faults(before: IAutoMovieHumanConicLoft.IFamily, after: IAutoMovieHuman
       const own = (family: IAutoMovieHumanConicLoft.IFamily, e: number, a: number): number => family.values[2 * e + a]![k]!;
       if (Math.abs(own(after, q, 1 - axis) - own(before, q, 1 - axis)) > 1e-9) out.push(`knot ${k}: the ${names[q]} extreme left its normal by ${(own(after, q, 1 - axis) - own(before, q, 1 - axis)).toFixed(3)} mm`);
       const moved: number = sign * (own(before, q, axis) - own(after, q, axis));
-      if (moved <= 0 || moved > RIM_MM + 1e-9) out.push(`knot ${k}: the ${names[q]} extreme moved in by ${moved.toFixed(3)} mm`);
+      if (moved <= 0 || moved > rim + 1e-9) out.push(`knot ${k}: the ${names[q]} extreme moved in by ${moved.toFixed(3)} mm`);
       for (const step of [1, 3]) {
         const lead: number = sign * (own(after, q, axis) - own(after, (q + step) % 4, axis));
         if (lead <= 0) out.push(`knot ${k}: the ${names[q]} extreme stands ${(-lead).toFixed(3)} mm behind the ${names[(q + step) % 4]} one`);

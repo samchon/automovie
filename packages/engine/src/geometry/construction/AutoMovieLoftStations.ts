@@ -1,14 +1,27 @@
 import type { IAutoMovieLoftChain } from "@automovie/interface";
 
-import { AutoMovieLoftChain } from "./AutoMovieLoftChain";
+import { AutoMovieLoftCapRead } from "./AutoMovieLoftCapRead";
+import { AutoMovieLoftCapSource } from "./AutoMovieLoftCapSource";
+import { AutoMovieLoftPoint } from "./AutoMovieLoftPoint";
+import { AutoMovieLoftSection } from "./AutoMovieLoftSection";
 
 /**
  * Tessellation stations of a chain: where a face's grid rings stand.
  *
- * Every principal layer inside the range is a station, since it is a shape event. Each remaining interval is split at its midpoint while the section there departs from the straight band between the interval's end sections by more than the chord tolerance at any probe phase, and both halves are examined the same way. That departure is the error a flat band of triangles makes there, so curved stretches refine and straight ones stay coarse; `depth` bounds the recursion, so a pathological interval yields an explicit coarse band instead of unbounded work.
+ * Every principal layer inside the range is a station, since it is a shape
+ * event. Each remaining interval is split at its midpoint while the section
+ * there departs from the straight band between the interval's end sections by
+ * more than the chord tolerance at any probe phase, and both halves are
+ * examined the same way. That departure is the error a flat band of triangles
+ * makes there, so curved stretches refine and straight ones stay coarse;
+ * `depth` bounds the recursion, so a pathological interval yields an explicit
+ * coarse band instead of unbounded work.
  */
 export namespace AutoMovieLoftStations {
-  /** Forty-eight uniform phases define the sampled band criterion, not a bound on unsampled phase error. */
+  /**
+   * Forty-eight uniform phases define the sampled band criterion, not a bound
+   * on unsampled phase error.
+   */
   export const PROBES: number = 48;
 
   /**
@@ -40,7 +53,16 @@ export namespace AutoMovieLoftStations {
       to,
     ];
     const out: number[] = [from];
-    const at = (s: number): Ring => AutoMovieLoftChain.ring(chain, s, probes);
+    const ownership: ReturnType<typeof AutoMovieLoftCapSource.prepare> =
+      AutoMovieLoftCapSource.prepare(chain);
+    const station: ReturnType<typeof AutoMovieLoftPoint.prepare> =
+      AutoMovieLoftPoint.prepare(
+        chain,
+        AutoMovieLoftSection.prepare(chain),
+        AutoMovieLoftCapRead.prepare(chain, ownership),
+        true,
+      );
+    const at = (s: number): Ring => probes.map(station(s));
     const split = (
       a: number,
       b: number,

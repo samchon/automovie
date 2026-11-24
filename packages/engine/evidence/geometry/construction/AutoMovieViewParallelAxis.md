@@ -6,7 +6,7 @@ States source ownership, constant plane directions and the explicit admission/re
 
 ## @evidence contracts/development/design.md#principled-representation
 
-Represents Parallel source planes: fixed chart axes translated by three admitted source-coordinate curves, independent of the origin course's tangent: companion namespace of 6 members (`DECLARATIONS`, `IOrigin`, `create`, `from`, `source`, `copy`); units and frames named in its text: world, frame, second, metre, frames. It has no optional member, so no absent-value state combines with another.
+Fixed world chart axes translate along three original source curves. An axis prepared from a metre declaration carries its own declaration reader.
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
@@ -74,7 +74,7 @@ Retains the original declaration on the prepared axis so serialization does not 
 
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
-One copied declaration belongs to each live axis through a WeakMap key; failed preparations retain nothing and dead axes release their metadata.
+The prepared axis owns its copied declaration through its private serialization closure.
 
 # src/geometry/construction/AutoMovieViewParallelAxis.ts#AutoMovieViewParallelAxis.source
 
@@ -104,4 +104,4 @@ Uses the retained authoritative source; it does not rerun interpolation or frame
 
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
-Returns a fresh declaration owned by the caller; the WeakMap retains no strong axis key.
+Returns a fresh declaration owned by the caller. The original belongs to the prepared axis.

@@ -106,6 +106,36 @@ A pure reading coordinates no requests.
 
 Retains nothing.
 
+# src/geometry/construction/AutoMovieViewChain.ts#AutoMovieViewChain.reader
+
+## @evidence contracts/development/common.md#meaningful-documentation
+
+States the phase unit, input and output order, scalar fallback range, and join sidedness.
+
+## @evidence contracts/development/implementation.md#principled-implementation
+
+Canonical phase directions are periodic. Shifting them to the section's first phase gives two increasing runs whose arc cursors advance independently. At a span end within the rounding of the turn adjustment, use the scalar direction so the same endpoint and join side are selected.
+
+## @evidence contracts/development/implementation.md#clear-and-simple-structure
+
+Prepare and sort the phase grid, sweep the spans, intersect each ray on its arc, and return the answers at their original indices.
+
+## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
+
+No point interpolation or approximate arc lookup. Each ray goes through the same rational quadratic root and parameter admission as a scalar read.
+
+## @evidence contracts/development/implementation.md#efficient-algorithms
+
+The preparation sorts the canonical phase requests. A subsequent chain read takes linear time in the phase count plus the arc count for the sweep, with independent scalar reads for requests outside the canonical turn.
+
+## @evidence contracts/development/implementation.md#reuse-equivalent-work
+
+One phase grid holds its directions and ordering for every section that uses it. The scalar and grid reads share the arc intersection and join rules.
+
+## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
+
+The closure retains only its input phase grid. Every section and its results belong to one call.
+
 # src/geometry/construction/AutoMovieViewChain.ts#AutoMovieViewChain.radius
 
 ## @evidence contracts/development/common.md#meaningful-documentation

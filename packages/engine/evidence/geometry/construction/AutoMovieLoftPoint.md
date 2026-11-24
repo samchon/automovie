@@ -2,11 +2,11 @@
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-Public readers state physical units, immutable source equivalence and bounded cache lifetime.
+Public readers state physical units and how preparation scopes follow the chain and each fixed station.
 
 ## @evidence contracts/development/design.md#principled-representation
 
-Represents Value-only loft station samplers and the existing bounded lazy point cache: companion namespace of 8 members (`sampler`, `point`, `phaseSampler`, `lazy`, `RECENT`, `SAMPLERS`, ...); units and frames named in its text: world, local, frame, radians, radian. It has no optional member, so no absent-value state combines with another.
+The namespace reads complete world Point0 and phase tangents at millimetre stations and radian phases. A fixed-station sampler retains exactly one station's section, frame and lift.
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
@@ -50,11 +50,11 @@ The returned closure retains the immutable chain, including its source owners, a
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-Reuses a station sampler under the immutable chain identity; spline controls are combined lazily with the same explicit coefficient interpolation as the eager reader.
+Spline controls are combined on demand with the same coefficient interpolation as the dense sampler.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-The original eight-insertion sampler cache owns single-point reuse in this one module.
+The same station geometry serves direct point and fixed-station sampler entry points.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
@@ -62,7 +62,7 @@ Preserves legacy arithmetic, nonpromoting hits, insertion/eviction and fresh vec
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States immutable chain/cache equivalence and station-mm/phase-radian units; only explicit surviving original ends authorize cap values beyond principal rows.
+States station-mm/phase-radian units. Explicit surviving original ends authorize cap values beyond principal rows.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
@@ -70,11 +70,11 @@ Native misses use the value-only source sampler including validation/scalar look
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 
-Reuses the same last eight inserted station preparations without promoting hits.
+Fixed-station consumers call sampler once for their full phase sweep. Sparse queries combine only their active controls.
 
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
-A weak chain key owns at most eight O(N) sampler records; eviction releases a record and returned points are fresh.
+The station plan lives for the direct call. Its result owns a fresh world point.
 
 # src/geometry/construction/AutoMovieLoftPoint.ts#AutoMovieLoftPoint.phaseSampler
 
@@ -88,7 +88,7 @@ One caller-owned station closure serves numerical-station normal consumers indep
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
-No missing physical derivative is inferred and neither eight-station module cache receives this plan.
+Physical2 is independently available through the jet reader.
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -105,3 +105,32 @@ The closure shares its prepared station geometry, frame and lift across phases.
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
 The caller alone retains this plan until release; every result owns fresh vectors and no new module cache exists.
+# src/geometry/construction/AutoMovieLoftPoint.ts#AutoMovieLoftPoint.prepare
+
+## @evidence contracts/development/implementation.md#principled-implementation
+
+Uses the current chain scope's admitted original section and cap readers, and the existing legacy interpolation otherwise.
+
+## @evidence contracts/development/implementation.md#clear-and-simple-structure
+
+One station factory selects between sparse spline controls and the dense sampler when the caller declares a phase sweep.
+
+## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
+
+Explicit cap and original-source ownership remain authoritative for native point values.
+
+## @evidence contracts/development/common.md#meaningful-documentation
+
+Documents Point0 and immutable chain preparation. The dense mode prepares all legacy controls for phase sweeps.
+
+## @evidence contracts/development/implementation.md#efficient-algorithms
+
+One chain lift-presence query supports sparse legacy work. A phase reads only four controls per coordinate on that path.
+
+## @evidence contracts/development/implementation.md#reuse-equivalent-work
+
+Each station's sampler shares section, frame and lift work across its phases.
+
+## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
+
+The caller owns the station factory and the lifetime of individual station readers.

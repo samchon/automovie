@@ -235,7 +235,67 @@ export namespace AutoMovieViewChain {
     const index: number = lo;
     const arc: IAutoMovieViewChain.IArc = arcs[index]!;
     if (!(p <= arc.span[1])) return null;
-    const d: AutoMovieVector2Tuple = [Math.cos(p), Math.sin(p)];
+    return meetRay(section, index, p, [Math.cos(p), Math.sin(p)]);
+  }
+
+  /**
+   * Prepare a phase grid once and read each admitted chain in a forward arc sweep.
+   *
+   * @param phases The requested phases in radians, in any order. Finite phases outside [0, 2pi) use the scalar reduction.
+   * @returns A reader with one result per phase in the original order, keeping exact join sidedness.
+   */
+  export function reader(
+    phases: readonly number[],
+  ): (section: IAutoMovieViewChain.ISection) => (IAutoMovieViewChain.IRead | null)[] {
+    const turn: number = 2 * Math.PI;
+    const roundoff: number = 4 * Number.EPSILON * turn;
+    const grid: { phi: number; index: number; ray: AutoMovieVector2Tuple }[] = [];
+    const outside: { phi: number; index: number }[] = [];
+    phases.forEach((phi: number, index: number): void => {
+      if (phi >= 0 && phi < turn)
+        grid.push({ phi, index, ray: [Math.cos(phi), Math.sin(phi)] });
+      else outside.push({ phi, index });
+    });
+    grid.sort((a, b): number => a.phi - b.phi);
+    const count: number = phases.length;
+    return (section: IAutoMovieViewChain.ISection): (IAutoMovieViewChain.IRead | null)[] => {
+      const result: (IAutoMovieViewChain.IRead | null)[] = new Array<IAutoMovieViewChain.IRead | null>(count).fill(null);
+      if (section.fault !== null) return result;
+      const arcs: IAutoMovieViewChain.IArc[] = section.arcs;
+      const first: number = arcs[0]!.span[0];
+      // Canonical phases need at most one add or subtract of 2pi relative to an atan2 start. In each of the
+      // unshifted and shifted runs the scalar reduced phases stay in increasing order.
+      const cursors: [number, number] = [0, 0];
+      for (const { phi, index, ray } of grid) {
+        const raw: number = phi - first;
+        const branch: 0 | 1 = raw < 0 || raw >= turn ? 1 : 0;
+        const offset: number = raw < 0 ? raw + turn : raw >= turn ? raw - turn : raw;
+        const p: number = first + offset;
+        let arcIndex: number = cursors[branch];
+        while (arcIndex + 1 < arcs.length && arcs[arcIndex + 1]!.span[0] <= p) ++arcIndex;
+        cursors[branch] = arcIndex;
+        const [start, end] = arcs[arcIndex]!.span;
+        if (!(p <= end)) continue;
+        // Before the modulo branch, subtraction and addition each round once. After wrapping, the offset and
+        // the binary64 value of the turn contribute two more roundings. At an end within this roundoff use
+        // the scalar ray so endpoint admission and the outgoing join side agree with a one-phase reader.
+        const near: boolean = p - start <= roundoff || end - p <= roundoff;
+        const point: IAutoMovieViewChain.IRead | null = near ? null : meetRay(section, arcIndex, p, ray);
+        result[index] = point ?? meetRay(section, arcIndex, p, [Math.cos(p), Math.sin(p)]);
+      }
+      for (const { phi, index } of outside) result[index] = read(section, phi);
+      return result;
+    };
+  }
+
+  /** Intersect an already selected arc with the positive ray by its stable quadratic roots. */
+  function meetRay(
+    section: IAutoMovieViewChain.ISection,
+    index: number,
+    p: number,
+    d: AutoMovieVector2Tuple,
+  ): IAutoMovieViewChain.IRead | null {
+    const arc: IAutoMovieViewChain.IArc = section.arcs[index]!;
     const alpha: number = cross(d, arc.start);
     const beta: number = cross(d, arc.control);
     const gamma: number = cross(d, arc.end);
@@ -244,27 +304,29 @@ export namespace AutoMovieViewChain {
     const A: number = alpha - 2 * arc.weight * beta + gamma;
     const B: number = 2 * arc.weight * beta - 2 * alpha;
     const C: number = alpha;
-    const roots: number[] = [];
+    let root: number = NaN;
+    let alternate: number = NaN;
     if (Math.abs(A) <= 1e-15 * (Math.abs(B) + Math.abs(C))) {
-      if (B !== 0) roots.push(-C / B);
+      if (B !== 0) root = -C / B;
     } else {
       const disc: number = B * B - 4 * A * C;
       if (disc >= 0) {
         const q: number = -0.5 * (B + (B < 0 ? -1 : 1) * Math.sqrt(disc));
-        roots.push(q / A);
-        if (q !== 0) roots.push(C / q);
+        root = q / A;
+        if (q !== 0) alternate = C / q;
       }
     }
     let best: IAutoMovieViewChain.IRead | null = null;
-    let along: number = -Infinity;
+    let along: number = 0;
     const join: IAutoMovieViewChain.IJoin = section.joins[index]!;
     const sided: boolean = p === arc.span[0] && join.before !== join.after;
-    for (const t of roots) {
+    for (let k: number = 0; k < 2; ++k) {
+      const t: number = k === 0 ? root : alternate;
       if (!(t >= -1e-12 && t <= 1 + 1e-12)) continue;
       const clamped: number = Math.min(1, Math.max(0, t));
       const point: AutoMovieVector2Tuple = evaluate(arc, clamped);
       const reach: number = point[0] * d[0] + point[1] * d[1];
-      if (reach > 0 && reach > along) {
+      if (reach > along) {
         along = reach;
         best = { index, t: clamped, point, sided };
       }

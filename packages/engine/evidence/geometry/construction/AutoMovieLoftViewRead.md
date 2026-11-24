@@ -75,3 +75,32 @@ Shares the common shoulder jet and one cap jet across all four effective quarter
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
 Returns owned triples or a named failure with no retained source or station state.
+# src/geometry/construction/AutoMovieLoftViewRead.ts#AutoMovieLoftViewRead.prepare
+
+## @evidence contracts/development/implementation.md#principled-implementation
+
+Validates source structure once. The scalar-only and actual source2 capabilities use the existing outline and cap laws.
+
+## @evidence contracts/development/implementation.md#clear-and-simple-structure
+
+Reuses the bodies of the one-station scalar and jet readers. Each returned method checks the requested station.
+
+## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
+
+Each failed read reports the original source problem with the station address. Missing physical2 remains unavailable.
+
+## @evidence contracts/development/common.md#meaningful-documentation
+
+Documents the immutable source scope and independent requested derivative orders.
+
+## @evidence contracts/development/implementation.md#efficient-algorithms
+
+Preparation visits the structural layout once. A read costs the requested station's original scalar or jet work.
+
+## @evidence contracts/development/implementation.md#reuse-equivalent-work
+
+Both station capabilities share structural admission for the same immutable source.
+
+## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
+
+The returned methods retain the input source for their caller's scope.

@@ -160,8 +160,38 @@ O(M+N^2) accumulation/direct transforms and O(N^2) transform tables avoid a dens
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 
-Within a fit both coordinates share normal eigenvalues and turns; across fits TURNS shares tables by N because those tables depend only on N, with no sample/cutoff/effect reuse.
+Both fit coordinates share one Fourier basis and the normal eigenvalues prepared for that projection.
 
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
-Local O(N) solve arrays and 2N output have call/result lifetimes, but each new N permanently adds two N-by-N Float64Arrays (16N^2 payload bytes) to an unbounded process Map; no eviction or release exists.
+Two N-by-N Float64Arrays and O(N) solving arrays live for the projection. The caller retains the 2N result coefficients.
+
+# src/geometry/construction/AutoMovieSplineCurve.ts#AutoMovieSplineCurve.scalarJet
+
+## @evidence contracts/development/implementation.md#principled-implementation
+
+Evaluates the periodic cubic basis and its two phase derivatives for one scalar control row. The phase scale follows the same chain rule as the planar jet.
+
+## @evidence contracts/development/implementation.md#clear-and-simple-structure
+
+The scalar and planar readers share one calculation of the active indices and basis weights.
+
+## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
+
+Uses the same control support and derivative formula for finite phases as the planar spline.
+
+## @evidence contracts/development/common.md#meaningful-documentation
+
+Names the scalar periodic row and first and second phase derivatives.
+
+## @evidence contracts/development/implementation.md#efficient-algorithms
+
+Reads four control positions and returns three scalars, independent of the total spline order.
+
+## @evidence contracts/development/implementation.md#reuse-equivalent-work
+
+Each derivative uses the same four control values and local parameter.
+
+## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
+
+The new result contains three numeric values. The temporary reader and its input remain within the call.

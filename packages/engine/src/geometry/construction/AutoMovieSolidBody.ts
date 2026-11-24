@@ -6,25 +6,26 @@ import type {
 
 import { AutoMovieSolidBodyMerge } from "./AutoMovieSolidBodyMerge";
 import { AutoMovieSolidMesh } from "./AutoMovieSolidMesh";
+import { faceAutoMovieSolidMesh } from "./faceAutoMovieSolidMesh";
 
 /**
  * A solid built by merges and diffs, as trimmed faces that share their
  * boundaries: the base, every blend and every part, each a surface with its
- * trim cycles in its own chart (`AutoMovieSolidCycle`), the shared
- * boundary vertices held once in the body's mesh.
+ * trim cycles in its own chart (`AutoMovieSolidCycle`), the shared boundary
+ * vertices held once in the body's mesh.
  *
  * A merge ({@link merge}) traces its part against the body as an atlas
- * ({@link atlas}), so its curve and its host rail cross from face to face
- * (the thigh against the trunk and the gluteal mass, a malleolus on the
- * shank-to-foot blend, the second breast against the first). It adds the
- * blend face (the join's blend chain, its two rails its station-end
- * cycles), gives the part face its rail cycle (a part merged again at its
- * other end keeps both, a limb merged at its root and at its foot), and
- * trims every host face the host rail runs over: a rail on one face adds its
- * loop, a rail that crosses faces is clipped into each face it runs on
- * (`AutoMovieSolidClip`). Where two blends meet (the perineum, the
- * webs, the cleavage), the later merge's rail simply runs over the earlier
- * blend face, so no corner needs its own patch.
+ * ({@link atlas}), so its curve and its host rail cross from face to face (the
+ * thigh against the trunk and the gluteal mass, a malleolus on the
+ * shank-to-foot blend, the second breast against the first). It adds the blend
+ * face (the join's blend chain, its two rails its station-end cycles), gives
+ * the part face its rail cycle (a part merged again at its other end keeps
+ * both, a limb merged at its root and at its foot), and trims every host face
+ * the host rail runs over: a rail on one face adds its loop, a rail that
+ * crosses faces is clipped into each face it runs on (`AutoMovieSolidClip`).
+ * Where two blends meet (the perineum, the webs, the cleavage), the later
+ * merge's rail simply runs over the earlier blend face, so no corner needs its
+ * own patch.
  *
  * {@link draw} tessellates every face on its own grid trimmed by its cycles
  * (`AutoMovieSolidMesh.face`), shared boundaries vertex for vertex.
@@ -74,7 +75,9 @@ export namespace AutoMovieSolidBody {
    *
    * @param body The body; its faces, cycles and mesh grow in place.
    * @param input The merge.
-   * @returns The blend or null with observed diagnostics. Returned rail/trim failures restore face count, copied cycles and mesh populations; thrown callbacks are not caught or rolled back.
+   * @returns The blend or null with observed diagnostics. Returned rail/trim
+   *   failures restore face count, copied cycles and mesh populations; thrown
+   *   callbacks are not caught or rolled back.
    */
   export function merge(
     body: IAutoMovieSolidBody.IBody,
@@ -87,16 +90,20 @@ export namespace AutoMovieSolidBody {
    * Tessellate every face.
    *
    * @param body The body; its mesh receives the triangles.
-   * @param onFailure Optional face-name/detail receiver for named planning failures; absence preserves the throwing default.
-   * @returns Each face's explicit native boundary occurrences and complete endpoint classification, by face.
+   * @param onFailure Optional face-name/detail receiver for named planning
+   *   failures; absence preserves the throwing default.
+   * @returns Each face's explicit native boundary occurrences and complete
+   *   endpoint classification, by face.
    */
   export function draw(
     body: IAutoMovieSolidBody.IBody,
     onFailure?: (face: string, detail: string) => void,
   ): IAutoMovieSolidMesh.IOpen[][] {
+    const append: ReturnType<typeof faceAutoMovieSolidMesh.prepare> =
+      faceAutoMovieSolidMesh.prepare(body.mesh);
     return body.faces.map(
       (f: IAutoMovieSolidBody.IFace): IAutoMovieSolidMesh.IOpen[] =>
-        AutoMovieSolidMesh.face(body.mesh, {
+        append({
           surface: f.surface,
           stations: f.stations,
           phases: f.phases,
@@ -132,7 +139,10 @@ export namespace AutoMovieSolidBody {
     /** Detached shared-boundary point records for this publication. */
     const points: IAutoMovieSolidBody.IPublished["points"] = [];
 
-    /** Read the original owner/chart coordinates when a boundary index first appears. */
+    /**
+     * Read the original owner/chart coordinates when a boundary index first
+     * appears.
+     */
     const point: (v: number) => number = (v: number): number => {
       /** Previously published identity for this same mesh vertex. */
       const known: number | undefined = index.get(v);
@@ -147,7 +157,10 @@ export namespace AutoMovieSolidBody {
       index.set(v, points.length - 1);
       return points.length - 1;
     };
-    /** Copy one boundary record while retaining the one shared point identity across either role. */
+    /**
+     * Copy one boundary record while retaining the one shared point identity
+     * across either role.
+     */
     const cycle: (
       c: IAutoMovieSolidMesh.ILoop,
     ) => IAutoMovieSolidBody.IPublished["faces"][number]["cycles"][number] = (

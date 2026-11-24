@@ -84,11 +84,11 @@ The alias retains the existing AutoMovieHumanConicLoft input/result boundary and
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-Source and reflection functions for a native family generated in one invocation.
+Source, explicit layer preparation and reflection functions for a native family generated in one invocation. The prepared sampler fixes the family's scalar and cap authority, with each query supplying its layer grid and mesh density terms.
 
 ## @evidence contracts/development/design.md#principled-representation
 
-The axis and section stations use physical millimetres. Each reader returns the same view-part shape under its declared scope.
+The axis and section stations use physical millimetres. The prepared sampler retains the exact scalar and cap source in one family scope. Layer grids, pitch, turn, phase and relief visibility are per-query sampling inputs.
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 

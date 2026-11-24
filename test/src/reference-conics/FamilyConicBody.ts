@@ -82,13 +82,6 @@ export namespace FamilyConicBody {
   const FAIR_LINES: number = 8;
 
   /**
-   * How far a parent's fairing window runs each way from its composed end, a share of the parent's mean reach at the end station
-   * (`AutoMovieHumanConicLoft.meanReach`): the former 40 mm over f1's end rings, the hand's 28.09 mm, the leg's 33.85 and the trunk's
-   * 150.95 (`joint-sizes-20261123-0103/sizes.json`). ESTIMATE.
-   */
-  const FAIR_WINDOW_SHARE: Readonly<Record<string, number>> = { hand: 40 / 28.09, leg: 40 / 33.85, trunk: 40 / 150.95 };
-
-  /**
    * The fairing fit's convergence: the share of the objective below which an accepted step's change, and its predicted change, no
    * longer count (`FamilyConicFit.fitGroup`'s relative test). The fairing rows are second differences round rings of at least 48 points
    * (`AutoMovieHumanConicLoft.phaseCount`); on a circle a second difference reads the curvature times `1 - h^2 / 12 + O(h^4)` with
@@ -1065,11 +1058,8 @@ export namespace FamilyConicBody {
    */
   const SOLID_MM2: number = 1500;
 
-  /** For each triangle of a mesh, 1 when its connected piece (by shared vertices) is at least `SOLID_MM2` in area, else 0; kept per mesh. */
-  const solidCache: WeakMap<object, Uint8Array> = new WeakMap();
+  /** For each triangle of a casting mesh, 1 when its piece (by shared vertices) is at least `SOLID_MM2` in area. */
   function solids(mesh: R.ISource["body"]): Uint8Array {
-    const known: Uint8Array | undefined = solidCache.get(mesh);
-    if (known !== undefined) return known;
     const count: number = mesh.positions.length / 3;
     const parent: Int32Array = new Int32Array(count).map(
       (_: number, i: number): number => i,
@@ -1115,7 +1105,6 @@ export namespace FamilyConicBody {
     const out: Uint8Array = new Uint8Array(mesh.indices.length / 3);
     for (let t: number = 0; t + 2 < mesh.indices.length; t += 3)
       out[t / 3] = (area.get(find(mesh.indices[t]!)) ?? 0) >= SOLID_MM2 ? 1 : 0;
-    solidCache.set(mesh, out);
     log0("family-body-solids", {
       pieces: area.size,
       kept: [...area.values()]
@@ -1671,7 +1660,7 @@ export namespace FamilyConicBody {
   }
 
   /** Read the independent retained parent skin on fixed world sections within the original terminal material span. */
-  function endParent(plan: ReturnType<typeof FamilyConicDivide.composition>, original: R.ISource, envelope: ReturnType<typeof rootEnvelope>) {
+  function endParent(plan: ReturnType<typeof FamilyConicDivide.composition>, original: ReturnType<typeof R.prepare>, envelope: ReturnType<typeof rootEnvelope>) {
     if (envelope.parentRefusal === null) return undefined;
     const face = plan.owner.hostFace;
     const family = plan.figure.reference(plan.originalOf(face));
@@ -1681,7 +1670,7 @@ export namespace FamilyConicBody {
     const held = grid.slice(1).map((s, i): number => (s + grid[i]!) / 2);
     const sample = (s: number, terminal: boolean) => {
       const frame = envelope.host.axis.at(s);
-      const pieces = R.chains(original.all, frame).filter((p): boolean => p.closed && winding(p.points, [0, 0]) === 1);
+      const pieces = original.chains(frame).filter((p): boolean => p.closed && winding(p.points, [0, 0]) === 1);
       if (pieces.length !== 1) throw new Error(face + " has no single observed retained parent wall at " + s + " mm");
       const point = (p: C.P): R.V => V.add(frame.origin, V.add(V.scale(frame.u, p[0]), V.scale(frame.v, p[1])));
       const chart = (p: R.V): C.P => { const q = V.sub(p, frame.origin); return [V.dot(q, frame.u), V.dot(q, frame.v)]; };
@@ -1864,15 +1853,19 @@ export namespace FamilyConicBody {
     return { owner, members, children, offsets, vector, stock, expand, parent };
   }
 
-  /** Prepare material stock once for this vector. The registered declaration supplies production-mirrored source charts. */
   /** A composed end's own faces: its host and its children. */
   function groupFaces(owner: IAutoMovieConstructionSplit): Set<string> {
     return new Set([owner.hostFace, ...owner.children.map((entry): string => entry.partFace)]);
   }
 
-  function groupSources(values: ReadonlyMap<string, K.IStored>, name: string, faces: ReadonlySet<string>) {
-    const figure = AutoMovieHumanF1.assemble(undefined, undefined, values);
-    // Only the group's own faces and its host are lofted: the whole body's declaration cost 22 to 30 s a reading for four or five faces.
+  /** Declare the varied stock once. The original declaration's host belongs to the same neutral stock if it is fixed. */
+  function groupSources(values: ReadonlyMap<string, K.IStored>, plan: ReturnType<typeof FamilyConicDivide.composition>) {
+    const figure = [...values.values()].reduce((placed, family) => AutoMovieHumanF1.replaceNeutralOriginal(placed, family), plan.figure);
+    const name: string = plan.owner.name;
+    const host: string = plan.owner.hostFace;
+    const faces: Set<string> = groupFaces(plan.owner);
+    const fixedHost: boolean = !values.has(plan.originalOf(host));
+    if (fixedHost) faces.delete(host);
     const declared = AutoMovieHumanF1.constructionOf(figure, faces);
     const visit = (node: IAutoMovieConstructionNode): IAutoMovieConstructionSplit | undefined => {
       if (node.name === name && node.type === "split") return node;
@@ -1889,15 +1882,24 @@ export namespace FamilyConicBody {
     };
     const owner = visit(declared.root);
     if (owner === undefined || owner.compose === undefined) throw new Error("missing registered composed owner " + name);
-    const prepared = new Map<string, { view: IAutoMovieViewPart; source: IAutoMovieLoftViewFullSource.IReader }>();
-    const chart = (face: string) => {
-      const known = prepared.get(face); if (known !== undefined) return known;
-      const view = declared.sources.get(face);
-      if (view === undefined) throw new Error("missing source chart " + face);
-      const source = AutoMovieLoftViewFullSource.create(view);
-      const result = { view, source }; prepared.set(face, result); return result;
+    const view = (face: string): IAutoMovieViewPart => {
+      if (face === host && fixedHost) return plan.source(host);
+      const source = declared.sources.get(face);
+      if (source === undefined) throw new Error("missing source chart " + face);
+      return source;
     };
-    return { figure, owner, sources: declared.sources, chart };
+    const prepareCharts = (requested: readonly string[]) => {
+      const charts = new Map(requested.map((face) => {
+        const part: IAutoMovieViewPart = view(face);
+        return [face, { view: part, source: AutoMovieLoftViewFullSource.create(part) }] as const;
+      }));
+      return (face: string) => {
+        const chart = charts.get(face);
+        if (chart === undefined) throw new Error("missing prepared source chart " + face);
+        return chart;
+      };
+    };
+    return { figure, owner, view, prepareCharts };
   }
 
   /** Registered host stations induce material sections on the child's unchanged first straight. */
@@ -2087,7 +2089,7 @@ export namespace FamilyConicBody {
 
   /** Separate the registered authored reference outline from the actual two-sided physical composition. */
   function rootEnvelope(
-    plan: ReturnType<typeof FamilyConicDivide.composition>, original: R.ISource,
+    plan: ReturnType<typeof FamilyConicDivide.composition>, original: ReturnType<typeof R.prepare>,
     divides: readonly FamilyConicDivide.ISurface[], tolerance: number,
   ) {
     const node = plan.owner;
@@ -2119,7 +2121,7 @@ export namespace FamilyConicBody {
       const divider = rows[0]!, sign: number = divider.near.includes(a) ? 1 : -1;
       return (point: C.P): number => sign * divider.side(world(point));
     });
-    const loops = R.chains(original.all, {origin: basis.origin, u: basis.x, v: basis.y});
+    const loops = original.chains({ origin: basis.origin, u: basis.x, v: basis.y });
     const observedCentres = authored === undefined ? centres : [centres[authored]!];
     const candidates = loops.filter((loop): boolean => loop.closed && observedCentres.every((p): boolean => winding(loop.points, p) === 1));
     if (candidates.length !== 1) throw new Error(node.name + " has no unique independent envelope around all registered child courses");
@@ -2210,6 +2212,7 @@ export namespace FamilyConicBody {
   type MaterialQuery = {
     value: number;
     stocks: readonly string[];
+    sites?: readonly MaterialPoint[];
     change: (column: MaterialColumn) => number;
   };
 
@@ -2220,13 +2223,13 @@ export namespace FamilyConicBody {
   function materialColumns(
     state: readonly number[], fields: readonly { stock: string; step: number }[],
     group: ReturnType<typeof collectGroup>, roots: ReturnType<typeof groupSources>,
-    base: readonly MaterialQuery[], sections: ReturnType<typeof endSections>,
+    chart: ReturnType<ReturnType<typeof groupSources>["prepareCharts"]>,
+    base: readonly MaterialQuery[], ends: ReadonlyMap<string, ReturnType<typeof endFace>>,
     derivatives: boolean, costs: MaterialCosts,
     notice: (event: string, detail: object) => void,
   ): { value: number; gradient: Map<number, number> }[] {
     const rows = base.map(({ value }) => ({ value, gradient: new Map<number, number>() }));
     if (!derivatives) return rows;
-    const originalPoints = new Map<MaterialPoint, R.V>();
     const byStock = new Map<string, number[]>();
     base.forEach(({ stocks }, index): void => {
       for (const name of new Set(stocks)) {
@@ -2235,15 +2238,31 @@ export namespace FamilyConicBody {
         else rows.push(index);
       }
     });
+    const within = (station: number, [first, last]: readonly [number, number]): boolean => station >= first && station <= last;
+    const allSites = new Set(base.flatMap(({ sites }) => sites ?? []));
+    const originalPoints = new Map([...allSites].flatMap((site) => {
+      const end = ends.get(site.face);
+      if (end?.direct !== true || !within(site.station, end.principal)) return [];
+      if (site.face === group.owner.hostFace && group.parent === undefined) return [];
+      const { source } = chart(site.face);
+      if (source.regular === null || !within(site.station, source.regular)) return [];
+      return [[site, source.point(site.station, site.phase)] as const];
+    }));
+    const scope = new Map([...byStock].map(([stock, queries]) => {
+      const faces = new Set(group.children.filter((child): boolean => child.stock === stock).map((child): string => child.face));
+      if (group.parent?.family.name === stock) faces.add(group.parent.face);
+      const sites = [...new Set(queries.flatMap((index): readonly MaterialPoint[] => base[index]!.sites ?? []))]
+        .filter(({ face }): boolean => faces.has(face));
+      return [stock, { faces, queries, sites }] as const;
+    }));
     const reported = new Set<string>();
     for (const [index, field] of fields.entries()) {
-      const queries = byStock.get(field.stock);
-      if (queries === undefined) continue;
+      const current = scope.get(field.stock);
+      if (current === undefined) continue;
+      const { faces: selected, queries, sites } = current;
       costs.columns++;
       const changed = [...state]; changed[index]! += field.step;
       const placed = AutoMovieHumanF1.replaceNeutralOriginal(roots.figure, group.stock(changed, field.stock));
-      const selected = new Set(group.children.filter((child): boolean => child.stock === field.stock).map((child): string => child.face));
-      if (group.parent?.family.name === field.stock) selected.add(group.parent.face);
       const firstSource: boolean = !reported.has(field.stock);
       const prepareStart: number = performance.now();
       if (firstSource) {
@@ -2253,7 +2272,7 @@ export namespace FamilyConicBody {
       // A column is a derivative of the smooth source at the base state's discrete structure: each selected face is resolved at the base
       // source's own stations. A face whose held resolution does not emit the base's station array takes the ordinary path.
       const held: Map<string, readonly number[]> = new Map([...selected].map((face: string): [string, readonly number[]] =>
-        [face, roots.chart(face).view.stations]));
+        [face, chart(face).view.stations]));
       const sources: ReadonlyMap<string, IAutoMovieViewPart> = AutoMovieHumanF1.originalSources(placed, selected, undefined, held);
       for (const face of selected) {
         const moved: readonly number[] | undefined = sources.get(face)?.stations, base: readonly number[] = held.get(face)!;
@@ -2263,31 +2282,21 @@ export namespace FamilyConicBody {
       costs.columnSourceMs += performance.now() - prepareStart;
       if (firstSource) notice("column source returned", { stock: field.stock, column: index,
         elapsedMs: performance.now() - prepareStart });
-      const readers = new Map<string, IAutoMovieLoftViewFullSource.IReader>();
-      const reader = (face: string): IAutoMovieLoftViewFullSource.IReader => {
-        const known = readers.get(face);
-        if (known !== undefined) return known;
-        const moved = sources.get(face);
-        if (moved === undefined) return roots.chart(face).source;
-        const prepared = AutoMovieLoftViewFullSource.create(moved);
-        costs.directReaders++;
-        readers.set(face, prepared);
-        return prepared;
-      };
+      const readers = new Map([...sources].map(([face, view]) => [face, AutoMovieLoftViewFullSource.create(view)] as const));
+      const reader = (face: string): IAutoMovieLoftViewFullSource.IReader => readers.get(face) ?? chart(face).source;
+      costs.directReaders += readers.size;
       type DirectRoute = {
-        base: IAutoMovieLoftViewFullSource.IReader;
         moved: IAutoMovieLoftViewFullSource.IReader;
         regular: readonly [number, number];
         principal: readonly [number, number];
         declared: readonly [number, number];
         authored: readonly [number, number];
       };
-      const routes = new Map<string, DirectRoute | null>();
-      const route = (face: string): DirectRoute | null => {
-        const known = routes.get(face);
-        if (known !== undefined) return known;
-        const original = roots.chart(face);
-        const baseEnd = sections.prepared(original.view);
+      const originalStock = roots.figure.families.find((f): boolean => f.name === field.stock);
+      const movedStock = placed.families.find((f): boolean => f.name === field.stock);
+      const routes = new Map([...selected].map((face): readonly [string, DirectRoute | null] => {
+        const original = chart(face);
+        const baseEnd = ends.get(face);
         const regular = original.source.regular, moved = sources.get(face);
         let prepared: DirectRoute | null = null;
         if (baseEnd?.direct === true && regular !== null && moved !== undefined && sameMaterialRole(original.view, moved)) {
@@ -2296,8 +2305,6 @@ export namespace FamilyConicBody {
           const bottom: boolean = moved.pole === "bottom" || moved.pole === "both";
           const top: boolean = moved.pole === "top" || moved.pole === "both";
           const declared: [number, number] = [moved.stations[bottom ? 1 : 0]!, moved.stations.at(top ? -2 : -1)!];
-          const originalStock = roots.figure.families.find((f): boolean => f.name === field.stock);
-          const movedStock = placed.families.find((f): boolean => f.name === field.stock);
           const oldTips = originalStock?.tips, newTips = movedStock?.tips;
           const low = newTips?.[0], high = newTips?.[1];
           const authored: [number, number] = [bottom ? low?.from ?? NaN : changed.domain[0],
@@ -2309,50 +2316,44 @@ export namespace FamilyConicBody {
               high?.from === oldTips?.[1]?.from));
           if (sameCaps && declared[0] < declared[1] && authored[0] < authored[1] &&
               sameInterval(original.source.domain, changed.domain) && sameInterval(regular, changed.regular))
-            prepared = { base: original.source, moved: changed, regular, principal: baseEnd.principal, declared, authored };
+            prepared = { moved: changed, regular, principal: baseEnd.principal, declared, authored };
         }
-        routes.set(face, prepared);
-        return prepared;
-      };
-      const walls = new Map<string, IAutoMovieSolidSurface>();
-      const fullDifference = (site: MaterialPoint): R.V => {
-        let wall = walls.get(site.face);
-        if (wall === undefined) {
-          const host: boolean = site.face === group.owner.hostFace;
-          const top: boolean = host ? group.owner.hostEnd === "top" :
-            group.owner.children.find((child): boolean => child.partFace === site.face)!.partEnd === "top";
-          wall = endFace(sources.get(site.face)!, top, top === host ? 1 : -1).surface;
-          costs.assembledWalls++;
-          walls.set(site.face, wall);
-        }
-        const domain = wall.domain!;
-        if (!(site.station >= domain[0] && site.station <= domain[1]))
-          throw new Error(site.face + " has no actual material differential at the registered cut station");
-        return V.sub(wall.jet(site.station, site.phase).p, site.point);
-      };
-      const velocities = new Map<MaterialPoint, R.V>();
-      const velocity = (site: MaterialPoint): R.V => {
-        if (!selected.has(site.face)) return [0, 0, 0];
-        const existing = velocities.get(site);
-        if (existing !== undefined) return existing;
-        const native = route(site.face);
-        const within = ([first, last]: readonly [number, number]): boolean => site.station >= first && site.station <= last;
-        const role = native === null ? "uncertainSites" : !within(native.regular) ? "scalarCapSites"
-          : !within(native.principal) ? "retainedCapSites" : !within(native.declared) ? "uncertainSites"
-          : !within(native.authored) ? "authoredCapSites" : "directSites";
+        return [face, prepared];
+      }));
+      const addressed = sites.map((site) => {
+        const native = routes.get(site.face) ?? null;
+        const role: "uncertainSites" | "scalarCapSites" | "retainedCapSites" | "authoredCapSites" | "directSites" =
+          native === null ? "uncertainSites" : !within(site.station, native.regular) ? "scalarCapSites"
+          : !within(site.station, native.principal) ? "retainedCapSites" : !within(site.station, native.declared) ? "uncertainSites"
+          : !within(site.station, native.authored) ? "authoredCapSites" : "directSites";
+        return { site, native, role };
+      });
+      const needsWall = new Set(addressed.filter(({ role }): boolean => role !== "directSites").map(({ site }): string => site.face));
+      const walls = new Map([...needsWall].map((face) => {
+        const host: boolean = face === group.owner.hostFace;
+        const top: boolean = host ? group.owner.hostEnd === "top" :
+          group.owner.children.find((child): boolean => child.partFace === face)!.partEnd === "top";
+        return [face, endFace(sources.get(face)!, top, top === host ? 1 : -1).surface] as const;
+      }));
+      costs.assembledWalls += walls.size;
+      const velocities = new Map(addressed.map(({ site, native, role }): readonly [MaterialPoint, R.V] => {
         costs[role]++;
         let difference: R.V;
         if (native !== null && role === "directSites") {
-          let original = originalPoints.get(site);
-          if (original === undefined) {
-            original = native.base.point(site.station, site.phase);
-            originalPoints.set(site, original);
-          }
-          difference = V.sub(native.moved.point(site.station, site.phase), original);
-        } else difference = fullDifference(site);
-        const result = V.scale(difference, 1 / field.step);
-        velocities.set(site, result);
-        return result;
+          difference = V.sub(native.moved.point(site.station, site.phase), originalPoints.get(site)!);
+        } else {
+          const wall = walls.get(site.face)!;
+          if (!within(site.station, wall.domain!))
+            throw new Error(site.face + " has no actual material differential at the registered cut station");
+          difference = V.sub(wall.jet(site.station, site.phase).p, site.point);
+        }
+        return [site, V.scale(difference, 1 / field.step)];
+      }));
+      const velocity = (site: MaterialPoint): R.V => {
+        if (!selected.has(site.face)) return [0, 0, 0];
+        const value = velocities.get(site);
+        if (value === undefined) throw new Error("a material row did not register its differential site on " + site.face);
+        return value;
       };
       const column: MaterialColumn = { reader, step: field.step, velocity };
       for (const j of queries) {
@@ -2362,54 +2363,6 @@ export namespace FamilyConicBody {
       }
     }
     return rows;
-  }
-
-  /**
-   * The curves a junction's fairing reads (joints-one-shot.md, "Amendments, decided 2026-11-22"): on each authored child, its rings at
-   * every source station of its root stretch (its first knot to its protected mark) and its guide-phase lines over those stations and
-   * two more past the mark; on a parent the group refits, its rings and lines within `FAIR_WINDOW_SHARE` of its end ring's reach of the
-   * end plane.
-   */
-  function fairingCurves(
-    group: ReturnType<typeof collectGroup>, roots: ReturnType<typeof groupSources>, envelope: ReturnType<typeof rootEnvelope>,
-  ): { stock: string; closed: boolean; sites: MaterialPoint[]; plane?: R.V; weight?: number }[] {
-    const curves: { stock: string; closed: boolean; sites: MaterialPoint[]; plane?: R.V; weight?: number }[] = [];
-    const read = (face: string, stock: string, family: K.IStored, ring: readonly number[], line: readonly number[]): void => {
-      const { source, view } = roots.chart(face);
-      const site = (station: number, phase: number): MaterialPoint => ({ face, station, phase, point: source.point(station, phase) });
-      // Each ring stands for its share of the window's stations (half its intervals to each neighbour), so the rings' sum is a
-      // discrete integral over the window whatever the stations' spacing; it is sampled as the figure samples it, its length at the
-      // figure's phase count (`AutoMovieHumanConicLoft.phaseCount`), and its curvature is signed in its section plane.
-      const span: number = ring.length < 2 ? 1 : ring.at(-1)! - ring[0]!;
-      ring.forEach((s: number, i: number): void => {
-        const share: number = ring.length < 2 ? 1 : ((ring[Math.min(i + 1, ring.length - 1)]! - ring[Math.max(i - 1, 0)]!) / 2) / span;
-        const coarse: R.V[] = Array.from({ length: FAIR_RING }, (_, k: number): R.V => source.point(s, (2 * Math.PI * k) / FAIR_RING));
-        const girth: number = coarse.reduce((sum: number, p: R.V, k: number): number => sum + V.norm(V.sub(coarse[(k + 1) % coarse.length]!, p)), 0);
-        const count: number = AutoMovieHumanConicLoft.phaseCount(family, girth);
-        const frame = view.axis.at(s);
-        curves.push({ stock, closed: true, plane: V.cross([...frame.u] as R.V, [...frame.v] as R.V), weight: share,
-          sites: Array.from({ length: count }, (_, k: number): MaterialPoint => site(s, (2 * Math.PI * k) / count)) });
-      });
-      if (line.length >= 4)
-        for (let k: number = 0; k < FAIR_LINES; ++k)
-          curves.push({ stock, closed: false, sites: line.map((s: number): MaterialPoint => site(s, (2 * Math.PI * k) / FAIR_LINES)) });
-    };
-    for (const child of group.children) {
-      if (child.face !== child.stock) continue;
-      const member = group.members.get(child.stock)!;
-      const stations: number[] = roots.chart(child.face).view.stations.filter((s: number): boolean => s >= member.tail.knots[0]!);
-      const ring: number[] = stations.filter((s: number): boolean => s <= member.tail.mark);
-      read(child.face, child.stock, member.family, ring, stations.slice(0, ring.length + 2));
-    }
-    if (group.parent !== undefined) {
-      const end: number = envelope.station;
-      const share: number | undefined = FAIR_WINDOW_SHARE[group.parent.family.name];
-      if (share === undefined) throw new Error("no fairing window share for the parent " + group.parent.family.name);
-      const window: number = share * AutoMovieHumanConicLoft.meanReach(group.parent.family, end);
-      const stations: number[] = roots.chart(group.parent.face).view.stations.filter((s: number): boolean => Math.abs(s - end) <= window);
-      read(group.parent.face, group.parent.family.name, group.parent.family, stations, stations);
-    }
-    return curves;
   }
 
   /**
@@ -2448,7 +2401,7 @@ export namespace FamilyConicBody {
     // it, and the four stations of its base view that bracket the end plane (the course point's height over the plane changes sign).
     const height = (p: readonly number[]): number => V.dot(V.sub(p as R.V, plane.origin), plane.z);
     const layout = group.children.map((child) => {
-      const view = roots.chart(child.face).view;
+      const view = roots.view(child.face);
       const member = group.members.get(child.stock)!;
       const stations: number[] = view.stations.filter((s: number): boolean => s >= member.tail.knots[0]!);
       const rings: number[] = child.face === child.stock ? stations.filter((s: number): boolean => s <= member.tail.mark) : [];
@@ -2509,55 +2462,60 @@ export namespace FamilyConicBody {
     fields.forEach(({ stock }, index): void => { const list = byStock.get(stock); if (list === undefined) byStock.set(stock, [index]); else list.push(index); });
     const columnGroups: number = Math.max(0, ...[...byStock.values()].map((list): number => list.length));
 
-    /** Every member's curves for one set of families. */
-    /**
-     * Every member's curves for one set of families; with a base reading and the stocks a column moves, only the moved members (and the
-     * host when its stock moves) are read, the others being the base's own readings of the same families.
-     */
-    const curves = (families: ReadonlyMap<string, K.IStored>, provider: Junction.ISections,
-      base?: { children: Junction.IRead[]; ring: R.V[]; host: P[] }, moved?: ReadonlyMap<string, number>) => {
-      const children = layout.map((entry, c: number) => (base !== undefined && moved !== undefined && !moved.has(entry.child.stock)
-        ? base.children[c]!
-        : Junction.read({ face: entry.child.face, family: family(families, entry.child.face, entry.child.stock),
-          rings: entry.rings, lines: entry.rings.length > 0 ? entry.lines : [], phases: entry.phases, guides: entry.rings.length > 0 ? entry.guides : [],
-          bracket: entry.bracket, cut: entry.cutPhases, wedge: entry.wedge }, plane, provider)));
-      if (base !== undefined && moved !== undefined && !moved.has(hostStock)) return { children, ring: base.ring, host: base.host };
-      const host = Junction.read({ face: hostFace, family: hostFamily(families), rings: [envelope.station], lines: [], phases: hostPhases,
-        guides: [], bracket: [], cut: [] }, plane, provider);
-      const ring: R.V[] = host.rings[0]!;
+    // The reduced prefix basis is fixed at the fit's knot addresses. At and beyond the protected mark its influence is zero.
+    const seeds = group.expand(group.vector);
+    const scopes = layout.map((entry) => {
+      const { face, stock } = entry.child;
+      const tail = group.members.get(stock)!.tail;
+      const cardinal = F.basisOf(tail.knots);
+      const held: number[] = tail.free.map((): number => 0);
+      const controls = (byStock.get(stock) ?? []).map((i: number, k: number) => (
+        { field: Math.floor(k / tail.free.length), knot: k % tail.free.length, step: fields[i]!.step }));
+      // A mirrored feature run can change several fields together by the nonlinear chord address. Keep its exact construction.
+      return Junction.prepareMember({ face, family: family(seeds, face, stock), rings: entry.rings,
+        lines: entry.rings.length > 0 ? entry.lines : [], phases: entry.phases, guides: entry.rings.length > 0 ? entry.guides : [],
+        bracket: entry.bracket, cut: entry.cutPhases, wedge: entry.wedge }, plane,
+      face === stock && tail.free.length > 0 ? { controls, weights: (s: number): number[] => s < tail.mark ? tail.basis(cardinal(s)) : held } : undefined);
+    });
+    const hostScope = Junction.prepareMember({ face: hostFace, family: hostFamily(seeds), rings: [envelope.station], lines: [], phases: hostPhases,
+      guides: [], bracket: [], cut: [] }, plane);
+    const hostCurves = (families: ReadonlyMap<string, K.IStored>, provider: Junction.ISections) => {
+      const ring: R.V[] = hostScope.read(hostFamily(families), provider).rings[0]!;
       // One host-rail row per ring point, all eight times the owner's count, as the split's admission samples the ring: rows at every eighth
       // point let the ring stand 2.46 mm from the leg's outline between them against a 2.13 mm rail (refused at admission, 2026-11-24).
-      return { children, ring,
-        host: ring.map((p: R.V): P => [V.dot(V.sub(p, plane.origin), plane.x), V.dot(V.sub(p, plane.origin), plane.y)]) };
+      const host: P[] = ring.map((p: R.V): P => { const q = V.sub(p, plane.origin); return [V.dot(q, plane.x), V.dot(q, plane.y)]; });
+      return { ring, host };
     };
-    const polygon = (cut: (P | null)[]): P[] => cut.filter((p): p is P => p !== null);
+    const readChild = (families: ReadonlyMap<string, K.IStored>, provider: Junction.ISections, c: number): Junction.IRead => {
+      const { face, stock } = layout[c]!.child;
+      return scopes[c]!.read(family(families, face, stock), provider);
+    };
+    const polygon = (cut: readonly (P | null)[]): P[] => cut.filter((p): p is P => p !== null);
     /**
      * Each child's rail wedge depth by cut phase as rows, minus (`Junction.wedge`): the end plane and the child's seam planes, turned
      * toward the child, moved along its axis by its rail, as the split cuts its rail (`derive`, "the child face's rail"); the rail's
      * wedge lies inside the unshifted one, so its row implies the boundary's ("the child face's boundary in the composition"). No rows
      * stand while the seams are refused.
      */
-    const wedgesOf = (children: readonly Junction.IRead[], seams: Junction.ISeams): number[] => {
-      if (seams.refusal !== null) return [];
-      return layout.flatMap((entry, c: number): number[] => {
-        const r = children[c]!;
-        if (r.axis === null) return r.wedgeLines.map((): number => 0);
-        const planes: { point: R.V; normal: R.V }[] = [{ point: plane.origin, normal: plane.z }];
-        if (c > 0) planes.push(seams.planes[c - 1]!);
-        if (c < seams.planes.length) planes.push({ point: seams.planes[c]!.point, normal: V.scale(seams.planes[c]!.normal, -1) });
-        return Junction.wedge(r.wedgeLines, planes, V.scale(r.axis, into[c]! * entry.railMm)).map((depth: number): number => -depth);
-      });
+    const wedgeOf = (r: Junction.IRead, seams: Junction.ISeams, c: number): number[] => {
+      if (r.axis === null) return r.wedgeLines.map((): number => 0);
+      const planes: { point: R.V; normal: R.V }[] = [{ point: plane.origin, normal: plane.z }];
+      if (c > 0) planes.push(seams.planes[c - 1]!);
+      if (c < seams.planes.length) planes.push({ point: seams.planes[c]!.point, normal: V.scale(seams.planes[c]!.normal, -1) });
+      return Junction.wedge(r.wedgeLines, planes, V.scale(r.axis, into[c]! * layout[c]!.railMm)).map((depth: number): number => -depth);
     };
     /** The seams on the host's end ring from members' cuts, axes and the host ring, as the split derives them. */
-    const seamsOf = (children: readonly Junction.IRead[], ring: readonly R.V[], turns?: readonly [number, number][]) => Junction.seams({ plane,
-      cuts: children.map((r) => r.cut), axes: children.map((r, i): R.V | null => r.axis === null ? null : V.scale(r.axis, into[i]!)), host: ring }, turns);
+    const axisOf = (r: Junction.IRead, i: number): R.V | null => r.axis === null ? null : V.scale(r.axis, into[i]!);
+    const seamsOf = (children: readonly Junction.IRead[], ring: readonly R.V[]) => Junction.prepareSeams({ plane,
+      cuts: children.map((r) => r.cut), axes: children.map(axisOf), host: ring });
 
     // The rows of one reading of the curves, with the visible-arc masks of the base (held for its columns).
     type Rows = { fairing: number[]; fairingOwner: number[]; pairs: { value: number; a: number; b: number; ia: number; ib: number; seg: number; t: number; u: P; kind: "overlap" | "clearance" | "exclusion"; inA: boolean }[];
       host: { value: number; c: number; k: number; k1: number; t: number; u: P; h: number }[]; crossing: string | null;
-      nesting: { seams: Junction.ISeams; radius: number; values: number[] };
+      nesting: { model: ReturnType<typeof seamsOf>; radius: number; values: number[] };
       transversal: { value: number; c: number; k: number }[]; wedges: number[] };
-    const visible = (read: ReturnType<typeof curves>): boolean[][] => layout.map((entry, i): boolean[] => {
+    type Curves = ReturnType<typeof hostCurves> & { children: Junction.IRead[] };
+    const visible = (read: Curves): boolean[][] => layout.map((entry, i): boolean[] => {
       const own = read.children[i]!.cut, n = own.length;
       const others: P[][] = [i - 1, i + 1].filter((j) => j >= 0 && j < layout.length).map((j) => polygon(read.children[j]!.cut));
       // A ring phase's cut point is the cut phase nearest it (the cut is read at 2 x count phases, the ring at the figure's count).
@@ -2567,7 +2525,7 @@ export namespace FamilyConicBody {
       });
     });
     /** The fairing residuals of one reading, each with its owner: all a grouped column needs of its moved reading. */
-    const fairingOf = (read: ReturnType<typeof curves>, masks: boolean[][]): { fairing: number[]; fairingOwner: number[] } => {
+    const fairingOf = (read: Curves, masks: boolean[][]): { fairing: number[]; fairingOwner: number[] } => {
       const fairing: number[] = [], fairingOwner: number[] = [];
       layout.forEach((entry, i): void => {
         const r = read.children[i]!, mask = masks[i]!;
@@ -2591,9 +2549,10 @@ export namespace FamilyConicBody {
       });
       return { fairing, fairingOwner };
     };
-    const rowsOf = (read: ReturnType<typeof curves>, masks: boolean[][]): Rows => {
+    const rowsOf = (read: Curves, masks: boolean[][]): Rows => {
       const { fairing, fairingOwner } = fairingOf(read, masks);
       const cuts: P[][] = read.children.map((r) => polygon(r.cut));
+      const seamModel = seamsOf(read.children, read.ring);
       const pairs: Rows["pairs"] = [];
       let crossing: string | null = null;
       for (let a = 0; a < cuts.length; ++a) for (let b = a + 1; b < cuts.length; ++b) {
@@ -2601,7 +2560,7 @@ export namespace FamilyConicBody {
         if (A.length < 3 || B.length < 3) { crossing = group.children[a]!.face + " or " + group.children[b]!.face + " has no closed cut in the end plane"; continue; }
         const neighbours: boolean = b === a + 1;
         if (neighbours) {
-          const n = Junction.crossings(A, B);
+          const n: number = seamModel.crossings[a]!;
           if (n !== 2 && crossing === null) crossing = "the sections of " + group.children[a]!.face + " and " + group.children[b]!.face + " cross " + n + " times in the end plane, not twice";
         }
         // The deepest point of either inside the other (penetration), else the closest approach (separation, negative depth).
@@ -2639,19 +2598,20 @@ export namespace FamilyConicBody {
       });
       // The seams' nesting on the host's end ring, the split's own test (`AutoMovieConstructionSplitCompose.derive`), as rows: each margin
       // in mm along the ring at its mean radius (its girth over the turn), minus, so a row is satisfied at or below zero as the others.
-      const seams = seamsOf(read.children, read.ring);
+      const seams: Junction.ISeams = seamModel.base;
       if (seams.refusal !== null && crossing === null) crossing = seams.refusal;
       const radius: number = read.ring.reduce((sum: number, p: R.V, k: number, all: R.V[]): number => sum + V.norm(V.sub(all[(k + 1) % all.length]!, p)), 0) / (2 * Math.PI);
       // Each cut phase's line crosses the end plane transversally (the skin cut's "tangent to the cut" and the seal's station advance):
       // the unit station tangent's rate across the plane, kept positive.
       const transversal = read.children.flatMap((r, c: number) => r.crossing.flatMap((x, k: number) => (x === null ? [] : [{ value: -x, c, k }])));
-      return { fairing, fairingOwner, pairs, host, crossing, nesting: { seams, radius, values: seams.margins.flat().map((x: number): number => -x * radius) },
-        transversal, wedges: wedgesOf(read.children, seams) };
+      return { fairing, fairingOwner, pairs, host, crossing, nesting: { model: seamModel, radius, values: seams.margins.flat().map((x: number): number => -x * radius) },
+        transversal, wedges: seams.refusal === null ? read.children.flatMap((r, c: number): number[] => wedgeOf(r, seams, c)) : [] };
     };
 
     /** The model's own reading of the host ring, the cuts and the composed outline, for comparison with the split's admission. */
     const probe = (families: ReadonlyMap<string, K.IStored>) => {
-      const read = curves(families, Junction.sections());
+      const provider = Junction.sections();
+      const read = { ...hostCurves(families, provider), children: scopes.map((_, c: number) => readChild(families, provider, c)) };
       return { ring: read.ring, host: read.host, segments: Junction.outline(read.children.map((r) => r.cut)), railMm, station: envelope.station, plane };
     };
 
@@ -2659,9 +2619,23 @@ export namespace FamilyConicBody {
     return Object.assign((state: readonly number[], derivatives: boolean, candidates: ReadonlyMap<string, K.IStored>, hard: F.IGroupRow[], inside: F.IGroupRow[]) => {
       const started: number = performance.now();
       const provider = Junction.sections();
-      const base = curves(candidates, provider);
+      const readings = layout.map(({ child }, c: number) => derivatives
+        ? scopes[c]!.reading(family(candidates, child.face, child.stock), provider)
+        : { base: readChild(candidates, provider, c), moved: null });
+      const base: Curves = { ...hostCurves(candidates, provider), children: readings.map(({ base }): Junction.IRead => base) };
       const masks = visible(base);
       const rows = rowsOf(base, masks);
+      const knotColumn: number[] = fields.map((): number => -1);
+      for (const order of byStock.values()) order.forEach((index: number, k: number): void => { knotColumn[index] = k; });
+      const expanded = new Set(layout.flatMap(({ child }, c: number): string[] => readings[c]!.moved === null ? [child.stock] : []));
+      expanded.add(hostStock);
+      const cutPhases = base.children.map(({ cut }): number[] => cut.flatMap((p, k: number): number[] => p === null ? [] : [k]));
+      const wedgeFirst: number[] = [];
+      let wedgeCount: number = 0;
+      for (const { wedgeLines } of base.children) {
+        wedgeFirst.push(wedgeCount);
+        wedgeCount += wedgeLines.length;
+      }
       const gradients = {
         fairing: rows.fairing.map(() => new Map<number, number>()),
         pairs: rows.pairs.map(() => new Map<number, number>()),
@@ -2674,8 +2648,17 @@ export namespace FamilyConicBody {
         const changed = [...state];
         const moved = new Map<string, number>();
         for (const [stock, list] of byStock) if (g < list.length) { const index = list[g]!; changed[index]! += fields[index]!.step; moved.set(stock, index); }
-        const families = group.expand(changed);
-        const next = curves(families, provider, base, moved);
+        // Only sources outside the reduced field model need a new family. Every other column touches its own member's station data.
+        const families = new Map([...moved.keys()].filter((stock: string): boolean => expanded.has(stock))
+          .map((stock: string): [string, K.IStored] => [stock, group.stock(changed, stock)]));
+        const children = layout.map(({ child }, c: number): Junction.IRead => {
+          const index: number | undefined = moved.get(child.stock);
+          if (index === undefined) return base.children[c]!;
+          const column = readings[c]!.moved;
+          return column === null ? readChild(families, provider, c) : column(knotColumn[index]!);
+        });
+        const hostIndex: number | undefined = moved.get(hostStock);
+        const next: Curves = { ...(hostIndex === undefined ? { ring: base.ring, host: base.host } : hostCurves(families, provider)), children };
         // Fairing rows belong to one member's curves; their order follows the members, so each member's rows are read with only its
         // own values moved, all members at once.
         // A member's fairing rows depend on its own curves only, so with every member moved at once each row's change is its own
@@ -2693,13 +2676,11 @@ export namespace FamilyConicBody {
           if (index === undefined || p === null || p === undefined || q === null || q === undefined) return null;
           return [(q[0] - p[0]) / fields[index]!.step, (q[1] - p[1]) / fields[index]!.step];
         };
-        const cutsBase = base.children.map((r) => r.cut);
         rows.pairs.forEach((row, r: number): void => {
           const [own, other] = row.inA ? [row.a, row.b] : [row.b, row.a];
           // Polygon indices back to cut phases: a polygon holds a cut's crossing phases in order.
-          const phasesOf = (c: number): number[] => cutsBase[c]!.map((p, k) => (p === null ? -1 : k)).filter((k) => k >= 0);
-          const vOwn = velocity(own, phasesOf(own)[row.ia]!);
-          const others = phasesOf(other);
+          const vOwn = velocity(own, cutPhases[own]![row.ia]!);
+          const others: number[] = cutPhases[other]!;
           const k0 = others[row.seg]!, k1 = others[(row.seg + 1) % others.length]!;
           const v0 = velocity(other, k0), v1 = velocity(other, k1);
           // `u` is minus the depth's rate in the own point and its rate in the boundary point: the overlap row (minus the depth) moves
@@ -2719,51 +2700,49 @@ export namespace FamilyConicBody {
           if (row.c < 0) return;
           const v0 = velocity(row.c, row.k), v1 = velocity(row.c, row.k1);
           const index = moved.get(layout[row.c]!.child.stock);
-          if (index === undefined || v0 === null || v1 === null) return;
-          const v: P = [(1 - row.t) * v0[0] + row.t * v1[0], (1 - row.t) * v0[1] + row.t * v1[1]];
-          gradients.host[r]!.set(index, -(v[0] * row.u[0] + v[1] * row.u[1]));
+          const gradient = gradients.host[r]!;
+          if (index !== undefined && v0 !== null && v1 !== null) {
+            const v: P = [(1 - row.t) * v0[0] + row.t * v1[0], (1 - row.t) * v0[1] + row.t * v1[1]];
+            gradient.set(index, -(v[0] * row.u[0] + v[1] * row.u[1]));
+          }
+          if (hostIndex !== undefined) {
+            const a: P = base.host[row.h]!, b: P = next.host[row.h]!;
+            const rate: number = ((b[0] - a[0]) * row.u[0] + (b[1] - a[1]) * row.u[1]) / fields[hostIndex]!.step;
+            gradient.set(hostIndex, (gradient.get(hostIndex) ?? 0) + rate);
+          }
         });
-        // The nesting rows couple three members and the host, so one grouped column moves several of their inputs at once. Each
-        // member's (and the host's) own moved reading stands in this column, so the rate in that member's column is the rows read with
-        // only its reading moved, the base turns kept.
-        // Each member's own moved reading with the others held, and the seams it gives, read once for the nesting and wedge rates.
-        const single = layout.map((entry, c: number) => {
-          const index = moved.get(entry.child.stock);
-          if (index === undefined || rows.nesting.seams.refusal !== null) return null;
-          const children = base.children.map((r, i) => (i === c ? next.children[c]! : r));
-          return { index, children, seams: seamsOf(children, base.ring, rows.nesting.seams.seams) };
-        });
-        if (rows.nesting.seams.refusal === null && rows.nesting.values.length > 0) {
-          const rate = (children: readonly Junction.IRead[], ring: readonly R.V[], index: number, known?: Junction.ISeams): void => {
-            const moved = known ?? seamsOf(children, ring, rows.nesting.seams.seams);
-            if (moved.refusal !== null) return;
-            moved.margins.flat().forEach((x: number, r: number): void => {
-              gradients.nesting[r]!.set(index, (gradients.nesting[r]!.get(index) ?? 0) + (-x * rows.nesting.radius - rows.nesting.values[r]!) / fields[index]!.step);
+        // A stock moves its own faces together. When its neighbours hold, only the incident seam pairs and the children meeting
+        // those planes can change their wedge rows. The host ring changes nesting phases but leaves the wedge planes fixed.
+        if (rows.nesting.model.base.refusal === null) for (const [stock, index] of moved) {
+          const affected: number[] = layout.flatMap(({ child }, c: number): number[] => child.stock === stock ? [c] : []);
+          const changes = affected.map((c: number) => ({ index: c, cut: next.children[c]!.cut, axis: axisOf(next.children[c]!, c) }));
+          const seams: Junction.ISeams = rows.nesting.model.moved(changes, stock === hostStock ? next.ring : base.ring);
+          if (seams.refusal !== null) continue;
+          seams.margins.flat().forEach((x: number, r: number): void => {
+            const d: number = (-x * rows.nesting.radius - rows.nesting.values[r]!) / fields[index]!.step;
+            if (d !== 0) gradients.nesting[r]!.set(index, d);
+          });
+          if (rows.wedges.length > 0) layout.forEach((_, c: number): void => {
+            if (!affected.some((j: number): boolean => Math.abs(c - j) <= 1)) return;
+            const child: Junction.IRead = affected.includes(c) ? next.children[c]! : base.children[c]!;
+            wedgeOf(child, seams, c).forEach((v: number, k: number): void => {
+              const r: number = wedgeFirst[c]! + k;
+              const d: number = (v - rows.wedges[r]!) / fields[index]!.step;
+              if (d !== 0) gradients.wedges[r]!.set(index, d);
             });
-          };
-          single.forEach((one): void => { if (one !== null) rate(one.children, base.ring, one.index, one.seams); });
-          const hostIndex = moved.get(hostStock);
-          if (hostIndex !== undefined && !layout.some((entry): boolean => entry.child.stock === hostStock)) rate(base.children, next.ring, hostIndex);
+          });
         }
         // A transversality row reads one member's own line, so its rate goes to that member's moved column.
         rows.transversal.forEach((row, r: number): void => {
           const index = moved.get(layout[row.c]!.child.stock), x = next.children[row.c]!.crossing[row.k];
           if (index !== undefined && x !== null && x !== undefined) gradients.transversal[r]!.set(index, (-x - row.value) / fields[index]!.step);
         });
-        // A wedge row reads its child's lines and the seams of its neighbours, so, as the nesting rows, each member's own moved reading
-        // gives its rate with the others held.
-        if (rows.wedges.length > 0) single.forEach((one): void => {
-          if (one === null) return;
-          const values = wedgesOf(one.children, one.seams);
-          if (values.length !== rows.wedges.length) return;
-          values.forEach((v: number, r: number): void => { const d = (v - rows.wedges[r]!) / fields[one.index]!.step; if (d !== 0) gradients.wedges[r]!.set(one.index, d); });
-        });
       }
       log("family-body-junction-cost", { owner: group.owner.name, derivatives, sections: provider.count, columnGroups: derivatives ? columnGroups : 0,
         fairingRows: rows.fairing.length, pairRows: rows.pairs.length, hostRows: rows.host.length,
         pairs: rows.pairs.map((row) => ({ kind: row.kind, a: group.children[row.a]!.face, b: group.children[row.b]!.face, value: row.value })),
         worstHost: Math.max(-Infinity, ...rows.host.map((row) => row.value)), crossing: rows.crossing,
-        seams: rows.nesting.seams.seams, nested: rows.nesting.seams.nested, nestingRows: rows.nesting.values,
+        seams: rows.nesting.model.base.seams, nested: rows.nesting.model.base.nested, nestingRows: rows.nesting.values,
         nestingRates: gradients.nesting.map((g): number => Math.max(0, ...[...g.values()].map(Math.abs))),
         worstTransversal: Math.max(-Infinity, ...rows.transversal.map((row) => row.value)), worstWedge: Math.max(-Infinity, ...rows.wedges),
         wedgeRows: rows.wedges.length,
@@ -2821,71 +2800,44 @@ export namespace FamilyConicBody {
     });
   }
 
-  /** Read the same end-plane skin cuts as the engine before and during the optimization. */
-  function endSections(
+  /** Prepare the engine's ordered end-plane cuts for a registered source bank. */
+  function prepareEndSections(
     basis: IAutoMovieConstructionSplitCompose.IBasis, group: ReturnType<typeof collectGroup>, count: number,
   ) {
     const compose = group.owner.compose!;
     const plane = AutoMovieConstructionSplitCompose.plane(compose.plane, compose.frame === "tree" ? null : basis);
     if (plane === null) throw new Error("the actual composed owner lacks a numerical end plane");
-    const cache = new WeakMap<IAutoMovieViewPart, IAutoMovieConstructionSplitCompose.ISection>();
-    const hosts = new WeakMap<IAutoMovieViewPart, ReturnType<typeof endFace>>();
-    const walls = new WeakMap<IAutoMovieViewPart, ReturnType<typeof endFace>>();
-    const sections = (source: (face: string) => IAutoMovieViewPart) => group.children.map((child) => {
-      const view: IAutoMovieViewPart = source(child.face);
-      if (view.name !== child.face)
-        throw new Error("the actual child source belongs to " + view.name + " rather than " + child.face);
-      const known: IAutoMovieConstructionSplitCompose.ISection | undefined = cache.get(view);
-      if (known !== undefined) return known;
-      const original = group.owner.children.find(({ partFace }): boolean => partFace === child.face)!;
-      const into = original.partEnd === "bottom" ? 1 : -1;
-      const physical = endFace(view, into < 0, into);
-      const bound = AutoMovieConstructionSplitCompose.section(plane, { ...physical,
-        name: child.face, into, rail: AutoMovieConstructionViews.SCALE * original.rail }, count);
-      if (typeof bound === "string") throw new Error(bound);
-      cache.set(view, bound);
-      walls.set(view, physical);
-      return bound;
-    });
-    type Outline = Exclude<ReturnType<typeof AutoMovieConstructionComposedEnd.create>, string>;
-    type HostSample = { phase: number; point: R.V; distance: number; evidence: readonly IAutoMovieConstructionComposedEnd.IOutlineDistanceSite[] };
-    let last: { inputs: readonly IAutoMovieConstructionSplitCompose.ISection[]; result: ReturnType<typeof AutoMovieConstructionComposedEnd.create> } | undefined;
-    let sampled: { created: Outline; host: ReturnType<typeof endFace>; sites: readonly HostSample[] } | undefined;
-    return Object.assign(sections, {
-      host: (source: (face: string) => IAutoMovieViewPart) => {
-        const view = source(group.owner.hostFace), known = hosts.get(view);
-        if (known !== undefined) return known;
-        const top = group.owner.hostEnd === "top", host = endFace(view, top, top ? 1 : -1);
-        hosts.set(view, host);
-        return host;
-      },
-      prepared: (view: IAutoMovieViewPart) => walls.get(view) ?? hosts.get(view),
-      compose: (inputs: readonly IAutoMovieConstructionSplitCompose.ISection[]) => {
-        if (last !== undefined && inputs.length === last.inputs.length && inputs.every((part, i): boolean => part === last!.inputs[i]))
-          return last.result;
-        if (inputs.some((input): boolean => input.plane !== plane || input.count !== count))
-          throw new Error("the ordered actual sections do not share their registered bound plane and count");
-        const result = AutoMovieConstructionComposedEnd.create({
-          point: plane.point, normal: plane.normal, sections: inputs.map((p) => p.section), samples: count,
-        });
-        last = { inputs, result };
-        sampled = undefined;
-        return result;
-      },
-      sample: (created: Outline, host: ReturnType<typeof endFace>) => {
-        // The composed identity pins the ordered actual sections. This instance pins the registered plane and count.
-        if (sampled?.created === created && sampled.host === host)
-          return { sites: sampled.sites, reused: true };
-        const sites = Array.from({ length: 8 * count }, (_, k): HostSample => {
-          const phase: number = 2 * Math.PI * k / (8 * count);
-          const point: R.V = host.surface.jet(host.station, phase).p;
-          let evidence: HostSample["evidence"] = [];
-          const distance: number = created.outline.distance(point, (value): void => { evidence = value; });
-          return { phase, point, distance, evidence };
-        });
-        sampled = { created, host, sites };
-        return { sites, reused: false };
-      },
+    const children = group.owner.children.map((child) => ({ face: child.partFace,
+      into: child.partEnd === "bottom" ? 1 as const : -1 as const, rail: AutoMovieConstructionViews.SCALE * child.rail }));
+    const top: boolean = group.owner.hostEnd === "top";
+    const hostFace: string = group.owner.hostFace;
+    return (source: (face: string) => IAutoMovieViewPart) => {
+      const host = endFace(source(hostFace), top, top ? 1 : -1);
+      const walls = new Map<string, ReturnType<typeof endFace>>([[hostFace, host]]);
+      const actual = children.map(({ face, into, rail }) => {
+        const view: IAutoMovieViewPart = source(face);
+        if (view.name !== face)
+          throw new Error("the actual child source belongs to " + view.name + " rather than " + face);
+        const physical = endFace(view, into < 0, into);
+        const section = AutoMovieConstructionSplitCompose.section(plane, { ...physical, name: face, into, rail }, count);
+        if (typeof section === "string") throw new Error(section);
+        walls.set(face, physical);
+        return section;
+      });
+      return { host, actual, walls };
+    };
+  }
+
+  /** The fixed host probes for one formed outline, read only after its leading rows admit the trial. */
+  function sampleHostOutline(
+    created: IAutoMovieConstructionComposedEnd.IComposition, host: ReturnType<typeof endFace>, count: number,
+  ) {
+    return Array.from({ length: 8 * count }, (_, k) => {
+      const phase: number = 2 * Math.PI * k / (8 * count);
+      const point: R.V = host.surface.jet(host.station, phase).p;
+      let evidence: readonly IAutoMovieConstructionComposedEnd.IOutlineDistanceSite[] = [];
+      const distance: number = created.outline.distance(point, (value): void => { evidence = value; });
+      return { phase, point, distance, evidence };
     });
   }
 
@@ -2948,15 +2900,16 @@ export namespace FamilyConicBody {
   /** Correspond the measured envelope to the registered sections on the actual plane, retaining its order and anatomical owner. */
   function endMaterialRows(
     group: ReturnType<typeof collectGroup>, envelope: ReturnType<typeof rootEnvelope>,
-    roots: ReturnType<typeof groupSources>, candidates: ReadonlyMap<string, K.IStored>,
+    roots: ReturnType<typeof groupSources>, chart: ReturnType<ReturnType<typeof groupSources>["prepareCharts"]>,
+    candidates: ReadonlyMap<string, K.IStored>,
     state: readonly number[], fields: readonly { stock: string; step: number }[], derivatives: boolean,
-    sectionsOf: ReturnType<typeof endSections>, actual: readonly IAutoMovieConstructionSplitCompose.ISection[],
+    ends: ReturnType<ReturnType<typeof prepareEndSections>>,
     sites: readonly {stock: string; face: string; s: number; phi: number; point: R.V}[],
     formed: { made: IAutoMovieConstructionComposedEnd.IComposition; forks: Exclude<ReturnType<typeof actualForks>, string> } | string,
     recovery: boolean, measure: GroupMeasure, costs: GroupCosts, furthest: GroupFurthest, scope: string,
     notice: (event: string, detail: object) => void,
   ) {
-    const chart = (face: string): IAutoMovieViewPart => roots.chart(face).view;
+    const { actual, host } = ends;
     const sections = actual.map((row) => row.section);
     const queries: MaterialQuery[] = [];
     const skin = (index: number, phase: number) => {
@@ -2971,34 +2924,15 @@ export namespace FamilyConicBody {
     for (const site of sites) {
       const fixed: MaterialPoint = { face: site.face, station: site.s, phase: site.phi, point: site.point };
       for (const axis of [0, 1, 2])
-        queries.push({ value: site.point[axis]!, stocks: [site.stock],
+        queries.push({ value: site.point[axis]!, stocks: [site.stock], sites: [fixed],
           change: (column): number => column.velocity(fixed)[axis]! });
     }
     const forks = queries.length;
     measure("addressMs", () => {
-      // Fairing: the junction window's rings and guide-phase lines, each read on its own source, as curvature-variation residuals
-      // (`FamilyConicFairing`). Their rates come from the same material columns as every other row.
-      if (FAIR) for (const curve of fairingCurves(group, roots, envelope)) {
-        const points: R.V[] = curve.sites.map((site): R.V => site.point);
-        const base: number[] = Fairing.residuals(points, curve.closed, curve.plane, curve.weight);
-        let last: MaterialColumn | undefined, moved: number[] = [];
-        const rates = (column: MaterialColumn): number[] => {
-          if (column !== last) {
-            last = column;
-            moved = Fairing.residuals(curve.sites.map((site, i: number): R.V =>
-              V.add(points[i]!, V.scale(column.velocity(site), column.step))), curve.closed, curve.plane, curve.weight);
-          }
-          return moved;
-        };
-        base.forEach((value: number, j: number): void => {
-          queries.push({ value, stocks: [curve.stock], change: (column): number => (rates(column)[j]! - value) / column.step });
-        });
-      }
       for (const arc of envelope.arcs) {
-        if (FAIR) break;
         if (envelope.authored !== undefined && arc.child !== envelope.authored) continue;
         const owner = group.children[arc.child]!;
-        const { view, source } = roots.chart(owner.face);
+        const { view, source } = chart(owner.face);
         const stock = candidates.get(owner.stock)!;
         const family = owner.face === owner.stock ? stock : AutoMovieHumanConicLoft.mirror(stock, owner.face);
         const address = ownershipAt(view, family, source);
@@ -3010,13 +2944,13 @@ export namespace FamilyConicBody {
           const location = envelope.chart(sections[arc.child]!.at(phi).point);
           const local = derivatives ? skin(arc.child, phi) : undefined;
           for (const k of [0, 1])
-            queries.push({ value: location[k]! - point[k]!, stocks: [owner.stock], change: (column): number =>
+            queries.push({ value: location[k]! - point[k]!, stocks: [owner.stock], sites: local === undefined ? [] : [local.site], change: (column): number =>
               V.dot(k === 0 ? envelope.basis.x : envelope.basis.y, local!.change(column)) });
         }
       }
-      if (group.parent !== undefined && !FAIR) {
+      if (group.parent !== undefined) {
         const parent = group.parent;
-        const physical = chart(parent.face);
+        const { view: physical, source } = chart(parent.face);
         for (const row of parent.training) {
           const paired = K.parentCorrespondence(physical, row.s, row.ring, group.owner.count, false, TARGET_MM,
             undefined, row.witnesses);
@@ -3024,7 +2958,7 @@ export namespace FamilyConicBody {
             // Hold the registered phase in this local field model. The nonlinear read rebinds the same fixed observed witness.
             const evaluate = (reader: IAutoMovieLoftViewFullSource.IReader): number =>
               target.weight * (reader.point(row.s, target.phi)[component]! - target.point[component]!);
-            const value: number = evaluate(roots.chart(parent.face).source);
+            const value: number = evaluate(source);
             queries.push({ value, stocks: [parent.family.name],
               change: (column): number => (evaluate(column.reader(parent.face)) - value) / column.step });
           }
@@ -3036,50 +2970,34 @@ export namespace FamilyConicBody {
     const refusal = measure("outlineMs", () => {
       if (typeof formed === "string") return formed;
       const created = formed.made;
-      const host = sectionsOf.host(chart);
       const sampleStart: number = performance.now();
-      const ring = sectionsOf.sample(created, host);
-      costs[ring.reused ? "warmOutlineMs" : "coldOutlineMs"] += performance.now() - sampleStart;
+      const ring = sampleHostOutline(created, host, group.owner.count);
+      costs.coldOutlineMs += performance.now() - sampleStart;
       const witnesses: number = performance.now();
       try {
         const flat = (point: R.V): C.P => [V.dot(point, envelope.basis.x), V.dot(point, envelope.basis.y)];
-        const forks = new Map<number, { stocks: readonly string[]; change: (column: MaterialColumn) => { point: R.V; rates: [number, number] } }>();
-        const movingFork = (id: number) => {
-          const existing = forks.get(id);
-          if (existing !== undefined) return existing;
-          const index: number = Math.floor(id / 2);
-          const fork = created.seams[index]!.forks[id % 2]!;
-          const [pa, pb] = fork.phases;
+        const forks = derivatives ? created.seams.flatMap(({ forks }, index) => forks.map(({ phases: [pa, pb] }) => {
           const a = skin(index, pa), b = skin(index + 1, pb);
           const da = sections[index]!.at(pa).first, db = sections[index + 1]!.at(pb).first;
-          const stock = [group.children[index]!.stock, group.children[index + 1]!.stock];
-          let previous: MaterialColumn | undefined;
-          let previousRates: { point: R.V; rates: [number, number] } | undefined;
-          const change = (column: MaterialColumn): { point: R.V; rates: [number, number] } => {
-            if (previous === column && previousRates !== undefined) return previousRates;
-            previous = column;
-            previousRates = F.forkVelocity(envelope.basis.x, envelope.basis.y, da, db, a.change(column), b.change(column));
-            return previousRates;
-          };
-          const result = { stocks: stock, change };
-          forks.set(id, result);
-          return result;
-        };
-        if (!recovery && !FAIR) for (const site of formed.forks) {
-          const fork = derivatives ? movingFork(site.pair * 2 + site.index) : undefined;
+          const stocks = [group.children[index]!.stock, group.children[index + 1]!.stock];
+          const change = (column: MaterialColumn) => F.forkVelocity(envelope.basis.x, envelope.basis.y, da, db, a.change(column), b.change(column));
+          return { stocks, sites: [a.site, b.site], change };
+        })) : [];
+        if (!recovery) for (const site of formed.forks) {
+          const fork = forks[site.pair * 2 + site.index];
           const gap: R.V = V.sub(site.fork.point, envelope.world(site.observed));
           const length: number = V.norm(gap), value: number = length - TARGET_MM;
           if (furthest.mappedFork === null || value > furthest.mappedFork.value)
             furthest.mappedFork = { value, pair: site.pair, fork: site.index, observed: site.observed, phases: site.fork.phases };
           const stocks = fork?.stocks ?? [];
           for (const axis of [envelope.basis.x, envelope.basis.y]) measuredForks.push({
-            value: V.dot(gap, axis), stocks, change: (column): number => V.dot(fork!.change(column).point, axis),
+            value: V.dot(gap, axis), stocks, sites: fork?.sites, change: (column): number => V.dot(fork!.change(column).point, axis),
           });
           // At a coincident point the norm is strictly inside this positive allowance, and has no unique gradient.
-          forkAllowance.push({ value, stocks: length === 0 ? [] : stocks,
+          forkAllowance.push({ value, stocks: length === 0 ? [] : stocks, sites: length === 0 ? [] : fork?.sites,
             change: (column): number => V.dot(gap, fork!.change(column).point) / length });
         }
-        for (const [phaseIndex, sample] of ring.sites.entries()) {
+        for (const [phaseIndex, sample] of ring.entries()) {
           const { phase, point: wall, distance, evidence } = sample;
           const value: number = distance - envelope.shortest;
           if (furthest.host === null || value > furthest.host.value)
@@ -3092,9 +3010,9 @@ export namespace FamilyConicBody {
             const phase: number = piece.from + (piece.to - piece.from) * hit.share;
             const onCut = skin(piece.section, phase);
             stocks.add(group.children[piece.section]!.stock);
-            const fixed = hit.share === 0 ? movingFork(hit.forks[0]) : hit.share === 1 ? movingFork(hit.forks[1]) : undefined;
+            const fixed = hit.share === 0 ? forks[hit.forks[0]] : hit.share === 1 ? forks[hit.forks[1]] : undefined;
             const [p, q] = fixed !== undefined || hit.settled ? [undefined, undefined] :
-              [movingFork(hit.forks[0]), movingFork(hit.forks[1])];
+              [forks[hit.forks[0]], forks[hit.forks[1]]];
             for (const end of [fixed, p, q]) if (end !== undefined)
               for (const stock of end.stocks) stocks.add(stock);
             const gap = flat(V.sub(onCut.site.point, wall));
@@ -3112,13 +3030,16 @@ export namespace FamilyConicBody {
               const delta = flat(V.sub(moving, column.velocity(hostAt)));
               return gapLength === 0 ? Math.hypot(...delta) : (gap[0] * delta[0] + gap[1] * delta[1]) / gapLength;
             };
-            return change;
+            const sites: MaterialPoint[] = [hostAt];
+            if (fixed === undefined) sites.push(onCut.site);
+            for (const dependency of [fixed, p, q]) if (dependency !== undefined) sites.push(...dependency.sites);
+            return { change, sites };
           });
           if (derivatives && candidates.length === 0)
             throw new Error("the actual outline distance supplies no material witness");
-          queries.push({ value, stocks: [...stocks],
+          queries.push({ value, stocks: [...stocks], sites: candidates[0]?.sites,
             // One actual closest branch supplies the whole affine row. At ties it is a local upper witness to the minimum.
-            change: (column): number => candidates[0]!(column) });
+            change: (column): number => candidates[0]!.change(column) });
         }
         return null;
       } finally { costs.witnessMs += performance.now() - witnesses; }
@@ -3138,13 +3059,14 @@ export namespace FamilyConicBody {
           const left: ReturnType<typeof skin> | undefined = derivatives ? skin(i, phases[near.pair[0]]!) : undefined;
           const right: ReturnType<typeof skin> | undefined = derivatives ? skin(j, phases[near.pair[1]]!) : undefined;
           clearanceRows.push({ value: -near.distance, stocks: [group.children[i]!.stock, group.children[j]!.stock],
+            sites: left === undefined || right === undefined ? [] : [left.site, right.site],
             change: (column): number => -V.dot(near.normal, V.sub(left!.change(column), right!.change(column))) });
         }
     }
     queries.push(...measuredForks, ...forkAllowance, ...clearanceRows);
     notice("outline result", { kind: refusal === null ? "formed" : "refused", outlineRows: hostEnd - split, refusal,
       forkRows: forkAllowance.length, measuredRows: split - forks + measuredForks.length, furthest });
-    const rows = measure("columnsMs", () => materialColumns(state, fields, group, roots, queries, sectionsOf, derivatives, costs, notice));
+    const rows = measure("columnsMs", () => materialColumns(state, fields, group, roots, chart, queries, ends.walls, derivatives, costs, notice));
     const boundsEnd: number = hostEnd + measuredForks.length + forkAllowance.length;
     const forkBounds: F.IGroupRow[] = rows.slice(hostEnd + measuredForks.length, boundsEnd);
     const clearance: F.IGroupRow[] = rows.slice(boundsEnd);
@@ -3158,27 +3080,15 @@ export namespace FamilyConicBody {
   function groupPhysics(
     group: ReturnType<typeof collectGroup>, envelope: ReturnType<typeof rootEnvelope>,
     forks: ReturnType<typeof forkSeeds>, fields: readonly { stock: string; step: number }[],
-    originalSources: ReturnType<typeof groupSources>, originalState: readonly number[],
+    plan: ReturnType<typeof FamilyConicDivide.composition>, originalSources: ReturnType<typeof groupSources>, originalState: readonly number[],
     log: (event: string, detail: object) => void,
   ) {
-    const sections = endSections(envelope.basis, group, group.owner.count);
+    const sections = prepareEndSections(envelope.basis, group, group.owner.count);
     const junction = junctionModel(group, envelope, fields, originalSources, log);
-    let priorShape = originalState.slice(0, group.vector.length), priorSources = originalSources;
-    let priorDerived: ReturnType<typeof composeGroup> | undefined;
-    const sourcesOf = (state: readonly number[], families: ReadonlyMap<string, K.IStored>) => {
-      if (!priorShape.every((q, i): boolean => Object.is(q, state[i]))) {
-        const next = groupSources(families, group.owner.name, groupFaces(group.owner));
-        priorSources = next;
-        priorShape = state.slice(0, group.vector.length);
-        priorDerived = undefined;
-      }
-      return priorSources;
-    };
     const tolerance = AutoMovieSolidSharedCurve.ROUNDING * (1 + V.norm(envelope.basis.origin));
     const scope: string = JSON.stringify([envelope.basis, group.owner.hostFace, group.owner.hostEnd, group.owner.count,
       group.children.map(({ face, stock }) => [face, stock])]);
-    const readStock = (state: readonly number[], derivatives: boolean) => {
-      const candidates = group.expand(state);
+    const readStock = (candidates: ReadonlyMap<string, K.IStored>, derivatives: boolean) => {
       const hard: F.IGroupRow[] = [];
       for (const [name, member] of group.members) {
         const family = candidates.get(name)!;
@@ -3199,26 +3109,44 @@ export namespace FamilyConicBody {
         for (const row of raw.margins) hard.push({ value: -row.value / row.scale,
           gradient: new Map([...row.gradient].map(([k, d]): [number, number] => [k, -d / row.scale])) });
       }
-      return { candidates, hard };
+      return hard;
     };
-    let screened: { state: readonly number[]; stock: Exclude<ReturnType<typeof readStock>, string> } | undefined;
-    const screen = (state: readonly number[]): string | null => {
-      screened = undefined;
-      try {
-        const stock = readStock(state, false);
-        if (typeof stock === "string") return stock;
-        screened = { state, stock };
-        return null;
-      } catch (error: unknown) { return error instanceof Error ? error.message : String(error); }
+    const preparePhysical = (roots: ReturnType<typeof groupSources>) => {
+      const ends = sections(roots.view);
+      const plane = ends.actual[0]!.plane;
+      const made = AutoMovieConstructionComposedEnd.create({ point: plane.point, normal: plane.normal,
+        sections: ends.actual.map((row) => row.section), samples: group.owner.count });
+      const formed = typeof made === "string" ? made : (() => {
+        const mapped = actualForks(envelope, group, ends.actual, made, tolerance);
+        return typeof mapped === "string" ? mapped : { made, forks: mapped };
+      })();
+      const faces: string[] = group.children.map(({ face }): string => face);
+      if (group.parent !== undefined) faces.push(group.parent.face);
+      return { ends, chart: roots.prepareCharts(faces), formed, roots };
     };
     let index: number = 0;
 
-    // The leading inside rows (child ownership, then fork allowance) the last partially refused trial measured, for the fit's
-    // second-order correction; null after any other reading.
-    let lastPartial: number[] | null = null;
-    const read = (state: readonly number[], derivatives: boolean, ceiling?: F.IGroupCeiling) => {
+    /** Both the plain and differentiated readings borrow the state already screened for its raw material. */
+    const prepare = (state: readonly number[], starting?: ReturnType<typeof groupSources>): string | (() => F.GroupTrial) => {
+      try {
+        const candidates = group.expand(state);
+        const known = readStock(candidates, false);
+        if (typeof known === "string") return known;
+        return () => {
+          try {
+            const physical = FAIR ? undefined : groupPhase(log, group.owner.name, "prepare physical trial sources", () =>
+              preparePhysical(starting ?? groupSources(candidates, plan)));
+            return (derivatives, ceiling) => read(state, candidates, known, physical, derivatives, ceiling);
+          } catch (error: unknown) { return () => error instanceof Error ? error.message : String(error); }
+        };
+      } catch (error: unknown) { return error instanceof Error ? error.message : String(error); }
+    };
+
+    const read = (
+      state: readonly number[], candidates: ReadonlyMap<string, K.IStored>, known: F.IGroupRow[],
+      physical: ReturnType<typeof preparePhysical> | undefined, derivatives: boolean, ceiling?: F.IGroupCeiling,
+    ): ReturnType<F.GroupTrial> => {
       ++index;
-      lastPartial = null;
       const costs: GroupCosts = { rawMs: 0, stockMs: 0, cutsMs: 0, addressMs: 0, outlineMs: 0, columnsMs: 0,
         columns: 0, heldFaces: 0, ordinaryFaces: 0, directReaders: 0, assembledWalls: 0, columnSourceMs: 0, directSites: 0, scalarCapSites: 0,
         retainedCapSites: 0, authoredCapSites: 0, uncertainSites: 0, coldOutlineMs: 0, warmOutlineMs: 0, witnessMs: 0 };
@@ -3237,11 +3165,8 @@ export namespace FamilyConicBody {
         }
       };
       try {
-        const stock = measure("rawMs", () => !derivatives && screened !== undefined && screened.state === state
-          ? screened.stock : readStock(state, derivatives), "raw stock");
-        screened = undefined;
-        if (typeof stock === "string") return stock;
-        const { candidates, hard } = stock;
+        const hard = measure("rawMs", () => derivatives ? readStock(candidates, true) : known, "raw stock");
+        if (typeof hard === "string") return hard;
         const measured: F.IGroupRow[] = [], master: F.IGroupRow[] = [], inside: F.IGroupRow[] = [];
         const rawFault = measure("rawMs", () => {
           for (const [name, member] of group.members) {
@@ -3257,19 +3182,10 @@ export namespace FamilyConicBody {
         }, "owned raw sections");
         if (rawFault !== null) return rawFault;
         // Fairing reads the junction on its own curves (`junctionModel`): no declaration and no loft in a reading.
-        if (FAIR) return measure("addressMs", () => junction(state, derivatives, candidates, hard, inside), "junction");
-        const roots = measure("stockMs", () => sourcesOf(state, candidates));
-        const actual = measure("cutsMs", () => sections((face) => roots.chart(face).view));
+        if (physical === undefined) return measure("addressMs", () => junction(state, derivatives, candidates, hard, inside), "junction");
+        const { roots, chart, ends, formed } = physical;
+        const { actual, host } = ends;
         const recovery: boolean = state.length !== group.vector.length;
-        const formed = measure("outlineMs", () => {
-          const made = sections.compose(actual);
-          if (typeof made === "string") return made;
-
-          // Fairing reads the composed end's own forks; only reproduction maps them onto the reference's.
-          if (FAIR) return { made, forks: [] };
-          const mapped = actualForks(envelope, group, actual, made, tolerance);
-          return typeof mapped === "string" ? mapped : { made, forks: mapped };
-        }, "directed actual outline");
         const sites = recovery ? forks.flatMap((fork, i) => {
           const at = group.vector.length + 6 * i;
           return fork.faces.map((entry, side) => {
@@ -3298,12 +3214,9 @@ export namespace FamilyConicBody {
             { family: "child ownership", values: inside.map((row): number => row.value) },
             { family: "observed fork allowance", values: forkValues },
           ], ["host outline rail (" + 8 * group.owner.count + " rows)", "non-neighbour clearance"]);
-          if (partial !== null) {
-            lastPartial = [...inside.map((row): number => row.value), ...forkValues];
-            return partial;
-          }
+          if (partial !== null) return { refusal: partial, inside: [...inside.map((row): number => row.value), ...forkValues] };
         }
-        const owned = endMaterialRows(group, envelope, roots, candidates, state, fields, derivatives, sections, actual,
+        const owned = endMaterialRows(group, envelope, roots, chart, candidates, state, fields, derivatives, ends,
           sites, formed, recovery, measure, costs, furthest, scope, notice);
         outline = owned.outline;
         for (const [i, footprint] of footprints.entries()) {
@@ -3328,9 +3241,8 @@ export namespace FamilyConicBody {
         const result = F.readGroup(state, derivatives, [{ rows: () => ({
           measured, incidence: master, inside: [...inside, ...owned.forkBounds], hard: [...hard, ...owned.clearance],
         }) }], outline, preservation);
-        if (typeof result !== "string" && !recovery && outline.kind === "formed" && result.incidence <= tolerance) {
-          const source = (face: string): IAutoMovieViewPart => roots.chart(face).view;
-          const derived = priorDerived ??= measure("outlineMs", () => composeGroup(roots.owner, sections.host(source), actual), "complete compose");
+        if (typeof result !== "string" && !derivatives && !recovery && outline.kind === "formed" && result.incidence <= tolerance) {
+          const derived = measure("outlineMs", () => composeGroup(roots.owner, host, actual), "complete compose");
           if (typeof derived === "string") return "the complete physical composed owner refuses this trial: " + derived;
         }
         return result;
@@ -3343,7 +3255,12 @@ export namespace FamilyConicBody {
     };
     const transfer = (state: readonly number[]): number[] | null =>
       state.length === group.vector.length ? null : state.slice(0, group.vector.length);
-    return { tolerance, read, screen, transfer, trialRows: (): readonly number[] | null => lastPartial, probe: junction.probe };
+    const initial = prepare(originalState, originalSources);
+    return { tolerance, initial: typeof initial === "string" ? (): string => initial : initial(),
+      read: (state: readonly number[], derivatives: boolean, ceiling?: F.IGroupCeiling): ReturnType<F.GroupTrial> => {
+        const scoped = prepare(state);
+        return typeof scoped === "string" ? scoped : scoped()(derivatives, ceiling);
+      }, screen: prepare, transfer, probe: junction.probe };
   }
 
   /** Match both endpoints of each observed lobe to the unique physical fork on its known neighbouring pair. */
@@ -3468,7 +3385,7 @@ export namespace FamilyConicBody {
     reference: ReturnType<typeof rootEnvelope>, derived: IAutoMovieConstructionSplitCompose.IDerived,
     prepared: readonly IAutoMovieConstructionSplitCompose.ISection[],
   ) {
-    const read = (face: string): IAutoMovieViewPart => actual.chart(face).view;
+    const read = actual.view;
     const sections = prepared.map((row) => row.section);
     const lobes = sealedLobes(reference, group, derived, sections);
     const pins = new Map<string, string>();
@@ -3504,7 +3421,7 @@ export namespace FamilyConicBody {
     const retained = parent === undefined ? undefined : FAIR ? (() => {
       // The parent's deviation from the reference's held rings, reported only; a missing correspondence is reported, not thrown.
       try {
-        const physical = actual.chart(parent.face).view;
+        const physical = read(parent.face);
         const greatest = Math.max(...parent.held.map((row): number => K.parentCorrespondence(physical, row.s, row.ring,
           group.owner.count, true, TARGET_MM, reference.authored === undefined ? undefined : (a, b): boolean => a[2] + b[2] > 0).upper));
         return { face: parent.face, sha256: hash(canonical.get(parent.family.name)!), greatest, covers: [],
@@ -3514,7 +3431,7 @@ export namespace FamilyConicBody {
           refusal: parent.law.check(canonical.get(parent.family.name)!) };
       }
     })() : (() => {
-      const physical = actual.chart(parent.face).view;
+      const physical = read(parent.face);
       const material = canonical.get(parent.family.name)!;
       const fault = parent.law.check(material);
       const covers = parent.held.map((row) => {
@@ -3534,7 +3451,7 @@ export namespace FamilyConicBody {
 
   /** One declared parent and all its physical children. Every trial starts from the same immutable measured observations. */
   function fitComposed(
-    plan: ReturnType<typeof FamilyConicDivide.composition>, original: R.ISource,
+    plan: ReturnType<typeof FamilyConicDivide.composition>, original: ReturnType<typeof R.prepare>,
     dividers: readonly FamilyConicDivide.ISurface[], collected: ReadonlyMap<string, IGroupMember>, missing: readonly unknown[],
     log: (event: string, detail: object) => void, observeOnly: boolean,
   ) {
@@ -3632,22 +3549,16 @@ export namespace FamilyConicBody {
       stage.push({ name: "restored native source admission", detail: { elapsedMs: performance.now() - nativeStart, members: native } });
       const refused = native.filter((row) => row.failure !== null);
       if (refused.length > 0) return refuse(refused.map((row) => row.name + ": restored material is unavailable to the native source: " + row.failure).join(", "));
-      const initialSources = phase("initial actual chart stock", () => groupSources(restoredStock, plan.owner.name, groupFaces(plan.owner)));
+      const initialSources = phase("initial actual chart stock", () => groupSources(restoredStock, plan));
       const fields = [...group.members].flatMap(([stock, member]) => C.units(member.family.layout).flatMap((unit) =>
         member.tail.free.map(() => ({ stock, step: unit === "mm" ? 1e-4 : 1e-6 }))));
       if (parent !== undefined) fields.push(...C.units(parent.family.layout).map((unit) => ({
         stock: parent.family.name, step: unit === "mm" ? 1e-4 : 1e-6 })));
-      let checked: { state: readonly number[]; canonical: Map<string, K.IStored>;
-        terminal: ReturnType<typeof terminalIncidence>; proof: ReturnType<typeof sealComposed> } | undefined;
       const seal = (state: readonly number[]) => {
-        if (checked?.state === state) return checked;
         const stock = group.expand(state);
         const canonical = new Map([...stock].map(([name, value]) => [name, JSON.parse(JSON.stringify(value)) as K.IStored] as const));
-        const source = groupSources(canonical, plan.owner.name, groupFaces(plan.owner));
-        const prepared = endSections(envelope.basis, group, source.owner.count);
-        const faces = (face: string): IAutoMovieViewPart => source.chart(face).view;
-        const sections = prepared(faces);
-        const host = prepared.host(faces);
+        const source = groupSources(canonical, plan);
+        const { actual: sections, host } = prepareEndSections(envelope.basis, group, source.owner.count)(source.view);
         const actual = phase("actual all-child compose and rails", () => composeGroup(source.owner, host, sections));
         // A host-ring refusal is compared with the junction model's reading of the same state at the same host points (2026-11-24: the
         // model read the leg feasible and the split refused it): both rings, both outlines' distances, both stations, planes and rails.
@@ -3672,33 +3583,34 @@ export namespace FamilyConicBody {
         if (typeof actual === "string") return actual;
         const terminal = phase("actual terminal incidence", () => terminalIncidence(sections[0]!.plane, host, sections, actual, source.owner.count));
         const proof = phase("original held contour and material ownership", () => sealComposed(group, source, canonical, envelope, actual, sections));
-        checked = { state, canonical, terminal, proof };
-        return checked;
+        return { canonical, terminal, proof };
       };
-      const physics = groupPhysics(group, envelope, forks, fields, initialSources, restored.values, log);
+      const physics = groupPhysics(group, envelope, forks, fields, plan, initialSources, restored.values, log);
       const fit = phase("actual geometry and coupled solve", () => F.fitGroup(
         restored.values, physics.read, physics.tolerance, 60 - restored.iteration,
         (detail) => log("family-body-group-iteration", { owner: plan.owner.name, phase: "coupled", ...detail }), physics.screen,
-        { transfer: physics.transfer, certify: (state) => {
+        { transfer: physics.transfer, initial: physics.initial, certify: (state) => {
           try {
             const result = seal(state);
             if (typeof result === "string" || result.proof.refusal !== null) {
               log("family-body-exact-state-seal", { owner: plan.owner.name, refusal: typeof result === "string" ? result : result.proof.refusal });
-              return false;
+              return { admitted: false, receipt: result };
             }
-            return FAIR || result.proof.receipts.every(({ exposure }): boolean => exposure.held > 0);
+            return { admitted: FAIR || result.proof.receipts.every(({ exposure }): boolean => exposure.held > 0), receipt: result };
           } catch (error: unknown) {
-            log("family-body-exact-state-seal", { owner: plan.owner.name, refusal: error instanceof Error ? error.message : String(error) });
-            return false;
+            const refusal: string = error instanceof Error ? error.message : String(error);
+            log("family-body-exact-state-seal", { owner: plan.owner.name, refusal });
+            return { admitted: false, receipt: refusal };
           }
-        } }, physics.trialRows, FAIR ? { tolerance: FAIR_CONVERGED, steps: FAIR_CONVERGED_STEPS } : undefined,
+        } }, FAIR ? { tolerance: FAIR_CONVERGED, steps: FAIR_CONVERGED_STEPS } : undefined,
       ));
       if (typeof fit === "string") return refuse(fit);
       stage.push({ name: "coupled nonlinear solve", detail: { iteration: fit.iteration, incidence: fit.incidence,
         objective: fit.objective, stopped: fit.stopped, timings: fit.timings, steps: fit.steps, outlineRefusal: fit.outlineRefusal } });
       if (fit.outlineRefusal !== null) return refuse(fit.outlineRefusal);
       if (fit.incidence > physics.tolerance) return refuse("registered physical incidence remained outside the source tolerance");
-      const sealed = seal(fit.values);
+      const sealed = fit.seal;
+      if (sealed === undefined) return refuse("the final coupled source did not reach its admitted exact-state seal");
       if (typeof sealed === "string") return refuse(sealed);
       stage.push({ name: "actual terminal incidence, rails and valleys", detail: sealed.terminal });
       stage.push({ name: "actual all-child composition and independent held material", detail: sealed.proof });
@@ -3764,7 +3676,8 @@ export namespace FamilyConicBody {
       return;
     }
     const source: R.ISource = await R.load(root);
-    const groupPlan = group === undefined ? undefined : FamilyConicDivide.composition(group.name);
+    const groupPlan = group === undefined ? undefined : groupPhase(log, group.name, "original group declaration",
+      () => FamilyConicDivide.composition(group.name));
     if (group !== undefined && groupPlan !== undefined) {
       const declared = new Set(groupPlan.owner.children.map((entry): string => groupPlan.originalOf(entry.partFace)));
       if (declared.size !== group.members.size || [...declared].some((part): boolean => !group.members.has(part)))
@@ -4281,6 +4194,7 @@ export namespace FamilyConicBody {
       // heads' plane, each pair of neighbouring digits as one chain with its valley's two depths, or apart with their gap. A composed
       // end's host ring stands within a child's rail of the children's outline only where the valleys are within the rails (half the
       // gap at which a pair first stands apart), so the heads' plane is read here against both.
+      const outline = R.prepare(source.all);
       const valleys = (label: string, centres: R.V[], halves: number[], up: R.V, index: number, digits: readonly string[]): void => {
         const course: IAutoMovieViewAxis.IAxis = AutoMovieViewAxis.jointed(centres, halves, up) as IAutoMovieViewAxis.IAxis;
         const station: number = AutoMovieHumanCourseRuns.joints(centres, halves)[index]!;
@@ -4297,7 +4211,7 @@ export namespace FamilyConicBody {
             const q: R.V = [first![0] + t * along[0] - frame.origin[0], first![1] + t * along[1] - frame.origin[1], first![2] + t * along[2] - frame.origin[2]];
             return [q[0] * frame.u[0] + q[1] * frame.u[1] + q[2] * frame.u[2], q[0] * frame.v[0] + q[1] * frame.v[1] + q[2] * frame.v[2]];
           });
-          const pairs: FamilyConicValley.IPair[] = FamilyConicValley.pairs(R.chains(source.all, frame) as { points: [number, number][]; closed: boolean }[], pierced);
+          const pairs: FamilyConicValley.IPair[] = FamilyConicValley.pairs(outline.chains(frame), pierced);
           lines.push(`${d >= 0 ? "+" : ""}${d} mm | ` + pairs.map((pair: FamilyConicValley.IPair, i: number): string => `${digits[i]}-${digits[i + 1]} ${pair.kind === "one" ? `${pair.depths![0].toFixed(2)} / ${pair.depths![1].toFixed(2)}` : pair.kind === "apart" ? `apart ${pair.gap!.toFixed(2)}` : "no closed chain"}`).join(" | "));
         }
       };
@@ -4336,6 +4250,10 @@ export namespace FamilyConicBody {
     const curves: N.Curve[] = [];
     const receipt: unknown[] = [];
     const collected = new Map<string, IGroupMember>();
+    const meshName = (part: IPart): "head" | "all" | "body" => part.head === true ? "head" : part.whole === true ? "all" : "body";
+    const selections = new Set(parts.map(meshName));
+    if (group !== undefined) selections.add("all");
+    const outlines = new Map([...selections].map((name) => [name, R.prepare(source[name])] as const));
     for (const part of parts) {
       const rootPlan = groupPlan?.member(part.name) ?? singlePlan;
       const setting = group?.members.get(part.name);
@@ -4353,7 +4271,8 @@ export namespace FamilyConicBody {
       const loops: C.P[][] = [];
       const step: number = part.step ?? STEP_MM;
       const gap = (s: number): number => (typeof part.gap === "function" ? part.gap(s) : (part.gap ?? GAP_MM));
-      const skin: R.ISource["body"] = part.head === true ? source.head : part.whole === true ? source.all : source.body;
+      const skin: R.ISource["body"] = source[meshName(part)];
+      const outline = outlines.get(meshName(part))!;
       // `--air-skin=<directory>`: an air part's walls are the reference's skin and the generated trunk's together (a `zone` dump:
       // `mesh.positions.bin` in metres, `mesh.indices.bin`, `mesh.owners.json`, its faces owned by `trunk`), the nearest crossing along
       // each ray kept. A cutter must stay inside the walls it cuts: the stored slit cutter, read from the reference's walls alone, lost its
@@ -4379,10 +4298,8 @@ export namespace FamilyConicBody {
       // where that skin lies past `s`, walked out ray by ray from the course. A dip whose sides open toward skin barely higher than its
       // floor, as the concha does toward the cheek and a valley between two fingers toward their backs, has no loop of its own in any
       // plane cut. The course must be straight.
-      let depthGrid: { n: number; w: Float64Array; o: R.V; u: R.V; v: R.V; t: R.V; half: number } | null = null;
-      const depthAt = (a: number, b: number): number => {
-        if (depthGrid === null) {
-          const half: number = CONCHA_DEPTH!;
+      const depthAt = part.name !== "concha" || CONCHA_DEPTH === undefined ? undefined : (() => {
+          const half: number = CONCHA_DEPTH;
           const f0: IAutoMovieLoftSectionFrame = axis.at(0);
           const o: R.V = [f0.origin[0], f0.origin[1], f0.origin[2]];
           const u: R.V = [f0.u[0], f0.u[1], f0.u[2]];
@@ -4410,21 +4327,20 @@ export namespace FamilyConicBody {
                 w[i * n + j] = Math.min(w[i * n + j]!, p[2] + s * (q[2] - p[2]) + g * (r[2] - p[2]));
               }
           }
-          depthGrid = { n, w, o, u, v, t, half };
-        }
-        const g = depthGrid;
-        const i: number = Math.round((a + g.half) / 0.25);
-        const j: number = Math.round((b + g.half) / 0.25);
-        return i < 0 || j < 0 || i >= g.n || j >= g.n ? -Infinity : g.w[i * g.n + j]!;
-      };
-      const depthLoop = (s: number): C.P[] | null => {
+          return (a: number, b: number): number => {
+            const i: number = Math.round((a + half) / 0.25);
+            const j: number = Math.round((b + half) / 0.25);
+            return i < 0 || j < 0 || i >= n || j >= n ? -Infinity : w[i * n + j]!;
+          };
+      })();
+      const depthLoop = (sample: NonNullable<typeof depthAt>, s: number): C.P[] | null => {
         // Every frame's chart axes are the first frame's on a straight course; a section's point (a, b) is the grid's (a, b).
-        if (!(depthAt(0, 0) > s)) return null;
+        if (!(sample(0, 0) > s)) return null;
         const loop: C.P[] = [];
         for (let k: number = 0; k < 96; ++k) {
           const phi: number = (2 * Math.PI * k) / 96;
           let r: number = 0;
-          while (r < 40 && depthAt((r + 0.1) * Math.cos(phi), (r + 0.1) * Math.sin(phi)) > s) r += 0.1;
+          while (r < 40 && sample((r + 0.1) * Math.cos(phi), (r + 0.1) * Math.sin(phi)) > s) r += 0.1;
           if (r >= 40) return null;
           loop.push([r * Math.cos(phi), r * Math.sin(phi)]);
         }
@@ -4443,7 +4359,6 @@ export namespace FamilyConicBody {
       const mixedEdges: WeakMap<C.P, C.P> = new WeakMap();
       const retained = (a: C.P, b: C.P): boolean => provenance.next.get(a) !== b;
       const retainedHull = (a: C.P, b: C.P): boolean => mixedEdges.get(a) !== b;
-      const exactCuts: Map<number, ReturnType<typeof R.chains>> = new Map();
       const observedDepth = (hull: readonly C.P[], p: C.P, normal: boolean): number => {
         if (provenance.points.has(p)) return NaN;
         if (normal) return inward(hull, p, retainedHull);
@@ -4542,8 +4457,6 @@ export namespace FamilyConicBody {
       // A plane's loop for the part: the one round the course, or for a `loose` part the largest closed loop the clip leaves whose hull holds the course.
       // The clipped skin piece behind the last section a surrounding part read: the largest of the pieces whose hull it is.
       let piece: C.P[] | null = null;
-      // A part cut out of its host as an excursion of the reference head's sections (`IPart.excursion`), in the course's own planes and chart.
-      let excursion: ((y: number) => X.ISection | null) | null = null;
       // The skin's two ends of the last guided excursion cut (`X.ISection.ends`): its invented closure lies behind both.
       let ends: [C.P, C.P] | null = null;
       // Each section's closure across its part's opening (`IPart.opening`), by station: one conic, an S of two, two round the course
@@ -4567,14 +4480,7 @@ export namespace FamilyConicBody {
         piece = null;
         if (part.air !== undefined) return air(frame, part.air);
         ends = null;
-        if (part.excursion !== undefined) {
-          const entry: X.IPart | undefined = X.PARTS.find((p: X.IPart): boolean => p.name === part.excursion);
-          if (entry === undefined) throw new Error("No excursion " + part.excursion);
-          // The excursion is cut in the course's own chart, whose `u` stands out of the head as its box and its host line beside the box
-          // assume, and only then turned into the part's rolled chart (`IPart.roll`): cut in the rolled chart the box lay along the wrong
-          // axis and most sections came out as other pieces or none.
-          const plain: IAutoMovieViewAxis.IAxis = part.roll === undefined ? axis : K.axis({ centres: part.centres, halves: part.halves, up: part.up });
-          excursion ??= X.along(source, entry, (t: number) => plain.at(t), domain[0] - 6, domain[1] + 6, 1.5);
+        if (excursion !== undefined) {
           const section: X.ISection | null = excursion(s);
           ends = section?.ends ?? null;
           // The nostrils open into the levels from 1,546 to 1,551.5 mm: there the vertical nose bridges them by its hull, as the floor's
@@ -4592,12 +4498,12 @@ export namespace FamilyConicBody {
           const [c, n]: [number, number] = [Math.cos(angle), Math.sin(angle)];
           return read.map((p: C.P): C.P => [c * p[0] + n * p[1], c * p[1] - n * p[0]]);
         }
-        if (part.name === "concha" && CONCHA_DEPTH !== undefined) return depthLoop(s);
+        if (depthAt !== undefined) return depthLoop(depthAt, s);
         if (part.loose !== true || (part.surround !== undefined && s < part.surround.from)) {
           // A part closed round its course (`IPart.around`) reads its skin across the body's open seam at the neck, where the head's mesh
           // takes over: there the body's cut is one open chain whose ends stand 17 to 175 mm apart across the neck (f1's arm planes 16 to
           // 46 mm above the shoulder joint), and that chord lies on the parent's side, which the clip drops.
-          const sourceCut = R.cut(skin, frame, part.around === undefined ? 3 : NECK_BRIDGE_MM, rootFit || readRetained?.(s) === true);
+          const sourceCut = outline.cut(frame, part.around === undefined ? 3 : NECK_BRIDGE_MM, rootFit || readRetained?.(s) === true);
           const whole: C.P[] | null = sourceCut.loop;
           if (whole !== null && sourceCut.measured !== undefined) {
             const signs: number[] = whole.map((p: C.P): number => part.clip?.(chartToWorld(frame, p)) ?? -Infinity);
@@ -4614,7 +4520,7 @@ export namespace FamilyConicBody {
           return clipped;
         }
         const inside = (hull: readonly C.P[]): boolean => hull.every((p: C.P, i: number): boolean => p[0] * hull[(i + 1) % hull.length]![1] - p[1] * hull[(i + 1) % hull.length]![0] > 0);
-        const clipped: C.P[][] = R.loops(skin, frame)
+        const clipped: C.P[][] = outline.loops(frame)
           .map((loop: C.P[]): C.P[] | null => (part.clip === undefined ? loop : without(loop, frame, part.clip)))
           .filter((loop: C.P[] | null): loop is C.P[] => loop !== null && loop.length >= 3);
 
@@ -4673,7 +4579,7 @@ export namespace FamilyConicBody {
       // `--to=<station>`: fit only up to that station, for the head of a wall whose far end is spliced in from another fit. Fitted whole, a
       // wall's growth goes to its worst sections, and the arm's are in the hand, which left the shoulder with ten knots at a mean of 0.7 mm.
       const to: string | undefined = setting === undefined ? process.argv.find((argument: string): boolean => argument.startsWith("--to="))?.slice(5) : String(setting.to);
-      const whole: [number, number] = part.domain === "auto" ? span(skin, axis, part.centres) : part.domain;
+      const whole: [number, number] = part.domain === "auto" ? span(outline, axis, part.centres) : part.domain;
 
       // `--from=<station>`: fit only from that station on, for the far end of a wall whose head is another fit's.
       const from: string | undefined = process.argv.find((argument: string): boolean => argument.startsWith("--from="))?.slice(7);
@@ -4697,6 +4603,13 @@ export namespace FamilyConicBody {
       const domain: [number, number] = [rootFit ? 0 : from === undefined ? rootStation : from === "kept" ? kept() : Number(from), to === undefined ? whole[1] : Number(to)];
       if (rootFit && !(Number.isFinite(domain[1]) && domain[1] > domain[0]))
         throw new Error("the composed root's far measurement station must be finite and positive");
+      // The head excursion reads the fixed unrolled course and is turned into the part's rolled chart by each section.
+      const excursion = part.excursion === undefined || part.air !== undefined ? undefined : (() => {
+        const entry: X.IPart | undefined = X.PARTS.find((p: X.IPart): boolean => p.name === part.excursion);
+        if (entry === undefined) throw new Error("No excursion " + part.excursion);
+        const plain: IAutoMovieViewAxis.IAxis = part.roll === undefined ? axis : K.axis({ centres: part.centres, halves: part.halves, up: part.up });
+        return X.along(source, entry, plain.at, domain[0] - 6, domain[1] + 6, 1.5);
+      })();
       const seedTail: string | undefined = setting === undefined ? process.argv.find((argument: string): boolean => argument.startsWith("--seed-tail="))?.slice("--seed-tail=".length) : "stored@" + setting.mark;
       const inherited = seedTail === undefined ? null : await (async () => {
         const [other, where]: string[] = seedTail.split("@");
@@ -4806,26 +4719,21 @@ export namespace FamilyConicBody {
         readRetained = (s: number): boolean => fitRetained || retainedPath !== undefined || s < spliceAt;
       const retainedStations: { s: number; heldout: boolean; cut: "closed" | "open" | "absent" }[] = [];
 
-      const completeSeeds: Map<number, number[] | null> = new Map();
+      const seedMargin: number = part.margin ?? F.ADMISSIBLE_MARGIN;
+      const admitSeed = (fields: number[]): boolean => C.chain(fields, retainedLayout!).fault === null &&
+        F.leastMeetings(fields, retainedLayout!).every((x: number): boolean => x >= seedMargin);
+      const completeSeeds = !fitRetained || rootFit ? [] : [...wholes].flatMap(([station, points]) => {
+        if (heldStations.has(station)) return [];
+        const fields: number[] = F.ownSeeds([{ s: station, heldout: false, points }], retainedLayout!, seedMargin)[0]!;
+        return admitSeed(fields) ? [{ station, fields, source: "whole-section" as const }] : [];
+      });
       const seedAt = (s: number): { station: number; fields: number[]; source: "archive" | "inherited" | "whole-section" | "directed-continuation" } | null => {
-        const layout: C.ILayout = retainedLayout!;
-        const margin: number = part.margin ?? F.ADMISSIBLE_MARGIN;
-        const admit = (fields: number[]): boolean => C.chain(fields, layout).fault === null && F.leastMeetings(fields, layout).every((x: number): boolean => x >= margin);
         const warm: number[] | null = registered?.(s) ?? null;
-        if (warm !== null && admit(warm)) return { station: s, fields: warm, source: "archive" };
+        if (warm !== null && admitSeed(warm)) return { station: s, fields: warm, source: "archive" };
         const carried: number[] | null = inheritedAt(s);
-        if (carried !== null && admit(carried)) return { station: s, fields: carried, source: "inherited" };
-        const completeStations: number[] = [...wholes.keys()].filter((q: number): boolean => !heldStations.has(q))
-          .sort((a: number, b: number): number => Math.abs(a - s) - Math.abs(b - s));
-        for (const station of completeStations) {
-          if (!completeSeeds.has(station)) {
-            const fields: number[] = F.ownSeeds([{ s: station, heldout: false, points: wholes.get(station)! }], layout, margin)[0]!;
-            completeSeeds.set(station, admit(fields) ? fields : null);
-          }
-          const fields: number[] | null = completeSeeds.get(station)!;
-          if (fields !== null) return { station, fields, source: "whole-section" };
-        }
-        return null;
+        if (carried !== null && admitSeed(carried)) return { station: s, fields: carried, source: "inherited" };
+        return completeSeeds.reduce<(typeof completeSeeds)[number] | null>((nearest, current) =>
+          nearest === null || Math.abs(current.station - s) < Math.abs(nearest.station - s) ? current : nearest, null);
       };
       for (const [i, s] of sampleStations.entries()) {
         const frame: IAutoMovieLoftSectionFrame = axis.at(s);
@@ -5970,8 +5878,8 @@ export namespace FamilyConicBody {
             // A window that leaves grazing casts unobserved (`graze`) reads the skin's rise along the station from the uncut reference sections
             // 1 mm either side, along the in-plane normal where the cast lands.
             const slope = window.graze === undefined ? undefined : ((): ((p: C.P, normal: C.P) => number | null) => {
-              const below: C.P[] | null = R.cut(skin, course.at(row.s - 1)).loop;
-              const above: C.P[] | null = R.cut(skin, course.at(row.s + 1)).loop;
+              const below: C.P[] | null = outline.cut(course.at(row.s - 1)).loop;
+              const above: C.P[] | null = outline.cut(course.at(row.s + 1)).loop;
               return (p: C.P, normal: C.P): number | null => {
                 const a: number | null = below === null ? null : H.cast(below, p, normal);
                 const b: number | null = above === null ? null : H.cast(above, p, normal);
@@ -5979,23 +5887,19 @@ export namespace FamilyConicBody {
               };
             })();
             const own: C.P[] = window.chord === true ? loops[i]! : skins[i]!;
-            const uncut: C.P[] | null = window.uncut === true && row.s > window.stations[0] && row.s < window.stations[1] ? R.cut(skin, frame).loop : null;
+            const uncut: C.P[] | null = window.uncut === true && row.s > window.stations[0] && row.s < window.stations[1] ? outline.cut(frame).loop : null;
             const whole: C.P[] | null = uncut === null || part.kept === undefined ? uncut : without(uncut, frame, part.kept);
             const blocked: H.IRow["blocked"] = part.around === undefined || part.clip === undefined || whole !== null
               ? undefined
-              : (from, direction, along): boolean => {
-                  let actual = exactCuts.get(row.s);
-                  if (actual === undefined) {
-                    actual = R.chains(skin, frame);
-                    exactCuts.set(row.s, actual);
-                  }
-                  return actual.some(({ points, closed }): boolean => {
+              : (() => {
+                  const actual = outline.chains(frame);
+                  return (from, direction, along): boolean => actual.some(({ points, closed }): boolean => {
                     const crossing = H.crossing(points, from, direction, undefined, closed);
                     if (crossing === null || !(Math.abs(crossing.along) < Math.abs(along))) return false;
                     const p: C.P = [from[0] + crossing.along * direction[0], from[1] + crossing.along * direction[1]];
                     return part.clip!(chartToWorld(frame, p)) > 0;
                   });
-                };
+                })();
             return { s: row.s, ...(hold === undefined ? {} : { hold }), ...(slope === undefined ? {} : { slope }), skin: whole ?? (row.runs === undefined ? own : []),
               ...(part.around === undefined || whole !== null ? {} : { retained }),
               ...(blocked === undefined ? {} : { blocked }),
@@ -6218,7 +6122,11 @@ export namespace FamilyConicBody {
       // `--refit-reliefs`: only the named casts are fitted again; the others are carried as stored.
       const recast: string[] | null = carried === null ? null : (process.argv.find((argument: string): boolean => argument.startsWith("--refit-reliefs="))?.slice("--refit-reliefs=".length).split(",") ?? null);
       if (recast !== null && carried !== null) definition.tips = carried.tips;
-      for (const face of tip === null || BARE || inherited !== null ? [] : (part.casts ?? []).filter((cast: ICast): boolean => !(CHINLESS && cast.name === "chin") && (recast === null || recast.includes(part.name + "." + cast.name)) && (spliced?.window === undefined || (Number(cast.stations[0]) >= spliced.window[0] && Number(cast.stations[1]) <= spliced.window[1])))) {
+      const faces: ICast[] = tip === null || BARE || inherited !== null ? [] : (part.casts ?? []).filter((cast: ICast): boolean =>
+        !(CHINLESS && cast.name === "chin") && (recast === null || recast.includes(part.name + "." + cast.name)) &&
+        (spliced?.window === undefined || (Number(cast.stations[0]) >= spliced.window[0] && Number(cast.stations[1]) <= spliced.window[1])));
+      const solid: Uint8Array | undefined = faces.length > 0 ? solids(skin) : undefined;
+      for (const face of faces) {
         const capped: IAutoMovieViewLoft.IResult = K.create(definition, stations);
         if (capped.chain === null) throw new Error(part.name + ": the capped part does not loft");
         const first: R.V = part.centres[0]!;
@@ -6243,9 +6151,8 @@ export namespace FamilyConicBody {
         // The reference triangles a ray can meet: the part's own skin within the reach of the points' box.
         const box: [R.V, R.V] = [[0, 1, 2].map((c: number): number => Math.min(...bases.map((b): number => b.p[c]!)) - face.reach) as R.V, [0, 1, 2].map((c: number): number => Math.max(...bases.map((b): number => b.p[c]!)) + face.reach) as R.V];
         const triangles: [R.V, R.V, R.V][] = [];
-        const solid: Uint8Array = solids(skin);
         for (let t: number = 0; t + 2 < skin.indices.length; t += 3) {
-          if (solid[t / 3] === 0) continue;
+          if (solid![t / 3] === 0) continue;
           const corners: R.V[] = [0, 1, 2].map((k: number): R.V => [skin.positions[skin.indices[t + k]! * 3]!, skin.positions[skin.indices[t + k]! * 3 + 1]!, skin.positions[skin.indices[t + k]! * 3 + 2]!]);
           if (corners.some((p: R.V): boolean => p.every((x: number, c: number): boolean => x >= box[0][c]! && x <= box[1][c]!)) && (outside === undefined || corners.some((p: R.V): boolean => outside(p) <= 3))) triangles.push(corners as [R.V, R.V, R.V]);
         }
@@ -6387,7 +6294,7 @@ export namespace FamilyConicBody {
     }
 
     if (groupPlan !== undefined && group !== undefined) {
-      const result = fitComposed(groupPlan, source, divides, collected, receipt, log, group.observeOnly);
+      const result = fitComposed(groupPlan, outlines.get("all")!, divides, collected, receipt, log, group.observeOnly);
       await fs.writeFile(path.join(out, group.observeOnly ? "observations.json" : "coupled-root.json"), JSON.stringify(result), { flag: "wx" });
       // `--emit`: an admitted group's families written into their stored modules, so the figure and its frames read the fitted joint.
       if (process.argv.includes("--emit") && result.admitted && "families" in result && result.families !== undefined)
@@ -6949,7 +6856,7 @@ export namespace FamilyConicBody {
    * parent the loop takes the parent in and its area jumps, which ends the run.
    */
   function span(
-    mesh: R.ISource["body"],
+    outline: ReturnType<typeof R.prepare>,
     axis: IAutoMovieViewAxis.IAxis,
     centres: readonly R.V[],
   ): [number, number] {
@@ -6962,7 +6869,7 @@ export namespace FamilyConicBody {
       );
     const areas: (number | null)[] = [];
     for (let s: number = 0; s <= length; ++s) {
-      const loop: C.P[] | null = R.cut(mesh, axis.at(s)).loop;
+      const loop: C.P[] | null = outline.cut(axis.at(s)).loop;
       areas.push(loop === null ? null : R.area(loop));
     }
     const outer: number[] = areas

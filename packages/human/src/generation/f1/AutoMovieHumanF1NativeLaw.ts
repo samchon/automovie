@@ -2,11 +2,11 @@ import { AutoMovieHumanF1NativeBuild as Build } from "./AutoMovieHumanF1NativeBu
 import {
   AutoMovieHumanF1NativeCalibration as Calibration,
 } from "./AutoMovieHumanF1NativeCalibration";
+import { AutoMovieHumanF1NativeRoots } from "./AutoMovieHumanF1NativeRoots";
 import type {
   IAutoMovieHumanConicLoft,
   IAutoMovieHumanF1,
   IAutoMovieHumanF1NativeLaw,
-  IAutoMovieHumanF1NativeRoot,
   IAutoMovieViewPart,
 } from "@automovie/interface";
 
@@ -32,13 +32,14 @@ export namespace AutoMovieHumanF1NativeLaw {
   }
 
   /**
-   * Resolve the actual F1 calibration once for this original assembly/source-bank lifetime.
+   * Prepare the shared original calipers and nose correspondence for full
+   * assemblies from one immutable original source bank.
    *
    * @evidence contracts/development/implementation.md#principled-implementation A single original reader supplies complete and tape-only native builders; candidates never prepare the fixed original calipers again.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One closed owner captures originals and calibration, exposing the existing full and narrow source operations.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No global cache, mesh, partial figure, hidden numerical solve or replacement calibration/source pairing exists.
    * @evidence contracts/development/common.md#meaningful-documentation Names borrowed immutable lifetime and reports actual source-read attempts and milliseconds separately from candidate costs.
-   * @evidence contracts/development/implementation.md#efficient-algorithms The fixed21 caliper reads and original projection Point0/axis2 attempts are prepared once and reported separately; candidate work remains in the requested builder scope.
+   * @evidence contracts/development/implementation.md#efficient-algorithms The 21 caliper reads, original projection and nose correspondence are prepared once; each candidate builds only its requested scope.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Complete assembly and every solver candidate reuse the same prepared original calibration.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller-owned closures retain only one bounded original bank/calibration and are released together.
    */
@@ -46,6 +47,47 @@ export namespace AutoMovieHumanF1NativeLaw {
     original: IAutoMovieHumanF1.IAssembly,
     originals: ReadonlyMap<string, IAutoMovieViewPart>,
   ): IAutoMovieHumanF1NativeLaw.IPrepared {
+    const began: number = performance.now();
+    const prepared = prepareFields(original, originals);
+    const tapes = tapeReader(original, originals, prepared);
+    const nose: AutoMovieHumanF1NativeRoots.NoseCalibration =
+      AutoMovieHumanF1NativeRoots.calibrateNose(original, originals, prepared.fields.roots.nose);
+    return {
+      ...tapes,
+      calibration: { ...tapes.calibration, milliseconds: performance.now() - began },
+      apply: (next: IAutoMovieHumanF1NativeLaw.IFields, bone: IAutoMovieHumanF1.IAssembly): IAutoMovieHumanF1.IAssembly => {
+        const result: Build.Result = Build.create(
+          { scope: "all", fields: next, nose },
+          original,
+          bone,
+          originals,
+          prepared.fields,
+          prepared.projectionOwner,
+        );
+        if (result.scope !== "all")
+          throw new Error("complete native builder returned another scope");
+        return result.assembly;
+      },
+    };
+  }
+
+  /**
+   * Prepare the calibrated F1 fields and trunk/breast reader for tape
+   * candidates. The tape reader does not build the original nose contact or
+   * any candidate root outside the requested scope.
+   */
+  export function prepareTapes(
+    original: IAutoMovieHumanF1.IAssembly,
+    originals: ReadonlyMap<string, IAutoMovieViewPart>,
+  ): Omit<IAutoMovieHumanF1NativeLaw.IPrepared, "apply"> {
+    return tapeReader(original, originals, prepareFields(original, originals));
+  }
+
+  /** Read the shared calipers and projection from the original source bank. */
+  function prepareFields(
+    original: IAutoMovieHumanF1.IAssembly,
+    originals: ReadonlyMap<string, IAutoMovieViewPart>,
+  ): Calibration.IReference & { nativeSourceReadAttempts: number; milliseconds: number } {
     const began: number = performance.now();
     let nativeSourceReadAttempts: number = 0;
     const { fields, projectionOwner }: Calibration.IReference = Calibration.readReference(
@@ -55,28 +97,23 @@ export namespace AutoMovieHumanF1NativeLaw {
         nativeSourceReadAttempts++;
       },
     );
-    const rootCalibrations: Map<string, IAutoMovieHumanF1NativeRoot.ICalibration> = new Map();
+    return { fields, projectionOwner, nativeSourceReadAttempts, milliseconds: performance.now() - began };
+  }
+
+  /** Close over the admitted original fields and source bank for each tape candidate. */
+  function tapeReader(
+    original: IAutoMovieHumanF1.IAssembly,
+    originals: ReadonlyMap<string, IAutoMovieViewPart>,
+    prepared: ReturnType<typeof prepareFields>,
+  ): Omit<IAutoMovieHumanF1NativeLaw.IPrepared, "apply"> {
+    const { fields, projectionOwner, nativeSourceReadAttempts, milliseconds } = prepared;
     return {
       fields,
       reference: original.reference,
       calibration: {
         nativeSourceReadAttempts,
         originalProjection: projectionOwner.calibration,
-        milliseconds: performance.now() - began,
-      },
-      apply: (next: IAutoMovieHumanF1NativeLaw.IFields, bone: IAutoMovieHumanF1.IAssembly): IAutoMovieHumanF1.IAssembly => {
-        const result: Build.Result = Build.create(
-          { scope: "all", fields: next },
-          original,
-          bone,
-          originals,
-          fields,
-          rootCalibrations,
-          projectionOwner,
-        );
-        if (result.scope !== "all")
-          throw new Error("complete native builder returned another scope");
-        return result.assembly;
+        milliseconds,
       },
       tapeFamilies: (
         next: IAutoMovieHumanF1NativeLaw.ITapeFields,
@@ -87,7 +124,6 @@ export namespace AutoMovieHumanF1NativeLaw {
           original,
           originals,
           fields,
-          rootCalibrations,
           projectionOwner,
         );
         if (result.scope !== "tapes")
@@ -133,6 +169,6 @@ export namespace AutoMovieHumanF1NativeLaw {
     original: IAutoMovieHumanF1.IAssembly,
     originals: ReadonlyMap<string, IAutoMovieViewPart>,
   ): { trunk: IAutoMovieHumanConicLoft.IFamily; breast: IAutoMovieHumanConicLoft.IFamily } {
-    return prepare(original, originals).tapeFamilies(fields);
+    return prepareTapes(original, originals).tapeFamilies(fields);
   }
 }

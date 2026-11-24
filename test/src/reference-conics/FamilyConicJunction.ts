@@ -1,6 +1,6 @@
-import { AutoMovieViewChain } from "@automovie/engine";
-import { AutoMovieHumanConicLoft, AutoMovieHumanConicSection } from "@automovie/human";
-import type { AutoMovieVector3Tuple, IAutoMovieHumanConicLoft, IAutoMovieViewAxis, IAutoMovieViewChain } from "@automovie/interface";
+import type { AutoMovieVector2Tuple, AutoMovieVector3Tuple, IAutoMovieHumanConicLoft, IAutoMovieHumanConicSection, IAutoMovieViewChain } from "@automovie/interface";
+
+import { FamilyConicJunctionMember } from "./FamilyConicJunctionMember";
 
 /**
  * A composed end's junction read on its own curves (joints-one-shot.md, "2026-11-23: the fairing fit's cost, measured, and its
@@ -18,30 +18,21 @@ import type { AutoMovieVector3Tuple, IAutoMovieHumanConicLoft, IAutoMovieViewAxi
  */
 export namespace FamilyConicJunction {
   type V = AutoMovieVector3Tuple;
+  type P = AutoMovieVector2Tuple;
+  type Resolve = (values: readonly number[]) => IAutoMovieHumanConicSection.IChain;
+  type Family = IAutoMovieHumanConicLoft.IFamily;
 
   /** The engine sections of a family by station: one preparation per family, then one section per call. */
   export interface ISections {
     /** Prepare `family` once (its fields' reader); the returned function gives its engine section at a station, mm. */
-    prepare: (family: IAutoMovieHumanConicLoft.IFamily) => (station: number) => IAutoMovieViewChain.ISection;
+    prepare: (family: Family, resolve?: Resolve) => (station: number) => IAutoMovieViewChain.ISection;
   }
 
-  /**
-   * The provider every reading uses by default: a family prepared into its fields' reader, whose closure resolves and chains the fields
-   * at each station it is asked. It keeps no results: each call builds its section, and `count` counts them.
-   */
-  export function sections(): ISections & { count: number } {
-    const made = {
-      count: 0,
-      prepare: (family: IAutoMovieHumanConicLoft.IFamily): ((station: number) => IAutoMovieViewChain.ISection) => {
-        const read = AutoMovieHumanConicLoft.reader(family);
-        return (station: number): IAutoMovieViewChain.ISection => {
-          ++made.count;
-          return AutoMovieHumanConicSection.chain(read(station), family.layout);
-        };
-      },
-    };
-    return made;
-  }
+  /** The counted provider for exact and locally perturbed sections. */
+  export const sections: typeof FamilyConicJunctionMember.sections = FamilyConicJunctionMember.sections;
+
+  /** Prepare one member's immutable sample layout before any fit readings. */
+  export const prepareMember: typeof FamilyConicJunctionMember.prepareMember = FamilyConicJunctionMember.prepareMember;
 
   /** The end plane: its origin, its in-plane axes and its normal toward the children. */
   export interface IPlane {
@@ -114,109 +105,7 @@ export namespace FamilyConicJunction {
    * @param provider The section provider.
    */
   export function read(member: IMember, plane: IPlane, provider: ISections): IRead {
-    // Prepared once per reading of this member: its course and its section function, then its distinct stations in order, each
-    // section and frame built once by the preparation and held by the closures below (no lookup table: a station's index is its place
-    // in the prepared list).
-    const axis: IAutoMovieViewAxis.IAxis = AutoMovieHumanConicLoft.axis(member.family);
-    const sectionAt = provider.prepare(member.family);
-    const distinct: number[] = [...new Set([...member.rings, ...member.lines, ...member.bracket, ...(member.wedge ?? [])])].sort((a, b) => a - b);
-    const prepared = distinct.map((s: number) => {
-      const frame = axis.at(s);
-      return { s, section: sectionAt(s), origin: [...frame.origin] as V, u: [...frame.u] as V, v: [...frame.v] as V };
-    });
-    const at = (s: number) => {
-      let lo = 0, hi = prepared.length - 1;
-      while (lo < hi) { const mid = (lo + hi) >> 1; if (prepared[mid]!.s < s) lo = mid + 1; else hi = mid; }
-      const found = prepared[lo];
-      if (found === undefined || found.s !== s) throw new Error(member.face + ": the station " + s + " mm was not prepared");
-      return found;
-    };
-    const point = (s: number, phi: number): V => {
-      const q = at(s), r = AutoMovieViewChain.read(q.section, phi);
-      if (r === null) throw new Error(member.face + ": the section at " + s + " mm has no point at phase " + phi);
-      return add(q.origin, add(scale(q.u, r.point[0]), scale(q.v, r.point[1])));
-    };
-    const rings: V[][] = member.rings.map((s: number): V[] => member.phases.map((phi: number): V => point(s, phi)));
-    const lines: V[][] = member.guides.map((phi: number): V[] => member.lines.map((s: number): V => point(s, phi)));
-    const normals: V[] = member.rings.map((s: number): V => { const q = at(s); return cross(q.u, q.v); });
-    let along: V = [0, 0, 0];
-    const crossing: (number | null)[] = [];
-    const tangent = (first: V): void => {
-      const l = Math.hypot(...first);
-      if (l > 0) along = add(along, scale(first, 1 / l));
-      crossing.push(l > 0 ? dot(first, plane.z) / l : 0);
-    };
-    const cut: ([number, number] | null)[] = member.bracket.length < 2 ? [] : member.cut.map((phi: number): [number, number] | null => {
-      // The line of this phase through the bracketing stations, its height over the plane, and the crossing between the stations whose
-      // heights change sign, on the natural cubic through the line's points (the loft's own interpolation along the station).
-      const points: V[] = member.bracket.map((s: number): V => point(s, phi));
-      const heights: number[] = points.map((p: V): number => dot(sub(p, plane.origin), plane.z));
-      const curve = cubic(member.bracket, points);
-      for (let i = 0; i + 1 < points.length; ++i) {
-        const [h0, h1] = [heights[i]!, heights[i + 1]!];
-        if (h0 === 0) { tangent(curve(member.bracket[i]!).first); return inPlane(points[i]!, plane); }
-        if (h0 * h1 > 0) continue;
-        const x = (k: number) => member.bracket[k]!;
-        let [a, b] = [x(i), x(i + 1)];
-        let [ha, hb] = [h0, h1];
-        for (let n = 0; n < 60 && b - a > 1e-12 * Math.max(1, Math.abs(b)); ++n) {
-          const m = ha === hb ? (a + b) / 2 : Math.min(b, Math.max(a, a + (b - a) * ha / (ha - hb)));
-          const mid = m === a || m === b ? (a + b) / 2 : m;
-          const hm = dot(sub(curve(mid).at, plane.origin), plane.z);
-          if (hm === 0) { a = mid; b = mid; break; }
-          if (hm * ha < 0) { b = mid; hb = hm; } else { a = mid; ha = hm; }
-        }
-        const met = curve((a + b) / 2);
-        tangent(met.first);
-        return inPlane(met.at, plane);
-      }
-      crossing.push(null);
-      return null;
-    });
-    const length: number = Math.hypot(...along);
-    const wedgeStations: readonly number[] = member.wedge ?? [];
-    const wedgeLines: V[][] = wedgeStations.length === 0 ? [] : member.cut.map((phi: number): V[] => wedgeStations.map((s: number): V => point(s, phi)));
-    return { face: member.face, rings, lines, cut, normals, axis: cut.length > 0 && length > 0 ? scale(along, 1 / length) : null, crossing, wedgeLines };
-  }
-
-  /** A world point's coordinates in the plane. */
-  function inPlane(p: V, plane: IPlane): [number, number] {
-    const q = sub(p, plane.origin);
-    return [dot(q, plane.x), dot(q, plane.y)];
-  }
-
-  /** The natural cubic through points at stations, componentwise: its point and its first derivative along the station. */
-  function cubic(stations: readonly number[], points: readonly V[]): (s: number) => { at: V; first: V } {
-    const n: number = stations.length;
-    if (n === 2) return (s: number): { at: V; first: V } => {
-      const w = stations[1]! - stations[0]!, t = (s - stations[0]!) / w;
-      return { at: add(points[0]!, scale(sub(points[1]!, points[0]!), t)), first: scale(sub(points[1]!, points[0]!), 1 / w) };
-    };
-    // Second derivatives of the natural cubic by the tridiagonal recurrence, per component.
-    const moments: V[] = Array.from({ length: n }, (): V => [0, 0, 0]);
-    const h: number[] = stations.slice(1).map((s: number, i: number): number => s - stations[i]!);
-    const c: number[] = new Array<number>(n).fill(0), d: V[] = Array.from({ length: n }, (): V => [0, 0, 0]);
-    for (let i = 1; i < n - 1; ++i) {
-      const diag = 2 * (h[i - 1]! + h[i]!) - h[i - 1]! * c[i - 1]!;
-      const rhs: V = sub(scale(sub(points[i + 1]!, points[i]!), 6 / h[i]!), scale(sub(points[i]!, points[i - 1]!), 6 / h[i - 1]!));
-      c[i] = h[i]! / diag;
-      d[i] = scale(sub(rhs, scale(d[i - 1]!, h[i - 1]!)), 1 / diag);
-    }
-    for (let i = n - 2; i >= 1; --i) moments[i] = sub(d[i]!, scale(moments[i + 1]!, c[i]!));
-    return (s: number): { at: V; first: V } => {
-      let i = 0;
-      while (i < n - 2 && s > stations[i + 1]!) ++i;
-      const [a, b] = [stations[i]!, stations[i + 1]!], w = b - a;
-      const [A, B] = [(b - s) / w, (s - a) / w];
-      // With dA/ds = -1/w and dB/ds = 1/w, the moment terms (A^3 - A) w^2 / 6 and (B^3 - B) w^2 / 6 change by -(3 A^2 - 1) w / 6 and
-      // (3 B^2 - 1) w / 6.
-      return {
-        at: add(add(scale(points[i]!, A), scale(points[i + 1]!, B)),
-          add(scale(moments[i]!, ((A * A * A - A) * w * w) / 6), scale(moments[i + 1]!, ((B * B * B - B) * w * w) / 6))),
-        first: add(scale(sub(points[i + 1]!, points[i]!), 1 / w),
-          add(scale(moments[i]!, (-(3 * A * A - 1) * w) / 6), scale(moments[i + 1]!, ((3 * B * B - 1) * w) / 6))),
-      };
-    };
+    return prepareMember(member, plane).read(member.family, provider);
   }
 
   /** Whether a point lies inside a closed polygon, by the even-odd rule. */
@@ -345,34 +234,62 @@ export namespace FamilyConicJunction {
 
   /** How many times two closed polygons' boundaries cross. */
   export function crossings(a: readonly (readonly [number, number])[], b: readonly (readonly [number, number])[]): number {
-    let count = 0;
-    const side = (p: readonly [number, number], q: readonly [number, number], r: readonly [number, number]): number =>
-      Math.sign((q[0] - p[0]) * (r[1] - p[1]) - (q[1] - p[1]) * (r[0] - p[0]));
-    for (let i = 0; i < a.length; ++i) {
-      const [p, q] = [a[i]!, a[(i + 1) % a.length]!];
-      for (let j = 0; j < b.length; ++j) {
-        const [r, s] = [b[j]!, b[(j + 1) % b.length]!];
-        if (side(p, q, r) * side(p, q, s) < 0 && side(r, s, p) * side(r, s, q) < 0) ++count;
-      }
-    }
-    return count;
+    return forks(a, b).length;
   }
 
   /** Where two closed polygons' boundaries cross, by the same proper-crossing test as `crossings`, each at its segments' meeting. */
   export function forks(a: readonly (readonly [number, number])[], b: readonly (readonly [number, number])[]): [number, number][] {
-    const found: [number, number][] = [];
+    return intersections(edges(a), edgeTree(edges(b)));
+  }
+
+  /** A conservative axis-aligned bound on one or more closed-polygon edges in the end plane. */
+  interface IBounds { x0: number; x1: number; y0: number; y1: number }
+
+  /** A cut boundary segment in traversal order. */
+  interface IEdge extends IBounds { p: readonly [number, number]; q: readonly [number, number] }
+
+  /** A contiguous interval of traversal order with the union of its edge bounds. */
+  type EdgeTree = IEdge | (IBounds & { left: EdgeTree; right: EdgeTree });
+
+  /** Give each cut edge its exact interval in both plane coordinates. */
+  function edges(points: readonly (readonly [number, number])[]): IEdge[] {
+    return points.map((p, i: number): IEdge => {
+      const q = points[(i + 1) % points.length]!;
+      return { p, q, x0: Math.min(p[0], q[0]), x1: Math.max(p[0], q[0]), y0: Math.min(p[1], q[1]), y1: Math.max(p[1], q[1]) };
+    });
+  }
+
+  /** Build an ordered AABB hierarchy by halving each contiguous run of polygon edges. */
+  function edgeTree(edges: readonly IEdge[]): EdgeTree | null {
+    const split = (a: number, b: number): EdgeTree => {
+      if (b === a + 1) return edges[a]!;
+      const m: number = a + Math.floor((b - a) / 2);
+      const left: EdgeTree = split(a, m), right: EdgeTree = split(m, b);
+      return { left, right, x0: Math.min(left.x0, right.x0), x1: Math.max(left.x1, right.x1), y0: Math.min(left.y0, right.y0), y1: Math.max(left.y1, right.y1) };
+    };
+    return edges.length === 0 ? null : split(0, edges.length);
+  }
+
+  /** Find the proper crossings in the original pair traversal order, visiting only potentially intersecting bounds. */
+  function intersections(edges: readonly IEdge[], tree: EdgeTree | null): P[] {
+    if (tree === null) return [];
+    const found: P[] = [];
     const side = (p: readonly [number, number], q: readonly [number, number], r: readonly [number, number]): number =>
       Math.sign((q[0] - p[0]) * (r[1] - p[1]) - (q[1] - p[1]) * (r[0] - p[0]));
-    for (let i = 0; i < a.length; ++i) {
-      const [p, q] = [a[i]!, a[(i + 1) % a.length]!];
-      for (let j = 0; j < b.length; ++j) {
-        const [r, s] = [b[j]!, b[(j + 1) % b.length]!];
-        if (!(side(p, q, r) * side(p, q, s) < 0 && side(r, s, p) * side(r, s, q) < 0)) continue;
-        const den = (q[0] - p[0]) * (s[1] - r[1]) - (q[1] - p[1]) * (s[0] - r[0]);
-        const t = ((r[0] - p[0]) * (s[1] - r[1]) - (r[1] - p[1]) * (s[0] - r[0])) / den;
-        found.push([p[0] + t * (q[0] - p[0]), p[1] + t * (q[1] - p[1])]);
+    const visit = (a: IEdge, b: EdgeTree): void => {
+      if (a.x1 < b.x0 || b.x1 < a.x0 || a.y1 < b.y0 || b.y1 < a.y0) return;
+      if ("left" in b) {
+        visit(a, b.left);
+        visit(a, b.right);
+        return;
       }
-    }
+      const { p, q } = a, { p: r, q: s } = b;
+      if (!(side(p, q, r) * side(p, q, s) < 0 && side(r, s, p) * side(r, s, q) < 0)) return;
+      const den: number = (q[0] - p[0]) * (s[1] - r[1]) - (q[1] - p[1]) * (s[0] - r[0]);
+      const t: number = ((r[0] - p[0]) * (s[1] - r[1]) - (r[1] - p[1]) * (s[0] - r[0])) / den;
+      found.push([p[0] + t * (q[0] - p[0]), p[1] + t * (q[1] - p[1])]);
+    };
+    for (const edge of edges) visit(edge, tree);
     return found;
   }
 
@@ -404,8 +321,17 @@ export namespace FamilyConicJunction {
    * @param shift The planes' move along the child's axis, mm (the rail), as a vector.
    */
   export function wedge(lines: readonly (readonly V[])[], planes: readonly { point: V; normal: V }[], shift: V): number[] {
-    return lines.map((line: readonly V[]): number => Math.max(...line.map((p: V): number =>
-      Math.min(...planes.map(({ point, normal }): number => dot(normal, sub(p, add(point, shift))))))));
+    const land = planes.map(({ point, normal }) => ({ point: add(point, shift), normal }));
+    return lines.map((line: readonly V[]): number => {
+      let deepest: number = -Infinity;
+      for (const p of line) {
+        let depth: number = Infinity;
+        for (const { point, normal } of land)
+          depth = Math.min(depth, normal[0] * (p[0] - point[0]) + normal[1] * (p[1] - point[1]) + normal[2] * (p[2] - point[2]));
+        deepest = Math.max(deepest, depth);
+      }
+      return deepest;
+    });
   }
 
   /**
@@ -466,33 +392,60 @@ export namespace FamilyConicJunction {
   export function seams(input: {
     plane: IPlane; cuts: readonly (readonly ([number, number] | null)[])[]; axes: readonly (V | null)[]; host: readonly V[];
   }, turns?: readonly [number, number][]): ISeams {
+    return prepareSeams(input, turns).base;
+  }
+
+  /** A single member's cut and oriented axis, changed while its neighbours stand. */
+  interface ISeamChange { index: number; cut: readonly (P | null)[]; axis: V | null }
+
+  /** One pair's forks, seam plane and host crossings before any whole-turn adjustment. */
+  interface ISeamPair {
+    count: number;
+    plane?: { point: V; normal: V };
+    phases?: [number, number];
+    refusal?: string;
+  }
+
+  /** Prepare a reading's cut polygons, forks and host crossings for partial seam evaluation. */
+  export function prepareSeams(input: {
+    plane: IPlane; cuts: readonly (readonly (P | null)[])[]; axes: readonly (V | null)[]; host: readonly V[];
+  }, turns?: readonly [number, number][]) {
     const { plane, host } = input;
-    const turn: number = 2 * Math.PI, m: number = host.length;
+    const turn: number = 2 * Math.PI;
     const world = (p: readonly [number, number]): V => add(plane.origin, add(scale(plane.x, p[0]), scale(plane.y, p[1])));
     const unit = (v: V): V | null => { const l = Math.hypot(...v); return l > 0 ? scale(v, 1 / l) : null; };
-    const polygons = input.cuts.map((cut) => cut.filter((p): p is [number, number] => p !== null));
-    const centres: V[] = polygons.map((q): V => world([q.reduce((s, p) => s + p[0], 0) / q.length, q.reduce((s, p) => s + p[1], 0) / q.length]));
-    const out: [number, number][] = [];
-    const planes: { point: V; normal: V }[] = [];
-    const refuse = (refusal: string): ISeams => ({ seams: out, margins: [], nested: false, refusal, planes });
-    for (let j = 0; j + 1 < polygons.length; ++j) {
-      const met = forks(polygons[j]!, polygons[j + 1]!);
-      if (met.length !== 2) return refuse(`cuts ${j} and ${j + 1} cross ${met.length} times in the end plane, not twice`);
-      const across: V = sub(centres[j + 1]!, centres[j]!);
-      const side = (f: V): number => dot(cross(across, sub(f, centres[j]!)), plane.z);
+    const member = (cut: readonly (P | null)[], axis: V | null) => {
+      const polygon: P[] = cut.filter((p): p is P => p !== null);
+      const segments: IEdge[] = edges(polygon);
+      return { axis, edges: segments, tree: edgeTree(segments), centre: world([
+        polygon.reduce((sum, p): number => sum + p[0], 0) / polygon.length,
+        polygon.reduce((sum, p): number => sum + p[1], 0) / polygon.length,
+      ]) };
+    };
+    const pair = (a: ReturnType<typeof member>, b: ReturnType<typeof member>, j: number): ISeamPair => {
+      const met: P[] = intersections(a.edges, b.tree);
+      const count: number = met.length;
+      if (count !== 2) return { count, refusal: `cuts ${j} and ${j + 1} cross ${count} times in the end plane, not twice` };
+      const across: V = sub(b.centre, a.centre);
+      const side = (f: V): number => dot(cross(across, sub(f, a.centre)), plane.z);
       const [f0, f1] = met.map(world) as [V, V];
       const [first, second] = side(f0) >= side(f1) ? [f0, f1] : [f1, f0];
       const chord = unit(sub(second, first));
-      const [lower, upper] = [input.axes[j], input.axes[j + 1]];
-      const heading = lower === null || upper === null || lower === undefined || upper === undefined ? null : unit(add(lower, upper));
-      if (chord === null || heading === null) return refuse(`seam ${j} has no chord or no bisector`);
+      const heading = a.axis === null || b.axis === null ? null : unit(add(a.axis, b.axis));
+      if (chord === null || heading === null) return { count, refusal: `seam ${j} has no chord or no bisector` };
       const square = unit(sub(heading, scale(chord, dot(heading, chord))));
-      if (square === null) return refuse(`seam ${j}'s bisector runs along its chord`);
+      if (square === null) return { count, refusal: `seam ${j}'s bisector runs along its chord` };
       const raw: V = cross(chord, square), toward: number = dot(raw, across);
-      if (toward === 0) return refuse(`seam ${j}'s plane holds the line through the centres`);
+      if (toward === 0) return { count, refusal: `seam ${j}'s plane holds the line through the centres` };
       const normal: V = scale(raw, Math.sign(toward));
-      planes.push({ point: first, normal });
-      const values: number[] = host.map((p: V): number => dot(normal, sub(p, first)));
+      return { count, plane: { point: first, normal } };
+    };
+    const land = (result: ISeamPair, j: number, ring: readonly V[]): ISeamPair => {
+      const cut = result.plane;
+      if (cut === undefined) return result;
+      const { point, normal } = cut;
+      const m: number = ring.length;
+      const values: number[] = ring.map((p: V): number => dot(normal, sub(p, point)));
       const falls: number[] = [], rises: number[] = [];
       for (let k = 0; k < m; ++k) {
         const [here, next] = [values[k]!, values[(k + 1) % m]!];
@@ -500,31 +453,57 @@ export namespace FamilyConicJunction {
         (here > 0 ? falls : rises).push((turn * (k + here / (here - next))) / m);
       }
       if (falls.length !== 1 || rises.length !== 1)
-        return refuse(`seam ${j}'s plane crosses the host's end ring ${falls.length + rises.length} times, not twice`);
-      let a: number = falls[0]!, b: number = rises[0]!;
-      if (turns !== undefined) {
-        a += turn * Math.round((turns[j]![0] - a) / turn);
-        b += turn * Math.round((turns[j]![1] - b) / turn);
-      } else {
-        // The split's own moves (`AutoMovieConstructionSplitCompose.derive`).
-        if (j > 0) {
-          const before = out[j - 1]!;
-          a -= turn * Math.ceil((a - before[0]) / turn);
-          if (a === before[0]) a -= turn;
-        } else if (a > Math.PI) a -= turn;
-        b += turn * Math.ceil((a - b) / turn);
-        if (b === a) b += turn;
+        return { ...result, refusal: `seam ${j}'s plane crosses the host's end ring ${falls.length + rises.length} times, not twice` };
+      return { ...result, phases: [falls[0]!, rises[0]!] };
+    };
+    const combine = (pairs: readonly ISeamPair[], near?: readonly [number, number][]): ISeams => {
+      const out: [number, number][] = [];
+      const planes: { point: V; normal: V }[] = [];
+      for (const [j, row] of pairs.entries()) {
+        if (row.plane !== undefined) planes.push(row.plane);
+        if (row.phases === undefined) return { seams: out, margins: [], nested: false, refusal: row.refusal!, planes };
+        let [a, b] = row.phases;
+        if (near !== undefined) {
+          a += turn * Math.round((near[j]![0] - a) / turn);
+          b += turn * Math.round((near[j]![1] - b) / turn);
+        } else {
+          // The split's own moves (`AutoMovieConstructionSplitCompose.derive`).
+          if (j > 0) {
+            const before = out[j - 1]!;
+            a -= turn * Math.ceil((a - before[0]) / turn);
+            if (a === before[0]) a -= turn;
+          } else if (a > Math.PI) a -= turn;
+          b += turn * Math.ceil((a - b) / turn);
+          if (b === a) b += turn;
+        }
+        out.push([a, b]);
       }
-      out.push([a, b]);
-    }
-    // The margins from the principal differences, each in (-pi, pi]: the split moves `a_j` below `a_(j-1)` by whole turns, so a seam whose
-    // fall stands just past the one before lands a turn lower and its `b_j - b_(j-1)` jumps by a turn (the leg's trials of 2026-11-24 read
-    // 172.67 mm of ring for 0.4 rad). With the differences wrapped the rows are continuous, and they hold exactly when the split's test
-    // does: `a_j` within a turn below `a_(j-1)` with `b_j` past `b_(j-1)` is `wrap(a_(j-1) - a_j) > 0` and `wrap(b_j - b_(j-1)) > 0`, and
-    // `b_j < a_j + turn` is the seam's arc `b_j - a_j`, in (0, turn], short of the turn.
-    const wrap = (x: number): number => x - turn * Math.round(x / turn);
-    const margins: [number, number, number][] = out.slice(1).map(([a, b], i): [number, number, number] =>
-      [wrap(b - out[i]![1]), wrap(out[i]![0] - a), turn - (b - a)]);
-    return { seams: out, margins, nested: margins.every((row) => row.every((x) => x > 0)), refusal: null, planes };
+      // The split moves falls by whole turns. Principal differences keep the margins continuous across the turn boundary.
+      const wrap = (x: number): number => x - turn * Math.round(x / turn);
+      const margins: [number, number, number][] = out.slice(1).map(([a, b], i): [number, number, number] =>
+        [wrap(b - out[i]![1]), wrap(out[i]![0] - a), turn - (b - a)]);
+      return { seams: out, margins, nested: margins.every((row) => row.every((x) => x > 0)), refusal: null, planes };
+    };
+    const members = input.cuts.map((cut, i: number) => member(cut, input.axes[i] ?? null));
+    const planes: ISeamPair[] = members.slice(1).map((b, j: number): ISeamPair => pair(members[j]!, b, j));
+    const pairs: ISeamPair[] = planes.map((row: ISeamPair, j: number): ISeamPair => land(row, j, host));
+    const base: ISeams = combine(pairs, turns);
+    return {
+      base,
+      crossings: pairs.map(({ count }): number => count),
+      moved: (changes: readonly ISeamChange[], ring: readonly V[] = host): ISeams => {
+        const affected = members.map((): boolean => false);
+        const moved = [...members];
+        for (const { index, cut, axis } of changes) {
+          moved[index] = member(cut, axis);
+          affected[index] = true;
+        }
+        const next: ISeamPair[] = pairs.map((row, j: number): ISeamPair => {
+          if (affected[j] || affected[j + 1]) return land(pair(moved[j]!, moved[j + 1]!, j), j, ring);
+          return ring === host ? row : land(planes[j]!, j, ring);
+        });
+        return combine(next, base.refusal === null ? base.seams : turns);
+      },
+    };
   }
 }

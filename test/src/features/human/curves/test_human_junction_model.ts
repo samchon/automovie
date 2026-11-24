@@ -1,4 +1,4 @@
-import { AutoMovieConstructionSplitCompose, AutoMovieLoftFrame, AutoMovieLoftViewFullSource, AutoMovieViewLoft } from "@automovie/engine";
+import { AutoMovieConstructionSplitCompose, AutoMovieLoftFrame, AutoMovieLoftViewFullSource, AutoMovieNaturalSpline, AutoMovieViewLoft } from "@automovie/engine";
 import { AutoMovieHumanConicLoft, AutoMovieHumanConicSection } from "@automovie/human";
 import type { AutoMovieVector3Tuple, IAutoMovieHumanConicLoft, IAutoMovieViewChain } from "@automovie/interface";
 
@@ -31,6 +31,9 @@ import { FamilyConicJunction } from "../../../reference-conics/FamilyConicJuncti
  * 9. One overlap interval (`FamilyConicJunction.secondRun`): an ellipse crossing a circle four times gives a positive row, two circles
  *    crossing twice a row at most zero, as the crossing counts say.
  * 10. Transversality (`IRead.crossing`): a tube leaning 0.2 rad crosses the end plane at the rate cos 0.2 at every phase, within 1e-6.
+ * 11. Eight independent taper-knot columns agree with fresh changed-family readings on rings, cut points and wedges. Each station
+ *     resolves only the base and the two signs of its common field velocity. Partial seam readings agree with full seam readings
+ *     when a child, the host or both move.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls `FamilyConicJunction.read`, `crossings`, `inside` and `nearest` on made tubes.
  * @evidence contracts/development/testing.md#independent-expectations The loft at a station is the expectation for the rings; a straight round tube's cut by a plane square to it is its circle; two circles closer than their radii' sum cross twice.
@@ -131,12 +134,23 @@ export function test_human_junction_model(): void {
       bracket: [6, 8, 12, 14], cut: cutPhases }, plane, own));
     const hostRing = FamilyConicJunction.read({ face: "host", family: host, rings: [20], lines: [], guides: [], bracket: [], cut: [],
       phases: Array.from({ length: 8 * count }, (_, k: number): number => (2 * Math.PI * k) / (8 * count)) }, plane, own).rings[0]!;
-    const mine = FamilyConicJunction.seams({ plane, cuts: read.map((r) => r.cut), axes: read.map((r) => r.axis), host: hostRing });
+    const cuts = read.map((r) => r.cut), axes = read.map((r) => r.axis);
+    const prepared = FamilyConicJunction.prepareSeams({ plane, cuts, axes, host: hostRing });
+    const mine = prepared.base;
     const children = kids.map((family) => ({ ...physical(family, [6, 8, 10, 12, 14, 20, 30, 40], false), name: family.name, into: 1 as const, rail: 10 }));
     const theirs = AutoMovieConstructionSplitCompose.derive({ compose: { frame: "tree", plane: { point: [0, 0, 0], normal: [1, 0, 0] } },
       host: physical(host, [0, 5, 10, 15, 20], true), children, count });
     if (mine.refusal !== null) { failures.push(`${label}: the junction refused its seams: ${mine.refusal}`); return; }
     if (mine.nested !== expected) failures.push(`${label}: the junction's seams ${expected ? "do not nest" : "nest"}, margins ${JSON.stringify(mine.margins)}`);
+    const shifted = cuts[0]!.map((p): [number, number] | null => p === null ? null : [p[0] + 0.01, p[1]]);
+    const movedRing = hostRing.map((p: V): V => [p[0], p[1] + 0.01, p[2]]);
+    for (const [child, parent] of [[true, false], [false, true], [true, true]]) {
+      const changes = child ? [{ index: 0, cut: shifted, axis: axes[0]! }] : [];
+      const ring = parent ? movedRing : hostRing;
+      const full = FamilyConicJunction.seams({ plane, axes, cuts: child ? [shifted, ...cuts.slice(1)] : cuts, host: ring }, mine.seams);
+      if (JSON.stringify(prepared.moved(changes, ring)) !== JSON.stringify(full))
+        failures.push(`${label}: partial seam update differs with child ${child} and host ${parent}`);
+    }
     const enclosed: boolean = typeof theirs !== "string" || !theirs.includes("do not enclose");
     // A refusal after the seams (the host ring's distance, a boundary, a valley or a rail) leaves the nesting verdict standing.
     if (typeof theirs === "string" && enclosed && !/composed outline|in the composition|cut by seam|'s rail:|coincide|along its chord/.test(theirs))
@@ -195,5 +209,39 @@ export function test_human_junction_model(): void {
   const half: number = Math.SQRT1_2;
   nesting("parallel chords", [[[0, -8], 0.2, [0, -1], 5], [[0, 0], 0, [0, 1], 5], [[0, 8], 0.2, [0, 1], 5]], [0, 0], 14, true);
   nesting("crossing chords", [[[-7, -6], 0.15, [-half, -half], 5], [[0, 0], 0, [0, 1], 5.5], [[-7, 6], 0.15, [-half, half], 5]], [-3, 0], 13, false);
+
+  // 11. The station fields are exactly linear in their ordinates. Compare the weighted one-sided ray velocities against the full
+  // moved conic and cut at each column. On a smooth 5 mm section the quadratic remainder is of order step^2 / radius.
+  const knots: number[] = [0, 4, 8, 12, 16, 24, 32, 40];
+  const round = tube("columns", 0, 5);
+  const taper = { ...round, knots, values: round.values.map((field, f: number): number[] =>
+    knots.map((s: number): number => field[0]! * (f === 0 ? 1 - s / 200 : 1))) };
+  const member: FamilyConicJunction.IMember = { face: taper.name, family: taper, rings, lines, phases, bracket, cut: phases,
+    guides: [0, Math.PI / 2, Math.PI], wedge: [8, 12, 14, 16] };
+  const cardinals = knots.map((_, i: number) => AutoMovieNaturalSpline.create(knots, knots.map((__, j: number): number => Number(i === j))));
+  const step: number = 1e-4;
+  const prepared = FamilyConicJunction.prepareMember(member, plane, { controls: knots.map((_, knot: number) => ({ field: 0, knot, step })),
+    weights: (s: number): number[] => cardinals.map((spline): number => AutoMovieNaturalSpline.evaluate(spline, s)) });
+  const counts = FamilyConicJunction.sections();
+  const evaluation = prepared.reading(taper, counts);
+  const direct = FamilyConicJunction.sections();
+  let max: number = 0;
+  for (let k: number = 0; k < knots.length; ++k) {
+    const values: number[][] = taper.values.map((field: number[], i: number): number[] => i === 0
+      ? field.map((x: number, j: number): number => j === k ? x + step : x) : [...field]);
+    const fresh = prepared.read({ ...taper, values }, direct);
+    const moved = evaluation.moved!(k);
+    for (const row of ["rings", "lines", "wedgeLines"] as const) moved[row].forEach((line, j: number): void => {
+      line.forEach((p: V, i: number): void => { const q: V = fresh[row][j]![i]!; max = Math.max(max, Math.hypot(p[0] - q[0], p[1] - q[1], p[2] - q[2])); });
+    });
+    moved.cut.forEach((p, i: number): void => {
+      const q = fresh.cut[i];
+      if (p === null || q === null || q === undefined) failures.push(`knot ${k} misses its cut at phase ${i}`);
+      else max = Math.max(max, Math.hypot(p[0] - q[0], p[1] - q[1]));
+    });
+  }
+  if (!(max <= step * step / 5)) failures.push(`a reduced taper column is ${max} mm off its full construction`);
+  if (counts.count > 3 * all.length || direct.count !== knots.length * all.length)
+    failures.push(`a prepared taper used ${counts.count} sections and the full columns used ${direct.count} across ${all.length} stations`);
   if (failures.length > 0) throw new Error("junction model:\n" + failures.join("\n"));
 }

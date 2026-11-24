@@ -380,7 +380,7 @@ Caller release ends this closure's lifetime independently of Point/Jet module ca
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-Delegates single-point evaluation to the original bounded lazy point owner.
+Delegates single-point evaluation to the original point owner.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
@@ -388,7 +388,7 @@ The public chain API keeps its original signature.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
-Preserves ordinary arithmetic, cache insertion/eviction and fresh vectors.
+Preserves the Hermite interpolation arithmetic and returns a fresh vector.
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -396,12 +396,12 @@ States immutable chain identity, mm station and radian phase.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
-New spline phase visits combine at most four new controls after O(N) storage preparation.
+After finding the station bracket, a spline phase combines only its four control positions per coordinate.
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 
-Reuses the last eight inserted station samplers without hit promotion.
+Callers with multiple phases at one station use the fixed-station sampler.
 
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
-The point owner's weak-key eight-station cache bounds retention.
+One point query owns its temporary station plan and returns a fresh vector.

@@ -1373,7 +1373,7 @@ namespace FamilyConicJoints {
     };
     const breastWalls = attempt(() => field(figure, declared));
     const focusedNative = attempt(() => {
-      const prepared = AutoMovieHumanF1NativeLaw.prepare(figure, declared.sources);
+      const prepared = AutoMovieHumanF1NativeLaw.prepare(figure, AutoMovieHumanF1.originalSources(figure));
       const direct = AutoMovieHumanF1Engineering.resolve(prepared.fields, null, (): never => {
         throw new Error("the focused source reader received a tape request");
       }, 0.25);

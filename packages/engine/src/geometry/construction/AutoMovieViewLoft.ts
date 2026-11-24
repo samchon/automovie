@@ -150,6 +150,8 @@ export namespace AutoMovieViewLoft {
     }
     const direct: IAutoMovieLoftViewSource.ISource | null =
       admitted?.source ?? null;
+    const directRead: ReturnType<typeof AutoMovieLoftViewRead.prepare> | null =
+      direct === null ? null : AutoMovieLoftViewRead.prepare(direct);
     const field = part.originalSection;
     if (field !== undefined) {
       const fault = AutoMovieLoftSectionOriginal.fault(field, first, last);
@@ -161,7 +163,7 @@ export namespace AutoMovieViewLoft {
         report("original section", "the original section overlaps the original distal cap");
         return empty();
       }
-      const mark = field.domain[1], retained = AutoMovieLoftViewRead.jets(direct, mark);
+      const mark = field.domain[1], retained = directRead!.jets(mark);
       if (typeof retained === "string") {
         report("original section", retained);
         return empty();
@@ -336,7 +338,7 @@ export namespace AutoMovieViewLoft {
       }
       const at: string = `station ${s} mm`;
       const actual: IAutoMovieLoftViewRead.IValues | string | null =
-        direct === null ? null : AutoMovieLoftViewRead.values(direct, s);
+        directRead === null ? null : directRead.values(s);
       if (typeof actual === "string") {
         report("outline", actual);
         continue;

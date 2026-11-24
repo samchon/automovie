@@ -6,6 +6,9 @@ import type {
   IAutoMovieMeshSectionFrame,
   IAutoMovieMillimeterMesh,
 } from "@automovie/interface";
+import { TestValidator } from "@nestia/e2e";
+
+import { nclose } from "../../internal/nclose";
 
 /**
  * A made 40 mm cube centred on the origin: eight vertices at +-20 mm, each
@@ -65,20 +68,43 @@ function cylinder(
 }
 
 /**
- * The exact plane cut of a mesh reproduces its section and flags its holes
- * and spikes.
+ * The exact plane cut of a mesh reproduces its section and flags its holes and
+ * spikes.
  *
  * Scenarios:
- * 1. Cube: a made 40 mm cube cut at y = 5 mm gives one closed loop whose every point lies on the 40 mm square (the larger in-plane coordinate's magnitude is 20 mm), holding the four corners, with shoelace area 1600 mm^2, extremes 20 mm along +-a and +-b and 20 sqrt 2 mm along the diagonals, and no flag. Red: a loop missing, open, off the square, or a corner lost.
- * 2. Cylinder: a made 30 by 20 mm elliptic cylinder cut at y = 37.5 mm (inside its side triangles) reads extremes 30, 30, 20, 20 mm along +-X and +-Z, each point on the plane, a quarter-diagonal reach within the 64-gon's sag of the ellipse's support `sqrt((30^2 + 20^2) / 2)`, and one closed 64-point loop. A station above the mesh reads no section.
- * 3. Flags: the sound cylinder cut between and on its rings flags nothing; with one side quad removed between y = 20 and 30 mm only the station at 25 is flagged open, its loop an open chain; with one vertex of the y = 50 ring pushed from 30 to 40 mm the stations at 45 and 55 are flagged `jump +b`. Red: the gap or the spike kept unflagged.
- * 4. Outer boundary: a 40 mm tube slit over its height (an 11.7 mm chord) around a separate 10 mm tube gives one closed outer boundary, every point outside 39 mm, with exactly one bridged gap equal to the slit's chord and nothing unclosed; with a 5 mm bridge the slit stays open (flagged unclosed) and only the inner tube remains outer. Red: no outer boundary, the inner tube kept, or the gap unflagged.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Calls `outline` of `AutoMovieMeshExtract` on made cube and cylinder meshes and reads the loops, extremes and flags.
- * @evidence contracts/development/testing.md#independent-expectations The cube's section at any height between its faces is the 40 mm square, so its loop lies on `max(|a|, |b|) = 20`, holds the corners and has area 1600; the cylinder's vertices stand on the ellipse at the axis angles, so the extremes are its semi-axes, and its diagonal support is `sqrt((a^2 + b^2) / 2)` less at most the chord sag `a (1 - cos(pi / 64))`; the slit's ends are the vertices bounding the removed quads, so its gap is their chord `2 * 40 sin(3 pi / 64)`.
- * @evidence contracts/development/testing.md#distinguishing-cases A plane through the mesh and one off it; a face split by a diagonal (three crossings per face) against plain ring faces; sound, gapped and spiked meshes; stations between and on rings; a slit within and beyond the bridge, and an enclosed piece against the outer one.
+ * 1. Cube: a made 40 mm cube cut at y = 5 mm gives one closed loop whose every
+ *    point lies on the 40 mm square (the larger in-plane coordinate's magnitude
+ *    is 20 mm), holding the four corners, with shoelace area 1600 mm^2,
+ *    extremes 20 mm along +-a and +-b and 20 sqrt 2 mm along the diagonals, and
+ *    no flag. Red: a loop missing, open, off the square, or a corner lost.
+ * 2. Cylinder: a made 30 by 20 mm elliptic cylinder cut at y = 37.5 mm (inside its
+ *    side triangles) reads extremes 30, 30, 20, 20 mm along +-X and +-Z, each
+ *    point on the plane, a quarter-diagonal reach within the 64-gon's sag of
+ *    the ellipse's support `sqrt((30^2 + 20^2) / 2)`, and one closed 64-point
+ *    loop. A station above the mesh reads no section.
+ * 3. Flags: the sound cylinder cut between and on its rings flags nothing; with
+ *    one side quad removed between y = 20 and 30 mm only the station at 25 is
+ *    flagged open, its loop an open chain; with one vertex of the y = 50 ring
+ *    pushed from 30 to 40 mm the stations at 45 and 55 are flagged `jump +b`.
+ *    Red: the gap or the spike kept unflagged.
+ * 4. Outer boundary: a 40 mm tube slit over its height (an 11.7 mm chord) around a
+ *    separate 10 mm tube gives one closed outer boundary, every point outside
+ *    39 mm, with exactly one bridged gap equal to the slit's chord and nothing
+ *    unclosed; with a 5 mm bridge the slit stays open (flagged unclosed) and
+ *    only the inner tube remains outer. Red: no outer boundary, the inner tube
+ *    kept, or the gap unflagged.
+ * 5. Prepared mesh: repeated cuts of the same mesh agree with one-shot cuts in
+ *    order, geometry and diagnostics, including two separate components,
+ *    tangent vertices, coincident face planes, slits, jumps, and oblique
+ *    planes. The prepared geometry is held at its original values after
+ *    the input buffers change.
+ *
+ * @evidence contracts/development/testing.md#behavioral-verification Calls `outline` and `prepareOutline` of `AutoMovieMeshExtract` on made cube and cylinder meshes and reads the ordered loops, extremes and flags.
+ * @evidence contracts/development/testing.md#independent-expectations The cube's section at any height between its faces is the 40 mm square, so its loop lies on `max(|a|, |b|) = 20`, holds the corners and has area 1600; the cylinder's vertices stand on the ellipse at the axis angles, so the extremes are its semi-axes, and its diagonal support is `sqrt((a^2 + b^2) / 2)` less at most the chord sag `a (1 - cos(pi / 64))`; the slit's ends are the vertices bounding the removed quads, so its gap is their chord `2 * 40 sin(3 pi / 64)`. A plane tangent to the tetrahedron at its apex reaches three edges there, with each crossing at the same point and no enclosed area.
+ * @evidence contracts/development/testing.md#distinguishing-cases Planes through, off and coincident with mesh faces; a plane tangent to one vertex; shifted and oblique frames; a face split by a diagonal against plain ring faces; sound, gapped and spiked meshes; stations between and on rings; a slit within and beyond the bridge; nested and disjoint pieces; input mutations after preparation.
  * @evidence contracts/development/testing.md#execution-ownership A discoverable synchronous CPU unit reached by `--include geometry_extract_outline`, on made meshes with no person, reference file, loft or browser.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Cube: a made 40 mm cube cut at y = 5 mm gives one closed loop whose every point lies on the 40 mm square (the larger in-plane coordinate's...).
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the five scenarios with the geometry, cut or diagnostic each pins.
  */
 export function test_geometry_extract_outline(): void {
   const failures: string[] = [];
@@ -321,8 +347,147 @@ export function test_geometry_extract_outline(): void {
     failures.push(
       `a 5 mm bridge over the 11.7 mm slit gives ${JSON.stringify(narrow?.outer.map((l: IAutoMovieMeshSectionChain): number => l.points.length))}, flags ${narrow?.flags.join("; ")}`,
     );
-  if (failures.length !== 0)
-    throw new Error(
-      `${failures.length} outline failures:\n${failures.join("\n")}`,
+
+  // 5. Prepared geometry keeps the one-shot cut's order and boundary conventions.
+  const box: IAutoMovieMillimeterMesh = cube();
+  const components = {
+    positions: [
+      ...Array.from(box.positions),
+      ...Array.from(box.positions, (p: number, k: number): number =>
+        k % 3 === 0 ? p + 70 : p,
+      ),
+    ],
+    indices: [
+      ...Array.from(box.indices),
+      ...Array.from(box.indices, (i: number): number => i + 8),
+    ],
+  };
+  const prepared: ReturnType<typeof X.prepareOutline> =
+    X.prepareOutline(components);
+  const outlineStations: readonly number[] = [-21, -20, -5, 5, 20, 21, 5];
+  const expected: IAutoMovieMeshSectionCut[] = X.outline(
+    components,
+    frame,
+    outlineStations,
+    1,
+  );
+  if (
+    expected[1]!.count !== 0 ||
+    expected[3]!.outer.length !== 2 ||
+    expected[4]!.outer.length !== 2
+  )
+    failures.push(
+      "the disjoint cubes disagree with the half-open face-plane convention",
     );
+  components.positions.fill(0);
+  components.indices.fill(0);
+  checkPrepared(
+    "two cubes and their snapshot",
+    prepared(frame, outlineStations, 1),
+    expected,
+  );
+
+  const tetrahedron: IAutoMovieMillimeterMesh = {
+    positions: [0, 0, 0, 0, 2, 0, 2, 0, 0, 0, 0, 2],
+    indices: [0, 2, 1, 0, 1, 3, 0, 3, 2, 1, 2, 3],
+  };
+  const [tangent] = X.prepareOutline(tetrahedron)(frame, [2], 1);
+  if (
+    tangent === undefined ||
+    tangent.count !== 3 ||
+    tangent.loops.length !== 1 ||
+    tangent.loops[0]!.points.length !== 1 ||
+    tangent.outer.length !== 0
+  )
+    failures.push(
+      "the three crossings at the tangent apex do not collapse to one point",
+    );
+
+  const diagonal: IAutoMovieMeshSectionFrame = {
+    origin: [3, 5, 7],
+    axes: [
+      [-Math.SQRT1_2, Math.SQRT1_2, 0],
+      [Math.SQRT1_2, Math.SQRT1_2, 0],
+      [0, 0, 1],
+    ],
+  };
+  for (const [mesh, place, stations, axis, bridge] of [
+    [slit, frame, [35, 75], 1, 5],
+    [
+      cylinder({ gap: [2, 0], spike: 5 }),
+      frame,
+      [15, 25, 35, 45, 50, 55],
+      1,
+      25,
+    ],
+    [box, diagonal, [-50, -7, 0, 7, 50], 0, 25],
+  ] as const)
+    checkPrepared(
+      "slit, spike or oblique plane",
+      X.prepareOutline(mesh)(place, stations, axis, 0.5, bridge),
+      X.outline(mesh, place, stations, axis, 0.5, bridge),
+    );
+
+  TestValidator.predicate(
+    `${failures.length} outline failures:\n${failures.join("\n")}`,
+    failures.length === 0,
+  );
+
+  /**
+   * Compare ordered parts and flags, with a geometry tolerance of one
+   * nanometre.
+   */
+  function checkPrepared(
+    name: string,
+    actual: readonly IAutoMovieMeshSectionCut[],
+    expected: readonly IAutoMovieMeshSectionCut[],
+  ): void {
+    if (actual.length !== expected.length) {
+      failures.push(`${name}: prepared station count differs`);
+      return;
+    }
+    const samePoint = (a: readonly number[], b: readonly number[]): boolean =>
+      a.length === b.length &&
+      a.every((x: number, k: number): boolean => nclose(x, b[k]!, 1e-6));
+    const sameChains = (
+      a: readonly IAutoMovieMeshSectionChain[],
+      b: readonly IAutoMovieMeshSectionChain[],
+    ): boolean =>
+      a.length === b.length &&
+      a.every((chain: IAutoMovieMeshSectionChain, k: number): boolean => {
+        const other: IAutoMovieMeshSectionChain = b[k]!;
+        return (
+          chain.closed === other.closed &&
+          chain.points.length === other.points.length &&
+          chain.points.every((point: [number, number], i: number): boolean =>
+            samePoint(point, other.points[i]!),
+          )
+        );
+      });
+    for (const [i, cut] of actual.entries()) {
+      const target: IAutoMovieMeshSectionCut = expected[i]!;
+      const left: IAutoMovieMeshExtract.IExtreme[] = Object.values(
+        cut.extremes ?? {},
+      );
+      const right: IAutoMovieMeshExtract.IExtreme[] = Object.values(
+        target.extremes ?? {},
+      );
+      if (
+        cut.station !== target.station ||
+        cut.count !== target.count ||
+        !sameChains(cut.loops, target.loops) ||
+        !sameChains(cut.outer, target.outer) ||
+        cut.flags.join("\n") !== target.flags.join("\n") ||
+        left.length !== right.length ||
+        !left.every(
+          (extreme: IAutoMovieMeshExtract.IExtreme, k: number): boolean =>
+            nclose(extreme.reach, right[k]!.reach, 1e-6) &&
+            samePoint(extreme.point, right[k]!.point),
+        )
+      )
+        failures.push(
+          `${name}: prepared geometry or order differs at station ${cut.station}`,
+        );
+    }
+  }
 }

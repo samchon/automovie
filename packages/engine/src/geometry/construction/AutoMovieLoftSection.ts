@@ -17,7 +17,10 @@ import { AutoMovieLoftSectionOriginal } from "./AutoMovieLoftSectionOriginal";
 import { AutoMovieLoftSectionSource } from "./AutoMovieLoftSectionSource";
 import { AutoMovieLoftViewRead } from "./AutoMovieLoftViewRead";
 
-/** Both primal weights survive rounding independently; the last two are native-weight derivatives. */
+/**
+ * Both primal weights survive rounding independently; the last two are
+ * native-weight derivatives.
+ */
 type Weight = readonly [number, number, number, number];
 
 /** An actual complete endpoint family, already expressed in the receiver. */
@@ -32,12 +35,38 @@ type Owner =
       span: Exclude<IAutoMovieLoftSectionConnect.ISpan, { kind: "basis" }>;
     };
 
-/**
- * Local station plans of explicit source and continuation generating fields.
- */
+/** The original owner after the queried bracket's bindings have been checked. */
+type Binding = ReturnType<typeof AutoMovieLoftSectionSource.prepare>;
+
+/** A chain reading's scalar-source capabilities at an arbitrary station. */
+interface IReader {
+  /** A local phase reader retaining only the given station. */
+  phase(station: number): ((phi: number) => IAutoMovieLoftSectionPhase) | null;
+  /** The same station's analytic total2, independent of Point0. */
+  jet(station: number): ((phi: number) => IAutoMovieLoftSectionJet) | null;
+}
+
+/** Local station plans of explicit source and continuation generating fields. */
 export namespace AutoMovieLoftSection {
+  /** Prepare bracket ownership for an immutable chain read at many stations. */
+  export function prepare(chain: IAutoMovieLoftChain): IReader {
+    if (!present(chain)) return { phase: () => null, jet: () => null };
+    const binding: Binding = AutoMovieLoftSectionSource.prepare(chain);
+    const source: ReturnType<typeof AutoMovieLoftViewRead.prepare> | undefined =
+      chain.nativeSource?.data === undefined
+        ? undefined
+        : AutoMovieLoftViewRead.prepare(chain.nativeSource.data);
+    return {
+      phase: (station: number): ReturnType<IReader["phase"]> =>
+        phaseOf(chain, station, binding, source),
+      jet: (station: number): ReturnType<IReader["jet"]> =>
+        jetOf(chain, station, binding, source),
+    };
+  }
+
   /**
-   * Whether explicit source data requires its owning reader, before preparation.
+   * Whether explicit source data requires its owning reader, before
+   * preparation.
    */
   export function present(chain: IAutoMovieLoftChain): boolean {
     return (
@@ -51,15 +80,19 @@ export namespace AutoMovieLoftSection {
     );
   }
 
-  /**
-   * Required local physical2 presence under the actual interval owners.
-   */
+  /** Required local physical2 presence under the actual interval owners. */
   export function regular(chain: IAutoMovieLoftChain): boolean {
     if (!AutoMovieLoftSectionSource.regular(chain)) return false;
-    if (chain.originalSection !== undefined && (
-      chain.nativeSource === undefined ||
-      AutoMovieLoftSectionOriginal.fault(chain.originalSection, chain.layers[0]!.y, chain.nativeSource.data.domain[1]) !== null
-    )) return false;
+    if (
+      chain.originalSection !== undefined &&
+      (chain.nativeSource === undefined ||
+        AutoMovieLoftSectionOriginal.fault(
+          chain.originalSection,
+          chain.layers[0]!.y,
+          chain.nativeSource.data.domain[1],
+        ) !== null)
+    )
+      return false;
     if (!present(chain))
       return chain.layers.every(
         (layer: IAutoMovieLoftChain.ILayer): boolean =>
@@ -92,21 +125,34 @@ export namespace AutoMovieLoftSection {
     return true;
   }
 
-  /**
-   * Prepare finite values and phase derivatives, independently of physical2.
-   */
+  /** Prepare finite values and phase derivatives, independently of physical2. */
   export function phase(
     chain: IAutoMovieLoftChain,
     station: number,
   ): ((phi: number) => IAutoMovieLoftSectionPhase) | null {
     if (!present(chain)) return null;
+    return phaseOf(chain, station, (lo, hi) =>
+      AutoMovieLoftSectionSource.validate(chain, lo, hi),
+    );
+  }
+
+  /** Read the phase plan under the current operation's binding policy. */
+  function phaseOf(
+    chain: IAutoMovieLoftChain,
+    station: number,
+    binding: Binding,
+    source?: ReturnType<typeof AutoMovieLoftViewRead.prepare>,
+  ): ReturnType<IReader["phase"]> {
     if (AutoMovieLoftSectionOriginal.active(chain.originalSection, station))
       return (phi) => chain.originalSection!.phase(station, phi);
-    const selected: Owner | null = owner(chain, station);
+    const selected: Owner | null = owner(chain, station, binding);
     if (selected === null) return null;
     if (selected.kind === "source")
       return AutoMovieLoftSectionNative.phase(
-        need(AutoMovieLoftViewRead.values(selected.data, station)),
+        need(
+          source?.values(station) ??
+            AutoMovieLoftViewRead.values(selected.data, station),
+        ),
       );
     if (selected.kind === "family") return familyPhase(selected.field);
     const span: Owner & { kind: "span" } = selected;
@@ -140,21 +186,34 @@ export namespace AutoMovieLoftSection {
       );
   }
 
-  /**
-   * Prepare actual physical station2 and phase total2 of the same generator.
-   */
+  /** Prepare actual physical station2 and phase total2 of the same generator. */
   export function jet(
     chain: IAutoMovieLoftChain,
     station: number,
   ): ((phi: number) => IAutoMovieLoftSectionJet) | null {
     if (!present(chain)) return null;
+    return jetOf(chain, station, (lo, hi) =>
+      AutoMovieLoftSectionSource.validate(chain, lo, hi),
+    );
+  }
+
+  /** Read the analytic jet plan under the current operation's binding policy. */
+  function jetOf(
+    chain: IAutoMovieLoftChain,
+    station: number,
+    binding: Binding,
+    source?: ReturnType<typeof AutoMovieLoftViewRead.prepare>,
+  ): ReturnType<IReader["jet"]> {
     if (AutoMovieLoftSectionOriginal.active(chain.originalSection, station))
       return (phi) => chain.originalSection!.jet(station, phi);
-    const selected: Owner | null = owner(chain, station);
+    const selected: Owner | null = owner(chain, station, binding);
     if (selected === null) return null;
     if (selected.kind === "source")
       return AutoMovieLoftSectionNative.jet(
-        need(AutoMovieLoftViewRead.jets(selected.data, station)),
+        need(
+          source?.jets(station) ??
+            AutoMovieLoftViewRead.jets(selected.data, station),
+        ),
       );
     if (selected.kind === "family") return familyJet(selected.field);
     if (selected.span.kind === "native")
@@ -184,26 +243,31 @@ export namespace AutoMovieLoftSection {
   }
 }
 
-/** Validate explicit original ownership before choosing its actual changed-span law. */
-function owner(chain: IAutoMovieLoftChain, station: number): Owner | null {
+/**
+ * Validate explicit original ownership before choosing its actual changed-span
+ * law.
+ */
+function owner(
+  chain: IAutoMovieLoftChain,
+  station: number,
+  binding: Binding,
+): Owner | null {
   const [lo, hi]: [number, number] = AutoMovieLoftChain.bracket(chain, station);
-  const source: IAutoMovieLoftSectionSource.ISource | null =
-    AutoMovieLoftSectionSource.validate(chain, lo, hi);
+  const source: IAutoMovieLoftSectionSource.ISource | null = binding(lo, hi);
   const span: IAutoMovieLoftSectionConnect.ISpan | null =
     AutoMovieLoftSectionConnect.active(chain, station);
   if (span !== null)
     return span.kind === "basis" ? null : { kind: "span", span };
-  const layer: IAutoMovieLoftChain.ILayer | undefined = chain.layers.find(
-    (value: IAutoMovieLoftChain.ILayer): boolean => value.y === station,
-  );
-  const endpoint: IAutoMovieLoftSectionSource.IEndpoint | null =
-    layer === undefined ? null : AutoMovieLoftSectionSource.endpoint(layer);
-  if (endpoint !== null) return { kind: "family", field: endpoint.field };
+  const a: IAutoMovieLoftChain.ILayer = chain.layers[lo]!;
+  const b: IAutoMovieLoftChain.ILayer = chain.layers[hi]!;
+  const layer: IAutoMovieLoftChain.ILayer | undefined =
+    a.y === station ? a : b.y === station ? b : undefined;
+  const endpoint: IAutoMovieLoftSectionSource.IEndpoint | undefined =
+    layer?.sectionSource;
+  if (endpoint !== undefined) return { kind: "family", field: endpoint.field };
   if (
-    chain.layers[lo] !== layer &&
-    chain.layers[hi] !== layer &&
-    (AutoMovieLoftSectionSource.endpoint(chain.layers[lo]!) !== null ||
-      AutoMovieLoftSectionSource.endpoint(chain.layers[hi]!) !== null)
+    layer === undefined &&
+    (a.sectionSource !== undefined || b.sectionSource !== undefined)
   )
     throw new Error(
       "An explicit native boundary has no declared adjoining generating field.",
@@ -218,7 +282,10 @@ function need<T>(value: T | string): T {
   return value;
 }
 
-/** Value-only complete endpoint functions need no physical derivative evaluation. */
+/**
+ * Value-only complete endpoint functions need no physical derivative
+ * evaluation.
+ */
 function familyPhase(
   field: Family,
 ): (phi: number) => IAutoMovieLoftSectionPhase {
@@ -358,7 +425,10 @@ function product(
   return admit(out);
 }
 
-/** Only requested result vectors are required finite; no absent derivative is requested. */
+/**
+ * Only requested result vectors are required finite; no absent derivative is
+ * requested.
+ */
 function admit<T extends IAutoMovieLoftSectionPhase>(out: T): T {
   if (
     !Object.values(out).every(

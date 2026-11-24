@@ -1,7 +1,7 @@
 import type {
   IAutoMovieAxis,
-  IAutoMovieLoftSectionJet,
   IAutoMovieLoftSectionConnect,
+  IAutoMovieLoftSectionJet,
   IAutoMovieLoftViewRead,
   IAutoMovieLoftViewSource,
   IAutoMovieLoftWorldJetWorld,
@@ -17,10 +17,13 @@ import { AutoMovieLoftWorldJet } from "./AutoMovieLoftWorldJet";
  *
  * Source and axis must belong to the same immutable original part. The axis's
  * physical jet must differentiate its at map in this same station coordinate.
- * This reads no chain, fitted frame, lift, relief or Cartesian Taylor extension.
- * A finite jet is not a regularity, outward-orientation or owned-domain proof.
- * Closed-pole/source failures and absent axis2 return a named string. Exceptions
- * from the actual axis callback or its returned getters keep their identity.
+ * This reads no chain, fitted frame, lift, relief or Cartesian Taylor
+ * extension. A finite jet is not a regularity, outward-orientation or
+ * owned-domain proof. Closed-pole/source failures and absent axis2 return a
+ * named string. Exceptions from the actual axis callback or its returned
+ * getters keep their identity.
+ *
+ * @param sourceJet A reader prepared from the same immutable scalar source.
  */
 export function AutoMovieLoftViewWorldJet(
   source: IAutoMovieLoftViewSource.ISource,
@@ -28,6 +31,7 @@ export function AutoMovieLoftViewWorldJet(
   station: number,
   phase: number,
   original?: IAutoMovieLoftSectionConnect.IOriginal,
+  sourceJet?: ReturnType<typeof AutoMovieLoftViewRead.prepare>["jets"],
 ): IAutoMovieSolidSurface.IJet | string {
   if (!Number.isFinite(station) || !Number.isFinite(phase))
     return "Original view world2 requires a finite station and phase.";
@@ -37,7 +41,9 @@ export function AutoMovieLoftViewWorldJet(
   if (typeof readAxis !== "function")
     return "Original view world2 requires actual axis2, not frame values alone.";
   const inputs: IAutoMovieLoftViewRead.IJets | string | null =
-    original === undefined ? AutoMovieLoftViewRead.jets(source, station) : null;
+    original === undefined
+      ? (sourceJet?.(station) ?? AutoMovieLoftViewRead.jets(source, station))
+      : null;
   if (typeof inputs === "string") return `Original view world2: ${inputs}`;
 
   // Foreign code and getters remain outside the numeric admission boundary.
@@ -68,7 +74,10 @@ export function AutoMovieLoftViewWorldJet(
   }
 }
 
-/** Copy value/first/second origin/u/v data without inventing an absent component. */
+/**
+ * Copy value/first/second origin/u/v data without inventing an absent
+ * component.
+ */
 function frameRows(value: unknown): number[][] | null {
   if (value === null || typeof value !== "object") return null;
   const jet: Record<string, unknown> = value as Record<string, unknown>;

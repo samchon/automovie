@@ -56,8 +56,6 @@ interface IContext {
   /** Same immutable original source controls and actual calibration. */
   originals: ReadonlyMap<string, IAutoMovieViewPart>;
   zero: IFields;
-  /** One prepared invocation's original port calibration cache. */
-  rootCalibrations: Map<string, IAutoMovieHumanF1NativeRoot.ICalibration>;
   /** Same immutable original endpoint datum for complete and tape construction. */
   projectionOwner: IAutoMovieHumanNativeProjectionCourse.IProjectionOwner;
   /** Already defined original trunk source, not a completed loft. */
@@ -108,7 +106,6 @@ export function AutoMovieHumanF1NativeRoots(context: IContext): IResult {
     bone,
     originals,
     zero,
-    rootCalibrations,
     projectionOwner,
     family,
     maps,
@@ -160,50 +157,17 @@ export function AutoMovieHumanF1NativeRoots(context: IContext): IResult {
   const rootPorts: Map<string, IAutoMovieHumanF1NativeRoot.IRootSpec> = new Map();
   const rootPrepared: Map<string, IAutoMovieHumanF1NativeRoot.IPrepared> = new Map();
   const rootFailures: string[] = [];
-  const parentSource: IAutoMovieViewPart = H.source(family("trunk"));
-  /** Reuse original calibration and resolve a current candidate from the same wall/field invocation. */
-  function prepareRoot(
-  ): IAutoMovieHumanF1NativeRoot.IPrepared {
-    const name = "nose";
-    const prior: IAutoMovieHumanConicLoft.IFamily = original.body.nose;
-    const key: string = prior.name;
-    let calibration: IAutoMovieHumanF1NativeRoot.ICalibration | undefined = rootCalibrations.get(key);
-    if (calibration === undefined) {
-      const part: IAutoMovieViewPart | undefined = originals.get(key);
-      if (part === undefined)
-        throw new Error("original port source absent: " + key);
-      const loop: IAutoMovieConstructionPortLoop = original.roots.nose;
-      const count: number | undefined = loop.shape?.length;
-      if (count === undefined)
-        throw new Error(
-          "original root needs its explicit column controls: " + key,
-        );
-      const distances: readonly number[] = AutoMovieHumanF1RootRails.nose;
-      calibration = Root.calibrate({
-        name: key,
-        parent: originals.get(original.body.trunk.name)!,
-        child: part,
-        loop,
-        rails: distances.map(
-          (distance: number): number => prior.knots[0]! + distance,
-        ),
-        count,
-        correspondence: "length",
-        metric: {
-          station: prior.knots[0]! + RAIL[name],
-          depth: zero.roots[name].depth,
-          breadth: zero.roots[name].breadth,
-        },
-        basis: part.axis.at(prior.knots[0]! + RAIL[name]),
-      });
-      rootCalibrations.set(key, calibration);
-    }
+  /** Place the prepared nose on the current trunk wall for this candidate. */
+  function prepareNose(): IAutoMovieHumanF1NativeRoot.IPrepared {
+    if (request.scope !== "all")
+      throw new Error("the tape scope has no nose root");
+    if ("refusal" in request.nose) throw new Error(request.nose.refusal);
     const prepared: IAutoMovieHumanF1NativeRoot.IPrepared = Root.prepare(
-      calibration,
-      parentSource,
-      ratio(rootField(name), zero.roots[name]),
+      request.nose.calibration,
+      H.source(family("trunk")),
+      ratio(request.fields.roots.nose, zero.roots.nose),
     );
-    rootPrepared.set(key, prepared);
+    rootPrepared.set(original.body.nose.name, prepared);
     return prepared;
   }
   const requestedRoots: readonly (keyof IFields["roots"])[] =
@@ -230,7 +194,7 @@ export function AutoMovieHumanF1NativeRoots(context: IContext): IResult {
       // Only the nose continues to use a port. Side contacts are generated
       // when the person's actual trunk and limb sources have been declared.
       const prepared: IAutoMovieHumanF1NativeRoot.IPrepared | undefined =
-        name === "nose" ? prepareRoot() : undefined;
+        name === "nose" ? prepareNose() : undefined;
       const priorAxis: IAutoMovieViewAxis.IAxis = H.axis(prior);
 
       // The bone-placed course in material stations, and whether a segment length moved the arm's runs. Unmoved, the arm's skin root
@@ -416,4 +380,54 @@ export function AutoMovieHumanF1NativeRoots(context: IContext): IResult {
     return spec.loop;
   }
   return { rootPorts, rootPrepared, rootLoop, nativeSeed, seedControls };
+}
+
+/** Original root calibration shared by all complete native candidates. */
+export namespace AutoMovieHumanF1NativeRoots {
+  /** The original nose correspondence, or its unchanged source-admission cause. */
+  export type NoseCalibration =
+    | {
+        /** A complete original nose correspondence and its level support. */
+        readonly calibration: IAutoMovieHumanF1NativeRoot.ICalibration;
+      }
+    | {
+        /** Cause reported with the other root failures during full assembly. */
+        readonly refusal: string;
+      };
+
+  /** Prepare the nose's original port and rail once at the complete assembly scope. */
+  export function calibrateNose(
+    original: IAutoMovieHumanF1.IAssembly,
+    originals: ReadonlyMap<string, IAutoMovieViewPart>,
+    size: ISize,
+  ): NoseCalibration {
+    const prior: IAutoMovieHumanConicLoft.IFamily = original.body.nose;
+    try {
+      const part: IAutoMovieViewPart | undefined = originals.get(prior.name);
+      const parent: IAutoMovieViewPart | undefined = originals.get(original.body.trunk.name);
+      if (part === undefined || parent === undefined)
+        throw new Error("original port source absent: " + (part === undefined ? prior.name : original.body.trunk.name));
+      const loop: IAutoMovieConstructionPortLoop = original.roots.nose;
+      const count: number | undefined = loop.shape?.length;
+      if (count === undefined)
+        throw new Error("original root needs its explicit column controls: " + prior.name);
+      const from: number = prior.knots[0]!;
+      const station: number = from + RAIL.nose;
+      return {
+        calibration: Root.calibrate({
+          name: prior.name,
+          parent,
+          child: part,
+          loop,
+          rails: AutoMovieHumanF1RootRails.nose.map((distance: number): number => from + distance),
+          count,
+          correspondence: "length",
+          metric: { station, ...size },
+          basis: part.axis.at(station),
+        }),
+      };
+    } catch (error: unknown) {
+      return { refusal: error instanceof Error ? error.message : String(error) };
+    }
+  }
 }

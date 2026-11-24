@@ -126,15 +126,15 @@ States mesh mutation, callback/default exception semantics and explicit occurren
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
-Includes each face's grid, constrained residual triangulation, incidence and callback costs.
+Each face pays for its grid and constrained residual triangulation. The draw computes the starting incidence once and adds each face's emitted edges.
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 
-Reads existing shared rail vertices and surface owners instead of independently welding boundaries.
+Draws on the existing shared rail vertices and surface owners. The append-only batch shares one incidence for its committed faces.
 
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
-The body retains appended geometry; temporary face work expires and returned open-cycle arrays belong to the caller.
+The body retains appended geometry. The batch incidence and temporary face work expire with the draw, and returned open-cycle arrays belong to the caller.
 
 # src/geometry/construction/AutoMovieSolidBody.ts#AutoMovieSolidBody.publish
 

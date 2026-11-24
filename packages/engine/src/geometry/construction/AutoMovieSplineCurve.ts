@@ -1,33 +1,40 @@
+/** A spline row or a reader that combines only the controls in the queried span. */
+type Row = readonly number[] | ((index: number) => number);
+
+/** Value and first/second phase derivatives of a scalar spline. */
+type ScalarJet = [number, number, number];
+
+/** Two coordinate values, two first derivatives and two second derivatives. */
+type PlanarJet = [number, number, number, number, number, number];
+
 /**
  * Closed planar curve written as a uniform periodic cubic B-spline.
  *
  * A section curve of a spline chain is described in its section plane by N
- * control points `P_0 .. P_{N-1}` in millimetres. The phase `t` in
- * `[0, 2pi)` maps to the knot parameter `u = N t / 2pi`; on the span
- * `[i, i+1)` the curve is
+ * control points `P_0 .. P_{N-1}` in millimetres. The phase `t` in `[0, 2pi)`
+ * maps to the knot parameter `u = N t / 2pi`; on the span `[i, i+1)` the curve
+ * is
  *
  * ```text
  * C(u) = B0(f) P_{i-1} + B1(f) P_i + B2(f) P_{i+1} + B3(f) P_{i+2},  f = u - i
  * ```
  *
- * with the uniform cubic B-spline weights `B0 .. B3` and indices taken
- * modulo N. Every control point shapes only the four spans around it, so a
- * sharp feature (a pinch at a contact, a lip corner) stays where it is,
- * unlike a truncated Fourier series, whose every term spans the whole
- * section and spreads such a feature around it as ringing. This is the
- * section form of standard B-spline skinning.
+ * With the uniform cubic B-spline weights `B0 .. B3` and indices taken modulo
+ * N. Every control point shapes only the four spans around it, so a sharp
+ * feature (a pinch at a contact, a lip corner) stays where it is, unlike a
+ * truncated Fourier series, whose every term spans the whole section and
+ * spreads such a feature around it as ringing. This is the section form of
+ * standard B-spline skinning.
  *
- * The mean of the control points is the curve's mean over uniform phase, so
- * the sequence of control-point means along a chain is its central axis, as
- * the constant terms are for {@link AutoMovieHarmonicCurve}.
+ * The mean of the control points is the curve's mean over uniform phase, so the
+ * sequence of control-point means along a chain is its central axis, as the
+ * constant terms are for {@link AutoMovieHarmonicCurve}.
  *
- * Coefficient layout for N control points is
- * `[x_0, ..., x_{N-1}, z_0, ..., z_{N-1}]`, `2N` numbers in total.
+ * Coefficient layout for N control points is `[x_0, ..., x_{N-1}, z_0, ...,
+ * z_{N-1}]`, `2N` numbers in total.
  */
 export namespace AutoMovieSplineCurve {
-  /**
-   * Offset of the z block in the coefficient array of N control points.
-   */
+  /** Offset of the z block in the coefficient array of N control points. */
   export function width(count: number): number {
     return count;
   }
@@ -41,7 +48,7 @@ export namespace AutoMovieSplineCurve {
    * @returns `[x, z, dx/dt, dz/dt]` in mm and mm per radian.
    */
   export function evaluate(
-    coefficients: readonly number[],
+    coefficients: Row,
     count: number,
     t: number,
   ): [number, number, number, number] {
@@ -63,22 +70,23 @@ export namespace AutoMovieSplineCurve {
     const j1: number = i % count;
     const j2: number = (i + 1) % count;
     const j3: number = (i + 2) % count;
-    const c: readonly number[] = coefficients;
+    const c: (index: number) => number = reader(coefficients);
+    const x0: number = c(j0);
+    const x1: number = c(j1);
+    const x2: number = c(j2);
+    const x3: number = c(j3);
+    const z0: number = c(count + j0);
+    const z1: number = c(count + j1);
+    const z2: number = c(count + j2);
+    const z3: number = c(count + j3);
 
     // Chain rule: du/dt = N / 2pi.
     const scale: number = count / (2 * Math.PI);
     return [
-      w0 * c[j0]! + w1 * c[j1]! + w2 * c[j2]! + w3 * c[j3]!,
-      w0 * c[count + j0]! +
-        w1 * c[count + j1]! +
-        w2 * c[count + j2]! +
-        w3 * c[count + j3]!,
-      (d0 * c[j0]! + d1 * c[j1]! + d2 * c[j2]! + d3 * c[j3]!) * scale,
-      (d0 * c[count + j0]! +
-        d1 * c[count + j1]! +
-        d2 * c[count + j2]! +
-        d3 * c[count + j3]!) *
-        scale,
+      w0 * x0 + w1 * x1 + w2 * x2 + w3 * x3,
+      w0 * z0 + w1 * z1 + w2 * z2 + w3 * z3,
+      (d0 * x0 + d1 * x1 + d2 * x2 + d3 * x3) * scale,
+      (d0 * z0 + d1 * z1 + d2 * z2 + d3 * z3) * scale,
     ];
   }
 
@@ -88,8 +96,8 @@ export namespace AutoMovieSplineCurve {
    * The curve at a knot is `(P_{i-1} + 4 P_i + P_{i+1}) / 6`. The inverse of
    * that periodic filter is `sqrt(3) (sqrt(3) - 2)^|k|`, whose 32nd weight is
    * under `1e-18`, so the knots are met to rounding (14 neighbours left `3e-9`
-   * of the radius off a guide) and a section costs O(N) rather than the
-   * O(N^2) of {@link project}.
+   * of the radius off a guide) and a section costs O(N) rather than the O(N^2)
+   * of {@link project}.
    *
    * @param samples Points `[x, z]`, one per control point.
    * @returns Control points in the layout above.
@@ -114,19 +122,46 @@ export namespace AutoMovieSplineCurve {
    * Evaluate the curve with its first and second phase derivatives.
    *
    * The same span and weights as {@link evaluate}, with the cubic weights'
-   * second derivatives `[1 - f, 3 f - 2, 1 - 3 f, f]` scaled by
-   * `(N / 2pi)^2`, so a surface's phase curvature is exact.
+   * second derivatives `[1 - f, 3 f - 2, 1 - 3 f, f]` scaled by `(N / 2pi)^2`,
+   * so a surface's phase curvature is exact.
    *
    * @param coefficients Control points in the layout above.
    * @param count Number of control points N.
    * @param t Phase in radians, any real value.
    * @returns `[x, z, dx/dt, dz/dt, d2x/dt2, d2z/dt2]`.
    */
-  export function jet(
-    coefficients: readonly number[],
+  export function jet(coefficients: Row, count: number, t: number): PlanarJet {
+    return differential(coefficients, count, t, false);
+  }
+
+  /** Read a single periodic control row and its first two phase derivatives. */
+  export function scalarJet(
+    coefficients: Row,
     count: number,
     t: number,
-  ): [number, number, number, number, number, number] {
+  ): ScalarJet {
+    return differential(coefficients, count, t, true);
+  }
+
+  /** Both jet layouts use the same cubic basis and derivative weights. */
+  function differential(
+    coefficients: Row,
+    count: number,
+    t: number,
+    scalar: true,
+  ): ScalarJet;
+  function differential(
+    coefficients: Row,
+    count: number,
+    t: number,
+    scalar: false,
+  ): PlanarJet;
+  function differential(
+    coefficients: Row,
+    count: number,
+    t: number,
+    scalar: boolean,
+  ): ScalarJet | PlanarJet {
     const u: number = ((((t / (2 * Math.PI)) % 1) + 1) % 1) * count;
     const i: number = Math.min(count - 1, Math.floor(u));
     const f: number = u - i;
@@ -149,23 +184,28 @@ export namespace AutoMovieSplineCurve {
     const j1: number = i % count;
     const j2: number = (i + 1) % count;
     const j3: number = (i + 2) % count;
-    const c: readonly number[] = coefficients;
-    const x0: number = c[j0]!;
-    const x1: number = c[j1]!;
-    const x2: number = c[j2]!;
-    const x3: number = c[j3]!;
-    const z0: number = c[count + j0]!;
-    const z1: number = c[count + j1]!;
-    const z2: number = c[count + j2]!;
-    const z3: number = c[count + j3]!;
+    const c: (index: number) => number = reader(coefficients);
+    const x0: number = c(j0);
+    const x1: number = c(j1);
+    const x2: number = c(j2);
+    const x3: number = c(j3);
     const scale: number = count / (2 * Math.PI);
     const scale2: number = scale * scale;
+    const x: number = w0 * x0 + w1 * x1 + w2 * x2 + w3 * x3;
+    const dx: number = (d0 * x0 + d1 * x1 + d2 * x2 + d3 * x3) * scale;
+    const ddx: number = (e0 * x0 + e1 * x1 + e2 * x2 + e3 * x3) * scale2;
+    if (scalar) return [x, dx, ddx];
+
+    const z0: number = c(count + j0);
+    const z1: number = c(count + j1);
+    const z2: number = c(count + j2);
+    const z3: number = c(count + j3);
     return [
-      w0 * x0 + w1 * x1 + w2 * x2 + w3 * x3,
+      x,
       w0 * z0 + w1 * z1 + w2 * z2 + w3 * z3,
-      (d0 * x0 + d1 * x1 + d2 * x2 + d3 * x3) * scale,
+      dx,
       (d0 * z0 + d1 * z1 + d2 * z2 + d3 * z3) * scale,
-      (e0 * x0 + e1 * x1 + e2 * x2 + e3 * x3) * scale2,
+      ddx,
       (e0 * z0 + e1 * z1 + e2 * z2 + e3 * z3) * scale2,
     ];
   }
@@ -173,22 +213,22 @@ export namespace AutoMovieSplineCurve {
   /**
    * Least-squares control points of samples at uniform phases.
    *
-   * The samples must number a multiple of N. Then every control point sees
-   * the same pattern of samples, the normal matrix is circulant, and the
-   * system is solved exactly in its discrete Fourier basis in O(N^2).
+   * The samples must number a multiple of N. Then every control point sees the
+   * same pattern of samples, the normal matrix is circulant, and the system is
+   * solved exactly in its discrete Fourier basis in O(N^2).
    *
-   * With a cutoff, the fit is a penalized spline (P-spline): the squared
-   * second differences of the control points are added with the weight at
-   * which a sinusoid of `cutoff` cycles per section keeps half its
-   * amplitude. Longer waves pass almost unchanged, shorter ones (the source
-   * mesh's facets) are suppressed, and the response falls smoothly, so the
-   * frequency response is smooth. That response alone is not a proof against
-   * spatial overshoot or ringing in the fitted curve.
+   * With a cutoff, the fit is a penalized spline (P-spline): the squared second
+   * differences of the control points are added with the weight at which a
+   * sinusoid of `cutoff` cycles per section keeps half its amplitude. Longer
+   * waves pass almost unchanged, shorter ones (the source mesh's facets) are
+   * suppressed, and the response falls smoothly, so the frequency response is
+   * smooth. That response alone is not a proof against spatial overshoot or
+   * ringing in the fitted curve.
    *
    * @param samples Points `[x, z]` at phases `2pi m / M`, m = 0 .. M-1.
    * @param count Number of control points N.
-   * @param cutoff Half-response frequency in cycles per section; omitted,
-   *   plain least squares.
+   * @param cutoff Half-response frequency in cycles per section; omitted, plain
+   *   least squares.
    */
   export function project(
     samples: readonly (readonly [number, number])[],
@@ -292,22 +332,24 @@ export namespace AutoMovieSplineCurve {
   }
 }
 
+/** Read only the active control indices, whether the row is dense or factored. */
+function reader(coefficients: Row): (index: number) => number {
+  return typeof coefficients === "function"
+    ? coefficients
+    : (index: number): number => coefficients[index]!;
+}
+
 /** Cosine and sine of `2 pi q k / N`, row q of N entries each. */
 interface ITurns {
-  /** Row-major cos(2pi*q*k/N), N entries per frequency row. */
+  /** Row-major cos(2pi_q_k/N), N entries per frequency row. */
   cos: Float64Array;
 
   /** Matching row-major sine values, independent of fitted samples. */
   sin: Float64Array;
 }
 
-/** Process-wide transform tables by control count, with no population/byte limit or eviction. */
-const TURNS: Map<number, ITurns> = new Map();
-
-/** Read or permanently retain two N-by-N turn arrays for a control count; sample values and cutoff do not affect them. */
+/** Prepare one projection's shared transform basis. */
 function turnsOf(count: number): ITurns {
-  const found: ITurns | undefined = TURNS.get(count);
-  if (found !== undefined) return found;
   const cos: Float64Array = new Float64Array(count * count);
   const sin: Float64Array = new Float64Array(count * count);
   for (let q: number = 0; q < count; q++)
@@ -316,9 +358,7 @@ function turnsOf(count: number): ITurns {
       cos[q * count + k] = Math.cos(angle);
       sin[q * count + k] = Math.sin(angle);
     }
-  const turns: ITurns = { cos, sin };
-  TURNS.set(count, turns);
-  return turns;
+  return { cos, sin };
 }
 
 /** Weights of the inverse knot filter by distance. */
