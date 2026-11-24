@@ -111,7 +111,7 @@ export function test_physical_support_span_contacts(): void {
   // 5. A pivot on the boundary, where a saturated pivot sits: two 0.06 x 0.1 m
   // soles' corners, the pivot at a corner takes it all, on an edge's middle
   // its two ends half each.
-  const x0: number = 0.25980762113533150 - 0.03;
+  const x0: number = 0.2598076211353315 - 0.03;
   const corners: Contacts.IContact[] = [
     [x0, 0.1],
     [x0, 0.2],
