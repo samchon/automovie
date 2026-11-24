@@ -32,6 +32,7 @@ Work with the user.
 - Follow the user's instruction over any skill.
 - Answer a question from the user before continuing any work.
 - Write every message to the user in the user's language.
+- Work as a single agent unless the user explicitly orders subagents.
 
 ## Skills
 
@@ -47,6 +48,7 @@ Open a skill when the work reaches the task its trigger names. Open only the pag
 | [human](.agents/skills/human/SKILL.md) | Working on `packages/human`, a human figure or the Human viewer, or supervising that work |
 | [issue-campaign](.agents/skills/issue-campaign/SKILL.md) | Running a broad audit or repeated issue-to-pull-request work |
 | [motion](.agents/skills/motion/SKILL.md) | Authoring or verifying body motion, the motion vocabulary or its grammar, an action law, a motion primitive or retargeting |
+| [multi-agent](.agents/skills/multi-agent/SKILL.md) | Starting, briefing or supervising subagents on the user's explicit order |
 | [project](.agents/skills/project/SKILL.md) | Judging product scope, or choosing a package owner or a command |
 | [prompting](.agents/skills/prompting/SKILL.md) | Changing `AGENTS.md`, `CLAUDE.md` or a skill |
 | [pull-request](.agents/skills/pull-request/SKILL.md) | Pushing, opening, updating or merging a pull request, when asked or under a delivery mandate |
