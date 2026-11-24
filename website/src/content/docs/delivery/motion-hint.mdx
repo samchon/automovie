@@ -27,6 +27,8 @@ A channel is a pass drawn from the same performance and camera as the picture. `
 | `albedo` | Each surface's base colour, unlit and on black, for renderers that take a material channel |
 | `graphics` | Surface graphics alone, such as screens, signs and flat lettering, as RGBA frames whose straight alpha is their coverage |
 
+Inside a transition, `pose`, `depth`, `normal`, `outline`, `mask` and `albedo` show the shot the frame shows most of. The `graphics` frames go through the transition as the picture does: a dissolve mixes both shots' graphics and a fade dips their coverage to nothing, so they composite over the delivered film frame for frame.
+
 The production renders only the channels its receiver requires, and records them in `PROJECT.md`. Each channel is read for its limits: depth range and clipping, normal convention, and whether a mask has stable semantic identities.
 
 A capture draws any pass at any second, sharing the view's camera across passes:
