@@ -390,7 +390,7 @@ export namespace AquaticLiftOut {
     // Both hands reach from the entered arms onto the wrists as one course,
     // hold them through the lift and return to the standing key's arms.
     return courseArmGoal({
-      body,
+      context,
       plan,
       side: "left",
       rest: AquaticPosture.rest(body, entry.posture, "left"),

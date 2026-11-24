@@ -13,7 +13,6 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { courseArmGoal } from "../compose/courseArmGoal";
 import { HumanRefusal } from "../law/HumanRefusal";
@@ -247,10 +246,9 @@ export const HumanLeadHorse: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHuma
       // The arm reaches, holds and lets go on one planned course, following
       // the lead as the horse moves it without changing branch.
       return courseArmGoal({
-        body: context.body,
+        context,
         plan: goals,
         side,
-        rest: AutoMovieMotionHumanArm.angles(context.entry.pose, side),
         span: {
           start: 0,
           ready: transition,

@@ -279,7 +279,7 @@ export namespace longTool {
       posture,
     };
     return courseArmGoal({
-      body,
+      context,
       plan,
       side: trail,
       rest: AutoMovieMotionHumanArm.angles(entry.pose, trail),

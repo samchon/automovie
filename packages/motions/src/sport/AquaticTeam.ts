@@ -363,7 +363,7 @@ export namespace AquaticTeam {
         side: AutoMovieHumanSide,
       ): IAutoMovieMotionHumanActionPlan =>
         courseArmGoal({
-          body,
+          context,
           plan: laid,
           side,
           rest: AquaticPosture.rest(body, opening, side),

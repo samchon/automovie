@@ -16,7 +16,6 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { courseArmGoal } from "../compose/courseArmGoal";
 import { HumanGrip } from "../handling/HumanGrip";
@@ -370,10 +369,9 @@ export const HumanTendHorse: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHuma
       // course from the arm the entry shows, so it never snaps at the
       // onset or the release.
       return courseArmGoal({
-        body: context.body,
+        context,
         plan: goals,
         side,
-        rest: AutoMovieMotionHumanArm.angles(context.entry.pose, side),
         span: {
           start: 0,
           ready: transition,

@@ -24,7 +24,6 @@ import type {
 } from "@automovie/interface";
 
 import { operate } from "../affordance/operate";
-import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
@@ -501,19 +500,17 @@ function plan(
     end: duration,
   };
   const drawing: IAutoMovieMotionHumanActionPlan = courseArmGoal({
-    body: context.body,
+    context,
     plan,
     side,
-    rest: AutoMovieMotionHumanArm.angles(context.entry.pose, side),
     span,
   });
   return pulled === null
     ? drawing
     : courseArmGoal({
-        body: context.body,
+        context,
         plan: drawing,
         side: pulled.side,
-        rest: AutoMovieMotionHumanArm.angles(context.entry.pose, pulled.side),
         span,
       });
 }
@@ -821,8 +818,10 @@ interface IPivot {
  * about the slid hanger (the carrier's `belt` affordance, or its origin where
  * it declares none) toward the drawing shoulder: with `v` the drawn wrist and
  * `w` the shoulder from the hanger, the wrist turned by `t` lies `sqrt(|v|^2 +
- * |w|^2 - 2|v||w|cos(phi - t))` from the shoulder, `phi` the angle between
- * them, so `t = phi - acos(c)`, `c` the law of cosines' cosine at the reach. A
+ *
+ * |w|^2 - 2|v||w|cos(phi - t))`from the shoulder,`phi` the angle between
+ *
+ * Them, so `t = phi - acos(c)`, `c` the law of cosines' cosine at the reach. A
  * wrist already within reach needs neither; one neither brings within it turns
  * straight at the shoulder and is refused by the reach check that follows.
  */

@@ -53,10 +53,9 @@ export function coursePrecisionStroke(
   const ready: number = clock.at("stroke");
   const relax: number = ready;
   return courseArmGoal({
-    body,
+    context: { body, entry: { pose: entry } },
     side,
     plan,
-    rest: AutoMovieMotionHumanArm.angles(entry, side),
     span: {
       start: 0,
       ready,

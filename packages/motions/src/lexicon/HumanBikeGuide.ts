@@ -440,7 +440,7 @@ export const HumanBikeGuide: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHuma
       // The near arm reaches from the entered arm to the grip by `REACH`
       // and holds it as one admitted course (`courseArmGoal`).
       return courseArmGoal({
-        body,
+        context,
         plan,
         side,
         rest: AutoMovieMotionHumanArm.angles(entry.pose, side),

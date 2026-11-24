@@ -147,7 +147,7 @@ export const coatPartner: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanCo
       // the fingers through the hips. The reach check above and the jacket's
       // roll in the hand read the goal itself.
       return courseArmGoal({
-        body,
+        context,
         side: hand,
         rest: AutoMovieMotionHumanArm.angles(entry.pose, hand),
         span: { start: 0, ready: arrival, relax: release, end: duration },

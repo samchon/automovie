@@ -284,7 +284,7 @@ export function wardrobeFoot(
   // forearm twist than the fit the shell's custody reads. The checks above
   // read the goal.
   const shown: IAutoMovieMotionHumanActionPlan = courseArmGoal({
-    body,
+    context,
     side: hand,
     rest: AutoMovieMotionHumanArm.angles(entry.pose, hand),
     span: { start: holdStart, ready: gripTime, relax: finish, end: holdEnd },

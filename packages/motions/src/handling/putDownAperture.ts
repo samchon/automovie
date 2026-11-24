@@ -12,7 +12,6 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { courseArmGoal } from "../compose/courseArmGoal";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { putDown } from "./putDown";
@@ -233,10 +232,9 @@ function coursed(
 ): IAutoMovieMotionHumanActionPlan {
   if (context.carrier !== undefined) return plan;
   return courseArmGoal({
-    body: context.body,
+    context,
     plan,
     side,
-    rest: AutoMovieMotionHumanArm.angles(context.entry.pose, side),
     span: { start: 0, ready: 0, relax: plan.duration, end: plan.duration },
   });
 }

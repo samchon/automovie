@@ -398,7 +398,7 @@ export namespace AquaticRescue {
     // (`courseArmGoal`); the victim never reads the rescuer.
     const opening: IAutoMovieMotionHumanPosture = swimming.posture(arrive);
     return courseArmGoal({
-      body,
+      context,
       plan: swimming,
       side: "left",
       rest: AquaticPosture.rest(body, opening, "left"),

@@ -21,7 +21,6 @@ import type {
 } from "@automovie/interface";
 
 import { stand } from "../actions/stand";
-import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
 import { courseArmGoal } from "../compose/courseArmGoal";
@@ -360,10 +359,9 @@ export namespace handshake {
     // fitted afresh at each second, where two nearly tied arm solutions let
     // one instant take the other branch.
     return courseArmGoal({
-      body,
+      context,
       plan: goals,
       side,
-      rest: AutoMovieMotionHumanArm.angles(context.entry.pose, side),
       span: { start: 0, ready: reach, relax: release, end: duration },
     });
   }

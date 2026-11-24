@@ -219,7 +219,7 @@ export function courseArmGoal(
             kept.set(limb, angles);
           } else {
             const back: IAutoMoviePose = resolveHumanPosture(
-              props.body,
+              props.context.body,
               read(span.end),
             );
             const chain: ReadonlySet<AutoMovieHumanoidBone> =
@@ -254,7 +254,7 @@ export function courseArmGoal(
   for (const start of starts)
     if (start > 1e-9)
       for (const [limb, rest] of shownRests(
-        props.body,
+        props.context,
         plan,
         shownAt,
         arms.filter(
@@ -292,7 +292,7 @@ export function courseArmGoal(
         ...(props.pace === undefined ? {} : { pace: props.pace }),
         ...(arm.perceived === undefined ? {} : { perceived: arm.perceived }),
         ...(arm.tracked === undefined ? {} : { tracked: arm.tracked }),
-        body: props.body,
+        body: props.context.body,
         side: arm.side,
         from: span.start,
         to: span.end,
@@ -301,14 +301,14 @@ export function courseArmGoal(
         // the entry's at the action's start, and the plan's own as the display
         // shows it there for a course that starts later (`shownRests`), so
         // the seam before the span meets it.
-        rest: rests.get(limb) ?? arm.rest,
+        rest: rests.get(limb) ?? courseArmGoal.rest(props.context, arm),
         // A return ends on the plan's own arm at the span's end, which the
         // plan shows from there on, or whose angles the arm keeps after it
         // (`after: "angles"`), so the seam after the span meets it.
         ...(span.relax < span.end - 1e-9
           ? {
               back: AutoMovieMotionHumanArm.angles(
-                resolveHumanPosture(props.body, read(span.end)),
+                resolveHumanPosture(props.context.body, read(span.end)),
                 arm.side,
               ),
             }
@@ -412,12 +412,14 @@ export namespace courseArmGoal {
     side: AutoMovieHumanSide;
 
     /**
-     * The arm's angles as the action is entered (the entry pose's): the rest a
-     * course starting with the action leaves from, and the arm from which the
-     * display's course of the plan's own goal runs to a course that starts
-     * later, which leaves from where that one shows the arm (`shownRests`).
+     * The arm's angles a course starting with the action leaves from, and the
+     * arm from which the display's course of the plan's own goal runs to a
+     * course that starts later, which leaves from where that one shows the arm
+     * (`shownRests`); the arm as the action is entered when absent
+     * (`AutoMovieMotionHumanArm.entered`), the rest every course takes unless
+     * its law states another.
      */
-    rest: IAutoMovieMotionHumanArmAngles.IAngles;
+    rest?: IAutoMovieMotionHumanArmAngles.IAngles;
 
     /**
      * The arm's own instants, for an arm of `with` whose span differs; the
@@ -438,8 +440,11 @@ export namespace courseArmGoal {
           "together" | "beside" | "pace"
         >
       > {
-    /** The body. */
-    body: IAutoMovieMotionHumanBody;
+    /**
+     * The action's context: its body, and the arms it is entered with, every
+     * course's rest where its arm states none (`IArm.rest`).
+     */
+    context: IContext;
 
     /**
      * The law's plan, whose posture writes every coursed arm's goal at every
@@ -525,6 +530,33 @@ export namespace courseArmGoal {
     return { ...span, knots };
   }
 
+  /**
+   * What a course reads of its action's context: the body, and the pose the
+   * action is entered with, whose arms are every course's rest where its arm
+   * states none. An action's context is one; a helper that lays a course from
+   * another pose (a seed, an address) states that pose as the entry.
+   */
+  export interface IContext extends AutoMovieMotionHumanArm.IEntered {
+    /** The body. */
+    body: IAutoMovieMotionHumanBody;
+  }
+
+  /**
+   * An arm's rest: the one its law states, else the arm as the action is
+   * entered (`AutoMovieMotionHumanArm.entered`), so a course plans from the
+   * entry state (transitions.md, "Carry resolved entry state through cuts").
+   *
+   * @param context The action's context.
+   * @param arm The arm.
+   * @returns Its rest angles.
+   */
+  export function rest(
+    context: IContext,
+    arm: Pick<IArm, "side" | "rest">,
+  ): IAutoMovieMotionHumanArmAngles.IAngles {
+    return arm.rest ?? AutoMovieMotionHumanArm.entered(context, arm.side);
+  }
+
   /** The arm limb a side names. */
   export type Limb = "leftArm" | "rightArm";
 
@@ -573,7 +605,8 @@ export namespace courseArmGoal {
  * shown, not a cold fit of the goal, which may turn the upper arm and the
  * forearm another way for the same hand place.
  *
- * @param body The body.
+ * @param context The action's context: the body and the arms it is entered
+ *   with.
  * @param plan The law's plan, whose events the display knots at.
  * @param shown The posture the display shows before the courses.
  * @param arms The arms whose courses start at `start`.
@@ -581,12 +614,13 @@ export namespace courseArmGoal {
  * @returns Each arm's rest.
  */
 function shownRests(
-  body: IAutoMovieMotionHumanBody,
+  context: courseArmGoal.IContext,
   plan: IAutoMovieMotionHumanActionPlan,
   shown: (seconds: number) => IAutoMovieMotionHumanPosture,
   arms: readonly courseArmGoal.IArm[],
   start: number,
 ): Map<courseArmGoal.Limb, IAutoMovieMotionHumanArmAngles.IAngles> {
+  const body: IAutoMovieMotionHumanBody = context.body;
   const out: Map<courseArmGoal.Limb, IAutoMovieMotionHumanArmAngles.IAngles> =
     new Map();
   const limb = (arm: courseArmGoal.IArm): courseArmGoal.Limb =>
@@ -625,7 +659,11 @@ function shownRests(
     limbs: bare,
   });
   for (const arm of written)
-    entered = HumanArmClearance.posed(entered, arm.side, arm.rest);
+    entered = HumanArmClearance.posed(
+      entered,
+      arm.side,
+      courseArmGoal.rest(context, arm),
+    );
   const entry: Map<AutoMovieHumanLimb, IAutoMovieSwivelSeed> = new Map();
   for (const arm of written) {
     const seed: IAutoMovieSwivelSeed | null = HumanLimbFit.seed(

@@ -258,7 +258,7 @@ export function grappleArms(
     (begun ??= resolveHumanPosture(body, base.posture(reach)));
   const lay = (end: number): IAutoMovieMotionHumanActionPlan => {
     const laid: IAutoMovieMotionHumanActionPlan = courseArmGoal({
-      body,
+      context,
       plan: goals,
       base,
       side: sides[0]!,

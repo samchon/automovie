@@ -17,7 +17,6 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanTrunk } from "../compose/AutoMovieMotionHumanTrunk";
 import { courseArmGoal } from "../compose/courseArmGoal";
@@ -510,10 +509,9 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
     context.start,
     (laid: IAutoMovieMotionHumanActionPlan) =>
       courseArmGoal({
-        body: context.body,
+        context,
         plan: laid,
         side: "right",
-        rest: AutoMovieMotionHumanArm.angles(context.entry.pose, "right"),
         span,
         pace: (): number => peak,
       }),

@@ -69,17 +69,15 @@ export function HumanMountOnCourses(
   // problem each, rather than as one problem of both arms
   // (`IAutoMovieMotionHumanArmCarry.beside`), several times the work.
   return courseArmGoal({
-    body,
+    context: { body, entry: { pose: props.pose } },
     plan: swung,
     side: "left",
-    rest: AutoMovieMotionHumanArm.angles(props.pose, "left"),
     span: span("left"),
     disc,
     beside: AutoMovieMotionHumanArm.together(),
     with: [
       {
         side: "right",
-        rest: AutoMovieMotionHumanArm.angles(props.pose, "right"),
         span: span("right"),
         disc,
       },

@@ -301,10 +301,9 @@ export namespace HumanWeaponPresent {
             (e: IAutoMovieMotionEvent): boolean => e.name === "ready",
           )?.share ?? 0) * presented.duration;
         return courseArmGoal({
-          body: context.body,
+          context,
           plan: placedElbows(context.body, presented, tool.side),
           side: tool.side,
-          rest: AutoMovieMotionHumanArm.angles(context.entry.pose, tool.side),
           grasp: ["hand"],
           span: {
             start: 0,
@@ -321,7 +320,6 @@ export namespace HumanWeaponPresent {
           with: [
             {
               side: other,
-              rest: AutoMovieMotionHumanArm.angles(context.entry.pose, other),
               grasp: ["hand"],
             },
           ],
@@ -587,10 +585,9 @@ export namespace HumanWeaponPresent {
         const other: AutoMovieHumanSide =
           s.tool.side === "left" ? "right" : "left";
         return courseArmGoal({
-          body: context.body,
+          context,
           plan: placedElbows(context.body, shooting, s.tool.side),
           side: s.tool.side,
-          rest: AutoMovieMotionHumanArm.angles(context.entry.pose, s.tool.side),
           grasp: ["hand"],
           span: {
             start: 0,
@@ -607,7 +604,6 @@ export namespace HumanWeaponPresent {
           with: [
             {
               side: other,
-              rest: AutoMovieMotionHumanArm.angles(context.entry.pose, other),
               grasp: ["hand"],
             },
           ],

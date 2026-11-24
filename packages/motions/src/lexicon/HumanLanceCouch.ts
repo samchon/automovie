@@ -19,7 +19,6 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { courseArmGoal } from "../compose/courseArmGoal";
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanBound } from "../law/HumanBound";
@@ -373,16 +372,14 @@ export const HumanLanceCouch: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHum
         end: duration,
       };
       return courseArmGoal({
-        body: context.body,
+        context,
         plan: courseArmGoal({
-          body: context.body,
+          context,
           plan: goals,
           side: "right",
-          rest: AutoMovieMotionHumanArm.angles(context.entry.pose, "right"),
           span,
         }),
         side: "left",
-        rest: AutoMovieMotionHumanArm.angles(context.entry.pose, "left"),
         span,
       });
     },

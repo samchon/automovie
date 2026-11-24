@@ -437,7 +437,7 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
   if (standing) return goals;
   // The falling body flies free of any carrier, so the hand's way to the floor is laid as one planned course in the world: the reach from the release to the touch, clear of the trunk and the thighs, then the hold on the floor. Before the release the carried seat is shown as the law gives it, the course read only from the release on.
   const coursed: IAutoMovieMotionHumanActionPlan = courseArmGoal({
-    body: context.body,
+    context,
     plan: goals,
     side,
     // The course leaves from the arm shown at the release: the carried seat's, not the entry's.

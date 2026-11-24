@@ -314,7 +314,7 @@ function plan(
   // nearly tied arm solutions let one instant take the other branch. The fit
   // checks above read the goal itself.
   const coursed: IAutoMovieMotionHumanActionPlan = courseArmGoal({
-    body,
+    context,
     plan: { ...composed, posture },
     side,
     rest: AutoMovieMotionHumanArm.angles(entry.pose, side),

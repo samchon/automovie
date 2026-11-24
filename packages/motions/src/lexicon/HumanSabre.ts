@@ -18,7 +18,6 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { courseArmGoal } from "../compose/courseArmGoal";
 import { HumanBound } from "../law/HumanBound";
@@ -512,18 +511,13 @@ export const HumanSabre: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanSab
         context.start,
         (local: IAutoMovieMotionHumanActionPlan) =>
           courseArmGoal({
-            body: context.body,
+            context,
             plan: local,
             side: "right",
-            rest: AutoMovieMotionHumanArm.angles(context.entry.pose, "right"),
             span,
             with: [
               {
                 side: "left",
-                rest: AutoMovieMotionHumanArm.angles(
-                  context.entry.pose,
-                  "left",
-                ),
                 span,
               },
             ],

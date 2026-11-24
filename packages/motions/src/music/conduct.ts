@@ -19,7 +19,6 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
-import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanHeld } from "../compose/AutoMovieMotionHumanHeld";
@@ -248,10 +247,9 @@ function plan(
     },
   };
   const coursed: IAutoMovieMotionHumanActionPlan = courseArmAtPace(
-    context.body,
+    context,
     goals,
     side,
-    AutoMovieMotionHumanArm.angles(context.entry.pose, side),
     { start: 0, ready: first * PREP, relax: last, end: clock.duration },
   );
   return {

@@ -239,7 +239,7 @@ export namespace AquaticPaddle {
         ? context.entry.pose
         : resolveHumanPosture(body, plan.posture(0));
     return courseArmGoal({
-      body,
+      context,
       plan,
       side: "left",
       rest: AutoMovieMotionHumanArm.angles(start, "left"),

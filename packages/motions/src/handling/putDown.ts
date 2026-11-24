@@ -23,7 +23,6 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanArmReach } from "../compose/AutoMovieMotionHumanArmReach";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
@@ -619,10 +618,9 @@ export namespace putDown {
       mouth === undefined
     )
       return courseArmGoal({
-        body,
+        context,
         plan,
         side,
-        rest: AutoMovieMotionHumanArm.angles(context.entry.pose, side),
         span: { start: 0, ready: down, relax: down + OPEN, end: duration },
         // Read past its end, the arm keeps the angles its return ended
         // with, never a fresh fit of the hanging goal on another branch.

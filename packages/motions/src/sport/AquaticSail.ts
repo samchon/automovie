@@ -616,7 +616,7 @@ export namespace AquaticSail {
         control: IControl,
       ): IAutoMovieMotionHumanActionPlan =>
         courseArmGoal({
-          body,
+          context,
           plan: laid,
           side: control.side,
           rest: AquaticPosture.rest(body, opening, control.side),

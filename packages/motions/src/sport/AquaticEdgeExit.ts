@@ -211,7 +211,7 @@ export namespace AquaticEdgeExit {
     // course, bears there until the knee is down, and returns to the
     // rising key's arm by `LET_GO` (`courseArmGoal`).
     return courseArmGoal({
-      body,
+      context,
       plan,
       side: "left",
       rest: AutoMovieMotionHumanArm.angles(entry.pose, "left"),

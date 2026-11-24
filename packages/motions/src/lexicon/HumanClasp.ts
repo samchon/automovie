@@ -175,7 +175,7 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
     plan: IAutoMovieMotionHumanActionPlan,
   ): IAutoMovieMotionHumanActionPlan =>
     courseArmGoal({
-      body: context.body,
+      context,
       plan,
       side: sides[0]!,
       rest: rest(sides[0]!),

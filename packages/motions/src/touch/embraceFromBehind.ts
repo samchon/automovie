@@ -27,7 +27,6 @@ import type {
 
 import { AutoMovieMotionHumanAuditSkin } from "../audit/AutoMovieMotionHumanAuditSkin";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
-import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanArmPhrase } from "../compose/AutoMovieMotionHumanArmPhrase";
 import { AutoMovieMotionHumanArmTarget } from "../compose/AutoMovieMotionHumanArmTarget";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
@@ -484,10 +483,9 @@ export const embraceFromBehind: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionH
         },
       };
       const coursed: IAutoMovieMotionHumanActionPlan = courseArmGoal({
-        body,
+        context,
         plan: around,
         side: "left",
-        rest: AutoMovieMotionHumanArm.angles(context.entry.pose, "left"),
         span: {
           start: 0,
           ready: clock.at("ready"),
@@ -497,7 +495,6 @@ export const embraceFromBehind: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionH
         with: [
           {
             side: "right",
-            rest: AutoMovieMotionHumanArm.angles(context.entry.pose, "right"),
           },
         ],
       });

@@ -1,3 +1,9 @@
+import type {
+  AutoMovieHumanSide,
+  IAutoMovieMotionHumanArmAngles,
+  IAutoMoviePose,
+} from "@automovie/interface";
+
 import { AutoMovieMotionHumanArmAngles } from "./AutoMovieMotionHumanArmAngles";
 import { AutoMovieMotionHumanArmCarry } from "./AutoMovieMotionHumanArmCarry";
 import { AutoMovieMotionHumanArmMove } from "./AutoMovieMotionHumanArmMove";
@@ -48,6 +54,35 @@ export namespace AutoMovieMotionHumanArm {
   /** {@link AutoMovieMotionHumanArmAngles.angles}. */
   export const angles: typeof AutoMovieMotionHumanArmAngles.angles =
     AutoMovieMotionHumanArmAngles.angles;
+
+  /** The pose an action is entered with, as a course reads it. */
+  export interface IEntry {
+    /** The displayed pose at the action's entry. */
+    pose: IAutoMoviePose;
+  }
+
+  /** What carries an action's entry: an action's context, or a stated pose. */
+  export interface IEntered {
+    /** The entry. */
+    entry: IEntry;
+  }
+
+  /**
+   * An arm's angles as its action is entered: the one entry arm record every
+   * course leaves from unless its law states another rest, so a course plans
+   * from the entry state (transitions.md, "Carry resolved entry state through
+   * cuts"; "Plan the target action from that entry state").
+   *
+   * @param context What carries the entry.
+   * @param side The arm.
+   * @returns The arm's angles in the entry pose.
+   */
+  export function entered(
+    context: IEntered,
+    side: AutoMovieHumanSide,
+  ): IAutoMovieMotionHumanArmAngles.IAngles {
+    return AutoMovieMotionHumanArmAngles.angles(context.entry.pose, side);
+  }
 
   /** {@link AutoMovieMotionHumanArmCarry.carry}. */
   export const carry: typeof AutoMovieMotionHumanArmCarry.carry =

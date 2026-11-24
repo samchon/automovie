@@ -421,10 +421,9 @@ export const HumanLunge: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLun
 
       // Both arms reach, hold and let go on one planned course.
       const coursed: IAutoMovieMotionHumanActionPlan = courseArmGoal({
-        body,
+        context,
         plan: goals,
         side: line,
-        rest: AutoMovieMotionHumanArm.angles(context.entry.pose, line),
         span: {
           start: 0,
           ready: transition,

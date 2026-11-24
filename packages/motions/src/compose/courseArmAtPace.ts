@@ -5,7 +5,6 @@ import type {
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanArmPlanned,
-  IAutoMovieMotionHumanBody,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -26,19 +25,18 @@ const RATE: number = 240;
  * declares by its goal, so the course may move as fast as the law asks and no
  * faster, with no constant added.
  *
- * @param body The body.
+ * @param context The body and the pose the course leaves from
+ *   (courseArmGoal.IContext).
  * @param goals The law's goal plan, whose posture writes the arm's goal.
  * @param side The arm.
- * @param rest The arm's angles before the span.
  * @param span Where the goal is written: from its start through its reach to
  *   the end.
  * @returns The coursed plan.
  */
 export function courseArmAtPace(
-  body: IAutoMovieMotionHumanBody,
+  context: courseArmGoal.IContext,
   goals: IAutoMovieMotionHumanActionPlan,
   side: AutoMovieHumanSide,
-  rest: Parameters<typeof courseArmGoal>[0]["rest"],
   span: IAutoMovieMotionHumanArmPlanned.ISpan,
 ): IAutoMovieMotionHumanActionPlan {
   const limb: AutoMovieHumanLimb = side === "left" ? "leftArm" : "rightArm";
@@ -61,10 +59,9 @@ export function courseArmAtPace(
     last = now;
   }
   return courseArmGoal({
-    body,
+    context,
     plan: goals,
     side,
-    rest,
     span,
     pace: (): number => peak,
   });

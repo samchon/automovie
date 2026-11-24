@@ -13,7 +13,6 @@ import type {
 import { HumanRefusal } from "../law/HumanRefusal";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
-import { AutoMovieMotionHumanArm } from "./AutoMovieMotionHumanArm";
 import { courseArmGoal } from "./courseArmGoal";
 
 /**
@@ -105,10 +104,9 @@ export function fitClearArmPose(
   }
   try {
     const coursed: IAutoMovieMotionHumanActionPlan = courseArmGoal({
-      body: props.body,
+      context: { body: props.body, entry: { pose: seed } },
       plan,
       side: props.side,
-      rest: AutoMovieMotionHumanArm.angles(seed, props.side),
       span: { start: 0, ready, relax, end },
       ...(pace === undefined ? {} : { pace: (): number => pace! }),
       ...(props.grasp === undefined ? {} : { grasp: props.grasp }),
@@ -118,7 +116,6 @@ export function fitClearArmPose(
             with: [
               {
                 side: props.second,
-                rest: AutoMovieMotionHumanArm.angles(seed, props.second),
                 ...(props.grasp === undefined ? {} : { grasp: props.grasp }),
               },
             ],

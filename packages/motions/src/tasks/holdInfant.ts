@@ -28,33 +28,37 @@ import { HumanHand } from "../posture/HumanHand";
 import { poseBones } from "../posture/poseBones";
 import { holdInfantCrook } from "./holdInfantCrook";
 
-/** Seconds the arms take to bring the infant into the hold: provisional, an unhurried careful move. */
+/**
+ * Seconds the arms take to bring the infant into the hold: provisional, an
+ * unhurried careful move.
+ */
 const SETTLE: number = 1;
 
 /** The world up. */
 const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
 
-/** How far a back pat lifts the palm off the back between pats, metres: provisional. */
+/**
+ * How far a back pat lifts the palm off the back between pats, metres:
+ * provisional.
+ */
 const PAT: number = 0.03;
 
 /**
  * Hold a taken-up infant (`IAutoMovieMotionHumanHoldInfant`). The infant is
- * rigid in the holding hand from its pick-up (`AutoMovieMotionHumanHeld`),
- * so each hold is a world pose of the infant in the body's frame, read from
- * the body where it entered, and the holding hand follows from it. In the
- * cradle and the feed the infant lies across the front, face up, along the
- * holding forearm: the arm is laid from the shoulder by its own lengths
- * (the upper arm forward of the trunk, the forearm across the front rising
- * to the elbow), the infant's seat in the hand and its nape at the elbow's
- * crook, so the forearm carries the head and the hold stays within the
- * arm's reach; in the cradle the other
- * hand lies over its front, opposite its back, in the feed it holds the bottle's teat at the
- * infant's mouth with the base above, tilted so the milk runs down. In the
- * shoulder hold the infant stands against the chest, its head by the
- * holding side's shoulder, and the other palm pats its back `pats` times a
- * second, lifting off between. A rocking sways the infant sideways. Both
- * arms are one course (`courseArmGoal`), the two hands on the infant its
- * grasp.
+ * rigid in the holding hand from its pick-up (`AutoMovieMotionHumanHeld`), so
+ * each hold is a world pose of the infant in the body's frame, read from the
+ * body where it entered, and the holding hand follows from it. In the cradle
+ * and the feed the infant lies across the front, face up, along the holding
+ * forearm: the arm is laid from the shoulder by its own lengths (the upper arm
+ * forward of the trunk, the forearm across the front rising to the elbow), the
+ * infant's seat in the hand and its nape at the elbow's crook, so the forearm
+ * carries the head and the hold stays within the arm's reach; in the cradle the
+ * other hand lies over its front, opposite its back, in the feed it holds the
+ * bottle's teat at the infant's mouth with the base above, tilted so the milk
+ * runs down. In the shoulder hold the infant stands against the chest, its head
+ * by the holding side's shoulder, and the other palm pats its back `pats` times
+ * a second, lifting off between. A rocking sways the infant sideways. Both arms
+ * are one course (`courseArmGoal`), the two hands on the infant its grasp.
  *
  * Events: `held` once the hold is taken, `pat<k>` at each pat, `relax`.
  *
@@ -306,7 +310,7 @@ export namespace holdInfant {
       posture,
     };
     return courseArmGoal({
-      body,
+      context,
       plan,
       side,
       rest: AutoMovieMotionHumanArm.angles(entry.pose, side),
@@ -334,7 +338,10 @@ export namespace holdInfant {
     face: IAutoMovieVector3;
   }
 
-  /** The rotation that takes the infant's `+Y` to `line` and its `+Z` toward `face`. */
+  /**
+   * The rotation that takes the infant's `+Y` to `line` and its `+Z` toward
+   * `face`.
+   */
   function basis(
     line: IAutoMovieVector3,
     face: IAutoMovieVector3,
@@ -350,7 +357,10 @@ export namespace holdInfant {
     );
   }
 
-  /** A palm laid on a site facing `normal`, its fingers toward `forward`, off it by `lift`. */
+  /**
+   * A palm laid on a site facing `normal`, its fingers toward `forward`, off it
+   * by `lift`.
+   */
   function palm(
     body: IAutoMovieMotionHumanActionContext["body"],
     side: AutoMovieHumanSide,
@@ -384,7 +394,10 @@ export namespace holdInfant {
     };
   }
 
-  /** The bottle's teat at the mouth, its base above toward the feet, from the other hand. */
+  /**
+   * The bottle's teat at the mouth, its base above toward the feet, from the
+   * other hand.
+   */
   function teat(
     body: IAutoMovieMotionHumanActionContext["body"],
     side: AutoMovieHumanSide,

@@ -9,7 +9,6 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { courseArmGoal } from "../compose/courseArmGoal";
 
 /**
@@ -97,20 +96,11 @@ export namespace carryCrutchHands {
     const duration: number = props.plan.duration;
     const ready: number = props.ready;
     return courseArmGoal({
-      body: props.context.body,
+      context: props.context,
       plan: props.plan,
       side: "left",
-      rest: AutoMovieMotionHumanArm.angles(props.context.entry.pose, "left"),
       span: { start: ready, ready, relax: duration, end: duration },
-      with: [
-        {
-          side: "right",
-          rest: AutoMovieMotionHumanArm.angles(
-            props.context.entry.pose,
-            "right",
-          ),
-        },
-      ],
+      with: [{ side: "right" }],
     });
   }
 }

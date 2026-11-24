@@ -434,13 +434,12 @@ export namespace catchObject {
         plan: IAutoMovieMotionHumanActionPlan,
         side: AutoMovieHumanSide,
       ): IAutoMovieMotionHumanActionPlan =>
-        courseArmAtPace(
-          body,
-          plan,
-          side,
-          AutoMovieMotionHumanArm.angles(before(side), side),
-          { start: reach, ready: contact, relax: duration, end: duration },
-        ),
+        courseArmAtPace({ body, entry: { pose: before(side) } }, plan, side, {
+          start: reach,
+          ready: contact,
+          relax: duration,
+          end: duration,
+        }),
       composeAutoMovieMotionHumanAction({
         base,
         clock,

@@ -19,7 +19,6 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
-import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanArmPhrase } from "../compose/AutoMovieMotionHumanArmPhrase";
 import { AutoMovieMotionHumanArmTarget } from "../compose/AutoMovieMotionHumanArmTarget";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
@@ -279,10 +278,9 @@ export const pullCover: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanPull
           contact: "strokeEnd",
         });
       const coursed: IAutoMovieMotionHumanActionPlan = courseArmGoal({
-        body,
+        context,
         plan,
         side: "left",
-        rest: AutoMovieMotionHumanArm.angles(context.entry.pose, "left"),
         span: {
           start: 0,
           ready: clock.at("ready"),
@@ -292,7 +290,6 @@ export const pullCover: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanPull
         with: [
           {
             side: "right",
-            rest: AutoMovieMotionHumanArm.angles(context.entry.pose, "right"),
           },
         ],
       });

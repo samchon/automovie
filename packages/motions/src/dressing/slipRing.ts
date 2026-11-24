@@ -24,7 +24,6 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
-import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanArmPhrase } from "../compose/AutoMovieMotionHumanArmPhrase";
 import { AutoMovieMotionHumanArmTarget } from "../compose/AutoMovieMotionHumanArmTarget";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
@@ -539,16 +538,14 @@ export const slipRing: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanSlipR
         },
       };
       const coursed: IAutoMovieMotionHumanActionPlan = courseArmGoal({
-        body,
+        context,
         plan: cleared,
         side,
-        rest: AutoMovieMotionHumanArm.angles(context.entry.pose, side),
         span,
         grasp: ["hand"],
         with: [
           {
             side: steady,
-            rest: AutoMovieMotionHumanArm.angles(context.entry.pose, steady),
             grasp: ["hand"],
             span: grasping,
           },

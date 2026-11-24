@@ -17,7 +17,6 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
-import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanHeld } from "../compose/AutoMovieMotionHumanHeld";
 import { AutoMovieMotionHumanTrunk } from "../compose/AutoMovieMotionHumanTrunk";
@@ -503,10 +502,9 @@ export namespace StrikingBlade {
     const reach: number = ready > 0 ? ((15 / 8) * travel) / ready : 0;
     let fastest: number | undefined;
     return courseArmGoal({
-      body: context.body,
+      context,
       side: tool.side,
       plan: goals,
-      rest: AutoMovieMotionHumanArm.angles(context.entry.pose, tool.side),
       span: { start: 0, ready, relax: duration, end: duration },
       pace: (): number =>
         (fastest ??= Math.max(

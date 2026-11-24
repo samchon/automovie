@@ -460,13 +460,9 @@ export const lieTogether: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLi
       return drape === undefined
         ? plan
         : lieTogetherDrape.course({
-            body,
+            context,
             plan,
             drape,
-            rest: AutoMovieMotionHumanArm.angles(
-              context.entry.pose,
-              drape.side,
-            ),
             settle,
             partner: p.partner,
           });

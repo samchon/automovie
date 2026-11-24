@@ -339,7 +339,7 @@ function thread(
   // place of a fresh fit at each second, where two nearly tied solutions
   // let one frame turn the hand over. The checks above read the goal.
   return courseArmGoal({
-    body,
+    context,
     side,
     rest: AutoMovieMotionHumanArm.angles(entry.pose, side),
     span: { start: 0, ready: prepare, relax: total, end },

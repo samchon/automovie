@@ -380,7 +380,7 @@ export function planPickUpGrasp(
   // hold: a posture frozen at the close and released at the lift-off shows a
   // step wherever the course's hold has settled since the close.
   const coursed: IAutoMovieMotionHumanActionPlan = courseArmGoal({
-    body,
+    context,
     plan: goals,
     side,
     rest,

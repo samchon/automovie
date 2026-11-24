@@ -238,7 +238,7 @@ export namespace AquaticScull {
         precisionStrokePeak(goals.posture, "rightArm", duration),
       ));
     return courseArmGoal({
-      body,
+      context,
       plan: goals,
       side: "left",
       rest: AutoMovieMotionHumanArm.angles(entry.pose, "left"),

@@ -239,7 +239,7 @@ export function HumanSurfaceBoard(
     end: duration,
   };
   return courseArmGoal({
-    body,
+    context,
     plan: carried,
     side: first.side,
     rest: AutoMovieMotionHumanArm.angles(entry.pose, first.side),

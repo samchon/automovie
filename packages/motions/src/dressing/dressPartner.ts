@@ -13,7 +13,6 @@ import type {
   IAutoMovieMotionPropHold,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanPartnerClear } from "../compose/AutoMovieMotionHumanPartnerClear";
 import { courseArmGoal } from "../compose/courseArmGoal";
 import { armPhrase } from "../everyday/armPhrase";
@@ -185,10 +184,9 @@ export const dressPartner: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanD
           ),
       };
       const plan: IAutoMovieMotionHumanActionPlan = courseArmGoal({
-        body: context.body,
+        context,
         plan: cleared,
         side,
-        rest: AutoMovieMotionHumanArm.angles(context.entry.pose, side),
         span: {
           start: at("start", 0),
           ready: at("ready", 0),

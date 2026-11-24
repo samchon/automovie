@@ -19,7 +19,6 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanHeld } from "../compose/AutoMovieMotionHumanHeld";
@@ -308,10 +307,9 @@ export const HumanCaneSweep: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHuma
         },
       };
       return courseArmGoal({
-        body,
+        context,
         plan: goals,
         side,
-        rest: AutoMovieMotionHumanArm.angles(context.entry.pose, side),
         span: { start: 0, ready, relax, end: duration },
       });
     },

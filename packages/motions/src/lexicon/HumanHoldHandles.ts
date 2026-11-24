@@ -15,7 +15,6 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { courseArmGoal } from "../compose/courseArmGoal";
 import { HumanRefusal } from "../law/HumanRefusal";
@@ -289,10 +288,9 @@ export const HumanHoldHandles: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHu
       // Both arms reach, hold and let go on one planned course, so each
       // keeps its branch from the walk's arm onto its moving handle.
       return courseArmGoal({
-        body: context.body,
+        context,
         plan: goals,
         side: "left",
-        rest: AutoMovieMotionHumanArm.angles(context.entry.pose, "left"),
         span: {
           start: 0,
           ready: transition,
@@ -302,7 +300,6 @@ export const HumanHoldHandles: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHu
         with: [
           {
             side: "right",
-            rest: AutoMovieMotionHumanArm.angles(context.entry.pose, "right"),
           },
         ],
       });

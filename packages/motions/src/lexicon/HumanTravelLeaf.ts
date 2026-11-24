@@ -17,7 +17,6 @@ import type {
 } from "@automovie/interface";
 
 import { stand } from "../actions/stand";
-import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
 import { courseArmGoal } from "../compose/courseArmGoal";
 import { bendLower } from "../everyday/bendLower";
@@ -580,10 +579,9 @@ export namespace HumanTravelLeaf {
         // other branch, a flip of the shoulder and forearm in one frame. The
         // hold checks above read the goal itself.
         return courseArmGoal({
-          body,
+          context,
           plan,
           side,
-          rest: AutoMovieMotionHumanArm.angles(context.entry.pose, side),
           span: { start: 0, ready: TAKE, relax: seconds, end: seconds },
         });
       },

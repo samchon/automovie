@@ -22,7 +22,6 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { courseArmGoal } from "../compose/courseArmGoal";
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { ExerciseKey } from "../exercise/ExerciseKey";
@@ -510,10 +509,9 @@ export const HumanFloatBeside: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHu
       // The near arm keeps the mane on one planned course from the seat into
       // the float, so it never changes branch as the horse swims on.
       return courseArmGoal({
-        body,
+        context,
         plan: goals,
         side: near,
-        rest: AutoMovieMotionHumanArm.angles(context.entry.pose, near),
         span: {
           start: 0,
           ready: transition,

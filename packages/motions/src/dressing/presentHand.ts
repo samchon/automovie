@@ -12,7 +12,6 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
-import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanArmPhrase } from "../compose/AutoMovieMotionHumanArmPhrase";
 import { AutoMovieMotionHumanArmTarget } from "../compose/AutoMovieMotionHumanArmTarget";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
@@ -130,10 +129,9 @@ export const presentHand: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanPr
           contact: "stroke",
         });
       return courseArmGoal({
-        body,
+        context,
         plan,
         side,
-        rest: AutoMovieMotionHumanArm.angles(context.entry.pose, side),
         span: {
           start: 0,
           ready: clock.at("ready"),

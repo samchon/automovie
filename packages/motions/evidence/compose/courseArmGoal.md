@@ -57,3 +57,50 @@ A pure function of its arguments.
 ## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
 
 Returns a new span and retains nothing.
+# src/compose/courseArmGoal.ts#courseArmGoal.rest
+
+## @evidence contracts/development/common.md#meaningful-documentation
+
+States which rest an arm takes, the default and the rule it follows.
+
+## @evidence contracts/development/implementation.md#principled-implementation
+
+transitions.md "Carry resolved entry state through cuts" and "Plan the target action from that entry state": a course leaves from the arm the action is entered with unless its law states another rest.
+
+## @evidence contracts/development/implementation.md#clear-and-simple-structure
+
+One default, read from the one entry arm record (`AutoMovieMotionHumanArm.entered`); the 77 identical rest lines the laws wrote are gone.
+
+## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
+
+No assumed rest: the entry's displayed arm, or the law's own.
+
+## @evidence contracts/development/implementation.md#efficient-algorithms
+
+One angle reading per arm when the course is laid.
+
+## @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work
+
+A pure reading of its arguments.
+
+## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
+
+Returns the angles and retains nothing.
+
+# src/compose/courseArmGoal.ts#courseArmGoal.IContext
+
+## @evidence contracts/development/common.md#meaningful-documentation
+
+States what a course reads of its action's context and how a helper states another pose.
+
+## @evidence contracts/development/design.md#principled-representation
+
+The body and the entry pose: what the course needs to fit and to take its rests from.
+
+## @evidence contracts/development/design.md#minimal-and-owned-surface
+
+Owned by courseArmGoal; an action's context satisfies it as it is, and a helper that lays a course from a seed or an address states that pose as the entry.
+
+## @evidence contracts/development/design.md#prohibited-design-shortcuts
+
+The body and the entry only, not the whole action context, so a helper without one can state its pose.

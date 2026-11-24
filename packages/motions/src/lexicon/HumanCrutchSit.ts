@@ -7,7 +7,6 @@ import type {
   IAutoMovieMotionHumanPosture,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { courseArmGoal } from "../compose/courseArmGoal";
 import { crutchSitDown } from "./crutchSitDown";
 import { crutchSitKit } from "./crutchSitKit";
@@ -62,10 +61,9 @@ export const HumanCrutchSit: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHuma
           order.posture(seconds),
       };
       return courseArmGoal({
-        body: kit.body,
+        context,
         plan: goals,
         side: kit.injured,
-        rest: AutoMovieMotionHumanArm.angles(context.entry.pose, kit.injured),
         span: {
           start: 0,
           ready: order.ready,
@@ -75,7 +73,6 @@ export const HumanCrutchSit: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHuma
         with: [
           {
             side: kit.sound,
-            rest: AutoMovieMotionHumanArm.angles(context.entry.pose, kit.sound),
           },
         ],
         after: "angles",

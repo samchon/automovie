@@ -9,7 +9,6 @@ import type {
 } from "@automovie/interface";
 
 import { walk } from "../actions/walk";
-import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { courseArmGoal } from "../compose/courseArmGoal";
 import { HumanMountRider } from "../lexicon/HumanMountRider";
 import { readPropGrip } from "./readPropGrip";
@@ -90,10 +89,9 @@ export function HumanRoundaboutPush(
     },
   };
   return courseArmGoal({
-    body: context.body,
+    context,
     plan: goals,
     side: hand,
-    rest: AutoMovieMotionHumanArm.angles(context.entry.pose, hand),
     span: { start: 0, ready: reach, relax: path.duration, end: path.duration },
   });
 }

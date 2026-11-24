@@ -22,7 +22,6 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
-import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanArmPhrase } from "../compose/AutoMovieMotionHumanArmPhrase";
 import { AutoMovieMotionHumanArmTarget } from "../compose/AutoMovieMotionHumanArmTarget";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
@@ -563,16 +562,14 @@ export const placeOverHead: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHuman
         context.start,
       );
       const coursed: IAutoMovieMotionHumanActionPlan = courseArmGoal({
-        body,
+        context,
         plan: cleared,
         side,
-        rest: AutoMovieMotionHumanArm.angles(context.entry.pose, side),
         span,
         grasp: ["hand", "lowerArm"],
         with: [
           {
             side: other,
-            rest: AutoMovieMotionHumanArm.angles(context.entry.pose, other),
             grasp: ["hand", "lowerArm"],
           },
         ],
