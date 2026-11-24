@@ -1,4 +1,5 @@
 import {
+  type AutoMovieXpbdBody,
   Quaternion,
   Vector3,
   physicalIcpController,
@@ -10,7 +11,6 @@ import type {
   IAutoMovieFootfallPattern,
   IAutoMoviePhysicalJoint,
   IAutoMoviePhysicalProfile,
-  IAutoMoviePhysicalRecoveryPolicy,
   IAutoMoviePhysicalSegment,
   IAutoMoviePhysicalShape,
   IAutoMoviePhysicalSimulationInput,
@@ -239,7 +239,7 @@ function standing(
       ]),
     ),
     center: centerOf(profile, segments),
-    supports: limbs.map((limb: IAutoMovieFootfallPattern["limbs"][number]) => ({
+    supports: limbs.map((limb: IAutoMovieFootfallPattern["limbs"][number]): ISole => ({
       bone: limb.bone,
       points: (limb.contacts ?? [limb.bone])
         .flatMap((bone: string): IAutoMovieVector3[] =>
@@ -339,18 +339,10 @@ function demand(
   // its load anywhere across its own support: the left share is (c - r) /
   // (l - r) for some centre of pressure l on the left footprint and r on the
   // right, so it lies in the band those footprints' ends give.
-  const supports: readonly IAutoMovieCollectPhysicalSupports.ISupport[] =
-    input.supports;
   const footprint = (side: string): IAutoMovieVector3[] =>
-    supports
-      .filter((support: IAutoMovieCollectPhysicalSupports.ISupport): boolean =>
-        support.bone.startsWith(side),
-      )
-      .flatMap(
-        (
-          support: IAutoMovieCollectPhysicalSupports.ISupport,
-        ): IAutoMovieVector3[] => support.points,
-      );
+    input.supports
+      .filter((support: ISole): boolean => support.bone.startsWith(side))
+      .flatMap((support: ISole): IAutoMovieVector3[] => support.points);
   const origin: IAutoMovieVector3 = mean(footprint("right"));
   const across: IAutoMovieVector3 = Vector3.subtract(
     mean(footprint("left")),
@@ -451,6 +443,21 @@ function mean(points: readonly IAutoMovieVector3[]): IAutoMovieVector3 {
     ),
     1 / points.length,
   );
+}
+
+/** A support limb's measured sole points, world metres. */
+type ISole = Pick<IAutoMovieCollectPhysicalSupports.ISupport, "bone" | "points">;
+
+/** A standing frame as the stance demand reads it. */
+interface IStanding {
+  /** Each segment's state, by bone. */
+  segments: Record<string, PhysicalBalanceReplay.ISegment>;
+  /** The stance carriers' planted poses, by bone. */
+  planted: Record<string, IAutoMovieRigidTransform>;
+  /** The authored mass center, world metres. */
+  center: IAutoMovieVector3;
+  /** The support limbs' measured sole points. */
+  supports: readonly ISole[];
 }
 
 /**

@@ -4,6 +4,7 @@ import {
   Material,
   Mesh,
 } from "three";
+
 import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
 
 /**

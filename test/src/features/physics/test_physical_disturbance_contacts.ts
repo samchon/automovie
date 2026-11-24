@@ -4,6 +4,7 @@ import {
 } from "@automovie/engine";
 import type {
   IAutoMovieContactReceipt,
+  IAutoMoviePhysicalRecoveryState,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -47,7 +48,8 @@ export function test_physical_disturbance_contacts(): void {
     { x: 0.12, y: 0.05 },
     { x: -0.12, y: 0.05 },
   ];
-  const input: Span.IInput = {
+  // The recorded span, as the recovery state holds it.
+  const input: NonNullable<IAutoMoviePhysicalRecoveryState["span"]> = {
     seconds: t0,
     center: { x: 0, y: 0.9, z: 0 },
     velocity: { x: 0, y: 0, z: 1.2 },
@@ -87,7 +89,7 @@ export function test_physical_disturbance_contacts(): void {
   });
   const body: Recorded["settings"]["bodies"][number] = {
     id: "biped",
-    mode: { kind: "dynamic" },
+    mode: { kind: "simulated" },
     profile: { joints: [] },
   };
   const bound: Recorded["bound"] = {

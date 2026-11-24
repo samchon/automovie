@@ -4,9 +4,9 @@ import type {
 } from "@automovie/interface";
 import * as THREE from "three";
 
+import { AutoMovieThreeKind } from "./AutoMovieThreeKind.js";
 import { readAutoMovieEnvironmentColorSpace } from "./readAutoMovieEnvironmentColorSpace.js";
 import { readAutoMovieTextureUploadFormat } from "./readAutoMovieTextureUploadFormat.js";
-import { AutoMovieThreeKind } from "./AutoMovieThreeKind.js";
 
 /**
  * Observe positive two-dimensional decoded texture extents and current
@@ -33,8 +33,7 @@ export function readAutoMovieTextureSource(
   texture: THREE.Texture,
 ): IAutoMovieRenderTextureSource {
   const image: unknown = texture.image;
-  const data: boolean =
-    AutoMovieThreeKind.isDataTexture(texture);
+  const data: boolean = AutoMovieThreeKind.isDataTexture(texture);
   const original: ReturnType<typeof decodedExtent> = decodedExtent(image, data);
   if (typeof image !== "object" || image === null || original === undefined)
     throw new Error(
@@ -48,10 +47,9 @@ export function readAutoMovieTextureSource(
     !framebuffer &&
     !AutoMovieThreeKind.isDepthTexture(texture) &&
     !texture.isRenderTargetTexture;
-  const extent: { width: number; height: number } =
-    usesManualBase
-      ? (decodedExtent(mipmaps[0], data) ?? original)
-      : original;
+  const extent: { width: number; height: number } = usesManualBase
+    ? (decodedExtent(mipmaps[0], data) ?? original)
+    : original;
   const unsupportedExtent: boolean =
     ("depth" in image && image.depth !== 1) ||
     AutoMovieThreeKind.isDataArrayTexture(texture) ||

@@ -120,18 +120,18 @@ function programOf(object: THREE.Object3D): Record<string, unknown> | null {
   return Object.fromEntries(
     Object.entries(material.uniforms).map(
       ([name, uniform]: [string, THREE.IUniform]): [string, unknown] => {
-        const value: THREE.Vector2 | THREE.Vector3 | THREE.Matrix3 | THREE.Matrix4 | number | null =
-          uniform.value;
+        const value:
+          | THREE.Vector2
+          | THREE.Vector3
+          | THREE.Matrix3
+          | THREE.Matrix4
+          | number
+          | null = uniform.value;
         if (value === null) return [name, null];
         if (value === +value) return [name, value];
-        const vector: THREE.Vector2 = value as THREE.Vector2;
-        if (
-          vector.isVector2 === true ||
-          (value as THREE.Vector3).isVector3 === true ||
-          (value as THREE.Matrix3).isMatrix3 === true ||
-          (value as THREE.Matrix4).isMatrix4 === true
-        )
-          return [name, (value as THREE.Vector2).toArray()];
+        // Vectors and matrices each copy out through their own toArray.
+        const arrayable: THREE.Vector2 = value as THREE.Vector2;
+        if (arrayable.toArray !== undefined) return [name, arrayable.toArray()];
         return [name, null];
       },
     ),

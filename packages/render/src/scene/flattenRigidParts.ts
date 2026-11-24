@@ -1,9 +1,9 @@
 import * as THREE from "three";
 import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js";
 
+import { AutoMovieThreeKind } from "./AutoMovieThreeKind.js";
 import type { IAutoMovieInstancedGeometry } from "./IAutoMovieInstancedGeometry.js";
 import { reportAutoMovieResourceRetirement } from "./reportAutoMovieResourceRetirement.js";
-import { AutoMovieThreeKind } from "./AutoMovieThreeKind.js";
 
 /**
  * Clone rigid parts into world-rest geometry in their shared traversal order.

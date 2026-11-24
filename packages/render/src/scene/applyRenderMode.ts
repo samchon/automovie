@@ -4,6 +4,7 @@ import type {
 } from "@automovie/interface";
 import * as THREE from "three";
 
+import { AutoMovieThreeKind } from "./AutoMovieThreeKind.js";
 import { DEPTH_NORMALIZATION_RANGE } from "./DEPTH_NORMALIZATION_RANGE.js";
 import { EDGE_WIDTH } from "./EDGE_WIDTH.js";
 import type { IAutoMovieRenderModeHandle } from "./IAutoMovieRenderModeHandle.js";
@@ -20,7 +21,6 @@ import { restoreAutoMovieRenderModeState } from "./restoreAutoMovieRenderModeSta
 import { autoMovieSemanticMaskOf } from "./semanticMask/index.js";
 import { applyAutoMovieGraphicsMode } from "./surfaceGraphic/applyAutoMovieGraphicsMode.js";
 import { hideAutoMovieSurfaceGraphics } from "./surfaceGraphic/hideAutoMovieSurfaceGraphics.js";
-import { AutoMovieThreeKind } from "./AutoMovieThreeKind.js";
 
 /** A renderable that is NOT a mesh: a line/grid/helper, points, or a sprite. */
 const isNonMeshRenderable: (object: THREE.Object3D) => boolean = (

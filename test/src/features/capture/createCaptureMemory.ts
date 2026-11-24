@@ -1,9 +1,15 @@
 import type { IAutoMovieCaptureStorage } from "@automovie/interface";
 
 /**
- * An in-memory file system that a capture writes through, recording every call, so a test reads which files a capture wrote, in what order, and that nothing left its root.
+ * An in-memory file system that a capture writes through, recording every call,
+ * so a test reads which files a capture wrote, in what order, and that nothing
+ * left its root.
  *
- * It follows the `node:fs/promises` behaviour the capture relies on: `readdir` and `readFile` reject a missing path with a message naming it, `writeFile` rejects a file whose folder does not exist, `mkdir` with `recursive` creates every missing parent, and `rm` with `force` ignores a missing file. Text is stored as UTF-8 bytes.
+ * It follows the `node:fs/promises` behaviour the capture relies on: `readdir`
+ * and `readFile` reject a missing path with a message naming it, `writeFile`
+ * rejects a file whose folder does not exist, `mkdir` with `recursive` creates
+ * every missing parent, and `rm` with `force` ignores a missing file. Text is
+ * stored as UTF-8 bytes.
  */
 export function createCaptureMemory(
   seed: Readonly<Record<string, string>> = {},
@@ -51,8 +57,13 @@ export function createCaptureMemory(
       log.push(`writeFile ${path}`);
       if (!folders.has(parent(path)))
         throw new Error(`ENOENT: no folder for ${path}`);
-      // A Blob takes either form the storage accepts and yields its bytes.
-      files.set(path, new Uint8Array(await new Blob([data]).arrayBuffer()));
+      // The storage contract (`IAutoMovieCaptureStorage`) declares text or bytes.
+      files.set(
+        path,
+        typeof data === "string"
+          ? new TextEncoder().encode(data)
+          : new Uint8Array(data),
+      );
     },
     rm: async (path: string): Promise<void> => {
       log.push(`rm ${path}`);

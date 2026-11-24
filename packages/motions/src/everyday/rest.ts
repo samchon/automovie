@@ -432,9 +432,11 @@ export namespace rest {
       ): IAutoMovieMotionHumanPosture => write(seconds, resolution, projection),
       prepare: (): void => {
         base.prepare?.();
-        // The arrival's branch points: its ends and its centre.
-        carrier.prepare([0, arrive / 2, arrive], (seconds: number): unknown =>
-          write(seconds, undefined, undefined),
+        // The arrival, the stretch the arms are carried on.
+        carrier.prepare(
+          [[0, arrive]],
+          (seconds: number): IAutoMovieMotionHumanPosture =>
+            write(seconds, undefined, undefined),
         );
       },
     };

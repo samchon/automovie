@@ -6,11 +6,11 @@ import type {
 } from "@automovie/interface";
 import * as THREE from "three";
 
+import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
 import type { IAutoMovieInspectionDiagnosticOverlay } from "./IAutoMovieInspectionDiagnosticOverlay.js";
 import type { IAutoMovieInspectionOverlay } from "./IAutoMovieInspectionOverlay.js";
 import type { IRenderAutoMovieInspectionDiagnosticsProps } from "./IRenderAutoMovieInspectionDiagnosticsProps.js";
 import { buildAutoMovieInspectionMarks } from "./buildAutoMovieInspectionMarks.js";
-import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
 
 /** The review overlay uses red, in sRGB. */
 const COLOR: number = 0xff0000;

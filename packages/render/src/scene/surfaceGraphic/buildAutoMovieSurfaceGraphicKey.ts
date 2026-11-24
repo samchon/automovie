@@ -5,11 +5,11 @@ import type {
 } from "@automovie/interface";
 import * as THREE from "three";
 
+import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
 import { clipAutoMovieSurfaceGraphicGeometry } from "./clipAutoMovieSurfaceGraphicGeometry.js";
 import { createAutoMovieSurfaceGraphicMaterial } from "./createAutoMovieSurfaceGraphicMaterial.js";
 import { createAutoMovieSurfaceGraphicQuad } from "./createAutoMovieSurfaceGraphicQuad.js";
 import { createAutoMovieSurfaceGraphicText } from "./createAutoMovieSurfaceGraphicText.js";
-import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
 
 /**
  * Build one key's graphic as a group of flat meshes on the face.

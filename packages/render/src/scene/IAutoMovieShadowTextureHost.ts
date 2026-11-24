@@ -7,8 +7,7 @@ import type { IAutoMovieShadowRetirementHost } from "./IAutoMovieShadowRetiremen
  * real WebGLRenderer satisfies this boundary; no drawing capability or GPU
  * resource ownership is transferred to the observer.
  */
-export interface IAutoMovieShadowTextureHost
-  extends IAutoMovieShadowRetirementHost {
+export interface IAutoMovieShadowTextureHost extends IAutoMovieShadowRetirementHost {
   /** Current host shadow switch and native allocator family. */
   shadowMap: Pick<THREE.WebGLRenderer["shadowMap"], "enabled" | "type">;
 

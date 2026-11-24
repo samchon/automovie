@@ -14,7 +14,7 @@ import type {
  * @returns The swings of both feet in toe-off order.
  */
 export function walkLocomoteSwings(
-  steps: Pick<IAutoMovieMotionHumanWalkSteps.IPlan, "foot" | "stances">,
+  steps: walkLocomoteSwings.ISteps,
 ): walkLocomoteSwings.ISwing[] {
   const swings: walkLocomoteSwings.ISwing[] = [];
   for (const side of ["left", "right"] as const) {
@@ -41,6 +41,24 @@ export function walkLocomoteSwings(
  * so every swing's constants are prepared before any second is read.
  */
 export namespace walkLocomoteSwings {
+  /**
+   * What the swings read of a step schedule: its stances and each foot's
+   * swing.
+   */
+  export interface ISteps {
+    /** The stances of both feet, in order. */
+    stances: readonly Pick<
+      IAutoMovieMotionHumanWalkSteps.IStance,
+      "side" | "from" | "to"
+    >[];
+
+    /** A foot's swing at a second, absent while it stands. */
+    foot(
+      side: AutoMovieHumanSide,
+      seconds: number,
+    ): Pick<IAutoMovieMotionHumanWalkFoot.IScheduled, "swing">;
+  }
+
   /** One foot's swing between two of its stances, action seconds. */
   export interface ISwing {
     /** The swinging foot. */

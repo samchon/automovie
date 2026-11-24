@@ -1,17 +1,7 @@
-import {
-  Camera,
-  Line,
-  Material,
-  Mesh,
-  Object3D,
-  Points,
-  ShaderMaterial,
-  Sprite,
-} from "three";
+import { Camera, Material, Mesh, Object3D } from "three";
 
-import { AutoMovieSkinnedMesh } from "../AutoMovieSkinnedMesh.js";
-import { readAutoMovieDisplayedBox } from "./readAutoMovieDisplayedBox.js";
 import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
+import { readAutoMovieDisplayedBox } from "./readAutoMovieDisplayedBox.js";
 
 /**
  * List the drawables of a required subject whose current geometry the CPU can
@@ -38,7 +28,7 @@ export function listAutoMovieCameraSubjectMeshes(
   let supported: boolean = true;
   target.traverseVisible((object: Object3D): void => {
     if (!supported || !object.layers.test(camera.layers)) return;
-    if (!(AutoMovieThreeKind.isMesh(object))) {
+    if (!AutoMovieThreeKind.isMesh(object)) {
       if (
         AutoMovieThreeKind.isLine(object) ||
         AutoMovieThreeKind.isPoints(object) ||
@@ -81,7 +71,7 @@ function keepsVertices(input: Material | Material[]): boolean {
   const materials: Material[] = [input].flat();
   return materials.every(
     (material: Material): boolean =>
-      !(AutoMovieThreeKind.isShaderMaterial(material)) &&
+      !AutoMovieThreeKind.isShaderMaterial(material) &&
       material.onBeforeCompile === Material.prototype.onBeforeCompile &&
       material.onBeforeRender === Material.prototype.onBeforeRender &&
       (!("displacementMap" in material) || material.displacementMap === null),

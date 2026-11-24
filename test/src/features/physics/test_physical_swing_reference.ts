@@ -12,7 +12,6 @@ import type {
   IAutoMovieFootfallPattern,
   IAutoMoviePhysicalJoint,
   IAutoMoviePhysicalProfile,
-  IAutoMoviePhysicalRecoveryPolicy,
   IAutoMoviePhysicalRecoveryState,
   IAutoMoviePhysicalSimulationInput,
   IAutoMovieQuaternion,
@@ -266,6 +265,8 @@ export async function test_physical_swing_reference(): Promise<void> {
         neutral: { position: { x: 0, y: 0.04, z: 0 }, rotation: identity },
         shapes: [
           {
+            id: "foot",
+            material: "sole",
             kind: "box",
             halfExtents: { x: 0.05, y: 0.04, z: 0.1 },
             transform: { position: { x: 0, y: 0, z: 0 }, rotation: identity },
@@ -331,13 +332,14 @@ export async function test_physical_swing_reference(): Promise<void> {
       profile: await PhysicalHumanProfiles.load("m-average"),
     }),
     targets: recording.records.find(
-      (record: PhysicalBalanceReplay.IRecord): boolean =>
+      (
+        record: PhysicalBalanceReplay.IRecord,
+      ): record is PhysicalBalanceReplay.IAdvanceRecord =>
         record.kind === "advance" && record.reason === "fixed 0.1",
     )!.input.targets,
   };
-  const limb: IAutoMovieFootfallPattern["limbs"][number] = (
-    recording.body.balance as IAutoMoviePhysicalRecoveryPolicy
-  ).pattern.limbs.find(
+  const limb: IAutoMovieFootfallPattern["limbs"][number] =
+    recording.body.balance!.pattern.limbs.find(
     (candidate: IAutoMovieFootfallPattern["limbs"][number]): boolean =>
       candidate.bone === "rightFoot",
   )!;

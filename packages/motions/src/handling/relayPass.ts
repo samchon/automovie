@@ -345,15 +345,11 @@ export namespace relayPass {
     };
     plan.prepare = (): void => {
       base.prepare?.();
-      // The pass's branch points: each blend's ends and centre.
+      // The pass's two blends, the stretches the arm is carried on.
       carrier.prepare(
         [
-          Math.max(0, at - REACH),
-          Math.max(0, at - REACH / 2),
-          at,
-          relax,
-          Math.min(duration, relax + REACH / 2),
-          Math.min(duration, relax + REACH),
+          [Math.max(0, at - REACH), at],
+          [relax, Math.min(duration, relax + REACH)],
         ],
         plan.posture,
       );

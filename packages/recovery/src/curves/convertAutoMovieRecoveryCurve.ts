@@ -13,8 +13,8 @@ import type {
  * derivatives are 3(B1-B0)/h and 3(B3-B2)/h; the inverse handles multiply by
  * h/3, with h the span's original phase width. This is an algebraic basis
  * change in real arithmetic with binary64 rounding, not a fit or a bitwise
- * round trip. Names, closure, units and phase widths are kept, and the spans
- * of the requested basis are fresh records.
+ * round trip. Names, closure, units and phase widths are kept, and the spans of
+ * the requested basis are fresh records.
  *
  * @param curve The saved cubic, in either basis.
  * @param format The basis to express it in.
@@ -57,7 +57,9 @@ function hermiteSpans(
 ): IAutoMovieRecoveryHermiteSpan[] {
   return curve.type === "cubicHermite"
     ? curve.spans.map(
-        (span: IAutoMovieRecoveryHermiteSpan): IAutoMovieRecoveryHermiteSpan => ({
+        (
+          span: IAutoMovieRecoveryHermiteSpan,
+        ): IAutoMovieRecoveryHermiteSpan => ({
           start: M.clone(span.start),
           end: M.clone(span.end),
           startDerivative: M.clone(span.startDerivative),

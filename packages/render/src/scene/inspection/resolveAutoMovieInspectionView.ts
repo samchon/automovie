@@ -5,12 +5,12 @@ import type {
 } from "@automovie/interface";
 import * as THREE from "three";
 
+import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
 import type { IAutoMovieViewerSubjectBounds } from "../subjectViewpoint/IAutoMovieViewerSubjectBounds.js";
 import type { IAutoMovieViewerSubjectPose } from "../subjectViewpoint/IAutoMovieViewerSubjectPose.js";
 import type { IAutoMovieViewerViewpoint } from "../subjectViewpoint/IAutoMovieViewerViewpoint.js";
 import { autoMovieViewerNamedViewpoints } from "../subjectViewpoint/autoMovieViewerNamedViewpoints.js";
 import { frameAutoMovieViewerSubject } from "../subjectViewpoint/frameAutoMovieViewerSubject.js";
-import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
 
 /**
  * Smallest half extent a fitted view frames, metres, the framing owner's floor

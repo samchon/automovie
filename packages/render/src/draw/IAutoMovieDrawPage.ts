@@ -50,7 +50,9 @@ export interface IAutoMovieDrawPage {
     arg: IAutoMovieDrawPageRequest.ISpeak,
   ): Promise<void>;
   evaluate(
-    task: (arg: IAutoMovieDrawPageRequest.IDraw) => Promise<IAutoMovieDrawResult>,
+    task: (
+      arg: IAutoMovieDrawPageRequest.IDraw,
+    ) => Promise<IAutoMovieDrawResult>,
     arg: IAutoMovieDrawPageRequest.IDraw,
   ): Promise<IAutoMovieDrawResult>;
 

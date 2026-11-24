@@ -8,8 +8,8 @@ import { rebindRecoveryCurveAuthorities } from "../internal/rebindRecoveryCurveA
 import { convertAutoMovieRecoveryCurve } from "./convertAutoMovieRecoveryCurve";
 
 /**
- * Copy a saved recovery record into the selected cubic coefficient basis.
- * Every cubic at the record's declared curve places is converted by
+ * Copy a saved recovery record into the selected cubic coefficient basis. Every
+ * cubic at the record's declared curve places is converted by
  * `convertAutoMovieRecoveryCurve`: a fit's or override's curve, each closed
  * loop of its loft or sections, each open arc of its reports, and each curve
  * override. Original phase widths, directions, names and metadata survive
@@ -61,7 +61,9 @@ export function convertAutoMovieRecoveryCurves<
       ? {}
       : {
           reports: owned.reports.map(
-            (report: { open: readonly { curve: IAutoMovieRecoveryCurveBundle.Curve }[] }) => ({
+            (report: {
+              open: readonly { curve: IAutoMovieRecoveryCurveBundle.Curve }[];
+            }) => ({
               ...report,
               open: report.open.map(
                 (arc: { curve: IAutoMovieRecoveryCurveBundle.Curve }) => ({

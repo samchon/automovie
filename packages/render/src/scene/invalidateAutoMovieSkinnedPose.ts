@@ -17,7 +17,8 @@ import { AutoMovieThreeKind } from "./AutoMovieThreeKind.js";
  */
 export function invalidateAutoMovieSkinnedPose(root: THREE.Object3D): void {
   root.traverse((object: THREE.Object3D): void => {
-    if (AutoMovieThreeKind.isAutoMovieSkinnedMesh(object)) object.invalidatePose();
+    if (AutoMovieThreeKind.isAutoMovieSkinnedMesh(object))
+      object.invalidatePose();
     else if (AutoMovieThreeKind.isSkinnedMesh(object))
       AutoMovieSkinnedMesh.clearBounds(object);
   });

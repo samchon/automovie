@@ -253,39 +253,26 @@ export namespace AutoMovieMotionHumanArmCarry {
             planned(before),
             before,
           );
-        // The carry's branch points, where the display reads it: off the
-        // plan's span (`onPlan` below), each stretch's ends and centre.
-        const stretches: (readonly [number, number])[] =
+        // The stretches the display reads the carry on: off the plan's span
+        // (`onPlan` below), knotted adaptively there.
+        const stretches: (readonly [number, number])[] = (
           span === undefined
-            ? [[props.from, props.to]]
+            ? [[props.from, props.to] as const]
             : [
-                [props.from, Math.min(props.to, span.start)],
+                [props.from, Math.min(props.to, span.start)] as const,
                 ...(span.relax >= span.end
                   ? []
                   : [[Math.max(props.from, span.end), props.to] as const]),
-              ];
-        const branches: number[] = [
-          ...new Set<number>(
-            stretches
-              .filter(([a, b]: readonly [number, number]): boolean => b > a)
-              .flatMap(([a, b]: readonly [number, number]): number[] => [
-                a,
-                (a + b) / 2,
-                b,
-              ]),
-          ),
-        ];
+              ]
+        ).filter(([a, b]: readonly [number, number]): boolean => b > a);
         course =
-          branches.length === 0
+          stretches.length === 0
             ? undefined
             : AutoMovieMotionHumanArmJointCourse(
                 props.body,
-                branches.map(
-                  (at: number): AutoMovieMotionHumanArmJointCourse.IKnot => ({
-                    seconds: at,
-                    input: input(before(at), at),
-                  }),
-                ),
+                stretches,
+                (at: number): AutoMovieMotionHumanArmJointCourse.IInput =>
+                  input(before(at), at),
               );
       },
       write: (

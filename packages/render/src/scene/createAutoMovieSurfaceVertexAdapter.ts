@@ -1,5 +1,6 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
 import * as THREE from "three";
+
 import { AutoMovieThreeKind } from "./AutoMovieThreeKind.js";
 
 /**

@@ -465,15 +465,11 @@ export namespace armWrestle {
     };
     plan.prepare = (): void => {
       base.prepare?.();
-      // The envelope's branch points: each ramp's ends and centre.
+      // The envelope's two ramps, the stretches the arm is carried on.
       carrier.prepare(
         [
-          0,
-          arrive / 2,
-          arrive,
-          relax,
-          relax + arrive / 2,
-          Math.min(duration, relax + arrive),
+          [0, arrive],
+          [relax, Math.min(duration, relax + arrive)],
         ],
         plan.posture,
       );

@@ -3,12 +3,12 @@ import * as THREE from "three";
 import type { LineMaterial } from "three/examples/jsm/lines/LineMaterial.js";
 import type { LineSegments2 } from "three/examples/jsm/lines/LineSegments2.js";
 
+import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
 import type { IAutoMovieInspectionMarkSet } from "./IAutoMovieInspectionMarkSet.js";
 import type { IAutoMovieInspectionOverlay } from "./IAutoMovieInspectionOverlay.js";
 import { createAutoMovieInspectionDots } from "./createAutoMovieInspectionDots.js";
 import { createAutoMovieInspectionStrokes } from "./createAutoMovieInspectionStrokes.js";
 import { followAutoMovieInspectionSource } from "./followAutoMovieInspectionSource.js";
-import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
 
 /**
  * Build marks into drawable lines and points, one line object and one points

@@ -7,6 +7,7 @@ import {
   trackPhysicalRoot,
 } from "@automovie/engine";
 import type {
+  IAutoMovieCollectPhysicalSupports,
   IAutoMoviePhysicalProfile,
   IAutoMoviePhysicalRecoveryState,
   IAutoMoviePhysicalSegment,
@@ -96,8 +97,9 @@ export namespace PhysicalBalanceReplay {
     | "dt"
     | "gravity"
     | "floor"
-    | "supports"
   > & {
+    /** The supports' measured contacts. */
+    supports: IAutoMovieCollectPhysicalSupports.ISupport[];
     /** The state before the call; absent before the first. */
     state?: IAutoMoviePhysicalRecoveryState;
     /** Each segment's recorded state, by bone. */
@@ -137,6 +139,35 @@ export namespace PhysicalBalanceReplay {
     segments: Record<string, ISegment>;
     /** The accumulated actuation before the call, by bone. */
     actuation?: [string, IAutoMovieVector3][];
+  };
+
+  /**
+   * What a replayed root record's call set and wrote: the root task with its
+   * bodies named by bone, the integral after, the wrench records and the
+   * actuation after.
+   */
+  export type IRootReplay = {
+    task: {
+      origin: IAutoMovieVector3;
+      force: IAutoMovieVector3;
+      torque: IAutoMovieVector3;
+      spin?: IAutoMovieVector3;
+      bounds?: { bodies: string[] | undefined; force: number }[];
+      released?: string[] | undefined;
+      stance?: string[] | undefined;
+      objective?: {
+        force: IAutoMovieVector3;
+        yaw?: AutoMovieXpbdWorld.IObjective["yaw"];
+        pressure?: {
+          point: IAutoMovieVector3;
+          weight: number;
+          bodies?: string[] | undefined;
+        };
+      };
+    } | null;
+    integral: IRootInput["integral"];
+    supportWrenches: trackPhysicalRoot.IInput["bound"]["supportWrenches"];
+    actuation: [string, IAutoMovieVector3][] | undefined;
   };
 
   /** One recorded call: the balance controller's or the root tracker's. */
@@ -531,7 +562,7 @@ export namespace PhysicalBalanceReplay {
     fixture: IFixture,
     record: IRootRecord,
     built: IAutoMoviePhysicalProfile,
-  ): Record<string, unknown> {
+  ): IRootReplay {
     const input: IRootInput = record.input;
     const bodies: Map<string, AutoMovieXpbdBody> = segments(input.segments);
     const names: Map<AutoMovieXpbdBody, string> = new Map(

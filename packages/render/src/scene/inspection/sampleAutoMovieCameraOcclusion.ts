@@ -5,7 +5,6 @@ import {
   Frustum,
   type Intersection,
   LessEqualDepth,
-  Line,
   Material,
   Matrix4,
   Mesh,
@@ -16,14 +15,13 @@ import {
   NoBlending,
   NormalBlending,
   Object3D,
-  Points,
   Raycaster,
   Scene,
-  Sprite,
   Vector3,
   Vector4,
   WebGLCoordinateSystem,
 } from "three";
+
 import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
 
 /** A fixed projection-space sample grid inside the admitted bounds rectangle. */
@@ -77,14 +75,14 @@ export function sampleAutoMovieCameraOcclusion(
     if (triangles > triangleBudget || !object.layers.test(camera.layers))
       return;
     if (
-      !(AutoMovieThreeKind.isMesh(object)) &&
-      !(AutoMovieThreeKind.isLine(object)) &&
-      !(AutoMovieThreeKind.isPoints(object)) &&
-      !(AutoMovieThreeKind.isSprite(object))
+      !AutoMovieThreeKind.isMesh(object) &&
+      !AutoMovieThreeKind.isLine(object) &&
+      !AutoMovieThreeKind.isPoints(object) &&
+      !AutoMovieThreeKind.isSprite(object)
     )
       return;
     const onTarget: boolean = targetMeshes.has(object);
-    if (!(AutoMovieThreeKind.isMesh(object)) || !supportsRay(object)) {
+    if (!AutoMovieThreeKind.isMesh(object) || !supportsRay(object)) {
       if (onTarget) supportedTarget = false;
       else unsupportedBlocker = true;
       return;
@@ -191,10 +189,11 @@ function supportsRay(mesh: Mesh): boolean {
   const material: Material | Material[] = mesh.material;
   if (
     !(
-      AutoMovieThreeKind.isMeshBasicMaterial(material) ||
-      AutoMovieThreeKind.isMeshStandardMaterial(material) ||
-      AutoMovieThreeKind.isMeshLambertMaterial(material) ||
-      AutoMovieThreeKind.isMeshPhongMaterial(material)
+      AutoMovieThreeKind.isMaterial(material) &&
+      (AutoMovieThreeKind.isMeshBasicMaterial(material) ||
+        AutoMovieThreeKind.isMeshStandardMaterial(material) ||
+        AutoMovieThreeKind.isMeshLambertMaterial(material) ||
+        AutoMovieThreeKind.isMeshPhongMaterial(material))
     ) ||
     ![
       MeshBasicMaterial,

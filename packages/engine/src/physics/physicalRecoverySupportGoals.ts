@@ -22,10 +22,10 @@ import { samplePhysicalRecoveryGoal } from "./samplePhysicalRecoveryGoal";
  */
 export function physicalRecoverySupportGoals(
   body: {
-    readonly balance?: Pick<
-      NonNullable<IAutoMoviePhysicalSimulationInput.IBody["balance"]>,
-      "pattern" | "height"
-    >;
+    readonly balance?: {
+      readonly pattern: Pick<IAutoMovieFootfallPattern, "limbs">;
+      readonly height: number;
+    };
   },
   target: Pick<IAutoMoviePhysicalSimulationInput.ITarget, "segments">,
   pattern: Pick<IAutoMovieFootfallPattern, "limbs">,

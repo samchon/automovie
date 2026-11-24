@@ -6,10 +6,10 @@ import type {
 import * as THREE from "three";
 
 import { AutoMovieSkinnedMesh } from "../AutoMovieSkinnedMesh.js";
+import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
 import type { collectAutoMovieCollisionParts } from "./collectAutoMovieCollisionParts.js";
 import { readAutoMovieCollisionTopology } from "./readAutoMovieCollisionTopology.js";
 import { readAutoMovieDisplayedBox } from "./readAutoMovieDisplayedBox.js";
-import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
 
 /**
  * Read one ordinary drawn mesh: an exact box, a closed static surface or a

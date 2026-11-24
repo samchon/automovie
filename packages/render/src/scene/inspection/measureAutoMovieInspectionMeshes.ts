@@ -1,11 +1,11 @@
 import type { IAutoMovieMeshDefect } from "@automovie/interface";
 import * as THREE from "three";
 
+import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
 import type { IAutoMovieInspectionMeasured } from "./IAutoMovieInspectionMeasured.js";
 import type { IAutoMovieInspectionPath } from "./IAutoMovieInspectionPath.js";
 import { measureAutoMovieInspectionDefects } from "./measureAutoMovieInspectionDefects.js";
 import { measureAutoMovieInspectionEdges } from "./measureAutoMovieInspectionEdges.js";
-import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
 
 /**
  * Find the meshes an inspection draws and measure on them the kinds it measures

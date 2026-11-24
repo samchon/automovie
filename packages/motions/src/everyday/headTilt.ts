@@ -6,12 +6,12 @@ import type {
   IAutoMovieMotionHumanHeadTilt,
 } from "@automovie/interface";
 
-import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanHead } from "../compose/AutoMovieMotionHumanHead";
 import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import { HumanBound } from "../law/HumanBound";
+import { headTiltClock } from "./headTiltClock";
 
 /**
  * Plan one lateral roll with its peak at `stroke` and return from `relax`.
@@ -19,8 +19,8 @@ import { HumanBound } from "../law/HumanBound";
  * @param context The authored roll, duration and posture underneath.
  * @returns The head-only plan and its timing events, with the base's support
  *   windows.
- * @throws {HumanRefusal} If `degrees` is outside [-20, 20] or `seconds` is
- *   nonfinite or below 0.6.
+ * @throws {HumanRefusal} If `degrees` is outside [-20, 20] or the duration is
+ *   below 0.6 seconds.
  */
 function planHeadTilt(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanHeadTilt>,
@@ -32,19 +32,7 @@ function planHeadTilt(
     20,
     "degrees",
   );
-  const seconds: number = HumanBound.least(
-    "seconds",
-    context.params.duration ?? 0.9,
-    0.6,
-    "s",
-  );
-  const clock: IAutoMovieMotionClock = AutoMovieMotionClock(seconds, [
-    { name: "ready", seconds: 0 },
-    { name: "strokeStart", seconds: 0 },
-    { name: "stroke", seconds: seconds / 3 },
-    { name: "strokeEnd", seconds: (2 / 3) * seconds },
-    { name: "relax", seconds: (2 / 3) * seconds },
-  ]);
+  const clock: IAutoMovieMotionClock = headTiltClock(context.params);
   return composeAutoMovieMotionHumanAction({
     base: AutoMovieMotionHumanBase.under(context, clock.duration),
     clock,

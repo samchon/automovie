@@ -9,8 +9,8 @@ import type { IAutoMovieShadowRetirementHost } from "./IAutoMovieShadowRetiremen
  * it is borrowed through a partial capability type; this does not discover
  * alias facades for one native context. A failed attempt retains its scene,
  * original cause and acquired references after light slots withdraw. Another
- * scene on that renderer cannot bypass uncertainty. Success removes the
- * record; an observation-only preflight needs no scene.
+ * scene on that renderer cannot bypass uncertainty. Success removes the record;
+ * an observation-only preflight needs no scene.
  */
 export function guardAutoMovieSceneShadowRetirement(
   scene: THREE.Scene | undefined,

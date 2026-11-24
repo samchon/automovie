@@ -1,10 +1,10 @@
 import type * as THREE from "three";
 
+import { AutoMovieThreeKind } from "./AutoMovieThreeKind.js";
 import { guardAutoMovieSceneShadowRetirement } from "./guardAutoMovieSceneShadowRetirement.js";
 import { readAutoMovieCubeShadowDepth } from "./readAutoMovieCubeShadowDepth.js";
 import { restoreAutoMovieRenderModeState } from "./restoreAutoMovieRenderModeState.js";
 import { retireAutoMovieCubeShadowDepth } from "./retireAutoMovieCubeShadowDepth.js";
-import { AutoMovieThreeKind } from "./AutoMovieThreeKind.js";
 
 /**
  * Retire every scene light's retained shadow attachment after a filter change.

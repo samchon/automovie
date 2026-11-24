@@ -1,8 +1,8 @@
 import type * as THREE from "three";
 
+import { AutoMovieThreeKind } from "./AutoMovieThreeKind.js";
 import { captureAutoMovieFramebufferRestore } from "./captureAutoMovieFramebufferRestore.js";
 import { restoreAutoMovieRenderModeState } from "./restoreAutoMovieRenderModeState.js";
-import { AutoMovieThreeKind } from "./AutoMovieThreeKind.js";
 
 /**
  * Read a native cube shadow target's owned depth handle through its

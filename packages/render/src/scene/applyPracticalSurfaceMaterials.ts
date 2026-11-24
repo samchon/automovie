@@ -2,8 +2,8 @@ import { samplePracticalSurfaceTrackMaterial } from "@automovie/engine";
 import type { IAutoMovieShot } from "@automovie/interface";
 import * as THREE from "three";
 
-import type { IAutoMovieModelObject } from "./IAutoMovieModelObject.js";
 import { AutoMovieThreeKind } from "./AutoMovieThreeKind.js";
+import type { IAutoMovieModelObject } from "./IAutoMovieModelObject.js";
 
 /**
  * Apply an admitted shot's practical surface cues to built prop instances.
@@ -45,7 +45,8 @@ export function applyPracticalSurfaceMaterials(
       track.node,
     )?.parts.get(track.part);
     if (
-      !(AutoMovieThreeKind.isMesh(target)) ||
+      target === undefined ||
+      !AutoMovieThreeKind.isMesh(target) ||
       !AutoMovieThreeKind.isMaterial(target.material) ||
       assignments.has(target)
     )

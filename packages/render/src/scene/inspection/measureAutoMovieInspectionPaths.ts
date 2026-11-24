@@ -5,9 +5,9 @@ import type {
 } from "@automovie/interface";
 import * as THREE from "three";
 
+import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
 import type { IAutoMovieInspectionPath } from "./IAutoMovieInspectionPath.js";
 import { measureAutoMovieInspectionBounds } from "./measureAutoMovieInspectionBounds.js";
-import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
 
 /**
  * Measure the world-space box of every chosen path of an inspected scene: of

@@ -1,6 +1,5 @@
 import { Box3, Mesh } from "three";
 
-import { AutoMovieSkinnedMesh } from "../AutoMovieSkinnedMesh.js";
 import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
 
 /**
@@ -22,13 +21,13 @@ export function boundAutoMovieCameraSubject(
   const combined: Box3 = new Box3();
   const world: Box3 = new Box3();
   for (const mesh of meshes) {
-    if (AutoMovieThreeKind.isAutoMovieSkinnedMesh(mesh)) mesh.computeBoundingBox();
+    if (AutoMovieThreeKind.isAutoMovieSkinnedMesh(mesh))
+      mesh.computeBoundingBox();
     else if (mesh.geometry.boundingBox === null)
       mesh.geometry.computeBoundingBox();
-    const local: Box3 | null =
-      AutoMovieThreeKind.isAutoMovieSkinnedMesh(mesh)
-        ? mesh.boundingBox
-        : mesh.geometry.boundingBox;
+    const local: Box3 | null = AutoMovieThreeKind.isAutoMovieSkinnedMesh(mesh)
+      ? mesh.boundingBox
+      : mesh.geometry.boundingBox;
     if (local === null || !isFiniteBox(local)) return undefined;
     world.copy(local).applyMatrix4(mesh.matrixWorld);
     if (!isFiniteBox(world)) return undefined;

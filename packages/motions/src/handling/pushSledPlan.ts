@@ -469,8 +469,8 @@ export function pushSledPlan(
   };
   plan.prepare = (): void => {
     base.prepare?.();
-    // The settle's branch points: its ends and its centre.
-    carrier.prepare([0, pushSled.SETTLE / 2, pushSled.SETTLE], plan.posture);
+    // The settle, the stretch the arms are carried on.
+    carrier.prepare([[0, pushSled.SETTLE]], plan.posture);
   };
   return plan;
 }

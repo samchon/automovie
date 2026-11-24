@@ -4,9 +4,9 @@ import type {
 } from "@automovie/interface";
 
 /**
- * One request a draw session hands the page's installed draw function, named
- * by `kind` so the page's task and a recording double each read the request it
- * is without inspecting its shape. `name` is the global the draw function is
+ * One request a draw session hands the page's installed draw function, named by
+ * `kind` so the page's task and a recording double each read the request it is
+ * without inspecting its shape. `name` is the global the draw function is
  * installed under.
  */
 export type IAutoMovieDrawPageRequest =

@@ -1,4 +1,5 @@
 import * as THREE from "three";
+
 import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
 
 /**
@@ -27,7 +28,7 @@ export function collectAutoMovieMediumLights(
   scene.updateMatrixWorld();
   const lights: collectAutoMovieMediumLights.ILight[] = [];
   scene.traverseVisible((object: THREE.Object3D): void => {
-    if (!(AutoMovieThreeKind.isLight(object))) return;
+    if (!AutoMovieThreeKind.isLight(object)) return;
     const color: THREE.Vector3 = new THREE.Vector3(
       object.color.r,
       object.color.g,
@@ -187,7 +188,7 @@ function cubeShadow(
   if (
     map === null ||
     depth === null ||
-    !(AutoMovieThreeKind.isWebGLCubeRenderTarget(map)) ||
+    !AutoMovieThreeKind.isWebGLCubeRenderTarget(map) ||
     depth.compareFunction === null
   )
     return null;

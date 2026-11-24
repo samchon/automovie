@@ -1,6 +1,7 @@
 import * as THREE from "three";
 
 import type { AutoMovieRenderModeMesh } from "./AutoMovieRenderModeMesh.js";
+import { AutoMovieThreeKind } from "./AutoMovieThreeKind.js";
 import { EDGE_SHELL_NAME } from "./EDGE_SHELL_NAME.js";
 import type { IAutoMovieRenderModeHandle } from "./IAutoMovieRenderModeHandle.js";
 import { collectAutoMovieRenderModeMeshes } from "./collectAutoMovieRenderModeMeshes.js";
@@ -17,7 +18,6 @@ import { guardAutoMovieRenderModeRetirement } from "./guardAutoMovieRenderModeRe
 import { overrideAutoMovieRenderModeMaterials } from "./overrideAutoMovieRenderModeMaterials.js";
 import { restoreAutoMovieRenderModeOnce } from "./restoreAutoMovieRenderModeOnce.js";
 import { restoreAutoMovieRenderModeState } from "./restoreAutoMovieRenderModeState.js";
-import { AutoMovieThreeKind } from "./AutoMovieThreeKind.js";
 
 /**
  * Inverted-hull shell material: extrude by edgeWidth along the normalized

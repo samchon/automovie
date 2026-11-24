@@ -1,8 +1,8 @@
 import type { IAutoMovieLight } from "@automovie/interface";
 import * as THREE from "three";
 
-import { applyTransform } from "./applyTransform.js";
 import { AutoMovieThreeKind } from "./AutoMovieThreeKind.js";
+import { applyTransform } from "./applyTransform.js";
 
 /**
  * Write one {@link IAutoMovieLight}'s value onto the `three.js` light that plays
@@ -43,7 +43,10 @@ export const applyLightState: (
   else if (light.type === "spot" && AutoMovieThreeKind.isSpotLight(target)) {
     target.distance = light.range;
     target.angle = (light.coneAngle * Math.PI) / 180;
-  } else if (light.type === "area" && AutoMovieThreeKind.isRectAreaLight(target)) {
+  } else if (
+    light.type === "area" &&
+    AutoMovieThreeKind.isRectAreaLight(target)
+  ) {
     // Extent carries no channel, so it never changes between frames; it is
     // written here anyway because this is the one place a light's values are
     // mapped, and a second writer at build time is the duplicate that survives

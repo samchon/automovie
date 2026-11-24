@@ -8,6 +8,7 @@ import type {
 import * as THREE from "three";
 
 import { AutoMovieSkinnedMesh } from "./AutoMovieSkinnedMesh.js";
+import { AutoMovieThreeKind } from "./AutoMovieThreeKind.js";
 import type { IAutoMovieModelObject } from "./IAutoMovieModelObject.js";
 import type { IAutoMovieTextureResolver } from "./IAutoMovieTextureResolver.js";
 import { applyTransform } from "./applyTransform.js";
@@ -19,7 +20,6 @@ import { applyDualQuaternionSkinning } from "./dualQuaternionSkinning/index.js";
 import { AutoMovieCollisionSource } from "./inspection/AutoMovieCollisionSource.js";
 import { applyReliefWeights } from "./reliefWeightShading/index.js";
 import { applyMaterialWear } from "./wearShading/index.js";
-import { AutoMovieThreeKind } from "./AutoMovieThreeKind.js";
 
 /**
  * Build a renderable `three.js` object from an {@link IAutoMovieModel}.

@@ -40,7 +40,7 @@ export function test_unit_motions_climbing_wall_climb_support(): void {
   ): string[] =>
     stance.contacts.map(
       (c: IAutoMovieMotionHumanSupport.IContact): string =>
-        `${c.part}:${c.kind}:${c.target.kind === "prop" ? c.target.point : "?"}`,
+        `${c.part}:${c.kind}:${c.target !== undefined && c.target !== "on" && c.target.kind === "prop" ? c.target.point : "?"}`,
     );
   const route: IAutoMovieMotionHumanSupport.IParams = wallClimbSupport({
     start,
@@ -51,8 +51,18 @@ export function test_unit_motions_climbing_wall_climb_support(): void {
     [route.stances.map(parts), route.stances[1]!.seconds],
     [
       [
-        ["leftHand:grip:a", "rightHand:grip:b", "leftFoot:bear:c", "rightFoot:bear:d"],
-        ["leftHand:grip:a", "rightHand:grip:b", "leftFoot:bear:c", "rightFoot:bear:e"],
+        [
+          "leftHand:grip:a",
+          "rightHand:grip:b",
+          "leftFoot:bear:c",
+          "rightFoot:bear:d",
+        ],
+        [
+          "leftHand:grip:a",
+          "rightHand:grip:b",
+          "leftFoot:bear:c",
+          "rightFoot:bear:e",
+        ],
       ],
       1,
     ],
@@ -61,12 +71,14 @@ export function test_unit_motions_climbing_wall_climb_support(): void {
     start,
     moves: [{ limb: "rightFoot", to: null }],
   });
-  TestValidator.equals(
-    "a release",
-    parts(released.stances[1]!),
-    ["leftHand:grip:a", "rightHand:grip:b", "leftFoot:bear:c"],
-  );
-  const refused: (route: IAutoMovieMotionHumanWallClimb) => string | undefined = (
+  TestValidator.equals("a release", parts(released.stances[1]!), [
+    "leftHand:grip:a",
+    "rightHand:grip:b",
+    "leftFoot:bear:c",
+  ]);
+  const refused: (
+    route: IAutoMovieMotionHumanWallClimb,
+  ) => string | undefined = (
     route: IAutoMovieMotionHumanWallClimb,
   ): string | undefined => {
     try {

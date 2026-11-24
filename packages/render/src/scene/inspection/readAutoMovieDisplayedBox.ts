@@ -6,8 +6,8 @@ import type {
 import * as THREE from "three";
 
 import { AutoMovieSkinnedMesh } from "../AutoMovieSkinnedMesh.js";
-import { createDualQuaternionSkinningShaderPatch } from "../dualQuaternionSkinning/createDualQuaternionSkinningShaderPatch.js";
 import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
+import { createDualQuaternionSkinningShaderPatch } from "../dualQuaternionSkinning/createDualQuaternionSkinningShaderPatch.js";
 
 /** Program identity from the owned dual-quaternion shader builder. */
 const DUAL_QUATERNION_KEY: string =
@@ -40,8 +40,8 @@ function proveLocalBox(geometry: THREE.BufferGeometry): THREE.Box3 | null {
   const points = geometry.getAttribute("position");
   const indices: THREE.BufferAttribute | null = geometry.getIndex();
   if (
-    !(AutoMovieThreeKind.isBufferAttribute(points)) ||
-    !(AutoMovieThreeKind.isFloat32Array(points.array)) ||
+    !AutoMovieThreeKind.isBufferAttribute(points) ||
+    !AutoMovieThreeKind.isFloat32Array(points.array) ||
     points.itemSize !== 3 ||
     points.normalized ||
     indices?.normalized ||
@@ -189,7 +189,10 @@ export namespace readAutoMovieDisplayedBox {
     mesh: THREE.Mesh,
     material: THREE.Material,
   ): boolean {
-    if (!(AutoMovieThreeKind.isAutoMovieSkinnedMesh(mesh)) || mesh.method === "linear")
+    if (
+      !AutoMovieThreeKind.isAutoMovieSkinnedMesh(mesh) ||
+      mesh.method === "linear"
+    )
       return (
         material.onBeforeCompile === THREE.Material.prototype.onBeforeCompile
       );

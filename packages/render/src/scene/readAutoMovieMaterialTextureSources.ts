@@ -125,17 +125,11 @@ export function readAutoMovieMaterialTextureSources(props: {
     );
     observe(
       "area-ltc-1",
-      Reflect.get(
-        THREE.UniformsLib,
-        float ? "LTC_FLOAT_1" : "LTC_HALF_1",
-      ),
+      Reflect.get(THREE.UniformsLib, float ? "LTC_FLOAT_1" : "LTC_HALF_1"),
     );
     observe(
       "area-ltc-2",
-      Reflect.get(
-        THREE.UniformsLib,
-        float ? "LTC_FLOAT_2" : "LTC_HALF_2",
-      ),
+      Reflect.get(THREE.UniformsLib, float ? "LTC_FLOAT_2" : "LTC_HALF_2"),
     );
   }
   return rows;

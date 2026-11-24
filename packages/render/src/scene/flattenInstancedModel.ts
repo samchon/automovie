@@ -1,6 +1,7 @@
 import type { IAutoMovieModel } from "@automovie/interface";
 import * as THREE from "three";
 
+import { AutoMovieThreeKind } from "./AutoMovieThreeKind.js";
 import type { IAutoMovieFormationCycle } from "./IAutoMovieFormationCycle.js";
 import type { IAutoMovieFormationCycleTake } from "./IAutoMovieFormationCycleTake.js";
 import type { IAutoMovieInstancedGeometry } from "./IAutoMovieInstancedGeometry.js";
@@ -12,7 +13,6 @@ import { collectAutoMovieOwnedResources } from "./collectAutoMovieOwnedResources
 import { flattenRigidParts } from "./flattenRigidParts.js";
 import { instancedModelParts } from "./instancedModelParts.js";
 import { reportAutoMovieResourceRetirement } from "./reportAutoMovieResourceRetirement.js";
-import { AutoMovieThreeKind } from "./AutoMovieThreeKind.js";
 
 /**
  * Flatten one runtime model for a chunked instancing consumer.
@@ -49,9 +49,10 @@ export const flattenInstancedModel: (
     collectAutoMovieOwnedResources(built.object);
   const temporary: Set<THREE.BufferGeometry | THREE.Skeleton> = new Set();
   built.object.traverse((object: THREE.Object3D): void => {
-    if (!(AutoMovieThreeKind.isMesh(object))) return;
+    if (!AutoMovieThreeKind.isMesh(object)) return;
     temporary.add(object.geometry);
-    if (AutoMovieThreeKind.isSkinnedMesh(object)) temporary.add(object.skeleton);
+    if (AutoMovieThreeKind.isSkinnedMesh(object))
+      temporary.add(object.skeleton);
   });
   let representation: IAutoMovieInstancedGeometry | undefined;
   let cycle: IAutoMovieFormationCycle | null = null;

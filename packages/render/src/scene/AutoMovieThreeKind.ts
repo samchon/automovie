@@ -6,9 +6,9 @@ import type { AutoMovieSkinnedMesh } from "./AutoMovieSkinnedMesh.js";
  * Narrow three.js objects by the literal type flags three.js declares on each
  * class (`Mesh.isMesh: true`, `Material.isMaterial: true`, ...), the
  * discriminants three's own renderer reads, instead of `instanceof`. A flag is
- * read from the narrower declaration of the object it is asked about; an
- * object of another class has no such flag, so the check is false. Typed
- * arrays are told apart by their declared `Symbol.toStringTag` literal.
+ * read from the narrower declaration of the object it is asked about; an object
+ * of another class has no such flag, so the check is false. Typed arrays are
+ * told apart by their declared `Symbol.toStringTag` literal.
  */
 export namespace AutoMovieThreeKind {
   /** Whether an object is a mesh, skinned and instanced meshes included. */
@@ -182,13 +182,11 @@ export namespace AutoMovieThreeKind {
     return (value as THREE.Vector4).isVector4 === true;
   }
 
-  /** Whether a render target is a cube target. */
+  /** Whether a render target is a cube target: its texture is a cube texture. */
   export function isWebGLCubeRenderTarget(
-    target: object,
+    target: THREE.RenderTarget,
   ): target is THREE.WebGLCubeRenderTarget {
-    return (
-      (target as THREE.WebGLCubeRenderTarget).isWebGLCubeRenderTarget === true
-    );
+    return (target.texture as THREE.CubeTexture).isCubeTexture === true;
   }
 
   /** Whether a typed array holds 32-bit floats. */
@@ -203,7 +201,10 @@ export namespace AutoMovieThreeKind {
     return array[Symbol.toStringTag] === "Uint16Array";
   }
 
-  /** Whether an object draws with materials: a mesh, line, point cloud or sprite. */
+  /**
+   * Whether an object draws with materials: a mesh, line, point cloud or
+   * sprite.
+   */
   export function isDrawn(
     object: THREE.Object3D,
   ): object is THREE.Mesh | THREE.Line | THREE.Points | THREE.Sprite {
@@ -213,7 +214,9 @@ export namespace AutoMovieThreeKind {
   }
 
   /** Whether a texture holds raw data. */
-  export function isDataTexture(texture: THREE.Texture): texture is THREE.DataTexture {
+  export function isDataTexture(
+    texture: THREE.Texture,
+  ): texture is THREE.DataTexture {
     return (texture as THREE.DataTexture).isDataTexture === true;
   }
 
@@ -257,7 +260,8 @@ export namespace AutoMovieThreeKind {
     texture: THREE.Texture,
   ): texture is THREE.CompressedArrayTexture {
     return (
-      (texture as THREE.CompressedArrayTexture).isCompressedArrayTexture === true
+      (texture as THREE.CompressedArrayTexture).isCompressedArrayTexture ===
+      true
     );
   }
 

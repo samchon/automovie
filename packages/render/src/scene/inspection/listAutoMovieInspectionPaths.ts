@@ -1,8 +1,8 @@
 import * as THREE from "three";
 
+import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
 import type { IAutoMovieInspectionPath } from "./IAutoMovieInspectionPath.js";
 import { autoMovieInspectionPathOf } from "./autoMovieInspectionPathOf.js";
-import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
 
 /**
  * List every object of a scene that three.js draws, each with its inspection

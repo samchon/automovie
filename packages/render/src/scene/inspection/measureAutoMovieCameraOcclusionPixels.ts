@@ -5,11 +5,11 @@ import type {
 } from "@automovie/interface";
 import * as THREE from "three";
 
+import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
 import { autoMovieSemanticMaskOf } from "../semanticMask/autoMovieSemanticMaskOf.js";
 import { maskRoots } from "../semanticMask/maskRoots.js";
 import { nearest } from "../semanticMask/nearest.js";
 import { renderAutoMovieCameraOcclusionMasks } from "./renderAutoMovieCameraOcclusionMasks.js";
-import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
 
 /** One full audit of an original placed Draw frame. */
 interface IProps {
@@ -156,7 +156,7 @@ export function measureAutoMovieCameraOcclusionPixels(
   let reason: string | undefined;
   scene.traverseVisible((object: THREE.Object3D): void => {
     if (reason !== undefined || !object.layers.test(camera.layers)) return;
-    if (!(AutoMovieThreeKind.isMesh(object))) {
+    if (!AutoMovieThreeKind.isMesh(object)) {
       if (
         AutoMovieThreeKind.isLine(object) ||
         AutoMovieThreeKind.isPoints(object) ||
@@ -173,7 +173,7 @@ export function measureAutoMovieCameraOcclusionPixels(
       object.constructor !== THREE.Mesh ||
       !nativeRenderCallbacks(object) ||
       object.geometry.morphAttributes.position?.length ||
-      !(AutoMovieThreeKind.isBufferAttribute(position)) ||
+      !AutoMovieThreeKind.isBufferAttribute(position) ||
       !AutoMovieThreeKind.isMaterial(material) ||
       !nativeOpaqueMaterial(material)
     ) {

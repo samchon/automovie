@@ -73,14 +73,22 @@ export async function test_physical_primitive_quiet_support(): Promise<void> {
     await PhysicalBalanceReplay.load(QUIET);
   const profile: IAutoMoviePhysicalProfile =
     await PhysicalBalanceReplay.stored(fixture);
-  let index: number = fixture.records.length - 1;
-  while (index >= 0 && fixture.records[index]!.kind !== "root") index--;
-  if (index < 0) throw new Error(`${QUIET} holds no root tracker call`);
+  const recorded: PhysicalBalanceReplay.IRootRecord | undefined = [
+    ...fixture.records,
+  ]
+    .reverse()
+    .find(
+      (
+        candidate: PhysicalBalanceReplay.IRecord,
+      ): candidate is PhysicalBalanceReplay.IRootRecord =>
+        candidate.kind === "root",
+    );
+  if (recorded === undefined)
+    throw new Error(`${QUIET} holds no root tracker call`);
   // One substep past the recorded cache instant, where the tracker skips its
   // diagnostic split of the task (`trackPhysicalRoot`): the state at rest is
   // the same, the task the same law's.
-  const recorded: PhysicalBalanceReplay.IRecord = fixture.records[index]!;
-  const record: PhysicalBalanceReplay.IRecord = {
+  const record: PhysicalBalanceReplay.IRootRecord = {
     ...recorded,
     seconds: recorded.seconds + recorded.input.dt,
     input: {
@@ -246,16 +254,19 @@ function anchor(
  * over its planted supports, at rest at its leaned target.
  */
 function shift(
-  record: PhysicalBalanceReplay.IRecord,
+  record: PhysicalBalanceReplay.IRootRecord,
   profile: IAutoMoviePhysicalProfile,
   lean: (bone: string) => IRigid | undefined,
-): PhysicalBalanceReplay.IRecord {
-  const input: Record<string, any> = structuredClone(record.input);
+): PhysicalBalanceReplay.IRootRecord {
+  const input: PhysicalBalanceReplay.IRootInput = structuredClone(record.input);
   const segments: Record<string, PhysicalBalanceReplay.ISegment> =
     input.segments;
-  const goals: Record<string, IAutoMovieSamplePhysicalTarget.IResult> =
-    input.goals;
-  const planted: Record<string, IAutoMovieRigidTransform> = input.planted;
+  const goals: Record<string, IAutoMovieSamplePhysicalTarget.IResult> = {
+    ...input.goals,
+  };
+  const planted: Record<string, IAutoMovieRigidTransform> = {
+    ...input.planted,
+  };
   for (const segment of profile.segments) {
     const rigid: IRigid | undefined = lean(segment.bone);
     const state: PhysicalBalanceReplay.ISegment = segments[segment.bone]!;
@@ -282,6 +293,8 @@ function shift(
     if (planted[segment.bone])
       planted[segment.bone] = pose(rigid, planted[segment.bone]!);
   }
+  input.goals = goals;
+  input.planted = planted;
   input.rootIntent.pose = pose(
     lean(profile.segments[0]!.bone),
     input.rootIntent.pose,
@@ -305,7 +318,7 @@ function shift(
       ),
     );
   input.center = Vector3.add(
-    input.center,
+    input.center!,
     Vector3.subtract(
       authored(lean),
       authored((): undefined => undefined),
@@ -321,7 +334,7 @@ function shift(
  */
 function support(
   fixture: PhysicalBalanceReplay.IFixture,
-  record: PhysicalBalanceReplay.IRecord,
+  record: PhysicalBalanceReplay.IRootRecord,
   profile: IAutoMoviePhysicalProfile,
   label: string,
   failures: string[],
@@ -369,7 +382,7 @@ function support(
   // each pair bears its load somewhere across its footprint, so the front
   // share moment balance gives lies within the band its four end pairings
   // give.
-  const supports: IAutoMovieCollectPhysicalSupports.ISupport[] =
+  const supports: readonly IAutoMovieCollectPhysicalSupports.ISupport[] =
     record.input.supports;
   const middle: number =
     supports.reduce(

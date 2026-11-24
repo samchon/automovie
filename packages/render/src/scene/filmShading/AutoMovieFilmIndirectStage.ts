@@ -5,13 +5,13 @@ import type {
 } from "@automovie/interface";
 import * as THREE from "three";
 
+import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
 import { AUTOMOVIE_FILM_RESPONSE_SHADERS } from "../filmResponse/AUTOMOVIE_FILM_RESPONSE_SHADERS.js";
 import { collectAutoMovieFilmOverlays } from "../filmResponse/collectAutoMovieFilmOverlays.js";
 import { AUTOMOVIE_FILM_OCCLUSION_SHADERS } from "./AUTOMOVIE_FILM_OCCLUSION_SHADERS.js";
 import type { IAutoMovieFilmIndirectRenderer } from "./IAutoMovieFilmIndirectRenderer.js";
 import { applyFilmIndirectPatch } from "./applyFilmIndirectPatch.js";
 import { bakeAutoMovieFilmProbes } from "./bakeAutoMovieFilmProbes.js";
-import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
 
 /**
  * The indirect light of a directly rendered film's beauty pass: measures what a

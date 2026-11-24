@@ -21,23 +21,24 @@ import { nclose } from "../../../internal/nclose";
 /** Rounding of one shared joint-space carry and one quintic, degrees. */
 const ROUNDING: number = 1e-9;
 
-/** The carry's branch points: its ends and its centre, seconds. */
-const BRANCHES: readonly number[] = [0, 0.5, 1];
+/** The stretch the arm is carried over, seconds. */
+const STRETCH: readonly [number, number] = [0, 1];
 
 /**
  * `AutoMovieMotionHumanArmJointCourse` solves a joint-space carry
- * (`AutoMovieMotionHumanArm.carry`) once at the carry's branch points and joins
- * each arm's angles through them by the minimum-jerk knot course (Flash and
- * Hogan 1985); a plan's `carrier` carries by the joint-space carry until its
- * `prepare` reads the branch points through the plan's own posture.
+ * (`AutoMovieMotionHumanArm.carry`) once at knots AutoKnots places over the
+ * stretch (`prepareHumanAdaptiveKnots`) and joins each arm's angles through
+ * them by the minimum-jerk knot course; a plan's `carrier` carries by the
+ * joint-space carry until its `prepare` reads the knots through the plan's own
+ * posture.
  *
  * The average man's left hand is carried from where it hangs toward 0.2 m up
- * and forward, its share rising linearly over 1 s, with branch points at 0, 0.5
- * and 1 s.
+ * and forward, its share rising linearly over 1 s.
  *
  * Scenarios:
  *
- * 1. At a branch point the course shows the carry of that second, the arm's goal
+ * 1. At 0.5 s, a knot (the first sweep's midpoint of the uniform knots at 0.4 and
+ *    0.6 s), the course shows the carry of that second, the arm's goal
  *    dropped.
  * 2. At share 1 the posture is returned as it is, the goal for the display; at 0
  *    the course is at the held angles.
@@ -83,15 +84,7 @@ export async function test_unit_motions_compose_arm_joint_course(): Promise<void
     share: seconds,
   });
   const course: AutoMovieMotionHumanArmJointCourse.Course =
-    AutoMovieMotionHumanArmJointCourse(
-      body,
-      BRANCHES.map(
-        (seconds: number): AutoMovieMotionHumanArmJointCourse.IKnot => ({
-          seconds,
-          input: input(seconds),
-        }),
-      ),
-    );
+    AutoMovieMotionHumanArmJointCourse(body, [STRETCH], input);
   const carried: IAutoMovieMotionHumanPosture = AutoMovieMotionHumanArm.carry(
     body,
     reaching,
@@ -109,10 +102,10 @@ export async function test_unit_motions_compose_arm_joint_course(): Promise<void
         ),
     );
 
-  // 1. At a branch point.
+  // 1. At a knot.
   const middle: IAutoMovieMotionHumanPosture = course(0.5, reaching, 0.5);
   TestValidator.predicate(
-    "a branch point shows the carry of its second",
+    "a knot shows the carry of its second",
     same(middle, carried) && middle.limbs.leftArm === undefined,
   );
 
@@ -132,7 +125,7 @@ export async function test_unit_motions_compose_arm_joint_course(): Promise<void
   const posture = (seconds: number): IAutoMovieMotionHumanPosture =>
     carrier.carry(seconds, input(seconds));
   const before: IAutoMovieMotionHumanPosture = posture(0.5);
-  carrier.prepare(BRANCHES, posture);
+  carrier.prepare([STRETCH], posture);
   TestValidator.predicate(
     "the carrier carries cold, then by its course",
     same(before, carried) &&

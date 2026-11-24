@@ -153,7 +153,8 @@ export class AutoMovieSkinnedMesh<
     );
     for (let k: number = 0; k < 4; ++k)
       AutoMovieSkinPose.joint(this, _index.getComponent(k), SINGLE, k * STRIDE);
-    const point: boolean = !(AutoMovieThreeKind.isVector4(target)) || target.w !== 0;
+    const point: boolean =
+      !AutoMovieThreeKind.isVector4(target) || target.w !== 0;
     AutoMovieSkinBlend.dual(
       SINGLE,
       0,

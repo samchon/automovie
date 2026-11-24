@@ -5,7 +5,6 @@ import type {
   IAutoMovieAffordance,
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionClock,
-  IAutoMovieMotionClockInstant,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanContactWindow,
@@ -21,6 +20,7 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
+import { AutoMovieMotionHumanArmCourse } from "../compose/AutoMovieMotionHumanArmCourse";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import { HumanGrasp } from "../handling/HumanGrasp";
@@ -28,11 +28,12 @@ import { HumanGraspRoll } from "../handling/HumanGraspRoll";
 import { heldDigits } from "../handling/heldDigits";
 import { writeWith } from "../handling/writeWith";
 import { HumanRefusal } from "../law/HumanRefusal";
+import { HumanArmTrajectoryTerms } from "../posture/HumanArmTrajectoryTerms";
 import { HumanBoneGroups } from "../posture/HumanBoneGroups";
 import { HumanHand } from "../posture/HumanHand";
-import type { HumanKnot } from "../posture/HumanKnot";
 import { poseBones } from "../posture/poseBones";
-import { prepareHumanKnotCourse } from "../posture/prepareHumanKnotCourse";
+import { prepareHumanAdaptiveKnots } from "../posture/prepareHumanAdaptiveKnots";
+import type { prepareHumanKnotCourse } from "../posture/prepareHumanKnotCourse";
 
 /** Both hands. */
 const SIDES: readonly AutoMovieHumanSide[] = ["left", "right"];
@@ -75,11 +76,12 @@ export function hoseBackup(
   const ready: number = clock.at("strokeStart");
   const done: number = clock.at("strokeEnd");
   // Where the line's grip is at a second of this action, as its carrier
-  // holds it, and how the run there is turned. Its place is solved at the
-  // clock's instants and the centres between when the performance is placed
-  // (`prepare`) and joined by the minimum-jerk knot course (Flash and Hogan
-  // 1985, `prepareHumanKnotCourse`), since each read resolves the carrier's
-  // pose; a read before reads the frame itself.
+  // holds it, and how the run there is turned. Its place is solved at knots
+  // AutoKnots places (Vitenti et al. 2024, arXiv:2412.13423;
+  // `prepareHumanAdaptiveKnots`) to the arm plan's own millimetre
+  // (`HumanArmTrajectoryTerms.TOLERANCE`) when the performance is placed
+  // (`prepare`), since each read resolves the carrier's pose; a read before
+  // reads the frame itself.
   let course: prepareHumanKnotCourse.ICourse | undefined;
   const solve = (seconds: number): IAutoMovieRigidTransform => {
     const at: number =
@@ -231,25 +233,20 @@ export function hoseBackup(
     // The line's course first, so the arms' courses are solved on the line
     // as the display reads it.
     prepare: (): void => {
-      const edges: number[] = [
-        ...new Set<number>([
-          0,
-          ...clock.instants.map(
-            (instant: IAutoMovieMotionClockInstant): number => instant.seconds,
-          ),
-          clock.duration,
-        ]),
-      ].sort((a: number, b: number): number => a - b);
-      const times: number[] = edges.flatMap((t: number, i: number): number[] =>
-        i === 0 ? [t] : [(edges[i - 1]! + t) / 2, t],
-      );
-      course = prepareHumanKnotCourse(
-        times.map((t: number): HumanKnot.IKnot => {
+      course = prepareHumanAdaptiveKnots({
+        from: 0,
+        to: clock.duration,
+        evaluate: (t: number): readonly number[] => {
           const p: IAutoMovieVector3 = solve(t).position;
-          return { position: [p.x, p.y, p.z], dwell: 0 };
-        }),
-        { kind: "fixed", times },
-      );
+          return [p.x, p.y, p.z];
+        },
+        tolerance: {
+          kind: "absolute",
+          absolute: HumanArmTrajectoryTerms.TOLERANCE / 1000,
+        },
+        maxKnots:
+          Math.ceil(clock.duration / AutoMovieMotionHumanArmCourse.STEP) + 1,
+      }).course;
       composed.prepare?.();
     },
     hands: ["left", "right"],

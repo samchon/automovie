@@ -1,4 +1,5 @@
 import type * as THREE from "three";
+
 import { AutoMovieThreeKind } from "./AutoMovieThreeKind.js";
 
 /**
@@ -21,7 +22,8 @@ export const invalidateAutoMovieSceneShadowPrograms: (
       AutoMovieThreeKind.isPoints(object)
     )
       for (const value of [object.material].flat()) materials.add(value);
-    else if (AutoMovieThreeKind.isSprite(object)) materials.add(object.material);
+    else if (AutoMovieThreeKind.isSprite(object))
+      materials.add(object.material);
   });
   for (const material of materials) material.needsUpdate = true;
 };

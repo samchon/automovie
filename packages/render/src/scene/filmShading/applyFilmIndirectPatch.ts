@@ -1,7 +1,7 @@
 import * as THREE from "three";
 
-import { addMaterialShaderPatch } from "../addMaterialShaderPatch.js";
 import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
+import { addMaterialShaderPatch } from "../addMaterialShaderPatch.js";
 
 /**
  * Give one lit material the film's indirect shading: the probes' one-bounce

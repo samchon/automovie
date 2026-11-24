@@ -9,19 +9,19 @@ import type {
 } from "@automovie/interface";
 
 /**
- * Reissue explicitly bound surface controls from the converted curve
- * authority. The generic converter calls this after copying the record.
- * Original bindings must match exactly before a new basis can supply a
- * control. A Hermite publication owns the Bernstein coefficients obtained from
- * its saved endpoints, derivatives and original phase widths; finite round
- * trips can differ from a previous Bernstein publication. Shared control IDs
- * must agree exactly. The converted geometry receives a fresh control list, so
- * the original record never sees the write.
+ * Reissue explicitly bound surface controls from the converted curve authority.
+ * The generic converter calls this after copying the record. Original bindings
+ * must match exactly before a new basis can supply a control. A Hermite
+ * publication owns the Bernstein coefficients obtained from its saved
+ * endpoints, derivatives and original phase widths; finite round trips can
+ * differ from a previous Bernstein publication. Shared control IDs must agree
+ * exactly. The converted geometry receives a fresh control list, so the
+ * original record never sees the write.
  *
- * A record is a publication when it carries tensor families or analytic
- * domains together with its curves: a loft and reports, or curve overrides
- * alone (a standalone extension, whose unchanged external curves stay the
- * original bundle's authority).
+ * A record is a publication when it carries tensor families or analytic domains
+ * together with its curves: a loft and reports, or curve overrides alone (a
+ * standalone extension, whose unchanged external curves stay the original
+ * bundle's authority).
  *
  * @param original The record as saved.
  * @param converted Its converted copy, whose bound controls are rewritten.
@@ -44,16 +44,20 @@ export function rebindRecoveryCurveAuthorities(
     original.loft === undefined && original.reports === undefined;
 
   // Each named curve owner, as saved and as converted, in the same order.
-  const before: Map<string, readonly AutoMovieCubicBezierControls3[]> =
-    named(original, external);
+  const before: Map<string, readonly AutoMovieCubicBezierControls3[]> = named(
+    original,
+    external,
+  );
   const after: Map<string, readonly AutoMovieCubicBezierControls3[]> = named(
     converted,
     external,
   );
 
   // The controls each converted geometry receives, by control id.
-  const pending: Map<IAutoMovieBicubicAtlasGeometry, Map<number, AutoMovieVector3Tuple>> =
-    new Map();
+  const pending: Map<
+    IAutoMovieBicubicAtlasGeometry,
+    Map<number, AutoMovieVector3Tuple>
+  > = new Map();
   const spans = (
     name: string,
   ): readonly [
@@ -121,12 +125,20 @@ export function rebindRecoveryCurveAuthorities(
         throw new Error(
           "Tensor binding cardinality differs from its curve authority",
         );
-      boundary.controlIds.forEach((controls: readonly number[], span: number): void => {
-        if (controls.length !== 4)
-          throw new Error("A tensor boundary span requires four controls");
-        for (let k: number = 0; k < 4; k++)
-          bind(family.geometry, target, controls[k]!, was[span]![k]!, now[span]![k]!);
-      });
+      boundary.controlIds.forEach(
+        (controls: readonly number[], span: number): void => {
+          if (controls.length !== 4)
+            throw new Error("A tensor boundary span requires four controls");
+          for (let k: number = 0; k < 4; k++)
+            bind(
+              family.geometry,
+              target,
+              controls[k]!,
+              was[span]![k]!,
+              now[span]![k]!,
+            );
+        },
+      );
     }
   });
 
@@ -164,15 +176,20 @@ export function rebindRecoveryCurveAuthorities(
   for (const [geometry, owners] of pending) {
     const controls: IAutoMovieVector3[] = [...geometry.controls];
     for (const [id, value] of owners)
-      controls[id] = { ...controls[id]!, x: value[0], y: value[1], z: value[2] };
+      controls[id] = {
+        ...controls[id]!,
+        x: value[0],
+        y: value[1],
+        z: value[2],
+      };
     geometry.controls = controls;
   }
 }
 
 /**
  * A record's named curves as Bernstein spans: from its curve overrides for an
- * external extension, otherwise from its loft loops and report arcs. Names
- * must be unique.
+ * external extension, otherwise from its loft loops and report arcs. Names must
+ * be unique.
  */
 function named(
   record: IAutoMovieRecoveryCurveBundle,
@@ -192,9 +209,12 @@ function named(
             ),
         ),
         ...(record.reports ?? []).flatMap(
-          (report: { open: readonly { curve: IAutoMovieRecoveryCurveBundle.Curve }[] }) =>
+          (report: {
+            open: readonly { curve: IAutoMovieRecoveryCurveBundle.Curve }[];
+          }) =>
             report.open.map(
-              (arc: { curve: IAutoMovieRecoveryCurveBundle.Curve }) => arc.curve,
+              (arc: { curve: IAutoMovieRecoveryCurveBundle.Curve }) =>
+                arc.curve,
             ),
         ),
       ];

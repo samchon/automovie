@@ -8,6 +8,7 @@ import type {
 } from "@automovie/interface";
 import * as THREE from "three";
 
+import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
 import type { IAutoMovieSectionRenderer } from "../IAutoMovieSectionRenderer.js";
 import { applyAutoMovieSectionPlanes } from "../applyAutoMovieSectionPlanes.js";
 import { restoreAutoMovieRenderModeOnce } from "../restoreAutoMovieRenderModeOnce.js";
@@ -37,7 +38,6 @@ import { measureAutoMovieInspectionPaths } from "./measureAutoMovieInspectionPat
 import { mergeAutoMovieInspectionLegends } from "./mergeAutoMovieInspectionLegends.js";
 import { placeAutoMovieInspectionLabels } from "./placeAutoMovieInspectionLabels.js";
 import { resolveAutoMovieInspectionColors } from "./resolveAutoMovieInspectionColors.js";
-import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
 
 /**
  * Turn a built scene into the picture an inspection request asks for, in place,

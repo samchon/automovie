@@ -274,16 +274,11 @@ export namespace carryHang {
       },
       prepare: (): void => {
         base.prepare?.();
-        // The settle's branch points: its ends and its centre.
-        const settle: number = Math.min(duration, SETTLE);
+        // The settle, the stretch the arms are carried on.
         course = AutoMovieMotionHumanArmJointCourse(
           body,
-          [0, settle / 2, settle].map(
-            (t: number): AutoMovieMotionHumanArmJointCourse.IKnot => ({
-              seconds: t,
-              input: inputs(t),
-            }),
-          ),
+          [[0, Math.min(duration, SETTLE)]],
+          inputs,
         );
       },
     };

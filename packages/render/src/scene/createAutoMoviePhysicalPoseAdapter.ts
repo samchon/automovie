@@ -2,8 +2,8 @@ import type { IAutoMovieRigidTransform } from "@automovie/interface";
 import * as THREE from "three";
 
 import { AutoMovieSkinnedMesh } from "./AutoMovieSkinnedMesh.js";
-import type { IAutoMovieModelObject } from "./IAutoMovieModelObject.js";
 import { AutoMovieThreeKind } from "./AutoMovieThreeKind.js";
+import type { IAutoMovieModelObject } from "./IAutoMovieModelObject.js";
 
 /**
  * Apply solved world bone frames to an existing complete skin rig, retaining
@@ -100,7 +100,8 @@ export function createAutoMoviePhysicalPoseAdapter(
     model.object.updateWorldMatrix(true, true);
     for (const skeleton of skeletons) skeleton.update();
     for (const skin of skins) {
-      if (AutoMovieThreeKind.isAutoMovieSkinnedMesh(skin)) skin.invalidatePose();
+      if (AutoMovieThreeKind.isAutoMovieSkinnedMesh(skin))
+        skin.invalidatePose();
       else AutoMovieSkinnedMesh.clearBounds(skin);
     }
   };

@@ -5,6 +5,7 @@ import type {
   IAutoMovieProductionWaveSourceFormat,
 } from "@automovie/interface";
 
+import { equalOrderedScalarRows } from "./equalOrderedScalarRows.js";
 import { equalOrderedScalars } from "./equalOrderedScalars.js";
 
 /** Rate the decoder resamples to: the sound plan's fixed mix rate. */
@@ -75,6 +76,6 @@ export const validWaveAudioIdentity: (
     processing.kind === expectedKind &&
     processing.outputChannels === 1 &&
     processing.outputSampleRate === MIX_SAMPLE_RATE &&
-    equalOrderedScalars(processing.matrix, expectedMatrix)
+    equalOrderedScalarRows(processing.matrix, expectedMatrix)
   );
 };

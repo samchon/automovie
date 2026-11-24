@@ -1,12 +1,7 @@
-import { advancePhysicalBalance } from "@automovie/engine";
+import { AutoMovieXpbdWorld, advancePhysicalBalance } from "@automovie/engine";
 import type {
   IAutoMovieAdvancePhysicalBalance,
-  IAutoMovieCollectPhysicalSupports,
   IAutoMoviePhysicalProfile,
-  IAutoMoviePhysicalRecoveryPolicy,
-  IAutoMoviePhysicalRecoveryState,
-  IAutoMovieRigidTransform,
-  IAutoMovieVector3,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -42,10 +37,18 @@ export async function test_physical_primitive_quiet_stance(): Promise<void> {
     await PhysicalBalanceReplay.load(QUIET);
   const profile: IAutoMoviePhysicalProfile =
     await PhysicalBalanceReplay.stored(fixture);
-  let index: number = fixture.records.length - 1;
-  while (index >= 0 && fixture.records[index]!.kind !== "advance") index--;
-  if (index < 0) throw new Error(`${QUIET} holds no balance controller call`);
-  const record: PhysicalBalanceReplay.IRecord = fixture.records[index]!;
+  const record: PhysicalBalanceReplay.IAdvanceRecord | undefined = [
+    ...fixture.records,
+  ]
+    .reverse()
+    .find(
+      (
+        candidate: PhysicalBalanceReplay.IRecord,
+      ): candidate is PhysicalBalanceReplay.IAdvanceRecord =>
+        candidate.kind === "advance",
+    );
+  if (record === undefined)
+    throw new Error(`${QUIET} holds no balance controller call`);
 
   const quiet: IAutoMovieAdvancePhysicalBalance.IResult = advance(
     fixture,
@@ -89,39 +92,36 @@ export async function test_physical_primitive_quiet_stance(): Promise<void> {
  */
 function advance(
   fixture: PhysicalBalanceReplay.IFixture,
-  record: PhysicalBalanceReplay.IRecord,
+  record: PhysicalBalanceReplay.IAdvanceRecord,
   profile: IAutoMoviePhysicalProfile,
   disturbance?: Parameters<typeof advancePhysicalBalance>[0]["disturbance"],
 ): IAutoMovieAdvancePhysicalBalance.IResult {
-  const input: Record<string, any> = structuredClone(record.input);
+  const input: PhysicalBalanceReplay.IAdvanceInput = structuredClone(
+    record.input,
+  );
   return advancePhysicalBalance({
-    world: undefined as never,
+    // The controller reads no solver state but the recorded segments.
+    world: new AutoMovieXpbdWorld(fixture.settings.gravity),
     body: fixture.body.id,
     profile,
-    segments: PhysicalBalanceReplay.segments(input.segments) as never,
+    segments: PhysicalBalanceReplay.segments(input.segments),
     colliders: new Map(),
     contacts: [],
-    policy: structuredClone(
-      fixture.body.balance,
-    ) as IAutoMoviePhysicalRecoveryPolicy,
-    state: (input.state as IAutoMoviePhysicalRecoveryState | undefined) ?? {
+    policy: structuredClone(fixture.body.balance)!,
+    state: input.state ?? {
       last: "supported",
       steps: [],
       offsets: Object.create(null),
     },
-    targets: input.targets as Record<string, IAutoMovieRigidTransform>,
+    targets: input.targets,
     ...(input.velocities ? { velocities: input.velocities } : {}),
     ...(input.unavailable ? { unavailable: input.unavailable } : {}),
     seconds: input.seconds,
     dt: input.dt,
     gravity: input.gravity,
     floor: input.floor,
-    ...(input.actuation
-      ? {
-          actuation: new Map(input.actuation as [string, IAutoMovieVector3][]),
-        }
-      : {}),
-    supports: input.supports as IAutoMovieCollectPhysicalSupports.ISupport[],
+    ...(input.actuation ? { actuation: new Map(input.actuation) } : {}),
+    supports: input.supports,
     ...(disturbance ? { disturbance } : {}),
   });
 }

@@ -216,9 +216,12 @@ export function climbStairsRail(
     posture,
     prepare: (): void => {
       stairs.prepare?.();
-      // The grip's branch points: each transit's ends and centre.
+      // The grip's two transits, the stretches the arm is carried on.
       carrier.prepare(
-        [0, transit / 2, transit, release, (release + duration) / 2, duration],
+        [
+          [0, transit],
+          [release, duration],
+        ],
         posture,
       );
     },

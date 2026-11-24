@@ -1,13 +1,13 @@
 import type { IAutoMovieMedium } from "@automovie/interface";
 import * as THREE from "three";
 
+import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
 import { AUTOMOVIE_FILM_RESPONSE_SHADERS } from "../filmResponse/AUTOMOVIE_FILM_RESPONSE_SHADERS.js";
 import type { AutoMovieFilmAlpha } from "../filmResponse/AutoMovieFilmAlpha.js";
 import type { IAutoMovieFilmResponseRenderer } from "../filmResponse/IAutoMovieFilmResponseRenderer.js";
 import { buildAutoMovieMediumShader } from "./buildAutoMovieMediumShader.js";
 import { collectAutoMovieMediumLights } from "./collectAutoMovieMediumLights.js";
 import { readAutoMovieSceneMedium } from "./readAutoMovieSceneMedium.js";
-import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
 
 /** The golden ratio's conjugate, the step of the dither shift per sample. */
 const GOLDEN: number = (Math.sqrt(5) - 1) / 2;

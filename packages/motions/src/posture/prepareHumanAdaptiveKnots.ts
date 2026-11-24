@@ -3,31 +3,39 @@ import { prepareHumanKnotCourse } from "./prepareHumanKnotCourse";
 
 /**
  * Place the knots of an expensive vector function adaptively and join them by
- * the shared knot course: AutoKnots (Vitenti, de Simoni, Penna-Lima and
- * Barroso 2024, "AutoKnots: Adaptive Knot Allocation for Spline
- * Interpolation", arXiv:2412.13423), ported from the paper's description.
+ * the shared knot course: AutoKnots (Vitenti, de Simoni, Penna-Lima and Barroso
+ * 2024, "AutoKnots: Adaptive Knot Allocation for Spline Interpolation",
+ * arXiv:2412.13423), ported from the paper's description.
  *
  * The knots start as six uniform ones over the interval, each sub-interval at
  * status zero. Each sweep tests every sub-interval whose status is below
  * `s_conv = 1` at its midpoint `x̄ = (x_i + x_{i+1}) / 2`: the function is
  * evaluated there and the point becomes a knot, splitting the sub-interval;
- * both halves take the status plus one where both of the paper's criteria
- * hold, and keep it otherwise. The criteria, for each component of the
- * function, are the midpoint's interpolation error `|f(x̄) − f̂(x̄)| < δ(|f(x̄)|
- * + ε)` and the integral error `|Ĩ − Î| < δ(|Ĩ| + ε h)`, where `Ĩ = h/6 (f(x_i)
- * + 4 f(x̄) + f(x_{i+1}))` is Simpson's 1/3 rule and `Î` the interpolant's own
- * integral over the sub-interval. Every evaluation is a knot; there is no
- * dense grid. Once every sub-interval has converged, the optional refinement
- * pass resets the status of each sub-interval wider than the widths' mean plus
+ * both halves take the status plus one where both of the paper's criteria hold,
+ * and keep it otherwise. The criteria, for each component of the function, are
+ * the midpoint's interpolation error, `|f(x̄) − f̂(x̄)| < δ(|f(x̄)| + ε)`, and
+ * the integral error, `|Ĩ − Î| < δ(|Ĩ| + ε h)`, where Simpson's 1/3 rule gives
+ * `Ĩ = h/6 (f(x_i) + 4 f(x̄) + f(x_{i+1}))` and `Î` is the interpolant's own
+ * integral over the sub-interval. Every evaluation is a knot; there is no dense
+ * grid. Once every sub-interval has converged, the optional refinement pass
+ * resets the status of each sub-interval wider than the widths' mean plus
  * `refine_ns` standard deviations and runs the sweeps again, up to `refine`
  * times (the paper recommends one pass at one standard deviation); no sweep
- * adds knots beyond `max_nodes`.
+ * adds knots beyond `max_nodes`. A caller may add its own acceptance condition
+ * (`IProps.accept`): a sub-interval then converges only where both hold.
  *
  * The interpolant is the shared knot course (`prepareHumanKnotCourse`, the
  * minimum-jerk spline through the knots at their own times, Flash and Hogan
  * 1985), in place of the paper's not-a-knot cubic. Its pieces are quintics, so
- * a sub-interval's integral `Î` is three-point Gauss-Legendre quadrature,
- * exact for them.
+ * a sub-interval's integral `Î` is three-point Gauss-Legendre quadrature, exact
+ * for them.
+ *
+ * Two numerical adaptations of the paper: a requirement in the function's own
+ * units (a millimetre, a degree) is the criterion `δ(|f| + ε)` in its limit as
+ * `δ` tends to zero with `δ ε` held at the requirement (`Tolerance`
+ * `absolute`); and the refinement pass resets no sub-interval whose excess over
+ * the mean width is within 16 ulps of the interval's length, since widths equal
+ * in exact arithmetic differ by rounding alone.
  *
  * @param props The function, its interval, the tolerance and the limits.
  * @returns The knots and their course.
@@ -38,11 +46,7 @@ export function prepareHumanAdaptiveKnots(
   const refine: number = props.refine ?? 1;
   const deviations: number = props.deviations ?? 1;
   const limit: number = props.maxKnots ?? Infinity;
-  const accept = (
-    error: number,
-    reference: number,
-    width: number,
-  ): boolean =>
+  const accept = (error: number, reference: number, width: number): boolean =>
     props.tolerance.kind === "absolute"
       ? error < props.tolerance.absolute * width
       : error <
@@ -67,8 +71,7 @@ export function prepareHumanAdaptiveKnots(
       status.forEach((s: number, i: number): void => {
         if (s < CONVERGED) pending.push(i);
       });
-      if (pending.length === 0 || times.length + pending.length > limit)
-        return;
+      if (pending.length === 0 || times.length + pending.length > limit) return;
       const course: prepareHumanKnotCourse.ICourse = join(times, values);
       const added: Map<number, ISplit> = new Map();
       for (const i of pending) {
@@ -127,7 +130,12 @@ export function prepareHumanAdaptiveKnots(
     );
     let reset: boolean = false;
     status = status.map((s: number, i: number): number => {
-      if (widths[i]! > mean + deviations * spread) {
+      // Widths equal in exact arithmetic differ by rounding alone, which
+      // resets nothing: the excess must pass the interval's own rounding.
+      if (
+        widths[i]! - mean > deviations * spread &&
+        widths[i]! - mean > ROUNDING * (props.to - props.from)
+      ) {
         reset = true;
         return 0;
       }
@@ -210,6 +218,9 @@ interface ISplit {
 
 /** The paper's initial knot count: the not-a-knot spline's least. */
 const INITIAL: number = 6;
+
+/** The relative rounding of a sum of a few doubles: a handful of ulps. */
+const ROUNDING: number = 16 * Number.EPSILON;
 
 /** The status a converged sub-interval reaches (`s_conv`). */
 const CONVERGED: number = 1;

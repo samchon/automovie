@@ -217,9 +217,8 @@ export namespace HumanSupportFrame {
     const frame = (t: number): IAutoMovieRigidTransform => {
       if (support.kind === "prop")
         return context.prop(support.subject).frame(t);
-      const other: IAutoMovieMotionHumanPerformerReader = context.performer(
-        support.subject,
-      );
+      const other: ReturnType<HumanSupportFrame.IAtContext["performer"]> =
+        context.performer(support.subject);
       const bone: AutoMovieHumanoidBone =
         "bone" in support
           ? support.bone

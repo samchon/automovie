@@ -5,10 +5,10 @@ import type {
 } from "@automovie/interface";
 import * as THREE from "three";
 
+import { AutoMovieThreeKind } from "../scene/AutoMovieThreeKind.js";
 import type { AutoMovieFilmAlpha } from "../scene/filmResponse/AutoMovieFilmAlpha.js";
 import type { AutoMovieFilmResponseStage } from "../scene/filmResponse/AutoMovieFilmResponseStage.js";
 import type { IAutoMovieFilmResponseRenderer } from "../scene/filmResponse/IAutoMovieFilmResponseRenderer.js";
-import { AutoMovieThreeKind } from "../scene/AutoMovieThreeKind.js";
 
 /**
  * Place and draw every sub-frame sample of one frame into the film response
