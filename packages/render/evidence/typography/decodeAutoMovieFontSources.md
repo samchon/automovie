@@ -14,7 +14,7 @@ A digest mismatch, malformed base64, a missing reader, a duplicate id and a deco
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States both kinds' paths, the ordering and first-refusal rule, the duplicated checks and why, the result's ownership and every rejection.
+States both kinds' paths, the ordering and first-refusal rule, which earlier checks cover ids, fields and licences and that this function checks no licence, the duplicated checks and why, the result's ownership and every rejection.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 

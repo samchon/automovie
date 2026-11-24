@@ -7,6 +7,7 @@ import {
   IAutoMovieMaterial,
   IAutoMovieModel,
   type IAutoMovieSceneEnvironmentUse,
+  type IAutoMovieShotFontSources,
   type IAutoMovieSurfaceGraphicImageUse,
   type IAutoMovieTextureClosureInput,
   type IAutoMovieTextureImageFacts,
@@ -16,6 +17,7 @@ import {
 } from "@automovie/interface";
 
 import { compareCodeUnits } from "../text/compareCodeUnits";
+import { validateAutoMovieFontSources } from "../typography/validateAutoMovieFontSources";
 import { ViolationCollector } from "./ViolationCollector";
 import { AUTO_MOVIE_MAX_TEXTURE_EDGE } from "./constants/AUTO_MOVIE_MAX_TEXTURE_EDGE";
 import { materialTextureSlots } from "./materialTextureSlots";
@@ -42,6 +44,13 @@ const ENVIRONMENT_MEDIA: ReadonlySet<AutoMovieTextureMediaType> = new Set([
  * image its model carries skips the ledger, which holds project files only, and
  * joins the colour-intent check under that model; a surface image that resolves
  * nowhere is refused as unregistered.
+ *
+ * Each shot's font sources are admitted by `validateAutoMovieFontSources` with
+ * this ledger, so an `"asset"` font file must be registered, carry `license` in
+ * its provenance and carry a `"font"` use of this production under the source's
+ * id; closure is the one check that holds the ledger, so it is where an
+ * unlicensed font file is refused. A ledger `"font"` use no listed source names
+ * is stale, as an image use no binding names is.
  */
 export const validateTextureAssets: (
   props: IAutoMovieTextureClosureInput,
@@ -181,6 +190,21 @@ export const validateTextureAssets: (
     },
   );
 
+  // A shot's font sources, admitted as font admission does and, with the
+  // ledger closure holds, each asset source's licence and font use.
+  (props.fonts ?? []).forEach(
+    (row: IAutoMovieShotFontSources, rowIndex: number): void => {
+      validateAutoMovieFontSources(
+        row.sources,
+        `$input.fonts[${rowIndex}].sources`,
+        out,
+        { production: props.production, assets: props.assets },
+      );
+      for (const source of row.sources)
+        if (source.kind === "asset") claim("font", source.id, source.asset);
+    },
+  );
+
   // The same bytes cannot be both a colour and a measurement.
   for (const [subject, slots] of intents) {
     const distinct: Set<string> = new Set(slots.values());
@@ -202,7 +226,8 @@ export const validateTextureAssets: (
         if (
           use.consumer.kind !== "material-texture" &&
           use.consumer.kind !== "scene-environment" &&
-          use.consumer.kind !== "surface-graphic"
+          use.consumer.kind !== "surface-graphic" &&
+          use.consumer.kind !== "font"
         )
           return;
         const key: string = `${use.consumer.kind}\0${use.consumer.id}`;

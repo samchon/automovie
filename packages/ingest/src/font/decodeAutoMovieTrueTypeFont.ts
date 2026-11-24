@@ -34,6 +34,16 @@ const REQUIRED: readonly string[] = [
  * number other than `0x5F0F3CF5`, a units-per-em outside 16 to 16384, and a
  * `loca` offset that decreases or lies past the end of `glyf`.
  *
+ * Composite glyphs are a stated limit: a component placed by x/y offsets and a
+ * 2 × 2 transform is resolved, and a component placed by matching point numbers
+ * (its `ARGS_ARE_XY_VALUES` flag clear) is refused, naming the glyph and the
+ * component, so a font that builds an accented letter that way cannot be set.
+ * Matching points aligns a numbered point of the component with a numbered
+ * point of the glyph built so far, which needs every point of both outlines as
+ * the font numbers them, implied on-curve points excluded, rather than the
+ * quadratic chains this decoder keeps. Reopen when a production's font places a
+ * mapped glyph's components by point matching.
+ *
  * It reads `head` (units per em, `loca` format), `hhea` (ascender, descender,
  * line gap, horizontal metric count), `maxp` (glyph count), `cmap` (formats 4
  * and 12 for Unicode), `hmtx`, `loca` and `glyf`, composite glyphs included;
