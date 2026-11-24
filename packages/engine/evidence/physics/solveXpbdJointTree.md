@@ -6,7 +6,7 @@ States the projection, the rows, the elimination, the tolerance and the stopping
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-The least mass-weighted displacement meeting every joint row, `[M J^T; J 0]`, eliminated over the body-joint tree leaves first with no fill-in (Baraff 1996; Deul, Kugelstadt, Weiler and Bender 2018), relinearised by Newton's method (Dennis and Schnabel 1983, theorem 5.2.1) to the joints' tolerance `ROM_TOLERANCE`; it stops as MuJoCo's constraint solver stops (google-deepmind/mujoco, src/engine/engine_solver.c, Apache-2.0, Copyright 2021 DeepMind Technologies Limited): every row within its tolerance, no further improvement, or the default cap of 100 iterations.
+The least mass-weighted displacement meeting every joint row, `[M J^T; J 0]`, eliminated over the body-joint tree leaves first with no fill-in (Baraff 1996; Deul, Kugelstadt, Weiler and Bender 2018), relinearised by Newton's method (Dennis and Schnabel 1983, theorem 5.2.1), a limit's turn to the joints' tolerance `ROM_TOLERANCE` and an anchor's gap to the 64-ulp rounding the return's anchor check allows (`assertPhysicalReturnPath`); it stops as MuJoCo's constraint solver stops (google-deepmind/mujoco, src/engine/engine_solver.c, Apache-2.0, Copyright 2021 DeepMind Technologies Limited): every row within its tolerance, no further improvement, or the default cap of 100 iterations.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
@@ -14,7 +14,7 @@ Visit the tree, read each joint's rows, eliminate, back-substitute, displace; re
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
-The tolerance is the engine's declared joint tolerance (a limit's turn within ROM_TOLERANCE, an anchor's gap within the arc it subtends at the longer arm), not a tuned stop; the cap is MuJoCo's default, a cost bound; a limit row is active whenever the joint is outside its admitted set; a singular block leaves the poses as they are.
+The tolerance is the engine's declared joint tolerance (a limit's turn within ROM_TOLERANCE) and the return check's 64-ulp rounding for an anchor, not a tuned stop; the cap is MuJoCo's default, a cost bound; a limit row is active whenever the joint is outside its admitted set; a singular block leaves the poses as they are.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 

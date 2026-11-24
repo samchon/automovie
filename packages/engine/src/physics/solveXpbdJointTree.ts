@@ -34,9 +34,11 @@ import type { solveXpbdArticulation } from "./solveXpbdArticulation";
  * quadratically convergent near the solution: Dennis and Schnabel 1983,
  * "Numerical Methods for Unconstrained Optimization and Nonlinear Equations",
  * theorem 5.2.1) to the joints' tolerance (`ROM_TOLERANCE`, the resolution to
- * which a solver need resolve a joint's angle): a limit's turn within it, and
- * an anchor's gap within the arc it subtends at the anchor's longer arm. The
- * loop ends as MuJoCo's constraint solver ends its own (google-deepmind/mujoco,
+ * which a solver need resolve a joint's angle) for a limit's turn, and for an
+ * anchor's gap to the float64 rounding the return's anchor check allows, 64
+ * ulps of its scale (`assertPhysicalReturnPath`), as the hand-back's
+ * post-stabilization projects each joint exactly. The loop ends as MuJoCo's
+ * constraint solver ends its own (google-deepmind/mujoco,
  * `src/engine/engine_solver.c`, Apache-2.0, Copyright 2021 DeepMind
  * Technologies Limited): once every row is within its tolerance, once a step no
  * longer lowers the worst row, or at its default iteration cap
@@ -124,10 +126,13 @@ function rowsOf(v: solveXpbdJointTree.IVisit): solveXpbdJointTree.IJointRows {
     Vector3.add(parent.center, rp),
     Vector3.add(child.center, rc),
   );
-  // The anchor's tolerance: the arc the joints' tolerance subtends at its
-  // longer arm.
+  // The anchor's tolerance: the float64 rounding of the products that place
+  // it, 64 ulps of its scale, the rounding the return's anchor check allows
+  // (`assertPhysicalReturnPath`).
   const reach: number =
-    TOLERANCE * Math.max(Vector3.length(rp), Vector3.length(rc));
+    64 *
+    Number.EPSILON *
+    Math.max(1, Vector3.length(parent.center), Vector3.length(child.center));
   const parentRows: number[][] = [
     [1, 0, 0, 0, rp.z, -rp.y],
     [0, 1, 0, -rp.z, 0, rp.x],
