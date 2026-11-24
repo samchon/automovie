@@ -13,6 +13,8 @@ import { nclose } from "../internal/nclose";
  * 2. Each axis can be uniquely widest; equal widths choose X, and equal
  *    centres preserve the original order. Negative coordinates remain metres.
  * 3. Twenty-five boxes recurse into both sides without losing an identity.
+ * 4. Median selection preserves every entry and splits mixed and all-equal
+ *    centres at the expected rank without borrowing the scratch array.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Builds actual query hierarchies and checks leaf ownership/extrema, median splits, retained identities, selected root enclosure, widest-axis selection and stable center ties. It catches lost boxes or incorrect asserted bounds while allowing the documented in-place ordering; it does not inspect every descendant node's bounds.
  * @evidence contracts/development/testing.md#independent-expectations Authored low/high coordinates determine extrema and widest axes; original integer IDs determine populations and equal-center order. Twelve-or-fewer leaf ownership and thirteen-box median behavior are explicit hierarchy contracts, not output snapshots. Empty infinite sentinels are classifications, and enclosure alone does not prove every downstream query.
@@ -205,4 +207,38 @@ export function test_geometry_mesh_query_hierarchy(): void {
         nclose(value, axis === 2 ? 23 : -1),
       ),
   );
+
+  const mixed = [8, 2, 7, 3, 6, 4, 4, 4, 5, 1, 9, 0, 4, 10, 11];
+  const entries = mixed.map((centre, id) => ({ ...box(centre, 2), id }));
+  const selected = buildAutoMovieMeshQueryHierarchy.partition(entries);
+  if ("triangles" in selected) throw new Error("Expected a selected branch.");
+  const left = ids(selected.left);
+  const right = ids(selected.right);
+  TestValidator.equals("selected median splits seven from eight", [7, 8], [
+    left.length,
+    right.length,
+  ]);
+  TestValidator.equals(
+    "selected faces occupy opposite sides of the median rank",
+    [4, 4],
+    [
+      Math.max(...left.map((id) => mixed[id]!)),
+      Math.min(...right.map((id) => mixed[id]!)),
+    ],
+  );
+  TestValidator.equals(
+    "selection keeps each original identity exactly once",
+    mixed.map((_, id) => id),
+    [...left, ...right].sort((a, b) => a - b),
+  );
+  const selectedTies = buildAutoMovieMeshQueryHierarchy.partition(tied);
+  if ("triangles" in selectedTies) throw new Error("Expected a selected branch.");
+  TestValidator.equals("all-equal centres still split by rank", [6, 7], [
+    ids(selectedTies.left).length,
+    ids(selectedTies.right).length,
+  ]);
+  const scratch = [box(-4, 2)];
+  const selectedLeaf = buildAutoMovieMeshQueryHierarchy.partition(scratch);
+  scratch.length = 0;
+  TestValidator.equals("selected leaf owns its entry list", [-4], ids(selectedLeaf));
 }

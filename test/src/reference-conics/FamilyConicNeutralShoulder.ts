@@ -1,9 +1,11 @@
 import {
   AutoMovieSolidChain,
   AutoMovieSolidVector as V,
+  createAutoMovieMeshCrossingQuery,
   meshOf,
 } from "@automovie/engine";
 import { buildHumanNeutralCapture } from "@automovie/human/capture";
+import type { IAutoMovieMesh } from "@automovie/interface";
 import fs from "node:fs/promises";
 import path from "node:path";
 
@@ -131,6 +133,37 @@ type ReportPart = {
     report?: { seam?: { vertex: number; normal: N.Point }[] };
   };
 };
+
+/** Recheck the identical saved skin without preparing its body sources or rendering it. */
+async function replayCrossings(file: string): Promise<void> {
+  const row = (await fs.readFile(file, "utf8"))
+    .split(/\r?\n/u)
+    .find((line) => line.startsWith('{"assembly"'));
+  if (row === undefined) throw new Error("Expected a saved assembly report");
+  const { assembly } = JSON.parse(row) as {
+    assembly: { skin: ReportPart["skin"] };
+  };
+  const { positions, indices } = assembly.skin;
+  const mesh: IAutoMovieMesh = {
+    positions,
+    indices,
+    normals: null,
+    skin: null,
+    uvs: null,
+  };
+  const began: number = performance.now();
+  const compare = createAutoMovieMeshCrossingQuery(mesh);
+  const prepared: number = performance.now();
+  const crossings = compare(mesh);
+  console.log(
+    JSON.stringify({
+      triangles: indices.length / 3,
+      prepareMilliseconds: prepared - began,
+      queryMilliseconds: performance.now() - prepared,
+      crossings,
+    }),
+  );
+}
 
 function actual(
   body: ReturnType<typeof buildHumanNeutralCapture.inspect>,
@@ -281,20 +314,27 @@ if (
   const out = process.argv[2];
   if (out === undefined)
     throw new Error(
-      "Usage: FamilyConicNeutralShoulder <output-directory> [exact-hm08-obj] [--meridians=<source-report>] [--owner-normals] [--engine-port]",
+      "Usage: FamilyConicNeutralShoulder <output-directory> [exact-hm08-obj] [--meridians=<source-report>] [--owner-normals] [--engine-port] or FamilyConicNeutralShoulder --crossing-replay <assembly-report>",
     );
   const inputs = process.argv.slice(3);
   const meridians = inputs
     .find((arg) => arg.startsWith("--meridians="))
     ?.slice("--meridians=".length);
   const asset = inputs.find((arg) => !arg.startsWith("--"));
-  void captureNeutralShoulders(
-    out,
-    asset,
-    meridians,
-    inputs.includes("--owner-normals"),
-    inputs.includes("--engine-port"),
-  ).catch((error: unknown): void => {
+  let action: Promise<void>;
+  if (out === "--crossing-replay") {
+    if (asset === undefined)
+      throw new Error("Crossing replay needs an assembly report");
+    action = replayCrossings(asset);
+  } else
+    action = captureNeutralShoulders(
+      out,
+      asset,
+      meridians,
+      inputs.includes("--owner-normals"),
+      inputs.includes("--engine-port"),
+    );
+  void action.catch((error: unknown): void => {
     console.error(error);
     process.exitCode = 1;
   });

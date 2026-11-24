@@ -66,7 +66,7 @@ States complete source ownership, the copied fixed-layout invariant and initial 
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
-O(V+T) admission/indexing plus the shared O(T log² T) initial build. This sort is paid once per adopted index layout, not on each changed pose.
+O(V+T) admission/indexing plus median hierarchy selection, typically O(T log T) with a local sort fallback. Preparation runs once per adopted index layout. Each crossing result is sorted by shared cell and original ordinal independently of the tree's visit order.
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 
