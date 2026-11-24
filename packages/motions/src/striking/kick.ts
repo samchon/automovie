@@ -21,7 +21,6 @@ import { KickGeometry } from "./KickGeometry";
 import { KickLaunch } from "./KickLaunch";
 import { KickRedirect } from "./KickRedirect";
 import { StrikingQuality } from "./StrikingQuality";
-import { StrikingRecord } from "./StrikingRecord";
 import { StrikingRide } from "./StrikingRide";
 import { StrikingSkill } from "./StrikingSkill";
 import { StrikingStance } from "./StrikingStance";
@@ -93,10 +92,9 @@ export namespace kick {
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {Error} When a redirect's source is not a planned kick, when either
-   *   kick of a redirect is not a round kick, when the plan is read back while
-   *   it is being built, or when a feint's share lies outside (0, 1) or past
-   *   the chamber's share.
+   * @throws {Error} When either kick of a redirect is not a round kick, when
+   *   the plan is read back while it is being built, or when a feint's share
+   *   lies outside (0, 1) or past the chamber's share.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanKick.IParams>,
@@ -212,57 +210,56 @@ export namespace kick {
     };
 
     // The contact the performance committed, and the stopped leg's ride on
-    // the body it met ({@link StrikingRide}), built on first use.
+    // the body it met ({@link StrikingRide}), solved when the plan is
+    // prepared; none before.
     let met: IAutoMovieMotionWeaponContact | null = null;
     let ride: StrikingRide.IRide | undefined;
     const carried = (
       posture: IAutoMovieMotionHumanPosture,
       seconds: number,
-    ): IAutoMovieMotionHumanPosture => {
-      if (met === null) return posture;
-      const event: IAutoMovieMotionWeaponContact = met;
-      ride ??= StrikingRide.create({
+    ): IAutoMovieMotionHumanPosture =>
+      ride === undefined ? posture : ride.carry(posture, limb, t0 + seconds);
+    const rode = (
+      event: IAutoMovieMotionWeaponContact,
+      shape: IAutoMovieMotionHumanKickGeometry,
+    ): StrikingRide.IRide =>
+      StrikingRide.create({
         other: (): IAutoMovieMotionHumanPerformerReader =>
           context.performer(event.against),
         stop: event.seconds,
         goal: (at: number): IAutoMovieVector3 =>
-          geometry().posture(at - t0).limbs[limb]!.point,
+          shape.posture(at - t0).limbs[limb]!.point,
         axis: (at: number): readonly [IAutoMovieVector3, IAutoMovieVector3] =>
           StrikingWeapon.axis(chain, event.weapon, at),
       });
-      return ride.carry(posture, limb, t0 + seconds);
-    };
+
+    // The geometry the plan solved when it was prepared, on what the kick
+    // fixed at its launch (`KickLaunch`, its way cleared of the person
+    // kicked at, `KickClear`), the partner as shown and the committed stop;
+    // before that, each read builds it cold on the performance as placed so
+    // far.
     let built: IAutoMovieMotionHumanKickGeometry | undefined;
     let building: boolean = false;
-
-    // What the kick fixed at its launch (`KickLaunch`): made once for the
-    // plan, and again only when a settle shows the launch's own reading of
-    // the target changed. The geometry, which follows the partner as shown
-    // and the committed stop, is built on it at every settle.
-    let launched: KickLaunch.ILaunch | undefined;
-    const geometry = (): IAutoMovieMotionHumanKickGeometry => {
-      if (built !== undefined) return built;
+    const build = (): IAutoMovieMotionHumanKickGeometry => {
       if (building) throw strikingReadBack("kick", context.subject);
       building = true;
       try {
-        const made: KickLaunch.ILaunch =
+        const launched: KickLaunch.ILaunch = KickClear(
+          context,
+          timing,
+          t0,
           source === undefined
-            ? KickLaunch(context, timing, t0, undefined, launched)
-            : KickRedirect.launch(context, source, launched);
-
-        // A new launch's way to its contact is cleared of the person
-        // kicked at once (`KickClear`); the launch kept is the cleared one.
-        launched =
-          made === launched ? made : KickClear(context, timing, t0, made);
-        built =
-          source === undefined
-            ? KickGeometry.build(context, timing, t0, fixed, launched)
-            : KickRedirect.build(context, source, fixed, launched);
+            ? KickLaunch(context, timing, t0, undefined)
+            : KickRedirect.launch(context, source),
+        );
+        return source === undefined
+          ? KickGeometry.build(context, timing, t0, fixed, launched)
+          : KickRedirect.build(context, source, fixed, launched);
       } finally {
         building = false;
       }
-      return built;
     };
+    const geometry = (): IAutoMovieMotionHumanKickGeometry => built ?? build();
     return {
       duration,
       events,
@@ -308,7 +305,9 @@ export namespace kick {
       prepare: (): void => {
         built = undefined;
         ride = undefined;
-        geometry();
+        const shape: IAutoMovieMotionHumanKickGeometry = build();
+        built = shape;
+        if (met !== null) ride = rode(met, shape);
       },
       ...(strikes
         ? {
@@ -316,10 +315,11 @@ export namespace kick {
             stop: (found: readonly IAutoMovieMotionWeaponContact[]): void => {
               met = StrikingWeapon.first(found);
               fixed = met === null ? null : met.seconds;
-              ride = undefined;
 
-              // The geometry is built on the stop it was given: a stop
-              // committed now makes it another, whoever settles after.
+              // The geometry is solved on the stop it was given: a stop
+              // committed now makes it another, which the next preparation
+              // solves.
+              ride = undefined;
               built = undefined;
             },
           }
@@ -336,13 +336,6 @@ export namespace kick {
     };
   }
 
-  /** Whether a plan is a kick's, carrying what a redirect continues. */
-  function continues(
-    plan: IAutoMovieMotionHumanActionPlan,
-  ): plan is IAutoMovieMotionHumanKick.IPlan {
-    return StrikingRecord.carries(plan) && "source" in plan;
-  }
-
   /** The kick a redirect continues, when this instance is one. */
   function redirected(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanKick.IParams>,
@@ -357,9 +350,12 @@ export namespace kick {
       !(from.share < 1 - 1e-9)
     )
       return undefined;
-    if (!continues(from.plan))
-      throw new Error("A kick redirect needs its source kick's plan");
-    const source: IAutoMovieMotionHumanKickGeometry.ISource = from.plan.source;
+
+    // A segment of the kick family carries a kick's plan, spread copies
+    // included, so its source is the kick it continues.
+    const source: IAutoMovieMotionHumanKickGeometry.ISource = (
+      from.plan as IAutoMovieMotionHumanKick.IPlan
+    ).source;
     if (from.share * source.timing.duration > source.timing.chamber + 1e-9)
       return undefined;
     if (

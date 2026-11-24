@@ -36,10 +36,8 @@ export function RecoveryChartRefinementClosure(
     b: string,
   ): number => (a < b ? -1 : a > b ? 1 : 0);
   if (
-    !input ||
-    !input.leaves.length ||
-    input.maxLeaves < input.leaves.length ||
-    !input.request
+    input.leaves.length === 0 ||
+    input.maxLeaves < input.leaves.length
   )
     throw new Error(
       "A covering private partition, split request and safe leaf budget are required",

@@ -19,6 +19,7 @@ import { orientAutoMovieSweep } from "./orientAutoMovieSweep";
 import { preserveAutoMovieSweepVolume } from "./preserveAutoMovieSweepVolume";
 import { sampleAutoMovieParameterSweep } from "./sampleAutoMovieParameterSweep";
 import { transportAutoMovieSweepSpine } from "./transportAutoMovieSweepSpine";
+import { overflowsBinary64 } from "../../math/overflowsBinary64";
 
 /**
  * Compile one sweep of a surface rig: its rest surface, and, when it rides
@@ -174,7 +175,7 @@ export const rigAutoMovieSweep: (
           positive ||= wu! > 0 && wv! > 0 && value > 0;
           r += wu! * wv! * value;
         }
-        if (r < 0 || (positive && r === 0))
+        if (r < 0 || (positive && r === 0) || overflowsBinary64(r))
           throw new Error("averaged sweep radius is not representable");
         slots.push(scale(at));
         xs.push(r * Math.cos(angle));
@@ -195,15 +196,24 @@ export const rigAutoMovieSweep: (
         const s: number = (probeScales ?? rig.scales)[
           probeScaleOffset + slot[k]!
         ]!;
-        px += s * x[k]!;
-        py += s * y[k]!;
+        const tx: number = s * x[k]!;
+        const ty: number = s * y[k]!;
+        px += tx;
+        py += ty;
+        // Finite scales and section points can overflow their products.
+        if ([tx, ty, px, py].some(overflowsBinary64))
+          throw new Error("scaled sweep sample is not representable");
       }
       if (positive && px === 0 && py === 0)
         throw new Error("scaled sweep sample is not representable");
-      for (let c: number = 0; c < 3; ++c)
-        out[at + c] =
-          rig.frames[f + c]! +
-          (rig.frames[f + 3 + c]! * px + rig.frames[f + 6 + c]! * py);
+      for (let c: number = 0; c < 3; ++c) {
+        const across: number = rig.frames[f + 3 + c]! * px;
+        const normal: number = rig.frames[f + 6 + c]! * py;
+        const value: number = rig.frames[f + c]! + (across + normal);
+        if ([across, normal, across + normal, value].some(overflowsBinary64))
+          throw new Error("scaled sweep sample is not representable");
+        out[at + c] = value;
+      }
     };
   }
   const rig: IAutoMovieSweepRig = {
@@ -255,7 +265,8 @@ export const rigAutoMovieSweep: (
         const ny: number = rz * ax - rx * az;
         const nz: number = rx * ay - ry * ax;
         const size: number = Math.hypot(nx, ny, nz);
-        if (!(size > 0)) throw new Error("sweep probe is not representable");
+        if (!(size > 0) || overflowsBinary64(size))
+          throw new Error("sweep probe is not representable");
         const o: number = 6 * p;
         out[o] = nx / size;
         out[o + 1] = ny / size;
@@ -314,7 +325,7 @@ export const rigAutoMovieSweep: (
           `girth factor at u ${scaleU[k]} is not positive and finite`,
         );
       const value: number = surface.scale(scaleU[k]!) * g;
-      if (!(value > 0))
+      if (!(value > 0) || overflowsBinary64(value))
         throw new Error("girth scale is not positive and finite");
       girthWork[k] = g;
       girthWork[scaleU.length + k] = value;

@@ -71,10 +71,6 @@ export namespace KneeGeometry {
    * @param side The kicking side already selected by the law.
    * @param feet The actual entry foot placements.
    * @param carriage The law's original lowered/pivoted carriage producer.
-   * @param before The key this plan built before, when it has one: returned as
-   *   it is when the launch reads the same target point, so a plan solves its
-   *   key once and again only when a settle shows the target elsewhere at the
-   *   launch's reading.
    * @returns The same measured reach/key used by the free and displayed
    *   courses.
    * @throws {HumanRefusal} A `reach` refusal when solving the knee again from
@@ -92,8 +88,8 @@ export namespace KneeGeometry {
       drive: number,
       resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
     ) => IAutoMovieMotionHumanPosture,
-    before?: IGeometry,
   ): IGeometry {
+
     const body: IAutoMovieMotionHumanBody = context.body;
     const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
     const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
@@ -105,24 +101,12 @@ export namespace KneeGeometry {
       t0 - StrikingTarget.LOOK,
       (): number => 0.8 * m.thigh,
     );
-
-    // The key follows the one reading the launch makes of its target, on a
-    // body, an entry and feet that are the plan's own: a key made before on
-    // the same point is this one, and its carriage rounds are not run again.
-    if (
-      before !== undefined &&
-      before.target.x === target.x &&
-      before.target.y === target.y &&
-      before.target.z === target.z
-    )
-      return before;
     const resolution: ReturnType<typeof prepareHumanPoseResolution> =
       prepareHumanPoseResolution();
-    let projector: ReturnType<typeof prepareHumanPostureProjection> | undefined;
-    const projection: () => ReturnType<
-      typeof prepareHumanPostureProjection
-    > = (): ReturnType<typeof prepareHumanPostureProjection> =>
-      (projector ??= prepareHumanPostureProjection(body));
+    const projected: ReturnType<typeof prepareHumanPostureProjection> =
+      prepareHumanPostureProjection(body);
+    const projection = (): ReturnType<typeof prepareHumanPostureProjection> =>
+      projected;
     const line: IAutoMovieVector3 = StrikingTarget.line(
       entry.root,
       target,

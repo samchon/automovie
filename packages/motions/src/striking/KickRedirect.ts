@@ -51,14 +51,11 @@ export namespace KickRedirect {
    *
    * @param context The redirecting kick's context, starting at the cut.
    * @param source The kick it continues.
-   * @param before The launch this redirect made before, when it has one.
-   * @returns The launch; the one before when it reads the same and the source
-   *   still keeps the same line and step.
+   * @returns The launch.
    */
   export function launch(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanKick.IParams>,
     source: IAutoMovieMotionHumanKickGeometry.ISource,
-    before: KickLaunch.ILaunch | undefined,
   ): KickLaunch.ILaunch {
     const old: IAutoMovieMotionHumanKickGeometry = source.geometry();
     return KickLaunch(
@@ -66,7 +63,6 @@ export namespace KickRedirect {
       source.timing,
       source.start,
       { line: old.line, step: old.carriage.step, drive: old.carriage.drive },
-      before,
     );
   }
 

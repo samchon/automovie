@@ -5,6 +5,7 @@ import type {
 
 import { addAutoMovieQuadraticProduct } from "./addAutoMovieQuadraticProduct";
 import { orderAutoMovieQuadraticMatrix } from "./orderAutoMovieQuadraticMatrix";
+import { overflowsBinary64 } from "./overflowsBinary64";
 
 /**
  * Own sparse LDL-transpose factors of [diag(P), A'; A, -diag(H)]. H is zero for
@@ -196,7 +197,8 @@ export function createAutoMovieQuadraticFactor(
         }
         let pivot: number = pivotSum[0]! + pivotSum[1]!;
         if (pivot * sign < 1e-13) pivot = sign * 2e-7;
-        if (pivot === 0) return false;
+        // Accumulated products of finite entries can overflow the pivot.
+        if (pivot === 0 || overflowsBinary64(pivot)) return false;
         pivots[column] = pivot;
       }
       valid = true;
@@ -212,7 +214,10 @@ export function createAutoMovieQuadraticFactor(
         normb = Math.max(normb, Math.abs(permuted[at]!));
       }
       substitute(solution, permuted);
+      // Substitution through finite factors can overflow binary64.
+      if (solution.some(overflowsBinary64)) return undefined;
       let norm: number = residual(permuted, solution);
+      if (overflowsBinary64(norm)) return undefined;
       for (
         let pass: number = 0;
         pass < 10 && norm > 1e-12 + 1e-13 * normb;
@@ -221,7 +226,9 @@ export function createAutoMovieQuadraticFactor(
         substitute(correction, error);
         for (let at: number = 0; at < size; at++)
           trial[at] = solution[at]! + correction[at]!;
+        if (trial.some(overflowsBinary64)) return undefined;
         const next: number = residual(permuted, trial);
+        if (overflowsBinary64(next)) return undefined;
         if (next < norm) solution.set(trial);
         const ratio: number = norm / next;
         norm = next;

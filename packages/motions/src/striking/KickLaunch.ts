@@ -33,11 +33,6 @@ type BandResult = "low" | "middle" | "high";
 /** The alternatives of `OfLevel`'s site. */
 type OfLevel = "low" | "middle" | "high";
 
-/** Whether two points have the same components exactly. */
-function same(a: IAutoMovieVector3, b: IAutoMovieVector3): boolean {
-  return a.x === b.x && a.y === b.y && a.z === b.z;
-}
-
 /**
  * The height band of a target point against a body's own heights, the floor at
  * zero.
@@ -53,14 +48,13 @@ function band(
 }
 
 /**
- * A kick's launch: the one before when it reads the same, else a new one.
+ * A kick's launch.
  *
  * @param context The kick's context, its entry being the kick's own start.
  * @param timing The kick's timing.
  * @param t0 Film second of the kick's time zero.
  * @param kept What a redirect keeps of its source; a fresh kick reads its own
  *   line and steps up when short.
- * @param before The launch this plan made before, when it has one.
  * @returns The launch.
  */
 export function KickLaunch(
@@ -68,7 +62,6 @@ export function KickLaunch(
   timing: IAutoMovieMotionHumanKickGeometry.ITiming,
   t0: number,
   kept: IAutoMovieMotionHumanKickGeometry.IKept | undefined,
-  before: KickLaunch.ILaunch | undefined,
 ): KickLaunch.ILaunch {
   const p: IAutoMovieMotionHumanKick.IParams = context.params;
   const body: IAutoMovieMotionHumanBody = context.body;
@@ -159,8 +152,7 @@ export function KickLaunch(
   });
 
   // The goal the tracker plans at the launch (`StrikingAim.track`'s first
-  // prediction). A launch before that read the same point and planned the
-  // same goal, on the same kept line and step, is this one.
+  // prediction).
   const planned: IAutoMovieVector3 = Vector3.add(
     StrikingAim.predict(
       aim,
@@ -170,17 +162,6 @@ export function KickLaunch(
     ),
     offset,
   );
-  if (
-    before !== undefined &&
-    same(before.first, first) &&
-    same(before.planned, planned) &&
-    before.kept?.step === kept?.step &&
-    before.kept?.drive === kept?.drive &&
-    (before.kept === undefined
-      ? kept === undefined
-      : kept !== undefined && same(before.kept.line, kept.line))
-  )
-    return before;
 
   // The contact, decided on the fitted figure, and the chamber folded from
   // it by the skill's range share.

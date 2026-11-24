@@ -8,6 +8,7 @@ import { integrateAutoMovieSweepVolume } from "./integrateAutoMovieSweepVolume";
 import { interpolateAutoMovieSpline } from "./interpolateAutoMovieSpline";
 import { momentAutoMovieSweepSections } from "./momentAutoMovieSweepSections";
 import { settleAutoMovieSweepVolume } from "./settleAutoMovieSweepVolume";
+import { overflowsBinary64 } from "../../math/overflowsBinary64";
 
 /**
  * Compile the volume-settled joint-scale update of a sealed sweep rig.
@@ -127,7 +128,7 @@ export function preserveAutoMovieSweepVolume(
     profile(settleAutoMovieSweepVolume(target, volume));
     for (let k: number = 0; k < scaleU.length; ++k) {
       const value: number = at(scaleU[k]!) * girth[k]!;
-      if (!(value > 0))
+      if (!(value > 0) || overflowsBinary64(value))
         throw new Error("posed sweep scale is not positive and finite");
       settled[k] = value;
     }

@@ -5,6 +5,7 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieCurveLengthQuadrature64 } from "./AutoMovieCurveLengthQuadrature64";
+import { overflowsBinary64 } from "../../math/overflowsBinary64";
 
 /**
  * Measure original three-dimensional source derivatives by composite
@@ -42,7 +43,10 @@ export function measureAutoMovieCurveLength64(
   // Closed finite derivative charts are admitted before either numerical observation.
   for (const piece of pieces) {
     const [a, b]: readonly [number, number] = piece.domain;
-    if (!(b > a)) throw new Error("Curve length needs increasing domains");
+    if (!(b > a) || overflowsBinary64(b - a))
+      throw new Error(
+        "Curve length needs finite increasing representable domains",
+      );
   }
   const measured: IAutoMovieCurveLengthQuadrature64.IMeasureResult =
     AutoMovieCurveLengthQuadrature64.measure(pieces, subdivisions, true);
@@ -58,6 +62,8 @@ export function measureAutoMovieCurveLength64(
     throw new Error(
       "Curve speed integration contribution is not representable",
     );
+  if ([measured.coarseMm, measured.fineMm].some(overflowsBinary64))
+    throw new Error("Curve speed integration overflow");
   return {
     lengthMm: measured.fineMm,
     differenceMm: Math.abs(measured.fineMm - measured.coarseMm),

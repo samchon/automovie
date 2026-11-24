@@ -24,6 +24,7 @@ import { orientAutoMovieSweep } from "./orientAutoMovieSweep";
 import { parameterizeAutoMovieSweepSection } from "./parameterizeAutoMovieSweepSection";
 import { pathAutoMovieSweepTransport } from "./pathAutoMovieSweepTransport";
 import { sampleAutoMovieSweepSection } from "./sampleAutoMovieSweepSection";
+import { overflowsBinary64 } from "../../math/overflowsBinary64";
 
 /**
  * Directions each section is sampled in; the radius between two is linear in
@@ -271,7 +272,11 @@ export const compileAutoMovieSweep: (
     const x: number = p.x * k;
     const y: number = p.y * k;
     const length: number = Math.hypot(x, y);
-    if (length === 0 && (p.x !== 0 || p.y !== 0))
+    if (
+      (length === 0 && (p.x !== 0 || p.y !== 0)) ||
+      overflowsBinary64(x) ||
+      overflowsBinary64(y)
+    )
       throw new Error("scaled sweep section radius is not positive and finite");
     return { x, y };
   }
@@ -285,7 +290,8 @@ export const compileAutoMovieSweep: (
   function radius(u: number, v: number): number {
     const shape: number = profile(u, v);
     const value: number = scaleAt(u) * shape;
-    if (value < 0 || (shape > 0 && value === 0))
+    // A finite scale and profile can overflow their product.
+    if (value < 0 || (shape > 0 && value === 0) || overflowsBinary64(value))
       throw new Error("scaled sweep radius is not positive and finite");
     return value;
   }

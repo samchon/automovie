@@ -22,15 +22,22 @@ import type { walkStepFoot } from "./walkStepFoot";
  * have landed.
  */
 export namespace walkStride {
+  /** What `airborne` reads of an entry: whether each foot is planted. */
+  export interface IFeet {
+    /** The entry's feet. */
+    feet: Record<
+      AutoMovieHumanSide,
+      Pick<IAutoMovieMotionHumanEntryState.IFoot, "planted">
+    >;
+  }
+
   /**
    * The foot in the air of an entry in stride.
    *
-   * @param entry The entry state.
+   * @param entry Whether each entry foot is planted.
    * @returns The side, or undefined when both feet stand or neither does.
    */
-  export function airborne(
-    entry: IAutoMovieMotionHumanEntryState,
-  ): AutoMovieHumanSide | undefined {
+  export function airborne(entry: IFeet): AutoMovieHumanSide | undefined {
     return entry.feet.left.planted === entry.feet.right.planted
       ? undefined
       : entry.feet.left.planted

@@ -39,14 +39,8 @@ export function observeAutoMovieRecoveryPolyline<
     return cancellationRequested;
   };
   try {
-    probe = options?.cancelled;
+    probe = options.cancelled;
 
-    if (!options)
-      return {
-        operator,
-        status: "refused",
-        diagnostics: ["An explicit coefficient basis is required"],
-      };
     if (cancelled())
       return {
         operator,
@@ -54,9 +48,7 @@ export function observeAutoMovieRecoveryPolyline<
         diagnostics: ["Cancelled before fitting"],
       };
     if (
-      !input ||
-      !input.name.trim() ||
-      (options.curveFormat !== "bezier" && options.curveFormat !== "hermite")
+      !input.name.trim()
     )
       return {
         operator,

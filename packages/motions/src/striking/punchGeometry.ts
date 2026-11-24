@@ -228,11 +228,12 @@ export namespace punchGeometry {
 
     // The guard the hand returns to, and the stroke from the launch through
     // the contact back to it, stopping on the struck body's first surface.
-    // Read when the hand returns, at the contact or the stop: by then every
-    // correction that moves the feet has arrived.
-    let ended: IAutoMovieHumanLimbGoal | undefined;
-    const guardEnd = (): IAutoMovieHumanLimbGoal =>
-      (ended ??= guardAt(footwork.base(duration))[arm]!);
+    // Solved once here at the punch's end, where every correction that moves
+    // the feet has arrived.
+    const ended: IAutoMovieHumanLimbGoal = guardAt(footwork.base(duration))[
+      arm
+    ]!;
+    const guardEnd = (): IAutoMovieHumanLimbGoal => ended;
     const rotationAt = (t: number): IAutoMovieQuaternion =>
       Quaternion.slerp(
         Quaternion.slerp(startRotation, rotation, out(t)),

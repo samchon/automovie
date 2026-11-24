@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import { Vector3, minimumJerk } from "@automovie/engine";
 import type {
   AutoMovieHumanLimb,
   AutoMovieHumanSide,
@@ -11,7 +11,6 @@ import type {
   IAutoMovieMotionHumanHand,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanPropReader,
-  IAutoMovieQuaternion,
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -27,6 +26,7 @@ import { HumanHandTarget } from "../posture/HumanHandTarget";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { climbStairsRailLine } from "./climbStairsRailLine";
 
 /** Allowed displayed grip residual, in metres. */
 const MISS: number = 0.015;
@@ -86,28 +86,16 @@ export function climbStairsRail(
   )
     return refuse(subject + " has no stationary bar " + rail.point);
   const model: IAutoMovieRigidTransform = read.frame(context.start);
-  const turn: IAutoMovieQuaternion = Quaternion.multiply(
-    model.rotation,
-    bar.frame.rotation,
-  );
-  const center: IAutoMovieVector3 = Vector3.add(
-    model.position,
-    Quaternion.rotateVector(model.rotation, bar.frame.translation),
-  );
-  const along: IAutoMovieVector3 = Quaternion.rotateVector(turn, {
-    x: 1,
-    y: 0,
-    z: 0,
+  const line: climbStairsRailLine.ILine | null = climbStairsRailLine(model, {
+    frame: bar.frame,
+    aperture: bar.aperture,
+    length: bar.length,
   });
-  const normal: IAutoMovieVector3 = Quaternion.rotateVector(turn, {
-    x: 0,
-    y: 1,
-    z: 0,
-  });
-  const levelSquared: number = along.x * along.x + along.z * along.z;
-  if (levelSquared < 0.25)
+  if (line === null)
     return refuse("the selected bar does not run along the flight");
-  const end: number = Math.max(0, bar.length / 2 - (bar.aperture ?? 0) / 2);
+  const along: IAutoMovieVector3 = line.along;
+  const normal: IAutoMovieVector3 = line.normal;
+  const toPoint: (root: IAutoMovieVector3) => IAutoMovieVector3 = line.point;
   const side: AutoMovieHumanSide = rail.hand;
   const arm: AutoMovieHumanLimb = side === "left" ? "leftArm" : "rightArm";
   const body: IAutoMovieMotionHumanBody = context.body;
@@ -120,15 +108,6 @@ export function climbStairsRail(
   const offset: IAutoMovieVector3 = HumanHand.offset(body, side, "grip").point;
   const entry: Parameters<typeof AutoMovieMotionHumanArm.carry>[2] = {
     [side]: AutoMovieMotionHumanArm.angles(context.entry.pose, side),
-  };
-  const toPoint = (root: IAutoMovieVector3): IAutoMovieVector3 => {
-    const z: number =
-      ((root.x - center.x) * along.x + (root.z - center.z) * along.z) /
-      levelSquared;
-    return Vector3.add(
-      center,
-      Vector3.scale(along, Math.max(-end, Math.min(end, z))),
-    );
   };
 
   const duration: number = stairs.duration;

@@ -170,23 +170,18 @@ export namespace knee {
     // the knee solved again from the hip each solved carriage leaves.
     //
     // The key follows the launch's one reading of the target and nothing
-    // the committed stop changes (the stop is read by `stop` below), so it
-    // is solved once for the plan: a settle only has it read its target
-    // again (`KneeGeometry.solve`'s `before`), and a stop leaves it alone.
+    // the committed stop changes (the stop is read by `stop` below): it is
+    // solved when the plan is prepared, on the target as the placed
+    // performance shows it, and each read before that solves it cold.
     // `shown` is the record the weapon's posed ends are kept on, renewed
     // whenever what the leg shows may have changed.
     let built: KneeGeometry.IGeometry | undefined;
-    let settled: boolean = false;
     let shown: object = {};
     const partner: IAutoMovieMotionHumanPerformerReader | undefined =
       p.at.kind === "person" ? context.performer(p.at.subject) : undefined;
-    const geometry = (): KneeGeometry.IGeometry => {
-      if (built === undefined || !settled) {
-        built = KneeGeometry.solve(context, side, feet, carriage, built);
-        settled = true;
-      }
-      return built;
-    };
+    const solve = (): KneeGeometry.IGeometry =>
+      KneeGeometry.solve(context, side, feet, carriage);
+    const geometry = (): KneeGeometry.IGeometry => built ?? solve();
     const events: IAutoMovieMotionEvent[] = [
       { name: "launch", share: prep / duration },
       { name: "impact", share: impact / duration },
@@ -373,16 +368,17 @@ export namespace knee {
     };
 
     // The contact the performance committed, and the stopped leg's ride on
-    // the body it met ({@link StrikingRide}), built on first use.
+    // the body it met ({@link StrikingRide}), solved when the plan is
+    // prepared; none before.
     let met: IAutoMovieMotionWeaponContact | null = null;
     let ride: StrikingRide.IRide | undefined;
     const carried = (
       posture: IAutoMovieMotionHumanPosture,
       seconds: number,
-    ): IAutoMovieMotionHumanPosture => {
-      if (met === null) return posture;
-      const event: IAutoMovieMotionWeaponContact = met;
-      ride ??= StrikingRide.create({
+    ): IAutoMovieMotionHumanPosture =>
+      ride === undefined ? posture : ride.carry(posture, leg, t0 + seconds);
+    const rode = (event: IAutoMovieMotionWeaponContact): StrikingRide.IRide =>
+      StrikingRide.create({
         other: (): IAutoMovieMotionHumanPerformerReader =>
           context.performer(event.against),
         stop: event.seconds,
@@ -391,8 +387,6 @@ export namespace knee {
         axis: (at: number): readonly [IAutoMovieVector3, IAutoMovieVector3] =>
           StrikingWeapon.axis(chain, event.weapon, at),
       });
-      return ride.carry(posture, leg, t0 + seconds);
-    };
     // What the knee decided, built on demand (`StrikingRecord`): its front
     // where the leg's free course puts it at the planned impact, with the
     // solve's own status; the performer's own displayed bones read the
@@ -440,10 +434,11 @@ export namespace knee {
       contact: impact,
       record,
       prepare: (): void => {
-        settled = false;
         shown = {};
+        built = undefined;
         ride = undefined;
-        geometry();
+        built = solve();
+        if (met !== null) ride = rode(met);
       },
       ...(p.at.kind === "person"
         ? {

@@ -2,11 +2,13 @@ import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieMotionHumanChannel,
+  IAutoMovieBodyMeasure,
   IAutoMovieHumanLimbGoal,
-  IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanEntryState,
   IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanPropReader,
   IAutoMovieMotionHumanSupportCarry,
   IAutoMovieQuaternion,
   IAutoMovieRigidTransform,
@@ -22,8 +24,6 @@ const STILL: IAutoMovieMotionHumanSupportCarry.ICarry = {
   turn: { x: 0, y: 0, z: 0, w: 1 },
   yaw: 0,
 };
-/** The alternatives of `ClimbStairsCarryContext`'s site. */
-type ClimbStairsCarryContext = "prop" | "start";
 
 /**
  * A flight climbed onto a moving prop, carried footprint by footprint: the
@@ -41,7 +41,7 @@ type ClimbStairsCarryContext = "prop" | "start";
  * @returns The carried plan.
  */
 export function climbStairsCarry(
-  context: Pick<IAutoMovieMotionHumanActionContext, ClimbStairsCarryContext>,
+  context: climbStairsCarry.IContext,
   plan: IAutoMovieMotionHumanActionPlan,
   prop: string,
 ): IAutoMovieMotionHumanActionPlan {
@@ -227,8 +227,27 @@ export namespace climbStairsCarry {
    * still stand on it, metres (provisional: a sole's give).
    */
   const FLOOR: number = 0.02;
-  /** The alternatives of `ClimbStairsCarryBoardedContext`'s site. */
-  type ClimbStairsCarryBoardedContext = "entry" | "body";
+
+  /** What the carry reads of an action's context: its start and its props' frames. */
+  export interface IContext {
+    /** The action's film start, seconds. */
+    start: number;
+
+    /** A prop's frame reader by subject. */
+    prop: (subject: string) => Pick<IAutoMovieMotionHumanPropReader, "frame">;
+  }
+
+  /** What `boarded` reads: the entry ankles and the ankle's own height. */
+  export interface IBoarding {
+    /** The entry's feet. */
+    entry: {
+      /** Each foot's ankle. */
+      feet: Record<AutoMovieHumanSide, Pick<IAutoMovieMotionHumanEntryState.IFoot, "ankle">>;
+    };
+
+    /** The body's ankle height. */
+    body: { measure: Pick<IAutoMovieBodyMeasure, "ankleHeight"> };
+  }
 
   /**
    * Whether the body already stands on the moving prop at the climb's start, a
@@ -247,10 +266,7 @@ export namespace climbStairsCarry {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function boarded(
-    context: Pick<
-      IAutoMovieMotionHumanActionContext,
-      ClimbStairsCarryBoardedContext
-    >,
+    context: IBoarding,
   ): boolean {
     return (["left", "right"] as const).every(
       (side: AutoMovieHumanSide): boolean =>

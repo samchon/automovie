@@ -49,7 +49,7 @@ export function fitAutoMovieRecoveryImageLoft(
     return cancellationRequested;
   };
   try {
-    probe = options?.cancelled;
+    probe = options.cancelled;
 
     if (cancelled())
       return {

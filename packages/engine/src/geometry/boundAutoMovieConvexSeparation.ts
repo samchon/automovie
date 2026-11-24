@@ -6,6 +6,7 @@ import type {
 import { Vector3 } from "../math/Vector3";
 import { closestPointsBetweenSegments } from "../math/closestPointsBetweenSegments";
 import { boundAutoMovieProjectionSeparation } from "./boundAutoMovieProjectionSeparation";
+import { overflowsBinary64 } from "../math/overflowsBinary64";
 
 /**
  * A conservative separation of the convex hulls of nonempty finite XYZ vertex
@@ -84,6 +85,11 @@ export function boundAutoMovieConvexSeparation(
             Math.abs(v.y),
             Math.abs(v.z),
           );
+          // Face differences of finite vertices can overflow binary64.
+          if (overflowsBinary64(scale))
+            throw new Error(
+              "Convex separation requires finite face differences.",
+            );
           if (
             scale > 0 &&
             offer(Vector3.cross(divideVector(u, scale), divideVector(v, scale)))

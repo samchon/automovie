@@ -24,7 +24,7 @@ import type { IAutoMovieRecoveryChartLeafControls } from "@automovie/interface";
 export function RecoveryChartLeafControls(
   input: Parameters<IAutoMovieRecoveryChartLeafControls.Operation>[0],
 ): ReturnType<IAutoMovieRecoveryChartLeafControls.Operation> {
-  if (!input || !input.leaves.length || input.maxControls < 1)
+  if (input.leaves.length === 0 || input.maxControls < 1)
     throw new Error(
       "A nonempty leaf partition and a positive safe control budget are required",
     );

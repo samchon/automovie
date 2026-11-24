@@ -321,7 +321,19 @@ export namespace punchContact {
       p.technique === "hook" || p.technique === "backfist"
         ? Vector3.add(outward, Vector3.scale(up, 0.1))
         : Vector3.add(Vector3.scale(up, -1), Vector3.scale(outward, 0.3));
-    let room: readonly [number, number] | undefined;
+    // The room behind the heels and in front of the arms along the line,
+    // read once at the launch for every reach a delivered punch solves.
+    const room: readonly [number, number] =
+      p.feint === undefined
+        ? [
+            -StrikingRoom.behind(
+              context,
+              StrikingTarget.feet(context.entry),
+              line,
+            ),
+            StrikingRoom.ahead(context, at, bones, line, t0),
+          ]
+        : [0, 0];
     // A correction keeps the launch's decision to step and its direction
     // (`punchFootwork`): it changes how far the foot goes, never whether or
     // which way, so its arm is solved on the shoulder the body carries.
@@ -343,14 +355,6 @@ export namespace punchContact {
       );
       let advance: number = 0;
       if (p.feint === undefined && across <= longest) {
-        room ??= [
-          -StrikingRoom.behind(
-            context,
-            StrikingTarget.feet(context.entry),
-            line,
-          ),
-          StrikingRoom.ahead(context, at, bones, line, t0),
-        ];
         advance = Math.max(
           room[0],
           Math.min(
@@ -394,24 +398,23 @@ export namespace punchContact {
     };
     const launched: punchReach.IReach = reach(tracker.planned);
 
-    // Each correction's reach, solved on the tracker's goal once that
-    // correction has arrived and kept: the i-th after the launch plan.
+    // Each correction's reach, solved here on the tracker's goal once that
+    // correction has arrived: the i-th after the launch plan.
     const reaches: punchReach.IReach[] = [launched];
+    let goal: IAutoMovieVector3 = tracker.planned;
+    for (const unit of tracker.units(Infinity)) {
+      goal = Vector3.add(goal, unit.displacement);
+      reaches.push(reach(goal, launched.advance));
+    }
     const corrected: (seconds: number) => punchReach.ICorrection[] = (
       seconds: number,
     ): punchReach.ICorrection[] => {
       const out: punchReach.ICorrection[] = [];
-      let goal: IAutoMovieVector3 = tracker.planned;
       tracker
         .units(seconds)
         .forEach(
           (unit: IAutoMovieSuperposeMinimumJerk.IUnit, index: number): void => {
-            goal = Vector3.add(goal, unit.displacement);
-            let now: punchReach.IReach | undefined = reaches[index + 1];
-            if (now === undefined) {
-              now = reach(goal, launched.advance);
-              reaches[index + 1] = now;
-            }
+            const now: punchReach.IReach = reaches[index + 1]!;
             const before: punchReach.IReach = reaches[index]!;
             out.push({
               start: unit.start,

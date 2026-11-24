@@ -98,14 +98,12 @@ export namespace KickContact {
   ): IContact {
     const resolution: ReturnType<typeof prepareHumanPoseResolution> =
       prepareHumanPoseResolution();
-    let projection:
-      | ReturnType<typeof prepareHumanPostureProjection>
-      | undefined;
-    const rom: () => ReturnType<
-      typeof prepareHumanPostureProjection
-    > = (): ReturnType<typeof prepareHumanPostureProjection> =>
-      (projection ??= prepareHumanPostureProjection(props.body));
-    let fitLeg: ReturnType<typeof KickChain.prepareFit> | undefined;
+    const projection: ReturnType<typeof prepareHumanPostureProjection> =
+      prepareHumanPostureProjection(props.body);
+    const rom = (): ReturnType<typeof prepareHumanPostureProjection> =>
+      projection;
+    const fitLeg: ReturnType<typeof KickChain.prepareFit> =
+      KickChain.prepareFit(chain, projection);
     const leans: number[] = prefer === undefined ? [] : [prefer];
     if (chain.technique === "round")
       for (
@@ -145,7 +143,7 @@ export namespace KickContact {
         contact: {
           carriage,
           base,
-          fit: (fitLeg ??= KickChain.prepareFit(chain, rom()))(
+          fit: fitLeg(
             base,
             source?.solved ?? KickChain.solve(chain, base, hip),
             hip,

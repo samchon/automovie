@@ -17,6 +17,7 @@ import { boundAutoMovieProjectionSeparation } from "./boundAutoMovieProjectionSe
 import { boundAutoMovieTriangleAttachmentContact } from "./boundAutoMovieTriangleAttachmentContact";
 import { buildAutoMovieMeshQueryHierarchy } from "./buildAutoMovieMeshQueryHierarchy";
 import { triangleIndicesOf } from "./triangleIndicesOf";
+import { overflowsBinary64 } from "../math/overflowsBinary64";
 
 /**
  * Compile a resident surface into a conservative whole-feature separation
@@ -75,8 +76,7 @@ export function createAutoMovieMeshSeparationQuery(
   mesh: IAutoMovieMesh,
   representation: "source" | "float32" = "source",
 ): IAutoMovieMeshSeparationQuery {
-  if (representation !== "source" && representation !== "float32")
-    throw new Error("Mesh separation needs source or float32 representation.");
+
   const indices: number[] = triangleIndicesOf(mesh, "Mesh separation");
   if (indices.length === 0)
     throw new Error(
@@ -98,7 +98,11 @@ export function createAutoMovieMeshSeparationQuery(
       });
     const vertices: IAutoMovieVector3[] = reference.map(represent);
     // Float32 rounding of a finite binary64 coordinate can overflow.
-    if (!vertices.every(finiteVertex))
+    if (
+      vertices.some((p: IAutoMovieVector3): boolean =>
+        [p.x, p.y, p.z].some(overflowsBinary64),
+      )
+    )
       throw new Error(
         "Mesh separation needs finite represented resident vertices.",
       );

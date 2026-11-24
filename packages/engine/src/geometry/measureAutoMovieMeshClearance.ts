@@ -5,6 +5,7 @@ import {
 } from "@automovie/interface";
 
 import { triangleIndicesOf } from "./triangleIndicesOf";
+import { overflowsBinary64 } from "../math/overflowsBinary64";
 
 /**
  * Measure front-minus-back depth along one axis over the complete projected
@@ -53,7 +54,16 @@ export function measureAutoMovieMeshClearance(
     for (const b of overlappingTriangles(tree, a.bounds))
       for (const point of clip(a.points, b)) {
         const weights: number[] = barycentric(a, point);
-        const gap: number = depth(a, weights) - depth(b, barycentric(b, point));
+        const upper: number = depth(a, weights);
+        const lower: number = depth(b, barycentric(b, point));
+        const gap: number = upper - lower;
+        // Interpolated depths of finite corners and their gap can overflow.
+        if (
+          overflowsBinary64(upper) ||
+          overflowsBinary64(lower) ||
+          overflowsBinary64(gap)
+        )
+          throw new Error("Mesh clearance arithmetic must remain finite.");
         minimum = Math.min(minimum, gap);
         visit?.({
           triangle,
@@ -179,6 +189,8 @@ const triangles = (
     const b: number[] = points[1]!;
     const c: number[] = points[2]!;
     const area: number = side(a, b, c);
+    if (overflowsBinary64(area))
+      throw new Error("Mesh clearance projected area must remain finite.");
     result.push({
       points,
       vertices,
@@ -232,6 +244,8 @@ const clip = (points: number[][], triangle: IProjectedTriangle): number[][] => {
       const previous: number[] = input[(i + input.length - 1) % input.length]!;
       const dc: number = sign * side(a, b, current);
       const dp: number = sign * side(a, b, previous);
+      if (overflowsBinary64(dc) || overflowsBinary64(dp))
+        throw new Error("Mesh clearance clipping must remain finite.");
       if (dc >= 0 !== dp >= 0) {
         // Normalize before dividing: dp-dc can overflow for finite opposite
         // signs, whereas these bounded signed ratios retain the same crossing.

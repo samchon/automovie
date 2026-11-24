@@ -19,7 +19,7 @@ import type { IAutoMovieRecoveryChartCollar } from "@automovie/interface";
 export function RecoveryChartCollar(
   input: Parameters<IAutoMovieRecoveryChartCollar.Operation>[0],
 ): ReturnType<IAutoMovieRecoveryChartCollar.Operation> {
-  if (!input || input.knots.length !== 4 || input.maxLeaves < 1)
+  if (input.knots.length !== 4 || input.maxLeaves < 1)
     throw new Error(
       "Four side knot arrays and a positive safe leaf budget are required",
     );

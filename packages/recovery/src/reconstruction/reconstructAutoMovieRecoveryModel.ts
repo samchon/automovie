@@ -40,7 +40,7 @@ export function reconstructAutoMovieRecoveryModel(
     return cancellationRequested;
   };
   try {
-    probe = options?.cancelled;
+    probe = options.cancelled;
 
     if (cancelled())
       return {

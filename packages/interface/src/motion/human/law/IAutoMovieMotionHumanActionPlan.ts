@@ -8,6 +8,7 @@ import type { IAutoMovieMotionHumanEvaluation } from "../compose/IAutoMovieMotio
 import type { IAutoMovieMotionHumanPlayback } from "../perform/IAutoMovieMotionHumanPlayback";
 import type { IAutoMovieHumanPostureRotation } from "../posture/IAutoMovieHumanPostureRotation";
 import type { IAutoMovieMotionHumanPosture } from "../posture/IAutoMovieMotionHumanPosture";
+import type { IAutoMovieMotionHumanStrikingRecord } from "../striking/IAutoMovieMotionHumanStrikingRecord";
 import type { IAutoMovieMotionHumanBalance } from "./IAutoMovieMotionHumanBalance";
 import type { IAutoMovieMotionHumanBase } from "./IAutoMovieMotionHumanBase";
 import type { IAutoMovieMotionHumanContactWindow } from "./IAutoMovieMotionHumanContactWindow";
@@ -134,6 +135,15 @@ export interface IAutoMovieMotionHumanActionPlan {
    * instant it never reaches, so it never accompanies `contact`.
    */
   feigned?: number;
+
+  /**
+   * What a strike decided, for audits and captures, read from its current
+   * geometry and committed stop (`IAutoMovieMotionHumanStrikingRecord.IPlan`);
+   * absent on a plan that is not a strike.
+   *
+   * @returns The record.
+   */
+  record?(): IAutoMovieMotionHumanStrikingRecord.IRecord;
 
   /**
    * The posture at a second of the action.

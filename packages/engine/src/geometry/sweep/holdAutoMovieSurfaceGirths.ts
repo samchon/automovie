@@ -4,6 +4,7 @@ import type {
 } from "@automovie/interface";
 
 import { interpolateAutoMovieSpline } from "./interpolateAutoMovieSpline";
+import { overflowsBinary64 } from "../../math/overflowsBinary64";
 
 /** Most rest fits the girth solve runs. */
 const MAX_ITERATIONS: number = 24;
@@ -278,7 +279,7 @@ export const holdAutoMovieSurfaceGirths: (
     let worst: number = 0;
     girths.forEach((g: IGirth, i: number): void => {
       const measured: number = measure(g);
-      if (!(measured > 0))
+      if (!(measured > 0) || overflowsBinary64(measured))
         throw new Error(
           `ring ${g.name} measured perimeter is not positive and finite`,
         );
@@ -292,7 +293,8 @@ export const holdAutoMovieSurfaceGirths: (
       // the rank-one update that makes the Jacobian map the last step onto the last change of the residuals
       let length: number = 0;
       for (let j: number = 0; j < n; ++j) length += step[j]! * step[j]!;
-      if (!(length > 0)) throw new Error("girth rings made no finite progress");
+      if (!(length > 0) || overflowsBinary64(length))
+        throw new Error("girth rings made no finite progress");
       for (let i: number = 0; i < n; ++i) {
         let miss: number = residual[i]! - previous[i]!;
         for (let j: number = 0; j < n; ++j)
@@ -302,11 +304,14 @@ export const holdAutoMovieSurfaceGirths: (
       }
     }
     solve(jacobian, residual, step, n);
+    // A quasi-Newton step of finite residuals can overflow binary64.
+    if (step.some(overflowsBinary64))
+      throw new Error("girth ring solve step is not finite");
     let scale: number = 1;
     while (
       girths.some((g: IGirth, i: number): boolean => {
         const candidate: number = g.value - scale * step[i]!;
-        return !(candidate > 0);
+        return !(candidate > 0) || overflowsBinary64(candidate);
       })
     ) {
       scale /= 2;

@@ -102,8 +102,11 @@ export namespace guard {
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanGuard.IParams>,
   ): IAutoMovieMotionHumanActionPlan {
     const duration: number = Math.max(SET, context.params.duration ?? 1);
+    // The stance the plan solved when it was prepared, on a faced person as
+    // the placed performance shows them; before that, each read builds it
+    // cold on the performance as placed so far.
     let built: IGeometry | undefined;
-    const geometry = (): IGeometry => (built ??= build(context, duration));
+    const geometry = (): IGeometry => built ?? build(context, duration);
     const events: IAutoMovieMotionEvent[] = [
       { name: "set", share: SET / duration },
     ];
@@ -282,9 +285,13 @@ export namespace guard {
         ? { left: second, right: first }
         : { left: first, right: second };
     const lift: number = STEP_LIFT * body.measure.stature;
-    const rotations: Partial<
-      Record<AutoMovieHumanSide, ReturnType<typeof Quaternion.prepareSlerp>>
-    > = {};
+    const rotations: Record<
+      AutoMovieHumanSide,
+      ReturnType<typeof Quaternion.prepareSlerp>
+    > = {
+      left: Quaternion.prepareSlerp(from.left.rotation, to.left.rotation),
+      right: Quaternion.prepareSlerp(from.right.rotation, to.right.rotation),
+    };
     const foot = (
       side: AutoMovieHumanSide,
       t: number,
@@ -304,9 +311,8 @@ export namespace guard {
         to[side].ankle,
         s,
       );
-      const rotation: ReturnType<typeof Quaternion.prepareSlerp> = (rotations[
-        side
-      ] ??= Quaternion.prepareSlerp(from[side].rotation, to[side].rotation));
+      const rotation: ReturnType<typeof Quaternion.prepareSlerp> =
+        rotations[side];
       return StrikingFootPoint(
         body,
         side,

@@ -1,3 +1,5 @@
+import { overflowsBinary64 } from "./overflowsBinary64";
+
 const PRODUCTS: readonly (readonly [number, number, number, number])[] = [
   [0, 4, 8, 1],
   [1, 5, 6, 1],
@@ -105,7 +107,7 @@ export function determinantAutoMovieMatrix3(matrix: readonly number[]): number {
     (power < -1022
       ? leading * 2 ** -1022 * 2 ** (power + 1022)
       : leading * 2 ** power);
-  if (converted === 0)
+  if (converted === 0 || overflowsBinary64(converted))
     throw new Error(
       "The nonzero determinant magnitude is outside binary64 range",
     );

@@ -63,21 +63,13 @@ export function observeAutoMovieRecovery(
     return cancellationRequested;
   };
   try {
-    probe = options?.cancelled;
+    probe = options.cancelled;
 
     if (cancelled())
       return {
         operator,
         status: "cancelled",
         diagnostics: ["Cancelled before observation"],
-      };
-    if (!input)
-      return {
-        operator,
-        status: "refused",
-        diagnostics: [
-          "Registered millimetre vertices and oriented triangle arrays are required",
-        ],
       };
 
     const value: IAutoMovieRecoveryMeshSections =

@@ -12,7 +12,7 @@ import type {
 export function StrikingRecord(
   plan: IAutoMovieMotionHumanActionPlan,
 ): IAutoMovieMotionHumanStrikingRecord.IRecord | undefined {
-  return StrikingRecord.carries(plan) ? plan.record() : undefined;
+  return plan.record?.();
 }
 
 /**
@@ -22,9 +22,10 @@ export function StrikingRecord(
  * surface. Audits compare a strike against this plan, so a clumsy strike still
  * passes when it lands where it meant to.
  *
- * Each strike's plan carries its record as a member (`IPlan.record`), built on
- * demand from the plan's geometry, so reading one evaluates the strike's
- * postures, and a plan copied or wrapped by a spread keeps it.
+ * Each strike's plan carries its record as a member
+ * (`IAutoMovieMotionHumanActionPlan.record`), built on demand from the plan's
+ * geometry, so reading one evaluates the strike's postures, and a plan copied
+ * or wrapped by a spread keeps it.
  */
 export namespace StrikingRecord {
   /**
@@ -36,6 +37,6 @@ export namespace StrikingRecord {
   export function carries(
     plan: IAutoMovieMotionHumanActionPlan,
   ): plan is IAutoMovieMotionHumanStrikingRecord.IPlan {
-    return "record" in plan && typeof plan.record === "function";
+    return plan.record !== undefined;
   }
 }

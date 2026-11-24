@@ -26,8 +26,8 @@ export namespace walkLegBinding {
    * @returns A source-local to target-local probe reader for this pair reading.
    */
   export function prepareRelative(
-    a: IAutoMovieMotionHumanColliders.IPlaced,
-    b: IAutoMovieMotionHumanColliders.IPlaced,
+    a: Pick<IAutoMovieMotionHumanColliders.IPlaced, "pose">,
+    b: Pick<IAutoMovieMotionHumanColliders.IPlaced, "pose">,
   ): (probe: IAutoMovieVector3) => IAutoMovieVector3 {
     const inverse: IAutoMovieQuaternion = Quaternion.inverse(b.pose.rotation);
     const offset: IAutoMovieVector3 = Quaternion.rotateVector(

@@ -2,6 +2,7 @@ import type {
   IAutoMovieSampleParameterSweep,
   IAutoMovieSweepSurface,
 } from "@automovie/interface";
+import { overflowsBinary64 } from "../../math/overflowsBinary64";
 
 /**
  * Register a fixed-cell Cartesian section average for parameter correspondence.
@@ -64,7 +65,12 @@ export function sampleAutoMovieParameterSweep(
       const scale: number = props.readScale(slots[k]!);
       const x: number = xs[k]! * scale,
         y: number = ys[k]! * scale;
-      if (!(scale > 0) || ((xs[k] !== 0 || ys[k] !== 0) && x === 0 && y === 0))
+      if (
+        !(scale > 0) ||
+        ((xs[k] !== 0 || ys[k] !== 0) && x === 0 && y === 0) ||
+        overflowsBinary64(x) ||
+        overflowsBinary64(y)
+      )
         throw new Error("scaled parameter sweep sample is not representable");
       sx[k] = x;
       sy[k] = y;

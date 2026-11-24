@@ -2,6 +2,7 @@ import type {
   IAutoMovieCurveLengthQuadrature64,
   IAutoMovieMeasureCurveLength64,
 } from "@automovie/interface";
+import { overflowsBinary64 } from "../../math/overflowsBinary64";
 
 /**
  * Internal shared GL8 computation for original curve derivatives, with numeric
@@ -53,7 +54,9 @@ export namespace AutoMovieCurveLengthQuadrature64 {
     ): number {
       const derivative: readonly [number, number, number] = read(parameter);
       const value: number = Math.hypot(...derivative);
-      nonfiniteDerivative ||= false;
+      // A finite derivative can overflow its speed.
+      nonfiniteDerivative ||=
+        derivative.some(overflowsBinary64) || overflowsBinary64(value);
       return value;
     }
 
@@ -83,7 +86,7 @@ export namespace AutoMovieCurveLengthQuadrature64 {
             const contribution: number =
               (WEIGHTS[i]! * value * width) / (2 * count);
             underflowingContribution ||= value > 0 && contribution === 0;
-            nonfiniteContribution ||= false;
+            nonfiniteContribution ||= overflowsBinary64(contribution);
             length += contribution;
           }
         }

@@ -283,26 +283,30 @@ export namespace punch {
     };
 
     // The contact the performance committed, and the stopped arm's ride on
-    // the body it met ({@link StrikingRide}), built on first use.
+    // the body it met ({@link StrikingRide}), solved when the plan is
+    // prepared; none before.
     let met: IAutoMovieMotionWeaponContact | null = null;
     let ride: StrikingRide.IRide | undefined;
     const carried = (
       posture: IAutoMovieMotionHumanPosture,
       seconds: number,
-    ): IAutoMovieMotionHumanPosture => {
-      if (met === null) return posture;
-      const event: IAutoMovieMotionWeaponContact = met;
-      ride ??= StrikingRide.create({
+    ): IAutoMovieMotionHumanPosture =>
+      ride === undefined
+        ? posture
+        : ride.carry(posture, limb, context.start + seconds);
+    const rode = (
+      event: IAutoMovieMotionWeaponContact,
+      shape: punchGeometry.IGeometry,
+    ): StrikingRide.IRide =>
+      StrikingRide.create({
         other: (): IAutoMovieMotionHumanPerformerReader =>
           context.performer(event.against),
         stop: event.seconds,
         goal: (at: number): IAutoMovieVector3 =>
-          geometry().posture(at - context.start).limbs[limb]!.point,
+          shape.posture(at - context.start).limbs[limb]!.point,
         axis: (at: number): readonly [IAutoMovieVector3, IAutoMovieVector3] =>
           StrikingWeapon.axis(chain, event.weapon, at),
       });
-      return ride.carry(posture, limb, context.start + seconds);
-    };
     // The point aimed at within a person's region, varied per repeat: one
     // offset on the region's tangent plane, read by the aim, by the defence
     // that answers this punch and so by the record. The region's radius comes
@@ -325,47 +329,39 @@ export namespace punch {
                 : { consistency: manner.aimSkill }),
             },
       );
-    let tangent: IAutoMovieHumanoidSurfaces.ITangent | undefined;
-    const aimed = (): IAutoMovieHumanoidSurfaces.ITangent | undefined => {
-      if (
-        source === undefined ||
-        p.at.kind !== "person" ||
-        !resolveAutoMovieHumanoidSurfaces.rayed(p.at.region)
-      )
-        return undefined;
-      tangent ??= AutoMovieMotionHumanVariation.strike(source, "point", {
-        radius: StrikingBody.radius(
-          context.performer(p.at.subject).body,
-          p.at.region,
-        ),
-        scatter: 0,
-      });
-      return tangent;
-    };
+    // A closed form of the struck body's region and the seeded stream, so it
+    // is drawn again wherever it is read.
+    const aimed = (): IAutoMovieHumanoidSurfaces.ITangent | undefined =>
+      source === undefined ||
+      p.at.kind !== "person" ||
+      !resolveAutoMovieHumanoidSurfaces.rayed(p.at.region)
+        ? undefined
+        : AutoMovieMotionHumanVariation.strike(source, "point", {
+            radius: StrikingBody.radius(
+              context.performer(p.at.subject).body,
+              p.at.region,
+            ),
+            scatter: 0,
+          });
+
+    // The geometry the plan solved when it was prepared, on the target and
+    // the committed stop as the placed performance shows them; before that,
+    // each read builds it cold on the performance as placed so far.
     let built: punchGeometry.IGeometry | undefined;
     let building: boolean = false;
 
-    // What the punch reads of its own entry alone, made once for the plan;
-    // the geometry, which follows the target and the committed stop, is
-    // built on it at every settle.
+    // What the punch reads of its own entry alone, made once for the plan.
     const launched: punchLaunch.ILaunch = punchLaunch(context, timing);
-    const geometry = (): punchGeometry.IGeometry => {
-      if (built !== undefined) return built;
+    const build = (): punchGeometry.IGeometry => {
       if (building) throw strikingReadBack("punch", context.subject);
       building = true;
       try {
-        built = punchGeometry.build(
-          context,
-          timing,
-          fixed,
-          aimed(),
-          launched,
-        );
+        return punchGeometry.build(context, timing, fixed, aimed(), launched);
       } finally {
         building = false;
       }
-      return built;
     };
+    const geometry = (): punchGeometry.IGeometry => built ?? build();
     const out: IAutoMovieMotionHumanStrikingRecord.IPlan = {
       duration,
       events,
@@ -389,7 +385,9 @@ export namespace punch {
       prepare: (): void => {
         built = undefined;
         ride = undefined;
-        geometry();
+        const shape: punchGeometry.IGeometry = build();
+        built = shape;
+        if (met !== null) ride = rode(met, shape);
       },
       ...(strikes
         ? {
@@ -397,10 +395,11 @@ export namespace punch {
             stop: (found: readonly IAutoMovieMotionWeaponContact[]): void => {
               met = StrikingWeapon.first(found);
               fixed = met === null ? null : met.seconds;
-              ride = undefined;
 
-              // The geometry is built on the stop it was given: a stop
-              // committed now makes it another, whoever settles after.
+              // The geometry is solved on the stop it was given: a stop
+              // committed now makes it another, which the next preparation
+              // solves.
+              ride = undefined;
               built = undefined;
             },
           }

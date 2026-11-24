@@ -53,11 +53,10 @@ export function StrikingWeaponBones(
     prepared ?? poseBones.prepare(body, requested);
   const resolution: ReturnType<typeof prepareHumanPoseResolution> =
     prepareHumanPoseResolution();
-  let projector: ReturnType<typeof prepareHumanPostureProjection> | undefined;
-  const projection: () => ReturnType<
-    typeof prepareHumanPostureProjection
-  > = (): ReturnType<typeof prepareHumanPostureProjection> =>
-    (projector ??= prepareHumanPostureProjection(body));
+  const projector: ReturnType<typeof prepareHumanPostureProjection> =
+    prepareHumanPostureProjection(body);
+  const projection = (): ReturnType<typeof prepareHumanPostureProjection> =>
+    projector;
   const solved: IAutoMovieMotionHumanResolveHumanPosture.ISeeded =
     resolveHumanPosture.seeded(
       body,

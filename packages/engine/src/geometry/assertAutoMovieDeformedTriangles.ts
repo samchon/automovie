@@ -1,3 +1,5 @@
+import { overflowsBinary64 } from "../math/overflowsBinary64";
+
 /**
  * Admit every emitted triangle of a deformed mesh by area and orientation.
  *
@@ -37,11 +39,18 @@ export function assertAutoMovieDeformedTriangles(
     const a: number = indices[corner]!;
     const b: number = indices[corner + 1]!;
     const c: number = indices[corner + 2]!;
-    writeAreaVector(source, a, b, c, before);
-    writeAreaVector(target, a, b, c, after);
+    const represented: boolean =
+      writeAreaVector(source, a, b, c, before) &&
+      writeAreaVector(target, a, b, c, after);
     const beforeLength: number = Math.hypot(before[0]!, before[1]!, before[2]!);
     const afterLength: number = Math.hypot(after[0]!, after[1]!, after[2]!);
-    if (beforeLength === 0 || afterLength === 0)
+    if (
+      !represented ||
+      beforeLength === 0 ||
+      afterLength === 0 ||
+      overflowsBinary64(beforeLength) ||
+      overflowsBinary64(afterLength)
+    )
       throw new Error(
         `Mesh deformation triangle ${triangle} needs finite nonzero source and output area.`,
       );
@@ -93,6 +102,9 @@ export function assertAutoMovieDeformedTriangles(
 /**
  * Write the area vector `(b - a) x (c - a)` of three flat-XYZ vertices into
  * `out`, in square metres; its length is twice the triangle's area.
+ *
+ * @returns False when an edge difference or cross product of the finite
+ *   vertices overflows binary64.
  */
 const writeAreaVector = (
   positions: readonly number[],
@@ -100,14 +112,25 @@ const writeAreaVector = (
   b: number,
   c: number,
   out: Float64Array,
-): void => {
+): boolean => {
   const ux: number = positions[3 * b]! - positions[3 * a]!;
   const uy: number = positions[3 * b + 1]! - positions[3 * a + 1]!;
   const uz: number = positions[3 * b + 2]! - positions[3 * a + 2]!;
   const vx: number = positions[3 * c]! - positions[3 * a]!;
   const vy: number = positions[3 * c + 1]! - positions[3 * a + 1]!;
   const vz: number = positions[3 * c + 2]! - positions[3 * a + 2]!;
-  out[0] = uy * vz - uz * vy;
-  out[1] = uz * vx - ux * vz;
-  out[2] = ux * vy - uy * vx;
+  const products: readonly number[] = [
+    uy * vz,
+    uz * vy,
+    uz * vx,
+    ux * vz,
+    ux * vy,
+    uy * vx,
+  ];
+  out[0] = products[0]! - products[1]!;
+  out[1] = products[2]! - products[3]!;
+  out[2] = products[4]! - products[5]!;
+  return ![ux, uy, uz, vx, vy, vz, ...products, out[0], out[1], out[2]].some(
+    overflowsBinary64,
+  );
 };

@@ -2,6 +2,7 @@ import { IAutoMovieMesh } from "@automovie/interface";
 
 import { measureAutoMovieMeshClearance } from "./measureAutoMovieMeshClearance";
 import { triangleIndicesOf } from "./triangleIndicesOf";
+import { overflowsBinary64 } from "../math/overflowsBinary64";
 
 /**
  * Separate an ordered mesh sequence along one positive local axis, retaining
@@ -65,12 +66,17 @@ export function separateAutoMovieMeshSequence(
           travel[earlier]! + (clearance - minimum),
         );
     }
+    // Accumulated finite translations can overflow binary64.
+    if (overflowsBinary64(travel[later]!))
+      throw new Error("Mesh separation exceeds finite translation.");
   }
   const centre: number = (travel.at(-1) ?? 0) / 2;
   return meshes.map((mesh: IAutoMovieMesh, index: number): IAutoMovieMesh => {
     const result: IAutoMovieMesh = structuredClone(mesh);
     for (let i: number = depth; i < result.positions.length; i += 3) {
       result.positions[i] += travel[index]! - centre;
+      if (overflowsBinary64(result.positions[i]!))
+        throw new Error("Mesh separation exceeds finite positions.");
     }
     return result;
   });

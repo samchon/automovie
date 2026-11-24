@@ -22,7 +22,6 @@ export function RecoveryChartControlRelations(
   input: Parameters<IAutoMovieRecoveryChartControlRelations.Operation>[0],
 ): ReturnType<IAutoMovieRecoveryChartControlRelations.Operation> {
   if (
-    !input ||
     input.controls < 0 ||
     input.controls > 0xffffffff ||
     input.maxTerms < 1 ||
