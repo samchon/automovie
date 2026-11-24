@@ -71,7 +71,7 @@ Return the camera response from the film's `optics`, in the film module as [sour
 
 Without `optics`, physical light renders white, and the film's `shading` and any staged `medium` are refused.
 
-Meter each scene's key subject with `meterAutoMovieIlluminance` from `@automovie/engine`, and set `ev100` from `autoMovieIncidentEv100` of its lux. Run `checkAutoMovieExposureContinuity` over the film's cuts, grouped by screenplay scene, and mark each exposure change the screenplay decided with `change: true`.
+Meter each scene's key subject with `meterAutoMovieIlluminance` from `@automovie/engine`, and set `ev100` from `autoMovieIncidentEv100` of its lux. Run `checkAutoMovieExposureContinuity` over the film's cuts, grouped by screenplay scene, and mark each exposure change the screenplay decided with `change: true`. The film's [screenplay realization](../contracts/development/composition.md#screenplay-realization) item checks the camera response against the look and each marked change against the screenplay.
 
 Give the optics a `shutter`, 180 degrees unless the look decides otherwise, and `samples`, so motion blurs as on film. Where a shot decides focus, author `fNumber` on its frame action and fill the optics' `lens` from `resolveAutoMovieLensAt` at each second, so the focus and any focus pull reach the frame.
 

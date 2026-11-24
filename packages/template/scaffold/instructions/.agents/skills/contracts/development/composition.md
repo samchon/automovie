@@ -17,7 +17,7 @@ Every section, beat and scene file is realized. An `OMITTED` one is covered by a
 
 ## Screenplay realization
 
-Does each scene realize every cited beat as written, and does the film play every scene in screenplay order at the recorded delivery profile?
+Does each scene realize every cited beat as written, and does the film play every scene, with its spoken lines, in screenplay order at the recorded delivery profile?
 
 ### Scene
 
@@ -28,6 +28,10 @@ If staging a passage requires inventing an exchange, response or pause, return t
 ### Film and catalog
 
 Play the numbered scenes with their transitions, titles and subtitles. Use the [delivery profile](../../production/project-context.md) for raster, frame rate and running time. Take the grade from the screenplay and profile.
+
+A direct 3D film's sound list carries each line its scenes speak, with the screenplay's text and a start frame within its beat, and binds each speaker to the staged actor who plays them. Check `sound.lines` and `sound.speakers` against the cited scene files and the subjects their scenes bind.
+
+The same film's loudness record takes the delivery profile's targets, and its camera response the adopted [look](../../production/project-context.md#overview-and-look). Each exposure change it marks with `change` in its exposure continuity check cites the screenplay decision behind it. Check `delivery.loudness` and `optics` against the profile and the look.
 
 For a catalog case, name the fact it exhibits and use the case parameters. For skilled practice, cite the observed exchange it reproduces. The catalog film lists every case used by the screenplay.
 
