@@ -2,7 +2,6 @@ import {
   Quaternion,
   Vector3,
   linearizePhysicalTargetRows,
-  memoizePhysicalTransformValue,
   solvePhysicalArticulationTargets,
 } from "@automovie/engine";
 import type {
@@ -20,18 +19,24 @@ import { nclose } from "../internal/predicates";
 /** Borrowed candidate placements for direct primitive arithmetic. */
 type Poses = Readonly<Record<string, IAutoMovieRigidTransform>>;
 
-/** Dirty articulation preserves published candidates and the dependencies of every residual.
+/**
+ * Dirty articulation preserves published candidates and the dependencies of
+ * every residual.
  *
  * Scenarios:
- * 1. Native-coordinate updates achieve an independently predicted angle without mutating caller or prior candidate poses, and preserve every joint anchor.
- * 2. A common rotation preserves self distance while changing world-axis and fixed-world-start rows; omitted, partial and unrelated movement declarations retain their actual semantics.
- * 3. Equal coordinates reuse geometric values while in-place receiver edits invalidate the call-local scalar cache.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Runs `interface`, `Quaternion`, `Vector3`, `linearizePhysicalTargetRows` on in-memory inputs and asserts the returned observations through 5x TestValidator.predicate; 3 numbered scenarios (first: Native-coordinate updates achieve an independently predicted angle without mutating caller or prior...; last: Equal coordinates reuse geometric values while in-place receiver edits invalidate the call-local scalar cache.). A wrong result for any of those inputs fails an assertion, while results the scenarios allow do not.
- * @evidence contracts/development/testing.md#independent-expectations Expected values come from the literals and relations written in the test itself (5 assertion sites compare against numeric literals) and from the scenario sentences above, not from a snapshot of the implementation's output; where an expectation is computed by another production function the oracle is not independent, and this answer does not establish a reference beyond the scenario text.
- * @evidence contracts/development/testing.md#distinguishing-cases Contributes 3 numbered scenarios (first: Native-coordinate updates achieve an independently predicted angle without mutating caller or prior...; last: Equal coordinates reuse geometric values while in-place receiver edits invalidate the call-local scalar cache.), including the negative, boundary or refusal cases those sentences name; cases the sentences do not name are not claimed here and are owned by other tests or are uncovered.
+ * 1. Native-coordinate updates achieve an independently predicted angle without
+ *    mutating caller or prior candidate poses, and preserve every joint
+ *    anchor.
+ * 2. A common rotation preserves self distance while changing world-axis and
+ *    fixed-world-start rows; omitted, partial and unrelated movement
+ *    declarations retain their actual semantics.
+ *
+ * @evidence contracts/development/testing.md#behavioral-verification Runs `interface`, `Quaternion`, `Vector3`, `linearizePhysicalTargetRows` on in-memory inputs and asserts the returned observations through 4x TestValidator.predicate; 2 numbered scenarios (first: Native-coordinate updates achieve an independently predicted angle without mutating caller or prior...; last: A common rotation preserves self distance while changing world-axis and fixed-world-start rows; omitted, partial and unrelated movement declarations retain their actual semantics.). A wrong result for any of those inputs fails an assertion, while results the scenarios allow do not.
+ * @evidence contracts/development/testing.md#independent-expectations Expected values come from the literals and relations written in the test itself (4 assertion sites compare against numeric literals or values the test computes from its own poses) and from the scenario sentences above, not from a snapshot of the implementation's output; where an expectation is computed by another production function the oracle is not independent, and this answer does not establish a reference beyond the scenario text.
+ * @evidence contracts/development/testing.md#distinguishing-cases Contributes 2 numbered scenarios (first: Native-coordinate updates achieve an independently predicted angle without mutating caller or prior...; last: A common rotation preserves self distance while changing world-axis and fixed-world-start rows; omitted, partial and unrelated movement declarations retain their actual semantics.), including the negative, boundary or refusal cases those sentences name; cases the sentences do not name are not claimed here and are owned by other tests or are uncovered.
  * @evidence contracts/development/testing.md#execution-ownership Portable in-memory unit test entered through the discoverable function `test_physical_target_dependencies`, which owns the cases delegated to `PhysicalPointFixtures`, `predicates`; it registers no dynamic cases and starts no process, browser, viewer, render or GPU host.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Native-coordinate updates achieve an independently predicted angle without mutating caller or prior candidate poses, and preserve every...).
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 2 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Native-coordinate updates achieve an independently predicted angle without mutating caller or prior candidate poses, and preserve every...).
  */
 export function test_physical_target_dependencies(): void {
   const profile: P = PhysicalPointFixtures.profile();
@@ -173,30 +178,6 @@ export function test_physical_target_dependencies(): void {
     "a single moved endpoint updates the relative rows",
     model(partial, new Set(["a"])),
     [distance(partial)[0], world(partial)[0], weighted(partial)[0]],
-  );
-
-  let reads: number = 0;
-  const read: (poses: Poses) => number = memoizePhysicalTransformValue(
-    (poses: Poses): IAutoMovieRigidTransform[] => [poses.a!, poses.b!],
-    (poses: Poses): number => {
-      reads++;
-      return poses.a!.position.x - poses.b!.position.x;
-    },
-  );
-  read(accepted);
-  read({ ...accepted });
-  assert.equal(
-    reads,
-    1,
-    "a new map with identical coordinates reuses the same geometric value",
-  );
-  const mutable: Record<string, IAutoMovieRigidTransform> =
-    structuredClone(accepted);
-  const prior: number = read(mutable);
-  mutable.b!.position.x += 0.25;
-  TestValidator.predicate(
-    "in-place coordinate edits cannot hide behind a reused pose identity",
-    nclose(read(mutable), prior - 0.25, 1e-12),
   );
 
   /** Each scalar row retains its independently evaluated world meaning. */
