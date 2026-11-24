@@ -2,7 +2,7 @@
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States how the landing is re-predicted, how the path and its clearance are set, what the drive adds, and that the input is never written.
+States how the landing is re-predicted and when not (the biped places its footstep in its plan), how the path and its clearance are set and that the path is a known non-port of IHMC's swing, what the drive adds, and that the input is never written.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

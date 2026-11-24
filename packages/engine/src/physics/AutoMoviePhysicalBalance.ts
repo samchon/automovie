@@ -13,7 +13,9 @@ import { physicalStanceBalance } from "./physicalStanceBalance";
  * Linear-inverted-pendulum capture-point balance over an arbitrary support
  * polygon (Pratt et al., 2006). It predicts horizontal recovery only; solved
  * contacts and the subsequent simulation decide whether a step actually lands.
- * No support count or anatomical name selects a different law.
+ * The four-support controller plans with it; a two-support body runs IHMC's
+ * walking controller's push recovery instead (`physicalBipedPlan`), as IHMC
+ * keeps its biped and quadruped controllers apart.
  */
 export namespace AutoMoviePhysicalBalance {
   /**
@@ -63,10 +65,10 @@ export namespace AutoMoviePhysicalBalance {
    * it can land, clamped to the reach. Young adults recover a lateral push
    * mostly by a single side step of the limb the push loaded (Mille et al.
    * 2005, Clinical Biomechanics), which the controller unloads over a short
-   * ramp before lifting (`advancePhysicalBalance`). A four-support body none
-   * of whose capturing steps can be unloaded at once steps the chosen limb
-   * with its diagonal, when that pair captures (Chen et al. 2022, Section
-   * 2.1, Example 1).
+   * ramp before lifting (`advancePhysicalBalance`). A four-support body none of
+   * whose capturing steps can be unloaded at once steps the chosen limb with
+   * its diagonal, when that pair captures (Chen et al. 2022, Section 2.1,
+   * Example 1).
    */
   export function assess(
     input: IAutoMoviePhysicalBalance.IAssessInput,
@@ -207,9 +209,7 @@ export namespace AutoMoviePhysicalBalance {
           }),
         );
       const after = (d: IAutoMovieVector3): IAutoMovieVector3[] =>
-        held(
-          convexHull2D([...rest, ...moved(lead, d), ...moved(partner, d)]),
-        );
+        held(convexHull2D([...rest, ...moved(lead, d), ...moved(partner, d)]));
       const still: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
       const place = (xi: IAutoMovieVector3): IAutoMovieVector3 => {
         if (excess(after(still), xi) <= 0) return still;
@@ -221,7 +221,9 @@ export namespace AutoMoviePhysicalBalance {
         const gap: number = Math.hypot(aim.x, aim.z);
         if (gap <= input.maximumStep && excess(after(aim), xi) <= 0) return aim;
         const toward: IAutoMovieVector3 =
-          gap > 0 ? { x: aim.x / gap, y: 0, z: aim.z / gap } : { x: 0, y: 0, z: 1 };
+          gap > 0
+            ? { x: aim.x / gap, y: 0, z: aim.z / gap }
+            : { x: 0, y: 0, z: 1 };
         const step = (d: number): IAutoMovieVector3 => Vector3.scale(toward, d);
         let near: number = 0;
         let far: number = input.maximumStep;
@@ -587,9 +589,7 @@ export namespace AutoMoviePhysicalBalance {
           candidate.viable && candidate.unloadable,
       )
     ) {
-      const across = (
-        other: IAutoMoviePhysicalSupportPatch,
-      ): number => {
+      const across = (other: IAutoMoviePhysicalSupportPatch): number => {
         const a: IAutoMovieVector3 = Vector3.subtract(
           chosen.support.position,
           centroid,
@@ -655,17 +655,17 @@ export namespace AutoMoviePhysicalBalance {
   }
 
   /**
-   * The step a request plans next while its limb has not lifted: the best
-   * step when its own limb has none, or when the best captures and its own
-   * does not; but once its limb has begun unloading, only its own, its place
-   * and time planned again and its limb kept, none when its own has no step.
-   * A step is committed at its trigger and adapted, never handed to another
-   * limb (design-4017-landing, decision 2; Khadiv et al. 2017 and Griffin et
-   * al. 2017 adapt throughout but never cancel): moving the request after its
-   * load has started to leave bounds both limbs' ramps at once.
+   * The step a request plans next while its limb has not lifted: the best step
+   * when its own limb has none, or when the best captures and its own does not;
+   * but once its limb has begun unloading, only its own, its place and time
+   * planned again and its limb kept, none when its own has no step. A step is
+   * committed at its trigger and adapted, never handed to another limb
+   * (design-4017-landing, decision 2; Khadiv et al. 2017 and Griffin et al.
+   * 2017 adapt throughout but never cancel): moving the request after its load
+   * has started to leave bounds both limbs' ramps at once.
    *
-   * @param input Whether the requested limb has begun unloading, its own
-   *   limb's step if it has one, and the best step over every limb.
+   * @param input Whether the requested limb has begun unloading, its own limb's
+   *   step if it has one, and the best step over every limb.
    * @returns The step to request, or undefined to keep the request as it is.
    */
   export function retarget(input: {

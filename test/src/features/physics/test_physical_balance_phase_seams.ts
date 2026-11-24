@@ -9,6 +9,8 @@ import {
   physicalBalanceSwing,
   physicalBalanceTouchdown,
   physicalBalanceUnload,
+  physicalBipedPlan,
+  physicalBipedTouchdown,
 } from "@automovie/engine";
 import type {
   IAutoMoviePhysicalProfile,
@@ -21,24 +23,27 @@ import { PhysicalBalanceReplay } from "../internal/PhysicalBalanceReplay";
 /**
  * No balance phase reads another phase's private state: at every recorded key
  * frame of the fourteen disturbance cases, a phase given its recorded input
- * with every other phase's private fields set to other values returns the
- * same result, those fields either carried through as given or written as
- * without them.
+ * with every other phase's private fields set to other values returns the same
+ * result, those fields either carried through as given or written as without
+ * them.
  *
  * Private state, by owner: the touchdown's clearance and touchdown record
  * (`cleared`, `touchdown`, and a diagonal pair's own), the plan's excursion
  * watch (`excess`, `band`), the settle phase's loss timer (`lostSince`), the
  * root tracker's centre-of-pressure integral (`pressure` but its `command`,
- * which the stance reads) and the handoff's record (`handoffs`).
+ * which the stance reads), the handoff's record (`handoffs`), and on a
+ * two-support body the biped touchdown's foot switches (`switches`) and the
+ * biped plan's push recovery flags (`push`). A two-support body runs the biped
+ * touchdown and plan in place of the four-support ones.
  *
  * Scenarios:
  *
- * 1. Each phase, in the controller's order, from each record's state advanced
- *    by the phases before it, run once as recorded and once perturbed.
- * 2. The two results agree, private fields aside, as JSON with keys in any
- *    order; the stance agrees on its readings and its assessment.
- * 3. Each perturbed private field comes out as it went in, or as the
- *    unperturbed run wrote it.
+ * 1. Each phase, in the controller's order, from each record's state advanced by
+ *    the phases before it, run once as recorded and once perturbed.
+ * 2. The two results agree, private fields aside, as JSON with keys in any order;
+ *    the stance agrees on its readings and its assessment.
+ * 3. Each perturbed private field comes out as it went in, or as the unperturbed
+ *    run wrote it.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the private fields by owner, the perturbation and what agreement means.
  * @evidence contracts/development/testing.md#behavioral-verification Calls every phase on recorded states and reads the states and commands they return.
@@ -75,13 +80,13 @@ export function test_physical_balance_phase_seams(): void {
         if (canonical(plain.rest) !== canonical(perturbed.rest))
           failures.push(`${at} ${phase}: its commands moved`);
         if (plain.state === undefined || perturbed.state === undefined) return;
-        if (
-          canonical(strip(plain.state)) !== canonical(strip(perturbed.state))
-        )
+        if (canonical(strip(plain.state)) !== canonical(strip(perturbed.state)))
           failures.push(`${at} ${phase}: its state moved`);
         const given: IAutoMoviePhysicalRecoveryState = perturb(input, phase);
         for (const field of FIELDS) {
-          const out: string | undefined = canonical(field.read(perturbed.state));
+          const out: string | undefined = canonical(
+            field.read(perturbed.state),
+          );
           if (
             out !== canonical(field.read(given)) &&
             out !== canonical(field.read(plain.state))
@@ -102,14 +107,15 @@ export function test_physical_balance_phase_seams(): void {
         }),
         rest: null,
       }));
-      const landed: IAutoMoviePhysicalRecoveryState = physicalBalanceTouchdown({
-        state: handed,
-        sense,
-      });
-      check("touchdown", handed, (s) => ({
-        state: physicalBalanceTouchdown({ state: s, sense }),
-        rest: null,
-      }));
+      const biped: boolean = sense.limbs.length === 2;
+      const touchdown = (
+        s: IAutoMoviePhysicalRecoveryState,
+      ): IAutoMoviePhysicalRecoveryState =>
+        biped
+          ? physicalBipedTouchdown({ state: s, sense })
+          : physicalBalanceTouchdown({ state: s, sense });
+      const landed: IAutoMoviePhysicalRecoveryState = touchdown(handed);
+      check("touchdown", handed, (s) => ({ state: touchdown(s), rest: null }));
       const unloaded: IAutoMoviePhysicalRecoveryState = physicalBalanceUnload({
         state: landed,
         sense,
@@ -139,17 +145,19 @@ export function test_physical_balance_phase_seams(): void {
         sense,
       });
       check("stance", lifted, (s) => ({ rest: readings(sense, s) }));
-      const plan: physicalBalancePlan.IResult = physicalBalancePlan({
-        state: lifted,
-        sense,
-        stance,
-      });
+      const planning = (
+        s: IAutoMoviePhysicalRecoveryState,
+        at: physicalBalanceStance.IStance,
+      ): physicalBalancePlan.IResult =>
+        biped
+          ? physicalBipedPlan({ state: s, sense, stance: at })
+          : physicalBalancePlan({ state: s, sense, stance: at });
+      const plan: physicalBalancePlan.IResult = planning(lifted, stance);
       check("plan", lifted, (s) => {
-        const result: physicalBalancePlan.IResult = physicalBalancePlan({
-          state: s,
-          sense,
-          stance: physicalBalanceStance({ state: s, sense }),
-        });
+        const result: physicalBalancePlan.IResult = planning(
+          s,
+          physicalBalanceStance({ state: s, sense }),
+        );
         return {
           state: result.state,
           rest: { goals: result.goals, assessment: result.assessment },
@@ -159,12 +167,14 @@ export function test_physical_balance_phase_seams(): void {
         state: plan.state,
         sense,
         stance,
+        ...(biped ? { repredict: false } : {}),
       });
       check("swing", plan.state, (s) => {
         const result: physicalBalanceSwing.IResult = physicalBalanceSwing({
           state: s,
           sense,
           stance,
+          ...(biped ? { repredict: false } : {}),
         });
         return {
           state: result.state,
@@ -278,9 +288,7 @@ const FIELDS: readonly IField[] = [
     name: "pressure",
     owner: "root",
     read: (state) =>
-      state.pressure
-        ? { ...state.pressure, command: undefined }
-        : undefined,
+      state.pressure ? { ...state.pressure, command: undefined } : undefined,
     write: (state) => {
       state.pressure = {
         bias: { x: 1000, z: -1000 },
@@ -288,6 +296,34 @@ const FIELDS: readonly IField[] = [
         velocity: { x: 1000, z: 1000 },
         swing: "perturbed",
         ...(state.pressure?.command ? { command: state.pressure.command } : {}),
+      };
+    },
+  },
+  {
+    name: "switches",
+    owner: "touchdown",
+    read: (state) => state.switches,
+    write: (state) => {
+      state.switches = {
+        ...state.switches,
+        perturbed: {
+          low: { value: true, count: 1 },
+          cop: { value: true, count: 2 },
+          hit: { value: true, count: 1 },
+        },
+      };
+    },
+  },
+  {
+    name: "push",
+    owner: "plan",
+    read: (state) => state.push,
+    write: (state) => {
+      state.push = {
+        recovering: !(state.push?.recovering ?? false),
+        fall: !(state.push?.fall ?? false),
+        safe: { value: true, count: 1000 },
+        large: !(state.push?.large ?? false),
       };
     },
   },
@@ -325,6 +361,8 @@ function strip(state: IAutoMoviePhysicalRecoveryState): unknown {
   delete copy.lostSince;
   delete copy.handoffs;
   delete copy.pressure;
+  delete copy.switches;
+  delete copy.push;
   if (copy.pair) {
     delete copy.pair.cleared;
     delete copy.pair.touchdown;

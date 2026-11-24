@@ -21,26 +21,31 @@ import { samplePhysicalRecoveryGoal } from "./samplePhysicalRecoveryGoal";
  * asked for.
  *
  * The landing is re-predicted every step of the swing's first half from the
- * present capture point and the swing time left (Yin et al. 2007, Section
- * 3.3), by the same rules the step was chosen with: the remaining supports
- * holding their centre of pressure on their shrunken outline, the foot's
- * centre on the capture point at landing, on its own side and inside the new
- * support (`AutoMoviePhysicalBalance.assess`), its time that of the distance
- * from where it lifted (Khadiv et al. 2017, Section III-B); a diagonal pair as
- * that pair, both feet moved by one displacement. Past half the swing the
- * target and time are held, so the limb settles onto one place (Pratt et al.,
- * M2V2, Section VII-C1). A recovery swing's clearance is lowered to what the
- * stance can carry at its peak in the swing's time
- * (`physicalStanceBalance.clearance`), and is the sole's: a foot pitched so
- * its lowest point hangs further below its endpoint than when planted flat
- * has the endpoint raised by the difference (Pratt et al., M2V2, Section
- * VII-D1). The joints track the path with their own servos, within their
- * caps; the drive adds only the path's feed-forward through J^T
- * (`physicalStanceBalance.swingForce`).
+ * present capture point and the swing time left (Yin et al. 2007, Section 3.3),
+ * by the same rules the step was chosen with: the remaining supports holding
+ * their centre of pressure on their shrunken outline, the foot's centre on the
+ * capture point at landing, on its own side and inside the new support
+ * (`AutoMoviePhysicalBalance.assess`), its time that of the distance from where
+ * it lifted (Khadiv et al. 2017, Section III-B); a diagonal pair as that pair,
+ * both feet moved by one displacement. Past half the swing the target and time
+ * are held, so the limb settles onto one place (Pratt et al., M2V2, Section
+ * VII-C1). A recovery swing's clearance is lowered to what the stance can carry
+ * at its peak in the swing's time (`physicalStanceBalance.clearance`), and is
+ * the sole's: a foot pitched so its lowest point hangs further below its
+ * endpoint than when planted flat has the endpoint raised by the difference
+ * (Pratt et al., M2V2, Section VII-D1). The joints track the path with their
+ * own servos, within their caps; the drive adds only the path's feed-forward
+ * through J^T (`physicalStanceBalance.swingForce`).
  *
- * @param input The recovery's state after the plan phase, the body's
- *   readings, the stance read before the plan and the trace to record into, if
- *   any.
+ * The biped controller places its footstep in its plan phase instead
+ * (`physicalBipedPlan`) and asks for no re-prediction here. Its path is this
+ * phase's own, a known non-port: IHMC 201903 swings by an optimized
+ * two-waypoint trajectory (`TwoWaypointSwingGenerator`) tracked by a whole-body
+ * task in space, which this engine does not have.
+ *
+ * @param input The recovery's state after the plan phase, the body's readings,
+ *   the stance read before the plan, whether the landing is re-predicted (true
+ *   by default) and the trace to record into, if any.
  * @returns The state with the landing re-predicted, a new one or the input
  *   itself; each lifted limb's endpoint goal; the drives to apply, in the
  *   swing's order; and the path the joints' reference fits (`trackPhysical`
@@ -50,6 +55,7 @@ export function physicalBalanceSwing(input: {
   state: Readonly<IAutoMoviePhysicalRecoveryState>;
   sense: physicalBalanceSense.ISense;
   stance: physicalBalanceStance.IStance;
+  repredict?: boolean;
   trace?: IAutoMoviePhysicalBalanceTrace[];
 }): physicalBalanceSwing.IResult {
   const { sense, stance } = input;
@@ -62,7 +68,12 @@ export function physicalBalanceSwing(input: {
   const settling: boolean =
     sense.seconds - state.swing.start >=
     (state.swing.end - state.swing.start) / 2;
-  if (!settling && stance.timing && sense.center.y - stance.plane > 0) {
+  if (
+    input.repredict !== false &&
+    !settling &&
+    stance.timing &&
+    sense.center.y - stance.plane > 0
+  ) {
     const froms: IAutoMovieVector3[] = lifted.map(
       (step: IAutoMovieStepPlanner.IStep): IAutoMovieVector3 => ({
         x: step.from.point[0],

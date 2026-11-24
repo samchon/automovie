@@ -8,11 +8,11 @@ export interface IAutoMoviePhysicalRecoveryState {
   /** Last physical assessment. */ last: IAutoMoviePhysicalBalance.IResult["state"];
   /** Active support swing, if any. */ swing?: IAutoMovieStepPlanner.IStep;
   /**
-   * The diagonal partner of a four-support body's pair swing, if any: its
-   * step, which shares the swing's start and end and lifts with it, and its
-   * own `cleared` and `touchdown`, as the state's are the swing's. Each foot
-   * of the pair lands by its own contact; the first to land leaves the other
-   * the swing (Chen et al. 2022, Section 2.1, Example 1).
+   * The diagonal partner of a four-support body's pair swing, if any: its step,
+   * which shares the swing's start and end and lifts with it, and its own
+   * `cleared` and `touchdown`, as the state's are the swing's. Each foot of the
+   * pair lands by its own contact; the first to land leaves the other the swing
+   * (Chen et al. 2022, Section 2.1, Example 1).
    */ pair?: {
     step: IAutoMovieStepPlanner.IStep;
     cleared?: boolean;
@@ -102,14 +102,14 @@ export interface IAutoMoviePhysicalRecoveryState {
   /**
    * Each stance foot's seating under edge-lift hysteresis: whether its sole is
    * flat on its plant, the second its present seating, or the pending change to
-   * it, began, its bearing share in [0, 1], ramping toward whether the foot
-   * is grounded, its flatness share in [0, 1], ramping toward whether the foot
-   * is grounded and seated, its low-passed measured floor load in newtons,
-   * which decides lift-off and touchdown only, its entry share in [0, 1],
-   * zero while the foot is out of contact and unloaded and ramping in once it
-   * touches again, the sole's own height spread latched when its stance
-   * began, metres, and the foot's actual support point and rotation latched
-   * then or when it last touched again, world frame.
+   * it, began, its bearing share in [0, 1], ramping toward whether the foot is
+   * grounded, its flatness share in [0, 1], ramping toward whether the foot is
+   * grounded and seated, its low-passed measured floor load in newtons, which
+   * decides lift-off and touchdown only, its entry share in [0, 1], zero while
+   * the foot is out of contact and unloaded and ramping in once it touches
+   * again, the sole's own height spread latched when its stance began, metres,
+   * and the foot's actual support point and rotation latched then or when it
+   * last touched again, world frame.
    */ seating?: Record<
     string,
     {
@@ -126,6 +126,37 @@ export interface IAutoMoviePhysicalRecoveryState {
       };
     }
   >;
+  /**
+   * The biped push recovery's flags (IHMC 201903 `PushRecoveryControlModule`):
+   * whether a footstep has been projected into the capture region this swing,
+   * whether the swing recovers from a fall out of double support, whether the
+   * capture point has been back near its plan for the safe window (a filtered
+   * value and its count of controller updates), and whether its error from the
+   * plan exceeds the threshold.
+   */ push?: {
+    recovering: boolean;
+    fall: boolean;
+    safe: { value: boolean; count: number };
+    large: boolean;
+  };
+  /**
+   * Each support limb's foot switch (IHMC `WrenchBasedFootSwitch`), by endpoint
+   * bone: its low-force, centre-of-pressure and touchdown filters, each a
+   * filtered value and its count of controller updates.
+   */ switches?: Record<
+    string,
+    {
+      low: { value: boolean; count: number };
+      cop: { value: boolean; count: number };
+      hit: { value: boolean; count: number };
+    }
+  >;
+  /**
+   * The planned capture point the biped holds, world x and z metres: after a
+   * recovery landing, the centre of mass projected onto the support shrunk by
+   * 0.08 m (IHMC 201903 `BalanceManager.requestICPPlannerToHoldCurrentCoM`);
+   * absent, the plan is the planted feet's centroid.
+   */ desired?: { x: number; z: number };
   /**
    * The centre-of-pressure integral: its bias, world metres, the low-passed
    * horizontal centre-of-mass acceleration and the last velocity it was read

@@ -19,12 +19,12 @@ import { physicalStanceBalance } from "./physicalStanceBalance";
  * shared by the plan and swing phases: the supports planted, the pendulum's
  * floor and rate, the capture point's shift for the body's rotation, a landed
  * foot's ramping share, the trunk's tilt and whether it asks for a step, the
- * stance feet's heading, the step's timing, and the assessment the step
- * choices ask of `AutoMoviePhysicalBalance.assess`.
+ * stance feet's heading, the step's timing, and the assessment the step choices
+ * ask of `AutoMoviePhysicalBalance.assess`.
  *
- * Support is what the controller has planted, not what touches this step:
- * every planted limb, a limb asked to step among them until it lifts, bounds
- * where the centre of pressure can return by its own outline, whether or not a
+ * Support is what the controller has planted, not what touches this step: every
+ * planted limb, a limb asked to step among them until it lifts, bounds where
+ * the centre of pressure can return by its own outline, whether or not a
  * tipping body has lifted it for a moment, so the classification does not
  * flicker with momentary contact.
  *
@@ -40,7 +40,8 @@ export function physicalBalanceStance(input: {
   const lifted: string[] = physicalRecoverySwing.lifted(state);
   const planted: IAutoMoviePhysicalSupportPatch[] = sense.limbs
     .filter(
-      (limb: physicalBalanceSense.ILimb): boolean => !lifted.includes(limb.bone),
+      (limb: physicalBalanceSense.ILimb): boolean =>
+        !lifted.includes(limb.bone),
     )
     .map(
       (limb: physicalBalanceSense.ILimb): IAutoMoviePhysicalSupportPatch =>
@@ -156,7 +157,10 @@ export function physicalBalanceStance(input: {
       sum = Vector3.add(
         sum,
         Quaternion.rotateVector(
-          Quaternion.multiply(anchor.rotation, Quaternion.inverse(goal.rotation)),
+          Quaternion.multiply(
+            anchor.rotation,
+            Quaternion.inverse(goal.rotation),
+          ),
           { x: 0, y: 0, z: 1 },
         ),
       );
@@ -192,6 +196,7 @@ export function physicalBalanceStance(input: {
     planted,
     plane,
     omega,
+    heading,
     spin,
     ...(landing !== undefined ? { landing } : {}),
     tilt,
@@ -239,10 +244,16 @@ export function physicalBalanceStance(input: {
 
 /** The stance {@link physicalBalanceStance} reads, and its constant. */
 export namespace physicalBalanceStance {
-  /** The trunk tilt past which a step is asked for, radians: the hip strategy's range (Stephens 2011, Table 4.1). */
+  /**
+   * The trunk tilt past which a step is asked for, radians: the hip strategy's
+   * range (Stephens 2011, Table 4.1).
+   */
   export const TIP: number = 0.5;
 
-  /** A step's timing: its unloading ramp, the swing's peak acceleration, its clearance and the landed foot's ramp-in. */
+  /**
+   * A step's timing: its unloading ramp, the swing's peak acceleration, its
+   * clearance and the landed foot's ramp-in.
+   */
   export interface ITiming {
     /** The unloading ramp, seconds. */
     ramp: number;
@@ -258,28 +269,42 @@ export namespace physicalBalanceStance {
   export interface IStance {
     /** The limbs the recovery's swing has lifted, a diagonal pair's both. */
     lifted: string[];
-    /** The planted limbs' support patches, a limb asked to step among them until it lifts. */
+    /**
+     * The planted limbs' support patches, a limb asked to step among them until
+     * it lifts.
+     */
     planted: IAutoMoviePhysicalSupportPatch[];
-    /** The pendulum's floor: the lowest planted support point, or the floor with none. */
+    /**
+     * The pendulum's floor: the lowest planted support point, or the floor with
+     * none.
+     */
     plane: number;
     /** The pendulum's rate, radians per second. */
     omega: number;
+    /**
+     * The stance feet's horizontal heading, as each was latched when its stance
+     * began, world, not normalized; the root's when no foot stands.
+     */
+    heading: IAutoMovieVector3;
     /** The capture point's shift for the body's rotation. */
     spin: IAutoMovieVector3;
     /** A landed foot's bearing share while it ramps in, if one does. */
     landing?: number;
     /** The trunk's tilt from its planned attitude, radians. */
     tilt: number;
-    /** Whether the trunk would pass the hip strategy's range within a pendulum time. */
+    /**
+     * Whether the trunk would pass the hip strategy's range within a pendulum
+     * time.
+     */
     tipping: boolean;
     /** The step's timing, absent when the leg cannot accelerate its swing. */
     timing?: ITiming;
     /** The last commanded centre of pressure, if any (`trackPhysicalRoot`). */
     command?: { x: number; z: number };
     /**
-     * The assessment of a support for a step: the supports, the limbs that
-     * may not step, whether a step is asked for regardless, the swing's
-     * timing and a diagonal pair to keep, if any.
+     * The assessment of a support for a step: the supports, the limbs that may
+     * not step, whether a step is asked for regardless, the swing's timing and
+     * a diagonal pair to keep, if any.
      */
     ask(
       supports: IAutoMoviePhysicalSupportPatch[],

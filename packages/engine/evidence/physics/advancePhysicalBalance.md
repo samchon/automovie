@@ -2,11 +2,11 @@
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States the controller's purpose, the phases it runs in order, that no phase writes its input, and that the caller's state becomes the last phase's.
+States the controller's purpose, the phases it runs in order, that a two-support body runs IHMC's walking controller's touchdown and plan while a four-support body runs the quadruped's, that no phase writes its input, and that the caller's state becomes the last phase's.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-A phase machine: each phase is a function from the recovery's state and the body's readings to the next state and its commands, run in the order handoff, touchdown, unload, landing ramp, lift, stance and plan, swing and settle. The order is the dependency order of the state each phase reads: a touchdown seats a landed foot before the ramp advances it, a lift gives up a seat before the stance is read, and the plan and swing read the stance after the lift. The swing's drives are applied after the phases, which is equivalent to applying them inside the swing because nothing the phases read depends on the actuation they accumulate into. The replay suite (test_physical_balance_replay) shows the composition returns and writes exactly what the single-function controller did at every recorded key frame of the fourteen disturbance cases.
+A phase machine: each phase is a function from the recovery's state and the body's readings to the next state and its commands, run in the order handoff, touchdown, unload, landing ramp, lift, stance and plan, swing and settle. The order is the dependency order of the state each phase reads: a touchdown seats a landed foot before the ramp advances it, a lift gives up a seat before the stance is read, and the plan and swing read the stance after the lift. The swing's drives are applied after the phases, which is equivalent to applying them inside the swing because nothing the phases read depends on the actuation they accumulate into. IHMC keeps its walking controller and its quadruped controller apart; the limb count of the support pattern selects which touchdown and plan run, and a biped's swing, which begins in its plan, is driven from the stance read after the plan.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 

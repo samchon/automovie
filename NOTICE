@@ -1,0 +1,31 @@
+AutoMovie
+Copyright (c) 2026 Jeongho Nam. Licensed under the MIT License (LICENSE).
+
+This product includes software ported from IHMC Open Robotics Software
+(https://github.com/ihmcrobotics/ihmc-open-robotics-software) and IHMC Euclid
+(https://github.com/ihmcrobotics/euclid), Copyright the Florida Institute for
+Human and Machine Cognition (IHMC), licensed under the Apache License,
+Version 2.0 (LICENSE-APACHE-2.0, http://www.apache.org/licenses/LICENSE-2.0).
+
+The ported files are under packages/engine/src/physics. Each names, in its
+header, the IHMC source file, the release (develop or tag 201903_Stable) and
+the lines it ports, and states that it was changed from Java to TypeScript.
+They are:
+
+- physicalAngularMomentumIntegrator.ts (AngularMomentumIntegrator)
+- physicalFootSwitch.ts (WrenchBasedFootSwitch)
+- physicalFootstepAdjustor.ts (FootstepAdjustor)
+- physicalGlitchFilter.ts (GlitchFilteredYoBoolean)
+- physicalIcpController*.ts (ICPController, ICPControllerQPSolver,
+  ICPControllerQPInputCalculator, ICPControllerQPConstraintCalculator,
+  ICPControllerHelper, ConstraintToConvexRegion)
+- physicalOneStepCaptureRegion.ts (OneStepCaptureRegionCalculator,
+  CaptureRegionMathTools)
+- physicalPlanarPolygon.ts (Euclid EuclidGeometryPolygonTools and
+  ConvexPolygon2D; ConvexPolygonScaler; PolygonWiggler)
+- physicalPushRecovery.ts (PushRecoveryControlModule)
+- physicalQuadruped*.ts (the ihmc-quadruped-robotics and
+  ihmc-quadruped-planning controllers they name)
+
+Parameter values from IHMC's Zulu robot configuration (zulu/...) are cited
+where they are used.
