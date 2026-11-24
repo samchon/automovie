@@ -1,4 +1,9 @@
-import { ANKLE_DORSIFLEXION, Vector3, minimumJerk } from "@automovie/engine";
+import {
+  ANKLE_DORSIFLEXION,
+  ROM_TOLERANCE,
+  Vector3,
+  minimumJerk,
+} from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieMotionHumanActionName,
@@ -19,6 +24,7 @@ import type {
 import { stand } from "../actions/stand";
 import { standUpright } from "../actions/standUpright";
 import { HumanSupportFrame } from "../carrier/HumanSupportFrame";
+import { AutoMovieMotionHumanArmCourse } from "../compose/AutoMovieMotionHumanArmCourse";
 import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import { prepareHumanPostureCorrection } from "../compose/prepareHumanPostureCorrection";
@@ -27,6 +33,7 @@ import { HumanMountOff } from "../lexicon/HumanMountOff";
 import { HumanFrame } from "../posture/HumanFrame";
 import { hipJoints } from "../posture/hipJoints";
 import { humanPostureHeading } from "../posture/humanPostureHeading";
+import { HumanBalance } from "./HumanBalance";
 import { prepareBearingTrunkBalance } from "./prepareBearingTrunkBalance";
 import { prepareGroundedBalance } from "./prepareGroundedBalance";
 import { prepareRiseFeet } from "./prepareRiseFeet";
@@ -466,6 +473,11 @@ export namespace rise {
               posture: IAutoMovieMotionHumanPosture,
               seconds: number,
             ): IAutoMovieMotionHumanPosture => adjust(posture, seconds),
+            {
+              root: HumanBalance.TOLERANCE,
+              angle: ROM_TOLERANCE,
+              step: AutoMovieMotionHumanArmCourse.STEP,
+            },
           );
     return {
       duration,

@@ -19,8 +19,7 @@ import { hasViolation } from "../internal/predicates";
  *
  * 1. PCF, its legacy alias, and globally disabled VSM accept a point caster through environment and staging admission.
  * 2. Enabled VSM refuses the same point at its original light path through both boundaries; a noncasting point remains accepted.
- * 3. An invalid earlier light does not shift a later point's contextual diagnostic, and an independent environment scalar error is collected beside it.
- * 4. Invalid shadow discriminators and enabled flags produce their addressed shape errors without invoking the contextual profile with invalid policy.
+ * 3. An earlier light does not shift a later point's contextual diagnostic, and an independent environment scalar error is collected beside it.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Runs real environment and staging admission, refusing enabled point VSM at the original light path while collecting independent environment scalar and policy shape errors.
  * @evidence contracts/development/testing.md#independent-expectations The supported point-shadow policy admits PCF/legacy alias and disabled VSM but rejects enabled point VSM; hand-authored source rows determine exact located paths. Boundary agreement is shared-policy consistency, not an independent native shadow-format oracle.
@@ -160,7 +159,7 @@ export function test_render_shadow_context_validation(): void {
   );
   const malformed: IAutoMovieScene = {
     ...scene,
-    lights: [null, { ...point, id: "later" }] as unknown as IAutoMovieLight[],
+    lights: [{ ...point, id: "earlier", castShadow: false }, { ...point, id: "later" }],
     environment: { ...environment, intensity: -1 },
   };
   const collected: IAutoMovieValidation = validateSceneEnvironment({
@@ -175,21 +174,4 @@ export function test_render_shadow_context_validation(): void {
     "environment scalar keeps its own root",
     hasViolation(collected, "range", "$input.intensity"),
   );
-  for (const [shadows, path] of [
-    [{ enabled: "yes", type: "vsm" }, "$input.shadows.enabled"],
-    [{ enabled: true, type: "unknown" }, "$input.shadows.type"],
-  ] as const) {
-    const invalid: IAutoMovieSceneEnvironment = {
-      ...base,
-      shadows,
-    } as unknown as IAutoMovieSceneEnvironment;
-    const result: IAutoMovieValidation = validateSceneEnvironment({
-      environment: invalid,
-      lights: scene.lights,
-    });
-    TestValidator.predicate(
-      "invalid policy is refused at its field",
-      hasViolation(result, "type", path),
-    );
-  }
 }

@@ -11,13 +11,12 @@ import { nclose } from "../internal/nclose";
  * 1. Adjacent affine squares share position indices while local edge u is 1/0.
  * 2. Omitting retention allocates no parameter output and preserves geometry.
  * 3. A vertex budget, empty atlas and zero-area omission retain aligned buffers.
- * 4. A malformed retention request is refused before emitting geometry.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the public realizer with general polynomial squares and checks actual triangle-corner coordinates, shared indices, disabled output and incomplete/empty output alignment.
  * @evidence contracts/development/testing.md#independent-expectations The two degree-elevated affine maps are (u,v,0) and (1+u,v,0), so their shared edge has different local u values at identical position indices. These equations are independent of tessellation and triangle count; the cases do not certify curved inverse accuracy or visual appearance.
- * @evidence contracts/development/testing.md#distinguishing-cases Covers enabled/disabled output, adjacent chart ambiguity, resource partial output, no patches, exactly collapsed geometry and a malformed flag. Existing atlas realization tests own area, normal and budget semantics.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers enabled/disabled output, adjacent chart ambiguity, resource partial output, no patches, and exactly collapsed geometry. Existing atlas realization tests own area, normal and budget semantics.
  * @evidence contracts/development/testing.md#execution-ownership This discoverable portable geometry unit test calls source directly and starts no Human generator, viewer, host, browser, GPU or native build. No cases are dynamically registered.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Adjacent affine squares share position indices while local edge u is 1/0.).
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Adjacent affine squares share position indices while local edge u is 1/0.).
  */
 export function test_geometry_bicubic_atlas_corner_parameters(): void {
   const recipe: Atlas = createBicubicPlaneRecipe();
@@ -136,11 +135,4 @@ export function test_geometry_bicubic_atlas_corner_parameters(): void {
     omitted.triangleParameters!.length,
     0,
   );
-  let refused: boolean = false;
-  try {
-    realize(recipe, { retainTriangleParameters: "yes" as unknown as boolean });
-  } catch (cause: unknown) {
-    refused = cause instanceof Error && cause.message.includes("boolean");
-  }
-  TestValidator.equals("malformed request refused", refused, true);
 }

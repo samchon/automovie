@@ -10,22 +10,33 @@ import { nclose } from "../../../internal/nclose";
 /** Rounding of a quintic's evaluation, metres and degrees. */
 const ROUNDING: number = 1e-9;
 
+/** A balance correction's requirement: half a millimetre, a hundredth of a degree, a frame. */
+const REQUIREMENT: prepareHumanPostureCorrection.IRequirement = {
+  root: 5e-4,
+  angle: 0.01,
+  step: 1 / 30,
+};
+
 /**
- * `prepareHumanPostureCorrection` solves a balance correction only at its knots
- * and courses what it changes: `knots` are the window's ends, its ramps' ends,
- * its phase's bounds and each event inside it, with the middle of each interval
- * between two of them; a read adds the course's change to the posture it is
- * given inside the window and leaves it outside.
+ * `prepareHumanPostureCorrection` solves a balance correction only at the
+ * knots AutoKnots places to the caller's requirement and courses what it
+ * changes: `marks`, the window's ramps' ends, its phase's bounds and each
+ * event inside it, are forced knots; a read adds the course's change to the
+ * posture it is given inside the window and leaves it outside.
  *
- * Scenarios, a window from 1 to 3 s with 0.5 s ramps and an event at 2.2 s, the
- * correction moving the root 0.1 m along +X and bending the spine 5 degrees, on
+ * Scenarios, a window from 1 to 3 s with 0.5 s ramps and an event at 2.2 s, on
  * an upstream posture standing still:
  *
- * 1. The knots are 1, 1.25, 1.5, 1.85, 2.2, 2.35, 2.5, 2.75 and 3.
- * 2. At each knot the read is the exact correction: the root 0.1 m over and the
- *    spine at 5 degrees.
+ * 1. The forced knots are 1.5, 2.2 and 2.5; the event at 0.5 s, outside the
+ *    window, is not one, nor are the window's own ends.
+ * 2. A correction moving the root 0.1 m along +X and bending the spine 5
+ *    degrees throughout is read exactly at every second inside the window.
  * 3. Before 1 s and after 3 s the posture is left as given.
  * 4. A joint the correction leaves as it was is not written.
+ * 5. A correction moving the root `0.1 sin²(π (t − 1) / 2)` metres, at rest at
+ *    the window's ends, is exact at the forced knots and within the
+ *    requirement's half millimetre on a 1/120 s grid; it is solved at fewer
+ *    seconds than that grid has.
  */
 export function test_unit_motions_compose_prepare_human_posture_correction(): void {
   const window: IAutoMovieMotionHumanBalance.IWindow = {
@@ -35,16 +46,10 @@ export function test_unit_motions_compose_prepare_human_posture_correction(): vo
     to: 3,
     ramp: { in: 0.5, out: 0.5 },
   };
-  const knots: number[] = prepareHumanPostureCorrection.knots(
-    window,
-    [2.2, 0.5],
-  );
-  TestValidator.predicate(
-    "the knots",
-    knots.length === 9 &&
-      [1, 1.25, 1.5, 1.85, 2.2, 2.35, 2.5, 2.75, 3].every(
-        (t: number, i: number): boolean => nclose(knots[i]!, t, ROUNDING),
-      ),
+  TestValidator.equals(
+    "the forced knots",
+    prepareHumanPostureCorrection.marks(window, [2.2, 0.5]),
+    [1.5, 2.2, 2.5],
   );
 
   const still: IAutoMovieMotionHumanPosture = {
@@ -67,12 +72,17 @@ export function test_unit_motions_compose_prepare_human_posture_correction(): vo
         root: { ...posture.root, x: posture.root.x + 0.1 },
         joints: { ...posture.joints, spine: [5, 0, 0], neck: [3, 0, 0] },
       }),
+      REQUIREMENT,
     );
+  const grid: number[] = Array.from(
+    { length: 241 },
+    (_: unknown, i: number): number => 1 + i / 120,
+  );
 
-  // 2. Exact at the knots.
+  // 2. A constant correction, exact throughout.
   TestValidator.predicate(
-    "exact at the knots",
-    knots.every((t: number): boolean => {
+    "a constant correction throughout",
+    grid.every((t: number): boolean => {
       const p: IAutoMovieMotionHumanPosture = read(still, t);
       return (
         nclose(p.root.x, 0.1, ROUNDING) &&
@@ -92,5 +102,41 @@ export function test_unit_motions_compose_prepare_human_posture_correction(): vo
   TestValidator.predicate(
     "an unchanged joint is not written",
     read(still, 2).joints.neck === still.joints.neck,
+  );
+
+  // 5. A smooth shift, to the requirement.
+  const shift = (t: number): number =>
+    0.1 * Math.sin((Math.PI * (t - 1)) / 2) ** 2;
+  const solved: number[] = [];
+  const smooth: ReturnType<typeof prepareHumanPostureCorrection> =
+    prepareHumanPostureCorrection(
+      (): IAutoMovieMotionHumanPosture => still,
+      window,
+      [2.2],
+      (
+        posture: IAutoMovieMotionHumanPosture,
+        t: number,
+      ): IAutoMovieMotionHumanPosture => {
+        solved.push(t);
+        return { ...posture, root: { ...posture.root, x: shift(t) } };
+      },
+      REQUIREMENT,
+    );
+  TestValidator.predicate(
+    "exact at the forced knots",
+    [1.5, 2.2, 2.5].every((t: number): boolean =>
+      nclose(smooth(still, t).root.x, shift(t), ROUNDING),
+    ),
+  );
+  TestValidator.predicate(
+    "within the requirement between them",
+    grid.every(
+      (t: number): boolean =>
+        Math.abs(smooth(still, t).root.x - shift(t)) <= REQUIREMENT.root,
+    ),
+  );
+  TestValidator.predicate(
+    "solved at fewer seconds than the grid",
+    solved.length < grid.length,
   );
 }

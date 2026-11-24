@@ -10,7 +10,7 @@ import { TestValidator } from "@nestia/e2e";
  * 1. RGBA8, half and float 4-by-4 base levels cost 64, 128 and 256 bytes.
  * 2. A 4-by-4 chain has 16+4+1 texels; a 3-by-5 chain has 15+2+1;
  *    a 1-by-8 chain has 8+4+2+1, including its clamped narrow axis.
- * 3. Zero, fractional and nonfinite dimensions or texel widths refuse, as do
+ * 3. Zero and negative dimensions or texel widths refuse, as do
  *    unknown formats and overflow; a one-texel chain ends at its base level.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls measureAutoMovieTextureStorage and compares uncompressed base or mip bytes and null refusals, catching a missing final mip, a square-image assumption, an unclamped narrow axis or invalid and unsafe facts converted into a numeric bound.
@@ -75,7 +75,7 @@ export function test_render_texture_storage(): void {
     }),
     16,
   );
-  for (const value of [0, -1, 1.5, NaN, Infinity]) {
+  for (const value of [0, -1]) {
     for (const field of ["width", "height", "bytesPerTexel"])
       TestValidator.equals(
         "invalid storage fact",

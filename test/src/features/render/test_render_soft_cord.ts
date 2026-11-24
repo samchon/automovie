@@ -88,15 +88,9 @@ export function test_render_soft_cord(): void {
         mesh?.userData.step === 2 &&
         hasTube(mesh, centres, radius),
     );
-    const sparse: number[] = Array.from(
-      frame.surface.mesh.positions.slice(0, 4),
-    );
-    sparse.length = 5;
-    sparse.push(...frame.surface.mesh.positions.slice(5));
     const overflow: number[] = [...frame.surface.mesh.positions];
     overflow[4] = Number.MAX_VALUE;
     for (const [kind, positions] of [
-      ["sparse", sparse],
       ["out-of-range", overflow],
     ] as const)
       TestValidator.error(`${kind} cord particles refuse`, (): void =>

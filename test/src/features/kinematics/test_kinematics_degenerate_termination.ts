@@ -74,8 +74,8 @@ export function test_kinematics_degenerate_termination(): void {
     ...DEFAULT_HUMANOID_ROM[bone]!,
   };
   const widened = (min: number, max: number): Float64Array =>
-    swingTwistRegion.table({ ...ordinary, twist: { min, max } }, joint);
-  const greatest: number = swingTwistRegion.greatest(ordinary, joint);
+    swingTwistRegion.prepare({ ...ordinary, twist: { min, max } }, joint).table;
+  const greatest: number = swingTwistRegion.prepare(ordinary, joint).greatest;
   const whole: Float64Array = widened(-1e300, 1e300);
   TestValidator.predicate(
     "a full-turn twist reaches the farthest on every ray",
@@ -85,8 +85,8 @@ export function test_kinematics_degenerate_termination(): void {
   TestValidator.predicate(
     "the ordinary region stays within its greatest radius",
     swingTwistRegion
-      .table(ordinary, joint)
-      .every((radius: number): boolean => radius <= greatest),
+      .prepare(ordinary, joint)
+      .table.every((radius: number): boolean => radius <= greatest),
   );
 
   // 5. An overflowed swing divergence.

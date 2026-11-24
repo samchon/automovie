@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { ROM_TOLERANCE, Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionClock,
   IAutoMovieMotionHumanActionPlan,
@@ -8,6 +8,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { AutoMovieMotionHumanArmCourse } from "../compose/AutoMovieMotionHumanArmCourse";
 import { prepareHumanPostureCorrection } from "../compose/prepareHumanPostureCorrection";
 import { HumanBalance } from "../everyday/HumanBalance";
 import { prepareHumanTrunkBalance } from "../everyday/prepareHumanTrunkBalance";
@@ -72,6 +73,11 @@ export function operateCorrection(
           instant.seconds,
       ),
       exact,
+      {
+        root: HumanBalance.TOLERANCE,
+        angle: ROM_TOLERANCE,
+        step: AutoMovieMotionHumanArmCourse.STEP,
+      },
     );
   return {
     ...reachLean,

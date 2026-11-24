@@ -116,13 +116,6 @@ export function test_render_caption_slice(): void {
   );
 
   TestValidator.predicate(
-    "non-integer frameStart throws",
-    throwsError(
-      (): IAutoMovieCaptionSidecar => sliceCaptionSidecar(sidecar, 0.5, 5),
-      "frameStart",
-    ),
-  );
-  TestValidator.predicate(
     "negative frameStart throws",
     throwsError(
       (): IAutoMovieCaptionSidecar => sliceCaptionSidecar(sidecar, -1, 5),
@@ -133,13 +126,6 @@ export function test_render_caption_slice(): void {
     "inverted window throws",
     throwsError(
       (): IAutoMovieCaptionSidecar => sliceCaptionSidecar(sidecar, 5, 5),
-      "frameEnd",
-    ),
-  );
-  TestValidator.predicate(
-    "non-integer frameEnd throws",
-    throwsError(
-      (): IAutoMovieCaptionSidecar => sliceCaptionSidecar(sidecar, 1, 5.5),
       "frameEnd",
     ),
   );

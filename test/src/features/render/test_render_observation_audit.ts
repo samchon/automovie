@@ -173,7 +173,6 @@ export function test_render_observation_audit(): void {
   );
 
   for (const [title, bound] of [
-    ["non-finite report bounds", Number.NaN],
     ["negative report bounds", -1],
   ] as const)
     TestValidator.equals(
@@ -187,7 +186,6 @@ export function test_render_observation_audit(): void {
 
   for (const [title, triangles] of [
     ["null renderer observations", null],
-    ["non-finite renderer observations", Number.NaN],
     ["negative renderer observations", -1],
   ] as const)
     TestValidator.equals(

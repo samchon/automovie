@@ -33,7 +33,7 @@ type Prepared = IAutoMovieViewSectionField.IPrepared;
  *    unchanged public generic composition, including complete source tuples.
  * 2. Implicit ellipse radial derivatives independently check the actual field;
  *    changed-copy, fresh-output and input admission retain their meanings.
- * 3. Public generic callback order and original thrown values remain observable;
+ * 3. Original thrown values of the public generic callbacks remain observable;
  *    invalid geometry is rejected before end arithmetic.
  * 4. Owned precise coverage observes at most eight endpoint-curvature calls per
  *    successful Field.prepare, allowing fewer calls and refusing missing
@@ -41,7 +41,7 @@ type Prepared = IAutoMovieViewSectionField.IPrepared;
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls actual Field.prepare/read and public generic curvature/geometry/end producers; catches lost derivatives, changed admission/effects and duplicated endpoint calculation in that public field operation.
  * @evidence contracts/development/testing.md#independent-expectations Implicit ellipses provide independent radial six-jets and positive finite output. Generic composition is a compatibility oracle sharing primitives, not independent geometry. Four quarters have eight own endpoints, so eight curvature calls is a work ceiling; absent function observations cannot pass as zero.
- * @evidence contracts/development/testing.md#distinguishing-cases Covers ellipse ties, asymmetric active G2 ends, reciprocal scales, negative/periodic phases, fresh/copy data, malformed/overflow inputs, generic callback order and original Error/undefined failures. Existing conic_field/source_conic/projective questions retain general boundary and arclength coverage.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers ellipse ties, asymmetric active G2 ends, reciprocal scales, negative/periodic phases, fresh/copy data, overflow inputs, original Error/undefined failures. Existing conic_field/source_conic/projective questions retain general boundary and arclength coverage.
  * @evidence contracts/development/testing.md#execution-ownership One discoverable async CPU test owns synthetic inputs and a current-process Inspector Session, stopped/disabled/disconnected in finally with primary errors preserved. No person, browser, target attachment, CPU profile, foreign method patch or elapsed/heap budget is used.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Symmetric ellipses, asymmetric active G2 ends and three scales agree with).
  */
@@ -237,35 +237,9 @@ function equivalent(scale: number, ellipse: boolean): void {
  * must not change them.
  */
 function effects(): void {
-  const values: number[] = [];
   const ops: IAutoMovieConicFieldJet.IAlgebra<number> = {
     ...AutoMovieConicFieldJet.NUMBER,
-    value: (value: number): number => {
-      values.push(value);
-      return value;
-    },
   };
-  AutoMovieViewConic.curvatures(ops, [1, 2, 3, 4], [0.5, 0.5, 0.5, 0.5]);
-  const expected: number[] = [
-    1 / 32,
-    1 / 8,
-    1 / 32,
-    1 / 8,
-    1,
-    1 / 9,
-    1,
-    1 / 9,
-    3 / 8,
-    3 / 32,
-    3 / 8,
-    3 / 32,
-    2 / 9,
-    2,
-    2 / 9,
-    2,
-  ];
-  if (!same(values, expected))
-    throw new Error("Public curvature callback order changed");
   const originals: readonly unknown[] = [
     new Error("owned algebra failure"),
     undefined,

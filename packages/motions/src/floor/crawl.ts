@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { ROM_TOLERANCE, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -21,10 +21,12 @@ import type {
 import { stand } from "../actions/stand";
 import { supportBalance } from "../actions/supportBalance";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
+import { AutoMovieMotionHumanArmCourse } from "../compose/AutoMovieMotionHumanArmCourse";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import { prepareHumanPostureCorrection } from "../compose/prepareHumanPostureCorrection";
+import { HumanBalance } from "../everyday/HumanBalance";
 import { prepareBearingTrunkBalance } from "../everyday/prepareBearingTrunkBalance";
 import { HumanBound } from "../law/HumanBound";
 import { HumanPhysics } from "../law/HumanPhysics";
@@ -485,6 +487,11 @@ function corrected(
         posture: IAutoMovieMotionHumanPosture,
         seconds: number,
       ): IAutoMovieMotionHumanPosture => adjust(posture, seconds),
+      {
+        root: HumanBalance.TOLERANCE,
+        angle: ROM_TOLERANCE,
+        step: AutoMovieMotionHumanArmCourse.STEP,
+      },
     );
   return {
     ...whole,

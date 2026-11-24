@@ -193,12 +193,15 @@ export namespace HumanTrunk {
    * @returns Degrees, at least 0.
    */
   export function pelvisLimit(
-    body: IAutoMovieMotionHumanBody,
+    body: Pick<IAutoMovieMotionHumanBody, "rest"> & {
+      measure: Pick<IAutoMovieMotionHumanBody["measure"], "thigh" | "shank">;
+    },
     root: IAutoMovieVector3,
     yaw: number,
     ankles: Record<AutoMovieHumanSide, IAutoMovieVector3>,
   ): number {
-    const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
+    const m: Pick<IAutoMovieMotionHumanBody["measure"], "thigh" | "shank"> =
+      body.measure;
     const turn: number = (yaw * Math.PI) / 180;
     const forwardX: number = Math.sin(turn);
     const forwardZ: number = Math.cos(turn);

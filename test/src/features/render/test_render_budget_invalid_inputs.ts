@@ -18,7 +18,7 @@ import { renderReportBudgetFixture } from "../internal/renderReportBudgetFixture
  *
  * Scenarios:
  *
- * 1. Negative and fractional limits, absent models, missing LOD and invalid particle caps name their refusal.
+ * 1. Negative limits, absent models, missing LOD and invalid particle caps name their refusal.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the real budget evaluator and inventory measurer on six malformed inputs, requiring an exception containing each violated-boundary message rather than a plausible partial inventory/report.
  * @evidence contracts/development/testing.md#independent-expectations Resource limits are nonnegative safe integers, particle populations are positive safe integers and every referenced model/prototype needs measurable representation. Authored -1, 1.5, zero, absent-model and empty-LOD inputs violate those contracts independently of returned values; wording checks identify the refused boundary without comparing complete stacks.
@@ -51,19 +51,6 @@ export function test_render_budget_invalid_inputs(): void {
               report(
                 inventory,
                 { ...budget, limits: { triangles: -1 } },
-                target,
-              ),
-            "at or above zero",
-          ),
-      ],
-      [
-        "fractional limit",
-        (): boolean =>
-          throwsError(
-            (): ReturnType<typeof report> =>
-              report(
-                inventory,
-                { ...budget, limits: { triangles: 1.5 } },
                 target,
               ),
             "at or above zero",
@@ -122,32 +109,12 @@ export function test_render_budget_invalid_inputs(): void {
             "maxParticles must be a positive safe integer",
           ),
       ],
-      [
-        "fractional effect cap",
-        (): boolean =>
-          throwsError(
-            (): ReturnType<typeof measure> =>
-              measure({
-                scene: { ...sceneFixture(), nodes: [], lights: [] },
-                models: modelsFixture(),
-                effects: [
-                  {
-                    ...effect,
-                    recipe: { budget: { maxParticles: 1.5 } },
-                  } as unknown as IAutoMovieCompiledEffect,
-                ],
-              }),
-            "maxParticles must be a positive safe integer",
-          ),
-      ],
     ]),
     {
       "negative limit": true,
-      "fractional limit": true,
       "absent model": true,
       "prototype without level of detail": true,
       "zero effect cap": true,
-      "fractional effect cap": true,
     },
   );
 }

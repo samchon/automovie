@@ -1,6 +1,5 @@
 import type {
   IAutoMovieAngleRange,
-  IAutoMovieJointAxes,
   IAutoMovieJointConstraint,
   IAutoMovieJointRotationFrame,
   IAutoMovieQuaternion,

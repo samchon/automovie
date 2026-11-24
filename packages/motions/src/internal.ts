@@ -344,4 +344,9 @@ export * from "./handling/resolveGuitarStringContact";
 export * from "./everyday/gestureJoints";
 export * from "./affordance/operateLongInsertCourse";
 export * from "./ensemble/manoeuvreCrossings";
-export * from "./climbing/ladderAcces
+export * from "./climbing/ladderAccessRails";
+export * from "./ensemble/HumanFormationPath";
+export * from "./carrying/carry";
+export * from "./climbing/treeClimbRouteExpand";
+export * from "./climbing/treeClimbRoute";
+export * from "./climbing/treeLimbs";

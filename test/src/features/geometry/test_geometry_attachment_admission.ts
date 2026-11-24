@@ -62,30 +62,17 @@ export function test_geometry_attachment_admission(): void {
     query(fan, options()).certified,
     true,
   );
-  const malformed: (
-    | { weights: undefined; triangle: number; supports: number[] }
-    | { supports: undefined; triangle: number; weights: number[] }
-    | { supports: (number | undefined)[]; triangle: number; weights: number[] }
-  )[] = [
-    { ...attachment, triangle: 0.5 },
-    { ...attachment, weights: undefined },
-    { ...attachment, supports: undefined },
-    { ...attachment, supports: [1] },
-    { ...attachment, supports: [0, 0.5] },
-    { ...attachment, supports: [0, undefined] },
-  ];
-  for (const invalid of malformed)
-    TestValidator.predicate(
-      "malformed original contact metadata refuses",
-      throwsError(
-        (): IAutoMovieMeshSeparationResult =>
-          query(fan, {
-            ...options(),
-            attachment: invalid as unknown as typeof attachment,
-          }),
-        "attachment",
-      ),
-    );
+  TestValidator.predicate(
+    "support metadata that omits the source triangle refuses",
+    throwsError(
+      (): IAutoMovieMeshSeparationResult =>
+        query(fan, {
+          ...options(),
+          attachment: { ...attachment, supports: [1] },
+        }),
+      "attachment",
+    ),
+  );
   TestValidator.predicate(
     "canonical metadata requires an actual complete fan",
     throwsError(

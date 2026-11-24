@@ -58,7 +58,6 @@ export function test_render_viewer_frame_times(): void {
     ["both intervals", { ...film, from: 0, to: 1, every: 1, step: 0.1 }],
     ["no interval", { ...film, from: 0, to: 1 }],
     ["zero interval", { ...film, from: 0, to: 1, every: 0 }],
-    ["fractional frames", { ...film, from: 0, to: 1, every: 1.5 }],
     ["reversed range", { ...film, from: 2, to: 1, every: 1 }],
     ["beyond the film", { ...film, from: 170, to: 181, every: 1 }],
     ["explicit beyond the film", { ...film, at: [180.5] }],

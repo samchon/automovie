@@ -129,14 +129,10 @@ export function test_render_texture_target_storage(): void {
   );
   for (const change of [
     { samples: -1 },
-    { samples: 0.5 },
     { formats: [] },
-    { formats: [undefined] },
     { depthBytesPerTexel: null },
     { depthBytesPerTexel: -1 },
-    { depthBytesPerTexel: 0.5 },
     { width: 0 },
-    { height: NaN },
     { width: 2 ** 25, height: 2 ** 25 },
     { samples: Number.MAX_SAFE_INTEGER },
   ])

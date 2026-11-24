@@ -13,7 +13,7 @@ import { treeLimbs } from "./treeLimbs";
  * Expand stances so the holds change a group at a time (taken, feet, hands, let
  * go), and check every one against the branches' loads.
  *
- * @param body The canonical motion body.
+ * @param body The body, for its mass.
  * @param tree The tree.
  * @param stances The stances in order.
  * @returns The support stances, with every staged point by name.
@@ -21,7 +21,7 @@ import { treeLimbs } from "./treeLimbs";
  *   branch and the load.
  */
 export function treeClimbRouteExpand(
-  body: IAutoMovieMotionHumanBody,
+  body: { massModel: Pick<IAutoMovieMotionHumanBody["massModel"], "mass"> },
   tree: treeLimbs.ITree,
   stances: readonly treeClimbRoute.IStance[],
 ): treeClimbRoute.IRoute {

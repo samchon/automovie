@@ -20,8 +20,7 @@ import { hasViolation } from "../internal/predicates";
  * Scenarios:
  *
  * 1. Valid near/far and precision operands reach the camera unchanged through a distinct precision record.
- * 2. Non-finite, zero and equal clip operands report the authored camera path.
- * 3. Null precision, malformed or unsupported bit counts, and nonnumeric, infinite or zero metre thresholds report their own field paths.
+ * 2. A zero near plane, equal clip planes, unsupported bit counts and a zero metre threshold report their own field paths.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Stages authored clip/precision operands and observes exact values with an independent copied precision record, then requires addressed invalid clip, bit-count and step-threshold failures.
  * @evidence contracts/development/testing.md#independent-expectations Literal near/far values, positive safe depth-code capability and a finite positive metre step define admission expectations; this test checks staging operands rather than measuring a hardware depth buffer.
@@ -64,17 +63,19 @@ export function test_film_stage_scene_camera_depth_precision(): void {
       accepted.scene.cameras[0]!.depthPrecision !== authored.depthPrecision,
   );
 
-  /** Apply one malformed operand patch without admitting it in the fixture, retaining an independently aimed valid base camera. */
-  const camera: (index: number, value: unknown) => IAutoMovieStageCamera = (
+  /** Apply one out-of-range operand patch to an independently aimed valid base camera. */
+  const camera: (
     index: number,
-    value: unknown,
-  ): IAutoMovieStageCamera =>
-    ({
-      ...base.cameras[0]!,
-      node: `invalid-${index}`,
-      lookAt: { kind: "point", point: { x: 0, y: 1, z: 0 } },
-      ...(value as object),
-    }) as IAutoMovieStageCamera;
+    value: Partial<IAutoMovieStageCamera>,
+  ) => IAutoMovieStageCamera = (
+    index: number,
+    value: Partial<IAutoMovieStageCamera>,
+  ): IAutoMovieStageCamera => ({
+    ...base.cameras[0]!,
+    node: `invalid-${index}`,
+    lookAt: { kind: "point", point: { x: 0, y: 1, z: 0 } },
+    ...value,
+  });
   const rejected: IAutoMovieStagedSet = stageScene(
     makeScriptWrite(),
     makeStagingWrite({

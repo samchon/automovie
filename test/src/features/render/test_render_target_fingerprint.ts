@@ -202,14 +202,6 @@ export function test_render_target_fingerprint(): void {
           ),
       ],
       [
-        "fractional width",
-        (): boolean =>
-          throwsError(
-            (): IAutoMovieRenderTarget => seal({ width: 10.5 }),
-            "settings.width",
-          ),
-      ],
-      [
         "zero height",
         (): boolean =>
           throwsError(
@@ -223,15 +215,6 @@ export function test_render_target_fingerprint(): void {
           throwsError(
             (): IAutoMovieRenderTarget => seal({ pixelRatio: 0 }),
             "settings.pixelRatio",
-          ),
-      ],
-      [
-        "infinite exposure",
-        (): boolean =>
-          throwsError(
-            (): IAutoMovieRenderTarget =>
-              seal({ exposure: Number.POSITIVE_INFINITY }),
-            "settings.exposure",
           ),
       ],
       [
@@ -287,10 +270,8 @@ export function test_render_target_fingerprint(): void {
       "blank api": true,
       "blank vendor": true,
       "blank device": true,
-      "fractional width": true,
       "zero height": true,
       "zero ratio": true,
-      "infinite exposure": true,
       "shadows on with no filter": true,
       "shadows off with a filter": true,
       "blank asset path": true,

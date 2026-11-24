@@ -83,15 +83,18 @@ export function test_kinematics_clinical_swivel_consumers(): void {
       abduction: current.frame!.flexion!,
     },
   };
-  const actual: Float64Array = swingTwistRegion.table(constraint, current);
-  const expected: Float64Array = swingTwistRegion.table(
+  const actual: Float64Array = swingTwistRegion.prepare(
+    constraint,
+    current,
+  ).table;
+  const expected: Float64Array = swingTwistRegion.prepare(
     {
       ...constraint,
       flexion: constraint.abduction,
       abduction: constraint.flexion,
     },
     equivalent,
-  );
+  ).table;
   const turn: number = actual.length / 4;
   TestValidator.predicate(
     "the explicit order exchanges swing factors while preserving the physical ray and distal twist",

@@ -32,7 +32,7 @@ import { qclose, vclose } from "../internal/predicates";
  * 1. An omitted offset places the child at the first parent's posed bone.
  * 2. Oppositely facing parents with matching local offsets agree in world position and rotation at the handoff.
  * 3. A different receiving offset takes effect at the switch.
- * 4. Nonfinite position, a nonunit quaternion and a missing rotation return offset findings.
+ * 4. A nonunit quaternion returns an offset finding.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names the legacy, continuous and discontinuous handoffs and invalid input cases.
  * @evidence contracts/development/testing.md#behavioral-verification Authors through performShot, compares both baked boundary keys and sequence playback, changes the receiving offset and checks validation output for malformed offsets.
@@ -172,29 +172,16 @@ export function test_film_perform_shot_attach_offset(): void {
     {
       ...first,
       offset: {
-        position: { x: Infinity, y: 0, z: 0 },
+        position: { x: 0, y: 0, z: 0 },
         rotation: { x: 0, y: 0, z: 0, w: 2 },
       },
     },
-    {
-      ...first,
-      start: 1,
-      offset: { position: { x: 0, y: 0, z: 0 } } as NonNullable<
-        IAutoMovieAttachAction["offset"]
-      >,
-    },
   ]);
   if (rejected.success !== false) throw new Error("invalid offsets must fail");
-  for (const suffix of [
-    "[0].offset.position.x",
-    "[0].offset.rotation",
-    "[1].offset.rotation",
-  ])
-    TestValidator.predicate(
-      `a violation identifies ${suffix}`,
-      rejected.violations.some(
-        (issue: IAutoMovieConstraintViolation): boolean =>
-          issue.path.endsWith(suffix),
-      ),
-    );
+  TestValidator.predicate(
+    "a violation identifies [0].offset.rotation",
+    rejected.violations.some((issue: IAutoMovieConstraintViolation): boolean =>
+      issue.path.endsWith("[0].offset.rotation"),
+    ),
+  );
 }

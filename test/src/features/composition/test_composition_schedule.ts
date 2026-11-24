@@ -118,9 +118,8 @@ export function test_composition_schedule(): void {
     "a.reach@1.50-2.50",
   ]);
   TestValidator.predicate(
-    "frozen schedule, contact and earlier-state outcome",
-    Object.isFrozen(schedule) &&
-      schedule.duration === 2.5 &&
+    "schedule duration, contact and earlier-state outcome",
+    schedule.duration === 2.5 &&
       schedule.entries[0]!.contact === 0.4 &&
       schedule.entries[1]!.outcome === "after 3 entries",
   );

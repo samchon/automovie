@@ -1,4 +1,9 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import {
+  Quaternion,
+  ROM_TOLERANCE,
+  Vector3,
+  minimumJerk,
+} from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -15,10 +20,12 @@ import type {
 } from "@automovie/interface";
 
 import { prepareSupportCorrection } from "../actions/prepareSupportCorrection";
+import { AutoMovieMotionHumanArmCourse } from "../compose/AutoMovieMotionHumanArmCourse";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanTarget } from "../compose/AutoMovieMotionHumanTarget";
 import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
 import { prepareHumanPostureCorrection } from "../compose/prepareHumanPostureCorrection";
+import { HumanBalance } from "../everyday/HumanBalance";
 import { prepareGroundedBalance } from "../everyday/prepareGroundedBalance";
 import { HumanBound } from "../law/HumanBound";
 import { HumanPhysics } from "../law/HumanPhysics";
@@ -349,6 +356,11 @@ export namespace legTouch {
               posture: IAutoMovieMotionHumanPosture,
               t: number,
             ): IAutoMovieMotionHumanPosture => adjust(posture, t),
+            {
+              root: HumanBalance.TOLERANCE,
+              angle: ROM_TOLERANCE,
+              step: AutoMovieMotionHumanArmCourse.STEP,
+            },
           );
     return {
       duration,

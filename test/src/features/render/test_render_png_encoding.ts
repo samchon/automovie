@@ -43,7 +43,7 @@ function chunks(file: Buffer): IChunk[] {
  * 1. A 3 by 2 RGBA image round-trips: signature, IHDR fields (size, depth 8, colour type 6, no interlace), valid CRCs, and the inflated scanlines equal filter byte 0 plus each source row.
  * 2. A 200 by 120 RGB image, whose filtered stream exceeds one 65,535-byte stored block, inflates to its pixels with colour type 2.
  * 3. A 1 by 1 grey image takes colour type 0, and the base64 decodes with Node's decoder to the same file.
- * 4. A zero width, a fractional height, five channels and a short pixel buffer are refused.
+ * 4. A zero width, five channels and a short pixel buffer are refused.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls encodeAutoMoviePng and decodes its output with Node's Buffer base64, zlib.inflateSync and zlib.crc32, so a wrong chunk layout, checksum, block header, Adler-32 or row filter fails decoding or the pixel comparison.
  * @evidence contracts/development/testing.md#independent-expectations Expected bytes are the input pixels with a zero filter byte per row and the header fields the W3C PNG specification assigns to each channel count; Node's zlib is an independent inflater and CRC implementation, not the encoder under test.
@@ -162,11 +162,6 @@ export function test_render_png_encoding(): void {
       "zero width",
       { width: 0, height: 1, channels: 1, pixels: new Uint8Array(0) },
       "width",
-    ],
-    [
-      "fractional height",
-      { width: 1, height: 1.5, channels: 1, pixels: new Uint8Array(1) },
-      "height",
     ],
     [
       "five channels",

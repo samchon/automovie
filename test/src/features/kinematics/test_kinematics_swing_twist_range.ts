@@ -102,10 +102,13 @@ export function test_kinematics_swing_twist_range(): void {
   const rng: () => number = makeRng(0x5717c4);
 
   for (const [bone, constraint] of joints) {
-    const joint: IAutoMovieJointRotationFrame = {
-      axes: HUMANOID_JOINT_AXES[bone]!,
-      frame: HUMANOID_REST_FRAME[bone],
-    };
+    const joint: IAutoMovieJointRotationFrame = swingTwistRange.prepare(
+      {
+        axes: HUMANOID_JOINT_AXES[bone]!,
+        frame: HUMANOID_REST_FRAME[bone],
+      },
+      constraint,
+    );
     const axis: IAutoMovieVector3 = Vector3.normalize(joint.axes.twist);
 
     // 1. The twist's sign, on the arms.

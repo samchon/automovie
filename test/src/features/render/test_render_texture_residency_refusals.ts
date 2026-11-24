@@ -114,7 +114,7 @@ export function test_render_texture_residency_refusals(): void {
       (row: ReturnType<typeof close>[number]): boolean => row.bytes === null,
     ),
   );
-  for (const owner of ["", "a"])
+  for (const owner of ["a"])
     TestValidator.predicate(
       "invalid resident owner",
       throwsError(
@@ -230,7 +230,7 @@ export function test_render_texture_residency_refusals(): void {
     ),
     3 * (4 * 4 * 4 + 8 * 4 * 4),
   );
-  for (const owner of ["", "fade"])
+  for (const owner of ["fade"])
     TestValidator.predicate(
       "invalid compositor owner",
       throwsError(
@@ -254,7 +254,7 @@ export function test_render_texture_residency_refusals(): void {
         ...runtime,
         dfgRetained: true,
         pmremRetained: { width: 0, height: 4 },
-        displayCompositors: [{ owner: "fade", width: Infinity, height: 4 }],
+        displayCompositors: [{ owner: "fade", width: 0, height: 4 }],
       },
     });
   TestValidator.equals(

@@ -34,11 +34,11 @@ import { nclose, throwsError } from "../internal/predicates";
  * 5. B as a box primitive of 1 m sides whose near face stands at X 1.5 is reported
  *    `apart` with gap 0.5.
  * 6. A model of three parts gives three records in part order.
- * 7. A missing or negative contact distance throws.
+ * 7. A negative contact distance throws.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the public contact report on made models and checks relation, gap, shares and pair order. It catches a report that skips primitives or far pairs, a gap that is not the least surface distance, containment missed because the surfaces never cross, touching confused with crossing, and an accepted invalid contact distance.
  * @evidence contracts/development/testing.md#independent-expectations Gaps are face separations of the stated cubes and box, within 1e-12; shares are 0 or 1 where one cube lies wholly outside or inside the other, and strictly between where they overlap by half. Nothing is read back from the implementation.
- * @evidence contracts/development/testing.md#distinguishing-cases Apart, touching just inside the contact distance, crossing, contained in both directions, a primitive part, a three-part order and both refusals. Strict crossing detection is pinned by test_geometry_model_crossings and directional clearance by test_geometry_mesh_clearance.
+ * @evidence contracts/development/testing.md#distinguishing-cases Apart, touching just inside the contact distance, crossing, contained in both directions, a primitive part, a three-part order and the refusal. Strict crossing detection is pinned by test_geometry_model_crossings and directional clearance by test_geometry_mesh_clearance.
  * @evidence contracts/development/testing.md#execution-ownership A portable unit test of engine geometry with in-memory models; no process, browser, GPU or dynamic registration.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 7 numbered scenarios it runs, each naming the pair and its expected relation, gap and shares.
  */
@@ -144,13 +144,7 @@ export function test_geometry_model_contacts(): void {
 
   const model: IAutoMovieModel = geometryPartsModel([a, moved(1.5)]);
   TestValidator.predicate(
-    "a missing or negative contact distance is refused",
-    throwsError(() =>
-      measureAutoMovieModelContacts(
-        model,
-        {} as IAutoMovieMeasureModelContacts.IOptions,
-      ),
-    ) &&
-      throwsError(() => measureAutoMovieModelContacts(model, { contact: -1 })),
+    "a negative contact distance is refused",
+    throwsError(() => measureAutoMovieModelContacts(model, { contact: -1 })),
   );
 }

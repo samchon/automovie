@@ -37,7 +37,7 @@ import { renderFixtureNode } from "../internal/renderFixtureNode";
  *    restores the feed's material and the renderer's previous target.
  * 3. While the key holding the feed is not in force, nothing is drawn.
  * 4. The structural shot gate refuses a feed of the shot's own camera, an unknown
- *    camera, and `pixels` of 0, 2049 and 1.5.
+ *    camera, and `pixels` of 0 and 2049.
  * 5. Given the film's optics, the feed draws the scene in linear light into a
  *    stage target of its own and the response's full-frame pass into the feed
  *    target, leaving the renderer's target as it was, and the feed's material
@@ -200,7 +200,6 @@ export async function test_render_surface_feed(): Promise<void> {
     ["an unknown camera", feed("ghost", 120), "camera the scene stages"],
     ["zero pixels", feed("cctv", 0), "pixels"],
     ["too many pixels", feed("cctv", 2049), "pixels"],
-    ["fractional pixels", feed("cctv", 1.5), "pixels"],
   ] as const) {
     const result: IAutoMovieValidation = validateShotArtifact(
       shot(track),

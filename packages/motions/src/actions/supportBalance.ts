@@ -1,3 +1,4 @@
+import { ROM_TOLERANCE } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionPlan,
@@ -5,7 +6,9 @@ import type {
   IAutoMovieMotionHumanPosture,
 } from "@automovie/interface";
 
+import { AutoMovieMotionHumanArmCourse } from "../compose/AutoMovieMotionHumanArmCourse";
 import { prepareHumanPostureCorrection } from "../compose/prepareHumanPostureCorrection";
+import { HumanBalance } from "../everyday/HumanBalance";
 import { prepareBearingTrunkBalance } from "../everyday/prepareBearingTrunkBalance";
 import { HumanPhysics } from "../law/HumanPhysics";
 import { prepareSupportCorrection } from "./prepareSupportCorrection";
@@ -64,6 +67,11 @@ export function supportBalance<P extends HumanPhysics.IBalanced>(
         posture: IAutoMovieMotionHumanPosture,
         seconds: number,
       ): IAutoMovieMotionHumanPosture => adjust(posture, seconds),
+      {
+        root: HumanBalance.TOLERANCE,
+        angle: ROM_TOLERANCE,
+        step: AutoMovieMotionHumanArmCourse.STEP,
+      },
     );
   return {
     ...plan,

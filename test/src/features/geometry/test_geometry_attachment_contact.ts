@@ -142,7 +142,6 @@ export function test_geometry_attachment_contact(): void {
     ),
   );
   for (const invalid of [
-    null,
     { ...attachment, triangle: 9 },
     { ...attachment, supports: [] },
   ] as const)

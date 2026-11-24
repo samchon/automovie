@@ -16,6 +16,7 @@ import type { HumanPhysics } from "../law/HumanPhysics";
 import { lowerHumanPosture } from "../posture/lowerHumanPosture";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { prepareHumanSampledCourse } from "../posture/prepareHumanSampledCourse";
+import { HumanBalance } from "./HumanBalance";
 import { HumanTrunk } from "./HumanTrunk";
 import type { prepareGroundedBalance } from "./prepareGroundedBalance";
 
@@ -105,6 +106,11 @@ export function braceBody(scope: braceBody.IScope): braceBody.BodyAt {
             posture: IAutoMovieMotionHumanPosture,
             t: number,
           ): IAutoMovieMotionHumanPosture => adjust(posture, t),
+          {
+            root: HumanBalance.TOLERANCE,
+            angle: ROM_TOLERANCE,
+            step: AutoMovieMotionHumanArmCourse.STEP,
+          },
         );
   // The rear foot unloads over the preparatory shift and accepts weight
   // over the same transfer time on landing.

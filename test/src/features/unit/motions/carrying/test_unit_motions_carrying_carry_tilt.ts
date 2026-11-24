@@ -22,8 +22,8 @@ const ROUNDING: number = 1e-9;
  * a 0.04 m forearm in radius:
  *
  * 1. A tenth of the mass in one hand leans `asin(0.1 x 0.2 / (0.678 x 0.626 x
- *    0.55))`; on the hip, with 0.09 m; held ahead, with a third of the arm,
- *    0.19 m; pushed, 4 degrees.
+ *    0.55))`; on the hip, with 0.09 m; held ahead in both hands, a third of the
+ *    arm, 0.19 m; pushed, 4 degrees.
  * 2. The hanging arm is abducted `asin(0.01 / 0.57)`, its elbow straight at its
  *    range's least flexion; shoulders 0.3 m wide hang it plumb.
  * 3. The walk keeps its pace up to a fifth of the mass, is half way down at three
@@ -57,7 +57,7 @@ export function test_unit_motions_carrying_carry_tilt(): void {
     "the lean",
     nclose(carry.tilt(body, "oneHand", 0.1), lean(0.2), ROUNDING) &&
       nclose(carry.tilt(body, "hip", 0.1), lean(0.09), ROUNDING) &&
-      nclose(carry.tilt(body, "front", 0.1), lean(0.19), ROUNDING) &&
+      nclose(carry.tilt(body, "twoHands", 0.1), lean(0.19), ROUNDING) &&
       nclose(carry.tilt(body, "push", 0.1), 4, ROUNDING),
   );
   const hung: ReturnType<typeof carry.hang> = carry.hang(body, "right");

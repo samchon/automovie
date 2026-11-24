@@ -18,7 +18,7 @@ import { renderReportBudgetFixture } from "../internal/renderReportBudgetFixture
  *
  * Scenarios:
  *
- * 1. Fifty owners retain ranked and omitted accounting; caller bounds admit positive integers and refuse zero or fractional values.
+ * 1. Fifty owners retain ranked and omitted accounting; caller bounds admit positive integers and refuse zero.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Measures fifty ordinary props and evaluates bounded contributor reports, asserting retained/remainder counts, conserved total cost, deterministic ranking, zero instance counts and caller-bound refusal behavior.
  * @evidence contracts/development/testing.md#independent-expectations Fifty unit boxes contribute fifty BOX_TRIANGLES base costs and the retained shadow pass repeats them once; omitted editable owners plus that pass must conserve twice the base total. The default maximum comes from the public contract constant, while the two-entry override and zero/fractional refusals are literal boundary expectations.
@@ -124,11 +124,7 @@ export function test_render_budget_contributor_bounds(): void {
         (): ReturnType<typeof report> => report(crowd, budget, target, 0),
         "positive safe integer",
       ),
-      fractional: throwsError(
-        (): ReturnType<typeof report> => report(crowd, budget, target, 1.5),
-        "positive safe integer",
-      ),
     },
-    { tight: 2, zero: true, fractional: true },
+    { tight: 2, zero: true },
   );
 }

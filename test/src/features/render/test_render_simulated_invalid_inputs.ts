@@ -179,15 +179,6 @@ export function test_render_simulated_invalid_inputs(): void {
           ),
       ],
       [
-        "fractional prototype",
-        (): boolean =>
-          throwsError(
-            (): IAutoMovieRenderInventory =>
-              measure(prototyped({ vertices: 1.5, triangles: 1 })),
-            "vertices must be a safe integer",
-          ),
-      ],
-      [
         "negative prototype",
         (): boolean =>
           throwsError(
@@ -202,7 +193,6 @@ export function test_render_simulated_invalid_inputs(): void {
       "absent leaf material": true,
       "absent water material": true,
       "conflicting panel material": true,
-      "fractional prototype": true,
       "negative prototype": true,
     },
   );

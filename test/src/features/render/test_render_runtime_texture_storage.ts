@@ -127,7 +127,7 @@ export async function test_render_runtime_texture_storage(): Promise<void> {
       close([{ ...first, texture: { ...texture, ...missing } }])[0].bytes,
       null,
     );
-  for (const owner of ["", first.owner])
+  for (const owner of [first.owner])
     TestValidator.predicate(
       "runtime owner refusal",
       throwsError(

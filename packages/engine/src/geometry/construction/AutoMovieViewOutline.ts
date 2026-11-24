@@ -6,6 +6,7 @@ import type {
   IAutoMovieViewPart,
 } from "@automovie/interface";
 
+import { overflowsBinary64 } from "../../math/overflowsBinary64";
 import { AUTOMOVIE_CONSTRUCTION_RELATIVE_TOLERANCE } from "./AUTOMOVIE_CONSTRUCTION_RELATIVE_TOLERANCE";
 import { AutoMovieLoftContract } from "./AutoMovieLoftContract";
 import { AutoMovieNaturalSpline } from "./AutoMovieNaturalSpline";
@@ -130,6 +131,20 @@ export namespace AutoMovieViewOutline {
         contract: "outline",
         detail: "source parameters do not increase through the source knots",
       };
+    // The slope of each interval is the operation that can overflow binary64.
+    for (let i: number = 0; i + 1 < parameters.length; i++) {
+      const h: number = parameters[i + 1]! - parameters[i]!;
+      const rise: number = knots[i + 1]!.value - knots[i]!.value;
+      if (
+        overflowsBinary64(h) ||
+        overflowsBinary64(rise) ||
+        overflowsBinary64(rise / h)
+      )
+        return {
+          contract: "outline",
+          detail: `source interval ${i} has unrepresentable cubic derivative coefficients`,
+        };
+    }
     const spline: IAutoMovieNaturalCubicSpline = AutoMovieNaturalSpline.create(
       parameters,
       knots.map((k: IAutoMovieViewPart.IKnot): number => k.value),

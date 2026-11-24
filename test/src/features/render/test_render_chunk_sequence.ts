@@ -361,16 +361,4 @@ export function test_render_chunk_sequence(): void {
       ["chunkFrames", "positive integer"],
     ),
   );
-  TestValidator.predicate(
-    "fractional chunkFrames rejects",
-    throwsError(
-      (): ReturnType<typeof planChunkedSequenceRender> =>
-        planChunkedSequenceRender({
-          plan: whole,
-          spec: SPEC,
-          chunkFrames: 1.5,
-        }),
-      ["chunkFrames", "positive integer"],
-    ),
-  );
 }

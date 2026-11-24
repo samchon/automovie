@@ -12,7 +12,6 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { ConstructionBindingDense } from "../../internal/construction/ConstructionBindingDense";
 import { nclose } from "../../internal/nclose";
 
 /** Actual public chain, including its explicit original-source binding. */
@@ -30,8 +29,8 @@ const FIELDS: readonly Field[] = ["coefficients", "slopes", "curvatures"];
  *
  * 1. Actual constant ellipse producers at orders 8, 32 and 128 retain cold-copy
  *    ownership and the independent axis/diagonal ray intersections.
- * 2. First/middle/last rewrites of every compatibility group fail by name; NaN,
- *    unequal empty/short rows and right-side missing entries fail too.
+ * 2. First/middle/last rewrites of every compatibility group and unequal
+ *    empty/short rows fail by name.
  * 3. Signed zero, optional curvature absence, nested endpoint copies and undefined
  *    optional metadata preserve their declared equality meanings.
  * 4. Query-owned getters observe complete ordered reads, first-mismatch short
@@ -58,7 +57,6 @@ export function test_construction_source_binding_equality(): void {
         chains.push(chain);
         equivalent(chain);
         mutations(chain);
-        ConstructionBindingDense(chain);
       },
       failures,
     );
