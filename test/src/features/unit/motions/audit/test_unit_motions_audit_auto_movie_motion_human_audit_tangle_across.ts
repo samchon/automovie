@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+﻿import { Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanAuditTangle,
@@ -16,20 +16,21 @@ import { TestValidator } from "@nestia/e2e";
 import { humanFixtureBody } from "../../../internal/fixtures/humanFixtureBody";
 
 /**
- * `AutoMovieMotionHumanAuditTangle.across` lists every segment of one body
- * that passes into a segment of another in one pose, at its full depth, since
- * two bodies share no joint and no rest pose.
+ * `AutoMovieMotionHumanAuditTangle.across` lists every segment of one body that
+ * passes into a segment of another in one pose, at its full depth, since two
+ * bodies share no joint and no rest pose.
  *
  * Scenarios, two average men in the quiet stance:
  *
  * 1. Two metres apart, nothing passes.
- * 2. In one place, the trunks pass into each other: the hips are among the
- *    parts read, every depth positive, each pair read at second 0.
+ * 2. In one place, the trunks pass into each other: the hips are among the parts
+ *    read, every depth positive, each pair read at second 0.
  *
  * The bodies are built whole (`humanFixtureBody`): the reading places the
  * tangle model's probes and colliders on the displayed bones.
  */
 export async function test_unit_motions_audit_auto_movie_motion_human_audit_tangle_across(): Promise<void> {
+  // Reads every segment's colliders and tangle probes (`body.tangle`), a whole-body read.
   const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");
   const still: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
     body,

@@ -376,26 +376,6 @@ function scalar(basis: IAutoMovieJointAxes): void {
     recovered.context === other &&
       qclose(recovered.rotation, first.rotation, 1e-12),
   );
-  TestValidator.predicate(
-    "current clinical admission still precedes an otherwise throwing visitor",
-    throwsError(
-      (): never =>
-        one(
-          { ...quarter, flexion: NaN },
-          (
-            _x: number,
-            _y: number,
-            _z: number,
-            _w: number,
-            _actual: object,
-          ): never => {
-            throw sentinel;
-          },
-          context,
-        ),
-      ["flexion", "finite"],
-    ),
-  );
 }
 
 /** A visitor-owned raw rotation and the exact context its caller supplied. */

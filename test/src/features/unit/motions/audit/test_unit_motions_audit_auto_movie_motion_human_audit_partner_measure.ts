@@ -17,9 +17,9 @@ import { TestValidator } from "@nestia/e2e";
 import { humanFixtureBody } from "../../../internal/fixtures/humanFixtureBody";
 
 /**
- * How deep a body standing in another's place passes into it, at least,
- * metres: a quarter of the chest's depth, half the depth a probe on one trunk's
- * surface lies inside the other's coinciding trunk at its centre line.
+ * How deep a body standing in another's place passes into it, at least, metres:
+ * a quarter of the chest's depth, half the depth a probe on one trunk's surface
+ * lies inside the other's coinciding trunk at its centre line.
  *
  * @param body The body.
  * @returns Metres.
@@ -43,12 +43,15 @@ const deep = (body: IAutoMovieMotionHumanBody): number =>
  * colliders and the tangle model's probes on the displayed bones.
  */
 export async function test_unit_motions_audit_auto_movie_motion_human_audit_partner_measure(): Promise<void> {
+  // Reads every segment's colliders and tangle probes (`body.tangle`), a whole-body read.
   const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");
   const still: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
     body,
     resolveHumanPosture(body, stand.posture(body, { x: 0, y: 0, z: 0 }, 0)),
   );
-  const motion = (x: (t: number) => number): IAutoMovieMotionHumanAuditMotion => ({
+  const motion = (
+    x: (t: number) => number,
+  ): IAutoMovieMotionHumanAuditMotion => ({
     duration: 1,
     segments: () => [],
     bones: (subject: string, t: number) =>
@@ -56,10 +59,10 @@ export async function test_unit_motions_audit_auto_movie_motion_human_audit_part
         ? still
         : new Map(
             [...still].map(
-              ([name, bone]: [
+              ([name, bone]: [AutoMovieHumanoidBone, IAutoMovieResolvedBone]): [
                 AutoMovieHumanoidBone,
                 IAutoMovieResolvedBone,
-              ]): [AutoMovieHumanoidBone, IAutoMovieResolvedBone] => [
+              ] => [
                 name,
                 {
                   ...bone,
@@ -77,7 +80,12 @@ export async function test_unit_motions_audit_auto_movie_motion_human_audit_part
   const b: IAutoMovieMotionHumanAuditPartner.IPerson = { subject: "b", body };
   TestValidator.equals(
     "apart",
-    AutoMovieMotionHumanAuditPartner.measure(motion(() => 2), a, b, 4),
+    AutoMovieMotionHumanAuditPartner.measure(
+      motion(() => 2),
+      a,
+      b,
+      4,
+    ),
     { worst: { value: 0, seconds: 0, where: "none" }, pairs: [] },
   );
   const met: IAutoMovieMotionHumanAuditPartner.IResult =

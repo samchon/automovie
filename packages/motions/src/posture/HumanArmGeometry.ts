@@ -132,6 +132,7 @@ export namespace HumanArmGeometry {
         hand,
       },
       joint: swingTwistRange.prepare(
+        bones.upper,
         swingTwistRange.fromAxes(bones.upper, axes[bones.upper])!,
         upperConstraint,
       ),

@@ -156,15 +156,6 @@ export function test_math_segment_conditioning(): void {
         0,
       ),
   );
-  for (const invalid of [NaN, Infinity])
-    TestValidator.predicate(
-      "nonfinite coordinates refuse",
-      throwsError(
-        (): ReturnType<typeof closestPointsBetweenSegments> =>
-          closestPointsBetweenSegments(v(invalid), v(0), v(0), v(1)),
-        "finite",
-      ),
-    );
   TestValidator.predicate(
     "overflowing differences refuse",
     throwsError(

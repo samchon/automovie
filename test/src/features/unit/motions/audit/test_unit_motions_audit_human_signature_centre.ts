@@ -1,4 +1,4 @@
-import type {
+﻿import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -10,16 +10,16 @@ import { humanFixtureBody } from "../../../internal/fixtures/humanFixtureBody";
 import { nclose } from "../../../internal/nclose";
 
 /**
- * The share of stature the standing centre of mass lies at: 0.53 to 0.59,
- * about the 55 to 57 % Winter reports for adults (Winter 2009, Biomechanics and
- * Motor Control of Human Movement, 4th ed., table 4.1), widened for the
- * fixture's proportions.
+ * The share of stature the standing centre of mass lies at: 0.53 to 0.59, about
+ * the 55 to 57 % Winter reports for adults (Winter 2009, Biomechanics and Motor
+ * Control of Human Movement, 4th ed., table 4.1), widened for the fixture's
+ * proportions.
  */
 const HEIGHT: readonly [number, number] = [0.53, 0.59];
 
 /**
- * `HumanSignature.centre` reads the whole-body centre of mass on the body's
- * own mass model.
+ * `HumanSignature.centre` reads the whole-body centre of mass on the body's own
+ * mass model.
  *
  * Scenarios, the average man's quiet stance at the origin:
  *
@@ -31,6 +31,7 @@ const HEIGHT: readonly [number, number] = [0.53, 0.59];
  * mass model on its displayed bones.
  */
 export async function test_unit_motions_audit_human_signature_centre(): Promise<void> {
+  // Reads the whole-body centre of mass (`body.massModel`, every segment's mass).
   const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");
   const centre = (x: number): IAutoMovieVector3 =>
     HumanSignature.centre(

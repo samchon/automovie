@@ -130,7 +130,7 @@ export function prepareChainRigConstants(
       swingTwistRange.fromAxes(bone, axes);
     return frame === undefined
       ? undefined
-      : swingTwistRange.prepare(frame, constraint);
+      : swingTwistRange.prepare(bone, frame, constraint);
   };
   const prepareJoint = (bone: AutoMovieHumanoidBone): IJoint => {
     const record: IAutoMovieBone | undefined = recordOf(bone);

@@ -1,4 +1,4 @@
-import type {
+﻿import type {
   IAutoMovieMotionHumanAuditContact,
   IAutoMovieMotionHumanBody,
   IAutoMovieVector3,
@@ -42,6 +42,7 @@ const SLIDE: number = 0.2;
  * the body's displayed foot bones.
  */
 export async function test_unit_motions_audit_auto_movie_motion_human_audit_contact_measure(): Promise<void> {
+  // Reads the body's foot sole geometry (`HumanFoot.sockets`); the parameter is the whole body record, which has no stored or partial typed form without a cast.
   const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");
   const slide = (t: number): IAutoMovieVector3 => ({
     x: SLIDE * t,

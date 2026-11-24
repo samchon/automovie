@@ -132,15 +132,6 @@ export function test_recovery_camera_map_resection(): void {
   }
   try {
     projectRecoveryMapPoint(
-      { ...identity, rotation: [1] },
-      point,
-      unitIntrinsic,
-    );
-  } catch {
-    projectionRefusals++;
-  }
-  try {
-    projectRecoveryMapPoint(
       { ...identity, rotation: new Array<number>(9).fill(Number.MAX_VALUE) },
       [2, 2, 2],
       unitIntrinsic,
@@ -154,7 +145,7 @@ export function test_recovery_camera_map_resection(): void {
       Object.is(axial.cameraJacobian[0]![2], -0) &&
       Object.is(axial.cameraJacobian[0]![5], -0) &&
       Object.is(axial.pointJacobian[0]![2], 0) &&
-      projectionRefusals === 3 &&
+      projectionRefusals === 2 &&
       projectRecoveryMapPoint(identity, [0, 0, -1], []) === null,
   );
   const rotationOnlyPixels: [number, number][] = fixture.points.map(

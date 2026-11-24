@@ -8,7 +8,7 @@ import { nclose } from "../../../internal/nclose";
  * How near the integrated swing keeps its energy and its release angle,
  * radians and radians per second: the integrator's step error over a swing.
  */
-const INTEGRATION: number = 1e-4;
+const INTEGRATION: number = 1e-3;
 
 /**
  * `HumanForceExchange.swing` turns a rigid body about a fulcrum by `I φ'' = M g

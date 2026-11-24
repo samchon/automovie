@@ -1,4 +1,4 @@
-import { Quaternion } from "@automovie/engine";
+﻿import { Quaternion } from "@automovie/engine";
 import type { IAutoMovieMotionHumanBody } from "@automovie/interface";
 import { HumanSignature } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
@@ -18,13 +18,14 @@ const ROUNDING: number = 1e-9;
  * Scenarios:
  *
  * 1. A head turned 20 degrees about +X, which lowers +Z, pitches 20.
- * 2. One turned -15 degrees pitches -15; one turned 90 degrees about the
- *    vertical pitches 0.
+ * 2. One turned -15 degrees pitches -15; one turned 90 degrees about the vertical
+ *    pitches 0.
  * 3. A motion without a head is refused.
  *
  * The body is built whole (`humanFixtureBody`) only for the reader's record.
  */
 export async function test_unit_motions_audit_human_signature_head(): Promise<void> {
+  // The parameter is the whole body record (closures and maps, no stored or partial typed form without a cast); this reading reads no field of it.
   const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");
   const pitch = (axis: "x" | "y", degrees: number): number =>
     HumanSignature.head(

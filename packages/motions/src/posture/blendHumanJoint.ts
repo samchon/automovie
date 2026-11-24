@@ -87,10 +87,13 @@ function frameOf(
     joint:
       axes === undefined
         ? undefined
-        : swingTwistRange.prepare(
-            swingTwistRange.fromAxes(bone, axes)!,
-            constraint ?? undefined,
-          ),
+        : constraint === null
+          ? swingTwistRange.fromAxes(bone, axes)
+          : swingTwistRange.prepare(
+              bone,
+              swingTwistRange.fromAxes(bone, axes)!,
+              constraint,
+            ),
   };
 }
 

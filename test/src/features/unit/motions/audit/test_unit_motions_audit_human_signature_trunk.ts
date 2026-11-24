@@ -1,4 +1,4 @@
-import type {
+﻿import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanSignature,
 } from "@automovie/interface";
@@ -28,6 +28,7 @@ const ROUNDING: number = 1e-9;
  * The body is built whole (`humanFixtureBody`) only for the reader's record.
  */
 export async function test_unit_motions_audit_human_signature_trunk(): Promise<void> {
+  // The parameter is the whole body record (closures and maps, no stored or partial typed form without a cast); this reading reads no field of it.
   const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");
   const reader = (
     ahead: number,

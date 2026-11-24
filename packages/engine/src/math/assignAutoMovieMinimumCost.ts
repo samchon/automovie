@@ -1,3 +1,5 @@
+import { overflowsBinary64 } from "./overflowsBinary64";
+
 /**
  * The assignment of rows to distinct columns of least total cost: the Hungarian
  * method (Kuhn 1955) in its shortest-augmenting-path form, for a rectangular
@@ -68,6 +70,10 @@ export function assignAutoMovieMinimumCost(
       // always exists, and finite reduced costs give it a finite delta. A
       // delta that is not finite means the potentials overflowed binary64;
       // its column 0 would be re-entered forever, so the table is refused.
+      if (overflowsBinary64(delta))
+        throw new Error(
+          "assignAutoMovieMinimumCost: the reduced costs overflow binary64",
+        );
       for (let j: number = 0; j <= m; ++j)
         if (used[j]) {
           u[owner[j]!] = u[owner[j]!]! + delta;

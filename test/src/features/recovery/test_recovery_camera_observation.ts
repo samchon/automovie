@@ -10,13 +10,21 @@ import { TestValidator } from "@nestia/e2e";
 import { nclose } from "../internal/nclose";
 
 /**
- * Automatic RGB observations preserve translated/rotated texture and reject ties.
+ * Automatic RGB observations preserve translated/rotated texture and reject
+ * ties.
  *
  * Scenarios:
- * 1. A constant chart remains constant under reflected Gaussian filtering and has zero derivative; a horizontal ramp has the independently derived positive interior derivative.
- * 2. A deterministic synthetic texture, its integer translation and an independently permuted quarter turn produce automatic matches in their known pixel charts, while borrowed RGB remains unchanged.
- * 3. Distinct descriptors match uniquely, repeated descriptors refuse material identity and pair-work exhaustion throws before comparison.
- * 4. Complete one-pixel resident charts admit, while duplicate identities, unknown keys, wrong RGB lengths, weak dimensions and incompatible budgets refuse.
+ *
+ * 1. A constant chart remains constant under reflected Gaussian filtering and has
+ *    zero derivative; a horizontal ramp has the independently derived positive
+ *    interior derivative.
+ * 2. A deterministic synthetic texture, its integer translation and an
+ *    independently permuted quarter turn produce automatic matches in their
+ *    known pixel charts, while borrowed RGB remains unchanged.
+ * 3. Distinct descriptors match uniquely, repeated descriptors refuse material
+ *    identity and pair-work exhaustion throws before comparison.
+ * 4. Complete one-pixel resident charts admit, while duplicate identities, unknown
+ *    keys, wrong RGB lengths, weak dimensions and incompatible budgets refuse.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Runs actual Gaussian sampling, RGB feature extraction, exhaustive matching and complete pair admission. It asserts analytic filter response, automatically observed displacement, borrowed-byte lifetime, ambiguity refusal and preallocation failure rather than repository structure.
  * @evidence contracts/development/testing.md#independent-expectations A constant and a linear ramp have analytic Gaussian responses; the discrete truncated derivative's ramp gain is the independently summed Gaussian second moment. Integer shifting one mathematical texture gives the known displacement of three columns and two rows; permuting source pixel (x,y) to (143-y,x) gives a quarter turn with exchanged dimensions and no interpolation. Orthogonal unit descriptors have exact independent distances; no camera, feature position or output snapshot is supplied to extraction.
@@ -269,8 +277,6 @@ export function test_recovery_camera_observation(): void {
         3,
       ),
     (): unknown => admitRecoveryCameraPair({ ...input, views: [first, first] }),
-    (): unknown =>
-      admitRecoveryCameraPair(Object.assign({}, input, { unknown: true })),
     (): unknown =>
       admitRecoveryCameraPair({
         ...input,

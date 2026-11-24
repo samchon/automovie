@@ -93,6 +93,7 @@ export namespace clampJointToSkeleton {
           bones.get(name)?.constraint ?? null,
         );
         found = prepareConstraintPair(
+          name,
           constraint,
           (): IAutoMovieJointRotationFrame | undefined => {
             if (
@@ -172,6 +173,7 @@ export namespace clampJointToSkeleton {
       found?.constraint ?? null,
     );
     return prepareConstraintClamp(
+      bone,
       constraint,
       (): IAutoMovieJointRotationFrame | undefined =>
         constraint === null ||
@@ -222,7 +224,7 @@ export namespace clampJointToSkeleton {
       bone,
       found?.constraint ?? null,
     );
-    return prepareConstraintClamp(constraint, readRig);
+    return prepareConstraintClamp(bone, constraint, readRig);
   }
 
   /**
@@ -274,10 +276,14 @@ export namespace clampJointToSkeleton {
  * box/cone frames.
  */
 function prepareConstraintClamp(
+  bone: AutoMovieHumanoidBone,
   constraint: IAutoMovieJointConstraint | null,
   readRig: () => IAutoMovieJointRotationFrame | undefined,
 ): (joint: IAutoMovieJointPose) => IAutoMovieJointPose {
-  return ownClamp(prepareConstraintPair(constraint, readRig).joint, constraint);
+  return ownClamp(
+    prepareConstraintPair(bone, constraint, readRig).joint,
+    constraint,
+  );
 }
 
 /**
@@ -285,6 +291,7 @@ function prepareConstraintClamp(
  * one prepared frame read once.
  */
 function prepareConstraintPair(
+  bone: AutoMovieHumanoidBone,
   constraint: IAutoMovieJointConstraint | null,
   readRig: () => IAutoMovieJointRotationFrame | undefined,
 ): IPair {
@@ -299,12 +306,12 @@ function prepareConstraintPair(
       ): IAutoMovieJointPose => ({ bone, flexion, abduction, twist }),
     };
   const source: IAutoMovieJointRotationFrame | undefined = readRig();
-  const rig: IAutoMovieJointRotationFrame | undefined =
+  const rig: swingTwistRange.IPrepared | undefined =
     source === undefined ||
     constraint.swingTwist === undefined ||
     constraint.swingTwist === null
-      ? source
-      : swingTwistRange.prepare(source, constraint);
+      ? undefined
+      : swingTwistRange.prepare(bone, source, constraint);
   return {
     joint: (joint: IAutoMovieJointPose): IAutoMovieJointPose =>
       clampJointRom(joint, constraint, rig),

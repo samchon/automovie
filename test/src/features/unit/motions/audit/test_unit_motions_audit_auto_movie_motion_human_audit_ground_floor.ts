@@ -1,4 +1,4 @@
-import type {
+﻿import type {
   IAutoMovieMotionHumanAuditMeasure,
   IAutoMovieMotionHumanBody,
 } from "@automovie/interface";
@@ -31,6 +31,7 @@ const ROUNDING: number = 1e-9;
  * colliders on its displayed bones.
  */
 export async function test_unit_motions_audit_auto_movie_motion_human_audit_ground_floor(): Promise<void> {
+  // Reads every collider of the body (`HumanColliders.placed`), a whole-body read.
   const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");
   const read = (
     y: number,

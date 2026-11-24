@@ -6,7 +6,6 @@ import type {
 } from "@automovie/interface";
 
 import { HumanRefusal } from "../law/HumanRefusal";
-import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 
 /** The plan a playback is bound to. */
 type Plan = IAutoMovieMotionHumanActionPlan;

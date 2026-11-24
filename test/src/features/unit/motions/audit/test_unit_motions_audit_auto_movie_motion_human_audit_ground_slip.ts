@@ -1,4 +1,4 @@
-import { Quaternion } from "@automovie/engine";
+﻿import { Quaternion } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanAuditMeasure,
   IAutoMovieMotionHumanBody,
@@ -34,6 +34,7 @@ const SLIDE: number = 0.2;
  * lowest sole socket on the displayed bones.
  */
 export async function test_unit_motions_audit_auto_movie_motion_human_audit_ground_slip(): Promise<void> {
+  // Reads the body's foot sole geometry (`HumanFoot.sockets`); the parameter is the whole body record, which has no stored or partial typed form without a cast.
   const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");
   const along = (t: number): IAutoMovieVector3 => ({
     x: SLIDE * t,

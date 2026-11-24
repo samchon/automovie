@@ -5,6 +5,7 @@ import type {
   IAutoMovieQuaternion,
   IAutoMovieRestFrame,
   IAutoMovieSwingTwistBasis,
+  IAutoMovieSwingTwistRegion,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -30,27 +31,6 @@ import { swingTwistReachBound } from "./swingTwistReachBound";
  * back into it.
  */
 export namespace swingTwistRegion {
-  /** A constraint's region on a joint's frame, built once. */
-  export interface IRegion {
-    /** The constraint this region was built for. */
-    readonly constraint: IAutoMovieJointConstraint;
-
-    /** The radius on each of `swingTwistBasis.RAYS` great circles, degrees. */
-    readonly table: Float64Array;
-
-    /**
-     * The farthest the limb may point from rest on any great circle, the bound
-     * every great circle's radius is at most, degrees.
-     */
-    readonly greatest: number;
-  }
-
-  /** A joint frame that carries the region prepared for its constraint. */
-  export interface IRegional {
-    /** Set by `swingTwistRange.prepare`; absent on an unprepared frame. */
-    readonly region?: IRegion;
-  }
-
   /**
    * Build the region of a constraint on a joint's frame.
    *
@@ -61,26 +41,10 @@ export namespace swingTwistRegion {
   export function prepare(
     constraint: IAutoMovieJointConstraint,
     joint: IAutoMovieJointRotationFrame,
-  ): IRegion {
+  ): IAutoMovieSwingTwistRegion {
     const table: Float64Array = build(constraint, joint);
     return { constraint, table, greatest: Math.max(...table) };
-  }
-
-  /**
-   * The region a prepared frame carries, or one built here for a frame that
-   * carries none.
-   *
-   * @param constraint The constraint.
-   * @param joint The joint's axes and rest frame.
-   * @returns The region.
-   */
-  export function of(
-    constraint: IAutoMovieJointConstraint,
-    joint: IAutoMovieJointRotationFrame & IRegional,
-  ): IRegion {
-    return joint.region ?? prepare(constraint, joint);
-  }
-}
+  }}
 
 /**
  * The fastest the region's radius may change with the azimuth, degrees per

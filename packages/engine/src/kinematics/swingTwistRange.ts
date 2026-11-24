@@ -3,13 +3,14 @@ import type {
   IAutoMovieAngleRange,
   IAutoMovieJointAxes,
   IAutoMovieJointConstraint,
-  IAutoMovieJointRotationFrame as IAutoMoviePlainJointRotationFrame,
+  IAutoMovieJointRotationFrame,
   IAutoMovieQuaternion,
   IAutoMovieRestFrame,
   IAutoMovieSkeleton,
   IAutoMovieSwingTwistBasis,
   IAutoMovieSwingTwistChartPosition,
   IAutoMovieSwingTwistRange,
+  IAutoMovieSwingTwistRegion,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -32,13 +33,6 @@ import { swingTwistRegion } from "./swingTwistRegion";
 
 const DEG: number = swingTwistBasis.DEG;
 
-/**
- * A joint's axes and rest frame, optionally carrying the swing region prepared
- * for its constraint (`swingTwistRange.prepare`).
- */
-type IAutoMovieJointRotationFrame = IAutoMoviePlainJointRotationFrame &
-  swingTwistRegion.IRegional;
-
 /** The twist `swingTwist` gives where the projection vanishes: the identity. */
 const IDENTITY_TWIST: IAutoMovieQuaternion = Quaternion.identity();
 
@@ -49,31 +43,35 @@ type IChart = ReturnType<typeof swingTwistRange.chart>;
  * The humanoid tables' own frame of every bone whose default constraint gates
  * it by swing and twist, prepared once with its region.
  */
-const HUMANOID_RANGES: readonly IAutoMovieJointRotationFrame[] = Object.entries(
-  DEFAULT_HUMANOID_ROM,
-).flatMap(
-  ([bone, constraint]: [
-    string,
-    IAutoMovieJointConstraint | undefined,
-  ]): IAutoMovieJointRotationFrame[] => {
-    const axes: IAutoMovieJointAxes | undefined = new Map(
-      Object.entries(HUMANOID_JOINT_AXES),
-    ).get(bone);
-    const frame: IAutoMovieRestFrame | undefined = new Map(
-      Object.entries(HUMANOID_REST_FRAME),
-    ).get(bone);
-    if (
-      axes === undefined ||
-      constraint === undefined ||
-      constraint.swingTwist === undefined ||
-      constraint.swingTwist === null
-    )
-      return [];
-    const joint: IAutoMoviePlainJointRotationFrame = { axes, frame };
-    return [{ ...joint, region: swingTwistRegion.prepare(constraint, joint) }];
-  },
+const HUMANOID_RANGES: ReadonlyMap<string, swingTwistRange.IPrepared> = new Map(
+  Object.entries(DEFAULT_HUMANOID_ROM).flatMap(
+    ([bone, constraint]: [string, IAutoMovieJointConstraint | undefined]): [
+      string,
+      swingTwistRange.IPrepared,
+    ][] => {
+      const axes: IAutoMovieJointAxes | undefined = new Map(
+        Object.entries(HUMANOID_JOINT_AXES),
+      ).get(bone);
+      const frame: IAutoMovieRestFrame | undefined = new Map(
+        Object.entries(HUMANOID_REST_FRAME),
+      ).get(bone);
+      if (
+        axes === undefined ||
+        constraint === undefined ||
+        constraint.swingTwist === undefined ||
+        constraint.swingTwist === null
+      )
+        return [];
+      const joint: IAutoMovieJointRotationFrame = { axes, frame };
+      return [
+        [
+          bone,
+          { ...joint, region: swingTwistRegion.prepare(constraint, joint) },
+        ],
+      ];
+    },
+  ),
 );
-
 /**
  * The range of a ball joint read by swing and twist: where the limb's long axis
  * may point, and how far the limb may turn about it.
@@ -153,20 +151,45 @@ export namespace swingTwistRange {
    * @returns The frame, carrying its region when a constraint is given.
    */
   export function prepare(
+    bone: AutoMovieHumanoidBone,
     joint: IAutoMovieJointRotationFrame,
-    constraint?: IAutoMovieJointConstraint,
-  ): IAutoMovieJointRotationFrame {
-    if (constraint === undefined) return joint;
-    // The humanoid table's own prepared frame serves its default constraint;
-    // any other constraint gets its region built here, once.
-    return (
-      HUMANOID_RANGES.find(
-        (shared: IAutoMovieJointRotationFrame): boolean =>
-          shared.axes === joint.axes &&
-          shared.frame === joint.frame &&
-          shared.region?.constraint === constraint,
-      ) ?? { ...joint, region: swingTwistRegion.prepare(constraint, joint) }
-    );
+    constraint: IAutoMovieJointConstraint,
+  ): IPrepared {
+    // The humanoid table's own prepared frame serves its default axes and
+    // constraint; any other gets its region built here, once.
+    const shared: IPrepared | undefined = HUMANOID_RANGES.get(bone);
+    return shared !== undefined &&
+      shared.axes === joint.axes &&
+      shared.frame === joint.frame &&
+      shared.region.constraint === constraint
+      ? shared
+      : { ...joint, region: swingTwistRegion.prepare(constraint, joint) };
+  }
+
+  /** A joint frame that carries the swing region of its constraint. */
+  export type IPrepared = IAutoMovieJointRotationFrame & {
+    /** The region prepared for the constraint the frame is read under. */
+    readonly region: IAutoMovieSwingTwistRegion;
+  };
+
+  /**
+   * The humanoid tables' frame of a bone, prepared for a constraint: the
+   * table's own where the constraint is the bone's default, else built once.
+   * For an entry that has no prepared frame of its own.
+   *
+   * @param bone The bone.
+   * @param constraint The constraint it is read under.
+   * @returns The prepared frame; none for a bone that has no axes.
+   */
+  export function humanoid(
+    bone: AutoMovieHumanoidBone,
+    constraint: IAutoMovieJointConstraint,
+  ): IPrepared | undefined {
+    const shared: IPrepared | undefined = HUMANOID_RANGES.get(bone);
+    if (shared !== undefined && shared.region.constraint === constraint)
+      return shared;
+    const frame: IAutoMovieJointRotationFrame | undefined = of(bone);
+    return frame === undefined ? undefined : prepare(bone, frame, constraint);
   }
 
   /**
@@ -224,7 +247,7 @@ export namespace swingTwistRange {
   export function overshoot(
     q: IAutoMovieQuaternion,
     constraint: IAutoMovieJointConstraint,
-    joint: IAutoMovieJointRotationFrame,
+    joint: IPrepared,
   ): number {
     const reading: IAutoMovieSwingTwistRange.IReading = read(q, joint);
     const twist: IAutoMovieAngleRange = constraint.swingTwist!.twist;
@@ -249,7 +272,7 @@ export namespace swingTwistRange {
   export function project(
     q: IAutoMovieQuaternion,
     constraint: IAutoMovieJointConstraint,
-    joint: IAutoMovieJointRotationFrame,
+    joint: IPrepared,
   ): IAutoMovieQuaternion {
     const basis: IAutoMovieSwingTwistBasis.IBasis = swingTwistBasis.of(
       joint.axes,
@@ -298,7 +321,7 @@ export namespace swingTwistRange {
   export function chart(
     q: IAutoMovieQuaternion,
     constraint: IAutoMovieJointConstraint,
-    joint: IAutoMovieJointRotationFrame,
+    joint: IPrepared,
   ): IAutoMovieSwingTwistChartPosition {
     const reading: IAutoMovieSwingTwistRange.IReading = read(q, joint);
     const k: number =
@@ -322,7 +345,7 @@ export namespace swingTwistRange {
   export function placed(
     place: IAutoMovieSwingTwistChartPosition,
     constraint: IAutoMovieJointConstraint,
-    joint: IAutoMovieJointRotationFrame,
+    joint: IPrepared,
   ): IAutoMovieQuaternion {
     return placeSwingTwistChart(place, constraint, joint, radius);
   }
@@ -353,7 +376,7 @@ export namespace swingTwistRange {
     b: IAutoMovieQuaternion,
     share: number,
     constraint: IAutoMovieJointConstraint,
-    joint: IAutoMovieJointRotationFrame,
+    joint: IPrepared,
   ): IAutoMovieQuaternion {
     const from: { x: number; y: number; twist: number } = chart(
       a,
@@ -377,7 +400,7 @@ export namespace swingTwistRange {
     a: IAutoMovieQuaternion,
     b: IAutoMovieQuaternion,
     constraint: IAutoMovieJointConstraint,
-    joint: IAutoMovieJointRotationFrame,
+    joint: IPrepared,
   ): (share: number) => IAutoMovieQuaternion {
     const from: IChart = chart(a, constraint, joint);
     const to: IChart = chart(b, constraint, joint);
@@ -396,7 +419,7 @@ export namespace swingTwistRange {
     to: IChart,
     share: number,
     constraint: IAutoMovieJointConstraint,
-    joint: IAutoMovieJointRotationFrame,
+    joint: IPrepared,
     read?: (coordinate: IChart) => IAutoMovieQuaternion,
   ): IAutoMovieQuaternion {
     const coordinate: IChart = {
@@ -420,10 +443,10 @@ export namespace swingTwistRange {
    */
   export function radius(
     constraint: IAutoMovieJointConstraint,
-    joint: IAutoMovieJointRotationFrame,
+    joint: IPrepared,
     azimuth: number,
   ): number {
-    const table: Float64Array = swingTwistRegion.of(constraint, joint).table;
+    const table: Float64Array = joint.region.table;
     const rays: number = swingTwistBasis.RAYS;
     const at: number = positiveModulo(azimuth, 360) / (360 / rays);
     const before: number = Math.floor(at) % rays;

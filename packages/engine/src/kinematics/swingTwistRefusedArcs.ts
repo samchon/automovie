@@ -100,7 +100,9 @@ export function swingTwistRefusedArcs(
     return "all";
 
   // The swing past the region's greatest radius.
-  const greatest: number = swingTwistRegion.of(constraint, joint).greatest;
+  const greatest: number = (
+    joint.region ?? swingTwistRegion.prepare(constraint, joint)
+  ).greatest;
   if (
     greatest < 180 &&
     refuse(

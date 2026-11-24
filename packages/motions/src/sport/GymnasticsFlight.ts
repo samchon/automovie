@@ -65,7 +65,7 @@ export namespace GymnasticsFlight {
    *   created.
    */
   export function model(
-    body: IAutoMovieMotionHumanBody,
+    body: Pick<IAutoMovieMotionHumanBody, "massModel">,
   ): IAutoMovieResolveCenterOfMass.IModel {
     return body.massModel;
   }

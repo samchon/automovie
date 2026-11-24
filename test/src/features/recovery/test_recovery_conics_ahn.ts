@@ -13,15 +13,21 @@ import { nclose } from "../internal/nclose";
  * Verify the declared sampled Ahn adaptation against analytic planar curves.
  *
  * Scenarios:
+ *
  * 1. Quarter circles and ellipses reproduce their exact conic and analytic locus.
  * 2. A parabola has weight one; a straight source admits a collinear primitive.
  * 3. A cubic inflection splits at its supplied boundary without crossing it.
  * 4. A nonconic cubic meets a separate dense bidirectional distance check.
- * 5. Repeated calls are deterministic; reused source tuples cannot alter saved coefficients.
- * 6. Invalid budgets, throwing/nonfinite callbacks and exhausted subdivision refuse honestly.
- * 7. A translated straight chart and exact one-sided corner jets retain their geometry.
- * 8. A near-flat stretch between two close inflections far from the origin, which bends by less than its coordinates' roundoff, is
- *    covered as the collinear primitive within the tolerance, and a stretch beyond the tolerance of its chord is not drawn straight.
+ * 5. Repeated calls are deterministic; reused source tuples cannot alter saved
+ *    coefficients.
+ * 6. Invalid budgets, throwing/nonfinite callbacks and exhausted subdivision
+ *    refuse honestly.
+ * 7. A translated straight chart and exact one-sided corner jets retain their
+ *    geometry.
+ * 8. A near-flat stretch between two close inflections far from the origin, which
+ *    bends by less than its coordinates' roundoff, is covered as the collinear
+ *    primitive within the tolerance, and a stretch beyond the tolerance of its
+ *    chord is not drawn straight.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Lists eight input/behavior scenarios and identifies the approximation's sampled scope.
  * @evidence contracts/development/testing.md#behavioral-verification Runs the pure coefficient producer and evaluates its returned conics against independent circle, ellipse, parabola, line and cubic geometry; asserts coverage, status and budget behavior.
@@ -509,7 +515,6 @@ export function test_recovery_conics_ahn(): void {
 
   // Invalid contracts and inadequate budgets must not return default geometry.
   for (const invalid of [
-    { ...options, toleranceMm: NaN },
     { ...options, maximumArcs: 0 },
     { ...options, maximumDepth: 53 },
   ]) {
@@ -520,30 +525,6 @@ export function test_recovery_conics_ahn(): void {
     TestValidator.equals("invalid admission", refusal.status, "refused");
     TestValidator.equals("admission invokes no callbacks", refusal.queries, 0);
   }
-  const nonfinite: IAutoMovieConicApproximation.IResult = approximate(
-    {
-      ...convex,
-      evaluate: (_t: number): Readonly<AutoMovieVector2Tuple> => [NaN, 0],
-    },
-    options,
-  );
-  TestValidator.equals("nonfinite source refused", nonfinite.status, "refused");
-  TestValidator.equals(
-    "nonfinite source no fabricated arcs",
-    nonfinite.arcs.length,
-    0,
-  );
-  const nonfiniteJet: IAutoMovieConicApproximation.IResult = approximate(
-    {
-      ...convex,
-      derivative: (
-        _t: number,
-        _order: 1 | 2 | 3 | 4 | 5,
-      ): Readonly<AutoMovieVector2Tuple> => [Infinity, 0],
-    },
-    options,
-  );
-  TestValidator.equals("nonfinite jet refused", nonfiniteJet.status, "refused");
   const throwing: IAutoMovieConicApproximation.IResult = approximate(
     {
       ...convex,

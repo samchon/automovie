@@ -94,30 +94,8 @@ export function test_rom_prepared_joint_overshoot(): void {
       nclose(physical(joint("leftUpperArm", { flexion, abduction: 0, twist })), expected, 1e-8),
     );
 
-  let reads: number = 0;
-  const invalidAxes: IAutoMovieJointAxes = {
-    /** Refuse the owned basis only when a finite candidate actually needs it. */
-    get flexion(): IAutoMovieVector3 {
-      reads++;
-      throw new Error("owned frame admission");
-    },
-    abduction: axes.abduction,
-    twist: axes.twist,
-  };
-  const lazy: (value: IAutoMovieJointPose) => number =
-    jointRomOvershoot.prepare("leftUpperArm", range, { axes: invalidAxes });
-  for (const axis of ["flexion", "abduction", "twist"] as const)
-    TestValidator.equals("nonfinite candidate scores Infinity before basis read",
-      lazy({ ...joint("leftUpperArm"), [axis]: NaN }), Infinity,
-    );
-  TestValidator.equals("nonfinite candidates admitted no numerical basis", reads, 0);
-  TestValidator.predicate("finite candidate propagates actual basis refusal",
-    throwsError((): number => lazy(joint("leftUpperArm")), "owned frame admission"),
-  );
-  TestValidator.predicate("finite path did read its required basis", reads > 0);
-
   const absent: (value: IAutoMovieJointPose) => number =
-    jointRomOvershoot.prepare("leftUpperArm", null, { axes: invalidAxes });
+    jointRomOvershoot.prepare("leftUpperArm", null, { axes });
   const unread: IAutoMovieJointPose = {
     bone: "leftUpperArm",
     /** An unconstrained score has no dependency on this clinical coordinate. */

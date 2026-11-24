@@ -51,6 +51,23 @@ const PLATE: number = 1.17;
  */
 export namespace HumanWater {
   /**
+   * What the water reads of a body: its segments' colliders and its mass, the
+   * bone and point of each segment's centre of mass, and its stature.
+   */
+  export interface IBody {
+    /** The segments, each with its colliders, and the body's mass, kg. */
+    profile: Pick<IAutoMovieMotionHumanBody["profile"], "segments" | "mass">;
+    /** Each segment's centre of mass on its bone. */
+    massModel: {
+      segments: readonly Pick<
+        IAutoMovieResolveCenterOfMass.ISegment,
+        "bone" | "point"
+      >[];
+    };
+    /** The stature, metres. */
+    measure: Pick<IAutoMovieMotionHumanBody["measure"], "stature">;
+  }
+  /**
    * The water's forces on a posed body moving at one velocity.
    *
    * @param body The body.
@@ -60,7 +77,7 @@ export namespace HumanWater {
    * @returns The summed forces.
    */
   export function sum(
-    body: IAutoMovieMotionHumanBody,
+    body: IBody,
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
     velocity: IAutoMovieVector3,
     water: IAutoMovieMotionHumanWater,
@@ -69,12 +86,12 @@ export namespace HumanWater {
     let drag: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
     let submerged: number = 0;
     let volume: number = 0;
-    const model: IAutoMovieResolveCenterOfMass.IModel = body.massModel;
+    const model: IBody["massModel"] = body.massModel;
     body.profile.segments.forEach(
       (segment: IAutoMoviePhysicalSegment, i: number): void => {
         const v: number = resolveHydrodynamicForce.volume(segment);
         if (!(v > 0)) return;
-        const s: IAutoMovieResolveCenterOfMass.ISegment = model.segments[i]!;
+        const s: IBody["massModel"]["segments"][number] = model.segments[i]!;
         const bone: IAutoMovieResolvedBone = bones.get(s.bone)!;
         const force: IAutoMovieResolveHydrodynamicForce.IForce =
           resolveHydrodynamicForce({
@@ -131,7 +148,7 @@ export namespace HumanWater {
    * @returns Metres to add to the root's height, or null for a body that sinks.
    */
   export function float(
-    body: IAutoMovieMotionHumanBody,
+    body: IBody,
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
     water: IAutoMovieMotionHumanWater,
   ): number | null {
@@ -177,7 +194,7 @@ export namespace HumanWater {
    * @returns The speed's trajectory, its state `[speed, distance]`.
    */
   export function glide(
-    body: IAutoMovieMotionHumanBody,
+    body: IBody,
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
     direction: IAutoMovieVector3,
     v0: number,
@@ -224,7 +241,7 @@ export namespace HumanWater {
    * @returns Longitudinal trajectory with state [distance, phase velocity].
    */
   export function stroke(
-    body: IAutoMovieMotionHumanBody,
+    body: IBody,
     bonesAt: (
       phase: number,
     ) => ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
@@ -235,15 +252,14 @@ export namespace HumanWater {
     const volumes: readonly number[] = body.profile.segments.map(
       resolveHydrodynamicForce.volume,
     );
-    const segments: readonly IAutoMovieResolveCenterOfMass.ISegment[] =
-      body.massModel.segments;
+    const segments: IBody["massModel"]["segments"] = body.massModel.segments;
     const centres: (readonly IAutoMovieVector3[])[] = [];
     const coefficients: (readonly number[])[] = [];
     for (let index: number = 0; index <= intervals; ++index) {
       const bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
         bonesAt(index / intervals);
       const positions: readonly IAutoMovieVector3[] = segments.map(
-        (segment: IAutoMovieResolveCenterOfMass.ISegment): IAutoMovieVector3 =>
+        (segment: IBody["massModel"]["segments"][number]): IAutoMovieVector3 =>
           centre(bones.get(segment.bone)!, segment.point),
       );
       centres.push(positions);

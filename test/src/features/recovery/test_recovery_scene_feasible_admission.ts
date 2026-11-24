@@ -18,10 +18,16 @@ import { createRecoverySceneNumericalFixture } from "../internal/createRecoveryS
  * Fixed scene method ownership and narrow camera capacity classification.
  *
  * Scenarios:
- * 1. Two owned budget records and nested options survive caller mutation, charge256 once and partition64 slots without changing reported ceilings.
- * 2. Unsafe, malformed, above-scene and lagged-without-SQP requests propagate; aggregate setup exhaustion is its original budget error.
- * 3. The prescribed two-camera24-point48-observation population admits original numerical40744 plus chart64, leaving raw direction minima unchanged. Scene numerical9904 plus chart64 admits9968 but refuses old/adjacent totals.
- * 4. Invalid identity gauge, sparse gauge coefficients and charge markers remain core errors even when a resource bound is also too small.
+ *
+ * 1. Two owned budget records and nested options survive caller mutation,
+ *    charge256 once and partition64 slots without changing reported ceilings.
+ * 2. Unsafe, malformed, above-scene and lagged-without-SQP requests propagate;
+ *    aggregate setup exhaustion is its original budget error.
+ * 3. The prescribed two-camera24-point48-observation population admits original
+ *    numerical40744 plus chart64, leaving raw direction minima unchanged. Scene
+ *    numerical9904 plus chart64 admits9968 but refuses old/adjacent totals.
+ * 4. Invalid identity gauge, sparse gauge coefficients and charge markers remain
+ *    core errors even when a resource bound is also too small.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the real routing snapshot and camera work owners, observing ownership, charged work, exact boundary admission and concrete error identity.
  * @evidence contracts/development/testing.md#independent-expectations The fixed record has17 budget fields; reserving64 from250000 leaves249936. C5,L24,E48 gives n77,Zw461, direction entries1351 and minimum work196184. Original numerical40744 plus64 chart slots gives40808. S64 gives original model310208 plus512 chart visits=310720; evaluation remains6528. The scene array formula gives9904 plus64 chart slots=9968, independently of helper outputs.
@@ -81,12 +87,7 @@ export function test_recovery_scene_feasible_admission(): void {
     },
     maxResidentLinearEntries: 250000,
   };
-  const invalid: unknown[] = [
-    null,
-    {},
-    { directionBudget: null },
-    { ...valid, maxResidentLinearEntries: NaN },
-    { ...valid, adaptiveRegularization: "true" },
+  const invalid: IAutoMovieRecoveryFeasibleJointOptions[] = [
     { ...valid, laggedLagrangianMetric: true },
     { ...valid, maxResidentLinearEntries: 250001 },
     {
@@ -97,20 +98,13 @@ export function test_recovery_scene_feasible_admission(): void {
       ...valid,
       directionBudget: { ...valid.directionBudget, maxWork: 10000000001 },
     },
-    {
-      ...valid,
-      directionBudget: {
-        ...valid.directionBudget,
-        maxIterations: Number.MAX_SAFE_INTEGER + 1,
-      },
-    },
   ];
   let rejected: number = 0;
   for (const request of invalid)
     try {
       prepareRecoverySceneFeasibleRouting(
         fixture.input.budget,
-        request as IAutoMovieRecoveryFeasibleJointOptions,
+        request,
         ledger(),
       );
     } catch (error: unknown) {

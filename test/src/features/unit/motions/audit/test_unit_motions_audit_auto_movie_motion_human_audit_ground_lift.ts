@@ -1,4 +1,4 @@
-import type { IAutoMovieMotionHumanBody } from "@automovie/interface";
+﻿import type { IAutoMovieMotionHumanBody } from "@automovie/interface";
 import { AutoMovieMotionHumanAuditGround } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
@@ -26,6 +26,7 @@ const ROUNDING: number = 1e-9;
  * lowest sole socket on the displayed bones.
  */
 export async function test_unit_motions_audit_auto_movie_motion_human_audit_ground_lift(): Promise<void> {
+  // Reads the body's foot sole geometry (`HumanFoot.sockets`); the parameter is the whole body record, which has no stored or partial typed form without a cast.
   const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");
   const lift = (
     y: number,

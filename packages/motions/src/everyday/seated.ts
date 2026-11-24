@@ -22,6 +22,9 @@ import { seatedHands } from "./seatedHands";
 /** The alternatives of `RootHeading`'s site. */
 type RootHeading = "yaw" | "pitch" | "roll";
 
+/** What the seat socket's place reads of a body: its rest and its surfaces. */
+type IRest = Pick<IAutoMovieMotionHumanBody, "rest" | "surfaces">;
+
 /**
  * The geometry every seat law shares: where on a seat the body's seat socket
  * rests, the root that puts it there under a trunk pitch, whether a seat suits
@@ -227,7 +230,12 @@ export namespace seated {
    * @returns The socket's seated point.
    */
   export function point(
-    body: IAutoMovieMotionHumanBody,
+    body: IRest & {
+      measure: Pick<
+        IAutoMovieMotionHumanBody["measure"],
+        "thigh" | "thighRadius"
+      >;
+    },
     seat: IAutoMovieMotionHumanSeated.ISeat,
   ): IAutoMovieVector3 {
     const socket: IAutoMovieVector3 = offset(body);
@@ -264,7 +272,7 @@ export namespace seated {
    * @param body The body.
    * @returns The offset.
    */
-  export function offset(body: IAutoMovieMotionHumanBody): IAutoMovieVector3 {
+  export function offset(body: IRest): IAutoMovieVector3 {
     return Vector3.add(
       body.rest.get("hips")!,
       body.surfaces.sockets.seat.point,
@@ -280,7 +288,7 @@ export namespace seated {
    * @returns The root.
    */
   export function root(
-    body: IAutoMovieMotionHumanBody,
+    body: IRest,
     at: IAutoMovieVector3,
     heading: Pick<IAutoMovieMotionHumanPosture, RootHeading>,
   ): IAutoMovieVector3 {
@@ -298,7 +306,7 @@ export namespace seated {
    * @returns World metres.
    */
   export function socket(
-    body: IAutoMovieMotionHumanBody,
+    body: IRest,
     posture: IAutoMovieMotionHumanPosture,
   ): IAutoMovieVector3 {
     return Vector3.add(

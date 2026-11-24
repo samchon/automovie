@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+﻿import { Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanAuditMeasure,
@@ -24,15 +24,16 @@ const LEAN: number = 0.5;
  *
  * 1. Judged and still, the centre stays over the feet: nothing is read.
  * 2. Judged, with every bone but the feet and toes carried 0.5 m forward, the
- *    centre lies ahead of the toes: more than nothing outside the hull, and less
- *    than the 0.5 m it was carried, from which the heel-to-ankle half of the
- *    hull's length at least is taken back.
+ *    centre lies ahead of the toes: more than nothing outside the hull, and
+ *    less than the 0.5 m it was carried, from which the heel-to-ankle half of
+ *    the hull's length at least is taken back.
  * 3. The same pose in an action whose balance is not judged is not read.
  *
  * The body is built whole (`humanFixtureBody`): the reading places the body's
  * mass model and its soles on the displayed bones.
  */
 export async function test_unit_motions_audit_auto_movie_motion_human_audit_balance_measure(): Promise<void> {
+  // Reads the whole-body centre of mass (`body.massModel`, every segment's mass) and the soles.
   const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");
   const leaned = (
     still: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,

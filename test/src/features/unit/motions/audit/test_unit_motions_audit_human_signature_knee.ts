@@ -1,4 +1,4 @@
-import type { IAutoMovieMotionHumanBody } from "@automovie/interface";
+﻿import type { IAutoMovieMotionHumanBody } from "@automovie/interface";
 import { HumanSignature } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -10,8 +10,8 @@ import { resolvedBones } from "../../../internal/resolvedBones";
 const ROUNDING: number = 1e-9;
 
 /**
- * `HumanSignature.knee` reads a knee's flexion: the shank's turn from the
- * thigh at the knee, hip to knee to ankle joint centres, 0 straight.
+ * `HumanSignature.knee` reads a knee's flexion: the shank's turn from the thigh
+ * at the knee, hip to knee to ankle joint centres, 0 straight.
  *
  * Scenario: the left thigh hangs from (0.1, 1, 0) to (0.1, 0.5, 0), the shank
  * runs back to (0.1, 0, -0.5): 45 degrees; the right leg hangs straight: 0.
@@ -19,6 +19,7 @@ const ROUNDING: number = 1e-9;
  * The body is built whole (`humanFixtureBody`) only for the reader's record.
  */
 export async function test_unit_motions_audit_human_signature_knee(): Promise<void> {
+  // The parameter is the whole body record (closures and maps, no stored or partial typed form without a cast); this reading reads no field of it.
   const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");
   const reader = HumanSignature(
     {

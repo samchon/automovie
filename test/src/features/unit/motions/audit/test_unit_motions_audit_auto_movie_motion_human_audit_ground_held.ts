@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+﻿import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBody,
@@ -23,14 +23,14 @@ const ROUNDING: number = 1e-12;
 
 /**
  * `AutoMovieMotionHumanAuditGround.held` names a planted foot's contact: a
- * declared rest-frame point placed by the displayed foot bone
- * (`position + rotation * point`, keyed `contact`), a declared sole socket, or
- * else the lowest sole socket, the heel winning a tie within a micrometre.
+ * declared rest-frame point placed by the displayed foot bone (`position +
+ * rotation * point`, keyed `contact`), a declared sole socket, or else the
+ * lowest sole socket, the heel winning a tie within a micrometre.
  *
  * Scenarios, the average man's quiet stance:
  *
- * 1. A declared point 0.1 m ahead of and 0.05 m below the left ankle is placed
- *    by the left foot's displayed frame.
+ * 1. A declared point 0.1 m ahead of and 0.05 m below the left ankle is placed by
+ *    the left foot's displayed frame.
  * 2. A declared ball is the ball socket.
  * 3. Undeclared, the contact is a sole socket no higher than any other within a
  *    micrometre.
@@ -39,6 +39,7 @@ const ROUNDING: number = 1e-12;
  * the body's displayed foot bones.
  */
 export async function test_unit_motions_audit_auto_movie_motion_human_audit_ground_held(): Promise<void> {
+  // Reads the body's foot sole geometry (`HumanFoot.sockets`); the parameter is the whole body record, which has no stored or partial typed form without a cast.
   const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");
   const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
     body,
@@ -84,7 +85,8 @@ export async function test_unit_motions_audit_auto_movie_motion_human_audit_grou
   TestValidator.predicate(
     "the lowest socket",
     sole.some(
-      (s: IAutoMovieMotionHumanFoot.ISocket): boolean => s.socket === lowest.key,
+      (s: IAutoMovieMotionHumanFoot.ISocket): boolean =>
+        s.socket === lowest.key,
     ) &&
       sole.every(
         (s: IAutoMovieMotionHumanFoot.ISocket): boolean =>

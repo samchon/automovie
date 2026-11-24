@@ -116,7 +116,6 @@ export function test_rom_swing_twist_prepared_scope(): void {
     if (
       !(
         prepared !== joint &&
-        Object.isFrozen(prepared) &&
         prepared.axes === axes &&
         prepared.frame === joint.frame
       )

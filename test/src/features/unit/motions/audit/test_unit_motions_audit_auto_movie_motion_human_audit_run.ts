@@ -1,4 +1,4 @@
-import type {
+﻿import type {
   IAutoMovieMotionHumanAudit,
   IAutoMovieMotionHumanAuditMotion,
   IAutoMovieMotionHumanBody,
@@ -21,25 +21,27 @@ const SLIDE: number = 0.1;
  * one shared grid and reports each reading above its limit as a finding; a
  * `null` limit leaves its check unread.
  *
- * Scenarios, the average man's quiet stance for 1 s, both feet planted, read
- * at 4 Hz:
+ * Scenarios, the average man's quiet stance for 1 s, both feet planted, read at
+ * 4 Hz:
  *
  * 1. Held still, it is clean: every check read, no finding.
- * 2. Sliding 0.1 m along +X over the second, it slips 0.1 m, past the 5 mm
- *    limit: one `slip` finding with that limit, the rest clean.
+ * 2. Sliding 0.1 m along +X over the second, it slips 0.1 m, past the 5 mm limit:
+ *    one `slip` finding with that limit, the rest clean.
  * 3. With the slip's limit `null`, the slip is not read and nothing is found.
  *
  * The body is built whole (`humanFixtureBody`): the checks read its colliders,
  * soles, tangle model and mass model on the displayed bones.
  */
 export async function test_unit_motions_audit_auto_movie_motion_human_audit_run(): Promise<void> {
+  // Runs every generic check: every collider, the tangle model, the soles and the mass model, a whole-body read.
   const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");
-  const still: IAutoMovieMotionHumanAudit.IReport = AutoMovieMotionHumanAudit.run(
-    auditStanceMotion(body, { contacts: auditStanceMotion.plants() }),
-    "a",
-    body,
-    { rate: 4 },
-  );
+  const still: IAutoMovieMotionHumanAudit.IReport =
+    AutoMovieMotionHumanAudit.run(
+      auditStanceMotion(body, { contacts: auditStanceMotion.plants() }),
+      "a",
+      body,
+      { rate: 4 },
+    );
   TestValidator.predicate(
     "still",
     still.findings.length === 0 &&
@@ -52,12 +54,8 @@ export async function test_unit_motions_audit_auto_movie_motion_human_audit_run(
     contacts: auditStanceMotion.plants(),
     shift: (t: number) => ({ x: SLIDE * t, y: 0, z: 0 }),
   });
-  const slid: IAutoMovieMotionHumanAudit.IReport = AutoMovieMotionHumanAudit.run(
-    sliding,
-    "a",
-    body,
-    { rate: 4 },
-  );
+  const slid: IAutoMovieMotionHumanAudit.IReport =
+    AutoMovieMotionHumanAudit.run(sliding, "a", body, { rate: 4 });
   TestValidator.predicate(
     "sliding",
     slid.findings.length === 1 &&

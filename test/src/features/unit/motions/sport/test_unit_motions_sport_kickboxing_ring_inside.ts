@@ -1,4 +1,7 @@
-import type { IAutoMovieMotionHumanKickboxingRing } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanKickboxingRing,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { KickboxingRing } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
@@ -22,7 +25,7 @@ export function test_unit_motions_sport_kickboxing_ring_inside(): void {
     yaw: 45,
   };
   const r: number = Math.PI / 4;
-  const along = (d: number): { x: number; y: number; z: number } => ({
+  const along = (d: number): IAutoMovieVector3 => ({
     x: d * Math.cos(r),
     y: 0,
     z: -d * Math.sin(r),

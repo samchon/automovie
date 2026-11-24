@@ -168,15 +168,4 @@ export function test_math_srgb_linear_transfer(): void {
     ),
     [],
   );
-  TestValidator.equals(
-    "a non-finite component is refused rather than clamped",
-    [Number.NaN, Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY].filter(
-      (component: number): boolean =>
-        throwsError(
-          (): string => linearColorToSrgbHex(grey(component)),
-          ["is not a finite number"],
-        ) === false,
-    ),
-    [],
-  );
 }

@@ -11,9 +11,10 @@ import type {
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanPerformanceGrips } from "./HumanPerformanceGrips";
 import { HumanPerformanceObject } from "./HumanPerformanceObject";
+import { humanTetherCatenary } from "./humanTetherCatenary";
+import { humanTetherReach } from "./humanTetherReach";
 
 /** How many points a slack line is drawn with. */
-const SAMPLES: number = 16;
 
 /** A tether found by its far prop: the declaring prop and the line. */
 type IHeld = IAutoMovieMotionHumanPerformanceState.ITethered;
@@ -79,7 +80,7 @@ export namespace HumanPerformanceTether {
       to,
       length,
       taut,
-      points: taut ? [from, to] : hang(from, to, length),
+      points: taut ? [from, to] : humanTetherCatenary(from, to, length),
     };
   }
 
@@ -124,22 +125,7 @@ export namespace HumanPerformanceTether {
         placed,
       );
       if (Vector3.distance(near, far) <= length) continue;
-      const rise: number = far.y - near.y;
-      const across: IAutoMovieVector3 = {
-        x: far.x - near.x,
-        y: 0,
-        z: far.z - near.z,
-      };
-      const reach: number = Math.sqrt(
-        Math.max(0, length * length - rise * rise),
-      );
-      const flat: number = Math.hypot(across.x, across.z);
-      const scale: number = flat > 1e-9 ? reach / flat : 0;
-      const moved: IAutoMovieVector3 = {
-        x: near.x + across.x * scale,
-        y: far.y,
-        z: near.z + across.z * scale,
-      };
+      const moved: IAutoMovieVector3 = humanTetherReach(near, far, length);
       placed = {
         ...placed,
         position: Vector3.add(placed.position, Vector3.subtract(moved, far)),
@@ -294,55 +280,6 @@ function prop(
   return found;
 }
 
-/**
- * The catenary of a length between two points, sampled from the first to the
- * second.
- */
-function hang(
-  from: IAutoMovieVector3,
-  to: IAutoMovieVector3,
-  length: number,
-): IAutoMovieVector3[] {
-  const across: IAutoMovieVector3 = {
-    x: to.x - from.x,
-    y: 0,
-    z: to.z - from.z,
-  };
-  const h: number = Math.hypot(across.x, across.z);
-  const v: number = to.y - from.y;
-  // Hanging straight down from the higher end when the ends share a vertical.
-  if (h < 1e-6) {
-    const low: number = Math.min(from.y, to.y) - (length - Math.abs(v)) / 2;
-    return [from, { x: from.x, y: low, z: from.z }, to];
-  }
-  // Solve 2a sinh(h / 2a) = sqrt(L² - v²) for a by Newton's method on b = h / 2a.
-  const target: number = Math.sqrt(length * length - v * v) / h;
-  let b: number = Math.sqrt(6 * (target - 1));
-  for (let i: number = 0; i < 30; ++i) {
-    const f: number = Math.sinh(b) / b - target;
-    const df: number = (Math.cosh(b) * b - Math.sinh(b)) / (b * b);
-    const next: number = b - f / df;
-    if (Math.abs(next - b) < 1e-12) break;
-    b = next > 0 ? next : b / 2;
-  }
-  const a: number = h / (2 * b);
-  const x0: number = h / 2 - a * Math.atanh(v / length);
-  const y: (x: number) => number = (x: number): number =>
-    a * (Math.cosh((x - x0) / a) - Math.cosh(-x0 / a));
-  const unit: IAutoMovieVector3 = { x: across.x / h, y: 0, z: across.z / h };
-  return Array.from(
-    { length: SAMPLES + 1 },
-    (_v: unknown, k: number): IAutoMovieVector3 => {
-      const x: number = (h * k) / SAMPLES;
-      return {
-        x: from.x + unit.x * x,
-        y: from.y + y(x),
-        z: from.z + unit.z * x,
-      };
-    },
-  );
-}
-/** The alternatives of `RefuseValue`'s site. */
 type RefuseValue = string | number;
 
 /** A tether refusal. */

@@ -9,7 +9,6 @@ import type {
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArmCourse } from "../compose/AutoMovieMotionHumanArmCourse";
 import { HumanPreparedPlayback } from "../perform/HumanPreparedPlayback";
-import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { stretchHoldInputs } from "./stretchHoldInputs";
 
 /**

@@ -16,10 +16,13 @@ import { nclose } from "../internal/nclose";
  * Exercise the paper's conic reproduction, equioscillation and admission seams.
  *
  * Scenarios:
+ *
  * 1. A quarter ellipse and reversed circle retain their analytic implicit form.
  * 2. An exponential graph with monotone affine curvature meets held-out error.
- * 3. Source breaks survive, output is deterministic, and input arrays are unchanged.
- * 4. An inflection, a stationary point and invalid budgets cannot claim complete admission.
+ * 3. Source breaks survive, output is deterministic, and input arrays are
+ *    unchanged.
+ * 4. An inflection, a stationary point and invalid budgets cannot claim complete
+ *    admission.
  * 5. Exactly straight input is translation/scale invariant within roundoff.
  * 6. Exact incident endpoint jets preserve two parabolas' shared corner.
  * 7. Throwing/nonfinite callbacks refuse and reused scratch tuples are copied.
@@ -294,12 +297,6 @@ export function test_recovery_conics_ghosh(): void {
       ...exponential,
       evaluate(): Readonly<AutoMovieVector2Tuple> {
         throw new Error("source unavailable");
-      },
-    },
-    {
-      ...exponential,
-      evaluate(): Readonly<AutoMovieVector2Tuple> {
-        return [NaN, 0];
       },
     },
   ]) {

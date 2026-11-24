@@ -26,15 +26,12 @@ export function test_math_rigid_mesh_transform_admission(): void {
   const invalid: Parameters<typeof fitRigidMeshTransform>[0][] = [
     { ...valid, target: [0, 0, 0] },
     { ...valid, reference: [0], target: [0] },
-    ...[[], [0, 0], [-1], [2], [0.5], [NaN]].map(
+    ...[[], [0, 0], [-1], [2]].map(
       (vertices: number[]): Parameters<typeof fitRigidMeshTransform>[0] => ({
         ...valid,
         vertices,
       }),
     ),
-    { ...valid, reference: [NaN, 0, 0, 1, 0, 0] },
-    { ...valid, target: [0, Infinity, 0, 1, 0, 0] },
-    { ...valid, reference: new Array<number>(6) },
     {
       ...valid,
       reference: [

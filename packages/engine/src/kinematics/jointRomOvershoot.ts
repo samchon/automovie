@@ -2,7 +2,6 @@ import type {
   AutoMovieHumanoidBone,
   IAutoMovieJointConstraint,
   IAutoMovieJointPose,
-  IAutoMovieJointRotationFrame,
   IAutoMovieQuaternion,
 } from "@automovie/interface";
 
@@ -28,7 +27,7 @@ import { scanJointRom } from "../rom/scanJointRom";
 export function jointRomOvershoot(
   joint: IAutoMovieJointPose,
   constraint: IAutoMovieJointConstraint | null,
-  rig?: IAutoMovieJointRotationFrame,
+  rig?: swingTwistRange.IPrepared,
 ): number {
   return constraint === null
     ? 0
@@ -59,7 +58,7 @@ export namespace jointRomOvershoot {
   export function prepare(
     bone: AutoMovieHumanoidBone,
     constraint: IAutoMovieJointConstraint | null,
-    rig?: IAutoMovieJointRotationFrame,
+    rig?: swingTwistRange.IPrepared,
   ): (joint: IAutoMovieJointPose, rotation?: IAutoMovieQuaternion) => number {
     return constraint === null
       ? (

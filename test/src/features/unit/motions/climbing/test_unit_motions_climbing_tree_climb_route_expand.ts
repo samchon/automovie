@@ -54,6 +54,7 @@ export function test_unit_motions_climbing_tree_climb_route_expand(): void {
         length: 2,
         radius: 0.1,
         load,
+        seat: { x: 0.5, y: 2.1, z: 0 },
       },
     ],
   });

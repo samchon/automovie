@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+﻿import { Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBody,
@@ -35,6 +35,7 @@ const FOREARM: RegExp = /^left(LowerArm|Hand|Thumb|Index|Middle|Ring|Little)/;
  * tangle model and colliders on the posed bones.
  */
 export async function test_unit_motions_audit_auto_movie_motion_human_audit_tangle_arm(): Promise<void> {
+  // Reads every segment's colliders and tangle probes (`body.tangle`), a whole-body read.
   const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");
   const still: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
     body,

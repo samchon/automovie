@@ -17,7 +17,6 @@ import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanIn
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanPreparedPlayback } from "../perform/HumanPreparedPlayback";
 import { HumanFrame } from "../posture/HumanFrame";
-import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { prepareSeatedPalms } from "./prepareSeatedPalms";
 import { seated } from "./seated";
 import { seatedHands } from "./seatedHands";

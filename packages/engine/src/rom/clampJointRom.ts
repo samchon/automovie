@@ -1,9 +1,9 @@
 import type {
   IAutoMovieJointConstraint,
   IAutoMovieJointPose,
-  IAutoMovieJointRotationFrame,
 } from "@automovie/interface";
 
+import type { swingTwistRange } from "../kinematics/swingTwistRange";
 import { clampJointRomValues } from "./clampJointRomValues";
 
 /**
@@ -30,11 +30,11 @@ import { clampJointRomValues } from "./clampJointRomValues";
 export const clampJointRom: (
   joint: IAutoMovieJointPose,
   constraint: IAutoMovieJointConstraint,
-  rig?: IAutoMovieJointRotationFrame,
+  rig?: swingTwistRange.IPrepared,
 ) => IAutoMovieJointPose = (
   joint: IAutoMovieJointPose,
   constraint: IAutoMovieJointConstraint,
-  rig?: IAutoMovieJointRotationFrame,
+  rig?: swingTwistRange.IPrepared,
 ): IAutoMovieJointPose =>
   clampJointRomValues.into(
     joint.bone,

@@ -1,4 +1,4 @@
-import type {
+﻿import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanSignature,
 } from "@automovie/interface";
@@ -19,6 +19,7 @@ import { throwsError } from "../../../internal/throwsError";
  * The body is built whole (`humanFixtureBody`) only for the reader's record.
  */
 export async function test_unit_motions_audit_human_signature_joint(): Promise<void> {
+  // The parameter is the whole body record (closures and maps, no stored or partial typed form without a cast); this reading reads no field of it.
   const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");
   const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature(
     {
@@ -30,13 +31,16 @@ export async function test_unit_motions_audit_human_signature_joint(): Promise<v
     body,
     0,
   );
-  TestValidator.equals(
-    "the head",
-    HumanSignature.joint(reader, 0.5, "head"),
-    { x: 0, y: 1.55, z: 0 },
-  );
+  TestValidator.equals("the head", HumanSignature.joint(reader, 0.5, "head"), {
+    x: 0,
+    y: 1.55,
+    z: 0,
+  });
   TestValidator.predicate(
     "a missing hand",
-    throwsError(() => HumanSignature.joint(reader, 0.5, "leftHand"), "leftHand"),
+    throwsError(
+      () => HumanSignature.joint(reader, 0.5, "leftHand"),
+      "leftHand",
+    ),
   );
 }

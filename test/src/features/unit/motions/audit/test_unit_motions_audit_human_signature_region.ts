@@ -1,4 +1,4 @@
-import type {
+﻿import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBody,
   IAutoMovieResolvedBone,
@@ -27,6 +27,7 @@ import { vclose } from "../../../internal/vclose";
  * surface frames.
  */
 export async function test_unit_motions_audit_human_signature_region(): Promise<void> {
+  // Reads the body's surface frames (`body.surfaces`); the parameter is the whole body record, which has no stored or partial typed form without a cast.
   const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");
   const at = (x: number): IAutoMovieVector3 =>
     HumanSignature.region(
@@ -60,7 +61,8 @@ export async function test_unit_motions_audit_human_signature_region(): Promise<
         HumanSignature(
           {
             duration: 1,
-            bones: () => new Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>(),
+            bones: () =>
+              new Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>(),
           },
           "a",
           body,

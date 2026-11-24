@@ -75,6 +75,9 @@ export const evaluateAutoMovieViewerCameraDepthPrecision: (props: {
     props.source.near <= 0 ||
     props.source.far <= props.source.near ||
     props.source.depthPrecision.minimumDepthBits <= 0 ||
+    // The quantized depth levels, 2^bits - 1, must stay an exact integer count.
+    2 ** props.source.depthPrecision.minimumDepthBits - 1 >
+      Number.MAX_SAFE_INTEGER ||
     props.source.depthPrecision.maximumStepMeters <= 0
   )
     return { ...base, status: "invalid-source", passed: false };

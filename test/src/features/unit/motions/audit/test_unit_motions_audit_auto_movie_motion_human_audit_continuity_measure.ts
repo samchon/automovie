@@ -24,10 +24,19 @@ const STEP: number = 0.1;
 const SPIKE: number = 0.05;
 
 /**
- * The bound on what a step's last interval adds to it, metres: the steady
- * speed over the finest interval, `1 / (24 * 4^5)` s, rounded up.
+ * The bound on what a step's last interval adds to it, metres: the steady speed
+ * over the finest interval, `1 / (24 * 4^5)` s, rounded up.
  */
 const FINEST: number = 1e-4;
+
+/** The step riding on the fast turn, metres. */
+const CIRCLED: number = 0.02;
+
+/**
+ * What the fast turn adds over the finest interval, metres: 4 pi m/s over `1 /
+ * (24 * 4^5)` s, rounded up.
+ */
+const CIRCLING: number = 1e-3;
 
 /**
  * `AutoMovieMotionHumanAuditContinuity.measure` reads a joint centre's path:
@@ -45,9 +54,12 @@ const FINEST: number = 1e-4;
  *    interval of a tenth of a millimetre, in the grid interval from 1 s.
  * 3. A hand that spikes 0.05 m at exactly 1 s goes out by `0.05 + d` and back by
  *    `0.05 - d`, `d = 0.5 / 24` the steady frame's travel: a reversal of `0.05
- *    - d` at 1 s, read on the grid's own frames since it is as fine as a
- *    reversal's.
- * 4. A hand swaying 0.3 m at 1 Hz departs from the quadratic predictor by its
+ *
+ *    - D` at 1 s, read on the grid's own frames since it is as fine as a reversal's.
+ * 4. A hand circling 1 m out at two turns a second (12.6 m/s) displaced 20 mm for
+ *    one frame from 1.01 s jumps 20 mm, within what the turn adds over the last
+ *    interval; the fast turn alone is not chased and jumps nothing.
+ * 5. A hand swaying 0.3 m at 1 Hz departs from the quadratic predictor by its
  *    fourth derivative, `0.3 (2 pi)^4 / 24^4`, under the 5 mm limit: no jump.
  */
 export function test_unit_motions_audit_auto_movie_motion_human_audit_continuity_measure(): void {
@@ -127,6 +139,31 @@ export function test_unit_motions_audit_auto_movie_motion_human_audit_continuity
     nclose(spiked.reversal.value, SPIKE - SPEED / 24, ROUNDING) &&
       nclose(spiked.reversal.seconds, 1, ROUNDING) &&
       spiked.reversal.where === "leftHand",
+  );
+  const circling = (step: number): IAutoMovieMotionHumanAuditMotion => ({
+    duration: 2,
+    segments: () => [],
+    bones: (_subject: string, t: number) => {
+      const angle: number = 2 * 2 * Math.PI * t;
+      const off: number = t >= 1.01 && t < 1.01 + 1 / 24 ? step : 0;
+      return new Map([
+        place("hips", { x: 0, y: 1, z: 0 }),
+        place("leftHand", {
+          x: Math.cos(angle) + off,
+          y: 1,
+          z: Math.sin(angle),
+        }),
+      ]);
+    },
+  });
+  const turning: IAutoMovieMotionHumanAuditContinuity.IResult =
+    AutoMovieMotionHumanAuditContinuity.measure(circling(CIRCLED), "a");
+  TestValidator.predicate(
+    "a step on a fast turn",
+    turning.jump.value >= CIRCLED &&
+      turning.jump.value <= CIRCLED + CIRCLING &&
+      AutoMovieMotionHumanAuditContinuity.measure(circling(0), "a").jump
+        .value === 0,
   );
   TestValidator.equals(
     "a smooth sway",

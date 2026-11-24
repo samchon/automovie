@@ -293,6 +293,14 @@ export function createRecoveryFeasibleSqpArc(
         coefficient: number = row.values[entry]!;
       value += coefficient * physical[axis]!;
       stationarity[axis]! += multiplier * coefficient;
+      // An overflowing dot would turn to NaN on its next opposite term.
+      if (
+        value === Infinity ||
+        value === -Infinity ||
+        stationarity[axis] === Infinity ||
+        stationarity[axis] === -Infinity
+      )
+        return fail("full-affine-qp-unqualified");
       if (at === 0) scale = Math.max(scale, Math.abs(coefficient));
     }
     if (at > 0) {

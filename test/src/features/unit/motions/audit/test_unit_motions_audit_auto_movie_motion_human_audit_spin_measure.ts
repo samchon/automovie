@@ -38,7 +38,9 @@ const FINEST: number = 0.005;
  * 2. A 20 degree snap at 1.01 s turns 20 degrees, plus at most the steady turn
  *    over the last interval, from within the grid interval that holds it; its
  *    spin is that interval's turn over its length, `90 + 20 * 24`.
- * 3. A spin that speeds up smoothly, `30 t^2` degrees, leaves no turn.
+ * 3. The steady turn with its quaternion negated from 1 s, the same rotation (the
+ *    double cover), still spins at 90 deg/s and leaves no turn.
+ * 4. A spin that speeds up smoothly, `30 t^2` degrees, leaves no turn.
  */
 export function test_unit_motions_audit_auto_movie_motion_human_audit_spin_measure(): void {
   const motion = (
@@ -85,6 +87,33 @@ export function test_unit_motions_audit_auto_movie_motion_human_audit_spin_measu
       snapped.turn.seconds >= 1 &&
       snapped.turn.seconds <= 1.01 &&
       nclose(snapped.spin.value, RATE + SNAP * 24, ROUNDING),
+  );
+  const antipodal: IAutoMovieMotionHumanAuditSpin.IResult =
+    AutoMovieMotionHumanAuditSpin.measure(
+      {
+        duration: 2,
+        segments: () => [],
+        bones: (subject: string, t: number) => {
+          const bones = motion((s: number): number => RATE * s).bones(
+            subject,
+            t,
+          );
+          const head: IAutoMovieResolvedBone = bones.get("head")!;
+          const q = head.worldRotation;
+          const flipped = t >= 1 ? { x: -q.x, y: -q.y, z: -q.z, w: -q.w } : q;
+          return new Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>([
+            [
+              "head",
+              { ...head, localRotation: flipped, worldRotation: flipped },
+            ],
+          ]);
+        },
+      },
+      "a",
+    );
+  TestValidator.predicate(
+    "an antipodal representation",
+    nclose(antipodal.spin.value, RATE, ROUNDING) && antipodal.turn.value === 0,
   );
   TestValidator.equals(
     "a smooth speed-up",

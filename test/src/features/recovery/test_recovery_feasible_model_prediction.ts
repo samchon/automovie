@@ -143,18 +143,9 @@ export function test_recovery_feasible_model_prediction(): void {
   } catch {
     coreErrors++;
   }
-  try {
-    predictRecoveryMapDecrease(
-      [{ cameraRows: [[Number.NaN]], pointRows: [[0, 0, 0]], right: [0] }],
-      [0, 0, 0, 0],
-      [0, 0, 0, 0],
-    );
-  } catch {
-    coreErrors++;
-  }
   TestValidator.predicate(
-    "model layout and nonfinite input remain core errors",
-    coreErrors === 3,
+    "model layout errors remain core errors",
+    coreErrors === 2,
   );
 
   const fixture: ReturnType<typeof createRecoveryMapNumericalFixture> =

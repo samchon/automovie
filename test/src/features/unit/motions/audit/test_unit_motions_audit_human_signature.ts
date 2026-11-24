@@ -1,4 +1,4 @@
-import type {
+﻿import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanSignature,
 } from "@automovie/interface";
@@ -20,13 +20,12 @@ import { resolvedBones } from "../../../internal/resolvedBones";
  * record its body readings use.
  */
 export async function test_unit_motions_audit_human_signature(): Promise<void> {
+  // The parameter is the whole body record (closures and maps, no stored or partial typed form without a cast); this reading reads no field of it.
   const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");
   const motion: IAutoMovieMotionHumanSignature.IMotion = {
     duration: 1,
     bones: (subject: string) =>
-      resolvedBones([
-        ["hips", { x: subject === "b" ? 1 : 0, y: 1, z: 0 }],
-      ]),
+      resolvedBones([["hips", { x: subject === "b" ? 1 : 0, y: 1, z: 0 }]]),
   };
   const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature(
     motion,

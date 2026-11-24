@@ -1,4 +1,4 @@
-import type {
+﻿import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -25,6 +25,7 @@ import { humanFixtureBody } from "../../../internal/fixtures/humanFixtureBody";
  * sockets on the displayed foot bones.
  */
 export async function test_unit_motions_audit_human_signature_bears(): Promise<void> {
+  // Reads the body's foot sole geometry (`HumanFoot.sockets`); the parameter is the whole body record, which has no stored or partial typed form without a cast.
   const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");
   const reads = (
     shift: (t: number) => IAutoMovieVector3,

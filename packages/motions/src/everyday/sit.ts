@@ -28,7 +28,6 @@ import { HumanBound } from "../law/HumanBound";
 import { HumanPhysics } from "../law/HumanPhysics";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanMountOn } from "../lexicon/HumanMountOn";
-import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { prepareSitBalance } from "./prepareSitBalance";
 import { prepareSitLowering } from "./prepareSitLowering";
 import { prepareSitWorkingFeet } from "./prepareSitWorkingFeet";

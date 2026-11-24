@@ -103,6 +103,7 @@ export function test_kinematics_swing_twist_range(): void {
 
   for (const [bone, constraint] of joints) {
     const joint: IAutoMovieJointRotationFrame = swingTwistRange.prepare(
+      bone,
       {
         axes: HUMANOID_JOINT_AXES[bone]!,
         frame: HUMANOID_REST_FRAME[bone],

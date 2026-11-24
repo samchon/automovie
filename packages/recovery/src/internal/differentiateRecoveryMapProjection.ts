@@ -40,7 +40,15 @@ export function differentiateRecoveryMapProjection(
   const q: number[] = rotated.map(
     (value: number, axis: number): number => value + pose.translation[axis]!,
   );
-  if (!(q[2]! > 0) || q.some(overflowed)) return null;
+  // The curvature terms divide by the depth twice; a depth whose inverse square
+  // overflows has no representable second derivative.
+  const inverseDepth: number = 1 / q[2]!;
+  if (
+    !(q[2]! > 0) ||
+    q.some(overflowed) ||
+    inverseDepth * inverseDepth === Infinity
+  )
+    return null;
   const x: number = q[0]! / q[2]!,
     y: number = q[1]! / q[2]!;
   const pixel: [number, number] = [

@@ -16,7 +16,7 @@ export function test_unit_motions_grappling_force_exchange_pull(): void {
     "an equal share per grip",
     HumanForceExchange.pull({
       subject: "uke",
-      sites: ["chest", { bone: "leftLowerArm", point: { x: 0, y: 0, z: 0 } }],
+      sites: ["sternum", { bone: "leftLowerArm", point: { x: 0, y: 0, z: 0 } }],
       direction: { x: 1, y: 0, z: 0 },
       force: 100,
       from: 1,
@@ -26,7 +26,7 @@ export function test_unit_motions_grappling_force_exchange_pull(): void {
       {
         kind: "sustained",
         subject: "uke",
-        at: "chest",
+        at: "sternum",
         from: 1,
         to: 2,
         force: { x: 50, y: 0, z: 0 },

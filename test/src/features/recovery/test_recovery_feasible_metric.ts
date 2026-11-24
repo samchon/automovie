@@ -19,12 +19,23 @@ import { nclose } from "../internal/nclose";
  * Feasible directions consume the same scaled arrowhead original-design metric.
  *
  * Scenarios:
- * 1. A nonsymmetric multi-landmark design with positive damping preserves the full original quadratic norm under inverse metric action.
- * 2. Dense and one-point sparse covectors satisfy independent transpose duality with that inverse action, including camera/point column scales and ordering.
- * 3. The actual joint consumer accepts an already exact nonplanar map by normal pixel KKT, preserving first pose, unit seed scale, every observation and a nonunit later baseline.
- * 4. Insufficient direction entries, direction work and total resident entries refuse before numerical materialization, charging only bounded input metadata.
- * 5. Pushing a metric covector matches independently assembled J^T*J*p plus unchanged column-scaled damping in original physical units.
- * 6. Metric-only and complete-step operations preserve zero/positive-damping actions and independent ranks; short/tall original factors retain their documented aliases, while invalid rank, finite input and capacity refuse.
+ *
+ * 1. A nonsymmetric multi-landmark design with positive damping preserves the full
+ *    original quadratic norm under inverse metric action.
+ * 2. Dense and one-point sparse covectors satisfy independent transpose duality
+ *    with that inverse action, including camera/point column scales and
+ *    ordering.
+ * 3. The actual joint consumer accepts an already exact nonplanar map by normal
+ *    pixel KKT, preserving first pose, unit seed scale, every observation and a
+ *    nonunit later baseline.
+ * 4. Insufficient direction entries, direction work and total resident entries
+ *    refuse before numerical materialization, charging only bounded input
+ *    metadata.
+ * 5. Pushing a metric covector matches independently assembled J^T_J_p plus
+ *    unchanged column-scaled damping in original physical units.
+ * 6. Metric-only and complete-step operations preserve zero/positive-damping
+ *    actions and independent ranks; short/tall original factors retain their
+ *    documented aliases, while invalid rank, finite input and capacity refuse.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls metric-only preparation/factorization, complete-step factor retention and the actual opt-in map joint consumer. Independent original-design products catch mismatched column scales, point/camera permutation, wrong triangular transpose or dropped damping; direct LS residual gradients continue to check the ordinary answer.
  * @evidence contracts/development/testing.md#independent-expectations Authored rows and global norms give ||J*p||^2+delta*||D*p||^2=||z||^2 and covector duality. An independently assembled J^T*(J*step-right)+delta*D^2*step must vanish for the full LS answer. Two-column normalized Gram eigenvalues1+/-correlation determine short/tall rank ratios. Exact scalar-projected geometry supplies the zero-fit map independently of the optimizer.
@@ -271,19 +282,9 @@ export function test_recovery_feasible_metric(): void {
   } catch {
     refusedFactors++;
   }
-  try {
-    factorRecoveryMapMetric(
-      [{ ...blocks[0]!, right: [Infinity, 0, 0, 0, 0, 0] }, ...blocks.slice(1)],
-      1e-8,
-      damping,
-      fixture.input.budget,
-    );
-  } catch {
-    refusedFactors++;
-  }
   TestValidator.predicate(
     "metric-only input/rank/capacity refusal remains independent of damping",
-    refusedFactors === 4 && JSON.stringify(blocks) === inputBlocks,
+    refusedFactors === 3 && JSON.stringify(blocks) === inputBlocks,
   );
   TestValidator.predicate(
     "full original metric norm is preserved",

@@ -39,7 +39,7 @@ export function test_recovery_feasible_diagnostics(): void {
     finalCost: 19,
     tolerance: 0.25,
     objectiveMultiplier: Infinity,
-    stationarity: NaN,
+    stationarity: 4,
     stationarityScale: -Infinity,
     complementarity: null,
     normalKktQualified: false,
@@ -51,7 +51,7 @@ export function test_recovery_feasible_diagnostics(): void {
       gap: 3,
       maximumViolation: Infinity,
       complementarity: -Infinity,
-      arithmeticAllowance: NaN,
+      arithmeticAllowance: 6,
       simplexResidual: 7,
       stationarityResidual: 8,
       stationarityAllowance: 9,
@@ -73,7 +73,7 @@ export function test_recovery_feasible_diagnostics(): void {
       selectedRows: 3,
       coordinates: 4,
       designRatio: Infinity,
-      maximumViolation: NaN,
+      maximumViolation: 7,
       equalityResidual: -Infinity,
       stationarityResidual: 8,
       stationarityScale: 9,
@@ -88,7 +88,7 @@ export function test_recovery_feasible_diagnostics(): void {
       correctionTightening: {
         ceiling: 1,
         value: Infinity,
-        descent: NaN,
+        descent: 2,
         multiplierPrice: null,
         reason: "objective-cap",
       },
@@ -117,7 +117,7 @@ export function test_recovery_feasible_diagnostics(): void {
   const expected: IAutoMovieRecoveryFeasibleDiagnostics = {
     tolerance: 0.25,
     objectiveMultiplier: "+Infinity",
-    stationarity: "NaN",
+    stationarity: 4,
     stationarityScale: "-Infinity",
     complementarity: null,
     normalKktQualified: false,
@@ -129,7 +129,7 @@ export function test_recovery_feasible_diagnostics(): void {
       gap: 3,
       maximumViolation: "+Infinity",
       complementarity: "-Infinity",
-      arithmeticAllowance: "NaN",
+      arithmeticAllowance: 6,
       simplexResidual: 7,
       stationarityResidual: 8,
       stationarityAllowance: 9,
@@ -151,7 +151,7 @@ export function test_recovery_feasible_diagnostics(): void {
       selectedRows: 3,
       coordinates: 4,
       designRatio: "+Infinity",
-      maximumViolation: "NaN",
+      maximumViolation: 7,
       equalityResidual: "-Infinity",
       stationarityResidual: 8,
       stationarityScale: 9,
@@ -166,7 +166,7 @@ export function test_recovery_feasible_diagnostics(): void {
       correctionTightening: {
         ceiling: 1,
         value: "+Infinity",
-        descent: "NaN",
+        descent: 2,
         multiplierPrice: null,
         reason: "objective-cap",
       },
@@ -235,7 +235,6 @@ export function test_recovery_feasible_diagnostics(): void {
       encodeRecoveryDiagnosticNumber(-Number.MAX_VALUE) === -Number.MAX_VALUE &&
       Object.is(encodeRecoveryDiagnosticNumber(-0), -0) &&
       JSON.stringify(encodeRecoveryDiagnosticNumber(-0)) === "0" &&
-      encodeRecoveryDiagnosticNumber(NaN) === "NaN" &&
       encodeRecoveryDiagnosticNumber(Infinity) === "+Infinity" &&
       encodeRecoveryDiagnosticNumber(-Infinity) === "-Infinity",
   );

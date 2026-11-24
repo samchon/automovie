@@ -18,8 +18,8 @@ import { humanFixtureBody } from "../../../internal/fixtures/humanFixtureBody";
  *
  * 1. Each foot bearing half the weight: the centre lies over the region between
  *    the feet, so nothing is read.
- * 2. The left foot declared to bear it all: the region is the left sole alone,
- *    and the centre, near the midline, lies outside it by more than nothing and
+ * 2. The left foot declared to bear it all: the region is the left sole alone, and
+ *    the centre, near the midline, lies outside it by more than nothing and
  *    less than the hips' half width, the most a foot under the hip joint lies
  *    from the midline, on both windows.
  * 3. A window without a declared load is not read.
@@ -28,6 +28,7 @@ import { humanFixtureBody } from "../../../internal/fixtures/humanFixtureBody";
  * mass model and its soles on the displayed bones.
  */
 export async function test_unit_motions_audit_auto_movie_motion_human_audit_statics_measure(): Promise<void> {
+  // Reads the whole-body centre of mass (`body.massModel`, every segment's mass) and the soles.
   const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");
   const read = (
     contacts: ReturnType<typeof auditStanceMotion.plants>,
@@ -52,9 +53,5 @@ export async function test_unit_motions_audit_auto_movie_motion_human_audit_stat
       one.value < body.measure.hipHalfWidth &&
       one.where === "stand leftFoot 1, stand rightFoot 0",
   );
-  TestValidator.equals(
-    "undeclared",
-    read(auditStanceMotion.plants()).value,
-    0,
-  );
+  TestValidator.equals("undeclared", read(auditStanceMotion.plants()).value, 0);
 }

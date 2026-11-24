@@ -13,6 +13,7 @@ import type {
 import { AutoMovieMotionHumanRange } from "../compose/AutoMovieMotionHumanRange";
 import { kneelKeys } from "../everyday/kneelKeys";
 import { HumanFoot } from "../posture/HumanFoot";
+import type { humanFootOffset } from "../posture/humanFootOffset";
 import { HumanFrame } from "../posture/HumanFrame";
 
 /** The record of `IPrepareRollResult2`'s site. */
@@ -69,7 +70,7 @@ export namespace crawlFeet {
    *   joint, world metres.
    */
   export function rolled(
-    body: IAutoMovieMotionHumanBody,
+    body: humanFootOffset.IBody,
     side: AutoMovieHumanSide,
     standing: IAutoMovieMotionHumanFoot.IPlacement,
     heading: number,
@@ -84,7 +85,7 @@ export namespace crawlFeet {
    * heading, toe range and standing toes' tip are invariant.
    */
   export function prepareRoll(
-    body: IAutoMovieMotionHumanBody,
+    body: humanFootOffset.IBody,
     side: AutoMovieHumanSide,
     standing: IAutoMovieMotionHumanFoot.IPlacement,
     heading: number,

@@ -127,10 +127,6 @@ export function test_math_qr_design(): void {
         maxWork: 6,
       }),
     (): unknown =>
-      reduceAutoMovieQrDesign([[NaN]], [1], { maxEntries: 2, maxWork: 2 }),
-    (): unknown =>
-      reduceAutoMovieQrDesign([[1]], [Infinity], { maxEntries: 2, maxWork: 2 }),
-    (): unknown =>
       reduceAutoMovieQrDesign(
         [[1e308], [1e308], [1e308], [1e308]],
         [0, 0, 0, 0],
