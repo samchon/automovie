@@ -52,8 +52,9 @@ const SUPERSAMPLE = 2 as const;
  *    drawn raster, the call's raster or for the `beauty` shade twice each side,
  *    and cleared to alpha 0 for a transparent picture or 1 otherwise;
  * 2. For a fitted view, places and inspects each framing second through
- *    `AutoMovieDrawPlacement` and frames the union of what the inspection
- *    leaves drawn, or its focus, measured once per view and selection;
+ *    `AutoMovieDrawPlacement`, as the shot that second's picture shows, and
+ *    frames the union of what the inspection leaves drawn, or its focus,
+ *    measured once per view and selection;
  * 3. Plans the second through `AutoMovieDrawFilm`: the shot it shows,
  *    `playbackShownLayer` of the layers `planAutoMovieDrawLayers` gives, and,
  *    for the film picture, a delivered or plain `beauty` picture or `graphics`
@@ -62,11 +63,11 @@ const SUPERSAMPLE = 2 as const;
  *    film's shutter and lens samples of the shown layer are accumulated, each
  *    on that layer's own clock;
  * 4. Places the second itself through `AutoMovieDrawPlacement.inspect`, which
- *    restores the previous inspection, samples the request's trails and seeks
- *    the call's second, or, when the shown layer is a transition's outgoing
- *    shot, places that shot by `seekShot`, trails included, so marks,
- *    diagnostics, mouths, the camera record and every structural pass follow
- *    the shot on screen. When the subject supplies diagnostics, the draw
+ *    restores the previous inspection and places the shown layer on its own
+ *    entry's clock, at each of the request's trail times and then at the call's
+ *    second, by `seekShot` when it is a transition's outgoing shot, so marks,
+ *    trails, diagnostics, mouths, the camera record and every structural pass
+ *    follow the shot on screen. When the subject supplies diagnostics, the draw
  *    observes the settled scene before the fresh inspection is applied, and no
  *    seek occurs between this application and drawing. The subject's
  *    `beforeDraw` runs right after this and every other placement, a layer's
@@ -89,9 +90,9 @@ const SUPERSAMPLE = 2 as const;
  * the renderer's own curve and exposure. The film camera's aspect is set to the
  * picture's, as the page sets it to its canvas. A picture outside every
  * transition is drawn exactly as a subject without a sequence is, except that a
- * shutter sample before the live entry's start places that entry rather than
- * the previous shot: its handle by `seekShot`, or without `seekShot` its start
- * by `seek`.
+ * shutter sample or a trail time outside the live entry's span, the film's
+ * first frame included, places that entry rather than another shot: its handle
+ * by `seekShot`, or without `seekShot` its nearest live second by `seek`.
  *
  * `speak` hands a subject with `speak` the film's dialogue mouths; each
  * result's `mouths` are what the subject read for the drawn second.
@@ -139,7 +140,7 @@ export function installAutoMovieDraw(
         name,
         scene,
         renderer,
-        placement: new AutoMovieDrawPlacement(scene, renderer),
+        placement: new AutoMovieDrawPlacement(name, scene, renderer),
         beauty: new AutoMovieDrawBeauty(renderer),
       };
     })());
@@ -299,11 +300,10 @@ async function drawCall(
         call.seconds,
         delivery ? "delivery" : "capture",
         { renderer, factor: SUPERSAMPLE },
-        picture.seekShown !== undefined,
+        picture.byShot,
       );
       scene.beforeDraw?.(renderer, call.seconds);
     },
-    picture.seekShown,
   );
 
   // 5. Draw through the resolved camera at the drawn raster. Only the beauty

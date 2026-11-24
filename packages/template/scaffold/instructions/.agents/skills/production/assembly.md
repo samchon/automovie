@@ -8,7 +8,7 @@ Build one film per screenplay folder. Check the [compositions](../contracts/deve
 
 The render, captures and the Viewer draw the transitions of the film's `playback` sequence: a `crossDissolve` mixes the two shots across its overlap, and a `fade` dips through black, the outgoing shot fading out over the first half and the incoming shot fading up over the second. The `graphics` plate is mixed the same way, so it composites over the delivered film.
 
-When the sequence has a transition, give the film a `seekShot` member. It places one shot at its own shot-local second during a film second: a transition's outgoing shot while the incoming one is live, or a shutter sample before a shot's first frame, from the shot's handle. Read only the dialogue mouths at the film second. Every other member, `optics`, `shading`, `softPropsAt`, `beforeDraw`, `marks`, `views` and the inspection sources, describes the shot last placed, at its own shot-local second, so the outgoing tail keeps its own exposure, focus and soft props. Without `seekShot`, every picture inside a transition is refused, and a shutter sample before a shot's first frame takes that frame's state, so the blur trail at a cut is shorter.
+When the sequence has a transition, give the film a `seekShot` member. It places one shot at its own shot-local second during a film second: a transition's outgoing shot while the incoming one is live, or a shutter sample or inspection trail time outside a shot's span, from the shot's handles. Read only the dialogue mouths at the film second. Every other member, `optics`, `shading`, `softPropsAt`, `beforeDraw`, `marks`, `views` and the inspection sources, describes the shot last placed, at its own shot-local second, so the outgoing tail keeps its own exposure, focus and soft props. Without `seekShot`, every picture inside a transition is refused, and a shutter sample or trail time outside a shot's span takes the shot's nearest frame, so the blur trail at a cut is shorter.
 
 ## Render
 
@@ -18,7 +18,7 @@ Before scaling a new host or a changed export path, take a shot through a join a
 
 After [segment review](../motion/segment-review.md), use the README render command for the complete motion hint or direct 3D film. For a generated film, assemble the accepted finished takes.
 
-Keep only the commissioned [sound](../audio/film-sound.md) and [caption tracks](captions.md). When the film declares a `sound` list, the scaffold's render command mixes it and encodes the soundtrack with the picture; without one it produces picture only. To add caption tracks or any other stream, use a documented assembly command that supports them or an approved production tool. [Measure](../review/delivery-review.md#measurement-and-comparison) the assembled file against the [profile](project-context.md#the-delivery-profile).
+Keep only the commissioned [sound](../audio/film-sound.md) and [caption tracks](captions.md). When the film declares a `sound` list, the scaffold's render command mixes it and encodes the soundtrack with the picture; a soundtrack supplied as `delivery.audio.path` is encoded as given; with neither it produces picture only. To add caption tracks or any other stream, use a documented assembly command that supports them or an approved production tool. [Measure](../review/delivery-review.md#measurement-and-comparison) the assembled file against the [profile](project-context.md#the-delivery-profile).
 
 ## Repair and delivery
 

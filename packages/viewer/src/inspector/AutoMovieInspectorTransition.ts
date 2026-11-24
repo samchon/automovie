@@ -24,9 +24,10 @@ import type * as THREE from "three";
  * composites, it first places, paints and holds every other layer of positive
  * weight on its own entry's clock, the outgoing shot in slot 0 and the live
  * entry in slot 1, running the subject's `beforeDraw` after each placement. A
- * layer of weight 0 is neither placed nor painted. `finish`, in the mount's
- * paint after the shown layer's records, paints the shown layer when it has
- * weight, holds it, and composites the held layers by their weights through
+ * layer of weight 0 is neither painted nor held; when it is the shown layer, it
+ * is still placed for the frame's records. `finish`, in the mount's paint after
+ * the shown layer's records, paints the shown layer when it has weight, holds
+ * it, and composites the held layers by their weights through
  * `AutoMovieTransitionDisplays`; a picture none of whose layers has weight, a
  * fade's midpoint, is the cleared canvas. The witness cubes then go to
  * `overlay` and `over` draws them over the composite at full strength. Any

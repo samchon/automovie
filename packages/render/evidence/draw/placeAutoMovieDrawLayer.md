@@ -2,11 +2,11 @@
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States which placement each case takes, which clock it reads, what a time before the in-point and before the shot's zero means, what a subject without `seekShot` gets, and the refusal of a tail without it.
+States which placement each case takes, which clock it reads, what a time outside the trimmed span and beyond the shot's own ends means, what a subject without `seekShot` gets, and the error for an entry the cut lacks.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-At a second the layer's entry is live at, the entry `playbackEntryAt` resolves, the subject's `seek` places exactly that entry; elsewhere `playbackEntryTime`'s affine entry clock gives the shot-local time, which before the in-point runs into the shot's handle as an editor's handle frames supply a cut's first exposure, and the engine's clip samplers hold their first state before the shot's zero. A subject without `seekShot` can reach the entry only through `seek`, so a sample before the in-point takes the entry's state at the in-point, the nearest state of that entry, and a cut's first frame keeps no trace of the previous shot.
+Inside the layer's live span, from its start to the next entry's, where `playbackEntryAt` resolves it, the subject's `seek` places exactly that entry; elsewhere, the film's first frame included, `playbackEntryTime`'s affine entry clock gives the shot-local time, which outside the trim runs into the shot's head or tail handle as an editor's handles supply a shot's edges, and the engine's clip samplers hold their end states beyond the shot's own ends. A subject without `seekShot` can reach the entry only through `seek`, so a second outside its live span takes the nearest second it is live at, its in-point or the last representable second before the next entry's start, the nearest state of that entry, and a cut's first frame or trail keeps no trace of another shot.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
@@ -14,7 +14,7 @@ One lookup and one of three placements.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
-Without `seekShot` a sample before the in-point is held at the in-point by `seek`, the entry's own first state, never placed on the previous shot by the film second; a tail past the entry's start that only `seekShot` can place is refused by name.
+No second is placed on another entry's shot through the film clock; an entry the cut lacks is refused by name. A transition without `seekShot` is refused earlier, by the layer plan.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 

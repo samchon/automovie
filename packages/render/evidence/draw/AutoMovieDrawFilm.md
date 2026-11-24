@@ -6,7 +6,7 @@ One draw call's picture on the drawn second: the layers a film picture composite
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
-The draw host, `installAutoMovieDraw`, reads `layers`, `seekShown` and `composites` and calls `prepare` and `draw`; the plan is `planAutoMovieDrawPicture`'s, the placement `placeAutoMovieDrawLayer`'s, the stages and held layers `AutoMovieDrawBeauty`'s.
+The draw host, `installAutoMovieDraw`, reads `layers`, `byShot` and `composites` and calls `prepare` and `draw`; the plan is `planAutoMovieDrawPicture`'s, the placement `placeAutoMovieDrawLayer`'s, the stages and held layers `AutoMovieDrawBeauty`'s.
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 
@@ -14,7 +14,7 @@ No member names a subject, a shot or a transition kind; the plate and the beauty
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-The class comment states how the shown layer is chosen and placed, what a film picture is, the order `prepare` places, samples, draws and holds the layers in and with which slots, where `beforeDraw` runs, when the clear alpha is set, what a weight-0 layer and a fade's midpoint draw, and what `draw` composites.
+The class comment states how the shown layer is chosen and placed, what a film picture is, the order `prepare` places, samples, draws and holds the layers in and with which slots, where `beforeDraw` runs, when the clear alpha is set, what a weight-0 layer and a fade's midpoint draw and that the host still places a shown weight-0 layer, and what `draw` composites.
 
 # src/draw/AutoMovieDrawFilm.ts#AutoMovieDrawFilm.prototype.prepare
 

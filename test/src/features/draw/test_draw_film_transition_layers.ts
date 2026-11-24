@@ -3,7 +3,11 @@ import type {
   AutoMovieInspectionShade,
   IAutoMovieFilmOptics,
 } from "@automovie/interface";
-import { AutoMovieDrawFilm } from "@automovie/render";
+import {
+  AutoMovieDrawFilm,
+  placeAutoMovieDrawLayer,
+  planAutoMovieDrawPicture,
+} from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
@@ -34,14 +38,14 @@ interface IStep {
  *
  * 1. A dissolve's first half, 1.25 s, without optics: the live entry B is placed
  *    by `seek`, fed by `beforeDraw`, drawn and held in slot 1 before the shown
- *    outgoing shot A, which `seekShown` places by `seekShot` at its own clock
- *    2.25 s; drawing it holds slot 0 and composites A at 0.75 and B at 0.25.
+ *    outgoing shot A, which the host places by `seekShot` at its own clock 2.25
+ *    s; drawing it holds slot 0 and composites A at 0.75 and B at 0.25.
  * 2. With optics, the same frame samples B, `seek` at each sample, and then A,
  *    `seekShot` at A's clock at each sample, every placement followed by
  *    `beforeDraw`, before the host places A.
  * 3. A dissolve's second half, 1.75 s: A is held in slot 0 through `seekShot` at
- *    its clock 2.75 s, `seekShown` is undefined because the live entry is
- *    shown, and drawing holds slot 1 and composites A at 0.25 and B at 0.75.
+ *    its clock 2.75 s, `byShot` is false because the live entry is shown, and
+ *    drawing holds slot 1 and composites A at 0.25 and B at 0.75.
  * 4. A dissolve's first frame, 1 s: the live entry at weight 0 is neither placed
  *    nor drawn, and only A at weight 1 is composited.
  * 5. A fade's midpoint, 1.5 s: nothing is placed or drawn and the picture is the
@@ -55,7 +59,7 @@ interface IStep {
  *    the frame by `seek`; without `seekShot` the frame is drawn, both samples
  *    held at B's in-point by `seek` at 2 s, and no sample places A.
  * 8. An inspection picture inside the dissolve's first half composites nothing and
- *    samples nothing, and its `seekShown` still places the outgoing shot.
+ *    samples nothing, and `byShot` still names the outgoing shot.
  * 9. The canvas's clear alpha is set before the shown layer's samples are drawn.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Drives `AutoMovieDrawFilm`, the draw page's picture, over a recording subject and beauty owner and asserts the order and arguments of every placement, reading, draw, hold and composite; a swapped slot, a missing hold, a live entry placed last, an outgoing shot on the film clock, a dropped `beforeDraw`, a weight-0 layer drawn, a plate cut at the transition, a sample on the previous shot or a cut refused without `seekShot` fails.
@@ -84,7 +88,7 @@ export async function test_draw_film_transition_layers(): Promise<void> {
     ]),
   );
   first.clear();
-  await first.film.seekShown!(1.25);
+  await first.placeShown(1.25);
   first.film.draw(first.camera);
   TestValidator.predicate(
     "the outgoing shot is placed last on its own clock, held in slot 0 and both composited",
@@ -145,7 +149,7 @@ export async function test_draw_film_transition_layers(): Promise<void> {
   // 3. A dissolve's second half.
   const second: IPicture = picture({ kind: dissolve, seconds: 1.75 });
   await second.film.prepare();
-  const shownLive: boolean = second.film.seekShown === undefined;
+  const shownLive: boolean = !second.film.byShot;
   second.film.draw(second.camera);
   TestValidator.predicate(
     "the outgoing shot is held in slot 0 and the shown live entry drawn last",
@@ -168,7 +172,7 @@ export async function test_draw_film_transition_layers(): Promise<void> {
   // 4. A dissolve's first frame.
   const opening: IPicture = picture({ kind: dissolve, seconds: 1 });
   await opening.film.prepare();
-  await opening.film.seekShown!(1);
+  await opening.placeShown(1);
   opening.film.draw(opening.camera);
   TestValidator.predicate(
     "a live entry at weight 0 is neither placed nor drawn",
@@ -186,7 +190,7 @@ export async function test_draw_film_transition_layers(): Promise<void> {
   midpoint.film.draw(midpoint.camera);
   const quarter: IPicture = picture({ kind: "fade", seconds: 1.25 });
   await quarter.film.prepare();
-  await quarter.film.seekShown!(1.25);
+  await quarter.placeShown(1.25);
   quarter.film.draw(quarter.camera);
   TestValidator.predicate(
     "a fade's midpoint is the cleared canvas and its first quarter the outgoing shot alone",
@@ -206,7 +210,7 @@ export async function test_draw_film_transition_layers(): Promise<void> {
     shade: "graphics",
   });
   await plate.film.prepare();
-  await plate.film.seekShown!(1.25);
+  await plate.placeShown(1.25);
   plate.film.draw(plate.camera);
   TestValidator.predicate(
     "the plate goes through the dissolve as the picture does",
@@ -243,7 +247,7 @@ export async function test_draw_film_transition_layers(): Promise<void> {
   TestValidator.predicate(
     "a cut's first frame samples only the incoming shot, from its handle",
     cut.film.layers === null &&
-      cut.film.seekShown === undefined &&
+      !cut.film.byShot &&
       same(handles, [
         step("seek", null, 2),
         step("seekShot", "shot:b", -1 / 64, 2 - 1 / 64),
@@ -266,11 +270,12 @@ export async function test_draw_film_transition_layers(): Promise<void> {
     film: false,
   });
   await inspection.film.prepare();
-  await inspection.film.seekShown!(1.25);
+  await inspection.placeShown(1.25);
   inspection.film.draw(inspection.camera);
   TestValidator.predicate(
     "an inspection picture follows the shown shot alone",
     !inspection.film.composites &&
+      inspection.film.byShot &&
       same(inspection.steps(), [
         step("seekShot", "shot:a", 2.25, 1.25),
         step("draw"),
@@ -313,6 +318,9 @@ interface IPicture {
 
   /** Forget the steps so far. */
   clear: () => void;
+
+  /** Place the shown shot at a second, as the host's placement does. */
+  placeShown: (seconds: number) => Promise<void>;
 }
 
 /** Plan a picture at a second of the two-shot cut, recording every step. */
@@ -411,6 +419,13 @@ function picture(props: {
     clear: (): void => {
       subject.calls.length = 0;
     },
+    placeShown: (seconds: number): Promise<void> =>
+      placeAutoMovieDrawLayer(
+        "film",
+        subject.subject,
+        planAutoMovieDrawPicture("film", subject.subject, seconds).placed,
+        seconds,
+      ),
   };
 }
 

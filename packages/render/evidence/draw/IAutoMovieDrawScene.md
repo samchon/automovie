@@ -10,7 +10,7 @@ Every member is read by `installAutoMovieDraw`: the scene and camera to draw, th
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 
-No member names a film, a figure or a case. A positive clock and raster are checked by the capture planner at runtime. `sequence` without `seekShot` is a state the type admits, because a cut whose transitions are all outside the drawn seconds needs no shot placement; a picture that needs one refuses by name in `planAutoMovieDrawLayers`; without it a shutter sample before a cut holds the incoming entry's start.
+No member names a film, a figure or a case. A positive clock and raster are checked by the capture planner at runtime. `sequence` without `seekShot` is a state the type admits, because a cut whose transitions are all outside the drawn seconds needs no shot placement; a picture that needs one refuses by name in `planAutoMovieDrawLayers`; without it a shutter sample or trail time outside an entry's span holds the entry's nearest live second.
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -170,7 +170,7 @@ A signature has no body; the subject owns its render targets.
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States who hands the mouths and when, where and how the subject reads them, what absence gives in the report, and why the interactive inspector hands none with its reopening condition.
+States who hands the mouths and when, where, in `seek`, `place` and `seekShot`, and how the subject reads them, what absence gives in the report, and why the interactive inspector hands none with its reopening condition.
 
 ## @evidenceExclude contracts/development/implementation.md#principled-implementation
 

@@ -326,18 +326,19 @@ export interface IFilmProduction {
    * `playback.sequence` shows them at its own shot-local `seconds`, during the
    * film second `filmSeconds`: a transition's outgoing shot, which `seek`
    * cannot place because the incoming entry is live there, or a shutter sample
-   * of an entry before its start. Read the dialogue mouths at `filmSeconds`;
-   * every other member then describes this shot at `seconds`. The hosts place a
-   * transition's two shots in either order and the shot the picture shows most
-   * of last, so a fade's or a dissolve's first half reads its records on this
-   * placement, then dissolve the pictures or dip them through black, as the
-   * entry's transition says. `seconds` can fall before the trim's start, by up
-   * to one shutter interval, into the shot's handle, or before the shot's zero,
-   * where the shot holds its first state as its clips clamp. Required when the
-   * sequence has a transition: a picture inside one is refused without it.
-   * Without it, a shutter sample before a shot's first frame is placed by
-   * `seek` at that frame, so a cut's first frame still shows nothing of the
-   * previous shot, with a shorter blur trail.
+   * or an inspection trail time of a shot outside its span. Read the dialogue
+   * mouths at `filmSeconds`; every other member then describes this shot at
+   * `seconds`. The hosts place a transition's two shots in either order and the
+   * shot the picture shows most of last, so a fade's or a dissolve's first half
+   * reads its records on this placement, then dissolve the pictures or dip them
+   * through black, as the entry's transition says. `seconds` can fall outside
+   * the trim, before its start by up to one shutter interval or a trail's
+   * reach, or after its end by up to a trail's reach, into the shot's handles;
+   * beyond the shot's own ends the shot holds its end states as its clips
+   * clamp. Required when the sequence has a transition: a picture inside one is
+   * refused without it. Without it, a sample or trail time outside a shot's
+   * span is placed by `seek` at the shot's nearest frame, so a cut's first
+   * frame still shows nothing of the previous shot, with a shorter blur trail.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what the call places, on which two clocks, which members then describe it, the order the hosts place shots in, what they do with the picture, the times it can be asked for and when it is required.
    * @evidenceExclude contracts/development/implementation.md#principled-implementation A signature has no body; the film that implements it answers.

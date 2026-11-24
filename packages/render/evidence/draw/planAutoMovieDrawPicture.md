@@ -2,15 +2,15 @@
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States what the plan holds, which rule chooses the shown layer, who plans through it and what it throws.
+States what the plan holds, which rule chooses the shown layer and the placed entry, who plans through it and what it throws.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-The layers are `planAutoMovieDrawLayers`' and the shown layer `playbackShownLayer`'s, the engine's one rule for the shot a frame shows most of, so the draw page and the Viewer cannot disagree.
+The layers are `planAutoMovieDrawLayers`' and the shown layer `playbackShownLayer`'s, the engine's one rule for the shot a frame shows most of, and outside a transition the placed entry is `playbackEntryAt`'s live entry, so the draw page's picture, its trails and its framing and the Viewer cannot disagree.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-Two calls to their owners.
+Three calls to their owners.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
@@ -18,7 +18,7 @@ The refusal for an outgoing shot without `seekShot` is the layer plan's, not swa
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
-The layer plan's O(log E) search and a constant choice among at most two layers.
+Two O(log E) searches and a constant choice among at most two layers.
 
 ## @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work
 

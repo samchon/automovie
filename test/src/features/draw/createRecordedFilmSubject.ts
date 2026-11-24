@@ -18,7 +18,9 @@ import * as THREE from "three";
  * shot and its shot-local time and second, `beforeDraw` records `beforeDraw`
  * with its second, and `optics`, when asked, records `optics` with its second
  * and answers a 180° shutter over two samples. The scene has a backdrop so a
- * pass that removes it is observed.
+ * pass that removes it is observed, and one box, `hero`, five metres down −Z at
+ * x = −1 while shot A is placed and x = 1 while shot B is, so a trail or a
+ * framing box tells which shot each placement showed.
  *
  * @evidence contracts/development/testing.md#behavioral-verification A double for the draw film tests; it asserts nothing itself.
  * @evidence contracts/development/testing.md#independent-expectations The cut is hand-laid: A from 0 to 2 s on its clock 1 + t, and B from 1 s through the transition or from 2 s at a hard cut, its clock starting at 0.
@@ -47,6 +49,18 @@ export function createRecordedFilmSubject(props: {
   };
   const scene: THREE.Scene = new THREE.Scene();
   scene.background = new THREE.Color(0x203040);
+  const hero: THREE.Mesh = new THREE.Mesh(
+    new THREE.BoxGeometry(0.2, 0.2, 0.2),
+    new THREE.MeshBasicMaterial(),
+  );
+  hero.name = "hero";
+  hero.position.set(-1, 0, -5);
+  scene.add(hero);
+  const start: number = props.transition === null ? 2 : 1;
+  const show: (shot: string) => void = (shot: string): void => {
+    hero.position.x = shot === "shot:a" ? -1 : 1;
+    scene.updateMatrixWorld(true);
+  };
   const subject: IAutoMovieDrawScene = {
     scene,
     camera: new THREE.PerspectiveCamera(45, 16 / 9, 0.1, 100),
@@ -58,6 +72,7 @@ export function createRecordedFilmSubject(props: {
     cut: sequenceTimeline(sequence, [shot("shot:a", 3), shot("shot:b", 4)]),
     seek: async (seconds: number): Promise<void> => {
       calls.push({ name: "seek", shot: null, numbers: [seconds] });
+      show(seconds < start ? "shot:a" : "shot:b");
     },
     ...(props.seekShot
       ? {
@@ -71,6 +86,7 @@ export function createRecordedFilmSubject(props: {
               shot: name,
               numbers: [time, seconds],
             });
+            show(name);
           },
         }
       : {}),

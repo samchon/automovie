@@ -1,4 +1,3 @@
-import { playbackEntryAt } from "@automovie/engine";
 import type {
   AutoMovieInspectionShade,
   IAutoMovieFilmOptics,
@@ -20,12 +19,11 @@ import { planAutoMovieDrawPicture } from "./planAutoMovieDrawPicture.js";
  *
  * The constructor plans the drawn second by `planAutoMovieDrawPicture`: the
  * shown layer is the shot the picture shows most of, or outside every
- * transition the entry live at the second. `seekShown` places it at an output
- * second by `placeAutoMovieDrawLayer` when it is a transition's outgoing shot,
- * so every record of the frame, from marks and trails to diagnostics, mouths,
- * the camera and every structural pass, follows the shot on screen; it is
- * undefined for the live entry, which the inspection's own `seek` places. A
- * refused plan throws from the constructor.
+ * transition the entry live at the second. The host's `AutoMovieDrawPlacement`
+ * places that shot last, so every record of the frame, from marks and trails to
+ * diagnostics, mouths, the camera and every structural pass, follows the shot
+ * on screen; `byShot` says whether it is a transition's outgoing shot, placed
+ * by `seekShot`. A refused plan throws from the constructor.
  *
  * A film picture is a `beauty` picture or a `graphics` plate drawn as the
  * delivered film. Inside a transition it composites the planned layers by their
@@ -41,7 +39,8 @@ import { planAutoMovieDrawPicture } from "./planAutoMovieDrawPicture.js";
  * sample's, runs the subject's `beforeDraw` right after it, before any render
  * mode applies, and the canvas's clear alpha is set before any sample is drawn.
  * A layer of weight 0, the live entry on a dissolve's first frame or at a
- * fade's midpoint, is neither placed, sampled nor drawn.
+ * fade's midpoint, is neither sampled nor drawn; when it is the shown layer,
+ * the host still places it for the frame's records.
  *
  * `draw`, once the host has placed the shown layer, draws it through the given
  * camera with the samples `prepare` accumulated and, for a transition, holds it
@@ -55,10 +54,10 @@ export class AutoMovieDrawFilm {
   public readonly layers: IAutoMoviePlaybackLayer[] | null;
 
   /**
-   * Place the shown layer at an output second when it is a transition's
-   * outgoing shot; undefined when the inspection's `seek` places it.
+   * Whether the shown layer is a transition's outgoing shot, which `seekShot`
+   * places off the film clock.
    */
-  public readonly seekShown: ((seconds: number) => Promise<void>) | undefined;
+  public readonly byShot: boolean;
 
   /** The planned shown layer, or null outside every transition. */
   private readonly shown_: IAutoMoviePlaybackLayer | null;
@@ -74,22 +73,12 @@ export class AutoMovieDrawFilm {
 
   /** Plan the picture at the drawn second; a refused plan throws. */
   public constructor(private readonly props: AutoMovieDrawFilm.IProps) {
-    const { scene, seconds }: AutoMovieDrawFilm.IProps = props;
     const plan: ReturnType<typeof planAutoMovieDrawPicture> =
-      planAutoMovieDrawPicture(props.name, scene, seconds);
+      planAutoMovieDrawPicture(props.name, props.scene, props.seconds);
     this.layers = props.film ? plan.layers : null;
-    const shown: IAutoMoviePlaybackLayer | null = plan.shown;
-    this.shown_ = shown;
-    this.placed_ =
-      shown ??
-      (scene.cut === undefined
-        ? null
-        : playbackEntryAt(scene.cut.entries, seconds));
-    this.seekShown =
-      shown === null || shown.live
-        ? undefined
-        : (at: number): Promise<void> =>
-            placeAutoMovieDrawLayer(props.name, scene, shown, at);
+    this.shown_ = plan.shown;
+    this.placed_ = plan.placed;
+    this.byShot = plan.shown !== null && !plan.shown.live;
   }
 
   /** Whether the picture composites a transition's layers. */

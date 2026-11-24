@@ -174,10 +174,11 @@ export interface IAutoMovieDrawScene {
   /**
    * Take the film's dialogue mouths, handed once before the first picture by a
    * host that admitted the subject's sound list: the capture and the delivery
-   * render. The subject reads each speaking actor's mouth in `seek` and `place`
-   * for the second it places, in the form the actor's figure takes, and layers
-   * it over the authored expression. Absent, no mouth follows the sound and the
-   * delivery render lists each bound phoneme-driven line as `mouth-not-drawn`.
+   * render. The subject reads each speaking actor's mouth in `seek`, `place`
+   * and `seekShot` for the output second it places, in the form the actor's
+   * figure takes, and layers it over the authored expression. Absent, no mouth
+   * follows the sound and the delivery render lists each bound phoneme-driven
+   * line as `mouth-not-drawn`.
    *
    * The interactive inspector hands no mouths, because it reads no sound file;
    * it shows the authored mouth until the viewer gains a file host.
@@ -197,22 +198,25 @@ export interface IAutoMovieDrawScene {
    * Put every object and the delivery camera as one shot of `sequence` shows
    * them at its own shot-local `time`, during the output second `seconds`: a
    * transition's outgoing shot, whose tail `seek` cannot place because the
-   * incoming entry is live there, or an entry's shutter sample before its
-   * start. Anything the subject reads on the output clock, such as the dialogue
-   * mouths, is read at `seconds`; every other reader then describes this shot.
-   * The returned promise resolves once the subject is ready.
+   * incoming entry is live there, or a shutter sample or trail time of an entry
+   * outside its live span. Anything the subject reads on the output clock, such
+   * as the dialogue mouths, is read at `seconds`; every other reader then
+   * describes this shot. The returned promise resolves once the subject is
+   * ready.
    *
-   * `time` is the entry's clock, `playbackEntryTime`, at `seconds`. A sample
-   * before the entry's in-point asks for the shot's handle, its source before
-   * the trim's start, and before the shot's zero the shot holds what its clips
-   * clamp to. The hosts place a transition's layers in any order and the shot a
-   * picture shows last, so a fade's or a dissolve's first half reads every
-   * record on this placement rather than on a later `seek`.
+   * `time` is the entry's clock, `playbackEntryTime`, at `seconds`. Outside the
+   * entry's trimmed span, a sample before its in-point or a trail time past its
+   * out-point, it asks for the shot's handles, its source before the trim's
+   * start or after its end, and beyond the shot's own ends the shot holds what
+   * its clips clamp to. The hosts place a transition's layers in any order and
+   * the shot a picture shows last, so a fade's or a dissolve's first half reads
+   * every record on this placement rather than on a later `seek`.
    *
    * Required when `sequence` has a transition: a picture inside one is refused
    * without it, naming the subject, the entry and `seekShot`. Without it a
-   * shutter sample before an entry's start is placed by `seek` at that start,
-   * the entry's first state, instead of its handle.
+   * second outside an entry's live span is placed by `seek` at the nearest
+   * second the entry is live at, its start or its last second before the next
+   * entry, instead of its handle.
    */
   seekShot?(shot: string, time: number, seconds: number): Promise<void>;
 

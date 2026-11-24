@@ -11,30 +11,31 @@ import type { IAutoMovieDrawScene } from "./IAutoMovieDrawScene.js";
  * second: on that layer's own entry clock, never on another entry's.
  *
  * Without a layer or a `cut` the subject is placed by `seek`, the only clock it
- * has. Otherwise, at an output second the layer's entry is live at, the entry
- * `playbackEntryAt` resolves, `seek` places that entry on its own clock. At any
- * other second, a transition's outgoing tail, or a shutter sample that trails
- * back across the entry's start, `seekShot` places the layer's shot at
- * `playbackEntryTime` of its entry, with the output second for the film-clock
- * readings. Before the entry's in-point that time runs into the entry's handle,
- * the shot's own source before its trim, as an editor's handle frames supply a
- * shot's first exposure; before the shot's own zero the shot answers as its
- * clips clamp, holding their first state. So a frame at a hard cut integrates
- * only the incoming shot.
+ * has. Otherwise, at an output second inside the entry's live span, from its
+ * start to the next entry's, where `playbackEntryAt` resolves it, `seek` places
+ * that entry on its own clock. At any other second, a transition's outgoing
+ * tail, a shutter sample that trails back before the entry's start, the film's
+ * first frame included, or a trail time past its span, `seekShot` places the
+ * layer's shot at `playbackEntryTime` of its entry, with the output second for
+ * the film-clock readings. Outside the trimmed span that time runs into the
+ * entry's handles, the shot's own source before the trim's start or after its
+ * end, as an editor's handle frames supply a shot's edge; beyond the shot's own
+ * ends the shot answers as its clips clamp, holding their end states. So a
+ * frame or a trail at a hard cut shows only the entry's own shot.
  *
- * A subject without `seekShot`, which only a transition requires, has no clock
- * but `seek`: a sample before the entry's in-point is placed by `seek` at the
- * in-point, the entry's first state, so a cut's first frame still shows nothing
- * of the previous shot and only its shutter trail is shorter. A second after
- * the in-point that the entry is not live at, a transition's outgoing tail, is
- * refused before anything is placed, naming the subject, the second, the entry
- * and `seekShot`.
+ * A subject without `seekShot`, which only a transition requires and whose
+ * transitions `planAutoMovieDrawLayers` refuses, has no clock but `seek`: a
+ * second outside the entry's live span is held at the nearest second the entry
+ * is live at, its in-point or the last representable second before the next
+ * entry's start, so a cut's first frame shows nothing of the previous shot and
+ * only its shutter trail is shorter.
  *
- * @param name The subject's name, which a refusal names.
+ * @param name The subject's name, which an error names.
  * @param scene The created subject.
  * @param layer The layer's entry and shot, or null for a subject placed on the
  *   film clock alone.
- * @param seconds The output second placed: the drawn one or a sample's.
+ * @param seconds The output second placed: the drawn one, a sample's or a
+ *   trail's.
  * @returns The subject's placement promise.
  */
 export async function placeAutoMovieDrawLayer(
@@ -45,18 +46,41 @@ export async function placeAutoMovieDrawLayer(
 ): Promise<void> {
   const entries: readonly IAutoMoviePlaybackEntry[] | undefined =
     scene.cut?.entries;
+  if (layer === null || entries === undefined) return scene.seek(seconds);
+  const entry: IAutoMoviePlaybackEntry | undefined = entries[layer.entry];
+  if (entry === undefined)
+    throw new Error(
+      `Subject "${name}" has no sequence entry ${layer.entry} to place the shot "${layer.shot}" as`,
+    );
   if (
-    layer === null ||
-    entries === undefined ||
+    seconds >= entry.start &&
     playbackEntryAt(entries, seconds).entry === layer.entry
   )
     return scene.seek(seconds);
-  const entry: IAutoMoviePlaybackEntry = entries[layer.entry]!;
-  if (scene.seekShot === undefined && seconds < entry.start)
-    return scene.seek(entry.start);
-  if (scene.seekShot === undefined)
-    throw new Error(
-      `Subject "${name}" places sequence entry ${layer.entry} at ${seconds} s, outside the span it is live in, but supplies no seekShot to place the shot "${layer.shot}" on its own clock`,
+  if (scene.seekShot !== undefined)
+    return scene.seekShot(
+      layer.shot,
+      playbackEntryTime(entry, seconds),
+      seconds,
     );
-  return scene.seekShot(layer.shot, playbackEntryTime(entry, seconds), seconds);
+
+  // The live span ends where the next entry starts; the last entry's never.
+  const next: number =
+    entries[layer.entry + 1]?.start ?? Number.POSITIVE_INFINITY;
+  return scene.seek(
+    seconds < entry.start ? entry.start : Math.max(entry.start, below(next)),
+  );
+}
+
+/**
+ * The largest double below a positive finite `value`, the last second before
+ * it; `value` itself for zero, and for an infinite value, which no second
+ * reaches.
+ */
+function below(value: number): number {
+  if (!(value > 0) || !Number.isFinite(value)) return value;
+  const view: DataView = new DataView(new ArrayBuffer(8));
+  view.setFloat64(0, value);
+  view.setBigUint64(0, view.getBigUint64(0) - 1n);
+  return view.getFloat64(0);
 }
