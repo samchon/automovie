@@ -123,13 +123,12 @@ export function advancePhysicalBalance(input: {
     ...trace,
   });
 
-  // A stated disturbance's first push: a biped's response prepared once from
+  // A stated disturbance's first push: the body's response prepared once from
   // the state just after it, its inputs recorded for a resume
   // (`preparePhysicalDisturbanceSpan`); the caller plays it.
-  const handed: IAutoMoviePhysicalRecoveryState =
-    biped && input.disturbance
-      ? { ...handoff, span: disturbance(handoff, sense, input.disturbance) }
-      : handoff;
+  const handed: IAutoMoviePhysicalRecoveryState = input.disturbance
+    ? { ...handoff, span: disturbance(handoff, sense, input.disturbance) }
+    : handoff;
 
   // A two-support body runs IHMC's walking controller's push recovery, a
   // four-support body the quadruped's, as IHMC keeps the two controllers

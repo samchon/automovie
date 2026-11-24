@@ -18,9 +18,9 @@ import { recordPhysicalContact } from "./recordPhysicalContact";
  * reaction (`preparePhysicalDisturbanceSpan.ISample.reaction`, `loads`) as one
  * floor contact sample over the substep, its normal impulse the share of the
  * weight times the substep, at the foot's endpoint moved by the pivot's offset
- * from the line the shares are taken along, so the shares' centre of pressure
- * is the pivot; and the cache's support wrench at its instants, the reaction
- * asked and borne whole, horizontal and vertical.
+ * from the shares' weighted endpoint, so the shares' centre of pressure is the
+ * pivot; and the cache's support wrench at its instants, the reaction asked and
+ * borne whole, horizontal and vertical.
  *
  * @param input The simulation's input, the binding, the recovery states, the
  *   substep's time and its cache second, and the receipts with their open
@@ -58,19 +58,18 @@ export function recordPhysicalSpanContacts(input: {
     if (!sample) continue;
     const bones: string[] = Object.keys(sample.loads);
     const pivot: IAutoMovieVector3 = sample.reaction.point;
-    const line: IAutoMovieVector3 | undefined =
-      bones.length === 2
-        ? Vector3.subtract(sample.feet[bones[1]!]!, sample.feet[bones[0]!]!)
-        : undefined;
-    const along: IAutoMovieVector3 = line
-      ? Vector3.add(
-          sample.feet[bones[0]!]!,
-          Vector3.scale(line, sample.loads[bones[1]!]!),
-        )
-      : pivot;
-    const offset: IAutoMovieVector3 = line
-      ? Vector3.subtract(pivot, along)
-      : { x: 0, y: 0, z: 0 };
+    // The shares' weighted endpoint, moved onto the pivot: each share acts
+    // at its endpoint carried by the pivot's offset from that mean, so the
+    // shares' centre of pressure is the pivot, for any number of limbs.
+    const mean: IAutoMovieVector3 = bones.reduce(
+      (sum: IAutoMovieVector3, bone: string): IAutoMovieVector3 =>
+        Vector3.add(
+          sum,
+          Vector3.scale(sample.feet[bone]!, sample.loads[bone]!),
+        ),
+      { x: 0, y: 0, z: 0 },
+    );
+    const offset: IAutoMovieVector3 = Vector3.subtract(pivot, mean);
     for (const bone of bones) {
       const share: number = sample.loads[bone]!;
       const collider: IAutoMovieContactReceipt["a"] | undefined = [
@@ -80,8 +79,7 @@ export function recordPhysicalSpanContacts(input: {
           candidate.body === body.id && candidate.bone === bone,
       );
       if (!collider || !(share > 0)) continue;
-      const point: IAutoMovieVector3 =
-        bones.length === 1 ? pivot : Vector3.add(sample.feet[bone]!, offset);
+      const point: IAutoMovieVector3 = Vector3.add(sample.feet[bone]!, offset);
       recordPhysicalContact({
         a: collider,
         b: floor,

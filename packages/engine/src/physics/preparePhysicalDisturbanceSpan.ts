@@ -14,6 +14,7 @@ import { physicalIcpPlannerCmps as Cmps } from "./physicalIcpPlannerCmps";
 import { physicalIcpPlannerTools as Tools } from "./physicalIcpPlannerTools";
 import { physicalPlanarPolygon as Polygon } from "./physicalPlanarPolygon";
 import { physicalPushRecovery as Recovery } from "./physicalPushRecovery";
+import { physicalSupportSpanContacts as Contacts } from "./physicalSupportSpanContacts";
 
 /**
  * A biped's response to a stated disturbance, prepared once for the span: IHMC
@@ -119,19 +120,53 @@ export function preparePhysicalDisturbanceSpan(
       (bone: string): Foot => placed.get(bone)!,
     );
   const supportOf = (feet: readonly Foot[]): Polygon.IPoint[] =>
-    Polygon.hull(
-      feet.flatMap((foot: Foot): Polygon.IPoint[] =>
-        outline(foot).map(toLocal),
+    Contacts.hull(feet.map(contact));
+
+  // The stance while a limb swings, any number of planted limbs merged into
+  // one support the planner reads as a foot: their outline's hull in a frame
+  // at its centroid, facing as the swinging limb faces, on the side opposite
+  // it (`physicalSupportSpanContacts.remaining`); a single limb is itself.
+  const merge = (stance: readonly Foot[], swing: Foot): Foot => {
+    if (stance.length === 1) return stance[0]!;
+    const hull: Polygon.IPoint[] = supportOf(stance);
+    const origin: Tools.IFloor = toWorld(Polygon.centroid(hull));
+    const frame: Polygon.IFrame = { origin, forward: swing.frame.forward };
+    const lateral: number = Polygon.local(frame, swing.frame.origin).y;
+    return {
+      bone: stance.map((foot: Foot): string => foot.bone).join("+"),
+      side: lateral > 0 ? "right" : "left",
+      frame,
+      polygon: Polygon.hull(
+        hull.map(
+          (p: Polygon.IPoint): Polygon.IPoint =>
+            Polygon.local(frame, toWorld(p)),
+        ),
       ),
-    );
-  const soles = (): physicalIcpPlanner.ISoles => {
-    const feet: Foot[] = [...placed.values()];
-    const left: Foot =
-      feet.find((foot: Foot): boolean => foot.side === "left") ?? feet[0]!;
-    const right: Foot =
-      feet.find((foot: Foot): boolean => foot.side === "right") ?? feet[1]!;
-    return { left: left.frame, right: right.frame };
+    };
   };
+
+  // The swinging limb: the planted limb farthest from the capture point, the
+  // last of equals, as the push recovery keeps the closest one, the first of
+  // equals, and swings the other (`physicalPushRecovery.doubleSupport`
+  // l.169-182), for any number.
+  const farthest = (feet: readonly Foot[]): string => {
+    let best: { bone: string; distance: number } | undefined;
+    for (const foot of feet) {
+      const at: Tools.IFloor = toWorld(Polygon.centroid(supportOf([foot])));
+      const distance: number = Math.hypot(state.xi.x - at.x, state.xi.z - at.z);
+      if (!best || distance >= best.distance)
+        best = { bone: foot.bone, distance };
+    }
+    return best!.bone;
+  };
+
+  // The two sides a plan rides on: the stance, its planted limbs merged into
+  // one support (`merge`), and the stepping limb, by their lateral order.
+  let pair: { left: Foot; right: Foot } | undefined;
+  const soles = (): physicalIcpPlanner.ISoles => ({
+    left: pair!.left.frame,
+    right: pair!.right.frame,
+  });
 
   let state: IState = {
     xi: {
@@ -149,6 +184,7 @@ export function preparePhysicalDisturbanceSpan(
   let step:
     | {
         support: Foot;
+        stance: Foot[];
         swing: Foot;
         target: Tools.IFloor;
         touchdown: number;
@@ -169,14 +205,13 @@ export function preparePhysicalDisturbanceSpan(
   // l.345-350, l.399-401), as the authored stance no longer says where the
   // body stands.
   const target = (): Tools.IState => {
-    if (swings.length === 0) return authored;
-    const feet: Foot[] = [...placed.values()];
-    const right: Foot =
-      feet.find((foot: Foot): boolean => foot.side === "right") ?? feet[0]!;
-    const left: Foot =
-      feet.find((foot: Foot): boolean => foot !== right) ?? feet[0]!;
+    if (pair === undefined) return authored;
     return {
-      position: Cmps.between(right, left, physicalIcpPlanner.DEFAULTS),
+      position: Cmps.between(
+        pair.right,
+        pair.left,
+        physicalIcpPlanner.DEFAULTS,
+      ),
       velocity: { x: 0, z: 0 },
     };
   };
@@ -205,7 +240,7 @@ export function preparePhysicalDisturbanceSpan(
       return;
     }
     outside ??= t;
-    trigger = { at: Math.max(t, outside + reaction), swing: fall.swing };
+    trigger = { at: Math.max(t, outside + reaction), swing: farthest(feet) };
   };
 
   // The footstep in the support foot's one-step capture region with a swing
@@ -349,9 +384,10 @@ export function preparePhysicalDisturbanceSpan(
     // The trigger: the step out of a fall.
     if (mode !== "single" && trigger !== undefined && t >= trigger.at) {
       const swing: Foot = placed.get(trigger.swing)!;
-      const support: Foot = planted().find(
+      const stance: Foot[] = planted().filter(
         (foot: Foot): boolean => foot.bone !== swing.bone,
-      )!;
+      );
+      const support: Foot = merge(stance, swing);
       recovery = Recovery.fall(recovery);
       const placedAt = place(
         support,
@@ -381,6 +417,7 @@ export function preparePhysicalDisturbanceSpan(
           : physicalBipedPlan.SWING_TIME;
       step = {
         support,
+        stance,
         swing,
         target: placedAt.target,
         touchdown: t + duration,
@@ -399,7 +436,10 @@ export function preparePhysicalDisturbanceSpan(
         from: { position: swing.frame.origin, velocity: { x: 0, z: 0 } },
         to: placedAt.target,
       });
-      contacts.push({ start: t, bones: [support.bone] });
+      contacts.push({
+        start: t,
+        bones: stance.map((foot: Foot): string => foot.bone),
+      });
       branches.push({ kind: "trigger", seconds: t, bone: swing.bone });
       reference = segmented(t, step.plan);
       mode = "single";
@@ -418,11 +458,18 @@ export function preparePhysicalDisturbanceSpan(
         frame: { origin: s.target, forward: s.swing.frame.forward },
       };
       placed.set(landing.bone, landing);
-      contacts.push({ start: t, bones: [s.support.bone, landing.bone] });
+      contacts.push({
+        start: t,
+        bones: [
+          ...s.stance.map((foot: Foot): string => foot.bone),
+          landing.bone,
+        ],
+      });
       branches.push({ kind: "touchdown", seconds: t, bone: landing.bone });
       const last: Tools.IFloor = evaluate(reference, t, omega).position;
       const left: Foot = s.support.side === "left" ? s.support : landing;
       const right: Foot = s.support.side === "left" ? landing : s.support;
+      pair = { left, right };
       reference = transfer(
         t,
         physicalIcpPlanner.toStanding({
@@ -754,6 +801,11 @@ function outline(foot: Foot): Tools.IFloor[] {
   return foot.polygon.map(
     (p: Polygon.IPoint): Tools.IFloor => Polygon.world(foot.frame, p),
   );
+}
+
+/** A foot as a planted contact: its outline's points on the floor. */
+function contact(foot: Foot): Contacts.IContact {
+  return { bone: foot.bone, points: outline(foot) };
 }
 
 /** A + k b. */
@@ -1286,27 +1338,22 @@ function span(input: {
       const feet: Record<string, Tools.IFloor> = input.feet(seconds);
       const planted: string[] = input.contacts(seconds);
 
-      // The pivot's share along the line between two planted feet.
-      const loads: Record<string, number> = {};
-      if (planted.length === 1) loads[planted[0]!] = 1;
-      else if (planted.length >= 2) {
-        const a: Tools.IFloor = feet[planted[0]!]!;
-        const b: Tools.IFloor = feet[planted[1]!]!;
-        const line: Tools.IFloor = add(b, a, -1);
-        const length: number = line.x * line.x + line.z * line.z;
-        const share: number =
-          length > 0
-            ? Math.max(
-                0,
-                Math.min(
-                  1,
-                  ((cmp.x - a.x) * line.x + (cmp.z - a.z) * line.z) / length,
-                ),
-              )
-            : 0.5;
-        loads[planted[0]!] = 1 - share;
-        loads[planted[1]!] = share;
-      }
+      // The weight's split over the planted limbs at the pivot, for any
+      // number (`physicalSupportSpanContacts.loads`), each at its endpoint.
+      const loads: Record<string, number> = Object.fromEntries(
+        Contacts.loads(
+          planted.map(
+            (bone: string): Contacts.IContact => ({
+              bone,
+              points: [feet[bone]!],
+            }),
+          ),
+          cmp,
+        ).map((load: Contacts.ILoad): [string, number] => [
+          load.bone,
+          load.share,
+        ]),
+      );
       return {
         phase: piece.phase,
         saturated: piece.saturated,
