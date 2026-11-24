@@ -67,3 +67,19 @@ Run the diagnostic from `test` after building the reference-conic tools. It take
 node .shots/esbuild/FamilyConicMpfbParentAtlas.cjs --receipt=.shots/hm08-side-root/shoulder-context.json --out=.shots/hm08-side-root/parent-atlas-study.json --preview=.shots/hm08-side-root/parent-atlas-preview.json --radial
 node .shots/esbuild/FamilyConicMpfbShoulder.cjs .shots/hm08-side-root/parent-atlas-views --candidate=.shots/hm08-side-root/parent-atlas-preview.json --limit=2
 ```
+
+## Central projection beyond the parent outlet
+
+Tilting the sightline from a fixed point on the torso course supplies a single upper-flank chart. The lower torso outlet, the lowest point of the protected rail and the midpoint of its height each see all 225 held-out rail points on one connected outward source sheet. The lowest rail height provides the largest minimum signed projection determinant, about 0.51. Projection to a left-facing plane uses the median rail depth as the physical plane distance. Independent ray knots fit the depth on that plane. At 5.3534 mm pitch the chart covers all 225 held-out points with roughly 0.11 mm maximum error and 1.49 degrees maximum normal turn. At 2.6767 mm pitch its position error falls to about 0.05 mm and its normal turn rises to 2.07 degrees. [UBC, star-shaped sets and the radial function](https://www.cs.ubc.ca/tr/1992/tr-92-27), [NIST, shape measures for star-shaped particles](https://www.nist.gov/publications/defining-shape-measures-3d-star-shaped-particles-sphericity-roundness-and-dimensions).
+
+The parent publishes each rail position and both cross derivatives. The continued meridian uses their exact projective value and derivatives. Its lateral depth starts on the same rail and takes an analytic Hermite correction with vanishing value and derivatives above the correction's endpoint. The independent carrier supplies the depth outside that support. The existing quintic Hermite basis determines every coefficient. At one measured fold reach of 42.8274 mm, both pitches resolve all meridians. The generated strip has zero self-crossings, and its accepted analytic shoulder attachment has zero crossing witnesses and `2.13e-14` mm pre-weld roundoff. The two charts at the common rail agree in the analytic cross-direction jets to binary64 roundoff. [Gordon and Hall, boundary interpolation](https://doi.org/10.1002/nme.1620070405).
+
+**ESTIMATE**. Two coarse atlas cells give the boundary correction a 10.7069 mm support. Outside that support the line reads the independent carrier directly. On the 42.8274 mm continuation, all fitted samples are within 0.176 mm of the independent source intersections. The analytic weld is a consistently wound, orientable genus-zero manifold with exactly two intended boundary loops at the wrist and outer torso. The public context starts beyond the generated strip. A same-grid run using the public source intersections reproduces the broad contrast at the outside of the strip in the front and back views. This isolates the visible effect of the comparison tessellation and outer attachment. A complete generated torso and its body-lane integration still need verification.
+
+```powershell
+node .shots/esbuild/FamilyConicMpfbTrunk.cjs --subdivision=2 --arm-receipt=.shots/hm08-side-root/side-root-preview.json --carrier-rail --out=.shots/hm08-side-root/open-carrier-rail.json
+node .shots/esbuild/FamilyConicMpfbTorsoCarrier.cjs --receipt=.shots/hm08-side-root/open-carrier-rail.json --out=.shots/hm08-side-root/carrier-study.json --surface=.shots/hm08-side-root/carrier-mesh.json --sew --comparison=.shots/hm08-side-root/carrier-comparison.json --tessellation=2 --anchor-cells=2
+node .shots/esbuild/FamilyConicMpfbShoulder.cjs .shots/hm08-side-root/carrier-views --candidate=.shots/hm08-side-root/carrier-comparison.json --limit=2
+```
+
+The matching source observation control adds `--control` and uses new output paths with the same rail, tessellation, anchor support and views.

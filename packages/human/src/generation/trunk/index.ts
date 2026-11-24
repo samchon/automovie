@@ -5,6 +5,7 @@ export * from "./AutoMovieHumanGlutealParent";
 export * from "./AutoMovieHumanMassInterim";
 export * from "./AutoMovieHumanTrunkAxis";
 export * from "./AutoMovieHumanTrunkBuild";
+export * from "./AutoMovieHumanTrunkCarrier";
 export * from "./AutoMovieHumanTrunkConnection";
 export * from "./AutoMovieHumanTrunkInterim";
 export * from "./AutoMovieHumanTrunkLaws";

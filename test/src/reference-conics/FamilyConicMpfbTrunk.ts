@@ -43,6 +43,7 @@ function outerRail(
   >,
   count: number,
   source?: Mpfb.IGeometry,
+  publishWorldJet: boolean = false,
 ) {
   const axis = Loft.axis(parent.support);
   const base: number = parent.support.centres[0]![1];
@@ -67,6 +68,7 @@ function outerRail(
       station,
       clock,
       position: rail.p,
+      worldJet: publishWorldJet ? rail : undefined,
       target: parentJet.p,
       gap: V.norm(V.sub(rail.p, parentJet.p)),
       normalTurn: Math.atan2(V.norm(V.cross(a, b)), V.dot(a, b)),
@@ -1210,7 +1212,12 @@ async function main(): Promise<void> {
       observed: curvature(parent.measured, guide.points.length),
       source: guideFacets(guide),
     },
-    stockRail: outerRail(parent, columns, source),
+    stockRail: outerRail(
+      parent,
+      columns,
+      source,
+      process.argv.includes("--carrier-rail"),
+    ),
     independentUpper: {
       ...upper,
       diagnostics: admittedUpper?.diagnostics,
