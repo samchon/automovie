@@ -226,7 +226,7 @@ export namespace AutoMovieHumanBodyPreparation {
     const actual: IAutoMovieHumanTrunkBuild.IOutput = trunkSource(context);
     const leg: IAutoMovieHumanSourceDefinition | undefined =
       actual.legs?.[side];
-    if (actual.trunk === null || leg?.part == null)
+    if (actual.trunk === null || leg === undefined || leg.part === null)
       throw new Error(
         `The actual coupled ${side} leg parent is unavailable: ${JSON.stringify([...actual.diagnostics, ...(leg?.diagnostics ?? [])])}`,
       );
