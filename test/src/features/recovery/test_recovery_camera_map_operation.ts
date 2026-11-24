@@ -10,11 +10,11 @@ import { createRecoveryMapNumericalFixture } from "../internal/createRecoveryMap
  * Scenarios:
  * 1. Three valid constant singleton images complete with zero features and explicit seed refusal, without inventing any pose or point.
  * 2. Snapshot metadata survives caller mutation, while pre-abort, checkpoint abort and observer exceptions return distinct no-value outcomes.
- * 3. A missing/duplicate third view, extra policy/option keys, invalid numeric thresholds and exhausted aggregate pixels refuse before observation.
+ * 3. Exhausted aggregate pixels refuse before observation.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Calls the exported resident API and observes actual empty-image computation, three source identities, no invented geometry, detached metadata, terminal states and closed preallocation admission.
- * @evidence contracts/development/testing.md#independent-expectations Constant singleton images cannot form gradient windows or two-neighbour descriptors, so geometry is necessarily absent. The public contract fixes exactly three unique images, borrowed RGB length and explicit policy limits; cancellation or failed callbacks cannot transfer an artifact.
- * @evidence contracts/development/testing.md#distinguishing-cases Covers zero observations, completed refusal, all three null poses, no landmarks, caller metadata lifetime, pre-start and checkpoint cancellation, callback failure, missing/duplicate sources, closed policy/options, invalid finite ranges and aggregate pixel overflow. Positive numerical geometry and host filesystem effects have separate owners.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the exported resident API and observes actual empty-image computation, three source identities, no invented geometry, detached metadata, terminal states and the preallocation pixel budget.
+ * @evidence contracts/development/testing.md#independent-expectations Constant singleton images cannot form gradient windows or two-neighbour descriptors, so geometry is necessarily absent. The caller's aggregate pixel budget bounds the three images; cancellation or failed callbacks cannot transfer an artifact.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers zero observations, completed refusal, all three null poses, no landmarks, caller metadata lifetime, pre-start and checkpoint cancellation, callback failure and aggregate pixel overflow. Positive numerical geometry and host filesystem effects have separate owners.
  * @evidence contracts/development/testing.md#execution-ownership The portable test_recovery_camera_map_operation entry creates resident arrays, records and AbortControllers only; it starts no filesystem, subprocess, installation, native compiler, browser or GPU and replaces no foreign implementation.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Three valid constant singleton images complete with zero features and explicit seed refusal, without inventing any pose or point.).
  */
@@ -89,25 +89,7 @@ export function test_recovery_camera_map_operation(): void {
   );
   const mutations: ((value: IAutoMovieRecoveryCameraMapInput) => void)[] = [
     (value: IAutoMovieRecoveryCameraMapInput): void => {
-      value.views.pop();
-    },
-    (value: IAutoMovieRecoveryCameraMapInput): void => {
-      value.views[2]!.id = value.views[0]!.id;
-    },
-    (value: IAutoMovieRecoveryCameraMapInput): void => {
-      Object.defineProperty(value.policy, "extra", { value: 1 });
-    },
-    (value: IAutoMovieRecoveryCameraMapInput): void => {
-      value.policy.minimumPointParallaxDegrees = 90;
-    },
-    (value: IAutoMovieRecoveryCameraMapInput): void => {
-      value.policy.maximumDltNullRatio = 1;
-    },
-    (value: IAutoMovieRecoveryCameraMapInput): void => {
       value.budget.maxPixels = 2;
-    },
-    (value: IAutoMovieRecoveryCameraMapInput): void => {
-      value.views[2]!.rgb8 = new Uint8Array(2);
     },
   ];
   for (const mutate of mutations) {
@@ -121,15 +103,9 @@ export function test_recovery_camera_map_operation(): void {
         },
       });
     TestValidator.predicate(
-      "malformed map refuses before observation",
+      "over-budget map refuses before observation",
       refused.status === "refused" && !("value" in refused) && !called,
     );
   }
-  const unknown: object = { [Symbol("unknown")]: true };
-  const invalidOption: ReturnType<typeof estimateAutoMovieRecoveryCameraMap> =
-    estimateAutoMovieRecoveryCameraMap(make(), unknown);
-  TestValidator.predicate(
-    "unknown symbol option refuses",
-    invalidOption.status === "refused" && !("value" in invalidOption),
-  );
 }
+

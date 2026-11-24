@@ -37,33 +37,13 @@ export function estimateAutoMovieRecoveryCameraMap(
   let admitted: boolean = false,
     callback: boolean = false;
   try {
-    if (
-      !options ||
-      typeof options !== "object" ||
-      Array.isArray(options) ||
-      Reflect.ownKeys(options).some(
-        (key: string | symbol): boolean =>
-          key !== "cancelled" && key !== "onProgress",
-      ) ||
-      (options.onProgress !== undefined &&
-        typeof options.onProgress !== "function") ||
-      (options.cancelled !== undefined &&
-        typeof options.cancelled !== "function")
-    )
-      throw new Error(
-        "invalid-camera-map-options: only cancellation callback and synchronous progress observer supported",
-      );
     const probe: typeof options.cancelled = options.cancelled,
       observer: typeof options.onProgress = options.onProgress;
     const cancelled: () => boolean = (): boolean => {
       callback = true;
-      const requested: boolean | undefined = probe?.();
-      if (probe !== undefined && typeof requested !== "boolean")
-        throw new Error(
-          "Cancellation callback must return a boolean synchronously",
-        );
+      const requested: boolean = probe?.() === true;
       callback = false;
-      return requested === true;
+      return requested;
     };
     if (cancelled()) throw cancellation;
     const charts: ReturnType<IAutoMovieRecoveryCameraMapAdmissionOperation.Operation> =

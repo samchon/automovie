@@ -2,27 +2,27 @@
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-Closed records, exact three unique view identities, explicit finite thresholds, safe work ceilings and delegated existing pixel/calibration admission establish the supported calibrated triad. Conservative linear-entry capacity covers all retained point blocks before numerical design allocation.
+The seed pair's charts are prepared as a pair, the third view's chart under the map's aggregate pixel ceiling, and that ceiling bounds all three views before numerical design allocation. The declared input owns its shape.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-One map-specific admission owner checks new populations while the existing pair owner retains feature, seed and camera chart semantics.
+One map-specific owner bounds the triad's pixels while the existing pair owner retains seed and camera chart semantics.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
-No missing member, hidden default, raised admitted work limit, inferred calibration or fourth view is silently accepted.
+No hidden default, raised pixel limit, inferred calibration or fourth view is supplied.
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States three-view support, separate seed-pair versus map pixels, preallocation entry bounds and caller-asserted calibration/rigidity.
+States the three-view preparation, separate seed-pair versus map pixels and caller-asserted calibration, rigidity, policy and budgets.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
-Fixed-size records and three chart checks require constant work without scanning or copying RGB pixels; bounded feature populations precede image allocation.
+Three chart constructions require constant work without scanning or copying RGB pixels; the pixel ceiling precedes image allocation.
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 
-The existing seed admission supplies its two charts, and third-view admission contributes only its new chart to the map owner.
+The existing seed preparation supplies its two charts, and the third view's preparation contributes only its new chart to the map owner.
 
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
