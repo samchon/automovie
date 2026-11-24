@@ -22,7 +22,7 @@ import { nclose } from "../internal/nclose";
  *
  * @evidence contracts/development/testing.md#behavioral-verification Runs the engine's CPU reference of the response, which the final pass mirrors, with chosen grades; a grade applied before encoding, without clamping, in another order or about another luma fails.
  * @evidence contracts/development/testing.md#independent-expectations The expectations are the decision list's formula on the issue's numbers, with the linear input chosen as the sRGB decoding of 0.5 at unit exposure scale, so the encoded value entering the grade is 0.5 by IEC 61966-2-1.
- * @evidence contracts/development/testing.md#distinguishing-cases Slope, saturation, offset and power each alone, and the identity against absence. Range refusals are owned by `test_draw_film_optics_validation`.
+ * @evidence contracts/development/testing.md#distinguishing-cases Slope, saturation, offset and power each alone, and the identity against absence.
  * @evidence contracts/development/testing.md#execution-ownership A portable unit discovered as `test_draw_film_optics_grade`; it runs CPU arithmetic only.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each naming the input and the behavior it pins.
  */

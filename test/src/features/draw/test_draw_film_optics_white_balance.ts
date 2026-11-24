@@ -22,7 +22,7 @@ import { TestValidator } from "@nestia/e2e";
  *
  * @evidence contracts/development/testing.md#behavioral-verification Runs the engine's CPU reference of the response, which the final pass mirrors, on the issue's card; a balance that adapted the wrong way, skipped the cone space or lost luminance fails.
  * @evidence contracts/development/testing.md#independent-expectations A complete von Kries adaptation maps the source white exactly to the destination white by its definition (CIE 159:2004), and a 3200 K black body is redder than D65 by Planck's law; the thresholds are the issue's.
- * @evidence contracts/development/testing.md#distinguishing-cases Balanced against unbalanced, a warm white against the working white. Range refusals are owned by `test_draw_film_optics_validation`.
+ * @evidence contracts/development/testing.md#distinguishing-cases Balanced against unbalanced, a warm white against the working white.
  * @evidence contracts/development/testing.md#execution-ownership A portable unit discovered as `test_draw_film_optics_white_balance`; it runs CPU arithmetic only.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each naming the input and the behavior it pins.
  */

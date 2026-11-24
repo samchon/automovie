@@ -2,7 +2,7 @@
 
 ## @evidence contracts/development/design.md#principled-representation
 
-The indirect shading a film asks for at one second, beside its optics; each member is optional and absent means the step is skipped. The dependency on optics and every range remain for `admitAutoMovieFilmShading` at runtime.
+The indirect shading a film asks for at one second, beside its optics; each member is optional and absent means the step is skipped. The dependency on optics and every range are the author's documented contract; the engine runs no runtime check of them.
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
@@ -38,7 +38,7 @@ States the cited method, its slice and step counts, which light it multiplies an
 
 ## @evidence contracts/development/design.md#principled-representation
 
-A world box in metres, a pitch in metres, a renderer layer and a revision naming the layer's lit state; the box order, ranges and the layer bounds remain for `admitAutoMovieFilmShading`.
+A world box in metres, a pitch in metres, a renderer layer and a revision naming the layer's lit state; the box order, ranges and the layer bounds are the author's documented contract, with no runtime check.
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 

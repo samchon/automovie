@@ -30,15 +30,14 @@ import { createProbeRendererDouble } from "./createProbeRendererDouble";
  * 3. The beauty callback afterwards sees the environment as the scene's background
  *    again, the renderer's clear colour and alpha are restored, and the probe
  *    term is on only inside the callback.
- * 4. Probes without optics are refused naming `optics`, and a renderer that cannot
- *    read back refuses the bake.
+ * 4. A renderer that cannot read back refuses the bake.
  *
  * Whether a real floor's upward receiver stays at or below 50 lux under the sky
  * is checked on a real GPU under the visual-debugging skill.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Runs the stage over a recording renderer and reads the baked texture; a bake that drew the background, left it off afterwards or saw other layers fails.
  * @evidence contracts/development/testing.md#independent-expectations The issue fixes the rule: no background in the cube, black clear, the static layer alone; black texels project to zero coefficients by linearity.
- * @evidence contracts/development/testing.md#distinguishing-cases During the bake against inside the beauty pass and after it; with and without optics; a renderer without read-back. The projection's arithmetic is owned by `test_draw_film_probes_floor`.
+ * @evidence contracts/development/testing.md#distinguishing-cases During the bake against inside the beauty pass and after it; a renderer without read-back. The projection's arithmetic is owned by `test_draw_film_probes_floor`.
  * @evidence contracts/development/testing.md#execution-ownership A portable unit discovered as `test_draw_film_probes_background`; the renderer is an in-memory double and no GPU starts.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each naming the input and the behavior it pins.
  */
@@ -169,14 +168,8 @@ export function test_draw_film_probes_background(): void {
   });
   delete plain.renderer.readRenderTargetPixels;
   TestValidator.predicate(
-    "probes without optics, or without read-back, are refused",
-    refused(() =>
-      draw(
-        createProbeRendererDouble({ texel: (): number => 0 }).renderer,
-        false,
-      ),
-    ).includes("optics") &&
-      refused(() => draw(plain.renderer, true)).includes("read back"),
+    "a renderer without read-back is refused",
+    refused(() => draw(plain.renderer, true)).includes("read back"),
   );
   stage.dispose();
 }
