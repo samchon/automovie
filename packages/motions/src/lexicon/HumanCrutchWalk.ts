@@ -476,30 +476,42 @@ export const HumanCrutchWalk: IAutoMovieMotionHumanCrutchWalk.ILaw = {
     // (`HumanContactWindow.fromPath`), on the support each stance names.
     const toes: ReadonlySet<AutoMovieHumanoidBone> =
       new Set<AutoMovieHumanoidBone>(["leftToes", "rightToes"]);
-    const feetWindows: IAutoMovieMotionHumanContactWindow[] =
-      HumanContactWindow.fromPath({
-        windows: plan.contacts,
-        duration: plan.duration,
-        toes: (seconds: number): HumanContactWindow.Toes => {
-          const placed: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
-            poseBones(
-              body,
-              resolveHumanPosture(body, posture(seconds)),
-              undefined,
-              toes,
-            );
-          return {
-            leftFoot: placed.get("leftToes")!.worldPosition,
-            rightFoot: placed.get("rightToes")!.worldPosition,
-          };
-        },
-      });
+    const bearing: HumanContactWindow.IContacts = HumanContactWindow.fromPath({
+      windows: plan.contacts,
+      duration: plan.duration,
+      toes: (seconds: number): HumanContactWindow.Toes => {
+        const placed: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
+          poseBones(
+            body,
+            resolveHumanPosture(body, posture(seconds)),
+            undefined,
+            toes,
+          );
+        return {
+          leftFoot: placed.get("leftToes")!.worldPosition,
+          rightFoot: placed.get("rightToes")!.worldPosition,
+        };
+      },
+    });
+    // Each foot held where its contact locks it (`HumanContactWindow.locked`).
+    const shown: IAutoMovieMotionHumanActionPlan["posture"] = (
+      seconds: number,
+      channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1],
+      resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
+      projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3],
+    ): IAutoMovieMotionHumanPosture =>
+      HumanContactWindow.locked(
+        posture(seconds, channels, resolution, projection),
+        bearing,
+        seconds,
+        plan.duration,
+      );
     return {
       ...plan,
-      posture,
+      posture: shown,
       yields: ["head"],
       contacts: [
-        ...feetWindows,
+        ...bearing.windows,
         ...(["left", "right"] as const).map(
           (side: AutoMovieHumanSide): IAutoMovieMotionHumanContactWindow => ({
             part: `${side}Hand`,

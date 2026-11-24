@@ -1,7 +1,10 @@
 import { Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanLimb,
   AutoMovieHumanoidRegion,
+  IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanPosture,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -98,6 +101,18 @@ export namespace HumanContactWindow {
   export const FILTER: number = 6;
 
   /**
+   * How far the animated toe may leave a locked contact before the lock lets
+   * go, metres (`ik_unlock_radius = 0.2f`, `controller.cpp` below).
+   */
+  export const UNLOCK: number = 0.2;
+
+  /**
+   * The half-life of the blend into and out of a lock, seconds
+   * (`ik_blending_halflife = 0.1f`, `controller.cpp`).
+   */
+  export const HALFLIFE: number = 0.1;
+
+  /**
    * A plan's foot windows timed by its planned toe path.
    *
    * A port of orangeduck/Motion-Matching, `resources/generate_database.py` at
@@ -124,12 +139,27 @@ export namespace HumanContactWindow {
    * overlaps none, a foot the law holds in the air, bears on nothing. Every
    * other window is kept as declared.
    *
+   * Each foot's contact is then locked as the same source's controller locks it
+   * (`controller.cpp` `contact_update` with `spring.h`'s
+   * `inertialize_transition`, `inertialize_update` and
+   * `decay_spring_damper_implicit`, `common.h`'s `fast_negexpf`), run over the
+   * toe's samples at the step `1 / RATE`: a contact that begins locks the toe
+   * where it is shown, a contact that ends or an animated toe farther than
+   * `UNLOCK` from the lock lets it go, and each change blends out by a
+   * critically damped offset of half-life `HALFLIFE`. The source projects the
+   * locked point onto its flat ground at the foot's height; the plan's toe
+   * stands on its own support when its contact begins, so the lock keeps the
+   * shown toe's height there. The lock's offset from the animated toe at each
+   * sample is what `locked` lays on the plan's leg goals, read linearly between
+   * samples.
+   *
    * @param props The declared windows, the plan's length and its toe path.
-   * @returns The windows, the feet's timed by their path.
+   * @returns The windows, the feet's timed by their path, and the locks'
+   *   offsets.
    * @throws {Error} When the plan is shorter than the four samples the source's
    *   end extrapolation reads.
    */
-  export function fromPath(props: IPath): IAutoMovieMotionHumanContactWindow[] {
+  export function fromPath(props: IPath): IContacts {
     const count: number = Math.floor(props.duration * RATE) + 1;
     if (count < 4)
       throw new Error(
@@ -146,6 +176,14 @@ export namespace HumanContactWindow {
       { length: count },
       (_: unknown, sample: number): Toes => props.toes(seconds(sample)),
     );
+    const states: Record<Foot, readonly boolean[]> = {
+      leftFoot: contacts(
+        sampled.map((toes: Toes): IAutoMovieVector3 => toes.leftFoot),
+      ),
+      rightFoot: contacts(
+        sampled.map((toes: Toes): IAutoMovieVector3 => toes.rightFoot),
+      ),
+    };
     const timed: IAutoMovieMotionHumanContactWindow[] = FEET.flatMap(
       (foot: Foot): IAutoMovieMotionHumanContactWindow[] => {
         const declared: IAutoMovieMotionHumanContactWindow[] =
@@ -154,9 +192,7 @@ export namespace HumanContactWindow {
               w.part === foot && BEARING.includes(w.kind),
           );
         if (declared.length === 0) return [];
-        const runs: readonly IRun[] = contacts(
-          sampled.map((toes: Toes): IAutoMovieVector3 => toes[foot]),
-        );
+        const runs: readonly IRun[] = runsOf(states[foot]);
         return runs.flatMap(
           (run: IRun): IAutoMovieMotionHumanContactWindow[] => {
             const from: number = seconds(run.first);
@@ -180,7 +216,64 @@ export namespace HumanContactWindow {
         );
       },
     );
-    return [...kept, ...timed];
+    return {
+      windows: [...kept, ...timed],
+      offsets: {
+        leftFoot: locks(
+          sampled.map((toes: Toes): IAutoMovieVector3 => toes.leftFoot),
+          states.leftFoot,
+        ),
+        rightFoot: locks(
+          sampled.map((toes: Toes): IAutoMovieVector3 => toes.rightFoot),
+          states.rightFoot,
+        ),
+      },
+    };
+  }
+
+  /**
+   * A plan's posture with each foot's lock laid on its leg goal: the goal's
+   * point and bend moved by the lock's offset from the animated toe at the
+   * second (`fromPath`), as the source's controller moves the heel's IK target
+   * by the locked contact's offset (`controller.cpp`). A leg with no world goal
+   * is left as it is.
+   *
+   * @param posture The plan's posture at the second.
+   * @param path The plan's contacts, timed and locked.
+   * @param seconds The action's second.
+   * @param duration The plan's length, seconds.
+   * @returns The posture with its feet locked.
+   */
+  export function locked(
+    posture: IAutoMovieMotionHumanPosture,
+    path: IContacts,
+    seconds: number,
+    duration: number,
+  ): IAutoMovieMotionHumanPosture {
+    const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...posture.limbs };
+    for (const foot of FEET) {
+      const leg: AutoMovieHumanLimb =
+        foot === "leftFoot" ? "leftLeg" : "rightLeg";
+      const goal: IAutoMovieHumanLimbGoal | undefined = limbs[leg];
+      if (goal === undefined || goal.on !== undefined) continue;
+      const table: readonly IAutoMovieVector3[] = path.offsets[foot];
+      const at: number = Math.min(
+        table.length - 1,
+        Math.max(0, Math.min(seconds, duration) * RATE),
+      );
+      const k: number = Math.min(table.length - 2, Math.floor(at));
+      const offset: IAutoMovieVector3 = Vector3.lerp(
+        table[k]!,
+        table[k + 1]!,
+        at - k,
+      );
+      limbs[leg] = {
+        ...goal,
+        point: Vector3.add(goal.point, offset),
+        bend: Vector3.add(goal.bend, offset),
+      };
+    }
+    return { ...posture, limbs };
   }
 
   /** A foot a path times. */
@@ -204,6 +297,18 @@ export namespace HumanContactWindow {
   /** Both feet's toe joints, metres. */
   export type Toes = Readonly<Record<Foot, IAutoMovieVector3>>;
 
+  /** A plan's feet timed and locked by their toe path. */
+  export interface IContacts {
+    /** The plan's windows, the feet's timed by their path. */
+    windows: IAutoMovieMotionHumanContactWindow[];
+
+    /**
+     * Each foot's lock offset from its animated toe at every sample of `RATE`,
+     * world metres.
+     */
+    offsets: Readonly<Record<Foot, readonly IAutoMovieVector3[]>>;
+  }
+
   /** A run of samples in contact, inclusive. */
   export interface IRun {
     /** The run's first sample. */
@@ -214,10 +319,10 @@ export namespace HumanContactWindow {
   }
 
   /**
-   * The contact runs of one toe path sampled at `RATE`: the source's velocity,
-   * threshold and median filter.
+   * The contact states of one toe path sampled at `RATE`: the source's
+   * velocity, threshold and median filter.
    */
-  function contacts(points: readonly IAutoMovieVector3[]): IRun[] {
+  function contacts(points: readonly IAutoMovieVector3[]): boolean[] {
     const n: number = points.length;
     const velocities: IAutoMovieVector3[] = points.map(
       (point: IAutoMovieVector3, t: number): IAutoMovieVector3 =>
@@ -254,8 +359,13 @@ export namespace HumanContactWindow {
         if (raw[Math.min(n - 1, Math.max(0, k))]) on++;
       return on >= FILTER - before;
     });
+    return filtered;
+  }
+
+  /** The runs of consecutive samples in contact. */
+  function runsOf(states: readonly boolean[]): IRun[] {
     const runs: IRun[] = [];
-    filtered.forEach((on: boolean, t: number): void => {
+    states.forEach((on: boolean, t: number): void => {
       if (!on) return;
       const last: IRun | undefined = runs.at(-1);
       if (last !== undefined && last.last === t - 1) last.last = t;
@@ -263,6 +373,83 @@ export namespace HumanContactWindow {
     });
     return runs;
   }
+
+  /**
+   * One foot's lock offsets over its samples: the source's `contact_update` run
+   * at the step `1 / RATE` from `contact_reset`, its blends by
+   * `inertialize_transition` and `inertialize_update`, the offset of the shown
+   * contact from the animated toe after each update.
+   */
+  function locks(
+    points: readonly IAutoMovieVector3[],
+    states: readonly boolean[],
+  ): IAutoMovieVector3[] {
+    const dt: number = 1 / RATE;
+    const zero: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
+    // contact_reset.
+    let state: boolean = false;
+    let lock: boolean = false;
+    let position: IAutoMovieVector3 = points[0]!;
+    let point: IAutoMovieVector3 = points[0]!;
+    let target: IAutoMovieVector3 = points[0]!;
+    let offsetX: IAutoMovieVector3 = zero;
+    let offsetV: IAutoMovieVector3 = zero;
+    const out: IAutoMovieVector3[] = [];
+    points.forEach((input: IAutoMovieVector3, t: number): void => {
+      const inputState: boolean = states[t]!;
+      const inputVelocity: IAutoMovieVector3 = Vector3.scale(
+        Vector3.subtract(input, target),
+        1 / (dt + EPSILON),
+      );
+      target = input;
+
+      // inertialize_update: decay the offset, then add it to the fed input.
+      const y: number = (4 * LN2) / (HALFLIFE + DAMPING_EPSILON) / 2;
+      const j1: IAutoMovieVector3 = Vector3.add(
+        offsetV,
+        Vector3.scale(offsetX, y),
+      );
+      const eydt: number = negexp(y * dt);
+      offsetX = Vector3.scale(
+        Vector3.add(offsetX, Vector3.scale(j1, dt)),
+        eydt,
+      );
+      offsetV = Vector3.scale(
+        Vector3.subtract(offsetV, Vector3.scale(j1, y * dt)),
+        eydt,
+      );
+      position = Vector3.add(lock ? point : input, offsetX);
+
+      const unlock: boolean = lock && Vector3.distance(point, input) > UNLOCK;
+      if (!state && inputState) {
+        lock = true;
+        point = { ...position, y: input.y };
+        offsetX = Vector3.subtract(Vector3.add(input, offsetX), point);
+        offsetV = Vector3.add(inputVelocity, offsetV);
+      } else if ((lock && state && !inputState) || unlock) {
+        lock = false;
+        offsetX = Vector3.subtract(Vector3.add(point, offsetX), input);
+        offsetV = Vector3.subtract(offsetV, inputVelocity);
+      }
+      state = inputState;
+      out.push(Vector3.subtract(position, input));
+    });
+    return out;
+  }
+
+  /** `fast_negexpf` (`common.h`): the source's approximation of `exp(-x)`. */
+  function negexp(x: number): number {
+    return 1 / (1 + x + 0.48 * x * x + 0.235 * x * x * x);
+  }
+
+  /** `contact_update`'s `eps`, the finite difference's guard. */
+  const EPSILON: number = 1e-8;
+
+  /** `halflife_to_damping`'s `eps`. */
+  const DAMPING_EPSILON: number = 1e-5;
+
+  /** `LN2f`, `common.h`. */
+  const LN2: number = 0.69314718056;
 
   /** The feet a path times. */
   const FEET: readonly Foot[] = ["leftFoot", "rightFoot"];
