@@ -20,7 +20,11 @@ export function test_unit_motions_executable_striking_verdicts_peak(): void {
   ): StrikingVerdicts.ITimed => ({
     start: 1,
     end: 2,
-    plan: { duration: 1, events, ...(contact === undefined ? {} : { contact }) },
+    plan: {
+      duration: 1,
+      events,
+      ...(contact === undefined ? {} : { contact }),
+    },
   });
   TestValidator.equals(
     "contact, end, shown, chamber, end",
@@ -33,7 +37,9 @@ export function test_unit_motions_executable_striking_verdicts_peak(): void {
           { name: "shown", share: 0.5 },
         ]),
       ),
-      StrikingVerdicts.peak(timed(undefined, [{ name: "chamber", share: 0.25 }])),
+      StrikingVerdicts.peak(
+        timed(undefined, [{ name: "chamber", share: 0.25 }]),
+      ),
       StrikingVerdicts.peak(timed(undefined, [])),
     ],
     [1.4, 2, 1.5, 1.25, 2],

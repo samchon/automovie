@@ -5,12 +5,12 @@ import { TestValidator } from "@nestia/e2e";
 import { throwsError } from "../../../internal/throwsError";
 
 /**
- * `highJumpBar.admit` requires the take-off foot to be the one farther from
- * the bar, as a Fosbury flop takes off from the outside foot of its curve.
+ * `highJumpBar.admit` requires the take-off foot to be the one farther from the
+ * bar, as a Fosbury flop takes off from the outside foot of its curve.
  *
  * The bar lies along +X, 0.8 m ahead in +Z of an ankle at the origin; the
- * runner runs along +X, so the bar is on the runner's right (the left is -Z
- * for a heading of +X).
+ * runner runs along +X, so the bar is on the runner's right (the left is -Z for
+ * a heading of +X).
  *
  * Scenarios:
  *

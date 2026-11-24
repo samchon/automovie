@@ -9,8 +9,8 @@ import { TestValidator } from "@nestia/e2e";
  *
  * Scenarios:
  *
- * 1. Half a second at 0.25 s with a contact named at 0.26 s keeps the contact
- *    and drops the 0.25 s grid instant.
+ * 1. Half a second at 0.25 s with a contact named at 0.26 s keeps the contact and
+ *    drops the 0.25 s grid instant.
  * 2. Named instants out of order come back sorted.
  */
 export function test_unit_motions_executable_touch_verdicts_times(): void {

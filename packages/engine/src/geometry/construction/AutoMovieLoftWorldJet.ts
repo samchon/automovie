@@ -49,30 +49,32 @@ export function AutoMovieLoftWorldJet(
     const w0: number = W[0]![k]!;
     const w1: number = W[1]![k]!;
     const w2: number = W[2]![k]!;
-    p[k] = o[0]![k]! + u0 * local.p[0] + w0 * local.p[1];
-    ds[k] =
-      o[1]![k]! +
-      u0 * local.s[0] +
-      u1 * local.p[0] +
-      w0 * local.s[1] +
-      w1 * local.p[1];
-    dt[k] = u0 * local.t[0] + w0 * local.t[1];
-    dss[k] =
-      o[2]![k]! +
-      u0 * local.ss[0] +
-      2 * u1 * local.s[0] +
-      u2 * local.p[0] +
-      w0 * local.ss[1] +
-      2 * w1 * local.s[1] +
-      w2 * local.p[1];
-    dst[k] =
-      u0 * local.st[0] + u1 * local.t[0] + w0 * local.st[1] + w1 * local.t[1];
-    dtt[k] = u0 * local.tt[0] + w0 * local.tt[1];
+    p[k] = total(o[0]![k]!, times(u0, local.p[0]), times(w0, local.p[1]));
+    ds[k] = total(
+      o[1]![k]!,
+      times(u0, local.s[0]),
+      times(u1, local.p[0]),
+      times(w0, local.s[1]),
+      times(w1, local.p[1]),
+    );
+    dt[k] = total(times(u0, local.t[0]), times(w0, local.t[1]));
+    dss[k] = total(
+      o[2]![k]!,
+      times(u0, local.ss[0]),
+      times(times(2, u1), local.s[0]),
+      times(u2, local.p[0]),
+      times(w0, local.ss[1]),
+      times(times(2, w1), local.s[1]),
+      times(w2, local.p[1]),
+    );
+    dst[k] = total(
+      times(u0, local.st[0]),
+      times(u1, local.t[0]),
+      times(w0, local.st[1]),
+      times(w1, local.t[1]),
+    );
+    dtt[k] = total(times(u0, local.tt[0]), times(w0, local.tt[1]));
   }
-  // The frame products and sums are the operations that can overflow binary64.
-  for (const row of [p, ds, dt, dss, dst, dtt])
-    if (row.some(overflowsBinary64))
-      throw new Error("The world total2 overflows binary64.");
   const out: IAutoMovieLoftWorldJetWorld = {
     p,
     s: ds,
@@ -82,4 +84,23 @@ export function AutoMovieLoftWorldJet(
     tt: dtt,
   };
   return out;
+}
+
+/** One product, refused where it overflows binary64. */
+function times(left: number, right: number): number {
+  const product: number = left * right;
+  if (overflowsBinary64(product))
+    throw new Error("The world total2 overflows binary64.");
+  return product;
+}
+
+/** Left-associated sum of terms, each partial sum refused where it overflows. */
+function total(first: number, ...rest: number[]): number {
+  let sum: number = first;
+  for (const term of rest) {
+    sum += term;
+    if (overflowsBinary64(sum))
+      throw new Error("The world total2 overflows binary64.");
+  }
+  return sum;
 }

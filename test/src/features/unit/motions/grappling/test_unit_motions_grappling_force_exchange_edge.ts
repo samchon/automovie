@@ -25,11 +25,19 @@ const SQUARE: IAutoMovieVector3[] = [
  * 4. A centre already outside the base, or a base of two points, gives none.
  */
 export function test_unit_motions_grappling_force_exchange_edge(): void {
-  const diagonal: IAutoMovieVector3 = { x: Math.SQRT1_2, y: 0, z: Math.SQRT1_2 };
+  const diagonal: IAutoMovieVector3 = {
+    x: Math.SQRT1_2,
+    y: 0,
+    z: Math.SQRT1_2,
+  };
   TestValidator.predicate(
     "the hull's extent along the direction",
     nclose(
-      HumanForceExchange.edge({ x: 0, y: 1, z: 0 }, { x: 0, y: 0, z: 1 }, SQUARE),
+      HumanForceExchange.edge(
+        { x: 0, y: 1, z: 0 },
+        { x: 0, y: 0, z: 1 },
+        SQUARE,
+      ),
       0.1,
       1e-12,
     ) &&

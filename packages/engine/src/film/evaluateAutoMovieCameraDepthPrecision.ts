@@ -86,10 +86,12 @@ export function evaluateAutoMovieCameraDepthPrecision(
   function depthAtCode(code: number): number {
     return 1 / (reciprocalNear - (code / levels) * reciprocalSpan);
   }
-  const measuredStepMeters: number =
-    depthAtCode(upperCode) - depthAtCode(lowerCode);
-  if (!(measuredStepMeters >= 0) || overflowsBinary64(measuredStepMeters))
+  const upperDepth: number = depthAtCode(upperCode);
+  const lowerDepth: number = depthAtCode(lowerCode);
+  if (overflowsBinary64(upperDepth) || overflowsBinary64(lowerDepth))
     return unmeasured("invalid");
+  const measuredStepMeters: number = upperDepth - lowerDepth;
+  if (!(measuredStepMeters >= 0)) return unmeasured("invalid");
   const passed: boolean =
     measuredStepMeters <= props.constraint.maximumStepMeters;
   return {

@@ -14,8 +14,8 @@ const TILT: number = Math.PI / 15;
  * The bow hair's direction on an outer violin string: perpendicular to the
  * string across the instrument, the straight-stroke condition (Schoonderwaldt
  * 2010, DOI 10.3813/AAA.918314), tilted by `TILT` out of the string bar's plane
- * toward the string's own outside edge, so the hair rises toward the other three
- * strings.
+ * toward the string's own outside edge, so the hair rises toward the other
+ * three strings.
  *
  * @param longitudinal The string's direction from bridge to nut, unit.
  * @param outward The string bar's outward normal, unit.

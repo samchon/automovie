@@ -30,9 +30,9 @@ const plant = (
  *
  * Scenarios:
  *
- * 1. On a 700 N pole the plant keeps `sqrt(64 - 2 · 490 / 70)` = `sqrt(50)`
- *    m/s, since `700² / 500 · cos² 45°` = 490 J is less than the 1120 J the
- *    velocity carries along the pole.
+ * 1. On a 700 N pole the plant keeps `sqrt(64 - 2 · 490 / 70)` = `sqrt(50)` m/s,
+ *    since `700² / 500 · cos² 45°` = 490 J is less than the 1120 J the velocity
+ *    carries along the pole.
  * 2. That vault reaches the release: the last chord is the pole's length again.
  * 3. A plant moving away from the tip along the pole fails at once.
  * 4. A standing plant on a soft pole swings back before upright.

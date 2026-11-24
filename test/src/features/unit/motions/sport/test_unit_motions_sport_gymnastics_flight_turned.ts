@@ -10,13 +10,13 @@ import { vclose } from "../../../internal/vclose";
  * point: its heading gains `yaw`, its tip gains `pitch`, and its root and its
  * world limb goals go round the pivot; a goal on a bone is kept.
  *
- * A posture rooted 1 m up at the origin, with a world hand goal at (1, 1, 0) and
- * a foot goal on the hips.
+ * A posture rooted 1 m up at the origin, with a world hand goal at (1, 1, 0)
+ * and a foot goal on the hips.
  *
  * Scenarios:
  *
- * 1. A quarter turn about the origin keeps the root on the axis, heads 90
- *    degrees and carries the hand goal from +X to -Z, its bend hint with it.
+ * 1. A quarter turn about the origin keeps the root on the axis, heads 90 degrees
+ *    and carries the hand goal from +X to -Z, its bend hint with it.
  * 2. The goal on a bone is kept as it was.
  * 3. A posture with a roll is refused.
  */
@@ -58,7 +58,12 @@ export function test_unit_motions_sport_gymnastics_flight_turned(): void {
   TestValidator.predicate(
     "a roll refused",
     throwsError(() =>
-      GymnasticsFlight.turned({ ...posture, roll: 5 }, { x: 0, y: 0, z: 0 }, 90, 0),
+      GymnasticsFlight.turned(
+        { ...posture, roll: 5 },
+        { x: 0, y: 0, z: 0 },
+        90,
+        0,
+      ),
     ),
   );
 }

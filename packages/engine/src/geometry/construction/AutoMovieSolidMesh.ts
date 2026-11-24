@@ -12,7 +12,18 @@ import { faceAutoMovieSolidMesh } from "./faceAutoMovieSolidMesh";
 export namespace AutoMovieSolidMesh {
   /** Allocate an empty, detached mutable mesh. */
   export function create(): IAutoMovieSolidMesh.IMesh {
-    return { positions: [], indices: [], coordinates: [], owners: [] };
+    return {
+      positions: [],
+      indices: [],
+      coordinates: [],
+      owners: [],
+      ledger: {
+        seen: [],
+        occupied: new Set(),
+        pairs: new Map(),
+        directed: new Map(),
+      },
+    };
   }
 
   /** Register an unchanged surface by its unique name. */

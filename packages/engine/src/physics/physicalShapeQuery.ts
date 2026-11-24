@@ -251,7 +251,8 @@ function query(
   const local: (p: IAutoMovieVector3) => ILocal = (
     p: IAutoMovieVector3,
   ): ILocal => {
-    if (shape.kind === "hull") return readPhysicalHullFacesPoint(physicalShapeHull(shape), p, true);
+    if (shape.kind === "hull")
+      return readPhysicalHullFacesPoint(physicalShapeHull(shape), p, true);
     if (shape.kind === "box") return boxNearest(shape.halfExtents, p);
     if (shape.kind === "sphere" || shape.kind === "capsule")
       return roundNearest(

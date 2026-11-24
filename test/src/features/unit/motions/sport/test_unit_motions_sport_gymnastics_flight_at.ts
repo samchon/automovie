@@ -10,8 +10,8 @@ import { vclose } from "../../../internal/vclose";
  *
  * Scenarios:
  *
- * 1. Launched from (1, 1, 0) at (2, 4, -1) m/s, after 0.5 s it is at (2, 3 -
- *    g / 8, -0.5).
+ * 1. Launched from (1, 1, 0) at (2, 4, -1) m/s, after 0.5 s it is at (2, 3 - g /
+ *    8, -0.5).
  * 2. At the launch it is at its start.
  */
 export function test_unit_motions_sport_gymnastics_flight_at(): void {

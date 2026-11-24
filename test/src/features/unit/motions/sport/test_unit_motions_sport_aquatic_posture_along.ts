@@ -24,7 +24,11 @@ export function test_unit_motions_sport_aquatic_posture_along(): void {
   };
   TestValidator.predicate(
     "ahead along the heading",
-    vclose(AquaticPosture.along(entry, 3, 0.5), { x: 1, y: 0.5, z: 5 }, 1e-12) &&
+    vclose(
+      AquaticPosture.along(entry, 3, 0.5),
+      { x: 1, y: 0.5, z: 5 },
+      1e-12,
+    ) &&
       vclose(
         AquaticPosture.along({ ...entry, yaw: 90 }, 3, 0.5),
         { x: 4, y: 0.5, z: 2 },

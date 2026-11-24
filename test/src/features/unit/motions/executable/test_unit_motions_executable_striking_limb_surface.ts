@@ -35,8 +35,16 @@ export function test_unit_motions_executable_striking_limb_surface(): void {
   // 1. The uniform capsule.
   TestValidator.predicate(
     "off the side, inside and past the cap",
-    nclose(StrikingLimb.surface({ x: 0.5, y: 0.3, z: 0 }, uniform), 0.2, EXACT) &&
-      nclose(StrikingLimb.surface({ x: 0.5, y: 0, z: 0 }, uniform), -0.1, EXACT) &&
+    nclose(
+      StrikingLimb.surface({ x: 0.5, y: 0.3, z: 0 }, uniform),
+      0.2,
+      EXACT,
+    ) &&
+      nclose(
+        StrikingLimb.surface({ x: 0.5, y: 0, z: 0 }, uniform),
+        -0.1,
+        EXACT,
+      ) &&
       nclose(StrikingLimb.surface({ x: 2, y: 0, z: 0 }, uniform), 0.9, EXACT),
   );
 

@@ -26,10 +26,10 @@ const EXACT: number = 1e-9;
  * Scenarios:
  *
  * 1. The woman is declared female at the mean stature, 1629.37 mm.
- * 2. Her fat percentage is `1.2 * 23.3357 + 0.23 * 26.2 - 5.4`; the man's is
- *    `1.2 * 25.4194 + 0.23 * 27.2 - 10.8 - 5.4`.
- * 3. Her cephalic index is her head breadth over length, and her palm the ANSUR
- *    II share of her hand, the same on both hands.
+ * 2. Her fat percentage is `1.2 * 23.3357 + 0.23 * 26.2 - 5.4`; the man's is `1.2
+ *    * 25.4194 + 0.23 * 27.2 - 10.8 - 5.4`.
+ * 3. Her cephalic index is her head breadth over length, and her palm the ANSUR II
+ *    share of her hand, the same on both hands.
  */
 export function test_unit_motions_executable_human_population_build_params(): void {
   const find = (name: string): HumanPopulationEnds.IEnd =>
@@ -72,7 +72,11 @@ export function test_unit_motions_executable_human_population_build_params(): vo
   > = woman.extremities!.hands!;
   TestValidator.predicate(
     "the cephalic index and the palm",
-    nclose(woman.head.cephalicIndex, (100 * x.headBreadth) / x.headLength, EXACT) &&
+    nclose(
+      woman.head.cephalicIndex,
+      (100 * x.headBreadth) / x.headLength,
+      EXACT,
+    ) &&
       nclose(hands.left.palmLength, (x.handLength * 108.7) / 181.1, EXACT) &&
       hands.right.palmLength === hands.left.palmLength,
   );

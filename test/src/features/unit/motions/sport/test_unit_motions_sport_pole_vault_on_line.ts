@@ -25,8 +25,16 @@ export function test_unit_motions_sport_pole_vault_on_line(): void {
   const grip: IAutoMovieVector3 = { x: 2, y: 1, z: 0 };
   TestValidator.predicate(
     "the farther crossing, clamped",
-    vclose(poleVaultOnLine(from, slide, grip, Math.SQRT2)!, { x: 3, y: 0, z: 0 }, 1e-12) &&
-      vclose(poleVaultOnLine(from, slide, grip, 5)!, { x: 4, y: 0, z: 0 }, 1e-12),
+    vclose(
+      poleVaultOnLine(from, slide, grip, Math.SQRT2)!,
+      { x: 3, y: 0, z: 0 },
+      1e-12,
+    ) &&
+      vclose(
+        poleVaultOnLine(from, slide, grip, 5)!,
+        { x: 4, y: 0, z: 0 },
+        1e-12,
+      ),
   );
   TestValidator.equals(
     "missed, and degenerate",

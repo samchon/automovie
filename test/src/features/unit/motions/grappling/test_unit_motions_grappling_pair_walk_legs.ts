@@ -32,8 +32,7 @@ const foot = (x: number): IAutoMovieMotionHumanEntryState.IFoot => ({
  * 1. At the start both feet stand planted at their entry ankles.
  * 2. Halfway, the minimum-jerk share is one half: the left ankle is midway and
  *    lifted the whole 0.04 m, not planted.
- * 3. After the step it stands planted where it landed, and the right never
- *    moved.
+ * 3. After the step it stands planted where it landed, and the right never moved.
  */
 export function test_unit_motions_grappling_pair_walk_legs(): void {
   const entry: Pick<IAutoMovieMotionHumanEntryState, "feet"> = {
@@ -52,7 +51,10 @@ export function test_unit_motions_grappling_pair_walk_legs(): void {
     ...ankle,
     y: ankle.y + 0.4,
   });
-  const at = (seconds: number, side: "left" | "right"): IAutoMovieHumanLimbGoal =>
+  const at = (
+    seconds: number,
+    side: "left" | "right",
+  ): IAutoMovieHumanLimbGoal =>
     PairWalk.legs(entry, steps, seconds, knee)[`${side}Leg`]!;
 
   // 1. At the start.

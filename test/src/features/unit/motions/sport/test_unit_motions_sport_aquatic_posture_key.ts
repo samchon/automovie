@@ -12,8 +12,8 @@ import { TestValidator } from "@nestia/e2e";
  *
  * Scenarios:
  *
- * 1. An entry heading 30 degrees with a hand goal takes a key yawed 10 and
- *    tipped 80: it heads 40, tips 80 and drops the goal.
+ * 1. An entry heading 30 degrees with a hand goal takes a key yawed 10 and tipped
+ *    80: it heads 40, tips 80 and drops the goal.
  * 2. Given a root, the key stands there.
  */
 export function test_unit_motions_sport_aquatic_posture_key(): void {

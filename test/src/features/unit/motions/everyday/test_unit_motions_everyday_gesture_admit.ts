@@ -17,12 +17,12 @@ import { TestValidator } from "@nestia/e2e";
  * Scenarios:
  *
  * 1. A wave with no count takes its rhythm's cycles and the right hand; one with
- *    the left hand and three strokes takes those; a clap takes both hands; a
- *    nod none.
+ *    the left hand and 2.6 strokes takes the left hand and 3, the count
+ *    rounded; a clap takes both hands; a nod none.
  * 2. A bow takes `gesture.BOW` unless a depth is given.
- * 3. A count of 1.5, a negative hold, a bow past the deepest, a point with no
- *    target and an aim with no shape are refused on `count`, `hold`, `depth`,
- *    `target` and `aim`.
+ * 3. A count rounding to 0 (0.4), a negative hold, a bow past the deepest, a point
+ *    with no target and an aim with no shape are refused on `count`, `hold`,
+ *    `depth`, `target` and `aim`.
  */
 export function test_unit_motions_everyday_gesture_admit(): void {
   const admit: (
@@ -36,7 +36,7 @@ export function test_unit_motions_everyday_gesture_admit(): void {
     [
       admit({ kind: "wave" }),
       admit({ kind: "wave", hand: "left", count: 3 }).sides,
-      admit({ kind: "wave", hand: "left", count: 3 }).cycles,
+      admit({ kind: "wave", hand: "left", count: 2.6 }).cycles,
       admit({ kind: "clap" }).sides,
       admit({ kind: "nod" }).sides,
     ],
@@ -71,7 +71,7 @@ export function test_unit_motions_everyday_gesture_admit(): void {
   TestValidator.equals(
     "refusals",
     [
-      refused({ kind: "wave", count: 1.5 }),
+      refused({ kind: "wave", count: 0.4 }),
       refused({ kind: "wave", hold: -1 }),
       refused({ kind: "bow", depth: gesture.DEEPEST_BOW + 1 }),
       refused({ kind: "point" }),

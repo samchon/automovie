@@ -21,8 +21,9 @@ import { physicalHullTriangles } from "./physicalHullTriangles";
  * a plane count as on it, so a flat ring of many points yields one face rather
  * than a fan of slivers. A point set that spans no volume has no face.
  *
- * Every call searches afresh; a shape that is queried repeatedly carries its hull
- * on its record (`createPhysicalHullShape`) instead of calling this again.
+ * Every call searches afresh; a shape that is queried repeatedly carries its
+ * hull on its record (`createPhysicalHullShape`) instead of calling this
+ * again.
  *
  * @param points Shape-local points, metres.
  * @returns The hull's faces, its vertices, the mean of its vertices, the radii

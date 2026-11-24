@@ -6,7 +6,6 @@ import {
 } from "@automovie/interface";
 
 import { overflowsBinary64 } from "../math/overflowsBinary64";
-import { autoMovieStoryTime } from "./autoMovieStoryTime";
 
 /** One addressed event's measurement, with why it has no story time. */
 interface IStorySyncEntry {
@@ -44,13 +43,10 @@ export function evaluateAutoMovieStorySync(
       const realized: number | null = props.realized(entry.shot, entry.event);
       const localSeconds: number | null = realized === null ? null : realized;
       const pin: IAutoMovieShotStoryTime | null = props.pin(entry.shot);
-      const mapped: number | null =
+      const storySeconds: number | null =
         localSeconds === null || pin === null
           ? null
-          : autoMovieStoryTime(pin, localSeconds);
-      // The pin's product and sum are the operations that can overflow.
-      const storySeconds: number | null =
-        mapped !== null && overflowsBinary64(mapped) ? null : mapped;
+          : pinned(pin, localSeconds);
       return {
         point: {
           shot: entry.shot,
@@ -111,4 +107,18 @@ export function evaluateAutoMovieStorySync(
       passed ? "within" : "beyond"
     } the ${props.toleranceSeconds}s tolerance.`,
   };
+}
+
+/**
+ * The story second of a local second under a pin, or null where its product or
+ * sum overflows binary64.
+ */
+function pinned(
+  pin: IAutoMovieShotStoryTime,
+  localSeconds: number,
+): number | null {
+  const scaled: number = localSeconds * (pin.rate ?? 1);
+  if (overflowsBinary64(scaled)) return null;
+  const story: number = pin.originSeconds + scaled;
+  return overflowsBinary64(story) ? null : story;
 }

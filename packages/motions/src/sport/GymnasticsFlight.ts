@@ -275,13 +275,7 @@ export namespace GymnasticsFlight {
     const rootAt: (turn: IAutoMovieQuaternion) => IAutoMovieVector3 = (
       turn: IAutoMovieQuaternion,
     ): IAutoMovieVector3 =>
-      Vector3.add(
-        pivot,
-        Quaternion.rotateVector(
-          turn,
-          rootOffset,
-        ),
-      );
+      Vector3.add(pivot, Quaternion.rotateVector(turn, rootOffset));
     return (yaw: number, pitch: number): IAutoMovieMotionHumanPosture => {
       const after: Pick<IAutoMovieMotionHumanPosture, PrepareTurnedAfter> = {
         yaw: posture.yaw + yaw,

@@ -205,8 +205,7 @@ export function bindPhysicalWorld(
               points: eroded,
               hull: physicalHullFaces(eroded),
             };
-          }
-          else {
+          } else {
             shape satisfies never;
             throw new Error("Unknown physical shape kind");
           }

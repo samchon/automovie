@@ -23,8 +23,8 @@ const at = (
 ];
 
 /**
- * `StanceVerdicts.included` is the angle at a middle joint between the
- * segments to its neighbours, degrees: 180 for a straight limb.
+ * `StanceVerdicts.included` is the angle at a middle joint between the segments
+ * to its neighbours, degrees: 180 for a straight limb.
  *
  * Scenarios:
  *
@@ -32,9 +32,9 @@ const at = (
  * 2. The ankle swung to a right angle reads 90; folded halfway back, 45.
  */
 export function test_unit_motions_executable_stance_verdicts_included(): void {
-  const leg = (ankle: IAutoMovieVector3): Parameters<
-    typeof StanceVerdicts.included
-  >[0] => ({
+  const leg = (
+    ankle: IAutoMovieVector3,
+  ): Parameters<typeof StanceVerdicts.included>[0] => ({
     bones: (): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =>
       new Map([
         at("leftUpperLeg", { x: 0, y: 1, z: 0 }),

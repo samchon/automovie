@@ -8,8 +8,7 @@ import { TestValidator } from "@nestia/e2e";
  *
  * Scenarios:
  *
- * 1. A miss dipping to zero at 0.25 s and 0.75 s over one second comes down
- *    twice.
+ * 1. A miss dipping to zero at 0.25 s and 0.75 s over one second comes down twice.
  * 2. A limit below both dips counts none.
  * 3. A miss falling from its first sample is not a touch until it dips.
  */

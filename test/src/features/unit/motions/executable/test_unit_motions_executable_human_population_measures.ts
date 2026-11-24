@@ -15,11 +15,7 @@ export function test_unit_motions_executable_human_population_measures(): void {
     HumanPopulationAccess.measures(f1);
   TestValidator.equals(
     "the supplied measures",
-    [
-      resolved.stature,
-      resolved.waistCircumference,
-      resolved.hipCircumference,
-    ],
+    [resolved.stature, resolved.waistCircumference, resolved.hipCircumference],
     [1696.9285583496094, 673.6269910921733, 991.406328716076],
   );
 }

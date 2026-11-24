@@ -23,7 +23,10 @@ export function test_unit_motions_sport_aquatic_edge_at(): void {
   };
   TestValidator.predicate(
     "placed off the lip",
-    vclose(AquaticEdge.at(edge, 0.4, 1, 0.2), { x: 1, y: 0.5, z: 5.4 }, 1e-12) &&
-      vclose(AquaticEdge.at(edge, 0, 0, 0), edge.lip, 1e-12),
+    vclose(
+      AquaticEdge.at(edge, 0.4, 1, 0.2),
+      { x: 1, y: 0.5, z: 5.4 },
+      1e-12,
+    ) && vclose(AquaticEdge.at(edge, 0, 0, 0), edge.lip, 1e-12),
   );
 }

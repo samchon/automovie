@@ -79,9 +79,7 @@ export function prepareAutoMovieMotionHumanAuditDepths(
       (
         shape: IAutoMoviePhysicalShape,
       ): IAutoMoviePhysicalHullFaces.IFace[] | undefined =>
-        shape.kind === "hull"
-          ? physicalShapeHull(shape).faces
-          : undefined,
+        shape.kind === "hull" ? physicalShapeHull(shape).faces : undefined,
     );
   return (
     probes: readonly IAutoMovieVector3[],

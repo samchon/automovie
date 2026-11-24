@@ -15,8 +15,8 @@ import { vclose } from "../../../internal/vclose";
  * Scenarios:
  *
  * 1. A point inside stays, dropped to the floor's height.
- * 2. A point 5 m out along +X and 1 m along +Z comes to 2.5 m along +X with a
- *    0.5 m margin, keeping its +Z.
+ * 2. A point 5 m out along +X and 1 m along +Z comes to 2.5 m along +X with a 0.5
+ *    m margin, keeping its +Z.
  * 3. A margin of half the size or more is a caller's defect and throws.
  */
 export function test_unit_motions_sport_kickboxing_ring_clamp(): void {

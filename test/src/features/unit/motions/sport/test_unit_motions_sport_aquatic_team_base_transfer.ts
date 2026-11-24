@@ -19,9 +19,9 @@ const QUARTER: IAutoMovieQuaternion = {
 
 /**
  * `AquaticTeamBase.transfer` hands a contact point over from where an end bone
- * holds it to a target: its turn slerped toward a facing and its contact
- * point lerped toward the target by a weight, the limb goal placed so the
- * contact lands there.
+ * holds it to a target: its turn slerped toward a facing and its contact point
+ * lerped toward the target by a weight, the limb goal placed so the contact
+ * lands there.
  *
  * The hand stands at (1, 1, 0) unturned, its contact 0.1 m along its +X; the
  * target is (0, 2, 0), facing a quarter about +Y.

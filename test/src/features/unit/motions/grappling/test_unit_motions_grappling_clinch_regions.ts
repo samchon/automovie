@@ -2,10 +2,10 @@ import { clinch } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `clinch.regions` names a clinch's two grips: a plum clinch cups the nape
- * with both hands spread `clinch.SPREAD` either way; a collar-and-sleeve grip
- * takes the opposite side of the neck with the collar hand and the facing
- * elbow with the other.
+ * `clinch.regions` names a clinch's two grips: a plum clinch cups the nape with
+ * both hands spread `clinch.SPREAD` either way; a collar-and-sleeve grip takes
+ * the opposite side of the neck with the collar hand and the facing elbow with
+ * the other.
  *
  * Scenarios:
  *

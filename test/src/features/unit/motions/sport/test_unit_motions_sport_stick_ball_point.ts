@@ -33,7 +33,10 @@ export function test_unit_motions_sport_stick_ball_point(): void {
   const reader: IAutoMovieMotionHumanPropReader = {
     prop: {
       subject: "stick",
-      frame: { position: { x: 0, y: 0, z: 0 }, rotation: { x: 0, y: 0, z: 0, w: 1 } },
+      frame: {
+        position: { x: 0, y: 0, z: 0 },
+        rotation: { x: 0, y: 0, z: 0, w: 1 },
+      },
       points: {},
       affordances: [BLADE],
     },

@@ -25,7 +25,12 @@ export function test_unit_motions_sport_gymnastics_palm_rise_knuckle(): void {
     worldPosition,
     worldRotation,
   });
-  const level: IAutoMovieResolvedBone["worldRotation"] = { x: 0, y: 0, z: 0, w: 1 };
+  const level: IAutoMovieResolvedBone["worldRotation"] = {
+    x: 0,
+    y: 0,
+    z: 0,
+    w: 1,
+  };
   const quarter: IAutoMovieResolvedBone["worldRotation"] = {
     x: 0,
     y: Math.SQRT1_2,

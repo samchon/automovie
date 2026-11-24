@@ -7,8 +7,8 @@ import { vclose } from "../../../internal/vclose";
 
 /**
  * `AthleticsSwing.prepare` swings a foot through a quadratic Bézier whose
- * control point makes it pass `over` at its middle, `2 over - (from + to) /
- * 2`, on a minimum-jerk share of the progress clamped to [0, 1]; the foot turns
+ * control point makes it pass `over` at its middle, `2 over - (from + to) / 2`,
+ * on a minimum-jerk share of the progress clamped to [0, 1]; the foot turns
  * from `from` to `over` over the first half and on to `to` over the second.
  *
  * The foot swings from the origin over (0, 0.4, 0.5) to (0, 0, 1), turned a

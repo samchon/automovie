@@ -16,7 +16,9 @@ export function test_unit_motions_executable_family_case_kit_angle(): void {
     pose: (): IAutoMoviePose => ({
       skeleton: "s",
       root: null,
-      joints: [{ bone: "rightUpperArm", flexion: 30, abduction: 45, twist: null }],
+      joints: [
+        { bone: "rightUpperArm", flexion: 30, abduction: 45, twist: null },
+      ],
     }),
   };
   TestValidator.equals(

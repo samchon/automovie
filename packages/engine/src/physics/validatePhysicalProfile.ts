@@ -11,7 +11,6 @@ import type {
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
-import { physicalHullFaces } from "./physicalHullFaces";
 import { physicalShapeHull } from "./physicalShapeHull";
 
 /**
@@ -116,8 +115,7 @@ export function validatePhysicalProfile(
             fail(shape.halfLength >= 0, `${location}.halfLength`);
         } else {
           // Convex by contract: the points span a volume and none lies inside.
-          hull =
-            shape.points.length >= 4 ? physicalShapeHull(shape) : null;
+          hull = shape.points.length >= 4 ? physicalShapeHull(shape) : null;
           fail(
             hull !== null &&
               hull.faces.length >= 4 &&

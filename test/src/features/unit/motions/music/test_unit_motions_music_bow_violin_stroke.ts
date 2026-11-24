@@ -47,7 +47,8 @@ export function test_unit_motions_music_bow_violin_stroke(): void {
     stroke: bowViolinStroke.IStroke,
     share: number,
     lift: number,
-  ): boolean => nclose(stroke.share, share, 1e-12) && nclose(stroke.lift, lift, 1e-12);
+  ): boolean =>
+    nclose(stroke.share, share, 1e-12) && nclose(stroke.lift, lift, 1e-12);
   TestValidator.predicate(
     "the down-bow",
     at(down(0.5), 0.18, CLEARANCE) &&
@@ -56,7 +57,9 @@ export function test_unit_motions_music_bow_violin_stroke(): void {
   );
   TestValidator.predicate(
     "the up-bow",
-    at(up(0.5), 0.42, CLEARANCE) && at(up(1.7), 0.3, 0) && at(up(2.4), 0.18, CLEARANCE),
+    at(up(0.5), 0.42, CLEARANCE) &&
+      at(up(1.7), 0.3, 0) &&
+      at(up(2.4), 0.18, CLEARANCE),
   );
   TestValidator.equals(
     "the starting shares",

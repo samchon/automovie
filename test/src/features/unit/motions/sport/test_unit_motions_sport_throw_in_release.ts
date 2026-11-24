@@ -15,9 +15,9 @@ import { nclose } from "../../../internal/nclose";
 import { throwsError } from "../../../internal/throwsError";
 
 /**
- * `throwInRelease` releases a throw-in's ball at the stroke: both hands grip
- * it until then, and it launches on the drag-free path rising at the given
- * angle through the aimed point (the range equation).
+ * `throwInRelease` releases a throw-in's ball at the stroke: both hands grip it
+ * until then, and it launches on the drag-free path rising at the given angle
+ * through the aimed point (the range equation).
  *
  * The ball leaves (0, 2, 0) at 30 degrees toward (0, 1, 10); the stroke falls
  * at 0.5 s of a 1 s clock.
@@ -25,8 +25,8 @@ import { throwsError } from "../../../internal/throwsError";
  * Scenarios:
  *
  * 1. Both hands grip the ball to half the action.
- * 2. The launch at 0.5 s rises at 30 degrees and its parabola passes 1 m lower
- *    10 m on, at standard gravity.
+ * 2. The launch at 0.5 s rises at 30 degrees and its parabola passes 1 m lower 10
+ *    m on, at standard gravity.
  * 3. Without a prop there is nothing to release.
  * 4. Without an aimed point, or with one above the rising line, it is refused.
  */

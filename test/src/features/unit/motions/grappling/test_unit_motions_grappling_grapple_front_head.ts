@@ -13,8 +13,8 @@ import { nclose } from "../../../internal/nclose";
  * Scenarios:
  *
  * 1. Upright, the average man's head front is one head radius ahead.
- * 2. Leaning 90 degrees it is the head centre's whole height above the hips
- *    plus the radius.
+ * 2. Leaning 90 degrees it is the head centre's whole height above the hips plus
+ *    the radius.
  */
 export async function test_unit_motions_grappling_grapple_front_head(): Promise<void> {
   const m: IAutoMovieBodyMeasure = (await humanFixture("m-average")).measure;

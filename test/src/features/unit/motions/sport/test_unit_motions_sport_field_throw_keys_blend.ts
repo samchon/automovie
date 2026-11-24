@@ -8,8 +8,8 @@ import { TestValidator } from "@nestia/e2e";
  *
  * Scenarios:
  *
- * 1. A quarter of the way from a key with the elbow at 80 to one with the knee
- *    at 40 and a 20 degree tip: elbow 60, knee 10, tip 5.
+ * 1. A quarter of the way from a key with the elbow at 80 to one with the knee at
+ *    40 and a 20 degree tip: elbow 60, knee 10, tip 5.
  */
 export function test_unit_motions_sport_field_throw_keys_blend(): void {
   const a: IAutoMovieMotionHumanExerciseKey.IKey = {

@@ -16,8 +16,8 @@ import { TestValidator } from "@nestia/e2e";
  *
  * 1. Set at 0.3 s, before the contact: in time.
  * 2. Set at 0.5 s, 0.1 s after the contact of a 0.4 s movement: late.
- * 3. Set at 0.8 s, 0.4 s after the contact of a 0.7 s movement: failed, against
- *    a declared late.
+ * 3. Set at 0.8 s, 0.4 s after the contact of a 0.7 s movement: failed, against a
+ *    declared late.
  * 4. A plan without its set event fails and names it.
  */
 export function test_unit_motions_executable_striking_event_verdicts_defence(): void {
@@ -41,7 +41,8 @@ export function test_unit_motions_executable_striking_event_verdicts_defence(): 
         ],
       },
     });
-  const shown = (detail: string): string => detail.split(": ")[1]!.split(" ")[0]!;
+  const shown = (detail: string): string =>
+    detail.split(": ")[1]!.split(" ")[0]!;
   TestValidator.equals(
     "in time, late, failed and incomplete",
     [

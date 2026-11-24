@@ -8,7 +8,8 @@ import { TestValidator } from "@nestia/e2e";
 /**
  * `KickboxingRules.foul` judges a strike's target by the GLORY Official Rules
  * V2.2 §5.07: the back of the head, the back and the groin are fouls (A.2,
- * A.3), a push kick may not strike the legs (A.4), and only strikes are judged.
+ * A.3), a push kick may not strike the legs (A.4), and only strikes are
+ * judged.
  *
  * Scenarios:
  *
@@ -29,8 +30,14 @@ export function test_unit_motions_sport_kickboxing_rules_foul(): void {
       KickboxingRules.foul("punch", at("jawLeft")),
       KickboxingRules.foul("punch", at("nape")),
       KickboxingRules.foul("knee", at("groin")),
-      KickboxingRules.foul("kick", { ...at("thighOuterLeft"), technique: "push" }),
-      KickboxingRules.foul("kick", { ...at("thighOuterLeft"), technique: "round" }),
+      KickboxingRules.foul("kick", {
+        ...at("thighOuterLeft"),
+        technique: "push",
+      }),
+      KickboxingRules.foul("kick", {
+        ...at("thighOuterLeft"),
+        technique: "round",
+      }),
       KickboxingRules.foul("defend", at("nape")),
       KickboxingRules.foul("punch", { at: { kind: "none" } }),
     ],

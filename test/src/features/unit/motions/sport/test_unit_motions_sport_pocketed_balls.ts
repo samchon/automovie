@@ -53,8 +53,8 @@ const at = (position: IAutoMovieVector3): IAutoMoviePhysicalSegmentState => ({
  *
  * Scenarios:
  *
- * 1. `a` first lies more than 3 cm below the bed at 0.7 s, credited at 1.7 s
- *    to the corner; `b` is not credited, nor `c`.
+ * 1. `a` first lies more than 3 cm below the bed at 0.7 s, credited at 1.7 s to
+ *    the corner; `b` is not credited, nor `c`.
  * 2. No pocket, or a ball missing from the cache, is refused.
  */
 export function test_unit_motions_sport_pocketed_balls(): void {
@@ -70,7 +70,10 @@ export function test_unit_motions_sport_pocketed_balls(): void {
       rate: 10,
       at: (seconds: number): IAutoMoviePhysicalFrame => {
         const sunk: number = 0.835 - 0.1 * seconds;
-        const bodies: Record<string, Record<string, IAutoMoviePhysicalSegmentState>> = {
+        const bodies: Record<
+          string,
+          Record<string, IAutoMoviePhysicalSegmentState>
+        > = {
           a: { root: at({ x: 0.02, y: sunk, z: 0 }) },
           b: { root: at({ x: 1, y: sunk, z: 0 }) },
           c: { root: at({ x: 0.5, y: 0.83, z: 0 }) },
@@ -94,7 +97,11 @@ export function test_unit_motions_sport_pocketed_balls(): void {
   const balls: pocketedBalls.IBall[] = [ball("a"), ball("b"), ball("c")];
   TestValidator.equals(
     "the pocketed ball",
-    pocketedBalls({ balls, pockets: [corner], result: result(["a", "b", "c"]) }),
+    pocketedBalls({
+      balls,
+      pockets: [corner],
+      result: result(["a", "b", "c"]),
+    }),
     [{ ball: "a", pocket: "corner", seconds: 1.7 }],
   );
   TestValidator.predicate(

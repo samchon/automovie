@@ -41,11 +41,14 @@ export function cofactorAutoMovieJacobian(
     jacobian[5],
     jacobian[8],
   );
-  const bc: IAutoMovieVector3 = Vector3.cross(b, c);
-  const ca: IAutoMovieVector3 = Vector3.cross(c, a);
-  const ab: IAutoMovieVector3 = Vector3.cross(a, b);
-  const determinant: number = Vector3.dot(a, bc);
-  if (!(determinant > 0) || overflowsBinary64(determinant))
+  const bc: IAutoMovieVector3 = crossed(b, c);
+  const ca: IAutoMovieVector3 = crossed(c, a);
+  const ab: IAutoMovieVector3 = crossed(a, b);
+  const determinant: number = representable(
+    representable(representable(a.x * bc.x) + representable(a.y * bc.y)) +
+      representable(a.z * bc.z),
+  );
+  if (!(determinant > 0))
     throw new Error(
       "Mesh deformation must remain finite and preserve local surface orientation.",
     );
@@ -53,4 +56,25 @@ export function cofactorAutoMovieJacobian(
     determinant,
     matrix: [bc.x, ca.x, ab.x, bc.y, ca.y, ab.y, bc.z, ca.z, ab.z],
   };
+}
+
+/** The cross product, each product and difference refused where it overflows. */
+function crossed(
+  p: IAutoMovieVector3,
+  q: IAutoMovieVector3,
+): IAutoMovieVector3 {
+  return {
+    x: representable(representable(p.y * q.z) - representable(p.z * q.y)),
+    y: representable(representable(p.z * q.x) - representable(p.x * q.z)),
+    z: representable(representable(p.x * q.y) - representable(p.y * q.x)),
+  };
+}
+
+/** One product, sum or difference, refused where it overflows binary64. */
+function representable(result: number): number {
+  if (overflowsBinary64(result))
+    throw new Error(
+      "Mesh deformation must remain finite and preserve local surface orientation.",
+    );
+  return result;
 }

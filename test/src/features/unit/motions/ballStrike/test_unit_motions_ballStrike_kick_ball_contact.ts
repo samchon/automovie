@@ -20,8 +20,8 @@ import { nclose } from "../../../internal/nclose";
  *
  * Scenarios:
  *
- * 1. Kicked along +Z the toes' joint meets (0.2, 0.11, 0.89): the ankle stands
- *    the rest ankle-to-toes distance from it, above it.
+ * 1. Kicked along +Z the toes' joint meets (0.2, 0.11, 0.89): the ankle stands the
+ *    rest ankle-to-toes distance from it, above it.
  * 2. The foot heads along the kick and points 50 degrees down.
  * 3. Kicked along +X the foot heads 90 degrees about +Y.
  */

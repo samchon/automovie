@@ -3,7 +3,12 @@ import { StrikingLimb } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 /** The four end joints a strike can carry. */
-const LIMBS: StrikingLimb.End[] = ["leftHand", "rightHand", "leftFoot", "rightFoot"];
+const LIMBS: StrikingLimb.End[] = [
+  "leftHand",
+  "rightHand",
+  "leftFoot",
+  "rightFoot",
+];
 
 /**
  * `StrikingLimb.root` names the joint a striking limb hangs from: the upper arm

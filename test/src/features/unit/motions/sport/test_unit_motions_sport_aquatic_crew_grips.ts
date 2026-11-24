@@ -3,8 +3,8 @@ import { AquaticCrew } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `AquaticCrew.grips` holds each hand the parameters name on the hull's
- * handles for the whole action, on a support the hand does not carry.
+ * `AquaticCrew.grips` holds each hand the parameters name on the hull's handles
+ * for the whole action, on a support the hand does not carry.
  *
  * Scenarios:
  *

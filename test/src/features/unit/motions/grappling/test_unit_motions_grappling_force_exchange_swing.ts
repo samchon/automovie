@@ -5,8 +5,8 @@ import { TestValidator } from "@nestia/e2e";
 import { nclose } from "../../../internal/nclose";
 
 /**
- * How near the integrated swing keeps its energy and its release angle,
- * radians and radians per second: the integrator's step error over a swing.
+ * How near the integrated swing keeps its energy and its release angle, radians
+ * and radians per second: the integrator's step error over a swing.
  */
 const INTEGRATION: number = 1e-3;
 
@@ -22,10 +22,10 @@ const INTEGRATION: number = 1e-3;
  *
  * Scenarios:
  *
- * 1. From 0.2 rad at 0.5 rad/s the swing starts there, releases at π / 2, at
- *    the energy's rate, and holds that state past the release.
- * 2. From 0.5 rad behind the vertical at 0.1 rad/s the rate falls to none
- *    before the vertical: no swing.
+ * 1. From 0.2 rad at 0.5 rad/s the swing starts there, releases at π / 2, at the
+ *    energy's rate, and holds that state past the release.
+ * 2. From 0.5 rad behind the vertical at 0.1 rad/s the rate falls to none before
+ *    the vertical: no swing.
  */
 export function test_unit_motions_grappling_force_exchange_swing(): void {
   const k: number = (70 * 10 * 1) / 80;

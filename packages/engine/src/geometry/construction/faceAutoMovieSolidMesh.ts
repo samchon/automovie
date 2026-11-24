@@ -43,7 +43,7 @@ export function faceAutoMovieSolidMesh(
     active.set(edge.b, prepared.chart.get(edge.b)!);
   }
   for (const id of prepared.interior) active.set(id, prepared.chart.get(id)!);
-  const { occupied, directed }: ILedger = incidence(mesh);
+  const { occupied, directed }: IAutoMovieSolidMesh.ILedger = incidence(mesh);
   const fresh: Set<string> = new Set();
 
   /**
@@ -223,53 +223,29 @@ export function faceAutoMovieSolidMesh(
 }
 
 /**
- * A mesh's edge incidence as its faces read it, with the index prefix it was
- * read from.
- */
-interface ILedger {
-  /** The mesh's indices as last read, a copy. */
-  seen: number[];
-
-  /** Unoriented endpoint pairs `minID/maxID` of the read triangles. */
-  occupied: Set<string>;
-
-  /**
-   * How many read triangles hold each unoriented pair, so a pair leaves
-   * `occupied` with its last triangle.
-   */
-  pairs: Map<string, number>;
-
-  /** How many read triangles hold each directed edge `a/b`. */
-  directed: Map<string, number>;
-}
-
-/** One ledger per mesh, released with the mesh. */
-const LEDGERS: WeakMap<IAutoMovieSolidMesh.IMesh, ILedger> = new WeakMap();
-
-/**
  * The edge incidence of every triangle a mesh holds now.
  *
  * Each face needs the pairs and directed edges of all earlier faces. Reading
  * them from the whole index buffer for every face cost the triangle count once
  * per face in string keys, most of a body's realization once it had dozens of
- * faces. The ledger keeps what it read: it finds the first index at which the
- * buffer differs from its copy, takes back the triangles it read from there on,
- * since a checkpoint restore truncates the buffer and later faces refill it,
- * and reads the triangles the buffer now holds from there. The comparison is
- * one pass of numbers; only changed triangles cost keys.
+ * faces. The mesh's ledger, built with the mesh, keeps what it read: it finds
+ * the first index at which the buffer differs from its copy, takes back the
+ * triangles it read from there on, since a checkpoint restore truncates the
+ * buffer and later faces refill it, and reads the triangles the buffer now
+ * holds from there. The comparison is one pass of numbers; only changed
+ * triangles cost keys.
  */
-function incidence(mesh: IAutoMovieSolidMesh.IMesh): ILedger {
-  let ledger: ILedger | undefined = LEDGERS.get(mesh);
-  if (ledger === undefined) {
-    ledger = {
-      seen: [],
-      occupied: new Set(),
-      pairs: new Map(),
-      directed: new Map(),
-    };
-    LEDGERS.set(mesh, ledger);
-  }
-  const { seen, occupied, pairs, directed }: ILedger = ledger;
+function incidence(
+  mesh: IAutoMovieSolidMesh.IMesh,
+): IAutoMovieSolidMesh.ILedger {
+  const ledger: IAutoMovieSolidMesh.ILedger = mesh.ledger ?? {
+    seen: [],
+    occupied: new Set(),
+    pairs: new Map(),
+    directed: new Map(),
+  };
+  const { seen, occupied, pairs, directed }: IAutoMovieSolidMesh.ILedger =
+    ledger;
   const common: number = Math.min(seen.length, mesh.indices.length);
   let same: number = 0;
   while (same < common && seen[same] === mesh.indices[same]) ++same;

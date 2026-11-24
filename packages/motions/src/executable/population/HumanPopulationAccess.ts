@@ -108,8 +108,6 @@ export namespace HumanPopulationAccess {
    * @returns The perimeter, mm.
    */
   export function ellipse(a: number, b: number): number {
-    return (
-      Math.PI * (3 * (a + b) - Math.sqrt((3 * a + b) * (a + 3 * b)))
-    );
+    return Math.PI * (3 * (a + b) - Math.sqrt((3 * a + b) * (a + 3 * b)));
   }
 }

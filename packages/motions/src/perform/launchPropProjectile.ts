@@ -49,11 +49,7 @@ export function launchPropProjectile(
       fix: "declare the ball's spherical collider and a valid release attitude and friction",
     });
   const aim: IAutoMovieMotionPropLaunch["aim"] = launch.aim;
-  if (
-    aim !== undefined &&
-    (drag !== undefined ||
-      !(aim.seconds > 0))
-  )
+  if (aim !== undefined && (drag !== undefined || !(aim.seconds > 0)))
     throw new HumanRefusal({
       kind: "parameter",
       axis: "aim",

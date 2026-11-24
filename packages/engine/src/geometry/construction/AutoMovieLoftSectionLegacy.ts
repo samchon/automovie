@@ -121,23 +121,29 @@ export namespace AutoMovieLoftSectionLegacy {
       throw new Error(
         "A basis extension needs complete endpoint coefficient2.",
       );
-    const value: number[] = rows[0].map(
-      (v: number, q: number): number =>
-        v +
-        displacement * rows[1][q]! +
-        0.5 * displacement * displacement * rows[2][q]!,
+    // Each product and sum of the quadratic extension is refused where it
+    // overflows binary64.
+    const value: number[] = rows[0].map((v: number, q: number): number =>
+      representable(
+        representable(v + representable(displacement * rows[1][q]!)) +
+          representable(
+            representable(representable(0.5 * displacement) * displacement) *
+              rows[2][q]!,
+          ),
+        "The declared basis extension has no finite value row.",
+      ),
     );
-    // The quadratic extension overflows binary64 where its terms do.
-    if (value.some(overflowsBinary64))
-      throw new Error("The declared basis extension has no finite value row.");
     if (derivative === 0) return { kind: "value", order, rows: [value] };
-    const first: number[] = rows[1].map(
-      (v: number, q: number): number => v + displacement * rows[2][q]!,
-    );
-    if (first.some(overflowsBinary64))
-      throw new Error(
+    const first: number[] = rows[1].map((v: number, q: number): number =>
+      representable(
+        v +
+          representable(
+            displacement * rows[2][q]!,
+            "The declared basis extension has no finite physical first derivative row.",
+          ),
         "The declared basis extension has no finite physical first derivative row.",
-      );
+      ),
+    );
     return { kind: "jet", order, rows: [value, first, [...rows[2]]] };
   }
 }
@@ -148,4 +154,13 @@ export namespace AutoMovieLoftSectionLegacy {
  */
 function admit<T extends IAutoMovieLoftSectionPhase>(out: T): T {
   return out;
+}
+
+/** One product or sum, refused with its own message where it overflows. */
+function representable(
+  result: number,
+  message: string = "The declared basis extension has no finite value row.",
+): number {
+  if (overflowsBinary64(result)) throw new Error(message);
+  return result;
 }

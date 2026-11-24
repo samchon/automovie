@@ -17,8 +17,8 @@ import { vclose } from "../../../internal/vclose";
  *
  * Scenarios:
  *
- * 1. Read at 1.5 s, the centre is at (0, 0.11, 3) and the radius 0.11 m, and
- *    the reader was asked for that very second of that very subject.
+ * 1. Read at 1.5 s, the centre is at (0, 0.11, 3) and the radius 0.11 m, and the
+ *    reader was asked for that very second of that very subject.
  */
 export function test_unit_motions_ballStrike_human_ball(): void {
   const asked: [string, number][] = [];
@@ -52,7 +52,12 @@ export function test_unit_motions_ballStrike_human_ball(): void {
       };
     },
   });
-  const read: HumanBall.IBall = HumanBall({ prop: reader }, "football", 1.5, "ball");
+  const read: HumanBall.IBall = HumanBall(
+    { prop: reader },
+    "football",
+    1.5,
+    "ball",
+  );
   TestValidator.predicate(
     "the ball at its second",
     vclose(read.centre, { x: 0, y: 0.11, z: 3 }, 1e-12) && read.radius === 0.11,

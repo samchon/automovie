@@ -17,7 +17,9 @@ type ISphereResult = { centre: IAutoMovieVector3; radius: number };
  * the hull's own frame: the same for every posed frame of the same hull (a fit
  * frames a fresh pose's colliders, the planes do not move with it).
  */
-function planes(shape: Extract<IAutoMoviePhysicalShape, { kind: "hull" }>): Float64Array {
+function planes(
+  shape: Extract<IAutoMoviePhysicalShape, { kind: "hull" }>,
+): Float64Array {
   const faces: IAutoMoviePhysicalHullFaces.IHull["faces"] =
     physicalShapeHull(shape).faces;
   const packed: Float64Array = new Float64Array(4 * faces.length);
@@ -180,4 +182,3 @@ export namespace HumanShapeFraming {
     };
   }
 }
-

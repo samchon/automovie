@@ -27,7 +27,10 @@ const ball = (
   affordances: readonly IAutoMovieAffordance[],
 ): IAutoMovieMotionHumanProp => ({
   subject: "ball",
-  frame: { position: { x: 0, y: 0, z: 0 }, rotation: { x: 0, y: 0, z: 0, w: 1 } },
+  frame: {
+    position: { x: 0, y: 0, z: 0 },
+    rotation: { x: 0, y: 0, z: 0, w: 1 },
+  },
   points: {},
   affordances,
 });
@@ -41,8 +44,8 @@ const ball = (
  *
  * 1. A ball at (1, 0, 2) turned a half turn about +X has its centre 0.1 m below
  *    the frame and its radius 0.11 m.
- * 2. A ball without a grip, or with a grip of no aperture, is refused before
- *    its frame is read.
+ * 2. A ball without a grip, or with a grip of no aperture, is refused before its
+ *    frame is read.
  */
 export function test_unit_motions_ballStrike_human_ball_placed(): void {
   const frame: IAutoMovieRigidTransform = {
@@ -65,7 +68,9 @@ export function test_unit_motions_ballStrike_human_ball_placed(): void {
   };
   TestValidator.predicate(
     "no grip, or no aperture, refused unread",
-    throwsError((): HumanBall.IBall => HumanBall.placed(ball([]), counted, "ball")) &&
+    throwsError(
+      (): HumanBall.IBall => HumanBall.placed(ball([]), counted, "ball"),
+    ) &&
       throwsError(
         (): HumanBall.IBall =>
           HumanBall.placed(ball([{ ...GRIP, aperture: 0 }]), counted, "ball"),

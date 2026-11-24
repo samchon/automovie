@@ -6,8 +6,8 @@ import { nclose } from "../../../internal/nclose";
 
 /**
  * `GymnasticsFlight.fall` is the time a drag-free centre launched at a height
- * with a vertical speed takes to come down to another height: the later root
- * of `from + vy t - g t² / 2 = to`.
+ * with a vertical speed takes to come down to another height: the later root of
+ * `from + vy t - g t² / 2 = to`.
  *
  * Scenarios:
  *

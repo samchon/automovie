@@ -52,8 +52,8 @@ export function fitRigidMeshTransform(
     for (let k: number = 0; k < 3; k++) {
       const x: number = reference[3 * vertex + k];
       const y: number = target[3 * vertex + k];
-      a[k] += x / vertices.length;
-      b[k] += y / vertices.length;
+      a[k] = representable(a[k] + representable(x / vertices.length));
+      b[k] = representable(b[k] + representable(y / vertices.length));
     }
   let referenceScale: number = 0;
   let targetScale: number = 0;
@@ -61,16 +61,13 @@ export function fitRigidMeshTransform(
     for (let k: number = 0; k < 3; k++) {
       referenceScale = Math.max(
         referenceScale,
-        Math.abs(reference[3 * vertex + k] - a[k]),
+        Math.abs(representable(reference[3 * vertex + k] - a[k])),
       );
       targetScale = Math.max(
         targetScale,
-        Math.abs(target[3 * vertex + k] - b[k]),
+        Math.abs(representable(target[3 * vertex + k] - b[k])),
       );
     }
-  // The centroids and the centred extents are the operations that overflow.
-  if ([...a, ...b, referenceScale, targetScale].some(overflowsBinary64))
-    throw new Error("Rigid fitting exceeded finite coordinate arithmetic.");
   // Positive uniform rescaling of either cloud leaves the maximizing rotation
   // unchanged. Normalize before multiplication to avoid overflow and underflow.
   const referenceDivisor: number = referenceScale === 0 ? 1 : referenceScale;
@@ -153,4 +150,11 @@ export function fitRigidMeshTransform(
     referenceCenter: { x: a[0], y: a[1], z: a[2] },
     targetCenter: { x: b[0], y: b[1], z: b[2] },
   };
+}
+
+/** One centroid sum or centred difference, refused where it overflows. */
+function representable(result: number): number {
+  if (overflowsBinary64(result))
+    throw new Error("Rigid fitting exceeded finite coordinate arithmetic.");
+  return result;
 }

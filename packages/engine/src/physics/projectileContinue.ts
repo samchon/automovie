@@ -8,8 +8,8 @@ import type {
 } from "@automovie/interface";
 
 import { Vector3 } from "../math/Vector3";
-import { projectileDragFlight } from "./projectileDragFlight";
 import { projectileAt } from "./projectileAt";
+import { projectileDragFlight } from "./projectileDragFlight";
 
 /**
  * What a projectile does after a contact, by the outcome the caller decided:

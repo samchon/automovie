@@ -20,10 +20,10 @@ const EXACT: number = 1e-6;
  *
  * Scenarios:
  *
- * 1. The average woman stands at the mean stature with the mean BMI's mass at
- *    it, `23.3357 * 1.62937^2` kg.
- * 2. The tall woman stands 2.326 SD up, and her mass is the regression's
- *    `62.01 + 0.5287 * 8.351 * 2.326` kg.
+ * 1. The average woman stands at the mean stature with the mean BMI's mass at it,
+ *    `23.3357 * 1.62937^2` kg.
+ * 2. The tall woman stands 2.326 SD up, and her mass is the regression's `62.01 +
+ *    0.5287 * 8.351 * 2.326` kg.
  * 3. The long-headed man's head length is the male mean plus 2.326 SD.
  * 4. Every measure the tall woman does not drive lies inside her sex's limits.
  */

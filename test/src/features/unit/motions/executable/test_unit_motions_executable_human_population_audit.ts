@@ -11,8 +11,8 @@ import { nclose } from "../../../internal/nclose";
  * band its sex's ANSUR 1988 mean plus and minus three deviations.
  *
  * The reference woman `f1` gives both hands, both feet and both ears. Her
- * natural waist is 673.627 mm and her hip 991.406 mm; women's waist over hip
- * is 0.7503 (SD 0.0431), and their cephalic index band runs from `77.23 - 3 *
+ * natural waist is 673.627 mm and her hip 991.406 mm; women's waist over hip is
+ * 0.7503 (SD 0.0431), and their cephalic index band runs from `77.23 - 3 *
  * 3.52` to `85.17 + 3 * 5.40`.
  *
  * Scenarios:
@@ -48,8 +48,10 @@ export function test_unit_motions_executable_human_population_audit(): void {
     "the sex row",
     [
       site(rows, "sex declared on a female body").value,
-      site(HumanPopulationAudit.audit("f1", "male", f1), "sex declared on a male body")
-        .value,
+      site(
+        HumanPopulationAudit.audit("f1", "male", f1),
+        "sex declared on a male body",
+      ).value,
     ],
     [1, 0],
   );

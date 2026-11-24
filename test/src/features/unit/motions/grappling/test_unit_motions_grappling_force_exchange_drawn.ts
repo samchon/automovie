@@ -18,7 +18,12 @@ import { nclose } from "../../../internal/nclose";
  */
 export function test_unit_motions_grappling_force_exchange_drawn(): void {
   const at: IAutoMovieMotionHumanForceExchange.IDrawnResult =
-    HumanForceExchange.drawn({ mass: 70, frequency: 3, force: 63, seconds: 0.5 });
+    HumanForceExchange.drawn({
+      mass: 70,
+      frequency: 3,
+      force: 63,
+      seconds: 0.5,
+    });
   const offset: number = 0.1 * (Math.cosh(1.5) - 1);
   const speed: number = 0.3 * Math.sinh(1.5);
   TestValidator.predicate(

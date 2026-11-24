@@ -25,6 +25,33 @@ export namespace IAutoMovieSolidMesh {
 
     /** Owners by index. */
     owners: IAutoMovieSolidMesh.IOwner[];
+
+    /**
+     * The edge incidence of the triangles read so far, kept with a mesh made by
+     * AutoMovieSolidMesh.create; a mesh without one is read whole on demand.
+     */
+    ledger?: IAutoMovieSolidMesh.ILedger;
+  }
+
+  /**
+   * A mesh's edge incidence as its faces read it, with the index prefix it was
+   * read from.
+   */
+  export interface ILedger {
+    /** The mesh's indices as last read, a copy. */
+    seen: number[];
+
+    /** Unoriented endpoint pairs minID/maxID of the read triangles. */
+    occupied: Set<string>;
+
+    /**
+     * How many read triangles hold each unoriented pair, so a pair leaves
+     * occupied with its last triangle.
+     */
+    pairs: Map<string, number>;
+
+    /** How many read triangles hold each directed edge /b. */
+    directed: Map<string, number>;
   }
 
   /** An authoritative shared trim boundary, expressed on this face. */

@@ -29,7 +29,8 @@ export function conductTip(
   const first: number = beats.at(1);
   const last: number = beats.at(beats.count);
   return (seconds: number): IAutoMovieVector3 => {
-    if (seconds <= first) return conductArc(top, ictus[0]!, seconds / first, lift);
+    if (seconds <= first)
+      return conductArc(top, ictus[0]!, seconds / first, lift);
     if (seconds >= last) return ictus[ictus.length - 1]!;
     const k: number = Math.min(
       beats.count - 1,

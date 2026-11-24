@@ -35,24 +35,17 @@ export function pocketedBalls(
   if (pockets.length === 0)
     throw new RangeError("A pocket credit needs at least one mouth");
   const bed: number = pockets[0]!.point.y;
-  const pending: Map<string, pocketedBalls.IBall> =
-    new Map(
-      balls.map(
-        (
-          ball: pocketedBalls.IBall,
-        ): [string, pocketedBalls.IBall] => [
-          ball.id,
-          ball,
-        ],
-      ),
-    );
+  const pending: Map<string, pocketedBalls.IBall> = new Map(
+    balls.map((ball: pocketedBalls.IBall): [string, pocketedBalls.IBall] => [
+      ball.id,
+      ball,
+    ]),
+  );
   const radii: Map<string, number> = new Map(
-    balls.map(
-      (ball: pocketedBalls.IBall): [string, number] => [
-        ball.id,
-        radius(ball),
-      ],
-    ),
+    balls.map((ball: pocketedBalls.IBall): [string, number] => [
+      ball.id,
+      radius(ball),
+    ]),
   );
   const out: IAutoMovieMotionHumanPrecisionDeck.IPocketed[] = [];
   const frames: number = Math.round(result.cache.duration * result.cache.rate);
@@ -131,8 +124,9 @@ function plan(a: IAutoMovieVector3, b: IAutoMovieVector3): number {
 
 /** A ball's sphere radius, metres. */
 function radius(ball: pocketedBalls.IBall): number {
-  const segment: Pick<IAutoMoviePhysicalSegment, "shapes" | "centerOfMass"> | undefined =
-    ball.profile.segments[0];
+  const segment:
+    | Pick<IAutoMoviePhysicalSegment, "shapes" | "centerOfMass">
+    | undefined = ball.profile.segments[0];
   const sphere: IAutoMoviePhysicalShape | undefined = segment?.shapes.find(
     (shape: IAutoMoviePhysicalShape): boolean => shape.kind === "sphere",
   );

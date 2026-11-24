@@ -13,8 +13,8 @@ import { TestValidator } from "@nestia/e2e";
  *
  * Scenarios:
  *
- * 1. Up to 0.3 s the grid is 0 and 0.2 s; the gait events land at 1.5 s and 2
- *    s with side-letter captions; other cues are not drawn.
+ * 1. Up to 0.3 s the grid is 0 and 0.2 s; the gait events land at 1.5 s and 2 s
+ *    with side-letter captions; other cues are not drawn.
  */
 export function test_unit_motions_executable_locomotion_case_instants(): void {
   const events: IAutoMovieMotionEvent[] = [

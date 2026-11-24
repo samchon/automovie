@@ -6,9 +6,9 @@ import { nclose } from "../../../internal/nclose";
 import { vclose } from "../../../internal/vclose";
 
 /**
- * `AquaticPosture.blend` eases one posture into another on a minimum-jerk
- * share of the clamped progress: root, heading, tip and roll interpolated, the
- * joints blended as shapes.
+ * `AquaticPosture.blend` eases one posture into another on a minimum-jerk share
+ * of the clamped progress: root, heading, tip and roll interpolated, the joints
+ * blended as shapes.
  *
  * From standing at the origin to a 90 degree tip 2 m along +Z with the knee
  * flexed 60 degrees.
@@ -17,8 +17,8 @@ import { vclose } from "../../../internal/vclose";
  *
  * 1. At no progress it is the first posture's root and tip; past the end, the
  *    second's.
- * 2. At half progress (share one half) the root is 1 m along, tipped 45, the
- *    knee near 30 degrees.
+ * 2. At half progress (share one half) the root is 1 m along, tipped 45, the knee
+ *    near 30 degrees.
  * 3. With no rigid turn on either side, none is blended.
  */
 export function test_unit_motions_sport_aquatic_posture_blend(): void {

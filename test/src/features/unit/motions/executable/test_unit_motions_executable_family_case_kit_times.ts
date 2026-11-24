@@ -4,8 +4,8 @@ import { TestValidator } from "@nestia/e2e";
 
 /**
  * `FamilyCaseKit.times` draws a whole performance at a fixed step with its
- * named instants: a grid instant within a quarter step of a named one gives
- * way to it, the last instant is the performance's end, and all are in order.
+ * named instants: a grid instant within a quarter step of a named one gives way
+ * to it, the last instant is the performance's end, and all are in order.
  *
  * Scenarios:
  *

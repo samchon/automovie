@@ -14,8 +14,8 @@ const foot = (x: number): IAutoMovieMotionHumanEntryState.IFoot => ({
 
 /**
  * `PairWalk.steps` carries both feet a displacement in steps of at most
- * `PairWalk.STEP` (0.3 m), alternating from the left, the last step closing
- * the trailing foot, the window split evenly among the steps.
+ * `PairWalk.STEP` (0.3 m), alternating from the left, the last step closing the
+ * trailing foot, the window split evenly among the steps.
  *
  * The feet stand 0.2 m apart; the pair walks 0.5 m back (-Z) over 0 to 3 s.
  *

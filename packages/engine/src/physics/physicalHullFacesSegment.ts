@@ -3,7 +3,6 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-
 /**
  * The unit parameter of the point of a segment nearest a convex hull, or
  * deepest inside it, in the hull's own frame.

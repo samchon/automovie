@@ -24,7 +24,11 @@ export function test_unit_motions_music_bow_violin_hair_axis(): void {
   const outward: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
   const tilt: number = Math.PI / 15;
   const first: IAutoMovieVector3 = bowViolinHairAxis(along, outward, "string1");
-  const fourth: IAutoMovieVector3 = bowViolinHairAxis(along, outward, "string4");
+  const fourth: IAutoMovieVector3 = bowViolinHairAxis(
+    along,
+    outward,
+    "string4",
+  );
   TestValidator.predicate(
     "tilted toward each string's outside",
     vclose(first, { x: 0, y: Math.sin(tilt), z: Math.cos(tilt) }, 1e-12) &&

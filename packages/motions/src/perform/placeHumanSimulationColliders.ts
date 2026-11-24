@@ -81,15 +81,14 @@ export function placeHumanSimulationColliders(
     const prismPoints: IAutoMovieVector3[] = [
       obstacle.bottom,
       obstacle.top,
-    ].flatMap(
-      (y: number): IAutoMovieVector3[] =>
-        obstacle.footprint.map(
-          (corner: IAutoMovieVector3): IAutoMovieVector3 => ({
-            x: corner.x,
-            y,
-            z: corner.z,
-          }),
-        ),
+    ].flatMap((y: number): IAutoMovieVector3[] =>
+      obstacle.footprint.map(
+        (corner: IAutoMovieVector3): IAutoMovieVector3 => ({
+          x: corner.x,
+          y,
+          z: corner.z,
+        }),
+      ),
     );
     const prism: IAutoMoviePhysicalShape[] = [
       {

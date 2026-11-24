@@ -53,4 +53,3 @@ const validateDrivenCurve: (curve: IAutoMovieDrivenCurve) => void = (
     previousSource = point.source;
   }
 };
-

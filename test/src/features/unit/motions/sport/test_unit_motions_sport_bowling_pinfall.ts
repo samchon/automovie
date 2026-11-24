@@ -69,8 +69,8 @@ const tilt = (degrees: number): IAutoMovieQuaternion => {
  *
  * Scenarios:
  *
- * 1. Of pins upright, leaning 10 degrees and leaning 30 degrees, only the last
- *    is down.
+ * 1. Of pins upright, leaning 10 degrees and leaning 30 degrees, only the last is
+ *    down.
  * 2. A pin missing from the cache, or one with no base below its centre, is
  *    refused.
  */
@@ -93,7 +93,11 @@ export function test_unit_motions_sport_bowling_pinfall(): void {
       }),
     },
   });
-  const pins: bowlingPinfall.IPin[] = [pin("1", 0.15), pin("2", 0.15), pin("3", 0.15)];
+  const pins: bowlingPinfall.IPin[] = [
+    pin("1", 0.15),
+    pin("2", 0.15),
+    pin("3", 0.15),
+  ];
   TestValidator.equals(
     "the pins past their tip-over",
     bowlingPinfall({

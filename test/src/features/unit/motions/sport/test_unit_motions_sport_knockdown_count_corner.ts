@@ -13,8 +13,8 @@ import { vclose } from "../../../internal/vclose";
  *
  * Scenarios:
  *
- * 1. A fighter fallen near neutral A sends the other to neutral B, a margin
- *    inside the ropes.
+ * 1. A fighter fallen near neutral A sends the other to neutral B, a margin inside
+ *    the ropes.
  * 2. One fallen near neutral B sends the other to neutral A.
  */
 export function test_unit_motions_sport_knockdown_count_corner(): void {

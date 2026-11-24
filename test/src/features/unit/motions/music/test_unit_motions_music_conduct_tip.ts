@@ -20,8 +20,8 @@ import { vclose } from "../../../internal/vclose";
  *
  * 1. At the start the tip is at the top; at the first beat on the first ictus.
  * 2. Mid-way through the preparation it is midway down, lifted 0.1 m.
- * 3. A quarter second after the first beat, mid-beat, it is between the first
- *    two ictuses lifted 0.1 m.
+ * 3. A quarter second after the first beat, mid-beat, it is between the first two
+ *    ictuses lifted 0.1 m.
  * 4. On and after the last beat it holds the last ictus.
  */
 export function test_unit_motions_music_conduct_tip(): void {
@@ -31,8 +31,10 @@ export function test_unit_motions_music_conduct_tip(): void {
     { x: -0.2, y: 0.9, z: 0 },
   ];
   const top: IAutoMovieVector3 = { x: 0, y: 1.2, z: 0 };
-  const beats: Pick<IAutoMovieMotionHumanDanceBeats, "count" | "period" | "at"> =
-    { count: 3, period: 0.5, at: (k: number): number => 0.5 + 0.5 * k };
+  const beats: Pick<
+    IAutoMovieMotionHumanDanceBeats,
+    "count" | "period" | "at"
+  > = { count: 3, period: 0.5, at: (k: number): number => 0.5 + 0.5 * k };
   const tip: (seconds: number) => IAutoMovieVector3 = conductTip(
     ictus,
     top,

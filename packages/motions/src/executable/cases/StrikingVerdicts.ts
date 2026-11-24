@@ -157,10 +157,7 @@ export namespace StrikingVerdicts {
    * @param event The event's name.
    * @returns The second, or undefined when the plan has no such event.
    */
-  export function at(
-    segment: ITimed,
-    event: string,
-  ): number | undefined {
+  export function at(segment: ITimed, event: string): number | undefined {
     const share: number | undefined = segment.plan.events.find(
       (e: IAutoMovieMotionHumanSegment["plan"]["events"][number]): boolean =>
         e.name === event,

@@ -21,8 +21,8 @@ const HALF: IAutoMovieQuaternion = { x: 0, y: 0, z: 1, w: 0 };
  *
  * Scenarios:
  *
- * 1. Unturned, at the frog and on the string, the grip is 0.1 m above the
- *    sounding point.
+ * 1. Unturned, at the frog and on the string, the grip is 0.1 m above the sounding
+ *    point.
  * 2. At half the hair and lifted 0.05 m, it moves 0.3 m along +X and 0.05 m up.
  * 3. Turned a half turn about +Z, the frog's offset and the hair reverse.
  */

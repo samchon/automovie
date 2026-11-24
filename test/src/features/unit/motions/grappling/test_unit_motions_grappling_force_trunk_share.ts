@@ -10,8 +10,8 @@ const EXACT: number = 1e-12;
  * `HumanForceTrunk.share` is the share of a trunk's side-bending range at which
  * its through-range stiffness holds a torque: by quarter of a range `R` the
  * stiffness is 0.32, 0.83, 2.03 and 5.03 N m per degree (Watt, Callaway and
- * Williams 2022, Table 6), so the moment held up to quarter `q` is `R / 4` times
- * the sum of the stiffnesses before it.
+ * Williams 2022, Table 6), so the moment held up to quarter `q` is `R / 4`
+ * times the sum of the stiffnesses before it.
  *
  * Over a 40 degree range each quarter is 10 degrees: the quarters hold 3.2,
  * 8.3, 20.3 and 50.3 N m.

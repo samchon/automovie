@@ -8,7 +8,6 @@ import type {
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
-import { physicalHullFaces } from "./physicalHullFaces";
 import { physicalShapeHull } from "./physicalShapeHull";
 
 /**

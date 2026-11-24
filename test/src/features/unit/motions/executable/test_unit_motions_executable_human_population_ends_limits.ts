@@ -16,8 +16,8 @@ import { TestValidator } from "@nestia/e2e";
  * Scenarios:
  *
  * 1. Every measure is listed once, in the survey's order.
- * 2. The women's stature is narrowed below to the domain's 1450 mm and kept at
- *    the survey's 1870 mm above.
+ * 2. The women's stature is narrowed below to the domain's 1450 mm and kept at the
+ *    survey's 1870 mm above.
  * 3. Mass, which no control declares, keeps the surveyed extremes.
  * 4. No bound widens the surveyed range.
  */

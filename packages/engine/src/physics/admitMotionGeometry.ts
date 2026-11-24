@@ -4,7 +4,6 @@ import type {
   IAutoMovieRigidTransform,
 } from "@automovie/interface";
 
-import { physicalHullFaces } from "./physicalHullFaces";
 import { physicalShapeHull } from "./physicalShapeHull";
 
 /**
@@ -93,7 +92,8 @@ export function admitMotionGeometry(geometry: IAutoMovieMotionGeometry): void {
       } else {
         if (shape.points.length < 4)
           throw new Error("Invalid motion geometry hull");
-        const hull: IAutoMoviePhysicalHullFaces.IHull = physicalShapeHull(shape);
+        const hull: IAutoMoviePhysicalHullFaces.IHull =
+          physicalShapeHull(shape);
         // Convex by contract: the points span a volume and none lies inside.
         if (hull.faces.length < 4 || hull.buried > hull.tolerance)
           throw new Error("Invalid motion geometry hull");

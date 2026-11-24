@@ -1,3 +1,4 @@
+import { physicalHullFaces } from "@automovie/engine";
 import type {
   IAutoMovieModelPart,
   IAutoMoviePhysicalShape,
@@ -5,7 +6,6 @@ import type {
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { physicalHullFaces } from "@automovie/engine";
 
 import type { AutoMovieArchetypeConvexCell } from "./AutoMovieArchetypeConvexCell";
 

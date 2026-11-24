@@ -35,11 +35,11 @@ const entry = (
  *
  * Scenarios:
  *
- * 1. A knee touching another strike of the same fighter breaks the single
- *    clinch knee; a knee standing alone keeps it.
+ * 1. A knee touching another strike of the same fighter breaks the single clinch
+ *    knee; a knee standing alone keeps it.
  * 2. A punch to the groin breaks the legal-target rule.
- * 3. A punch at `b` after `b`'s knockdown and before `b` stands breaks the
- *    downed rule; one after `b`'s next action starts keeps it.
+ * 3. A punch at `b` after `b`'s knockdown and before `b` stands breaks the downed
+ *    rule; one after `b`'s next action starts keeps it.
  */
 export function test_unit_motions_sport_kickboxing_rules_rules(): void {
   const rule = (id: string): IAutoMovieCheckLegality.IRule =>

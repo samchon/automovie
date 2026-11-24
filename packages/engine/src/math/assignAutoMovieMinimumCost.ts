@@ -55,7 +55,9 @@ export function assignAutoMovieMinimumCost(
       let j1: number = 0;
       for (let j: number = 1; j <= m; ++j) {
         if (used[j]) continue;
-        const reduced: number = cost[i0 - 1]![j - 1]! - u[i0]! - v[j]!;
+        const reduced: number = representable(
+          representable(cost[i0 - 1]![j - 1]! - u[i0]!) - v[j]!,
+        );
         if (reduced < least[j]!) {
           least[j] = reduced;
           way[j] = j0;
@@ -67,18 +69,12 @@ export function assignAutoMovieMinimumCost(
       }
 
       // At most i <= rows <= columns columns are used here, so an unused one
-      // always exists, and finite reduced costs give it a finite delta. A
-      // delta that is not finite means the potentials overflowed binary64;
-      // its column 0 would be re-entered forever, so the table is refused.
-      if (overflowsBinary64(delta))
-        throw new Error(
-          "assignAutoMovieMinimumCost: the reduced costs overflow binary64",
-        );
+      // always exists, and finite reduced costs give it a finite delta.
       for (let j: number = 0; j <= m; ++j)
         if (used[j]) {
-          u[owner[j]!] = u[owner[j]!]! + delta;
-          v[j] = v[j]! - delta;
-        } else least[j] = least[j]! - delta;
+          u[owner[j]!] = representable(u[owner[j]!]! + delta);
+          v[j] = representable(v[j]! - delta);
+        } else least[j] = representable(least[j]! - delta);
       j0 = j1;
     } while (owner[j0] !== 0);
 
@@ -92,5 +88,17 @@ export function assignAutoMovieMinimumCost(
   const result: number[] = new Array<number>(n).fill(-1);
   for (let j: number = 1; j <= m; ++j)
     if (owner[j] !== 0) result[owner[j]! - 1] = j - 1;
+  return result;
+}
+
+/**
+ * One sum or difference of the potentials: an overflowed reduced cost would
+ * leave its column re-entered forever, so the table is refused instead.
+ */
+function representable(result: number): number {
+  if (overflowsBinary64(result))
+    throw new Error(
+      "assignAutoMovieMinimumCost: the reduced costs overflow binary64",
+    );
   return result;
 }

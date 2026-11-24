@@ -41,7 +41,9 @@ const contacts = (half: number): IAutoMovieAffordance[] => [
 ];
 
 /** The ring prop placed at (10, 0, 0) and turned 90 degrees about +Y. */
-const ring = (affordances: IAutoMovieAffordance[]): IAutoMovieMotionHumanProp => ({
+const ring = (
+  affordances: IAutoMovieAffordance[],
+): IAutoMovieMotionHumanProp => ({
   subject: "ring",
   frame: {
     position: { x: 10, y: 0, z: 0 },
@@ -58,8 +60,8 @@ const ring = (affordances: IAutoMovieAffordance[]): IAutoMovieMotionHumanProp =>
  *
  * Scenarios:
  *
- * 1. The ring placed at (10, 0, 0) turned 90 degrees reads its canvas at (10,
- *    1, 0), a 6 m size and a 90 degree heading.
+ * 1. The ring placed at (10, 0, 0) turned 90 degrees reads its canvas at (10, 1,
+ *    0), a 6 m size and a 90 degree heading.
  * 2. Ropes 6 m apart one way and 6.4 m the other are refused.
  * 3. A ring without its canvas is refused.
  */

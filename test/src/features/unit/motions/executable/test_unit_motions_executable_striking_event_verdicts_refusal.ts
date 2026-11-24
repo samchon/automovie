@@ -25,10 +25,6 @@ export function test_unit_motions_executable_striking_event_verdicts_refusal(): 
       StrikingEventVerdicts.refusal(other).passed,
       StrikingEventVerdicts.refusal((): number => 1).detail,
     ],
-    [
-      true,
-      false,
-      'accepted; bound the "cannot be cut into kick" refusal',
-    ],
+    [true, false, 'accepted; bound the "cannot be cut into kick" refusal'],
   );
 }

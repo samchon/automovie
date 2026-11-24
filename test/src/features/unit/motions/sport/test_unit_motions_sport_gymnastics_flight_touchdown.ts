@@ -11,8 +11,8 @@ const BRACKET: number = 1e-4;
  *
  * Scenarios:
  *
- * 1. A lowest point falling as `1 - t` reaches 0.25 m at 0.75 s: the answer is
- *    at or after it by at most the bracket.
+ * 1. A lowest point falling as `1 - t` reaches 0.25 m at 0.75 s: the answer is at
+ *    or after it by at most the bracket.
  * 2. A bracket already narrower than that returns its late end.
  */
 export function test_unit_motions_sport_gymnastics_flight_touchdown(): void {

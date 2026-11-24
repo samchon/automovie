@@ -70,7 +70,9 @@ export namespace AutoMovieLoftSectionBoundary {
     const H: number = b.station - a.station;
     // The second station derivative scales by 1 / H^2, which a span this
     // narrow cannot hold in binary64.
-    if (overflowsBinary64(1 / (H * H)))
+    const square: number = H * H;
+    const reciprocal: number = 1 / square;
+    if (overflowsBinary64(reciprocal))
       return "The native continuation's physical second derivative is not representable over this span.";
     const u: number = (station - a.station) / H;
     const rows: number[][] = [0, 1, 2].map((order: number): number[] =>

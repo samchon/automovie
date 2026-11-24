@@ -15,10 +15,10 @@ import { nclose } from "../../../internal/nclose";
  *
  * Scenarios:
  *
- * 1. The thumb rides the hand length, given the hand length: the ratio is the
- *    two women's mean thumb over hand length.
- * 2. The head above nasion rides the head length, given the head length: the
- *    mean of their head height less face height over head length.
+ * 1. The thumb rides the hand length, given the hand length: the ratio is the two
+ *    women's mean thumb over hand length.
+ * 2. The head above nasion rides the head length, given the head length: the mean
+ *    of their head height less face height over head length.
  * 3. Every anchor carries a positive ratio for both sexes.
  */
 export function test_unit_motions_executable_human_population_anchors_ratio(): void {

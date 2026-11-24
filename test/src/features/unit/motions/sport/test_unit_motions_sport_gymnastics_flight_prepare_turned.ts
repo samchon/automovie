@@ -5,9 +5,9 @@ import { TestValidator } from "@nestia/e2e";
 import { vclose } from "../../../internal/vclose";
 
 /**
- * `GymnasticsFlight.prepareTurned` prepares rigid turns of one posture about one
- * pivot: each reading adds its yaw and pitch to the posture's own and carries
- * the root round the pivot.
+ * `GymnasticsFlight.prepareTurned` prepares rigid turns of one posture about
+ * one pivot: each reading adds its yaw and pitch to the posture's own and
+ * carries the root round the pivot.
  *
  * A posture rooted at (2, 1, 0) heading 30 degrees, turned about (0, 1, 0).
  *

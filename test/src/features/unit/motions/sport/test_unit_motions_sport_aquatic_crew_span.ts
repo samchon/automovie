@@ -4,8 +4,9 @@ import { TestValidator } from "@nestia/e2e";
 import { nclose } from "../../../internal/nclose";
 
 /**
- * `AquaticCrew.span` is a crew motion's progress over a window: the minimum-jerk
- * share `10 u³ - 15 u⁴ + 6 u⁵` of the clamped linear progress `u`.
+ * `AquaticCrew.span` is a crew motion's progress over a window: the
+ * minimum-jerk share `10 u³ - 15 u⁴ + 6 u⁵` of the clamped linear progress
+ * `u`.
  *
  * A window from 1 s to 3 s.
  *

@@ -1,9 +1,10 @@
-import { fairAutoMovieSolidMesh } from "@automovie/engine";
+import { AutoMovieSolidMesh, fairAutoMovieSolidMesh } from "@automovie/engine";
 import type { IAutoMovieSolidMesh } from "@automovie/interface";
 
 /**
- * The sharpest dihedral a G1 fill may keep where it meets the flat flanks round its rim, degrees: between the thin-plate fill's 8.8 and a
- * harmonic fill's 27.3 on scenario 2's grid.
+ * The sharpest dihedral a G1 fill may keep where it meets the flat flanks round
+ * its rim, degrees: between the thin-plate fill's 8.8 and a harmonic fill's
+ * 27.3 on scenario 2's grid.
  */
 const RIM_DEGREES: number = 15;
 
@@ -17,26 +18,41 @@ interface Sheet {
 }
 
 /**
- * A disc of a drawn mesh faired about a vertex is filled by the thin-plate surface its two outer rings hold: a fold through the disc is
- * taken out and the fill meets the skin round it with that skin's tangent plane, and nothing outside the disc moves.
+ * A disc of a drawn mesh faired about a vertex is filled by the thin-plate
+ * surface its two outer rings hold: a fold through the disc is taken out and
+ * the fill meets the skin round it with that skin's tangent plane, and nothing
+ * outside the disc moves.
  *
  * Scenarios:
- * 1. Dented plane: a unit grid of 41 by 41 vertices in z = 0 whose vertices within 2 mm of the middle are pushed 1 mm down, the notch a
- *    construction leaves at a corner. Faired over 4 mm, every vertex lies within 1e-9 mm of the plane, since a plane is the thin-plate
- *    surface its flat rim holds, and every vertex past 4 mm along the mesh keeps its exact position.
- * 2. Folded plane: the same grid folded along the line x = 0 by 30 degrees each side, `z = -tan(30 deg) |x|`, and its middle row
- *    pushed down 1.5 mm more within 3 mm of the middle, a pleat at the fold. Faired over 5 mm, the sharpest dihedral between neighbouring
- *    triangles within 2.5 mm of the middle falls below half the fold's own 60 degrees (the pleat's is above 60), and where the fill meets
- *    the flat flanks round its rim, off the fold line, no dihedral reaches `RIM_DEGREES`: the thin-plate fill meets them at 8.8 degrees,
- *    where a harmonic fill, which holds only the rim's positions, meets them at 27.3 (both measured on this grid).
- * 3. Seam: the dented plane drawn as two faces whose shared row x = 0 is held twice, as distinct vertex IDs at one position, the way
- *    two faces' boundaries may hold a shared curve. Faired over 4 mm, both copies of every seam vertex take one position, so the seam
- *    does not open, and the result equals scenario 1's.
- * 4. Gap: a second dented sheet 1 mm under the first, unconnected. Faired over 4 mm about the first sheet's middle, the second sheet keeps
- *    every position, since a disc is gathered along the mesh's edges and not through space.
- * 5. Premise: a region with no source, with a source that is no vertex of the mesh, or whose radius is not positive is refused by a thrown error.
- * 6. Groove: the plane with a groove 1 mm deep along x = 0 from y = -6 to 6 mm, the trace a merge's narrow blend leaves. Faired over a band 3 mm
- *    wide about the groove's 13 vertices, every vertex lies within 1e-9 mm of the plane: a band about a curve is filled as a disc is.
+ *
+ * 1. Dented plane: a unit grid of 41 by 41 vertices in z = 0 whose vertices within
+ *    2 mm of the middle are pushed 1 mm down, the notch a construction leaves
+ *    at a corner. Faired over 4 mm, every vertex lies within 1e-9 mm of the
+ *    plane, since a plane is the thin-plate surface its flat rim holds, and
+ *    every vertex past 4 mm along the mesh keeps its exact position.
+ * 2. Folded plane: the same grid folded along the line x = 0 by 30 degrees each
+ *    side, `z = -tan(30 deg) |x|`, and its middle row pushed down 1.5 mm more
+ *    within 3 mm of the middle, a pleat at the fold. Faired over 5 mm, the
+ *    sharpest dihedral between neighbouring triangles within 2.5 mm of the
+ *    middle falls below half the fold's own 60 degrees (the pleat's is above
+ *    60), and where the fill meets the flat flanks round its rim, off the fold
+ *    line, no dihedral reaches `RIM_DEGREES`: the thin-plate fill meets them at
+ *    8.8 degrees, where a harmonic fill, which holds only the rim's positions,
+ *    meets them at 27.3 (both measured on this grid).
+ * 3. Seam: the dented plane drawn as two faces whose shared row x = 0 is held
+ *    twice, as distinct vertex IDs at one position, the way two faces'
+ *    boundaries may hold a shared curve. Faired over 4 mm, both copies of every
+ *    seam vertex take one position, so the seam does not open, and the result
+ *    equals scenario 1's.
+ * 4. Gap: a second dented sheet 1 mm under the first, unconnected. Faired over 4
+ *    mm about the first sheet's middle, the second sheet keeps every position,
+ *    since a disc is gathered along the mesh's edges and not through space.
+ * 5. Premise: a region with no source, with a source that is no vertex of the
+ *    mesh, or whose radius is not positive is refused by a thrown error.
+ * 6. Groove: the plane with a groove 1 mm deep along x = 0 from y = -6 to 6 mm,
+ *    the trace a merge's narrow blend leaves. Faired over a band 3 mm wide
+ *    about the groove's 13 vertices, every vertex lies within 1e-9 mm of the
+ *    plane: a band about a curve is filled as a disc is.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls fairAutoMovieSolidMesh on analytic grids and reads only the returned positions: distances to the plane, dihedrals between neighbouring triangles, coincidence of duplicated IDs and the untouched positions outside the disc.
  * @evidence contracts/development/testing.md#independent-expectations A plane holds its flat rim exactly, so the dent's fill is the plane; the fold's dihedral is 60 degrees by construction, and the unfaired pleat's is measured here before the call, so the expectation does not read the engine.
@@ -211,7 +227,10 @@ export function test_construction_mesh_fair(): void {
     );
 }
 
-/** A square grid of unit cells from `-half` to `half` in x and y, heights `z(x, y)`, each cell cut along its first diagonal. */
+/**
+ * A square grid of unit cells from `-half` to `half` in x and y, heights `z(x,
+ * y)`, each cell cut along its first diagonal.
+ */
 function grid(half: number, z: (x: number, y: number) => number): Sheet {
   const side: number = 2 * half + 1;
   const positions: number[] = [];
@@ -232,7 +251,10 @@ function grid(half: number, z: (x: number, y: number) => number): Sheet {
   return { positions, indices };
 }
 
-/** The grid of side 41 with its row x = 0 (i = 20) held twice: the cells with x > 0 read a copy of each of its vertices, appended. */
+/**
+ * The grid of side 41 with its row x = 0 (i = 20) held twice: the cells with x
+ * > 0 read a copy of each of its vertices, appended.
+ */
 function split(sheet: Sheet): Sheet {
   const side: number = 41;
   const copies: number = side * side;
@@ -259,15 +281,17 @@ function fair(
   discs: { vertices: number[]; radius: number }[],
 ): void {
   const mesh: IAutoMovieSolidMesh.IMesh = {
+    ...AutoMovieSolidMesh.create(),
     positions: sheet.positions,
     indices: sheet.indices,
-    coordinates: [],
-    owners: [],
   };
   fairAutoMovieSolidMesh(mesh, discs);
 }
 
-/** The sharpest dihedral, degrees, between two triangles sharing an edge whose midpoint `where` admits. */
+/**
+ * The sharpest dihedral, degrees, between two triangles sharing an edge whose
+ * midpoint `where` admits.
+ */
 function sharpest(sheet: Sheet, where: (p: number[]) => boolean): number {
   const at = (v: number): number[] => sheet.positions.slice(3 * v, 3 * v + 3);
   const normal = (t: number): number[] => {

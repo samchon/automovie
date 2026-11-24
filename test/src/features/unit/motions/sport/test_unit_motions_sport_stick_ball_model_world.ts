@@ -17,7 +17,10 @@ export function test_unit_motions_sport_stick_ball_model_world(): void {
     "translated and turned",
     vclose(
       stickBallModel.world(
-        { position: { x: 1, y: 2, z: 3 }, rotation: { x: 0, y: 0, z: 0, w: 1 } },
+        {
+          position: { x: 1, y: 2, z: 3 },
+          rotation: { x: 0, y: 0, z: 0, w: 1 },
+        },
         stickBallModel.UP,
       ),
       { x: 1, y: 3, z: 3 },

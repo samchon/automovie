@@ -29,11 +29,14 @@ export function test_unit_motions_sport_aquatic_posture_translate(): void {
     "the carried pivot",
     [
       AquaticPosture.translate(posture, { x: 2, y: 0, z: 1 }),
-      AquaticPosture.translate({ ...posture, rotation: undefined }, {
-        x: 2,
-        y: 0,
-        z: 1,
-      }).rotation,
+      AquaticPosture.translate(
+        { ...posture, rotation: undefined },
+        {
+          x: 2,
+          y: 0,
+          z: 1,
+        },
+      ).rotation,
     ],
     [
       {

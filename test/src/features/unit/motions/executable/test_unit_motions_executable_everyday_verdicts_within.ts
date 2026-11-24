@@ -3,8 +3,8 @@ import { everydayVerdicts } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `everydayVerdicts.within` passes a measure at or below its limit and shows
- * it in millimetres for metres, or in degrees.
+ * `everydayVerdicts.within` passes a measure at or below its limit and shows it
+ * in millimetres for metres, or in degrees.
  *
  * Scenarios:
  *
