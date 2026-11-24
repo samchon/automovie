@@ -135,14 +135,14 @@ export namespace ApplyQuadrupedCarrierPose {
   export function primitiveCopy(
     parts: readonly IAutoMovieModelPart[],
   ): CopyPart | undefined {
-    const admitted: Set<IAutoMovieModelPart> = new Set();
-    for (let i: number = 0; i < parts.length; ++i) {
-      const part: IAutoMovieModelPart = parts[i]!;
-      if (plainPart(part)) admitted.add(part);
-    }
-    if (admitted.size === 0) return undefined;
+    if (
+      !parts.some(
+        (part: IAutoMovieModelPart): boolean =>
+          part.geometry.type === "primitive",
+      )
+    )
+      return undefined;
     return (part: IAutoMovieModelPart): IAutoMovieModelPart | undefined => {
-      if (!admitted.has(part)) return undefined;
       const geometry = part.geometry;
       if (geometry.type !== "primitive") return undefined;
       return {
@@ -150,87 +150,5 @@ export namespace ApplyQuadrupedCarrierPose {
         geometry: { ...geometry, shape: { ...geometry.shape } },
       };
     };
-  }
-
-  /** Verify the original object's own structured-clone key domain. */
-  function plainData(object: unknown): object is Record<string, unknown> {
-    return (
-      object !== null &&
-      typeof object === "object" &&
-      Object.getPrototypeOf(object) === Object.prototype &&
-      Reflect.ownKeys(object).every((key: PropertyKey): boolean => {
-        const field: PropertyDescriptor | undefined =
-          Object.getOwnPropertyDescriptor(object, key);
-        return (
-          typeof key === "string" &&
-          field?.enumerable === true &&
-          "value" in field
-        );
-      })
-    );
-  }
-
-  /** Admit only the renderer part fields and an independent scalar recipe. */
-  function plainPart(part: IAutoMovieModelPart): boolean {
-    if (
-      !plainData(part) ||
-      Object.keys(part).length !== 6 ||
-      ![
-        "id",
-        "name",
-        "geometry",
-        "material",
-        "attachedBone",
-        "transform",
-      ].every((key: string): boolean => Object.hasOwn(part, key)) ||
-      ![part.id, part.name, part.material, part.attachedBone].every(scalar)
-    )
-      return false;
-    const geometry = part.geometry;
-    return (
-      plainData(geometry) &&
-      geometry.type === "primitive" &&
-      Object.keys(geometry).length === 2 &&
-      Object.hasOwn(geometry, "type") &&
-      Object.hasOwn(geometry, "shape") &&
-      plainData(geometry.shape) &&
-      Object.values(geometry.shape).every(scalar) &&
-      plainTransform(part.transform, geometry, geometry.shape)
-    );
-  }
-
-  /** The discarded neutral transform cannot alias any copied geometry node. */
-  function plainTransform(
-    transform: IAutoMovieTransform | null,
-    geometry: object,
-    shape: object,
-  ): boolean {
-    if (transform === null) return true;
-    if (!plainData(transform) || Object.keys(transform).length !== 3)
-      return false;
-    const vectors: readonly unknown[] = [
-      transform.translation,
-      transform.rotation,
-      transform.scale,
-    ];
-    return (
-      new Set([geometry, shape, transform, ...vectors]).size === 6 &&
-      vectors.every(
-        (value: unknown): boolean =>
-          plainData(value) && Object.values(value).every(scalar),
-      )
-    );
-  }
-
-  /** Scalars keep exact primitive values and never secretly reference a record. */
-  function scalar(value: unknown): boolean {
-    return (
-      value === null ||
-      value === undefined ||
-      typeof value === "string" ||
-      typeof value === "number" ||
-      typeof value === "boolean" ||
-      typeof value === "bigint"
-    );
   }
 }

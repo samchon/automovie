@@ -18,7 +18,7 @@ Only an independently owned data copy can substitute for the original structured
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
-O(B+P+A+V) work for bones, parts, contacts and copied geometry data. The private primitive path only copies bounded scalar records.
+O(B+P+A+V) work for bones, parts, contacts and copied geometry data. The private primitive path copies the primitive parts' geometry and shape records.
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 
@@ -128,23 +128,23 @@ Retains only the canonical method identity.
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States the native output ownership, supported record tree and declined alternative.
+States what it copies and when it declines to prepare a copier.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-Admit only own plain enumerable string data and the primitive shape's scalar values, with separate records at every mutable node.
+Each part is the typed model part its owner built; a primitive part is copied with fresh records for its geometry and shape, the declared union's `primitive` case, and any other part is left to the original clone.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-One private snapshot admission, followed by ordinary spreads in native key order.
+One discriminator check on the part's declared geometry union, followed by ordinary spreads.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
-Neither descriptors nor model data from an unproved public receiver establish copying; unsupported part identities keep the original clone.
+No runtime shape admission: the parts are typed by their owner, and only the declared geometry discriminator selects the copied case.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
-O(P) bounded recipe checks once; each qualified part copy allocates a constant number of fresh records.
+O(P) to see whether any part is primitive; each copied part allocates a constant number of fresh records.
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 
@@ -152,4 +152,4 @@ The original private neutral part data supplies all current poses, while the ori
 
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
-The copier keeps only admitted neutral identities with its prepared source.
+The copier retains nothing beyond its closure; each copy is the caller's.
