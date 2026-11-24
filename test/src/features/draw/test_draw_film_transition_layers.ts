@@ -5,6 +5,7 @@ import type {
 } from "@automovie/interface";
 import {
   AutoMovieDrawFilm,
+  type IAutoMovieFilmResponseRenderer,
   placeAutoMovieDrawLayer,
   planAutoMovieDrawPicture,
 } from "@automovie/render";
@@ -391,10 +392,17 @@ function picture(props: {
         transparent ? 1 : 0,
       ),
   };
-  const renderer: THREE.WebGLRenderer = {
+  const renderer: IAutoMovieFilmResponseRenderer &
+    Pick<THREE.WebGLRenderer, "clear"> = {
+    render: (): void => {},
+    getRenderTarget: (): null => null,
     setRenderTarget: (): void => {},
+    toneMapping: THREE.NoToneMapping,
+    toneMappingExposure: 1,
+    autoClear: true,
+    shadowMap: { autoUpdate: true },
     clear: (): void => record("clear"),
-  } as unknown as THREE.WebGLRenderer;
+  };
   const camera: THREE.Camera = new THREE.PerspectiveCamera();
   const film: AutoMovieDrawFilm = new AutoMovieDrawFilm({
     name: "film",

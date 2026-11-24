@@ -8,6 +8,7 @@ import type * as THREE from "three";
 import type { IAutoMovieRenderModeHandle } from "../scene/IAutoMovieRenderModeHandle.js";
 import { applyRenderMode } from "../scene/applyRenderMode.js";
 import type { AutoMovieFilmAlpha } from "../scene/filmResponse/AutoMovieFilmAlpha.js";
+import type { IAutoMovieFilmResponseRenderer } from "../scene/filmResponse/IAutoMovieFilmResponseRenderer.js";
 import type { AutoMovieDrawBeauty } from "./AutoMovieDrawBeauty.js";
 import type { IAutoMovieDrawScene } from "./IAutoMovieDrawScene.js";
 import { placeAutoMovieDrawLayer } from "./placeAutoMovieDrawLayer.js";
@@ -256,7 +257,8 @@ export namespace AutoMovieDrawFilm {
     scene: IAutoMovieDrawScene;
 
     /** The page's renderer, which `beforeDraw` and a cleared picture use. */
-    renderer: THREE.WebGLRenderer;
+    renderer: IAutoMovieFilmResponseRenderer &
+      Pick<THREE.WebGLRenderer, "clear">;
 
     /** The beauty stages, the graphics plate and the held layers. */
     beauty: Pick<

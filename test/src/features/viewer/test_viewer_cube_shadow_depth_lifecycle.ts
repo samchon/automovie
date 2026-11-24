@@ -1,4 +1,7 @@
 import {
+  type IAutoMovieFramebufferContext,
+  type IAutoMovieFramebufferRenderer,
+  type IAutoMovieShadowRetirementHost,
   readAutoMovieCubeShadowDepth,
   resetAutoMovieSceneShadowTargets,
   retireAutoMovieCubeShadowDepth,
@@ -9,7 +12,10 @@ import * as THREE from "three";
 import { nclose } from "../internal/nclose";
 import { observeThrownValue } from "../internal/observeThrownValue";
 
-/** Read the public post-operation slot without assuming a caller assignment survives. */
+/**
+ * Read the public post-operation slot without assuming a caller assignment
+ * survives.
+ */
 const readShadowMap: (
   shadow: THREE.LightShadow,
 ) => THREE.RenderTarget | null = (
@@ -17,13 +23,23 @@ const readShadowMap: (
 ): THREE.RenderTarget | null => shadow.map;
 
 /**
- * Native cube depth retirement preserves caller framebuffer/raster ownership, handles shared retiring aliases once and keeps independent failures visible. This typed in-memory host exercises ownership orchestration, not GPU output. Resource identity is checked by reference; raster values use the authored host rectangles, so comparison never traverses a target's cyclic texture graph.
+ * Native cube depth retirement preserves caller framebuffer/raster ownership,
+ * handles shared retiring aliases once and keeps independent failures visible.
+ * This typed in-memory host exercises ownership orchestration, not GPU output.
+ * Resource identity is checked by reference; raster values use the authored
+ * host rectangles, so comparison never traverses a target's cyclic texture
+ * graph.
  *
  * Scenarios:
- * 1. Attachment queries restore target/face/mip, viewport, scissor and test; nontexture/null attachments and query failures restore the same state.
- * 2. Alive depth is deleted once after public disposal; already-ended handles need no delete, while deletion/reset failures still restore raster state.
- * 3. Shared cube maps release one handle, known current borrowers refuse before mutation, and failed queries do not skip independent public retirement.
- * 4. Failed native observation retains its original cause after public cleanup; repeat requests no query, delete or public disposal again.
+ *
+ * 1. Attachment queries restore target/face/mip, viewport, scissor and test;
+ *    nontexture/null attachments and query failures restore the same state.
+ * 2. Alive depth is deleted once after public disposal; already-ended handles need
+ *    no delete, while deletion/reset failures still restore raster state.
+ * 3. Shared cube maps release one handle, known current borrowers refuse before
+ *    mutation, and failed queries do not skip independent public retirement.
+ * 4. Failed native observation retains its original cause after public cleanup;
+ *    repeat requests no query, delete or public disposal again.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Executes production cube query, supplemental retirement and scene cleanup with the existing in-memory facts plus real Three disposal events; checks exact caller state, independent failures and sticky failed-scene refusal without another operation.
  * @evidence contracts/development/testing.md#independent-expectations Authored framebuffer/raster values, object identity and independently counted event/request lists define expectations; the opaque handle and recorded GL calls are orchestration facts, not native texture existence or GPU/kernel release proof.
@@ -57,7 +73,7 @@ export function test_viewer_cube_shadow_depth_lifecycle(): void {
     calls.push(name);
     if (failures.has(name)) throw failures.get(name);
   };
-  const gl: WebGL2RenderingContext = {
+  const gl: IAutoMovieFramebufferContext = {
     FRAMEBUFFER: 0x8d40,
     DEPTH_ATTACHMENT: 0x8d00,
     FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE: 0x8cd0,
@@ -87,9 +103,11 @@ export function test_viewer_cube_shadow_depth_lifecycle(): void {
       operation("delete");
       alive = false;
     },
-  } as unknown as WebGL2RenderingContext;
-  const renderer: THREE.WebGLRenderer = {
-    getContext: (): WebGL2RenderingContext => gl,
+  };
+  const renderer: IAutoMovieFramebufferRenderer &
+    IAutoMovieShadowRetirementHost = {
+    shadowMap: { enabled: false },
+    getContext: (): IAutoMovieFramebufferContext => gl,
     getRenderTarget: (): THREE.WebGLRenderTarget | null => target,
     getActiveCubeFace: (): number => face,
     getActiveMipmapLevel: (): number => mip,
@@ -138,7 +156,7 @@ export function test_viewer_cube_shadow_depth_lifecycle(): void {
       face = 0;
       mip = 0;
     },
-  } as unknown as THREE.WebGLRenderer;
+  };
   const state: () => {
     face: number;
     mip: number;

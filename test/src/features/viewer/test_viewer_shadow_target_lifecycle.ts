@@ -56,7 +56,7 @@ function rendererFacts(draw: () => void): IAutoMovieScenePassRenderer {
  */
 export function test_viewer_shadow_target_lifecycle(): void {
   let draws: number = 0;
-  const renderer: THREE.WebGLRenderer = rendererFacts((): void => {
+  const renderer: IAutoMovieScenePassRenderer = rendererFacts((): void => {
     ++draws;
     directional.shadow.map = new THREE.WebGLRenderTarget(4, 4);
   });
@@ -177,10 +177,12 @@ export function test_viewer_shadow_target_lifecycle(): void {
     attempts,
     [1, 1],
   );
-  const healthyRenderer: THREE.WebGLRenderer = rendererFacts((): void => {
-    ++draws;
-    directional.shadow.map = new THREE.WebGLRenderTarget(4, 4);
-  });
+  const healthyRenderer: IAutoMovieScenePassRenderer = rendererFacts(
+    (): void => {
+      ++draws;
+      directional.shadow.map = new THREE.WebGLRenderTarget(4, 4);
+    },
+  );
   renderAutoMovieScenePass(
     healthyRenderer,
     scene,
@@ -206,7 +208,7 @@ export function test_viewer_shadow_target_lifecycle(): void {
     [THREE.PCFShadowMap, true, null],
   );
   let postAttempts: number = 0;
-  const postRenderer: THREE.WebGLRenderer = rendererFacts((): void => {
+  const postRenderer: IAutoMovieScenePassRenderer = rendererFacts((): void => {
     ++draws;
     const target: THREE.WebGLRenderTarget = new THREE.WebGLRenderTarget(4, 4);
     target.addEventListener("dispose", (): void => {

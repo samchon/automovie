@@ -54,7 +54,7 @@ const renderer: (
   logarithmic: boolean = false,
   reversed: boolean = false,
 ): IAutoMovieDepthPrecisionRenderer => {
-  const depthBits: number = 0x0d56;
+  const depthBits: WebGLRenderingContext["DEPTH_BITS"] = 0x0d56;
   return {
     capabilities: {
       logarithmicDepthBuffer: logarithmic,

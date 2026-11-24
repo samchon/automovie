@@ -327,7 +327,7 @@ export namespace HumanArmSeed {
     function* starts(): Generator<number[][]> {
       if (given !== undefined)
         yield given.map((v: number[]): number[] => [...v]);
-      else if (
+      if (
         problem.arms.every(
           (arm: IProblem["arms"][number]): boolean => arm.guess !== undefined,
         )
@@ -336,7 +336,7 @@ export namespace HumanArmSeed {
           (arm: IProblem["arms"][number], a: number): number[] =>
             G.encode(context.setups[a]!, arm.guess!),
         );
-      else yield context.rest.map((v: number[]): number[] => [...v]);
+      yield context.rest.map((v: number[]): number[] => [...v]);
     }
     const frame: (
       c: M.IContext,

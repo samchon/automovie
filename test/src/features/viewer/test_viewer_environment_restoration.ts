@@ -1,6 +1,7 @@
 import { deriveAutoMovieSemanticMask } from "@automovie/engine";
 import type { IAutoMovieSceneEnvironment } from "@automovie/interface";
 import {
+  type IAutoMovieScenePassRenderer,
   applyRendererEnvironment,
   attachAutoMovieSemanticMask,
   renderAutoMovieScenePass,
@@ -8,6 +9,7 @@ import {
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
+import { createScenePassRendererDouble } from "../internal/createScenePassRendererDouble";
 import { nclose } from "../internal/predicates";
 import {
   buildingFixture,
@@ -26,7 +28,8 @@ const environment: IAutoMovieSceneEnvironment = {
 };
 
 /**
- * Four mutable policy values observed through the renderer's supplied property port.
+ * Four mutable policy values observed through the renderer's supplied property
+ * port.
  */
 interface IEnvironmentState {
   /** Native tone curve enumeration. */
@@ -40,11 +43,12 @@ interface IEnvironmentState {
 }
 
 /**
- * Existing local policy seam; failures and attempts expose independent setter behavior.
+ * Existing local policy seam; failures and attempts expose independent setter
+ * behavior.
  */
 interface IEnvironmentHost {
   /** Structural port supplied to the actual viewer coordinator. */
-  renderer: THREE.WebGLRenderer;
+  renderer: IAutoMovieScenePassRenderer;
   /** Current observable property values. */
   values: IEnvironmentState;
   /** Independently authored values before policy application. */
@@ -55,7 +59,10 @@ interface IEnvironmentHost {
   attempts: string[];
 }
 
-/** Build the existing local setter seam, admitting the draw callback at construction instead of replacing a renderer method. */
+/**
+ * Build the existing local setter seam, admitting the draw callback at
+ * construction instead of replacing a renderer method.
+ */
 const createHost: (
   onDraw?: (input: THREE.Object3D) => void,
 ) => IEnvironmentHost = (
@@ -84,8 +91,8 @@ const createHost: (
     if (error !== undefined) throw error;
     values[key] = value;
   };
-  const renderer: THREE.WebGLRenderer = {
-    getRenderTarget: (): null => null,
+  const renderer: IAutoMovieScenePassRenderer = {
+    ...createScenePassRendererDouble(),
     get toneMapping(): THREE.ToneMapping {
       return values.tone;
     },
@@ -111,17 +118,23 @@ const createHost: (
       set type(value: THREE.ShadowMapType) {
         set("type", value);
       },
+      autoUpdate: true,
+      needsUpdate: false,
+      render: (): void => {},
     },
     render: (input: THREE.Object3D): void => {
       const error: Error | undefined = failures.get("draw");
       if (error !== undefined) throw error;
       onDraw?.(input);
     },
-  } as unknown as THREE.WebGLRenderer;
+  };
   return { renderer, values, initial, failures, attempts };
 };
 
-/** Observe a synchronous operation's thrown identity without substituting its implementation. */
+/**
+ * Observe a synchronous operation's thrown identity without substituting its
+ * implementation.
+ */
 const caught: (operation: () => unknown) => unknown = (
   operation: () => unknown,
 ): unknown => {
@@ -147,12 +160,17 @@ const sameState: (
   nclose(actual.exposure, expected.exposure, 0);
 
 /**
- * Source-local view policy restores independently of drawing and failed setters.
+ * Source-local view policy restores independently of drawing and failed
+ * setters.
  *
  * Scenarios:
- * 1. Declared beauty, omitted policy and delivery-only tone changes apply their independent expected state and restore it.
- * 2. Each failed restore setter, multiple failures and partial setup preserve causes, attempt other owners and permit a later supported restore.
- * 3. Scene drawing, structural setup refusal and mode-disposal failure restore environment policy independently of their own failures.
+ *
+ * 1. Declared beauty, omitted policy and delivery-only tone changes apply their
+ *    independent expected state and restore it.
+ * 2. Each failed restore setter, multiple failures and partial setup preserve
+ *    causes, attempt other owners and permit a later supported restore.
+ * 3. Scene drawing, structural setup refusal and mode-disposal failure restore
+ *    environment policy independently of their own failures.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls actual environment application and scene-pass coordination through an owned property/draw port. It observes reversible policy, retry after failed restoration, all independent setter attempts and primary/rollback/draw/mode error identities rather than silently replacing one failure with another.
  * @evidence contracts/development/testing.md#independent-expectations Authored initial linear curve, exposure 3, disabled basic shadows and declared ACES exposure 1.25/PCF shadows supply the state oracle. Explicit Error objects and operation order supply failure expectations; native disposal events expose restoration errors but establish no GPU or kernel release.

@@ -3,18 +3,20 @@ import type {
   IAutoMovieRenderReport,
 } from "@automovie/interface";
 import {
+  type IAutoMovieRendererFrameCounters,
   auditAutoMovieRenderObservation,
   observeAutoMovieRendererFrame,
 } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
-import type * as THREE from "three";
 
 /**
- * The submission-counter coordinator accumulates its supplied counter record and preserves the reset policy, leaving unobservable dimensions null.
+ * The submission-counter coordinator accumulates its supplied counter record
+ * and preserves the reset policy, leaving unobservable dimensions null.
  *
  * Scenarios:
  *
- * 1. Multiple render passes accumulate draw calls and triangles after one frame reset, and the renderer's reset policy is restored afterward.
+ * 1. Multiple render passes accumulate draw calls and triangles after one frame
+ *    reset, and the renderer's reset policy is restored afterward.
  * 2. Dimensions the renderer cannot measure stay null and therefore unchecked.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the actual frame-counter coordinator with its existing supplied info port, then audits the returned observation against a report; catches per-draw reset losing accumulated requests and guessed values for unobservable dimensions.

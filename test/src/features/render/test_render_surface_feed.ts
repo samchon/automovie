@@ -11,6 +11,7 @@ import type {
   IAutoMovieValidation,
 } from "@automovie/interface";
 import {
+  type IAutoMovieFilmResponseRenderer,
   type IAutoMovieSurfaceGraphicsObject,
   buildModel,
   buildScene,
@@ -144,19 +145,26 @@ export async function test_render_surface_feed(): Promise<void> {
 
   // 2. One draw from cctv, as background inside the feed, then restored.
   const cctv: THREE.PerspectiveCamera = new THREE.PerspectiveCamera(60, 1);
-  const previous: object = {};
-  let bound: unknown = previous;
-  const draws: { target: unknown; camera: THREE.Camera; material: unknown }[] =
-    [];
-  const renderer: THREE.WebGLRenderer = {
-    getRenderTarget: (): unknown => bound,
-    setRenderTarget: (target: unknown): void => {
+  const previous: THREE.WebGLRenderTarget = new THREE.WebGLRenderTarget(1, 1);
+  let bound: THREE.WebGLRenderTarget | null = previous;
+  const draws: {
+    target: THREE.WebGLRenderTarget | null;
+    camera: THREE.Camera;
+    material: THREE.Material | THREE.Material[];
+  }[] = [];
+  const renderer: IAutoMovieFilmResponseRenderer = {
+    getRenderTarget: (): THREE.WebGLRenderTarget | null => bound,
+    setRenderTarget: (target: THREE.WebGLRenderTarget | null): void => {
       bound = target;
     },
-    render: (_scene: THREE.Scene, camera: THREE.Camera): void => {
+    render: (_scene: THREE.Object3D, camera: THREE.Camera): void => {
       draws.push({ target: bound, camera, material: mesh.material });
     },
-  } as unknown as THREE.WebGLRenderer;
+    toneMapping: THREE.NoToneMapping,
+    toneMappingExposure: 1,
+    autoClear: true,
+    shadowMap: { autoUpdate: true, enabled: false },
+  };
   graphics.renderFeeds(renderer, mounted.scene, (id: string) =>
     id === "cctv" ? cctv : undefined,
   );
@@ -164,7 +172,7 @@ export async function test_render_surface_feed(): Promise<void> {
     "one draw from cctv into the feed target, the feed shown as background",
     draws.length === 1 &&
       draws[0]!.camera === cctv &&
-      (draws[0]!.target as THREE.WebGLRenderTarget).texture === map &&
+      draws[0]!.target?.texture === map &&
       draws[0]!.material !== material,
   );
   TestValidator.predicate(
@@ -275,12 +283,12 @@ export async function test_render_surface_feed(): Promise<void> {
 
   // 6. Disposal.
   let disposed: boolean = false;
-  (draws[0]!.target as THREE.WebGLRenderTarget).addEventListener(
-    "dispose",
-    (): void => {
-      disposed = true;
-    },
-  );
+  const fed: THREE.WebGLRenderTarget | null | undefined = draws[0]?.target;
+  if (fed === null || fed === undefined)
+    throw new Error("Expected the feed target");
+  fed.addEventListener("dispose", (): void => {
+    disposed = true;
+  });
   graphics.dispose();
   TestValidator.predicate("the feed target is released", disposed);
 }

@@ -148,7 +148,7 @@ export namespace HumanBallPlay {
    *   rectangle whose up is not in its plane.
    */
   export function crossing(
-    performance: IAutoMovieMotionHumanPerformance,
+    performance: Pick<IAutoMovieMotionHumanPerformance, "prop">,
     ball: string,
     gate: IAutoMovieMotionHumanBallPlay.Gate,
     from: number,

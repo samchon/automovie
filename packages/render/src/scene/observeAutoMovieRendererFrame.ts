@@ -1,4 +1,5 @@
 import type { IAutoMovieObservedRenderResult } from "@automovie/interface";
+
 import type { IAutoMovieRendererFrameCounters } from "./IAutoMovieRendererFrameCounters.js";
 
 /**

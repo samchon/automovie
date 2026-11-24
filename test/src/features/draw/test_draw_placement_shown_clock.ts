@@ -9,7 +9,6 @@ import {
   parseAutoMovieInspectionRequest,
 } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
-import type * as THREE from "three";
 
 import { nclose } from "../internal/nclose";
 import { createRecordedFilmSubject } from "./createRecordedFilmSubject";
@@ -129,7 +128,7 @@ function placement(
 ): AutoMovieDrawPlacement {
   return new AutoMovieDrawPlacement("film", subject.subject, {
     localClippingEnabled: false,
-  } as unknown as THREE.WebGLRenderer);
+  });
 }
 
 /** The inspection request of the given keys, every other key absent. */

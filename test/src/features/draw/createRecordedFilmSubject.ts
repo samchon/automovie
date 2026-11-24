@@ -5,7 +5,10 @@ import type {
   IAutoMovieShot,
   IAutoMovieTransition,
 } from "@automovie/interface";
-import type { IAutoMovieDrawScene } from "@automovie/render";
+import type {
+  IAutoMovieDrawScene,
+  IAutoMovieFilmResponseRenderer,
+} from "@automovie/render";
 import * as THREE from "three";
 
 /**
@@ -90,7 +93,10 @@ export function createRecordedFilmSubject(props: {
           },
         }
       : {}),
-    beforeDraw: (_renderer: THREE.WebGLRenderer, seconds: number): void => {
+    beforeDraw: (
+      _renderer: IAutoMovieFilmResponseRenderer,
+      seconds: number,
+    ): void => {
       calls.push({ name: "beforeDraw", shot: null, numbers: [seconds] });
     },
     ...(props.optics

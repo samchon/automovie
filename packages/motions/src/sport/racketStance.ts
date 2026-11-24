@@ -1,4 +1,4 @@
-import { Vector3, minimumJerk } from "@automovie/engine";
+import { Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionClock,
@@ -12,30 +12,10 @@ import type {
 
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanLeg } from "../compose/AutoMovieMotionHumanLeg";
+import { racketStanceTransfer } from "./racketStanceTransfer";
 
 /** Absolute action-local endpoints of a phase in seconds. */
-type Window = readonly [from: number, to: number];
-
-/** A prepared pair of foot swings and the accompanying lateral pelvis movement. */
-interface ITransfer {
-  /** The first and second foot's separate swing windows. */
-  swings: readonly [Window, Window];
-
-  /** World metres along the local left axis from the entry pelvis. */
-  offset(seconds: number): number;
-}
-
-/** Fractions of stance entry or recovery at which each foot leaves and lands. */
-const SWING_SHARES: readonly [Window, Window] = [
-  [0.17, 0.43],
-  [0.57, 0.83],
-];
-
-/**
- * The portion of horizontal distance to the bearing ankle the authored pelvis
- * shift covers.
- */
-const SUPPORT_SHARE: number = 0.65;
+type Window = racketStanceTransfer.Window;
 
 /**
  * The height of each ready or recovery step above its ground baseline as a
@@ -96,21 +76,22 @@ export function racketStance(
       Vector3.subtract(entry.feet[foot].ankle, entry.posture.root),
       leftward,
     ) + (foot === "left" ? distance : -distance);
-  const approach: ITransfer = transfer(
+  const approach: racketStanceTransfer.ITransfer = racketStanceTransfer(
     0,
     ready,
     offset(follow, 0),
     offset(lead, widening),
   );
-  const recovery: ITransfer = transfer(
+  const recovery: racketStanceTransfer.ITransfer = racketStanceTransfer(
     relax,
     clock.duration,
     offset(lead, widening + spread),
     offset(follow, 0),
   );
   const airborne = (seconds: number): boolean =>
-    split && inside(flight, seconds);
-  const progress = (seconds: number): number => share(flight, seconds);
+    split && racketStanceTransfer.inside(flight, seconds);
+  const progress = (seconds: number): number =>
+    racketStanceTransfer.share(flight, seconds);
   const lift = (seconds: number): number => {
     if (!airborne(seconds)) return 0;
     const t: number = progress(seconds);
@@ -192,14 +173,16 @@ export function racketStance(
           seconds: number,
         ): IAutoMovieMotionHumanFoot.IPlacement => {
           if (seconds <= outward[0] || seconds >= inward[1]) return rest;
-          if (seconds < outward[1]) return stepOut(ease(outward, seconds));
-          if (seconds > inward[0]) return stepBack(ease(inward, seconds));
+          if (seconds < outward[1])
+            return stepOut(racketStanceTransfer.ease(outward, seconds));
+          if (seconds > inward[0])
+            return stepBack(racketStanceTransfer.ease(inward, seconds));
           if (!split || seconds <= flight[0]) return open;
           if (seconds >= flight[1]) return landed;
           const ankle: IAutoMovieVector3 = Vector3.addScaled(
             open.ankle,
             leftward,
-            side * spread * ease(flight, seconds),
+            side * spread * racketStanceTransfer.ease(flight, seconds),
           );
           return {
             ankle: { ...ankle, y: ankle.y + lift(seconds) },
@@ -208,7 +191,7 @@ export function racketStance(
         },
         planted: (seconds: number): boolean =>
           !departures.some((window: Window): boolean =>
-            inside(window, seconds),
+            racketStanceTransfer.inside(window, seconds),
           ),
       }),
     );
@@ -229,52 +212,4 @@ export function racketStance(
     }
   }
   return { primitives, contacts };
-}
-
-/**
- * The two foot swings use separate intervals, leaving transfer time with both
- * feet down.
- */
-function transfer(
-  from: number,
-  to: number,
-  first: number,
-  second: number,
-): ITransfer {
-  const span: number = to - from;
-  const swings: readonly [Window, Window] = [
-    [from + SWING_SHARES[0][0] * span, from + SWING_SHARES[0][1] * span],
-    [from + SWING_SHARES[1][0] * span, from + SWING_SHARES[1][1] * span],
-  ];
-  const firstShift: Window = [from, swings[0][0]];
-  const secondShift: Window = [swings[0][1], swings[1][0]];
-  const recenter: Window = [swings[1][1], to];
-  return {
-    swings,
-    offset: (seconds: number): number => {
-      const towardFirst: number = ease(firstShift, seconds);
-      const towardSecond: number = ease(secondShift, seconds);
-      const settle: number = ease(recenter, seconds);
-      return (
-        SUPPORT_SHARE *
-        (first * (towardFirst - towardSecond) +
-          second * (towardSecond - settle))
-      );
-    },
-  };
-}
-
-/** Endpoints belong to the adjacent bearing phases. */
-function inside([from, to]: Window, seconds: number): boolean {
-  return seconds > from && seconds < to;
-}
-
-/** The clamped linear fraction of a positive-length interval. */
-function share([from, to]: Window, seconds: number): number {
-  return Math.min(1, Math.max(0, (seconds - from) / (to - from)));
-}
-
-/** A zero-velocity turnaround at both boundaries of a placement or transfer. */
-function ease(window: Window, seconds: number): number {
-  return minimumJerk.share(share(window, seconds));
 }

@@ -85,7 +85,7 @@ export async function test_unit_motions_handling_piano_score(): Promise<void> {
     release: 1.05,
     to: 1.15,
   };
-  const params: IAutoMovieMotionHumanPianoScore.IParams = {
+  const params: IAutoMovieMotionHumanPianoScore = {
     prop: "upright",
     notes: [note],
   };

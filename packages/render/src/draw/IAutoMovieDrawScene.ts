@@ -11,6 +11,8 @@ import type {
 } from "@automovie/interface";
 import type * as THREE from "three";
 
+import type { IAutoMovieFilmResponseRenderer } from "../scene/filmResponse/IAutoMovieFilmResponseRenderer.js";
+
 /**
  * A subject made ready to draw: its scene, its delivery camera, its clock and
  * raster, and how to put it at a second.
@@ -169,7 +171,10 @@ export interface IAutoMovieDrawScene {
    * holdouts included, shows the feeds the beauty pass shows. It must leave the
    * renderer's render target as it found it.
    */
-  beforeDraw?: (renderer: THREE.WebGLRenderer, seconds: number) => void;
+  beforeDraw?: (
+    renderer: IAutoMovieFilmResponseRenderer,
+    seconds: number,
+  ) => void;
 
   /**
    * Take the film's dialogue mouths, handed once before the first picture by a
