@@ -139,7 +139,9 @@ async function stance(
             Vector3.subtract(segment.neutral.position, pivot),
           ),
         );
-        pose.rotation = turn;
+        // The whole segment turns rigidly about the pivot, its bent-knee
+        // neutral rotation kept under the lean.
+        pose.rotation = Quaternion.multiply(turn, segment.neutral.rotation);
       }
     }
   const input: IAutoMoviePhysicalSimulationInput.IInput =
