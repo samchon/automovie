@@ -22,7 +22,7 @@ Linear in tracks, keys and layers at preparation; apply is a binary search per t
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 
-A distinct image decodes once and is shared by every layer that names it, keyed by model for carried images and by path for project assets; every listed font decodes once for all text layers.
+A distinct image decodes once and is shared by every layer that names it, keyed by model for carried images and by path for project assets. Each listed font decodes once per preparation. Each system-font texture is built once per key and reused by subsequent frame draws and the depth seal.
 
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 

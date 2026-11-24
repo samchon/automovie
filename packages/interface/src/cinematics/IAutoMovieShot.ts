@@ -92,9 +92,9 @@ export interface IAutoMovieShot {
   flames?: readonly IAutoMovieFlameCue[];
 
   /**
-   * Font sources the surface graphics' text layers name, unique by id. `render`
-   * decodes every listed source before it draws a frame of the shot and refuses
-   * the shot when one fails. Omitted when no layer letters text.
+   * Explicit font sources for surface text, unique by id. `render` decodes
+   * every listed source before drawing and refuses the shot when one fails.
+   * Text layers that omit their font id use the browser's system UI font.
    */
   fonts?: readonly IAutoMovieFontSource[];
 

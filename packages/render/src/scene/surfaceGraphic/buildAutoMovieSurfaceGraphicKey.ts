@@ -9,6 +9,7 @@ import { clipAutoMovieSurfaceGraphicGeometry } from "./clipAutoMovieSurfaceGraph
 import { createAutoMovieSurfaceGraphicMaterial } from "./createAutoMovieSurfaceGraphicMaterial.js";
 import { createAutoMovieSurfaceGraphicQuad } from "./createAutoMovieSurfaceGraphicQuad.js";
 import { createAutoMovieSurfaceGraphicText } from "./createAutoMovieSurfaceGraphicText.js";
+import { createAutoMovieSystemTextTexture } from "./createAutoMovieSystemTextTexture.js";
 
 /**
  * Build one key's graphic as a group of flat meshes on the face.
@@ -39,17 +40,17 @@ import { createAutoMovieSurfaceGraphicText } from "./createAutoMovieSurfaceGraph
  * fit shrinks the quad to the image's aspect inside its box, centred; a `cover`
  * fit keeps the box and narrows the texture window to crop, centred; `stretch`
  * maps the whole image onto the box. Aspects are taken in metres on the face,
- * from the image's pixel width and height. A text layer draws its triangulated
- * glyphs, set by `createAutoMovieSurfaceGraphicText` from the decoded font
- * `font` returns, in its colour. A feed layer shows the texture `feed` returns,
- * the camera's picture with its first row at the bottom, under the emission.
+ * from the image's pixel width and height. A text layer draws triangulated
+ * glyphs from its explicit font or a quad with a system-font coverage texture.
+ * A feed layer shows the texture `feed` returns, the camera's picture with its
+ * first row at the bottom, under the emission.
  *
  * With an `outline`, every mesh, the face included, is clipped to it by
  * `clipAutoMovieSurfaceGraphicGeometry`, so neither the face the mask paints
  * nor any layer reaches past the surface, whatever pass draws them.
  *
- * Every geometry and material made is pushed to `owned` as it is made, so the
- * caller releases them even when a later layer throws.
+ * Every geometry, material and system-font texture is pushed to `owned` as it
+ * is made, so the caller releases them even when a later layer throws.
  */
 export function buildAutoMovieSurfaceGraphicKey(props: {
   /** The key's graphic. */
@@ -70,7 +71,7 @@ export function buildAutoMovieSurfaceGraphicKey(props: {
   /** The decoded texture for an image layer's asset. */
   image: (asset: string) => THREE.Texture;
 
-  /** The decoded font a text layer's font id names. */
+  /** The decoded font for a text layer's explicit font id. */
   font: (id: string) => IAutoMovieFont;
 
   /** The colour texture of a feed layer's own render target. */
@@ -79,7 +80,7 @@ export function buildAutoMovieSurfaceGraphicKey(props: {
   /** Receives each feed layer's mesh, in layer order. */
   feeds?: THREE.Mesh[];
 
-  /** Receives every geometry and material made. */
+  /** Receives every geometry, material and system-font texture made. */
   owned: { dispose(): void }[];
 }): THREE.Group {
   const { graphic, width, depth, owned }: typeof props = props;
@@ -116,19 +117,7 @@ export function buildAutoMovieSurfaceGraphicKey(props: {
               owned,
             )
           : layer.kind === "text"
-            ? mesh(
-                createAutoMovieSurfaceGraphicText(
-                  width,
-                  depth,
-                  layer,
-                  props.font(layer.font),
-                ),
-                createAutoMovieSurfaceGraphicMaterial(
-                  graphic.emission,
-                  layer.color,
-                ),
-                owned,
-              )
+            ? textMesh(layer, props)
             : layer.kind === "feed"
               ? mesh(
                   // A render target's first row is the picture's bottom, so
@@ -192,6 +181,38 @@ export function buildAutoMovieSurfaceGraphicKey(props: {
     group.add(seal);
   }
   return group;
+}
+
+/** Build the text mesh with the explicit font or a system-font coverage map. */
+function textMesh(
+  layer: IAutoMovieSurfaceGraphicLayer.IText,
+  props: Parameters<typeof buildAutoMovieSurfaceGraphicKey>[0],
+): THREE.Mesh {
+  const { width, depth, graphic, owned }: typeof props = props;
+  if (layer.font !== undefined)
+    return mesh(
+      createAutoMovieSurfaceGraphicText(
+        width,
+        depth,
+        layer,
+        props.font(layer.font),
+      ),
+      createAutoMovieSurfaceGraphicMaterial(graphic.emission, layer.color),
+      owned,
+    );
+
+  const texture: THREE.CanvasTexture<OffscreenCanvas> =
+    createAutoMovieSystemTextTexture(width, depth, layer);
+  owned.push(texture);
+  return mesh(
+    createAutoMovieSurfaceGraphicQuad(width, depth, layer),
+    createAutoMovieSurfaceGraphicMaterial(
+      graphic.emission,
+      layer.color,
+      texture,
+    ),
+    owned,
+  );
 }
 
 /**

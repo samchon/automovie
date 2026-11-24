@@ -2,7 +2,7 @@
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States each emission, background and layer check, the box bounds, and that image resolution belongs to texture closure.
+States each emission, background and layer check, the box bounds, and that image resolution belongs to texture closure. A text layer may omit its font. A supplied id must be nonblank and resolve when the caller supplies the font set.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
