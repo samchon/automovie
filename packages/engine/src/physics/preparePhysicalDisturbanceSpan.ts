@@ -144,10 +144,12 @@ export function preparePhysicalDisturbanceSpan(
   };
 
   // The swinging limb: of the planted limbs, from the farthest from the
-  // capture point to the nearest, the last of equals first, the first whose
-  // step can capture, as the push recovery keeps the closest limb and swings
-  // the other (`physicalPushRecovery.doubleSupport` l.169-182); the farthest
-  // when none can.
+  // capture point to the nearest, the last of equals first, as the push
+  // recovery keeps the closest limb and swings the other
+  // (`physicalPushRecovery.doubleSupport` l.169-182, PushRecoveryControlModule
+  // l.169-182), the first whose sole can hold its own trial's capture point
+  // at touchdown (`attempt`); else the first that can capture; else the
+  // farthest.
   const choose = (feet: readonly Foot[]): string => {
     const ranked: { foot: Foot; distance: number }[] = feet
       .map((foot: Foot, index: number) => {
@@ -159,16 +161,77 @@ export function preparePhysicalDisturbanceSpan(
         };
       })
       .sort((a, b): number => b.distance - a.distance || b.index - a.index);
-    for (const { foot } of ranked)
-      if (
-        preferred(
-          feet.filter((other: Foot): boolean => other !== foot),
-          foot,
-          ZULU.swingTime,
-        ) > 0
-      )
-        return foot.bone;
-    return ranked[0]!.foot.bone;
+    const trials = ranked.map(({ foot }) => ({
+      foot,
+      ...attempt(
+        feet.filter((other: Foot): boolean => other !== foot),
+        foot,
+      ),
+    }));
+    return (
+      trials.find((trial): boolean => trial.holds) ??
+      trials.find((trial): boolean => trial.capturable) ??
+      trials[0]!
+    ).foot.bone;
+  };
+
+  // One candidate's step laid once in closed form: its preferred swing time
+  // and region (`computePreferredSwingTimeForRecovering` l.197-220), its
+  // footstep projected into the region (`physicalFootstepAdjustor`), the
+  // single-support response toward it, and whether its sole can hold the
+  // response's capture point at touchdown within the region, the footstep
+  // check the swing makes (`WalkingSingleSupportState` l.136-163).
+  const attempt = (
+    stance: readonly Foot[],
+    swing: Foot,
+  ): { holds: boolean; capturable: boolean } => {
+    const time: number = preferred(stance, swing, ZULU.swingTime);
+    if (!(time > 0)) return { holds: false, capturable: false };
+    const duration: number = Math.max(
+      ZULU.minimumSwingTime,
+      Math.min(ZULU.swingTime, time),
+    );
+    const region: Polygon.IPoint[] = reachable(stance, swing, duration);
+    if (region.length < 3) return { holds: false, capturable: true };
+    const projected: physicalFootstepAdjustor.IResult =
+      physicalFootstepAdjustor({
+        position: toLocal(swing.frame.origin),
+        outline: Polygon.hull(outline(swing).map(toLocal)),
+        support: Polygon.centroid(supportOf(stance)),
+        region,
+      });
+    const trial: IState = follow([], {
+      phase: "single",
+      reference: segmented(
+        t,
+        plan(
+          merge(stance, swing),
+          swing,
+          toWorld(projected.position),
+          duration,
+        ),
+      ),
+      support: supportOf(stance),
+      start: t,
+      end: t + duration,
+      xi: state.xi,
+      c: state.c,
+      omega,
+    });
+    const facing: Polygon.IFrame = {
+      origin: { x: 0, z: 0 },
+      forward: swing.frame.forward,
+    };
+    const holding: Polygon.IPoint[] = Polygon.hull(
+      swing.polygon.map(
+        (v: Polygon.IPoint): Polygon.IPoint =>
+          toLocal(add(trial.xi, Polygon.world(facing, v), -1)),
+      ),
+    );
+    return {
+      holds: Polygon.intersect(region, holding).length >= 3,
+      capturable: true,
+    };
   };
 
   // The two sides a plan rides on: the stance, its planted limbs merged into
