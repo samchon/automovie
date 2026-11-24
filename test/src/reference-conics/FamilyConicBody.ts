@@ -1,8 +1,8 @@
 import { FamilyConicClosure } from "./FamilyConicClosure";
 import { FamilyConicDivide } from "./FamilyConicDivide";
 import { FamilyConicExcursion as X } from "./FamilyConicExcursion";
-import { FamilyConicFairing as Fairing } from "./FamilyConicFairing";
 import { FamilyConicJunction as Junction } from "./FamilyConicJunction";
+import { FamilyConicJunctionModel as JunctionModel } from "./FamilyConicJunctionModel";
 import { FamilyConicFit as F } from "./FamilyConicFit";
 import { FamilyConicLoft as K } from "./FamilyConicLoft";
 import { FamilyConicLoop } from "./FamilyConicLoop";
@@ -78,9 +78,6 @@ export namespace FamilyConicBody {
    */
   const FAIR: boolean = !process.argv.includes("--reproduce");
 
-  /** Phase lines a fairing window reads along the stations: the four section extremes and the four quarter shoulders. */
-  const FAIR_LINES: number = 8;
-
   /**
    * The fairing fit's convergence: the share of the objective below which an accepted step's change, and its predicted change, no
    * longer count (`FamilyConicFit.fitGroup`'s relative test). The fairing rows are second differences round rings of at least 48 points
@@ -92,9 +89,6 @@ export namespace FamilyConicBody {
 
   /** Successive accepted steps that must each fall under `FAIR_CONVERGED`, so one damped short step does not end the fit. ESTIMATE. */
   const FAIR_CONVERGED_STEPS: number = 3;
-
-  /** Samples round a ring a fairing window first reads its girth on; the ring is then read at the figure's phase count for that girth. */
-  const FAIR_RING: number = 64;
 
   /** Rays a skin-fitted section is read along (`IPart.skin`): 0.5 degree apart, a sample every 0.2 mm on a section 25 mm across. */
   const SKIN_RAYS: number = 720;
@@ -2365,408 +2359,33 @@ export namespace FamilyConicBody {
     return rows;
   }
 
-  /**
-   * The fairing reading on the junction's own curves (`FamilyConicJunction`; joints-one-shot.md, "2026-11-23: the fairing fit's cost,
-   * measured, and its redesign"), with no declaration and no loft in a trial or a column:
-   *
-   * - the fairing residuals on each authored child's root rings and guide lines, a ring only on its visible arc: the phases whose cut lies
-   *   inside a neighbour's cut at the end plane are trimmed by the compose and are never skin, so rounding them is meaningless (and was
-   *   what pulled pinky and ring apart, readings 3 to 5 of 2026-11-23);
-   * - each neighbour pair's overlap depth in the end plane kept non-negative (the signed-distance row of sequential convex collision
-   *   avoidance, Schulman et al., IJRR 33(9), 2014, with the opposite sign: there the bodies stay apart, here neighbours stay crossed);
-   * - each neighbour's cut kept partly outside the other's (one point on or outside it), so a neighbour pair cannot nest instead of cross;
-   * - each non-neighbour pair's signed separation kept non-negative;
-   * - the host's end ring within the shortest rail of the composed outline (the children's cuts outside every other cut);
-   * - each seam's host-ring phases enclosing the seam before it, the split's nesting test as three margin rows per seam
-   *   (`FamilyConicJunction.seams`; the leg's emit of 2026-11-23 was refused at admission on it);
-   * - an outline refused when a neighbour pair's cuts do not cross exactly twice, or a seam plane does not cross the host's ring twice.
-   *
-   * Derivatives group the columns (Curtis, Powell and Reid, J Inst Math Appl 13:117-119, 1974; Nocedal and Wright, Numerical Optimization,
-   * 2006, ch. 8): a member's rows read its own values only, so one value of every member is moved in each grouped column, and the pair
-   * and host rows take their rates from the members' own point velocities by the chain rule.
-   */
+  /** Translate the legacy declaration's physical faces to the shared junction model. */
   function junctionModel(
     group: ReturnType<typeof collectGroup>, envelope: ReturnType<typeof rootEnvelope>,
     fields: readonly { stock: string; step: number }[], roots: ReturnType<typeof groupSources>,
     log: (event: string, detail: object) => void,
   ) {
-    type P = [number, number];
-    const plane: Junction.IPlane = { origin: [...envelope.basis.origin] as R.V, x: [...envelope.basis.x] as R.V, y: [...envelope.basis.y] as R.V, z: [...envelope.basis.z] as R.V };
-    const family = (families: ReadonlyMap<string, K.IStored>, face: string, stock: string): K.IStored => {
-      const own = families.get(stock) ?? (group.parent?.family.name === stock ? group.parent.family : undefined);
-      if (own === undefined) throw new Error("the junction has no family for " + stock);
-      return face === stock ? own : AutoMovieHumanConicLoft.mirror(own, face);
-    };
-    // The stations each child is read at, fixed from the base sources: its rings over its root stretch, its lines two stations past
-    // it, and the four stations of its base view that bracket the end plane (the course point's height over the plane changes sign).
-    const height = (p: readonly number[]): number => V.dot(V.sub(p as R.V, plane.origin), plane.z);
-    const layout = group.children.map((child) => {
-      const view = roots.view(child.face);
-      const member = group.members.get(child.stock)!;
-      const stations: number[] = view.stations.filter((s: number): boolean => s >= member.tail.knots[0]!);
-      const rings: number[] = child.face === child.stock ? stations.filter((s: number): boolean => s <= member.tail.mark) : [];
-      // The cut's bracket: from the last station whose whole ring lies on the plane's near side to the first whose whole ring lies past
-      // it, one more each way, read once on the base sections. A splayed digit's section lines cross the plane far from where its course
-      // does, so four stations about the course's own crossing left lateral phases without a crossing (the hand's start read pinky and
-      // ring 8.91 mm apart where the lofted end composes them).
-      const all: number[] = view.stations;
-      const own = family(new Map([[child.stock, member.family]]), child.face, child.stock);
-      const probe = Junction.read({ face: child.face, family: own, rings: all, lines: [], guides: [], bracket: [], cut: [],
-        phases: Array.from({ length: FAIR_RING }, (_, j: number): number => (2 * Math.PI * j) / FAIR_RING) }, plane, Junction.sections());
-      const sides = probe.rings.map((ringPoints: R.V[]): number => {
-        const h = ringPoints.map(height);
-        return Math.max(...h) < 0 ? -1 : Math.min(...h) > 0 ? 1 : 0;
-      });
-      const below: number = sides.lastIndexOf(-1), above: number = sides.indexOf(1);
-      const bracket: number[] = all.slice(Math.max(0, below - 1), above < 0 ? all.length : Math.min(all.length, above + 2));
-      const coarse = Junction.read({ face: child.face, family: own,
-        rings: [rings.length > 0 ? rings[0]! : bracket[0]!], lines: [], phases: Array.from({ length: FAIR_RING }, (_, j: number): number => (2 * Math.PI * j) / FAIR_RING),
-        guides: [], bracket: [], cut: [] }, plane, Junction.sections());
-      const girth: number = coarse.rings[0]!.reduce((sum: number, p: R.V, j: number, ring: R.V[]): number => sum + V.norm(V.sub(ring[(j + 1) % ring.length]!, p)), 0);
-      const count: number = AutoMovieHumanConicLoft.phaseCount(member.family, girth);
-      const phases: number[] = Array.from({ length: count }, (_, j: number): number => (2 * Math.PI * j) / count);
-      const span: number = rings.length < 2 ? 1 : rings.at(-1)! - rings[0]!;
-      const weights: number[] = rings.map((_, i: number): number => rings.length < 2 ? 1 : ((rings[Math.min(i + 1, rings.length - 1)]! - rings[Math.max(i - 1, 0)]!) / 2) / span);
-      // The cut at twice the owner's count, as the seal reads the actual cuts (`terminalIncidence`: non-neighbour overlap and the forks'
-      // crossing directions on 2 x count-gons), finer than the composition's count; the wedge's lines through every station of the
-      // child's view from the bracket's start to its domain's end, as the skin cut walks them.
-      const declared = group.owner.children.find(({ partFace }): boolean => partFace === child.face);
-      const childRail: number = (declared?.rail ?? 0) * 1000;
-      // The wedge's stations end one past the first whose whole ring stands past the end plane by more than the rail: the planes move
-      // by the rail along the child's axis, so rise at most the rail over the end plane, and a line that enters the moved wedge at all
-      // enters it by there. A later entry is not seen, so the row is conservative (2026-11-24: walking the whole domain made a derivative
-      // reading 53 to 74 s).
-      const past: number = probe.rings.findIndex((ringPoints: R.V[]): boolean => Math.min(...ringPoints.map(height)) > childRail);
-      return { child, rings, lines: stations.slice(0, rings.length + 2), phases, weights, bracket,
-        guides: Array.from({ length: FAIR_LINES }, (_, j: number): number => (2 * Math.PI * j) / FAIR_LINES),
-        cutPhases: Array.from({ length: 2 * group.owner.count }, (_, j: number): number => (2 * Math.PI * j) / (2 * group.owner.count)),
-        wedge: all.slice(Math.max(0, below - 1), past < 0 ? all.length : Math.min(all.length, past + 2)), railMm: childRail };
-    });
-    const railMm: number = Math.min(...group.owner.children.map((entry): number => entry.rail * 1000));
     const hostFace: string = group.owner.hostFace;
-    const hostStock: string = group.parent?.family.name ?? hostFace.replace(/\.mirror$/, "");
-    const hostFamily = (families: ReadonlyMap<string, K.IStored>): K.IStored => {
-      const own = group.parent !== undefined ? family(families, hostFace, hostStock)
-        : roots.figure.families.find((f): boolean => f.name === hostStock);
-      if (own === undefined) throw new Error("the junction has no host family " + hostStock);
-      return hostFace === own.name || group.parent !== undefined ? own : AutoMovieHumanConicLoft.mirror(own, hostFace);
-    };
-    const hostCount: number = group.owner.count;
-    // The host's end ring at eight times the owner's count, as the split samples it for the seams' crossings and for its rail.
-    const hostPhases: number[] = Array.from({ length: 8 * hostCount }, (_, j: number): number => (2 * Math.PI * j) / (8 * hostCount));
-    // The children's direction into themselves: the composed end's section axis is signed by it; the seams' normals do not change with
-    // a sign common to every child (`FamilyConicJunction.seams`), but the axes are given as the split gives them.
-    const into: number[] = layout.map((entry): number =>
-      group.owner.children.find(({ partFace }): boolean => partFace === entry.child.face)?.partEnd === "top" ? -1 : 1);
-    const byStock = new Map<string, number[]>();
-    fields.forEach(({ stock }, index): void => { const list = byStock.get(stock); if (list === undefined) byStock.set(stock, [index]); else list.push(index); });
-    const columnGroups: number = Math.max(0, ...[...byStock.values()].map((list): number => list.length));
-
-    // The reduced prefix basis is fixed at the fit's knot addresses. At and beyond the protected mark its influence is zero.
-    const seeds = group.expand(group.vector);
-    const scopes = layout.map((entry) => {
-      const { face, stock } = entry.child;
-      const tail = group.members.get(stock)!.tail;
-      const cardinal = F.basisOf(tail.knots);
-      const held: number[] = tail.free.map((): number => 0);
-      const controls = (byStock.get(stock) ?? []).map((i: number, k: number) => (
-        { field: Math.floor(k / tail.free.length), knot: k % tail.free.length, step: fields[i]!.step }));
-      // A mirrored feature run can change several fields together by the nonlinear chord address. Keep its exact construction.
-      return Junction.prepareMember({ face, family: family(seeds, face, stock), rings: entry.rings,
-        lines: entry.rings.length > 0 ? entry.lines : [], phases: entry.phases, guides: entry.rings.length > 0 ? entry.guides : [],
-        bracket: entry.bracket, cut: entry.cutPhases, wedge: entry.wedge }, plane,
-      face === stock && tail.free.length > 0 ? { controls, weights: (s: number): number[] => s < tail.mark ? tail.basis(cardinal(s)) : held } : undefined);
+    const stock: string = group.parent?.family.name ?? hostFace.replace(/\.mirror$/, "");
+    const family: K.IStored | undefined = group.parent?.family ?? roots.figure.families.find((f): boolean => f.name === stock);
+    if (family === undefined) throw new Error("the junction has no host family " + stock);
+    return JunctionModel.prepare({
+      name: group.owner.name,
+      plane: { origin: [...envelope.basis.origin] as R.V, x: [...envelope.basis.x] as R.V,
+        y: [...envelope.basis.y] as R.V, z: [...envelope.basis.z] as R.V },
+      count: group.owner.count,
+      children: group.children.map((child): JunctionModel.IChild => {
+        const member = group.members.get(child.stock)!;
+        const declared = group.owner.children.find(({ partFace }): boolean => partFace === child.face)!;
+        return { ...child, family: member.family, tail: member.tail, stations: roots.view(child.face).stations,
+          rail: declared.rail * 1000, into: declared.partEnd === "top" ? -1 : 1 };
+      }),
+      host: { face: hostFace, stock, family, station: envelope.station },
+      fields,
+      seeds: group.expand(group.vector),
+      stockAt: group.stock,
+      log,
     });
-    const hostScope = Junction.prepareMember({ face: hostFace, family: hostFamily(seeds), rings: [envelope.station], lines: [], phases: hostPhases,
-      guides: [], bracket: [], cut: [] }, plane);
-    const hostCurves = (families: ReadonlyMap<string, K.IStored>, provider: Junction.ISections) => {
-      const ring: R.V[] = hostScope.read(hostFamily(families), provider).rings[0]!;
-      // One host-rail row per ring point, all eight times the owner's count, as the split's admission samples the ring: rows at every eighth
-      // point let the ring stand 2.46 mm from the leg's outline between them against a 2.13 mm rail (refused at admission, 2026-11-24).
-      const host: P[] = ring.map((p: R.V): P => { const q = V.sub(p, plane.origin); return [V.dot(q, plane.x), V.dot(q, plane.y)]; });
-      return { ring, host };
-    };
-    const readChild = (families: ReadonlyMap<string, K.IStored>, provider: Junction.ISections, c: number): Junction.IRead => {
-      const { face, stock } = layout[c]!.child;
-      return scopes[c]!.read(family(families, face, stock), provider);
-    };
-    const polygon = (cut: readonly (P | null)[]): P[] => cut.filter((p): p is P => p !== null);
-    /**
-     * Each child's rail wedge depth by cut phase as rows, minus (`Junction.wedge`): the end plane and the child's seam planes, turned
-     * toward the child, moved along its axis by its rail, as the split cuts its rail (`derive`, "the child face's rail"); the rail's
-     * wedge lies inside the unshifted one, so its row implies the boundary's ("the child face's boundary in the composition"). No rows
-     * stand while the seams are refused.
-     */
-    const wedgeOf = (r: Junction.IRead, seams: Junction.ISeams, c: number): number[] => {
-      if (r.axis === null) return r.wedgeLines.map((): number => 0);
-      const planes: { point: R.V; normal: R.V }[] = [{ point: plane.origin, normal: plane.z }];
-      if (c > 0) planes.push(seams.planes[c - 1]!);
-      if (c < seams.planes.length) planes.push({ point: seams.planes[c]!.point, normal: V.scale(seams.planes[c]!.normal, -1) });
-      return Junction.wedge(r.wedgeLines, planes, V.scale(r.axis, into[c]! * layout[c]!.railMm)).map((depth: number): number => -depth);
-    };
-    /** The seams on the host's end ring from members' cuts, axes and the host ring, as the split derives them. */
-    const axisOf = (r: Junction.IRead, i: number): R.V | null => r.axis === null ? null : V.scale(r.axis, into[i]!);
-    const seamsOf = (children: readonly Junction.IRead[], ring: readonly R.V[]) => Junction.prepareSeams({ plane,
-      cuts: children.map((r) => r.cut), axes: children.map(axisOf), host: ring });
-
-    // The rows of one reading of the curves, with the visible-arc masks of the base (held for its columns).
-    type Rows = { fairing: number[]; fairingOwner: number[]; pairs: { value: number; a: number; b: number; ia: number; ib: number; seg: number; t: number; u: P; kind: "overlap" | "clearance" | "exclusion"; inA: boolean }[];
-      host: { value: number; c: number; k: number; k1: number; t: number; u: P; h: number }[]; crossing: string | null;
-      nesting: { model: ReturnType<typeof seamsOf>; radius: number; values: number[] };
-      transversal: { value: number; c: number; k: number }[]; wedges: number[] };
-    type Curves = ReturnType<typeof hostCurves> & { children: Junction.IRead[] };
-    const visible = (read: Curves): boolean[][] => layout.map((entry, i): boolean[] => {
-      const own = read.children[i]!.cut, n = own.length;
-      const others: P[][] = [i - 1, i + 1].filter((j) => j >= 0 && j < layout.length).map((j) => polygon(read.children[j]!.cut));
-      // A ring phase's cut point is the cut phase nearest it (the cut is read at 2 x count phases, the ring at the figure's count).
-      return entry.phases.map((_, k: number): boolean => {
-        const p = own[Math.round((k * n) / entry.phases.length) % n];
-        return p === null || p === undefined || !others.some((o) => o.length > 2 && Junction.inside(p, o));
-      });
-    });
-    /** The fairing residuals of one reading, each with its owner: all a grouped column needs of its moved reading. */
-    const fairingOf = (read: Curves, masks: boolean[][]): { fairing: number[]; fairingOwner: number[] } => {
-      const fairing: number[] = [], fairingOwner: number[] = [];
-      layout.forEach((entry, i): void => {
-        const r = read.children[i]!, mask = masks[i]!;
-        const before: number = fairing.length;
-        r.rings.forEach((ring: R.V[], j: number): void => {
-          if (mask.every(Boolean)) { fairing.push(...Fairing.residuals(ring, true, r.normals[j], entry.weights[j])); return; }
-          // Each visible run of the ring, open, in phase order round the ring.
-          const start = mask.findIndex((m) => !m);
-          let run: R.V[] = [];
-          for (let n = 1; n <= mask.length; ++n) {
-            const k = (start + n) % mask.length;
-            if (mask[k]) run.push(ring[k]!);
-            if (!mask[k] || n === mask.length) { if (run.length >= 4) fairing.push(...Fairing.residuals(run, false, r.normals[j], entry.weights[j])); run = []; }
-          }
-        });
-        r.lines.forEach((line: R.V[], g: number): void => {
-          const k = Math.round((entry.guides[g]! / (2 * Math.PI)) * mask.length) % mask.length;
-          if (mask[k]) fairing.push(...Fairing.residuals(line, false));
-        });
-        for (let n = before; n < fairing.length; ++n) fairingOwner.push(i);
-      });
-      return { fairing, fairingOwner };
-    };
-    const rowsOf = (read: Curves, masks: boolean[][]): Rows => {
-      const { fairing, fairingOwner } = fairingOf(read, masks);
-      const cuts: P[][] = read.children.map((r) => polygon(r.cut));
-      const seamModel = seamsOf(read.children, read.ring);
-      const pairs: Rows["pairs"] = [];
-      let crossing: string | null = null;
-      for (let a = 0; a < cuts.length; ++a) for (let b = a + 1; b < cuts.length; ++b) {
-        const [A, B] = [cuts[a]!, cuts[b]!];
-        if (A.length < 3 || B.length < 3) { crossing = group.children[a]!.face + " or " + group.children[b]!.face + " has no closed cut in the end plane"; continue; }
-        const neighbours: boolean = b === a + 1;
-        if (neighbours) {
-          const n: number = seamModel.crossings[a]!;
-          if (n !== 2 && crossing === null) crossing = "the sections of " + group.children[a]!.face + " and " + group.children[b]!.face + " cross " + n + " times in the end plane, not twice";
-        }
-        // The deepest point of either inside the other (penetration), else the closest approach (separation, negative depth).
-        // Neighbours also keep each cut partly outside the other: a cut wholly inside its neighbour satisfies the overlap row and crosses
-        // it no time (the leg's toe.middle held 16.5 mm of overlap over toe.index and the outline was refused, 2026-11-24). That row is the
-        // least depth of one cut's points in the other, at most zero when one point stands on or outside it, with the clearance row's rate.
-        const ways = [[A, B, true], [B, A, false]] as const;
-        const both = ways.map(([P0, Q0, inA]) => ({ inA, ...Junction.depths(P0, Q0) }));
-        const deepest = both[0]!.deepest.depth >= both[1]!.deepest.depth ? both[0]! : both[1]!;
-        const d = deepest.deepest;
-        pairs.push({ value: neighbours ? -d.depth : d.depth, a, b, ia: d.k, ib: -1, seg: d.segment, t: d.t, u: d.u,
-          kind: neighbours ? "overlap" : "clearance", inA: deepest.inA });
-        if (neighbours) for (const way of both)
-          pairs.push({ value: way.least.depth, a, b, ia: way.least.k, ib: -1, seg: way.least.segment, t: way.least.t, u: way.least.u, kind: "exclusion", inA: way.inA });
-        // One overlap interval per neighbour pair and direction (`Junction.secondRun`): two cuts that cross four times hold the overlap
-        // and non-containment rows and are refused by the composition (the hand's ring and middle, 2026-11-24). The row is the active
-        // point's depth with its sign, so its rate is a depth row's: a maximum's like the non-containment row, a minimum's like overlap.
-        if (neighbours) for (const [P0, Q0, inA] of ways) {
-          const run = Junction.secondRun(P0, Q0);
-          pairs.push({ value: run.value, a, b, ia: run.at.k, ib: -1, seg: run.at.segment, t: run.at.t, u: run.at.u,
-            kind: run.sign > 0 ? "exclusion" : "overlap", inA });
-        }
-      }
-      // The composed outline as the compose makes it: each cut's segments outside every other cut, a segment that enters another cut
-      // clipped at the fork where it crosses that cut's boundary. The host ring's distance to it less the shortest rail; the row's rate
-      // follows the nearest point along its segment, so it stays smooth across a fork (the nearest sample jumped there, and the hand's
-      // fit stalled on that row, 2026-11-23 18:0x).
-      // One row per host ring point, each linearized on its active segment (as sequential convex collision avoidance does per active
-      // pair, Schulman et al. 2014), so a fork switch changes which segment is active instead of making a row jump.
-      const segments = Junction.outline(read.children.map((r) => r.cut));
-      const host: Rows["host"] = read.host.map((h: P, index: number) => {
-        const near = Junction.onOutline(h, segments), g = near.segment;
-        const u: P = near.distance > 0 ? [(h[0] - near.at[0]) / near.distance, (h[1] - near.at[1]) / near.distance] : [0, 0];
-        return { value: near.distance - railMm, c: g?.c ?? -1, k: g?.k0 ?? -1, k1: g?.k1 ?? -1, t: near.t, u, h: index };
-      });
-      // The seams' nesting on the host's end ring, the split's own test (`AutoMovieConstructionSplitCompose.derive`), as rows: each margin
-      // in mm along the ring at its mean radius (its girth over the turn), minus, so a row is satisfied at or below zero as the others.
-      const seams: Junction.ISeams = seamModel.base;
-      if (seams.refusal !== null && crossing === null) crossing = seams.refusal;
-      const radius: number = read.ring.reduce((sum: number, p: R.V, k: number, all: R.V[]): number => sum + V.norm(V.sub(all[(k + 1) % all.length]!, p)), 0) / (2 * Math.PI);
-      // Each cut phase's line crosses the end plane transversally (the skin cut's "tangent to the cut" and the seal's station advance):
-      // the unit station tangent's rate across the plane, kept positive.
-      const transversal = read.children.flatMap((r, c: number) => r.crossing.flatMap((x, k: number) => (x === null ? [] : [{ value: -x, c, k }])));
-      return { fairing, fairingOwner, pairs, host, crossing, nesting: { model: seamModel, radius, values: seams.margins.flat().map((x: number): number => -x * radius) },
-        transversal, wedges: seams.refusal === null ? read.children.flatMap((r, c: number): number[] => wedgeOf(r, seams, c)) : [] };
-    };
-
-    /** The model's own reading of the host ring, the cuts and the composed outline, for comparison with the split's admission. */
-    const probe = (families: ReadonlyMap<string, K.IStored>) => {
-      const provider = Junction.sections();
-      const read = { ...hostCurves(families, provider), children: scopes.map((_, c: number) => readChild(families, provider, c)) };
-      return { ring: read.ring, host: read.host, segments: Junction.outline(read.children.map((r) => r.cut)), railMm, station: envelope.station, plane };
-    };
-
-    /** One reading: the rows and, with derivatives, their rates from the grouped columns. */
-    return Object.assign((state: readonly number[], derivatives: boolean, candidates: ReadonlyMap<string, K.IStored>, hard: F.IGroupRow[], inside: F.IGroupRow[]) => {
-      const started: number = performance.now();
-      const provider = Junction.sections();
-      const readings = layout.map(({ child }, c: number) => derivatives
-        ? scopes[c]!.reading(family(candidates, child.face, child.stock), provider)
-        : { base: readChild(candidates, provider, c), moved: null });
-      const base: Curves = { ...hostCurves(candidates, provider), children: readings.map(({ base }): Junction.IRead => base) };
-      const masks = visible(base);
-      const rows = rowsOf(base, masks);
-      const knotColumn: number[] = fields.map((): number => -1);
-      for (const order of byStock.values()) order.forEach((index: number, k: number): void => { knotColumn[index] = k; });
-      const expanded = new Set(layout.flatMap(({ child }, c: number): string[] => readings[c]!.moved === null ? [child.stock] : []));
-      expanded.add(hostStock);
-      const cutPhases = base.children.map(({ cut }): number[] => cut.flatMap((p, k: number): number[] => p === null ? [] : [k]));
-      const wedgeFirst: number[] = [];
-      let wedgeCount: number = 0;
-      for (const { wedgeLines } of base.children) {
-        wedgeFirst.push(wedgeCount);
-        wedgeCount += wedgeLines.length;
-      }
-      const gradients = {
-        fairing: rows.fairing.map(() => new Map<number, number>()),
-        pairs: rows.pairs.map(() => new Map<number, number>()),
-        host: rows.host.map(() => new Map<number, number>()),
-        nesting: rows.nesting.values.map(() => new Map<number, number>()),
-        transversal: rows.transversal.map(() => new Map<number, number>()),
-        wedges: rows.wedges.map(() => new Map<number, number>()),
-      };
-      if (derivatives) for (let g = 0; g < columnGroups; ++g) {
-        const changed = [...state];
-        const moved = new Map<string, number>();
-        for (const [stock, list] of byStock) if (g < list.length) { const index = list[g]!; changed[index]! += fields[index]!.step; moved.set(stock, index); }
-        // Only sources outside the reduced field model need a new family. Every other column touches its own member's station data.
-        const families = new Map([...moved.keys()].filter((stock: string): boolean => expanded.has(stock))
-          .map((stock: string): [string, K.IStored] => [stock, group.stock(changed, stock)]));
-        const children = layout.map(({ child }, c: number): Junction.IRead => {
-          const index: number | undefined = moved.get(child.stock);
-          if (index === undefined) return base.children[c]!;
-          const column = readings[c]!.moved;
-          return column === null ? readChild(families, provider, c) : column(knotColumn[index]!);
-        });
-        const hostIndex: number | undefined = moved.get(hostStock);
-        const next: Curves = { ...(hostIndex === undefined ? { ring: base.ring, host: base.host } : hostCurves(families, provider)), children };
-        // Fairing rows belong to one member's curves; their order follows the members, so each member's rows are read with only its
-        // own values moved, all members at once.
-        // A member's fairing rows depend on its own curves only, so with every member moved at once each row's change is its own
-        // member's: the row's rate goes to that member's moved column.
-        const residuals = fairingOf(next, masks).fairing;
-        rows.fairing.forEach((value: number, r: number): void => {
-          const member = rows.fairingOwner[r]!;
-          const index = moved.get(layout[member]!.child.stock);
-          if (index !== undefined) gradients.fairing[r]!.set(index, (residuals[r]! - value) / fields[index]!.step);
-        });
-        // The pair and host rows by the chain rule from the members' own point velocities.
-        const velocity = (c: number, k: number): P | null => {
-          const index = moved.get(layout[c]!.child.stock);
-          const p = base.children[c]!.cut[k], q = next.children[c]!.cut[k];
-          if (index === undefined || p === null || p === undefined || q === null || q === undefined) return null;
-          return [(q[0] - p[0]) / fields[index]!.step, (q[1] - p[1]) / fields[index]!.step];
-        };
-        rows.pairs.forEach((row, r: number): void => {
-          const [own, other] = row.inA ? [row.a, row.b] : [row.b, row.a];
-          // Polygon indices back to cut phases: a polygon holds a cut's crossing phases in order.
-          const vOwn = velocity(own, cutPhases[own]![row.ia]!);
-          const others: number[] = cutPhases[other]!;
-          const k0 = others[row.seg]!, k1 = others[(row.seg + 1) % others.length]!;
-          const v0 = velocity(other, k0), v1 = velocity(other, k1);
-          // `u` is minus the depth's rate in the own point and its rate in the boundary point: the overlap row (minus the depth) moves
-          // by `u` in the own point, the clearance row (the depth) by minus `u`, and the boundary point the other way.
-          const sign = row.kind === "overlap" ? 1 : -1;
-          const add = (c: number, v: P | null, weight: number): void => {
-            const index = moved.get(layout[c]!.child.stock);
-            if (index === undefined || v === null) return;
-            const d = (v[0] * row.u[0] + v[1] * row.u[1]) * weight;
-            gradients.pairs[r]!.set(index, (gradients.pairs[r]!.get(index) ?? 0) + sign * d);
-          };
-          add(own, vOwn, 1);
-          add(other, v0, -(1 - row.t));
-          add(other, v1, -row.t);
-        });
-        rows.host.forEach((row, r: number): void => {
-          if (row.c < 0) return;
-          const v0 = velocity(row.c, row.k), v1 = velocity(row.c, row.k1);
-          const index = moved.get(layout[row.c]!.child.stock);
-          const gradient = gradients.host[r]!;
-          if (index !== undefined && v0 !== null && v1 !== null) {
-            const v: P = [(1 - row.t) * v0[0] + row.t * v1[0], (1 - row.t) * v0[1] + row.t * v1[1]];
-            gradient.set(index, -(v[0] * row.u[0] + v[1] * row.u[1]));
-          }
-          if (hostIndex !== undefined) {
-            const a: P = base.host[row.h]!, b: P = next.host[row.h]!;
-            const rate: number = ((b[0] - a[0]) * row.u[0] + (b[1] - a[1]) * row.u[1]) / fields[hostIndex]!.step;
-            gradient.set(hostIndex, (gradient.get(hostIndex) ?? 0) + rate);
-          }
-        });
-        // A stock moves its own faces together. When its neighbours hold, only the incident seam pairs and the children meeting
-        // those planes can change their wedge rows. The host ring changes nesting phases but leaves the wedge planes fixed.
-        if (rows.nesting.model.base.refusal === null) for (const [stock, index] of moved) {
-          const affected: number[] = layout.flatMap(({ child }, c: number): number[] => child.stock === stock ? [c] : []);
-          const changes = affected.map((c: number) => ({ index: c, cut: next.children[c]!.cut, axis: axisOf(next.children[c]!, c) }));
-          const seams: Junction.ISeams = rows.nesting.model.moved(changes, stock === hostStock ? next.ring : base.ring);
-          if (seams.refusal !== null) continue;
-          seams.margins.flat().forEach((x: number, r: number): void => {
-            const d: number = (-x * rows.nesting.radius - rows.nesting.values[r]!) / fields[index]!.step;
-            if (d !== 0) gradients.nesting[r]!.set(index, d);
-          });
-          if (rows.wedges.length > 0) layout.forEach((_, c: number): void => {
-            if (!affected.some((j: number): boolean => Math.abs(c - j) <= 1)) return;
-            const child: Junction.IRead = affected.includes(c) ? next.children[c]! : base.children[c]!;
-            wedgeOf(child, seams, c).forEach((v: number, k: number): void => {
-              const r: number = wedgeFirst[c]! + k;
-              const d: number = (v - rows.wedges[r]!) / fields[index]!.step;
-              if (d !== 0) gradients.wedges[r]!.set(index, d);
-            });
-          });
-        }
-        // A transversality row reads one member's own line, so its rate goes to that member's moved column.
-        rows.transversal.forEach((row, r: number): void => {
-          const index = moved.get(layout[row.c]!.child.stock), x = next.children[row.c]!.crossing[row.k];
-          if (index !== undefined && x !== null && x !== undefined) gradients.transversal[r]!.set(index, (-x - row.value) / fields[index]!.step);
-        });
-      }
-      log("family-body-junction-cost", { owner: group.owner.name, derivatives, sections: provider.count, columnGroups: derivatives ? columnGroups : 0,
-        fairingRows: rows.fairing.length, pairRows: rows.pairs.length, hostRows: rows.host.length,
-        pairs: rows.pairs.map((row) => ({ kind: row.kind, a: group.children[row.a]!.face, b: group.children[row.b]!.face, value: row.value })),
-        worstHost: Math.max(-Infinity, ...rows.host.map((row) => row.value)), crossing: rows.crossing,
-        seams: rows.nesting.model.base.seams, nested: rows.nesting.model.base.nested, nestingRows: rows.nesting.values,
-        nestingRates: gradients.nesting.map((g): number => Math.max(0, ...[...g.values()].map(Math.abs))),
-        worstTransversal: Math.max(-Infinity, ...rows.transversal.map((row) => row.value)), worstWedge: Math.max(-Infinity, ...rows.wedges),
-        wedgeRows: rows.wedges.length,
-        pairRates: gradients.pairs.map((g): number => Math.max(0, ...[...g.values()].map(Math.abs))), elapsedMs: performance.now() - started });
-      const measured: F.IGroupRow[] = rows.fairing.map((value, r) => ({ value, gradient: gradients.fairing[r]! }));
-      const pairRows: F.IGroupRow[] = rows.pairs.map((row, r) => ({ value: row.value, gradient: gradients.pairs[r]! }));
-      const hostRows: F.IGroupRow[] = rows.host.map((row, r) => ({ value: row.value, gradient: gradients.host[r]! }));
-      const nestingRows: F.IGroupRow[] = rows.nesting.values.map((value, r) => ({ value, gradient: gradients.nesting[r]! }));
-      const transversalRows: F.IGroupRow[] = rows.transversal.map((row, r) => ({ value: row.value, gradient: gradients.transversal[r]! }));
-      const wedgeRows: F.IGroupRow[] = rows.wedges.map((value, r) => ({ value, gradient: gradients.wedges[r]! }));
-      const key: string = group.owner.name + "/junction";
-      // The host-rail rows are read on every state as inside rows: the ring's distance to the cuts' outline is defined while a pair
-      // crosses wrongly too, and as outline rows they vanished at a refused outline, so the recovery accepted trials by the common rows
-      // alone and the hand formed its outline 5.03 mm off the rail, where no trial improved it (2026-11-24, run 132428).
-      const outline: F.IGroupOutline = rows.crossing !== null ? { kind: "refused", key, detail: rows.crossing } : { kind: "formed", key, rows: [] };
-      // The pair rows are restorable as the ownership rows are (a start may hold a non-neighbour overlap, as the foot's does), and once
-      // satisfied they are kept with them (`preservation`).
-      const preservation: F.IGroupPreservation[] = outline.kind === "formed" ? [
-        { name: "child ownership", rows: inside }, { name: "neighbour overlap and separation", rows: pairRows },
-        { name: "host outline rail", rows: hostRows }, { name: "seam nesting", rows: nestingRows },
-        { name: "cut transversality", rows: transversalRows }, { name: "child rail wedge", rows: wedgeRows }] : [];
-      return F.readGroup(state, derivatives, [{ rows: () => ({ measured, incidence: [],
-        inside: [...inside, ...pairRows, ...nestingRows, ...hostRows, ...transversalRows, ...wedgeRows], hard }) }], outline, preservation);
-    }, { probe });
   }
 
   /** Equal physical bounds establish the same admitted station and cap roles. */
