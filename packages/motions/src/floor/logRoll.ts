@@ -23,6 +23,7 @@ import { prepareHumanPostureProjection } from "../posture/prepareHumanPosturePro
 import { prepareHumanShapeBlend } from "../posture/prepareHumanShapeBlend";
 import { knockdown } from "../reaction/knockdown";
 import { lieDownPoses } from "./lieDownPoses";
+import { logRollTurns } from "./logRollTurns";
 import { lyingTurn } from "./lyingTurn";
 
 /** Seconds of each half turn (provisional). */
@@ -87,12 +88,12 @@ function planLogRoll(
     z: -Math.sin((from.yaw * Math.PI) / 180),
   };
   const travel: IAutoMovieVector3 = Vector3.scale(left, sign);
-  const step: number = perimeter(body) / 2;
+  const step: number = logRollTurns.perimeter(body.measure) / 2;
   const hips: IAutoMovieVector3 = Vector3.add(
     entry.root,
     Quaternion.rotateVector(humanPostureHeading(entry), body.rest.get("hips")!),
   );
-  const halves: number = count(p, from.turn, step, hips, travel);
+  const halves: number = logRollTurns.count(p, from.turn, step, hips, travel);
   const target: number = from.turn + sign * 180 * halves;
   const clock: IAutoMovieMotionClock = AutoMovieMotionManner.time(
     AutoMovieMotionClock.sequence([
@@ -210,58 +211,3 @@ export const logRoll: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLogRol
     },
     plan: planLogRoll,
   };
-
-/**
- * The chest's cross-section perimeter, metres: Ramanujan's approximation for
- * the ellipse of its breadth and depth.
- */
-function perimeter(body: IAutoMovieMotionHumanBody): number {
-  const a: number = body.measure.chestBreadth / 2;
-  const b: number = body.measure.chestDepth / 2;
-  return Math.PI * (3 * (a + b) - Math.sqrt((3 * a + b) * (a + 3 * b)));
-}
-
-/**
- * The half turns: the count, or as many as bring the pelvis nearest the place,
- * rounded to the end's parity.
- */
-function count(
-  p: IAutoMovieMotionHumanLogRoll,
-  turn: number,
-  step: number,
-  hips: IAutoMovieVector3,
-  travel: IAutoMovieVector3,
-): number {
-  if (p.halfTurns !== undefined) {
-    if (!(p.halfTurns >= 1))
-      throw new HumanRefusal({
-        kind: "parameter",
-        axis: "halfTurns",
-        value: p.halfTurns,
-        reason: "a log roll turns a whole number of half turns, one or more",
-        fix: "give a positive whole count",
-      });
-    return p.halfTurns;
-  }
-  const along: number = Vector3.dot(Vector3.subtract(p.to!, hips), travel);
-  if (!(along > step / 2))
-    throw new HumanRefusal({
-      kind: "reach",
-      axis: "to",
-      value: p.to!,
-      reason: `the place lies ${(along * 1000).toFixed(0)} mm toward the side rolled to, less than half a half turn's ${((step / 2) * 1000).toFixed(0)} mm`,
-      fix: "name a place farther along the side rolled toward",
-    });
-  const raw: number = Math.max(1, Math.round(along / step));
-  if (p.end === undefined) return raw;
-  // A half turn flips the back and the front; the end's parity is set by where the roll starts.
-  const supine: boolean = Math.abs(turn) < 90;
-  const flips: boolean = (p.end === "supine") !== supine;
-  if ((raw % 2 === 1) === flips) return raw;
-  const lower: number = raw - 1;
-  const upper: number = raw + 1;
-  return lower >= 1 &&
-    Math.abs(along - lower * step) <= Math.abs(along - upper * step)
-    ? lower
-    : upper;
-}

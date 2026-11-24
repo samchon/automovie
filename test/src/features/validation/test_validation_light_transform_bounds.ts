@@ -409,6 +409,56 @@ export function test_validation_light_transform_bounds(): void {
     ]),
     { acceptsWildRotationTangents: true, refusesScalarDipBelowZero: true },
   );
+
+  // 5. malformed shapes are refused without an additional unit-length fault.
+  TestValidator.equals(
+    "malformed payloads are refused and incomplete rotation keys avoid unit faults",
+    namedFacts([
+      [
+        "unevenIsNotAlsoNonUnit",
+        (): boolean =>
+          !reportsNonUnit(
+            track(
+              "/lights/key/rotation",
+              "quaternion",
+              [0, 4],
+              [...IDENTITY, 0, 0],
+            ),
+          ),
+      ],
+      [
+        "unevenStillRefused",
+        (): boolean =>
+          reportsAt(
+            track(
+              "/lights/key/rotation",
+              "quaternion",
+              [0, 4],
+              [...IDENTITY, 0, 0],
+            ),
+            "$input.lightMotions[0].tracks[0].values",
+          ),
+      ],
+      // A payload of no numbers is not asserted to escape the joint rule: the
+      // rule walks keyframes, and an empty payload states none for it to walk,
+      // so no reading of it could ever produce one. The uneven payload above is
+      // the case that can, since a rule reading its trailing part as a keyframe
+      // would report exactly what that fact refuses.
+      [
+        "emptyStillRefused",
+        (): boolean =>
+          reportsAt(
+            track("/lights/key/rotation", "quaternion", [0, 4], []),
+            "$input.lightMotions[0].tracks[0].values",
+          ),
+      ],
+    ]),
+    {
+      unevenIsNotAlsoNonUnit: true,
+      unevenStillRefused: true,
+      emptyStillRefused: true,
+    },
+  );
   const tiny: number = 2 ** -45;
   TestValidator.predicate(
     "tiny nonzero cubic dip cannot be discarded by an absolute derivative floor",

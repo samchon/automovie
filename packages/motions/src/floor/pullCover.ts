@@ -30,6 +30,7 @@ import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanHand } from "../posture/HumanHand";
 import { poseBones } from "../posture/poseBones";
+import { pullCoverWay } from "./pullCoverWay";
 
 /**
  * How far above the skin the gripping hand's grip socket rides, metres
@@ -160,29 +161,6 @@ function planPullCover(
       }),
       bend: AutoMovieMotionHumanBend.hang(body, entry, side, 0.2),
     });
-  const along = (
-    way: readonly IAutoMovieVector3[],
-    progress: number,
-  ): IAutoMovieVector3 => {
-    const lengths: number[] = way
-      .slice(1)
-      .map((q: IAutoMovieVector3, i: number): number =>
-        Vector3.distance(way[i]!, q),
-      );
-    let left: number =
-      Math.min(1, Math.max(0, progress)) *
-      lengths.reduce((a: number, b: number): number => a + b, 0);
-    for (let i: number = 0; i < lengths.length; ++i) {
-      if (left <= lengths[i]! || i === lengths.length - 1)
-        return Vector3.lerp(
-          way[i]!,
-          way[i + 1]!,
-          Math.min(1, left / Math.max(1e-9, lengths[i]!)),
-        );
-      left -= lengths[i]!;
-    }
-    return way.at(-1)!;
-  };
   const length = (way: readonly IAutoMovieVector3[]): number =>
     way
       .slice(1)
@@ -248,7 +226,7 @@ function planPullCover(
         _seconds: number,
         progress: number,
       ): IAutoMovieMotionHumanArmTarget.ITarget =>
-        target(side, along(ways[side], progress)),
+        target(side, pullCoverWay(ways[side], progress)),
     }),
     reads: ["root", `${side}Arm`, `${side}Hand`],
   });

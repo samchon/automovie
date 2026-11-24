@@ -1,5 +1,6 @@
 import type {
   AutoMovieHumanSide,
+  AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanExercise,
   IAutoMovieMotionHumanPerformance,
@@ -84,8 +85,8 @@ export function exerciseCases(
       const bottoms: number[] = [1, 2, 3].map((i: number): number =>
         TouchVerdicts.event(performance, "a", `bottom${i}`),
       );
-      const at = (t: number, bone: string): IAutoMovieVector3 =>
-        performance.bones("a", t).get(bone as never)!.worldPosition;
+      const at = (t: number, bone: AutoMovieHumanoidBone): IAutoMovieVector3 =>
+        performance.bones("a", t).get(bone)!.worldPosition;
       const thigh = (t: number, side: AutoMovieHumanSide): number => {
         const hip: IAutoMovieVector3 = at(t, `${side}UpperLeg`);
         const knee: IAutoMovieVector3 = at(t, `${side}LowerLeg`);

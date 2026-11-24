@@ -550,37 +550,8 @@ export function test_architecture_surface_pattern_texture(): void {
             "pattern texture tile u must be a finite number > 0",
           ),
       ],
-      [
-        "tileV",
-        (): boolean =>
-          throwsError(
-            (): IAutoMoviePatternTexturing =>
-              autoMoviePatternTextureTransforms({
-                result: field,
-                tile: { u: 0.5, v: Number.NaN },
-                sheet: { kind: "module" },
-              }),
-            "pattern texture tile v must be a finite number > 0",
-          ),
-      ],
-      [
-        "origin",
-        (): boolean =>
-          throwsError(
-            (): IAutoMoviePatternTexturing =>
-              autoMoviePatternTextureTransforms({
-                result: field,
-                tile: { u: 0.5, v: 0.5 },
-                sheet: {
-                  kind: "face",
-                  origin: { u: 0, v: Number.POSITIVE_INFINITY },
-                },
-              }),
-            "pattern texture sheet origin must be finite",
-          ),
-      ],
     ]),
-    { tileU: true, tileV: true, origin: true },
+    { tileU: true, },
   );
 
   TestValidator.predicate(

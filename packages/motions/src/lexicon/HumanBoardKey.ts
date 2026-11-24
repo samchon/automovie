@@ -53,11 +53,7 @@ export function HumanBoardKey(
     at: { x: 0, y: 0, z: 0 },
     yaw: 0,
     astride: true,
-    ...(declared !== undefined &&
-    "depth" in declared &&
-    typeof declared.depth === "number"
-      ? { depth: declared.depth }
-      : {}),
+    ...(declared?.depth === undefined ? {} : { depth: declared.depth }),
   };
   const upright: (typeof sitPlace.BACKS)["upright"] = sitPlace.BACKS.upright;
   const sat: (at: IAutoMovieVector3) => IAutoMovieMotionHumanPosture = (

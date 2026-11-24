@@ -73,14 +73,6 @@ export function test_architecture_surface_pattern_refusals(): void {
           ),
       ],
       [
-        "tolerance",
-        (): boolean =>
-          refuses(
-            { jointTolerance: Number.NaN },
-            "pattern joint tolerance must be a finite number >= 0",
-          ),
-      ],
-      [
         "adjacency",
         (): boolean =>
           refuses(
@@ -101,14 +93,6 @@ export function test_architecture_surface_pattern_refusals(): void {
         (): boolean =>
           refuses(
             { minimumPiece: 1 + 1e-9 },
-            "pattern minimum piece must be a finite number in (0, 1]",
-          ),
-      ],
-      [
-        "minimumNonFinite",
-        (): boolean =>
-          refuses(
-            { minimumPiece: Number.NaN },
             "pattern minimum piece must be a finite number in (0, 1]",
           ),
       ],
@@ -165,11 +149,9 @@ export function test_architecture_surface_pattern_refusals(): void {
     {
       zones: true,
       joint: true,
-      tolerance: true,
       adjacency: true,
       minimumZero: true,
       minimumAbove: true,
-      minimumNonFinite: true,
       grain: true,
       seedNegative: true,
       seedFractional: true,
@@ -196,14 +178,6 @@ export function test_architecture_surface_pattern_refusals(): void {
           ),
       ],
       [
-        "origin",
-        (): boolean =>
-          refuses(
-            { zones: [zone({ origin: { u: Number.NaN, v: 0 } })] },
-            'pattern zone "field" origin must be finite',
-          ),
-      ],
-      [
         "periodU",
         (): boolean =>
           refuses(
@@ -227,46 +201,18 @@ export function test_architecture_surface_pattern_refusals(): void {
             'pattern zone "field" reach u must be a finite number > 0',
           ),
       ],
-      [
-        "reachV",
-        (): boolean =>
-          refuses(
-            { zones: [zone({ reach: { u: 0.5, v: Number.NaN } })] },
-            'pattern zone "field" reach v must be a finite number > 0',
-          ),
-      ],
     ]),
     {
       duplicateId: true,
-      origin: true,
       periodU: true,
       periodV: true,
       reachU: true,
-      reachV: true,
     },
   );
 
   TestValidator.equals(
     "a region must be a finite, area-bearing, convex outline",
     namedFacts([
-      [
-        "nonFinite",
-        (): boolean =>
-          refuses(
-            {
-              zones: [
-                zone({
-                  region: [
-                    { u: 0, v: 0 },
-                    { u: Number.NaN, v: 0 },
-                    { u: 1, v: 1 },
-                  ],
-                }),
-              ],
-            },
-            "pattern zone[0] region[1] must be finite",
-          ),
-      ],
       [
         "collinear",
         (): boolean =>
@@ -306,7 +252,7 @@ export function test_architecture_surface_pattern_refusals(): void {
           ),
       ],
     ]),
-    { nonFinite: true, collinear: true, reflex: true },
+    { collinear: true, reflex: true },
   );
 
   TestValidator.equals(

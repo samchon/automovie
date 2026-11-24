@@ -1,13 +1,13 @@
 import { carriedRate, minimumJerk } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
-  IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanFoot,
   IAutoMovieMotionHumanWalkFoot,
   IAutoMovieQuaternion,
 } from "@automovie/interface";
 
 import { HumanFoot } from "../posture/HumanFoot";
+import type { humanFootOffset } from "../posture/humanFootOffset";
 
 /** The foot point a stance rocker turns about. */
 type WalkFootPivot = "heel" | "mtp";
@@ -50,7 +50,7 @@ type WalkFootPivot = "heel" | "mtp";
  * @returns The planted foot at each second.
  */
 export function walkFootStance(
-  body: IAutoMovieMotionHumanBody,
+  body: humanFootOffset.IBody,
   side: AutoMovieHumanSide,
   flat: IAutoMovieMotionHumanFoot.IPlacement,
   heading: number,

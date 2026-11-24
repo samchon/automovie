@@ -1,4 +1,5 @@
 import type {
+  AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanDance,
   IAutoMovieMotionHumanPerformance,
@@ -83,8 +84,8 @@ export function danceCases(
       const beats: number[] = [];
       for (let k: number = 1; k <= 8; k++)
         beats.push(TouchVerdicts.event(performance, "a", `beat${k}`));
-      const at = (t: number, bone: string): IAutoMovieVector3 =>
-        performance.bones("a", t).get(bone as never)!.worldPosition;
+      const at = (t: number, bone: AutoMovieHumanoidBone): IAutoMovieVector3 =>
+        performance.bones("a", t).get(bone)!.worldPosition;
       const grid: number[] = [];
       for (let t: number = 0; t <= performance.duration + 1e-9; t += 1 / 96)
         grid.push(t);

@@ -32,6 +32,7 @@ import { prepareHumanShapeBlend } from "../posture/prepareHumanShapeBlend";
 import { knockdown } from "../reaction/knockdown";
 import { lieDownPoses } from "./lieDownPoses";
 import { lieOnSurfaceSeat } from "./lieOnSurfaceSeat";
+import { lieOnSurfaceFits } from "./lieOnSurfaceFits";
 import { lieOnSurfaceSite } from "./lieOnSurfaceSite";
 
 /** Seconds of each phase (provisional: `lieDown`'s phase). */
@@ -122,7 +123,7 @@ function planLieOnSurface(
     model,
     frame(edge),
   );
-  fits(body, surface);
+  lieOnSurfaceFits(body, surface, MARGIN);
 
   // The head end lies along the surface's -Z; the body lies onto the side that turns toward it.
   const head: IAutoMovieVector3 = Quaternion.rotateVector(bed.rotation, {
@@ -426,42 +427,4 @@ export const lieOnSurface: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanL
 /** An affordance's local frame. */
 function frame(a: IAutoMovieAffordance): IAutoMovieRigidTransform {
   return { position: a.frame.translation, rotation: a.frame.rotation };
-}
-
-/**
- * Refuse a surface shorter than the body or narrower than its shoulders, with
- * the room each lacks.
- */
-function fits(
-  body: IAutoMovieMotionHumanActionContext["body"],
-  surface: IAutoMovieAffordance,
-): void {
-  const length: number = surface.depth ?? 0;
-  const width: number = surface.width ?? 0;
-  const tall: number = body.measure.stature + MARGIN;
-  const broad: number =
-    Vector3.distance(
-      body.rest.get("leftUpperArm")!,
-      body.rest.get("rightUpperArm")!,
-    ) +
-    2 * body.measure.upperArmRadius +
-    2 * MARGIN;
-  if (length < tall)
-    throw new HumanRefusal({
-      kind: "reach",
-      axis: "length",
-      value: length,
-      feasible: { kind: "range", minimum: tall, maximum: null, unit: "m" },
-      reason: `the surface is ${(length * 1000).toFixed(0)} mm long, ${((tall - length) * 1000).toFixed(0)} mm short of this body lying`,
-      fix: "use a longer bed or sofa",
-    });
-  if (width < broad)
-    throw new HumanRefusal({
-      kind: "reach",
-      axis: "width",
-      value: width,
-      feasible: { kind: "range", minimum: broad, maximum: null, unit: "m" },
-      reason: `the surface is ${(width * 1000).toFixed(0)} mm wide, ${((broad - width) * 1000).toFixed(0)} mm narrower than these shoulders need`,
-      fix: "use a wider bed or sofa",
-    });
 }

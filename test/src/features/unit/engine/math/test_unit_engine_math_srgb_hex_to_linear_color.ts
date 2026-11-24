@@ -140,7 +140,7 @@ export function test_unit_engine_math_srgb_hex_to_linear_color(): void {
   );
   TestValidator.predicate(
     "a six-digit swatch is opaque",
-    typeof mixed.a === "number" && nclose(mixed.a, 1, 0),
+    mixed.a === 1,
   );
 
   TestValidator.equals(

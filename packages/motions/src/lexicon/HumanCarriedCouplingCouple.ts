@@ -27,7 +27,6 @@ import { humanPostureHeading } from "../posture/humanPostureHeading";
 import { HumanCarriedCouplingFit } from "./HumanCarriedCouplingFit";
 import { HumanCarriedCouplingLoad } from "./HumanCarriedCouplingLoad";
 import { HumanCarriedCouplingPose } from "./HumanCarriedCouplingPose";
-import { HumanCarriedDrag } from "./HumanCarriedDrag";
 import type { HumanCarriedGripGaps } from "./HumanCarriedGripGaps";
 import { HumanCarriedNeckClear } from "./HumanCarriedNeckClear";
 import { HumanCarriedPitch } from "./HumanCarriedPitch";
@@ -337,9 +336,15 @@ export namespace HumanCarriedCouplingCouple {
       resolveAutoMovieCenterOfMass.place(model, mine),
     );
 
-    // A drag leaves the dragged body's lowest region on the floor, which
-    // bears its share of the weight with the dragger's contacts.
-    if (carry in HumanCarriedDrag.CARRIES) {
+    // A drag (`HumanCarriedDrag.CARRIES`, its names the declared union
+    // `IAutoMovieMotionHumanCarriedDrag.Name`) leaves the dragged body's lowest
+    // region on the floor, which bears its share of the weight with the
+    // dragger's contacts.
+    if (
+      carry === "armpitDrag" ||
+      carry === "collarDrag" ||
+      carry === "ankleDrag"
+    ) {
       let lowest: HeldRegion = null;
       let height: number = Number.POSITIVE_INFINITY;
       for (const name of Object.keys(

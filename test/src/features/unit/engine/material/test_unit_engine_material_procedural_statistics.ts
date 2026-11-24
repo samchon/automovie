@@ -1,0 +1,146 @@
+import {
+  autoMovieProceduralFractal,
+  autoMovieProceduralNoise,
+  sampleAutoMovieProceduralSurface,
+} from "@automovie/engine";
+import type {
+  IAutoMovieColor,
+  IAutoMovieProceduralSurface,
+} from "@automovie/interface";
+import { TestValidator } from "@nestia/e2e";
+
+import { nclose } from "../../../internal/nclose";
+
+/**
+ * Every procedural kind spreads its pattern value over [0, 1] the way its
+ * definition says, and the gradient noise beneath them is zero on the lattice
+ * and continuous across it.
+ *
+ * Scenarios:
+ *
+ * 1. Over 4096 fixed points at many feature sizes, every kind's value stays within
+ *    [0, 1], with a mean within [0.25, 0.75] and a standard deviation above
+ *    0.05, so no kind is constant or saturated.
+ * 2. The gradient noise is zero at every lattice corner, so plaster samples
+ *    exactly 0.5 at every point whose coordinates are integer multiples of its
+ *    scale.
+ * 3. The noise is continuous across a cell face: values a hair on either side of
+ *    `x = 3` agree within 1e-6, and the fractal sum stays within [-1, 1].
+ * 4. Fabric weaves: at the centre of crossing `(i, j)` with `i + j` even the warp
+ *    lies on top and the value is the warp thread's jittered full height, at
+ *    least 0.8; with `i + j` odd the weft is on top, also at least 0.8; at a
+ *    corner of a crossing, where both thread profiles vanish, the value is 0.
+ */
+export function test_unit_engine_material_procedural_statistics(): void {
+  // 1. Spread of every kind.
+  for (const kind of KINDS) {
+    const surface: IAutoMovieProceduralSurface = make(kind, 0.03);
+    const values: number[] = Array.from(
+      { length: 4096 },
+      (_: unknown, index: number): number =>
+        sampleAutoMovieProceduralSurface({
+          surface,
+          point: {
+            x: ((index * 0.6180339887) % 1) * 1.7,
+            y: ((index * 0.7548776662) % 1) * 1.3,
+            z: ((index * 0.569840291) % 1) * 0.9,
+          },
+        }).value,
+    );
+    const mean: number =
+      values.reduce((a: number, b: number) => a + b, 0) / values.length;
+    const deviation: number = Math.sqrt(
+      values.reduce((a: number, b: number) => a + (b - mean) ** 2, 0) /
+        values.length,
+    );
+    TestValidator.predicate(
+      `${kind} spreads over [0, 1] (mean ${mean.toFixed(3)}, deviation ${deviation.toFixed(3)})`,
+      values.every((v: number): boolean => v >= 0 && v <= 1) &&
+        mean >= 0.25 &&
+        mean <= 0.75 &&
+        deviation > 0.05,
+    );
+  }
+
+  // 2. Zero noise on the lattice.
+  const plaster: IAutoMovieProceduralSurface = make("plaster", 0.25);
+  let lattice: boolean = true;
+  for (let i: number = -4; i <= 4; ++i)
+    for (let j: number = -4; j <= 4; ++j)
+      lattice &&=
+        sampleAutoMovieProceduralSurface({
+          surface: plaster,
+          point: { x: i * 0.25, y: j * 0.25, z: (i - j) * 0.25 },
+        }).value === 0.5;
+  TestValidator.predicate("plaster is 0.5 on its lattice", lattice);
+
+  // 3. Continuity across a cell face and the fractal bound.
+  TestValidator.predicate(
+    "noise is continuous across a cell face",
+    nclose(
+      autoMovieProceduralNoise(4, 1, 3 - 1e-9, 0.37, 0.81),
+      autoMovieProceduralNoise(4, 1, 3 + 1e-9, 0.37, 0.81),
+      1e-6,
+    ),
+  );
+  let bounded: boolean = true;
+  for (let index: number = 0; index < 2000; ++index) {
+    const value: number = autoMovieProceduralFractal(
+      8,
+      index * 0.173,
+      index * 0.031,
+      -index * 0.057,
+    );
+    bounded &&= value >= -1 && value <= 1;
+  }
+  TestValidator.predicate("the fractal sum stays within [-1, 1]", bounded);
+
+  // 4. Fabric over and under; axis Y, so along = y and across = normalize(Y × Z) = X.
+  const fabric: IAutoMovieProceduralSurface = make("fabric", 0.01);
+  const at: (b: number, a: number) => number = (b: number, a: number): number =>
+    sampleAutoMovieProceduralSurface({
+      surface: fabric,
+      point: { x: b * 0.01, y: a * 0.01, z: 0 },
+    }).value;
+  TestValidator.predicate(
+    "the top thread alternates by crossing parity and both vanish between threads",
+    at(2.5, 4.5) >= 0.8 && at(3.5, 4.5) >= 0.8 && nclose(at(3, 4), 0, 1e-12),
+  );
+}
+
+/** Every procedural kind. */
+const KINDS: readonly IAutoMovieProceduralSurface["kind"][] = [
+  "wood",
+  "stone",
+  "plaster",
+  "clay",
+  "fabric",
+  "brushedMetal",
+];
+
+/** A surface of a kind with fixed colours, roughness and relief. */
+function make(
+  kind: IAutoMovieProceduralSurface["kind"],
+  scale: number,
+): IAutoMovieProceduralSurface {
+  const color: (value: number) => IAutoMovieColor = (
+    value: number,
+  ): IAutoMovieColor => ({
+    r: value,
+    g: value,
+    b: value,
+    a: 1,
+    hex: null,
+  });
+  return {
+    kind,
+    seed: 21,
+    scale,
+    colors: [color(0.1), color(0.7)],
+    roughness: [0.3, 0.9],
+    relief: 0.001,
+    ...(kind === "wood" || kind === "fabric" || kind === "brushedMetal"
+      ? { axis: { x: 0, y: 1, z: 0 } }
+      : {}),
+  };
+}

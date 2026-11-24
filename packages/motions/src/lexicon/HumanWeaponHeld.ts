@@ -80,14 +80,19 @@ export namespace HumanWeaponHeld {
    */
   export const setup = (
     context: Pick<
-      IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanWeaponPresent.IWield>,
+      IAutoMovieMotionHumanActionContext<
+        IAutoMovieMotionHumanWeaponPresent.IWield &
+          Partial<Pick<IAutoMovieMotionHumanWeaponPresent.IPresent, "carriage">>
+      >,
       SetupContext
     >,
     read: (
       points: IAutoMovieMotionHumanStrikingHeld.IPoints,
     ) => IAutoMovieMotionHumanStrikingHeld.ITool,
   ): IAutoMovieMotionHumanWeaponHeld.ISetup => {
-    const p: IAutoMovieMotionHumanWeaponPresent.IWield = context.params;
+    const p: IAutoMovieMotionHumanWeaponPresent.IWield &
+      Partial<Pick<IAutoMovieMotionHumanWeaponPresent.IPresent, "carriage">> =
+      context.params;
     const side: AutoMovieHumanSide = hand(p);
     const found = (id: string): IAutoMovieAffordance | undefined =>
       p.gun === undefined
@@ -99,7 +104,7 @@ export namespace HumanWeaponHeld {
     const hands: SetupHands = p.hands ?? 2;
     // A shouldered long arm is carried in one hand (the 1764 Manual
     // Exercise's Position of a Soldier under Arms); presented, it needs two.
-    const shouldered: boolean = "carriage" in p && p.carriage === "shoulder";
+    const shouldered: boolean = p.carriage === "shoulder";
     if (long && hands === 1 && !shouldered)
       throw new HumanRefusal({
         kind: "parameter",

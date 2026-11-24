@@ -1,5 +1,6 @@
 import type {
   AutoMovieHumanSide,
+  AutoMovieHumanoidBone,
   AutoMovieMotionHumanChannel,
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionEvent,
@@ -10,6 +11,7 @@ import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanPrimitive,
+  IAutoMoviePose,
 } from "@automovie/interface";
 
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
@@ -70,10 +72,10 @@ export function courseArmGoal(
     (arms.length > 1 ? AutoMovieMotionHumanArm.together() : undefined);
   const beside: IAutoMovieMotionHumanArmPlanned.ITogether | undefined =
     props.beside;
-  let last: courseArmGoal.IRead | undefined;
   const kept: Map<courseArmGoal.Limb, IAutoMovieMotionHumanPosture["joints"]> =
     new Map();
-  // Each arm's return target, read once before the composition is laid.
+  // Each arm's angles where its course is to end, kept until the composition
+  // is laid (courseArmGoalBase), solved once here.
   const returned: Map<
     courseArmGoal.Limb,
     IAutoMovieMotionHumanPosture["joints"]
@@ -83,23 +85,26 @@ export function courseArmGoal(
     resolution?: courseArmGoal.Resolution,
     projection?: courseArmGoal.Projection,
     channels?: readonly AutoMovieMotionHumanChannel[],
-  ): IAutoMovieMotionHumanPosture => {
-    if (
-      last === undefined ||
-      last.seconds !== seconds ||
-      last.resolution !== resolution ||
-      last.projection !== projection ||
-      last.channels !== channels
-    )
-      last = {
-        seconds,
-        resolution,
-        projection,
-        channels,
-        posture: plan.posture(seconds, channels, resolution, projection),
-      };
-    return last.posture;
-  };
+  ): IAutoMovieMotionHumanPosture =>
+    plan.posture(seconds, channels, resolution, projection);
+
+  for (const arm of arms) {
+    const back: IAutoMoviePose = resolveHumanPosture(
+      props.context.body,
+      read((arm.span ?? props.span).end),
+    );
+    const chain: ReadonlySet<AutoMovieHumanoidBone> =
+      new Set<AutoMovieHumanoidBone>(courseArmGoal.bones(arm.side));
+    const angles: IAutoMovieMotionHumanPosture["joints"] = {};
+    for (const joint of back.joints)
+      if (chain.has(joint.bone))
+        angles[joint.bone] = [
+          joint.flexion ?? 0,
+          joint.abduction ?? 0,
+          joint.twist ?? 0,
+        ];
+    returned.set(`${arm.side}Arm`, angles);
+  }
 
   // Whether the course is laid: the composition below prepares it, and its
   // planner reads each arm's goal at the seconds it reads the base at, so
@@ -245,12 +250,13 @@ export function courseArmGoal(
       for (const arm of arms) {
         const span: IAutoMovieMotionHumanArmPlanned.ISpan =
           arm.span ?? props.span;
-        const ended: IAutoMovieMotionHumanPosture["joints"] =
-          composed.posture(span.end).joints;
+        const ended: IAutoMovieMotionHumanPosture["joints"] = composed.posture(
+          span.end,
+        ).joints;
         const angles: IAutoMovieMotionHumanPosture["joints"] = {};
         for (const bone of courseArmGoal.bones(arm.side))
           if (ended[bone] !== undefined) angles[bone] = ended[bone];
-        kept.set(${arm.side}Arm, angles);
+        kept.set(`${arm.side}Arm`, angles);
       }
     },
     ...(composed.follows === undefined ? {} : { follows: composed.follows }),
@@ -365,23 +371,6 @@ export namespace courseArmGoal {
      * lifted while the body straightens under it.
      */
     after?: After;
-  }
-  /** The last posture of the plan read, and what it was read with. */
-  export interface IRead {
-    /** Seconds since the plan's start. */
-    seconds: number;
-
-    /** The borrowed forward-kinematics reader, if any. */
-    resolution: Resolution | undefined;
-
-    /** The borrowed range-of-motion projector, if any. */
-    projection: Projection | undefined;
-
-    /** The channels demanded of the plan; every channel when absent. */
-    channels: readonly AutoMovieMotionHumanChannel[] | undefined;
-
-    /** The plan's posture at the second. */
-    posture: IAutoMovieMotionHumanPosture;
   }
 
   /**

@@ -1,5 +1,6 @@
 import { Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPerformance,
   IAutoMovieMotionHumanStretch,
@@ -90,8 +91,8 @@ export function stretchCases(
       const release: number = TouchVerdicts.event(performance, "a", "release");
       const mid: number = (reach + release) / 2;
       const bones = performance.bones("a", mid);
-      const at = (bone: string): IAutoMovieVector3 =>
-        bones.get(bone as never)!.worldPosition;
+      const at = (bone: AutoMovieHumanoidBone): IAutoMovieVector3 =>
+        bones.get(bone)!.worldPosition;
       const verdicts: IMotionCaptureCase.IVerdict[] = [
         ...everydayVerdicts.standard(performance, "a", body),
       ];

@@ -127,7 +127,7 @@ export function test_unit_engine_kinematics_reach(): void {
   const degenerate: IAutoMovieSkeleton = createSkeleton();
   const forearm: IAutoMovieBone = degenerate.bones.find(
     (b: IAutoMovieBone): boolean => b.bone === "leftHand",
-  ) as IAutoMovieBone;
+  )!;
   forearm.rest = idTransform; // hand coincident with the elbow → zero segment
   TestValidator.equals(
     "a zero-length arm segment → null",

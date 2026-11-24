@@ -1,13 +1,11 @@
 import type {
-  AutoMovieHumanoidBone,
+  AutoMovieHumanSide,
   AutoMovieMotionHumanChannel,
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanArmPlanned,
   IAutoMovieMotionHumanPosture,
-  IAutoMoviePose,
 } from "@automovie/interface";
 
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { AutoMovieMotionHumanChannel as HumanChannels } from "./AutoMovieMotionHumanChannel";
 import { courseArmGoal } from "./courseArmGoal";
 
@@ -41,10 +39,7 @@ export function courseArmGoalBase(
   // but those arms, so a law that honours the demand skips their goals
   // (`IAutoMovieMotionHumanActionPlan.posture`'s `channels`): demand-driven
   // evaluation of only the required parts, as an engine's animation graph
-  // evaluates only its required bones. One
-  // list per set of such arms, so the reads of a second share one posture.
-  const demands: Map<string, readonly AutoMovieMotionHumanChannel[]> =
-    new Map();
+  // evaluates only its required bones.
   const demand = (
     seconds: number,
   ): readonly AutoMovieMotionHumanChannel[] | undefined => {
@@ -114,37 +109,16 @@ export function courseArmGoalBase(
         // feasible swivel nearest the previous solution), never another
         // elbow side for the same goal at the seam.
         if (props.after === "angles") delete limbs[limb];
-        let angles: IAutoMovieMotionHumanPosture["joints"] | undefined = laid()
-          ? kept.get(limb)
-          : returned.get(limb);
-        if (angles === undefined) {
-          // Until the composition is laid, another arm of the group whose
-          // span runs on is planned on this base past this arm's end, before
-          // the composition exists: the arm then stands where its course
-          // returns it, the plan's own arm at the span's end (its `back`),
-          // resolved once.
-          angles = {};
-          if (laid()) {
-            const ended: IAutoMovieMotionHumanPosture["joints"] =
-              composed().posture(span.end).joints;
-            for (const bone of courseArmGoal.bones(arm.side))
-              if (ended[bone] !== undefined) angles[bone] = ended[bone];
-          } else {
-            const back: IAutoMoviePose = resolveHumanPosture(
-              props.context.body,
-              read(span.end),
-            );
-            const chain: ReadonlySet<AutoMovieHumanoidBone> =
-              new Set<AutoMovieHumanoidBone>(courseArmGoal.bones(arm.side));
-            for (const joint of back.joints)
-              if (chain.has(joint.bone))
-                angles[joint.bone] = [
-                  joint.flexion ?? 0,
-                  joint.abduction ?? 0,
-                  joint.twist ?? 0,
-                ];
-          }
-        }
+        // Before the composition is laid, another arm of the group whose span
+        // runs on is planned on this base past this arm's end: the arm then
+        // stands where its course returns it, the plan's own arm at the span's
+        // end (`returned`, its `back`). Once laid, the angles the course ended
+        // with, which the plan's preparation keeps (`kept`); a read before that
+        // reads them off the composition.
+        const angles: IAutoMovieMotionHumanPosture["joints"] = laid()
+          ? (kept.get(limb) ??
+            courseArmGoalBase.ended(composed(), span.end, arm.side))
+          : returned.get(limb)!;
         joints = { ...joints, ...angles };
       }
       return { ...posture, limbs, joints };
@@ -155,6 +129,27 @@ export function courseArmGoalBase(
 
 /** What the base of a coursed plan reads. */
 export namespace courseArmGoalBase {
+  /**
+   * An arm's angles where its course ended, read off the composition.
+   *
+   * @param composed The composition.
+   * @param end The arm's span end, plan seconds.
+   * @param side The arm.
+   * @returns The arm's joints there.
+   */
+  export function ended(
+    composed: IAutoMovieMotionHumanActionPlan,
+    end: number,
+    side: AutoMovieHumanSide,
+  ): IAutoMovieMotionHumanPosture["joints"] {
+    const joints: IAutoMovieMotionHumanPosture["joints"] =
+      composed.posture(end).joints;
+    const out: IAutoMovieMotionHumanPosture["joints"] = {};
+    for (const bone of courseArmGoal.bones(side))
+      if (joints[bone] !== undefined) out[bone] = joints[bone];
+    return out;
+  }
+
   /** What a course builds its base from. */
   export interface IScope {
     /** The course's props. */
@@ -166,14 +161,14 @@ export namespace courseArmGoalBase {
     /** The arms coursed together, the course's own first. */
     arms: readonly courseArmGoal.IArm[];
 
-    /** Each arm's ending angles, once the course is laid. */
+    /** Each arm's ending angles, solved when the coursed plan is prepared. */
     kept: Map<courseArmGoal.Limb, IAutoMovieMotionHumanPosture["joints"]>;
 
-    /** Each arm's return target, before the course is laid. */
+    /** Each arm's return target, solved when the course is built. */
     returned: Map<courseArmGoal.Limb, IAutoMovieMotionHumanPosture["joints"]>;
 
     /**
-     * The plan's posture at a second, the last one read reused.
+     * The plan's posture at a second.
      *
      * @param seconds Seconds since the plan's start.
      * @param resolution The borrowed forward-kinematics reader, if any.

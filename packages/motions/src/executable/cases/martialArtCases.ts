@@ -1,6 +1,7 @@
 import { Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
+  AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanMartialArt,
   IAutoMovieMotionHumanPerformance,
@@ -86,8 +87,8 @@ export function martialArtCases(
       const ready: number = TouchVerdicts.event(performance, "a", "ready");
       const relax: number = TouchVerdicts.event(performance, "a", "relax");
       const mid: number = (ready + relax) / 2;
-      const at = (t: number, bone: string): IAutoMovieVector3 =>
-        performance.bones("a", t).get(bone as never)!.worldPosition;
+      const at = (t: number, bone: AutoMovieHumanoidBone): IAutoMovieVector3 =>
+        performance.bones("a", t).get(bone)!.worldPosition;
       const verdicts: IMotionCaptureCase.IVerdict[] = [
         ...everydayVerdicts.standard(performance, "a", body),
       ];

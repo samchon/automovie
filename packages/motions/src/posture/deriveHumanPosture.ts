@@ -108,5 +108,4 @@ export namespace deriveHumanPosture {
      */
     seeded: IAutoMovieMotionHumanResolveHumanPosture.ISeeded;
   }
-
 }

@@ -104,18 +104,22 @@ function build(data: IMotionCaptureProps): IAutoMovieDrawScene {
   }
 
   // Boxes the figures meet.
+  const boxes: THREE.Mesh[] = [];
   data.boxes.forEach(
     (box: IMotionCaptureProps["boxes"][number], index: number): void => {
+      const material: THREE.MeshStandardMaterial =
+        new THREE.MeshStandardMaterial({ color: box.color, flatShading: true });
       const mesh: THREE.Mesh = new THREE.Mesh(
         new THREE.BoxGeometry(2 * box.half.x, 2 * box.half.y, 2 * box.half.z),
-        new THREE.MeshStandardMaterial({ color: box.color, flatShading: true }),
+        material,
       );
+      boxes.push(mesh);
       mesh.name = `box-${index}`;
       mesh.position.set(box.centre.x, box.centre.y, box.centre.z);
       scene.add(mesh);
       disposers.push((): void => {
         mesh.geometry.dispose();
-        (mesh.material as THREE.Material).dispose();
+        material.dispose();
       });
     },
   );
@@ -129,8 +133,7 @@ function build(data: IMotionCaptureProps): IAutoMovieDrawScene {
       extent.expandByObject(figure.object);
     }
   });
-  for (const object of scene.children)
-    if (object instanceof THREE.Mesh) extent.expandByObject(object);
+  for (const mesh of boxes) extent.expandByObject(mesh);
   for (const mark of marks) {
     if (mark.shape.type === "arrows") continue;
     const points: number[] = mark.shape.points;

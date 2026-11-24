@@ -29,6 +29,7 @@ import { prepareHumanShapeBlend } from "../posture/prepareHumanShapeBlend";
 import { knockdown } from "../reaction/knockdown";
 import { lieDownPoses } from "./lieDownPoses";
 import { lyingTurn } from "./lyingTurn";
+import { turnOverToward } from "./turnOverToward";
 
 /** Seconds of each quarter turn (provisional). */
 const QUARTER: number = 1;
@@ -69,7 +70,7 @@ function planTurnOver(
     });
   const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
   const from: lyingTurn.ITurn = lyingTurn(entry);
-  const target: number = toward(
+  const target: number = turnOverToward(
     from.turn,
     lyingTurn.TURNS[p.to],
     p.via ?? "left",
@@ -220,24 +221,6 @@ export const turnOver: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanTurnO
     plan: planTurnOver,
   };
 
-/**
- * The target turn nearest the current one, a half turn going over the named
- * side.
- */
-function toward(
-  current: number,
-  named: number,
-  via: AutoMovieHumanSide,
-): number {
-  const options: number[] = [-2, -1, 0, 1, 2].map(
-    (k: number): number => named + 360 * k,
-  );
-  const nearest: number = options.reduce((a: number, b: number): number =>
-    Math.abs(b - current) < Math.abs(a - current) - 1e-6 ? b : a,
-  );
-  if (Math.abs(Math.abs(nearest - current) - 180) > 1e-6) return nearest;
-  return via === "left" ? current + 180 : current - 180;
-}
 
 /** The support's height: the named prop surface's, or the floor's. */
 function height(

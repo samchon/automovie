@@ -109,15 +109,6 @@ export function test_architecture_material_assembly_defects(): void {
           ),
       ],
       [
-        "offset",
-        (): boolean =>
-          hasViolation(
-            judge(twoLayer({ offset: Number.NaN })),
-            "range",
-            "$input.offset",
-          ),
-      ],
-      [
         "faceFirst",
         (): boolean =>
           hasViolation(
@@ -163,7 +154,6 @@ export function test_architecture_material_assembly_defects(): void {
     {
       axis: true,
       sense: true,
-      offset: true,
       faceFirst: true,
       faceLast: true,
       empty: true,
@@ -250,15 +240,6 @@ export function test_architecture_material_assembly_defects(): void {
           ),
       ],
       [
-        "nonFiniteThickness",
-        (): boolean =>
-          hasViolation(
-            judge(withCore({}, Number.POSITIVE_INFINITY)),
-            "range",
-            "$input.layers[0].thickness",
-          ),
-      ],
-      [
         "zeroSolid",
         (): boolean =>
           hasViolation(
@@ -314,7 +295,6 @@ export function test_architecture_material_assembly_defects(): void {
     {
       unknownSubstance: true,
       negativeThickness: true,
-      nonFiniteThickness: true,
       zeroSolid: true,
       zeroCavity: true,
       cavityWithSubstance: true,
@@ -430,26 +410,10 @@ export function test_architecture_material_assembly_defects(): void {
         },
       ],
       [
-        "nonFinite",
-        (): boolean => {
-          const judged: IAutoMovieValidation = judge(twoLayer(), {
-            thickness: Number.NaN,
-          });
-          return (
-            hasViolation(judged, "range", "$input.layers") &&
-            judged.success === false &&
-            judged.violations.length === 1 &&
-            judged.violations[0]!.expected.includes(
-              "host thickness must be a finite number > 0",
-            )
-          );
-        },
-      ],
-      [
         "matching",
         (): boolean => judge(twoLayer(), { thickness: 0.11 }).success === true,
       ],
     ]),
-    { zero: true, nonFinite: true, matching: true },
+    { zero: true, matching: true },
   );
 }

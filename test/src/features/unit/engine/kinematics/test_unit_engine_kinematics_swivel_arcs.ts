@@ -59,9 +59,9 @@ export function test_unit_engine_kinematics_swivel_arcs(): void {
   );
   TestValidator.predicate(
     "above finds an arc",
-    typeof arc === "object" && arc !== null,
+    arc !== null && arc !== "all",
   );
-  if (typeof arc === "object" && arc !== null) {
+  if (arc !== null && arc !== "all") {
     TestValidator.predicate(
       "the arc's ends read the margin",
       nclose(value(f, arc.from), 0.5, 1e-9) &&

@@ -1,5 +1,6 @@
 import { Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBaseball,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPerformance,
@@ -77,8 +78,8 @@ export function baseballCases(
       const relax: number = TouchVerdicts.event(performance, "a", "relax");
       const mid: number = (ready + relax) / 2;
       const bones = performance.bones("a", mid);
-      const at = (bone: string): IAutoMovieVector3 =>
-        bones.get(bone as never)!.worldPosition;
+      const at = (bone: AutoMovieHumanoidBone): IAutoMovieVector3 =>
+        bones.get(bone)!.worldPosition;
       const palm = { surface: "palm", shape: "flat" } as const;
       const off = everydayVerdicts.grounded(performance, "a", body);
       const verdicts: IMotionCaptureCase.IVerdict[] = [

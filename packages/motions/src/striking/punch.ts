@@ -28,9 +28,9 @@ import { HumanSkill } from "../skill/HumanSkill";
 import { StrikingBody } from "./StrikingBody";
 import { StrikingQuality } from "./StrikingQuality";
 import { StrikingRide } from "./StrikingRide";
-import { StrikingStopRide } from "./StrikingStopRide";
 import { StrikingSkill } from "./StrikingSkill";
 import { StrikingStance } from "./StrikingStance";
+import { StrikingStopRide } from "./StrikingStopRide";
 import { StrikingTarget } from "./StrikingTarget";
 import { StrikingWeapon } from "./StrikingWeapon";
 import { StrikingWeaponTable } from "./StrikingWeaponTable";
@@ -288,14 +288,14 @@ export namespace punch {
     const stops: StrikingStopRide.IStop = StrikingStopRide(
       (event: IAutoMovieMotionWeaponContact): StrikingRide.IRide =>
         StrikingRide.create({
-        other: (): IAutoMovieMotionHumanPerformerReader =>
-          context.performer(event.against),
-        stop: event.seconds,
-        goal: (at: number): IAutoMovieVector3 =>
-          geometry().posture(at - context.start).limbs[limb]!.point,
-        axis: (at: number): readonly [IAutoMovieVector3, IAutoMovieVector3] =>
-          StrikingWeapon.axis(chain, event.weapon, at),
-      }),
+          other: (): IAutoMovieMotionHumanPerformerReader =>
+            context.performer(event.against),
+          stop: event.seconds,
+          goal: (at: number): IAutoMovieVector3 =>
+            geometry().posture(at - context.start).limbs[limb]!.point,
+          axis: (at: number): readonly [IAutoMovieVector3, IAutoMovieVector3] =>
+            StrikingWeapon.axis(chain, event.weapon, at),
+        }),
     );
     const carried = (
       posture: IAutoMovieMotionHumanPosture,

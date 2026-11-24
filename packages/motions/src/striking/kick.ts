@@ -23,9 +23,9 @@ import { KickLaunch } from "./KickLaunch";
 import { KickRedirect } from "./KickRedirect";
 import { StrikingQuality } from "./StrikingQuality";
 import { StrikingRide } from "./StrikingRide";
-import { StrikingStopRide } from "./StrikingStopRide";
 import { StrikingSkill } from "./StrikingSkill";
 import { StrikingStance } from "./StrikingStance";
+import { StrikingStopRide } from "./StrikingStopRide";
 import { StrikingTarget } from "./StrikingTarget";
 import { StrikingWeapon } from "./StrikingWeapon";
 import { StrikingWeaponTable } from "./StrikingWeaponTable";
@@ -217,14 +217,14 @@ export namespace kick {
     const stops: StrikingStopRide.IStop = StrikingStopRide(
       (event: IAutoMovieMotionWeaponContact): StrikingRide.IRide =>
         StrikingRide.create({
-        other: (): IAutoMovieMotionHumanPerformerReader =>
-          context.performer(event.against),
-        stop: event.seconds,
-        goal: (at: number): IAutoMovieVector3 =>
-          geometry().posture(at - t0).limbs[limb]!.point,
-        axis: (at: number): readonly [IAutoMovieVector3, IAutoMovieVector3] =>
-          StrikingWeapon.axis(chain, event.weapon, at),
-      }),
+          other: (): IAutoMovieMotionHumanPerformerReader =>
+            context.performer(event.against),
+          stop: event.seconds,
+          goal: (at: number): IAutoMovieVector3 =>
+            geometry().posture(at - t0).limbs[limb]!.point,
+          axis: (at: number): readonly [IAutoMovieVector3, IAutoMovieVector3] =>
+            StrikingWeapon.axis(chain, event.weapon, at),
+        }),
     );
     const carried = (
       posture: IAutoMovieMotionHumanPosture,
@@ -239,17 +239,17 @@ export namespace kick {
     const shape: AutoMovieMotionPrepared.IValue<IAutoMovieMotionHumanKickGeometry> =
       AutoMovieMotionPrepared(
         (): IAutoMovieMotionHumanKickGeometry => {
-        const launched: KickLaunch.ILaunch = KickClear(
-          context,
-          timing,
-          t0,
-          source === undefined
-            ? KickLaunch(context, timing, t0, undefined)
-            : KickRedirect.launch(context, source),
-        );
-        return source === undefined
-          ? KickGeometry.build(context, timing, t0, fixed, launched)
-          : KickRedirect.build(context, source, fixed, launched);
+          const launched: KickLaunch.ILaunch = KickClear(
+            context,
+            timing,
+            t0,
+            source === undefined
+              ? KickLaunch(context, timing, t0, undefined)
+              : KickRedirect.launch(context, source),
+          );
+          return source === undefined
+            ? KickGeometry.build(context, timing, t0, fixed, launched)
+            : KickRedirect.build(context, source, fixed, launched);
         },
         (): Error => strikingReadBack("kick", context.subject),
       );

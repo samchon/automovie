@@ -53,7 +53,7 @@ export function AutoMovieMotionClockNative(
       0,
       progress(rise[0], rise[1], seconds) - progress(fall[0], fall[1], seconds),
     );
-  return new NativeClock({
+  return {
     duration,
     instants: sorted,
     at,
@@ -67,7 +67,7 @@ export function AutoMovieMotionClockNative(
           share: i.seconds / duration,
         }),
       ),
-  });
+  };
 }
 
 /**
@@ -83,110 +83,47 @@ export namespace AutoMovieMotionClockNative {
 
   /**
    * A fixed window's uniform and minimum-jerk readers, its two instants
-   * resolved here. A custom clock's
-   * requested callback owns each read.
+   * resolved here (`AutoMovieMotionInterval.prepare`), so a sample reads no
+   * instant by name.
+   *
+   * @param clock The clock.
+   * @param from The window's opening instant.
+   * @param to The window's closing instant.
+   * @returns The readers.
    */
   export function prepare(
-    clock: IClock,
+    clock: Pick<IClock, "at">,
     from: string,
     to: string,
   ): AutoMovieMotionInterval.IPrepared {
-    const original: IClock | undefined = NativeClock.original(clock);
-    if (original === undefined)
-      return {
-        linear: (seconds: number): number => clock.linear(from, to, seconds),
-        progress: (seconds: number): number =>
-          clock.progress(from, to, seconds),
-      };
-    const ready: AutoMovieMotionInterval.IPrepared =
-      AutoMovieMotionInterval.prepare(original, from, to);
-    const interval = (): AutoMovieMotionInterval.IPrepared => ready;
-    return {
-      linear: (seconds: number): number => {
-        const read: IClock["linear"] = clock.linear;
-        return read === original.linear
-          ? interval().linear(seconds)
-          : Reflect.apply(read, clock, [from, to, seconds]);
-      },
-      progress: (seconds: number): number => {
-        const read: IClock["progress"] = clock.progress;
-        return read === original.progress
-          ? interval().progress(seconds)
-          : Reflect.apply(read, clock, [from, to, seconds]);
-      },
-    };
+    return AutoMovieMotionInterval.prepare(clock, from, to);
   }
 
   /**
-   * A fixed rise and fall's envelope, each window's instants resolved here. A custom clock receives its own two
-   * name tuples at every requested sample.
+   * A fixed rise and fall's envelope, each window's instants resolved here: the
+   * rise's minimum-jerk progress less the fall's, never below zero.
+   *
+   * @param clock The clock.
+   * @param rise The rise's opening and closing instants.
+   * @param fall The fall's opening and closing instants.
+   * @returns The envelope at a second.
    */
   export function prepareEnvelope(
-    clock: IClock,
+    clock: Pick<IClock, "at">,
     rise: readonly [string, string],
     fall: readonly [string, string],
   ): (seconds: number) => number {
-    const riseFrom: string = rise[0];
-    const riseTo: string = rise[1];
-    const fallFrom: string = fall[0];
-    const fallTo: string = fall[1];
-    const original: IClock | undefined = NativeClock.original(clock);
-    if (original === undefined)
-      return (seconds: number): number =>
-        clock.envelope([riseFrom, riseTo], [fallFrom, fallTo], seconds);
     const rising: AutoMovieMotionInterval.IPrepared =
-      AutoMovieMotionInterval.prepare(original, riseFrom, riseTo);
+      AutoMovieMotionInterval.prepare(clock, rise[0], rise[1]);
     const falling: AutoMovieMotionInterval.IPrepared =
-      AutoMovieMotionInterval.prepare(original, fallFrom, fallTo);
-    return (seconds: number): number => {
-      const read: IClock["envelope"] = clock.envelope;
-      if (read !== original.envelope)
-        return Reflect.apply(read, clock, [
-          [riseFrom, riseTo],
-          [fallFrom, fallTo],
-          seconds,
-        ]);
-
-      const grown: number = rising.progress(seconds);
-      return Math.max(0, grown - falling.progress(seconds));
-    };
+      AutoMovieMotionInterval.prepare(clock, fall[0], fall[1]);
+    return (seconds: number): number =>
+      Math.max(0, rising.progress(seconds) - falling.progress(seconds));
   }
 }
 
 /** The clock record, the interface's. */
 type IClock = IAutoMovieMotionClock;
-
-/**
- * Distinguishes factory clocks without probing a custom clock or retaining a
- * registry.
- */
-class NativeClock {
-  /** Constructor-owned queries, also used as the factory's private brand. */
-  readonly #original: IClock;
-
-  /**
-   * Duration and public readers are assigned as own properties by the
-   * constructor.
-   */
-  declare duration: IClock["duration"];
-  declare instants: IClock["instants"];
-  declare at: IClock["at"];
-  declare linear: IClock["linear"];
-  declare progress: IClock["progress"];
-  declare envelope: IClock["envelope"];
-  declare events: IClock["events"];
-
-  /** Move the factory's public fields and closures onto the branded record. */
-  public constructor(clock: IClock) {
-    this.#original = clock;
-    Object.assign(this, clock);
-  }
-
-  /** Read the original queries only on the actual factory receiver. */
-  public static original(clock: IClock): IClock | undefined {
-    return #original in clock ? clock.#original : undefined;
-  }
-}
 
 /** A named instant, the interface's. */
 type IInstant = IAutoMovieMotionClockInstant;

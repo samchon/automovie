@@ -1,7 +1,8 @@
 /**
- * A value a plan solves when it is prepared (`IAutoMovieMotionHumanActionPlan.prepare`):
- * the prepare-time geometry of a law whose shape reads what the performance
- * resolves around it (a partner as shown, a committed stop).
+ * A value a plan solves when it is prepared
+ * (`IAutoMovieMotionHumanActionPlan.prepare`): the prepare-time geometry of a
+ * law whose shape reads what the performance resolves around it (a partner as
+ * shown, a committed stop).
  *
  * Before the plan is prepared, while the performance still places actions, a
  * read builds the value from what is placed so far and keeps nothing; once
@@ -10,8 +11,8 @@
  * commits) clears it until the next preparation solves it again.
  *
  * @param build Builds the value from what the performance holds now.
- * @param reentry Makes the error a read inside its own build throws (the
- *   value read back while it is being built), if the build can recurse.
+ * @param reentry Makes the error a read inside its own build throws (the value
+ *   read back while it is being built), if the build can recurse.
  * @returns The value's reader.
  */
 export function AutoMovieMotionPrepared<T>(

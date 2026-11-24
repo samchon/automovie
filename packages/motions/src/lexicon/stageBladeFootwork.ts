@@ -17,7 +17,6 @@ import type {
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionInterval } from "../compose/AutoMovieMotionInterval";
 import { HumanBound } from "../law/HumanBound";
-import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanPostureRaw } from "../posture/HumanPostureRaw";
 import { lowerHumanPosture } from "../posture/lowerHumanPosture";
@@ -166,16 +165,6 @@ function plan(
   const body: IAutoMovieMotionHumanActionContext["body"] = context.body;
   const params: IAutoMovieMotionHumanStageBladeFootwork.IParams =
     context.params;
-  if (!Object.hasOwn(PROFILES, params.style))
-    refuse("style", params.style, Object.keys(PROFILES));
-  if (!Object.hasOwn(DIRECTIONS, params.direction))
-    refuse("direction", params.direction, Object.keys(DIRECTIONS));
-  if (
-    params.lead !== undefined &&
-    params.lead !== "left" &&
-    params.lead !== "right"
-  )
-    refuse("lead", params.lead, ["left", "right"]);
   const profile: IProfile = PROFILES[params.style];
   const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
   const feet: typeof context.entry.feet = context.entry.feet;
@@ -344,20 +333,4 @@ function settled(progress: number): boolean {
 /** The other side of the supplied side. */
 function opposite(side: Side): Side {
   return side === "left" ? "right" : "left";
-}
-
-/** State the closed set of accepted stage values to the planner. */
-function refuse(
-  axis: string,
-  value: unknown,
-  choices: readonly string[],
-): never {
-  throw new HumanRefusal({
-    kind: "parameter",
-    axis,
-    value,
-    feasible: null,
-    reason: "the stage mark shift has no such option",
-    fix: `choose ${choices.join(", ")}`,
-  });
 }

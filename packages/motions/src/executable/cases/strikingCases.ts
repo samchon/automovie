@@ -48,19 +48,8 @@ export function* strikingCases(
   family?: string,
   only?: (name: string) => boolean,
 ): Iterable<IMotionCaptureCase> {
-  const prepared: Map<string, IPerson> = new Map();
-  const person = (name: string): IPerson => {
-    let found: IPerson | undefined = prepared.get(name);
-    if (found === undefined) {
-      const man: humanPolygonMan.IPolygonMan = MotionBodies.population(name);
-      found = {
-        man,
-        body: createHumanBody(man.body.skeleton, man.body.profile),
-      };
-      prepared.set(name, found);
-    }
-    return found;
-  };
+  // The cases kept, each with its performer and partner.
+  const kept: IKept[] = [];
   for (const who of MotionBodies.SWEEP)
     for (const scenario of strikingScenarios.FAMILIES) {
       if (family !== undefined && family !== scenario) continue;
@@ -72,8 +61,46 @@ export function* strikingCases(
           : who === "f-small"
             ? "m-tall"
             : "m-average";
-      yield build(name, scenario, person(who), person(partner), partner);
+      kept.push({ name, scenario, who, partner });
     }
+
+  // Every person those cases draw, prepared once for all of them.
+  const people: ReadonlyMap<string, IPerson> = new Map(
+    [
+      ...new Set<string>(
+        kept.flatMap((c: IKept): string[] => [c.who, c.partner]),
+      ),
+    ].map((name: string): [string, IPerson] => {
+      const man: humanPolygonMan.IPolygonMan = MotionBodies.population(name);
+      return [
+        name,
+        { man, body: createHumanBody(man.body.skeleton, man.body.profile) },
+      ];
+    }),
+  );
+  for (const c of kept)
+    yield build(
+      c.name,
+      c.scenario,
+      people.get(c.who)!,
+      people.get(c.partner)!,
+      c.partner,
+    );
+}
+
+/** A case kept: its name, scenario, performer and partner. */
+interface IKept {
+  /** The case's name. */
+  name: string;
+
+  /** Its scenario family. */
+  scenario: string;
+
+  /** The performer's population name. */
+  who: string;
+
+  /** The partner's population name. */
+  partner: string;
 }
 
 /** A prepared polygon man and the motion body read from it. */

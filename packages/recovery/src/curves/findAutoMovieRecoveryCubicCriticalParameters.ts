@@ -32,17 +32,6 @@ export function findAutoMovieRecoveryCubicCriticalParameters(
     Readonly<AutoMovieVector2Tuple>,
   ],
 ): IAutoMovieCubicCriticalParameters {
-  if (controls.length !== 4)
-    throw new RangeError(
-      "Cubic critical parameters require four finite planar Bernstein controls.",
-    );
-  for (let i: number = 0; i < 4; ++i) {
-    const p: Readonly<AutoMovieVector2Tuple> | undefined = controls[i];
-    if (p === undefined || p.length !== 2)
-      throw new RangeError(
-        "Cubic critical parameters require four finite planar Bernstein controls.",
-      );
-  }
   const raw: Readonly<AutoMovieVector2Tuple>[] = controls
     .slice(1)
     .map(

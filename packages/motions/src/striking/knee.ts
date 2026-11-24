@@ -38,9 +38,9 @@ import { KneeGeometry } from "./KneeGeometry";
 import { KneeReach } from "./KneeReach";
 import { StrikingBody } from "./StrikingBody";
 import { StrikingRide } from "./StrikingRide";
-import { StrikingStopRide } from "./StrikingStopRide";
 import { StrikingSkill } from "./StrikingSkill";
 import { StrikingStance } from "./StrikingStance";
+import { StrikingStopRide } from "./StrikingStopRide";
 import { StrikingStroke } from "./StrikingStroke";
 import { StrikingTarget } from "./StrikingTarget";
 import { StrikingWeapon } from "./StrikingWeapon";
@@ -377,14 +377,14 @@ export namespace knee {
     const stops: StrikingStopRide.IStop = StrikingStopRide(
       (event: IAutoMovieMotionWeaponContact): StrikingRide.IRide =>
         StrikingRide.create({
-        other: (): IAutoMovieMotionHumanPerformerReader =>
-          context.performer(event.against),
-        stop: event.seconds,
-        goal: (at: number): IAutoMovieVector3 =>
-          free(at - t0, at).limbs[leg]!.point,
-        axis: (at: number): readonly [IAutoMovieVector3, IAutoMovieVector3] =>
-          StrikingWeapon.axis(chain, event.weapon, at),
-      }),
+          other: (): IAutoMovieMotionHumanPerformerReader =>
+            context.performer(event.against),
+          stop: event.seconds,
+          goal: (at: number): IAutoMovieVector3 =>
+            free(at - t0, at).limbs[leg]!.point,
+          axis: (at: number): readonly [IAutoMovieVector3, IAutoMovieVector3] =>
+            StrikingWeapon.axis(chain, event.weapon, at),
+        }),
     );
     const carried = (
       posture: IAutoMovieMotionHumanPosture,

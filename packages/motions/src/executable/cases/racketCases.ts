@@ -1,5 +1,6 @@
 import { Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPerformance,
   IAutoMovieMotionHumanRacket,
@@ -91,8 +92,8 @@ export function racketCases(
         "strokeEnd",
       );
       const relax: number = TouchVerdicts.event(performance, "a", "relax");
-      const at = (t: number, bone: string): IAutoMovieVector3 =>
-        performance.bones("a", t).get(bone as never)!.worldPosition;
+      const at = (t: number, bone: AutoMovieHumanoidBone): IAutoMovieVector3 =>
+        performance.bones("a", t).get(bone)!.worldPosition;
       const width = (t: number): number =>
         Math.abs(at(t, "leftFoot").x - at(t, "rightFoot").x);
       const verdicts: IMotionCaptureCase.IVerdict[] = [

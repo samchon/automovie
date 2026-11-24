@@ -146,11 +146,11 @@ export namespace HumanSegmentOverlay {
     // Fade branches have different under-postures and fit seeds, but read
     // each overlay's raw plan, fade weight and ordinal at the same local
     // second: each is read once, before the branches.
-    const live: readonly IAutoMovieMotionHumanSegment.IOverlay[] =
-      active ?? [];
+    const live: readonly IAutoMovieMotionHumanSegment.IOverlay[] = active ?? [];
     const postures: IAutoMovieMotionHumanPosture[] = live.map(
-      (overlay: IAutoMovieMotionHumanSegment.IOverlay): IAutoMovieMotionHumanPosture =>
-        postureAt(overlay),
+      (
+        overlay: IAutoMovieMotionHumanSegment.IOverlay,
+      ): IAutoMovieMotionHumanPosture => postureAt(overlay),
     );
     const weights: number[] = live.map(
       (overlay: IAutoMovieMotionHumanSegment.IOverlay): number =>
@@ -172,13 +172,14 @@ export namespace HumanSegmentOverlay {
       (overlay: IAutoMovieMotionHumanSegment.IOverlay): number =>
         person.overlays.indexOf(overlay),
     );
-    const mergers: ReturnType<typeof AutoMovieMotionHumanChannel.prepareMerge>[] =
-      live.map(
-        (
-          overlay: IAutoMovieMotionHumanSegment.IOverlay,
-        ): ReturnType<typeof AutoMovieMotionHumanChannel.prepareMerge> =>
-          AutoMovieMotionHumanChannel.prepareMerge(overlay.channels),
-      );
+    const mergers: ReturnType<
+      typeof AutoMovieMotionHumanChannel.prepareMerge
+    >[] = live.map(
+      (
+        overlay: IAutoMovieMotionHumanSegment.IOverlay,
+      ): ReturnType<typeof AutoMovieMotionHumanChannel.prepareMerge> =>
+        AutoMovieMotionHumanChannel.prepareMerge(overlay.channels),
+    );
     const blender: ReturnType<typeof blendHumanJoint.prepare> | undefined =
       live.length === 0 ? undefined : blendHumanJoint.prepare(body);
     function postureAt(

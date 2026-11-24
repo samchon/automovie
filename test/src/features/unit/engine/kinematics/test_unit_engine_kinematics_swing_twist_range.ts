@@ -136,7 +136,8 @@ export function test_unit_engine_kinematics_swing_twist_range(): void {
         constraint.abduction!.min +
         (constraint.abduction!.max - constraint.abduction!.min) * rng();
       if (
-        typeof constraint.swingDeg === "number" &&
+        constraint.swingDeg !== undefined &&
+        constraint.swingDeg !== null &&
         swingConeAngle(flexion, abduction) > constraint.swingDeg
       )
         continue;

@@ -17,7 +17,7 @@ import { HumanRefusal } from "../law/HumanRefusal";
  * @throws {HumanRefusal} For an unsupported landing orientation or support.
  */
 export function jumpLandingHeading(
-  params: IAutoMovieMotionHumanJump.IParams,
+  params: Pick<IAutoMovieMotionHumanJump.IParams, "rotation" | "to" | "on">,
   heading: number,
 ): number {
   const somersault: number = params.rotation?.somersault ?? 0;

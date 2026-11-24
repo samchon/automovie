@@ -1,13 +1,17 @@
 import type {
-  IAutoMovieMotionHumanBody,
+  AutoMovieHumanoidBone,
   IAutoMovieMotionHumanFoot,
   IAutoMovieMotionHumanWalkFoot,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { HumanFoot, walkFootStance } from "@automovie/motions/internal";
+import {
+  HumanFoot,
+  humanFootOffset,
+  walkFootStance,
+} from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
-import { humanFixtureBody } from "../../../internal/fixtures/humanFixtureBody";
+import { humanFixture } from "../../../internal/fixtures/humanFixture";
 import { nclose } from "../../../internal/nclose";
 import { vclose } from "../../../internal/vclose";
 
@@ -28,9 +32,8 @@ const METRES: number = 1e-12;
  * toes-down: the heel rocker ends at 1.12 s and the forefoot rocker starts at
  * 1.5 s.
  *
- * It reads the rest joints, the measure and the sole sockets through HumanFoot,
- * whose sole points take the whole body record, so the test builds the stored
- * body (humanFixtureBody).
+ * The foot is the stored average man's sole sockets on a left ankle at rest
+ * 0.08 m up and its toes' joint 0.13 m ahead of it and 0.06 m lower.
  *
  * Scenarios:
  *
@@ -41,14 +44,20 @@ const METRES: number = 1e-12;
  *    the ball keeps its place.
  */
 export async function test_unit_motions_actions_walk_foot_stance(): Promise<void> {
-  const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");
+  const body: humanFootOffset.IBody = {
+    rest: new Map<AutoMovieHumanoidBone, IAutoMovieVector3>([
+      ["leftFoot", { x: 0.09, y: 0.08, z: 0 }],
+      ["leftToes", { x: 0.09, y: 0.02, z: 0.13 }],
+    ]),
+    surfaces: (await humanFixture("m-average")).surfaces,
+  };
   const flat: IAutoMovieMotionHumanFoot.IPlacement = {
     ankle: { x: 0.1, y: 0.08, z: 0.3 },
     rotation: HumanFoot.rotation(0, 0),
   };
   const foot: (seconds: number) => IAutoMovieMotionHumanWalkFoot.IFoot =
     walkFootStance(body, "left", flat, 0, 1, 2, -40, 1);
-  const pitch = (seconds: number): number =>
+  const pitch: (seconds: number) => number = (seconds: number): number =>
     HumanFoot.headingPitch(foot(seconds).placement.rotation).pitch;
 
   // 1. The strike.
