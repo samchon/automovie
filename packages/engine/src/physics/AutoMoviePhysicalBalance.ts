@@ -183,6 +183,7 @@ export namespace AutoMoviePhysicalBalance {
       distance: number;
       seconds: number;
       viable: boolean;
+      violation: number;
     } => {
       const rest: IAutoMovieVector3[] = input.supports
         .filter(
@@ -253,11 +254,13 @@ export namespace AutoMoviePhysicalBalance {
         if (Math.hypot(travel.x - before.x, travel.z - before.z) <= SETTLED)
           break;
       }
+      const violation: number = excess(after(travel), landing);
       return {
         travel,
         distance,
         seconds: swing(distance),
-        viable: excess(after(travel), landing) <= SETTLED,
+        viable: violation <= SETTLED,
+        violation,
       };
     };
     const paired = (
@@ -275,7 +278,11 @@ export namespace AutoMoviePhysicalBalance {
           z: lead.position.z + planned.travel.z,
         },
         ...(timing
-          ? { seconds: planned.seconds, viable: planned.viable }
+          ? {
+              seconds: planned.seconds,
+              viable: planned.viable,
+              violation: planned.violation,
+            }
           : {}),
         pair: {
           bone: partner.bone,
@@ -311,6 +318,7 @@ export namespace AutoMoviePhysicalBalance {
       target: IAutoMovieVector3;
       seconds: number;
       viable: boolean;
+      violation: number;
       unloadable: boolean;
     }[] = input.supports.flatMap(
       (
@@ -323,6 +331,7 @@ export namespace AutoMoviePhysicalBalance {
         target: IAutoMovieVector3;
         seconds: number;
         viable: boolean;
+        violation: number;
         unloadable: boolean;
       }[] => {
         const limb: IAutoMovieFootfallPattern["limbs"][number] | undefined =
@@ -511,7 +520,8 @@ export namespace AutoMoviePhysicalBalance {
         // the body steps again or falls by its physics (Khadiv et al. 2017,
         // Section III-B: viability is soft). Without a step time only a step
         // within reach captures.
-        const viable: boolean = excess(after(target), landing) <= SETTLED;
+        const violation: number = excess(after(target), landing);
+        const viable: boolean = violation <= SETTLED;
         if (!timing && !viable) return [];
         // A limb whose remaining supports already hold the commanded centre
         // of pressure gives up its load at once; another first has the
@@ -529,6 +539,7 @@ export namespace AutoMoviePhysicalBalance {
             lead: along,
             target,
             viable,
+            violation,
             unloadable,
             seconds: swing(distance),
           },
@@ -541,6 +552,10 @@ export namespace AutoMoviePhysicalBalance {
         b: (typeof candidates)[number],
       ): number =>
         Number(b.viable) - Number(a.viable) ||
+        // Among steps none of which captures, the one that leaves the capture
+        // point least past its new support at landing: viability is soft, its
+        // violation minimized (Khadiv et al. 2017, Section III-B).
+        (!a.viable && !b.viable ? a.violation - b.violation : 0) ||
         // Unloading ranks capturing steps only: a limb that can leave the
         // commanded centre of pressure but cannot capture is no help, as a
         // rear foot under a forward push, already unloaded but unable to
@@ -606,6 +621,16 @@ export namespace AutoMoviePhysicalBalance {
         return planned.distance < (input.inset ?? 0)
           ? { ...result, state: "supported" }
           : paired(chosen.support, partner, planned);
+      // With no step capturing, the pair is taken when it leaves the capture
+      // point less past its new support than the best single step (Khadiv et
+      // al. 2017, Section III-B).
+      if (
+        partner &&
+        planned &&
+        !chosen.viable &&
+        planned.violation < chosen.violation
+      )
+        return paired(chosen.support, partner, planned);
     }
     // A capturing step shorter than the margin is no step: the margin is the
     // centre-of-pressure law's buffer, so the body holds in double support
@@ -618,7 +643,13 @@ export namespace AutoMoviePhysicalBalance {
       step: {
         bone: chosen.support.bone,
         target: chosen.target,
-        ...(timing ? { seconds: chosen.seconds, viable: chosen.viable } : {}),
+        ...(timing
+          ? {
+              seconds: chosen.seconds,
+              viable: chosen.viable,
+              violation: chosen.violation,
+            }
+          : {}),
       },
     };
   }

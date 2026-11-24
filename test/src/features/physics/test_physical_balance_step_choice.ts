@@ -88,7 +88,9 @@ const REACH: number = 0.5;
  *    steps the chosen front foot with the rear foot across from it, both moved
  *    by one displacement (Chen et al. 2022, Section 2.1, Example 1); a single
  *    step that captures and can be unloaded wins over the pair, and a pair
- *    under way is planned again as that pair.
+ *    under way is planned again as that pair. Past every capturing step the step
+ *    taken is the one, a pair among them, that leaves the capture point least
+ *    past its new support at landing (Khadiv et al. 2017, Section III-B).
  * 10. A pair's two steps share a start and count as one landed swing phase; a
  *    step armed before the phase ahead of it resolved overlaps it.
  *
@@ -559,6 +561,46 @@ export function test_physical_balance_step_choice(): void {
       `a pair under way was planned again as ${flying?.bone}+${flying?.pair?.bone}`,
     );
 
+  // 9b. Past every capturing step, the step taken is the one that leaves the
+  // capture point least past its new support at landing, a pair among them
+  // (Khadiv et al. 2017, Section III-B): each limb's own step and the pair
+  // led by the best of them, each forced alone, against the free choice.
+  const hopelessFour = (
+    extra?: Partial<IAutoMoviePhysicalBalance.IAssessInput>,
+  ): IAutoMoviePhysicalBalance.IResult["step"] =>
+    forward({ x: 0, y: 0, z: 0.38 }, { center: { x: 0.02, y: HEIGHT, z: 1.2 }, ...extra });
+  const bones: string[] = four.map((support) => support.bone);
+  const alone = bones.map((bone: string) =>
+    hopelessFour({ unavailable: bones.filter((other) => other !== bone) }),
+  );
+  const best = alone
+    .filter((step) => step !== undefined)
+    .sort((a, b) => (a!.violation ?? Infinity) - (b!.violation ?? Infinity))[0];
+  const diagonalOf: Record<string, string> = {
+    frontLeft: "backRight",
+    backRight: "frontLeft",
+    frontRight: "backLeft",
+    backLeft: "frontRight",
+  };
+  const pairedAlone = best
+    ? hopelessFour({ pair: [best.bone, diagonalOf[best.bone]!], force: true })
+    : undefined;
+  const least: number = Math.min(
+    best?.violation ?? Infinity,
+    pairedAlone?.violation ?? Infinity,
+  );
+  const chosenFree = hopelessFour();
+  if (
+    !chosenFree ||
+    chosenFree.viable !== false ||
+    !(Math.abs((chosenFree.violation ?? Infinity) - least) < 1e-9) ||
+    (pairedAlone?.violation ?? Infinity) < (best?.violation ?? Infinity) !==
+      (chosenFree.pair !== undefined)
+  )
+    failures.push(
+      `past every capturing step ${chosenFree?.bone}+${chosenFree?.pair?.bone} leaves ${chosenFree?.violation} against the least ${least} (single ${best?.bone} ${best?.violation}, pair ${pairedAlone?.violation})`,
+    );
+
   // 10. Swing phases: the two feet of a pair share one start and count as
   // one landed phase; a step armed before the phase ahead of it resolved
   // overlaps it, as one starting apart from it does.
@@ -597,6 +639,16 @@ export function test_physical_balance_step_choice(): void {
       .length !== 0
   )
     failures.push("a step armed once the pair ahead resolved overlapped it");
+  // A falling body diverges: the capture point further past the support at
+  // each landed phase (Koolen et al., Eq. 25); one landing or none leaves the
+  // verdict to capture alone.
+  if (
+    !PhysicalDisturbance.diverging([0.1, 0.2, 0.35]) ||
+    PhysicalDisturbance.diverging([0.3, 0.1]) ||
+    !PhysicalDisturbance.diverging([0.2]) ||
+    !PhysicalDisturbance.diverging([])
+  )
+    failures.push("the divergence check misjudges a run");
 
   TestValidator.equals("recovery step choice", failures, []);
 }

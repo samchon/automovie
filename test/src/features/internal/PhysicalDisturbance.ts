@@ -91,6 +91,12 @@ const LIFT: number = 0.005;
 const TIPPED: number = (0.5 * 180) / Math.PI;
 
 /**
+ * The share of the standing centre-of-mass height below which a body is down,
+ * the fall verdict's own bound.
+ */
+const FALLEN: number = 0.6;
+
+/**
  * Pushing a standing body and judging the outcome against bounds stated from
  * its own inverted pendulum, shared by the disturbance-recovery tests
  * (`test_physical_disturbance_*`).
@@ -715,6 +721,23 @@ export namespace PhysicalDisturbance {
         failures.push(
           `${label}: captured at ${run.cache.frames[caught]!.seconds} s (${recovery?.last}, height ${end} of ${start}, touched ${touched})`,
         );
+      // A body still up and upright at the run's end diverges: the capture
+      // point lies further past the support at each landed swing phase than
+      // at the one before (Koolen et al., Eq. 25 beyond d_inf;
+      // design-4017-landing, 8), so the run did not just end while a
+      // capturable body was stepping. A body tipped past the hip strategy's
+      // range is down whatever its height.
+      const upright: boolean =
+        !(end < FALLEN * start) &&
+        turn(
+          run.cache.frames.at(-1)!.bodies[id]![rootOf(subject.profile)]!.rotation,
+          subject.targets[rootOf(subject.profile)]!.rotation,
+        ) <= TIPPED;
+      const excesses: number[] = landedExcesses(subject, run, id);
+      if (upright && !diverging(excesses))
+        failures.push(
+          `${label}: the capture point past the support at its landings, ${excesses.map((e) => e.toFixed(3))}, does not grow`,
+        );
       const excess: number = Math.max(
         0,
         ...run.cache.supportWrenches
@@ -834,14 +857,33 @@ export namespace PhysicalDisturbance {
     id: string,
     index: number = run.cache.frames.length - 1,
   ): boolean {
+    const at = captureAt(subject, run, id, index);
+    return (
+      at.polygon.length >= 3 && at.beyond < 1e-9 && at.speed <= at.omega * MARGIN
+    );
+  }
+
+  /**
+   * A frame's capture point against the support its limbs stand on: how far
+   * past it, metres, the polygon, the horizontal speed and omega.
+   */
+  function captureAt(
+    subject: ISubject,
+    run: IAutoMoviePhysicalSimulation,
+    id: string,
+    index: number,
+  ): { beyond: number; polygon: IAutoMovieVector3[]; speed: number; omega: number } {
     const frames = run.cache.frames;
     const poses = frames[index]!.bodies[id]!;
     const now: IAutoMovieVector3 = centerOf(subject.profile, poses);
     const before: IAutoMovieVector3 = centerOf(
       subject.profile,
-      frames[index - 1]!.bodies[id]!,
+      frames[Math.max(0, index - 1)]!.bodies[id]!,
     );
-    const dt: number = frames[index]!.seconds - frames[index - 1]!.seconds;
+    const dt: number = Math.max(
+      1e-9,
+      frames[index]!.seconds - frames[Math.max(0, index - 1)]!.seconds,
+    );
     const velocity = { x: (now.x - before.x) / dt, z: (now.z - before.z) / dt };
     const omega: number = Math.sqrt(
       9.81 / centerOf(subject.profile, subject.targets).y,
@@ -861,10 +903,48 @@ export namespace PhysicalDisturbance {
       polygon,
       capture,
     );
-    return (
-      polygon.length >= 3 &&
-      Math.hypot(nearest.x - capture.x, nearest.z - capture.z) < 1e-9 &&
-      Math.hypot(velocity.x, velocity.z) <= omega * MARGIN
+    return {
+      beyond: Math.hypot(nearest.x - capture.x, nearest.z - capture.z),
+      polygon,
+      speed: Math.hypot(velocity.x, velocity.z),
+      omega,
+    };
+  }
+
+  /**
+   * The capture point's distance past the support at each landed swing
+   * phase, metres: at the frame of the phase's last landing.
+   */
+  export function landedExcesses(
+    subject: ISubject,
+    run: IAutoMoviePhysicalSimulation,
+    id: string,
+  ): number[] {
+    const frames = run.cache.frames;
+    return phases(run.cache.recovery[id]?.steps ?? []).flatMap(
+      (phase): number[] => {
+        const times: number[] = phase.flatMap((step): number[] =>
+          step.resolved?.status === "landed" ? [step.resolved.seconds] : [],
+        );
+        if (times.length === 0) return [];
+        const index: number = frames.findIndex(
+          (frame): boolean => frame.seconds >= Math.max(...times) - 1e-9,
+        );
+        return index > 0 ? [captureAt(subject, run, id, index).beyond] : [];
+      },
+    );
+  }
+
+  /**
+   * Whether a body keeps diverging from step to step: the capture point past
+   * the support at each landing further than at the one before, as the
+   * capture point beyond the any-step bound does (Koolen et al., Eq. 25);
+   * fewer than two landings leave the verdict to capture alone.
+   */
+  export function diverging(excesses: readonly number[]): boolean {
+    return excesses.every(
+      (excess: number, i: number): boolean =>
+        i === 0 || excess > excesses[i - 1]!,
     );
   }
   /** The profile's root segment: the one no joint moves. */

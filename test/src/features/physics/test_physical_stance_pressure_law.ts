@@ -27,7 +27,10 @@ import { TestValidator } from "@nestia/e2e";
  *    reaches: at 0.39 with -0.02, p = 0.40 and u = u_law under a strategy
  *    reaching that far, u = p + 0.05 under one reaching 0.05, and u = p -
  *    delta = 0.42 without one; with u_law inside the support the trunk's
- *    offset is trimmed to the room left.
+ *    offset is trimmed to the room left. Without a strategy the pivot never
+ *    falls inside the capture point along the outward normal: at 0.387 a 3 cm
+ *    trunk offset is cut to 1.3 cm, about 10 N m under 760 N (Hof et al.
+ *    2005).
  * 1e. The pivot stays within the stance hips' room of the centre of pressure:
  *    a diagonal pair of hips holding 100 N m each about the pitch axis, whose
  *    feet each carry 300 N 0.1 m ahead of them, keep 70 N m each, and a trunk
@@ -140,6 +143,21 @@ export function test_physical_stance_pressure_law(): void {
     near(`${name} p`, band.pressure.z, 0.4);
     near(`${name} u`, band.pivot.z, u);
   }
+  // Without a hip strategy the trunk's offset in the band keeps the pivot on
+  // the capture point's outer side, u . n >= xi . n (Hof et al. 2005): at
+  // 0.387, 0.7 cm past the shrunken edge, a trunk asking 3 cm of offset gets
+  // p = 0.40 and u = 0.387, 1.3 cm, about 10 N m under 760 N.
+  const lateral = allocate(0.387, 0.03);
+  near("band lateral p", lateral.pressure.z, 0.4);
+  near("band lateral u at xi", lateral.pivot.z, 0.387);
+  near(
+    "band lateral trunk moment",
+    (lateral.pressure.z - lateral.pivot.z) * 760,
+    0.013 * 760,
+  );
+  for (const delta of [0.01, 0.03, 0.08])
+    if (!(allocate(0.387, delta).pivot.z >= 0.387 - 1e-12))
+      failures.push(`a trunk asking ${delta} m pulls the pivot inside xi`);
   // With the reference at the shrunken edge, u_law = 0.385 + k 0.005 lies
   // inside the support and the trunk's 0.03 is trimmed to the 0.011 left.
   const trimmed = physicalStanceBalance.allocate({

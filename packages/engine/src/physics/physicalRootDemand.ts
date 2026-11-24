@@ -36,7 +36,9 @@ import { physicalSupportFootprint } from "./physicalSupportFootprint";
  * held in the world frame as motion, its angular velocity after the step
  * turning it toward the intended attitude at its servo's rate, stiffness over
  * damping, on an error saturated as Feng et al. 2013 saturate theirs (Section
- * III-B). Otherwise the task is the mass centre's servo
+ * III-B), but along the hip strategy's axis while the strategy turns it,
+ * where its spin is left as it is (design-4017-edge, E2). Otherwise the task
+ * is the mass centre's servo
  * (`physicalCentroidalTask`). The integral reads the realized centre of
  * pressure from the actual contact points weighted by their normal impulses
  * (Stephens 2011, Eq. 5.31), frozen while the command is clamped, a push
@@ -50,8 +52,9 @@ import { physicalSupportFootprint } from "./physicalSupportFootprint";
  *   measured supports, the lifted limbs, the moment asked of the stance, the
  *   trunk servo's moment and intended attitude, the segments' goals, the
  *   integration duration and the trace to record into, if any.
- * @returns The task's wrench and, while a stance is planted and an integral
- *   is kept, the integral after this step; the input is never written.
+ * @returns The task's wrench; while a stance is planted and an integral is
+ *   kept, the integral after this step; and the hip strategy's axis while it
+ *   runs. The input is never written.
  */
 export function physicalRootDemand(input: {
   settings: IAutoMoviePhysicalSimulationInput.IInput;
@@ -262,14 +265,29 @@ export function physicalRootDemand(input: {
           ),
         )
       : undefined;
+
+  // While the hip strategy turns the trunk, its spin along the strategy's
+  // axis is left as it is (design-4017-edge, E2).
+  const release: IAutoMovieVector3 | undefined = stance.release;
+  const held: IAutoMovieVector3 | undefined =
+    spin && release
+      ? Vector3.add(
+          spin,
+          Vector3.scale(
+            release,
+            Vector3.dot(base.angvel(), release) - Vector3.dot(spin, release),
+          ),
+        )
+      : spin;
   return {
     wrench: {
       origin,
       force: stance.force,
       torque: stance.torque,
-      ...(spin ? { spin } : {}),
+      ...(held ? { spin: held } : {}),
     },
     ...(next ? { integral: next } : {}),
+    ...(release ? { release } : {}),
   };
 }
 
@@ -281,6 +299,11 @@ export namespace physicalRootDemand {
     wrench: AutoMovieXpbdWorld.IRootTask;
     /** The centre-of-pressure integral after this step, while one is kept and a stance is planted. */
     integral?: physicalStanceBalance.IIntegral;
+    /**
+     * The world axis, unit length, the stance's hip strategy turns the trunk
+     * about this step, which the stance hips release; absent without it.
+     */
+    release?: IAutoMovieVector3;
   }
 
   /**

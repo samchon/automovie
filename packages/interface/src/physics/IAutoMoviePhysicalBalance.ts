@@ -55,6 +55,15 @@ export namespace IAutoMoviePhysicalBalance {
       viable?: boolean;
 
       /**
+       * How far past its new support the capture point lies at landing,
+       * metres: zero for a capturing step. A step that does not capture is
+       * the one that leaves it least past (Khadiv et al. 2017, Section III-B:
+       * viability is soft, its violation minimized). Absent without a `swing`
+       * timing.
+       */
+      violation?: number;
+
+      /**
        * The diagonal partner a four-support body steps with this limb when no
        * single limb's step both captures and can be unloaded at once: both
        * feet move by the same displacement while the other diagonal holds the

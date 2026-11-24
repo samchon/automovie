@@ -234,6 +234,12 @@ export namespace physicalStanceBalance {
     velocity: IAutoMovieVector3;
     /** The pendulum's natural frequency, per second. */
     omega: number;
+    /**
+     * The world axis, unit length, the hip strategy turns the trunk about,
+     * which the stance hips release while it runs (design-4017-edge, E2);
+     * absent without it.
+     */
+    release?: IAutoMovieVector3;
   }
 
   /**
@@ -399,7 +405,7 @@ export namespace physicalStanceBalance {
       );
       return cut.length >= 3 ? cut : outline;
     };
-    const { pressure, pivot, clamped }: ReturnType<typeof allocate> = allocate(
+    const { pressure, pivot, clamped, strategy }: ReturnType<typeof allocate> = allocate(
       {
         capture,
         reference,
@@ -472,6 +478,11 @@ export namespace physicalStanceBalance {
       center,
       velocity,
       omega,
+      // The hip strategy turns the trunk about the stance hips' axis across
+      // its outward direction, which the stance hips release (`hip`).
+      ...(strategy
+        ? { release: { x: strategy.z, y: 0, z: -strategy.x } }
+        : {}),
     };
   }
   /** The centre-of-pressure integral's persisted state. */
@@ -1144,7 +1155,9 @@ export namespace physicalStanceBalance {
    *    only as far as the room allows, the term that is trimmed. A pivot past
    *    p turns the trunk, so it goes past p toward the excess only as far as
    *    the stance's hip strategy reaches (`hip`); a stance without one keeps
-   *    the order of rule 2.
+   *    the order of rule 2, the trunk's offset trimmed so the pivot does not
+   *    fall inside the capture point along the outward normal, u . n >= xi .
+   *    n, as xi' = omega (xi - u) would carry xi out (Hof et al. 2005).
    *
    * In every branch the pivot lies within the stance hips' hold of the centre
    * of pressure, |u - p| F_y no more than the room their caps leave about the
@@ -1180,14 +1193,24 @@ export namespace physicalStanceBalance {
     pressure: IAutoMovieVector3;
     pivot: IAutoMovieVector3;
     clamped: boolean;
+    strategy?: IAutoMovieVector3;
   } {
     const { capture, command, offset } = input;
     // Every branch keeps the pivot within the stance hips' hold of the centre
-    // of pressure along the pivot's own direction from it (rule 2).
+    // of pressure along the pivot's own direction from it (rule 2); the
+    // branch past the support's edge that took the hip strategy names its
+    // outward direction, along which the stance hips release the trunk
+    // (design-4017-edge, E2: when xi_eff is beyond the true edge).
     const result = (
       pressure: IAutoMovieVector3,
       wanted: IAutoMovieVector3,
-    ): { pressure: IAutoMovieVector3; pivot: IAutoMovieVector3; clamped: boolean } => {
+      strategy?: IAutoMovieVector3,
+    ): {
+      pressure: IAutoMovieVector3;
+      pivot: IAutoMovieVector3;
+      clamped: boolean;
+      strategy?: IAutoMovieVector3;
+    } => {
       const dx: number = wanted.x - pressure.x;
       const dz: number = wanted.z - pressure.z;
       const length: number = Math.hypot(dx, dz);
@@ -1207,6 +1230,7 @@ export namespace physicalStanceBalance {
         pressure,
         pivot,
         clamped: Math.hypot(pivot.x - command.x, pivot.z - command.z) > 1e-9,
+        ...(strategy ? { strategy } : {}),
       };
     };
     const edge: IAutoMovieVector3 = AutoMoviePhysicalBalance.nearest(
@@ -1227,7 +1251,11 @@ export namespace physicalStanceBalance {
           (command.z - edge.z) * direction.z;
         const shift: number =
           strategy >= 0 ? Math.min(strategy, Math.max(0, along)) : strategy;
-        return result(edge, Vector3.add(edge, Vector3.scale(direction, shift)));
+        return result(
+          edge,
+          Vector3.add(edge, Vector3.scale(direction, shift)),
+          direction,
+        );
       }
       return result(edge, Vector3.subtract(edge, offset));
     }
@@ -1280,7 +1308,18 @@ export namespace physicalStanceBalance {
           : command,
       );
     }
-    return result(pressure, Vector3.subtract(pressure, offset));
+    // Without one, the trunk's offset in the band is trimmed so the pivot
+    // stays on the capture point's outer side, u . n >= xi . n, the condition
+    // under which xi' = omega (xi - u) does not carry xi out (Hof et al. 2005;
+    // Koolen et al., Corollary 3).
+    const pivot: IAutoMovieVector3 = Vector3.subtract(pressure, offset);
+    const inside: number = outward
+      ? (capture.x - pivot.x) * outward.x + (capture.z - pivot.z) * outward.z
+      : 0;
+    return result(
+      pressure,
+      inside > 0 ? Vector3.add(pivot, Vector3.scale(outward!, inside)) : pivot,
+    );
   }
 
   /**

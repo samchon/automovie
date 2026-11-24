@@ -2,6 +2,7 @@ import {
   Quaternion,
   Vector3,
   advancePhysicalBalance,
+  physicalBalanceSense,
   trackPhysicalRoot,
 } from "@automovie/engine";
 import type {
@@ -407,6 +408,44 @@ export namespace PhysicalBalanceReplay {
       ...(output.swing ? { swing: clone(output.swing) } : {}),
       state: clone(state),
       actuation: entries(actuation),
+    };
+  }
+
+  /**
+   * One `advance` record's readings and state as the controller's phases
+   * see them: the readings built from the recorded bodies and supports, and
+   * the recorded state before the call, a copy.
+   */
+  export function sense(
+    fixture: IFixture,
+    record: IRecord,
+    built: IAutoMoviePhysicalProfile,
+  ): {
+    sense: physicalBalanceSense.ISense;
+    state: IAutoMoviePhysicalRecoveryState;
+  } {
+    const input = record.input;
+    return {
+      sense: physicalBalanceSense({
+        profile: built,
+        segments: segments(input.segments) as never,
+        policy: clone(fixture.body.balance) as IAutoMoviePhysicalRecoveryPolicy,
+        targets: clone(input.targets) as Record<string, IAutoMovieRigidTransform>,
+        ...(input.velocities ? { velocities: clone(input.velocities) } : {}),
+        ...(input.unavailable ? { unavailable: clone(input.unavailable) } : {}),
+        seconds: input.seconds,
+        dt: input.dt,
+        gravity: input.gravity,
+        floor: input.floor,
+        supports: clone(
+          input.supports,
+        ) as IAutoMovieCollectPhysicalSupports.ISupport[],
+      }),
+      state: clone(input.state) ?? {
+        last: "supported",
+        steps: [],
+        offsets: Object.create(null),
+      },
     };
   }
 

@@ -37,8 +37,12 @@ import type { physicalStanceBalance } from "./physicalStanceBalance";
  *
  * @param input The pre-integration state the endpoint and joint controllers
  *   use.
+ * @returns What the root's tracking leaves the joints' references: the hip
+ *   strategy's axis while it turns the trunk.
  */
-export function trackPhysicalRoot(input: trackPhysicalRoot.IInput): void {
+export function trackPhysicalRoot(
+  input: trackPhysicalRoot.IInput,
+): trackPhysicalRoot.IResult {
   const { body, bound, base, rootDynamic, rootIntent, actuation } = input;
 
   // The limbs a recovery swing has lifted, the swing's first.
@@ -109,7 +113,9 @@ export function trackPhysicalRoot(input: trackPhysicalRoot.IInput): void {
     if (input.integral && demand.integral)
       Object.assign(input.integral, demand.integral);
     submit(input, limbs, demand.wrench);
-  } else if (rootDynamic && !actuation) {
+    return demand.release ? { release: demand.release } : {};
+  }
+  if (rootDynamic && !actuation) {
     const wrench: { force: IAutoMovieVector3; torque: IAutoMovieVector3 } =
       physicalRootDemand.external({
         settings: input.settings,
@@ -125,6 +131,7 @@ export function trackPhysicalRoot(input: trackPhysicalRoot.IInput): void {
     base.addForce(wrench.force);
     base.addTorque(wrench.torque);
   }
+  return {};
 }
 
 /**
@@ -266,6 +273,16 @@ export namespace trackPhysicalRoot {
         Vector3.add(sum, hip),
       input.trunk,
     );
+  }
+
+  /** What the root's tracking leaves the joints' references. */
+  export interface IResult {
+    /**
+     * The world axis, unit length, the stance's hip strategy turns the trunk
+     * about this step, which the stance hips release
+     * (`physicalStanceBalance.demand`); absent without it.
+     */
+    release?: IAutoMovieVector3;
   }
 
   /** The same pre-integration state used by endpoint and joint controllers. */

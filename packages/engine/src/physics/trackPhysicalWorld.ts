@@ -341,7 +341,7 @@ export function trackPhysicalWorld(
     const base: AutoMovieXpbdBody = bound.bodies.get(
       `${body.id}/${root.bone}`,
     )!;
-    trackPhysicalRoot({
+    const rooted: trackPhysicalRoot.IResult = trackPhysicalRoot({
       world,
       goals,
       settings: input,
@@ -515,6 +515,9 @@ export function trackPhysicalWorld(
                     rotation: authoredGoals[joint.parent]!.pose.rotation,
                     spin: authoredGoals[joint.parent]!.angularVelocity,
                   },
+                  // The hip strategy's axis, along which the stance hips
+                  // release the trunk (design-4017-edge, E2).
+                  ...(rooted.release ? { release: rooted.release } : {}),
                 }
               : { role: "posture" as const }),
         });

@@ -37,11 +37,40 @@ import { Vector3 } from "../math/Vector3";
 export function physicalStanceJointTarget(
   input: physicalStanceJointTarget.IInput,
 ): physicalStanceJointTarget.IResult {
+  // During the hip strategy the stance hips release the trunk along its axis
+  // (design-4017-edge, E2): the intended attitude keeps the actual one's turn
+  // about that axis, its error's twist about it removed, and the intended
+  // spin the actual one's along it.
+  const intended: { rotation: IAutoMovieQuaternion; spin: IAutoMovieVector3 } | undefined =
+    input.role !== "hip"
+      ? undefined
+      : input.release === undefined
+        ? input.intended
+        : {
+            rotation: Quaternion.multiply(
+              physicalStanceJointTarget.swing(
+                Quaternion.multiply(
+                  input.intended.rotation,
+                  Quaternion.inverse(input.actual.parent),
+                ),
+                input.release,
+              ),
+              input.actual.parent,
+            ),
+            spin: Vector3.add(
+              input.intended.spin,
+              Vector3.scale(
+                input.release,
+                Vector3.dot(input.actual.parentSpin, input.release) -
+                  Vector3.dot(input.intended.spin, input.release),
+              ),
+            ),
+          };
   const parent: IAutoMovieQuaternion =
     input.role === "planted"
       ? input.actual.parent
       : input.role === "hip"
-        ? input.intended.rotation
+        ? intended!.rotation
         : input.goal.parent;
   const child: IAutoMovieQuaternion =
     input.role === "planted"
@@ -55,7 +84,7 @@ export function physicalStanceJointTarget(
   );
   const spin: IAutoMovieVector3 =
     input.role === "hip"
-      ? Vector3.subtract(input.actual.childSpin, input.intended.spin)
+      ? Vector3.subtract(input.actual.childSpin, intended!.spin)
       : Vector3.subtract(input.goal.childSpin, input.goal.parentSpin);
   return {
     target: Quaternion.multiply(
@@ -68,6 +97,30 @@ export function physicalStanceJointTarget(
 
 /** The input and result of {@link physicalStanceJointTarget}. */
 export namespace physicalStanceJointTarget {
+  /**
+   * A rotation with its twist about a unit axis removed: q = s t with t the
+   * twist about the axis, the swing s = q t^-1 (swing-twist decomposition).
+   *
+   * @param q The rotation.
+   * @param axis The axis, unit length.
+   * @returns The swing, whose axis is perpendicular to the given one.
+   */
+  export function swing(
+    q: IAutoMovieQuaternion,
+    axis: IAutoMovieVector3,
+  ): IAutoMovieQuaternion {
+    const along: number = q.x * axis.x + q.y * axis.y + q.z * axis.z;
+    const size: number = Math.hypot(along, q.w);
+    if (!(size > 1e-12)) return q;
+    const twist: IAutoMovieQuaternion = {
+      x: (axis.x * along) / size,
+      y: (axis.y * along) / size,
+      z: (axis.z * along) / size,
+      w: q.w / size,
+    };
+    return Quaternion.multiply(q, Quaternion.inverse(twist));
+  }
+
   /** A joint's rotations and spins, world. */
   export interface IPair {
     /** The parent body's world rotation. */
@@ -120,6 +173,12 @@ export namespace physicalStanceJointTarget {
 
     /** The parent's intended world rotation and angular velocity. */
     intended: { rotation: IAutoMovieQuaternion; spin: IAutoMovieVector3 };
+
+    /**
+     * The world axis, unit length, the trunk is released about while the
+     * stance's hip strategy turns it (design-4017-edge, E2); absent, none.
+     */
+    release?: IAutoMovieVector3;
   }
 
   /** Any other joint. */

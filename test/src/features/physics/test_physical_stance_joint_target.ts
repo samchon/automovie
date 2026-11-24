@@ -25,6 +25,9 @@ import { TestValidator } from "@nestia/e2e";
  *    pitch (Yin, Loken and van de Panne 2007, Section 3.2).
  * 3. Planted: a foot's target is its latched world orientation against the actual
  *    shank, whatever the shank's lean.
+ * 4. Released: during a hip strategy about x, the hip turns back a pelvis's roll
+ *    but leaves its pitch, and asks its own spin along x (design-4017-edge,
+ *    E2).
  *
  * @evidence contracts/development/common.md#meaningful-documentation States each role's reference and its closed form.
  * @evidence contracts/development/testing.md#behavioral-verification Calls `physicalStanceJointTarget` and `physicalJointMotorCommand` and reads the targets and the commanded error.
@@ -182,6 +185,55 @@ export function test_physical_stance_joint_target(): void {
         `a shank leaning ${lean} deg aims the foot at ${JSON.stringify(foot)}`,
       );
   }
+
+  // 4. Released about x during a hip strategy: with the pelvis pitched 0.3
+  // rad and rolled 0.1 rad, the hip's target leaves the pitch as it is and
+  // turns back the roll only, the error's twist about x removed; the spin
+  // asked along x is the pelvis's own, 2 rad/s, and none across it.
+  const rolled: IAutoMovieQuaternion = Quaternion.multiply(
+    Quaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, (0.1 * 180) / Math.PI),
+    pitched,
+  );
+  const axis: IAutoMovieVector3 = { x: 1, y: 0, z: 0 };
+  const released = physicalStanceJointTarget({
+    role: "hip",
+    parentFrame: frame,
+    childFrame: frame,
+    actual: {
+      parent: rolled,
+      child: thigh,
+      parentSpin: { x: 2, y: 0, z: 1 },
+      childSpin: zero,
+    },
+    goal,
+    intended: { rotation: intended, spin: zero },
+    release: axis,
+  });
+  const kept: IAutoMovieQuaternion = Quaternion.multiply(
+    Quaternion.multiply(
+      Quaternion.multiply(thigh, frame),
+      Quaternion.inverse(released.target),
+    ),
+    Quaternion.inverse(frame),
+  );
+  const error: IAutoMovieQuaternion = Quaternion.multiply(
+    kept,
+    Quaternion.inverse(rolled),
+  );
+  if (!(Math.abs(error.x) < 1e-9) || !(Math.abs(error.z) > 1e-3))
+    findings.push(
+      `a hip released about x moves the pelvis by ${JSON.stringify(error)}`,
+    );
+  const asked: IAutoMovieVector3 = Quaternion.rotateVector(
+    Quaternion.multiply(kept, frame),
+    released.velocity,
+  );
+  if (
+    !(Math.abs(asked.x + 2) < 1e-9) ||
+    !(Math.abs(asked.y) < 1e-9) ||
+    !(Math.abs(asked.z) < 1e-9)
+  )
+    findings.push(`a hip released about x asks the spin ${JSON.stringify(asked)}`);
 
   TestValidator.equals("stance joint targets", findings, []);
 }
