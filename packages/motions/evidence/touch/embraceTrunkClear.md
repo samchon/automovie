@@ -2,11 +2,11 @@
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States what is read, why the arms are left out, why the regions alone do not bound it, and the result's unit.
+States what is read, why the arms are left out, why the regions alone do not bound it, the result's rows, order and unit.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-The partner audit's model and reading (`AutoMovieMotionHumanAuditTangleMargin.entering` both ways), so the solve keeps the bound the take is judged by.
+The partner audit's model and reading (`AutoMovieMotionHumanAuditTangleMargin.entering` both ways), so the solve keeps the bound the take is judged by; one row per pair of segments, as trajopt's collision term gives each link pair its own row against the safety margin (`trajopt/src/collision_terms.cpp`, BSD-2-Clause), so each pair is linearised on its own gradient.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 

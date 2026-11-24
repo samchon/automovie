@@ -665,8 +665,9 @@ interface ISurfaces {
  * - The two bodies are kept apart by trajopt's collision term, the hinge on the
  *   signed distance of every pair against its safety margin
  *   (`trajopt/src/collision_terms.cpp`), the margin the skin the audit allows
- *   (`AutoMovieMotionHumanAuditSkin.BUILT`): the deepest probe of either body
- *   in the other through the hold (`embraceTrunkClear`) at most that deep.
+ *   (`AutoMovieMotionHumanAuditSkin.BUILT`): one row per pair of segments, each
+ *   pair's deepest probe through the hold (`embraceTrunkClear`) at most that
+ *   deep.
  * - The bounds are each freedom's range.
  *
  * The solved embrace is then checked as Algorithm 1 checks a base: each contact
@@ -679,7 +680,7 @@ function solve(
   stance: IAutoMovieMotionHumanRise.Stance,
   surfaces: ISurfaces,
   partner: string,
-  depth: (posture: IAutoMovieMotionHumanPosture, head: boolean) => number,
+  depth: (posture: IAutoMovieMotionHumanPosture, head: boolean) => number[],
 ): IPlaced {
   const resolution: ReturnType<typeof prepareHumanPoseResolution> =
     prepareHumanPoseResolution();
@@ -776,9 +777,11 @@ function solve(
         {
           g: (
             x: HumanSequentialConvexFunctions.Vector,
-          ): HumanSequentialConvexFunctions.Vector => [
-            depth(posed(solved(x)), true) - AutoMovieMotionHumanAuditSkin.BUILT,
-          ],
+          ): HumanSequentialConvexFunctions.Vector =>
+            depth(posed(solved(x)), true).map(
+              (pair: number): number =>
+                pair - AutoMovieMotionHumanAuditSkin.BUILT,
+            ),
           equality: false,
         },
       ],
@@ -804,7 +807,7 @@ function solve(
     TORSO,
     surfaces.back,
   );
-  const into: number = depth(posture, true);
+  const into: number = Math.max(...depth(posture, true));
   if (Math.abs(head.distance) > NEAR)
     throw refusal(
       partner,

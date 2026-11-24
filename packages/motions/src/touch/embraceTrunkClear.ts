@@ -24,24 +24,46 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
  * to the shoulder's region meet the partner's surface, but the colliders the
  * audit reads lie on or outside those surfaces, so the regions alone pressed
  * the chest 14 mm and the neck 13 mm into the partner; the solve reads this
- * depth to keep both within the skin.
+ * depth to keep both within the skin. The depth is read per pair of segments,
+ * one row for each of the embracer's segments against each of the partner's, as
+ * trajopt's collision term gives each link pair its own row against the safety
+ * margin (`trajopt/src/collision_terms.cpp`), so the solve linearises every
+ * pair on its own gradient rather than the deepest pair's alone.
  *
  * @param body The embracer's body.
  * @param partner The partner's reader.
  * @param times The film seconds the partner is read at: the instants the
  *   embrace holds.
  * @returns For a posture of the embracer, and whether its head and neck are
- *   read too, the deepest probe of either body in the other's segments over the
- *   instants, metres; zero when apart. A lean is bounded without the head,
- *   which the solve turns to the shoulder afterwards.
+ *   read too, each pair's deepest probe of either segment in the other over the
+ *   instants, metres, at the embracer's segment's index times the partner's
+ *   segment count plus the partner's; zero when apart. A lean is bounded
+ *   without the head, which the solve turns to the shoulder afterwards.
  */
 export function embraceTrunkClear(
   body: IAutoMovieMotionHumanBody,
   partner: IAutoMovieMotionHumanPerformerReader,
   times: readonly number[],
-): (posture: IAutoMovieMotionHumanPosture, head: boolean) => number {
+): (posture: IAutoMovieMotionHumanPosture, head: boolean) => number[] {
   const mine: M.IModel = M.model(body);
   const theirs: M.IModel = M.model(partner.body);
+  const own: ReadonlyMap<AutoMovieHumanoidBone, number> = new Map(
+    mine.parts.map(
+      (part: M.IPart, i: number): [AutoMovieHumanoidBone, number] => [
+        part.bone,
+        i,
+      ],
+    ),
+  );
+  const other: ReadonlyMap<AutoMovieHumanoidBone, number> = new Map(
+    theirs.parts.map(
+      (part: M.IPart, i: number): [AutoMovieHumanoidBone, number] => [
+        part.bone,
+        i,
+      ],
+    ),
+  );
+  const count: number = theirs.parts.length;
   const requested: ReadonlySet<AutoMovieHumanoidBone> = HumanColliders.bones(
     partner.body,
   );
@@ -52,16 +74,27 @@ export function embraceTrunkClear(
   return (posture: IAutoMovieMotionHumanPosture, head: boolean): number => {
     const read = (bone: AutoMovieHumanoidBone): boolean =>
       !ARMS.test(M.group(bone)) && (head || !HEAD.test(bone));
-    const own: IAutoMovieMotionHumanColliders.IPlaced[] = HumanColliders.placed(
-      body,
-      poseBones(body, resolveHumanPosture(body, posture)),
+    const segments: IAutoMovieMotionHumanColliders.IPlaced[] =
+      HumanColliders.placed(
+        body,
+        poseBones.of(body, resolveHumanPosture.of(body, posture)),
+      );
+    const deepest: number[] = new Array<number>(mine.parts.length * count).fill(
+      0,
     );
-    let deepest: number = 0;
-    for (const other of placed) {
-      for (const pair of Margin.entering(mine, own, theirs, other))
-        if (read(pair.a)) deepest = Math.max(deepest, pair.depth);
-      for (const pair of Margin.entering(theirs, other, mine, own))
-        if (read(pair.b)) deepest = Math.max(deepest, pair.depth);
+    const record = (
+      a: AutoMovieHumanoidBone,
+      b: AutoMovieHumanoidBone,
+      depth: number,
+    ): void => {
+      const k: number = own.get(a)! * count + other.get(b)!;
+      deepest[k] = Math.max(deepest[k]!, depth);
+    };
+    for (const frame of placed) {
+      for (const pair of Margin.entering(mine, segments, theirs, frame))
+        if (read(pair.a)) record(pair.a, pair.b, pair.depth);
+      for (const pair of Margin.entering(theirs, frame, mine, segments))
+        if (read(pair.b)) record(pair.b, pair.a, pair.depth);
     }
     return deepest;
   };
