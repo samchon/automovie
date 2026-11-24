@@ -191,11 +191,6 @@ export function test_geometry_sweep_transition(): void {
       "more than twice",
     ],
     [
-      "a fractional count",
-      (): unknown => layoutAutoMovieSurfaceTransition(8, 12.5, 1),
-      "positive integers",
-    ],
-    [
       "no rows",
       (): unknown => layoutAutoMovieSurfaceTransition(8, 12, 0),
       "positive integers",

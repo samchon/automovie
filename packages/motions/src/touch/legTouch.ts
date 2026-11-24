@@ -14,11 +14,11 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { prepareHumanPostureCorrection } from "../compose/prepareHumanPostureCorrection";
 import { prepareSupportCorrection } from "../actions/prepareSupportCorrection";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanTarget } from "../compose/AutoMovieMotionHumanTarget";
 import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
+import { prepareHumanPostureCorrection } from "../compose/prepareHumanPostureCorrection";
 import { prepareGroundedBalance } from "../everyday/prepareGroundedBalance";
 import { HumanBound } from "../law/HumanBound";
 import { HumanPhysics } from "../law/HumanPhysics";

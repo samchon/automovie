@@ -25,13 +25,13 @@ import type {
 import { courseArmGoal } from "../compose/courseArmGoal";
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { ExerciseKey } from "../exercise/ExerciseKey";
-import { prepareHumanShapeBlend } from "../handling/prepareHumanShapeBlend";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanWater } from "../perform/HumanWater";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
+import { prepareHumanShapeBlend } from "../posture/prepareHumanShapeBlend";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { AquaticPosture } from "../sport/AquaticPosture";
 import { HumanFloatBesideForm } from "./HumanFloatBesideForm";
@@ -63,9 +63,7 @@ function planHumanFloatBeside(
     transition,
   } = context.params;
   const body: IAutoMovieMotionHumanBody = context.body;
-  if (
-    !(transition > 0 && transition < seconds)
-  )
+  if (!(transition > 0 && transition < seconds))
     throw new HumanRefusal({
       kind: "parameter",
       axis: "transition",

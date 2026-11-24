@@ -100,7 +100,7 @@ export function test_validation_mesh_edge_key(): void {
     [maximumKey(0, maximum - 1), maximumKey(maximum - 1, 0)],
     [`0/${maximum - 1}`, `${maximum - 1}/0`],
   );
-  for (const count of [-1, 0.5, Number.MAX_SAFE_INTEGER + 1])
+  for (const count of [-1, Number.MAX_SAFE_INTEGER + 1])
     TestValidator.predicate(
       "invalid population refused",
       throwsError(

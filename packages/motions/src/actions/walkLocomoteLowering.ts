@@ -6,9 +6,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { HumanKnot } from "../posture/HumanKnot";
-import { prepareHumanKnotCourse } from "../posture/prepareHumanKnotCourse";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
+import { prepareHumanSampledCourse } from "../posture/prepareHumanSampledCourse";
 import { WALK_TICK } from "./WALK_TICK";
 import { walkDescent } from "./walkDescent";
 import { walkLeg } from "./walkLeg";
@@ -89,13 +88,10 @@ export namespace walkLocomoteLowering {
     duration: number,
     swings: readonly walkLocomoteSwings.ISwing[],
     exact: (t: number) => number,
-  ): prepareHumanKnotCourse.ICourse {
-    const at: number[] = times(duration, swings);
-    return prepareHumanKnotCourse(
-      at.map(
-        (t: number): HumanKnot.IKnot => ({ position: [exact(t)], dwell: 0 }),
-      ),
-      { kind: "fixed", times: at },
+  ): (seconds: number) => number[] {
+    return prepareHumanSampledCourse(
+      times(duration, swings),
+      (t: number): number[] => [exact(t)],
     );
   }
 

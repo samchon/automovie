@@ -26,19 +26,12 @@ export function restoreAutoMovieRenderModeState(
         active.delete(current.error as object);
         continue;
       }
-      let values: unknown[] | undefined;
-      try {
-        if (
-          current.error instanceof AggregateError &&
-          !active.has(current.error)
-        ) {
-          const errors: unknown = current.error.errors;
-          if (Array.isArray(errors) && errors.length !== 0)
-            values = Array.from(errors as unknown[]);
-        }
-      } catch {
-        /* Preserve an original cause whose aggregate inspection is refused. */
-      }
+      const values: unknown[] | undefined =
+        current.error instanceof AggregateError &&
+        !active.has(current.error) &&
+        current.error.errors.length !== 0
+          ? [...current.error.errors]
+          : undefined;
       if (values === undefined) {
         failures.push(current.error);
         continue;

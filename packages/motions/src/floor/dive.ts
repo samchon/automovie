@@ -17,12 +17,12 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanTrunk } from "../compose/AutoMovieMotionHumanTrunk";
-import { prepareHumanShapeBlend } from "../handling/prepareHumanShapeBlend";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanBoneGroups } from "../posture/HumanBoneGroups";
 import { HumanFrame } from "../posture/HumanFrame";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
+import { prepareHumanShapeBlend } from "../posture/prepareHumanShapeBlend";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { GymnasticsFlight } from "../sport/GymnasticsFlight";
 import { diveAnkleMid } from "./diveAnkleMid";

@@ -11,12 +11,12 @@ import type {
 import { stand } from "../actions/stand";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanTarget } from "../compose/AutoMovieMotionHumanTarget";
-import { prepareHumanShapeBlend } from "../handling/prepareHumanShapeBlend";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
 import { blendHumanJoint } from "../posture/blendHumanJoint";
 import { hipJoints } from "../posture/hipJoints";
 import { humanPostureHeading } from "../posture/humanPostureHeading";
+import { prepareHumanShapeBlend } from "../posture/prepareHumanShapeBlend";
 import { prepareCrawlPalms } from "./prepareCrawlPalms";
 
 /** The alternatives of `ArmReadersEntryEntry`'s site. */

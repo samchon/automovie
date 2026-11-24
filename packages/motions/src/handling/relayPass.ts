@@ -19,7 +19,6 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { prepareHumanSampledCourse } from "../posture/prepareHumanSampledCourse";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanArmJointCourse } from "../compose/AutoMovieMotionHumanArmJointCourse";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
@@ -29,6 +28,7 @@ import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
+import { prepareHumanSampledCourse } from "../posture/prepareHumanSampledCourse";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
 /** The record of `IBACKItem`'s site. */

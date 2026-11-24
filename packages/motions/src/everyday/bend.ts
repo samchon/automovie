@@ -1,6 +1,7 @@
 import type {
   AutoMovieHumanSide,
   AutoMovieMotionHumanActionName,
+  IAutoMovieBodyMeasure,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanActionPlan,
@@ -276,13 +277,13 @@ export namespace bend {
    * The strategy for a target: `auto` stoops above mid-shank and semi-squats
    * below (the plan squats instead where the semi-squat cannot reach).
    *
-   * @param body The body.
+   * @param body The body's ankle height and shank.
    * @param target The target point.
    * @param strategy The requested strategy.
    * @returns A concrete strategy.
    */
   export function choose(
-    body: IAutoMovieMotionHumanBody,
+    body: { measure: Pick<IAutoMovieBodyMeasure, "ankleHeight" | "shank"> },
     target: IAutoMovieVector3,
     strategy: IAutoMovieMotionHumanBend.Strategy,
   ): Exclude<IAutoMovieMotionHumanBend.Strategy, "auto"> {

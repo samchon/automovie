@@ -158,10 +158,7 @@ export namespace StrikingBlade {
       posture: IAutoMovieMotionHumanPosture,
       resolution?: Parameters<typeof HumanTrunk.resolve>[3],
     ): ReturnType<typeof HumanTrunk.resolve> =>
-      trunkReader(
-        posture,
-        resolution,
-      );
+      trunkReader(posture, resolution);
     const handBones: ReadonlySet<AutoMovieHumanoidBone> =
       new Set<AutoMovieHumanoidBone>([`${tool.side}Hand`]);
     const elbowBones: ReadonlySet<AutoMovieHumanoidBone> =

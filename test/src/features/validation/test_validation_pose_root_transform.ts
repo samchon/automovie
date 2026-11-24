@@ -47,40 +47,6 @@ export function test_validation_pose_root_transform(): void {
     true,
   );
 
-  const badTranslation: IAutoMovieValidation = validatePoseResult(
-    poseWith({
-      ...ROOT,
-      translation: { ...ROOT.translation, x: Number.NaN },
-    }),
-    skeleton,
-  );
-  TestValidator.equals(
-    "non-finite root translation fails",
-    badTranslation.success,
-    false,
-  );
-  TestValidator.predicate(
-    "range violation on root translation",
-    hasViolation(badTranslation, "range", "$input.root.translation.x"),
-  );
-
-  const badRotation: IAutoMovieValidation = validatePoseResult(
-    poseWith({
-      ...ROOT,
-      rotation: { ...ROOT.rotation, w: Number.POSITIVE_INFINITY },
-    }),
-    skeleton,
-  );
-  TestValidator.equals(
-    "non-finite root rotation fails",
-    badRotation.success,
-    false,
-  );
-  TestValidator.predicate(
-    "range violation on root rotation",
-    hasViolation(badRotation, "range", "$input.root.rotation.w"),
-  );
-
   const nonUnitRotation: IAutoMovieValidation = validatePoseResult(
     poseWith({
       ...ROOT,

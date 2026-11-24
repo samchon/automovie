@@ -271,11 +271,13 @@ export const compileAutoMovieSweep: (
     const k: number = scaleAt(input);
     const x: number = p.x * k;
     const y: number = p.y * k;
+    // A finite scale and section point can overflow their product.
+    if (overflowsBinary64(x) || overflowsBinary64(y))
+      throw new Error("scaled sweep section is not finite");
     const length: number = Math.hypot(x, y);
     if (
       (length === 0 && (p.x !== 0 || p.y !== 0)) ||
-      overflowsBinary64(x) ||
-      overflowsBinary64(y)
+      overflowsBinary64(length)
     )
       throw new Error("scaled sweep section radius is not positive and finite");
     return { x, y };

@@ -23,6 +23,8 @@ export const triangleIndicesOf: (
   mesh: IAutoMovieMesh,
   label: string,
 ) => number[] = (mesh: IAutoMovieMesh, label: string): number[] => {
+  if (mesh.positions.length % 3 !== 0)
+    throw new Error(`${label} needs positions in whole xyz triples`);
   const vertices: number = mesh.positions.length / 3;
   const indices: number[] =
     mesh.indices ??

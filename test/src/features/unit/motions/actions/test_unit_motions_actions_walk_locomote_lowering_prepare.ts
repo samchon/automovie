@@ -39,7 +39,7 @@ export function test_unit_motions_actions_walk_locomote_lowering_prepare(): void
   for (const t of knots)
     TestValidator.predicate(
       `the exact lowering at ${t} s`,
-      nclose(course.position(t)[0]!, 0.01 * t, ROUNDING),
+      nclose(course(t)[0]!, 0.01 * t, ROUNDING),
     );
 
   // 2. Read at the knots only.
@@ -54,10 +54,10 @@ export function test_unit_motions_actions_walk_locomote_lowering_prepare(): void
   // 3. Held outside.
   TestValidator.predicate(
     "held before the take",
-    nclose(course.position(-1)[0]!, 0, ROUNDING),
+    nclose(course(-1)[0]!, 0, ROUNDING),
   );
   TestValidator.predicate(
     "held after the take",
-    nclose(course.position(2)[0]!, 0.01, ROUNDING),
+    nclose(course(2)[0]!, 0.01, ROUNDING),
   );
 }

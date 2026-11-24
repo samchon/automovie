@@ -8,9 +8,9 @@ import type {
 } from "@automovie/interface";
 
 import { HumanHand } from "../posture/HumanHand";
+import { prepareHumanShapeBlend } from "../posture/prepareHumanShapeBlend";
 import { HumanGrip } from "./HumanGrip";
 import { HumanPrehension } from "./HumanPrehension";
-import { prepareHumanShapeBlend } from "./prepareHumanShapeBlend";
 
 /**
  * The open hand a reach carries toward a grasp: the pre-shape whose thumb-index

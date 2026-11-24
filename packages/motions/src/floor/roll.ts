@@ -13,7 +13,6 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { prepareHumanShapeBlend } from "../handling/prepareHumanShapeBlend";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanPreparedPlayback } from "../perform/HumanPreparedPlayback";
 import { HumanBoneGroups } from "../posture/HumanBoneGroups";
@@ -21,6 +20,7 @@ import { HumanFrame } from "../posture/HumanFrame";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
+import { prepareHumanShapeBlend } from "../posture/prepareHumanShapeBlend";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
 /** The alternatives of `PlanContactsPart`'s site. */

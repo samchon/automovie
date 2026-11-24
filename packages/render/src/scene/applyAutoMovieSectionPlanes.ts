@@ -68,9 +68,7 @@ export const applyAutoMovieSectionPlanes: (
         >
       > = object as Partial<Pick<THREE.Mesh, "material">>;
       if (holder.material === undefined) return;
-      for (const material of Array.isArray(holder.material)
-        ? holder.material
-        : [holder.material]) {
+      for (const material of [holder.material].flat()) {
         if ((material.clippingPlanes?.length ?? 0) !== built.length)
           material.needsUpdate = true;
         material.clippingPlanes = assigned;

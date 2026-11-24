@@ -26,8 +26,8 @@ import { precisionStrokePeak } from "../lexicon/precisionStrokePeak";
  *   the greater of the hand's and the elbow's, which the caller measured on the
  *   two fitted arms.
  * @returns The plan, whose decisive instant is `stroke`, its arm coursed.
- * @throws {HumanRefusal} When no arm course meets the trajectory's
- *   constraints, as the plan is composed.
+ * @throws {HumanRefusal} When no arm course meets the trajectory's constraints,
+ *   as the plan is composed.
  */
 export function StrikingBladeCoursed(
   plan: StrikingBladeCoursed.Plan,

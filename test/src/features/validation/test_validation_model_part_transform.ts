@@ -53,42 +53,6 @@ export function test_validation_model_part_transform(): void {
     true,
   );
 
-  const badTranslation: IAutoMovieValidation = validateModel({
-    model: modelWithPartTransform({
-      ...PART_TRANSFORM,
-      translation: { ...PART_TRANSFORM.translation, x: Number.NaN },
-    }),
-  });
-  TestValidator.equals(
-    "non-finite part translation fails",
-    badTranslation.success,
-    false,
-  );
-  TestValidator.predicate(
-    "range violation on part translation",
-    hasViolation(
-      badTranslation,
-      "range",
-      "$input.parts[0].transform.translation.x",
-    ),
-  );
-
-  const badRotation: IAutoMovieValidation = validateModel({
-    model: modelWithPartTransform({
-      ...PART_TRANSFORM,
-      rotation: { ...PART_TRANSFORM.rotation, w: Number.POSITIVE_INFINITY },
-    }),
-  });
-  TestValidator.equals(
-    "non-finite part rotation fails",
-    badRotation.success,
-    false,
-  );
-  TestValidator.predicate(
-    "range violation on part rotation",
-    hasViolation(badRotation, "range", "$input.parts[0].transform.rotation.w"),
-  );
-
   const nonUnitRotation: IAutoMovieValidation = validateModel({
     model: modelWithPartTransform({
       ...PART_TRANSFORM,

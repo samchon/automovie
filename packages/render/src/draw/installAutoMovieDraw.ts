@@ -123,10 +123,8 @@ export function installAutoMovieDraw(
     injected.props,
   );
 
-  // The subject and the renderer, made once on the first call.
-  let loading: Promise<ILoaded> | null = null;
-  const load: () => Promise<ILoaded> = (): Promise<ILoaded> =>
-    (loading ??= (async (): Promise<ILoaded> => {
+  // The subject and the renderer, made once as the page installs the draw.
+  const loading: Promise<ILoaded> = (async (): Promise<ILoaded> => {
       const name: string = selectAutoMovieDrawSubject(
         Object.keys(offered),
         injected.subject,
@@ -147,7 +145,8 @@ export function installAutoMovieDraw(
         placement: new AutoMovieDrawPlacement(name, scene, renderer),
         beauty: new AutoMovieDrawBeauty(renderer),
       };
-    })());
+    })();
+  const load: () => Promise<ILoaded> = (): Promise<ILoaded> => loading;
 
   const draw: IAutoMovieDrawFunction = {
     describe: async (): Promise<IAutoMovieDrawDescription> => {
@@ -181,7 +180,7 @@ export function installAutoMovieDraw(
       target,
       "pagehide",
       (): void => {
-        void loading?.then((loaded: ILoaded): void => {
+        void loading.then((loaded: ILoaded): void => {
           loaded.placement.restore();
           loaded.scene.dispose();
           loaded.beauty.dispose();

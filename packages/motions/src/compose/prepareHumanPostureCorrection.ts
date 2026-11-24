@@ -15,10 +15,10 @@ import { prepareHumanSampledCourse } from "../posture/prepareHumanSampledCourse"
  * each given event inside it and the middle of each interval between two of
  * them, on the uncorrected posture there. What it changes, the root, the
  * heading's three angles and each joint it sets, is a coordinate of a knot
- * course (`prepareHumanSampledCourse`, a minimum-jerk path after Flash and Hogan
- * 1985, J. Neurosci. 5(7):1688). A read adds the course's change at its second
- * to the posture it is given, with no fit, search or resolve; outside the
- * window the posture is left as it is, the correction's weight being none
+ * course (`prepareHumanSampledCourse`, a minimum-jerk path after Flash and
+ * Hogan 1985, J. Neurosci. 5(7):1688). A read adds the course's change at its
+ * second to the posture it is given, with no fit, search or resolve; outside
+ * the window the posture is left as it is, the correction's weight being none
  * there.
  *
  * @param upstream The uncorrected posture at a second.
@@ -62,30 +62,35 @@ export function prepareHumanPostureCorrection(
       )
         bones.push(bone);
     }
-  const course: (seconds: number) => number[] = prepareHumanSampledCourse.through(
-    pairs.map(
-      (
-        [before, after]: [IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanPosture],
-        i: number,
-      ): prepareHumanSampledCourse.IKnot => {
-        const position: number[] = [
-          after.root.x - before.root.x,
-          after.root.y - before.root.y,
-          after.root.z - before.root.z,
-          after.yaw - before.yaw,
-          after.pitch - before.pitch,
-          after.roll - before.roll,
-        ];
-        for (const bone of bones) {
-          const a: readonly [number, number, number] =
-            before.joints[bone] ?? ZERO;
-          const b: readonly [number, number, number] = after.joints[bone] ?? a;
-          position.push(b[0] - a[0], b[1] - a[1], b[2] - a[2]);
-        }
-        return { seconds: times[i]!, position };
-      },
-    ),
-  );
+  const course: (seconds: number) => number[] =
+    prepareHumanSampledCourse.through(
+      pairs.map(
+        (
+          [before, after]: [
+            IAutoMovieMotionHumanPosture,
+            IAutoMovieMotionHumanPosture,
+          ],
+          i: number,
+        ): prepareHumanSampledCourse.IKnot => {
+          const position: number[] = [
+            after.root.x - before.root.x,
+            after.root.y - before.root.y,
+            after.root.z - before.root.z,
+            after.yaw - before.yaw,
+            after.pitch - before.pitch,
+            after.roll - before.roll,
+          ];
+          for (const bone of bones) {
+            const a: readonly [number, number, number] =
+              before.joints[bone] ?? ZERO;
+            const b: readonly [number, number, number] =
+              after.joints[bone] ?? a;
+            position.push(b[0] - a[0], b[1] - a[1], b[2] - a[2]);
+          }
+          return { seconds: times[i]!, position };
+        },
+      ),
+    );
   return (
     posture: IAutoMovieMotionHumanPosture,
     seconds: number,

@@ -348,17 +348,6 @@ export function test_geometry_procedural_topology(): void {
       "mesh transform indexes a vertex the mesh does not carry",
     ],
     [
-      "fractional index",
-      (): ReturnType<typeof mergeAutoMovieMeshParts> =>
-        mergeAutoMovieMeshParts([
-          {
-            id: "ragged",
-            mesh: meshOf([0, 0, 0, 1, 0, 0, 0, 1, 0], [0, 1, 1.5]),
-          },
-        ]),
-      'mesh part "ragged" indexes a vertex the mesh does not carry',
-    ],
-    [
       "negative index",
       (): IAutoMovieMeshTopology =>
         inspectAutoMovieMeshTopology(

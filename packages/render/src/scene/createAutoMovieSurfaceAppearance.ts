@@ -72,9 +72,7 @@ export function createAutoMovieSurfaceAppearance(input: {
       const originalGeometry: THREE.BufferGeometry = surface.mesh.geometry;
       const originalMaterial: THREE.Material | THREE.Material[] =
         surface.mesh.material;
-      const source: THREE.Material[] = Array.isArray(originalMaterial)
-        ? originalMaterial
-        : [originalMaterial];
+      const source: THREE.Material[] = [originalMaterial].flat();
       if (
         source.some(
           (material: (typeof source)[number]): boolean =>

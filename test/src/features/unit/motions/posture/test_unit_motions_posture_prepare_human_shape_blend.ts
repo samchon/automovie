@@ -20,7 +20,7 @@ const ROUNDING: number = 1e-12;
  *    blends to zero.
  * 4. The weight is not clipped: 1.5 extrapolates.
  */
-export function test_unit_motions_handling_prepare_human_shape_blend(): void {
+export function test_unit_motions_posture_prepare_human_shape_blend(): void {
   const blend: (weight: number) => IAutoMovieMotionHumanPosture["joints"] =
     prepareHumanShapeBlend(
       { leftIndexProximal: [0, 10, -20], leftThumbProximal: [8, 0, 0] },

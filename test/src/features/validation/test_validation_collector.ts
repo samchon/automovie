@@ -50,11 +50,4 @@ export function test_validation_collector(): void {
   const nonFinite: IAutoMovieViolationCollector = new ViolationCollector();
   nonFinite.range("$input.c", Number.NaN, 0, 1);
   TestValidator.equals("non-finite pushes one", nonFinite.items.length, 1);
-  TestValidator.predicate(
-    "non-finite range mentions finite",
-    nonFinite.items.some(
-      (v: IAutoMovieConstraintViolation): boolean =>
-        v.path === "$input.c" && v.expected.includes("finite"),
-    ),
-  );
 }

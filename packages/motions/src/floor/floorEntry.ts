@@ -10,13 +10,12 @@ import type {
 } from "@automovie/interface";
 
 import { stand } from "../actions/stand";
-import { prepareHumanShapeBlend } from "../handling/prepareHumanShapeBlend";
 import { HumanRefusal } from "../law/HumanRefusal";
-import type { HumanKnot } from "../posture/HumanKnot";
 import { humanPostureHeading } from "../posture/humanPostureHeading";
-import { prepareHumanKnotCourse } from "../posture/prepareHumanKnotCourse";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
+import { prepareHumanSampledCourse } from "../posture/prepareHumanSampledCourse";
+import { prepareHumanShapeBlend } from "../posture/prepareHumanShapeBlend";
 import { knockdown } from "../reaction/knockdown";
 import { GymnasticsFlight } from "../sport/GymnasticsFlight";
 import { floorArmRoom } from "./floorArmRoom";
@@ -322,8 +321,7 @@ export namespace floorEntry {
     const sunkFrom: number = sunk(from);
     const sunkTo: number = sunk(to);
     const n: number = floorArmRoom.count(body, from, to);
-    const knots: HumanKnot.IKnot[] = [];
-    const times: number[] = [];
+    const knots: prepareHumanSampledCourse.IKnot[] = [];
     for (let j: number = 0; j <= n; j++) {
       const w: number = j / n;
       const rise: number =
@@ -333,18 +331,15 @@ export namespace floorEntry {
               0,
               sunk(carried(w)) - (sunkFrom + (sunkTo - sunkFrom) * w),
             );
-      knots.push({ position: [rise], dwell: 0 });
-      times.push(w);
+      knots.push({ seconds: w, position: [rise] });
     }
-    const rising: prepareHumanKnotCourse.ICourse = prepareHumanKnotCourse(
-      knots,
-      { kind: "fixed", times },
-    );
+    const rising: (seconds: number) => number[] =
+      prepareHumanSampledCourse.through(knots);
     return (weight: number): IAutoMovieMotionHumanPosture => {
       if (weight <= 0) return from;
       if (weight >= 1) return to;
       const posture: IAutoMovieMotionHumanPosture = carried(weight);
-      const rise: number = Math.max(0, rising.position(weight)[0]!);
+      const rise: number = Math.max(0, rising(weight)[0]!);
       return rise === 0
         ? posture
         : { ...posture, root: { ...posture.root, y: posture.root.y + rise } };

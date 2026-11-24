@@ -17,7 +17,6 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { prepareHumanSampledCourse } from "../posture/prepareHumanSampledCourse";
 import { stand } from "../actions/stand";
 import { walk } from "../actions/walk";
 import { walkDelayed } from "../actions/walkDelayed";
@@ -34,6 +33,7 @@ import { HumanHand } from "../posture/HumanHand";
 import { placeHumanHandSurface } from "../posture/placeHumanHandSurface";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
+import { prepareHumanSampledCourse } from "../posture/prepareHumanSampledCourse";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { StrikingRoll } from "../striking/StrikingRoll";
 import { pushSled } from "./pushSled";

@@ -4,13 +4,8 @@ import type {
 } from "@automovie/interface";
 import * as THREE from "three";
 
-import { AutoMovieEnvironmentTextureOwnership } from "./AutoMovieEnvironmentTextureOwnership.js";
-import { AutoMovieTextureCacheAllocationAuthority } from "./AutoMovieTextureCacheAllocationAuthority.js";
 import { readAutoMovieEnvironmentColorSpace } from "./readAutoMovieEnvironmentColorSpace.js";
 import { readAutoMovieTextureUploadFormat } from "./readAutoMovieTextureUploadFormat.js";
-
-const objectIdentities: WeakMap<object, string> = new WeakMap<object, string>();
-let nextObjectIdentity: number = 0;
 
 /**
  * Observe positive two-dimensional decoded texture extents and current
@@ -20,17 +15,10 @@ let nextObjectIdentity: number = 0;
  * path. Manual mip data and intrinsic/factory extent disagreement cannot
  * certify native history.
  *
- * Weak object tokens describe actual Source/Texture sharing in this host,
- * independently of mutable UUID text. Engine retains the sharing relation
- * rather than token spelling; current representation and upload-state metadata
+ * The Source and Texture uuids, which Three assigns once per object, describe
+ * their sharing in this host. Engine retains the sharing relation rather than
+ * token spelling; current representation and upload-state metadata
  * still determine allocation equivalence.
- *
- * Cache and environment owners are consulted before extent checks so malformed
- * image data cannot hide either sticky input history. They acknowledge only
- * supported owned writes and successful exclusive transitions. Restoring
- * observed uncontrolled drift does not repair its history; writes fully
- * restored between observation boundaries are not detected. Unregistered
- * objects retain this observer's prospective before-upload premise.
  *
  * Environment conversion reports configured and factory sampler intent because
  * sharp conversion can temporarily upload with another sampler without a later
@@ -43,10 +31,6 @@ export function readAutoMovieTextureSource(
   asset: string,
   texture: THREE.Texture,
 ): IAutoMovieRenderTextureSource {
-  const cacheAllocationKnown: boolean =
-    AutoMovieTextureCacheAllocationAuthority.current(texture);
-  const environmentAllocationKnown: boolean =
-    AutoMovieEnvironmentTextureOwnership.current(texture);
   const image: unknown = texture.image;
   const data: boolean =
     "isDataTexture" in texture && texture.isDataTexture === true;
@@ -163,8 +147,6 @@ export function readAutoMovieTextureSource(
     sampler,
     samplerState,
     allocationStateKnown:
-      cacheAllocationKnown &&
-      environmentAllocationKnown &&
       !manual &&
       !framebuffer &&
       !unsupportedExtent &&
@@ -201,8 +183,8 @@ export function readAutoMovieTextureSource(
           : texture.type === THREE.FloatType
             ? "rgba32f"
             : undefined,
-    sourceIdentity: objectIdentity(texture.source),
-    textureIdentity: objectIdentity(texture),
+    sourceIdentity: `texture-source:${texture.source.uuid}`,
+    textureIdentity: `texture-object:${texture.uuid}`,
     uploadState: JSON.stringify(
       [
         texture.format,
@@ -256,17 +238,4 @@ const decodedExtent: (
     height > 0
     ? { width, height }
     : undefined;
-};
-
-/**
- * Host-local equality follows the actual object reference, not a mutable label
- * or copied UUID. Weak keys retain no texture after its host releases it.
- */
-const objectIdentity: (value: object) => string = (value: object): string => {
-  let identity: string | undefined = objectIdentities.get(value);
-  if (identity === undefined) {
-    identity = `texture-object:${nextObjectIdentity++}`;
-    objectIdentities.set(value, identity);
-  }
-  return identity;
 };

@@ -43,13 +43,13 @@ import { HumanHand } from "../posture/HumanHand";
 import { HumanLimbFit } from "../posture/HumanLimbFit";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
+import { prepareHumanShapeBlend } from "../posture/prepareHumanShapeBlend";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanGrasp } from "./HumanGrasp";
 import { HumanGraspHand } from "./HumanGraspHand";
 import { HumanGraspTarget } from "./HumanGraspTarget";
 import { HumanGrip } from "./HumanGrip";
 import { heldSupportGrip } from "./heldSupportGrip";
-import { prepareHumanShapeBlend } from "./prepareHumanShapeBlend";
 
 /** The record of `IPlanHumanHeldSupportSelected`'s site. */
 type IPlanHumanHeldSupportSelected = {

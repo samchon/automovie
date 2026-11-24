@@ -17,16 +17,12 @@ export function reportAutoMovieResourceRetirement(
     if (primary === undefined) restoreAutoMovieRenderModeState(reporting);
     else restoreAutoMovieRenderModeState(reporting, primary);
   } catch (error) {
-    let causes: unknown[] | undefined;
-    try {
-      if (error instanceof AggregateError && error !== primary?.error) {
-        const values: unknown = error.errors;
-        if (Array.isArray(values) && values.length !== 0)
-          causes = Array.from(values as unknown[]);
-      }
-    } catch {
-      throw error;
-    }
+    const causes: unknown[] | undefined =
+      error instanceof AggregateError &&
+      error !== primary?.error &&
+      error.errors.length !== 0
+        ? [...error.errors]
+        : undefined;
     if (causes === undefined) throw error;
     throw new AggregateError(
       causes,

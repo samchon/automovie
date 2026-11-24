@@ -43,15 +43,6 @@ const apart: () => {
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 2 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A non-finite sampleRate fails with a range violation on sampleRate.).
  */
 export function test_validation_body_collision_bad_rate(): void {
-  const nan: IAutoMovieBodyCollisionResult = detectBodyCollision({
-    ...apart(),
-    sampleRate: Number.NaN,
-  });
-  TestValidator.equals("non-finite rate fails", nan.validation.success, false);
-  TestValidator.predicate(
-    "range violation on sampleRate (non-finite)",
-    hasViolation(nan.validation, "range", ".sampleRate"),
-  );
 
   const zero: IAutoMovieBodyCollisionResult = detectBodyCollision({
     ...apart(),

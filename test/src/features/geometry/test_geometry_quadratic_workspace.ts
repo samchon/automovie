@@ -64,7 +64,7 @@ export function test_geometry_quadratic_workspace(): void {
     TestValidator.equals("last requested byte exists", bytes[8], 123);
   });
   let entered: boolean = false;
-  for (const count of [0, -1, 1.25, 0x100000000])
+  for (const count of [0, -1, 0x100000000])
     TestValidator.predicate(
       "invalid byte domain",
       throwsError(

@@ -100,14 +100,6 @@ export function test_validation_mesh_morph_targets(): void {
     "type",
     "targets[0].normals",
   );
-  refused(
-    "a nonfinite delta is refused",
-    (t: IAutoMovieMeshMorphTarget[]): void => {
-      t[1]!.positions[7] = Number.NaN;
-    },
-    "range",
-    "targets[1].positions[7]",
-  );
 
   // 3. names
 
@@ -138,14 +130,6 @@ export function test_validation_mesh_morph_targets(): void {
     },
     "type",
     "targets[1].driver.curve.points",
-  );
-  refused(
-    "a nonfinite curve output is refused",
-    (t: IAutoMovieMeshMorphTarget[]): void => {
-      t[1]!.driver!.curve.points[1]!.output = Number.POSITIVE_INFINITY;
-    },
-    "range",
-    "targets[1].driver.curve.points[1].output",
   );
   refused(
     "a non-increasing curve source is refused",

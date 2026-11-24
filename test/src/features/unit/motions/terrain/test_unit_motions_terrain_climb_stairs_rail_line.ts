@@ -39,7 +39,7 @@ export function test_unit_motions_terrain_climb_stairs_rail_line(): void {
   const bar = (
     rotation: IAutoMovieQuaternion,
   ): Parameters<typeof climbStairsRailLine>[1] => ({
-    frame: { translation: p(0, 0.9, 0), rotation },
+    frame: { translation: p(0, 0.9, 0), rotation, scale: p(1, 1, 1) },
     aperture: 0.1,
     length: 2,
   });

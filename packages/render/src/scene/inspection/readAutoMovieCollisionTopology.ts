@@ -3,14 +3,8 @@ import * as THREE from "three";
 
 import type { collectAutoMovieCollisionParts } from "./collectAutoMovieCollisionParts.js";
 
-/** Topology facts per geometry, recomputed when its buffers change. */
-const TOPOLOGY: WeakMap<
-  THREE.BufferGeometry,
-  { key: string; topology: readAutoMovieCollisionTopology.ITopology | null }
-> = new WeakMap();
-
 /**
- * Read the drawn triangle list of a resident geometry once per buffer version.
+ * Read the drawn triangle list of a resident geometry from its current buffers.
  *
  * @param geometry The drawn geometry.
  * @returns Its drawn triangles, rest bounds and closure, or null when the
@@ -23,21 +17,9 @@ export function readAutoMovieCollisionTopology(
     | THREE.BufferAttribute
     | THREE.InterleavedBufferAttribute
     | undefined = geometry.getAttribute("position");
-  const index: THREE.BufferAttribute | null = geometry.getIndex();
-  const key: string = JSON.stringify([
-    positions instanceof THREE.BufferAttribute ? positions.version : -1,
-    index?.version ?? -1,
-    geometry.drawRange.start,
-    geometry.drawRange.count,
-  ]);
-  const cached:
-    | { key: string; topology: readAutoMovieCollisionTopology.ITopology | null }
-    | undefined = TOPOLOGY.get(geometry);
-  if (cached?.key === key) return cached.topology;
-  const topology: readAutoMovieCollisionTopology.ITopology | null =
-    positions === undefined ? null : extract(positions, index, geometry);
-  TOPOLOGY.set(geometry, { key, topology });
-  return topology;
+  return positions === undefined
+    ? null
+    : extract(positions, geometry.getIndex(), geometry);
 }
 
 /**

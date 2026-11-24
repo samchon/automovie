@@ -5,9 +5,9 @@ import type {
   IAutoMovieMotionHumanPosture,
 } from "@automovie/interface";
 
+import { prepareHumanPostureCorrection } from "../compose/prepareHumanPostureCorrection";
 import { prepareBearingTrunkBalance } from "../everyday/prepareBearingTrunkBalance";
 import { HumanPhysics } from "../law/HumanPhysics";
-import { prepareHumanPostureCorrection } from "../compose/prepareHumanPostureCorrection";
 import { prepareSupportCorrection } from "./prepareSupportCorrection";
 
 /**

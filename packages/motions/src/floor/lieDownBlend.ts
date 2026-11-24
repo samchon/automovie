@@ -3,7 +3,7 @@ import type {
   IAutoMovieMotionHumanPosture,
 } from "@automovie/interface";
 
-import { prepareHumanShapeBlend } from "../handling/prepareHumanShapeBlend";
+import { prepareHumanShapeBlend } from "../posture/prepareHumanShapeBlend";
 
 /**
  * Each key-to-key joint blend of the route (`prepareHumanShapeBlend`), from

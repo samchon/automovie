@@ -77,9 +77,7 @@ export const overrideAutoMovieRenderModeMaterials: (
       if (keep?.(mesh) === true) continue;
       const original: THREE.Material | THREE.Material[] = mesh.material;
       const override: THREE.Material | THREE.Material[] = make(original);
-      const made: THREE.Material[] = Array.isArray(override)
-        ? override
-        : [override];
+      const made: THREE.Material[] = [override].flat();
 
       // Every made material is owned before any patch can throw.
       for (const material of made) overrides.add(material);

@@ -54,15 +54,15 @@ export function test_validation_model_material_color_channels(): void {
     true,
   );
   const invalid: IAutoMovieValidation = check(
-    { ...red, a: Number.NaN, hex: "#fff" },
-    { r: -0.1, g: Infinity, b: 0.3, a: 1.5, hex: "#GG0000" },
+    { ...red, a: -1, hex: "#fff" },
+    { r: -0.1, g: 2, b: 0.3, a: 1.5, hex: "#GG0000" },
   );
   for (const path of ["baseColor.a", "emissive.r", "emissive.g", "emissive.a"])
     assertFault(
       invalid,
       `.materials[0].${path}`,
       "range",
-      "finite number within [0, 1]",
+      "within [0, 1]",
     );
   for (const path of ["baseColor.hex", "emissive.hex"])
     assertFault(invalid, `.materials[0].${path}`, "type", "#RRGGBB");

@@ -89,7 +89,6 @@ export namespace KneeGeometry {
       resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
     ) => IAutoMovieMotionHumanPosture,
   ): IGeometry {
-
     const body: IAutoMovieMotionHumanBody = context.body;
     const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
     const entry: IAutoMovieMotionHumanPosture = context.entry.posture;

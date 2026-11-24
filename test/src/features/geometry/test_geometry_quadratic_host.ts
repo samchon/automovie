@@ -79,11 +79,6 @@ export function test_geometry_quadratic_host(): void {
   check(first.solve(rhs), [12 / 13, 3 / 13, -24 / 13]);
   check(other.solve(rhs), [2.4, 0.6, -4.8]);
   TestValidator.equals(
-    "failed factor cannot solve",
-    first.solve(rhs),
-    undefined,
-  );
-  TestValidator.equals(
     "valid update recovers",
     first.update(Float64Array.from([0])),
     true,

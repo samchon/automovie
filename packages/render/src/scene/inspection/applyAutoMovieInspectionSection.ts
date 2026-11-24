@@ -37,7 +37,7 @@ export function applyAutoMovieInspectionSection(props: {
       object as Partial<Pick<THREE.Mesh, "material">>
     ).material;
     if (material === undefined) return;
-    for (const one of Array.isArray(material) ? material : [material])
+    for (const one of [material].flat())
       if (!clipping.has(one))
         clipping.set(one, {
           planes: one.clippingPlanes,

@@ -8,6 +8,7 @@ import type {
 
 import { AutoMovieCurveLengthQuadrature64 } from "./AutoMovieCurveLengthQuadrature64";
 import { assertAutoMovieCurve64 } from "./assertAutoMovieCurve64";
+import { overflowsBinary64 } from "../../math/overflowsBinary64";
 
 /**
  * Integrate a cubic curve's physical speed with composite eight-point
@@ -64,6 +65,8 @@ export function measureAutoMovieCubicCurveLength64(
       subdivisions,
       false,
     );
+  if (overflowsBinary64(measured.fineMm) || overflowsBinary64(measured.coarseMm))
+    throw new Error("Cubic speed integration overflow");
   return {
     lengthMm: measured.fineMm,
     differenceMm: Math.abs(measured.fineMm - measured.coarseMm),

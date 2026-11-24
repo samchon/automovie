@@ -9,9 +9,9 @@ import type {
 } from "@automovie/interface";
 
 import { lieDown } from "../floor/lieDown";
-import { prepareHumanShapeBlend } from "../handling/prepareHumanShapeBlend";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
+import { prepareHumanShapeBlend } from "../posture/prepareHumanShapeBlend";
 import { GymnasticsFlight } from "./GymnasticsFlight";
 import type { IPreparedGymnasticsFrame } from "./IPreparedGymnasticsFrame";
 import { prepareGymnasticsFrame } from "./prepareGymnasticsFrame";

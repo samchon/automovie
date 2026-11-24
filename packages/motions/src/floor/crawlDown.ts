@@ -11,11 +11,11 @@ import type {
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { HumanBalance } from "../everyday/HumanBalance";
 import { kneelKeys } from "../everyday/kneelKeys";
-import { prepareHumanShapeBlend } from "../handling/prepareHumanShapeBlend";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
 import { hipJoints } from "../posture/hipJoints";
 import { humanPostureHeading } from "../posture/humanPostureHeading";
+import { prepareHumanShapeBlend } from "../posture/prepareHumanShapeBlend";
 import type { ICrawlDownProps } from "./ICrawlDownProps";
 import { crawlDownTiming } from "./crawlDownTiming";
 import { crawlFeet } from "./crawlFeet";

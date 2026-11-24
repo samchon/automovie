@@ -30,38 +30,11 @@ export function readAutoMovieDisplayedBox(
   id: string,
   placement: THREE.Matrix4 = mesh.matrixWorld,
 ): Geometry.ICollider | null {
-  const box: THREE.Box3 | null = readLocalBox(mesh.geometry);
+  const box: THREE.Box3 | null = proveLocalBox(mesh.geometry);
   return box === null ? null : placeBox(id, box, placement);
 }
 
-/** Proven local boxes per geometry, revalidated when its buffers change. */
-const LOCAL_BOXES: WeakMap<
-  THREE.BufferGeometry,
-  { key: string; box: THREE.Box3 | null }
-> = new WeakMap();
-
-/**
- * Prove the twelve local triangles form one closed box, once per buffer
- * version.
- */
-function readLocalBox(geometry: THREE.BufferGeometry): THREE.Box3 | null {
-  const position = geometry.getAttribute("position");
-  const index: THREE.BufferAttribute | null = geometry.getIndex();
-  const key: string = JSON.stringify([
-    position instanceof THREE.BufferAttribute ? position.version : -1,
-    index?.version ?? -1,
-    geometry.drawRange.start,
-    geometry.drawRange.count,
-    geometry.morphAttributes.position?.length ?? 0,
-  ]);
-  const cached = LOCAL_BOXES.get(geometry);
-  if (cached?.key === key) return cached.box;
-  const box: THREE.Box3 | null = proveLocalBox(geometry);
-  LOCAL_BOXES.set(geometry, { key, box });
-  return box;
-}
-
-/** The box topology proof itself. */
+/** Prove the twelve local triangles form one closed box. */
 function proveLocalBox(geometry: THREE.BufferGeometry): THREE.Box3 | null {
   const points = geometry.getAttribute("position");
   const indices: THREE.BufferAttribute | null = geometry.getIndex();

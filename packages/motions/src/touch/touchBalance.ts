@@ -8,13 +8,12 @@ import type {
   IAutoMovieMotionHumanTouchStance,
 } from "@automovie/interface";
 
-import { prepareHumanPostureCorrection } from "../compose/prepareHumanPostureCorrection";
 import { AutoMovieMotionHumanRoot } from "../compose/AutoMovieMotionHumanRoot";
+import { prepareHumanPostureCorrection } from "../compose/prepareHumanPostureCorrection";
 import { HumanBalance } from "../everyday/HumanBalance";
 import { prepareHumanTrunkBalance } from "../everyday/prepareHumanTrunkBalance";
 import { HumanPhysics } from "../law/HumanPhysics";
-import type { HumanKnot } from "../posture/HumanKnot";
-import { prepareHumanKnotCourse } from "../posture/prepareHumanKnotCourse";
+import { prepareHumanSampledCourse } from "../posture/prepareHumanSampledCourse";
 
 /**
  * Prepare the requested correction for a grounded touch. The stance is already
@@ -100,20 +99,17 @@ export function touchBalance(
   // The hip shift at the knots, on the stance as written there.
   const stance: IAutoMovieMotionHumanActionPlan = written();
   const times: number[] = knots(window, clock);
-  const shift: prepareHumanKnotCourse.ICourse = prepareHumanKnotCourse(
-    times.map((t: number): HumanKnot.IKnot => {
+  const shift: (seconds: number) => number[] = prepareHumanSampledCourse(
+    times,
+    (t: number): number[] => {
       const at: IAutoMovieMotionHumanPosture = weighed(stance.posture(t));
-      return {
-        position: [
-          HumanBalance.shift(
-            body,
-            (back: number): IAutoMovieMotionHumanPosture => moved(at, back),
-          ),
-        ],
-        dwell: 0,
-      };
-    }),
-    { kind: "fixed", times },
+      return [
+        HumanBalance.shift(
+          body,
+          (back: number): IAutoMovieMotionHumanPosture => moved(at, back),
+        ),
+      ];
+    },
   );
   return {
     channel: "root",
@@ -122,7 +118,7 @@ export function touchBalance(
       seconds: number,
     ): IAutoMovieMotionHumanPosture => {
       const back: number =
-        shift.position(seconds)[0]! * HumanPhysics.weightAt(window, seconds);
+        shift(seconds)[0]! * HumanPhysics.weightAt(window, seconds);
       return back === 0
         ? posture
         : { ...posture, root: moved(weighed(posture), back).root };

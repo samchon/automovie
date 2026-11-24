@@ -1,6 +1,7 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
+  IAutoMovieBodyMeasure,
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanBendLower,
   IAutoMovieMotionHumanBody,
@@ -96,10 +97,13 @@ export namespace bendLower {
    * @returns The share, in (0, 1].
    */
   export function hipShare(
-    body: IAutoMovieMotionHumanBody,
+    body: {
+      measure: Pick<IAutoMovieBodyMeasure, "ankleHeight" | "shank" | "thigh">;
+    },
     strategy: Strategy,
   ): number {
-    const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
+    const m: Pick<IAutoMovieBodyMeasure, "ankleHeight" | "shank" | "thigh"> =
+      body.measure;
     const knee: number = KNEE[strategy];
     const shank: number = Math.min(knee / 2, ANKLE + HEEL[strategy]);
     const rad: number = Math.PI / 180;

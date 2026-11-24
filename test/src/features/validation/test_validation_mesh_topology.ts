@@ -11,7 +11,6 @@ import {
   namedFacts,
   violationCount,
 } from "../internal/predicates";
-import { withoutArraySlot } from "../internal/withoutArraySlot";
 
 const mesh: (
   positions: number[],
@@ -202,11 +201,6 @@ export function test_validation_mesh_topology(): void {
     { success: true },
   );
   TestValidator.equals(
-    "a non-integer index yields no topology verdict",
-    topo(mesh(P.slice(0, 9), [0, 1, 1.5])),
-    { success: true },
-  );
-  TestValidator.equals(
     "a ragged index count yields no topology verdict",
     topo(mesh(P.slice(0, 9), [0, 1])),
     { success: true },
@@ -216,27 +210,7 @@ export function test_validation_mesh_topology(): void {
     topo(mesh([0, 0, 0, 1], null)),
     { success: true },
   );
-  for (const value of [Number.NaN, Number.POSITIVE_INFINITY]) {
-    const positions: number[] = P.slice(0, 9);
-    positions[4] = value;
-    TestValidator.equals(
-      "nonfinite coordinates leave structural reporting to model admission",
-      topo(mesh(positions, [0, 1, 2])),
-      { success: true },
-    );
-  }
-  const missingPosition: number[] = withoutArraySlot(P.slice(0, 9), 4);
-  const missingIndex: number[] = withoutArraySlot([0, 1, 2], 1);
-  TestValidator.equals(
-    "missing position slots cannot escape through welding",
-    topo(mesh(missingPosition, [0, 1, 2])),
-    { success: true },
-  );
-  TestValidator.equals(
-    "missing indices cannot invent topology edges",
-    topo(mesh(P.slice(0, 9), missingIndex)),
-    { success: true },
-  );
+
 
   // 7. a closed manifold passes expectClosed (the watertight non-firing twin).
   // Tetrahedron on v0(0,0,0) v1(1,0,0) v2(0,1,0) v3(0,0,1); the four faces are

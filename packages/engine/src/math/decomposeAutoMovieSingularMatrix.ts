@@ -2,6 +2,7 @@ import type {
   IAutoMovieSingularDecomposition,
   IAutoMovieSingularMatrixBudget,
 } from "@automovie/interface";
+import { overflowsBinary64 } from "./overflowsBinary64";
 
 /**
  * Decompose original rows by cyclic one-sided Jacobi column rotations. The
@@ -130,6 +131,9 @@ export function decomposeAutoMovieSingularMatrix(
   const singularValues: number[] = order.map(
     (column: number): number => lengths[column]! * scale,
   );
+  // Column lengths of finite entries, rescaled, can overflow binary64.
+  if (singularValues.some(overflowsBinary64))
+    throw new Error("singular-matrix: singular values are not representable");
   const leftColumns: number[][] = [];
   const rightColumns: number[][] = [];
   for (const column of order) {
@@ -164,7 +168,7 @@ export function decomposeAutoMovieSingularMatrix(
   }
   const relativeResidual: number =
     originalNorm === 0 ? 0 : errorNorm / originalNorm;
-  if (relativeResidual > 8 * budget.orthogonalityTolerance)
+  if (!(relativeResidual <= 8 * budget.orthogonalityTolerance))
     throw new Error(
       "singular-matrix: measured reconstruction residual exceeds budget",
     );

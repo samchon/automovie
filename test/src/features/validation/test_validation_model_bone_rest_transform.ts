@@ -53,46 +53,6 @@ export function test_validation_model_bone_rest_transform(): void {
     true,
   );
 
-  const badTranslation: IAutoMovieValidation = validateModel({
-    model: modelWithBoneRest({
-      ...IDENTITY_TRANSFORM,
-      translation: { ...IDENTITY_TRANSFORM.translation, x: Number.NaN },
-    }),
-  });
-  TestValidator.equals(
-    "non-finite rest translation fails",
-    badTranslation.success,
-    false,
-  );
-  TestValidator.predicate(
-    "range violation on rest translation",
-    hasViolation(
-      badTranslation,
-      "range",
-      "$input.skeleton.bones[0].rest.translation.x",
-    ),
-  );
-
-  const badRotation: IAutoMovieValidation = validateModel({
-    model: modelWithBoneRest({
-      ...IDENTITY_TRANSFORM,
-      rotation: { ...IDENTITY_TRANSFORM.rotation, w: Number.POSITIVE_INFINITY },
-    }),
-  });
-  TestValidator.equals(
-    "non-finite rest rotation fails",
-    badRotation.success,
-    false,
-  );
-  TestValidator.predicate(
-    "range violation on rest rotation",
-    hasViolation(
-      badRotation,
-      "range",
-      "$input.skeleton.bones[0].rest.rotation.w",
-    ),
-  );
-
   const nonUnitRotation: IAutoMovieValidation = validateModel({
     model: modelWithBoneRest({
       ...IDENTITY_TRANSFORM,

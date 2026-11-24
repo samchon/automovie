@@ -9,7 +9,6 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { prepareHumanKnotCourse } from "../posture/prepareHumanKnotCourse";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { WALK_TICK } from "./WALK_TICK";
 import { runStance } from "./runStance";
@@ -224,7 +223,7 @@ export namespace walkLocomoteGround {
     // from a knot course (`prepareHumanKnotCourse`, Flash and Hogan's
     // minimum-jerk path through the knots), so a read places the stances
     // under it with no root search.
-    const lowering: prepareHumanKnotCourse.ICourse =
+    const lowering: (seconds: number) => number[] =
       walkLocomoteLowering.prepare(
         context.steps.duration,
         swings,
@@ -264,7 +263,7 @@ export namespace walkLocomoteGround {
           amount,
           hips,
           resolution,
-          lowering.position(t)[0]!,
+          lowering(t)[0]!,
         ),
       end,
     };

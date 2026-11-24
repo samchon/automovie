@@ -16,12 +16,12 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { prepareHumanPostureCorrection } from "../compose/prepareHumanPostureCorrection";
 import { stand } from "../actions/stand";
 import { standUpright } from "../actions/standUpright";
 import { HumanSupportFrame } from "../carrier/HumanSupportFrame";
 import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
+import { prepareHumanPostureCorrection } from "../compose/prepareHumanPostureCorrection";
 import { HumanPhysics } from "../law/HumanPhysics";
 import { HumanMountOff } from "../lexicon/HumanMountOff";
 import { HumanFrame } from "../posture/HumanFrame";

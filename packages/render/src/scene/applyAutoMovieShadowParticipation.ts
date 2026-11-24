@@ -67,7 +67,7 @@ export const applyAutoMovieShadowParticipation: (
     const material: THREE.Material | THREE.Material[] = (object as THREE.Mesh)
       .material;
     const blended: boolean = (
-      Array.isArray(material) ? material : [material]
+      [material].flat()
     ).some((entry: THREE.Material): boolean => entry.transparent);
     object.castShadow = !patch && !blended;
     object.receiveShadow = !patch;

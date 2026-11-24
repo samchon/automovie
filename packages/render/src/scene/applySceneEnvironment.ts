@@ -36,7 +36,6 @@ export const applySceneEnvironment: (
   }
   if (environment.image !== null && texture !== undefined) {
     AutoMovieEnvironmentTextureOwnership.prepare(
-      scene,
       texture,
       environmentColorSpace(texture),
     );

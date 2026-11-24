@@ -174,7 +174,9 @@ export namespace StrikingStroke {
     // The stop is the contact the performance resolved jointly with every
     // other weapon (`fixed`); the stroke scans nothing itself.
     const stop = (seconds: number): number | undefined =>
-      input.fixed !== undefined && input.fixed !== null && input.fixed <= seconds
+      input.fixed !== undefined &&
+      input.fixed !== null &&
+      input.fixed <= seconds
         ? input.fixed
         : undefined;
     return {

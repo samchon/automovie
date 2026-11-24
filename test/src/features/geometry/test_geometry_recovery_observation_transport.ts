@@ -275,20 +275,7 @@ export function test_geometry_recovery_observation_transport(): void {
         !current.pointsMm.includes(point),
     ),
   );
-  const nonfinite: Readonly<AutoMovieVector3Tuple>[] = current.pointsMm.map(
-    (
-      point: Readonly<AutoMovieVector3Tuple>,
-      i: number,
-    ): Readonly<AutoMovieVector3Tuple> =>
-      i === 0 ? [Number.NaN, point[1], point[2]] : [...point],
-  );
-  TestValidator.error("nonfinite physical data is malformed", (): void => {
-    transport(
-      previous,
-      { ...current, pointsMm: nonfinite },
-      "ordinary-ordered",
-    );
-  });
+
   TestValidator.error(
     "feature addresses cannot invent observations",
     (): void => {

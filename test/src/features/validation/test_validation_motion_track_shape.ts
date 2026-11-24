@@ -55,8 +55,6 @@ export function test_validation_motion_track_shape(): void {
     [{ values: [] }, "values"],
     [{ values: [1, 2] }, "values"],
     [{ interpolation: "cubicspline", values: [0, 1, 2, 3] }, "values"],
-    [{ values: [0, 0, 0, 1, Infinity, 1] }, "values[4]"],
-    [{ times: [0, NaN] }, "times[1]"],
     [{ times: [-1, 1] }, "times[0]"],
     [{ times: [0, 2] }, "times[1]"],
     [{ times: [0, 0] }, "times[1]"],

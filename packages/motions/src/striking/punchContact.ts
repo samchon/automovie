@@ -205,12 +205,7 @@ export namespace punchContact {
         const frame: IAutoMovieHumanoidSurfaces.IFrame = varied!;
         return resolveAutoMovieHumanoidSurfaces.point(
           frame,
-          other
-            .bones(
-              seconds,
-              variedBones!,
-            )
-            .get(frame.bone)!,
+          other.bones(seconds, variedBones!).get(frame.bone)!,
         );
       }
       return StrikingTarget.aim(

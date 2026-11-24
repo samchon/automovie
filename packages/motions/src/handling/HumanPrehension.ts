@@ -15,8 +15,8 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
+import { prepareHumanShapeBlend } from "../posture/prepareHumanShapeBlend";
 import { HumanSkill } from "../skill/HumanSkill";
-import { prepareHumanShapeBlend } from "./prepareHumanShapeBlend";
 
 /** The alternatives of `ShapesEntryItem`'s site. */
 type ShapesEntryItem = "entry" | "open" | "closed";

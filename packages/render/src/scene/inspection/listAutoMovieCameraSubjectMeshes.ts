@@ -77,7 +77,7 @@ export function listAutoMovieCameraSubjectMeshes(
 
 /** Shader hooks and vertex displacement can move vertices away from the buffer. */
 function keepsVertices(input: Material | Material[]): boolean {
-  const materials: Material[] = Array.isArray(input) ? input : [input];
+  const materials: Material[] = [input].flat();
   return materials.every(
     (material: Material): boolean =>
       !(material instanceof ShaderMaterial) &&

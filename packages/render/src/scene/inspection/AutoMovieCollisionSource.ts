@@ -5,6 +5,14 @@ import * as THREE from "three";
 const KEY: string = "automovieCollisionSource";
 
 /**
+ * The userData key of a rigid assembly's record on its root: each part's uuid
+ * and built placement relative to the root, plain data that survives Three's
+ * JSON clone of userData; a clone's parts carry new uuids, so it reads as no
+ * assembly.
+ */
+const ASSEMBLY: string = "automovieCollisionAssembly";
+
+/**
  * Collision identities that a scene generator attaches to the native objects it
  * actually draws, so the placed-scene collision check reads the same members
  * and segments the frame shows.
@@ -75,10 +83,13 @@ export namespace AutoMovieCollisionSource {
   ): void {
     root.updateWorldMatrix(true, true);
     const inverse: THREE.Matrix4 = root.matrixWorld.clone().invert();
-    const rest: Map<THREE.Object3D, THREE.Matrix4> = new Map();
+    const record: IAssemblyPart[] = [];
     for (const part of parts)
-      rest.set(part, inverse.clone().multiply(part.matrixWorld));
-    ASSEMBLIES.set(root, rest);
+      record.push({
+        uuid: part.uuid,
+        built: inverse.clone().multiply(part.matrixWorld).toArray(),
+      });
+    root.userData[ASSEMBLY] = record;
   }
 
   /**
@@ -91,23 +102,30 @@ export namespace AutoMovieCollisionSource {
   export function assembly(
     root: THREE.Object3D,
   ): ReadonlySet<THREE.Object3D> | undefined {
-    const rest: Map<THREE.Object3D, THREE.Matrix4> | undefined =
-      ASSEMBLIES.get(root);
-    if (rest === undefined) return undefined;
+    const record: readonly IAssemblyPart[] | undefined =
+      root.userData[ASSEMBLY];
+    if (record === undefined) return undefined;
     const inverse: THREE.Matrix4 = root.matrixWorld.clone().invert();
     const current: THREE.Matrix4 = new THREE.Matrix4();
-    for (const [part, built] of rest) {
+    const found: Set<THREE.Object3D> = new Set();
+    for (const entry of record) {
+      const part: THREE.Object3D | undefined = root.getObjectByProperty(
+        "uuid",
+        entry.uuid,
+      );
+      if (part === undefined) return undefined;
       current.multiplyMatrices(inverse, part.matrixWorld);
       for (let i: number = 0; i < 16; ++i)
         if (
           !(
-            Math.abs(current.elements[i]! - built.elements[i]!) <=
-            2 ** -20 * Math.max(1, Math.abs(built.elements[i]!))
+            Math.abs(current.elements[i]! - entry.built[i]!) <=
+            2 ** -20 * Math.max(1, Math.abs(entry.built[i]!))
           )
         )
           return undefined;
+      found.add(part);
     }
-    return new Set(rest.keys());
+    return found;
   }
 
   /**
@@ -133,14 +151,14 @@ export namespace AutoMovieCollisionSource {
   }
 }
 
-/**
- * Built part placements per model root. Kept outside userData, which Three
- * clones through JSON, so object references never enter a serialized record.
- */
-const ASSEMBLIES: WeakMap<
-  THREE.Object3D,
-  Map<THREE.Object3D, THREE.Matrix4>
-> = new WeakMap();
+/** One part of a rigid assembly record: its uuid and built placement. */
+interface IAssemblyPart {
+  /** The part object's uuid. */
+  readonly uuid: string;
+
+  /** Its placement relative to the root at build time, column-major. */
+  readonly built: readonly number[];
+}
 
 /** This module's own tagged record on a drawn object. */
 type IRecord =

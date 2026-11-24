@@ -18,15 +18,6 @@ import { readAutoMovieDisplayedBox } from "./readAutoMovieDisplayedBox.js";
 const CYCLE_PROGRAM: string = "automovie-formation-cycle";
 
 /**
- * Union of every part's rest bounds over the baked samples of one take, per
- * geometry.
- */
-const CYCLE_BOUNDS: WeakMap<
-  IAutoMovieFormationCycleTake,
-  WeakMap<THREE.BufferGeometry, THREE.Box3 | null>
-> = new WeakMap();
-
-/**
  * Read each drawn instance of a batch, named by the generator's slot when it
  * recorded one.
  *
@@ -145,9 +136,7 @@ export function readAutoMovieCollisionInstances(
  * program when the batch has a cycle.
  */
 function admits(mesh: THREE.InstancedMesh, cyclic: boolean): boolean {
-  const materials: THREE.Material[] = Array.isArray(mesh.material)
-    ? mesh.material
-    : [mesh.material];
+  const materials: THREE.Material[] = [mesh.material].flat();
   return (
     materials.length !== 0 &&
     materials.every(readAutoMovieDisplayedBox.supportsStockSurface) &&
@@ -218,11 +207,6 @@ function cycleBounds(
   cycle: IAutoMovieFormationCycle,
   take: IAutoMovieFormationCycleTake,
 ): THREE.Box3 | null {
-  let byGeometry: WeakMap<THREE.BufferGeometry, THREE.Box3 | null> | undefined =
-    CYCLE_BOUNDS.get(take);
-  if (byGeometry === undefined)
-    CYCLE_BOUNDS.set(take, (byGeometry = new WeakMap()));
-  if (byGeometry.has(geometry)) return byGeometry.get(geometry)!;
   const parts:
     | THREE.BufferAttribute
     | THREE.InterleavedBufferAttribute
@@ -244,7 +228,6 @@ function cycleBounds(
           box.clone().applyMatrix4(exactSample(take, cycle, part, sample)),
         );
   }
-  byGeometry.set(geometry, result);
   return result;
 }
 

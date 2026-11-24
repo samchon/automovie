@@ -16,9 +16,8 @@ import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
 import { HumanHandTarget } from "../posture/HumanHandTarget";
-import type { HumanKnot } from "../posture/HumanKnot";
 import { poseBones } from "../posture/poseBones";
-import { prepareHumanKnotCourse } from "../posture/prepareHumanKnotCourse";
+import { prepareHumanSampledCourse } from "../posture/prepareHumanSampledCourse";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import type { ILadderAccessGrip } from "./ILadderAccessGrip";
 import { climbLadderHands } from "./climbLadderHands";
@@ -72,46 +71,48 @@ export function seatLadderAccessGrips(
   };
   // The route's own wrist and elbow over an easing window, which the hand
   // eases from or into: solved here at the window's two ends and its middle
-  // and read between them from a knot course (`prepareHumanKnotCourse`), so
+  // and read between them from a knot course (`prepareHumanSampledCourse`), so
   // a read resolves no posture.
   const hand = (
     side: AutoMovieHumanSide,
     from: number,
     to: number,
-  ): prepareHumanKnotCourse.ICourse => {
-    const times: number[] = to > from ? [from, (from + to) / 2, to] : [from];
+  ): ((seconds: number) => number[]) => {
+    const times: number[] = prepareHumanSampledCourse.window(from, to);
     let near: IAutoMovieQuaternion | undefined;
-    const knots: HumanKnot.IKnot[] = times.map((t: number): HumanKnot.IKnot => {
-      const bones: ReturnType<typeof poseBones> = poseBones(
-        body,
-        resolveHumanPosture.seeded(body, plan.posture(t)).pose,
-      );
-      const wrist: IAutoMovieResolvedBone = bones.get(`${side}Hand`)!;
-      const elbow: IAutoMovieResolvedBone = bones.get(`${side}LowerArm`)!;
-      const q: IAutoMovieQuaternion = wrist.worldRotation;
-      const sign: number =
-        near !== undefined &&
-        q.x * near.x + q.y * near.y + q.z * near.z + q.w * near.w < 0
-          ? -1
-          : 1;
-      near = { x: sign * q.x, y: sign * q.y, z: sign * q.z, w: sign * q.w };
-      return {
-        position: [
-          wrist.worldPosition.x,
-          wrist.worldPosition.y,
-          wrist.worldPosition.z,
-          near.x,
-          near.y,
-          near.z,
-          near.w,
-          elbow.worldPosition.x,
-          elbow.worldPosition.y,
-          elbow.worldPosition.z,
-        ],
-        dwell: 0,
-      };
-    });
-    return prepareHumanKnotCourse(knots, { kind: "fixed", times });
+    const knots: prepareHumanSampledCourse.IKnot[] = times.map(
+      (t: number): prepareHumanSampledCourse.IKnot => {
+        const bones: ReturnType<typeof poseBones> = poseBones(
+          body,
+          resolveHumanPosture.seeded(body, plan.posture(t)).pose,
+        );
+        const wrist: IAutoMovieResolvedBone = bones.get(`${side}Hand`)!;
+        const elbow: IAutoMovieResolvedBone = bones.get(`${side}LowerArm`)!;
+        const q: IAutoMovieQuaternion = wrist.worldRotation;
+        const sign: number =
+          near !== undefined &&
+          q.x * near.x + q.y * near.y + q.z * near.z + q.w * near.w < 0
+            ? -1
+            : 1;
+        near = { x: sign * q.x, y: sign * q.y, z: sign * q.z, w: sign * q.w };
+        return {
+          position: [
+            wrist.worldPosition.x,
+            wrist.worldPosition.y,
+            wrist.worldPosition.z,
+            near.x,
+            near.y,
+            near.z,
+            near.w,
+            elbow.worldPosition.x,
+            elbow.worldPosition.y,
+            elbow.worldPosition.z,
+          ],
+          seconds: t,
+        };
+      },
+    );
+    return prepareHumanSampledCourse.through(knots);
   };
   const schedule = (side: AutoMovieHumanSide): ISeat[] => {
     const own: ILadderAccessGrip[] = grips.filter(
@@ -195,9 +196,9 @@ export function seatLadderAccessGrips(
           : 1 - (seconds - active.to) / active.leave,
       );
       if (weight === 0) continue;
-      const c: number[] = (
-        seconds < active.from ? active.onto : active.off
-      ).position(seconds);
+      const c: number[] = (seconds < active.from ? active.onto : active.off)(
+        seconds,
+      );
       const wrist: IAutoMovieVector3 = { x: c[0]!, y: c[1]!, z: c[2]! };
       const turned: IAutoMovieQuaternion = Quaternion.normalize({
         x: c[3]!,
@@ -250,8 +251,8 @@ interface ISeat {
    * The route's wrist position, wrist rotation and elbow position over the
    * easing onto the grip (`hand`).
    */
-  onto: prepareHumanKnotCourse.ICourse;
+  onto: (seconds: number) => number[];
 
   /** The same over the easing off it. */
-  off: prepareHumanKnotCourse.ICourse;
+  off: (seconds: number) => number[];
 }

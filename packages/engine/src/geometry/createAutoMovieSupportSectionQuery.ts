@@ -1,6 +1,7 @@
 import type { IAutoMovieCreateSupportSectionQuery } from "@automovie/interface";
 
 import { determinantAutoMovieMatrix3 } from "../math/determinantAutoMovieMatrix3";
+import { overflowsBinary64 } from "../math/overflowsBinary64";
 
 /**
  * Prepare fixed half-plane directions for independent changing-offset queries.
@@ -91,6 +92,11 @@ export function createAutoMovieSupportSectionQuery(
         (offsets[pair.i] * b[1] - a[1] * offsets[pair.j]) / pair.determinant;
       const z: number =
         (a[0] * offsets[pair.j] - offsets[pair.i] * b[0]) / pair.determinant;
+      // A near-parallel pair's tiny determinant can overflow its quotient.
+      if (overflowsBinary64(x) || overflowsBinary64(z))
+        throw new Error(
+          "nonfinite-support-intersection: chart exceeds binary64 coordinates",
+        );
       coordinates[2 * index] = x;
       coordinates[2 * index + 1] = z;
       computed[index] = 1;
@@ -224,7 +230,7 @@ export function createAutoMovieSupportSectionQuery(
         (a[0] - centre[0]) * (b[1] - centre[1]) -
         (a[1] - centre[1]) * (b[0] - centre[0]);
     }
-    if (!(area > 0))
+    if (!(area > 0) || overflowsBinary64(area))
       throw new Error("unsupported-support-section: unresolved signed area");
     // With distinct feasible corners, the same bounded cyclic edge system still
     // owns the polygon. Only a collapse or full search requires a new seed.

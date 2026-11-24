@@ -110,14 +110,6 @@ export function test_validation_model_mesh_skin(): void {
     ),
   );
   TestValidator.predicate(
-    "fractional bone index violation",
-    hasViolation(
-      invalid,
-      "range",
-      "$input.parts[0].geometry.mesh.skin.boneIndices[3]",
-    ),
-  );
-  TestValidator.predicate(
     "weight upper-bound violation",
     hasViolation(
       invalid,

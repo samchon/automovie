@@ -42,7 +42,8 @@ export namespace prepareHumanSampledCourse {
 
   /**
    * The course through values already solved at their seconds: a knot nearer
-   * than `GAP` to the one before is dropped, and a single knot holds its value.
+   * than `GAP` to the one before is dropped, and a single knot holds its
+   * value.
    *
    * @param knots The knots, their seconds ascending.
    * @returns The value at a second.

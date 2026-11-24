@@ -9,8 +9,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { HumanKnot } from "../posture/HumanKnot";
-import { prepareHumanKnotCourse } from "../posture/prepareHumanKnotCourse";
+import { prepareHumanSampledCourse } from "../posture/prepareHumanSampledCourse";
 import { walkFoot } from "./walkFoot";
 import { walkLocomoteGround } from "./walkLocomoteGround";
 import { walkLocomoteSwings } from "./walkLocomoteSwings";
@@ -119,15 +118,15 @@ export namespace walkLocomoteSolve {
       }
     // Each swing's floor-clearing lift, the one search of a swing's read,
     // solved at the edges of the reach ranges' fades and the swing's middle
-    // and read between them from a knot course (`prepareHumanKnotCourse`);
+    // and read between them from a knot course (`prepareHumanSampledCourse`);
     // a read then raises the foot only by what still sinks (closed form).
-    const lifts: Map<string, prepareHumanKnotCourse.ICourse> = new Map();
+    const lifts: Map<string, (u: number) => number[]> = new Map();
     for (const swing of swings) {
       const shares: readonly number[] = LIFT_KNOTS;
       lifts.set(
         `${swing.side}:${swing.off}`,
-        prepareHumanKnotCourse(
-          shares.map((u: number): HumanKnot.IKnot => {
+        prepareHumanSampledCourse.through(
+          shares.map((u: number): prepareHumanSampledCourse.IKnot => {
             const t: number = swing.off + u * (swing.on - swing.off);
             return {
               position: [
@@ -139,10 +138,9 @@ export namespace walkLocomoteSolve {
                   context.reached(swing.side, swing)(u),
                 ).lift,
               ],
-              dwell: 0,
+              seconds: u,
             };
           }),
-          { kind: "fixed", times: [...shares] },
         ),
       );
     }
@@ -200,10 +198,7 @@ export namespace walkLocomoteSolve {
             ? swing.u
             : Math.min(swing.u, 0.5),
           gait.swing > 1 ? leaving(leavings, side, swing.off) : undefined,
-          Math.max(
-            0,
-            lifts.get(`${side}:${swing.off}`)?.position(swing.u)[0] ?? 0,
-          ),
+          Math.max(0, lifts.get(`${side}:${swing.off}`)?.(swing.u)[0] ?? 0),
         );
       }
       return { feet, hips, settled, reached };

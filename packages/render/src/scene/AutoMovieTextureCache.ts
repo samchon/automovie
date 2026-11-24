@@ -1,7 +1,10 @@
-import { AutoMovieTextureBinding, IAutoMovieImage } from "@automovie/interface";
+import {
+  AutoMovieTextureBinding,
+  IAutoMovieImage,
+  IAutoMovieTextureReference,
+} from "@automovie/interface";
 import * as THREE from "three";
 
-import { AutoMovieTextureCacheAllocationAuthority } from "./AutoMovieTextureCacheAllocationAuthority.js";
 import { IAutoMovieTextureLoader } from "./IAutoMovieTextureLoader.js";
 import { decodeAutoMovieImage } from "./decodeAutoMovieImage.js";
 import { readAutoMovieTextureSource } from "./readAutoMovieTextureSource.js";
@@ -74,7 +77,6 @@ export class AutoMovieTextureCache {
    */
   private readonly uncertainRetirements: Set<THREE.Texture> =
     new Set<THREE.Texture>();
-  private readonly allocationOwner: object = {};
   private disposed: boolean = false;
   /** One completion outcome, including a failure, shared by every close caller. */
   private disposal: Promise<void> | undefined;
@@ -89,17 +91,7 @@ export class AutoMovieTextureCache {
         throw new Error(
           `Texture asset "${asset}" was never primed into this shot cache.`,
         );
-      const allocation: ReturnType<
-        typeof AutoMovieTextureCacheAllocationAuthority.beginIssue
-      > = AutoMovieTextureCacheAllocationAuthority.beginIssue(source);
-      let clone: THREE.Texture;
-      try {
-        clone = source.clone();
-      } catch (error) {
-        AutoMovieTextureCacheAllocationAuthority.finishIssue(allocation);
-        throw error;
-      }
-      AutoMovieTextureCacheAllocationAuthority.finishIssue(allocation, clone);
+      const clone: THREE.Texture = source.clone();
       this.issued.push(clone);
       return clone;
     };
@@ -276,7 +268,6 @@ export class AutoMovieTextureCache {
     const failures: unknown[] = [];
     for (const texture of textures) {
       this.uncertainRetirements.add(texture);
-      AutoMovieTextureCacheAllocationAuthority.beginRetirement(texture);
       let failed: boolean = false;
       try {
         texture.dispose();
@@ -284,11 +275,7 @@ export class AutoMovieTextureCache {
         failed = true;
         failures.push(error);
       }
-      const uncertain: ReturnType<
-        typeof AutoMovieTextureCacheAllocationAuthority.finishRetirement
-      > = AutoMovieTextureCacheAllocationAuthority.finishRetirement(texture);
-      if (uncertain !== undefined) failures.push(uncertain);
-      if (!failed && uncertain === undefined)
+      if (!failed)
         this.uncertainRetirements.delete(texture);
     }
     if (failures.length === 1) throw failures[0];
@@ -310,10 +297,6 @@ export class AutoMovieTextureCache {
           image === undefined ? this.load(asset) : decodeAutoMovieImage(image),
       )
       .then((texture: THREE.Texture): THREE.Texture => {
-        AutoMovieTextureCacheAllocationAuthority.claim(
-          this.allocationOwner,
-          texture,
-        );
         this.sources.set(asset, texture);
         return texture;
       });
@@ -328,31 +311,30 @@ export class AutoMovieTextureCache {
 }
 
 /**
- * JSON of a plain binding record with object keys sorted at every level, so
+ * One text per binding: every field of the reference in a fixed order, so
  * equal bindings spelled in different key orders share one text.
  *
- * @param value Binding record or one of its fields
- * @returns Canonical text
+ * @param binding The binding record.
+ * @returns Its canonical text.
  */
-function canonical(value: unknown): string {
-  if (Array.isArray(value)) return "[" + value.map(canonical).join(",") + "]";
-  if (typeof value === "object" && value !== null)
-    return (
-      "{" +
-      Object.keys(value)
-        .sort((a: string, b: string): number => (a < b ? -1 : a > b ? 1 : 0))
-        .filter(
-          (key: string): boolean =>
-            (value as Record<string, unknown>)[key] !== undefined,
-        )
-        .map(
-          (key: string): string =>
-            JSON.stringify(key) +
-            ":" +
-            canonical((value as Record<string, unknown>)[key]),
-        )
-        .join(",") +
-      "}"
-    );
-  return JSON.stringify(value) ?? "null";
+function canonical(binding: IAutoMovieTextureReference): string {
+  const { transform, sampler } = binding;
+  return JSON.stringify([
+    binding.asset,
+    binding.texCoord,
+    binding.coordinateSource ?? null,
+    binding.colorSpace,
+    transform === undefined
+      ? null
+      : [
+          transform.offset.x,
+          transform.offset.y,
+          transform.scale.x,
+          transform.scale.y,
+          transform.rotationDeg,
+        ],
+    sampler === undefined
+      ? null
+      : [sampler.wrapS, sampler.wrapT, sampler.minFilter, sampler.magFilter],
+  ]);
 }

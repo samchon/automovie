@@ -22,12 +22,12 @@ import { walk } from "../actions/walk";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
-import { prepareHumanShapeBlend } from "../handling/prepareHumanShapeBlend";
 import { HumanBound } from "../law/HumanBound";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
 import { HumanHandTarget } from "../posture/HumanHandTarget";
 import { blendHumanJoint } from "../posture/blendHumanJoint";
+import { prepareHumanShapeBlend } from "../posture/prepareHumanShapeBlend";
 import { carryPlace } from "./carryPlace";
 import { loadedWalkPace } from "./loadedWalkPace";
 

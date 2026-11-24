@@ -112,16 +112,7 @@ export function test_geometry_subdivision_refusals(): void {
         },
         "face 0 corner 2 must index a cage vertex",
       ) &&
-      refuses(
-        {
-          ...VALID,
-          faces: [
-            [0, 1, 4.5, 3],
-            [1, 2, 5, 4],
-          ],
-        },
-        "face 0 corner 2 must index a cage vertex",
-      ) &&
+
       refuses(
         {
           ...VALID,

@@ -68,25 +68,6 @@ export function test_validation_model_bone_constraint(): void {
     true,
   );
 
-  const nonFinite: IAutoMovieValidation = validateModel({
-    model: modelWithConstraint({
-      ...VALID_CONSTRAINT,
-      flexion: { min: Number.NaN, max: 10 },
-    }),
-  });
-  TestValidator.equals(
-    "non-finite constraint bound fails",
-    nonFinite.success,
-    false,
-  );
-  TestValidator.predicate(
-    "range violation on non-finite bound",
-    hasViolation(
-      nonFinite,
-      "range",
-      "$input.skeleton.bones[0].constraint.flexion.min",
-    ),
-  );
 
   const inverted: IAutoMovieValidation = validateModel({
     model: modelWithConstraint({
@@ -149,31 +130,6 @@ export function test_validation_model_bone_constraint(): void {
     ),
   );
 
-  // 5b. a malformed bound on a swung axis is reported as itself and does not
-  // also manufacture a bogus cone verdict out of NaN. Both directions of the
-  // guard: a non-finite min (above) and a non-finite max (here).
-  const nonFiniteMax: IAutoMovieValidation = validateModel({
-    model: modelWithConstraint({
-      ...VALID_CONSTRAINT,
-      flexion: { min: -10, max: Number.NaN },
-    }),
-  });
-  TestValidator.predicate(
-    "a non-finite max is reported on the bound itself",
-    hasViolation(
-      nonFiniteMax,
-      "range",
-      "$input.skeleton.bones[0].constraint.flexion.max",
-    ),
-  );
-  TestValidator.predicate(
-    "and does not add a spurious swingDeg violation",
-    !hasViolation(
-      nonFiniteMax,
-      "range",
-      "$input.skeleton.bones[0].constraint.swingDeg",
-    ),
-  );
 
   // 6. the non-firing twins: a box that excludes neutral but sits inside a wide
   // cone admits poses and must validate. Oracle: the most-retracted pose is

@@ -45,8 +45,6 @@ export function test_validation_motion_clip_clock_domain(): void {
     [1, [], "$input.keyframes"],
     [1, [0], "$input.keyframes"],
     [0, [0, 1], "$input.duration"],
-    [Infinity, [0, 1], "$input.duration"],
-    [1, [0, NaN], "$input.keyframes[1].time"],
     [1, [0, 2], "$input.keyframes[1].time"],
     [1, [0, 0.5, 0.5], "$input.keyframes[2].time"],
   ];

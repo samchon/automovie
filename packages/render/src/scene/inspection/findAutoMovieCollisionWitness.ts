@@ -11,15 +11,6 @@ import type { collectAutoMovieCollisionParts } from "./collectAutoMovieCollision
 const FOUR_PI: number = 4 * Math.PI;
 
 /**
- * Distinct undirected edges of the drawn triangles, read once per posed
- * surface.
- */
-const EDGES: WeakMap<
-  collectAutoMovieCollisionParts.ISurface,
-  readonly (readonly [number, number])[]
-> = new WeakMap();
-
-/**
  * Search the drawn surface of each part of a candidate pair for a point inside
  * the other part's solid deeper than the allowance at that point.
  *
@@ -304,16 +295,10 @@ function tolerance(error: number, ...points: THREE.Vector3[]): number {
   return error + 32 * 2 ** -23 * scale;
 }
 
-/**
- * Distinct undirected edges of the drawn triangles, read once per posed
- * surface.
- */
+/** Distinct undirected edges of the drawn triangles of a posed surface. */
 function drawnEdges(
   surface: collectAutoMovieCollisionParts.ISurface,
 ): readonly (readonly [number, number])[] {
-  const cached: readonly (readonly [number, number])[] | undefined =
-    EDGES.get(surface);
-  if (cached !== undefined) return cached;
   const seen: Set<string> = new Set();
   const edges: [number, number][] = [];
   const { triangles } = surface;
@@ -328,7 +313,6 @@ function drawnEdges(
       seen.add(key);
       edges.push([p, q]);
     }
-  EDGES.set(surface, edges);
   return edges;
 }
 

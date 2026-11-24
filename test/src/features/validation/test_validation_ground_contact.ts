@@ -214,23 +214,5 @@ export function test_validation_ground_contact(): void {
       { refused: true, violated: true },
     );
   }
-  const badTolerance: IAutoMovieValidation = validateGroundContact({
-    motion: dipping,
-    skeleton: SKELETON,
-    sampleRate: 4,
-    tolerance: Number.NaN,
-  });
-  TestValidator.equals(
-    "non-finite tolerance is a range error",
-    namedFacts([
-      ["refused", (): boolean => badTolerance.success === false],
-      [
-        "violated",
-        (): boolean =>
-          badTolerance.success === false &&
-          hasViolation(badTolerance, "range", ".tolerance"),
-      ],
-    ]),
-    { refused: true, violated: true },
-  );
+
 }

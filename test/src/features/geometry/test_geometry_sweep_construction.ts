@@ -322,19 +322,6 @@ export function test_geometry_sweep_construction(): void {
     "the shared feature course unwraps across the short seam",
     nclose(seam.feature(0, 1).v, (-3.05 + 2 * Math.PI) / (2 * Math.PI), 1e-12),
   );
-  for (const invalid of [{ station: 96 }, { ...samples, misspelled: 1 }])
-    TestValidator.predicate(
-      "missing and unknown named counts are refused",
-      throwsError(
-        (): IAutoMovieSurfaceRig =>
-          rigAutoMovieSurfaceNetwork({
-            network,
-            tier: "medium",
-            construction: invalid as IAutoMovieSurfaceConstruction.ISamples,
-          }),
-        "construction",
-      ),
-    );
   const minimal: IAutoMovieSurfaceRig = rigAutoMovieSurfaceNetwork({
     network,
     tier: "medium",

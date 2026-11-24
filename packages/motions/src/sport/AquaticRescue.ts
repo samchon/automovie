@@ -358,9 +358,7 @@ export namespace AquaticRescue {
       shaped: IAutoMovieMotionHumanPosture,
       seconds: number,
     ): IAutoMovieHumanLimbGoal =>
-      seconds < hold
-        ? inFrame(chestAt(shaped).get("chest")!)
-        : held;
+      seconds < hold ? inFrame(chestAt(shaped).get("chest")!) : held;
     // The near arm reaches from its last crawl stroke to the victim's
     // sternum as one admitted course and holds it through the tow
     // (`courseArmGoal`); the victim never reads the rescuer.

@@ -3,13 +3,22 @@ import type * as THREE from "three";
 import { restoreAutoMovieRenderModeState } from "./restoreAutoMovieRenderModeState.js";
 
 /**
- * One active or failed installation retains its original restoration
- * population.
+ * The scene userData key of its active or failed restoration record, which
+ * retains the original restoration population.
  */
-const retiring: WeakMap<
-  THREE.Scene,
-  { run: () => void; active: boolean; error: unknown }
-> = new WeakMap();
+const RETIRING: string = "automovieRenderModeRetirement";
+
+/** One active or failed installation's restoration record. */
+interface IRetirement {
+  /** The restoration of the installation's swaps and created materials. */
+  run: () => void;
+
+  /** Whether the restoration is still running. */
+  active: boolean;
+
+  /** The refusal a later pass receives. */
+  error: unknown;
+}
 
 /**
  * Refuse another pass on a scene whose owned material restoration is active or
@@ -23,9 +32,7 @@ export function guardAutoMovieRenderModeRetirement(
   scene: THREE.Scene,
   attempt?: { run: () => void; primary?: { error: unknown } },
 ): void {
-  const previous:
-    | { run: () => void; active: boolean; error: unknown }
-    | undefined = retiring.get(scene);
+  const previous: IRetirement | undefined = scene.userData[RETIRING];
   if (previous !== undefined) {
     if (attempt === undefined || !previous.active) throw previous.error;
     // An outer Edge owner must still retire its already-owned fill; the parent callback retains that handle and collects the nested cause.
@@ -34,12 +41,12 @@ export function guardAutoMovieRenderModeRetirement(
     return;
   }
   if (attempt === undefined) return;
-  const current: { run: () => void; active: boolean; error: unknown } = {
+  const current: IRetirement = {
     run: attempt.run,
     active: true,
     error: new Error("The scene's pass resources are still being restored."),
   };
-  retiring.set(scene, current);
+  scene.userData[RETIRING] = current;
   try {
     current.run();
   } catch (error) {
@@ -61,6 +68,6 @@ export function guardAutoMovieRenderModeRetirement(
     }
     throw current.error;
   }
-  retiring.delete(scene);
+  delete scene.userData[RETIRING];
   if (attempt.primary !== undefined) throw attempt.primary.error;
 }

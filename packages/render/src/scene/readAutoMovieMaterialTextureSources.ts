@@ -103,9 +103,7 @@ export function readAutoMovieMaterialTextureSources(props: {
     if ("isRectAreaLight" in object && object.isRectAreaLight === true)
       area = true;
     if (!("material" in object)) return;
-    for (const material of Array.isArray(object.material)
-      ? object.material
-      : [object.material]) {
+    for (const material of [object.material].flat()) {
       if (!isMaterial(material)) continue;
       if (
         "isMeshStandardMaterial" in material &&

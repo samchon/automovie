@@ -165,7 +165,11 @@ export namespace StrikingRide {
       ): IAutoMovieMotionHumanPosture => {
         const goal: IAutoMovieHumanLimbGoal | undefined = posture.limbs[limb];
         const lagged: number = seconds - 2 * STEP;
-        if (goal === undefined || goal.on !== undefined || !(lagged > props.stop))
+        if (
+          goal === undefined ||
+          goal.on !== undefined ||
+          !(lagged > props.stop)
+        )
           return posture;
         const pushed: number = push(
           met,
