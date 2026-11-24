@@ -18,7 +18,7 @@ No weight is assumed: end knots' zero tangents and uneven knot spacing come out 
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
-At most four scalar Hermite evaluations per grid instant, with one dense output row per instant for the reduced model.
+At most five scalar Hermite evaluations per grid instant, with one dense output row per instant for the reduced model.
 
 ## @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work
 

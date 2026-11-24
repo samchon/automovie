@@ -10,9 +10,9 @@ import { HumanArmRefine } from "./HumanArmRefine";
 
 /**
  * One arm's reader of a trajectory's knots: the arm at any second, the knots'
- * cubic Hermite interpolant (`HumanArmRefine.hermite`) read back as clinical
- * triples. It owns only the playback's inputs, so a returned reader keeps none
- * of the problem, the contexts or the readings it was solved with.
+ * C² quintic Hermite interpolant (`HumanArmRefine.hermite`) read back as
+ * clinical triples. It owns only the playback's inputs, so a returned reader
+ * keeps none of the problem, the contexts or the readings it was solved with.
  *
  * The shoulder's triple is read on one reading along the whole trajectory
  * (`HumanArmBranch`): the first knot's is decoded alone, each later knot's is

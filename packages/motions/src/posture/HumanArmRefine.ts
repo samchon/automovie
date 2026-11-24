@@ -7,11 +7,11 @@ import { HumanArmTrajectoryTerms } from "./HumanArmTrajectoryTerms";
  * A trajectory's interpolant between its waypoints, and where the waypoints are
  * too far apart for the path their sites must follow.
  *
- * The arms are played back, and read between waypoints, on one cubic Hermite
- * through the waypoints (`hermite`). On the hold, the site's path interpolated
- * through the waypoints' sites by that same Hermite must stay within
- * `TOLERANCE` of the act's own site at every instant of the frame grid, so no
- * stroke is cut short between samples: the waypoints' sites are all the
+ * The arms are played back, and read between waypoints, on one C² quintic
+ * Hermite through the waypoints (`hermite`). On the hold, the site's path
+ * interpolated through the waypoints' sites by that same Hermite must stay
+ * within `TOLERANCE` of the act's own site at every instant of the frame grid,
+ * so no stroke is cut short between samples: the waypoints' sites are all the
  * optimiser knows of the act between them. An interval whose site strays is
  * split at the grid instant in its middle (`split`), and an interval that holds
  * no grid instant is never split, so the waypoints are never finer than the
@@ -73,8 +73,20 @@ export namespace HumanArmRefine {
   }
 
   /**
-   * A cubic Hermite through waypoints at their seconds, tangents by central
-   * differences in time, still at both ends: the trajectory's interpolant.
+   * The trajectory's interpolant: through waypoints at their seconds, a quintic
+   * Hermite on each interval, the via-point form of Flash and Hogan's
+   * minimum-jerk trajectory (Flash and Hogan 1985, "The coordination of arm
+   * movements", J. Neurosci. 5(7):1688), whose segments meet in position,
+   * velocity and acceleration at each via point, so the curve is C². Each
+   * waypoint's velocity is the central difference in time; its acceleration is
+   * read as TOPP-RA's `ConstAccel` reads q̈ = q'' ṡ² + q' u at a gridpoint
+   * (github.com/hungpham2511/toppra cpp/src/toppra/parametrizer/const_accel.cpp
+   * `evalParams` and `eval_impl` at commit
+   * 8a2a9252e42089f1082d8d5d69b9852f32d0b338, MIT), from the segment that
+   * starts there, on the waypoints' cubic Hermite path with ṡ = 1 and u = 0;
+   * the first and the last waypoint are at rest in velocity and acceleration,
+   * Flash and Hogan's boundary conditions, so the arm leaves and joins its held
+   * poses C².
    *
    * @param times Ordered waypoint seconds paired with the coordinate rows.
    * @param x Coordinates at every waypoint, with a consistent dimension.
@@ -96,6 +108,8 @@ export namespace HumanArmRefine {
       x[k + 1]!,
       tangent(times, x, k),
       tangent(times, x, k + 1),
+      acceleration(times, x, k),
+      acceleration(times, x, k + 1),
       h,
       (seconds - times[k]!) / h,
     );
@@ -120,6 +134,9 @@ export namespace HumanArmRefine {
     const slopes: number[][] = times.map((_t: number, i: number): number[] =>
       tangent(times, x, i),
     );
+    const accelerations: number[][] = times.map(
+      (_t: number, i: number): number[] => acceleration(times, x, i),
+    );
     const spans: number[] = times
       .slice(1)
       .map((t: number, i: number): number => t - times[i]!);
@@ -138,6 +155,8 @@ export namespace HumanArmRefine {
           x[i + 1]!,
           slopes[i]!,
           slopes[i + 1]!,
+          accelerations[i]!,
+          accelerations[i + 1]!,
           h,
           (seconds - times[i]!) / h,
         ),
@@ -171,22 +190,58 @@ function tangent(
   );
 }
 
-/** Evaluate the original four terms in their original arithmetic grouping. */
+/**
+ * A waypoint's acceleration: the second derivative of the cubic Hermite segment
+ * that starts there, at its start, `(6 (p1 - p0) - h (4 m0 + 2 m1)) / h²`; zero
+ * at the first and the last waypoint (Flash and Hogan's rest).
+ */
+function acceleration(
+  times: readonly number[],
+  x: readonly (readonly number[])[],
+  i: number,
+): number[] {
+  if (i === 0 || i === times.length - 1) return new Array(x[0]!.length).fill(0);
+  const h: number = times[i + 1]! - times[i]!;
+  const m0: number[] = tangent(times, x, i);
+  const m1: number[] = tangent(times, x, i + 1);
+  return x[i]!.map(
+    (v: number, d: number): number =>
+      (6 * (x[i + 1]![d]! - v) - h * (4 * m0[d]! + 2 * m1[d]!)) / (h * h),
+  );
+}
+
+/**
+ * The quintic Hermite between two waypoints from their positions, velocities
+ * and accelerations, at a share `u` of the interval `h`.
+ */
 function interpolate(
   left: readonly number[],
   right: readonly number[],
   m0: readonly number[],
   m1: readonly number[],
+  a0: readonly number[],
+  a1: readonly number[],
   h: number,
   u: number,
 ): number[] {
-  const h00: number = 2 * u ** 3 - 3 * u ** 2 + 1;
-  const h10: number = u ** 3 - 2 * u ** 2 + u;
-  const h01: number = -2 * u ** 3 + 3 * u ** 2;
-  const h11: number = u ** 3 - u ** 2;
+  const u2: number = u * u;
+  const u3: number = u2 * u;
+  const u4: number = u3 * u;
+  const u5: number = u4 * u;
+  const p0: number = 1 - 10 * u3 + 15 * u4 - 6 * u5;
+  const v0: number = u - 6 * u3 + 8 * u4 - 3 * u5;
+  const c0: number = 0.5 * u2 - 1.5 * u3 + 1.5 * u4 - 0.5 * u5;
+  const c1: number = 0.5 * u3 - u4 + 0.5 * u5;
+  const v1: number = -4 * u3 + 7 * u4 - 3 * u5;
+  const p1: number = 10 * u3 - 15 * u4 + 6 * u5;
   return left.map(
     (v: number, d: number): number =>
-      h00 * v + h10 * h * m0[d]! + h01 * right[d]! + h11 * h * m1[d]!,
+      p0 * v +
+      v0 * h * m0[d]! +
+      c0 * h * h * a0[d]! +
+      c1 * h * h * a1[d]! +
+      v1 * h * m1[d]! +
+      p1 * right[d]!,
   );
 }
 

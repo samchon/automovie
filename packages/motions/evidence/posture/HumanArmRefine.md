@@ -62,27 +62,27 @@ Returns one fresh array and retains nothing.
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-Defines the ordered time/coordinate pairing, endpoint behavior, central-difference tangents and fresh numeric result.
+Defines the ordered time/coordinate pairing, endpoint behavior, the waypoints' velocities and accelerations, the C² quintic segments and fresh numeric result.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-Uses the existing cubic Hermite basis, zero endpoint tangents and central differences divided by their actual neighboring time spans.
+The via-point quintic Hermite of Flash and Hogan 1985 (J. Neurosci. 5(7):1688): segments meeting in position, velocity and acceleration, at rest in both at the first and last waypoint (their boundary conditions). Each waypoint's velocity is the central difference over its actual neighbouring spans. Its acceleration is the second derivative of the cubic Hermite segment starting there, as TOPP-RA's ConstAccel reads q̈ = q'' ṡ² + q' u at a gridpoint from the segment that starts there (toppra const_accel.cpp evalParams and eval_impl at 8a2a9252e42089f1082d8d5d69b9852f32d0b338, MIT), with ṡ = 1 and u = 0.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-Endpoint copies precede an interval search, two tangents and the original componentwise four-term polynomial.
+Endpoint copies precede an interval search, two tangents, two accelerations and the componentwise six-term quintic.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
-Keeps interval ties, exponent and addition grouping, endpoint copies and each actual coordinate calculation; no resampling, angle rounding or interpolation cache is introduced.
+Keeps interval ties, endpoint copies and each actual coordinate calculation; no resampling, angle rounding or interpolation cache is introduced.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
-Bisects N knot seconds and computes two D-component tangents and D results, costing O(log N + D) work and O(D) temporary/output space.
+Bisects N knot seconds and computes two D-component tangents, two accelerations and D results, costing O(log N + D) work and O(D) temporary/output space.
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 
-Reuses the selected interval's time span and four scalar basis values across coordinates; all callers use this same interpolant.
+Reuses the selected interval's time span and six scalar basis values across coordinates; all callers use this same interpolant.
 
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
@@ -96,11 +96,11 @@ States time units, fixed inputs, held endpoints and fresh coordinate/index owner
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-Retains the exact central differences and spans of the existing Hermite polynomial. The polynomial and interval search are shared with the one-shot interpolant.
+Prepares each waypoint's central difference, acceleration and span once. The quintic and the interval search are shared with the one-shot interpolant.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-One index lookup reports the interval and the shoulder chart's preceding knot. The two immutable coefficient arrays serve both actual admission and display reads.
+One index lookup reports the interval and the shoulder chart's preceding knot. The three immutable coefficient arrays serve both actual admission and display reads.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 

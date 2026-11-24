@@ -7,9 +7,9 @@ import { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
  * An arms' trajectory optimised on few knots and constrained on the whole frame
  * grid: the change of variables between the two.
  *
- * The trajectory played back is the knots' cubic Hermite interpolant
+ * The trajectory played back is the knots' quintic Hermite interpolant
  * (`HumanArmRefine.hermite`), which is linear in the knots' coordinates: each
- * grid instant's coordinates are a weighted sum of at most four knots' (`x_g =
+ * grid instant's coordinates are a weighted sum of at most five knots' (`x_g =
  * sum_j W[g][j] x_j`). So the model is evaluated and linearised at every grid
  * instant, as a frame-grid trajectory's is, and the resulting subproblem in the
  * grid's steps is carried onto the knots' by that linear map: `P_k = W' P W`,
@@ -252,8 +252,8 @@ export namespace HumanArmTrajectoryKnots {
 }
 
 /**
- * Four consecutive knots suffice for the two endpoint values and both centred
- * tangents.
+ * Five consecutive knots suffice for the two endpoint values, both centred
+ * tangents and both accelerations, the later read on the segment after.
  */
 interface IWindow {
   /** Offset into the full knot coordinate array. */
@@ -270,6 +270,6 @@ function windows(knots: readonly number[], grid: readonly number[]): IWindow[] {
   return grid.map((at: number): IWindow => {
     while (bracket + 2 < knots.length && knots[bracket + 1]! <= at) ++bracket;
     const first: number = Math.max(0, bracket - 1);
-    return { first, times: knots.slice(first, bracket + 3), at };
+    return { first, times: knots.slice(first, bracket + 4), at };
   });
 }
