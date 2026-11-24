@@ -2,6 +2,8 @@ import {
   Quaternion,
   Vector3,
   physicalStanceBalance,
+  physicalStanceSupport,
+  physicalStanceSwing,
   physicalSupportFootprint,
 } from "@automovie/engine";
 import type {
@@ -26,10 +28,10 @@ const [WIDTH, LENGTH, HEIGHT] = [0.05, 0.08, 0.02];
  *    corners, 20 mm up, are left out.
  * 2. The same sole rolled 10 degrees about its length bears on its low edge alone:
  *    the two corners there, the far edge 17 mm up left out.
- * 3. The shared support polygon (`physicalStanceBalance.polygon`) is the flat face
+ * 3. The shared support polygon (`physicalStanceSupport.polygon`) is the flat face
  *    shrunk by the margin, and a ray from its centre meets it the half-width
  *    less the margin away.
- * 4. A leg's effective swing mass (`physicalStanceBalance.swingMass`) is its first
+ * 4. A leg's effective swing mass (`physicalStanceSwing.swingMass`) is its first
  *    moment about the hip over the endpoint's distance, within the leg's mass.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the bearing-face rule and both poses.
@@ -90,7 +92,7 @@ export function test_physical_support_footprint_face(): void {
 
   // 3. The shared support polygon is that face shrunk by the margin, and its
   // ray from the centre along +x meets it WIDTH - MARGIN away.
-  const polygon: IAutoMovieVector3[] = physicalStanceBalance.polygon(
+  const polygon: IAutoMovieVector3[] = physicalStanceSupport.polygon(
     profile,
     {
       [bone]: {
@@ -112,7 +114,7 @@ export function test_physical_support_footprint_face(): void {
     )
   )
     failures.push(`the shared polygon is ${JSON.stringify(polygon)}`);
-  const ray: number = physicalStanceBalance.reach(
+  const ray: number = physicalStanceSwing.reach(
     polygon,
     { x: 0, y: 0, z: 0 },
     { x: 1, y: 0, z: 0 },
@@ -149,7 +151,7 @@ export function test_physical_support_footprint_face(): void {
     moment += segment.mass * Vector3.length(Vector3.subtract(center, hip));
     mass += segment.mass;
   }
-  const effective: number = physicalStanceBalance.swingMass(base, neutral, leg);
+  const effective: number = physicalStanceSwing.swingMass(base, neutral, leg);
   const expected: number = moment / Vector3.length(Vector3.subtract(end, hip));
   if (
     !(Math.abs(effective - expected) < 1e-9) ||

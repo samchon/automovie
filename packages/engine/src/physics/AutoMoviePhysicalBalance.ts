@@ -7,7 +7,7 @@ import type {
 
 import { Vector3 } from "../math/Vector3";
 import { convexHull2D } from "../math/convexHull2D";
-import { physicalStanceBalance } from "./physicalStanceBalance";
+import { physicalStanceSupport } from "./physicalStanceSupport";
 
 /**
  * Linear-inverted-pendulum capture-point balance over an arbitrary support
@@ -97,7 +97,7 @@ export namespace AutoMoviePhysicalBalance {
     // holds its centre of pressure inside (Koolen et al., Corollary 3).
     const inset: number = input.inset ?? 0;
     const held = (outline: IAutoMovieVector3[]): IAutoMovieVector3[] =>
-      inset > 0 ? physicalStanceBalance.shrink(outline, inset) : outline;
+      inset > 0 ? physicalStanceSupport.shrink(outline, inset) : outline;
     const outside: number = excess(polygon, capturePoint);
     const beyond: number = excess(held(polygon), capturePoint);
     const result: IAutoMoviePhysicalBalance.IResult = {

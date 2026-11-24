@@ -19,15 +19,15 @@ import { staggerRecover } from "./staggerRecover";
  * first step's landing (Weerdesteyn, Laing and Robinovitch 2008, Exp Brain Res
  * 186:571), and come down by a minimum-jerk share from the last step's landing
  * to the stagger's end, each let out further where it would pass into the body
- * by the plan-time carriage `carried` returns: per side, one let-out a
- * `staggerBounds.KNOTS`-th of a second, interpolated between its samples.
+ * by the plan-time carriage `carried` returns: the let-out of each side at a
+ * second, left then right, from the plan's knot course.
  *
  * @param body The body.
  * @param entry The entry state the arms abduct from.
  * @param recovery The recovery whose first and last landings time the arms.
  * @param duration The stagger's seconds.
- * @param carried Returns the plan's let-out samples per side, degrees; empty
- *   before the plan has read them.
+ * @param carried Returns the plan's let-out reader, degrees by side; none
+ *   before the plan has read it.
  * @returns The arms' primitive over the whole stagger.
  */
 export function staggerArms(
@@ -35,9 +35,8 @@ export function staggerArms(
   entry: IAutoMovieMotionHumanEntryState,
   recovery: staggerRecover.IRecovery,
   duration: number,
-  carried: () => Record<AutoMovieHumanSide, number[]>,
+  carried: () => ((seconds: number) => readonly number[]) | undefined,
 ): IAutoMovieMotionHumanPrimitive {
-  const KNOTS: number = staggerBounds.KNOTS;
   const swing: number = recovery.steps[0]!.land;
   const held: Record<
     AutoMovieHumanSide,
@@ -66,23 +65,12 @@ export function staggerArms(
       seconds: number,
     ): IAutoMovieMotionHumanPosture => {
       const more: number = raised(seconds);
-      const series: Record<AutoMovieHumanSide, number[]> = carried();
-
-      // The let-out's envelope between the two samples around this second.
-      const at: number = Math.min(
-        Math.max(0, seconds * KNOTS),
-        Math.max(0, series.left.length - 1),
-      );
-      const k: number = Math.floor(at);
-      const out: (side: AutoMovieHumanSide) => number = (
-        side: AutoMovieHumanSide,
-      ): number => {
-        const own: number[] = series[side];
-        if (own.length === 0) return 0;
-        const a: number = own[k]!;
-        const b: number = own[Math.min(own.length - 1, k + 1)]!;
-        return a + (b - a) * (at - k);
-      };
+      const series: ((seconds: number) => readonly number[]) | undefined =
+        carried();
+      const letOut: readonly number[] =
+        series === undefined ? [0, 0] : series(seconds);
+      const out = (side: AutoMovieHumanSide): number =>
+        letOut[side === "left" ? 0 : 1]!;
       const abducted: (
         side: AutoMovieHumanSide,
       ) => IAutoMovieMotionHumanArmAngles.IAngles = (

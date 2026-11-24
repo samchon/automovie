@@ -13,6 +13,7 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
+import { AutoMovieMotionHumanArmCourse } from "../compose/AutoMovieMotionHumanArmCourse";
 import { HumanPhysics } from "../law/HumanPhysics";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
@@ -34,7 +35,6 @@ interface ISeatDescent {
   descent: number;
   duration: number;
   prefix: number;
-  shares: number;
   lowered: ReturnType<typeof prepareSitLowering>;
 }
 
@@ -61,7 +61,6 @@ export function prepareSitBalance(props: ISeatDescent): ISeatCourse {
     descent,
     duration,
     prefix,
-    shares,
     lowered,
   }: ISeatDescent = props;
   const body: typeof context.body = context.body;
@@ -71,8 +70,8 @@ export function prepareSitBalance(props: ISeatDescent): ISeatCourse {
   // the seat), the seat socket goes back only as far as keeps the centre
   // of mass where it stands over the feet, read in the world along the
   // heading so a change of the base under it does not move the mark,
-  // solved by bisection at shares of that time and read between them on a
-  // knot course; over the last of it the socket comes back onto the seat, which
+  // solved by bisection at knots placed over that time and read between them
+  // on a knot course; over the last of it the socket comes back onto the seat, which
   // it reaches at contact.
   // The weight-over-the-feet course is the balance option's
   // (`IAutoMovieMotionHumanBalance`); without it the seat socket goes
@@ -125,15 +124,9 @@ export function prepareSitBalance(props: ISeatDescent): ISeatCourse {
   );
   const held: number = contact - fall;
   if (held <= 0) return { clock, window, travel: freeTravel };
-  // The active lookup interval needs its two bounding samples. Once
-  // falling starts only the final held sample contributes to travel.
-  const first: number = Math.floor(
-    Math.min(1, Math.max(0, (window.from - prefix) / held)) * shares,
-  );
-  const last: number = Math.ceil(
-    Math.min(1, Math.max(0, (window.to - prefix) / held)) * shares,
-  );
-  const reaches: number[] = ((): number[] => {
+  const course: (seconds: number) => number[] = ((): ((
+    seconds: number,
+  ) => number[]) => {
     const heading: IAutoMovieVector3 = {
       x: Math.sin((yaw0 * Math.PI) / 180),
       y: 0,
@@ -171,26 +164,20 @@ export function prepareSitBalance(props: ISeatDescent): ISeatCourse {
         HumanBalance.TOLERANCE / way,
       );
     };
-    return Array.from(
-      { length: last - first + 1 },
-      (_: unknown, index: number): number => {
-        const k: number = first + index;
-        return k === 0 ? 0 : balanced((held * k) / shares);
-      },
-    );
+    // The solved reaches are knots AutoKnots places over the window's part
+    // of the held time (Vitenti et al. 2024, arXiv:2412.13423) to the
+    // balance search's own resolution, the bisection's share
+    // (`HumanBalance.TOLERANCE` over the way), and are read from their
+    // course (`prepareHumanSampledCourse`, Flash and Hogan's minimum-jerk
+    // path through them), so a read evaluates one quintic.
+    return prepareHumanSampledCourse({
+      from: Math.min(held, Math.max(0, window.from - prefix)),
+      to: Math.min(held, Math.max(0, window.to - prefix)),
+      sample: (t: number): number[] => [balanced(t)],
+      tolerance: { kind: "absolute", absolute: HumanBalance.TOLERANCE / way },
+      step: AutoMovieMotionHumanArmCourse.STEP,
+    });
   })();
-  // The solved reaches are knots of a course on the descent's seconds
-  // (`prepareHumanSampledCourse`, Flash and Hogan's minimum-jerk path through
-  // them), so a read evaluates one quintic.
-  const course: (seconds: number) => number[] =
-    prepareHumanSampledCourse.through(
-      reaches.map(
-        (reach: number, index: number): prepareHumanSampledCourse.IKnot => ({
-          seconds: (held * (first + index)) / shares,
-          position: [reach],
-        }),
-      ),
-    );
   const kept: (at: number) => number = (at: number): number =>
     course(Math.max(0, Math.min(held, at)))[0]!;
   function travel(t: number): number {

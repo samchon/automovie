@@ -1,4 +1,4 @@
-import type { preparePoseResolution } from "@automovie/engine";
+import { ROM_TOLERANCE, type preparePoseResolution } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanActionPlan,
@@ -6,10 +6,10 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { AutoMovieMotionHumanArmCourse } from "../compose/AutoMovieMotionHumanArmCourse";
+import { HumanArmTrajectoryTerms } from "../posture/HumanArmTrajectoryTerms";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { prepareHumanSampledCourse } from "../posture/prepareHumanSampledCourse";
-import { prepareHumanSplitCourse } from "../posture/prepareHumanSplitCourse";
-import { WALK_TICK } from "./WALK_TICK";
 import { walkDescent } from "./walkDescent";
 import { walkLeg } from "./walkLeg";
 import type { walkLocomoteGround } from "./walkLocomoteGround";
@@ -32,53 +32,44 @@ type Resolution = Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2];
 /**
  * A stepping gait's root lowering solved in preparation: the lowering that asks
  * for itself (`walkReachGround`) is the one quantity a read would search for,
- * so it is solved exactly at the take's two ends and every swing's toe-off,
- * mid-swing and heel strike, with the middle of each interval between two of
- * them, and read between those knots from a knot course
- * (`prepareHumanKnotCourse`, a minimum-jerk path after Flash and Hogan 1985, J.
- * Neurosci. 5(7):1688). A read then places the stances under the lowered hips
- * with no root search.
+ * so it is solved exactly at knots AutoKnots places (Vitenti et al. 2024,
+ * arXiv:2412.13423; `prepareHumanSampledCourse`) between every swing's toe-off
+ * and heel strike, where the stances it stands on change, and read between
+ * those knots from a knot course (`prepareHumanKnotCourse`, a minimum-jerk path
+ * after Flash and Hogan 1985, J. Neurosci. 5(7):1688). A read then places the
+ * stances under the lowered hips with no root search.
  */
 export namespace walkLocomoteLowering {
   /**
-   * The least gap between two knots of the lowering, seconds: knots nearer than
-   * a tick (`WALK_TICK`) are one.
+   * The lowering's tolerance, metres: the limb solver's place tolerance
+   * (`HumanArmTrajectoryTerms.TOLERANCE`, a millimetre) the legs reach their
+   * plants to.
    */
-  export const GAP: number = WALK_TICK;
+  export const TOLERANCE: number = HumanArmTrajectoryTerms.TOLERANCE / 1000;
 
   /**
-   * The knot seconds of a lowering: the take's two ends and every swing's
-   * toe-off, mid-swing and heel strike within it, those nearer than `GAP`
-   * merged, with the middle of each interval between two of them.
-   *
-   * @param duration The take's duration, seconds.
-   * @param swings Every swing of the plan.
-   * @returns The knot seconds, ascending.
+   * The stance pitch's tolerance, degrees: the angular resolution the heel-rise
+   * rule reads flat to (`ROM_TOLERANCE`).
    */
-  export function times(
-    duration: number,
+  export const PITCH_TOLERANCE: number = ROM_TOLERANCE;
+
+  /**
+   * The contact events of a walk's swings: every toe-off and heel strike.
+   *
+   * @param swings The swings.
+   * @returns Their toe-offs and heel strikes.
+   */
+  export function marks(
     swings: readonly walkLocomoteSwings.ISwing[],
   ): number[] {
-    const events: number[] = [0, duration];
-    for (const swing of swings)
-      events.push(swing.off, (swing.off + swing.on) / 2, swing.on);
-    const sorted: number[] = events
-      .filter((t: number): boolean => t >= 0 && t <= duration)
-      .sort((a: number, b: number): number => a - b)
-      .filter(
-        (t: number, i: number, all: number[]): boolean =>
-          i === 0 || t - all[i - 1]! > GAP,
-      );
-    const out: number[] = [];
-    for (let i: number = 0; i < sorted.length; i++) {
-      if (i > 0) out.push((sorted[i - 1]! + sorted[i]!) / 2);
-      out.push(sorted[i]!);
-    }
-    return out;
+    return swings.flatMap((s: walkLocomoteSwings.ISwing): number[] => [
+      s.off,
+      s.on,
+    ]);
   }
 
   /**
-   * Prepare a lowering's knot course.
+   * Prepare a lowering's knot course, split at every toe-off and heel strike.
    *
    * @param duration The take's duration, seconds.
    * @param swings Every swing of the plan.
@@ -90,19 +81,23 @@ export namespace walkLocomoteLowering {
     swings: readonly walkLocomoteSwings.ISwing[],
     exact: (t: number) => number,
   ): (seconds: number) => number[] {
-    return prepareHumanSampledCourse(
-      times(duration, swings),
-      (t: number): number[] => [exact(t)],
-    );
+    return prepareHumanSampledCourse({
+      from: 0,
+      to: duration,
+      marks: marks(swings),
+      sample: (t: number): number[] => [exact(t)],
+      tolerance: { kind: "absolute", absolute: TOLERANCE },
+      step: AutoMovieMotionHumanArmCourse.STEP,
+    });
   }
 
   /**
    * Prepare each foot's stance pitch as courses: the pitch its stance rule
    * reaches (`walkReachStance`, a heel-rise search under the settled hip) is
-   * solved exactly at the lowering's knots (`times`), and each foot's course is
-   * split at its own toe-offs and heel strikes, so a stance's course never
-   * reaches across the swing where its pivot changes. A read then places each
-   * foot at its course's pitch with no search.
+   * solved exactly at knots AutoKnots places, each foot's course split at its
+   * own toe-offs and heel strikes, so a stance's course never reaches across
+   * the swing where its pivot changes. A read then places each foot at its
+   * course's pitch with no search.
    *
    * @param duration The take's duration, seconds.
    * @param swings Every swing of the plan.
@@ -114,20 +109,23 @@ export namespace walkLocomoteLowering {
     swings: readonly walkLocomoteSwings.ISwing[],
     exact: (t: number) => Readonly<Record<AutoMovieHumanSide, number>>,
   ): (seconds: number) => Record<AutoMovieHumanSide, number> {
-    const knots: number[] = times(duration, swings);
     const course: (
       side: AutoMovieHumanSide,
     ) => (seconds: number) => number[] = (
       side: AutoMovieHumanSide,
     ): ((seconds: number) => number[]) =>
-      prepareHumanSplitCourse(
-        duration,
-        swings
-          .filter((s: walkLocomoteSwings.ISwing): boolean => s.side === side)
-          .flatMap((s: walkLocomoteSwings.ISwing): number[] => [s.off, s.on]),
-        knots,
-        (t: number): number[] => [exact(t)[side]],
-      );
+      prepareHumanSampledCourse({
+        from: 0,
+        to: duration,
+        marks: marks(
+          swings.filter(
+            (s: walkLocomoteSwings.ISwing): boolean => s.side === side,
+          ),
+        ),
+        sample: (t: number): number[] => [exact(t)[side]],
+        tolerance: { kind: "absolute", absolute: PITCH_TOLERANCE },
+        step: AutoMovieMotionHumanArmCourse.STEP,
+      });
     const left: (seconds: number) => number[] = course("left");
     const right: (seconds: number) => number[] = course("right");
     return (seconds: number): Record<AutoMovieHumanSide, number> => ({
@@ -135,7 +133,6 @@ export namespace walkLocomoteLowering {
       right: right(seconds)[0]!,
     });
   }
-
   /**
    * A walk's pelvis at a second under its prepared lowering: the stances placed
    * under the lowered hips, a swinging foot's claim kept only as the mark that

@@ -1,7 +1,7 @@
 import {
   AutoMovieXpbdBody,
   Quaternion,
-  physicalStanceBalance,
+  physicalStanceHip,
 } from "@automovie/engine";
 import type {
   IAutoMovieFootfallPattern,
@@ -38,7 +38,7 @@ import { TestValidator } from "@nestia/e2e";
  *    a trunk leaning toward the push has that much less angle left.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the reach, the trigger and the capacity rule with their closed forms.
- * @evidence contracts/development/testing.md#behavioral-verification Calls `physicalStanceBalance.hipReach`, `exceeds` and `hip` and reads their values.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls `physicalStanceHip.hipReach`, `exceeds` and `hip` and reads their values.
  * @evidence contracts/development/testing.md#independent-expectations The flywheel model is integrated step by step, independently of the closed form; the trigger and capacity expectations are hand-evaluated distances, torques and inertias.
  * @evidence contracts/development/testing.md#distinguishing-cases Separates an excess just inside the reach from one just outside, inside from past the support, an angle left from one spent, an excess growing from one coming back, a measured stall from a measured shrink, a forward push from a lateral one, and two stance hips from one.
  * @evidence contracts/development/testing.md#execution-ownership Pure arithmetic in memory over stand-in segment poses; no native world, viewer or file host.
@@ -58,11 +58,11 @@ export function test_physical_hip_strategy(): void {
   // 1. The flywheel model against the closed form.
   const torque: number = 320;
   const inertia: number = 7.8;
-  const theta: number = physicalStanceBalance.HIP_RANGE;
+  const theta: number = physicalStanceHip.HIP_RANGE;
   const mass: number = 78.5;
   const gravity: number = 9.81;
   const omega: number = 3.21;
-  const reach: number = physicalStanceBalance.hipReach({
+  const reach: number = physicalStanceHip.hipReach({
     torque,
     inertia,
     angle: theta,
@@ -115,13 +115,13 @@ export function test_physical_hip_strategy(): void {
     margin: number = 0,
     previous?: number,
   ): boolean =>
-    physicalStanceBalance.exceeds({
+    physicalStanceHip.exceeds({
       support,
       capture: { x: 0, y: 0, z },
       spin,
       margin,
       reach: (): number =>
-        physicalStanceBalance.hipReach({
+        physicalStanceHip.hipReach({
           torque,
           inertia,
           angle,
@@ -223,7 +223,7 @@ export function test_physical_hip_strategy(): void {
     direction: IAutoMovieVector3,
     intended = identity,
   ) =>
-    physicalStanceBalance.hip({
+    physicalStanceHip.hip({
       profile,
       segments,
       limbs,

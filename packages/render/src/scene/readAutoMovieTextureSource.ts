@@ -194,7 +194,11 @@ export function readAutoMovieTextureSource(
         texture.premultiplyAlpha,
         texture.unpackAlignment,
         texture.generateMipmaps,
-        "wrapR" in texture ? texture.wrapR || 0 : 0,
+        AutoMovieThreeKind.isData3DTexture(texture) ||
+        AutoMovieThreeKind.isDataArrayTexture(texture) ||
+        AutoMovieThreeKind.isCompressedArrayTexture(texture)
+          ? texture.wrapR || 0
+          : 0,
       ].map((value: unknown): string => (value === null ? "" : String(value))),
     ),
     generateMipmaps: texture.generateMipmaps,

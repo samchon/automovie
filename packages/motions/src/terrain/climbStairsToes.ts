@@ -1,28 +1,30 @@
+import { ROM_TOLERANCE } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionClock,
-  IAutoMovieMotionEvent,
   IAutoMovieMotionHumanFoot,
   IAutoMovieMotionHumanPosture,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { walkLeg } from "../actions/walkLeg";
+import { AutoMovieMotionHumanArmCourse } from "../compose/AutoMovieMotionHumanArmCourse";
 import { HumanFoot } from "../posture/HumanFoot";
 import type { humanFootOffset } from "../posture/humanFootOffset";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
-import { prepareHumanSplitCourse } from "../posture/prepareHumanSplitCourse";
+import { prepareHumanSampledCourse } from "../posture/prepareHumanSampledCourse";
 import type { climbStairsRocker } from "./climbStairsRocker";
 
 /**
  * A stair climb's toe extension at each second: as the other foot takes the
  * weight, the heel can rise around its fixed forefoot before toe-off, and the
  * same rocker (`climbStairsRocker`) follows the swing and settles as the newly
- * landed foot accepts weight. The rocker's heel-rise search runs only here, at
- * every toe-off and tread contact, the climb's two ends and the middle of each
- * interval between them, on the standing posture the climb writes over; each
- * foot's extension is read between them from a course split at its own toe-offs
- * and tread contacts (`prepareHumanSplitCourse`), so a read searches nothing.
+ * landed foot accepts weight. The rocker's heel-rise search runs only here, on
+ * the standing posture the climb writes over, at knots AutoKnots places
+ * (Vitenti et al. 2024, arXiv:2412.13423) to the rocker's angular resolution
+ * (`ROM_TOLERANCE`); each foot's extension is read between them from a course
+ * split at its own toe-offs and tread contacts (`prepareHumanSampledCourse`),
+ * so a read searches nothing.
  *
  * @param scope The climb's clock, steps, frames, load and rocker.
  * @returns Each foot's toe extension at a second, degrees.
@@ -39,18 +41,7 @@ export function climbStairsToes(
     rock,
     standing,
   }: climbStairsToes.IScope = scope;
-  const events: number[] = [
-    0,
-    duration,
-    ...clock
-      .events()
-      .map((e: IAutoMovieMotionEvent): number => e.share * duration),
-  ]
-    .filter((s: number): boolean => s >= 0 && s <= duration)
-    .sort((a: number, b: number): number => a - b);
-  const knots: number[] = events.flatMap((s: number, i: number): number[] =>
-    i === 0 ? [s] : [(events[i - 1]! + s) / 2, s],
-  );
+
   const read: ReturnType<typeof prepareHumanPoseResolution> =
     prepareHumanPoseResolution();
   const flexion: (side: AutoMovieHumanSide, s: number) => number = (
@@ -69,17 +60,19 @@ export function climbStairsToes(
   const course: (side: AutoMovieHumanSide) => (s: number) => number[] = (
     side: AutoMovieHumanSide,
   ): ((s: number) => number[]) =>
-    prepareHumanSplitCourse(
-      duration,
-      steps.flatMap(
+    prepareHumanSampledCourse({
+      from: 0,
+      to: duration,
+      marks: steps.flatMap(
         (step: { side: AutoMovieHumanSide }, j: number): number[] =>
           step.side === side
             ? [clock.at(`toeOff${j + 1}`), clock.at(`treadContact${j + 1}`)]
             : [],
       ),
-      knots,
-      (s: number): number[] => [flexion(side, s)],
-    );
+      sample: (s: number): number[] => [flexion(side, s)],
+      tolerance: { kind: "absolute", absolute: ROM_TOLERANCE },
+      step: AutoMovieMotionHumanArmCourse.STEP,
+    });
   return { left: course("left"), right: course("right") };
 }
 

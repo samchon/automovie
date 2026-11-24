@@ -109,16 +109,19 @@ const SUPERSAMPLE = 2 as const;
  * installAutoMovieDraw(subjects);
  * ```
  */
-export function installAutoMovieDraw(
-  subjects: AutoMovieDrawSubjects,
+export function installAutoMovieDraw<Props = unknown>(
+  subjects: AutoMovieDrawSubjects<Props | null>,
   target: Record<string, unknown> = globalThis as unknown as Record<
     string,
     unknown
   >,
 ): void {
-  const injected: IAutoMovieDrawProps = (target[
+  const injected: IAutoMovieDrawProps<Props | null> = (target[
     AUTO_MOVIE_DRAW_GLOBALS.props
-  ] as IAutoMovieDrawProps | undefined) ?? { subject: null, props: null };
+  ] as IAutoMovieDrawProps<Props> | undefined) ?? {
+    subject: null,
+    props: null,
+  };
   const offered: Readonly<Record<string, IAutoMovieDrawSubject>> = subjects(
     injected.props,
   );

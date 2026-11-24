@@ -1,7 +1,7 @@
 import {
   AutoMovieXpbdBody,
   physicalLegCapacity,
-  physicalStanceBalance,
+  physicalStanceAllocation,
 } from "@automovie/engine";
 import type {
   IAutoMoviePhysicalJoint,
@@ -28,7 +28,7 @@ import { TestValidator } from "@nestia/e2e";
  *    2022, `f_max`).
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the capacity, the region and their closed forms.
- * @evidence contracts/development/testing.md#behavioral-verification Calls `physicalLegCapacity`, `physicalLegCapacity.region` and `physicalStanceBalance.allocate` and reads their values.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls `physicalLegCapacity`, `physicalLegCapacity.region` and `physicalStanceAllocation.allocate` and reads their values.
  * @evidence contracts/development/testing.md#independent-expectations The joint moments, forces, edge and share are evaluated by hand.
  * @evidence contracts/development/testing.md#distinguishing-cases Separates a forward cap from a reverse one, the binding joint from the slack one, and a bounded foot's region from the unbounded support.
  * @evidence contracts/development/testing.md#execution-ownership Pure arithmetic in memory over stand-in segment poses; no native world, viewer or file host.
@@ -105,7 +105,7 @@ export function test_physical_leg_capacity(): void {
     const back: number = Math.min(...region.map((p) => p.z));
     if (!(Math.abs(front - 0.16) < 1e-12) || !(Math.abs(back + 0.4) < 1e-12))
       failures.push(`the region spans ${back} to ${front} against -0.4 to 0.16`);
-    const allocated = physicalStanceBalance.allocate({
+    const allocated = physicalStanceAllocation.allocate({
       capture: { x: 0, y: 0, z: 0.1 },
       reference: zero,
       command: { x: 0, y: 0, z: 0.5 },

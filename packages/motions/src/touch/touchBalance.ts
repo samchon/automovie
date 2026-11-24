@@ -8,6 +8,7 @@ import type {
   IAutoMovieMotionHumanTouchStance,
 } from "@automovie/interface";
 
+import { AutoMovieMotionHumanArmCourse } from "../compose/AutoMovieMotionHumanArmCourse";
 import { AutoMovieMotionHumanRoot } from "../compose/AutoMovieMotionHumanRoot";
 import { prepareHumanPostureCorrection } from "../compose/prepareHumanPostureCorrection";
 import { HumanBalance } from "../everyday/HumanBalance";
@@ -22,17 +23,17 @@ import { prepareHumanSampledCourse } from "../posture/prepareHumanSampledCourse"
  * geometric demand when it places the mass.
  *
  * A hip correction's shift, a search (`HumanBalance.shift`), is solved here on
- * the stance as written at the window's two ends, each of the clock's instants
- * inside it and the middle of each interval between two of them, and read
- * between those knots from a knot course (`prepareHumanKnotCourse`, a
- * minimum-jerk path after Flash and Hogan 1985, J. Neurosci. 5(7):1688), so a
- * read searches nothing.
+ * the stance as written at knots AutoKnots places over the window (Vitenti et
+ * al. 2024, arXiv:2412.13423; `prepareHumanSampledCourse`), split at each of the
+ * clock's instants inside it, and read between those knots from a knot course
+ * (`prepareHumanKnotCourse`, a minimum-jerk path after Flash and Hogan 1985, J.
+ * Neurosci. 5(7):1688), so a read searches nothing.
  *
  * @param body The canonical body.
  * @param window The admitted action-local balance window.
  * @param side The working arm.
  * @param arm The arm's working goal on the current stance.
- * @param clock The touch's clock, whose instants are the shift's knots.
+ * @param clock The touch's clock, whose instants split the shift's course.
  * @param written The stance as written before the correction, composed once
  *   here for a hip correction.
  * @returns The correction, or none when balance does not apply.
@@ -96,12 +97,19 @@ export function touchBalance(
       ): IAutoMovieMotionHumanPosture => course(posture, seconds),
     };
   }
-  // The hip shift at the knots, on the stance as written there.
+  // The hip shift, on the stance as written there, at knots AutoKnots
+  // places over the window (Vitenti et al. 2024, arXiv:2412.13423) to the
+  // balance search's own resolution (`HumanBalance.TOLERANCE`), split at the
+  // clock's instants, where the touch's phase changes.
   const stance: IAutoMovieMotionHumanActionPlan = written();
-  const times: number[] = knots(window, clock);
-  const shift: (seconds: number) => number[] = prepareHumanSampledCourse(
-    times,
-    (t: number): number[] => {
+  const shift: (seconds: number) => number[] = prepareHumanSampledCourse({
+    from: window.from,
+    to: window.to,
+    marks: clock.instants.map(
+      (instant: IAutoMovieMotionClock["instants"][number]): number =>
+        instant.seconds,
+    ),
+    sample: (t: number): number[] => {
       const at: IAutoMovieMotionHumanPosture = weighed(stance.posture(t));
       return [
         HumanBalance.shift(
@@ -110,7 +118,9 @@ export function touchBalance(
         ),
       ];
     },
-  );
+    tolerance: { kind: "absolute", absolute: HumanBalance.TOLERANCE },
+    step: AutoMovieMotionHumanArmCourse.STEP,
+  });
   return {
     channel: "root",
     write: (
@@ -126,38 +136,3 @@ export function touchBalance(
   };
 }
 
-/**
- * The knot seconds of a hip shift: the window's two ends and the clock's
- * instants strictly inside it, with the middle of each interval between two of
- * them.
- *
- * @param window The balance window, not null.
- * @param clock The touch's clock.
- * @returns The knot seconds, ascending.
- */
-function knots(
-  window: NonNullable<HumanPhysics.Window>,
-  clock: IAutoMovieMotionClock,
-): number[] {
-  const events: number[] = [
-    window.from,
-    ...clock.instants
-      .map(
-        (instant: IAutoMovieMotionClock["instants"][number]): number =>
-          instant.seconds,
-      )
-      .filter((t: number): boolean => t > window.from && t < window.to),
-    window.to,
-  ]
-    .sort((a: number, b: number): number => a - b)
-    .filter(
-      (t: number, i: number, all: number[]): boolean =>
-        i === 0 || t > all[i - 1]!,
-    );
-  const out: number[] = [];
-  for (let i: number = 0; i < events.length; i++) {
-    if (i > 0) out.push((events[i - 1]! + events[i]!) / 2);
-    out.push(events[i]!);
-  }
-  return out;
-}

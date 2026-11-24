@@ -29,12 +29,13 @@ const EYES: number = 1.6;
  * 1. A faces B, C, then B; B faces A throughout; silent C faces A, A, then B.
  * 2. C's last request in each span releases at the span's end, the others are
  *    open.
- * 3. On a stream whose first draws exceed the one-second listener cutoff, three
- *    of the four film seconds from 1 to 5 s target a face.
+ * 3. On a stream whose first draws exceed the one-second listener cutoff, three of
+ *    the four film seconds from 1 to 5 s target a face.
  * 4. The same stream replays the same requests; the dyad keeps B and leaves its
  *    requests open.
- * 5. An unknown viewer, a duplicate participant, an unknown or self addressee and
- *    an overlapping span are refused.
+ * 5. An unknown viewer, a duplicate participant, an unknown or self addressee, an
+ *    overlapping span and an unending span are refused, the dyad refusing the
+ *    unending span too.
  */
 export function test_unit_motions_everyday_conversation_group_gaze(): void {
   const participants: readonly string[] = ["a", "b", "c"];
@@ -56,7 +57,9 @@ export function test_unit_motions_everyday_conversation_group_gaze(): void {
       random: random.stream(id),
       eyes: EYES,
     });
-  const faces: (track: readonly IAutoMovieMotionHumanGaze.ILayer[]) => string[] = (
+  const faces: (
+    track: readonly IAutoMovieMotionHumanGaze.ILayer[],
+  ) => string[] = (
     track: readonly IAutoMovieMotionHumanGaze.ILayer[],
   ): string[] =>
     turns.map((turn: IAutoMovieMotionHumanConversation.IGroupTurn): string => {
@@ -80,21 +83,23 @@ export function test_unit_motions_everyday_conversation_group_gaze(): void {
   );
   TestValidator.predicate(
     "each span's last request releases at its end",
-    turns.every((turn: IAutoMovieMotionHumanConversation.IGroupTurn): boolean => {
-      const active: IAutoMovieMotionHumanGaze.ILayer[] = listener.filter(
-        (request: IAutoMovieMotionHumanGaze.ILayer): boolean =>
-          request.from >= turn.from && request.from < turn.to,
-      );
-      return (
-        nclose(active.at(-1)?.to ?? NaN, turn.to, 1e-12) &&
-        active
-          .slice(0, -1)
-          .every(
-            (request: IAutoMovieMotionHumanGaze.ILayer): boolean =>
-              request.to === undefined,
-          )
-      );
-    }),
+    turns.every(
+      (turn: IAutoMovieMotionHumanConversation.IGroupTurn): boolean => {
+        const active: IAutoMovieMotionHumanGaze.ILayer[] = listener.filter(
+          (request: IAutoMovieMotionHumanGaze.ILayer): boolean =>
+            request.from >= turn.from && request.from < turn.to,
+        );
+        return (
+          nclose(active.at(-1)?.to ?? NaN, turn.to, 1e-12) &&
+          active
+            .slice(0, -1)
+            .every(
+              (request: IAutoMovieMotionHumanGaze.ILayer): boolean =>
+                request.to === undefined,
+            )
+        );
+      },
+    ),
   );
   const held: IAutoMovieRandom = createAutoMovieRandom("000000000000000a");
   TestValidator.predicate(
@@ -131,6 +136,15 @@ export function test_unit_motions_everyday_conversation_group_gaze(): void {
           request.to === undefined,
       ),
   );
+  TestValidator.error("an unending dyad", (): void => {
+    conversationGaze({
+      subject: "a",
+      partner: "b",
+      turns: [{ speaker: "a", addressee: "b", from: 1, to: Infinity }],
+      random: held,
+      eyes: EYES,
+    });
+  });
   TestValidator.error("an unknown viewer", (): void => {
     requests("absent");
   });
@@ -147,6 +161,7 @@ export function test_unit_motions_everyday_conversation_group_gaze(): void {
     { speaker: "a", addressee: "absent", from: 3, to: 4 },
     { speaker: "a", addressee: "a", from: 3, to: 4 },
     { speaker: "b", addressee: "c", from: 1.5, to: 3 },
+    { speaker: "b", addressee: "c", from: 3, to: Infinity },
   ] satisfies IAutoMovieMotionHumanConversation.IGroupTurn[])
     TestValidator.error(`refuses ${JSON.stringify(turn)}`, (): void => {
       conversationGroupGaze({

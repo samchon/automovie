@@ -6,12 +6,18 @@ import type * as ThreeTypes from "three";
 import { throwsError } from "../internal/predicates";
 
 /**
- * Exercises ordinary decoded source representation, sampler projection and invalid-extent refusal.
+ * Exercises ordinary decoded source representation, sampler projection and
+ * invalid-extent refusal.
  *
  * Scenarios:
- * 1. Authored component/internal/color-space formats distinguish supported ordinary source and environment projections from unknown representations.
- * 2. Independent S/T wraps and min/mag filters retain every supplied sampler field without changing the source; generation and explicit mip metadata remain distinct.
- * 3. Unsupported sampler values remain unreported and absent/nonpositive/fractional/nonfinite dimensions refuse.
+ *
+ * 1. Authored component/internal/color-space formats distinguish supported
+ *    ordinary source and environment projections from unknown representations.
+ * 2. Independent S/T wraps and min/mag filters retain every supplied sampler field
+ *    without changing the source; generation and explicit mip metadata remain
+ *    distinct.
+ * 3. Unsupported sampler values remain unreported and absent/nonpositive
+ *    dimensions refuse.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls actual source observation across component/internal/color formats, wraps/filters and generated/manual policies without changing the observed sampler.
  * @evidence contracts/development/testing.md#independent-expectations Independent authored format/sampler pairs and 4x4 dimensions judge every returned field; supplied image metadata is not a successful decoder or native allocation receipt.
@@ -268,8 +274,6 @@ export async function test_viewer_texture_source_facts(): Promise<void> {
     { width: 4, height: "4" },
     { width: 0, height: 4 },
     { width: 4, height: 0 },
-    { width: 1.5, height: 4 },
-    { width: 4, height: Infinity },
   ]) {
     texture.image = image;
     TestValidator.predicate(

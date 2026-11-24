@@ -14,6 +14,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { AutoMovieMotionHumanArmCourse } from "../compose/AutoMovieMotionHumanArmCourse";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import { HumanPreparedPlayback } from "../perform/HumanPreparedPlayback";
 import { lowerHumanPosture } from "../posture/lowerHumanPosture";
@@ -166,16 +167,17 @@ export function jumpPhases(
     lower: lowerHumanPosture.prepare(body),
   };
   // The reaching foot's heel rise over the push, the one search of a push
-  // read, solved at the push's knots (`jumpPushRocker.RISE`) and read
-  // between them from a knot course.
+  // read, solved at knots AutoKnots places to the rise's tolerance
+  // (`jumpPushRocker.TOLERANCE`) and read between them from a knot course.
   const reachingPitch: (seconds: number) => number[] = ((): ((
     seconds: number,
   ) => number[]) => {
     const read: ReturnType<typeof prepareHumanPoseResolution> =
       prepareHumanPoseResolution();
-    return prepareHumanSampledCourse(
-      jumpPushRocker.RISE.map((k: number): number => k * pushProps.push),
-      (t: number): number[] => [
+    return prepareHumanSampledCourse({
+      from: 0,
+      to: pushProps.push,
+      sample: (t: number): number[] => [
         rangeSteppingFoot.pitch(
           body,
           jumpPushPosture(pushProps, push, t, read, writers),
@@ -183,7 +185,9 @@ export function jumpPhases(
           read,
         ),
       ],
-    );
+      tolerance: { kind: "absolute", absolute: jumpPushRocker.TOLERANCE },
+      step: AutoMovieMotionHumanArmCourse.STEP,
+    });
   })();
   const shape: jumpAirborne.IShape = {
     body,

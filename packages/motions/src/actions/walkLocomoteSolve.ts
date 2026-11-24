@@ -9,28 +9,16 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { AutoMovieMotionHumanArmCourse } from "../compose/AutoMovieMotionHumanArmCourse";
 import { prepareHumanSampledCourse } from "../posture/prepareHumanSampledCourse";
 import { walkFoot } from "./walkFoot";
 import { walkLocomoteGround } from "./walkLocomoteGround";
+import { walkLocomoteLowering } from "./walkLocomoteLowering";
 import { walkLocomoteSwings } from "./walkLocomoteSwings";
 import { walkPosture } from "./walkPosture";
 import { walkReach } from "./walkReach";
 import { walkSwing } from "./walkSwing";
 
-/**
- * The shares of a swing its lift is solved at: its two ends, the middle and the
- * edges of the reach ranges' fades in and out (`walkReach.FADE`) with the
- * middle of each fade, where the foot leaves and nears the floor.
- */
-const LIFT_KNOTS: readonly number[] = [
-  0,
-  walkReach.FADE / 2,
-  walkReach.FADE,
-  0.5,
-  1 - walkReach.FADE,
-  1 - walkReach.FADE / 2,
-  1,
-];
 
 /** A leg's swing kept inside its ranges under a settled pelvis. */
 type Ranged = ReturnType<typeof walkReach.prepareSwing>;
@@ -117,33 +105,39 @@ export namespace walkLocomoteSolve {
         );
       }
     // Each swing's floor-clearing lift, the one search of a swing's read,
-    // solved at the edges of the reach ranges' fades and the swing's middle
-    // and read between them from a knot course (`prepareHumanSampledCourse`);
-    // a read then raises the foot only by what still sinks (closed form).
+    // solved at knots AutoKnots places over the swing's share (Vitenti et
+    // al. 2024, arXiv:2412.13423) to the lowering's millimetre
+    // (`walkLocomoteLowering.TOLERANCE`), split at the edges of the reach
+    // ranges' fades (`walkReach.FADE`), where the ranges' rule changes, and
+    // read between them from a knot course (`prepareHumanSampledCourse`); a
+    // read then raises the foot only by what still sinks (closed form).
     const lifts: Map<string, (u: number) => number[]> = new Map();
-    for (const swing of swings) {
-      const shares: readonly number[] = LIFT_KNOTS;
+    for (const swing of swings)
       lifts.set(
         `${swing.side}:${swing.off}`,
-        prepareHumanSampledCourse.through(
-          shares.map((u: number): prepareHumanSampledCourse.IKnot => {
+        prepareHumanSampledCourse({
+          from: 0,
+          to: 1,
+          marks: [walkReach.FADE, 1 - walkReach.FADE],
+          sample: (u: number): number[] => {
             const t: number = swing.off + u * (swing.on - swing.off);
-            return {
-              position: [
-                ranged[swing.side](
-                  context.ground.settle(t, {
-                    left: steps.foot("left", t),
-                    right: steps.foot("right", t),
-                  }),
-                  context.reached(swing.side, swing)(u),
-                ).lift,
-              ],
-              seconds: u,
-            };
-          }),
-        ),
+            return [
+              ranged[swing.side](
+                context.ground.settle(t, {
+                  left: steps.foot("left", t),
+                  right: steps.foot("right", t),
+                }),
+                context.reached(swing.side, swing)(u),
+              ).lift,
+            ];
+          },
+          tolerance: {
+            kind: "absolute",
+            absolute: walkLocomoteLowering.TOLERANCE,
+          },
+          step: AutoMovieMotionHumanArmCourse.STEP / (swing.on - swing.off),
+        }),
       );
-    }
     return (
       t: number,
       legs: readonly AutoMovieHumanSide[],

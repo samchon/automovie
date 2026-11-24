@@ -371,11 +371,16 @@ export function pushSledPlan(
   // handles by `SETTLE`, then held on them as the load is carried, the
   // fists closed from the grip on.
   // The walking arms the grips take over from during the settle, solved at
-  // the settle's ends and middle and read from their course
+  // knots AutoKnots places over the settle (Vitenti et al. 2024,
+  // arXiv:2412.13423) to the arm solver's angular resolution
+  // (`ROM_TOLERANCE`) and read from their course
   // (`prepareHumanSampledCourse`), so a read resolves no posture.
-  const settling: (seconds: number) => number[] = prepareHumanSampledCourse(
-    prepareHumanSampledCourse.window(0, pushSled.SETTLE),
-    (t: number): number[] => {
+  const settling: (seconds: number) => number[] = prepareHumanSampledCourse({
+    from: 0,
+    to: pushSled.SETTLE,
+    tolerance: { kind: "absolute", absolute: ROM_TOLERANCE },
+    step: AutoMovieMotionHumanArmCourse.STEP,
+    sample: (t: number): number[] => {
       const walked: ReturnType<typeof resolveHumanPosture> =
         resolveHumanPosture.seeded(
           body,
@@ -392,7 +397,7 @@ export function pushSledPlan(
       }
       return out;
     },
-  );
+  });
   // The settle's joint-space carry, solved at its branch points once the
   // performance is prepared.
   const carrier: AutoMovieMotionHumanArmJointCourse.ICarrier =

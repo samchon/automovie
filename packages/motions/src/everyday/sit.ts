@@ -160,12 +160,6 @@ export namespace sit {
   export const CROSS: number = 0.6;
 
   /**
-   * Shares of the descent before the fall onto the seat at which the balanced
-   * travel back is solved.
-   */
-  export const SHARES: number = 8;
-
-  /**
    * Plan a sit.
    *
    * @param context The action's context.
@@ -456,7 +450,6 @@ export namespace sit {
         descent,
         duration,
         prefix: adjusted?.prefix.duration ?? 0,
-        shares: SHARES,
         lowered,
       });
 

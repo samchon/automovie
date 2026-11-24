@@ -260,8 +260,10 @@ function build(entry: archetypeCaptureCatalog.ISubject): IAutoMovieDrawScene {
 function release(built: IAutoMovieModelObject): void {
   built.object.removeFromParent();
   built.object.traverse((object: THREE.Object3D): void => {
-    if (!(object instanceof THREE.Mesh)) return;
-    (object.geometry as THREE.BufferGeometry).dispose();
-    (object.material as THREE.Material).dispose();
+    // three's literal class flag tells a mesh, whose resources are its own.
+    const mesh: THREE.Mesh = object as THREE.Mesh;
+    if (mesh.isMesh !== true) return;
+    mesh.geometry.dispose();
+    for (const material of [mesh.material].flat()) material.dispose();
   });
 }

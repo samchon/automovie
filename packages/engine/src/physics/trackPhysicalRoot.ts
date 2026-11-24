@@ -279,7 +279,7 @@ export namespace trackPhysicalRoot {
    * reaction, tau_stance = -tau_torso - tau_swing (Yin, Loken and van de Panne
    * 2007, Section 3.2; Pratt et al., M2V2, Sections VII-D2 and VII-E4); the
    * centre of pressure's room bounds what is borne
-   * (`physicalStanceBalance.allocate`). A swing hip's own demand is carried
+   * (`physicalStanceAllocation.allocate`). A swing hip's own demand is carried
    * whole and never trimmed to make room for the trunk: the swing keeps its own
    * task.
    *
@@ -303,7 +303,7 @@ export namespace trackPhysicalRoot {
     /**
      * The world axis, unit length, the stance's hip strategy turns the trunk
      * about this step, which the stance hips release
-     * (`physicalStanceBalance.demand`); absent without it.
+     * (`physicalStanceDemand.demand`); absent without it.
      */
     release?: IAutoMovieVector3;
   }

@@ -1,4 +1,4 @@
-import { Vector3, minimumJerk } from "@automovie/engine";
+import { ROM_TOLERANCE, Vector3, minimumJerk } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -17,11 +17,15 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
+import { AutoMovieMotionHumanArmCourse } from "../compose/AutoMovieMotionHumanArmCourse";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
 import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
+import { HumanArmTrajectoryTerms } from "../posture/HumanArmTrajectoryTerms";
 import { HumanLimbFit } from "../posture/HumanLimbFit";
+import { prepareHumanAdaptiveKnots } from "../posture/prepareHumanAdaptiveKnots";
+import type { prepareHumanKnotCourse } from "../posture/prepareHumanKnotCourse";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { StaggerFeet } from "./StaggerFeet";
 import { staggerArms } from "./staggerArms";
@@ -116,10 +120,11 @@ import { staggerShift } from "./staggerShift";
  * 10.7 and 8.0 degrees, at its measured onset; Weerdesteyn, Laing and
  * Robinovitch 2008, Exp Brain Res 186:571), held through the steps and let down
  * as the body settles, each let out further where it would pass into the body,
- * read once for the plan at `KNOTS` a second as a gait reads its carriage
- * (`HumanArmSwing.carriage`) and interpolated between. The steps, the catch and
- * the settling are the body's dynamics, which no manner changes; the manner's
- * tempo scales the righting.
+ * read once for the plan as a gait reads its carriage
+ * (`HumanArmSwing.carriage`), at knots AutoKnots places (Vitenti et al. 2024,
+ * arXiv:2412.13423), and interpolated between. The steps, the catch and the
+ * settling are the body's dynamics, which no manner changes; the manner's tempo
+ * scales the righting.
  *
  * The push is read where its source is as the plan begins, the causal read a
  * reaction makes (`ReactionSource`).
@@ -230,23 +235,16 @@ export namespace stagger {
       staggerBounds.REACTION,
     );
 
-    // The root's level shift at a second, `balanced` interpolated; the feet
-    // settle their steps' ends under the same reader (`StaggerFeet.shifted`).
-    const shiftAt: (seconds: number) => IAutoMovieVector3 = (
+    // The root's level shift at a second (`residual` below); none before the plan
+    // solves it; the feet settle their steps' ends under the same reader
+    // (`StaggerFeet.shifted`).
+    let shiftAt: (
       seconds: number,
-    ): IAutoMovieVector3 => {
-      const at: number = Math.min(
-        Math.max(0, seconds * KNOTS),
-        Math.max(0, balanced.length - 1),
-      );
-      const k: number = Math.floor(at);
-      const a: IAutoMovieVector3 | undefined = balanced[k];
-      const b: IAutoMovieVector3 | undefined =
-        balanced[Math.min(balanced.length - 1, k + 1)];
-      return a === undefined || b === undefined
-        ? { x: 0, y: 0, z: 0 }
-        : Vector3.lerp(a, b, at - k);
-    };
+    ) => IAutoMovieVector3 = (): IAutoMovieVector3 => ({
+      x: 0,
+      y: 0,
+      z: 0,
+    });
     const legs: IAutoMovieMotionHumanPrimitive = {
       channels: ["root", "trunk", "leftLeg", "rightLeg"],
       from: 0,
@@ -260,7 +258,7 @@ export namespace stagger {
       ): IAutoMovieMotionHumanPosture => {
         if (seconds <= 0) return entry;
         // The root carries the plan-time residual of the displayed centre of
-        // mass from the pendulum's course (`balanced`), interpolated, and the
+        // mass from the pendulum's course (`shiftAt`), and the
         // pelvis is settled where that puts it, under the trunk's tilt: the
         // legs are fitted to the hips the pose shows.
         const reacting: number = minimumJerk.share(seconds / reaction);
@@ -295,17 +293,15 @@ export namespace stagger {
       context.entry,
       recovery,
       duration,
-      (): Record<AutoMovieHumanSide, number[]> => carried,
+      (): ((seconds: number) => readonly number[]) | undefined => carried,
     );
     // Each arm's let-out from the body (`HumanArmSwing.carriage`, the gait's
-    // own clearance), read once at plan time at `KNOTS` a second against the
-    // plan's own posture there (its dropped pelvis and swinging thighs), each
-    // sample raised to the largest of its neighbours' so the interpolated
-    // let-out holds at both samples around every second; no pose query fits
-    // an arm.
-    const KNOTS: number = staggerBounds.KNOTS;
-    let carried: Record<AutoMovieHumanSide, number[]> = { left: [], right: [] };
-    let balanced: IAutoMovieVector3[] = [];
+    // own clearance), read at plan time against the plan's own posture (its
+    // dropped pelvis and swinging thighs) at knots AutoKnots places (Vitenti et
+    // al. 2024, arXiv:2412.13423; `prepareHumanAdaptiveKnots`) to the
+    // solver's own angular resolution (`ROM_TOLERANCE`); no pose query fits an
+    // arm.
+    let carried: ((seconds: number) => readonly number[]) | undefined;
     const composed: IAutoMovieMotionHumanActionPlan =
       composeAutoMovieMotionHumanAction({
         base: {
@@ -321,60 +317,71 @@ export namespace stagger {
         clock,
         primitives: [legs, arms],
       });
-    const samples: number[] = Array.from(
-      { length: Math.ceil(duration * KNOTS - 1e-9) + 1 },
-      (_: unknown, i: number): number => Math.min(duration, i / KNOTS),
-    );
-
     const resolved: staggerResolved.IReader = staggerResolved(body);
-    const needs: Record<AutoMovieHumanSide, number>[] = samples.map(
-      (seconds: number, i: number): Record<AutoMovieHumanSide, number> =>
-        resolved.carriage(i, composed.posture(seconds)),
-    );
-    const envelope: (side: AutoMovieHumanSide) => number[] = (
-      side: AutoMovieHumanSide,
-    ): number[] =>
-      needs.map((_: Record<AutoMovieHumanSide, number>, i: number): number =>
-        Math.max(
-          needs[Math.max(0, i - 1)]![side],
-          needs[i]![side],
-          needs[Math.min(needs.length - 1, i + 1)]![side],
-        ),
-      );
-    carried = { left: envelope("left"), right: envelope("right") };
-
-    // The displayed centre of mass kept on the pendulum's course: at each
-    // sample the residual of the displayed posture's centre of mass
-    // (`HumanBalance.centre`) from the course's horizontal point is added
-    // to the root, as the fixed point of the per-frame centre of mass
-    // correction (Phillips and Badler 1991): the legs stand planted while
-    // the rest of the body follows the root, so each step leaves the planted
-    // legs' share of the residual, and the shift is the sum of that series,
-    // read from the residual with no shift and the one its shift leaves
-    // (`staggerShift`).
-    const residuals: () => IAutoMovieVector3[] = (): IAutoMovieVector3[] =>
-      samples.map((seconds: number, i: number): IAutoMovieVector3 => {
-        const shown: IAutoMovieVector3 = resolved.centre(
-          i,
+    const frames: number =
+      Math.ceil(duration / AutoMovieMotionHumanArmCourse.STEP) + 1;
+    let sample: number = 0;
+    const carriage: prepareHumanKnotCourse.ICourse = prepareHumanAdaptiveKnots({
+      from: 0,
+      to: duration,
+      evaluate: (seconds: number): readonly number[] => {
+        const need: Record<AutoMovieHumanSide, number> = resolved.carriage(
+          sample++,
           composed.posture(seconds),
         );
-        const travel: IAutoMovieVector3 = recovery.course(seconds);
-        return {
-          x: recovery.centre.x + travel.x - shown.x,
-          y: 0,
-          z: recovery.centre.z + travel.z - shown.z,
-        };
-      });
-    const first: IAutoMovieVector3[] = residuals();
-    balanced = first;
+        return [need.left, need.right];
+      },
+      tolerance: { kind: "absolute", absolute: ROM_TOLERANCE },
+      maxKnots: frames,
+    }).course;
+    carried = (seconds: number): readonly number[] =>
+      carriage.position(Math.min(duration, Math.max(0, seconds)));
+
+    // The displayed centre of mass kept on the pendulum's course: the
+    // residual of the displayed posture's centre of mass
+    // (`HumanBalance.centre`) from the course's horizontal point is added to
+    // the root, as the fixed point of the per-frame centre of mass correction
+    // (Phillips and Badler 1991): the legs stand planted while the rest of the
+    // body follows the root, so each step leaves the planted legs' share of
+    // the residual, and the shift is the sum of that series, read from the
+    // residual with no shift and the one its shift leaves (`staggerShift`).
+    // Each residual is read at knots AutoKnots places to the arm solver's own
+    // millimetre (`HumanArmTrajectoryTerms.TOLERANCE`).
+    const residual = (): ((seconds: number) => IAutoMovieVector3) => {
+      const course: prepareHumanKnotCourse.ICourse = prepareHumanAdaptiveKnots({
+        from: 0,
+        to: duration,
+        evaluate: (seconds: number): readonly number[] => {
+          const shown: IAutoMovieVector3 = resolved.centre(
+            -1,
+            composed.posture(seconds),
+          );
+          const travel: IAutoMovieVector3 = recovery.course(seconds);
+          return [
+            recovery.centre.x + travel.x - shown.x,
+            recovery.centre.z + travel.z - shown.z,
+          ];
+        },
+        tolerance: {
+          kind: "absolute",
+          absolute: HumanArmTrajectoryTerms.TOLERANCE / 1000,
+        },
+        maxKnots: frames,
+      }).course;
+      return (seconds: number): IAutoMovieVector3 => {
+        const [x, z]: number[] = course.position(
+          Math.min(duration, Math.max(0, seconds)),
+        );
+        return { x: x!, y: 0, z: z! };
+      };
+    };
+    const first: (seconds: number) => IAutoMovieVector3 = residual();
+    shiftAt = first;
     feet.shifted(shiftAt);
-    const second: IAutoMovieVector3[] = residuals();
-    balanced = first.map(
-      (e: IAutoMovieVector3, i: number): IAutoMovieVector3 =>
-        staggerShift(e, second[i]!),
-    );
-    feet.shifted(shiftAt);
-    // A crossing leg may have two almost equal swivels; use the touchdown
+    const second: (seconds: number) => IAutoMovieVector3 = residual();
+    shiftAt = (seconds: number): IAutoMovieVector3 =>
+      staggerShift(first(seconds), second(seconds));
+    feet.shifted(shiftAt); // A crossing leg may have two almost equal swivels; use the touchdown
     // solution through the approach and the ensuing stance. One scoped fit
     // per landing determines the branch with no previous-frame dependency.
     for (const step of recovery.steps) {

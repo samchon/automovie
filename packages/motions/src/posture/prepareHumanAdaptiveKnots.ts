@@ -43,112 +43,198 @@ import { prepareHumanKnotCourse } from "./prepareHumanKnotCourse";
 export function prepareHumanAdaptiveKnots(
   props: prepareHumanAdaptiveKnots.IProps,
 ): prepareHumanAdaptiveKnots.IKnots {
-  const refine: number = props.refine ?? 1;
-  const deviations: number = props.deviations ?? 1;
-  const limit: number = props.maxKnots ?? Infinity;
-  const accept = (error: number, reference: number, width: number): boolean =>
-    props.tolerance.kind === "absolute"
-      ? error < props.tolerance.absolute * width
-      : error <
-        props.tolerance.relative *
-          (Math.abs(reference) + props.tolerance.scale * width);
-
-  // Six uniform knots, the not-a-knot interpolant's least, as the paper
-  // starts from.
-  const times: number[] = Array.from(
-    { length: INITIAL },
-    (_: unknown, i: number): number =>
-      props.from + ((props.to - props.from) * i) / (INITIAL - 1),
-  );
-  const values: (readonly number[])[] = times.map(
-    (t: number): readonly number[] => props.evaluate(t),
-  );
-  let status: number[] = times.slice(1).map((): number => 0);
-
-  const sweep = (): void => {
-    for (;;) {
-      const pending: number[] = [];
-      status.forEach((s: number, i: number): void => {
-        if (s < CONVERGED) pending.push(i);
-      });
-      if (pending.length === 0 || times.length + pending.length > limit) return;
-      const course: prepareHumanKnotCourse.ICourse = join(times, values);
-      const added: Map<number, ISplit> = new Map();
-      for (const i of pending) {
-        const a: number = times[i]!;
-        const b: number = times[i + 1]!;
-        const h: number = b - a;
-        const middle: number = (a + b) / 2;
-        const value: readonly number[] = props.evaluate(middle);
-        const guess: readonly number[] = course.position(middle);
-        const integral: readonly number[] = gauss(course, a, b);
-        const pass: boolean = value.every((v: number, c: number): boolean => {
-          const simpson: number =
-            (h / 6) * (values[i]![c]! + 4 * v + values[i + 1]![c]!);
-          return (
-            accept(Math.abs(v - guess[c]!), v, 1) &&
-            accept(Math.abs(simpson - integral[c]!), simpson, h)
-          );
-        });
-        added.set(i, { at: middle, value, pass });
-      }
-      // Each tested sub-interval split at its midpoint, both halves at the
-      // status the test gave.
-      const nextTimes: number[] = [times[0]!];
-      const nextValues: (readonly number[])[] = [values[0]!];
-      const nextStatus: number[] = [];
-      for (let i: number = 0; i < status.length; ++i) {
-        const split: ISplit | undefined = added.get(i);
-        if (split !== undefined) {
-          const s: number = status[i]! + (split.pass ? 1 : 0);
-          nextTimes.push(split.at);
-          nextValues.push(split.value);
-          nextStatus.push(s, s);
-        } else nextStatus.push(status[i]!);
-        nextTimes.push(times[i + 1]!);
-        nextValues.push(values[i + 1]!);
-      }
-      times.splice(0, times.length, ...nextTimes);
-      values.splice(0, values.length, ...nextValues);
-      status = nextStatus;
-    }
-  };
-
-  sweep();
-  for (let pass: number = 0; pass < refine; ++pass) {
-    const widths: number[] = times
-      .slice(1)
-      .map((t: number, i: number): number => t - times[i]!);
-    const mean: number =
-      widths.reduce((sum: number, w: number): number => sum + w, 0) /
-      widths.length;
-    const spread: number = Math.sqrt(
-      widths.reduce(
-        (sum: number, w: number): number => sum + (w - mean) * (w - mean),
-        0,
-      ) / widths.length,
-    );
-    let reset: boolean = false;
-    status = status.map((s: number, i: number): number => {
-      // Widths equal in exact arithmetic differ by rounding alone, which
-      // resets nothing: the excess must pass the interval's own rounding.
-      if (
-        widths[i]! - mean > deviations * spread &&
-        widths[i]! - mean > ROUNDING * (props.to - props.from)
-      ) {
-        reset = true;
-        return 0;
-      }
-      return s;
+  const knots: prepareHumanAdaptiveKnots.ISeededKnots<undefined> =
+    prepareHumanAdaptiveKnots.seeded({
+      ...props,
+      evaluate: (
+        time: number,
+      ): prepareHumanAdaptiveKnots.IPoint<undefined> => ({
+        values: props.evaluate(time),
+        payload: undefined,
+      }),
     });
-    if (!reset) break;
-    sweep();
-  }
-  return { times, values, course: join(times, values) };
+  return { times: knots.times, values: knots.values, course: knots.course };
 }
-
 /** Companion types of {@link prepareHumanAdaptiveKnots}. */
 export namespace prepareHumanAdaptiveKnots {
+  /**
+   * AutoKnots where each evaluation is seeded from the knot before it, and a
+   * sub-interval converges only where the caller's own condition holds too: a
+   * solve whose answer continues its neighbour's (a branch kept, a swivel
+   * continued). The initial knots are evaluated in ascending order, each from
+   * the one before; a midpoint is evaluated from its sub-interval's first
+   * knot.
+   *
+   * @param props The seeded function, its interval, the tolerance, the extra
+   *   condition and the limits.
+   * @returns The knots, each with its payload, and their course.
+   */
+  export function seeded<T>(props: ISeededProps<T>): ISeededKnots<T> {
+    const refine: number = props.refine ?? 1;
+    const deviations: number = props.deviations ?? 1;
+    const limit: number = props.maxKnots ?? Infinity;
+    const within = (
+      error: number,
+      reference: number,
+      width: number,
+    ): boolean =>
+      props.tolerance.kind === "absolute"
+        ? error < props.tolerance.absolute * width
+        : error <
+          props.tolerance.relative *
+            (Math.abs(reference) + props.tolerance.scale * width);
+
+    // Six uniform knots, the not-a-knot interpolant's least, as the paper
+    // starts from, each evaluated from the one before.
+    const points: IPoint<T>[] = [];
+    const times: number[] = [];
+    for (let i: number = 0; i < INITIAL; ++i) {
+      const time: number =
+        props.from + ((props.to - props.from) * i) / (INITIAL - 1);
+      times.push(time);
+      points.push(props.evaluate(time, points.at(-1)));
+    }
+    let status: number[] = times.slice(1).map((): number => 0);
+
+    const sweep = (): void => {
+      for (;;) {
+        const pending: number[] = [];
+        status.forEach((s: number, i: number): void => {
+          if (s < CONVERGED) pending.push(i);
+        });
+        if (pending.length === 0 || times.length + pending.length > limit)
+          return;
+        const course: prepareHumanKnotCourse.ICourse = join(
+          times,
+          points.map((p: IPoint<T>): readonly number[] => p.values),
+        );
+        const added: Map<number, ISplit<T>> = new Map();
+        for (const i of pending) {
+          const a: number = times[i]!;
+          const b: number = times[i + 1]!;
+          const h: number = b - a;
+          const middle: number = (a + b) / 2;
+          // A sub-interval binary64 cannot halve any further is as fine as
+          // the time itself resolves: it is left converged, unsplit.
+          if (middle === a || middle === b) {
+            status[i] = CONVERGED;
+            continue;
+          }
+          const point: IPoint<T> = props.evaluate(middle, points[i]);
+          const guess: readonly number[] = course.position(middle);
+          const integral: readonly number[] = gauss(course, a, b);
+          const pass: boolean =
+            point.values.every((v: number, c: number): boolean => {
+              const simpson: number =
+                (h / 6) *
+                (points[i]!.values[c]! + 4 * v + points[i + 1]!.values[c]!);
+              return (
+                within(Math.abs(v - guess[c]!), v, 1) &&
+                within(Math.abs(simpson - integral[c]!), simpson, h)
+              );
+            }) &&
+            (props.accept?.(point, points[i]!, points[i + 1]!) ?? true);
+          added.set(i, { at: middle, point, pass });
+        }
+        // Each tested sub-interval split at its midpoint, both halves at the
+        // status the test gave.
+        const nextTimes: number[] = [times[0]!];
+        const nextPoints: IPoint<T>[] = [points[0]!];
+        const nextStatus: number[] = [];
+        for (let i: number = 0; i < status.length; ++i) {
+          const split: ISplit<T> | undefined = added.get(i);
+          if (split !== undefined) {
+            const s: number = status[i]! + (split.pass ? 1 : 0);
+            nextTimes.push(split.at);
+            nextPoints.push(split.point);
+            nextStatus.push(s, s);
+          } else nextStatus.push(status[i]!);
+          nextTimes.push(times[i + 1]!);
+          nextPoints.push(points[i + 1]!);
+        }
+        times.splice(0, times.length, ...nextTimes);
+        points.splice(0, points.length, ...nextPoints);
+        status = nextStatus;
+      }
+    };
+
+    sweep();
+    for (let pass: number = 0; pass < refine; ++pass) {
+      const widths: number[] = times
+        .slice(1)
+        .map((t: number, i: number): number => t - times[i]!);
+      const mean: number =
+        widths.reduce((sum: number, w: number): number => sum + w, 0) /
+        widths.length;
+      const spread: number = Math.sqrt(
+        widths.reduce(
+          (sum: number, w: number): number => sum + (w - mean) * (w - mean),
+          0,
+        ) / widths.length,
+      );
+      let reset: boolean = false;
+      status = status.map((s: number, i: number): number => {
+        // Widths equal in exact arithmetic differ by rounding alone, which
+        // resets nothing: the excess must pass the interval's own rounding.
+        if (
+          widths[i]! - mean > deviations * spread &&
+          widths[i]! - mean > ROUNDING * (props.to - props.from)
+        ) {
+          reset = true;
+          return 0;
+        }
+        return s;
+      });
+      if (!reset) break;
+      sweep();
+    }
+    const values: (readonly number[])[] = points.map(
+      (p: IPoint<T>): readonly number[] => p.values,
+    );
+    return {
+      times,
+      values,
+      payloads: points.map((p: IPoint<T>): T => p.payload),
+      course: join(times, values),
+    };
+  }
+
+  /** One evaluation: the function's values and what the solve gave besides. */
+  export interface IPoint<T> {
+    /** The values, one per component. */
+    values: readonly number[];
+
+    /** The solve's own result, which seeds the evaluation after it. */
+    payload: T;
+  }
+
+  /** What seeded knots are placed for (`seeded`). */
+  export interface ISeededProps<T> extends Omit<IProps, "evaluate"> {
+    /**
+     * The function at a time, seeded from the knot before it.
+     *
+     * @param time The time.
+     * @param near The knot the evaluation continues; none for the first.
+     * @returns The evaluation.
+     */
+    evaluate(time: number, near: IPoint<T> | undefined): IPoint<T>;
+
+    /**
+     * The caller's own condition on a tested midpoint, besides the paper's.
+     *
+     * @param middle The midpoint's evaluation.
+     * @param left The sub-interval's first knot.
+     * @param right Its last.
+     * @returns Whether the sub-interval may converge.
+     */
+    accept?(middle: IPoint<T>, left: IPoint<T>, right: IPoint<T>): boolean;
+  }
+
+  /** Seeded knots, each with its payload. */
+  export interface ISeededKnots<T> extends IKnots {
+    /** Each knot's payload. */
+    payloads: readonly T[];
+  }
   /** What the knots are placed for. */
   export interface IProps {
     /** The interval's first time. */
@@ -205,14 +291,14 @@ export namespace prepareHumanAdaptiveKnots {
 }
 
 /** A tested sub-interval's midpoint knot and whether it passed. */
-interface ISplit {
+interface ISplit<T> {
   /** The midpoint. */
   at: number;
 
-  /** The function there. */
-  value: readonly number[];
+  /** The evaluation there. */
+  point: prepareHumanAdaptiveKnots.IPoint<T>;
 
-  /** Whether both criteria held there. */
+  /** Whether every criterion held there. */
   pass: boolean;
 }
 

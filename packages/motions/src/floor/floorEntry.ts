@@ -14,6 +14,7 @@ import { HumanRefusal } from "../law/HumanRefusal";
 import { humanPostureHeading } from "../posture/humanPostureHeading";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
+import { HumanArmTrajectoryTerms } from "../posture/HumanArmTrajectoryTerms";
 import { prepareHumanSampledCourse } from "../posture/prepareHumanSampledCourse";
 import { prepareHumanShapeBlend } from "../posture/prepareHumanShapeBlend";
 import { knockdown } from "../reaction/knockdown";
@@ -320,21 +321,27 @@ export namespace floorEntry {
       Math.max(0, floor(posture, read, project) - posture.root.y);
     const sunkFrom: number = sunk(from);
     const sunkTo: number = sunk(to);
-    const n: number = floorArmRoom.count(body, from, to);
-    const knots: prepareHumanSampledCourse.IKnot[] = [];
-    for (let j: number = 0; j <= n; j++) {
-      const w: number = j / n;
-      const rise: number =
-        j === 0 || j === n
+    // The rise at knots AutoKnots places over the blend's weight (Vitenti et
+    // al. 2024, arXiv:2412.13423) to the limb solver's millimetre
+    // (`HumanArmTrajectoryTerms.TOLERANCE`), no finer than the blend's
+    // clearance readings (`floorArmRoom.count`) space them.
+    const rising: (seconds: number) => number[] = prepareHumanSampledCourse({
+      from: 0,
+      to: 1,
+      sample: (w: number): number[] => [
+        w <= 0 || w >= 1
           ? 0
           : Math.max(
               0,
               sunk(carried(w)) - (sunkFrom + (sunkTo - sunkFrom) * w),
-            );
-      knots.push({ seconds: w, position: [rise] });
-    }
-    const rising: (seconds: number) => number[] =
-      prepareHumanSampledCourse.through(knots);
+            ),
+      ],
+      tolerance: {
+        kind: "absolute",
+        absolute: HumanArmTrajectoryTerms.TOLERANCE / 1000,
+      },
+      step: 1 / floorArmRoom.count(body, from, to),
+    });
     return (weight: number): IAutoMovieMotionHumanPosture => {
       if (weight <= 0) return from;
       if (weight >= 1) return to;

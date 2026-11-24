@@ -1,4 +1,4 @@
-import { Vector3, minimumJerk } from "@automovie/engine";
+import { ROM_TOLERANCE, Vector3, minimumJerk } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
@@ -9,6 +9,7 @@ import type {
 import { rangeSteppingFoot } from "../actions/rangeSteppingFoot";
 import type { stand } from "../actions/stand";
 import { walkLeg } from "../actions/walkLeg";
+import { AutoMovieMotionHumanArmCourse } from "../compose/AutoMovieMotionHumanArmCourse";
 import { AutoMovieMotionHumanHand } from "../compose/AutoMovieMotionHumanHand";
 import { prepareHumanPostureCorrection } from "../compose/prepareHumanPostureCorrection";
 import type { HumanPhysics } from "../law/HumanPhysics";
@@ -112,26 +113,31 @@ export function braceBody(scope: braceBody.IScope): braceBody.BodyAt {
     t < swing[0]
       ? 1 - minimumJerk.share(t / transfer)
       : minimumJerk.share(Math.max(0, t - swing[1]) / transfer);
-  // Its heel's rise, the one search of a read, solved at the shift's and the
-  // landing's ends and the middles between them and read from their course.
+  // Its heel's rise, the one search of a read, solved at knots AutoKnots
+  // places (Vitenti et al. 2024, arXiv:2412.13423) to the rise's angular
+  // resolution (`ROM_TOLERANCE`), split where the foot leaves and lands and
+  // where the landing's transfer ends, and read from their course.
   const rise: (seconds: number) => number[] = ((): ((
     seconds: number,
   ) => number[]) => {
     const read: ReturnType<typeof prepareHumanPoseResolution> =
       prepareHumanPoseResolution();
-    const marks: number[] = [0, swing[0], swing[1], swing[1] + transfer];
-    const knots: number[] = marks.flatMap((m: number, i: number): number[] =>
-      i === 0 ? [m] : [(marks[i - 1]! + m) / 2, m],
-    );
-    return prepareHumanSampledCourse(knots, (t: number): number[] => [
-      rangeSteppingFoot.pitch(
-        body,
-        corrected(rawAt(t), t),
-        back,
-        read,
-        walkLeg.dorsal(load(t)),
-      ),
-    ]);
+    return prepareHumanSampledCourse({
+      from: 0,
+      to: swing[1] + transfer,
+      marks: [swing[0], swing[1]],
+      sample: (t: number): number[] => [
+        rangeSteppingFoot.pitch(
+          body,
+          corrected(rawAt(t), t),
+          back,
+          read,
+          walkLeg.dorsal(load(t)),
+        ),
+      ],
+      tolerance: { kind: "absolute", absolute: ROM_TOLERANCE },
+      step: AutoMovieMotionHumanArmCourse.STEP,
+    });
   })();
   const bodyAt: (
     seconds: number,

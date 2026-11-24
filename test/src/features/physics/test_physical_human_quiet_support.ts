@@ -3,7 +3,7 @@ import {
   Quaternion,
   Vector3,
   physicalIcpController,
-  physicalStanceBalance,
+  physicalStanceDemand,
   physicalSupportPoint,
 } from "@automovie/engine";
 import type {
@@ -57,7 +57,7 @@ const LIFT: number = 0.005;
 
 /**
  * The canonical Human's stance demand asks its soles for its weight where its
- * mass center puts it (`physicalStanceBalance.demand`).
+ * mass center puts it (`physicalStanceDemand.demand`).
  *
  * The demand is computed, both feet flat and bearing on their planted poses,
  * the capture-point controller fresh and the body at rest at its authored mass
@@ -88,7 +88,7 @@ const LIFT: number = 0.005;
  *    fails.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the frame, the two stances and what each demand must show.
- * @evidence contracts/development/testing.md#behavioral-verification Calls `physicalStanceBalance.demand` on the recorded bodies and planted poses and reads its force and commanded centre of pressure.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls `physicalStanceDemand.demand` on the recorded bodies and planted poses and reads its force and commanded centre of pressure.
  * @evidence contracts/development/testing.md#independent-expectations The weight is the profile's mass times the recorded gravity; the drift bound is the constant acceleration a t^2 / 2 that moves the mass center `DRIFT` in `WINDOW`; the band follows from moment balance with the mass center computed from the recorded segments' centres and the profile's masses, and each footprint from the frame's measured sole points.
  * @evidence contracts/development/testing.md#distinguishing-cases A quiet and a shifted stance, the recorded one shifted against its own lean, on two body sizes, and a band that tells a balanced split from one foot bearing the body.
  * @evidence contracts/development/testing.md#execution-ownership Pure computation over the stored profiles and the quiet recording in the repository; no figure built, no native world, viewer or simulation run.
@@ -292,8 +292,8 @@ function demand(
   const segments: Map<string, AutoMovieXpbdBody> =
     PhysicalBalanceReplay.segments(input.segments);
   const center: IAutoMovieVector3 = centerOf(profile, input.segments);
-  const result: physicalStanceBalance.IResult | undefined =
-    physicalStanceBalance.demand({
+  const result: physicalStanceDemand.IResult | undefined =
+    physicalStanceDemand.demand({
       settings,
       body,
       segments,

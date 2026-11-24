@@ -19,6 +19,8 @@ import { PhysicalRotationVector } from "./PhysicalRotationVector";
 import { physicalCentroidalTask } from "./physicalCentroidalTask";
 import type { physicalIcpController } from "./physicalIcpController";
 import { physicalStanceBalance } from "./physicalStanceBalance";
+import { physicalStanceDemand } from "./physicalStanceDemand";
+import { physicalStanceSwing } from "./physicalStanceSwing";
 import { physicalSupportFootprint } from "./physicalSupportFootprint";
 
 /**
@@ -30,7 +32,7 @@ import { physicalSupportFootprint } from "./physicalSupportFootprint";
  * pelvis (`physicalStanceBalance`). While a stance is planted the supports
  * carry the pendulum's force and the moment asked of them, the trunk's servo
  * and any swinging hip's reaction (Yin, Loken and van de Panne 2007, Section
- * 3.2), within the centre of pressure's room (`physicalStanceBalance.demand`),
+ * 3.2), within the centre of pressure's room (`physicalStanceDemand.demand`),
  * each stance foot by its bearing and flatness shares, a foot that is not flat
  * bearing toward its ankle joint centre and an unseated one on its edge where
  * it is now (Coros, Beaudoin and van de Panne 2010, Section 3.3); the trunk is
@@ -146,7 +148,7 @@ export function physicalRootDemand(input: {
   );
 
   // The body's centroidal angular momentum, and the capture point's shift
-  // for it (`physicalStanceBalance.momentum`, `spin`).
+  // for it (`physicalStanceSwing.momentum`, `spin`).
   let whole: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
   for (const segment of body.profile.segments)
     whole = Vector3.add(
@@ -156,21 +158,21 @@ export function physicalRootDemand(input: {
         segment.mass / body.profile.mass,
       ),
     );
-  const spun: IAutoMovieVector3 = physicalStanceBalance.momentum(
+  const spun: IAutoMovieVector3 = physicalStanceSwing.momentum(
     body.profile,
     segments,
     whole,
   );
   const g: number = Math.abs(settings.gravity.y);
-  const shift: IAutoMovieVector3 = physicalStanceBalance.spin(
+  const shift: IAutoMovieVector3 = physicalStanceSwing.spin(
     spun,
     Math.sqrt(g / Math.max(1e-6, whole.y - settings.floor)),
     body.profile.mass,
     g,
   );
-  const stance: physicalStanceBalance.IResult | undefined =
+  const stance: physicalStanceDemand.IResult | undefined =
     input.planted && input.center
-      ? physicalStanceBalance.demand({
+      ? physicalStanceDemand.demand({
           settings,
           body,
           segments,
@@ -184,7 +186,7 @@ export function physicalRootDemand(input: {
           // Each swinging hip's reaction and the trunk's orientation servo,
           // in single support as in double, served after capture with the
           // centre of pressure kept on the support
-          // (`physicalStanceBalance.allocate`; `trackPhysicalRoot.moment`).
+          // (`physicalStanceAllocation.allocate`; `trackPhysicalRoot.moment`).
           // With its feet held, a body has few joint motions beyond what its
           // momentum fixes, a four-support body none, so the trunk turns back
           // through the ground's moment, which the stance leg realizes while
@@ -197,7 +199,7 @@ export function physicalRootDemand(input: {
           torque: input.moment,
           origin,
           // The trunk's intended attitude, which its hip strategy's angle is
-          // measured from (`physicalStanceBalance.hip`): the strategy that
+          // measured from (`physicalStanceHip.hip`): the strategy that
           // holds the body instead of a step, so none while a limb swings,
           // whose landing captures it (Stephens 2011, Table 4.1).
           ...(input.swinging.length === 0
@@ -378,7 +380,7 @@ export namespace physicalRootDemand {
    */
   export function integrate(input: {
     integral: Readonly<physicalStanceBalance.IIntegral>;
-    stance: physicalStanceBalance.IResult;
+    stance: physicalStanceDemand.IResult;
     feet: Readonly<Record<string, { bearing: number; flat: number }>>;
     supports: readonly IAutoMovieCollectPhysicalSupports.ISupport[];
     swinging: readonly string[];

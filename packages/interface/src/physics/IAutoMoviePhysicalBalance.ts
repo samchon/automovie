@@ -192,7 +192,7 @@ export namespace IAutoMoviePhysicalBalance {
 
     /**
      * The capture point's shift for the body's angular momentum, world metres
-     * (`physicalStanceBalance.spin`); absent leaves it at the pendulum's.
+     * (`physicalStanceSwing.spin`); absent leaves it at the pendulum's.
      */
     spin?: IAutoMovieVector3;
 

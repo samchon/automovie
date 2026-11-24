@@ -1,4 +1,9 @@
-import { physicalStanceBalance, physicalStanceSeat } from "@automovie/engine";
+import {
+  physicalStanceBalance,
+  physicalStanceSeat,
+  physicalStanceSupport,
+  physicalStanceSwing,
+} from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -28,7 +33,7 @@ import { TestValidator } from "@nestia/e2e";
  *    the window (design-4017-qp3, Section 3, rules 2 and 3).
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the bearing rule, the ramp, the drawn outline and the room with their closed forms.
- * @evidence contracts/development/testing.md#behavioral-verification Advances `physicalStanceSeat` substep by substep and reads the shares, and reads `physicalStanceBalance.support`'s polygon and `physicalStanceBalance.reach`.
+ * @evidence contracts/development/testing.md#behavioral-verification Advances `physicalStanceSeat` substep by substep and reads the shares, and reads `physicalStanceSupport.support`'s polygon and `physicalStanceSwing.reach`.
  * @evidence contracts/development/testing.md#independent-expectations Shares from the ramp's slope dt / FADE; spans, edges and room from the squares' coordinates, the margin and the share by hand.
  * @evidence contracts/development/testing.md#distinguishing-cases A bearing share that follows measured load fails scenario 1; one that ramps a lifted foot out fails scenario 2; a foot dropped from the support at once fails scenario 3's partial shares; a ray crossing decided by round-off fails scenario 4's edge point either way; an entry that follows load alone fails scenario 5's touching unloaded foot, and one that never resets fails its foot out of contact.
  * @evidence contracts/development/testing.md#execution-ownership Pure arithmetic in memory; no native world, viewer or file host.
@@ -86,7 +91,7 @@ export function test_physical_stance_seat(): void {
     { x: 0.3, y: 0, z: -0.4 },
     { x: -0.3, y: 0, z: -0.4 },
   ];
-  const polygon: IAutoMovieVector3[] = physicalStanceBalance.support(
+  const polygon: IAutoMovieVector3[] = physicalStanceSupport.support(
     corners.map((corner: IAutoMovieVector3, i: number) => ({
       limb: i,
       outline: square(corner.x, corner.z, 0.05),
@@ -118,7 +123,7 @@ export function test_physical_stance_seat(): void {
 
   // 3. A leaving foot's outline is drawn in by its share.
   for (const share of [1, 0.5, 0.25, 0]) {
-    const support: IAutoMovieVector3[] = physicalStanceBalance.support([
+    const support: IAutoMovieVector3[] = physicalStanceSupport.support([
       {
         limb: "staying",
         outline: square(0.1, 0, 0.05),
@@ -147,7 +152,7 @@ export function test_physical_stance_seat(): void {
   // 4. The room from an edge point and from inside.
   const box: IAutoMovieVector3[] = square(0, 0, 0.1);
   const room = (from: IAutoMovieVector3, z: number): number =>
-    physicalStanceBalance.reach(box, from, { x: 0, y: 0, z });
+    physicalStanceSwing.reach(box, from, { x: 0, y: 0, z });
   for (const x of [-0.05, 0, 0.0731]) {
     const edge: IAutoMovieVector3 = { x, y: 0, z: 0.1 };
     if (room(edge, 1) !== 0 || !(Math.abs(room(edge, -1) - 0.2) < 1e-12))

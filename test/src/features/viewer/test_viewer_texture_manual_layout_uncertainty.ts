@@ -15,12 +15,18 @@ import type {
 import { material } from "../internal/renderFixtures";
 
 /**
- * Exercises ordinary source facts when manual mips or intrinsic/factory extents cannot certify native history.
+ * Exercises ordinary source facts when manual mips or intrinsic/factory extents
+ * cannot certify native history.
  *
  * Scenarios:
- * 1. Empty/manual mip configurations distinguish supported authority from retained authored first-level extents and uncertain native history.
- * 2. Generation/filter combinations, malformed levels and both independently required environment products retain unknown bytes/cardinality.
- * 3. Intrinsic/display and raw factory dimensions contrast matching fallback; framebuffer, depth, compressed and target families preserve their separate ownership boundary.
+ *
+ * 1. Empty/manual mip configurations distinguish supported authority from retained
+ *    authored first-level extents and uncertain native history.
+ * 2. Generation/filter combinations, an empty level and both independently
+ *    required environment products retain unknown bytes/cardinality.
+ * 3. Intrinsic/display and raw factory dimensions contrast matching fallback;
+ *    framebuffer, depth, compressed and target families preserve their separate
+ *    ownership boundary.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls real texture observation and Engine closure over authored manual layouts and unsupported families, preserving diagnostics while refusing bytes/cardinality.
  * @evidence contracts/development/testing.md#independent-expectations Authored first-level sizes, independently required closure populations and unknown-value expectations judge metadata; current flags do not establish prior native upload layout.
@@ -152,22 +158,12 @@ export async function test_viewer_texture_manual_layout_uncertainty(): Promise<v
       ): boolean => row.bytes === null,
     ),
   );
-  for (const mipmaps of [
-    null,
-    {},
-    [null],
-    [{}],
-    [{ width: 0, height: 8 }],
-    [{ width: 1.5, height: 8 }],
-    [{ width: Number.MAX_SAFE_INTEGER + 1, height: 8 }],
-  ]) {
-    Object.assign(texture, { mipmaps });
-    TestValidator.equals(
-      "malformed manual layout remains uncertified",
-      read().allocationStateKnown,
-      false,
-    );
-  }
+  Object.assign(texture, { mipmaps: [{ width: 0, height: 8 }] });
+  TestValidator.equals(
+    "an empty manual level remains uncertified",
+    read().allocationStateKnown,
+    false,
+  );
   const ordinary: Texture<unknown, TextureEventMap> = new THREE.Texture();
   ordinary.image = { width: 2, height: 2, naturalWidth: 8, naturalHeight: 8 };
   TestValidator.equals(

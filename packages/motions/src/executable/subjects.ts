@@ -49,14 +49,16 @@ const GRID_CELL: number = 0.25;
  *
  * @param props The case's page data, from `planMotionCaptureProps`.
  * @returns The case's subject under its name.
+ * @throws {Error} When the page was given no case data.
  */
-export const subjects: AutoMovieDrawSubjects = (
-  props: unknown,
+export const subjects: AutoMovieDrawSubjects<IMotionCaptureProps | null> = (
+  props: IMotionCaptureProps | null,
 ): Readonly<Record<string, IAutoMovieDrawSubject>> => {
-  const data: IMotionCaptureProps = props as IMotionCaptureProps;
+  if (props === null)
+    throw new Error("The motion case page was given no case data");
   return {
-    [data.name]: {
-      create: async (): Promise<IAutoMovieDrawScene> => build(data),
+    [props.name]: {
+      create: async (): Promise<IAutoMovieDrawScene> => build(props),
     },
   };
 };

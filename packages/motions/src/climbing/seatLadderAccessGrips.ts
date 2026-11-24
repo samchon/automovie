@@ -11,8 +11,10 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { AutoMovieMotionHumanArmCourse } from "../compose/AutoMovieMotionHumanArmCourse";
 import { AutoMovieMotionHumanArmTarget } from "../compose/AutoMovieMotionHumanArmTarget";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
+import { HumanArmTrajectoryTerms } from "../posture/HumanArmTrajectoryTerms";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
 import { HumanHandTarget } from "../posture/HumanHandTarget";
@@ -70,51 +72,56 @@ export function seatLadderAccessGrips(
     right: HumanHand.offset(body, "right", "grip").point,
   };
   // The route's own wrist and elbow over an easing window, which the hand
-  // eases from or into: solved here at the window's two ends and its middle
-  // and read between them from a knot course (`prepareHumanSampledCourse`), so
-  // a read resolves no posture.
+  // eases from or into: solved here at knots AutoKnots places over the window
+  // (Vitenti et al. 2024, arXiv:2412.13423) to the limb solver's millimetre
+  // (`HumanArmTrajectoryTerms.TOLERANCE`) and read between them from a knot
+  // course (`prepareHumanSampledCourse`), so a read resolves no posture. The
+  // wrist's rotation is taken in the hemisphere of its rotation at the
+  // window's start, so its components stay continuous whatever order the
+  // knots are solved in.
   const hand = (
     side: AutoMovieHumanSide,
     from: number,
     to: number,
   ): ((seconds: number) => number[]) => {
-    const times: number[] = prepareHumanSampledCourse.window(from, to);
-    let near: IAutoMovieQuaternion | undefined;
-    const knots: prepareHumanSampledCourse.IKnot[] = times.map(
-      (t: number): prepareHumanSampledCourse.IKnot => {
-        const bones: ReturnType<typeof poseBones> = poseBones(
-          body,
-          resolveHumanPosture.seeded(body, plan.posture(t)).pose,
-        );
+    const bonesAt: (t: number) => ReturnType<typeof poseBones> = (
+      t: number,
+    ): ReturnType<typeof poseBones> =>
+      poseBones(body, resolveHumanPosture.seeded(body, plan.posture(t)).pose);
+    const start: IAutoMovieQuaternion = bonesAt(from).get(`${side}Hand`)!
+      .worldRotation;
+    return prepareHumanSampledCourse({
+      from,
+      to,
+      sample: (t: number): number[] => {
+        const bones: ReturnType<typeof poseBones> = bonesAt(t);
         const wrist: IAutoMovieResolvedBone = bones.get(`${side}Hand`)!;
         const elbow: IAutoMovieResolvedBone = bones.get(`${side}LowerArm`)!;
         const q: IAutoMovieQuaternion = wrist.worldRotation;
         const sign: number =
-          near !== undefined &&
-          q.x * near.x + q.y * near.y + q.z * near.z + q.w * near.w < 0
+          q.x * start.x + q.y * start.y + q.z * start.z + q.w * start.w < 0
             ? -1
             : 1;
-        near = { x: sign * q.x, y: sign * q.y, z: sign * q.z, w: sign * q.w };
-        return {
-          position: [
-            wrist.worldPosition.x,
-            wrist.worldPosition.y,
-            wrist.worldPosition.z,
-            near.x,
-            near.y,
-            near.z,
-            near.w,
-            elbow.worldPosition.x,
-            elbow.worldPosition.y,
-            elbow.worldPosition.z,
-          ],
-          seconds: t,
-        };
+        return [
+          wrist.worldPosition.x,
+          wrist.worldPosition.y,
+          wrist.worldPosition.z,
+          sign * q.x,
+          sign * q.y,
+          sign * q.z,
+          sign * q.w,
+          elbow.worldPosition.x,
+          elbow.worldPosition.y,
+          elbow.worldPosition.z,
+        ];
       },
-    );
-    return prepareHumanSampledCourse.through(knots);
-  };
-  const schedule = (side: AutoMovieHumanSide): ISeat[] => {
+      tolerance: {
+        kind: "absolute",
+        absolute: HumanArmTrajectoryTerms.TOLERANCE / 1000,
+      },
+      step: AutoMovieMotionHumanArmCourse.STEP,
+    });
+  };  const schedule = (side: AutoMovieHumanSide): ISeat[] => {
     const own: ILadderAccessGrip[] = grips.filter(
       (grip: ILadderAccessGrip): boolean => grip.side === side,
     );

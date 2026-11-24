@@ -1,7 +1,11 @@
 import {
   AutoMoviePhysicalBalance,
   AutoMovieXpbdBody,
+  physicalStanceAllocation,
   physicalStanceBalance,
+  physicalStanceHip,
+  physicalStanceSupport,
+  physicalStanceSwing,
   trackPhysicalRoot,
 } from "@automovie/engine";
 import type {
@@ -47,7 +51,7 @@ import { TestValidator } from "@nestia/e2e";
  *    side.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States each law and its closed form.
- * @evidence contracts/development/testing.md#behavioral-verification Calls `physicalStanceBalance.law`, `allocate`, `hipRoom` and `shrink` and `trackPhysicalRoot.moment` and reads their values.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls `physicalStanceAllocation.law`, `allocate`, `hipRoom` and `shrink` and `trackPhysicalRoot.moment` and reads their values.
  * @evidence contracts/development/testing.md#independent-expectations The expectations are the stated formulas and the research note's allocation cases evaluated by hand for a strip and a square.
  * @evidence contracts/development/testing.md#distinguishing-cases Separates a command with room from a trimmed one, the shrunken edge from the support's own, inside from past the support, the band from inside the shrunken polygon, a hip strategy spinning up from one braking and none, a bias from none, a single-support trunk within the sole's room from one past it, and loaded hips from unloaded ones.
  * @evidence contracts/development/testing.md#execution-ownership Pure arithmetic in memory; no native world, viewer or file host.
@@ -70,7 +74,7 @@ export function test_physical_stance_pressure_law(): void {
   const origin: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
 
   // 1. The command with a bias.
-  const biased: IAutoMovieVector3 = physicalStanceBalance.law(
+  const biased: IAutoMovieVector3 = physicalStanceAllocation.law(
     { x: 0, y: 0, z: 0.03 },
     origin,
     { x: 0.01, z: -0.01 },
@@ -91,8 +95,8 @@ export function test_physical_stance_pressure_law(): void {
     xi: number,
     delta: number,
     hip?: number,
-  ): ReturnType<typeof physicalStanceBalance.allocate> =>
-    physicalStanceBalance.allocate({
+  ): ReturnType<typeof physicalStanceAllocation.allocate> =>
+    physicalStanceAllocation.allocate({
       capture: { x: 0, y: 0, z: xi },
       reference: origin,
       command: { x: 0, y: 0, z: xi * (1 + k) },
@@ -163,7 +167,7 @@ export function test_physical_stance_pressure_law(): void {
       failures.push(`a trunk asking ${delta} m pulls the pivot inside xi`);
   // With the reference at the shrunken edge, u_law = 0.385 + k 0.005 lies
   // inside the support and the trunk's 0.03 is trimmed to the 0.011 left.
-  const trimmed = physicalStanceBalance.allocate({
+  const trimmed = physicalStanceAllocation.allocate({
     capture: { x: 0, y: 0, z: 0.385 },
     reference: { x: 0, y: 0, z: 0.38 },
     command: { x: 0, y: 0, z: 0.385 + k * 0.005 },
@@ -245,13 +249,13 @@ export function test_physical_stance_pressure_law(): void {
       force,
     }));
   const pitch: IAutoMovieVector3 = { x: 1, y: 0, z: 0 };
-  const raw: number = physicalStanceBalance.hipRoom({
+  const raw: number = physicalStanceHip.hipRoom({
     profile: quad,
     segments: trunk,
     stance: diagonal(0),
     axis: pitch,
   });
-  const room: number = physicalStanceBalance.hipRoom({
+  const room: number = physicalStanceHip.hipRoom({
     profile: quad,
     segments: trunk,
     stance: diagonal(300),
@@ -259,7 +263,7 @@ export function test_physical_stance_pressure_law(): void {
   });
   near("unloaded hips' room", raw, 200);
   near("loaded hips' room", room, 140);
-  const weighed = physicalStanceBalance.allocate({
+  const weighed = physicalStanceAllocation.allocate({
     capture: { x: 0, y: 0, z: 0.1 },
     reference: origin,
     command: { x: 0, y: 0, z: 0.1 * (1 + k) },
@@ -297,7 +301,7 @@ export function test_physical_stance_pressure_law(): void {
     });
     return {
       moment,
-      allocated: physicalStanceBalance.allocate({
+      allocated: physicalStanceAllocation.allocate({
         capture: { x: 0, y: 0, z: 0.05 },
         reference: { x: 0, y: 0, z: 0.05 },
         command: { x: 0, y: 0, z: 0.05 },
@@ -324,7 +328,7 @@ export function test_physical_stance_pressure_law(): void {
   near("single hip whole", large.moment.x - -3, hip.x);
 
   // 2. The shrunken square.
-  const shrunk: IAutoMovieVector3[] = physicalStanceBalance.shrink(
+  const shrunk: IAutoMovieVector3[] = physicalStanceSupport.shrink(
     square,
     0.02,
   );
@@ -344,7 +348,7 @@ export function test_physical_stance_pressure_law(): void {
     { x: 0.07, y: 0, z: 0.15 },
   ];
   const mirror: IAutoMovieVector3[] = narrow.map((p) => ({ ...p, x: -p.x }));
-  const borne = physicalStanceBalance.support([
+  const borne = physicalStanceSupport.support([
     {
       limb: "left",
       outline: narrow,
@@ -393,7 +397,7 @@ export function test_physical_stance_pressure_law(): void {
   // tau / (m_eff l), and a swing lasts at least Khadiv's 0.3 s.
   near(
     "hip-bound swing",
-    physicalStanceBalance.swingBound({
+    physicalStanceSwing.swingBound({
       effective: 2,
       length: 0.8,
       torque: 160,
@@ -408,17 +412,17 @@ export function test_physical_stance_pressure_law(): void {
   ); // The clearance the stance can carry, h = min(h, LIFT_SHARE m g T^2 / (24 m_s)).
   near(
     "lowered clearance",
-    physicalStanceBalance.clearance(0.3, 8, 1, 9.81, 0.1),
-    (physicalStanceBalance.LIFT_SHARE * 8 * 9.81 * 0.09) /
+    physicalStanceSwing.clearance(0.3, 8, 1, 9.81, 0.1),
+    (physicalStanceSwing.LIFT_SHARE * 8 * 9.81 * 0.09) /
       AutoMoviePhysicalBalance.CLEARANCE,
   );
   near(
     "kept clearance",
-    physicalStanceBalance.clearance(1, 8, 1, 9.81, 0.1),
+    physicalStanceSwing.clearance(1, 8, 1, 9.81, 0.1),
     0.1,
   );
   // 2d. The capture point's shift for angular momentum, omega / (m g) k x y.
-  const shifted: IAutoMovieVector3 = physicalStanceBalance.spin(
+  const shifted: IAutoMovieVector3 = physicalStanceSwing.spin(
     { x: 2, y: 0, z: -1 },
     3,
     80,
@@ -427,7 +431,7 @@ export function test_physical_stance_pressure_law(): void {
   near("spin x", shifted.x, (1 * 3) / (80 * 9.81));
   near("spin z", shifted.z, (2 * 3) / (80 * 9.81));
   // 2e. An unseated foot bears on its edge, not its ankle.
-  const edged = physicalStanceBalance.support([
+  const edged = physicalStanceSupport.support([
     {
       limb: "edge",
       outline: square,
@@ -444,7 +448,7 @@ export function test_physical_stance_pressure_law(): void {
   // 2f. Two edge-borne feet, a heel-up foot on its toe edge and a rolled one
   // on its side edge, still give a support with area: each edge is
   // shortened by the margin along its length only.
-  const two = physicalStanceBalance.support([
+  const two = physicalStanceSupport.support([
     {
       limb: "toe",
       outline: square,
@@ -473,7 +477,7 @@ export function test_physical_stance_pressure_law(): void {
   // 2g. A seated narrow tripod (a heel point and a 3.6 cm forefoot edge)
   // and a rear heel-up foot on its toe edge: the margin comes off their
   // joint hull once, which keeps area and spans both feet.
-  const stepping = physicalStanceBalance.support([
+  const stepping = physicalStanceSupport.support([
     {
       limb: "landed",
       outline: [
@@ -503,7 +507,7 @@ export function test_physical_stance_pressure_law(): void {
     failures.push(
       `a seated tripod and a rear edge give ${JSON.stringify(stepping.polygon)}, not a hull spanning both feet`,
     );
-  const shortened = physicalStanceBalance.shorten(
+  const shortened = physicalStanceSupport.shorten(
     [
       { x: 0, y: 0, z: 0 },
       { x: 0.2, y: 0, z: 0 },

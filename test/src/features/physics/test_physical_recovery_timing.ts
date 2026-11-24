@@ -1,4 +1,8 @@
-import { Quaternion, physicalStanceBalance } from "@automovie/engine";
+import {
+  Quaternion,
+  physicalStanceBalance,
+  physicalStanceSwing,
+} from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -177,7 +181,7 @@ export function test_physical_recovery_timing(): void {
     failures.push(`a large error became ${angleOf(cut)} about ${cut.z}`);
 
   // 6. The swing's drive: 6.2 kg at rest, then accelerating.
-  const rest = physicalStanceBalance.swingForce({
+  const rest = physicalStanceSwing.swingForce({
     mass: 6.2,
     gravity: 9.81,
     acceleration: { x: 0, y: 0, z: 0 },
@@ -188,7 +192,7 @@ export function test_physical_recovery_timing(): void {
     rest.z !== 0
   )
     failures.push(`a resting swing is driven by ${JSON.stringify(rest)}`);
-  const moving = physicalStanceBalance.swingForce({
+  const moving = physicalStanceSwing.swingForce({
     mass: 6.2,
     gravity: 9.81,
     acceleration: { x: 1, y: -2, z: 3 },

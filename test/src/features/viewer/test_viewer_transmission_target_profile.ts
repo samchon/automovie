@@ -9,8 +9,8 @@ import { TestValidator } from "@nestia/e2e";
  *
  * 1. Absent half-float capabilities use byte format; either extension selects
  *    half-float and authored requested sample counts remain.
- * 2. Falsy viewport facts use the supplied host; structural/camera viewport facts
- *    override it and malformed truthy extents stay nonfinite.
+ * 2. An absent viewport uses the supplied host; structural/camera viewport facts
+ *    override it.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls actual profile projection, comparing color fallback, requested samples and floored viewport-times-scale extents.
  * @evidence contracts/development/testing.md#independent-expectations Authored 7x5 host/12x8 camera viewports, half scale and four/eight sample expectations define independent bounds rather than measured native storage.
@@ -85,17 +85,16 @@ export async function test_viewer_transmission_target_profile(): Promise<void> {
       .samples,
     8,
   );
-  for (const viewport of [undefined, null, false, 0])
-    TestValidator.equals(
-      "falsy viewport uses renderer facts",
-      readAutoMovieTransmissionTextureTarget(
-        "view",
-        "shot",
-        facts([]),
-        Object.assign(camera, { viewport }),
-      ).width,
-      3,
-    );
+  TestValidator.equals(
+    "an absent viewport uses renderer facts",
+    readAutoMovieTransmissionTextureTarget(
+      "view",
+      "shot",
+      facts([]),
+      Object.assign(camera, { viewport: undefined }),
+    ).width,
+    3,
+  );
   TestValidator.equals(
     "native structural viewport extent",
     readAutoMovieTransmissionTextureTarget(

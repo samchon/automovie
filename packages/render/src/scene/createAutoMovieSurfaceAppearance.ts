@@ -74,15 +74,6 @@ export function createAutoMovieSurfaceAppearance(input: {
       const originalMaterial: THREE.Material | THREE.Material[] =
         surface.mesh.material;
       const source: THREE.Material[] = [originalMaterial].flat();
-      if (
-        source.some(
-          (material: (typeof source)[number]): boolean =>
-            !("vertexColors" in material),
-        )
-      )
-        throw new Error(
-          "Surface appearance requires vertex-color material support",
-        );
       const position:
         | THREE.BufferAttribute
         | THREE.InterleavedBufferAttribute

@@ -5,6 +5,7 @@ import type {
   IAutoMovieRandom,
 } from "@automovie/interface";
 
+import { HumanBound } from "../law/HumanBound";
 import { HumanGaze } from "./HumanGaze";
 import { HumanProxemics } from "./HumanProxemics";
 
@@ -71,6 +72,9 @@ export namespace HumanConversation {
    * The shared glance planner the Conversation readers apply to each span's
    * selected face: the speaker's and the listener's cadence (`GLANCES`) and the
    * speaker's aversions (`AVERSIONS`), drawn from the participant's stream.
+   *
+   * @throws {HumanRefusal} On `turns.to` for a span that does not end at a
+   *   finite second after its start.
    */
   export function glances<Turn extends IAutoMovieMotionHumanConversation.ITurn>(
     subject: string,
@@ -156,6 +160,8 @@ function planGlances<Turn extends IAutoMovieMotionHumanConversation.ITurn>(
   const exponential = (mean: number): number =>
     -mean * Math.log(Math.max(1e-12, 1 - random.float(draw++)));
   for (const turn of turns) {
+    // A span must end: its glances are drawn until its end.
+    HumanBound.within("turns.to", turn.to, turn.from, Infinity, "s", "both");
     const role: PlanGlancesRole =
       turn.speaker === subject ? "speaking" : "listening";
     const mean: IPlanGlancesMean = HumanConversation.GLANCES[role];

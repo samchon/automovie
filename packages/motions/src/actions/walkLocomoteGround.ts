@@ -218,11 +218,9 @@ export namespace walkLocomoteGround {
     }
 
     // The root's lowering, the one quantity a read would search for, solved
-    // here at every toe-off, mid-swing and heel strike, the take's two ends
-    // and the middle of each interval between them, and read between them
-    // from a knot course (`prepareHumanKnotCourse`, Flash and Hogan's
-    // minimum-jerk path through the knots), so a read places the stances
-    // under it with no root search.
+    // here at knots AutoKnots places between the toe-offs and heel strikes
+    // (`walkLocomoteLowering.prepare`) and read between them from their
+    // course, so a read places the stances under it with no root search.
     // Each knot's exact settling, read by both courses: kept for this
     // preparation alone.
     const solved: Map<number, walkReach.IGround> = new Map();
@@ -253,7 +251,7 @@ export namespace walkLocomoteGround {
         (t: number): number => context.root(t).y - exact(t).root.y,
       );
     // Each foot's stance pitch, the heel-rise search a read would make,
-    // solved at the same knots.
+    // solved the same way between that foot's own contact events.
     const pitches: (seconds: number) => Record<AutoMovieHumanSide, number> =
       walkLocomoteLowering.prepareStances(
         context.steps.duration,

@@ -1,10 +1,11 @@
-import { carriedRate, minimumJerk } from "@automovie/engine";
+import { ROM_TOLERANCE, carriedRate, minimumJerk } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { AutoMovieMotionHumanArmCourse } from "../compose/AutoMovieMotionHumanArmCourse";
 import { HumanFoot } from "../posture/HumanFoot";
 import { hipJoints } from "../posture/hipJoints";
 import { humanPostureHeading } from "../posture/humanPostureHeading";
@@ -124,18 +125,21 @@ export function jumpPushRocker(
         (2 * STEP);
     return { met, excess };
   })();
-  // The rule's heel-rise search, solved at the rise's knots and read
-  // between them from a knot course (`prepareHumanSampledCourse`), so a
-  // read searches nothing.
+  // The rule's heel-rise search, solved at knots AutoKnots places over the
+  // rise (Vitenti et al. 2024, arXiv:2412.13423) and read between them from
+  // a knot course (`prepareHumanSampledCourse`), so a read searches nothing.
   const rule: (seconds: number) => number[] = ((): ((
     seconds: number,
   ) => number[]) => {
     const read: ReturnType<typeof prepareHumanPoseResolution> =
       prepareHumanPoseResolution();
-    return prepareHumanSampledCourse(
-      jumpPushRocker.RISE.map((k: number): number => lowered + k * span),
-      (t: number): number[] => [ruled(sample(t), read)],
-    );
+    return prepareHumanSampledCourse({
+      from: lowered,
+      to: lowered + span,
+      sample: (t: number): number[] => [ruled(sample(t), read)],
+      tolerance: { kind: "absolute", absolute: jumpPushRocker.TOLERANCE },
+      step: AutoMovieMotionHumanArmCourse.STEP,
+    });
   })();
   const gap: number = start - edge.met;
   const excess: number = edge.excess;
@@ -160,11 +164,10 @@ export function jumpPushRocker(
 /** What a jump push's rocker reads and what it is. */
 export namespace jumpPushRocker {
   /**
-   * A heel rise's knots as shares of its span: its two ends, its middle and the
-   * middle of each half, the knots a walking stance's heel rise is solved at
-   * over a single support (`walkLocomoteLowering.times`).
+   * A heel rise's tolerance, degrees: the angular resolution its rule reads
+   * flat to (`ROM_TOLERANCE`), the bound AutoKnots places the rise's knots to.
    */
-  export const RISE: readonly number[] = [0, 0.25, 0.5, 0.75, 1];
+  export const TOLERANCE: number = ROM_TOLERANCE;
 
   /** What a jump push builds its rocker from. */
   export interface IScope {

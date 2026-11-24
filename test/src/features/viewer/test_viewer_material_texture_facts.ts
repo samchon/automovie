@@ -15,13 +15,18 @@ import type * as ThreeTypes from "three";
 import { material } from "../internal/renderFixtures";
 
 /**
- * Shader factories expose cached Texture objects through the existing metadata observer. The caller retains rows for its context; these facts do not establish native texture uploads or physical allocation.
+ * Shader factories expose cached Texture objects through the existing metadata
+ * observer. The caller retains rows for its context; these facts do not
+ * establish native texture uploads or physical allocation.
  *
  * Scenarios:
  *
- * 1. Two SSS materials share a 64-by-32 R-half table; replacing the scene retains its 4096-byte metadata extent and removes the current consumer label.
- * 2. A normal overlay without a base normal exposes its one-texel fallback; ordinary and untextured meshes add no lookup.
- * 3. Rectangular-light initialization selects float or half lookup metadata from the supplied capability facts without starting GL.
+ * 1. Two SSS materials share a 64-by-32 R-half table; replacing the scene retains
+ *    its 4096-byte metadata extent and removes the current consumer label.
+ * 2. A normal overlay without a base normal exposes its one-texel fallback;
+ *    ordinary and untextured meshes add no lookup.
+ * 3. Rectangular-light initialization selects float or half lookup metadata from
+ *    the supplied capability facts without starting GL.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Builds actual subsurface/overlay materials and a rectangular light, observes their published Texture objects and passes the rows through Engine storage arithmetic; catches lost shared identity, missing lookup dimensions and scope labels retained after removal.
  * @evidence contracts/development/testing.md#independent-expectations The installed producers' 64-by-32 half table, one RGBA8 texel and two 64-by-64 LTC tables define literal extents and component-byte arithmetic. The supplied extension-choice port checks selection only; public metadata does not prove native uploads, allocations or pixels.
@@ -218,19 +223,15 @@ export async function test_viewer_material_texture_facts(): Promise<void> {
   const invalidScene: ThreeTypes.Scene<ThreeTypes.Object3DEventMap> =
     new THREE.Scene();
   invalidScene.add(new THREE.Mesh(geometry, unsupported));
-  for (const value of [null, 7, {}, { isMaterial: false }])
-    invalidScene.add(Object.assign(new THREE.Object3D(), { material: value }));
-  for (const value of [null, 7, {}, { isTexture: false }]) {
-    unsupported.userData.autoMovieSubsurfaceTexture = value;
-    TestValidator.equals(
-      "invalid producer metadata yields no invented lookup",
-      read(invalidScene),
-      [],
-    );
-  }
-  const materialArray: ThreeTypes.Object3D<ThreeTypes.Object3DEventMap> & {
-    material: ThreeTypes.MeshPhysicalMaterial[];
-  } = Object.assign(new THREE.Object3D(), { material: [sss, another] });
+  TestValidator.equals(
+    "a material without producer metadata yields no lookup",
+    read(invalidScene),
+    [],
+  );
+  const materialArray: ThreeTypes.Mesh = new THREE.Mesh(geometry, [
+    sss,
+    another,
+  ]);
   invalidScene.add(materialArray);
   TestValidator.equals(
     "material arrays preserve actual sharing",

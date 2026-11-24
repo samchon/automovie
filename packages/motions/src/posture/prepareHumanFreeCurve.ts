@@ -25,31 +25,31 @@ import { prepareHumanPoseResolution } from "./prepareHumanPoseResolution";
 import type { prepareHumanPostureProjection } from "./prepareHumanPostureProjection";
 
 /**
- * Prepare a free-leg curve: the legs' continuation knots solved once, in
- * order, and a pure reader that fits each requested phase from them.
+ * Prepare a free-leg curve: the legs' continuation knots solved once, in order,
+ * and a pure reader that fits each requested phase from them.
  *
  * Preparation fits the origin, phase zero's cold solve, or the midpoint's when
- * phase zero's is not observable, then the knots from it toward each end by
- * canonical left-before-right dyadic subdivision (`HumanFreeCurveIntervals`),
- * each knot a correction of the one before under the original branch, swivel
- * and rotation gates (`HumanFreeCurveFit`). The legs' swivels at the knots are
- * joined by the minimum-jerk path through them in phase (Flash and Hogan 1985,
- * J. Neurosci. 5(7):1688; `prepareHumanKnotCourse` with the knots' phases as
- * its fixed timing): the curve's clock is the flight's ballistic one, so the
- * knots are not retimed. A read finds its knot interval by binary search, seeds
- * the actual target's fit with the course's swivel on the interval's branch,
- * gates it against the knot nearer the origin, and falls back to the ordinary
- * cold fit where the gates fail or no knot reaches. No pose is replayed or
- * interpolated and nothing is stored on a read, so any phase in any order
- * gives the same answer.
+ * phase zero's is not observable, then the knots from it toward each end placed
+ * by AutoKnots (Vitenti et al. 2024, arXiv:2412.13423;
+ * `HumanFreeCurveIntervals`), each knot a correction of the one before under
+ * the original branch, swivel and rotation gates (`HumanFreeCurveFit`). The
+ * legs' swivels at the knots are joined by the minimum-jerk path through them
+ * in phase (Flash and Hogan 1985, J. Neurosci. 5(7):1688;
+ * `prepareHumanKnotCourse` with the knots' phases as its fixed timing): the
+ * curve's clock is the flight's ballistic one, so the knots are not retimed. A
+ * read finds its knot interval by binary search, seeds the actual target's fit
+ * with the course's swivel on the interval's branch, gates it against the knot
+ * nearer the origin, and falls back to the ordinary cold fit where the gates
+ * fail or no knot reaches. No pose is replayed or interpolated and nothing is
+ * stored on a read, so any phase in any order gives the same answer.
  *
  * @param body The curve's canonical body, unchanged while the curve is read.
  * @param at Pure authoring at a phase in [0,1], with fresh records and closed
  *   direct-joint/free-world-leg goals only.
  * @param duration The physical duration in seconds, used by the
  *   velocity-continuation angular-resolution law.
- * @returns The reader of a phase with an optional borrowed native FK source
- *   and ROM projector; a foreign source keeps the ordinary cold fit.
+ * @returns The reader of a phase with an optional borrowed native FK source and
+ *   ROM projector; a foreign source keeps the ordinary cold fit.
  */
 export function prepareHumanFreeCurve(
   body: IAutoMovieMotionHumanBody,
@@ -111,8 +111,8 @@ export function prepareHumanFreeCurve(
 /** The free-leg curve's reader. */
 export namespace prepareHumanFreeCurve {
   /**
-   * Fit the authored goals at a normalized phase, with an optional same-read
-   * FK source and joint projection.
+   * Fit the authored goals at a normalized phase, with an optional same-read FK
+   * source and joint projection.
    */
   export interface IReader {
     (
@@ -212,15 +212,13 @@ function prepareKnots(
       ([, seed]: [
         AutoMovieHumanLimb,
         IAutoMovieSwivelSeed | null | undefined,
-      ]): boolean =>
-        seed !== null && seed !== undefined,
+      ]): boolean => seed !== null && seed !== undefined,
     )
     .map(
       ([limb]: [
         AutoMovieHumanLimb,
         IAutoMovieSwivelSeed | null | undefined,
-      ]): AutoMovieHumanLimb =>
-        limb,
+      ]): AutoMovieHumanLimb => limb,
     );
   const unwrapped: number[][] = [];
   for (const knot of knots) {
@@ -236,7 +234,9 @@ function prepareKnots(
   }
   return {
     pivot,
-    shares: knots.map((knot: HumanFreeCurveIntervals.IKnot): number => knot.share),
+    shares: knots.map(
+      (knot: HumanFreeCurveIntervals.IKnot): number => knot.share,
+    ),
     anchors: knots.map(
       (knot: HumanFreeCurveIntervals.IKnot): IAnchor => knot.anchor,
     ),
