@@ -170,10 +170,19 @@ export function test_engine_finger_surfaces(): void {
           1 / (2 * Vector3.dot(n, n)),
         ),
       );
-      if (!(Vector3.dot(pad.normal, Vector3.subtract(centre, pad.point)) > 0))
-        complaints.push(
-          `${name} ${d.name}: the curled pad does not face into the fist`,
+      const inward: number = Vector3.dot(
+        pad.normal,
+        Vector3.subtract(centre, pad.point),
+      );
+      if (!(inward > 0)) {
+        const fromDistalJoint: number = Vector3.dot(
+          pad.normal,
+          Vector3.subtract(centre, c),
         );
+        complaints.push(
+          `${name} ${d.name}: the curled pad does not face into the fist (${(1000 * inward).toFixed(3)} mm from the pad, ${(1000 * fromDistalJoint).toFixed(3)} mm from the distal joint)`,
+        );
+      }
     }
 
     // 3. Mirror symmetry of the rest frames.

@@ -24,7 +24,7 @@ States the inputs, the unit and what the result covers.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-A fist and the curled fingers of a point flex each segment near its range; a flat hand is straight; a relaxed finger takes the position of rest, since the body's rest pose carries no curl of its own. The values are `HumanHand`'s documented ones.
+A fist and the curled fingers of a point use the active closure angles documented in `HumanHand`. A flat hand is straight. A relaxed finger takes the position of rest from the straight canonical finger.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
@@ -62,7 +62,7 @@ One table of digit states per shape and one loop that writes them.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
-The fold is the fist's own (85, 95 and 90 degrees), so an emblem's folded fingers match the working shape.
+The fold shares the fist's 85, 95 and 70 degree flexion angles. The distal angle approximates the measured endpoints of active hand closure. [Active grip and release, Fig. 3](https://doi.org/10.3390/biomimetics8020244).
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
