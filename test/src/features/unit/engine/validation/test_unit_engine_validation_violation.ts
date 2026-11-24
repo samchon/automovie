@@ -9,12 +9,6 @@ import { TestValidator } from "@nestia/e2e";
  *
  * 1. No overshoot and no severity: an error row without an overshoot key.
  * 2. An overshoot and a warning severity: both are carried unchanged.
- *
- * @evidence contracts/development/testing.md#behavioral-verification Calls violation with and without the optional arguments and asserts the whole row each time.
- * @evidence contracts/development/testing.md#independent-expectations The row fields are the call arguments by definition of the constructor, so the expected rows are written by hand from the arguments.
- * @evidence contracts/development/testing.md#distinguishing-cases Absent versus present overshoot, and default versus given severity, are the two adjacent cases; invalid kinds are excluded by the type.
- * @evidence contracts/development/testing.md#execution-ownership The named test_unit_engine_validation_violation entry runs portable in-memory literals with no host and no dynamically registered cases.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the numbered scenarios it runs, each naming the input and the behavior it pins.
  */
 export function test_unit_engine_validation_violation(): void {
   TestValidator.equals(

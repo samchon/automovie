@@ -2,6 +2,7 @@ import type * as THREE from "three";
 
 import type { IMaterialShaderPatch } from "./IMaterialShaderPatch.js";
 import { applyMaterialShaderPatches } from "./applyMaterialShaderPatches.js";
+import { readMaterialShaderPatches } from "./readMaterialShaderPatches.js";
 
 /**
  * Add a shader patch to a material, keeping the ones already on it: three calls
@@ -19,9 +20,7 @@ export const addMaterialShaderPatch: (
   patch: IMaterialShaderPatch,
 ) => void = (material: THREE.Material, patch: IMaterialShaderPatch): void => {
   const patches: IMaterialShaderPatch[] = [
-    ...((material.userData.shaderPatches as
-      | IMaterialShaderPatch[]
-      | undefined) ?? []),
+    ...readMaterialShaderPatches(material),
     patch,
   ];
   material.userData.shaderPatches = patches;

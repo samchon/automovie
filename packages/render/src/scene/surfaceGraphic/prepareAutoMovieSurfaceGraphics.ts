@@ -18,6 +18,7 @@ import { decodeAutoMovieFontSources } from "../../typography/decodeAutoMovieFont
 import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
 import type { IAutoMovieModelObject } from "../IAutoMovieModelObject.js";
 import type { IMaterialShaderPatch } from "../IMaterialShaderPatch.js";
+import type { IMaterialShaderSource } from "../IMaterialShaderSource.js";
 import { addMaterialShaderPatch } from "../addMaterialShaderPatch.js";
 import { decodeAutoMovieImage } from "../decodeAutoMovieImage.js";
 import { AutoMovieFilmResponseStage } from "../filmResponse/AutoMovieFilmResponseStage.js";
@@ -396,7 +397,7 @@ interface IFeed {
 function decodeFeedPatch(encoded: { value: number }): IMaterialShaderPatch {
   return {
     key: "automovie-surface-feed-decode",
-    apply: (shader: THREE.WebGLProgramParametersWithUniforms): void => {
+    apply: (shader: IMaterialShaderSource): void => {
       shader.uniforms.automovieFeedEncoded = encoded;
       shader.fragmentShader = shader.fragmentShader
         .replace(

@@ -30,6 +30,8 @@ export * from "./wearShading/index.js";
 export * from "./reliefWeightShading/index.js";
 export * from "./addMaterialShaderPatch.js";
 export * from "./IMaterialShaderPatch.js";
+export * from "./IMaterialShaderSource.js";
+export * from "./readMaterialShaderPatches.js";
 export * from "./applyMaterialShaderPatches.js";
 export * from "./IAutoMovieMaterialLibrary.js";
 export * from "./IBuildAutoMovieMaterialLibraryProps.js";

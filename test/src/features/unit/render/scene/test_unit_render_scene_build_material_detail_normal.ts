@@ -1,5 +1,6 @@
 import { validateModel } from "@automovie/engine";
 import type {
+  AutoMovieTextureBinding,
   IAutoMovieMaterial,
   IAutoMovieTextureReference,
 } from "@automovie/interface";
@@ -51,14 +52,11 @@ const reference: (
  */
 export function test_unit_render_scene_build_material_detail_normal(): void {
   const base: IAutoMovieMaterial = createModel().materials[0]!;
-  const resolve: (binding: unknown) => THREE.Texture = (
-    binding: unknown,
+  const resolve: (binding: AutoMovieTextureBinding) => THREE.Texture = (
+    binding: AutoMovieTextureBinding,
   ): THREE.Texture => {
     const texture: THREE.Texture = new THREE.Texture();
-    texture.name =
-      typeof binding === "string"
-        ? binding
-        : (binding as IAutoMovieTextureReference).asset;
+    texture.name = typeof binding === "string" ? binding : binding.asset;
     return texture;
   };
   const both: THREE.MeshPhysicalMaterial = buildMaterial(

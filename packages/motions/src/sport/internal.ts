@@ -19,6 +19,7 @@ export * from "./handspring";
 export * from "./highJumpBar";
 export * from "./kickboxing/KickboxingRing";
 export * from "./martialArt";
+export * from "./MartialArtStanceForms";
 export * from "./roundOff";
 export * from "./salto";
 export * from "./sprintStartSet";

@@ -1,5 +1,4 @@
-import type * as THREE from "three";
-
+import type { IMaterialShaderSource } from "../IMaterialShaderSource.js";
 import { reliefWeightFragment } from "./reliefWeightFragment.js";
 import { reliefWeightVertex } from "./reliefWeightVertex.js";
 
@@ -15,7 +14,7 @@ export const createReliefWeightShaderPatch: () => {
   /** Adds relief interpolation and base-normal modulation to shader source. */
   apply: (
     shader: Pick<
-      THREE.WebGLProgramParametersWithUniforms,
+      IMaterialShaderSource,
       "vertexShader" | "fragmentShader" | "uniforms"
     >,
   ) => void;
@@ -26,7 +25,7 @@ export const createReliefWeightShaderPatch: () => {
   /** Adds relief interpolation and base-normal modulation to shader source. */
   apply: (
     shader: Pick<
-      THREE.WebGLProgramParametersWithUniforms,
+      IMaterialShaderSource,
       "vertexShader" | "fragmentShader" | "uniforms"
     >,
   ) => void;
@@ -34,7 +33,7 @@ export const createReliefWeightShaderPatch: () => {
   key: "automovie-relief-weights",
   apply: (
     shader: Pick<
-      THREE.WebGLProgramParametersWithUniforms,
+      IMaterialShaderSource,
       "vertexShader" | "fragmentShader" | "uniforms"
     >,
   ): void => {

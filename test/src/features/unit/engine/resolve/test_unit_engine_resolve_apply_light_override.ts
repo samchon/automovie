@@ -25,7 +25,8 @@ const POINT: IAutoMovieLight = {
  * 1. An intensity and range override replace those fields and keep the id, color
  *    and transform records.
  * 2. A position override replaces the translation and keeps rotation and scale.
- * 3. A directional light has no range, so a range override leaves no `range`.
+ * 3. A directional light takes the intensity override and stays directional; it\n
+ *    * has no range to override.
  */
 export function test_unit_engine_resolve_apply_light_override(): void {
   const dimmed: IAutoMovieLight = applyLightOverride(POINT, {
@@ -51,8 +52,17 @@ export function test_unit_engine_resolve_apply_light_override(): void {
       moved.transform.scale === POINT.transform.scale,
   );
   const sun: IAutoMovieLight = applyLightOverride(
-    { ...POINT, type: "directional" },
-    { range: 9 },
+    {
+      id: "sun",
+      type: "directional",
+      transform: POINT.transform,
+      color: POINT.color,
+      intensity: 1,
+    },
+    { range: 9, intensity: 3 },
   );
-  TestValidator.equals("no range", Object.keys(sun).includes("range"), false);
+  TestValidator.predicate(
+    "a directional light takes the intensity and stays directional",
+    sun.type === "directional" && sun.intensity === 3 && sun.id === "sun",
+  );
 }

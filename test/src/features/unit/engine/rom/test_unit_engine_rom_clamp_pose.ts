@@ -1,0 +1,126 @@
+import { clampPose } from "@automovie/engine";
+import {
+  IAutoMovieBone,
+  IAutoMovieJointConstraint,
+  type IAutoMovieJointPose,
+  IAutoMoviePose,
+  IAutoMovieSkeleton,
+  type IAutoMovieTransform,
+} from "@automovie/interface";
+import { TestValidator } from "@nestia/e2e";
+
+import { nclose } from "../../../internal/nclose";
+import { vclose } from "../../../internal/vclose";
+
+const REST: IAutoMovieTransform = {
+  translation: { x: 0, y: 0, z: 0 },
+  rotation: { x: 0, y: 0, z: 0, w: 1 },
+  scale: { x: 1, y: 1, z: 1 },
+};
+const bone: (
+  name: IAutoMovieBone["bone"],
+  constraint: IAutoMovieJointConstraint | null,
+) => IAutoMovieBone = (
+  name: IAutoMovieBone["bone"],
+  constraint: IAutoMovieJointConstraint | null,
+): IAutoMovieBone => ({ bone: name, parent: null, rest: REST, constraint });
+
+// leftLowerArm carries an explicit override; leftHand falls back to the
+// default table; hips has no constraint anywhere (pass-through).
+const SKELETON: IAutoMovieSkeleton = {
+  id: "s",
+  bones: [
+    bone("leftLowerArm", {
+      flexion: { min: 0, max: 90 },
+      abduction: null,
+      twist: null,
+    }),
+    bone("leftHand", null),
+    bone("leftUpperArm", null),
+    bone("hips", null),
+  ],
+};
+
+/**
+ * Clamp joint angles into intervals, force immobile axes to zero and preserve
+ * unconstrained values. These engine interval examples do not prove skeleton
+ * membership, arbitrary cone projection or clinical suitability of the default
+ * table.
+ *
+ * Scenarios:
+ *
+ * 1. Per-bone override: leftLowerArm flexion 120 → 90 (above max), its `null`
+ *    abduction 30 → 0 (immobile axis), its `null`-angle twist stays `null`.
+ * 2. Default-table fallback: leftHand flexion -200 goes to -80 (below min), and
+ *    its in-range abduction 10 is left untouched. (The shoulder's default is
+ *    gated by swing and twist, where -200 of flexion is the in-range 160, so a
+ *    three-angle joint shows the fallback.)
+ * 3. Bone not in the skeleton resolves to the default table (rightLowerArm flexion
+ *    200 → 150).
+ * 4. A bone with no constraint anywhere (hips) passes through unchanged, and the
+ *    root transform is preserved.
+ */
+export function test_unit_engine_rom_clamp_pose(): void {
+  const pose: IAutoMoviePose = {
+    skeleton: "s",
+    root: REST,
+    joints: [
+      { bone: "leftLowerArm", flexion: 120, abduction: 30, twist: null },
+      { bone: "leftHand", flexion: -200, abduction: 10, twist: null },
+      { bone: "rightLowerArm", flexion: 200, abduction: null, twist: null },
+      { bone: "hips", flexion: 999, abduction: null, twist: null },
+    ],
+  };
+  const out: IAutoMoviePose = clampPose(pose, SKELETON);
+  const byBone: (b: string) => IAutoMovieJointPose = (
+    b: string,
+  ): IAutoMovieJointPose =>
+    out.joints.find((j: IAutoMovieJointPose): boolean => j.bone === b)!;
+
+  // 1. override
+  TestValidator.predicate(
+    "flexion clamped to override max",
+    nclose(byBone("leftLowerArm").flexion!, 90, 0),
+  );
+  TestValidator.predicate(
+    "immobile abduction → 0",
+    nclose(byBone("leftLowerArm").abduction!, 0, 0),
+  );
+  TestValidator.equals(
+    "null twist stays null",
+    byBone("leftLowerArm").twist,
+    null,
+  );
+
+  // 2. default-table fallback
+  TestValidator.predicate(
+    "flexion clamped to table min",
+    nclose(byBone("leftHand").flexion!, -80, 0),
+  );
+  TestValidator.predicate(
+    "in-range abduction untouched",
+    nclose(byBone("leftHand").abduction!, 10, 0),
+  );
+
+  // 3. bone absent from the skeleton → default table
+  TestValidator.predicate(
+    "absent bone uses table",
+    nclose(byBone("rightLowerArm").flexion!, 150, 0),
+  );
+
+  // 4. unconstrained bone passes through; root preserved
+  TestValidator.predicate(
+    "unconstrained passes through",
+    nclose(byBone("hips").flexion!, 999, 0),
+  );
+  TestValidator.predicate(
+    "root preserved",
+    out.root !== null &&
+      vclose(out.root.translation, REST.translation, 0) &&
+      vclose(out.root.scale, REST.scale, 0) &&
+      nclose(out.root.rotation.x, REST.rotation.x, 0) &&
+      nclose(out.root.rotation.y, REST.rotation.y, 0) &&
+      nclose(out.root.rotation.z, REST.rotation.z, 0) &&
+      nclose(out.root.rotation.w, REST.rotation.w, 0),
+  );
+}

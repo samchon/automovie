@@ -3,5 +3,6 @@
 export * from "./bowViolinGrip";
 export * from "./bowViolinHairAxis";
 export * from "./bowViolinStroke";
+export * from "./conduct";
 export * from "./conductArc";
 export * from "./conductTip";

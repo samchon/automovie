@@ -1,5 +1,6 @@
 import * as THREE from "three";
 
+import type { IMaterialShaderSource } from "../IMaterialShaderSource.js";
 import { addMaterialShaderPatch } from "../addMaterialShaderPatch.js";
 import type { IMaterialOverlayShading } from "./IMaterialOverlayShading.js";
 import type { IMaterialOverlayShape } from "./IMaterialOverlayShape.js";
@@ -76,7 +77,7 @@ export const applyMaterialOverlays: (
           `${shape.blend[0]}${shape.roughness ? "r" : ""}${shape.normal ? "n" : ""}`,
       )
       .join(".")}`,
-    apply: (shader: THREE.WebGLProgramParametersWithUniforms): void => {
+    apply: (shader: IMaterialShaderSource): void => {
       Object.assign(shader.uniforms, uniforms);
       shader.vertexShader = materialOverlayVertex(shader.vertexShader, shapes);
       shader.fragmentShader = materialOverlayFragment(

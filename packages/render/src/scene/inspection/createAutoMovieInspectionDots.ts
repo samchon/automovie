@@ -1,5 +1,7 @@
 import * as THREE from "three";
 
+import type { IMaterialShaderSource } from "../IMaterialShaderSource.js";
+import { addMaterialShaderPatch } from "../addMaterialShaderPatch.js";
 import { AUTO_MOVIE_INSPECTION_DEPTH_LEAD } from "./AUTO_MOVIE_INSPECTION_DEPTH_LEAD.js";
 
 /**
@@ -43,19 +45,20 @@ export function createAutoMovieInspectionDots(
     fog: false,
   });
   if (!options.xray)
-    material.onBeforeCompile = (
-      shader: THREE.WebGLProgramParametersWithUniforms,
-    ): void => {
-      // Lead the view-space position toward the eye, then project it again.
-      shader.vertexShader = shader.vertexShader.replace(
-        "#include <project_vertex>",
-        [
+    addMaterialShaderPatch(material, {
+      key: "automovie-inspection-dot-lead",
+      apply: (shader: IMaterialShaderSource): void => {
+        // Lead the view-space position toward the eye, then project it again.
+        shader.vertexShader = shader.vertexShader.replace(
           "#include <project_vertex>",
-          `mvPosition.xyz -= ( isOrthographic ? vec3( 0.0, 0.0, -1.0 ) : normalize( mvPosition.xyz ) ) * ${AUTO_MOVIE_INSPECTION_DEPTH_LEAD.toFixed(6)};`,
-          "gl_Position = projectionMatrix * mvPosition;",
-        ].join("\n"),
-      );
-    };
+          [
+            "#include <project_vertex>",
+            `mvPosition.xyz -= ( isOrthographic ? vec3( 0.0, 0.0, -1.0 ) : normalize( mvPosition.xyz ) ) * ${AUTO_MOVIE_INSPECTION_DEPTH_LEAD.toFixed(6)};`,
+            "gl_Position = projectionMatrix * mvPosition;",
+          ].join("\n"),
+        );
+      },
+    });
 
   const dots: THREE.Points = new THREE.Points(geometry, material);
   dots.matrixAutoUpdate = false;

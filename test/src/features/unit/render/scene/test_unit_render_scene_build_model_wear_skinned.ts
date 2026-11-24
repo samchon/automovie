@@ -11,9 +11,11 @@ import {
   type IAutoMovieModelObject,
   buildModel,
 } from "@automovie/render";
+import type { IMaterialShaderSource } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
+import { compileMaterialShaderSource } from "../../../internal/compileMaterialShaderSource";
 import { createSkinnedTubeModel } from "../../../internal/createSkinnedTubeModel";
 
 /**
@@ -81,12 +83,7 @@ export function test_unit_render_scene_build_model_wear_skinned(): void {
       reach: 0.02,
     });
   const material: THREE.Material = mesh.material as THREE.Material;
-  const shader: THREE.WebGLProgramParametersWithUniforms = {
-    vertexShader: THREE.ShaderLib.physical.vertexShader,
-    fragmentShader: THREE.ShaderLib.physical.fragmentShader,
-    uniforms: {},
-  } as unknown as THREE.WebGLProgramParametersWithUniforms;
-  material.onBeforeCompile(shader, undefined as unknown as THREE.WebGLRenderer);
+  const shader: IMaterialShaderSource = compileMaterialShaderSource(material);
   const data: Float32Array = (
     shader.uniforms.uWearEdges!.value as THREE.DataTexture
   ).image.data as Float32Array;

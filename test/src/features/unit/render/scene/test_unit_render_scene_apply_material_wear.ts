@@ -11,9 +11,11 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import { applyMaterialWear } from "@automovie/render";
+import type { IMaterialShaderSource } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
+import { compileMaterialShaderSource } from "../../../internal/compileMaterialShaderSource";
 import { nclose } from "../../../internal/nclose";
 import { surfaceTriangleOf } from "../../../internal/surfaceTriangleOf";
 
@@ -143,12 +145,7 @@ export function test_unit_render_scene_apply_material_wear(): void {
   );
 
   // 4. Splices and key.
-  const shader: THREE.WebGLProgramParametersWithUniforms = {
-    vertexShader: THREE.ShaderLib.physical.vertexShader,
-    fragmentShader: THREE.ShaderLib.physical.fragmentShader,
-    uniforms: {},
-  } as unknown as THREE.WebGLProgramParametersWithUniforms;
-  material.onBeforeCompile(shader, undefined as unknown as THREE.WebGLRenderer);
+  const shader: IMaterialShaderSource = compileMaterialShaderSource(material);
   TestValidator.predicate(
     "the patch reads the list and bind pose, then mixes colour and roughness in order",
     /#include <begin_vertex>\s*vWearList = wearList;\s*vWearPoint = position;/.test(

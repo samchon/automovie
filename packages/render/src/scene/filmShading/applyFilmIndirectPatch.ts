@@ -1,6 +1,7 @@
 import * as THREE from "three";
 
 import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
+import type { IMaterialShaderSource } from "../IMaterialShaderSource.js";
 import { addMaterialShaderPatch } from "../addMaterialShaderPatch.js";
 
 /**
@@ -54,7 +55,7 @@ export function applyFilmIndirectPatch(
   material.userData.autoMovieFilmIndirect = true;
   addMaterialShaderPatch(material, {
     key: "automovie-film-indirect",
-    apply: (shader: THREE.WebGLProgramParametersWithUniforms): void => {
+    apply: (shader: IMaterialShaderSource): void => {
       Object.assign(shader.uniforms, uniforms);
       shader.fragmentShader = shader.fragmentShader
         .replace(

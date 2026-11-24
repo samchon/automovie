@@ -7,22 +7,36 @@ import {
   buildModel,
   dualQuaternionSkinningVertex,
 } from "@automovie/render";
+import type { IMaterialShaderSource } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
+import { compileMaterialShaderSource } from "../internal/compileMaterialShaderSource";
 import { createSkinnedTubeModel } from "../internal/createSkinnedTubeModel";
 import { throwsError } from "../internal/predicates";
 
 /**
- * A dual-quaternion skin builds a material variant and shadow materials carrying the dual quaternion vertex patch, while a linear or unspecified skin keeps Three's linear blend. The unit observes built objects, program keys and generated vertex source, not GPU pixels.
+ * A dual-quaternion skin builds a material variant and shadow materials
+ * carrying the dual quaternion vertex patch, while a linear or unspecified skin
+ * keeps Three's linear blend. The unit observes built objects, program keys and
+ * generated vertex source, not GPU pixels.
  *
  * Scenarios:
- * 1. A dual-quaternion tube is a SkinnedMesh whose material, depth material and distance material all carry the patch key.
- * 2. A linear tube and a tube with no method carry no patch and no custom shadow materials.
- * 3. A dual-quaternion part and a linear part sharing one material definition receive different material variants.
- * 4. The registered compile hook rewrites the physical vertex shader: the blend follows `skinbase_vertex`, normals and positions read it, and Three's linear chunks are gone.
- * 5. The depth vertex shader, which has no skinning normal chunk, is still rewritten; a shader without skinning chunks throws.
- * 6. Every guide pass that swaps materials (depth, normal, outline fill and shell, mask, semantic mask) patches the dual-quaternion tube's replacement and not the linear tube's, and restoring returns the original material.
+ *
+ * 1. A dual-quaternion tube is a SkinnedMesh whose material, depth material and
+ *    distance material all carry the patch key.
+ * 2. A linear tube and a tube with no method carry no patch and no custom shadow
+ *    materials.
+ * 3. A dual-quaternion part and a linear part sharing one material definition
+ *    receive different material variants.
+ * 4. The registered compile hook rewrites the physical vertex shader: the blend
+ *    follows `skinbase_vertex`, normals and positions read it, and Three's
+ *    linear chunks are gone.
+ * 5. The depth vertex shader, which has no skinning normal chunk, is still
+ *    rewritten; a shader without skinning chunks throws.
+ * 6. Every guide pass that swaps materials (depth, normal, outline fill and shell,
+ *    mask, semantic mask) patches the dual-quaternion tube's replacement and
+ *    not the linear tube's, and restoring returns the original material.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Builds models through buildModel, invokes the material's own onBeforeCompile on Three's shader sources and reads keys and source text; catches a patch on the wrong variant, missing shadow materials, a guide pass drawing the skin linearly, a linear chunk left in place, a blend placed after its readers and a silent pass-through of an unsupported shader.
  * @evidence contracts/development/testing.md#independent-expectations Expectations follow the interface contract (only "dual-quaternion" changes the blend, omission means linear) and Three's chunk order for skinning, not the patch's own output; the GLSL is not compiled here, so its arithmetic is verified on a hardware renderer instead.
@@ -95,14 +109,8 @@ export function test_viewer_dual_quaternion_skinning(): void {
   );
 
   // 4. the compile hook rewrites the physical vertex shader
-  const shader: THREE.WebGLProgramParametersWithUniforms = {
-    vertexShader: THREE.ShaderLib.physical.vertexShader,
-    fragmentShader: THREE.ShaderLib.physical.fragmentShader,
-    uniforms: {},
-  } as unknown as THREE.WebGLProgramParametersWithUniforms;
-  (dual.material as THREE.Material).onBeforeCompile(
-    shader,
-    undefined as unknown as THREE.WebGLRenderer,
+  const shader: IMaterialShaderSource = compileMaterialShaderSource(
+    dual.material,
   );
   const source: string = shader.vertexShader;
   const blend: number = source.indexOf(

@@ -64,7 +64,7 @@ export function test_unit_render_scene_flatten_instanced_model_vertex_colour_ins
   );
   TestValidator.predicate(
     "caller input keys, ordered values and numeric fields remain unchanged",
-    sameModelInput(model, before),
+    JSON.stringify(model) === JSON.stringify(before),
   );
   TestValidator.predicate(
     "the caller retains its original geometry and mesh record identities",
@@ -99,49 +99,4 @@ export function test_unit_render_scene_flatten_instanced_model_vertex_colour_ins
     result.geometry.dispose();
     for (const material of new Set(result.materials)) material.dispose();
   }
-}
-
-/**
- * Compare this existing plain model input without putting floating fields
- * through deep equality.
- */
-function sameModelInput(actual: unknown, expected: unknown): boolean {
-  if (typeof actual === "number" && typeof expected === "number")
-    return nclose(actual, expected, 0);
-  if (actual === expected) return true;
-  if (
-    typeof actual !== "object" ||
-    actual === null ||
-    typeof expected !== "object" ||
-    expected === null
-  )
-    return false;
-  if (Array.isArray(actual) || Array.isArray(expected)) {
-    if (
-      !Array.isArray(actual) ||
-      !Array.isArray(expected) ||
-      actual.length !== expected.length
-    )
-      return false;
-    return actual.every((value: unknown, index: number): boolean =>
-      sameModelInput(value, expected[index]),
-    );
-  }
-  const actualRecord: Record<string, unknown> = actual as Record<
-    string,
-    unknown
-  >;
-  const expectedRecord: Record<string, unknown> = expected as Record<
-    string,
-    unknown
-  >;
-  const keys: string[] = Object.keys(actualRecord);
-  return (
-    keys.length === Object.keys(expectedRecord).length &&
-    keys.every(
-      (key: string): boolean =>
-        Object.prototype.hasOwnProperty.call(expectedRecord, key) &&
-        sameModelInput(actualRecord[key], expectedRecord[key]),
-    )
-  );
 }

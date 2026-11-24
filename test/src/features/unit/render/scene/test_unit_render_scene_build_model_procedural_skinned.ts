@@ -10,9 +10,11 @@ import {
   type IAutoMovieModelObject,
   buildModel,
 } from "@automovie/render";
+import type { IMaterialShaderSource } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
+import { compileMaterialShaderSource } from "../../../internal/compileMaterialShaderSource";
 import { createSkinnedTubeModel } from "../../../internal/createSkinnedTubeModel";
 
 /**
@@ -57,14 +59,8 @@ export function test_unit_render_scene_build_model_procedural_skinned(): void {
   const skinned: THREE.SkinnedMesh = mesh!;
 
   // 1. The sample point precedes deformation.
-  const shader: THREE.WebGLProgramParametersWithUniforms = {
-    vertexShader: THREE.ShaderLib.physical.vertexShader,
-    fragmentShader: THREE.ShaderLib.physical.fragmentShader,
-    uniforms: {},
-  } as unknown as THREE.WebGLProgramParametersWithUniforms;
-  (skinned.material as THREE.Material).onBeforeCompile(
-    shader,
-    undefined as unknown as THREE.WebGLRenderer,
+  const shader: IMaterialShaderSource = compileMaterialShaderSource(
+    skinned.material,
   );
   const assigned: number = shader.vertexShader.indexOf(
     "vAutoMovieProceduralPoint = position;",

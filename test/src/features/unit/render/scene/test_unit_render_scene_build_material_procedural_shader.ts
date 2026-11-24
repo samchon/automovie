@@ -9,9 +9,11 @@ import type {
   IAutoMovieProceduralSurface,
 } from "@automovie/interface";
 import { buildMaterial } from "@automovie/render";
+import type { IMaterialShaderSource } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
+import { compileMaterialShaderSource } from "../../../internal/compileMaterialShaderSource";
 import { nclose } from "../../../internal/nclose";
 
 /**
@@ -55,7 +57,7 @@ export function test_unit_render_scene_build_material_procedural_shader(): void 
     },
   };
   const material: THREE.MeshPhysicalMaterial = buildMaterial(record(piece));
-  const shader: THREE.WebGLProgramParametersWithUniforms = compile(material);
+  const shader: IMaterialShaderSource = compile(material);
 
   // 1. Splices after the chunks they extend.
   TestValidator.predicate(
@@ -151,15 +153,8 @@ export function test_unit_render_scene_build_material_procedural_shader(): void 
 }
 
 /** Run a material's compile hook on three's physical program. */
-function compile(
-  material: THREE.Material,
-): THREE.WebGLProgramParametersWithUniforms {
-  const shader: THREE.WebGLProgramParametersWithUniforms = {
-    vertexShader: THREE.ShaderLib.physical.vertexShader,
-    fragmentShader: THREE.ShaderLib.physical.fragmentShader,
-    uniforms: {},
-  } as unknown as THREE.WebGLProgramParametersWithUniforms;
-  material.onBeforeCompile(shader, undefined as unknown as THREE.WebGLRenderer);
+function compile(material: THREE.Material): IMaterialShaderSource {
+  const shader: IMaterialShaderSource = compileMaterialShaderSource(material);
   return shader;
 }
 

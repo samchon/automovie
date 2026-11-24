@@ -3,6 +3,8 @@ import { LineMaterial } from "three/examples/jsm/lines/LineMaterial.js";
 import { LineSegments2 } from "three/examples/jsm/lines/LineSegments2.js";
 import { LineSegmentsGeometry } from "three/examples/jsm/lines/LineSegmentsGeometry.js";
 
+import type { IMaterialShaderSource } from "../IMaterialShaderSource.js";
+import { addMaterialShaderPatch } from "../addMaterialShaderPatch.js";
 import { AUTO_MOVIE_INSPECTION_DEPTH_LEAD } from "./AUTO_MOVIE_INSPECTION_DEPTH_LEAD.js";
 
 /** The line of three.js's line shader after which both ends are in view space. */
@@ -57,19 +59,20 @@ export function createAutoMovieInspectionStrokes(
     toneMapped: false,
   });
   if (!options.xray)
-    material.onBeforeCompile = (
-      shader: THREE.WebGLProgramParametersWithUniforms,
-    ): void => {
-      // Lead both view-space ends toward the eye before the segment is widened.
-      shader.vertexShader = shader.vertexShader.replace(
-        VIEW_SPACE_ENDS,
-        [
+    addMaterialShaderPatch(material, {
+      key: "automovie-inspection-stroke-lead",
+      apply: (shader: IMaterialShaderSource): void => {
+        // Lead both view-space ends toward the eye before the segment is widened.
+        shader.vertexShader = shader.vertexShader.replace(
           VIEW_SPACE_ENDS,
-          `start.xyz -= ( isOrthographic ? vec3( 0.0, 0.0, -1.0 ) : normalize( start.xyz ) ) * ${AUTO_MOVIE_INSPECTION_DEPTH_LEAD.toFixed(6)};`,
-          `end.xyz -= ( isOrthographic ? vec3( 0.0, 0.0, -1.0 ) : normalize( end.xyz ) ) * ${AUTO_MOVIE_INSPECTION_DEPTH_LEAD.toFixed(6)};`,
-        ].join("\n"),
-      );
-    };
+          [
+            VIEW_SPACE_ENDS,
+            `start.xyz -= ( isOrthographic ? vec3( 0.0, 0.0, -1.0 ) : normalize( start.xyz ) ) * ${AUTO_MOVIE_INSPECTION_DEPTH_LEAD.toFixed(6)};`,
+            `end.xyz -= ( isOrthographic ? vec3( 0.0, 0.0, -1.0 ) : normalize( end.xyz ) ) * ${AUTO_MOVIE_INSPECTION_DEPTH_LEAD.toFixed(6)};`,
+          ].join("\n"),
+        );
+      },
+    });
 
   const strokes: LineSegments2 = new LineSegments2(geometry, material);
   strokes.matrixAutoUpdate = false;

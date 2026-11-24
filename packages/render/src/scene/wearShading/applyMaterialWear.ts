@@ -5,6 +5,7 @@ import type {
 } from "@automovie/interface";
 import * as THREE from "three";
 
+import type { IMaterialShaderSource } from "../IMaterialShaderSource.js";
 import { addMaterialShaderPatch } from "../addMaterialShaderPatch.js";
 import { AUTOMOVIE_PROCEDURAL_NOISE_GLSL } from "../proceduralShading/AUTOMOVIE_PROCEDURAL_NOISE_GLSL.js";
 import { readAutoMovieBufferAttribute } from "../readAutoMovieBufferAttribute.js";
@@ -139,7 +140,7 @@ export const applyMaterialWear: (
   material.userData.wear = wear;
   addMaterialShaderPatch(material, {
     key: `automovie-wear-${wear.edge === undefined ? "" : "e"}${wear.grime === undefined ? "" : "g"}`,
-    apply: (shader: THREE.WebGLProgramParametersWithUniforms): void => {
+    apply: (shader: IMaterialShaderSource): void => {
       Object.assign(shader.uniforms, uniforms);
       shader.vertexShader = shader.vertexShader
         .replace(

@@ -19,6 +19,10 @@ const HALF_ROOT_TWO: number = Math.SQRT1_2;
  * 2. Twist 90 alone is (0, sin 45, 0, cos 45).
  * 3. Abduction 90 alone is (0, 0, sin 45, cos 45).
  * 4. Null angles are the identity.
+ * 5. Flexion 90 with twist 90 composes twist onto flexion, Y90 times X90: (0.5,
+ *    0.5, -0.5, 0.5), a unit quaternion.
+ * 6. Non-unit orthogonal custom axes are normalized: flexion 30 about (0, 2, 0) is
+ *    (0, sin 15, 0, cos 15).
  */
 export function test_unit_engine_kinematics_joint_to_quaternion(): void {
   const pose = (
@@ -59,6 +63,26 @@ export function test_unit_engine_kinematics_joint_to_quaternion(): void {
     qclose(
       jointToQuaternion(pose(null, null, null)),
       { x: 0, y: 0, z: 0, w: 1 },
+      ROUNDING,
+    ),
+  );
+  TestValidator.predicate(
+    "twist composed onto flexion",
+    qclose(
+      jointToQuaternion(pose(90, null, 90)),
+      { x: 0.5, y: 0.5, z: -0.5, w: 0.5 },
+      ROUNDING,
+    ),
+  );
+  TestValidator.predicate(
+    "normalized custom axes",
+    qclose(
+      jointToQuaternion(pose(30, null, null), {
+        flexion: { x: 0, y: 2, z: 0 },
+        abduction: { x: 0, y: 0, z: 3 },
+        twist: { x: 4, y: 0, z: 0 },
+      }),
+      { x: 0, y: Math.sin(Math.PI / 12), z: 0, w: Math.cos(Math.PI / 12) },
       ROUNDING,
     ),
   );

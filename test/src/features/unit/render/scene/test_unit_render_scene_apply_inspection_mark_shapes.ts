@@ -1,14 +1,15 @@
 import type { IAutoMovieMark } from "@automovie/interface";
 import {
-  AutoMovieThreeKind,
   type IAutoMovieInspectionHandle,
   applyAutoMovieInspection,
 } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
+import type { LineMaterial } from "three/examples/jsm/lines/LineMaterial.js";
 import type { LineSegments2 } from "three/examples/jsm/lines/LineSegments2.js";
 
 import { InspectionScene } from "../../../internal/InspectionScene";
+import { compileMaterialShaderSource } from "../../../internal/compileMaterialShaderSource";
 
 /**
  * Each of the four mark shapes is built into screen-space line and point
@@ -159,29 +160,21 @@ export function test_unit_render_scene_apply_inspection_mark_shapes(): void {
   }
 
   // 3. Depth lead.
-  const compiled = (xray: boolean): string[] => {
+  const compiled: (xray: boolean) => string[] = (xray: boolean): string[] => {
     const scene: THREE.Scene = InspectionScene.scene();
     const applied: IAutoMovieInspectionHandle = applyAutoMovieInspection({
       scene,
       request: InspectionScene.ask({ marks: ["**"], xray }),
       marks: [marks[0]!, marks[4]!],
     });
-    const out: string[] = [];
-    for (const material of [
-      InspectionScene.strokes(scene)[0]!.material as THREE.ShaderMaterial,
-      InspectionScene.dots(scene)[0]!.material as THREE.PointsMaterial,
-    ]) {
-      const shader: { vertexShader: string } = {
-        vertexShader: AutoMovieThreeKind.isShaderMaterial(material)
-          ? material.vertexShader
-          : THREE.ShaderLib.points.vertexShader,
-      };
-      material.onBeforeCompile(
-        shader as THREE.WebGLProgramParametersWithUniforms,
-        undefined as unknown as THREE.WebGLRenderer,
-      );
-      out.push(shader.vertexShader);
-    }
+    const line: LineMaterial = InspectionScene.strokes(scene)[0]!.material;
+    const out: string[] = [
+      compileMaterialShaderSource(line, line).vertexShader,
+      compileMaterialShaderSource(
+        InspectionScene.dots(scene)[0]!.material,
+        THREE.ShaderLib.points,
+      ).vertexShader,
+    ];
     applied.restore();
     return out;
   };

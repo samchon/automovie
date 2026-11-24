@@ -1,32 +1,85 @@
 import { segmentIndex } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
+// The pre-optimization behavior: the first i with times[i] <= time <=
+// times[i+1], given times[0] < time < times[last], the exact scan both
+// samplers ran before the binary search replaced it.
+const linearSegment: (times: readonly number[], time: number) => number = (
+  times: readonly number[],
+  time: number,
+): number => {
+  for (let i: number = 0; i < times.length - 1; ++i)
+    if (time >= times[i]! && time <= times[i + 1]!) return i;
+  throw new Error("time outside interior");
+};
+
+const at: (times: readonly number[]) => (i: number) => number =
+  (times: readonly number[]): ((i: number) => number) =>
+  (i: number): number =>
+    times[i]!;
+
 /**
- * `segmentIndex` finds the segment straddling a time, an exact interior key
- * belonging to the segment that ends at it.
+ * Binary segment lookup retains the ending-segment tie at an interior key.
  *
  * Scenarios:
  *
- * Keys at 0, 1, 2, 3:
- *
- * 1. Times 0.5, 1.5 and 2.5 fall in segments 0, 1 and 2.
- * 2. Times 1 and 2 hit interior keys and resolve to segments 0 and 1.
- *
- * @evidence contracts/development/testing.md#behavioral-verification Calls segmentIndex with times inside segments and on interior keys and asserts the lower index.
- * @evidence contracts/development/testing.md#independent-expectations The documented tie rule (a hit on key k gives k - 1) and the key positions give each index by hand.
- * @evidence contracts/development/testing.md#distinguishing-cases Inside a segment versus exactly on a key are the adjacent cases; the ends are the caller premise and are not called.
- * @evidence contracts/development/testing.md#execution-ownership The named test_unit_engine_math_segment_index entry runs portable in-memory literals with no host and no dynamically registered cases.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the numbered scenarios it runs, each naming the input and the behavior it pins.
+ * 1. Length-2, length-3, irregular and 200-key increasing arrays agree with a
+ *    direct inclusive linear scan at every midpoint, interior key and two
+ *    off-grid times.
+ * 2. A two-key sequence returns zero, exact interior keys choose their preceding
+ *    segment, and strict-interior first/last midpoints select their straddling
+ *    segment.
  */
 export function test_unit_engine_math_segment_index(): void {
-  const keys: number[] = [0, 1, 2, 3];
-  const at = (index: number): number => keys[index]!;
-  for (const [time, expected] of [
-    [0.5, 0],
-    [1.5, 1],
-    [2.5, 2],
-    [1, 0],
-    [2, 1],
-  ] as const)
-    TestValidator.equals(`time ${time}`, segmentIndex(4, at, time), expected);
+  const arrays: number[][] = [
+    [0, 1],
+    [0, 1, 2],
+    [0, 0.5, 2, 2.25, 10],
+    Array.from({ length: 200 }, (_: unknown, i: number): number => i * 0.5),
+  ];
+
+  for (const times of arrays) {
+    const last: number = times[times.length - 1]!;
+    const queries: number[] = [];
+    for (let i: number = 0; i < times.length - 1; ++i)
+      queries.push((times[i]! + times[i + 1]!) / 2); // segment midpoints
+    for (let i: number = 1; i < times.length - 1; ++i) queries.push(times[i]!); // interior keys
+    queries.push(times[0]! + (last - times[0]!) * 0.137); // off-grid low
+    queries.push(times[0]! + (last - times[0]!) * 0.911); // off-grid high
+
+    for (const time of queries)
+      if (time > times[0]! && time < last)
+        TestValidator.equals(
+          `segmentIndex matches linear scan (len ${times.length}, t=${time})`,
+          segmentIndex(times.length, at(times), time),
+          linearSegment(times, time),
+        );
+  }
+
+  const t: number[] = [0, 1, 2, 3];
+  TestValidator.equals(
+    "length-2 array yields 0 (loop body never runs)",
+    segmentIndex(2, at([0, 5]), 3),
+    0,
+  );
+  TestValidator.equals(
+    "exact interior key k=1 resolves to segment [0,1]",
+    segmentIndex(4, at(t), 1),
+    0,
+  );
+  TestValidator.equals(
+    "exact interior key k=2 resolves to segment [1,2]",
+    segmentIndex(4, at(t), 2),
+    1,
+  );
+  TestValidator.equals(
+    "midpoint of the first segment resolves to 0",
+    segmentIndex(4, at(t), 0.5),
+    0,
+  );
+  TestValidator.equals(
+    "midpoint of the last segment resolves to 2",
+    segmentIndex(4, at(t), 2.5),
+    2,
+  );
 }

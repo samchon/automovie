@@ -17,12 +17,6 @@ import { TestValidator } from "@nestia/e2e";
  * 1. The identity transform with unit scale reports nothing.
  * 2. A zero y scale and a negative z scale report scale.y and scale.z only.
  * 3. A rotation of norm 2 reports at otation.
- *
- * @evidence contracts/development/testing.md#behavioral-verification Calls validateTransformScalars on valid and faulty literals and asserts the reported paths.
- * @evidence contracts/development/testing.md#independent-expectations A unit quaternion has norm 1 and a scale must be positive by the stated contract, so identity is valid and zero, negative and norm 2 are faulty.
- * @evidence contracts/development/testing.md#distinguishing-cases Valid versus each faulty axis are adjacent cases; the 1e-6 norm tolerance edge is not covered here.
- * @evidence contracts/development/testing.md#execution-ownership The named test_unit_engine_validation_transform_scalars entry runs portable in-memory literals with no host and no dynamically registered cases.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the numbered scenarios it runs, each naming the input and the behavior it pins.
  */
 export function test_unit_engine_validation_transform_scalars(): void {
   const rotation: IAutoMovieQuaternion = { x: 0, y: 0, z: 0, w: 1 };

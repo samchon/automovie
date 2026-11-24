@@ -16,3 +16,4 @@ export * from "./HumanHandoverUpright";
 export * from "./HumanPocket";
 export * from "./putDown";
 export * from "./pianoScore";
+export * from "./guitarNote";

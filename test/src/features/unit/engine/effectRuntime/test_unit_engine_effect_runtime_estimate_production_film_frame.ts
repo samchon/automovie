@@ -8,7 +8,8 @@ import { TestValidator } from "@nestia/e2e";
  * Scenarios:
  *
  * 1. 1.5 s at 24 fps is frame 36 under any rounding; 0.51 s at 30/1001 fps is 0.51
- *    * 30 / 1001 = 0.01528..., which `floor` reads as 0 and `ceil` as 1.
+ *
+ *    - 30 / 1001 = 0.01528..., which `floor` reads as 0 and `ceil` as 1.
  * 2. A negative time floors at frame 0.
  * 3. A time past 2^53 - 2 frames is null.
  */
