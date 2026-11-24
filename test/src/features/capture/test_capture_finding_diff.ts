@@ -59,12 +59,16 @@ type ISample = Pick<IAutoMovieInspectionDiagnostics, "findings" | "coverage">;
  *     entry at the rank 0.3 observation.
  * 11. An earlier record without diagnostics gives no finding diff and names the
  *     earlier round as lacking them.
+ * 12. A rank moved by double-precision noise, 0.0001704619767433052 then
+ *     0.00017046197674354087 as a capture of unchanged geometry recorded, is
+ *     carried `same` with the outcome `same`; one float32 step deeper, 1 +
+ *     2^-22 times the rank, is `worse`.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Runs real rounds through the public planner, folder and run against in-memory storage with drawn cells that supply diagnostics packets, and reads the finding diff in each later record; a diff that calls an unchecked absence fixed, orders rank before confidence, ranks an absent rank above a present one, lets warnings or unmatched errors move the outcome, or splits one identity across its episodes fails.
+ * @evidence contracts/development/testing.md#behavioral-verification Runs real rounds through the public planner, folder and run against in-memory storage with drawn cells that supply diagnostics packets, and reads the finding diff in each later record; a diff that calls an unchecked absence fixed, orders rank before confidence, ranks an absent rank above a present one, lets warnings or unmatched errors move the outcome, splits one identity across its episodes, or reports double-precision rank noise as worse fails.
  * @evidence contracts/development/testing.md#independent-expectations Every finding, rank and coverage row is chosen here, so each state follows by hand from the rules issue #4046 states: the reducer's order of confidence, category, then rank with an absent rank lowest, and fixed or new only over checked intervals. Cells at 1 s and 2 s fall on output frames 10 and 20, which are not consecutive, so they form two episodes and two coverage ranges.
- * @evidence contracts/development/testing.md#distinguishing-cases A fix next to an unchecked and an unsampled absence, a rank increase, a confidence change against a rank decrease, a rank appearing, a new error next to a new warning, a split identity and a record without diagnostics. Pixel pairing is owned by `test_capture_round_comparison` and episode grouping by `test_inspection_diagnostic_episodes`.
+ * @evidence contracts/development/testing.md#distinguishing-cases A fix next to an unchecked and an unsampled absence, a rank increase, a confidence change against a rank decrease, a rank appearing, a new error next to a new warning, a split identity, a record without diagnostics, and rank noise below float32's relative step next to a change of one step. Pixel pairing is owned by `test_capture_round_comparison` and episode grouping by `test_inspection_diagnostic_episodes`.
  * @evidence contracts/development/testing.md#execution-ownership A portable unit discovered as `test_capture_finding_diff`; it draws in memory.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 11 numbered scenarios it runs, each naming the input and the state or outcome it pins.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 12 numbered scenarios it runs, each naming the input and the state or outcome it pins.
  */
 export async function test_capture_finding_diff(): Promise<void> {
   const memory: createCaptureMemory.IMemory = createCaptureMemory();
@@ -319,5 +323,30 @@ export async function test_capture_finding_diff(): Promise<void> {
     "a record without diagnostics omits the diff and names it",
     await capture("at=1&round=o2&compare=o1", fixed([], [row("a")])),
     { state: "omitted", lacking: ["earlier"] },
+  );
+
+  // 12. Rank noise below float32's precision.
+  const depth: number = 0.0001704619767433052;
+  await capture("at=1&round=q1", fixed([finding("a", depth)], [row("a")]));
+  TestValidator.equals(
+    "a rank moved by double-precision noise is carried the same",
+    [
+      states(
+        await capture(
+          "at=1&round=q2&compare=q1",
+          fixed([finding("a", 0.00017046197674354087)], [row("a")]),
+        ),
+      ),
+      states(
+        await capture(
+          "at=1&round=q3&compare=q1",
+          fixed([finding("a", depth * (1 + 2 ** -22))], [row("a")]),
+        ),
+      ),
+    ],
+    [
+      ["same", ["a:carried:same"]],
+      ["worse", ["a:carried:worse"]],
+    ],
   );
 }

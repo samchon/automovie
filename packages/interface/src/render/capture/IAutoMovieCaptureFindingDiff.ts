@@ -99,7 +99,8 @@ export namespace IAutoMovieCaptureFindingDiff {
 
           /**
            * This round's worst observation against the earlier round's, by the
-           * reducer's order.
+           * reducer's order; ranks within 2^-23 of the larger one, float32's
+           * relative precision, are the same.
            */
           change: "worse" | "better" | "same";
 
