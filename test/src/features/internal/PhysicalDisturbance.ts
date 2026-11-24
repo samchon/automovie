@@ -10,6 +10,7 @@ import { fitHumanPhysicalStandingPose } from "@automovie/human";
 import type {
   IAutoMovieMotionHumanBody,
   IAutoMoviePhysicalProfile,
+  IAutoMoviePhysicalRecoveryPolicy,
   IAutoMoviePhysicalRecoveryState,
   IAutoMoviePhysicalSegment,
   IAutoMoviePhysicalSimulation,
@@ -50,8 +51,8 @@ const PUSH_STEPS: number = Math.round(PUSH_SECONDS * RATE);
 /** The last step the push acts on. */
 const PUSH_END: number = PUSH_STEP + PUSH_STEPS - 1;
 
-/** The steps a subject's targets cover. */
-const BUDGET: number = 300;
+/** The steps a subject's targets cover: one, as nothing here simulates. */
+const BUDGET: number = 1;
 
 /**
  * How far the floor load may stand from the weight, as a share of it: #3092's
@@ -133,8 +134,10 @@ export namespace PhysicalDisturbance {
     profile: IAutoMoviePhysicalProfile;
     /** Its standing targets, world metres. */
     targets: Record<string, IAutoMovieRigidTransform>;
-    /** A fresh simulation body over the run. */
+    /** A fresh simulation body over one step. */
     body: () => IAutoMoviePhysicalSimulationInput.IBody;
+    /** Its recovery policy, its support limbs with it, read once. */
+    policy: IAutoMoviePhysicalRecoveryPolicy;
   }
 
   /** The impulses that bound each outcome, newton seconds. */
@@ -200,21 +203,28 @@ export namespace PhysicalDisturbance {
       });
     if (fit.kind !== "fitted")
       throw new Error(`The Stand handoff refused ${fit.reason}`);
+    const body = (): IAutoMoviePhysicalSimulationInput.IBody => {
+      const result: IAutoMoviePhysicalSimulationInput.IBody =
+        PhysicalSupportFixtures.canonical(profile, BUDGET / RATE);
+      for (const target of result.targets)
+        target.segments = structuredClone(fit.targets);
+      return result;
+    };
     return {
       profile,
       targets: structuredClone(fit.targets),
-      body: (): IAutoMoviePhysicalSimulationInput.IBody => {
-        const body: IAutoMoviePhysicalSimulationInput.IBody =
-          PhysicalSupportFixtures.canonical(profile, BUDGET / RATE);
-        for (const target of body.targets)
-          target.segments = structuredClone(fit.targets);
-        return body;
-      },
+      body,
+      policy: body().balance!,
     };
   }
 
   /** The four-support primitive at rest on its supports. */
-  export function planted(profile: IAutoMoviePhysicalProfile): ISubject {
+  export function planted(
+    profile: IAutoMoviePhysicalProfile,
+    declared?: Readonly<Record<string, readonly string[]>>,
+  ): ISubject {
+    const body = (): IAutoMoviePhysicalSimulationInput.IBody =>
+      PhysicalSupportFixtures.body(profile, BUDGET / RATE, declared);
     return {
       profile,
       targets: Object.fromEntries(
@@ -227,8 +237,8 @@ export namespace PhysicalDisturbance {
           ],
         ),
       ),
-      body: (): IAutoMoviePhysicalSimulationInput.IBody =>
-        PhysicalSupportFixtures.body(profile, BUDGET / RATE),
+      body,
+      policy: body().balance!,
     };
   }
 
@@ -286,7 +296,7 @@ export namespace PhysicalDisturbance {
     rest: number;
     reach: number;
   } {
-    const policy = subject.body().balance!;
+    const policy = subject.policy;
     const limbs = policy.pattern.limbs;
     const center: IAutoMovieVector3 = centerOf(
       subject.profile,
@@ -438,7 +448,7 @@ export namespace PhysicalDisturbance {
    * it at the standing pose.
    */
   export function timing(subject: ISubject): number {
-    const policy = subject.body().balance!;
+    const policy = subject.policy;
     const limbs = policy.pattern.limbs;
     const reach: number = policy.maximumStep;
     const heaviest: number = Math.max(
@@ -765,7 +775,7 @@ export namespace PhysicalDisturbance {
 
   /** The body's support limbs. */
   function limbsOf(subject: ISubject) {
-    return subject.body().balance!.pattern.limbs;
+    return subject.policy.pattern.limbs;
   }
 
   /** The bones the body's supports touch the floor with. */

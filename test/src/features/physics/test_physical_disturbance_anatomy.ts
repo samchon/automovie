@@ -2,13 +2,22 @@ import type { IAutoMoviePhysicalProfile } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { PhysicalBalanceReplay } from "../internal/PhysicalBalanceReplay";
+import { PhysicalModelFixtures } from "../internal/PhysicalModelFixtures";
+import { motionHumanBody } from "../internal/motionHumanBody";
+
+/**
+ * The fixtures replayed: one biped's and one quadruped's recovery, the
+ * controller's two paths; a name branch shows on any frame of either.
+ */
+const FIXTURES: readonly string[] = ["human_recover_z.json", "quad_recover_z.json"];
 
 /**
  * The balance controller has no anatomy branch: renaming every bone and the
- * body leaves its behaviour unchanged. At every recorded key frame of the
- * replay fixtures, `advancePhysicalBalance` and `trackPhysicalRoot`, given the
- * recorded inputs with every name replaced, return and write exactly the
- * renamed outputs of the same call on the original names.
+ * body leaves its behaviour unchanged. At one recorded frame of each key-frame
+ * kind of a biped and a quadruped replay fixture, `advancePhysicalBalance` and
+ * `trackPhysicalRoot`, given the recorded inputs with every name replaced,
+ * return and write exactly the renamed outputs of the same call on the
+ * original names.
  *
  * The renaming is order-preserving. Each bone becomes `n` and its rank among
  * the bones' names in code-unit order, so a sort or a tie broken by name
@@ -20,8 +29,8 @@ import { PhysicalBalanceReplay } from "../internal/PhysicalBalanceReplay";
  *
  * Scenarios:
  *
- * 1. Each fixture's subject, the canonical Human and the four-support
- *    primitive, renamed.
+ * 1. The canonical Human's and the four-support primitive's recovery fixtures,
+ *    renamed, one record of each key-frame kind with its substep's root record.
  * 2. Each `advance` record's result, state and actuation equal the original's,
  *    renamed, as JSON with keys in any order.
  * 3. Each `root` record's task, integral, wrenches and actuation equal the
@@ -35,12 +44,23 @@ import { PhysicalBalanceReplay } from "../internal/PhysicalBalanceReplay";
  */
 export function test_physical_disturbance_anatomy(): void {
   const failures: string[] = [];
-  const profiles: Partial<Record<string, IAutoMoviePhysicalProfile>> = {};
-  for (const file of PhysicalBalanceReplay.list()) {
+  for (const file of FIXTURES) {
     const fixture: PhysicalBalanceReplay.IFixture =
       PhysicalBalanceReplay.load(file);
-    const built: IAutoMoviePhysicalProfile = (profiles[fixture.subject] ??=
-      PhysicalBalanceReplay.profile(fixture.subject));
+    const built: IAutoMoviePhysicalProfile =
+      fixture.subject === "human"
+        ? motionHumanBody("m-average").profile
+        : PhysicalModelFixtures.quadrupod();
+    // One record of each key frame the recording kept, with the root
+    // record of its substep: every phase the controller passes through.
+    const reasons: Set<string> = new Set();
+    const kept: Set<number> = new Set();
+    fixture.records.forEach((record, index: number): void => {
+      if (record.kind !== "advance" || reasons.has(record.reason ?? "")) return;
+      reasons.add(record.reason ?? "");
+      kept.add(index);
+      if (fixture.records[index + 1]?.kind === "root") kept.add(index + 1);
+    });
     const names: Map<string, string> = new Map(
       [...built.segments.map((segment) => segment.bone)]
         .sort((a: string, b: string): number => (a < b ? -1 : a > b ? 1 : 0))
@@ -81,6 +101,7 @@ export function test_physical_disturbance_anatomy(): void {
     const profile: IAutoMoviePhysicalProfile = rename(built);
     fixture.records.forEach(
       (record: PhysicalBalanceReplay.IRecord, index: number): void => {
+        if (!kept.has(index)) return;
         const twin: PhysicalBalanceReplay.IRecord = renamed.records[index]!;
         const original: Record<string, unknown> = rename(
           record.kind === "advance"

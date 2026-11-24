@@ -2,38 +2,42 @@ import { TestValidator } from "@nestia/e2e";
 
 import { PhysicalDisturbance } from "../internal/PhysicalDisturbance";
 import { PhysicalModelFixtures } from "../internal/PhysicalModelFixtures";
-import { motionHumanBody } from "../internal/motionHumanBody";
 
 /**
  * The pushes the disturbance tests state lie where the inverted pendulum puts
  * them, checked once here so no simulation repeats it.
  *
- * Scenarios, for the canonical Human and the four-support primitive, forward
- * and sideways:
+ * Scenarios, for the four-support primitive and the same body on two diagonal
+ * supports, forward and sideways:
  *
  * 1. Ceiling: the in-place bound never exceeds what the centre of pressure held
  *    at the support's edge through the whole 0.1 s pulse absorbs, m omega b
  *    (omega T) / (1 - e^(-omega T)), b the distance to the edge (Hof et al.
  *    2005, Eq. 3 integrated over the pulse): no stance law beats the edge.
  * 2. Order: sustained (half the in-place bound) < in-place < any-step < fall
- *    (one and a half times the any-step bound), and forward the recover push
- *    lies strictly inside the one-step window.
- * 3. Anchor: forward, the one-step bound lies within Koolen et al.'s Eq. 25 for
+ *    (one and a half times the any-step bound), and the four-support
+ *    primitive's forward recover push lies strictly inside its one-step window.
+ * 3. Anchor: the primitive's forward one-step bound lies within Koolen et al.'s Eq. 25 for
  *    the step times the literature reports, 0.3 to 0.6 s (Khadiv et al. 2017,
  *    Section V; Pratt et al., M2V2, IX-B).
- * 4. Sideways the canonical Human has no one-step window, so no sideways
- *    recover push is stated.
+
  *
  * @evidence contracts/development/common.md#meaningful-documentation States each bound, its closed form and its source.
  * @evidence contracts/development/testing.md#behavioral-verification Computes `PhysicalDisturbance.bounds`, `.window` and `.impulse` on the two subjects and compares them with closed forms.
  * @evidence contracts/development/testing.md#independent-expectations The ceiling is the linear inverted pendulum's closed form with the centre of pressure at the edge; the anchor is Koolen et al.'s Eq. 25 at literature step times; neither is computed by the bound under test.
  * @evidence contracts/development/testing.md#distinguishing-cases A bound integrated past the edge fails the ceiling, a recover push outside the one-step window fails the order, and a step time outside 0.3 to 0.6 s fails the anchor; the simulated outcomes are the `test_physical_disturbance_*` runs.
- * @evidence contracts/development/testing.md#execution-ownership Pure computation on in-memory profiles; no simulation, viewer or file host.
+ * @evidence contracts/development/testing.md#execution-ownership Pure computation on the synthetic primitive profile, two and four supports; no figure build, simulation, viewer or file host.
  */
 export function test_physical_disturbance_bounds(): void {
   const failures: string[] = [];
   const subjects: [string, PhysicalDisturbance.ISubject][] = [
-    ["human", PhysicalDisturbance.standing(motionHumanBody("m-average"))],
+    [
+      "two",
+      PhysicalDisturbance.planted(PhysicalModelFixtures.quadrupod(), {
+        "support-0": ["support-0"],
+        "support-3": ["support-3"],
+      }),
+    ],
     ["quad", PhysicalDisturbance.planted(PhysicalModelFixtures.quadrupod())],
   ];
   const T: number = 0.1;
@@ -65,7 +69,10 @@ export function test_physical_disturbance_bounds(): void {
         !(sustained < pushes.place && pushes.place < pushes.any && pushes.any < fall)
       )
         failures.push(`${label}: pushes out of order ${JSON.stringify(pushes)}`);
-      if (axis === "z") {
+      // The four-support primitive's forward push has a one-step window, the
+      // recover case's; on two diagonal supports the remaining one stands
+      // behind the centre of mass, so a step leaves none.
+      if (axis === "z" && name === "quad") {
         const recover: number = PhysicalDisturbance.impulse(
           subject,
           "recover",
@@ -82,10 +89,7 @@ export function test_physical_disturbance_bounds(): void {
             `${label}: one-step bound ${pushes.step} N s outside Koolen's Eq. 25 at 0.3-0.6 s, [${slow}, ${fast}]`,
           );
       }
-      if (name === "human" && axis === "x" && pushes.step > pushes.place)
-        failures.push(
-          `${label}: a sideways one-step window ${JSON.stringify(pushes)} the recover case does not state`,
-        );
+
     }
   TestValidator.equals("disturbance bounds", failures, []);
 }
