@@ -25,7 +25,10 @@ import {
 
 import { motionHumanBody } from "../internal/motionHumanBody";
 
-/** Board the parked shuttle, ride on the aisle, and alight on the second platform. */
+/**
+ * Board the parked shuttle, ride on the aisle, and alight on the second
+ * platform.
+ */
 export function railShuttlePassenger(
   environment: IAutoMovieEnvironment,
   exitFrom: number,
@@ -61,7 +64,8 @@ export function railShuttlePassenger(
   const facingDeg: number = -90;
   const actor: IAutoMovieStageActor = {
     node: "rail-passenger",
-    position: { ...origin.center, x: origin.innerEdge + 0.28 },
+    // Both posed toes clear the platform's inner edge by 8.5 mm at this mark.
+    position: { ...origin.center, x: origin.innerEdge + 0.29 },
     facingDeg,
   };
   const crossing: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanSupportTransfer> =

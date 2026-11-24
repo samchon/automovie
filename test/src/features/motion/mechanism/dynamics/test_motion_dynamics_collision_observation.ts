@@ -1,4 +1,9 @@
-import { segmentSegmentDistance } from "@automovie/engine";
+import { Quaternion, Vector3, segmentSegmentDistance } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanColliders,
+  IAutoMoviePhysicalShape,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { AutoMovieMotionHumanStance } from "@automovie/motions";
 import {
   HumanColliders,
@@ -13,13 +18,17 @@ import { qclose } from "../../../internal/qclose";
 import { vclose } from "../../../internal/vclose";
 
 /**
- * Two crossing capsule axes determine clearance by subtracting their radii.
+ * Posed body colliders report signed point and segment distances, including the
+ * penetration of a segment through a convex pelvis solid.
  *
  * Scenarios:
- * 1. Evaluate the operation at the interior and the limiting case.
+ *
+ * 1. Observe a standing body's surfaces and their common vertical translation.
+ * 2. Cross a pelvis solid through a strict interior witness and evaluate two
+ *    crossing capsule axes at their interior, tangent and separated cases.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Two crossing capsule axes determine clearance by subtracting their radii.
- * @evidence contracts/development/testing.md#independent-expectations The segment closest points both project onto the origin, so their distance is the height offset. The radii sum to a quarter metre.
+ * @evidence contracts/development/testing.md#independent-expectations A positive average of all vertices is strictly inside a volumetric convex hull. The test segment includes that average. The crossing capsule axes project onto the origin, so their distance is the height offset less a quarter metre of radii.
  * @evidence contracts/development/testing.md#distinguishing-cases The boundary outcome distinguishes physical change from normalization.
  * @evidence contracts/development/testing.md#execution-ownership Reads the public operation directly in memory.
  * @evidence contracts/development/common.md#meaningful-documentation States the quantities observed and their relation.
@@ -81,15 +90,40 @@ export function test_motion_dynamics_collision_observation(): void {
         1e-9,
       ),
   );
-  const pelvis = flat.find((s) => s.bone === "hips")!.pose.position;
+  const hips: IAutoMovieMotionHumanColliders.IPlaced = flat.find(
+    (shape) => shape.bone === "hips",
+  )!;
+  const hull: Extract<IAutoMoviePhysicalShape, { kind: "hull" }> =
+    hips.shapes.find((shape) => shape.kind === "hull")!;
+
+  // The bone origin can lie on a cut between solids. An average with positive
+  // weight on every vertex of a volumetric hull is strictly inside that solid.
+  const centre: IAutoMovieVector3 = Vector3.scale(
+    hull.points.reduce(Vector3.add),
+    1 / hull.points.length,
+  );
+  const pelvis: IAutoMovieVector3 = Vector3.add(
+    hips.pose.position,
+    Quaternion.rotateVector(
+      hips.pose.rotation,
+      Vector3.add(
+        hull.transform.position,
+        Quaternion.rotateVector(hull.transform.rotation, centre),
+      ),
+    ),
+  );
   const from = { ...pelvis, x: pelvis.x - 0.5 },
     to = { ...pelvis, x: pelvis.x + 0.5 };
   const interior = HumanColliders.distance(body, ground, pelvis).distance;
+  const traverse: number = HumanColliders.distanceToSegment(
+    body,
+    ground,
+    from,
+    to,
+  ).distance;
   TestValidator.predicate(
-    "a segment through an interior point penetrates at least that deeply",
-    interior < 0 &&
-      HumanColliders.distanceToSegment(body, ground, from, to).distance <=
-        interior + 1e-9,
+    `a segment through an interior point (${interior} m) penetrates at least that deeply (${traverse} m)`,
+    interior < 0 && traverse <= interior + 1e-9,
   );
   const separation = (offset: number): number =>
     segmentSegmentDistance(
