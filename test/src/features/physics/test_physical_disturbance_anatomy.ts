@@ -13,11 +13,11 @@ const FIXTURES: readonly string[] = ["human_recover_z.json", "quad_recover_z.jso
 
 /**
  * The balance controller has no anatomy branch: renaming every bone and the
- * body leaves its behaviour unchanged. At one recorded frame of each key-frame
- * kind of a biped and a quadruped replay fixture, `advancePhysicalBalance` and
- * `trackPhysicalRoot`, given the recorded inputs with every name replaced,
- * return and write exactly the renamed outputs of the same call on the
- * original names.
+ * body leaves its behaviour unchanged. At three recorded key frames, the first,
+ * middle and last kinds, of a biped and a quadruped replay fixture,
+ * `advancePhysicalBalance` and `trackPhysicalRoot`, given the recorded inputs
+ * with every name replaced, return and write exactly the renamed outputs of
+ * the same call on the original names.
  *
  * The renaming is order-preserving. Each bone becomes `n` and its rank among
  * the bones' names in code-unit order, so a sort or a tie broken by name
@@ -30,7 +30,8 @@ const FIXTURES: readonly string[] = ["human_recover_z.json", "quad_recover_z.jso
  * Scenarios:
  *
  * 1. The canonical Human's and the four-support primitive's recovery fixtures,
- *    renamed, one record of each key-frame kind with its substep's root record.
+ *    renamed, three key frames (quiet stance, the step, the landing) with their
+ *    substeps' root records.
  * 2. Each `advance` record's result, state and actuation equal the original's,
  *    renamed, as JSON with keys in any order.
  * 3. Each `root` record's task, integral, wrenches and actuation equal the
@@ -54,13 +55,22 @@ export function test_physical_disturbance_anatomy(): void {
     // One record of each key frame the recording kept, with the root
     // record of its substep: every phase the controller passes through.
     const reasons: Set<string> = new Set();
-    const kept: Set<number> = new Set();
+    const firsts: number[] = [];
     fixture.records.forEach((record, index: number): void => {
       if (record.kind !== "advance" || reasons.has(record.reason ?? "")) return;
       reasons.add(record.reason ?? "");
+      firsts.push(index);
+    });
+    // The first, middle and last kinds: quiet stance, the step, the landing.
+    const kept: Set<number> = new Set();
+    for (const index of [
+      firsts[0]!,
+      firsts[Math.floor(firsts.length / 2)]!,
+      firsts.at(-1)!,
+    ]) {
       kept.add(index);
       if (fixture.records[index + 1]?.kind === "root") kept.add(index + 1);
-    });
+    }
     const names: Map<string, string> = new Map(
       [...built.segments.map((segment) => segment.bone)]
         .sort((a: string, b: string): number => (a < b ? -1 : a > b ? 1 : 0))

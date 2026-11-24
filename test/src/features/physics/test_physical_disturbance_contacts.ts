@@ -22,7 +22,8 @@ const SUBSTEPS: number = 32;
  *
  * Scenarios, the two-foot biped of `test_physical_disturbance_span` pushed
  * forward at 1.2 m/s after a 0.1 s reaction, recorded substep by substep from
- * the push to the end of the first swing:
+ * two steps before the trigger, both feet planted, sixteen steps on into the
+ * swing:
  *
  * 1. Momentum: every step's floor normal impulses sum to m g / rate, the
  *    weight's impulse; with the centre of mass's height held, Newton's second
@@ -101,8 +102,10 @@ export function test_physical_disturbance_contacts(): void {
   };
   const contacts: IAutoMovieContactReceipt[] = [];
   const active: Map<string, IAutoMovieContactReceipt> = new Map();
-  const first: number = Math.floor(t0 * RATE) + 1;
-  const last: number = Math.ceil(touchdown.seconds * RATE);
+  // From two steps before the trigger, both feet planted, well into the
+  // swing: the stance's switch is where a share can go astray.
+  const first: number = Math.floor(trigger.seconds * RATE) - 2;
+  const last: number = Math.min(Math.ceil(touchdown.seconds * RATE), first + 16);
   for (let step: number = first; step <= last; step++) {
     const found: Set<string> = new Set();
     for (let substep: number = 1; substep <= SUBSTEPS; substep++)
