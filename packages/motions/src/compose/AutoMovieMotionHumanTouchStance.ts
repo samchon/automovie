@@ -258,34 +258,27 @@ export namespace AutoMovieMotionHumanTouchStance {
 
     // Two hands' regions off to one side are faced first (`faces`): the trunk
     // turns toward their middle from the pelvis, so both arms reach from that
-    // side. Otherwise the forward lean first; a wrist it leaves out of reach
-    // to the side is turned toward by the trunk, by the heading's angle to
-    // the line from the shoulder to the wrist (`turn`), and the lean is
-    // solved again on the turned trunk, which refuses what is still out of
+    // side. Otherwise the stance is chosen between two candidates in this
+    // order (`choose`): the forward lean, then the lean on a trunk turned
+    // toward a wrist off to the side, by the heading's angle to the line from
+    // the shoulder to the wrist; the turned lean refuses what is still out of
     // reach.
-    let turn: number =
-      props.faces === undefined
-        ? 0
-        : angleTo(upright, upright.root, props.faces);
-    let lean: IAutoMovieMotionHumanLeanInto.ILean = leanOn(
-      twisted(upright, turn),
-    );
-    let arrival: number;
-    try {
-      arrival = lean.pitch(twisted(upright, turn), 0);
-    } catch (error) {
-      if (props.faces !== undefined) throw error;
-      turn = toward(upright);
-      if (
-        turn === 0 ||
-        !(error instanceof HumanRefusal) ||
-        error.kind !== "reach" ||
-        error.axis !== "target"
-      )
-        throw error;
-      lean = leanOn(twisted(upright, turn));
-      arrival = lean.pitch(twisted(upright, turn), 0);
-    }
+    const leaned = (turned: number): ITurned => {
+      const on: IAutoMovieMotionHumanPosture = twisted(upright, turned);
+      const solved: IAutoMovieMotionHumanLeanInto.ILean = leanOn(on);
+      return { turn: turned, lean: solved, arrival: solved.pitch(on, 0) };
+    };
+    const first: ITurned =
+      props.faces !== undefined
+        ? leaned(angleTo(upright, upright.root, props.faces))
+        : choose<Facing, ITurned>({
+            candidates: ["ahead", "turned"],
+            reach: (facing: Facing): ITurned =>
+              leaned(facing === "ahead" ? 0 : toward(upright)),
+          });
+    let turn: number = first.turn;
+    let lean: IAutoMovieMotionHumanLeanInto.ILean = first.lean;
+    let arrival: number = first.arrival;
     // The lean pitches the trunk along the pelvis's heading, not the turned
     // chest's, so the shoulders it carries forward see the two regions'
     // middle off to the side again: a disarm's leaned shoulders saw it at 40
@@ -474,6 +467,153 @@ export namespace AutoMovieMotionHumanTouchStance {
       };
     }
   }
+
+  /**
+   * Choose among a law's stances, steps, strategies or grips by inverse
+   * reachability (Vahrenkamp, Asfour and Dillmann 2013, "Robot placement based
+   * on reachability inversion", ICRA, pp. 1970-1975).
+   *
+   * Algorithm 1 (§V) tries a base pose, solves the arm's inverse kinematics,
+   * checks it for collision and returns the pose, or nothing; Eq. (2) (§IV.A)
+   * takes the pose of the greatest reachability entry. A law's candidates are a
+   * finite set, so the set is taken whole (the paper's full map, §IV.A), and
+   * each entry is binary, reachable or not (§II.B): a candidate's check
+   * (`reach`) is the law's own closed-form reach and clearance, and a reach
+   * refusal it raises is Algorithm 1's nothing. Every passing candidate then
+   * holds the greatest entry, and the law's declared order settles the tie
+   * (authoring.md, "a declared alternative that reaches"), so the first passing
+   * candidate is the choice, and the candidates after it, which cannot change
+   * it, are not checked. A refusal of another kind, or any other error, is no
+   * reachability entry and propagates.
+   *
+   * @param props The candidates in the law's order and the check of one.
+   * @returns The first candidate's stance that reaches.
+   * @throws {HumanRefusal} When no candidate reaches: the first candidate's
+   *   refusal, its reason followed by every other candidate's.
+   */
+  export function choose<Candidate, Stance>(
+    props: IChoice<Candidate, Stance>,
+  ): Stance {
+    const refused: HumanRefusal[] = [];
+    for (const candidate of props.candidates) {
+      const stance: Stance | undefined = reached(
+        props.reach,
+        candidate,
+        refused,
+      );
+      if (stance !== undefined) return stance;
+    }
+    const first: HumanRefusal | undefined = refused[0];
+    if (first === undefined)
+      throw new HumanRefusal({
+        kind: "parameter",
+        axis: "candidates",
+        value: 0,
+        reason: "a stance is chosen among at least one candidate",
+        fix: "declare the law's candidate stances",
+      });
+    return refuse(first, refused);
+  }
+
+  /**
+   * Algorithm 1's try of one base (Vahrenkamp et al. 2013, §V): the candidate's
+   * stance when its check passes, nothing when it refuses the reach, for a law
+   * whose later candidates build on whether this one reached.
+   *
+   * @param reach The check of one candidate.
+   * @param candidate The candidate.
+   * @returns The stance, or undefined on a reach refusal.
+   * @throws {HumanRefusal} A refusal of any other kind, as raised.
+   */
+  export function attempt<Candidate, Stance>(
+    reach: (candidate: Candidate) => Stance,
+    candidate: Candidate,
+  ): Stance | undefined {
+    return reached(reach, candidate, []);
+  }
+
+  /**
+   * One candidate's binary reachability entry (Vahrenkamp et al. 2013, §II.B
+   * and Algorithm 1): whether its check passes, for a law whose own search asks
+   * a yes or no of each place it tries.
+   *
+   * @param reach The check of one candidate.
+   * @param candidate The candidate.
+   * @returns True when the check passes, false on a reach refusal.
+   */
+  export function reaches<Candidate, Stance>(
+    reach: (candidate: Candidate) => Stance,
+    candidate: Candidate,
+  ): boolean {
+    return attempt(reach, candidate) !== undefined;
+  }
+
+  /**
+   * A candidate's stance, or nothing with its reach refusal kept: Algorithm 1's
+   * try of one base pose. Any other error propagates.
+   */
+  function reached<Candidate, Stance>(
+    reach: (candidate: Candidate) => Stance,
+    candidate: Candidate,
+    refused: HumanRefusal[],
+  ): Stance | undefined {
+    try {
+      return reach(candidate);
+    } catch (error: unknown) {
+      if (!(error instanceof HumanRefusal) || error.kind !== "reach")
+        throw error;
+      refused.push(error);
+      return undefined;
+    }
+  }
+
+  /** A law's finite candidate set and the reachability check of one. */
+  export interface IChoice<Candidate, Stance> {
+    /** The candidates, in the law's declared order of preference. */
+    candidates: readonly Candidate[];
+
+    /**
+     * Algorithm 1's check of one candidate: its stance when the arm reaches
+     * clear, a reach refusal when it does not.
+     */
+    reach: (candidate: Candidate) => Stance;
+  }
+
+  /**
+   * The refusal of a choice none of whose candidates reaches: the first
+   * candidate's facts, its reason followed by the others'.
+   */
+  function refuse(first: HumanRefusal, all: readonly HumanRefusal[]): never {
+    throw new HumanRefusal({
+      kind: first.kind,
+      axis: first.axis,
+      value: first.value,
+      feasible: first.feasible,
+      reason:
+        all.length === 1
+          ? first.reason
+          : `${first.reason}; no other candidate reaches: ${all
+              .slice(1)
+              .map((other: HumanRefusal): string => other.reason)
+              .join("; ")}`,
+      fix: first.fix,
+    });
+  }
+}
+
+/** The two facings a one-handed stance is chosen between. */
+type Facing = "ahead" | "turned";
+
+/** A stance's trunk turn and the lean solved on it. */
+interface ITurned {
+  /** The trunk's turn, degrees. */
+  turn: number;
+
+  /** The lean on the turned trunk. */
+  lean: IAutoMovieMotionHumanLeanInto.ILean;
+
+  /** The lean's pitch at the stroke's start. */
+  arrival: number;
 }
 
 /**

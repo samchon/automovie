@@ -29,12 +29,16 @@ import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanHeld } from "../compose/AutoMovieMotionHumanHeld";
 import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
+import { AutoMovieMotionHumanTouchStance } from "../compose/AutoMovieMotionHumanTouchStance";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import { courseArmGoal } from "../compose/courseArmGoal";
 import { HumanTrunkLean } from "../handling/HumanTrunkLean";
+import { pickUpAdjust } from "../handling/pickUpAdjust";
+import type { pickUpPosture } from "../handling/pickUpPosture";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFrame } from "../posture/HumanFrame";
 import { poseBones } from "../posture/poseBones";
+import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanWornItem } from "./HumanWornItem";
 import { placeOverHeadPartner } from "./placeOverHeadPartner";
 import { placeOverHeadPath } from "./placeOverHeadPath";
@@ -61,6 +65,18 @@ const HINGES: number = 8;
 /** The handle names a neck loop declares. */
 type Handle = "holdLeft" | "holdRight";
 
+/** The stances a dresser is placed in, in the law's order. */
+type Stance = "standing" | "stepped";
+
+/** The dresser's chosen stance. */
+interface IStance {
+  /** The posture the dresser stands in at the crown. */
+  posture: IAutoMovieMotionHumanPosture;
+
+  /** The adjustment step that brings it there; null standing where it entered. */
+  stride: pickUpPosture.IStance | null;
+}
+
 /**
  * Set a neck loop over a partner's head. The loop's path is
  * `placeOverHeadPath`'s, read on the partner's displayed body at the action's
@@ -74,12 +90,15 @@ type Handle = "holdLeft" | "holdRight";
  * arms are laid in one course (`courseArmGoal` with `with`). Before any of it,
  * the loop's inner half-breadth is checked against the partner's head radius,
  * and the hands' highest places, above the crown, against the arm's reach from
- * each shoulder: a loop too narrow for the head, or a crown the arms cannot
- * clear (a standing tall partner), is refused with the measure, so the partner
- * bows or kneels. Down past the crown to a seated partner's nape and chest the
- * dresser hinges at the hips by the least angle that keeps both wrists within
- * their arms along the path (`HumanTrunkLean`), as `dressPartner` reaches a
- * kneeling crown.
+ * each shoulder, from the dresser's stance: chosen by inverse reachability
+ * (`AutoMovieMotionHumanTouchStance.choose`, Vahrenkamp, Asfour and Dillmann
+ * 2013) between standing where it entered and one adjustment step toward the
+ * hands' place at the crown (`pickUpAdjust.stepped`), the first that clears it.
+ * A loop too narrow for the head, or a crown neither stance clears (a standing
+ * tall partner), is refused with the measure, so the partner bows or kneels.
+ * Down past the crown to a seated partner's nape and chest the dresser hinges
+ * at the hips by the least angle that keeps both wrists within their arms along
+ * the path (`HumanTrunkLean`), as `dressPartner` reaches a kneeling crown.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the path's owner, who carries the loop, the custody change, the course and both refusals.
  * @evidence contracts/development/design.md#principled-representation The loop's rigid frame along its path is the plan; both hands follow from it.
@@ -230,51 +249,121 @@ export const placeOverHead: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHuman
         context.entry.pose,
       );
       const reach: number = body.measure.upperArm + body.measure.forearm;
-      // A crown just past the standing arm, below the shoulders, is still
-      // reached by the hip hinge the descent takes (`HumanTrunkLean`); one no
-      // hinge brings within the arm is refused as the partner's.
-      const leans = (
-        arm: AutoMovieHumanSide,
-        target: IAutoMovieMotionHumanArmTarget.ITarget,
-      ): boolean => {
-        try {
-          HumanTrunkLean.least(context, [
-            {
-              side: arm,
-              point: AutoMovieMotionHumanArmTarget.goal(body, arm, target)
-                .point,
-              rotation: target.rotation,
-            },
-          ]);
-          return true;
-        } catch (error: unknown) {
-          if (error instanceof HumanRefusal) return false;
-          throw error;
+      const shoulders: ReadonlySet<AutoMovieHumanoidBone> =
+        new Set<AutoMovieHumanoidBone>(["leftUpperArm", "rightUpperArm"]);
+
+      // A stance from which both hands clear the crown: each shoulder within
+      // its arm of the hand's place at the path's apex, or brought within it
+      // by the hip hinge the descent takes (`HumanTrunkLean`). A crown no
+      // hinge brings within the arm is refused, naming the partner.
+      const crowned = (
+        stance: IAutoMovieMotionHumanPosture,
+      ): IAutoMovieMotionHumanPosture => {
+        const placed: ReturnType<typeof poseBones> =
+          stance === entry
+            ? pose
+            : poseBones(
+                body,
+                resolveHumanPosture(body, stance),
+                undefined,
+                shoulders,
+              );
+        const from: IAutoMovieMotionHumanActionContext<object> = on(stance);
+        for (const [arm, target] of [
+          [side, holding(path.apex)],
+          [other, grasping(path.apex)],
+        ] as const) {
+          const shoulder: IAutoMovieVector3 = placed.get(
+            `${arm}UpperArm`,
+          )!.worldPosition;
+          const miss: number = Vector3.distance(shoulder, target.point) - reach;
+          if (miss <= 0) continue;
+          if (
+            !AutoMovieMotionHumanTouchStance.reaches(
+              (wrist: HumanTrunkLean.IWrist): number =>
+                HumanTrunkLean.least(from, [wrist]),
+              {
+                side: arm,
+                point: AutoMovieMotionHumanArmTarget.goal(body, arm, target)
+                  .point,
+                rotation: target.rotation,
+              },
+            )
+          )
+            throw new HumanRefusal({
+              kind: "reach",
+              axis: "partner",
+              value: p.partner,
+              feasible: {
+                kind: "range",
+                minimum: null,
+                maximum: reach,
+                unit: "m",
+              },
+              reason: `the ${arm} hand would pass ${(miss * 1000).toFixed(0)} mm beyond the arm's reach to clear the partner's crown`,
+              fix: "have the partner bow, kneel or sit first, or stand nearer",
+            });
         }
+        return stance;
       };
-      for (const [arm, target] of [
-        [side, holding(path.apex)],
-        [other, grasping(path.apex)],
-      ] as const) {
-        const shoulder: IAutoMovieVector3 = pose.get(
-          `${arm}UpperArm`,
-        )!.worldPosition;
-        const miss: number = Vector3.distance(shoulder, target.point) - reach;
-        if (miss > 0 && !leans(arm, target))
-          throw new HumanRefusal({
-            kind: "reach",
-            axis: "partner",
-            value: p.partner,
-            feasible: {
-              kind: "range",
-              minimum: null,
-              maximum: reach,
-              unit: "m",
-            },
-            reason: `the ${arm} hand would pass ${(miss * 1000).toFixed(0)} mm beyond the arm's reach to clear the partner's crown`,
-            fix: "have the partner bow, kneel or sit first, or stand nearer",
-          });
-      }
+
+      // The context as the stance a candidate stands in: the hip hinge is
+      // solved on it.
+      const on = (
+        stance: IAutoMovieMotionHumanPosture,
+      ): IAutoMovieMotionHumanActionContext<object> =>
+        stance === entry
+          ? context
+          : { ...context, entry: { ...context.entry, posture: stance } };
+
+      // The dresser's stance is chosen by inverse reachability
+      // (`AutoMovieMotionHumanTouchStance.choose`, Vahrenkamp et al. 2013)
+      // between the law's two candidates in this order: standing where it
+      // entered, then one adjustment step toward the hand's place at the
+      // path's apex (`pickUpAdjust.stepped`: Tomita et al. 2024's step
+      // timing, a step bounded by `pickUpAdjust.STEP`), as a dresser steps in
+      // to a seated partner's knees. The step is taken only where its stance
+      // clears the crown.
+      const standing: pickUpPosture.IStance = {
+        posture: entry,
+        at: (): IAutoMovieMotionHumanPosture => entry,
+        lower: (
+          posture: IAutoMovieMotionHumanPosture,
+        ): IAutoMovieMotionHumanPosture => posture,
+      };
+      const stance: IStance = AutoMovieMotionHumanTouchStance.choose<
+        Stance,
+        IStance
+      >({
+        candidates: ["standing", "stepped"],
+        reach: (candidate: Stance): IStance => {
+          if (candidate === "standing") {
+            crowned(entry);
+            return { posture: entry, stride: null };
+          }
+          const stride: pickUpPosture.IStance | null = pickUpAdjust.stepped(
+            context,
+            side,
+            AutoMovieMotionHumanArmTarget.goal(body, side, holding(path.apex))
+              .point,
+            standing,
+            undefined,
+            reach,
+            (posture: IAutoMovieMotionHumanPosture): boolean =>
+              AutoMovieMotionHumanTouchStance.reaches(crowned, posture),
+          );
+          if (stride === null || stride.step === undefined)
+            throw new HumanRefusal({
+              kind: "reach",
+              axis: "partner",
+              value: p.partner,
+              reason:
+                "no adjustment step brings both hands within their arms above the partner's crown",
+              fix: "have the partner bow, kneel or sit first, or stand nearer",
+            });
+          return { posture: stride.posture, stride };
+        },
+      });
 
       // Each hand's place before and after, and one clock.
       const frame: IAutoMovieMotionHumanFrame = {
@@ -323,9 +412,40 @@ export const placeOverHead: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHuman
           ),
         ),
       });
+      // A stepped stance is the base: the foot steps in over the reach and
+      // back over the return, on the pick-up's minimum-jerk share
+      // (`pickUpAdjust.plants`), as a touch's step is.
+      const stride: pickUpPosture.IStance | null = stance.stride;
+      const base: IAutoMovieMotionHumanActionPlan =
+        stride === null
+          ? AutoMovieMotionHumanBase.under(context, clock.duration)
+          : {
+              duration: clock.duration,
+              events: [],
+              contacts: pickUpAdjust.plants(
+                stride,
+                clock.at("ready"),
+                clock.at("relax"),
+                clock.duration - clock.at("relax"),
+                1,
+              ),
+              posture: (
+                seconds: number,
+                _channels?: Parameters<
+                  IAutoMovieMotionHumanActionPlan["posture"]
+                >[1],
+                resolution?: Parameters<
+                  IAutoMovieMotionHumanActionPlan["posture"]
+                >[2],
+              ): IAutoMovieMotionHumanPosture =>
+                stride.at(
+                  clock.envelope(["start", "ready"], ["relax", "end"], seconds),
+                  resolution,
+                ),
+            };
       const plan: IAutoMovieMotionHumanActionPlan =
         composeAutoMovieMotionHumanAction({
-          base: AutoMovieMotionHumanBase.under(context, clock.duration),
+          base,
           clock,
           primitives: [side, other].map(
             (arm: AutoMovieHumanSide): IAutoMovieMotionHumanPrimitive => ({
@@ -384,7 +504,7 @@ export const placeOverHead: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHuman
         { length: HINGES + 1 },
         (_: unknown, k: number): number => {
           const at: IAutoMovieRigidTransform = path.at(k / HINGES);
-          return HumanTrunkLean.least(context, [
+          return HumanTrunkLean.least(on(stance.posture), [
             wrist(side, holding(at)),
             wrist(other, grasping(at)),
           ]);

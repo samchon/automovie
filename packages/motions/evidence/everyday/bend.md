@@ -14,7 +14,7 @@ The chosen lowering writes root, trunk, gaze and legs. Two arm goals and the fin
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
-The only strategy fallback is the stated automatic squat where the semi-squat cannot reach. The reached point stays where authored. The hold and the reaching elbow hint are provisional.
+A self target's lowerings are the law's candidates, chosen by inverse reachability (`AutoMovieMotionHumanTouchStance.choose`): the first whose whole arm course admits; the automatic squat follows the semi-squat as a declared candidate. The reached point stays where authored. The hold and the reaching elbow hint are provisional.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
@@ -32,11 +32,11 @@ The plan retains this body's lowered geometry and arm courses, released with the
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States the choice, the solve and the fallback.
+States the choice, the solve and the declared squat candidate.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-The campaign's strategy rule (`choose`) and the documented squat fallback over the shared lowering solve.
+The campaign's strategy rule (`choose`); an `auto` semi-squat that cannot reach declares the squat after it, chosen by Vahrenkamp et al. 2013's Algorithm 1 and Eq. (2) with binary entries (`AutoMovieMotionHumanTouchStance.choose`).
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
@@ -44,7 +44,7 @@ One choice and at most two solves.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
-Only `auto` falls back, and only from a semi-squat; any other refusal is passed on.
+Only `auto` declares a second candidate, and only after a semi-squat; a refusal of any kind but reach is passed on, and an exhausted choice refuses with both candidates' reasons.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
@@ -87,3 +87,21 @@ A pure function with nothing to share.
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
 Retains nothing.
+
+# src/everyday/bend.ts#bend.ICandidate
+
+## @evidence contracts/development/common.md#meaningful-documentation
+
+Each member states what the candidate fixes: the trunk's alignment, the strategy and the reach in metres.
+
+## @evidence contracts/development/design.md#principled-representation
+
+One lowering of a self-target bend, as the plan builds it: the three inputs `planBendStrategy` takes.
+
+## @evidence contracts/development/design.md#minimal-and-owned-surface
+
+Three members, each passed to the plan; the candidates' order is the law's.
+
+## @evidence contracts/development/design.md#prohibited-design-shortcuts
+
+A candidate is checked by the whole plan it builds, never by a proxy of it.

@@ -32,7 +32,7 @@ The stages in order, each one guarded by the same reach test.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
-A standing body's lowering refusal falls through to the turn and the step; any other is passed on.
+For a standing body the lowering is one candidate, tried as Algorithm 1 tries a base (`AutoMovieMotionHumanTouchStance.attempt`): its reach refusal leaves the turn and the step to try; any other refusal, and every refusal of a body that does not stand, is passed on.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 

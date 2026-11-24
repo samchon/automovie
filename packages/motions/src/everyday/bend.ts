@@ -14,7 +14,7 @@ import type {
 
 import { stand } from "../actions/stand";
 import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
-import { HumanRefusal } from "../law/HumanRefusal";
+import { AutoMovieMotionHumanTouchStance } from "../compose/AutoMovieMotionHumanTouchStance";
 import { bendLower } from "./bendLower";
 import { planBendStrategy } from "./planBendStrategy";
 
@@ -158,37 +158,50 @@ export namespace bend {
       upper * upper + lower * lower + 2 * upper * lower * Math.cos(elbow),
     );
     const comfortable: number = bendLower.REACH * (upper + lower);
-    let failure: HumanRefusal | undefined;
-    for (const alignTrunk of [false, true]) {
-      for (const candidate of candidates) {
-        for (const reach of new Set([
-          comfortable,
-          Math.max(comfortable, available),
-        ])) {
-          try {
-            return planBendStrategy(
-              context,
-              candidate,
-              target,
-              reach,
-              alignTrunk,
-            );
-          } catch (error) {
-            if (
-              !(error instanceof HumanRefusal) ||
-              (error.axis !== "target" && error.axis !== "region")
-            )
-              throw error;
-            if (
-              failure === undefined ||
-              (error.axis === "region" && failure.axis === "target")
-            )
-              failure = error;
-          }
-        }
-      }
-    }
-    throw failure!;
+
+    // The law's candidates in its order of preference, the trunk unaligned
+    // first, each strategy at the comfortable reach and then at the relaxed
+    // elbow's span; the first whose whole arm course admits is the stance
+    // (`AutoMovieMotionHumanTouchStance.choose`).
+    const lowerings: bend.ICandidate[] = [false, true].flatMap(
+      (alignTrunk: boolean): bend.ICandidate[] =>
+        [...candidates].flatMap(
+          (strategy: AutoMovieBendStrategy): bend.ICandidate[] =>
+            [...new Set([comfortable, Math.max(comfortable, available)])].map(
+              (reach: number): bend.ICandidate => ({
+                alignTrunk,
+                strategy,
+                reach,
+              }),
+            ),
+        ),
+    );
+    return AutoMovieMotionHumanTouchStance.choose<
+      bend.ICandidate,
+      IAutoMovieMotionHumanActionPlan
+    >({
+      candidates: lowerings,
+      reach: (candidate: bend.ICandidate): IAutoMovieMotionHumanActionPlan =>
+        planBendStrategy(
+          context,
+          candidate.strategy,
+          target,
+          candidate.reach,
+          candidate.alignTrunk,
+        ),
+    });
+  }
+
+  /** One lowering a self-target bend is chosen among. */
+  export interface ICandidate {
+    /** Whether the trunk aligns with the target. */
+    alignTrunk: boolean;
+
+    /** The lowering strategy. */
+    strategy: AutoMovieBendStrategy;
+
+    /** How near the shoulder must come to the target, metres. */
+    reach: number;
   }
 
   /**
@@ -244,17 +257,18 @@ export namespace bend {
         instant,
       );
     };
-    try {
-      return solve(chosen);
-    } catch (error) {
-      if (
-        !(error instanceof HumanRefusal) ||
-        strategy !== "auto" ||
-        chosen !== "semiSquat"
-      )
-        throw error;
-      return solve("squat");
-    }
+    // An `auto` semi-squat that cannot reach declares the squat after it
+    // (`AutoMovieMotionHumanTouchStance.choose`).
+    return AutoMovieMotionHumanTouchStance.choose<
+      typeof chosen,
+      IAutoMovieMotionHumanBendLower.ISolved
+    >({
+      candidates:
+        strategy === "auto" && chosen === "semiSquat"
+          ? ["semiSquat", "squat"]
+          : [chosen],
+      reach: solve,
+    });
   }
 
   /**

@@ -2,15 +2,15 @@
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States the choice, its premises, the step's owner and time windows, and the original refusal.
+States the choice, its premises, the step's owner and time windows, and the refusal naming both candidates.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-A declared step moves the performer toward the unchanged work point only after the shoulder, heel and lean options on the existing base fail. The same foot course and plant windows serve pick-up and touch.
+The stance is chosen by inverse reachability between the existing base and one step, in that order (`AutoMovieMotionHumanTouchStance.choose`, Vahrenkamp et al. 2013): the step moves the performer toward the unchanged work point only where the base's shoulder, heel and lean do not reach, its landed stance accepted by the binary entry (`reaches`). The same foot course and plant windows serve pick-up and touch.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-A planted solve first, then one fallback and the corresponding base builder.
+Two candidates of one choice, each with its base builder.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 

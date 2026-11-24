@@ -84,15 +84,15 @@ States what is lowered, toward what and the refusals.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-The bend law's choice and solve (`bend.lowering`) and its lowered posture (`bendLower.lower`), the trunk's inclination and the hips' shift both taken a share of the way at each instant, as the bend lowers.
+The bend law's choice and solve (`bend.lowering`) and its lowered posture (`bendLower.lower`), the trunk's inclination and the hips' shift both taken a share of the way at each instant, as the bend lowers. The lowering is chosen between the automatic strategy and the squat, in that order, by inverse reachability (`AutoMovieMotionHumanTouchStance.choose`, Vahrenkamp et al. 2013 Algorithm 1): a candidate passes when its arm reaches the grip and its key keeps the trunk out of the thighs within the tangle audit's skin (`bendLower.fold`), the collision check of the algorithm; a squat lowers the trunk on the knees and hips rather than folding the lumbar spine (Kingma et al. 2010).
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-One check of the base, one solve and one closure; a seated body goes to its lean.
+One check of the base, one choice of the lowering and one closure; a seated body goes to its lean.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
-A body that is not standing is not lowered from a standing rule (a seated one leans from its seat); a refusal of the solve is passed on with the step named.
+A body that is not standing is not lowered from a standing rule (a seated one leans from its seat); a choice no lowering passes is refused with the step named and both candidates' reasons, and any error that is not a refusal propagates unchanged.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
@@ -165,3 +165,21 @@ Reads the shoulder as `reaches` does.
 ## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
 
 Retains nothing.
+
+# src/handling/pickUpPosture.ts#pickUpPosture.Lowering
+
+## @evidence contracts/development/common.md#meaningful-documentation
+
+States what the two values name and their order.
+
+## @evidence contracts/development/design.md#principled-representation
+
+The bend law's own strategies a pick-up lowers by: its automatic choice and the squat.
+
+## @evidence contracts/development/design.md#minimal-and-owned-surface
+
+Two values, each a candidate of the lowering's choice.
+
+## @evidence contracts/development/design.md#prohibited-design-shortcuts
+
+The strategies are the bend law's (`IAutoMovieMotionHumanBend.Strategy`), not a parallel vocabulary.

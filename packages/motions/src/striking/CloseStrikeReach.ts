@@ -16,6 +16,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { AutoMovieMotionHumanTouchStance } from "../compose/AutoMovieMotionHumanTouchStance";
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { StrikingBody } from "./StrikingBody";
@@ -110,18 +111,21 @@ export function CloseStrikeReach(
   // the elbow cannot rise more than one upper arm above the shoulder.
   const upright = (shift: IAutoMovieVector3): IAutoMovieVector3 =>
     read(at(0, shift), `${side}UpperArm`).get(`${side}UpperArm`)!.worldPosition;
-  let bow: number =
+  const bowed: number =
     technique === "spinningBackfist" || target.y >= upright(still).y
       ? 0
       : CloseStrikeReach.ELBOW_LEAN;
-  const shoulderAt = (shift: IAutoMovieVector3): IAutoMovieVector3 =>
-    bow === 0
+  const shoulderAt = (
+    shift: IAutoMovieVector3,
+    lean: number,
+  ): IAutoMovieVector3 =>
+    lean === 0
       ? upright(shift)
-      : read(at(bow, shift), `${side}UpperArm`).get(`${side}UpperArm`)!
+      : read(at(lean, shift), `${side}UpperArm`).get(`${side}UpperArm`)!
           .worldPosition;
   const outward: IAutoMovieVector3 = Vector3.subtract(
-    shoulderAt(still),
-    read(at(bow, still), "chest").get("chest")!.worldPosition,
+    shoulderAt(still, bowed),
+    read(at(bowed, still), "chest").get("chest")!.worldPosition,
   );
   const across: IAutoMovieVector3 = Vector3.normalize({
     x: -outward.x,
@@ -133,7 +137,7 @@ export function CloseStrikeReach(
     // The back of the hand on the target, the elbow bent out of the way of
     // the travel, the arm's reach from the shoulder.
     const reach: number = m.upperArm + m.forearm;
-    const shoulder: IAutoMovieVector3 = shoulderAt(still);
+    const shoulder: IAutoMovieVector3 = shoulderAt(still, bowed);
     const along: number = Vector3.dot(Vector3.subtract(target, shoulder), line);
     const shift: IAutoMovieVector3 = Vector3.scale(
       line,
@@ -145,7 +149,7 @@ export function CloseStrikeReach(
       line,
       Vector3.scale(travel, -1),
     );
-    const from: IAutoMovieVector3 = shoulderAt(shift);
+    const from: IAutoMovieVector3 = shoulderAt(shift, bowed);
     if (Vector3.distance(target, from) > reach)
       refuse("reach", Vector3.distance(target, from), 0, reach);
     return {
@@ -179,9 +183,12 @@ export function CloseStrikeReach(
     y: 0,
     z: v.z,
   });
-  const fit = (elbow: IAutoMovieVector3): CloseStrikeReach.IFold => {
+  const fit = (
+    elbow: IAutoMovieVector3,
+    lean: number,
+  ): CloseStrikeReach.IFold => {
     const toward: IAutoMovieVector3 = Vector3.normalize(
-      level(Vector3.subtract(elbow, shoulderAt(still))),
+      level(Vector3.subtract(elbow, shoulderAt(still, lean))),
     );
     const solve = (shoulder: IAutoMovieVector3): number => {
       const v: IAutoMovieVector3 = Vector3.subtract(elbow, shoulder);
@@ -191,12 +198,12 @@ export function CloseStrikeReach(
         refuse("reach", Math.sqrt(perpendicular), 0, m.upperArm);
       return along - Math.sqrt(m.upperArm * m.upperArm - perpendicular);
     };
-    let distance: number = solve(shoulderAt(still));
-    distance += solve(shoulderAt(Vector3.scale(toward, distance)));
+    let distance: number = solve(shoulderAt(still, lean));
+    distance += solve(shoulderAt(Vector3.scale(toward, distance), lean));
     if (Math.abs(distance) > limit) refuse("shift", distance, -limit, limit);
     const shift: IAutoMovieVector3 = Vector3.scale(toward, distance);
     const u: IAutoMovieVector3 = Vector3.normalize(
-      Vector3.subtract(elbow, shoulderAt(shift)),
+      Vector3.subtract(elbow, shoulderAt(shift, lean)),
     );
     const plane: IAutoMovieVector3 =
       technique === "risingElbow"
@@ -231,8 +238,8 @@ export function CloseStrikeReach(
       body.rest.get(`${side}LowerArm`)!,
     ),
   );
-  const landed = (): CloseStrikeReach.IFold => {
-    let folded: CloseStrikeReach.IFold = fit(target);
+  const landed = (lean: number): CloseStrikeReach.ILanded => {
+    let folded: CloseStrikeReach.IFold = fit(target, lean);
     for (let i: number = 0; i < 2; ++i)
       folded = fit(
         Vector3.subtract(
@@ -242,31 +249,29 @@ export function CloseStrikeReach(
             region,
           ),
         ),
+        lean,
       );
-    return folded;
+    return { lean, fold: folded };
   };
-  // An elbow the stance cannot shift to upright leans the trunk in, half
-  // the lean and then all of it, before it is refused.
-  let folded: CloseStrikeReach.IFold | undefined;
-  for (const lean of [
-    bow,
-    0.5 * CloseStrikeReach.ELBOW_LEAN,
-    CloseStrikeReach.ELBOW_LEAN,
-  ]) {
-    if (lean < bow) continue;
-    bow = lean;
-    try {
-      folded = landed();
-      break;
-    } catch (error) {
-      if (
-        !(error instanceof HumanRefusal) ||
-        lean >= CloseStrikeReach.ELBOW_LEAN
-      )
-        throw error;
-    }
-  }
-  const { elbow, shift, forearm }: CloseStrikeReach.IFold = folded!;
+  // An elbow the stance cannot shift to upright leans the trunk in: the
+  // leans are the law's candidates in its order, the stance's own, half the
+  // lean and then all of it, and the first one the elbow lands from is
+  // taken (`AutoMovieMotionHumanTouchStance.choose`).
+  const chosen: CloseStrikeReach.ILanded =
+    AutoMovieMotionHumanTouchStance.choose<number, CloseStrikeReach.ILanded>({
+      candidates: [
+        ...new Set<number>(
+          [
+            bowed,
+            0.5 * CloseStrikeReach.ELBOW_LEAN,
+            CloseStrikeReach.ELBOW_LEAN,
+          ].filter((lean: number): boolean => lean >= bowed),
+        ),
+      ],
+      reach: landed,
+    });
+  const bow: number = chosen.lean;
+  const { elbow, shift, forearm }: CloseStrikeReach.IFold = chosen.fold;
   const palm: IAutoMovieVector3 =
     Math.abs(Vector3.dot(forearm, up)) > 0.9
       ? Vector3.scale(line, -1)
@@ -336,6 +341,15 @@ export namespace CloseStrikeReach {
    * (provisional).
    */
   export const SHIFT: number = 0.5;
+
+  /** An elbow's fold and the trunk lean it lands from. */
+  export interface ILanded {
+    /** The trunk's forward lean, degrees. */
+    lean: number;
+
+    /** The fold at that lean. */
+    fold: IFold;
+  }
 
   /**
    * An elbow's fold: the joint, the pelvis shift that brings it one upper arm

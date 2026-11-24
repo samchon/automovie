@@ -9,7 +9,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanRefusal } from "../law/HumanRefusal";
+import { AutoMovieMotionHumanTouchStance } from "../compose/AutoMovieMotionHumanTouchStance";
 import { pickUpAdjust } from "./pickUpAdjust";
 import { pickUpLift } from "./pickUpLift";
 import { pickUpPosture } from "./pickUpPosture";
@@ -93,15 +93,19 @@ export namespace pickUpStance {
       ): IAutoMovieMotionHumanPosture => posture,
     });
     // A standing body no stoop or squat brings to the grip may still turn
-    // or step toward it, below; anything else the lowering refuses stands.
+    // or step toward it, below: for it the lowering is one candidate of
+    // several, tried as Algorithm 1 tries a base and left behind on a reach
+    // refusal (`AutoMovieMotionHumanTouchStance.attempt`); anything else the
+    // lowering refuses stands.
     const standing: boolean = context.entry.base.kind === "standing";
-    let lowered: pickUpPosture.IStance | null = null;
-    if (missed(found))
-      try {
-        lowered = pickUpPosture.lowered(context, side, authored.point);
-      } catch (error) {
-        if (!(standing && error instanceof HumanRefusal)) throw error;
-      }
+    const lower = (grip: IAutoMovieVector3): pickUpPosture.IStance =>
+      pickUpPosture.lowered(context, side, grip);
+    let lowered: pickUpPosture.IStance | null = !missed(found)
+      ? null
+      : standing
+        ? (AutoMovieMotionHumanTouchStance.attempt(lower, authored.point) ??
+          null)
+        : lower(authored.point);
     if (lowered !== null) found = search(lowered);
 
     // Still out of reach, the trunk turns toward the grip first.

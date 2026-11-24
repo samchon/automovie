@@ -2,7 +2,6 @@ import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPosture,
-  IAutoMovieMotionHumanRefusal,
   IAutoMovieMotionHumanTarget,
   IAutoMovieMotionHumanTouchDrink,
   IAutoMovieMotionHumanTouchEffector,
@@ -11,8 +10,8 @@ import type {
 
 import { AutoMovieMotionHumanDrinkingPool } from "../compose/AutoMovieMotionHumanDrinkingPool";
 import { AutoMovieMotionHumanTouchDrink } from "../compose/AutoMovieMotionHumanTouchDrink";
+import { AutoMovieMotionHumanTouchStance } from "../compose/AutoMovieMotionHumanTouchStance";
 import { AutoMovieMotionHumanTouchUpright } from "../compose/AutoMovieMotionHumanTouchUpright";
-import { HumanRefusal } from "../law/HumanRefusal";
 
 /**
  * The side of a held vessel's rim a drink is taken from, found by the drink's
@@ -57,8 +56,8 @@ export namespace handToFaceVessel {
    * @param hint The elbow's hint each candidate starts from, world.
    * @param after Where the vessel is held while the drinker drinks.
    * @returns The side and its drink.
-   * @throws {HumanRefusal} The drink's refusal when no side admits one, naming
-   *   the nearest arm of every side tried; any other refusal at once.
+   * @throws {HumanRefusal} When no side admits a drink: the first side's reach
+   *   refusal, naming every other side's after it; any other refusal at once.
    */
   export function of(
     body: IAutoMovieMotionHumanBody,
@@ -86,30 +85,29 @@ export namespace handToFaceVessel {
         sides.length,
         Math.min(span, AutoMovieMotionHumanTouchUpright.SPAN),
       );
-    let refusal: IAutoMovieMotionHumanRefusal | undefined;
-    for (const effector of sides) {
-      try {
-        return {
+    // The rim's sides are the law's candidates in their order; the first one
+    // the drinking arm reaches is drunk from
+    // (`AutoMovieMotionHumanTouchStance.choose`).
+    return AutoMovieMotionHumanTouchStance.choose<
+      IAutoMovieMotionHumanTouchEffector.IEffector,
+      IVessel
+    >({
+      candidates: sides,
+      reach: (
+        effector: IAutoMovieMotionHumanTouchEffector.IEffector,
+      ): IVessel => ({
+        effector,
+        drink: AutoMovieMotionHumanTouchDrink.drinking(
+          body,
+          posture,
+          side,
           effector,
-          drink: AutoMovieMotionHumanTouchDrink.drinking(
-            body,
-            posture,
-            side,
-            effector,
-            place,
-            hint,
-            after,
-            pool,
-          ),
-        };
-      } catch (error) {
-        if (!(error instanceof HumanRefusal && error.axis === "facing"))
-          throw error;
-        refusal = error;
-      }
-    }
-    throw (
-      refusal ?? new Error("A held vessel has at least one side of its rim")
-    );
+          place,
+          hint,
+          after,
+          pool,
+        ),
+      }),
+    });
   }
 }

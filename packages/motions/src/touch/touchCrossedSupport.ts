@@ -17,8 +17,8 @@ import type {
 
 import { readHumanBone } from "../body/readHumanBone";
 import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
+import { AutoMovieMotionHumanTouchStance } from "../compose/AutoMovieMotionHumanTouchStance";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
-import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanArmTrajectoryPace } from "../posture/HumanArmTrajectoryPace";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
@@ -52,6 +52,15 @@ export namespace touchCrossedSupport {
   /** Joint angles in the rig's flexion, abduction and twist order, in degrees. */
   type Angles = readonly [number, number, number];
 
+  /** The branch a crossing reaches on and its plan. */
+  interface IAssisted {
+    /** Whether the primary arm passes below and the second arm above. */
+    assist: boolean;
+
+    /** The plan built on that branch. */
+    plan: IAutoMovieMotionHumanActionPlan;
+  }
+
   /**
    * Plan a supported crossing on the entry shoulders first. A refused crossing
    * can use the opposite shoulder-girdle limits.
@@ -82,20 +91,21 @@ export namespace touchCrossedSupport {
     )
       return build(context);
 
-    let first: IAutoMovieMotionHumanActionPlan;
-    let assist: boolean = false;
-    try {
-      first = build(context, { assist, reach: 0 });
-    } catch (error: unknown) {
-      if (
-        !(error instanceof HumanRefusal) ||
-        error.kind !== "reach" ||
-        (error.axis !== "region" && error.axis !== "target")
-      )
-        throw error;
-      assist = true;
-      first = build(context, { assist, reach: 0 });
-    }
+    // The crossing on the entry shoulders, then on the opposite girdle
+    // limits: the law's two candidates in its order, the first that reaches
+    // taken (`AutoMovieMotionHumanTouchStance.choose`).
+    const chosen: IAssisted = AutoMovieMotionHumanTouchStance.choose<
+      boolean,
+      IAssisted
+    >({
+      candidates: [false, true],
+      reach: (assist: boolean): IAssisted => ({
+        assist,
+        plan: build(context, { assist, reach: 0 }),
+      }),
+    });
+    const assist: boolean = chosen.assist;
+    const first: IAutoMovieMotionHumanActionPlan = chosen.plan;
 
     const event = (name: string): number =>
       first.duration *

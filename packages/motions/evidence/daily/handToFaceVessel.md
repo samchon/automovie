@@ -28,11 +28,11 @@ The side is a free turn of the vessel in the hand, so it is searched by the same
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-One span, one pool, one loop of drink searches.
+One span, one pool, and the sides as candidates of one choice (`AutoMovieMotionHumanTouchStance.choose`).
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
-Only the drink's own facing refusal moves the search to the next side; every other refusal propagates. The span is derived from the sides' count, never tuned; it premises sides spaced evenly round the rim, as `HumanHeld.SIDES` are.
+A side whose drink refuses its reach moves the choice to the next side, as Algorithm 1 leaves a base its arm does not reach; every other refusal propagates, and an exhausted choice refuses with the first side's facts and every side's reason. The span is derived from the sides' count, never tuned; it premises sides spaced evenly round the rim, as `HumanHeld.SIDES` are.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 

@@ -14,6 +14,7 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanAuditSkin } from "../audit/AutoMovieMotionHumanAuditSkin";
+import { AutoMovieMotionHumanTouchStance } from "../compose/AutoMovieMotionHumanTouchStance";
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { bend } from "../everyday/bend";
 import { bendLower } from "../everyday/bendLower";
@@ -44,6 +45,9 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
  * person stands and steps closer first.
  */
 export namespace pickUpPosture {
+  /** The lowerings a pick-up's stance is chosen among, in its order. */
+  export type Lowering = "auto" | "squat";
+
   /**
    * The furthest a seated trunk leans forward from the seat to reach, degrees:
    * a search bound (provisional: no source gives the trunk's angle from
@@ -136,58 +140,63 @@ export namespace pickUpPosture {
       context.body.rest.get(`${side}UpperArm`)!.z
         ? bendLower.lateralTilt(context.body, entry, grip, side)
         : 0;
-    let solved: IAutoMovieMotionHumanBendLower.ISolved;
-    try {
-      solved = bend.lowering(
+    // The lowerings are the law's candidates in its order, the automatic
+    // strategy and then the squat, each checked as Algorithm 1 checks a base
+    // (`AutoMovieMotionHumanTouchStance.choose`): its arm reaches the grip
+    // and its key keeps the trunk out of the thighs within the tangle
+    // audit's skin, since the pick-up shows its key as solved. A squat
+    // lowers the trunk on the knees and hips rather than folding the lumbar
+    // spine onto the thighs (`bendLower.fold`; Kingma et al. 2010).
+    const lowering = (
+      strategy: pickUpPosture.Lowering,
+    ): IAutoMovieMotionHumanBendLower.ISolved => {
+      const candidate: IAutoMovieMotionHumanBendLower.ISolved = bend.lowering(
         context.body,
         entry,
         grip,
         side,
-        "auto",
+        strategy,
         reach,
         undefined,
         undefined,
         lateral,
       );
-      // The pick-up shows its key as solved, so a key that folds the trunk
-      // into the thighs past the tangle audit's skin is lowered into a squat
-      // instead, the knees and hips lowering the trunk rather than the lumbar
-      // spine folding it on (`bendLower.fold`; Kingma et al. 2010), where the
-      // squat folds it less: a long-thighed body's squat folds its thighs
-      // further onto the trunk than its semi-squat does.
-      const folded: number =
-        solved.strategy === "squat"
-          ? 0
-          : bendLower.fold(context.body, entry, lateral, solved);
-      if (folded > AutoMovieMotionHumanAuditSkin.BUILT) {
-        let squat: IAutoMovieMotionHumanBendLower.ISolved | undefined;
-        try {
-          squat = bend.lowering(
-            context.body,
-            entry,
-            grip,
-            side,
-            "squat",
-            reach,
-            undefined,
-            undefined,
-            lateral,
-          );
-        } catch (error) {
-          if (!(error instanceof HumanRefusal)) throw error;
-        }
-        if (
-          squat !== undefined &&
-          bendLower.fold(context.body, entry, lateral, squat) < folded
-        )
-          solved = squat;
-      }
-    } catch (error) {
+      const folded: number = bendLower.fold(
+        context.body,
+        entry,
+        lateral,
+        candidate,
+      );
+      if (folded > AutoMovieMotionHumanAuditSkin.BUILT)
+        throw new HumanRefusal({
+          kind: "reach",
+          axis: "prop",
+          value: folded,
+          feasible: {
+            kind: "range",
+            minimum: null,
+            maximum: AutoMovieMotionHumanAuditSkin.BUILT,
+            unit: "m",
+          },
+          reason: `the ${candidate.strategy} folds the trunk ${(folded * 1000).toFixed(1)} mm into the thighs`,
+          fix: "step closer to the prop first",
+        });
+      return candidate;
+    };
+    let solved: IAutoMovieMotionHumanBendLower.ISolved;
+    try {
+      solved = AutoMovieMotionHumanTouchStance.choose<
+        pickUpPosture.Lowering,
+        IAutoMovieMotionHumanBendLower.ISolved
+      >({ candidates: ["auto", "squat"], reach: lowering });
+    } catch (error: unknown) {
+      if (!(error instanceof HumanRefusal)) throw error;
       throw new HumanRefusal({
         kind: "reach",
         axis: "prop",
         value: grip.y,
-        reason: `${context.subject}: no stoop or squat brings the ${side} hand to the grip at ${grip.y.toFixed(3)} m high, ${Vector3.length({ ...Vector3.subtract(grip, shoulder(context, side, entry)), y: 0 }).toFixed(3)} m from the shoulder across the floor (${(error as Error).message})`,
+        feasible: error.feasible,
+        reason: `${context.subject}: no stoop or squat brings the ${side} hand to the grip at ${grip.y.toFixed(3)} m high, ${Vector3.length({ ...Vector3.subtract(grip, shoulder(context, side, entry)), y: 0 }).toFixed(3)} m from the shoulder across the floor (${error.message})`,
         fix: "step closer to the prop first",
       });
     }
