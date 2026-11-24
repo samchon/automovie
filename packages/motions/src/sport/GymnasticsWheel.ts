@@ -15,6 +15,12 @@ import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolutio
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
+/** The alternatives of `ContactsAtKey`'s site. */
+type ContactsAtKey = number | "-0";
+
+/** The alternatives of `ContactsTimesEntry`'s site. */
+type ContactsTimesEntry = number | "-0";
+
 /**
  * The supported phase of a gymnastic turn: the body, a shape that changes with
  * the angle of its turn, rolls over its spokes (a foot, both feet, a hand, both
@@ -190,9 +196,9 @@ export namespace GymnasticsWheel {
         }
       },
     );
-    const times: Map<number | "-0", number> = new Map();
+    const times: Map<ContactsTimesEntry, number> = new Map();
     const at: (angle: number) => number = (angle: number): number => {
-      const key: number | "-0" = Object.is(angle, -0) ? "-0" : angle;
+      const key: ContactsAtKey = Object.is(angle, -0) ? "-0" : angle;
       const kept: number | undefined = times.get(key);
       if (kept !== undefined) return kept;
       const value: number = share(angle);

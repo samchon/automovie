@@ -12,6 +12,33 @@ import type {
 import { HumanHand } from "../posture/HumanHand";
 import { handshakeReach } from "./handshakeReach";
 
+/** The alternatives of `AttemptOther`'s site. */
+type AttemptOther = 0 | 1;
+
+/** The alternatives of `AttemptTop`'s site. */
+type AttemptTop = 0 | 1;
+
+/** The alternatives of `AttemptDeepI`'s site. */
+type AttemptDeepI = 0 | 1;
+
+/** The record of `IAttemptDeepReads2`'s site. */
+type IAttemptDeepReads2 = { distance: number; reach: number };
+
+/** The record of `IAttemptDeepReads`'s site. */
+type IAttemptDeepReads = { distance: number; reach: number };
+
+/** The record of `IAttemptWithinRead`'s site. */
+type IAttemptWithinRead = { distance: number; reach: number };
+
+/** The alternatives of `AttemptWithinI`'s site. */
+type AttemptWithinI = 0 | 1;
+
+/** The record of `IAttemptBottomResult`'s site. */
+type IAttemptBottomResult = { distance: number; reach: number };
+
+/** The alternatives of `AttemptBottomI`'s site. */
+type AttemptBottomI = 0 | 1;
+
 /**
  * The arm a person offers for a handshake, and where two such arms meet.
  *
@@ -174,6 +201,8 @@ export namespace handshakeOffer {
       turn: (turn(lowered) * 180) / Math.PI,
     };
   }
+  /** The alternatives of `PointTried`'s site. */
+  type PointTried = IMeeting | handshakeReach.IMiss;
 
   /**
    * Where two shaking hands meet: the point both forearms reach from the elbows
@@ -223,10 +252,12 @@ export namespace handshakeOffer {
     side: AutoMovieHumanSide,
     pump: number,
   ): IMeeting {
-    const tried: IMeeting | handshakeReach.IMiss = attempt(a, b, side, pump);
+    const tried: PointTried = attempt(a, b, side, pump);
     if (!("bound" in tried)) return tried;
     throw handshakeReach.refusal(a, b, side, pump, tried, attempt);
   }
+  /** The alternatives of `AttemptResult`'s site. */
+  type AttemptResult = IMeeting | handshakeReach.IMiss;
 
   /**
    * The meeting, or the bound it missed: `point` without the refusal, which the
@@ -243,7 +274,7 @@ export namespace handshakeOffer {
     b: ISide,
     side: AutoMovieHumanSide,
     pump: number,
-  ): IMeeting | handshakeReach.IMiss {
+  ): AttemptResult {
     const span: IAutoMovieVector3 = Vector3.subtract(b.shoulder, a.shoulder);
     const gap: number = Math.hypot(span.x, span.z);
     if (!(gap > 1e-9)) return { bound: "apart", gap };
@@ -300,8 +331,8 @@ export namespace handshakeOffer {
     // how far that arm reaches with its elbow flexed EXTENDED.
     const bottom = (
       met: IAutoMovieVector3,
-      i: 0 | 1,
-    ): { distance: number; reach: number } => ({
+      i: AttemptBottomI,
+    ): IAttemptBottomResult => ({
       distance: Vector3.length(
         Vector3.subtract(
           { ...met, y: met.y - pump },
@@ -310,8 +341,8 @@ export namespace handshakeOffer {
       ),
       reach: reach((i === 0 ? a : b).body.measure.upperArm, lower[i]),
     });
-    const within = (met: IAutoMovieVector3, i: 0 | 1): boolean => {
-      const read: { distance: number; reach: number } = bottom(met, i);
+    const within = (met: IAutoMovieVector3, i: AttemptWithinI): boolean => {
+      const read: IAttemptWithinRead = bottom(met, i);
       return read.distance <= read.reach;
     };
     // The pump's miss of the partner who overreaches it most.
@@ -319,11 +350,11 @@ export namespace handshakeOffer {
       elbows: [IAutoMovieVector3, IAutoMovieVector3],
     ): handshakeReach.IMiss => {
       const met: IAutoMovieVector3 = meet(elbows);
-      const reads: [
-        { distance: number; reach: number },
-        { distance: number; reach: number },
-      ] = [bottom(met, 0), bottom(met, 1)];
-      const i: 0 | 1 =
+      const reads: [IAttemptDeepReads, IAttemptDeepReads2] = [
+        bottom(met, 0),
+        bottom(met, 1),
+      ];
+      const i: AttemptDeepI =
         reads[0].distance - reads[0].reach >= reads[1].distance - reads[1].reach
           ? 0
           : 1;
@@ -362,7 +393,7 @@ export namespace handshakeOffer {
       angles = [high, high];
     } else {
       // The higher elbow's upper arm lowers while its palm would overreach.
-      const top: 0 | 1 = offered[0].y >= offered[1].y ? 0 : 1;
+      const top: AttemptTop = offered[0].y >= offered[1].y ? 0 : 1;
       const lowered = (
         degrees: number,
       ): [IAutoMovieVector3, IAutoMovieVector3] =>
@@ -377,7 +408,7 @@ export namespace handshakeOffer {
       // have no higher arm: when both pump bottoms overreach there, the
       // partners stand near and the near rule below brings both arms back
       // together, so the meeting is the same for either order.
-      const other: 0 | 1 = top === 0 ? 1 : 0;
+      const other: AttemptOther = top === 0 ? 1 : 0;
       if (
         short(0) &&
         (offered[0].y !== offered[1].y || within(meet(offered), other))

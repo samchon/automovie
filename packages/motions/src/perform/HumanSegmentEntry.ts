@@ -1,6 +1,6 @@
 import { Quaternion, samplePoseVelocity } from "@automovie/engine";
 import type {
-  AutoMovieHumanoidBone,
+  AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanEntryState,
@@ -15,10 +15,25 @@ import type {
 } from "@automovie/interface";
 
 import { HumanBase } from "../law/HumanBase";
+import { HumanBoneGroups } from "../posture/HumanBoneGroups";
 import { humanRig } from "../posture/humanRig";
 import { poseBones } from "../posture/poseBones";
 import { HumanSegmentPose } from "./HumanSegmentPose";
 import { prepareHumanSegmentPose } from "./prepareHumanSegmentPose";
+
+/** The alternatives of `SupportsPart`'s site. */
+type SupportsPart = "leftFoot" | "rightFoot";
+
+/** The alternatives of `EntryResult`'s site. */
+type EntryResult =
+  | [[AutoMovieHumanSide, IAutoMovieMotionHumanGraspUse.IUse]]
+  | [];
+
+/** The alternatives of `EntryPlantedPart2`'s site. */
+type EntryPlantedPart2 = "leftFoot" | "rightFoot";
+
+/** The alternatives of `EntryPlantedPart`'s site. */
+type EntryPlantedPart = "leftFoot" | "rightFoot";
 
 /**
  * The state a person enters an action from: the displayed pose and its rates at
@@ -85,10 +100,10 @@ export namespace HumanSegmentEntry {
       body,
       state.pose,
       prepared.resolution(),
-      FEET,
+      HumanBoneGroups.FEET,
     );
-    const planted: (part: "leftFoot" | "rightFoot") => boolean = (
-      part: "leftFoot" | "rightFoot",
+    const planted: (part: EntryPlantedPart) => boolean = (
+      part: EntryPlantedPart2,
     ): boolean => {
       if (previous === undefined) return true;
       const u: number = Math.min(
@@ -109,14 +124,14 @@ export namespace HumanSegmentEntry {
     const frames = (pose: IAutoMoviePose): ReturnType<typeof poseBones> =>
       pose === state.pose
         ? bones
-        : poseBones(body, pose, prepared.resolution(), FEET);
+        : poseBones(body, pose, prepared.resolution(), HumanBoneGroups.FEET);
     const instant: ReturnType<typeof poseBones> = frames(read.samples[0]);
     const near: ReturnType<typeof poseBones> = frames(read.samples[1]);
     const far: ReturnType<typeof poseBones> = frames(read.samples[2]);
     const foot: (
-      side: "left" | "right",
+      side: AutoMovieHumanSide,
     ) => IAutoMovieMotionHumanEntryState.IFoot = (
-      side: "left" | "right",
+      side: AutoMovieHumanSide,
     ): IAutoMovieMotionHumanEntryState.IFoot => {
       const here: IAutoMovieResolvedBone = bones.get(`${side}Foot`)!;
       const from: IAutoMovieResolvedBone = instant.get(`${side}Foot`)!;
@@ -229,14 +244,12 @@ export namespace HumanSegmentEntry {
           .map(
             (
               h: IAutoMovieMotionHumanSegment.IHeld,
-            ): ["left" | "right", string] => [h.side, h.prop],
+            ): [AutoMovieHumanSide, string] => [h.side, h.prop],
           ),
       ),
       uses: Object.fromEntries(
         person.holds.flatMap(
-          (
-            h: IAutoMovieMotionHumanSegment.IHeld,
-          ): [["left" | "right", IAutoMovieMotionHumanGraspUse.IUse]] | [] =>
+          (h: IAutoMovieMotionHumanSegment.IHeld): EntryResult =>
             h.from <= seconds && seconds < h.until && h.use !== undefined
               ? [[h.side, h.use]]
               : [],
@@ -278,9 +291,7 @@ export namespace HumanSegmentEntry {
   ): IAutoMovieMotionHumanEntryState.ISupport[] {
     if (previous === undefined)
       return (["leftFoot", "rightFoot"] as const).map(
-        (
-          part: "leftFoot" | "rightFoot",
-        ): IAutoMovieMotionHumanEntryState.ISupport => ({
+        (part: SupportsPart): IAutoMovieMotionHumanEntryState.ISupport => ({
           part,
           kind: "plant",
           support: { kind: "ground" },
@@ -396,9 +407,3 @@ export namespace HumanSegmentEntry {
     );
   }
 }
-
-/** Entry foot rates consume no world frames outside these two end bones. */
-const FEET: ReadonlySet<AutoMovieHumanoidBone> = new Set([
-  "leftFoot",
-  "rightFoot",
-]);

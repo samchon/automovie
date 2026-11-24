@@ -25,6 +25,12 @@ import { walkStepFoot } from "./walkStepFoot";
 import { walkStepsTempo } from "./walkStepsTempo";
 import { walkStride } from "./walkStride";
 
+/** The alternatives of `Plan2`'s site. */
+type Plan2 = "root" | "amount";
+
+/** The record of `IPlanGaitBob`'s site. */
+type IPlanGaitBob = { mean: number; amplitude: number };
+
 /**
  * The footstep plan of a walk: footprints, their heel-strike and toe-off times,
  * each foot's scheduled stance, and the pelvis path, all as closed functions of
@@ -93,6 +99,8 @@ export namespace walkSteps {
    * inside the 7 to 12 cm of normal adult gait (Perry and Burnfield).
    */
   export const WIDTH: number = 0.1;
+  /** The record of `IPlanResult`'s site. */
+  type IPlanResult = { opening: IOpening };
 
   /**
    * Plan the footsteps of a walk.
@@ -106,15 +114,15 @@ export namespace walkSteps {
   export function plan(
     input: IAutoMovieMotionHumanWalkSteps.IInput,
     opening?: IOpening,
-  ): IAutoMovieMotionHumanWalkSteps.IPlan & { opening: IOpening } {
+  ): IAutoMovieMotionHumanWalkSteps.IPlan & IPlanResult {
     const body: IAutoMovieMotionHumanBody = input.body;
     const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
     const l: number = m.hipHeight;
     const yaw0: number = input.entry.posture.yaw;
     const flatten: (
-      side: "left" | "right",
+      side: AutoMovieHumanSide,
     ) => IAutoMovieMotionHumanFoot.IPlacement = (
-      side: "left" | "right",
+      side: AutoMovieHumanSide,
     ): IAutoMovieMotionHumanFoot.IPlacement => ({
       ankle: { ...input.entry.feet[side].ankle, y: m.ankleHeight },
       rotation: HumanFoot.rotation(
@@ -123,7 +131,7 @@ export namespace walkSteps {
       ),
     });
     const start: Record<
-      "left" | "right",
+      AutoMovieHumanSide,
       IAutoMovieMotionHumanFoot.IPlacement
     > = {
       left: flatten("left"),
@@ -245,17 +253,17 @@ export namespace walkSteps {
           )
         : unwrap(input.face ?? faced$(path.at(D)), yaw0);
     const frame: IAutoMovieMotionHumanFrame = { origin: S, yaw: heading };
-    const along: (side: "left" | "right") => number = (
-      side: "left" | "right",
+    const along: (side: AutoMovieHumanSide) => number = (
+      side: AutoMovieHumanSide,
     ): number => HumanFrame.local(frame, start[side].ankle).z;
     const half: number = ((input.gait?.width ?? WIDTH) / 2) * l;
-    const restWidth: Record<"left" | "right", number> = {
+    const restWidth: Record<AutoMovieHumanSide, number> = {
       left: Math.abs(body.rest.get("leftFoot")!.x),
       right: Math.abs(body.rest.get("rightFoot")!.x),
     };
-    const hipWidth: Partial<Record<"left" | "right", number>> = {};
-    const rest: (side: "left" | "right") => number = (
-      side: "left" | "right",
+    const hipWidth: Partial<Record<AutoMovieHumanSide, number>> = {};
+    const rest: (side: AutoMovieHumanSide) => number = (
+      side: AutoMovieHumanSide,
     ): number => restWidth[side];
     const T: number = pace.period;
     const swing: number = pace.swing;
@@ -263,7 +271,7 @@ export namespace walkSteps {
     // A walk setting off further from its facing than a foot turns in a
     // swing first turns about in place, and the pelvis sets off after those
     // footfalls at the same cadence (`walkHeading.opening`).
-    const facings: Record<"left" | "right", number> = {
+    const facings: Record<AutoMovieHumanSide, number> = {
       left: HumanFoot.heading(start.left.rotation) - stand.TOE_OUT,
       right: HumanFoot.heading(start.right.rotation) + stand.TOE_OUT,
     };
@@ -395,12 +403,12 @@ export namespace walkSteps {
     const steps: IStep[] = [];
     const knots: IHeading[] = [{ seconds: 0, yaw: yaw0 }];
     let faced: number = yaw0;
-    const lastOf: Partial<Record<"left" | "right", walkHeading.ISeparated>> =
+    const lastOf: Partial<Record<AutoMovieHumanSide, walkHeading.ISeparated>> =
       {};
     // The heel strikes of the footfalls taken in place at the arrival.
     const turnedAt: Set<number> = new Set();
     for (let j: number = 1; j <= n + 1; j++) {
-      const side: "left" | "right" =
+      const side: AutoMovieHumanSide =
         j % 2 === 1 ? lead : lead === "left" ? "right" : "left";
       const heelStrike: number = first + swing + (j - 1) * T;
       const toeOut: number = side === "left" ? stand.TOE_OUT : -stand.TOE_OUT;
@@ -501,12 +509,11 @@ export namespace walkSteps {
         flight?.push ?? walkStepFoot.PUSH,
         input.gait?.stiff,
       );
-    const gaitBob: { mean: number; amplitude: number } | undefined =
-      flight?.bob ?? input.gait?.bob;
+    const gaitBob: IPlanGaitBob | undefined = flight?.bob ?? input.gait?.bob;
     // A cruising stance runs from a heel strike to the same foot's toe-off
     // two steps on: two periods less a swing.
     const typical: number = 2 * T - swing;
-    const own: Record<"left" | "right", IStep[]> = {
+    const own: Record<AutoMovieHumanSide, IStep[]> = {
       left: steps.filter((s: IStep): boolean => s.side === "left"),
       right: steps.filter((s: IStep): boolean => s.side === "right"),
     };
@@ -525,46 +532,46 @@ export namespace walkSteps {
         walkStride.flying(input.entry, side),
       );
     const schedules: Record<
-      "left" | "right",
+      AutoMovieHumanSide,
       (t: number) => IAutoMovieMotionHumanWalkFoot.IScheduled
     > = { left: scheduled("left"), right: scheduled("right") };
     const foot: (
-      side: "left" | "right",
+      side: AutoMovieHumanSide,
       t: number,
     ) => IAutoMovieMotionHumanWalkFoot.IScheduled = (
-      side: "left" | "right",
+      side: AutoMovieHumanSide,
       t: number,
     ): IAutoMovieMotionHumanWalkFoot.IScheduled => schedules[side](t);
-    const {
-      root,
-      amount,
-    }: Pick<IAutoMovieMotionHumanWalkSteps.IPlan, "root" | "amount"> = inPlace
-      ? {
-          root: (): IAutoMovieVector3 => ({ ...placement }),
-          amount: (): number => 0,
-        }
-      : walkRoot({
-          body,
-          start: input.entry.posture.root,
-          period: T,
-          lag,
-          first,
-          last,
-          front,
-          swing,
-          stop: steps.at(-2)!.heelStrike,
-          firstLeft,
-          bob: gaitBob,
-          step: pace.stride,
-          ...(gaitBob !== undefined || input.travel !== undefined || swing >= T
-            ? {}
-            : { walkingSpeed: pace.stride / T }),
-          progress,
-          yaw: yawAt,
-          at: (s: number): IAutoMovieVector3 => path.at(s),
-          heading: (s: number, point: IAutoMovieVector3): number =>
-            facing === undefined ? along$(s) : faced$(point),
-        });
+    const { root, amount }: Pick<IAutoMovieMotionHumanWalkSteps.IPlan, Plan2> =
+      inPlace
+        ? {
+            root: (): IAutoMovieVector3 => ({ ...placement }),
+            amount: (): number => 0,
+          }
+        : walkRoot({
+            body,
+            start: input.entry.posture.root,
+            period: T,
+            lag,
+            first,
+            last,
+            front,
+            swing,
+            stop: steps.at(-2)!.heelStrike,
+            firstLeft,
+            bob: gaitBob,
+            step: pace.stride,
+            ...(gaitBob !== undefined ||
+            input.travel !== undefined ||
+            swing >= T
+              ? {}
+              : { walkingSpeed: pace.stride / T }),
+            progress,
+            yaw: yawAt,
+            at: (s: number): IAutoMovieVector3 => path.at(s),
+            heading: (s: number, point: IAutoMovieVector3): number =>
+              facing === undefined ? along$(s) : faced$(point),
+          });
     return {
       duration,
       opening: { lead, turning, seconds: lag },

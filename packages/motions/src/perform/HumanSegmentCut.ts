@@ -9,6 +9,9 @@ import type {
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanSegment } from "./HumanSegment";
 
+/** The alternatives of `RowFoundW`'s site. */
+type RowFoundW = number | string;
+
 /**
  * Whether one placed action may be cut into the next: the interrupt row that
  * legalises the cut, read from the two laws' cancel tables.
@@ -62,7 +65,7 @@ export namespace HumanSegmentCut {
       [];
     const found: IAutoMovieMotionHumanInterruptRow | undefined = rows.find(
       (r: IAutoMovieMotionHumanInterruptRow): boolean => {
-        const [a, b] = r.window.map((w: number | string): number =>
+        const [a, b] = r.window.map((w: RowFoundW): number =>
           HumanSegment.share(w, previous.plan),
         );
         return share >= a! - 1e-9 && share <= b! + 1e-9;

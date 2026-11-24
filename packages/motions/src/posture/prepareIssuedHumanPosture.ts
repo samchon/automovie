@@ -1,5 +1,17 @@
 import type { IAutoMovieMotionHumanPosture } from "@automovie/interface";
 
+/** The alternatives of `PrepareIssuedHumanPostureKey`'s site. */
+type PrepareIssuedHumanPostureKey = string | symbol;
+
+/** The alternatives of `PrepareIssuedHumanPostureKeysItem`'s site. */
+type PrepareIssuedHumanPostureKeysItem = string | symbol;
+
+/** The alternatives of `PrepareIssuedHumanPostureOwnKey`'s site. */
+type PrepareIssuedHumanPostureOwnKey = string | symbol;
+
+/** The alternatives of `OwnKeysItem`'s site. */
+type OwnKeysItem = string | symbol;
+
 /**
  * Record the actual native objects created by authoritative raw translation.
  * Later checks inspect only those exact original objects, never a replacement
@@ -23,11 +35,11 @@ export function prepareIssuedHumanPosture(
     ): boolean => {
       const prototype: object = array ? Array.prototype : Object.prototype;
       if (Object.getPrototypeOf(value) !== prototype) return false;
-      const keys: readonly (string | symbol)[] = Reflect.ownKeys(value);
+      const keys: readonly OwnKeysItem[] = Reflect.ownKeys(value);
       if (
         keys.length !== names.length ||
         keys.some(
-          (key: string | symbol): boolean =>
+          (key: PrepareIssuedHumanPostureOwnKey): boolean =>
             typeof key !== "string" || !names.includes(key),
         )
       )
@@ -104,11 +116,13 @@ export function prepareIssuedHumanPosture(
       if (!standardJson()) return false;
       for (const node of nodes) {
         if (Object.getPrototypeOf(node.value) !== node.prototype) return false;
-        const keys: readonly (string | symbol)[] = Reflect.ownKeys(node.value);
+        const keys: readonly PrepareIssuedHumanPostureKeysItem[] =
+          Reflect.ownKeys(node.value);
         if (
           keys.length !== node.keys.length ||
           keys.some(
-            (key: string | symbol, i: number): boolean => key !== node.keys[i],
+            (key: PrepareIssuedHumanPostureKey, i: number): boolean =>
+              key !== node.keys[i],
           )
         )
           return false;
@@ -133,6 +147,8 @@ export function prepareIssuedHumanPosture(
     return undefined;
   }
 }
+/** The alternatives of `NodeKeysItem`'s site. */
+type NodeKeysItem = string | symbol;
 
 /**
  * Each value is an original constructor-owned ordinary object, never a
@@ -147,7 +163,7 @@ interface INode {
   /** Original ordinary object/array prototype. */
   prototype: object;
   /** Exact ordered own keys, including the native array length property. */
-  keys: readonly (string | symbol)[];
+  keys: readonly NodeKeysItem[];
   /**
    * Exact original data values/child identities in key order; normal data flags
    * follow from construction.

@@ -57,8 +57,7 @@ import { ReactionSource } from "./ReactionSource";
  * toward that direction.
  *
  * The trunk's recline and the hip's fold at the seat are provisional readings;
- * detailed falls derived from the Euphoria behaviours belong to tier 2 of the
- * kickboxing research.
+ * detailed falls belong to tier 2 of the kickboxing research.
  */
 export namespace knockdown {
   /** The action's name. */

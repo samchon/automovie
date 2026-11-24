@@ -20,14 +20,9 @@ import { nclose } from "./nclose";
 import { qclose } from "./qclose";
 
 /**
- * Independent expectations and observations shared by the box, degeneracy
- * and actual-Human regressions. Expected rotations follow the documented
- * axis-angle convention, never producer candidates.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States clinical degrees, physical quaternion observations and the three test responsibilities.
- * @evidence contracts/development/design.md#principled-representation A fixed rig contract and expected geometry remain separate from the producer's candidate representation.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Three regression entries share the rig fixture, composition, score and result observer.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No internal candidates, method replacement, snapshots or test-specific production branch supply expectations.
+ * Independent expectations and observations shared by the box, degeneracy and
+ * actual-Human regressions. Expected rotations follow the documented axis-angle
+ * convention, never producer candidates.
  */
 export namespace jointRotationOracle {
   /**
@@ -68,7 +63,6 @@ export namespace jointRotationOracle {
      *
      * @param label The failed observation's diagnostic name.
      * @param condition The already measured observable predicate.
-     *
      * @evidence contracts/development/common.md#meaningful-documentation States the predicate input, deferred failure and diagnostic ownership.
      * @evidenceExclude contracts/development/implementation.md#principled-implementation This signature has no body; of() implements conditional diagnostic collection.
      * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This contract declares no control flow; of() owns the failure list and append.
@@ -86,7 +80,6 @@ export namespace jointRotationOracle {
      *
      * @param label The scenario's diagnostic name.
      * @param task The synchronous test case to observe.
-     *
      * @evidence contracts/development/common.md#meaningful-documentation States synchronous execution, exception collection and the final-assertion boundary.
      * @evidenceExclude contracts/development/implementation.md#principled-implementation This signature has no body; of() owns the synchronous try/catch and diagnostic conversion.
      * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure The contract contains no execution flow; of().scenario implements the isolated case boundary.
@@ -110,7 +103,6 @@ export namespace jointRotationOracle {
      * @param expected Optional independently expected physical rotation.
      * @param expectedScore Optional independently expected normalized score.
      * @returns The actual joint returned for the positive-sign target.
-     *
      * @evidence contracts/development/common.md#meaningful-documentation States rig equivalence, both-sign queries, optional expectations, score units and returned joint.
      * @evidenceExclude contracts/development/implementation.md#principled-implementation This signature has no solver body; of().run owns matching public clamp/projection calls and actual recomposition.
      * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure The signature only declares the query contract; of() implements preparation, both observations and result return.
@@ -183,7 +175,6 @@ export namespace jointRotationOracle {
    * @param basis Admitted normalized axes; canonical by default.
    * @param frame Optional affine clinical rest convention.
    * @returns Matching projector and quaternion inputs.
-   *
    * @evidence contracts/development/common.md#meaningful-documentation States inputs, defaults and the matching-contract result.
    * @evidence contracts/development/implementation.md#principled-implementation Retains the supplied rig records unchanged in one typed fixture.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One record holds inputs shared by the observer and expected composition.
@@ -206,7 +197,6 @@ export namespace jointRotationOracle {
    * @param angles Flexion, abduction and twist, clinical degrees.
    * @param input Axis order and affine rest convention.
    * @returns Expected bone-local articulation.
-   *
    * @evidence contracts/development/common.md#meaningful-documentation States tuple order, degree units and the local quaternion frame.
    * @evidence contracts/development/implementation.md#principled-implementation Explicitly inverts clinical=sign*rig+neutral and composes the declared proximal or distal axis-angle factors.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Three affine conversions feed one ordered rigid composition.
@@ -249,7 +239,6 @@ export namespace jointRotationOracle {
    * @param actual Recomposed actual articulation.
    * @param target Requested articulation.
    * @returns Unitless normalized physical score.
-   *
    * @evidence contracts/development/common.md#meaningful-documentation Names the quaternion inputs and half-distance cosine's units.
    * @evidence contracts/development/implementation.md#principled-implementation Reads geodesic angle and cos(theta/2) instead of copying the producer's four-term dot comparison.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Normalize both rotations, read the angle and halve it.
@@ -274,7 +263,6 @@ export namespace jointRotationOracle {
    * Collect an entry's complete observations before its final assertion.
    *
    * @returns A fresh collector with unchanged quaternion/domain checks.
-   *
    * @evidence contracts/development/common.md#meaningful-documentation States failure accumulation, scenario isolation and actual recomposition for both signs.
    * @evidence contracts/development/implementation.md#principled-implementation Calls the public projector with its matching clamp and independently observes axis intervals, actual ROM and expected physical rotation or score.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One local failure list supports predicates, scenarios, real queries and a final assertion.

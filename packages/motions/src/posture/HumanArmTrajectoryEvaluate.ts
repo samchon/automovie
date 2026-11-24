@@ -15,6 +15,23 @@ import { HumanArmTrajectoryTerms as T } from "./HumanArmTrajectoryTerms";
 import { HumanArmTrajectoryTravel as V } from "./HumanArmTrajectoryTravel";
 import { nameArmTrajectoryPair } from "./nameArmTrajectoryPair";
 
+/** The alternatives of `HumanArmTrajectoryEvaluateNoteTerm`'s site. */
+type HumanArmTrajectoryEvaluateNoteTerm =
+  | "speed"
+  | "swept"
+  | "site"
+  | "lift"
+  | "limit"
+  | "probe"
+  | "embedded"
+  | "crossing";
+
+/** The record of `IHumanArmTrajectoryEvaluateKept`'s site. */
+type IHumanArmTrajectoryEvaluateKept = {
+  reading: M.IEvaluation;
+  laid: readonly boolean[];
+};
+
 /**
  * The objective and the constraints' violations of an arms' trajectory at an
  * iterate (`HumanArmTrajectoryModel.evaluate`, which states the terms).
@@ -57,7 +74,7 @@ import { nameArmTrajectoryPair } from "./nameArmTrajectoryPair";
 export function HumanArmTrajectoryEvaluate(
   c: M.IContext,
   x: readonly (readonly number[])[][],
-  kept?: { reading: M.IEvaluation; laid: readonly boolean[] },
+  kept?: IHumanArmTrajectoryEvaluateKept,
   contact?: readonly boolean[],
 ): M.IEvaluation {
   // Whether a waypoint's clearance is read.
@@ -156,15 +173,7 @@ export function HumanArmTrajectoryEvaluate(
   // target, every other term the region.
   const note = (
     v: number,
-    term:
-      | "speed"
-      | "swept"
-      | "site"
-      | "lift"
-      | "limit"
-      | "probe"
-      | "embedded"
-      | "crossing",
+    term: HumanArmTrajectoryEvaluateNoteTerm,
     what: () => string,
     slack: number = 0,
   ): void => {

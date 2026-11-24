@@ -60,11 +60,6 @@ const CLEAR: number = 0.02;
  * (`HumanTrunkLean`). Refusals: a hand that does not hold the cloth, a cloth
  * without a `face`, a non-positive whole count, and a region beyond the arm at
  * every hinge the hips' range allows.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the held lever, the beat, the clearance, the timing and the refusals.
- * @evidence contracts/development/design.md#principled-representation A law record over the held cloth's face and the partner's region.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The name, the cancel table and the plan.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The face stops clear of the body; it never presses into it.
  */
 export const beatFlames: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanFirefight.IBeatFlames> =
   {
@@ -75,7 +70,11 @@ export const beatFlames: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanFir
     plan,
   };
 
-/** Admit the cloth and the region, then beat. */
+/**
+ * Admit the cloth and the region, then beat.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States the held lever, the beat, the clearance, the timing and the refusals.
+ */
 function plan(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanFirefight.IBeatFlames>,
 ): IAutoMovieMotionHumanActionPlan {

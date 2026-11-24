@@ -17,6 +17,21 @@ import { AutoMovieMotionHumanTouchUpright } from "../compose/AutoMovieMotionHuma
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanHeldEffector } from "./HumanHeldEffector";
 
+/** The alternatives of `KeptContext`'s site. */
+type KeptContext = "body" | "entry" | "prop";
+
+/** The alternatives of `SteadiestPlace`'s site. */
+type SteadiestPlace = "point" | "normal";
+
+/** The alternatives of `SteadiestContext`'s site. */
+type SteadiestContext = "body" | "entry" | "prop";
+
+/** The alternatives of `SidesContext`'s site. */
+type SidesContext = "body" | "entry" | "prop";
+
+/** The alternatives of `EffectorContext`'s site. */
+type EffectorContext = "body" | "entry" | "prop";
+
 /**
  * An act performed with the prop the hand already holds: the prop's own point
  * (a glass's lip, a phone's screen, a cigarette's mouth end) as the effector,
@@ -60,10 +75,7 @@ export namespace HumanHeld {
    *   at the entry.
    */
   export function effector(
-    context: Pick<
-      IAutoMovieMotionHumanActionContext,
-      "body" | "entry" | "prop"
-    >,
+    context: Pick<IAutoMovieMotionHumanActionContext, EffectorContext>,
     row: IAutoMovieMotionHumanHeld.IUse,
     side: AutoMovieHumanSide,
     subject: string,
@@ -118,10 +130,7 @@ export namespace HumanHeld {
    * @throws {HumanRefusal} As `effector`.
    */
   export function sides(
-    context: Pick<
-      IAutoMovieMotionHumanActionContext,
-      "body" | "entry" | "prop"
-    >,
+    context: Pick<IAutoMovieMotionHumanActionContext, SidesContext>,
     row: IAutoMovieMotionHumanHeld.IUse,
     side: AutoMovieHumanSide,
     subject: string,
@@ -165,16 +174,13 @@ export namespace HumanHeld {
    *   than `LEVEL` on every side.
    */
   export function steadiest(
-    context: Pick<
-      IAutoMovieMotionHumanActionContext,
-      "body" | "entry" | "prop"
-    >,
+    context: Pick<IAutoMovieMotionHumanActionContext, SteadiestContext>,
     row: IAutoMovieMotionHumanHeld.IUse,
     side: AutoMovieHumanSide,
     subject: string,
     point: string | undefined,
     posture: IAutoMovieMotionHumanPosture,
-    place: Pick<IAutoMovieMotionHumanTarget.IPlace, "point" | "normal">,
+    place: Pick<IAutoMovieMotionHumanTarget.IPlace, SteadiestPlace>,
     leans: boolean = false,
   ): IAutoMovieMotionHumanTouchEffector.IEffector {
     const effect: ReturnType<typeof HumanHeldEffector> = HumanHeldEffector(
@@ -272,10 +278,7 @@ export namespace HumanHeld {
    * @returns The plan.
    */
   export function kept(
-    context: Pick<
-      IAutoMovieMotionHumanActionContext,
-      "body" | "entry" | "prop"
-    >,
+    context: Pick<IAutoMovieMotionHumanActionContext, KeptContext>,
     plan: IAutoMovieMotionHumanActionPlan,
     side: AutoMovieHumanSide,
     subject: string,

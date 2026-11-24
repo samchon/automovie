@@ -16,8 +16,8 @@ import { prepareWalkLegLean } from "../actions/prepareWalkLegLean";
 import { walkLeg } from "../actions/walkLeg";
 import { HumanFoot } from "../posture/HumanFoot";
 import { hipJoints } from "../posture/hipJoints";
+import { humanPostureHeading } from "../posture/humanPostureHeading";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
 /**
  * A foot kept within the ankle's dorsal range for its contact state. A foot
@@ -95,7 +95,7 @@ export namespace AutoMovieMotionHumanFootRelax {
     const hip: IAutoMovieVector3 = hipJoints(
       body,
       posture.root,
-      resolveHumanPosture.heading(posture),
+      humanPostureHeading(posture),
       posture.joints.hips,
       prepareHumanPoseResolution()(),
     )[side];

@@ -1,4 +1,5 @@
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   AutoMovieMotionHumanActionKey,
   IAutoMovieMotionHumanActionLaw,
@@ -17,6 +18,9 @@ import { HumanSegmentCut } from "./HumanSegmentCut";
 import { HumanSegmentEntry } from "./HumanSegmentEntry";
 import { HumanSegmentPose } from "./HumanSegmentPose";
 import type { prepareHumanSegmentPose } from "./prepareHumanSegmentPose";
+
+/** The alternatives of `ShareAt`'s site. */
+type ShareAt = number | string;
 
 /**
  * One placed action of one person, and how a person's displayed pose is
@@ -70,7 +74,7 @@ export namespace HumanSegment {
    */
   export function drives(
     plan: IAutoMovieMotionHumanActionPlan,
-    side: "left" | "right",
+    side: AutoMovieHumanSide,
   ): boolean {
     return (
       plan.contacts.some(
@@ -129,7 +133,7 @@ export namespace HumanSegment {
    * @returns The share.
    */
   export function share(
-    at: number | string,
+    at: ShareAt,
     plan: IAutoMovieMotionHumanActionPlan,
   ): number {
     if (typeof at === "number") return at;

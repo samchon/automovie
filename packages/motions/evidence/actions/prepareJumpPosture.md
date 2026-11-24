@@ -10,7 +10,7 @@ Preserves the original clamp, push/free/absorb dispatch and c0+v*t-g*t^2/2 COM e
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-Public and native flight read the same ballistic writer. Its start belongs to push and its end belongs to flight. Ground fit transfers survive only where landing turn leaves their inputs unchanged. located owns only the original four-argument refusal wrapper.
+Public and native flight read the same ballistic writer. Its start belongs to push and its end belongs to flight. Ground fit transfers survive only where landing turn leaves their inputs unchanged. located owns only the refusal wrapper, which passes every posture argument, the explicit evaluation included, to its source unchanged.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 

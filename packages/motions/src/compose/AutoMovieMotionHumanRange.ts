@@ -10,6 +10,11 @@ import type {
 import { HumanBound } from "../law/HumanBound";
 import { AutoMovieMotionHumanReach } from "./AutoMovieMotionHumanReach";
 
+/** The alternatives of `ShareAmount`'s site. */
+type ShareAmount =
+  | IAutoMovieMotionHumanRange.Level
+  | IAutoMovieMotionHumanRange.IScaled;
+
 /**
  * Amounts by level: how far a joint turns as a share of its range of motion,
  * how far the trunk leans as a share of the reach's lean limit, and how far the
@@ -78,11 +83,7 @@ export namespace AutoMovieMotionHumanRange {
    * @throws {Error} When the scale lies outside [0.5, 1.5] or the scaled share
    *   exceeds 1.
    */
-  export function share(
-    amount:
-      | IAutoMovieMotionHumanRange.Level
-      | IAutoMovieMotionHumanRange.IScaled,
-  ): number {
+  export function share(amount: ShareAmount): number {
     if (typeof amount === "string") return LEVELS[amount];
     if (!(amount.scale >= 0.5 && amount.scale <= 1.5)) {
       const names: IAutoMovieMotionHumanRange.Level[] = Object.keys(

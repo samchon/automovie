@@ -10,6 +10,33 @@ import type {
 import { supportAssist } from "../actions/supportAssist";
 import { getUp } from "../floor/getUp";
 
+/** The alternatives of `CastEntryItem3`'s site. */
+type CastEntryItem3 = "thrower" | "thrown";
+
+/** The alternatives of `ThrowingRole`'s site. */
+type ThrowingRole = "thrower" | "thrown";
+
+/** The alternatives of `Throwing`'s site. */
+type Throwing = "thrower" | "thrown";
+
+/** The alternatives of `CastEntryItem2`'s site. */
+type CastEntryItem2 = "helper" | "second" | "helped";
+
+/** The alternatives of `SupportWalkRole`'s site. */
+type SupportWalkRole = "helper" | "second" | "helped";
+
+/** The alternatives of `SupportWalk`'s site. */
+type SupportWalk = "helper" | "second" | "helped";
+
+/** The alternatives of `CastEntryItem`'s site. */
+type CastEntryItem = "bearer" | "borne";
+
+/** The alternatives of `CarryRole`'s site. */
+type CarryRole = "bearer" | "borne";
+
+/** The alternatives of `Carry`'s site. */
+type Carry = "bearer" | "borne";
+
 /**
  * The two-body compositions: carries with their lift and set-down, a supported
  * walk, and throws and takedowns, each a mutual record over shipped laws, with
@@ -54,9 +81,8 @@ export namespace HumanCoupled {
    * Place both roles of an authored grappling scene on the same clock. The
    * performance registers the `grapple` law for both roles.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Both actors receive the same scene settings and the other actor's subject.
-   *
-   * Timing is the authored scene's clock (`IAutoMovieMotionHumanGrapple`); no timing of its own.
+   * Timing is the authored scene's clock (`IAutoMovieMotionHumanGrapple`); no
+   * timing of its own.
    */
   export const grappling: IAutoMovieMotionHumanMutual<
     IAutoMovieMotionHumanGrapple.IScene,
@@ -86,14 +112,14 @@ export namespace HumanCoupled {
    */
   export const carry: IAutoMovieMotionHumanMutual<
     IAutoMovieMotionHumanCoupled.ICarry,
-    "bearer" | "borne"
+    Carry
   > = {
     name: "carry",
     roles: ["bearer", "borne"],
     act: (
-      role: "bearer" | "borne",
+      role: CarryRole,
       params: IAutoMovieMotionHumanCoupled.ICarry,
-      cast: Readonly<Record<"bearer" | "borne", string>>,
+      cast: Readonly<Record<CastEntryItem, string>>,
     ): IAutoMovieMotionHumanMutual.IAct => {
       const shared: object = {
         ...(params?.carry === undefined ? {} : { carry: params.carry }),
@@ -206,14 +232,14 @@ export namespace HumanCoupled {
    */
   export const supportWalk: IAutoMovieMotionHumanMutual<
     IAutoMovieMotionHumanCoupled.ISupportWalk,
-    "helper" | "second" | "helped"
+    SupportWalk
   > = {
     name: "supportWalk",
     roles: ["helper", "second", "helped"],
     act: (
-      role: "helper" | "second" | "helped",
+      role: SupportWalkRole,
       params: IAutoMovieMotionHumanCoupled.ISupportWalk,
-      cast: Readonly<Record<"helper" | "second" | "helped", string>>,
+      cast: Readonly<Record<CastEntryItem2, string>>,
     ): IAutoMovieMotionHumanMutual.IAct => {
       const seconds: object =
         params?.duration === undefined ? {} : { seconds: params.duration };
@@ -263,14 +289,14 @@ export namespace HumanCoupled {
    */
   export const throwing: IAutoMovieMotionHumanMutual<
     IAutoMovieMotionHumanCoupled.IThrow,
-    "thrower" | "thrown"
+    Throwing
   > = {
     name: "throw",
     roles: ["thrower", "thrown"],
     act: (
-      role: "thrower" | "thrown",
+      role: ThrowingRole,
       params: IAutoMovieMotionHumanCoupled.IThrow,
-      cast: Readonly<Record<"thrower" | "thrown", string>>,
+      cast: Readonly<Record<CastEntryItem3, string>>,
     ): IAutoMovieMotionHumanMutual.IAct =>
       role === "thrower"
         ? {

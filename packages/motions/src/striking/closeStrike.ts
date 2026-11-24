@@ -22,6 +22,7 @@ import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
+import { HumanLimbFit } from "../posture/HumanLimbFit";
 import { blendHumanJoint } from "../posture/blendHumanJoint";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
@@ -32,6 +33,12 @@ import { StrikingBody } from "./StrikingBody";
 import { StrikingSkill } from "./StrikingSkill";
 import { StrikingStance } from "./StrikingStance";
 import { StrikingTarget } from "./StrikingTarget";
+
+/** The alternatives of `PlanBuildFrom`'s site. */
+type PlanBuildFrom = "point" | "rotation";
+
+/** The alternatives of `PlanBuildLimb`'s site. */
+type PlanBuildLimb = "leftArm" | "rightArm";
 
 /**
  * The close strikes (`IAutoMovieMotionHumanCloseStrike`): an elbow, a spinning
@@ -294,8 +301,7 @@ export namespace closeStrike {
       if (arm !== null && arm.elbow) {
         // An elbow's goal places the wrist and the elbow itself
         // (`IAutoMovieHumanLimbGoal.elbow`), blended from the guard's goal.
-        const limb: "leftArm" | "rightArm" =
-          side === "left" ? "leftArm" : "rightArm";
+        const limb: PlanBuildLimb = side === "left" ? "leftArm" : "rightArm";
         // In the placed mode the bend is the elbow's own place, so the blend
         // starts from the entry's displayed elbow and wrist joints, whatever
         // goals the entry held; the fist closes as the elbow goes out.
@@ -308,7 +314,7 @@ export namespace closeStrike {
         const guardElbow: IAutoMovieVector3 = shown0.get(
           `${side}LowerArm`,
         )!.worldPosition;
-        const from: Pick<IAutoMovieHumanLimbGoal, "point" | "rotation"> = {
+        const from: Pick<IAutoMovieHumanLimbGoal, PlanBuildFrom> = {
           point: shown0.get(`${side}Hand`)!.worldPosition,
           rotation: shown0.get(`${side}Hand`)!.worldRotation,
         };
@@ -321,9 +327,11 @@ export namespace closeStrike {
           entry,
           shown,
         );
-        const rest: IAutoMovieHumanLimbReference =
-          resolveHumanPosture.reference(context.entry.pose, limb);
-        const hit: IAutoMovieHumanLimbReference = resolveHumanPosture.reference(
+        const rest: IAutoMovieHumanLimbReference = HumanLimbFit.reference(
+          context.entry.pose,
+          limb,
+        );
+        const hit: IAutoMovieHumanLimbReference = HumanLimbFit.reference(
           resolveHumanPosture(body, {
             ...atImpact,
             limbs: {

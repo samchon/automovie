@@ -41,11 +41,6 @@ import { variationCases } from "./variationCases";
  * or a proficiency fan expands into several outputs from one name. A factory
  * may read the harness's name filter and skip building the cases it rejects;
  * the harness filters again, so ignoring it is correct too.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what a factory returns.
- * @evidence contracts/development/design.md#principled-representation A closed table of named pure factories.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Read by the capture harness only.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No case data lives here, only the registry.
  */
 export const MOTION_CAPTURE_CASES: Readonly<
   Record<

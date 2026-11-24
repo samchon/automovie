@@ -1,21 +1,3 @@
-# src/production/sound/IAutoMovieMasterProductionSound.ts#IAutoMovieMasterProductionSound
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Names the mastering inputs' owner and consumer.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A namespace of the master stage's inputs, beside the mixer's own.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Interface owns the contract engine's `masterProductionSound` exposes; render's film sound route is its consumer.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No member is declared on the namespace itself.
-
 # src/production/sound/IAutoMovieMasterProductionSound.ts#IAutoMovieMasterProductionSound.IProps
 
 ## @evidence contracts/development/common.md#meaningful-documentation

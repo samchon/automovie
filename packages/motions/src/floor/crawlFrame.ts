@@ -1,5 +1,6 @@
 import { Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanArmAngles,
   IAutoMovieMotionHumanBody,
@@ -15,8 +16,14 @@ import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
 import { blendHumanJoint } from "../posture/blendHumanJoint";
 import { hipJoints } from "../posture/hipJoints";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { humanPostureHeading } from "../posture/humanPostureHeading";
 import { prepareCrawlPalms } from "./prepareCrawlPalms";
+
+/** The alternatives of `ArmReadersEntryEntry`'s site. */
+type ArmReadersEntryEntry = "upper" | "lower" | "hand";
+
+/** The record of `IOverResult`'s site. */
+type IOverResult = { point: IAutoMovieVector3; hike: number };
 
 /**
  * The pieces the crawls on the hands share: where a wrist stands over its flat
@@ -78,8 +85,8 @@ export namespace crawlFrame {
     body: IAutoMovieMotionHumanBody,
     standing: IAutoMovieMotionHumanPosture,
     forward: IAutoMovieVector3,
-  ): Record<"left" | "right", IAutoMovieVector3> {
-    const wrist = (side: "left" | "right"): IAutoMovieVector3 =>
+  ): Record<AutoMovieHumanSide, IAutoMovieVector3> {
+    const wrist = (side: AutoMovieHumanSide): IAutoMovieVector3 =>
       HumanFrame.local(
         { origin: { x: 0, y: 0, z: 0 }, yaw: standing.yaw },
         HumanHand.reach(
@@ -111,7 +118,7 @@ export namespace crawlFrame {
   export function laid(
     body: IAutoMovieMotionHumanBody,
     posture: IAutoMovieMotionHumanPosture,
-    palm: (side: "left" | "right") => IAutoMovieVector3,
+    palm: (side: AutoMovieHumanSide) => IAutoMovieVector3,
     forward: IAutoMovieVector3,
   ): IAutoMovieMotionHumanPosture {
     let out: IAutoMovieMotionHumanPosture = posture;
@@ -181,8 +188,8 @@ export namespace crawlFrame {
   export function armed(
     body: IAutoMovieMotionHumanBody,
     posture: IAutoMovieMotionHumanPosture,
-    held: Record<"left" | "right", IAutoMovieMotionHumanArmAngles.IAngles>,
-    toward: Record<"left" | "right", IAutoMovieMotionHumanArmAngles.IAngles>,
+    held: Record<AutoMovieHumanSide, IAutoMovieMotionHumanArmAngles.IAngles>,
+    toward: Record<AutoMovieHumanSide, IAutoMovieMotionHumanArmAngles.IAngles>,
     share: number,
   ): IAutoMovieMotionHumanPosture {
     return writeArms(body, posture, held, toward, share);
@@ -194,14 +201,14 @@ export namespace crawlFrame {
    */
   export function prepareArmed(
     body: IAutoMovieMotionHumanBody,
-    held: Record<"left" | "right", IAutoMovieMotionHumanArmAngles.IAngles>,
-    toward: Record<"left" | "right", IAutoMovieMotionHumanArmAngles.IAngles>,
+    held: Record<AutoMovieHumanSide, IAutoMovieMotionHumanArmAngles.IAngles>,
+    toward: Record<AutoMovieHumanSide, IAutoMovieMotionHumanArmAngles.IAngles>,
   ): (
     posture: IAutoMovieMotionHumanPosture,
     share: number,
   ) => IAutoMovieMotionHumanPosture {
-    const arm: (side: "left" | "right") => IArmReaders["left"] = (
-      side: "left" | "right",
+    const arm: (side: AutoMovieHumanSide) => IArmReaders["left"] = (
+      side: AutoMovieHumanSide,
     ): IArmReaders["left"] => ({
       upper: blendHumanJoint.between(
         body,
@@ -237,8 +244,8 @@ export namespace crawlFrame {
   function writeArms(
     body: IAutoMovieMotionHumanBody,
     posture: IAutoMovieMotionHumanPosture,
-    held: Record<"left" | "right", IAutoMovieMotionHumanArmAngles.IAngles>,
-    toward: Record<"left" | "right", IAutoMovieMotionHumanArmAngles.IAngles>,
+    held: Record<AutoMovieHumanSide, IAutoMovieMotionHumanArmAngles.IAngles>,
+    toward: Record<AutoMovieHumanSide, IAutoMovieMotionHumanArmAngles.IAngles>,
     share: number,
     prepared?: IArmReaders,
   ): IAutoMovieMotionHumanPosture {
@@ -341,12 +348,12 @@ export namespace crawlFrame {
     thigh: number,
     level: IAutoMovieVector3,
     forward: IAutoMovieVector3,
-    knees: Record<"left" | "right", IAutoMovieVector3>,
-    ahead: Record<"left" | "right", number>,
+    knees: Record<AutoMovieHumanSide, IAutoMovieVector3>,
+    ahead: Record<AutoMovieHumanSide, number>,
     separation: number,
     pitch: number,
-  ): { point: IAutoMovieVector3; hike: number } {
-    const height = (side: "left" | "right"): number => {
+  ): IOverResult {
+    const height = (side: AutoMovieHumanSide): number => {
       const along: number =
         Vector3.dot(Vector3.subtract(knees[side], level), forward) -
         ahead[side];
@@ -383,7 +390,7 @@ export namespace crawlFrame {
     const joints = hipJoints(
       body,
       { x: 0, y: 0, z: 0 },
-      resolveHumanPosture.heading(tilted),
+      humanPostureHeading(tilted),
       tilted.joints.hips,
     );
     return Vector3.subtract(hips, Vector3.lerp(joints.left, joints.right, 0.5));
@@ -391,7 +398,7 @@ export namespace crawlFrame {
 
   /** Side-only flat clinical shapes are immutable inputs to both palm writers. */
   const FLAT: Readonly<
-    Record<"left" | "right", IAutoMovieMotionHumanPosture["joints"]>
+    Record<AutoMovieHumanSide, IAutoMovieMotionHumanPosture["joints"]>
   > = {
     left: HumanHand.shape("left", "flat"),
     right: HumanHand.shape("right", "flat"),
@@ -402,7 +409,7 @@ export namespace crawlFrame {
    * endpoints.
    */
   const FLAT_BONES: Readonly<
-    Record<"left" | "right", readonly AutoMovieHumanoidBone[]>
+    Record<AutoMovieHumanSide, readonly AutoMovieHumanoidBone[]>
   > = {
     left: Object.keys(FLAT.left) as AutoMovieHumanoidBone[],
     right: Object.keys(FLAT.right) as AutoMovieHumanoidBone[],
@@ -410,10 +417,7 @@ export namespace crawlFrame {
 
   /** Six arm-joint fixed-endpoint readers owned by one descent plan. */
   type IArmReaders = Record<
-    "left" | "right",
-    Record<
-      "upper" | "lower" | "hand",
-      ReturnType<typeof blendHumanJoint.between>
-    >
+    AutoMovieHumanSide,
+    Record<ArmReadersEntryEntry, ReturnType<typeof blendHumanJoint.between>>
   >;
 }

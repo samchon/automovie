@@ -12,6 +12,17 @@ import type {
 
 import { AutoMovieMotionHumanTarget } from "./AutoMovieMotionHumanTarget";
 
+/** The alternatives of `TouchRegionFrameResult`'s site. */
+type TouchRegionFrameResult = "point" | "normal";
+
+/** The alternatives of `TouchRegionFrameEntry`'s site. */
+type TouchRegionFrameEntry =
+  | ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>
+  | (() => ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>);
+
+/** The alternatives of `TouchRegionFrameContext`'s site. */
+type TouchRegionFrameContext = "aim" | "body";
+
 /**
  * A region of a target as a frame: a person's region or a prop's point through
  * the context's aim, a trunk or head region of the performer on the posture,
@@ -27,15 +38,13 @@ import { AutoMovieMotionHumanTarget } from "./AutoMovieMotionHumanTarget";
  * @returns The point and the outward normal.
  */
 export function touchRegionFrame(
-  context: Pick<IAutoMovieMotionHumanActionContext, "aim" | "body">,
+  context: Pick<IAutoMovieMotionHumanActionContext, TouchRegionFrameContext>,
   target: IAutoMovieMotionTarget,
   seconds: number,
   posture: IAutoMovieMotionHumanPosture,
-  entry:
-    | ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>
-    | (() => ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>),
+  entry: TouchRegionFrameEntry,
   resolution?: Parameters<IAutoMovieMotionHumanArmCarry.ICarry["goal"]>[2],
-): Pick<IAutoMovieMotionHumanTarget.IPlace, "point" | "normal"> {
+): Pick<IAutoMovieMotionHumanTarget.IPlace, TouchRegionFrameResult> {
   if (target.kind === "self") {
     const frame: IAutoMovieHumanoidSurfaces.IFrame =
       context.body.surfaces.regions[target.region];

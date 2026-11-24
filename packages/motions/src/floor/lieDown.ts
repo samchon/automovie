@@ -27,10 +27,10 @@ import { prepareHumanShapeBlend } from "../handling/prepareHumanShapeBlend";
 import { HumanBound } from "../law/HumanBound";
 import { HumanPreparedPlayback } from "../perform/HumanPreparedPlayback";
 import { HumanFoot } from "../posture/HumanFoot";
+import { humanPostureHeading } from "../posture/humanPostureHeading";
 import { lowerHumanPosture } from "../posture/lowerHumanPosture";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { knockdown } from "../reaction/knockdown";
 import { GymnasticsFlight } from "../sport/GymnasticsFlight";
 import { StrikingBody } from "../striking/StrikingBody";
@@ -235,7 +235,7 @@ export namespace lieDown {
     const hips: IAutoMovieVector3 = Vector3.add(
       from.root,
       Quaternion.rotateVector(
-        resolveHumanPosture.heading(from),
+        humanPostureHeading(from),
         body.rest.get("hips")!,
       ),
     );
@@ -243,7 +243,8 @@ export namespace lieDown {
       lowerHumanPosture.prepare(body);
     let held: IAutoMovieMotionHumanPosture | undefined;
     let floor: ReturnType<typeof knockdown.prepareRest> | undefined;
-    let folded: ReturnType<typeof floorSeat.prepare> | undefined;
+    const folded: ReturnType<typeof floorSeat.prepare> | undefined =
+      folds === undefined ? undefined : floorSeat.prepare(body, folds);
 
     // Entered standing, the feet stay where they stood while the body goes
     // down to the route's first posture, as knockdown keeps them until the
@@ -266,7 +267,7 @@ export namespace lieDown {
       ]);
     let readFeet: ReturnType<typeof StrikingBody.prepareTrunk> | undefined;
     let bearing:
-      | Record<"left" | "right", IAutoMovieMotionHumanFoot.Socket>
+      | Record<AutoMovieHumanSide, IAutoMovieMotionHumanFoot.Socket>
       | undefined;
     let plants: Pins;
     let release: Release;
@@ -322,9 +323,9 @@ export namespace lieDown {
         const end: ReturnType<ReturnType<typeof StrikingBody.prepareTrunk>> =
           readFeet(posedAt(0, 1), read, project);
         const lowest: (
-          side: "left" | "right",
+          side: AutoMovieHumanSide,
         ) => IAutoMovieMotionHumanFoot.Socket = (
-          side: "left" | "right",
+          side: AutoMovieHumanSide,
         ): IAutoMovieMotionHumanFoot.Socket =>
           HumanFoot.sockets(body, end, side).reduce(
             (
@@ -335,13 +336,15 @@ export namespace lieDown {
           ).socket;
         bearing = { left: lowest("left"), right: lowest("right") };
       }
-      const bearer: Record<"left" | "right", IAutoMovieMotionHumanFoot.Socket> =
-        bearing;
+      const bearer: Record<
+        AutoMovieHumanSide,
+        IAutoMovieMotionHumanFoot.Socket
+      > = bearing;
       const bones: Feet = current ?? readFeet(posed, read, project);
       const contact: IAutoMovieVector3 = Vector3.scale(
         Vector3.add(
           ...((["left", "right"] as const).map(
-            (side: "left" | "right"): IAutoMovieVector3 =>
+            (side: AutoMovieHumanSide): IAutoMovieVector3 =>
               HumanFoot.sockets(body, bones, side).find(
                 (s: IAutoMovieMotionHumanFoot.ISocket): boolean =>
                   s.socket === bearer[side],
@@ -354,7 +357,7 @@ export namespace lieDown {
       return Vector3.subtract(
         contact,
         Quaternion.rotateVector(
-          resolveHumanPosture.heading(posed),
+          humanPostureHeading(posed),
           body.rest.get("hips")!,
         ),
       );
@@ -396,7 +399,7 @@ export namespace lieDown {
       if (entered === null && index === 0 && u <= 0) return stoodPose;
       const posed: IAutoMovieMotionHumanPosture = posedAt(index, u);
       const offset: IAutoMovieVector3 = Quaternion.rotateVector(
-        resolveHumanPosture.heading(posed),
+        humanPostureHeading(posed),
         body.rest.get("hips")!,
       );
       floor ??= knockdown.prepareRest(body);
@@ -502,14 +505,9 @@ export namespace lieDown {
 
       // A folded sitting folds its legs over the last phase of its route.
       const out: IAutoMovieMotionHumanPosture =
-        folds === undefined || index < route.length - 1 || u <= 0
+        folded === undefined || index < route.length - 1 || u <= 0
           ? rested
-          : (folded ??= floorSeat.prepare(body, folds))(
-              rested,
-              u,
-              read,
-              project,
-            );
+          : folded(rested, u, read, project);
       if (arrived) held = out;
       return out;
     };

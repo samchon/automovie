@@ -5,7 +5,6 @@ import type {
 
 import { lowerHumanPosture } from "../posture/lowerHumanPosture";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { jumpJoints } from "./jumpJoints";
 import type { jumpPush } from "./jumpPush";
 
@@ -59,7 +58,7 @@ export function jumpPushPosture(
     limbs,
   };
   return prepared === undefined
-    ? resolveHumanPosture.lower(props.body, posture, undefined, read)
+    ? lowerHumanPosture(props.body, posture, undefined, read)
     : prepared.lower(posture, read);
 }
 

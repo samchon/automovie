@@ -11,6 +11,18 @@ import { HumanArmShapes as S } from "./HumanArmShapes";
 import { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
 import { HumanArmTrajectoryPairs as P } from "./HumanArmTrajectoryPairs";
 
+/** The alternatives of `CarriedColumnEntry`'s site. */
+type CarriedColumnEntry = "upper" | "lower" | "hand";
+
+/** The alternatives of `CarriedOwner`'s site. */
+type CarriedOwner = "upper" | "lower" | "hand";
+
+/** The alternatives of `WaypointFramesEntry`'s site. */
+type WaypointFramesEntry = "upper" | "lower" | "hand";
+
+/** The alternatives of `SegmentsEntryItem`'s site. */
+type SegmentsEntryItem = "upper" | "lower" | "hand";
+
 /**
  * The Jacobians an arms' trajectory's convex subproblem
  * (`HumanArmTrajectoryConvex`) linearises its constraints on, about an iterate:
@@ -63,7 +75,7 @@ export namespace HumanArmTrajectoryJacobians {
     move: number;
 
     /** Each segment's motion. */
-    segments: Record<"upper" | "lower" | "hand", IMotion>[];
+    segments: Record<SegmentsEntryItem, IMotion>[];
   }
 
   /**
@@ -152,7 +164,7 @@ export namespace HumanArmTrajectoryJacobians {
       here,
       c.free[a]!,
     )) {
-      const frames: Record<"upper" | "lower" | "hand", IMotion> = {
+      const frames: Record<WaypointFramesEntry, IMotion> = {
         upper: motion(column.upper),
         lower: motion(column.lower),
         hand: motion(column.hand),
@@ -231,7 +243,7 @@ export namespace HumanArmTrajectoryJacobians {
     jac: readonly (readonly IJacobian[])[],
     b: number,
     k: number,
-    owner: "upper" | "lower" | "hand",
+    owner: CarriedOwner,
     p: IAutoMovieVector3,
   ): IAutoMovieVector3[] {
     const placed: IAutoMovieMotionHumanArmGeometry.IPlaced = at.placed[b]![k]!;
@@ -243,9 +255,7 @@ export namespace HumanArmTrajectoryJacobians {
           : placed.wrist;
     let offset: IAutoMovieVector3 | undefined;
     return jac[b]![k]!.segments.map(
-      (
-        column: Record<"upper" | "lower" | "hand", IMotion>,
-      ): IAutoMovieVector3 => {
+      (column: Record<CarriedColumnEntry, IMotion>): IAutoMovieVector3 => {
         offset ??= Vector3.subtract(p, origin);
         return pointMotion(column[owner], offset);
       },

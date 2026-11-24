@@ -8,6 +8,9 @@ import type {
 
 import { HumanPerformance } from "../../perform/HumanPerformance";
 
+/** The record of `IPerformPartner`'s site. */
+type IPerformPartner = { body: IAutoMovieMotionHumanBody; gap: number };
+
 /**
  * What the variation capture's series of repeats share: the repeat count, the
  * spread ratio every series is held to, the stage a series is performed on and
@@ -27,7 +30,7 @@ export namespace VariationSeries {
   export function perform(
     body: IAutoMovieMotionHumanBody,
     chain: IAutoMovieMotionHumanChain,
-    partner?: { body: IAutoMovieMotionHumanBody; gap: number },
+    partner?: IPerformPartner,
   ): IAutoMovieMotionHumanPerformance {
     return new HumanPerformance({
       seed: "variation",

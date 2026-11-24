@@ -25,15 +25,25 @@ const STEP: number = 0.1;
 const MARGIN: number = 0.3;
 
 /**
- * Deploy a squadron from column into line and rally it, refuse a line that traps a person against a wall, and keep the caracole's shots to its front rank.
+ * Deploy a squadron from column into line and rally it, refuse a line that
+ * traps a person against a wall, and keep the caracole's shots to its front
+ * rank.
  *
  * Scenarios:
  *
- * 1. Four pairs deploy from a column into a line 3 m apart and rally back into column, each to its nearest slot, keeping the mounts' margin; a line too tight for the margin refuses at its close with both neighbours named.
- * 2. A line halting short of a person standing before a wall is admitted; one that rides on to the wall refuses with the horse and the person.
- * 3. In a caracole each rank fires only while it is the front rank: the first rank fires, wheels off to the rear at the trot, and the second rank comes up and fires.
- * 5. Meeting an opposing infantry line, riders aligned with its gaps pass through and a rider whose lane meets a soldier pulls up and halts short of him.
- * 4. In a skirmish screen in open order, alternate files advance, fire on the move and wheel about to retire, each volley fired by the files in front, without contact.
+ * 1. Four pairs deploy from a column into a line 3 m apart and rally back into
+ *    column, each to its nearest slot, keeping the mounts' margin; a line too
+ *    tight for the margin refuses at its close with both neighbours named.
+ * 2. A line halting short of a person standing before a wall is admitted; one that
+ *    rides on to the wall refuses with the horse and the person.
+ * 3. In a caracole each rank fires only while it is the front rank: the first rank
+ *    fires, wheels off to the rear at the trot, and the second rank comes up
+ *    and fires.
+ * 4. Meeting an opposing infantry line, riders aligned with its gaps pass through
+ *    and a rider whose lane meets a soldier pulls up and halts short of him.
+ * 5. In a skirmish screen in open order, alternate files advance, fire on the move
+ *    and wheel about to retire, each volley fired by the files in front,
+ *    without contact.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Lists the three stagings and their expectations.
  * @evidence contracts/development/testing.md#behavioral-verification Plans formation slot transitions and manoeuvre arcs through `AutoMovieArchetypeCourse.timed` and measures them with `AutoMovieArchetypePassage` on a real horse footprint.
@@ -76,21 +86,22 @@ export function test_world_mounted_formations(): void {
     );
     const starts: IAutoMovieVector3[] = [0, 1, 2, 3].map(
       (k: number): IAutoMovieVector3 =>
-        AutoMovieMotionHumanEnsemble.HumanFormation.slot(column, k, 0).at,
+        AutoMovieMotionHumanEnsemble.HumanFormation.prepare(column).slot(k, 0)
+          .at,
     );
-    const onLine: number[] = AutoMovieMotionHumanEnsemble.HumanFormation.assign(
-      line,
-      starts,
-      "nearest",
-      0,
-    );
+    const onLine: number[] =
+      AutoMovieMotionHumanEnsemble.HumanFormation.prepare(line).assign(
+        starts,
+        "nearest",
+        0,
+      );
     const lined: IAutoMovieVector3[] = onLine.map(
       (slot: number): IAutoMovieVector3 =>
-        AutoMovieMotionHumanEnsemble.HumanFormation.slot(line, slot, 0).at,
+        AutoMovieMotionHumanEnsemble.HumanFormation.prepare(line).slot(slot, 0)
+          .at,
     );
     const onColumn: number[] =
-      AutoMovieMotionHumanEnsemble.HumanFormation.assign(
-        rally,
+      AutoMovieMotionHumanEnsemble.HumanFormation.prepare(rally).assign(
         lined,
         "nearest",
         0,
@@ -112,8 +123,7 @@ export function test_world_mounted_formations(): void {
             sample(17, point(lined[k]!.x, 36)),
             sample(
               30,
-              AutoMovieMotionHumanEnsemble.HumanFormation.slot(
-                rally,
+              AutoMovieMotionHumanEnsemble.HumanFormation.prepare(rally).slot(
                 onColumn[k]!,
                 0,
               ).at,

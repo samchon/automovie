@@ -16,13 +16,16 @@ import type {
 import { HumanSupportCarry } from "../carrier/HumanSupportCarry";
 import { HumanSupportFrame } from "../carrier/HumanSupportFrame";
 import { HumanBound } from "../law/HumanBound";
-import { HumanArmClearance } from "../posture/HumanArmClearance";
+import { HumanArmSwing } from "../posture/HumanArmSwing";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanSkill } from "../skill/HumanSkill";
 import { stand } from "./stand";
 import { standClearArms } from "./standClearArms";
 import { standFeet } from "./standFeet";
 import { standUpright } from "./standUpright";
+
+/** The alternatives of `PrepareStandPart`'s site. */
+type PrepareStandPart = "leftFoot" | "rightFoot";
 
 /**
  * Prepare a quiet standing entry once when its owning action discovers its
@@ -52,7 +55,7 @@ export function prepareStand(
   // The arms hang relaxed beside the thighs of the stance settled on the
   // entry's feet, which may stand wider or staggered than the quiet stance;
   // while the stance settles, a hand the moving thighs meet is let out at
-  // the shoulder (`HumanArmClearance.swung`), as a gait's swinging arm is.
+  // the shoulder (`HumanArmSwing.of`), as a gait's swinging arm is.
   const aligned: IAutoMovieMotionHumanPosture["joints"] = {
     ...standClearArms(context.body, [
       course.write(
@@ -122,9 +125,7 @@ export function prepareStand(
         ? { still: [settle, duration] as const }
         : {}),
       contacts: (["leftFoot", "rightFoot"] as const).map(
-        (
-          part: "leftFoot" | "rightFoot",
-        ): IAutoMovieMotionHumanContactWindow => ({
+        (part: PrepareStandPart): IAutoMovieMotionHumanContactWindow => ({
           part,
           kind: "plant",
           from: 0,
@@ -181,9 +182,7 @@ export function prepareStand(
         );
         // Settled, the arms hang clear of the thighs they were found clear
         // of; while settling, the thighs move under them.
-        return s < 1
-          ? HumanArmClearance.swung(context.body, written, SIDES)
-          : written;
+        return s < 1 ? HumanArmSwing.of(context.body, written, SIDES) : written;
       },
     };
   };

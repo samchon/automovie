@@ -6,8 +6,11 @@ import type {
 } from "@automovie/interface";
 
 import { HumanFrame } from "../posture/HumanFrame";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { lowerHumanPosture } from "../posture/lowerHumanPosture";
 import { WalkPace } from "./WalkPace";
+
+/** The record of `IPropsBob`'s site. */
+type IPropsBob = { mean: number; amplitude: number };
 
 /** Fixed body, path and timing inputs of a stepping take's unconstrained root. */
 interface IProps {
@@ -51,7 +54,7 @@ interface IProps {
   firstLeft: number;
 
   /** Running root drop and oscillation, in hip heights; walking's when absent. */
-  bob: { mean: number; amplitude: number } | undefined;
+  bob: IPropsBob | undefined;
 
   /** Distance along the fixed path at each action second, metres. */
   progress: (seconds: number) => number;
@@ -65,6 +68,8 @@ interface IProps {
   /** Travel/facing heading at that distance and point, degrees. */
   heading: (distance: number, point: IAutoMovieVector3) => number;
 }
+/** The alternatives of `WalkRootResult`'s site. */
+type WalkRootResult = "root" | "amount";
 
 /**
  * Prepare the fixed body/phase terms of a stepping take's root and gait amount.
@@ -74,7 +79,7 @@ interface IProps {
  */
 export function walkRoot(
   props: IProps,
-): Pick<IAutoMovieMotionHumanWalkSteps.IPlan, "root" | "amount"> {
+): Pick<IAutoMovieMotionHumanWalkSteps.IPlan, WalkRootResult> {
   const a: IAutoMovieVector3 = props.body.rest.get("leftFoot")!;
   const b: IAutoMovieVector3 = props.body.rest.get("rightFoot")!;
   const rest: IAutoMovieVector3 = {
@@ -93,7 +98,7 @@ export function walkRoot(
   const swayScale: number = walkRoot.SWAY * similar;
 
   // The planned root sits as far under the entry root as the stance knee's
-  // least flexion (`resolveHumanPosture.KNEE`) shortens the leg, so no
+  // least flexion (`lowerHumanPosture.KNEE`) shortens the leg, so no
   // planted leg is planned at full stretch: the hip-to-ankle chord of a knee
   // bent `KNEE` is `sqrt(a^2 + b^2 + 2 a b cos KNEE)` against `a + b`.
   const thigh: number = props.body.measure.thigh;
@@ -102,10 +107,7 @@ export function walkRoot(
     Math.sqrt(
       thigh * thigh +
         shank * shank +
-        2 *
-          thigh *
-          shank *
-          Math.cos((resolveHumanPosture.KNEE * Math.PI) / 180),
+        2 * thigh * shank * Math.cos((lowerHumanPosture.KNEE * Math.PI) / 180),
     ) -
     (thigh + shank);
   const gathers: number = props.first + T;

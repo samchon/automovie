@@ -21,6 +21,24 @@ import { HumanFreedomChoice } from "../posture/HumanFreedomChoice";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
+/** The record of `IKeyProps`'s site. */
+type IKeyProps = {
+  context: Pick<IAutoMovieMotionHumanActionContext, KeyPropsContext>;
+  held: IAutoMovieMotionHumanPropReader;
+  world: IAutoMovieRigidTransform;
+  tip: IAutoMovieAffordance;
+  at: AutoMovieHumanoidRegion;
+  site: IAutoMovieVector3;
+
+  side: AutoMovieHumanSide;
+  wrist: IAutoMovieMotionHumanHand.IWrist;
+  round?: boolean;
+  clear?: (wrist: IAutoMovieMotionHumanHand.IWrist) => number;
+};
+
+/** The alternatives of `KeyPropsContext`'s site. */
+type KeyPropsContext = "body" | "entry" | "start";
+
 /**
  * The key pose a grasp taken to wear a thing must also hold
  * (`HumanGraspUse.IUse`, line `worn`): the thing's whole frame where it is worn
@@ -47,22 +65,7 @@ export namespace HumanGraspWorn {
    * @returns The key, with its judge: the fitted hand's wear socket off the
    *   region, metres.
    */
-  export function key(props: {
-    context: Pick<
-      IAutoMovieMotionHumanActionContext,
-      "body" | "entry" | "start"
-    >;
-    held: IAutoMovieMotionHumanPropReader;
-    world: IAutoMovieRigidTransform;
-    tip: IAutoMovieAffordance;
-    at: AutoMovieHumanoidRegion;
-    site: IAutoMovieVector3;
-
-    side: AutoMovieHumanSide;
-    wrist: IAutoMovieMotionHumanHand.IWrist;
-    round?: boolean;
-    clear?: (wrist: IAutoMovieMotionHumanHand.IWrist) => number;
-  }): IAutoMovieMotionHumanGrasp.IKey {
+  export function key(props: IKeyProps): IAutoMovieMotionHumanGrasp.IKey {
     const { context, held, world, tip, at, site }: typeof props = props;
     const inverse: IAutoMovieQuaternion = Quaternion.inverse(
       props.wrist.rotation,

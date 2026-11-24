@@ -13,9 +13,13 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { HumanBoneGroups } from "../posture/HumanBoneGroups";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { walkRoot } from "./walkRoot";
+
+/** The record of `IBisectClosed`'s site. */
+type IBisectClosed = { low: number; high: number };
 
 /**
  * The upright alignment of a body's quiet stance, solved from the body's own
@@ -124,7 +128,8 @@ export namespace standUpright {
     const necks: Map<number, number> = new Map();
     const fit: (f: number) => number = (f: number): number => {
       const off: (n: number) => number = (n: number): number =>
-        ear(bones({ spine: f, chest: f, neck: n }, HEAD)) - hips;
+        ear(bones({ spine: f, chest: f, neck: n }, HumanBoneGroups.HEAD)) -
+        hips;
       const n: number = bisect(off, NECK);
       necks.set(f, n);
       const map: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = bones(
@@ -141,9 +146,10 @@ export namespace standUpright {
     const head: number = bisect(
       (h: number): number =>
         Quaternion.rotateVector(
-          bones({ spine: trunk, chest: trunk, neck, head: h }, HEAD).get(
-            "head",
-          )!.worldRotation,
+          bones(
+            { spine: trunk, chest: trunk, neck, head: h },
+            HumanBoneGroups.HEAD,
+          ).get("head")!.worldRotation,
           { x: 0, y: 0, z: 1 },
         ).y,
       HEAD_RANGE,
@@ -208,9 +214,6 @@ export namespace standUpright {
     "rightFoot",
   ]);
 
-  /** The ear and gaze residuals read only the head. */
-  const HEAD: ReadonlySet<AutoMovieHumanoidBone> = new Set(["head"]);
-
   /** The plumb-line cost needs the shoulders and the head together. */
   const COLUMN: ReadonlySet<AutoMovieHumanoidBone> = new Set([
     "leftUpperArm",
@@ -248,7 +251,7 @@ export namespace standUpright {
     const a: number = residual(-range);
     const b: number = residual(range);
     if (a * b > 0) return Math.abs(a) < Math.abs(b) ? -range : range;
-    const closed: { low: number; high: number } = bracketedCrossing({
+    const closed: IBisectClosed = bracketedCrossing({
       f: residual,
       past: (value: number): boolean => !(value * a > 0),
       low: -range,

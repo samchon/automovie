@@ -4,6 +4,9 @@ import type { HumanQuadraticBand as B } from "./HumanQuadraticBand";
 import type { HumanQuadraticPreparation as Preparation } from "./HumanQuadraticPreparation";
 import type { HumanQuadraticWorkspace as Workspace } from "./HumanQuadraticWorkspace";
 
+/** The record of `ISessionWork`'s site. */
+type ISessionWork = { n: number; m: number; work: Workspace.IWork };
+
 /**
  * What the interior-point solve (`HumanQuadraticInterior`) carries between the
  * solves of one caller's session (one optimisation's subproblems), and the warm
@@ -20,7 +23,7 @@ export namespace HumanQuadraticInteriorSession {
     scaling?: Preparation.IScaling;
 
     /** The solver's scratch, kept for programs of the same sizes. */
-    work?: { n: number; m: number; work: Workspace.IWork };
+    work?: ISessionWork;
 
     /**
      * The last converged solve's primal-dual point, for a next program of the

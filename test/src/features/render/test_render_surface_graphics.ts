@@ -19,6 +19,15 @@ import { nclose } from "../internal/nclose";
 import { renderFixtureIdentity } from "../internal/renderFixtureIdentity";
 import { renderFixtureNode } from "../internal/renderFixtureNode";
 
+/** A colour as the surface graphic records it, with no alpha or hex form. */
+interface IColor {
+  r: number;
+  g: number;
+  b: number;
+  a: null;
+  hex: null;
+}
+
 /**
  * Surface graphics are laid out in the surface's reading frame, ride their
  * prop, keep per-node pictures and give their pixels the radiance or albedo the
@@ -99,11 +108,7 @@ export async function test_render_surface_graphics(): Promise<void> {
     scene,
     (): ReturnType<typeof buildModel> | undefined => pending.shift(),
   );
-  const color: (
-    r: number,
-    g: number,
-    b: number,
-  ) => { r: number; g: number; b: number; a: null; hex: null } = (
+  const color: (r: number, g: number, b: number) => IColor = (
     r: number,
     g: number,
     b: number,

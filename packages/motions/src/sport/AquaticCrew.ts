@@ -1,5 +1,6 @@
 import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanPropReader,
@@ -10,7 +11,7 @@ import type {
 
 import { AutoMovieMotionHumanLeg } from "../compose/AutoMovieMotionHumanLeg";
 import { HumanRefusal } from "../law/HumanRefusal";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { humanPostureHeading } from "../posture/humanPostureHeading";
 import { AquaticPosture } from "./AquaticPosture";
 
 /** Hull frames and shared wrist and ankle support for paddle and sail. */
@@ -39,7 +40,7 @@ export namespace AquaticCrew {
   }
 
   /** Anatomical side. */
-  export type Side = "left" | "right";
+  export type Side = AutoMovieHumanSide;
 
   /** The limb goal key of one leg. */
   export type Leg = `${Side}Leg`;
@@ -149,11 +150,11 @@ export namespace AquaticCrew {
     );
     const rotation: IAutoMovieQuaternion = Quaternion.multiply(
       carrierTurn,
-      resolveHumanPosture.heading(shape),
+      humanPostureHeading(shape),
     );
     const posture: IAutoMovieMotionHumanPosture = {
       ...shape,
-      ...resolveHumanPosture.angles(rotation),
+      ...humanPostureHeading.angles(rotation),
       root,
     };
     for (const side of ["left", "right"] as const) {
@@ -202,7 +203,7 @@ export namespace AquaticCrew {
     return Quaternion.rotateVector(
       hull.inverse,
       Quaternion.rotateVector(
-        resolveHumanPosture.heading(context.entry.posture),
+        humanPostureHeading(context.entry.posture),
         displacement,
       ),
     );

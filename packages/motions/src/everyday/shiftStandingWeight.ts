@@ -1,5 +1,6 @@
 import { Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionClock,
   IAutoMovieMotionClockInstant,
@@ -45,11 +46,6 @@ const PLANT_TURN: number = Math.cos(Math.PI / 720);
  * displacement. The default transfer time of 0.8 s is provisional. This law
  * models kinematic staging and leaves individual foot loads and dynamics
  * unspecified.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the required support, author-controlled distance and events, and distinguishes published measurements from the authored motion.
- * @evidence contracts/development/design.md#principled-representation Moves the existing root channel while retaining the entry leg goals and both ground plants.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The action law and its contract expose only amplitude and phase times.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Fits the body's entry leg goals and measures support with the shared static margin.
  */
 export const shiftStandingWeight: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanShiftStandingWeight> =
   {
@@ -76,6 +72,7 @@ export const shiftStandingWeight: IAutoMovieMotionHumanActionLaw<IAutoMovieMotio
  * @returns The fixed-foot plan.
  * @throws {HumanRefusal} For invalid parameters, an unsupported entry or
  *   failure to fit the path witnesses.
+ * @evidence contracts/development/common.md#meaningful-documentation States the required support, author-controlled distance and events, and distinguishes published measurements from the authored motion.
  */
 function plan(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanShiftStandingWeight>,
@@ -97,7 +94,7 @@ function plan(
   const entry: IAutoMovieMotionHumanEntryState = context.entry;
   if (
     entry.base.kind !== "standing" ||
-    !(["left", "right"] as const).every((side: "left" | "right"): boolean => {
+    !(["left", "right"] as const).every((side: AutoMovieHumanSide): boolean => {
       const leg: IAutoMovieHumanLimbGoal | undefined =
         entry.posture.limbs[side === "left" ? "leftLeg" : "rightLeg"];
       return (

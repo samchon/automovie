@@ -37,6 +37,21 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { handGoals } from "./handGoals";
 import { restGoals } from "./restGoals";
 
+/** The alternatives of `PlanWriteKept`'s site. */
+type PlanWriteKept = "joints" | "limbs";
+
+/** The alternatives of `PlanHoldingResult`'s site. */
+type PlanHoldingResult = "joints" | "limbs";
+
+/** The alternatives of `PlanHolding`'s site. */
+type PlanHolding = "joints" | "limbs";
+
+/** The record of `IBeginEntryItem`'s site. */
+type IBeginEntryItem = {
+  angles: IAutoMovieMotionHumanArmAngles.IAngles;
+  travel: number;
+};
+
 /**
  * Standing with the hands at rest places: in the front pockets, on the hips,
  * arms crossed, clasped in front or behind, behind the head, or the chin on a
@@ -192,12 +207,7 @@ export namespace rest {
       requested.size === 0
         ? undefined
         : poseBones(body, context.entry.pose, undefined, requested);
-    const begin: Partial<
-      Record<
-        AutoMovieHumanSide,
-        { angles: IAutoMovieMotionHumanArmAngles.IAngles; travel: number }
-      >
-    > = {};
+    const begin: Partial<Record<AutoMovieHumanSide, IBeginEntryItem>> = {};
     for (const side of sides) {
       const goal: IAutoMovieMotionHumanRest.IGoal = goals[side]!;
       const from: IAutoMovieVector3 = HumanHand.frame(
@@ -308,9 +318,9 @@ export namespace rest {
     // A posture with the arms on their solved places and their goals gone.
     const holding: (
       posture: IAutoMovieMotionHumanPosture,
-    ) => Pick<IAutoMovieMotionHumanPosture, "joints" | "limbs"> = (
+    ) => Pick<IAutoMovieMotionHumanPosture, PlanHolding> = (
       posture: IAutoMovieMotionHumanPosture,
-    ): Pick<IAutoMovieMotionHumanPosture, "joints" | "limbs"> => {
+    ): Pick<IAutoMovieMotionHumanPosture, PlanHoldingResult> => {
       const joints: IAutoMovieMotionHumanPosture["joints"] = {
         ...posture.joints,
       };
@@ -346,7 +356,7 @@ export namespace rest {
       if (sides.length === 0)
         return { ...posture, joints: { ...posture.joints } };
       const s: number = minimumJerk.share(t / arrive);
-      const kept: Pick<IAutoMovieMotionHumanPosture, "joints" | "limbs"> =
+      const kept: Pick<IAutoMovieMotionHumanPosture, PlanWriteKept> =
         holding(posture);
       const joints: IAutoMovieMotionHumanPosture["joints"] = kept.joints;
       for (const side of sides) {

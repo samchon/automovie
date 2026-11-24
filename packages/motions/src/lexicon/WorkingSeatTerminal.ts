@@ -165,37 +165,26 @@ function sameData(
 
 /**
  * Clone only an ordinary authored graph, without accepting getters or foreign
- * callable data.
+ * callable data: a graph `sameData` admits holds only plain records, arrays and
+ * primitives, which `structuredClone` copies without error.
  */
 function copyOwned<T extends object>(data: T): T | undefined {
-  try {
-    return sameData(data, data, new Map(), new Set())
-      ? structuredClone(data)
-      : undefined;
-  } catch {
-    return undefined;
-  }
+  return sameData(data, data, new Map(), new Set())
+    ? structuredClone(data)
+    : undefined;
 }
 
 /**
- * Additional proof reads fail closed without catching a refusal from the
- * original fit.
+ * Additional proof reads, which return their verdict from the fields they read
+ * and never stand in for a refusal of the original fit.
  */
 function trusted(check: Check): boolean {
-  try {
-    return check();
-  } catch {
-    return false;
-  }
+  return check();
 }
 
 /** A changed or foreign rig always falls through to its ordinary solve. */
 function prepareBodyCheck(body: Body): Check | undefined {
-  try {
-    return bodyCheck(body);
-  } catch {
-    return undefined;
-  }
+  return bodyCheck(body);
 }
 
 /**

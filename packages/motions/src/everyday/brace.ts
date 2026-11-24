@@ -4,6 +4,7 @@ import {
   resolveAutoMovieHumanoidSurfaces,
 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   AutoMovieMotionHumanActionName,
   IAutoMovieMotionHumanActionContext,
@@ -42,6 +43,15 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanTrunk } from "./HumanTrunk";
 import { gestureHands } from "./gestureHands";
 import { prepareGroundedBalance } from "./prepareGroundedBalance";
+
+/** The alternatives of `PlanBodyAtLimb`'s site. */
+type PlanBodyAtLimb = "leftLeg" | "rightLeg";
+
+/** The record of `IPlanFootAtResult`'s site. */
+type IPlanFootAtResult = { ankle: IAutoMovieVector3; planted: boolean };
+
+/** The record of `IPlanFootAt`'s site. */
+type IPlanFootAt = { ankle: IAutoMovieVector3; planted: boolean };
 
 /**
  * Bracing for an expected impact, push or a falling body: the stance widens and
@@ -186,7 +196,7 @@ export namespace brace {
     const p: IAutoMovieMotionHumanBrace.IParams = context.params;
     const duration: number = Math.max(SET + HELD, p.hold ?? SECONDS);
     const yaw: number = context.entry.posture.yaw;
-    const feet: Record<"left" | "right", IAutoMovieVector3> = stand.feet(
+    const feet: Record<AutoMovieHumanSide, IAutoMovieVector3> = stand.feet(
       body,
       context.entry,
       yaw,
@@ -213,7 +223,7 @@ export namespace brace {
     );
 
     // The foot farther from the source steps back along the line and out.
-    const back: "left" | "right" =
+    const back: AutoMovieHumanSide =
       Vector3.dot(Vector3.subtract(feet.left, feet.right), toward) < 0
         ? "left"
         : "right";
@@ -234,13 +244,10 @@ export namespace brace {
       ),
     );
     const swing: readonly [number, number] = STEP;
-    const footAt: (
-      side: "left" | "right",
+    const footAt: (side: AutoMovieHumanSide, t: number) => IPlanFootAt = (
+      side: AutoMovieHumanSide,
       t: number,
-    ) => { ankle: IAutoMovieVector3; planted: boolean } = (
-      side: "left" | "right",
-      t: number,
-    ): { ankle: IAutoMovieVector3; planted: boolean } => {
+    ): IPlanFootAtResult => {
       if (side !== back || t <= swing[0])
         return { ankle: feet[side], planted: true };
       if (t >= swing[1]) return { ankle: placed, planted: true };
@@ -302,7 +309,7 @@ export namespace brace {
       const setAt: (root: IAutoMovieVector3) => IAutoMovieMotionHumanPosture = (
         root: IAutoMovieVector3,
       ): IAutoMovieMotionHumanPosture => {
-        return resolveHumanPosture.lower(
+        return lowerHumanPosture(
           body,
           {
             root,
@@ -315,7 +322,7 @@ export namespace brace {
               right: back === "right" ? placed : feet.right,
             }),
           },
-          resolveHumanPosture.KNEE,
+          lowerHumanPosture.KNEE,
           resolution,
         );
       };
@@ -371,8 +378,7 @@ export namespace brace {
         right: rightFoot.ankle,
       });
       for (const side of ["left", "right"] as const) {
-        const limb: "leftLeg" | "rightLeg" =
-          side === "left" ? "leftLeg" : "rightLeg";
+        const limb: PlanBodyAtLimb = side === "left" ? "leftLeg" : "rightLeg";
         if (!(side === "left" ? leftFoot : rightFoot).planted)
           legs[limb] = { ...legs[limb]!, planted: false };
       }
@@ -430,7 +436,7 @@ export namespace brace {
     // chest's surface however far the trunk leans.
     const catching: boolean = p.kind === "catchBody";
     const reach: number = (m.upperArm + m.forearm) * AHEAD;
-    const rotations: Record<"left" | "right", IAutoMovieQuaternion> = {
+    const rotations: Record<AutoMovieHumanSide, IAutoMovieQuaternion> = {
       left: HumanHand.rotation(
         "left",
         catching
@@ -452,7 +458,7 @@ export namespace brace {
       body,
       sternumBones,
     );
-    const leftOffsets: Record<"left" | "right", IAutoMovieVector3> = {
+    const leftOffsets: Record<AutoMovieHumanSide, IAutoMovieVector3> = {
       left: Vector3.scale(left, m.shoulderHalfWidth * SPREAD),
       right: Vector3.scale(left, -1 * m.shoulderHalfWidth * SPREAD),
     };
@@ -495,7 +501,7 @@ export namespace brace {
         bones.get(region.bone)!,
       ).point;
       return (["left", "right"] as const).map(
-        (side: "left" | "right"): IAutoMovieMotionHumanArmTarget.ISided => ({
+        (side: AutoMovieHumanSide): IAutoMovieMotionHumanArmTarget.ISided => ({
           side,
           surface: "palm",
           shape: "flat",
@@ -509,7 +515,7 @@ export namespace brace {
       );
     };
     const entryArms: Record<
-      "left" | "right",
+      AutoMovieHumanSide,
       IAutoMovieMotionHumanArmAngles.IAngles
     > = {
       left: AutoMovieMotionHumanArm.angles(context.entry.pose, "left"),
@@ -518,7 +524,7 @@ export namespace brace {
     const envelope: (at: number) => number = (at: number): number =>
       minimumJerk.share(Math.min(1, Math.max(0, at) / SET));
     const arms: Map<
-      "left" | "right",
+      AutoMovieHumanSide,
       IAutoMovieMotionHumanArmTrajectory.Trajectory
     > = gestureHands.planned(
       body,

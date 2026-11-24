@@ -1,5 +1,6 @@
 import { Quaternion, RigidCarrierSample, Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   IAutoMovieAffordance,
   IAutoMovieMotionHumanObject,
   IAutoMovieMotionHumanProp,
@@ -12,7 +13,7 @@ import type {
 } from "@automovie/interface";
 
 import { HumanRefusal } from "../law/HumanRefusal";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { humanPostureHeading } from "../posture/humanPostureHeading";
 import { HumanObjectCord } from "./HumanObjectCord";
 
 /**
@@ -234,7 +235,7 @@ export namespace HumanObject {
       Quaternion.multiply(world.rotation, found.frame.rotation),
       { x: 0, y: 0, z: 1 },
     );
-    const rests: Partial<Record<"left" | "right", IAutoMovieVector3>> =
+    const rests: Partial<Record<AutoMovieHumanSide, IAutoMovieVector3>> =
       footrests(model.affordances ?? [], found, world);
     return {
       at: Vector3.add(
@@ -269,7 +270,7 @@ export namespace HumanObject {
     affordances: readonly IAutoMovieAffordance[],
     seat: IAutoMovieAffordance,
     world: IAutoMovieRigidTransform,
-  ): Partial<Record<"left" | "right", IAutoMovieVector3>> {
+  ): Partial<Record<AutoMovieHumanSide, IAutoMovieVector3>> {
     const inverse: IAutoMovieTransform["rotation"] = Quaternion.inverse(
       seat.frame.rotation,
     );
@@ -295,11 +296,11 @@ export namespace HumanObject {
             Vector3.length(seated(a.frame.translation)) -
             Vector3.length(seated(b.frame.translation)),
         );
-    const out: Partial<Record<"left" | "right", IAutoMovieVector3>> = {};
+    const out: Partial<Record<AutoMovieHumanSide, IAutoMovieVector3>> = {};
 
     // The nearest tread on each side comes first in the sorted list.
     for (const tread of below(["pedal", "stirrup"])) {
-      const side: "left" | "right" =
+      const side: AutoMovieHumanSide =
         seated(tread.frame.translation).x > 0 ? "left" : "right";
       out[side] ??= placed(tread.frame.translation);
     }
@@ -320,6 +321,8 @@ export namespace HumanObject {
     return { left: placed(ends[0]!), right: placed(ends[1]!) };
   }
 }
+/** The alternatives of `TiltedResult`'s site. */
+type TiltedResult = "pitch" | "roll";
 
 /**
  * A seat's pitch and roll in the world, as a posture's, when the seat is not
@@ -327,19 +330,12 @@ export namespace HumanObject {
  *
  * @param rotation The seat's world rotation.
  * @returns The tilt, empty for a level seat.
- * @evidence contracts/development/common.md#meaningful-documentation States what is returned.
- * @evidence contracts/development/implementation.md#principled-implementation The posture angles of the seat's rotation (`resolveHumanPosture.angles`), kept when either exceeds a millionth of a degree.
- * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure One read.
- * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts None.
- * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure read.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a new record.
  */
 function tilted(
   rotation: IAutoMovieQuaternion,
-): Pick<IAutoMovieMotionHumanSeated.ISeat, "pitch" | "roll"> {
-  const angles: ReturnType<typeof resolveHumanPosture.angles> =
-    resolveHumanPosture.angles(rotation);
+): Pick<IAutoMovieMotionHumanSeated.ISeat, TiltedResult> {
+  const angles: ReturnType<typeof humanPostureHeading.angles> =
+    humanPostureHeading.angles(rotation);
   return Math.abs(angles.pitch) < 1e-6 && Math.abs(angles.roll) < 1e-6
     ? {}
     : { pitch: angles.pitch, roll: angles.roll };

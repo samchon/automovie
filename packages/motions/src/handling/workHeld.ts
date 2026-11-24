@@ -77,11 +77,6 @@ const LEVEL: number = 10;
  * Refusals: a work that neither drives, moves nor takes; a hand that does not
  * hold the prop; a place beyond the arm; an articulation the prop does not
  * declare or a travel outside its range; a socket the prop lacks.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the three parts, the kept grip, the timing, the events and every refusal.
- * @evidence contracts/development/design.md#principled-representation A law record over the held prop's declared articulations and sockets, with the place in the performer's floor frame.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The name, the cancel table and the plan.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No prop kind is named; every prop is read through its affordances.
  */
 export const workHeld: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanHeldWork.IParams> =
   {
@@ -95,6 +90,8 @@ export const workHeld: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanHeldW
 /**
  * Admit the work, then place the hand, drive the articulations and take the
  * prop.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States the three parts, the kept grip, the timing, the events and every refusal.
  */
 function plan(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanHeldWork.IParams>,

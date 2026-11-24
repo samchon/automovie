@@ -7,6 +7,12 @@ import type {
 
 import { HumanFrame } from "../posture/HumanFrame";
 
+/** The record of `IPrepareInner`'s site. */
+type IPrepareInner = {
+  yaw: number;
+  point: ReturnType<typeof HumanFrame.preparePoint>;
+};
+
 /** The original knee-over-foot bend hint and its fixed-foot-heading geometry. */
 export namespace AutoMovieMotionHumanKneeBend {
   /** Read the original hint from this actual body, root/yaw and foot heading. */
@@ -46,9 +52,7 @@ export namespace AutoMovieMotionHumanKneeBend {
 
     // The yaw is the posture's at each call, so its rest-knee transform is
     // rebuilt only when the yaw changes.
-    let inner:
-      | { yaw: number; point: ReturnType<typeof HumanFrame.preparePoint> }
-      | undefined;
+    let inner: IPrepareInner | undefined;
     return (posture: IPosture): IAutoMovieVector3 => {
       if (inner === undefined || !Object.is(inner.yaw, posture.yaw))
         inner = {
@@ -59,9 +63,11 @@ export namespace AutoMovieMotionHumanKneeBend {
     };
   }
 }
+/** The alternatives of `Posture`'s site. */
+type Posture = "root" | "yaw";
 
 /**
  * Existing current horizontal body frame; no full pose or solved leg is
  * represented.
  */
-type IPosture = Pick<IAutoMovieMotionHumanPosture, "root" | "yaw">;
+type IPosture = Pick<IAutoMovieMotionHumanPosture, Posture>;

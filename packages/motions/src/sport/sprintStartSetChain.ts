@@ -1,3 +1,14 @@
+/** The record of `IOfNext`'s site. */
+type IOfNext = { miss: number };
+
+/** The record of `IOfLast`'s site. */
+type IOfLast = { miss: number };
+
+/** The record of `IOfPlacedResult`'s site. */
+type IOfPlacedResult = { miss: number };
+
+/** The record of `IOfPlaced`'s site. */
+type IOfPlaced = { miss: number };
 /**
  * The set position's sagittal chain in closed form: the front shank, thigh,
  * trunk and straight arms in the run's vertical plane, from the front ankle on
@@ -75,9 +86,9 @@ export namespace sprintStartSetChain {
     const hip: number = (props.hip * Math.PI) / 180;
 
     // The chain at an elevation of the shank above the run's heading.
-    const placed: (elevation: number) => ISet & { miss: number } = (
+    const placed: (elevation: number) => ISet & IOfPlaced = (
       elevation: number,
-    ): ISet & { miss: number } => {
+    ): ISet & IOfPlacedResult => {
       const k: IPoint = {
         u: props.ankle.u + props.shank * Math.cos(elevation),
         v: props.ankle.v + props.shank * Math.sin(elevation),
@@ -113,9 +124,9 @@ export namespace sprintStartSetChain {
 
     // The elevations are bracketed a degree apart.
     const STEP: number = Math.PI / 180;
-    let last: ISet & { miss: number } = placed(STEP);
+    let last: ISet & IOfLast = placed(STEP);
     for (let e: number = 2 * STEP; e < Math.PI / 2; e += STEP) {
-      const next: ISet & { miss: number } = placed(e);
+      const next: ISet & IOfNext = placed(e);
       if (Math.sign(next.miss) !== Math.sign(last.miss)) {
         let low: number = e - STEP;
         let high: number = e;

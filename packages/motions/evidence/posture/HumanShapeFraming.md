@@ -20,7 +20,7 @@ The planes are packed numbers in the hull's own frame, so a test reads no object
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States what is computed and why it is kept.
+States what is computed, and that a sweep computes it once, when it prepares its room.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
@@ -28,15 +28,15 @@ The sphere and, for a hull, the face planes of the engine's hull, its centre and
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-One lookup and, once per frame and shape, one framing.
+One framing per call.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
-The same numbers every call would compute, kept, never approximated.
+The exact sphere, planes, centre and rotation, never approximated.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
-Each posed frame's shapes are framed once and read by every candidate of a sweep.
+The caller frames each shape once, when its sweep prepares its room (`HumanArmOvershootRoom.of`), and every candidate reads the framing.
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 
@@ -44,7 +44,7 @@ Reuses `sphere` and the engine's hull faces.
 
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
-Kept in a WeakMap keyed by the posed frame and released with it.
+The framing belongs to the caller's room and is released with it; the face planes are the hull's own, kept with its points.
 
 # src/posture/HumanShapeFraming.ts#HumanShapeFraming.bendPlanes
 

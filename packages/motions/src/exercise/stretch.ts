@@ -1,5 +1,6 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieMotionHumanActionName,
   IAutoMovieMotionClock,
   IAutoMovieMotionHumanActionContext,
@@ -37,6 +38,12 @@ import { stretchCrossBody } from "./stretchCrossBody";
 import { stretchHoldClock } from "./stretchHoldClock";
 import { stretchOverheadPlace } from "./stretchOverheadPlace";
 import { stretchQuadriceps } from "./stretchQuadriceps";
+
+/** The alternatives of `ComposeBendBone`'s site. */
+type ComposeBendBone = "spine" | "chest";
+
+/** The alternatives of `INTENSITYEntryItem`'s site. */
+type INTENSITYEntryItem = "mild" | "moderate";
 
 /**
  * A standing static stretch or yoga pose held and released: the neck side bend,
@@ -84,7 +91,7 @@ export namespace stretch {
 
   /** How far into the range: `mild` half and `moderate` deep. */
   export const INTENSITY: Readonly<
-    Record<"mild" | "moderate", IAutoMovieMotionHumanRange.Level>
+    Record<INTENSITYEntryItem, IAutoMovieMotionHumanRange.Level>
   > = { mild: "half", moderate: "deep" };
 
   /** The entry's and the release's seconds (provisional). */
@@ -171,8 +178,8 @@ export namespace stretch {
         ["relax", "end"],
       );
     const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
-    const side: "left" | "right" = p.side ?? "right";
-    const other: "left" | "right" = side === "right" ? "left" : "right";
+    const side: AutoMovieHumanSide = p.side ?? "right";
+    const other: AutoMovieHumanSide = side === "right" ? "left" : "right";
     const sign: number = side === "left" ? 1 : -1;
     const frame: IAutoMovieMotionHumanFrame = {
       origin: { x: 0, y: 0, z: 0 },
@@ -189,7 +196,7 @@ export namespace stretch {
       z: 0,
     });
     const stance: Record<
-      "left" | "right",
+      AutoMovieHumanSide,
       IAutoMovieMotionHumanFoot.IPlacement
     > = {
       left: {
@@ -202,7 +209,7 @@ export namespace stretch {
       },
     };
     const rest = (
-      s: "left" | "right",
+      s: AutoMovieHumanSide,
     ): IAutoMovieMotionHumanArmAngles.IAngles =>
       AutoMovieMotionHumanArm.angles(context.entry.pose, s);
     const primitives: IAutoMovieMotionHumanPrimitive[] = [];
@@ -218,7 +225,7 @@ export namespace stretch {
       );
 
     // The hips carried over the standing foot, for the one-leg poses.
-    const over = (standing: "left" | "right"): IAutoMovieVector3 =>
+    const over = (standing: AutoMovieHumanSide): IAutoMovieVector3 =>
       Vector3.scale(
         leftward,
         Vector3.dot(
@@ -227,7 +234,7 @@ export namespace stretch {
         ),
       );
     const balance = (
-      standing: "left" | "right",
+      standing: AutoMovieHumanSide,
     ): IAutoMovieMotionHumanPrimitive => {
       const offset: IAutoMovieVector3 = over(standing);
       const envelope: (seconds: number) => number =
@@ -283,9 +290,9 @@ export namespace stretch {
     // The standing foot bears throughout; the lifted one until it leaves the
     // floor and again once it is set down.
     const standingOn: (
-      standing: "left" | "right",
+      standing: AutoMovieHumanSide,
     ) => IAutoMovieMotionHumanContactWindow[] = (
-      standing: "left" | "right",
+      standing: AutoMovieHumanSide,
     ): IAutoMovieMotionHumanContactWindow[] => [
       {
         part: `${standing}Foot`,
@@ -342,7 +349,7 @@ export namespace stretch {
       case "overheadSide": {
         // The bend is the spine's: a pelvis rolled with it would take the
         // hip joints off the planted legs.
-        const bend = (bone: "spine" | "chest"): [number, number, number] => [
+        const bend = (bone: ComposeBendBone): [number, number, number] => [
           0,
           -sign *
             AutoMovieMotionHumanRange.degrees(bone, "abduction", level) *

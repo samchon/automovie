@@ -12,6 +12,9 @@ import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFrame } from "../posture/HumanFrame";
 
+/** The alternatives of `OfContext`'s site. */
+type OfContext = "prop" | "start";
+
 /**
  * A ladder as a climb reads it off the scene's prop: a fixture whose rungs are
  * its `rung1` upward, each a bar facing the climber (`createLadder`'s
@@ -41,7 +44,7 @@ export namespace HumanLadder {
    *   band.
    */
   export function of(
-    context: Pick<IAutoMovieMotionHumanActionContext, "prop" | "start">,
+    context: Pick<IAutoMovieMotionHumanActionContext, OfContext>,
     subject: string,
   ): IAutoMovieMotionHumanLadder.ILadder {
     const read: IAutoMovieMotionHumanPropReader = context.prop(subject);

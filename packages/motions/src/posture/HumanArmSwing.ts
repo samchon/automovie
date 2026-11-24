@@ -27,9 +27,9 @@ import { resolveHumanPosture } from "./resolveHumanPosture";
  * hand goal, as a gait swings it, is let out at the shoulder where it would
  * pass through the thigh.
  *
- * `HumanArmClearance.swung` is this module's `of`; it lives apart because the
- * swing needs only one freedom, the upper arm's abduction, and its own
- * baseline, the room the arm has in the quiet stance.
+ * `HumanArmSwing.of` is this module's `of`; it lives apart because the swing
+ * needs only one freedom, the upper arm's abduction, and its own baseline, the
+ * room the arm has in the quiet stance.
  */
 export namespace HumanArmSwing {
   /**
@@ -106,7 +106,7 @@ export namespace HumanArmSwing {
   export function of(
     body: IAutoMovieMotionHumanBody,
     posture: IAutoMovieMotionHumanPosture,
-    sides: readonly ("left" | "right")[],
+    sides: readonly AutoMovieHumanSide[],
     source?: Parameters<typeof prepareHumanPoseResolution>[0],
     projection?: ReturnType<typeof prepareHumanPostureProjection>,
     resolved?: IAutoMoviePose,
@@ -138,11 +138,11 @@ export namespace HumanArmSwing {
   function cleared(
     body: IAutoMovieMotionHumanBody,
     posture: IAutoMovieMotionHumanPosture,
-    sides: readonly ("left" | "right")[],
+    sides: readonly AutoMovieHumanSide[],
     source?: Parameters<typeof prepareHumanPoseResolution>[0],
     projection?: ReturnType<typeof prepareHumanPostureProjection>,
     resolved?: IAutoMoviePose,
-    maxima?: Readonly<Record<"left" | "right", number>>,
+    maxima?: Readonly<Record<AutoMovieHumanSide, number>>,
     entered?: Entered,
   ): IAutoMovieMotionHumanPosture {
     const resolution: ReturnType<typeof prepareHumanPoseResolution> =
@@ -182,7 +182,7 @@ export namespace HumanArmSwing {
       return quiet;
     };
     for (let index: number = 0; index < sides.length; index++) {
-      const side: "left" | "right" = sides[index]!;
+      const side: AutoMovieHumanSide = sides[index]!;
       if (posture.limbs[`${side}Arm`] !== undefined) continue;
       const arm: IAutoMovieMotionHumanArmClearance.IArm = readArm(pose, side);
       // A later arm measures its room against the earlier arm's exact pose.
@@ -321,11 +321,11 @@ export namespace HumanArmSwing {
     body: IAutoMovieMotionHumanBody,
     times: readonly number[],
     posture: IAutoMovieMotionHumanActionPlan["posture"],
-    sides: readonly ("left" | "right")[],
+    sides: readonly AutoMovieHumanSide[],
     source?: Parameters<typeof prepareHumanPoseResolution>[0],
     projection?: ReturnType<typeof prepareHumanPostureProjection>,
-  ): Record<"left" | "right", number> {
-    const out: Record<"left" | "right", number> = { left: 0, right: 0 };
+  ): Record<AutoMovieHumanSide, number> {
+    const out: Record<AutoMovieHumanSide, number> = { left: 0, right: 0 };
     const resolution: ReturnType<typeof prepareHumanPoseResolution> =
       prepareHumanPoseResolution(source);
     let project: ReturnType<typeof prepareHumanPostureProjection> | undefined =
@@ -367,7 +367,7 @@ export namespace HumanArmSwing {
    */
   export function carry(
     posture: IAutoMovieMotionHumanPosture,
-    carried: Readonly<Record<"left" | "right", number>>,
+    carried: Readonly<Record<AutoMovieHumanSide, number>>,
   ): IAutoMovieMotionHumanPosture {
     const joints: IAutoMovieMotionHumanPosture["joints"] = {
       ...posture.joints,
@@ -389,11 +389,11 @@ export namespace HumanArmSwing {
   /** Each arm's room in the body's quiet stance, degrees. */
   function stance(
     body: IAutoMovieMotionHumanBody,
-    side: "left" | "right",
+    side: AutoMovieHumanSide,
     read: () => prepareHumanArmRoom.IRead,
   ): IAutoMovieMotionHumanArmClearance.IBaseline {
     const known: Partial<
-      Record<"left" | "right", IAutoMovieMotionHumanArmClearance.IBaseline>
+      Record<AutoMovieHumanSide, IAutoMovieMotionHumanArmClearance.IBaseline>
     > = STANCE.get(body) ?? {};
     const have: IAutoMovieMotionHumanArmClearance.IBaseline | undefined =
       known[side];
@@ -424,7 +424,7 @@ export namespace HumanArmSwing {
   const STANCE: WeakMap<
     IAutoMovieMotionHumanBody,
     Partial<
-      Record<"left" | "right", IAutoMovieMotionHumanArmClearance.IBaseline>
+      Record<AutoMovieHumanSide, IAutoMovieMotionHumanArmClearance.IBaseline>
     >
   > = new WeakMap();
 }
@@ -432,7 +432,7 @@ export namespace HumanArmSwing {
 /** Read the same first matching arm records, without three searches/callbacks. */
 function readArm(
   pose: IAutoMoviePose,
-  side: "left" | "right",
+  side: AutoMovieHumanSide,
 ): IAutoMovieMotionHumanArmClearance.IArm {
   const upperName: AutoMovieHumanoidBone = `${side}UpperArm`;
   const lowerName: AutoMovieHumanoidBone = `${side}LowerArm`;

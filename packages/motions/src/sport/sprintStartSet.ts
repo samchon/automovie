@@ -1,5 +1,6 @@
 import { Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanBody,
@@ -24,6 +25,21 @@ import { sprintStartBlocks } from "./sprintStartBlocks";
 import { sprintStartSetChain } from "./sprintStartSetChain";
 import { sprintStartSetFit } from "./sprintStartSetFit";
 import { sprintStartSetHands } from "./sprintStartSetHands";
+
+/** The record of `IPosedAtTilt`'s site. */
+type IPosedAtTilt = {
+  pitch: number;
+  joints: IAutoMovieMotionHumanPosture["joints"];
+};
+
+/** The alternatives of `OfSex`'s site. */
+type OfSex = "female" | "male";
+
+/** The alternatives of `OfContext`'s site. */
+type OfContext = "body" | "entry";
+
+/** The alternatives of `CENTREEntryItem`'s site. */
+type CENTREEntryItem = "female" | "male";
 
 /**
  * The sprint start's set geometry: block placement, the front knee's opening
@@ -76,7 +92,7 @@ export namespace sprintStartSet {
    * Environ Res Public Health 19:4074, section 4.1.2), the primary texts being
    * closed.
    */
-  export const CENTRE: Readonly<Record<"female" | "male", number>> = {
+  export const CENTRE: Readonly<Record<CENTREEntryItem, number>> = {
     female: 0.162,
     male: 0.229,
   };
@@ -118,10 +134,10 @@ export namespace sprintStartSet {
    *   over its bridge and each foot's placement on its block, all as fitted.
    */
   export function of(
-    context: Pick<IAutoMovieMotionHumanActionContext, "body" | "entry">,
+    context: Pick<IAutoMovieMotionHumanActionContext, OfContext>,
     entry: IAutoMovieMotionHumanPosture,
-    front: "left" | "right",
-    sex: "female" | "male" = "male",
+    front: AutoMovieHumanSide,
+    sex: OfSex = "male",
     placedFeet?: sprintStartBlocks.IPlaced["feet"],
   ): sprintStartSetFit.ISet {
     const body: IAutoMovieMotionHumanBody = context.body;
@@ -148,11 +164,11 @@ export namespace sprintStartSet {
     // The hands on the bridge of the thumb and index finger at the line
     // (`sprintStartSetHands`); the shoulders stand the arms' reach from the
     // seed's wrists.
-    const bridges: Record<"left" | "right", sprintStartSetHands.IBridge> = {
+    const bridges: Record<AutoMovieHumanSide, sprintStartSetHands.IBridge> = {
       left: sprintStartSetHands.of(body, frame, "left"),
       right: sprintStartSetHands.of(body, frame, "right"),
     };
-    const wrist: Record<"left" | "right", IAutoMovieVector3> = {
+    const wrist: Record<AutoMovieHumanSide, IAutoMovieVector3> = {
       left: bridges.left.wrist,
       right: bridges.right.wrist,
     };
@@ -178,7 +194,7 @@ export namespace sprintStartSet {
     // The front foot in its block, the ball on the floor and the sole on
     // the block's face, its ball behind the line by the anthropometry-driven
     // setting's share of the leg's length (`FRONT_DISTANCE`).
-    const rear: "left" | "right" = front === "left" ? "right" : "left";
+    const rear: AutoMovieHumanSide = front === "left" ? "right" : "left";
     const leg: number = m.thigh + m.shank;
     const ahead: IAutoMovieMotionHumanFoot.IPlacement =
       placedFeet?.[front] ??
@@ -248,7 +264,7 @@ export namespace sprintStartSet {
             onLine.u - u,
             REAR_BLOCK,
           ),
-        } as Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement>,
+        } as Record<AutoMovieHumanSide, IAutoMovieMotionHumanFoot.IPlacement>,
       };
     };
 
@@ -266,10 +282,7 @@ export namespace sprintStartSet {
       feet: ISolved["feet"],
     ): IStance => {
       const at: (limit: number) => IStance = (limit: number): IStance => {
-        const tilt: {
-          pitch: number;
-          joints: IAutoMovieMotionHumanPosture["joints"];
-        } = HumanTrunk.incline(entry.joints, q, limit);
+        const tilt: IPosedAtTilt = HumanTrunk.incline(entry.joints, q, limit);
         const turned: IAutoMovieMotionHumanPosture = {
           ...entry,
           root: { x: 0, y: 0, z: 0 },
@@ -470,5 +483,5 @@ interface IStance {
 /** The set's chain and both feet in their blocks. */
 interface ISolved {
   chain: sprintStartSetChain.ISet;
-  feet: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement>;
+  feet: Record<AutoMovieHumanSide, IAutoMovieMotionHumanFoot.IPlacement>;
 }

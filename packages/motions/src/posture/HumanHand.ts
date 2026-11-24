@@ -17,6 +17,18 @@ import { alignHumanHandSurface } from "./alignHumanHandSurface";
 import { placeHumanHandSurface } from "./placeHumanHandSurface";
 import { readHumanHandFrame } from "./readHumanHandFrame";
 
+/** The alternatives of `FrameBonesEntry`'s site. */
+type FrameBonesEntry = "worldPosition" | "worldRotation";
+
+/** The alternatives of `AlignWorld`'s site. */
+type AlignWorld = "normal" | "forward";
+
+/** The alternatives of `AlignRest`'s site. */
+type AlignRest = "normal" | "forward";
+
+/** The alternatives of `OffsetSide`'s site. */
+type OffsetSide = "Left" | "Right";
+
 /**
  * A hand brought to a target: which wrist point and hand rotation put a chosen
  * hand surface (the palm, the grip centre, the fist, the back of the hand, a
@@ -25,11 +37,10 @@ import { readHumanHandFrame } from "./readHumanHandFrame";
  *
  * This is how procedural animation authors a hand contact: the effector is a
  * socket on the hand, the goal is a point and an orientation in the world, and
- * inverse kinematics solves the arm (Unreal's hand sockets with Control Rig and
- * Full Body IK; Final IK's effector offsets; Rosen, GDC 2014, "Animation
- * Bootcamp: An Indie Approach to Procedural Animation"). The arm solver places
- * the wrist joint, so the wrist goal is the target point less the surface's
- * offset from the wrist turned by the hand's rotation, the same rigid relation
+ * inverse kinematics solves the arm (Rosen, GDC 2014, "Animation Bootcamp: An
+ * Indie Approach to Procedural Animation"). The arm solver places the wrist
+ * joint, so the wrist goal is the target point less the surface's offset from
+ * the wrist turned by the hand's rotation, the same rigid relation
  * `HumanFoot.pivot` uses for the sole.
  *
  * Every surface is a frame of the body's own resolved surfaces, so the same
@@ -201,7 +212,7 @@ export namespace HumanHand {
     form: IAutoMovieMotionHumanHand.Shape = "relaxed",
     curl: number = 0,
   ): IAutoMovieMotionHumanHand.IFrame {
-    const Side: "Left" | "Right" = side === "left" ? "Left" : "Right";
+    const Side: OffsetSide = side === "left" ? "Left" : "Right";
     const palm: IAutoMovieHumanoidSurfaces.IFrame =
       body.surfaces.sockets[`palm${Side}` as AutoMovieHumanoidSocket];
     switch (surface) {
@@ -259,8 +270,8 @@ export namespace HumanHand {
    * @throws {Error} When a forward is parallel to its normal.
    */
   export function align(
-    rest: Pick<IAutoMovieMotionHumanHand.IFrame, "normal" | "forward">,
-    world: Pick<IAutoMovieMotionHumanHand.IFrame, "normal" | "forward">,
+    rest: Pick<IAutoMovieMotionHumanHand.IFrame, AlignRest>,
+    world: Pick<IAutoMovieMotionHumanHand.IFrame, AlignWorld>,
   ): IAutoMovieQuaternion {
     return alignHumanHandSurface(rest, world);
   }
@@ -415,7 +426,7 @@ export namespace HumanHand {
     body: IAutoMovieMotionHumanBody,
     bones: ReadonlyMap<
       AutoMovieHumanoidBone,
-      Pick<IAutoMovieResolvedBone, "worldPosition" | "worldRotation">
+      Pick<IAutoMovieResolvedBone, FrameBonesEntry>
     >,
     side: AutoMovieHumanSide,
     surface: IAutoMovieMotionHumanHand.Surface,

@@ -110,6 +110,28 @@ export class HumanRefusal extends Error {
   }
 
   /**
+   * Run a step of the performance at a place in the film: a refusal the step
+   * raises leaves located there ({@link HumanRefusal.locate}), and any other
+   * error leaves unchanged. This is the one boundary that places a law's
+   * refusal; the step's own value is returned as it is.
+   *
+   * @param where The performer, the action and the occurrence the step runs
+   *   for.
+   * @param run The step.
+   * @returns What the step returns.
+   */
+  public static located<T>(
+    where: IAutoMovieMotionHumanRefusal.IWhere,
+    run: () => T,
+  ): T {
+    try {
+      return run();
+    } catch (error) {
+      throw error instanceof HumanRefusal ? error.locate(where) : error;
+    }
+  }
+
+  /**
    * The message of a refusal: `performer.act#instance axis: reason; feasible:
    * ...; fix: ...`, the place left out until it is known.
    *

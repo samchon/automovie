@@ -1,5 +1,8 @@
 import { getConstraint } from "@automovie/engine";
-import type { IAutoMovieMotionHumanBody } from "@automovie/interface";
+import type {
+  AutoMovieHumanSide,
+  IAutoMovieMotionHumanBody,
+} from "@automovie/interface";
 
 import { readHumanBone } from "../body/readHumanBone";
 
@@ -52,7 +55,7 @@ export namespace HumanForceTrunk {
    */
   export function range(
     body: IAutoMovieMotionHumanBody,
-    side: "left" | "right",
+    side: AutoMovieHumanSide,
   ): number {
     let sum: number = 0;
     for (const bone of ["spine", "chest"] as const) {

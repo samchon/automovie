@@ -25,12 +25,19 @@ import type {
 import { AutoMovieMotionHumanTrunk } from "../compose/AutoMovieMotionHumanTrunk";
 import { prepareHumanShapeBlend } from "../handling/prepareHumanShapeBlend";
 import { HumanRefusal } from "../law/HumanRefusal";
+import { HumanBoneGroups } from "../posture/HumanBoneGroups";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { GymnasticsFlight } from "../sport/GymnasticsFlight";
+
+/** The alternatives of `PlanContactsPart2`'s site. */
+type PlanContactsPart2 = "leftFoot" | "rightFoot";
+
+/** The alternatives of `PlanContactsPart`'s site. */
+type PlanContactsPart = "leftFoot" | "rightFoot";
 
 /**
  * A fall onto the floor on purpose from a stance: a goalkeeper's dive to the
@@ -267,7 +274,7 @@ export namespace dive {
     const shape: ShapeReader = prepareShape({ ...entry.joints, ...shown });
     const readAnkles: ReturnType<typeof poseBones.prepare> = poseBones.prepare(
       body,
-      FEET,
+      HumanBoneGroups.FEET,
     );
     const ankleMid: (
       posture: IAutoMovieMotionHumanPosture,
@@ -287,7 +294,7 @@ export namespace dive {
           undefined,
           undefined,
           read,
-          FEET,
+          HumanBoneGroups.FEET,
           projection,
         ).pose,
         read(),
@@ -487,7 +494,7 @@ export namespace dive {
       lowest = Math.min(lowest, bone.worldPosition.y);
     const readHips: ReturnType<typeof poseBones.prepare> = poseBones.prepare(
       body,
-      HIPS,
+      HumanBoneGroups.HIPS,
     );
     const hips: (posture: IAutoMovieMotionHumanPosture) => IAutoMovieVector3 = (
       posture: IAutoMovieMotionHumanPosture,
@@ -501,7 +508,7 @@ export namespace dive {
           undefined,
           undefined,
           read,
-          HIPS,
+          HumanBoneGroups.HIPS,
         ).pose,
         read(),
       ).get("hips")!.worldPosition;
@@ -520,9 +527,7 @@ export namespace dive {
       seconds / duration;
     const contacts: IAutoMovieMotionHumanContactWindow[] = [
       ...(["leftFoot", "rightFoot"] as const).map(
-        (
-          part: "leftFoot" | "rightFoot",
-        ): IAutoMovieMotionHumanContactWindow => ({
+        (part: PlanContactsPart): IAutoMovieMotionHumanContactWindow => ({
           part,
           kind: "plant",
           from: 0,
@@ -542,9 +547,7 @@ export namespace dive {
       // A slide's feet stay on the floor and slide with it, bearing.
       ...(kind === "slide"
         ? (["leftFoot", "rightFoot"] as const).map(
-            (
-              part: "leftFoot" | "rightFoot",
-            ): IAutoMovieMotionHumanContactWindow => ({
+            (part: PlanContactsPart2): IAutoMovieMotionHumanContactWindow => ({
               part,
               kind: "bear",
               from: share(crouch),
@@ -601,15 +604,6 @@ export namespace dive {
       },
     };
   }
-
-  /** Only ankles are measured while placing the crouch over its feet. */
-  const FEET: ReadonlySet<AutoMovieHumanoidBone> = new Set([
-    "leftFoot",
-    "rightFoot",
-  ]);
-
-  /** The planned travel is stated at the hips joint. */
-  const HIPS: ReadonlySet<AutoMovieHumanoidBone> = new Set(["hips"]);
 
   /** One changing share/turn of a fixed entered or solved-launch articulation. */
   type ShapeReader = (

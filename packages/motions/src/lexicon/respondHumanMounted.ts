@@ -8,17 +8,21 @@ import type {
 } from "@automovie/interface";
 
 import { readHumanBone } from "../body/readHumanBone";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { humanPostureHeading } from "../posture/humanPostureHeading";
 import { HumanMountRider } from "./HumanMountRider";
 
 /** Standard gravity, metres per second squared. */
 const GRAVITY: number = 9.80665;
+/** The alternatives of `SHARESItem`'s site. */
+type SHARESItem = "spine" | "chest";
 
 /** The trunk joints that share the response, and each one's share of it. */
-const SHARES: readonly (readonly ["spine" | "chest", number])[] = [
+const SHARES: readonly (readonly [SHARESItem, number])[] = [
   ["spine", 0.6],
   ["chest", 0.4],
 ];
+/** The alternatives of `RespondHumanMountedTurn`'s site. */
+type RespondHumanMountedTurn = "yaw" | "pitch" | "roll";
 
 /**
  * A mounted rider's seat response to the carrier's own pitch and roll: the
@@ -30,7 +34,7 @@ const SHARES: readonly (readonly ["spine" | "chest", number])[] = [
  * inclination in space as it was.
  *
  * The turn is read as the carrier's pitch and roll in the posture convention
- * (`resolveHumanPosture.angles`) of its rotation now against its rotation at
+ * (`humanPostureHeading.angles`) of its rotation now against its rotation at
  * the start, and spread over the spine and the chest, six and four tenths, each
  * held within its own range of motion (`getConstraint`).
  *
@@ -63,8 +67,8 @@ export function respondHumanMounted(
   if (share === 0) return posture;
   // Leaning with a surge by the angle whose tangent is the acceleration over gravity keeps the trunk along the felt vertical.
   const lean: number = (Math.atan2(surge, GRAVITY) * 180) / Math.PI;
-  const turn: Pick<IAutoMovieMotionHumanPosture, "yaw" | "pitch" | "roll"> =
-    resolveHumanPosture.angles(
+  const turn: Pick<IAutoMovieMotionHumanPosture, RespondHumanMountedTurn> =
+    humanPostureHeading.angles(
       Quaternion.multiply(now, Quaternion.inverse(start)),
     );
   const joints: IAutoMovieMotionHumanPosture["joints"] = { ...posture.joints };

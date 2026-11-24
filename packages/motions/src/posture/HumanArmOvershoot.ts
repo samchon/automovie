@@ -3,6 +3,7 @@ import {
   physicalShapeSegmentDistance,
 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanColliders,
   IAutoMovieVector3,
@@ -49,7 +50,7 @@ export namespace HumanArmOvershoot {
     shapes: readonly IAutoMovieMotionHumanColliders.IPlaced[],
     elbow: IAutoMovieVector3,
     wrist: IAutoMovieVector3,
-    side: "left" | "right",
+    side: AutoMovieHumanSide,
     others: readonly IAutoMovieMotionHumanColliders.IFramed[] = [],
     goal: boolean = true,
     rival?: IAutoMovieVector3,
@@ -71,12 +72,12 @@ export namespace HumanArmOvershoot {
    * Read varying elbow/wrist candidates against one unchanged room during a
    * synchronous fit. The lists, their placed geometry, body measurements and
    * goal metadata must remain unchanged until the caller releases the reader.
-   * Preparation is lazy, preserving the first actual obstruction's admission.
+   * The room is built here, once, and every candidate reads it.
    */
   export function prepare(
     body: IAutoMovieMotionHumanBody,
     shapes: readonly IAutoMovieMotionHumanColliders.IPlaced[],
-    side: "left" | "right",
+    side: AutoMovieHumanSide,
     others: readonly IAutoMovieMotionHumanColliders.IFramed[] = [],
     goal: boolean = true,
     rival?: IAutoMovieVector3,
@@ -84,19 +85,10 @@ export namespace HumanArmOvershoot {
     rests: readonly IAutoMovieMotionHumanColliders.IPlaced[] = [],
     trial?: HumanArmBendRoom,
   ): (elbow: IAutoMovieVector3, wrist: IAutoMovieVector3) => number {
-    let room: IRoom | undefined;
+    const room: IRoom = HumanArmOvershootRoom.of(shapes, others, rests, side);
     const shared: IQueries = trial === undefined ? {} : { trial };
     return (elbow: IAutoMovieVector3, wrist: IAutoMovieVector3): number =>
-      evaluate(
-        body,
-        (room ??= HumanArmOvershootRoom.of(shapes, others, rests, side)),
-        elbow,
-        wrist,
-        goal,
-        rival,
-        hint,
-        shared,
-      );
+      evaluate(body, room, elbow, wrist, goal, rival, hint, shared);
   }
 }
 
@@ -120,10 +112,9 @@ interface IQueries {
 
 /**
  * Evaluate one candidate, sharing only operation-owned unchanged geometry. A
- * hinged fit calls it at every candidate, so it builds nothing per call: the
- * near shapes go into one module list it alone writes, reset at each call, the
- * samples into one module point, and the readers' queries read them before the
- * next is written; no reading calls back into it.
+ * hinged fit calls it at every candidate: the near shapes and the axis samples
+ * are the call's own, and the shapes' distance readers are prepared once per
+ * operation (`IQueries`).
  */
 function evaluate(
   body: IAutoMovieMotionHumanBody,
@@ -173,7 +164,7 @@ function evaluate(
 
   // A shape whose bounding sphere the forearm's axis stays a radius from
   // cannot be within a radius of any axis point, so it is not sampled.
-  const near: IShape[] = NEAR;
+  const near: IShape[] = [];
   let count: number = 0;
   for (const shape of room.shapes) {
     const bound: HumanShapeFraming.IFramed = shape.framed;
@@ -230,12 +221,13 @@ function evaluate(
       );
   }
 
-  const at: IAutoMovieVector3 = AT;
   for (let i: number = 0; i < SAMPLES; i++) {
     const s: number = i / SAMPLES;
-    at.x = elbow.x + (wrist.x - elbow.x) * s;
-    at.y = elbow.y + (wrist.y - elbow.y) * s;
-    at.z = elbow.z + (wrist.z - elbow.z) * s;
+    const at: IAutoMovieVector3 = {
+      x: elbow.x + (wrist.x - elbow.x) * s,
+      y: elbow.y + (wrist.y - elbow.y) * s,
+      z: elbow.z + (wrist.z - elbow.z) * s,
+    };
 
     // The skin may press `TISSUE` into a surface anywhere along the
     // forearm, as the contact verdicts allow, and no deeper.
@@ -302,18 +294,6 @@ function distance(
   }
   return query(point, point);
 }
-
-/**
- * The near shapes of the candidate `evaluate` reads, written only by it, from
- * index 0 at each call.
- */
-const NEAR: IShape[] = [];
-
-/**
- * The axis sample `evaluate` reads, written only by it before each sample's
- * queries.
- */
-const AT: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
 
 /** A point's distance from a segment, metres, by the clamped projection. */
 function along(

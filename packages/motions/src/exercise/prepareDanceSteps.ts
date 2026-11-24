@@ -33,11 +33,13 @@ interface IFall {
   /** Planned offset from the foot's entry placement, in metres. */
   at: IOffset;
 }
+/** The alternatives of `StepsKind`'s site. */
+type StepsKind = "stepTouch" | "boxStep";
 
 /** The ordered step figure and its unchanged timing and floor placement inputs. */
 interface ISteps {
   /** Which stepping pattern to trace. */
-  kind: "stepTouch" | "boxStep";
+  kind: StepsKind;
 
   /** First foot when the author specifies one. */
   side?: AutoMovieHumanSide;
@@ -77,6 +79,16 @@ interface ISteps {
     seconds: number,
   ) => IAutoMovieMotionHumanFoot.IPlacement;
 }
+/** The record of `IPrepareDanceStepsResult`'s site. */
+type IPrepareDanceStepsResult = {
+  /** Ordered timed feet for publishing support windows. */
+  paths: Readonly<Record<AutoMovieHumanSide, readonly IFall[]>>;
+
+  /** The two prepared course readers. */
+  courses: Readonly<
+    Record<AutoMovieHumanSide, ReturnType<typeof prepareDanceFootCourse>>
+  >;
+};
 
 /**
  * Prepare the ordered footfalls and rigid foot courses of a step-touch or box
@@ -99,15 +111,7 @@ export function prepareDanceSteps({
   leftward,
   forward,
   rotate,
-}: ISteps): {
-  /** Ordered timed feet for publishing support windows. */
-  paths: Readonly<Record<AutoMovieHumanSide, readonly IFall[]>>;
-
-  /** The two prepared course readers. */
-  courses: Readonly<
-    Record<AutoMovieHumanSide, ReturnType<typeof prepareDanceFootCourse>>
-  >;
-} {
+}: ISteps): IPrepareDanceStepsResult {
   const first: AutoMovieHumanSide = side ?? "right";
   const second: AutoMovieHumanSide = first === "right" ? "left" : "right";
 

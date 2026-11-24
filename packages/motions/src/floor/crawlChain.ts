@@ -1,5 +1,6 @@
 import { Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanBody,
@@ -14,6 +15,9 @@ import { HumanFrame } from "../posture/HumanFrame";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { crawlFrame } from "./crawlFrame";
+
+/** The record of `IOfDescendNearest`'s site. */
+type IOfDescendNearest = { lam: number; residual: number };
 
 /**
  * The inchworm's reaches, solved on its body in its middle plane: a chain from
@@ -115,13 +119,13 @@ export namespace crawlChain {
     plank: number;
 
     /** Each wrist from its flat palm, metres in the heading's frame. */
-    wrists: Record<"left" | "right", IAutoMovieVector3>;
+    wrists: Record<AutoMovieHumanSide, IAutoMovieVector3>;
 
     /** Each palm's lateral place under its shoulder, metres in the floor frame. */
-    palms: Record<"left" | "right", number>;
+    palms: Record<AutoMovieHumanSide, number>;
 
     /** Each foot's ball standing, in the floor frame. */
-    balls: Record<"left" | "right", IAutoMovieVector3>;
+    balls: Record<AutoMovieHumanSide, IAutoMovieVector3>;
   }
 
   /**
@@ -164,10 +168,10 @@ export namespace crawlChain {
     const t: number = Vector3.length(chest);
     const l: number = LEG * (thigh + shank);
     const r: number = ARM * (body.measure.upperArm + body.measure.forearm);
-    const wrists: Record<"left" | "right", IAutoMovieVector3> =
+    const wrists: Record<AutoMovieHumanSide, IAutoMovieVector3> =
       crawlFrame.wrists(body, standing, forward);
     const wv: number = (wrists.left.y + wrists.right.y) / 2;
-    const ball = (side: "left" | "right"): IAutoMovieVector3 => {
+    const ball = (side: AutoMovieHumanSide): IAutoMovieVector3 => {
       const from: IAutoMovieHumanLimbGoal = standing.limbs[`${side}Leg`]!;
       return floor.local(
         HumanFoot.point(body, side, "mtp", {
@@ -176,7 +180,7 @@ export namespace crawlChain {
         }),
       );
     };
-    const balls: Record<"left" | "right", IAutoMovieVector3> = {
+    const balls: Record<AutoMovieHumanSide, IAutoMovieVector3> = {
       left: ball("left"),
       right: ball("right"),
     };
@@ -273,7 +277,7 @@ export namespace crawlChain {
     ): number => {
       let hi: number = from;
       let lo: number | null = null;
-      let nearest: { lam: number; residual: number } = {
+      let nearest: IOfDescendNearest = {
         lam: from,
         residual: Infinity,
       };

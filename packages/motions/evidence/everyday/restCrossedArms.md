@@ -22,7 +22,7 @@ A 30-step width bisection retains every closed-form goal query. One observationa
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 
-A same-operation exact FK reader serves the admitted shoulder solve, shoulder frames and raw sternum. Bisection trials share fixed body geometry, lazy actual palm offsets and clamped shoulder origins; each changed width computes its two elbows once for both hand surfaces and excesses. The universal resolver owns the safe fit dependency proof and preserves full fallback.
+A same-operation exact FK reader serves the admitted shoulder solve, shoulder frames and raw sternum. Bisection trials share fixed body geometry, both actual palm offsets, read once and clamped shoulder origins; each changed width computes its two elbows once for both hand surfaces and excesses. The universal resolver owns the safe fit dependency proof and preserves full fallback.
 
 ## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
 

@@ -34,6 +34,21 @@ import { HumanPerformancePlace } from "./HumanPerformancePlace";
 import { HumanPerformanceRead } from "./HumanPerformanceRead";
 import { HumanScheduleRefusal } from "./HumanScheduleRefusal";
 
+/** The record of `IProximityPlaced`'s site. */
+type IProximityPlaced = { start: number; duration: number };
+
+/** The record of `IAlign2`'s site. */
+type IAlign2 = { subject: string; meeting: IAutoMovieMotionMeeting };
+
+/** The record of `IAlign`'s site. */
+type IAlign = { subject: string; meeting: IAutoMovieMotionMeeting };
+
+/** The record of `IAlignMeetingsItem`'s site. */
+type IAlignMeetingsItem = { subject: string; meeting: IAutoMovieMotionMeeting };
+
+/** The record of `IResolvePlaced`'s site. */
+type IResolvePlaced = { start: number; duration: number };
+
 /**
  * The composition resolved on the film clock: the engine's schedule resolver
  * given this performance's laws, the alignment of an action synced to an
@@ -74,15 +89,17 @@ export namespace HumanPerformanceSchedule {
           self.demandAnchor = context.demandAnchor;
           self.meeting = context.meeting;
           try {
-            return HumanPerformancePlace.place(
-              self,
-              intent,
-              context.start,
-              context.entries,
+            return HumanRefusal.located(
               where,
+              (): IAutoMovieIntentTiming =>
+                HumanPerformancePlace.place(
+                  self,
+                  intent,
+                  context.start,
+                  context.entries,
+                  where,
+                ),
             );
-          } catch (error) {
-            throw error instanceof HumanRefusal ? error.locate(where) : error;
           } finally {
             self.demand = outer;
             self.horizon = outerHorizon;
@@ -92,7 +109,7 @@ export namespace HumanPerformanceSchedule {
         },
         until: (
           intent: IAutoMovieIntent,
-          placed: { start: number; duration: number },
+          placed: IResolvePlaced,
         ): number | undefined =>
           HumanPerformanceSchedule.proximity(self, intent, placed),
         state: (entry: IAutoMovieScheduleEntry): void => {
@@ -124,8 +141,8 @@ export namespace HumanPerformanceSchedule {
         ): number => {
           const where: IAutoMovieMotionHumanRefusal.IWhere =
             HumanPerformanceRead.where(self, intent);
-          try {
-            return HumanPerformanceSchedule.align(
+          return HumanRefusal.located(where, (): number =>
+            HumanPerformanceSchedule.align(
               self,
               intent,
               instant,
@@ -133,10 +150,8 @@ export namespace HumanPerformanceSchedule {
                 HumanPerformanceSchedule.latency(self, intent, context, where),
               context,
               where,
-            );
-          } catch (error) {
-            throw error instanceof HumanRefusal ? error.locate(where) : error;
-          }
+            ),
+          );
         },
       });
     } catch (error) {
@@ -184,10 +199,7 @@ export namespace HumanPerformanceSchedule {
     let moved: number = Infinity;
     for (let round: number = 0; round < rounds; ++round) {
       // Planning a mutual action records its meeting; a trial must not.
-      const meetings: [
-        string,
-        { subject: string; meeting: IAutoMovieMotionMeeting },
-      ][] = [...self.meetings];
+      const meetings: [string, IAlignMeetingsItem][] = [...self.meetings];
       const timing: IAutoMovieIntentTiming = HumanPerformancePlace.place(
         self,
         intent,
@@ -201,15 +213,10 @@ export namespace HumanPerformanceSchedule {
       // placement that takes it (`IAutoMovieMotionHumanPerformanceTrial`).
       if (self.trial !== undefined)
         self.trial.meetings = [...self.meetings].filter(
-          ([key, value]: [
-            string,
-            { subject: string; meeting: IAutoMovieMotionMeeting },
-          ]): boolean =>
+          ([key, value]: [string, IAlign]): boolean =>
             !meetings.some(
-              ([before, kept]: [
-                string,
-                { subject: string; meeting: IAutoMovieMotionMeeting },
-              ]): boolean => before === key && kept === value,
+              ([before, kept]: [string, IAlign2]): boolean =>
+                before === key && kept === value,
             ),
         );
       self.meetings.clear();
@@ -363,7 +370,7 @@ export namespace HumanPerformanceSchedule {
   export function proximity(
     self: IAutoMovieMotionHumanPerformanceState,
     intent: IAutoMovieIntent,
-    placed: { start: number; duration: number },
+    placed: IProximityPlaced,
   ): number | undefined {
     const until = intent.until;
     if (until === undefined || !("proximity" in until)) return undefined;

@@ -1,5 +1,6 @@
 import { AutoMovieGravity, Quaternion } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanChain,
@@ -17,6 +18,42 @@ import { HumanFoot } from "../../posture/HumanFoot";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
 import type { humanPolygonMan } from "../humanPolygonMan";
 import { FootSlip } from "./FootSlip";
+
+/** The record of `ILocomotionCasePartsResult`'s site. */
+type ILocomotionCasePartsResult = { h: number; p: number; r: number };
+
+/** The alternatives of `LocomotionCasePhase`'s site. */
+type LocomotionCasePhase = "stance" | "swing";
+
+/** The record of `ILocomotionCasePop`'s site. */
+type ILocomotionCasePop = { value: number; where: string };
+
+/** The record of `ILocomotionCaseTurnEntry`'s site. */
+type ILocomotionCaseTurnEntry = { value: number; where: string };
+
+/** The alternatives of `LocomotionCaseTurnEntry`'s site. */
+type LocomotionCaseTurnEntry = "stance" | "swing";
+
+/** The record of `ILocomotionCaseReach`'s site. */
+type ILocomotionCaseReach = { value: number; where: string };
+
+/** The record of `ILocomotionCaseSink`'s site. */
+type ILocomotionCaseSink = { value: number; where: string };
+
+/** The record of `ILocomotionCaseSlip`'s site. */
+type ILocomotionCaseSlip = { value: number; where: string };
+
+/** The record of `ILocomotionCaseDriftItem`'s site. */
+type ILocomotionCaseDriftItem = { at: IAutoMovieVector3; drift: number };
+
+/** The record of `ILocomotionCaseTrailsItem`'s site. */
+type ILocomotionCaseTrailsItem = { color: number; points: IAutoMovieVector3[] };
+
+/** The alternatives of `LocomotionCaseOne2`'s site. */
+type LocomotionCaseOne2 = "jog" | "run" | "sprint";
+
+/** The alternatives of `LocomotionCaseOne`'s site. */
+type LocomotionCaseOne = "slow" | "normal" | "fast";
 
 /**
  * One walk or run capture case of `locomotionCases`: one body walks or runs to
@@ -50,12 +87,12 @@ export function locomotionCase(
       law === "walk"
         ? HumanChain.subject(`w${i}`).walk({
             to: goals[i]!,
-            pace: pace as "slow" | "normal" | "fast",
+            pace: pace as LocomotionCaseOne,
             ...extra,
           })
         : HumanChain.subject(`w${i}`).run({
             to: goals[i]!,
-            pace: pace as "jog" | "run" | "sprint",
+            pace: pace as LocomotionCaseOne2,
             ...extra,
           });
     chain = chain === undefined ? one : chain.with(one);
@@ -72,25 +109,25 @@ export function locomotionCase(
     composition: chain!.node,
   });
   const end: number = performance.duration;
-  const trails: { color: number; points: IAutoMovieVector3[] }[] = [];
-  const drift: { at: IAutoMovieVector3; drift: number }[] = [];
-  let slip: { value: number; where: string } = {
+  const trails: ILocomotionCaseTrailsItem[] = [];
+  const drift: ILocomotionCaseDriftItem[] = [];
+  let slip: ILocomotionCaseSlip = {
     value: 0,
     where: "none",
   };
-  let sink: { value: number; where: string } = {
+  let sink: ILocomotionCaseSink = {
     value: 0,
     where: "none",
   };
-  let reach: { value: number; where: string } = {
+  let reach: ILocomotionCaseReach = {
     value: 0,
     where: "none",
   };
-  const turn: Record<"stance" | "swing", { value: number; where: string }> = {
+  const turn: Record<LocomotionCaseTurnEntry, ILocomotionCaseTurnEntry> = {
     stance: { value: 0, where: "none" },
     swing: { value: 0, where: "none" },
   };
-  let pop: { value: number; where: string } = {
+  let pop: ILocomotionCasePop = {
     value: 0,
     where: "none",
   };
@@ -112,7 +149,7 @@ export function locomotionCase(
       from: segment.start + c.from * segment.plan.duration,
       to: segment.start + c.to * segment.plan.duration,
     }));
-    const ankles: Record<"left" | "right", IAutoMovieVector3[]> = {
+    const ankles: Record<AutoMovieHumanSide, IAutoMovieVector3[]> = {
       left: [],
       right: [],
     };
@@ -141,7 +178,7 @@ export function locomotionCase(
             t >= st.from + 1e-9 &&
             t <= st.to - 1e-9,
         );
-        const phase: "stance" | "swing" = n < 0 ? "swing" : "stance";
+        const phase: LocomotionCasePhase = n < 0 ? "swing" : "stance";
         const within: string =
           n < 0
             ? ""
@@ -164,9 +201,7 @@ export function locomotionCase(
             const q = bones.get(`${side}Foot`)!.worldRotation;
             const r = limb.rotation;
             // Heading, pitch and roll of a rotation, degrees.
-            const parts = (
-              o: typeof q,
-            ): { h: number; p: number; r: number } => {
+            const parts = (o: typeof q): ILocomotionCasePartsResult => {
               const fw = Quaternion.rotateVector(o, { x: 0, y: 0, z: 1 });
               const up = Quaternion.rotateVector(o, { x: 0, y: 1, z: 0 });
               const h: number = Math.atan2(fw.x, fw.z);
@@ -438,6 +473,8 @@ function instants(
     (a, b): number => a.seconds - b.seconds,
   );
 }
+/** The alternatives of `LocomotionCaseInputExtra`'s site. */
+type LocomotionCaseInputExtra = "to" | "pace";
 
 /** Companion types of `locomotionCase`. */
 export namespace locomotionCase {
@@ -472,7 +509,7 @@ export namespace locomotionCase {
     to: IAutoMovieVector3;
 
     /** Extra walk parameters. */
-    extra: Omit<IAutoMovieMotionHumanWalkParams, "to" | "pace">;
+    extra: Omit<IAutoMovieMotionHumanWalkParams, LocomotionCaseInputExtra>;
 
     /** The prepared polygon men. */
     men: humanPolygonMan.IPolygonMan[];

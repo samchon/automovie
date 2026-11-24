@@ -33,13 +33,6 @@ export class HumanMountedTimeline {
    * @param figures The admitted figures.
    * @param gripped The hands the entry already holds on the first figure's
    *   contacts.
-   * @evidence contracts/development/common.md#meaningful-documentation States what is laid out.
-   * @evidence contracts/development/implementation.md#principled-implementation A running sum of each figure's transfer and hold.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure One loop.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts Nothing beyond the sum.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the figures.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Built once per plan.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Holds two arrays as long as the figures.
    */
   public constructor(
     private readonly figures: readonly IAutoMovieMotionHumanMounted.IFigure[],

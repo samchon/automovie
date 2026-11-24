@@ -1,5 +1,6 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   AutoMovieMotionHumanActionName,
   IAutoMovieMotionClock,
@@ -29,9 +30,27 @@ import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMo
 import { HumanBound } from "../law/HumanBound";
 import { HumanFrame } from "../posture/HumanFrame";
 import { blendHumanJoint } from "../posture/blendHumanJoint";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { humanPostureHeading } from "../posture/humanPostureHeading";
 import { sprintStartBlocks } from "./sprintStartBlocks";
 import { sprintStartSet } from "./sprintStartSet";
+
+/** The alternatives of `PlanFlexedBone2`'s site. */
+type PlanFlexedBone2 = "spine" | "chest";
+
+/** The alternatives of `PlanFlexedBone`'s site. */
+type PlanFlexedBone = "spine" | "chest";
+
+/** The alternatives of `PlanFlexionsEntry`'s site. */
+type PlanFlexionsEntry = "spine" | "chest";
+
+/** The alternatives of `SetSex`'s site. */
+type SetSex = "female" | "male";
+
+/** The alternatives of `SetContext`'s site. */
+type SetContext = "body" | "entry";
+
+/** The alternatives of `CENTREEntryItem`'s site. */
+type CENTREEntryItem = "female" | "male";
 
 /**
  * The sprint start's crouch into the set position and its hold until the gun :
@@ -112,7 +131,7 @@ export namespace athletics {
    * Environ Res Public Health 19:4074, section 4.1.2), the primary texts being
    * closed.
    */
-  export const CENTRE: Readonly<Record<"female" | "male", number>> =
+  export const CENTRE: Readonly<Record<CENTREEntryItem, number>> =
     sprintStartSet.CENTRE;
 
   /**
@@ -148,10 +167,10 @@ export namespace athletics {
    *   floor and each foot's placement.
    */
   export function set(
-    context: Pick<IAutoMovieMotionHumanActionContext, "body" | "entry">,
+    context: Pick<IAutoMovieMotionHumanActionContext, SetContext>,
     entry: IAutoMovieMotionHumanPosture,
-    front: "left" | "right",
-    sex: "female" | "male" = "male",
+    front: AutoMovieHumanSide,
+    sex: SetSex = "male",
   ): ReturnType<typeof sprintStartSet.of> {
     return sprintStartSet.of(context, entry, front, sex);
   }
@@ -178,8 +197,8 @@ export namespace athletics {
       p.on === undefined
         ? undefined
         : sprintStartBlocks.of(context, p.on, p.front);
-    const front: "left" | "right" = blocks?.front ?? p.front ?? "left";
-    const rear: "left" | "right" = front === "left" ? "right" : "left";
+    const front: AutoMovieHumanSide = blocks?.front ?? p.front ?? "left";
+    const rear: AutoMovieHumanSide = front === "left" ? "right" : "left";
     const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
     const target: ReturnType<typeof set> = sprintStartSet.of(
       context,
@@ -235,7 +254,7 @@ export namespace athletics {
     const hipsRest: IAutoMovieVector3 = body.rest.get("hips")!;
     const standingHips: IAutoMovieVector3 = Vector3.add(
       entry.root,
-      Quaternion.rotateVector(resolveHumanPosture.heading(entry), hipsRest),
+      Quaternion.rotateVector(humanPostureHeading(entry), hipsRest),
     );
     const hipsAt: ReturnType<typeof Vector3.prepareLerp> = Vector3.prepareLerp(
       standingHips,
@@ -246,18 +265,18 @@ export namespace athletics {
       ...Vector3.scale(ahead, 0.12 * body.measure.stature),
       y: 0.04 * body.measure.stature,
     };
-    const flexions: Record<"spine" | "chest", number> = {
+    const flexions: Record<PlanFlexionsEntry, number> = {
       spine: (target.joints.spine?.[0] ?? 0) - (entry.joints.spine?.[0] ?? 0),
       chest: (target.joints.chest?.[0] ?? 0) - (entry.joints.chest?.[0] ?? 0),
     };
     const pitchDelta: number = target.pitch - entry.pitch;
     const flexed: (
       joints: IAutoMovieMotionHumanPosture["joints"],
-      bone: "spine" | "chest",
+      bone: PlanFlexedBone,
       share: number,
     ) => readonly [number, number, number] = (
       joints: IAutoMovieMotionHumanPosture["joints"],
-      bone: "spine" | "chest",
+      bone: PlanFlexedBone2,
       share: number,
     ): readonly [number, number, number] => {
       const was: readonly [number, number, number] = joints[bone] ?? [0, 0, 0];
@@ -293,10 +312,7 @@ export namespace athletics {
             ...pitched,
             root: Vector3.subtract(
               hips,
-              Quaternion.rotateVector(
-                resolveHumanPosture.heading(pitched),
-                hipsRest,
-              ),
+              Quaternion.rotateVector(humanPostureHeading(pitched), hipsRest),
             ),
           };
         },

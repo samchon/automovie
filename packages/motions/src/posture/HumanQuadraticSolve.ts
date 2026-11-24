@@ -5,6 +5,9 @@ import { HumanQuadraticEntries } from "./HumanQuadraticEntries";
 import { HumanQuadraticPreparation as Preparation } from "./HumanQuadraticPreparation";
 import { HumanQuadraticWorkspace as Workspace } from "./HumanQuadraticWorkspace";
 
+/** The record of `IHumanQuadraticSolveResidual`'s site. */
+type IHumanQuadraticSolveResidual = { primal: number; dual: number };
+
 /**
  * Run the existing OSQP iteration on admitted, equilibrated numeric data.
  * Public one-shot solves and fixed-matrix models share this numeric owner.
@@ -158,7 +161,7 @@ export function HumanQuadraticSolve(
   const work: Workspace.IWork = memory?.work ?? Workspace.of(rhs, xt, before);
   let status: IAutoMovieMotionHumanQuadraticProgram.IState["status"] =
     "unfinished";
-  const residual: { primal: number; dual: number } = {
+  const residual: IHumanQuadraticSolveResidual = {
     primal: Infinity,
     dual: Infinity,
   };

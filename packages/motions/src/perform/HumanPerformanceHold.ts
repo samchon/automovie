@@ -18,6 +18,12 @@ import { HumanPerformanceRead } from "./HumanPerformanceRead";
 import { HumanPropFlight } from "./HumanPropFlight";
 import { HumanPropHold } from "./HumanPropHold";
 
+/** The record of `ISocketMount`'s site. */
+type ISocketMount = { prop: string; point: string };
+
+/** The alternatives of `MountResult`'s site. */
+type MountResult = "prop" | "point";
+
 /**
  * A prop's world frame as the grips that hold it carry it: the reader
  * `HumanPerformanceRead.prop` documents and delegates to, split from it so the
@@ -35,10 +41,15 @@ export namespace HumanPerformanceHold {
   type AutoMovieMountPath = Map<string, Set<number>>;
 
   /**
-   * The hands being read, by performer and second: a re-entrant read is a
-   * posture reading the prop its own hand holds.
+   * The hands being read in each performance, by performer and second: a
+   * re-entrant read is a posture reading the prop its own hand holds. Keyed by
+   * the performance that owns the reads, so no read of one performance sees
+   * another's.
    */
-  const HANDS: AutoMovieMountPath = new Map();
+  const HANDS: WeakMap<
+    IAutoMovieMotionHumanPerformanceState,
+    AutoMovieMountPath
+  > = new WeakMap();
 
   /**
    * A prop's world frame at a film second (`HumanPerformanceRead.prop`).
@@ -66,7 +77,7 @@ export namespace HumanPerformanceHold {
     self: IAutoMovieMotionHumanPerformanceState,
     subject: string,
     seconds: number,
-  ): Pick<IAutoMovieMotionHumanProp.IMounted, "prop" | "point"> | undefined {
+  ): Pick<IAutoMovieMotionHumanProp.IMounted, MountResult> | undefined {
     if (self.props.get(subject)?.motion !== undefined) return undefined;
     const { active, since }: ICustody = custody(
       HumanPerformanceRead.grips(self, subject),
@@ -243,7 +254,9 @@ export namespace HumanPerformanceHold {
         // very hand it is still placing: the read re-enters at the same
         // second. It reads the hand where the grip took the prop instead, an
         // earlier instant, never the fit in progress.
-        const reading: Set<number> = HANDS.get(w.subject) ?? new Set();
+        let hands: AutoMovieMountPath | undefined = HANDS.get(self);
+        if (hands === undefined) HANDS.set(self, (hands = new Map()));
+        const reading: Set<number> = hands.get(w.subject) ?? new Set();
         if (reading.has(at)) {
           if (w.from < at && !reading.has(w.from)) return carrier(w, w.from);
           throw new HumanRefusal({
@@ -254,13 +267,13 @@ export namespace HumanPerformanceHold {
             fix: "build the goal from the law's own carrying hand, not from the held prop's displayed frame",
           });
         }
-        HANDS.set(w.subject, reading);
+        hands.set(w.subject, reading);
         reading.add(at);
         try {
           return HumanPerformanceRead.hand(self, w.subject, w.side, at);
         } finally {
           reading.delete(at);
-          if (reading.size === 0) HANDS.delete(w.subject);
+          if (reading.size === 0) hands.delete(w.subject);
         }
       }
       const bone: IAutoMovieResolvedBone = HumanPerformanceRead.bones(
@@ -463,7 +476,7 @@ export namespace HumanPerformanceHold {
    */
   function socket(
     self: IAutoMovieMotionHumanPerformanceState,
-    mount: { prop: string; point: string },
+    mount: ISocketMount,
     seconds: number,
     own: IAutoMovieMotionHumanPerformanceHold.IPropOwn | undefined,
     path: AutoMovieMountPath,

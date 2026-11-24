@@ -1,5 +1,6 @@
 import { Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanKiss,
   IAutoMovieMotionHumanPosture,
@@ -10,7 +11,17 @@ import type {
 import { AutoMovieMotionHumanLean } from "../compose/AutoMovieMotionHumanLean";
 import { AutoMovieMotionHumanLeg } from "../compose/AutoMovieMotionHumanLeg";
 import { AutoMovieMotionHumanRise } from "../compose/AutoMovieMotionHumanRise";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { lowerHumanPosture } from "../posture/lowerHumanPosture";
+
+/** The alternatives of `KissBodySolved`'s site. */
+type KissBodySolved =
+  | "pitch"
+  | "roll"
+  | "raise"
+  | "sink"
+  | "shift"
+  | "advance"
+  | "bearing";
 
 /**
  * The body of a kiss at a share of its solved angles: risen on the toes by the
@@ -34,10 +45,7 @@ export function kissBody(
   body: IAutoMovieMotionHumanBody,
   posture: IAutoMovieMotionHumanPosture,
   stance: IAutoMovieMotionHumanRise.Stance,
-  solved: Pick<
-    IAutoMovieMotionHumanKiss.ISolved,
-    "pitch" | "roll" | "raise" | "sink" | "shift" | "advance" | "bearing"
-  >,
+  solved: Pick<IAutoMovieMotionHumanKiss.ISolved, KissBodySolved>,
   share: number,
   seated: boolean,
 ): IAutoMovieMotionHumanPosture {
@@ -68,9 +76,9 @@ export function kissBody(
   // Standing, the root comes down as far as the planted legs ask to reach
   // their risen feet.
   const goal: (
-    side: "left" | "right",
+    side: AutoMovieHumanSide,
   ) => ReturnType<typeof AutoMovieMotionHumanLeg.goal> = (
-    side: "left" | "right",
+    side: AutoMovieHumanSide,
   ): ReturnType<typeof AutoMovieMotionHumanLeg.goal> =>
     AutoMovieMotionHumanLeg.goal(
       body,
@@ -79,7 +87,7 @@ export function kissBody(
       AutoMovieMotionHumanRise.foot(body, side, stance[side], raise),
       true,
     );
-  const root: IAutoMovieVector3 = resolveHumanPosture.lower(body, {
+  const root: IAutoMovieVector3 = lowerHumanPosture(body, {
     ...leaned,
     limbs: {
       ...leaned.limbs,

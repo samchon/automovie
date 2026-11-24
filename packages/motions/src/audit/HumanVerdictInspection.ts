@@ -59,9 +59,11 @@ const UNITS: Readonly<Record<string, string>> = {
   partner: "m",
   timing: "faults",
 };
+/** The alternatives of `Packet2`'s site. */
+type Packet2 = "findings" | "coverage";
 
 /** What a finding of the shared type holds before and after the collapse. */
-type Packet = Pick<IAutoMovieInspectionDiagnostics, "findings" | "coverage">;
+type Packet = Pick<IAutoMovieInspectionDiagnostics, Packet2>;
 
 /** The readings of one bound of one performer or pair, collapsed to one. */
 interface IGroup {

@@ -21,18 +21,66 @@ import { HumanPerformanceRead } from "./HumanPerformanceRead";
 import { HumanSegment } from "./HumanSegment";
 import { HumanSegmentStill } from "./HumanSegmentStill";
 
+/** The record of `IContactsEventsBest`'s site. */
+type IContactsEventsBest = { key: string; distance: number };
+
+/** The record of `IContactsNearestBest`'s site. */
+type IContactsNearestBest = { subject: string; distance: number };
+
+/** The record of `IContactsInstalled`'s site. */
+type IContactsInstalled = {
+  stops: IAutoMovieResolveContactEvents.IStops;
+  size: number;
+};
+
+/** The record of `IContactsMetEntry`'s site. */
+type IContactsMetEntry = { key: string };
+
+/** The record of `IContactsSiblingsItem`'s site. */
+type IContactsSiblingsItem = {
+  weapon: IAutoMovieMotionWeaponPath;
+  from: number;
+  to: number;
+};
+
+/** The record of `IAxisLiveW2`'s site. */
+type IAxisLiveW2 = {
+  weapon: IAutoMovieMotionWeaponPath;
+  from: number;
+  to: number;
+};
+
+/** The record of `IAxisLiveW`'s site. */
+type IAxisLiveW = {
+  weapon: IAutoMovieMotionWeaponPath;
+  from: number;
+  to: number;
+};
+
+/** The record of `ILimbsItemEntry`'s site. */
+type ILimbsItemEntry = {
+  weapon: IAutoMovieMotionWeaponPath;
+  from: number;
+  to: number;
+};
+
+/** The record of `IContactsOwnersEntry`'s site. */
+type IContactsOwnersEntry = {
+  person: IAutoMovieMotionHumanSegment.IPerson;
+  segment: IAutoMovieMotionHumanSegment;
+  id: string;
+  limb: IAutoMovieMotionWeaponPath["limb"];
+  from: number;
+  to: number;
+  weapon: IAutoMovieMotionWeaponPath;
+};
+
 /**
  * What the placed performance does to itself: the holds a grip starts and an
  * action takes over or ends, and the contacts between people resolved into the
  * stops and reactions of those they land on.
  */
 export namespace HumanPerformanceContacts {
-  /** A closed hold remembers the action that took it over for cut rollback. */
-  const takeovers: WeakMap<
-    IAutoMovieMotionHumanSegment.IHeld,
-    IAutoMovieMotionHumanSegment
-  > = new WeakMap();
-
   /**
    * The contact scan's step, seconds: a 120th, so a strike of at most a few
    * metres a second moves a few centimetres between samples.
@@ -71,7 +119,8 @@ export namespace HumanPerformanceContacts {
           segment.entryTime,
           segment.start + take.from * plan.duration,
         );
-        takeovers.set(held, segment);
+        // A closed hold names the action that took it over, for cut rollback.
+        held.takenBy = segment.entry;
         if (riding) held.riding = true;
       } else if (HumanSegment.drives(plan, held.side))
         throw new HumanRefusal({
@@ -133,10 +182,10 @@ export namespace HumanPerformanceContacts {
         changed = true;
         continue;
       }
-      if (held.until > end + 1e-9 && takeovers.get(held)?.entry === entry) {
+      if (held.until > end + 1e-9 && held.takenBy === entry) {
         held.until = Infinity;
         delete held.riding;
-        takeovers.delete(held);
+        delete held.takenBy;
         changed = true;
       }
       person.holds[next++] = held;
@@ -165,18 +214,7 @@ export namespace HumanPerformanceContacts {
    */
   export function contacts(self: IAutoMovieMotionHumanPerformanceState): void {
     const weapons: IAutoMovieResolveContactEvents.IWeapon[] = [];
-    const owners: Map<
-      string,
-      {
-        person: IAutoMovieMotionHumanSegment.IPerson;
-        segment: IAutoMovieMotionHumanSegment;
-        id: string;
-        limb: IAutoMovieMotionWeaponPath["limb"];
-        from: number;
-        to: number;
-        weapon: IAutoMovieMotionWeaponPath;
-      }
-    > = new Map();
+    const owners: Map<string, IContactsOwnersEntry> = new Map();
     const far: IAutoMovieVector3 = { x: 1e6, y: 1e6, z: 1e6 };
     let from: number = Infinity;
     let to: number = -Infinity;
@@ -185,10 +223,7 @@ export namespace HumanPerformanceContacts {
     // the second, as a person's bones are: the grid bound's reads and the
     // scan's share each, and the capsules of one limb of one action share
     // their chain's evaluation. `apply` clears this with the bones.
-    const limbs: Map<
-      string,
-      { weapon: IAutoMovieMotionWeaponPath; from: number; to: number }[]
-    > = new Map();
+    const limbs: Map<string, ILimbsItemEntry[]> = new Map();
     const axes: Map<
       number,
       Map<IAutoMovieMotionWeaponPath, StrikingWeapon.IAxis>
@@ -209,20 +244,8 @@ export namespace HumanPerformanceContacts {
       if (found !== undefined) return found;
       const live: IAutoMovieMotionWeaponPath[] = limbs
         .get(limb)!
-        .filter(
-          (w: {
-            weapon: IAutoMovieMotionWeaponPath;
-            from: number;
-            to: number;
-          }): boolean => !(t < w.from || t > w.to),
-        )
-        .map(
-          (w: {
-            weapon: IAutoMovieMotionWeaponPath;
-            from: number;
-            to: number;
-          }): IAutoMovieMotionWeaponPath => w.weapon,
-        );
+        .filter((w: IAxisLiveW): boolean => !(t < w.from || t > w.to))
+        .map((w: IAxisLiveW2): IAutoMovieMotionWeaponPath => w.weapon);
       for (const [w, a] of StrikingWeapon.sample(live, t)) known.set(w, a);
       return known.get(weapon)!;
     };
@@ -244,11 +267,7 @@ export namespace HumanPerformanceContacts {
           });
           const tail = w.tail;
           const group: string = `${person.performer.subject}|${segment.index}:${w.limb}`;
-          const siblings: {
-            weapon: IAutoMovieMotionWeaponPath;
-            from: number;
-            to: number;
-          }[] = limbs.get(group) ?? [];
+          const siblings: IContactsSiblingsItem[] = limbs.get(group) ?? [];
           siblings.push({ weapon: w, from: a, to: b });
           limbs.set(group, siblings);
           weapons.push({
@@ -362,12 +381,10 @@ export namespace HumanPerformanceContacts {
         },
       ]),
     );
-    const met: Map<string, IAutoMovieMotionWeaponContact & { key: string }> =
+    const met: Map<string, IAutoMovieMotionWeaponContact & IContactsMetEntry> =
       new Map();
     let applied: string = "";
-    let installed:
-      | { stops: IAutoMovieResolveContactEvents.IStops; size: number }
-      | undefined;
+    let installed: IContactsInstalled | undefined;
     const apply = (stops: IAutoMovieResolveContactEvents.IStops): void => {
       // The sole live producer below owns a native Map and only adds fresh
       // weapon ids; neither existing times nor keys change or disappear.
@@ -431,7 +448,7 @@ export namespace HumanPerformanceContacts {
       [point, end]: [IAutoMovieVector3, IAutoMovieVector3],
       seconds: number,
     ): string => {
-      let best: { subject: string; distance: number } = {
+      let best: IContactsNearestBest = {
         subject: "",
         distance: Infinity,
       };
@@ -515,7 +532,7 @@ export namespace HumanPerformanceContacts {
               );
             if (part === null) return undefined;
             const limb: string = `${part[1]}${part[2] === undefined ? "Arm" : "Leg"}`;
-            let best: { key: string; distance: number } | undefined;
+            let best: IContactsEventsBest | undefined;
             const eligible: (readonly [string, IAutoMovieMotionWeaponPath])[] =
               [];
             for (const [key, owner] of owners) {

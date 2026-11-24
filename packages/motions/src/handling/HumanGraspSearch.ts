@@ -14,6 +14,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { HumanLimbFit } from "../posture/HumanLimbFit";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
@@ -226,8 +227,10 @@ export function HumanGraspSearch(
     }
     for (const { turn, tilt, wrist, grasp, preference, floor } of ordered()) {
       if (held && floor >= least) break;
-      const reference: IAutoMovieHumanLimbReference =
-        resolveHumanPosture.reference(grasp.pose, limb);
+      const reference: IAutoMovieHumanLimbReference = HumanLimbFit.reference(
+        grasp.pose,
+        limb,
+      );
       let miss: number = grasp.miss;
       let departure: number = grasp.departure;
       let beaten: boolean = false;

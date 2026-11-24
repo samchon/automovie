@@ -5,6 +5,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { HumanFields } from "./HumanFields";
+
 /**
  * Raw translation and the original observable serialization/admission policy.
  * These operations establish no solved-pose or mutable-body capability.
@@ -12,7 +14,7 @@ import type {
 export namespace HumanPostureRaw {
   /** Retain the original finite joint/free-world-leg admission observation. */
   export function eligible(posture: IAutoMovieMotionHumanPosture): boolean {
-    try {
+    {
       if (
         Object.keys(posture).some(
           (key: string): boolean => !POSTURE_KEYS.has(key),
@@ -60,8 +62,6 @@ export namespace HumanPostureRaw {
       )
         return false;
       return true;
-    } catch {
-      return false;
     }
   }
 
@@ -69,13 +69,9 @@ export namespace HumanPostureRaw {
   export function signature(
     posture: IAutoMovieMotionHumanPosture,
   ): string | undefined {
-    try {
-      return JSON.stringify(posture, (_key: string, value: unknown): unknown =>
-        typeof value === "number" && Object.is(value, -0) ? "number:-0" : value,
-      );
-    } catch {
-      return undefined;
-    }
+    return JSON.stringify(posture, (_key: string, value: unknown): unknown =>
+      typeof value === "number" && Object.is(value, -0) ? "number:-0" : value,
+    );
   }
 
   /** Copy original demands and apply one world-metre displacement per goal. */
@@ -121,8 +117,8 @@ export namespace HumanPostureRaw {
   }
 }
 
-/** Other top-level fields carry context outside this raw proof domain. */
-const POSTURE_KEYS: ReadonlySet<string> = new Set([
+/** The posture fields inside the raw proof domain. */
+const POSTURE_FIELDS = [
   "root",
   "yaw",
   "pitch",
@@ -130,6 +126,58 @@ const POSTURE_KEYS: ReadonlySet<string> = new Set([
   "joints",
   "limbs",
   "rotation",
-]);
+] as const satisfies ReadonlyArray<keyof IAutoMovieMotionHumanPosture>;
+
+/** The posture fields that carry context outside it. */
+const POSTURE_CONTEXT = ["digits"] as const satisfies ReadonlyArray<
+  keyof IAutoMovieMotionHumanPosture
+>;
+
+/** The posture fields neither list classifies: never while both are complete. */
+type IUnlistedPostureField = HumanFields.Unlisted<
+  IAutoMovieMotionHumanPosture,
+  (typeof POSTURE_FIELDS)[number],
+  (typeof POSTURE_CONTEXT)[number]
+>;
+
+/** Other top-level fields carry context outside this raw proof domain. */
+const POSTURE_KEYS: ReadonlySet<string> = HumanFields.admitted<
+  IAutoMovieMotionHumanPosture,
+  IUnlistedPostureField
+>(POSTURE_FIELDS);
+
+/** The goal fields inside the raw proof domain. */
+const GOAL_FIELDS = [
+  "point",
+  "bend",
+  "rotation",
+] as const satisfies ReadonlyArray<keyof IAutoMovieHumanLimbGoal>;
+
 /** Contact/plant/reference/external contexts require ordinary solving. */
-const GOAL_KEYS: ReadonlySet<string> = new Set(["point", "bend", "rotation"]);
+const GOAL_CONTEXT = [
+  "elbow",
+  "planted",
+  "contact",
+  "limits",
+  "on",
+  "reference",
+  "seed",
+  "clear",
+  "clearExternal",
+  "rests",
+  "restsOwn",
+  "clearanceOn",
+] as const satisfies ReadonlyArray<keyof IAutoMovieHumanLimbGoal>;
+
+/** The goal fields neither list classifies: never while both are complete. */
+type IUnlistedGoalField = HumanFields.Unlisted<
+  IAutoMovieHumanLimbGoal,
+  (typeof GOAL_FIELDS)[number],
+  (typeof GOAL_CONTEXT)[number]
+>;
+
+/** The goal fields the raw domain admits. */
+const GOAL_KEYS: ReadonlySet<string> = HumanFields.admitted<
+  IAutoMovieHumanLimbGoal,
+  IUnlistedGoalField
+>(GOAL_FIELDS);

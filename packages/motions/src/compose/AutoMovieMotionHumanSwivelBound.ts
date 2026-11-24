@@ -14,6 +14,15 @@ import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
+/** The alternatives of `BoundedMerged`'s site. */
+type BoundedMerged = IAutoMovieSwivelArcs.IArc[] | "all";
+
+/** The alternatives of `BoundedArc`'s site. */
+type BoundedArc = IAutoMovieSwivelArcs.IArc | "all" | null;
+
+/** The alternatives of `AdmitsArc`'s site. */
+type AdmitsArc = IAutoMovieSwivelArcs.IArc | "all" | null;
+
 /**
  * Half-plane bounds on an elbow's place, solved in closed form on the circle a
  * wrist's place leaves the elbow (the swivel of Tolani, Goswami and Badler
@@ -136,7 +145,7 @@ export namespace AutoMovieMotionHumanSwivelBound {
             Vector3.subtract(elbow, Vector3.subtract(bound.point, shoulder)),
           ) - bound.margin
         );
-      const arc: IAutoMovieSwivelArcs.IArc | "all" | null = swivelArcs.above(
+      const arc: AdmitsArc = swivelArcs.above(
         swivelArcs.fitted(past(at(0)), past(at(90)), past(at(180))),
         0,
       );
@@ -218,7 +227,7 @@ export namespace AutoMovieMotionHumanSwivelBound {
       );
     const refused: IAutoMovieSwivelArcs.IArc[] = [];
     for (const bound of bounds) {
-      const arc: IAutoMovieSwivelArcs.IArc | "all" | null = swivelArcs.above(
+      const arc: BoundedArc = swivelArcs.above(
         swivelArcs.fitted(
           past(bound, zero),
           past(bound, quarter),
@@ -229,8 +238,7 @@ export namespace AutoMovieMotionHumanSwivelBound {
       if (arc === "all") return hint;
       if (arc !== null) refused.push(arc);
     }
-    const merged: IAutoMovieSwivelArcs.IArc[] | "all" =
-      swivelArcs.union(refused);
+    const merged: BoundedMerged = swivelArcs.union(refused);
     const end: number | null = swivelArcs.nearest(merged, 0);
     if (end === null || end === 0) return hint;
 

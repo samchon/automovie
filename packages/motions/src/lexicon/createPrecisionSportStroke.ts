@@ -85,7 +85,6 @@ export function createPrecisionSportStroke<P extends Stroke>(
   name: string,
   form: PrecisionStrokeForms.IForm,
 ): IAutoMovieMotionHumanActionLaw<P> {
-  PrecisionStrokeForms.FORMS.set(name, form);
   return {
     name,
     interrupts: StrikingHeld.follows("strokeEnd"),

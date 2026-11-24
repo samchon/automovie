@@ -15,6 +15,12 @@ import type { prepareSupportHeldFrames } from "./prepareSupportHeldFrames";
 import { supportContact } from "./supportContact";
 import type { supportPlan } from "./supportPlan";
 
+/** The alternatives of `SupportHeldSocketResult`'s site. */
+type SupportHeldSocketResult = "heel" | "ball" | undefined;
+
+/** The alternatives of `SupportHeldSocketHeldEntry`'s site. */
+type SupportHeldSocketHeldEntry = "heel" | "ball";
+
 /**
  * The sole socket each floor foot holds through its window: its ball, the point
  * a turning foot pivots on, unless at the key it is set down on the ball is off
@@ -35,7 +41,7 @@ export function supportHeldSocket(
 ): prepareSupportHeldFrames.Socket {
   const form: ReturnType<typeof prepareSupportContactForm> =
     prepareSupportContactForm(body, false);
-  const held: Map<string, "heel" | "ball"> = new Map();
+  const held: Map<string, SupportHeldSocketHeldEntry> = new Map();
   for (const key of keys) {
     let bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> | undefined;
     for (const contact of key.contacts) {
@@ -65,5 +71,5 @@ export function supportHeldSocket(
   }
   return (
     contact: IAutoMovieMotionHumanSupport.IContact,
-  ): "heel" | "ball" | undefined => held.get(supportContact.id(contact));
+  ): SupportHeldSocketResult => held.get(supportContact.id(contact));
 }

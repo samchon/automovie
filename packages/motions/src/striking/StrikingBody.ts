@@ -4,6 +4,7 @@ import {
   resolveAutoMovieHumanoidSurfaces,
 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   AutoMovieHumanoidRegion,
   AutoMovieHumanoidSocket,
@@ -241,7 +242,7 @@ export namespace StrikingBody {
    */
   export function fist(
     body: IAutoMovieMotionHumanBody,
-    side: "left" | "right",
+    side: AutoMovieHumanSide,
     knuckles: IAutoMovieVector3,
     palm: IAutoMovieVector3,
   ): IAutoMovieQuaternion {
@@ -287,7 +288,7 @@ export namespace StrikingBody {
    * @returns Clinical angles by bone.
    */
   export function curl(
-    side: "left" | "right",
+    side: AutoMovieHumanSide,
   ): Partial<Record<AutoMovieHumanoidBone, readonly [number, number, number]>> {
     const out: Partial<
       Record<AutoMovieHumanoidBone, readonly [number, number, number]>

@@ -25,7 +25,7 @@ import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFoot } from "../posture/HumanFoot";
 import { carryHumanPosture } from "../posture/carryHumanPosture";
 import { hipJoints } from "../posture/hipJoints";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { humanPostureHeading } from "../posture/humanPostureHeading";
 import { HeldRideArms } from "./HeldRideArms";
 import { HumanMountRider } from "./HumanMountRider";
 import { HumanRideHands } from "./HumanRideHands";
@@ -33,6 +33,18 @@ import { RideRestingHands } from "./RideRestingHands";
 import { WorkingSeatRidePlan } from "./WorkingSeatRidePlan";
 import { placeRideFeet } from "./placeRideFeet";
 import { prepareHumanEquestrianRide } from "./prepareHumanEquestrianRide";
+
+/** The alternatives of `RideWrittenTipped`'s site. */
+type RideWrittenTipped = "yaw" | "pitch" | "roll";
+
+/** The record of `IRideStridesC`'s site. */
+type IRideStridesC = { seconds: number };
+
+/** The alternatives of `RideRising`'s site. */
+type RideRising = number | IRideRising | undefined;
+
+/** The record of `IRideRising`'s site. */
+type IRideRising = { cue: string };
 
 /**
  * Riding: a seated person carried by a support that moves by itself, such as a
@@ -125,13 +137,12 @@ export namespace HumanRide {
       });
 
       // A rising trot stands in the stirrups, so it needs both.
-      const rising: number | { cue: string } | undefined =
-        context.params.rising;
+      const rising: RideRising = context.params.rising;
       const strides: readonly number[] =
         typeof rising === "object"
           ? context
               .cue(rising.cue)
-              .map((c: { seconds: number }): number => c.seconds)
+              .map((c: IRideStridesC): number => c.seconds)
               .sort((a: number, b: number): number => a - b)
           : [];
       if (rising !== undefined) {
@@ -321,15 +332,13 @@ export namespace HumanRide {
         );
 
         // The pelvis keeps its place on the seat, so it tips with a support that leans or pitches; the heading stays the unwrapped one the carry gives.
-        const tipped: Pick<
-          IAutoMovieMotionHumanPosture,
-          "yaw" | "pitch" | "roll"
-        > = resolveHumanPosture.angles(
-          Quaternion.multiply(
-            Quaternion.multiply(now.rotation, turned),
-            resolveHumanPosture.heading(leant),
-          ),
-        );
+        const tipped: Pick<IAutoMovieMotionHumanPosture, RideWrittenTipped> =
+          humanPostureHeading.angles(
+            Quaternion.multiply(
+              Quaternion.multiply(now.rotation, turned),
+              humanPostureHeading(leant),
+            ),
+          );
 
         // Rising, the seat lifts off the saddle along the mount's own up and comes back once a stride; the feet stay on their rests.
         const through: number | undefined =
@@ -418,10 +427,10 @@ export namespace HumanRide {
         if (pedals.length === 0) return publish(out, now);
 
         // Where a pedal is further than the leg reaches with its knee still bent, the foot points down about its ball, as a cyclist's ankle does through the bottom of the stroke.
-        const hips: Record<"left" | "right", IAutoMovieVector3> = hipJoints(
+        const hips: Record<AutoMovieHumanSide, IAutoMovieVector3> = hipJoints(
           context.body,
           out.root,
-          resolveHumanPosture.heading(out),
+          humanPostureHeading(out),
           out.joints.hips,
         );
         for (const pedal of pedals) {
@@ -440,7 +449,7 @@ export namespace HumanRide {
                   HumanFoot.offset(context.body, pedal.side, "ball"),
                 bend: Vector3.add(
                   hips[pedal.side],
-                  Quaternion.rotateVector(resolveHumanPosture.heading(out), {
+                  Quaternion.rotateVector(humanPostureHeading(out), {
                     x: 0,
                     y: 0,
                     z: context.body.measure.thigh,
@@ -448,7 +457,7 @@ export namespace HumanRide {
                 ),
               },
               hips[pedal.side],
-              resolveHumanPosture.heading(out),
+              humanPostureHeading(out),
             );
         }
         return publish(out, now);

@@ -16,6 +16,15 @@ import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
 
+/** The alternatives of `OfPlatesEntry`'s site. */
+type OfPlatesEntry = "front" | "rear";
+
+/** The alternatives of `OfPlateId`'s site. */
+type OfPlateId = "front" | "rear";
+
+/** The alternatives of `OfContext`'s site. */
+type OfContext = "body" | "entry" | "prop" | "start";
+
 /**
  * The sprint start's foot placements on its blocks: a placed starting block's
  * two plates, which the athletics law reads in place of the body-scaled setting
@@ -38,14 +47,7 @@ export namespace sprintStartBlocks {
     feet: Record<AutoMovieHumanSide, IAutoMovieMotionHumanFoot.IPlacement>;
   }
 
-  /**
-   * One plate face in world space.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States each member's unit and frame.
-   * @evidence contracts/development/design.md#principled-representation The face centre in world metres and the sole's heading and pitch in degrees, as HumanFoot.pivot takes them.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The three values one sole placement reads.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No roll: a plate tilted across the lane is refused.
-   */
+  /** One plate face in world space. */
   interface IPlate {
     /**
      * The middle of the face's lower edge, where the ball of the foot rests
@@ -83,10 +85,7 @@ export namespace sprintStartBlocks {
    *   or an authored front foot on the other side.
    */
   export function of(
-    context: Pick<
-      IAutoMovieMotionHumanActionContext,
-      "body" | "entry" | "prop" | "start"
-    >,
+    context: Pick<IAutoMovieMotionHumanActionContext, OfContext>,
     subject: string,
     preferred: AutoMovieHumanSide | undefined,
   ): IPlaced {
@@ -108,7 +107,7 @@ export namespace sprintStartBlocks {
       { x: 0, y: 1, z: 0 },
       ahead,
     );
-    const plate = (id: "front" | "rear"): IPlate => {
+    const plate = (id: OfPlateId): IPlate => {
       const affordance = read.prop.affordances?.find(
         (item): boolean => item.id === id,
       );
@@ -161,7 +160,7 @@ export namespace sprintStartBlocks {
         pitch: (-Math.atan2(Math.hypot(up.x, up.z), up.y) * 180) / Math.PI,
       };
     };
-    const plates: Record<"front" | "rear", IPlate> = {
+    const plates: Record<OfPlatesEntry, IPlate> = {
       front: plate("front"),
       rear: plate("rear"),
     };

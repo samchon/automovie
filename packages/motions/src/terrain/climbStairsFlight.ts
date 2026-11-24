@@ -1,4 +1,5 @@
 import type {
+  AutoMovieHumanSide,
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanClimbStairsFlight,
@@ -10,6 +11,15 @@ import type {
 import { HumanBound } from "../law/HumanBound";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
+
+/** The record of `IFlightToeF`'s site. */
+type IFlightToeF = { ankle: IAutoMovieVector3; toe: IAutoMovieVector3 };
+
+/** The record of `IFlightFeetResult`'s site. */
+type IFlightFeetResult = { ankle: IAutoMovieVector3; toe: IAutoMovieVector3 };
+
+/** The record of `IFlightFeetItem`'s site. */
+type IFlightFeetItem = { ankle: IAutoMovieVector3; toe: IAutoMovieVector3 };
 
 /**
  * The flight of stairs a climb is planned on: its shape as the author gives it,
@@ -87,12 +97,8 @@ export namespace climbStairsFlight {
     HumanBound.within("riser", riser, 0, 0.35 * m.hipHeight, "m", "minimum");
     HumanBound.least("tread", tread, 0.6 * m.footLength, "m");
     const yaw: number = posture.yaw;
-    const feet: { ankle: IAutoMovieVector3; toe: IAutoMovieVector3 }[] = (
-      ["left", "right"] as const
-    ).map(
-      (
-        side: "left" | "right",
-      ): { ankle: IAutoMovieVector3; toe: IAutoMovieVector3 } => {
+    const feet: IFlightFeetItem[] = (["left", "right"] as const).map(
+      (side: AutoMovieHumanSide): IFlightFeetResult => {
         const goal: IAutoMovieHumanLimbGoal = posture.limbs[`${side}Leg`]!;
         return {
           ankle: goal.point,
@@ -110,10 +116,7 @@ export namespace climbStairsFlight {
     };
     const frame: IAutoMovieMotionHumanFrame = { origin, yaw };
     const toe: number = Math.max(
-      ...feet.map(
-        (f: { ankle: IAutoMovieVector3; toe: IAutoMovieVector3 }): number =>
-          HumanFrame.local(frame, f.toe).z,
-      ),
+      ...feet.map((f: IFlightToeF): number => HumanFrame.local(frame, f.toe).z),
     );
     return {
       frame,

@@ -6,6 +6,7 @@ import {
   resolveAutoMovieHumanoidSurfaces,
 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   IAutoMovieHumanoidSurfaces,
   IAutoMovieMotionHumanBody,
   IAutoMoviePhysicalSegment,
@@ -14,6 +15,9 @@ import type {
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
+
+/** The alternatives of `OfReadSide`'s site. */
+type OfReadSide = "Left" | "Right";
 
 /**
  * A foot's outline on its sole: the corners of the outline of the foot's
@@ -39,20 +43,20 @@ export namespace HumanFootOutline {
    */
   export function of(
     body: IAutoMovieMotionHumanBody,
-    side: "left" | "right",
+    side: AutoMovieHumanSide,
   ): readonly IAutoMovieHumanoidSurfaces.IFrame[] {
     let found:
-      | Record<"left" | "right", IAutoMovieHumanoidSurfaces.IFrame[]>
+      | Record<AutoMovieHumanSide, IAutoMovieHumanoidSurfaces.IFrame[]>
       | undefined = OUTLINES.get(body);
     if (found === undefined) {
       const tools: ReturnType<typeof AutoMovieHumanoidSurfaceRays.tools> =
         AutoMovieHumanoidSurfaceRays.tools(body.skeleton, body.profile);
       const read: (
-        s: "left" | "right",
+        s: AutoMovieHumanSide,
       ) => IAutoMovieHumanoidSurfaces.IFrame[] = (
-        s: "left" | "right",
+        s: AutoMovieHumanSide,
       ): IAutoMovieHumanoidSurfaces.IFrame[] => {
-        const Side: "Left" | "Right" = s === "left" ? "Left" : "Right";
+        const Side: OfReadSide = s === "left" ? "Left" : "Right";
         const heel: IAutoMovieHumanoidSurfaces.IFrame =
           body.surfaces.sockets[`heel${Side}`];
         const floor: number = resolveAutoMovieHumanoidSurfaces.point(
@@ -97,7 +101,7 @@ export namespace HumanFootOutline {
 /** Each body's sole outlines, made once. */
 const OUTLINES: WeakMap<
   IAutoMovieMotionHumanBody,
-  Record<"left" | "right", IAutoMovieHumanoidSurfaces.IFrame[]>
+  Record<AutoMovieHumanSide, IAutoMovieHumanoidSurfaces.IFrame[]>
 > = new WeakMap();
 
 /**

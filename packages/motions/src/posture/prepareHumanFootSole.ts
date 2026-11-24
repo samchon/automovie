@@ -1,5 +1,6 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   IAutoMovieHumanoidSurfaces,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanFoot,
@@ -17,12 +18,12 @@ import { HumanFoot } from "./HumanFoot";
  */
 export function prepareHumanFootSole(
   body: IAutoMovieMotionHumanBody,
-  side: "left" | "right",
+  side: AutoMovieHumanSide,
 ): (foot: IAutoMovieMotionHumanFoot.IPlacement) => IAutoMovieVector3[] {
   let sides:
     | Partial<
         Record<
-          "left" | "right",
+          AutoMovieHumanSide,
           (foot: IAutoMovieMotionHumanFoot.IPlacement) => IAutoMovieVector3[]
         >
       >
@@ -72,7 +73,7 @@ const CACHE: WeakMap<
   IAutoMovieMotionHumanBody,
   Partial<
     Record<
-      "left" | "right",
+      AutoMovieHumanSide,
       (foot: IAutoMovieMotionHumanFoot.IPlacement) => IAutoMovieVector3[]
     >
   >

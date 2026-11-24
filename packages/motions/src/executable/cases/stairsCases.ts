@@ -1,4 +1,5 @@
 import type {
+  AutoMovieHumanSide,
   IAutoMovieMotionHumanClimbStairs,
   IAutoMovieMotionHumanClimbStairsFlight,
   IAutoMovieMotionHumanPerformance,
@@ -12,6 +13,15 @@ import { climbStairs } from "../../terrain/climbStairs";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
 import { FamilyCaseKit } from "./FamilyCaseKit";
 import { everydayVerdicts } from "./everydayVerdicts";
+
+/** The record of `IStairsCasesStance`'s site. */
+type IStairsCasesStance = { value: number; where: string };
+
+/** The record of `IStairsCasesUnder`'s site. */
+type IStairsCasesUnder = { value: number; where: string };
+
+/** The record of `IStairsCasesNosing`'s site. */
+type IStairsCasesNosing = { value: number; where: string };
 
 /**
  * Capture cases of the stairs family: a four-tread flight of 170 mm risers and
@@ -53,7 +63,7 @@ export function stairsCases(
       const segment = performance.segments("a")[0]!;
       const flight: IAutoMovieMotionHumanClimbStairsFlight.IFlight =
         climbStairs.flight(who.body, segment.plan.posture(0), params);
-      const planted = (side: "left" | "right", t: number): boolean =>
+      const planted = (side: AutoMovieHumanSide, t: number): boolean =>
         segment.plan.contacts.some(
           (c) =>
             c.part === `${side}Foot` &&
@@ -65,15 +75,15 @@ export function stairsCases(
         { length: flight.count },
         (_, i: number): number => flight.first + i * flight.tread,
       );
-      let nosing: { value: number; where: string } = {
+      let nosing: IStairsCasesNosing = {
         value: Infinity,
         where: "none",
       };
-      let under: { value: number; where: string } = {
+      let under: IStairsCasesUnder = {
         value: Infinity,
         where: "none",
       };
-      let stance: { value: number; where: string } = {
+      let stance: IStairsCasesStance = {
         value: 0,
         where: "none",
       };

@@ -27,6 +27,9 @@ import type { humanPolygonMan } from "../humanPolygonMan";
 import { handoverCases } from "./handoverCases";
 import { handshakeCases } from "./handshakeCases";
 
+/** The alternatives of `HandlingCasesFamily`'s site. */
+type HandlingCasesFamily = "handshake" | "grasp" | "handover";
+
 /**
  * Capture cases of the handling laws on the polygon man, for what the numeric
  * tests cannot show: whether a reach reads as reaching for a hand, whether the
@@ -65,7 +68,7 @@ import { handshakeCases } from "./handshakeCases";
  * @returns The cases.
  */
 export function handlingCases(
-  family?: "handshake" | "grasp" | "handover",
+  family?: HandlingCasesFamily,
 ): IMotionCaptureCase[] {
   const out: IMotionCaptureCase[] = [];
   if (family === undefined || family === "handshake")

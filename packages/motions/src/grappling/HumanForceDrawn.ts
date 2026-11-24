@@ -1,3 +1,8 @@
+/** The record of `ISampleProps`'s site. */
+type ISampleProps = {
+  /** Seconds since the pull began. */
+  seconds: number;
+};
 /**
  * The original constant-pull inverted pendulum with fixed physical
  * coefficients. Position-only reads and complete state reads share the same
@@ -59,12 +64,7 @@ export namespace HumanForceDrawn {
    * @param props Physical inputs and seconds since the pull began.
    * @returns Fresh offset, speed and extrapolated displacement.
    */
-  export function sample(
-    props: IProps & {
-      /** Seconds since the pull began. */
-      seconds: number;
-    },
-  ): IState {
+  export function sample(props: IProps & ISampleProps): IState {
     const t: number = Math.max(0, props.seconds);
     const w: number = props.frequency;
     const a: number = props.force / (props.mass * w * w);

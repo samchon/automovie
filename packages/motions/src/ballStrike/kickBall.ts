@@ -1,5 +1,6 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieMotionHumanActionName,
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionClock,
@@ -33,6 +34,9 @@ import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
 import { hipJoints } from "../posture/hipJoints";
 import { HumanBall } from "./HumanBall";
+
+/** The record of `ICHAMBERItem`'s site. */
+type ICHAMBERItem = { back: number; up: number };
 
 /**
  * Kicking the ball prop lying beside the support foot with the instep, from
@@ -92,7 +96,7 @@ export namespace kickBall {
    * The backswing's ankle place behind and above the contact, in shank lengths
    * (provisional).
    */
-  export const CHAMBER: Readonly<{ back: number; up: number }> = {
+  export const CHAMBER: Readonly<ICHAMBERItem> = {
     back: 0.7,
     up: 0.6,
   };
@@ -109,7 +113,7 @@ export namespace kickBall {
    */
   export function contact(
     body: IAutoMovieMotionHumanBody,
-    side: "left" | "right",
+    side: AutoMovieHumanSide,
     centre: IAutoMovieVector3,
     radius: number,
     direction: IAutoMovieVector3,
@@ -137,7 +141,7 @@ export namespace kickBall {
   ): IAutoMovieMotionHumanActionPlan {
     const body: IAutoMovieMotionHumanBody = context.body;
     const m = body.measure;
-    const side: "left" | "right" = context.params.foot ?? "right";
+    const side: AutoMovieHumanSide = context.params.foot ?? "right";
 
     const modifiers: IAutoMovieMotionManner.IModifiers =
       AutoMovieMotionManner.of(context, context.params.manner);
@@ -253,7 +257,7 @@ export namespace kickBall {
         180) /
       Math.PI;
     const duration: number = clock.duration;
-    const support: "left" | "right" = side === "left" ? "right" : "left";
+    const support: AutoMovieHumanSide = side === "left" ? "right" : "left";
     const stance: IAutoMovieHumanLimbGoal = standing.limbs[`${side}Leg`]!;
     // The body stands under the kick, its sway signed in the kicking side's
     // frame, so a left kick mirrors a right one (`stand.plan`).

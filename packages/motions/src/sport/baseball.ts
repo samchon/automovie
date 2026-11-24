@@ -1,7 +1,6 @@
 import { Vector3, bracketedBisection } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
-  AutoMovieHumanoidBone,
   AutoMovieMotionHumanActionName,
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionClock,
@@ -37,6 +36,7 @@ import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMo
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { exercise } from "../exercise/exercise";
 import { HumanBound } from "../law/HumanBound";
+import { HumanBoneGroups } from "../posture/HumanBoneGroups";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
 
@@ -359,7 +359,7 @@ export namespace baseball {
         );
         const planted: IAutoMovieMotionHumanPosture = plants(entry);
         const read: ReturnType<typeof HumanTrunk.prepareResolve> =
-          HumanTrunk.prepareResolve(body, SHOULDER_NAMES);
+          HumanTrunk.prepareResolve(body, HumanBoneGroups.SHOULDERS);
         const wristFromPalm: IAutoMovieVector3 =
           AutoMovieMotionHumanPlaced.wrist(body, "left", {
             point: { x: 0, y: low * arm, z: 0 },
@@ -553,9 +553,3 @@ export namespace baseball {
  * observation.
  */
 type IFK = Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2];
-
-/** Only the two shoulder origins determine the glove's point and reach. */
-const SHOULDER_NAMES: ReadonlySet<AutoMovieHumanoidBone> = new Set([
-  "leftUpperArm",
-  "rightUpperArm",
-]);

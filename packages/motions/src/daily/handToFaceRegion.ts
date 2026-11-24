@@ -14,6 +14,15 @@ import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { handToFaceSheet } from "./handToFaceSheet";
 
+/** The alternatives of `HandToFaceRegionPlace`'s site. */
+type HandToFaceRegionPlace = "point" | "normal";
+
+/** The alternatives of `HandToFaceRegionResult2`'s site. */
+type HandToFaceRegionResult2 = "point" | "normal";
+
+/** The alternatives of `HandToFaceRegionResult`'s site. */
+type HandToFaceRegionResult = "point" | "normal";
+
 /**
  * The place a hand-to-face task aims a hand at, as a reader of the posture and
  * the action's second: the face region the row names, read on the performer's
@@ -44,17 +53,17 @@ export function handToFaceRegion(
 ) => (
   posture: IAutoMovieMotionHumanPosture,
   seconds: number,
-) => Pick<IAutoMovieMotionHumanTarget.IPlace, "point" | "normal"> {
+) => Pick<IAutoMovieMotionHumanTarget.IPlace, HandToFaceRegionResult> {
   const body: IAutoMovieMotionHumanActionContext["body"] = context.body;
   return (side: AutoMovieHumanSide, name: AutoMovieHumanoidRegion | null) =>
     (
       posture: IAutoMovieMotionHumanPosture,
       seconds: number,
-    ): Pick<IAutoMovieMotionHumanTarget.IPlace, "point" | "normal"> => {
+    ): Pick<IAutoMovieMotionHumanTarget.IPlace, HandToFaceRegionResult2> => {
       if (name === null) return handToFaceSheet.of(context, posture, side);
       const place: Pick<
         IAutoMovieMotionHumanTarget.IPlace,
-        "point" | "normal"
+        HandToFaceRegionPlace
       > = touchRegionFrame(
         context,
         { kind: "self", region: name } satisfies IAutoMovieMotionTarget,

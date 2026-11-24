@@ -1,5 +1,6 @@
 import { Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPerformance,
   IAutoMovieMotionHumanSwim,
@@ -51,6 +52,8 @@ export function swimCases(
     ] as IAutoMovieMotionHumanSwim.Kind[]) {
       const name: string = `swim-${kind}${suffix}`;
       let performance: IAutoMovieMotionHumanPerformance;
+
+      // Process boundary: a case that throws is reported as that case's refusal, and the remaining cases still run.
       try {
         performance = new HumanPerformance({
           seed: "swim",
@@ -112,7 +115,8 @@ export function swimCases(
               `entry${side}${i}`,
             );
             named.push([t, `entry${side}${i}`]);
-            const lower: "left" | "right" = side === "Right" ? "right" : "left";
+            const lower: AutoMovieHumanSide =
+              side === "Right" ? "right" : "left";
             shortest = Math.min(
               shortest,
               at(t, `${lower}Hand`).z - at(t, `${lower}UpperArm`).z,

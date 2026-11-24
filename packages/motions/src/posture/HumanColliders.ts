@@ -13,6 +13,20 @@ import { HumanColliderBound } from "./HumanColliderBound";
 import { HumanColliderDistance } from "./HumanColliderDistance";
 import { HumanColliderPlacement } from "./HumanColliderPlacement";
 
+/** The record of `IReadingResult`'s site. */
+type IReadingResult = {
+  segment: (
+    a: IAutoMovieVector3,
+    b: IAutoMovieVector3,
+    taper?: readonly [number, number],
+  ) => IAutoMovieMotionHumanColliders.IDistance;
+  cast: (
+    from: IAutoMovieVector3,
+    direction: IAutoMovieVector3,
+    reach: number,
+  ) => IAutoMovieMotionHumanColliders.IHit | undefined;
+};
+
 /**
  * A posed body's colliders as signed distances: how far a point, or a segment
  * (a capsule weapon's axis), lies outside the body's profile shapes (negative
@@ -126,18 +140,7 @@ export namespace HumanColliders {
   export function reading(
     body: IAutoMovieMotionHumanBody,
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
-  ): {
-    segment: (
-      a: IAutoMovieVector3,
-      b: IAutoMovieVector3,
-      taper?: readonly [number, number],
-    ) => IAutoMovieMotionHumanColliders.IDistance;
-    cast: (
-      from: IAutoMovieVector3,
-      direction: IAutoMovieVector3,
-      reach: number,
-    ) => IAutoMovieMotionHumanColliders.IHit | undefined;
-  } {
+  ): IReadingResult {
     let query: ReturnType<typeof HumanColliderDistance.prepare> | undefined;
     const segment: ReturnType<typeof reading>["segment"] = (
       a: IAutoMovieVector3,

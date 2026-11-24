@@ -1,10 +1,10 @@
 import { Vector3, bracketedRoot, minimumJerk } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanArmAngles,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPosture,
-  IAutoMoviePose,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -15,11 +15,15 @@ import { prepareHumanShapeBlend } from "../handling/prepareHumanShapeBlend";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
 import { hipJoints } from "../posture/hipJoints";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { humanPostureHeading } from "../posture/humanPostureHeading";
+import type { ICrawlDownProps } from "./ICrawlDownProps";
 import { crawlDownTiming } from "./crawlDownTiming";
 import { crawlFeet } from "./crawlFeet";
 import { crawlFrame } from "./crawlFrame";
 import { prepareCrawlDownResolution } from "./prepareCrawlDownResolution";
+
+/** The record of `IStatesBack`'s site. */
+type IStatesBack = { sat: number; leant: number };
 
 /**
  * The way down from standing onto the hands and the knees, or onto the hands
@@ -50,51 +54,6 @@ import { prepareCrawlDownResolution } from "./prepareCrawlDownResolution";
  * far the limbs' joints travel over it.
  */
 export namespace crawlDown {
-  /** What the way down is built from. */
-  export interface IProps {
-    /** The body. */
-    body: IAutoMovieMotionHumanBody;
-
-    /** The standing posture the body gets down from, its feet on their goals. */
-    standing: IAutoMovieMotionHumanPosture;
-
-    /** The pose the entry displays, whose arms the way down starts from. */
-    entry: IAutoMoviePose;
-
-    /**
-     * Seconds the sit onto the knees takes; the rest of the way down goes at
-     * its pace.
-     */
-    sit: number;
-
-    /**
-     * The crawl's posture where the way down ends, its hips `back` metres
-     * behind their place over the knees and its trunk at `lean` of its pitch,
-     * the feet tucked on their goals and the palms on theirs.
-     *
-     * @param base The posture the row is written over.
-     * @param back Metres the hips sit back along the heading.
-     * @param lean The share of the crawl's pitch the trunk leans by.
-     * @param palms Whether the palms are laid on their places; true when
-     *   absent, and false where only the trunk and the legs are read.
-     * @returns The posture.
-     */
-    kneeling(
-      base: IAutoMovieMotionHumanPosture,
-      back: number,
-      lean: number,
-      palms?: boolean,
-    ): IAutoMovieMotionHumanPosture;
-
-    /** The crawl's trunk pitch, degrees. */
-    pitch: number;
-
-    /** Each foot tucked behind its knee where the way down ends. */
-    tucks: Record<"left" | "right", crawlFeet.ITuck>;
-    /** Whether the knees hover and the tucked toes bear before the palms land. */
-    hover: boolean;
-  }
-
   /** The way down built. */
   export interface IDown {
     /** The posture over a base at a second before the way down ends. */
@@ -123,18 +82,18 @@ export namespace crawlDown {
    * @param props What it is built from.
    * @returns The way down.
    */
-  export function of(props: IProps): IDown {
+  export function of(props: ICrawlDownProps): IDown {
     const body: IAutoMovieMotionHumanBody = props.body;
     const m = body.measure;
     const sides = ["left", "right"] as const;
     const S: IAutoMovieMotionHumanPosture = props.standing;
     const crawling: IAutoMovieMotionHumanPosture = props.kneeling(S, 0, 1);
     // Each tucked foot where the way down ends, carried with its knee.
-    const tucked: Record<"left" | "right", kneelKeys.IFoot> = {
+    const tucked: Record<AutoMovieHumanSide, kneelKeys.IFoot> = {
       left: placed("left"),
       right: placed("right"),
     };
-    function placed(side: "left" | "right"): kneelKeys.IFoot {
+    function placed(side: AutoMovieHumanSide): kneelKeys.IFoot {
       return {
         ...props.tucks[side].foot,
         at: Vector3.add(
@@ -144,20 +103,20 @@ export namespace crawlDown {
       };
     }
     const holding: Record<
-      "left" | "right",
+      AutoMovieHumanSide,
       IAutoMovieMotionHumanArmAngles.IAngles
     > = {
       left: AutoMovieMotionHumanArm.angles(props.entry, "left"),
       right: AutoMovieMotionHumanArm.angles(props.entry, "right"),
     };
-    const middle = (pair: Record<"left" | "right", IAutoMovieVector3>) =>
+    const middle = (pair: Record<AutoMovieHumanSide, IAutoMovieVector3>) =>
       Vector3.lerp(pair.left, pair.right, 0.5);
     const hipsOf = (posture: IAutoMovieMotionHumanPosture): IAutoMovieVector3 =>
       middle(
         hipJoints(
           body,
           posture.root,
-          resolveHumanPosture.heading(posture),
+          humanPostureHeading(posture),
           posture.joints.hips,
         ),
       );
@@ -165,7 +124,7 @@ export namespace crawlDown {
     // Each standing foot rolled onto its toes (`crawlFeet.rolled`), what
     // the roll leaves short of the tucked foot taken up on the way.
     const prepareRoll = (
-      side: "left" | "right",
+      side: AutoMovieHumanSide,
     ): ReturnType<typeof crawlFeet.prepareRoll> => {
       const goal: IAutoMovieHumanLimbGoal = S.limbs[`${side}Leg`]!;
       return crawlFeet.prepareRoll(
@@ -180,22 +139,22 @@ export namespace crawlDown {
       );
     };
     const rollers: Record<
-      "left" | "right",
+      AutoMovieHumanSide,
       ReturnType<typeof crawlFeet.prepareRoll>
     > = { left: prepareRoll("left"), right: prepareRoll("right") };
     const roll = (
-      side: "left" | "right",
+      side: AutoMovieHumanSide,
       share: number,
     ): ReturnType<ReturnType<typeof crawlFeet.prepareRoll>> =>
       rollers[side](share);
-    const short = (side: "left" | "right"): IAutoMovieVector3 =>
+    const short = (side: AutoMovieHumanSide): IAutoMovieVector3 =>
       Vector3.subtract(tucked[side].at, roll(side, 1).mtp);
     const shorts = { left: short("left"), right: short("right") };
 
     const armed = (
       posture: IAutoMovieMotionHumanPosture,
       toward: Record<
-        "left" | "right",
+        AutoMovieHumanSide,
         IAutoMovieMotionHumanArmAngles.IAngles
       > | null,
       share: number,
@@ -216,9 +175,12 @@ export namespace crawlDown {
 
     // The way down's states, solved once.
     interface IStates {
-      back: { sat: number; leant: number };
+      back: IStatesBack;
       lean: number;
-      angles: Record<"left" | "right", IAutoMovieMotionHumanArmAngles.IAngles>;
+      angles: Record<
+        AutoMovieHumanSide,
+        IAutoMovieMotionHumanArmAngles.IAngles
+      >;
       ends: number[];
       /**
        * The feet-supported sitting key, solved on its first positive
@@ -242,7 +204,7 @@ export namespace crawlDown {
       ): IAutoMovieMotionHumanPosture =>
         props.kneeling(base, back, lean, palms);
       const pair = (
-        of: (side: "left" | "right") => IAutoMovieVector3,
+        of: (side: AutoMovieHumanSide) => IAutoMovieVector3,
       ): IAutoMovieVector3 => middle({ left: of("left"), right: of("right") });
 
       // The knee's sitting flexion bounds how far back the hips sit.

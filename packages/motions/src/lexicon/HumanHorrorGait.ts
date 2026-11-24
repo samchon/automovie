@@ -1,4 +1,5 @@
 import type {
+  AutoMovieHumanSide,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanActionPlan,
@@ -86,7 +87,7 @@ export namespace HumanHorrorGait {
       (
         context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanGait.ILimp>,
       ): IAutoMovieMotionHumanWalkGait => {
-        const side: "left" | "right" = context.params.side ?? "right";
+        const side: AutoMovieHumanSide = context.params.side ?? "right";
 
         // Each member drags at a pace of its own, so a crowd falls out of step.
         const pace: number =

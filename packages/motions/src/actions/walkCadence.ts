@@ -1,4 +1,5 @@
 import type {
+  AutoMovieHumanSide,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanWalkCadence,
   IAutoMovieScheduleCue,
@@ -87,7 +88,7 @@ export namespace walkCadence {
     // The beat the named foot's first strike answers, the one nearest it when
     // no index is given; the strikes before that one answer the beats before.
     const first: number = context.start + strikes[0]!.seconds;
-    const foot: "left" | "right" = cadence.foot ?? "left";
+    const foot: AutoMovieHumanSide = cadence.foot ?? "left";
     const anchor: number = strikes[0]!.side === foot ? 0 : 1;
     const anchored: number = context.start + strikes[anchor]!.seconds;
     const b0: number =

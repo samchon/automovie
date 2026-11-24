@@ -13,6 +13,7 @@ import type {
 import { HumanLimbFit } from "../posture/HumanLimbFit";
 import { refitHumanPosture } from "../posture/refitHumanPosture";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { resolveHumanPostureSource } from "../posture/resolveHumanPostureSource";
 import { AutoMovieMotionHumanArmCourse } from "./AutoMovieMotionHumanArmCourse";
 import { courseLimbSwivelKnots } from "./courseLimbSwivelKnots";
 
@@ -192,8 +193,8 @@ export namespace courseLimbSwivels {
       if (Object.keys(continued).length === 0)
         solved = resolveHumanPosture.seeded(body, posture);
       else {
-        const assembly: resolveHumanPosture.IAssembled =
-          resolveHumanPosture.assemble(body, posture);
+        const assembly: resolveHumanPostureSource.IAssembled =
+          resolveHumanPostureSource.assemble(body, posture);
         solved = refitHumanPosture.constructed(
           body,
           assembly.pose,

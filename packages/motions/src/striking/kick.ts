@@ -1,4 +1,5 @@
 import type {
+  AutoMovieHumanSide,
   AutoMovieMotionHumanActionName,
   IAutoMovieMotionEvent,
   IAutoMovieMotionHumanActionContext,
@@ -28,6 +29,12 @@ import { StrikingTarget } from "./StrikingTarget";
 import { StrikingWeapon } from "./StrikingWeapon";
 import { StrikingWeaponTable } from "./StrikingWeaponTable";
 import { strikingReadBack } from "./strikingReadBack";
+
+/** The alternatives of `PlanLimb`'s site. */
+type PlanLimb = "leftLeg" | "rightLeg";
+
+/** The alternatives of `LegResult`'s site. */
+type LegResult = "lead" | "rear";
 
 /**
  * A kick: the round kick's lower shin or the push kick's ball of the foot
@@ -77,9 +84,7 @@ export namespace kick {
    * @param params The parameters.
    * @returns Lead or rear.
    */
-  export function leg(
-    params: IAutoMovieMotionHumanKick.IParams,
-  ): "lead" | "rear" {
+  export function leg(params: IAutoMovieMotionHumanKick.IParams): LegResult {
     return params.leg ?? (params.technique === "round" ? "rear" : "lead");
   }
 
@@ -156,8 +161,7 @@ export namespace kick {
     // each tapered between the girths at its joints, so whatever part of the
     // leg first meets a body stops it, and the resolution meets the leg the
     // figure shows.
-    const limb: "leftLeg" | "rightLeg" =
-      timing.side === "left" ? "leftLeg" : "rightLeg";
+    const limb: PlanLimb = timing.side === "left" ? "leftLeg" : "rightLeg";
     const course: StrikingWeapon.Course = (
       at: number,
       channels?: Parameters<StrikingWeapon.Course>[1],
@@ -372,8 +376,8 @@ export namespace kick {
   function measure(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanKick.IParams>,
   ): IAutoMovieMotionHumanKickGeometry.ITiming {
-    const lead: "left" | "right" = StrikingTarget.lead(context.entry);
-    const side: "left" | "right" =
+    const lead: AutoMovieHumanSide = StrikingTarget.lead(context.entry);
+    const side: AutoMovieHumanSide =
       leg(context.params) === "lead" ? lead : StrikingStance.rear({ lead });
     const slow: number = StrikingSkill.recovery(context.skill);
     const prep: number = StrikingSkill.KICK_PREPARATION;

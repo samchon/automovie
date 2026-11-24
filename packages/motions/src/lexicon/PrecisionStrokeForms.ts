@@ -23,6 +23,7 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { StrikingBlade } from "../striking/StrikingBlade";
 import { StrikingHeld } from "../striking/StrikingHeld";
 import { StrikingSupport } from "../striking/StrikingSupport";
+import { PRECISION_STROKE_FORMS } from "./PRECISION_STROKE_FORMS";
 import { addressPrecisionStroke } from "./addressPrecisionStroke";
 import { coursePrecisionStroke } from "./coursePrecisionStroke";
 import { holdPrecisionSwing } from "./holdPrecisionSwing";
@@ -152,9 +153,6 @@ export namespace PrecisionStrokeForms {
    * an eighth, under 25 mm for an adult's reach (provisional).
    */
   export const BISECT: number = 3;
-
-  /** Each row's form by its name, filled as the rows are made. */
-  export const FORMS: Map<string, IForm> = new Map();
 
   /**
    * The working direction of a row's implement at impact, from the grip to the
@@ -307,7 +305,7 @@ export namespace PrecisionStrokeForms {
    *   reason at the line's place.
    */
   export function address(props: IAddress): IAutoMovieVector3 {
-    const form: IForm | undefined = FORMS.get(props.row);
+    const form: IForm | undefined = PRECISION_STROKE_FORMS[props.row];
     if (form === undefined)
       throw new HumanRefusal({
         kind: "parameter",

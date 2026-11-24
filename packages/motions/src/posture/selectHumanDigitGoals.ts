@@ -1,4 +1,5 @@
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   AutoMovieHumanoidRegion,
   IAutoMovieBone,
@@ -52,7 +53,7 @@ export function selectHumanDigitGoals(
             Math.hypot(goal.normal.x, goal.normal.y, goal.normal.z) === 0))
       )
         return digits;
-      const side: "left" | "right" = digit.startsWith("left")
+      const side: AutoMovieHumanSide = digit.startsWith("left")
         ? "left"
         : "right";
       const name: string = digit.slice(side.length);

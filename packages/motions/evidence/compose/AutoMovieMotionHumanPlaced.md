@@ -228,7 +228,7 @@ The turn is the posture owner's composition of the three angles.
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 
-Delegates to `resolveHumanPosture.heading`.
+Delegates to `humanPostureHeading`.
 
 ## @evidenceExclude contracts/development/implementation.md#efficient-algorithms
 

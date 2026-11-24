@@ -1,5 +1,6 @@
 import { Vector3, bracketedCrossing } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPosture,
   IAutoMovieVector3,
@@ -62,7 +63,7 @@ export function fitJumpAbsorption(
     body,
     new Set(["leftFoot", "leftToes", "rightFoot", "rightToes"]),
   );
-  const targets: Record<"left" | "right", IAutoMovieVector3[]> = {
+  const targets: Record<AutoMovieHumanSide, IAutoMovieVector3[]> = {
     left: HumanFoot.SOCKETS.map(
       (point): IAutoMovieVector3 =>
         HumanFoot.point(body, "left", point, landing.feet.left),

@@ -5,6 +5,7 @@ import {
   resolveAutoMovieHumanoidSurfaces,
 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   AutoMovieHumanoidRegion,
   IAutoMovieHumanLimbGoal,
@@ -27,6 +28,9 @@ import { StrikingStance } from "./StrikingStance";
 import { StrikingTarget } from "./StrikingTarget";
 import type { defendFootwork } from "./defendFootwork";
 import { defendGoals } from "./defendGoals";
+
+/** The alternatives of `WindowsTiming`'s site. */
+type WindowsTiming = "begin" | "duration";
 
 /**
  * A built defence: what the defender sees at its read second turned into a
@@ -78,14 +82,6 @@ export namespace defendGeometry {
     /**
      * The complete posture at action-relative seconds, borrowing only this
      * synchronous body's optional FK/ROM sources.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Defines action-relative time, unchanged-body query loans, full output and preserved complete posture despite optional channel demand.
-     * @evidence contracts/development/implementation.md#principled-implementation The actual build producer evaluates its original movement envelope, root/trunk evasion, fixed stance feet, guard and selected limb defence on the current posed trunk.
-     * @evidence contracts/development/implementation.md#clear-and-simple-structure One share drives the base and original limb blends; one current trunk map serves guard and defence goals.
-     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Retains every actual posture projection, original limb/rival fit, contact window, guard and selected defence; channel demand does not omit physical goals.
-     * @evidence contracts/development/implementation.md#efficient-algorithms Fixed foot hints/contacts and demanded rig names prepare once, while each actual query evaluates its full current posture, FK and original blend loop; no speedup is measured.
-     * @evidence contracts/development/implementation.md#reuse-equivalent-work Borrows genuine query-scoped exact FK/ROM sources without storing them; fixed body/feet/support geometry belongs to the built defence, and every changing root/joint value still reaches native resolution.
-     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The geometry retains fixed stance/sight metadata until plan settle/release; each call returns fresh authored goals and releases its borrowed source/projector and current bone map.
      */
     posture: IAutoMovieMotionHumanActionPlan["posture"];
 
@@ -114,10 +110,12 @@ export namespace defendGeometry {
       ...entry.joints,
       ...StrikingStance.joints(entry.joints),
     };
-    const lead: "left" | "right" = StrikingTarget.lead(context.entry);
+    const lead: AutoMovieHumanSide = StrikingTarget.lead(context.entry);
     const up: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
-    const feet: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement> =
-      StrikingTarget.feet(context.entry);
+    const feet: Record<
+      AutoMovieHumanSide,
+      IAutoMovieMotionHumanFoot.IPlacement
+    > = StrikingTarget.feet(context.entry);
 
     // What the defender sees: the attacker's limb moving most toward the
     // struck region, and the line from it to the region.
@@ -181,7 +179,7 @@ export namespace defendGeometry {
       Vector3.dot(Vector3.subtract(weapon, regionAt.point), across) > 0
         ? -1
         : 1;
-    const attackedSide: "left" | "right" = attacked(timing.region, lead);
+    const attackedSide: AutoMovieHumanSide = attacked(timing.region, lead);
     const sight: defendGoals.ISight = {
       incoming,
       across,
@@ -237,7 +235,7 @@ export namespace defendGeometry {
     }
 
     // The stance legs, with the checking leg's foot leaving the floor.
-    const checking: "left" | "right" | undefined =
+    const checking: AutoMovieHumanSide | undefined =
       p.kind === "check" ? attackedSide : undefined;
     const support: IAutoMovieVector3 | undefined =
       checking === undefined
@@ -372,8 +370,8 @@ export namespace defendGeometry {
    */
   export function attacked(
     region: AutoMovieHumanoidRegion,
-    lead: "left" | "right",
-  ): "left" | "right" {
+    lead: AutoMovieHumanSide,
+  ): AutoMovieHumanSide {
     return /Left$/.test(region)
       ? "left"
       : /Right$/.test(region)
@@ -391,8 +389,8 @@ export namespace defendGeometry {
    * @returns The windows.
    */
   export function windows(
-    checking: "left" | "right" | undefined,
-    timing: Pick<ITiming, "begin" | "duration">,
+    checking: AutoMovieHumanSide | undefined,
+    timing: Pick<ITiming, WindowsTiming>,
     support?: defendFootwork.ISupport,
   ): IAutoMovieMotionHumanContactWindow[] {
     return (["left", "right"] as const).flatMap(

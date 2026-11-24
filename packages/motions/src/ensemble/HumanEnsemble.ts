@@ -17,6 +17,18 @@ import { HumanAttribute } from "./HumanAttribute";
 import { HumanEnsembleMembers } from "./HumanEnsembleMembers";
 import { instance } from "./instance";
 
+/** The record of `IPickE`'s site. */
+type IPickE = { index: number };
+
+/** The record of `IPickB`'s site. */
+type IPickB = { key: number; index: number };
+
+/** The record of `IPickA`'s site. */
+type IPickA = { key: number; index: number };
+
+/** The record of `IPickResult`'s site. */
+type IPickResult = { index: number; key: number };
+
 /**
  * A group of people as one subject: its members resolved from the group's
  * input, handed to a performance as performers and chains, and the seeded
@@ -271,34 +283,27 @@ export namespace HumanEnsemble {
         fix: "ask no more members than may take the outcome",
       });
     return admitted
-      .map(
-        (
-          m: IAutoMovieMotionHumanEnsemble.IMember,
-        ): { index: number; key: number } => {
-          const u: number = Math.max(
-            1e-12,
-            HumanAttribute.stream(
-              ensemble.input.seed,
-              ensemble.input.id,
-              m.index,
-              `pick:${name}`,
-            ).float(0),
-          );
-          const w: number =
-            weighted === undefined
-              ? 1
-              : Math.max(1e-6, 1 - (m.attributes[weighted] ?? 0.5));
-          return { index: m.index, key: Math.log(u) / w };
-        },
-      )
+      .map((m: IAutoMovieMotionHumanEnsemble.IMember): IPickResult => {
+        const u: number = Math.max(
+          1e-12,
+          HumanAttribute.stream(
+            ensemble.input.seed,
+            ensemble.input.id,
+            m.index,
+            `pick:${name}`,
+          ).float(0),
+        );
+        const w: number =
+          weighted === undefined
+            ? 1
+            : Math.max(1e-6, 1 - (m.attributes[weighted] ?? 0.5));
+        return { index: m.index, key: Math.log(u) / w };
+      })
       .sort(
-        (
-          a: { key: number; index: number },
-          b: { key: number; index: number },
-        ): number => b.key - a.key || a.index - b.index,
+        (a: IPickA, b: IPickB): number => b.key - a.key || a.index - b.index,
       )
       .slice(0, count)
-      .map((e: { index: number }): number => e.index)
+      .map((e: IPickE): number => e.index)
       .sort((a: number, b: number): number => a - b);
   }
 

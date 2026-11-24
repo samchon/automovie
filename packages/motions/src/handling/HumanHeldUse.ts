@@ -36,6 +36,15 @@ import { HumanGraspTarget } from "./HumanGraspTarget";
 import { HumanGraspUse } from "./HumanGraspUse";
 import { HumanGrip } from "./HumanGrip";
 
+/** The record of `IKeyDigitsItem`'s site. */
+type IKeyDigitsItem = { point: IAutoMovieVector3; radius: number };
+
+/** The alternatives of `KeyContext`'s site. */
+type KeyContext = "body" | "entry" | "prop" | "start";
+
+/** The alternatives of `KeptContext`'s site. */
+type KeptContext = "body" | "entry" | "prop" | "start";
+
 /**
  * A held tool used as the grasp it was taken up by presents it: the act that
  * works with it keeps the hand's rotation the grasp was chosen to hold at the
@@ -72,10 +81,7 @@ export namespace HumanHeldUse {
    *   a region of the performer's own.
    */
   export function kept(
-    context: Pick<
-      IAutoMovieMotionHumanActionContext,
-      "body" | "entry" | "prop" | "start"
-    >,
+    context: Pick<IAutoMovieMotionHumanActionContext, KeptContext>,
     side: AutoMovieHumanSide,
     kept: IAutoMovieMotionHumanHeldUse.IKept,
     region: AutoMovieHumanoidRegion | null,
@@ -124,10 +130,7 @@ export namespace HumanHeldUse {
    *   prop lacks.
    */
   export function key(
-    context: Pick<
-      IAutoMovieMotionHumanActionContext,
-      "body" | "entry" | "prop" | "start"
-    >,
+    context: Pick<IAutoMovieMotionHumanActionContext, KeyContext>,
     side: AutoMovieHumanSide,
     prop: string,
     point: string,
@@ -154,7 +157,7 @@ export namespace HumanHeldUse {
         inverse,
         Vector3.subtract(point, hand?.worldPosition ?? point),
       );
-    const digits: { point: IAutoMovieVector3; radius: number }[] = [];
+    const digits: IKeyDigitsItem[] = [];
     for (const digit of DIGITS) {
       const chain: ReturnType<typeof HumanGrip.chain> = HumanGrip.chain(
         body,

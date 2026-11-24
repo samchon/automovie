@@ -19,8 +19,8 @@ import type {
 } from "@automovie/interface";
 
 import { HumanRefusal } from "../law/HumanRefusal";
+import { humanPostureHeading } from "../posture/humanPostureHeading";
 import { poseBones } from "../posture/poseBones";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { shankTilt } from "./shankTilt";
 import { unloadedFoot } from "./unloadedFoot";
 
@@ -243,7 +243,7 @@ export function HumanSwingLeap(
       };
       const root: IAutoMovieVector3 = Vector3.subtract(
         hips,
-        Quaternion.rotateVector(resolveHumanPosture.heading(turn), rest),
+        Quaternion.rotateVector(humanPostureHeading(turn), rest),
       );
 
       // Each ankle unfolds from where the seat held it to its landing place

@@ -65,11 +65,6 @@ const SPAN: number = 40;
  * Refusals: a hand that does not hold the extinguisher, a pin still in (the
  * lever is locked until it is pulled), an extinguisher without its lever, pin
  * or nozzle, and a non-positive sweep count or span.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the PASS source, the held lever, the aim, the sweep, the squeeze, the timing and the refusals.
- * @evidence contracts/development/design.md#principled-representation A law record over the extinguisher's declared lever, pin and nozzle.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The name, the cancel table and the plan.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts A locked lever is refused, never squeezed.
  */
 export const extinguish: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanFirefight.IExtinguish> =
   {
@@ -80,7 +75,11 @@ export const extinguish: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanFir
     plan,
   };
 
-/** Admit the extinguisher, then aim, squeeze and sweep it. */
+/**
+ * Admit the extinguisher, then aim, squeeze and sweep it.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States the PASS source, the held lever, the aim, the sweep, the squeeze, the timing and the refusals.
+ */
 function plan(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanFirefight.IExtinguish>,
 ): IAutoMovieMotionHumanActionPlan {

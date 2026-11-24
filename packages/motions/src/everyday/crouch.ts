@@ -35,8 +35,8 @@ import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
 import { hipJoints } from "../posture/hipJoints";
+import { lowerHumanPosture } from "../posture/lowerHumanPosture";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanTrunk } from "./HumanTrunk";
 import { bendLower } from "./bendLower";
 import { braceOnThigh } from "./braceOnThigh";
@@ -303,14 +303,14 @@ export namespace crouch {
     const placements: (
       posture: IAutoMovieMotionHumanPosture,
       s: number,
-    ) => Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement> = (
+    ) => Record<AutoMovieHumanSide, IAutoMovieMotionHumanFoot.IPlacement> = (
       posture: IAutoMovieMotionHumanPosture,
       s: number,
-    ): Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement> => {
+    ): Record<AutoMovieHumanSide, IAutoMovieMotionHumanFoot.IPlacement> => {
       const foot: (
-        side: "left" | "right",
+        side: AutoMovieHumanSide,
       ) => IAutoMovieMotionHumanFoot.IPlacement = (
-        side: "left" | "right",
+        side: AutoMovieHumanSide,
       ): IAutoMovieMotionHumanFoot.IPlacement => {
         const goal: IAutoMovieHumanLimbGoal = posture.limbs[`${side}Leg`]!;
         const flat: IAutoMovieMotionHumanFoot.IPlacement = {
@@ -332,10 +332,10 @@ export namespace crouch {
     };
     const feet: (
       posture: IAutoMovieMotionHumanPosture,
-      placed: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement>,
+      placed: Record<AutoMovieHumanSide, IAutoMovieMotionHumanFoot.IPlacement>,
     ) => IAutoMovieMotionHumanPosture["limbs"] = (
       posture: IAutoMovieMotionHumanPosture,
-      placed: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement>,
+      placed: Record<AutoMovieHumanSide, IAutoMovieMotionHumanFoot.IPlacement>,
     ): IAutoMovieMotionHumanPosture["limbs"] => {
       const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...posture.limbs };
       for (const side of ["left", "right"] as const)
@@ -367,11 +367,11 @@ export namespace crouch {
     );
     const over: (
       s: number,
-      placed?: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement>,
+      placed?: Record<AutoMovieHumanSide, IAutoMovieMotionHumanFoot.IPlacement>,
     ) => IAutoMovieVector3 = (
       s: number,
       placed: Record<
-        "left" | "right",
+        AutoMovieHumanSide,
         IAutoMovieMotionHumanFoot.IPlacement
       > = placements(standing, s),
     ): IAutoMovieVector3 => {
@@ -401,10 +401,10 @@ export namespace crouch {
     const start: IAutoMovieVector3 = over(0);
     const move: (
       s: number,
-      placed?: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement>,
+      placed?: Record<AutoMovieHumanSide, IAutoMovieMotionHumanFoot.IPlacement>,
     ) => IAutoMovieVector3 = (
       s: number,
-      placed?: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement>,
+      placed?: Record<AutoMovieHumanSide, IAutoMovieMotionHumanFoot.IPlacement>,
     ): IAutoMovieVector3 =>
       Vector3.add(
         Vector3.subtract(over(s, placed), start),
@@ -425,7 +425,7 @@ export namespace crouch {
       // Moving and tipping the root leave these raw leg goals unchanged.
       // Share only their current placements, rebuilding the actual knees below.
       const placed: Record<
-        "left" | "right",
+        AutoMovieHumanSide,
         IAutoMovieMotionHumanFoot.IPlacement
       > = placements(posture, s);
       const moved: IAutoMovieMotionHumanPosture = {
@@ -457,7 +457,7 @@ export namespace crouch {
           0,
           0,
         ];
-        return resolveHumanPosture.lower(
+        return lowerHumanPosture(
           body,
           {
             ...tipped,
@@ -481,7 +481,9 @@ export namespace crouch {
       HumanTrunk.RHYTHM.lumbar;
     const key: number = Math.min(most, INCLINE[depth]);
     type Correction = ReturnType<typeof prepareHumanTrunkBalance> | undefined;
-    let correct: Correction;
+    // The trunk's balance is prepared with the plan when a window can apply it.
+    const correct: Correction =
+      window === null ? undefined : prepareHumanTrunkBalance(body);
 
     const sink: IAutoMovieMotionHumanPrimitive = {
       channels: ["root", "trunk", "leftLeg", "rightLeg"],
@@ -503,14 +505,9 @@ export namespace crouch {
           read,
         );
         const weight: number = HumanPhysics.weightAt(window, seconds);
-        return weight === 0
+        return weight === 0 || correct === undefined
           ? placed
-          : (correct ??= prepareHumanTrunkBalance(body))(
-              placed,
-              weight,
-              read,
-              projection,
-            );
+          : correct(placed, weight, read, projection);
       },
     };
     const armSpan: IAutoMovieMotionHumanArmPlanned.ISpan = {

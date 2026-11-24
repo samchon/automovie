@@ -2,6 +2,9 @@ import type { IAutoMovieMotionHumanBody } from "@automovie/interface";
 
 import { KickForm } from "./KickForm";
 
+/** The alternatives of `GirthRadii`'s site. */
+type GirthRadii = number | readonly [number, number];
+
 /**
  * The girths of a striking limb's capsules: the radii a shown leg's and a shown
  * arm's tapered capsules carry at their joints, and a capsule's radius at a
@@ -54,10 +57,7 @@ export namespace StrikingWeaponGirth {
    * @param share 0 at the first end, 1 at the other.
    * @returns Metres.
    */
-  export function girth(
-    radii: number | readonly [number, number],
-    share: number,
-  ): number {
+  export function girth(radii: GirthRadii, share: number): number {
     return typeof radii === "number"
       ? radii
       : radii[0] + (radii[1] - radii[0]) * share;

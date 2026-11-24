@@ -16,6 +16,18 @@ import type {
 import { AutoMovieMotionHumanAuditContact } from "../audit/AutoMovieMotionHumanAuditContact";
 import { HumanFoot } from "../posture/HumanFoot";
 
+/** The record of `ISwingRates`'s site. */
+type ISwingRates = { pitch: number; toes: number };
+
+/** The alternatives of `PrepareStanceRockAbout2`'s site. */
+type PrepareStanceRockAbout2 = "heel" | "mtp";
+
+/** The alternatives of `PrepareStanceRockAbout`'s site. */
+type PrepareStanceRockAbout = "heel" | "mtp";
+
+/** The alternatives of `PivotsEntryItem`'s site. */
+type PivotsEntryItem = "heel" | "mtp";
+
 /**
  * One foot of a stepping gait at an instant: the rockers of its stance on a
  * footprint and its swing between two reached stances.
@@ -91,7 +103,7 @@ export namespace walkFoot {
    */
   export function prepareStance(
     body: IAutoMovieMotionHumanBody,
-    side: "left" | "right",
+    side: AutoMovieHumanSide,
     flat: IAutoMovieMotionHumanFoot.IPlacement,
     heading: number,
     strike: number,
@@ -121,14 +133,14 @@ export namespace walkFoot {
     const pushSpan: number = toeOff - rise;
     const level: IAutoMovieQuaternion = HumanFoot.rotation(heading, 0);
     const pivots: Partial<
-      Record<"heel" | "mtp", ReturnType<typeof HumanFoot.preparePivot>>
+      Record<PivotsEntryItem, ReturnType<typeof HumanFoot.preparePivot>>
     > = {};
     const rock: (
       degrees: number,
-      about: "heel" | "mtp",
+      about: PrepareStanceRockAbout,
     ) => IAutoMovieMotionHumanFoot.IPlacement = (
       degrees: number,
-      about: "heel" | "mtp",
+      about: PrepareStanceRockAbout2,
     ): IAutoMovieMotionHumanFoot.IPlacement =>
       (pivots[about] ??= HumanFoot.preparePivot(
         body,
@@ -228,7 +240,7 @@ export namespace walkFoot {
      * over the first half of the swing by the engine's `carriedRate`; none when
      * absent.
      */
-    rates?: { pitch: number; toes: number };
+    rates?: ISwingRates;
 
     /** The stance's start the foot lands on. */
     to: IEnd;
@@ -275,7 +287,7 @@ export namespace walkFoot {
    */
   export function prepareSwing(
     body: IAutoMovieMotionHumanBody,
-    side: "left" | "right",
+    side: AutoMovieHumanSide,
     props: ISwing,
   ): (share: number) => IAutoMovieMotionHumanWalkFoot.IFoot {
     const stiff: boolean = props.stiff === true;

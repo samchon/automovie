@@ -9,6 +9,30 @@ import { walkFoot } from "./walkFoot";
 import { walkLeg } from "./walkLeg";
 import { walkStepFoot } from "./walkStepFoot";
 
+/** The record of `IPlanReachAt`'s site. */
+type IPlanReachAt = { z: number; y: number };
+
+/** The record of `IPlanStruck`'s site. */
+type IPlanStruck = { z: number; y: number };
+
+/** The record of `IPlanAboutResult`'s site. */
+type IPlanAboutResult = { z: number; y: number };
+
+/** The record of `IPlanAbout`'s site. */
+type IPlanAbout = { z: number; y: number };
+
+/** The record of `IPlanProps`'s site. */
+type IPlanProps = {
+  stride: number;
+  share: number;
+  front: number;
+  lead: number;
+  heels: number;
+};
+
+/** The record of `IStanceBob`'s site. */
+type IStanceBob = { mean: number; amplitude: number };
+
 /**
  * The stance of a gait with a flight, as the spring-mass model of running has
  * it (Blickhan 1989, J Biomech 22:1217; McMahon and Cheng 1990, J Biomech 23
@@ -54,7 +78,7 @@ export namespace runStance {
      * The pelvis's oscillation about standing, hip heights: its mean and its
      * amplitude, lowest at mid-stance.
      */
-    bob: { mean: number; amplitude: number };
+    bob: IStanceBob;
 
     /** The toe-off pitch, degrees toes-down. */
     push: number;
@@ -72,13 +96,7 @@ export namespace runStance {
    */
   export function plan(
     body: IAutoMovieMotionHumanBody,
-    props: {
-      stride: number;
-      share: number;
-      front: number;
-      lead: number;
-      heels: number;
-    },
+    props: IPlanProps,
   ): IStance {
     const hip: IAutoMovieVector3 = body.rest.get("leftUpperLeg")!;
     const knee: IAutoMovieVector3 = body.rest.get("leftLowerLeg")!;
@@ -99,13 +117,10 @@ export namespace runStance {
 
     // The ankle about a point fixed on the floor, the foot pitched toes-up by
     // `degrees`: its height over the floor and how far ahead of the point.
-    const about: (
+    const about: (point: IAutoMovieVector3, degrees: number) => IPlanAbout = (
       point: IAutoMovieVector3,
       degrees: number,
-    ) => { z: number; y: number } = (
-      point: IAutoMovieVector3,
-      degrees: number,
-    ): { z: number; y: number } => {
+    ): IPlanAboutResult => {
       const r: number = (degrees * Math.PI) / 180;
       const z: number = -point.z;
       const y: number = -point.y;
@@ -120,7 +135,7 @@ export namespace runStance {
 
     // Contact: the ankle `front` steps ahead of the pelvis when flat, struck
     // on the heel, or on the ball with the heel held up `heels` degrees.
-    const struck: { z: number; y: number } =
+    const struck: IPlanStruck =
       props.heels > 0 ? about(mtp, -props.heels) : about(heel, walkFoot.STRIKE);
     const ahead: number =
       props.front * props.stride +
@@ -178,7 +193,7 @@ export namespace runStance {
     // stance after the pelvis passed it, the heel raised about the ball.
     const trail: number = (2 - props.share - props.front) * props.stride;
     const reach: (push: number) => number = (push: number): number => {
-      const at: { z: number; y: number } = about(mtp, -push);
+      const at: IPlanReachAt = about(mtp, -push);
       const z: number = -trail + mtp.z + at.z;
       const y: number = landing - at.y;
       return Math.hypot(z, y);

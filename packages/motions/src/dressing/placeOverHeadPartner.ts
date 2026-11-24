@@ -9,6 +9,9 @@ import type {
 import { AutoMovieMotionHumanPartnerClear } from "../compose/AutoMovieMotionHumanPartnerClear";
 import { touchHoldRests } from "../touch/touchHoldRests";
 
+/** The alternatives of `PlaceOverHeadPartnerShouldersRegion`'s site. */
+type PlaceOverHeadPartnerShouldersRegion = "shoulderLeft" | "shoulderRight";
+
 /**
  * A place-over-head plan whose arms keep clear of the partner they dress: the
  * partner's body, over which the hands carry the loop and down to whose
@@ -36,7 +39,7 @@ export function placeOverHeadPartner(
     ["shoulderLeft", "shoulderRight"] as const
   ).map(
     (
-      region: "shoulderLeft" | "shoulderRight",
+      region: PlaceOverHeadPartnerShouldersRegion,
     ): ReturnType<typeof touchHoldRests> =>
       touchHoldRests(partner.body, region, body.measure.hand),
   );

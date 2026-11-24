@@ -9,8 +9,8 @@ import type {
 
 import { HumanFoot } from "../posture/HumanFoot";
 import { hipJoints } from "../posture/hipJoints";
+import { humanPostureHeading } from "../posture/humanPostureHeading";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { walkLeg } from "./walkLeg";
 
 /**
@@ -41,7 +41,7 @@ export function rangeSteppingFoot(
   const hip: IAutoMovieVector3 = hipJoints(
     body,
     posture.root,
-    resolveHumanPosture.heading(posture),
+    humanPostureHeading(posture),
     posture.joints.hips,
     read(),
   )[side];

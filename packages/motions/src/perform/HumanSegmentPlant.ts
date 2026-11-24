@@ -1,5 +1,6 @@
 import type {
   AutoMovieHumanLimb,
+  AutoMovieHumanSide,
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPosture,
@@ -9,9 +10,9 @@ import type {
 } from "@automovie/interface";
 
 import { HumanPosture } from "../posture/HumanPosture";
+import { orderHumanLimbs } from "../posture/orderHumanLimbs";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { refitHumanPosture } from "../posture/refitHumanPosture";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanSegmentPose } from "./HumanSegmentPose";
 import { HumanSegmentPoseSeeds } from "./HumanSegmentPoseSeeds";
 
@@ -51,7 +52,9 @@ export namespace HumanSegmentPlant {
       if (limbs[limb]?.planted !== true) continue;
       if (!seeds.has(`leaf::${limb}`)) return false;
       planted.push(limb);
-      const side: "left" | "right" = limb.startsWith("left") ? "left" : "right";
+      const side: AutoMovieHumanSide = limb.startsWith("left")
+        ? "left"
+        : "right";
       for (const part of limb.endsWith("Arm")
         ? ["UpperArm", "LowerArm", "Hand"]
         : ["UpperLeg", "LowerLeg", "Foot", "Toes"])
@@ -103,7 +106,7 @@ export namespace HumanSegmentPlant {
       return { pose, seeds: {}, values: {} };
     const plants: IAutoMovieMotionHumanPosture["limbs"] =
       Object.fromEntries(selected);
-    const ordered: AutoMovieHumanLimb[] = resolveHumanPosture.order(plants);
+    const ordered: AutoMovieHumanLimb[] = orderHumanLimbs(plants);
 
     // The pose is this evaluation's own clamped intermediate, so the private
     // refit may share its untouched records instead of issuing clones.

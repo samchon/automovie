@@ -19,6 +19,9 @@ import { HumanFrame } from "../posture/HumanFrame";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
+/** The alternatives of `OfContext`'s site. */
+type OfContext = "body" | "entry";
+
 /**
  * The other arm brought up so a hand can touch a region on it: the touch law's
  * presentation of a forearm, a wrist or a hand to be scratched, patted or
@@ -83,7 +86,7 @@ export namespace touchPresented {
    * @returns The presented arm, or null.
    */
   export function of(
-    context: Pick<IAutoMovieMotionHumanActionContext, "body" | "entry">,
+    context: Pick<IAutoMovieMotionHumanActionContext, OfContext>,
     side: AutoMovieHumanSide,
     target: IAutoMovieMotionTarget,
   ): IPresented | null {

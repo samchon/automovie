@@ -1,3 +1,5 @@
+/** The alternatives of `TRAVELEntryItem`'s site. */
+type TRAVELEntryItem = "lead" | "rear";
 /**
  * The knee strike's form: the angles and shares its solve and its course are
  * built from. Every value is a provisional reading of coaching photographs
@@ -37,7 +39,7 @@ export namespace KneeForm {
    * lead (support) foot, half a stance; a lead knee drives the lead hip a
    * quarter. Provisional readings of the clinch knee's hip drive.
    */
-  export const TRAVEL: Readonly<Record<"lead" | "rear", number>> = {
+  export const TRAVEL: Readonly<Record<TRAVELEntryItem, number>> = {
     lead: 0.25,
     rear: 0.5,
   };

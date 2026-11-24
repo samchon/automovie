@@ -1,5 +1,6 @@
 import { Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanBody,
@@ -21,6 +22,21 @@ import { StrikingGuard } from "./StrikingGuard";
 import { StrikingGuardBones } from "./StrikingGuardBones";
 import { StrikingLegGoals } from "./StrikingLegGoals";
 import { StrikingReach } from "./StrikingReach";
+
+/** The alternatives of `PrepareLegsResult`'s site. */
+type PrepareLegsResult = "leftLeg" | "rightLeg";
+
+/** The alternatives of `LegsResult`'s site. */
+type LegsResult = "leftLeg" | "rightLeg";
+
+/** The alternatives of `PrepareGuardResult2`'s site. */
+type PrepareGuardResult2 = "leftArm" | "rightArm";
+
+/** The alternatives of `PrepareGuardResult`'s site. */
+type PrepareGuardResult = "leftArm" | "rightArm";
+
+/** The alternatives of `GuardResult`'s site. */
+type GuardResult = "leftArm" | "rightArm";
 
 /**
  * The fighting stance uses separate tracks, soft knees, a leading shoulder and
@@ -73,7 +89,7 @@ export namespace StrikingStance {
    */
   export function rear(
     stance: Pick<IAutoMovieMotionHumanStrikingStance.IStance, "lead">,
-  ): "left" | "right" {
+  ): AutoMovieHumanSide {
     return stance.lead === "left" ? "right" : "left";
   }
 
@@ -112,14 +128,14 @@ export namespace StrikingStance {
     body: IAutoMovieMotionHumanBody,
     stance: IAutoMovieMotionHumanStrikingStance.IStance,
     centre: IAutoMovieVector3,
-  ): Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement> {
+  ): Record<AutoMovieHumanSide, IAutoMovieMotionHumanFoot.IPlacement> {
     const frame: IAutoMovieMotionHumanFrame = {
       origin: { x: centre.x, y: 0, z: centre.z },
       yaw: stance.line,
     };
     const half: number = length(body) / 2;
     const out = {} as Record<
-      "left" | "right",
+      AutoMovieHumanSide,
       IAutoMovieMotionHumanFoot.IPlacement
     >;
     for (const side of ["left", "right"] as const) {
@@ -160,7 +176,7 @@ export namespace StrikingStance {
     body: IAutoMovieMotionHumanBody,
     root: IAutoMovieVector3,
     yaw: number,
-    ankles: Record<"left" | "right", IAutoMovieVector3>,
+    ankles: Record<AutoMovieHumanSide, IAutoMovieVector3>,
     flexion: number = KNEE_FLEXION,
   ): number {
     const span: number = StrikingReach.reach(
@@ -205,10 +221,10 @@ export namespace StrikingStance {
     body: IAutoMovieMotionHumanBody,
     posture: IAutoMovieMotionHumanPosture,
     stance: Pick<IAutoMovieMotionHumanStrikingStance.IStance, "lead">,
-    drop: Partial<Record<"left" | "right", number>> = {},
+    drop: Partial<Record<AutoMovieHumanSide, number>> = {},
     posed?: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
-  ): Pick<IAutoMovieMotionHumanPosture["limbs"], "leftArm" | "rightArm"> {
+  ): Pick<IAutoMovieMotionHumanPosture["limbs"], GuardResult> {
     return StrikingGuard(body, posture, stance, drop, posed, resolution);
   }
 
@@ -228,20 +244,20 @@ export namespace StrikingStance {
   export function prepareGuard(
     body: IAutoMovieMotionHumanBody,
     stance: Pick<IAutoMovieMotionHumanStrikingStance.IStance, "lead">,
-    drop: Partial<Record<"left" | "right", number>> = {},
+    drop: Partial<Record<AutoMovieHumanSide, number>> = {},
     style?: IAutoMovieMotionHumanGuard.Style,
   ): (
     posture: IAutoMovieMotionHumanPosture,
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
     projection?: ReturnType<typeof prepareHumanPostureProjection>,
-  ) => Pick<IAutoMovieMotionHumanPosture["limbs"], "leftArm" | "rightArm"> {
+  ) => Pick<IAutoMovieMotionHumanPosture["limbs"], PrepareGuardResult> {
     const trunk: ReturnType<typeof StrikingBody.prepareTrunk> =
       StrikingBody.prepareTrunk(body, StrikingGuardBones(body));
     return (
       posture: IAutoMovieMotionHumanPosture,
       resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
       projection?: ReturnType<typeof prepareHumanPostureProjection>,
-    ): Pick<IAutoMovieMotionHumanPosture["limbs"], "leftArm" | "rightArm"> =>
+    ): Pick<IAutoMovieMotionHumanPosture["limbs"], PrepareGuardResult2> =>
       StrikingGuard(
         body,
         posture,
@@ -268,7 +284,7 @@ export namespace StrikingStance {
    */
   export function glove(
     body: IAutoMovieMotionHumanBody,
-    side: "left" | "right",
+    side: AutoMovieHumanSide,
     fist: IAutoMovieVector3,
     elbow: IAutoMovieVector3,
   ): IAutoMovieHumanLimbGoal {
@@ -301,9 +317,9 @@ export namespace StrikingStance {
    */
   export function legs(
     body: IAutoMovieMotionHumanBody,
-    feet: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement>,
-    planted: Record<"left" | "right", boolean> = { left: true, right: true },
-  ): Pick<IAutoMovieMotionHumanPosture["limbs"], "leftLeg" | "rightLeg"> {
+    feet: Record<AutoMovieHumanSide, IAutoMovieMotionHumanFoot.IPlacement>,
+    planted: Record<AutoMovieHumanSide, boolean> = { left: true, right: true },
+  ): Pick<IAutoMovieMotionHumanPosture["limbs"], LegsResult> {
     return StrikingLegGoals.read(body, feet, planted);
   }
 
@@ -319,9 +335,9 @@ export namespace StrikingStance {
    */
   export function prepareLegs(
     body: IAutoMovieMotionHumanBody,
-    feet: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement>,
-    planted: Record<"left" | "right", boolean> = { left: true, right: true },
-  ): () => Pick<IAutoMovieMotionHumanPosture["limbs"], "leftLeg" | "rightLeg"> {
+    feet: Record<AutoMovieHumanSide, IAutoMovieMotionHumanFoot.IPlacement>,
+    planted: Record<AutoMovieHumanSide, boolean> = { left: true, right: true },
+  ): () => Pick<IAutoMovieMotionHumanPosture["limbs"], PrepareLegsResult> {
     return StrikingLegGoals.prepare(body, feet, planted);
   }
 

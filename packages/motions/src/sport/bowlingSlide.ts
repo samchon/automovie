@@ -56,11 +56,6 @@ const REACH: number = 0.98;
  * the angle it stood with, then steps up clear of the floor in the recovery and
  * comes down flat over its landing place. The lowering, short trailing step and
  * clip-length reach bound are provisional animation parameters.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the measured phase order, authored times, stance geometry and use as a delivery carrier.
- * @evidence contracts/development/design.md#principled-representation A supported travelling base writes only the root and two leg goals. A sliding sole bears before becoming a fixed plant.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The law is registered in the sport throw lexicon so the existing delivery can own the concurrent arms and object.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Motion uses the actual entry ankles and authored horizontal distance. The layout never replaces a forefoot plant with an airborne contact.
  */
 export const bowlingSlide: IAutoMovieMotionHumanActionLaw<Parameters> = {
   name: "bowlingSlide",
@@ -86,6 +81,7 @@ export const bowlingSlide: IAutoMovieMotionHumanActionLaw<Parameters> = {
  * @returns Timed leg targets and the supporting foot windows.
  * @throws {HumanRefusal} When the timing or the body-scaled distance cannot be
  *   used.
+ * @evidence contracts/development/common.md#meaningful-documentation Names the measured phase order, authored times, stance geometry and use as a delivery carrier.
  */
 function plan(
   context: IAutoMovieMotionHumanActionContext<Parameters>,

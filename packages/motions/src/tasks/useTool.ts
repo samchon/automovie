@@ -42,6 +42,21 @@ import { HumanToolTurn } from "./HumanToolTurn";
 import { HumanToolWork } from "./HumanToolWork";
 import { prepareToolPlayback } from "./prepareToolPlayback";
 
+/** The record of `IPlanCycleResult`'s site. */
+type IPlanCycleResult = {
+  grip: IAutoMovieVector3;
+  rotation: IAutoMovieQuaternion;
+};
+
+/** The alternatives of `PlanCycle`'s site. */
+type PlanCycle = "grip" | "rotation";
+
+/** The alternatives of `PlanTurn`'s site. */
+type PlanTurn = "grip" | "rotation";
+
+/** The record of `IPlanFace`'s site. */
+type IPlanFace = { point: IAutoMovieVector3; direction: IAutoMovieVector3 };
+
 /**
  * Working with a one-handed tool held in the hand, in cycles over a work point
  * while standing: hammering, sawing, stirring or turning a screwdriver.
@@ -224,8 +239,7 @@ export namespace useTool {
       side,
       subject,
     );
-    const face: { point: IAutoMovieVector3; direction: IAutoMovieVector3 } =
-      AutoMovieMotionHumanHeld.point(held, "face");
+    const face: IPlanFace = AutoMovieMotionHumanHeld.point(held, "face");
     const reach: IAutoMovieVector3 = Vector3.subtract(
       face.point,
       AutoMovieMotionHumanHeld.point(held, "grip").point,
@@ -394,9 +408,7 @@ export namespace useTool {
     // The turning works: a hammer's head rises about the wrist, the axis
     // across the body; a screwdriver turns about its own line through the
     // work point.
-    const turn:
-      | ((degrees: number) => Pick<IWork, "grip" | "rotation">)
-      | undefined =
+    const turn: ((degrees: number) => Pick<IWork, PlanTurn>) | undefined =
       kind === "hammer"
         ? HumanToolTurn(
             pose,
@@ -408,9 +420,9 @@ export namespace useTool {
           : undefined;
 
     // The hand at a phase of the work, 0 at a contact and periodic in 1.
-    const cycle: (phase: number) => Pick<IWork, "grip" | "rotation"> = (
+    const cycle: (phase: number) => Pick<IWork, PlanCycle> = (
       phase: number,
-    ): { grip: IAutoMovieVector3; rotation: IAutoMovieQuaternion } => {
+    ): IPlanCycleResult => {
       switch (kind) {
         case "hammer": {
           // The head rises about the wrist and comes down on the work.

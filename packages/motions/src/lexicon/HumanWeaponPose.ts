@@ -37,6 +37,8 @@ import { HumanWeaponPresent } from "./HumanWeaponPresent";
  * (provisional).
  */
 const PASSES: number = 3;
+/** The alternatives of `OfContext`'s site. */
+type OfContext = "params" | "body" | "aim";
 
 /**
  * The pose a presentation strokes to (`HumanWeaponPresent.present`) and the
@@ -105,7 +107,7 @@ export namespace HumanWeaponPose {
   export function of(
     context: Pick<
       IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanWeaponPresent.IPresent>,
-      "params" | "body" | "aim"
+      OfContext
     >,
     entry: IAutoMovieMotionHumanPosture,
     start: number,

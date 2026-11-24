@@ -1,5 +1,6 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanFrame,
@@ -15,6 +16,12 @@ import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+
+/** The record of `IPrepareTargetsEntry`'s site. */
+type IPrepareTargetsEntry = {
+  ankle: IAutoMovieVector3;
+  knee: IAutoMovieVector3;
+};
 
 /**
  * The legs of a body seated on the floor with them folded: crossed in front of
@@ -48,6 +55,8 @@ export namespace floorSeat {
     /** Ahead of the hip joints. */
     ahead: number;
   }
+  /** The record of `ICROSSEDEntryItem`'s site. */
+  type ICROSSEDEntryItem = { ankle: IPlace; knee: IPlace };
 
   /**
    * Tailor sitting, by leg: each ankle on the floor past the other hip, the
@@ -55,7 +64,7 @@ export namespace floorSeat {
    * (provisional).
    */
   export const CROSSED: Readonly<
-    Record<"left" | "right", { ankle: IPlace; knee: IPlace }>
+    Record<AutoMovieHumanSide, ICROSSEDEntryItem>
   > = {
     left: {
       ankle: { left: -0.55, up: 0, ahead: 0.45 },
@@ -66,15 +75,15 @@ export namespace floorSeat {
       knee: { left: -1.1, up: 0.35, ahead: 0.9 },
     },
   };
+  /** The record of `ISIDEEntryItem`'s site. */
+  type ISIDEEntryItem = { ankle: IPlace; knee: IPlace };
 
   /**
    * Side sitting, by leg: both ankles to the right, the left one ahead of the
    * right hip and the right one out beside it, both knees ahead and to the
    * left, low (provisional).
    */
-  export const SIDE: Readonly<
-    Record<"left" | "right", { ankle: IPlace; knee: IPlace }>
-  > = {
+  export const SIDE: Readonly<Record<AutoMovieHumanSide, ISIDEEntryItem>> = {
     left: {
       ankle: { left: -0.3, up: 0, ahead: 0.4 },
       knee: { left: 1.2, up: 0.1, ahead: 0.8 },
@@ -126,6 +135,8 @@ export namespace floorSeat {
     if (share <= 0) return posture;
     return prepare(body, kind)(posture, share, resolution, projection);
   }
+  /** The record of `ITableEntryItem`'s site. */
+  type ITableEntryItem = { ankle: IPlace; knee: IPlace };
 
   /**
    * Prepare a fixed body's folded-sitting targets and actual FK demand. Each
@@ -149,9 +160,8 @@ export namespace floorSeat {
       body,
       kind === "side" ? SIDE_BONES : LEG_BONES,
     );
-    const table: Readonly<
-      Record<"left" | "right", { ankle: IPlace; knee: IPlace }>
-    > = kind === "crossed" ? CROSSED : SIDE;
+    const table: Readonly<Record<AutoMovieHumanSide, ITableEntryItem>> =
+      kind === "crossed" ? CROSSED : SIDE;
     const local: (point: IPlace, up: number) => IAutoMovieVector3 = (
       point: IPlace,
       up: number,
@@ -160,10 +170,7 @@ export namespace floorSeat {
       y: point.up * body.measure.thigh + up,
       z: point.ahead * body.measure.thigh,
     });
-    const targets: Record<
-      "left" | "right",
-      { ankle: IAutoMovieVector3; knee: IAutoMovieVector3 }
-    > = {
+    const targets: Record<AutoMovieHumanSide, IPrepareTargetsEntry> = {
       left: {
         ankle: local(table.left.ankle, ANKLE * body.measure.ankleHeight),
         knee: local(table.left.knee, 0),
@@ -197,7 +204,7 @@ export namespace floorSeat {
       );
       const at = (bone: AutoMovieHumanoidBone): IAutoMovieVector3 =>
         bones.get(bone)!.worldPosition;
-      const hips: Record<"left" | "right", IAutoMovieVector3> = {
+      const hips: Record<AutoMovieHumanSide, IAutoMovieVector3> = {
         left: at("leftUpperLeg"),
         right: at("rightUpperLeg"),
       };

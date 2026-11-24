@@ -7,22 +7,30 @@ import type {
 
 import { createHumanPostureRotation } from "../posture/createHumanPostureRotation";
 
-/**
- * Playback of a flight's supplied orientation about its composed centre,
- * constructed outside the performance's shape-evaluation scope.
- */
-export function HumanPerformanceFlightRotation(props: {
+/** The record of `IHumanPerformanceFlightRotationProps`'s site. */
+type IHumanPerformanceFlightRotationProps = {
   start: number;
   t0: number;
   t1: number;
   step: number;
   times: readonly number[];
-  table: readonly { about: IAutoMovieVector3; root: IAutoMovieQuaternion }[];
+  table: readonly IPropsTableItem[];
   orientation: (
     seconds: number,
     root: IAutoMovieQuaternion,
   ) => IAutoMovieQuaternion;
-}): (seconds: number) => IAutoMovieHumanPostureRotation {
+};
+
+/** The record of `IPropsTableItem`'s site. */
+type IPropsTableItem = { about: IAutoMovieVector3; root: IAutoMovieQuaternion };
+
+/**
+ * Playback of a flight's supplied orientation about its composed centre,
+ * constructed outside the performance's shape-evaluation scope.
+ */
+export function HumanPerformanceFlightRotation(
+  props: IHumanPerformanceFlightRotationProps,
+): (seconds: number) => IAutoMovieHumanPostureRotation {
   const roots: (IRootInterpolation | undefined)[] = [];
   return (seconds: number): IAutoMovieHumanPostureRotation => {
     const t: number = Math.max(

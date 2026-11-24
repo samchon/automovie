@@ -206,31 +206,31 @@ Holds the one offset beside the handed-back reader, for as long as the plan.
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States the identity prerequisite and what the originating jump verifies.
+States the field it reads and what the originating jump verifies.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-Native request identity carries the verified ground-phase intent through placement. The jump's own callback still verifies the handed-back rotation.
+The native flight request carries the verified ground-phase intent through placement in its own `touchdown` field, which `turning` writes. The jump's own callback still verifies the handed-back rotation.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-One lookup on the original request.
+One field read on the request.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
-Copies, flags and arbitrary action requests cannot claim a turned landing.
+Only the jump's `turning` writes `touchdown` in this package; a request without the field never claims a turned landing. A copy of the request keeps the field, since it is part of the record.
 
 ## @evidenceExclude contracts/development/implementation.md#efficient-algorithms
 
-One weak-set membership test.
+One field read.
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 
 Reuses the original flight record already held by the plan.
 
-## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
+## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
 
-Weak membership retains neither the flight nor its phase callback.
+Retains nothing; the requirement is a field of the request it describes.
 
 # src/actions/jumpAirborne.ts#jumpAirborne.touchdown
 
@@ -244,23 +244,23 @@ The same native requirement supplies the physical shooting target and verifies t
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-One lookup by the original request's identity.
+One field read on the request.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
-Copies or custom flights cannot add a solver requirement to a native landing.
+Only the jump's `turning` writes the field in this package; a request without it adds no solver requirement.
 
 ## @evidenceExclude contracts/development/implementation.md#efficient-algorithms
 
-One weak-map read.
+One field read.
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 
 Reads the requirement already set by the jump plan.
 
-## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
+## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
 
-Weak membership does not retain the flight request.
+Retains nothing; the requirement is a field of the request it describes.
 
 # src/actions/jumpAirborne.ts#jumpAirborne.turning
 

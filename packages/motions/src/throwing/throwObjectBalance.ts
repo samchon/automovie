@@ -17,6 +17,9 @@ import { HumanHand } from "../posture/HumanHand";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
+/** The alternatives of `OfContext`'s site. */
+type OfContext = "body" | "entry" | "params";
+
 /**
  * The free arm of an underarm delivery held out for balance: as the ball arm
  * swings back and through, the other arm reaches out to its side, a little
@@ -50,7 +53,7 @@ export namespace throwObjectBalance {
   export function of(
     context: Pick<
       IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanThrowObjectParams>,
-      "body" | "entry" | "params"
+      OfContext
     >,
     clock: IAutoMovieMotionClock,
   ): IAutoMovieMotionHumanPrimitive[] {

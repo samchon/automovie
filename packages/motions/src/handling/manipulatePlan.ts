@@ -22,6 +22,9 @@ import { manipulateFacing } from "./manipulateFacing";
 import { manipulateReach } from "./manipulateReach";
 import { manipulateShape } from "./manipulateShape";
 
+/** The alternatives of `ManipulatePlanContactsPart`'s site. */
+type ManipulatePlanContactsPart = "leftFoot" | "rightFoot";
+
 /**
  * Prepare the keyed contacts once and evaluate only each hand's active press.
  * Wrist placement, digit shape, elbow hint and activation windows depend on the
@@ -155,7 +158,7 @@ export function manipulatePlan(
   const contacts: IAutoMovieMotionHumanContactWindow[] = (
     ["leftFoot", "rightFoot"] as const
   ).map(
-    (part: "leftFoot" | "rightFoot"): IAutoMovieMotionHumanContactWindow => ({
+    (part: ManipulatePlanContactsPart): IAutoMovieMotionHumanContactWindow => ({
       part,
       kind: "plant",
       from: 0,

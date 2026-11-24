@@ -1,5 +1,6 @@
 import { Transform, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   IAutoMovieAffordance,
   IAutoMovieMotionHumanClimbLadder,
   IAutoMovieMotionHumanLadder,
@@ -16,6 +17,12 @@ import { HumanFrame } from "../../posture/HumanFrame";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
 import { FamilyCaseKit } from "./FamilyCaseKit";
 import { everydayVerdicts } from "./everydayVerdicts";
+
+/** The record of `IClimbCasesFewest`'s site. */
+type IClimbCasesFewest = { value: number; at: number };
+
+/** The record of `IClimbCasesHeld`'s site. */
+type IClimbCasesHeld = { value: number; where: string };
 
 /**
  * Capture cases of the climbing family: `climb-ladder`, three rungs of a fixed
@@ -70,7 +77,7 @@ export function climbCases(
       const i: number = Math.round(q.y / ladder.spacing);
       return Math.abs(q.y - (i * ladder.spacing + climbLadder.RUNG));
     };
-    const grip = (side: "left" | "right", t: number): IAutoMovieVector3 => {
+    const grip = (side: AutoMovieHumanSide, t: number): IAutoMovieVector3 => {
       const frame =
         who.body.surfaces.sockets[side === "left" ? "gripLeft" : "gripRight"];
       return resolveAutoMovieHumanoidSurfaces.place(
@@ -81,10 +88,10 @@ export function climbCases(
     const at = (share: number): number =>
       segment.start + share * segment.plan.duration;
 
-    let held: { value: number; where: string } = { value: 0, where: "none" };
+    let held: IClimbCasesHeld = { value: 0, where: "none" };
     for (const c of segment.plan.contacts) {
       if (c.kind !== "grip") continue;
-      const side: "left" | "right" = c.part === "leftHand" ? "left" : "right";
+      const side: AutoMovieHumanSide = c.part === "leftHand" ? "left" : "right";
       for (let t: number = at(c.from); t <= at(c.to) + 1e-9; t += 1 / 24) {
         const d: number = toRung(grip(side, t));
         if (d > held.value)
@@ -92,7 +99,7 @@ export function climbCases(
       }
     }
     const handsOn: number = FamilyCaseKit.event(performance, "handsOn");
-    let fewest: { value: number; at: number } = {
+    let fewest: IClimbCasesFewest = {
       value: Infinity,
       at: handsOn,
     };
@@ -154,13 +161,6 @@ export function climbCases(
  * origin along `+Z`, each facing the climber at `-Z` as `createLadder`'s do.
  *
  * @returns The ladder.
- * @evidence contracts/development/common.md#meaningful-documentation States the ladder's rungs, spacing, place and facing.
- * @evidence contracts/development/implementation.md#principled-implementation Each rung a bar affordance one spacing above the last, as the archetype declares them, the prop a fixture.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One list of rungs and one prop.
- * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts The motions package does not depend on the archetypes, so the case declares the ladder's contacts itself.
- * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Ten rungs.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Built once per case.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Plain data.
  */
 function ladderProp(): IAutoMovieMotionHumanProp {
   // Each rung's frame turns +Y to -Z, toward the climber.

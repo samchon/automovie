@@ -24,11 +24,24 @@ import { AutoMovieMotionHumanArmChain } from "../compose/AutoMovieMotionHumanArm
 import { AutoMovieMotionHumanArmTarget } from "../compose/AutoMovieMotionHumanArmTarget";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { HumanRefusal } from "../law/HumanRefusal";
+import { HumanBoneGroups } from "../posture/HumanBoneGroups";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
 import { poseBones } from "../posture/poseBones";
 import { HumanSkill } from "../skill/HumanSkill";
 import { typeTextPresses } from "./typeTextPresses";
+
+/** The record of `IPlanResult`'s site. */
+type IPlanResult = { name: string; share: number };
+
+/** The record of `IROWSItem`'s site. */
+type IROWSItem = { keys: string; stagger: number };
+
+/** The alternatives of `WPMEntryItem`'s site. */
+type WPMEntryItem = "slowest" | "fastest";
+
+/** The alternatives of `BoardContext`'s site. */
+type BoardContext = "prop" | "start";
 
 /**
  * Typing a text on a keyboard from the posture the performer is in (seated at a
@@ -87,7 +100,7 @@ export namespace typeText {
    *   its key field is narrower than the letter rows.
    */
   export function board(
-    context: Pick<IAutoMovieMotionHumanActionContext, "prop" | "start">,
+    context: Pick<IAutoMovieMotionHumanActionContext, BoardContext>,
     subject: string,
   ): IAutoMovieMotionHumanTypeText.IBoard {
     const read: IAutoMovieMotionHumanPropReader = context.prop(subject);
@@ -185,7 +198,7 @@ export namespace typeText {
    * The slowest and fastest everyday typists' words a minute (Feit, Weir and
    * Oulasvirta 2016, CHI '16, How We Type, figure 3).
    */
-  const WPM: Readonly<Record<"slowest" | "fastest", number>> = {
+  const WPM: Readonly<Record<WPMEntryItem, number>> = {
     slowest: 34,
     fastest: 79,
   };
@@ -196,12 +209,8 @@ export namespace typeText {
    */
   const CHARACTERS: number = 5;
 
-  /** The shoulder joints the fit checks read. */
-  const SHOULDERS: ReadonlySet<AutoMovieHumanoidBone> =
-    new Set<AutoMovieHumanoidBone>(["leftUpperArm", "rightUpperArm"]);
-
   /** The QWERTY letter rows from the top, each with its stagger in keys. */
-  export const ROWS: readonly { keys: string; stagger: number }[] = [
+  export const ROWS: readonly IROWSItem[] = [
     { keys: "qwertyuiop", stagger: -0.25 },
     { keys: "asdfghjkl", stagger: 0 },
     { keys: "zxcvbnm", stagger: 0.5 },
@@ -278,7 +287,7 @@ export namespace typeText {
     // Fit: the home row near elbow height and within the arms' reach of the
     // shoulders, both read on the entry pose's own shoulder joints.
     const joints: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
-      poseBones(body, context.entry.pose, undefined, SHOULDERS);
+      poseBones(body, context.entry.pose, undefined, HumanBoneGroups.SHOULDERS);
     const shoulders: Record<AutoMovieHumanSide, IAutoMovieVector3> = {
       left: joints.get("leftUpperArm")!.worldPosition,
       right: joints.get("rightUpperArm")!.worldPosition,
@@ -451,7 +460,7 @@ export namespace typeText {
     return {
       duration,
       events: times.map(
-        (t: number, i: number): { name: string; share: number } => ({
+        (t: number, i: number): IPlanResult => ({
           name: `press${i + 1}`,
           share: t / duration,
         }),

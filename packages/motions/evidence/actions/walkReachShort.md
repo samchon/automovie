@@ -22,7 +22,7 @@ Constant work.
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 
-Reuses `resolveHumanPosture.short`.
+Reuses `lowerHumanPosture.short`.
 
 ## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
 

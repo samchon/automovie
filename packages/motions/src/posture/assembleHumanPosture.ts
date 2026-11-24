@@ -12,6 +12,12 @@ import type {
 import { prepareHumanPostureProjection } from "./prepareHumanPostureProjection";
 import { turnHumanPosture } from "./turnHumanPosture";
 
+/** The record of `IAssembleHumanPostureResult`'s site. */
+type IAssembleHumanPostureResult = {
+  pose: IAutoMoviePose;
+  limbs: IAutoMovieMotionHumanPosture["limbs"];
+};
+
 /**
  * Assemble and clamp a posture's direct canonical joints before limb fitting.
  * Last base records supply unset joints, and clinical zero supplies the rest.
@@ -22,7 +28,7 @@ export function assembleHumanPosture(
   posture: IAutoMovieMotionHumanPosture,
   base?: IAutoMoviePose,
   projection?: ReturnType<typeof prepareHumanPostureProjection>,
-): { pose: IAutoMoviePose; limbs: IAutoMovieMotionHumanPosture["limbs"] } {
+): IAssembleHumanPostureResult {
   let kept: Map<AutoMovieHumanoidBone, IAutoMovieJointPose> | undefined;
   if (base !== undefined) {
     kept = new Map();

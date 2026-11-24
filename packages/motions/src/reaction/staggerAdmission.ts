@@ -1,5 +1,6 @@
 import { Vector3, getConstraint } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanFoot,
   IAutoMovieMotionHumanLegChain,
@@ -17,13 +18,32 @@ import { walkReach } from "../actions/walkReach";
 import { readHumanBone } from "../body/readHumanBone";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanLegChain } from "../posture/HumanLegChain";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { humanPostureHeading } from "../posture/humanPostureHeading";
 import { StrikingTarget } from "../striking/StrikingTarget";
 import { staggerBounds } from "./staggerBounds";
 import { staggerDorsal } from "./staggerDorsal";
 import { staggerKnots } from "./staggerKnots";
 import { staggerLean } from "./staggerLean";
 import type { staggerRecover } from "./staggerRecover";
+
+/** The record of `IPartsItemEntry`'s site. */
+type IPartsItemEntry = {
+  from: IAutoMovieVector3;
+  to: IAutoMovieVector3;
+  radius: number;
+};
+
+/** The alternatives of `StaggerAdmissionBendEntry`'s site. */
+type StaggerAdmissionBendEntry = "pitch" | "roll";
+
+/** The record of `IStaggerAdmissionWalk`'s site. */
+type IStaggerAdmissionWalk = {
+  steps: readonly staggerRecover.IStep[];
+  course: (seconds: number) => IAutoMovieVector3;
+  pressure: (seconds: number) => IAutoMovieVector3;
+  extrapolated: (seconds: number) => IAutoMovieVector3;
+  centre: IAutoMovieVector3;
+};
 
 /**
  * Whether a stagger's legs hold its recovery at the given instants
@@ -61,14 +81,8 @@ import type { staggerRecover } from "./staggerRecover";
 export function staggerAdmission(
   body: IAutoMovieMotionHumanActionContext["body"],
   entry: IAutoMovieMotionHumanActionContext["entry"],
-  walk: {
-    steps: readonly staggerRecover.IStep[];
-    course: (seconds: number) => IAutoMovieVector3;
-    pressure: (seconds: number) => IAutoMovieVector3;
-    extrapolated: (seconds: number) => IAutoMovieVector3;
-    centre: IAutoMovieVector3;
-  },
-  bend: Record<"pitch" | "roll", IAutoMovieVector3>,
+  walk: IStaggerAdmissionWalk,
+  bend: Record<StaggerAdmissionBendEntry, IAutoMovieVector3>,
   instants: readonly number[],
   crossing: boolean,
 ): boolean {
@@ -79,13 +93,13 @@ export function staggerAdmission(
     bend,
   );
   const entered: Record<
-    "left" | "right",
+    AutoMovieHumanSide,
     IAutoMovieMotionHumanFoot.IPlacement
   > = StrikingTarget.feet(entry);
   const thigh: number = body.measure.thigh;
   const shank: number = body.measure.shank;
-  const knee: (side: "left" | "right") => number = (
-    side: "left" | "right",
+  const knee: (side: AutoMovieHumanSide) => number = (
+    side: AutoMovieHumanSide,
   ): number =>
     getConstraint(
       `${side}LowerLeg`,
@@ -143,10 +157,10 @@ export function staggerAdmission(
     ground: walkReach.IGround,
     capsules: walkLegCapsules.IPrepared["capsules"],
   ): boolean {
-    const parts: Record<
-      "left" | "right",
-      { from: IAutoMovieVector3; to: IAutoMovieVector3; radius: number }[]
-    > = { left: [], right: [] };
+    const parts: Record<AutoMovieHumanSide, IPartsItemEntry[]> = {
+      left: [],
+      right: [],
+    };
     for (const side of ["left", "right"] as const) {
       const hip: IAutoMovieVector3 = ground.hips[side];
       const ankle: IAutoMovieVector3 = ground.feet[side].ankle;
@@ -214,7 +228,7 @@ export function staggerAdmission(
     // The feet as the steps schedule them, a swinging foot read where it
     // left with its share, as the displayed feet are (`StaggerFeet`).
     const feet: Record<
-      "left" | "right",
+      AutoMovieHumanSide,
       IAutoMovieMotionHumanWalkFoot.IScheduled
     > = {
       left: { placement: entered.left, toes: 0 },
@@ -249,8 +263,8 @@ export function staggerAdmission(
       undefined,
       staggerDorsal(body, walk.pressure(t), feet),
     );
-    const planted: ("left" | "right")[] = (["left", "right"] as const).filter(
-      (side: "left" | "right"): boolean => feet[side].swing === undefined,
+    const planted: AutoMovieHumanSide[] = (["left", "right"] as const).filter(
+      (side: AutoMovieHumanSide): boolean => feet[side].swing === undefined,
     );
     for (const side of planted) {
       const hip: IAutoMovieVector3 = ground.hips[side];
@@ -300,7 +314,7 @@ export function staggerAdmission(
       if (apart(ground, clearance.capsules)) continue;
       const pelvis: IAutoMovieQuaternion =
         ground.pelvis ??
-        resolveHumanPosture.heading({ yaw: ground.yaw, pitch: 0, roll: 0 });
+        humanPostureHeading({ yaw: ground.yaw, pitch: 0, roll: 0 });
       const legs: IAutoMovieMotionHumanWalkLegClearance.ILeg[] = [];
       for (const side of planted) {
         const foot: walkFoot.IEnd = ground.feet[side];

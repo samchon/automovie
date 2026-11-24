@@ -9,6 +9,19 @@ import type {
 
 import { HumanRefusal } from "../law/HumanRefusal";
 
+/** The record of `IPlacedResult`'s site. */
+type IPlacedResult = {
+  point: IAutoMovieVector3;
+  frame: ReturnType<IAutoMovieMotionHumanPropReader["frame"]>;
+  affordance: IAutoMovieAffordance;
+};
+
+/** The alternatives of `PlacedContext`'s site. */
+type PlacedContext = "prop" | "start";
+
+/** The alternatives of `AtContext`'s site. */
+type AtContext = "prop" | "start";
+
 /**
  * The support a prop gives a workout: a bench's top under a body that lies or
  * sits raised, a bar between the hands of a body that hangs, a box's top under
@@ -32,7 +45,7 @@ export namespace WorkoutSupport {
    * @throws {HumanRefusal} When the prop has no such affordance.
    */
   export function at(
-    context: Pick<IAutoMovieMotionHumanActionContext, "prop" | "start">,
+    context: Pick<IAutoMovieMotionHumanActionContext, AtContext>,
     on: IAutoMovieMotionHumanWorkoutSupport.IAtOn,
   ): IAutoMovieVector3 {
     return placed(context, on).point;
@@ -51,13 +64,9 @@ export namespace WorkoutSupport {
    *   before optional other.
    */
   export function placed(
-    context: Pick<IAutoMovieMotionHumanActionContext, "prop" | "start">,
+    context: Pick<IAutoMovieMotionHumanActionContext, PlacedContext>,
     on: IAutoMovieMotionHumanWorkoutSupport.IAtOn,
-  ): {
-    point: IAutoMovieVector3;
-    frame: ReturnType<IAutoMovieMotionHumanPropReader["frame"]>;
-    affordance: IAutoMovieAffordance;
-  } {
+  ): IPlacedResult {
     const read: IAutoMovieMotionHumanPropReader = context.prop(on.prop);
     const affordances: readonly IAutoMovieAffordance[] =
       read.prop.affordances ?? [];

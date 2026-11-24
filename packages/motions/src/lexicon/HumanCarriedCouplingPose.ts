@@ -24,6 +24,7 @@ import { bendLower } from "../everyday/bendLower";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanHand } from "../posture/HumanHand";
 import { HumanHandTarget } from "../posture/HumanHandTarget";
+import { humanPostureHeading } from "../posture/humanPostureHeading";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
@@ -160,7 +161,7 @@ export namespace HumanCarriedCouplingPose {
     };
     const keyTurn: IAutoMovieQuaternion = Quaternion.multiply(
       coupling.key.rotation,
-      Quaternion.inverse(resolveHumanPosture.heading(keyed)),
+      Quaternion.inverse(humanPostureHeading(keyed)),
     );
     return (bearers: Bearers): IAutoMovieMotionHumanPosture =>
       placedPosture(coupling, bearers, keyed, keyTurn, grips);

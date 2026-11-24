@@ -5,6 +5,7 @@ import {
   resolveAutoMovieHumanoidSurfaces,
 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanBody,
@@ -20,10 +21,14 @@ import type {
 import { HumanPerception } from "../law/HumanPerception";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanColliders } from "../posture/HumanColliders";
+import { lowerHumanPosture } from "../posture/lowerHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { StrikingStance } from "./StrikingStance";
 import { StrikingTarget } from "./StrikingTarget";
+
+/** The record of `IBackRoot`'s site. */
+type IBackRoot = { position: IAutoMovieVector3; yaw: number };
 
 /**
  * How far a guard facing a person steps back so that the two fighters' guards,
@@ -78,7 +83,7 @@ export namespace StrikingGuardYield {
       hips.worldRotation,
       { x: 0, y: 0, z: 1 },
     );
-    const root: { position: IAutoMovieVector3; yaw: number } = {
+    const root: IBackRoot = {
       position: hips.worldPosition,
       yaw: (Math.atan2(facingOf.x, facingOf.z) * 180) / Math.PI,
     };
@@ -102,7 +107,7 @@ export namespace StrikingGuardYield {
       region,
       mine.get(region.bone)!,
     ).point;
-    const feet: Record<"left" | "right", IAutoMovieVector3> = {
+    const feet: Record<AutoMovieHumanSide, IAutoMovieVector3> = {
       left: shown.get("leftFoot")!.worldPosition,
       right: shown.get("rightFoot")!.worldPosition,
     };
@@ -195,7 +200,7 @@ export namespace StrikingGuardYield {
     centre: IAutoMovieVector3,
     entry: IAutoMovieMotionHumanPosture["joints"] = {},
   ): IAutoMovieMotionHumanPosture {
-    const to: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement> =
+    const to: Record<AutoMovieHumanSide, IAutoMovieMotionHumanFoot.IPlacement> =
       StrikingStance.feet(body, stance, centre);
     const heading: number = StrikingStance.heading(stance);
     const root: IAutoMovieVector3 = { x: centre.x, y: 0, z: centre.z };
@@ -213,7 +218,7 @@ export namespace StrikingGuardYield {
     );
     const neck: readonly [number, number, number] = joints.neck ?? [0, 0, 0];
     const head: readonly [number, number, number] = joints.head ?? [0, 0, 0];
-    const lowered: IAutoMovieMotionHumanPosture = resolveHumanPosture.lower(
+    const lowered: IAutoMovieMotionHumanPosture = lowerHumanPosture(
       body,
       {
         root: {
@@ -233,7 +238,7 @@ export namespace StrikingGuardYield {
         },
         limbs: StrikingStance.legs(body, to),
       },
-      resolveHumanPosture.KNEE,
+      lowerHumanPosture.KNEE,
     );
     return {
       ...lowered,

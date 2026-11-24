@@ -6,7 +6,7 @@ States which channels are asked for at a second and the whole-posture case.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-A reading needs only the channels it uses (the demand-driven evaluation of required parts, Unreal Engine `FBoneContainer`); inside its window an arm a follower plans adds no goal to the plan's own course, only a dependency on the partner it tracks, and outside it the arm is the plan's own.
+A reading needs only the channels it uses (the demand-driven evaluation of required parts); inside its window an arm a follower plans adds no goal to the plan's own course, only a dependency on the partner it tracks, and outside it the arm is the plan's own.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 

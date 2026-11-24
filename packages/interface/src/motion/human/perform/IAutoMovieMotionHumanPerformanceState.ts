@@ -21,6 +21,7 @@ import type { IAutoMovieMotionHumanPerformer } from "./IAutoMovieMotionHumanPerf
 import type { IAutoMovieMotionHumanProp } from "./IAutoMovieMotionHumanProp";
 import type { IAutoMovieMotionHumanPropFlight } from "./IAutoMovieMotionHumanPropFlight";
 import type { IAutoMovieMotionHumanSegment } from "./IAutoMovieMotionHumanSegment";
+import type { IAutoMovieMotionHumanTether } from "./IAutoMovieMotionHumanTether";
 
 /**
  * Everything a performance resolves and its readers share: the people with
@@ -52,6 +53,15 @@ export interface IAutoMovieMotionHumanPerformanceState {
 
   /** The props, by subject. */
   readonly props: Map<string, IAutoMovieMotionHumanProp>;
+
+  /**
+   * The lines between props by the far prop they hold, each with the prop that
+   * declares it, in declaration order; built once with `props`.
+   */
+  readonly tethered: ReadonlyMap<
+    string,
+    readonly IAutoMovieMotionHumanPerformanceState.ITethered[]
+  >;
 
   /**
    * The placed actions that carry an anchor, by the anchor, with their
@@ -358,6 +368,15 @@ export namespace IAutoMovieMotionHumanPerformanceState {
       /** The driving performer's subject id. */
       subject: string;
     };
+  }
+
+  /** A line found by its far prop: the prop that declares it, and the line. */
+  export interface ITethered {
+    /** The prop that declares the line. */
+    owner: IAutoMovieMotionHumanProp;
+
+    /** The line. */
+    tether: IAutoMovieMotionHumanTether;
   }
 
   /** One weapon's resolved first contact with another person. */

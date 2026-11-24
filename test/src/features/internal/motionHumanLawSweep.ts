@@ -13,39 +13,28 @@ import { motionHumanLaw } from "./motionHumanLaw";
 import { motionHumanLawSweepCell } from "./motionHumanLawSweepCell";
 
 /**
- * The universal sweep of the action laws: every law is staged over a
- * covering array of its parameters, the bodies and the seeds
- * (`motionHumanLawCovering`), performed and read by every generic detector of the
- * motion audit, and whatever a detector finds is one line that names its
- * cell. The mirror image of a side is a metamorphic relation of its own
+ * The universal sweep of the action laws: every law is staged over a covering
+ * array of its parameters, the bodies and the seeds (`motionHumanLawCovering`),
+ * performed and read by every generic detector of the motion audit, and
+ * whatever a detector finds is one line that names its cell. The mirror image
+ * of a side is a metamorphic relation of its own
  * (`motionHumanLawCovering.mirrors`).
  *
  * A row is `default` (the law's required parameters only) or settings
  * `param=value` joined by commas. A stage builds the scene of a row: it asks
- * {@link Pick} for each parameter it can set, so a setting the stage never
- * asked for is reported as unstaged instead of passing as the default.
+ * {@link Pick} for each parameter it can set, so a setting the stage never asked
+ * for is reported as unstaged instead of passing as the default.
  *
- * Every cell is held to the same specification, none of it read off the
- * law's code: the film plans without refusal; every declared window and
- * event is well formed; no segment enters another deeper than 10 mm; nothing
- * sinks under the floor, slips or lifts in a plant, jumps, reverses or
- * outruns a joint; the mass stays over its support; a foot the motion shows
- * on the floor does not skate and a declared plant is neither loose nor
- * afloat; every joint stays in its range; no bone spins through a turn
- * between frames; two people do not enter each other deeper than 10 mm; the
- * same seed gives the same film (performed twice on each law's first cell,
- * since a second film doubles a cell's cost).
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the row grammar, the covering design and the specification every cell is held to.
- * @evidence contracts/development/design.md#principled-representation Runtime ledger strings select typed scene inputs and attributable cell observations, with world metres, heading degrees, seed identity and elapsed wall milliseconds kept distinct.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Owns scene construction, row consumption and cell attribution for the stage tables, covering sweep, pose corpus and metamorphic readers; physical cell verification lives in motionHumanLawSweepCell.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Stages retain actual canonical bodies and public compositions; no expected pose or replacement producer is part of the scene types, and unchecked ledger target strings are admitted by the real laws.
- * Every reading is a detector of the motions package's audit on displayed bones; the limits are the audit's own or the 10 mm skin tolerance.
- * Scene helpers and staging feed the attributed cell reader, which delegates film verification; the loop over laws, rows, bodies and seeds remains motionHumanLawCovering's.
- * A refusal, an unstaged parameter and an unknown law are complaints, never skipped cells.
- * One film per cell shared by every detector; the repeat for determinism is read at 4 Hz.
- * Films and the generic audit come from `motionHumanLaw`.
- * Cell results retain complaint text without an added cap; a kept first film is the caller's and frame caches remain owned by their films, with no sweep-global film cache.
+ * Every cell is held to the same specification, none of it read off the law's
+ * code: the film plans without refusal; every declared window and event is well
+ * formed; no segment enters another deeper than 10 mm; nothing sinks under the
+ * floor, slips or lifts in a plant, jumps, reverses or outruns a joint; the
+ * mass stays over its support; a foot the motion shows on the floor does not
+ * skate and a declared plant is neither loose nor afloat; every joint stays in
+ * its range; no bone spins through a turn between frames; two people do not
+ * enter each other deeper than 10 mm; the same seed gives the same film
+ * (performed twice on each law's first cell, since a second film doubles a
+ * cell's cost).
  */
 export namespace motionHumanLawSweep {
   /**
@@ -107,7 +96,11 @@ export namespace motionHumanLawSweep {
    * @evidence contracts/development/design.md#minimal-and-owned-surface Its three inputs are the facts all stage tables require.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts No frame-producing callback or expected result enters the stage signature.
    */
-  export type Stage = (pick: Pick, a: IAutoMovieMotionHumanBody, b: IAutoMovieMotionHumanBody) => IScene;
+  export type Stage = (
+    pick: Pick,
+    a: IAutoMovieMotionHumanBody,
+    b: IAutoMovieMotionHumanBody,
+  ) => IScene;
 
   /**
    * One executed cell's identity, elapsed observation and complaints.
@@ -150,9 +143,9 @@ export namespace motionHumanLawSweep {
   export const AIRBORNE: readonly string[] = ["swim", "climbLadder"];
 
   /**
-   * The parameters that name the performer's own acting side, whose left row
-   * is the mirror image of its right row. A direction of travel or a
-   * partner's hand is no such parameter.
+   * The parameters that name the performer's own acting side, whose left row is
+   * the mirror image of its right row. A direction of travel or a partner's
+   * hand is no such parameter.
    */
   export const MIRRORED: readonly string[] = [
     "side",
@@ -254,7 +247,8 @@ export namespace motionHumanLawSweep {
   }
 
   /**
-   * One actual body at the world origin facing +Z, on the given chain and props.
+   * One actual body at the world origin facing +Z, on the given chain and
+   * props.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States placement and that an omitted prop list is empty.
    * @evidence contracts/development/implementation.md#principled-implementation Assembles public performer, composition and prop inputs without producing motion.
@@ -277,8 +271,8 @@ export namespace motionHumanLawSweep {
   }
 
   /**
-   * Two actual bodies gap metres apart on +Z; b faces a by default, else +Z.
-   * A pair of chains becomes parallel in its given order; a node is kept as is.
+   * Two actual bodies gap metres apart on +Z; b faces a by default, else +Z. A
+   * pair of chains becomes parallel in its given order; a node is kept as is.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States placement, heading default and the two composition inputs.
    * @evidence contracts/development/implementation.md#principled-implementation Builds public scene records and a parallel node only for a chain pair.
@@ -293,7 +287,8 @@ export namespace motionHumanLawSweep {
     b: IAutoMovieMotionHumanBody,
     gap: number,
     composition:
-      | IAutoMovieComposition | [IAutoMovieMotionHumanChain, IAutoMovieMotionHumanChain],
+      | IAutoMovieComposition
+      | [IAutoMovieMotionHumanChain, IAutoMovieMotionHumanChain],
     props: IAutoMovieMotionHumanProp[] = [],
     facing: boolean = true,
   ): IScene {
@@ -325,7 +320,6 @@ export namespace motionHumanLawSweep {
    * @param bodies The bodies of `a` and of the partner.
    * @param unstaged Hears a parameter the stage never asked for.
    * @returns The scene.
-   *
    * @evidence contracts/development/common.md#meaningful-documentation States the row syntax, body roles and unconsumed-parameter observer.
    * @evidence contracts/development/implementation.md#principled-implementation Parses comma-separated settings into a Map and records each explicitly supplied value the stage queries; remaining keys are reported after construction.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Parse, call one stage with canonical bodies, then report untouched keys.
@@ -369,7 +363,6 @@ export namespace motionHumanLawSweep {
    * @param seed The seed.
    * @param scene The scene.
    * @returns The film.
-   *
    * @evidence contracts/development/common.md#meaningful-documentation States the seed, scene and actual-film result.
    * @evidence contracts/development/implementation.md#principled-implementation Passes the scene's people, public composition and props unchanged to the real performance owner.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One call to motionHumanLaw.perform.
@@ -399,7 +392,6 @@ export namespace motionHumanLawSweep {
    * @param repeat Whether the film is performed a second time to check the
    *   seed's determinism; true when absent.
    * @returns The cell.
-   *
    * @evidence contracts/development/common.md#meaningful-documentation States cell coordinates, optional kept film, repeat default and elapsed wall-time observation.
    * @evidence contracts/development/implementation.md#principled-implementation Stages real inputs and delegates unchanged physical checks and the independent 4 Hz finite-position/orientation repeat to motionHumanLawSweepCell; Error messages become cell-attributed first-line complaints.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Record identity, stage and verify, transfer the first film, then return elapsed time and findings.
@@ -460,7 +452,6 @@ export namespace motionHumanLawSweep {
    * @param table Each law's stage.
    * @returns One line per ledger law without a stage, per row whose parameter
    *   its stage never asks for, and per row whose stage throws.
-   *
    * @evidence contracts/development/common.md#meaningful-documentation States that this reads ledger-stage coverage without performing films.
    * @evidence contracts/development/implementation.md#principled-implementation Scans each ledger law and row, using the same staging reader on f-small and m-large and collecting missing stages, untouched settings and stage errors.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure A law loop with a missing-stage branch and per-row construction.

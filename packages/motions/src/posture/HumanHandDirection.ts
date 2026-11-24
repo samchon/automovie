@@ -7,6 +7,9 @@ import type {
 
 import { HumanFrame } from "./HumanFrame";
 
+/** The record of `IPrepareFrame`'s site. */
+type IPrepareFrame = { yaw: number; read: HumanFrame.IPrepared };
+
 /**
  * A named direction of a hand as a world vector: how `HumanHand.Direction`, an
  * axis of the performer's floor frame, a share of the way between two axes or
@@ -78,7 +81,7 @@ export namespace HumanHandDirection {
     const sign: number = side === "left" ? 1 : -1;
     const axes: Map<IAutoMovieMotionHumanHand.Axis, IAutoMovieVector3> =
       new Map();
-    let frame: { yaw: number; read: HumanFrame.IPrepared } | undefined;
+    let frame: IPrepareFrame | undefined;
     return (
       yaw: number,
       direction: IAutoMovieMotionHumanHand.Axis,

@@ -58,6 +58,8 @@ export function racketCases(
     ] as const satisfies readonly IAutoMovieMotionHumanRacket.Position[]) {
       const name: string = `racket-${kind}${suffix}`;
       let performance: IAutoMovieMotionHumanPerformance;
+
+      // Process boundary: a case that throws is reported as that case's refusal, and the remaining cases still run.
       try {
         performance = new HumanPerformance({
           seed: "racket",

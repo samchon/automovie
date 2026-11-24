@@ -1,5 +1,6 @@
 import { minimumJerk } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   AutoMovieMotionHumanActionKey,
   IAutoMovieMotionEvent,
@@ -172,8 +173,8 @@ export namespace roundOff {
     const ground: IAutoMovieMotionHumanContactWindow.Support = {
       kind: "ground",
     };
-    const lead: "left" | "right" = sign < 0 ? "left" : "right";
-    const trail: "left" | "right" = lead === "left" ? "right" : "left";
+    const lead: AutoMovieHumanSide = sign < 0 ? "left" : "right";
+    const trail: AutoMovieHumanSide = lead === "left" ? "right" : "left";
     const spokes: IAutoMovieMotionHumanGymnasticsWheel.ISpoke[] = [
       { bones: ["leftFoot", "rightFoot"], height: ankle, support: ground },
       { bones: [`${lead}Foot`], height: ankle, support: ground },

@@ -5,6 +5,7 @@ import {
   minimumJerk,
 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieHumanPostureRotation,
   IAutoMovieMotionHumanActionPlan,
@@ -38,6 +39,17 @@ const ARCH: number = 0.1;
  * which the gap is a rounding of side by side.
  */
 const PASS_GAP: number = 1e-9;
+/** The record of `IPrepareFixed`'s site. */
+type IPrepareFixed = {
+  start: Pick<jumpState.IState, PrepareFixedStart>;
+  end: Pick<jumpState.IState, PrepareFixedEnd>;
+};
+
+/** The alternatives of `PrepareFixedEnd`'s site. */
+type PrepareFixedEnd = "joints" | "legs";
+
+/** The alternatives of `PrepareFixedStart`'s site. */
+type PrepareFixedStart = "root" | "joints" | "legs";
 
 /**
  * A jump's time in the air: the shape it holds between take-off and touchdown,
@@ -73,7 +85,7 @@ export namespace jumpAirborne {
     body: IAutoMovieMotionHumanBody;
 
     /** The foot that pushed off. */
-    takeoff: "left" | "right";
+    takeoff: AutoMovieHumanSide;
 
     /** The actual achieved push endpoint; its leg geometry is in the root frame. */
     start: jumpState.IState;
@@ -103,11 +115,11 @@ export namespace jumpAirborne {
     poleHeadings: readonly number[] = [],
   ): (
     root: IAutoMovieVector3,
-    side: "left" | "right",
+    side: AutoMovieHumanSide,
     yaw: number,
   ) => IAutoMovieVector3 {
     const lower: Record<
-      "left" | "right",
+      AutoMovieHumanSide,
       ReturnType<typeof HumanFrame.preparePoint>
     > = {
       left: HumanFrame.preparePoint(heading, body.rest.get("leftLowerLeg")!),
@@ -126,7 +138,7 @@ export namespace jumpAirborne {
     );
     return (
       root: IAutoMovieVector3,
-      side: "left" | "right",
+      side: AutoMovieHumanSide,
       yaw: number,
     ): IAutoMovieVector3 => {
       const origin: IAutoMovieVector3 = lower[side](root);
@@ -149,10 +161,7 @@ export namespace jumpAirborne {
    */
   export function prepare(shape: IShape): IPrepared {
     const { body, heading }: IShape = shape;
-    const fixed: {
-      start: Pick<jumpState.IState, "root" | "joints" | "legs">;
-      end: Pick<jumpState.IState, "joints" | "legs">;
-    } = structuredClone({
+    const fixed: IPrepareFixed = structuredClone({
       start: {
         root: shape.start.root,
         joints: shape.start.joints,
@@ -191,7 +200,7 @@ export namespace jumpAirborne {
       yaw: heading,
     };
     const points: Record<
-      "left" | "right",
+      AutoMovieHumanSide,
       ReturnType<typeof HumanFrame.prepareLerp>
     > = {
       left: HumanFrame.prepareLerp(
@@ -206,7 +215,7 @@ export namespace jumpAirborne {
       ),
     };
     const bends: Record<
-      "left" | "right",
+      AutoMovieHumanSide,
       ReturnType<typeof HumanFrame.prepareLerp>
     > = {
       left: HumanFrame.prepareLerp(
@@ -221,7 +230,7 @@ export namespace jumpAirborne {
       ),
     };
     const rotations: Record<
-      "left" | "right",
+      AutoMovieHumanSide,
       ReturnType<typeof Quaternion.prepareSlerp>
     > = {
       left: Quaternion.prepareSlerp(
@@ -412,7 +421,7 @@ export namespace jumpAirborne {
   export function hasTurnedLanding(
     flight: IAutoMovieMotionHumanFlight,
   ): boolean {
-    return TOUCHDOWNS.get(flight)?.turnedLanding === true;
+    return flight.touchdown?.turnedLanding === true;
   }
 
   /**
@@ -425,7 +434,7 @@ export namespace jumpAirborne {
   export function touchdown(
     flight: IAutoMovieMotionHumanFlight,
   ): jumpTouchdownRotation.IRequirement | undefined {
-    return TOUCHDOWNS.get(flight);
+    return flight.touchdown;
   }
 
   /**
@@ -479,6 +488,9 @@ export namespace jumpAirborne {
                     }
                   : {}),
               },
+              ...(touchdownRequirement === undefined
+                ? {}
+                : { touchdown: touchdownRequirement }),
             },
             airborne: (
               handed: (seconds: number) => IAutoMovieHumanPostureRotation,
@@ -490,9 +502,6 @@ export namespace jumpAirborne {
               offset = STILL;
             },
           };
-    if (touchdownRequirement !== undefined && declared.flight !== undefined)
-      TOUCHDOWNS.set(declared.flight, touchdownRequirement);
-
     // Every reader reconstructs seconds from the public shares. Use those
     // same representable boundaries for both phase selection and handback.
     const from: number =
@@ -572,12 +581,6 @@ export namespace jumpAirborne {
     };
   }
 }
-
-/** Native flight requests and their planned planted touchdown requirements. */
-const TOUCHDOWNS: WeakMap<
-  IAutoMovieMotionHumanFlight,
-  jumpTouchdownRotation.IRequirement
-> = new WeakMap();
 
 /** Action-plan members supplied for an authored turning flight. */
 type FlightMember = "flight" | "airborne";

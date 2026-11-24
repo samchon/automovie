@@ -20,8 +20,12 @@ import { AutoMovieMotionHumanStance } from "@automovie/motions";
 import {
   HumanFoot,
   HumanFrame,
+  HumanLimbFit,
   hipJoints,
+  humanPostureHeading,
   humanRig,
+  lowerHumanPosture,
+  orderHumanLimbs,
   poseBones,
   resolveHumanPosture,
 } from "@automovie/motions/internal";
@@ -30,38 +34,38 @@ import { motionComplaints } from "../../../internal/motionComplaints";
 import { motionHumanBody } from "../../../internal/motionHumanBody";
 
 /**
- * Scenarios: floor and joint frames, socket pivots, hip offsets, heading inversion,
- * reach slack, planted correction and attached goal ordering.
- * The frames every posture is written in: a performer's floor frame
- * (`HumanFrame`), the rigid foot rocker (`HumanFoot`), the hip joints under
- * a root (`hipJoints`) and the rig poses are read through (`humanRig`), on
- * the average man.
+ * Scenarios: floor and joint frames, socket pivots, hip offsets, heading
+ * inversion, reach slack, planted correction and attached goal ordering. The
+ * frames every posture is written in: a performer's floor frame (`HumanFrame`),
+ * the rigid foot rocker (`HumanFoot`), the hip joints under a root
+ * (`hipJoints`) and the rig poses are read through (`humanRig`), on the average
+ * man.
  *
  * A heading of 0 faces world +Z with the performer's left along world +X; a
  * heading of 90 faces +X with the left along -Z (the documented right-handed
- * turn about +Y). A foot pivoting about a sole point keeps that point where
- * it was put, whatever the heading and the pitch, because the rocker is a
- * rotation of the rigid foot about it (Perry and Burnfield). The hip joints
- * depend only on the root, its rotation and the pelvis joint, so they are
- * where a fully resolved stance displays its thighs' roots.
+ * turn about +Y). A foot pivoting about a sole point keeps that point where it
+ * was put, whatever the heading and the pitch, because the rocker is a rotation
+ * of the rigid foot about it (Perry and Burnfield). The hip joints depend only
+ * on the root, its rotation and the pelvis joint, so they are where a fully
+ * resolved stance displays its thighs' roots.
  *
  * Scenarios:
- * 1. `HumanFrame.point` puts a local left, up and forward at the stated
- *    world axes for headings 0 and 90, `local` inverts it for any heading,
- *    and `turn(90)` carries +Z to +X.
- * 2. `HumanFoot.offset` is the socket's own point for a socket on the foot
- *    and the toes' joint for `mtp`; a toe socket on the toes bone keeps its
- *    distance from the toes' joint as the toes flex and rises as they lift.
- * 3. `HumanFoot.pivot` keeps its heel, ball or toe on the given point for
- *    headings 0 and 90 and pitches -20, 0 and 30, with the documented
- *    rotation.
- * 4. On the displayed stance, `HumanFoot.sockets` lists heel, ball and toe in
- *    that order, from back to front, each within 10 mm of the floor.
- * 5. `hipJoints` at the stance's root, root rotation and pelvis are the
- *    stance's displayed hip joints within a micrometre, and a root moved by
- *    a vector moves both by it.
- * 6. `humanRig` is the body's skeleton with the engine's canonical joint
- *    axes and rest frames.
+ *
+ * 1. `HumanFrame.point` puts a local left, up and forward at the stated world axes
+ *    for headings 0 and 90, `local` inverts it for any heading, and `turn(90)`
+ *    carries +Z to +X.
+ * 2. `HumanFoot.offset` is the socket's own point for a socket on the foot and the
+ *    toes' joint for `mtp`; a toe socket on the toes bone keeps its distance
+ *    from the toes' joint as the toes flex and rises as they lift.
+ * 3. `HumanFoot.pivot` keeps its heel, ball or toe on the given point for headings
+ *    0 and 90 and pitches -20, 0 and 30, with the documented rotation.
+ * 4. On the displayed stance, `HumanFoot.sockets` lists heel, ball and toe in that
+ *    order, from back to front, each within 10 mm of the floor.
+ * 5. `hipJoints` at the stance's root, root rotation and pelvis are the stance's
+ *    displayed hip joints within a micrometre, and a root moved by a vector
+ *    moves both by it.
+ * 6. `humanRig` is the body's skeleton with the engine's canonical joint axes and
+ *    rest frames.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls each function on a real body and its displayed stance; a turned axis, a pivot that slides, a socket on the wrong bone, hips that ignore the root or a foreign rig fails.
  * @evidence contracts/development/testing.md#independent-expectations Axes are the documented heading convention, the pivot's fixed point is its definition, and the hips and sockets are read off the engine's forward kinematics of the stance.
@@ -289,7 +293,7 @@ function checkResolver(complaints: motionComplaints.IGatherer): void {
     [-170, 80, -40],
     [45, -60, 25],
   ] as const) {
-    const q: IAutoMovieQuaternion = resolveHumanPosture.heading({
+    const q: IAutoMovieQuaternion = humanPostureHeading({
       yaw,
       pitch,
       roll,
@@ -302,7 +306,7 @@ function checkResolver(complaints: motionComplaints.IGatherer): void {
         z: Math.cos(rad(yaw)) * Math.cos(rad(pitch)),
       }),
     );
-    const back = resolveHumanPosture.angles(q);
+    const back = humanPostureHeading.angles(q);
     complaints.check(
       `angles gives back ${yaw}, ${pitch}, ${roll}: ${back.yaw.toFixed(6)}, ${back.pitch.toFixed(6)}, ${back.roll.toFixed(6)}`,
       Math.abs(back.yaw - yaw) <= 1e-6 &&
@@ -332,23 +336,21 @@ function checkResolver(complaints: motionComplaints.IGatherer): void {
   });
   complaints.check(
     "a hip a bent leg's span from the ankle is not short",
-    Math.abs(resolveHumanPosture.short(body, hipAt(0), ankle, knee)) <= 1e-9,
+    Math.abs(lowerHumanPosture.short(body, hipAt(0), ankle, knee)) <= 1e-9,
   );
   complaints.check(
     "a higher hip is short by its excess",
-    Math.abs(
-      resolveHumanPosture.short(body, hipAt(0.07), ankle, knee) - 0.07,
-    ) <= 1e-9,
+    Math.abs(lowerHumanPosture.short(body, hipAt(0.07), ankle, knee) - 0.07) <=
+      1e-9,
   );
   complaints.check(
     "a lower hip has slack",
-    Math.abs(
-      resolveHumanPosture.short(body, hipAt(-0.05), ankle, knee) + 0.05,
-    ) <= 1e-9,
+    Math.abs(lowerHumanPosture.short(body, hipAt(-0.05), ankle, knee) + 0.05) <=
+      1e-9,
   );
   complaints.check(
     "an ankle beyond the span cannot be helped",
-    resolveHumanPosture.short(
+    lowerHumanPosture.short(
       body,
       { x: ankle.x + span + 0.01, y: ankle.y, z: ankle.z },
       ankle,
@@ -362,7 +364,7 @@ function checkResolver(complaints: motionComplaints.IGatherer): void {
   const free: IAutoMovieMotionHumanPosture = { ...quiet, limbs: {} };
   complaints.check(
     "a posture with no planted leg is kept",
-    resolveHumanPosture.lower(body, free) === free,
+    lowerHumanPosture(body, free) === free,
   );
   const sunk: IAutoMovieMotionHumanPosture = {
     ...quiet,
@@ -379,20 +381,17 @@ function checkResolver(complaints: motionComplaints.IGatherer): void {
       ]),
     ),
   };
-  const lowered: IAutoMovieMotionHumanPosture = resolveHumanPosture.lower(
-    body,
-    sunk,
-  );
+  const lowered: IAutoMovieMotionHumanPosture = lowerHumanPosture(body, sunk);
   const hips = hipJoints(
     body,
     lowered.root,
-    resolveHumanPosture.heading(lowered),
+    humanPostureHeading(lowered),
     lowered.joints.hips,
   );
   for (const side of ["left", "right"] as const) {
     const goal: IAutoMovieHumanLimbGoal | undefined = sunk.limbs[`${side}Leg`];
     if (goal === undefined) continue;
-    const left: number = resolveHumanPosture.short(
+    const left: number = lowerHumanPosture.short(
       body,
       hips[side],
       goal.point,
@@ -454,17 +453,17 @@ function checkResolver(complaints: motionComplaints.IGatherer): void {
   };
   complaints.equals(
     "the right arm's reference",
-    resolveHumanPosture.reference(fitted, "rightArm"),
+    HumanLimbFit.reference(fitted, "rightArm"),
     { upper: triple("rightUpperArm"), lower: triple("rightLowerArm") },
   );
   complaints.equals(
     "the left leg's reference",
-    resolveHumanPosture.reference(fitted, "leftLeg"),
+    HumanLimbFit.reference(fitted, "leftLeg"),
     { upper: triple("leftUpperLeg"), lower: triple("leftLowerLeg") },
   );
   complaints.equals(
     "a pose without the bones reads zero",
-    resolveHumanPosture.reference({ ...fitted, joints: [] }, "rightLeg"),
+    HumanLimbFit.reference({ ...fitted, joints: [] }, "rightLeg"),
     { upper: [0, 0, 0], lower: [0, 0, 0] },
   );
 
@@ -475,10 +474,10 @@ function checkResolver(complaints: motionComplaints.IGatherer): void {
   };
   complaints.equals(
     "legs then arms",
-    resolveHumanPosture.order({ rightArm: at, leftLeg: at }),
+    orderHumanLimbs({ rightArm: at, leftLeg: at }),
     ["leftLeg", "rightLeg", "leftArm", "rightArm"],
   );
-  const order: AutoMovieHumanLimb[] = resolveHumanPosture.order({
+  const order: AutoMovieHumanLimb[] = orderHumanLimbs({
     leftArm: { ...at, on: "rightLowerArm" },
     rightArm: at,
     leftLeg: { ...at, on: "leftHand" },
@@ -490,7 +489,7 @@ function checkResolver(complaints: motionComplaints.IGatherer): void {
       order.indexOf("leftArm") < order.indexOf("leftLeg"),
   );
   complaints.refuses("two limbs attached to each other", () =>
-    resolveHumanPosture.order({
+    orderHumanLimbs({
       leftArm: { ...at, on: "rightHand" },
       rightArm: { ...at, on: "leftLowerArm" },
     }),
@@ -499,7 +498,7 @@ function checkResolver(complaints: motionComplaints.IGatherer): void {
   // 7. World.
   complaints.check(
     "an unattached goal is kept",
-    resolveHumanPosture.world(body, pose, "rightArm", at) === at,
+    HumanLimbFit.world(body, pose, "rightArm", at) === at,
   );
   const chest: IAutoMovieResolvedBone = bones.get("chest")!;
   const local: IAutoMovieVector3 = { x: 0.05, y: 0.1, z: 0.2 };
@@ -507,7 +506,7 @@ function checkResolver(complaints: motionComplaints.IGatherer): void {
     { x: 0, y: 1, z: 0 },
     30,
   );
-  const carried: IAutoMovieHumanLimbGoal = resolveHumanPosture.world(
+  const carried: IAutoMovieHumanLimbGoal = HumanLimbFit.world(
     body,
     pose,
     "rightArm",
@@ -543,13 +542,13 @@ function checkResolver(complaints: motionComplaints.IGatherer): void {
       ) <= 1e-9,
   );
   complaints.refuses("a goal on its own chain", () =>
-    resolveHumanPosture.world(body, pose, "rightArm", {
+    HumanLimbFit.world(body, pose, "rightArm", {
       ...at,
       on: "rightLowerArm",
     }),
   );
   complaints.refuses("a goal on a bone the rig lacks", () =>
-    resolveHumanPosture.world(body, pose, "rightArm", {
+    HumanLimbFit.world(body, pose, "rightArm", {
       ...at,
       on: "noSuchBone" as string as AutoMovieHumanoidBone,
     }),
@@ -561,7 +560,7 @@ function checkElasticReach(complaints: motionComplaints.IGatherer): void {
   const body = motionHumanBody("m-average");
   const a = body.measure.thigh,
     b = body.measure.shank;
-  const knee = resolveHumanPosture.KNEE;
+  const knee = lowerHumanPosture.KNEE;
   const reach = Math.sqrt(
     a * a + b * b + 2 * a * b * Math.cos((knee * Math.PI) / 180),
   );
@@ -570,7 +569,7 @@ function checkElasticReach(complaints: motionComplaints.IGatherer): void {
   // 0.12 m/s at 30 Hz, the campaign's vertical walking pace.
   const step = 0.12 / 30;
   const slack = (v: number, stride?: number) =>
-    resolveHumanPosture.short(body, { x: 0, y: v, z: 0 }, ankle, knee, stride);
+    lowerHumanPosture.short(body, { x: 0, y: v, z: 0 }, ankle, knee, stride);
   const maxJump = (stride?: number): number => {
     let previous: IAutoMovieVector3 | undefined,
       largest = 0;

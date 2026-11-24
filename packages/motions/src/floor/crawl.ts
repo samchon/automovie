@@ -1,5 +1,6 @@
 import { Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   AutoMovieMotionHumanActionName,
   IAutoMovieMotionClock,
@@ -185,7 +186,7 @@ export namespace crawl {
     // Each wrist over its flat palm on the floor, floor frame from the palm;
     // the body tilted by a pitch, and the root under its hip joints.
     const sides: readonly ["left", "right"] = ["left", "right"] as const;
-    const wrists: Record<"left" | "right", IAutoMovieVector3> =
+    const wrists: Record<AutoMovieHumanSide, IAutoMovieVector3> =
       crawlFrame.wrists(body, standing, forward);
     const laid: ReturnType<typeof crawlFrame.prepareLaid> =
       crawlFrame.prepareLaid(body, forward);
@@ -230,8 +231,8 @@ export namespace crawl {
     // Nominal limb places relative to the hips' travel, floor frame: each
     // palm where its wrist stands under the shoulder, each knee under its
     // hip joint.
-    const under: (side: "left" | "right") => IAutoMovieVector3 = (
-      side: "left" | "right",
+    const under: (side: AutoMovieHumanSide) => IAutoMovieVector3 = (
+      side: AutoMovieHumanSide,
     ): IAutoMovieVector3 => {
       const shoulder: IAutoMovieVector3 = local(`${side}UpperArm`);
       return {
@@ -290,9 +291,9 @@ export namespace crawl {
 
     // Only the contact point changes as each tucked foot follows its knee.
     const placing: (
-      side: "left" | "right",
+      side: AutoMovieHumanSide,
     ) => ReturnType<typeof HumanFoot.prepareAt> = (
-      side: "left" | "right",
+      side: AutoMovieHumanSide,
     ): ReturnType<typeof HumanFoot.prepareAt> =>
       HumanFoot.prepareAt(
         body,
@@ -301,11 +302,11 @@ export namespace crawl {
         tucks[side].foot.heading,
         tucks[side].foot.pitch,
       );
-    const placements: Record<"left" | "right", ReturnType<typeof placing>> = {
+    const placements: Record<AutoMovieHumanSide, ReturnType<typeof placing>> = {
       left: placing("left"),
       right: placing("right"),
     };
-    const footContacts: Record<"left" | "right", IAutoMovieVector3> = {
+    const footContacts: Record<AutoMovieHumanSide, IAutoMovieVector3> = {
       left: HumanFoot.offset(body, "left", "mtp"),
       right: HumanFoot.offset(body, "right", "mtp"),
     };
@@ -347,7 +348,7 @@ export namespace crawl {
       lean: number,
       palms: boolean = true,
     ): IAutoMovieMotionHumanPosture => {
-      const knees: Record<"left" | "right", IAutoMovieVector3> = {
+      const knees: Record<AutoMovieHumanSide, IAutoMovieVector3> = {
         left: at("leftKnee"),
         right: at("rightKnee"),
       };
@@ -388,7 +389,7 @@ export namespace crawl {
       if (!palms) return legged;
       return laid(
         legged,
-        (side: "left" | "right"): IAutoMovieVector3 => at(`${side}Hand`),
+        (side: AutoMovieHumanSide): IAutoMovieVector3 => at(`${side}Hand`),
       );
     };
 

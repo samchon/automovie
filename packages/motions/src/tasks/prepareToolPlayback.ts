@@ -13,12 +13,8 @@ import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { HumanPreparedPlayback } from "../perform/HumanPreparedPlayback";
 import { prepareHumanPostureRigCheck } from "../posture/prepareHumanPostureRigCheck";
 
-/**
- * Bind an uncarried tool's exact wrist trajectory to its fixed trunk. The
- * approach and return meet the same wrist target. Work in between uses the
- * actual swivel sweep on the same prepared trunk.
- */
-export function prepareToolPlayback(props: {
+/** The record of `IPrepareToolPlaybackProps`'s site. */
+type IPrepareToolPlaybackProps = {
   plan: IAutoMovieMotionHumanActionPlan;
   body: IAutoMovieMotionHumanBody;
   side: AutoMovieHumanSide;
@@ -36,7 +32,14 @@ export function prepareToolPlayback(props: {
   finish: (
     posture: IAutoMovieMotionHumanPosture,
   ) => IAutoMovieMotionHumanPosture;
-}): void {
+};
+
+/**
+ * Bind an uncarried tool's exact wrist trajectory to its fixed trunk. The
+ * approach and return meet the same wrist target. Work in between uses the
+ * actual swivel sweep on the same prepared trunk.
+ */
+export function prepareToolPlayback(props: IPrepareToolPlaybackProps): void {
   const { plan, body, side, entry, ready, recover, target, compose, finish } =
     props;
   if (!createHumanBody.owns(body)) return;

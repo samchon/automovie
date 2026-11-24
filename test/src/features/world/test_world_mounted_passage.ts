@@ -39,7 +39,10 @@ const DAIS_MARGIN: number = 0.75;
 /** Authored scene margin the marshal keeps from a horse, metres. */
 const MARSHAL_MARGIN: number = 1.5;
 
-/** Half of Fruin's 0.61 m body-ellipse breadth (Fruin 1971, Pedestrian Planning and Design): a disc of this radius holds a standing walker. */
+/**
+ * Half of Fruin's 0.61 m body-ellipse breadth (Fruin 1971, Pedestrian Planning
+ * and Design): a disc of this radius holds a standing walker.
+ */
 const MARSHAL_RADIUS: number = 0.305;
 
 /** The horses' names in entrance order: the lead's, then the follower's. */
@@ -71,7 +74,8 @@ const DAIS: AutoMovieArchetypePassage.IObstacle = {
 /**
  * How a variant stages the passage.
  *
- * The lead pair takes the lanes at negative x, the following pair the mirror lanes.
+ * The lead pair takes the lanes at negative x, the following pair the mirror
+ * lanes.
  */
 interface IStaging {
   /** Half the centre spacing of the paired passage, metres. */
@@ -115,18 +119,29 @@ interface IStage {
 }
 
 /**
- * Stage two mounted pairs through a ceremonial passage and admit its clearances.
+ * Stage two mounted pairs through a ceremonial passage and admit its
+ * clearances.
  *
- * Two pairs of different sizes, a horse and a Connemara pony, enter in single file from a formation's path, turn into a paired passage, halt for an exhibition beat, separate around a dais, re-form in single file from a second formation's path and exit. A marshal crosses on foot after they pass. Each rider's stage cue is addressed by its formation slot.
+ * Two pairs of different sizes, a horse and a Connemara pony, enter in single
+ * file from a formation's path, turn into a paired passage, halt for an
+ * exhibition beat, separate around a dais, re-form in single file from a second
+ * formation's path and exit. A marshal crosses on foot after they pass. Each
+ * rider's stage cue is addressed by its formation slot.
  *
  * Scenarios:
  *
- * 1. Each seed rebuilds the same horse and footprint, another seed varies it, and the footprint holds the saddle, stirrups and lead rope.
- * 2. The nearest-slot assignment at the entrance and the order of march at the re-form keep each pair's slot.
- * 3. A synchronized halt, a staggered halt through the same marks and a following pair held on its mark keep every authored margin.
- * 4. Each addressed cue reaches its rider at the authored second, with the pair's horse on its mark and halted only once it has arrived.
+ * 1. Each seed rebuilds the same horse and footprint, another seed varies it, and
+ *    the footprint holds the saddle, stirrups and lead rope.
+ * 2. The nearest-slot assignment at the entrance and the order of march at the
+ *    re-form keep each pair's slot.
+ * 3. A synchronized halt, a staggered halt through the same marks and a following
+ *    pair held on its mark keep every authored margin.
+ * 4. Each addressed cue reaches its rider at the authored second, with the pair's
+ *    horse on its mark and halted only once it has arrived.
  * 5. During the halt the measured clearance is the gap between the two rest boxes.
- * 6. Lanes too close for the pair margin, and a separation too close to the dais, name the bodies and the interval, and the admission refuses on the later-listed route.
+ * 6. Lanes too close for the pair margin, and a separation too close to the dais,
+ *    name the bodies and the interval, and the admission refuses on the
+ *    later-listed route.
  * 7. Forward, reversed and repeated reads of the plans and the measurement agree.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Lists the staged passage, the variants and the seven scenarios with their expectations.
@@ -175,18 +190,15 @@ export function test_world_mounted_passage(): void {
       blocks: [{ layout: FILE, count: 2 }],
       frame: course([sample(23, 0, 35), sample(27, 0, 45)]),
     });
-  const entered: number[] = AutoMovieMotionHumanEnsemble.HumanFormation.assign(
+  const entered: number[] = AutoMovieMotionHumanEnsemble.HumanFormation.prepare(
     entry,
-    [point(0.2, 0.3), point(-0.1, -4.8)],
-    "nearest",
-    0,
-  );
-  const reformed: number[] = AutoMovieMotionHumanEnsemble.HumanFormation.assign(
-    reform,
-    [point(-4.5, 30), point(4.5, 30)],
-    "order",
-    23,
-  );
+  ).assign([point(0.2, 0.3), point(-0.1, -4.8)], "nearest", 0);
+  const reformed: number[] =
+    AutoMovieMotionHumanEnsemble.HumanFormation.prepare(reform).assign(
+      [point(-4.5, 30), point(4.5, 30)],
+      "order",
+      23,
+    );
   TestValidator.equals("the pairs enter as lead and follower", entered, [0, 1]);
   TestValidator.equals(
     "the pairs re-form in their entrance slots",
@@ -196,12 +208,13 @@ export function test_world_mounted_passage(): void {
   TestValidator.predicate(
     "entrance and re-form ranks stand five metres apart, the lead ahead",
     vclose(
-      AutoMovieMotionHumanEnsemble.HumanFormation.slot(entry, 1, 0).at,
+      AutoMovieMotionHumanEnsemble.HumanFormation.prepare(entry).slot(1, 0).at,
       point(0, -5),
       1e-12,
     ) &&
       vclose(
-        AutoMovieMotionHumanEnsemble.HumanFormation.slot(reform, 1, 23).at,
+        AutoMovieMotionHumanEnsemble.HumanFormation.prepare(reform).slot(1, 23)
+          .at,
         point(0, 30),
         1e-12,
       ),
@@ -468,7 +481,10 @@ function refused(
   );
 }
 
-/** One pair's route: the entrance formation's path, the authored passage marks, then the re-form formation's path unless held. */
+/**
+ * One pair's route: the entrance formation's path, the authored passage marks,
+ * then the re-form formation's path unless held.
+ */
 function pair(
   horse: string,
   footprint: AutoMovieArchetypePassage.IFootprint,
@@ -481,7 +497,12 @@ function pair(
   const lane: number = side * staging.lane;
   const split: number = side * staging.split;
   const entrance: AutoMovieArchetypeCourse.ISample[] =
-    AutoMovieMotionHumanEnsemble.HumanFormation.path(entry, slot, 0, 4, 2);
+    AutoMovieMotionHumanEnsemble.HumanFormation.prepare(entry).path(
+      slot,
+      0,
+      4,
+      2,
+    );
   const marks: AutoMovieArchetypeCourse.ISample[] =
     slot === 0
       ? [
@@ -505,7 +526,12 @@ function pair(
           sample(16, split, 23),
           sample(18, split, 27),
           sample(20, split, 30),
-          ...AutoMovieMotionHumanEnsemble.HumanFormation.path(reform, slot, 23, 27, 2),
+          ...AutoMovieMotionHumanEnsemble.HumanFormation.prepare(reform).path(
+            slot,
+            23,
+            27,
+            2,
+          ),
         ];
   const samples: AutoMovieArchetypeCourse.ISample[] = [
     ...entrance,
@@ -563,7 +589,10 @@ function passage(pairs: readonly IPair[]): AutoMovieArchetypePassage.IProps {
   };
 }
 
-/** Resolve each rider's stage cues, addressed by its slot among the riders cued at that stage. */
+/**
+ * Resolve each rider's stage cues, addressed by its slot among the riders cued
+ * at that stage.
+ */
 function cue(pairs: readonly IPair[]): IAutoMovieSchedule {
   const track: IAutoMovieScheduleCue[] = [];
   const parts: IAutoMovieComposition[] = [];

@@ -1,5 +1,6 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanBodyFitTypes,
@@ -17,6 +18,9 @@ import { prepareHumanPostureProjection } from "../posture/prepareHumanPosturePro
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { prepareSupportContactForm } from "./prepareSupportContactForm";
 import { supportContactOnFloor } from "./supportContactOnFloor";
+
+/** The alternatives of `IdPlaced`'s site. */
+type IdPlaced = number | string;
 
 /**
  * A support planner's contact (`support`) as the whole-body fit takes it and as
@@ -132,6 +136,8 @@ export namespace supportContact {
   ): boolean {
     return id(a) === id(b);
   }
+  /** The alternatives of `IdC`'s site. */
+  type IdC = IAutoMovieMotionHumanSupport.IContact | IPlaced;
 
   /**
    * A contact's identity: its part, how it touches, its target, its inset and
@@ -141,10 +147,8 @@ export namespace supportContact {
    * @param c The contact.
    * @returns The identity string.
    */
-  export function id(
-    c: IAutoMovieMotionHumanSupport.IContact | IPlaced,
-  ): string {
-    const placed: number | string = "placed" in c ? c.placed : "";
+  export function id(c: IdC): string {
+    const placed: IdPlaced = "placed" in c ? c.placed : "";
     return `${c.part}|${c.kind}|${JSON.stringify(c.target)}|${c.inset ?? 0}|${placed}`;
   }
 
@@ -360,7 +364,7 @@ export namespace supportContact {
     if (parts.length === 0) return [];
     const names: AutoMovieHumanoidBone[] = parts.map(
       (part: IAutoMovieMotionHumanSupport.Part): AutoMovieHumanoidBone => {
-        const side: "left" | "right" = part.startsWith("left")
+        const side: AutoMovieHumanSide = part.startsWith("left")
           ? "left"
           : "right";
         return part.endsWith("Foot")

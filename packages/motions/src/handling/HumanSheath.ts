@@ -36,9 +36,7 @@ type Point = IAutoMovieMotionHumanProp["points"][string];
  * guide, hand, guide and seat again.
  *
  * Stage practice draws and resheathes along the scabbard's line so the blade
- * never binds or cuts the throat (Autodesk parent-constraint workflow for the
- * custody handoff,
- * https://help.autodesk.com/cloudhelp/2022/ENU/Maya-CharacterAnimation/files/GUID-F6785389-FAC1-429F-8783-B06B0B8AF1A8.htm).
+ * never binds or cuts the throat.
  */
 export namespace HumanSheath {
   /** The derived seat socket's id on the carrier. */

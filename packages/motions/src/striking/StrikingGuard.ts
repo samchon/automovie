@@ -1,5 +1,6 @@
 import { Vector3, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieHumanoidSurfaces,
   IAutoMovieMotionHumanBody,
@@ -14,6 +15,12 @@ import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolutio
 import { StrikingBody } from "./StrikingBody";
 import { StrikingGuardBones } from "./StrikingGuardBones";
 import { StrikingStance } from "./StrikingStance";
+
+/** The alternatives of `StrikingGuardOut`'s site. */
+type StrikingGuardOut = "leftArm" | "rightArm";
+
+/** The alternatives of `StrikingGuardResult`'s site. */
+type StrikingGuardResult = "leftArm" | "rightArm";
 
 /**
  * Place the fighting guard's two glove goals on the current trunk: both at
@@ -37,12 +44,12 @@ export function StrikingGuard(
   body: IAutoMovieMotionHumanBody,
   posture: IAutoMovieMotionHumanPosture,
   stance: Pick<IAutoMovieMotionHumanStrikingStance.IStance, "lead">,
-  drop: Partial<Record<"left" | "right", number>>,
+  drop: Partial<Record<AutoMovieHumanSide, number>>,
   posed?: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
   resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
   style?: IAutoMovieMotionHumanGuard.Style,
   leadBlend: number = 0,
-): Pick<IAutoMovieMotionHumanPosture["limbs"], "leftArm" | "rightArm"> {
+): Pick<IAutoMovieMotionHumanPosture["limbs"], StrikingGuardResult> {
   const bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
     posed ??
     StrikingBody.trunk(body, posture, resolution, StrikingGuardBones(body));
@@ -58,10 +65,7 @@ export function StrikingGuard(
     ),
   );
   const up: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
-  const out: Pick<
-    IAutoMovieMotionHumanPosture["limbs"],
-    "leftArm" | "rightArm"
-  > = {};
+  const out: Pick<IAutoMovieMotionHumanPosture["limbs"], StrikingGuardOut> = {};
   for (const side of ["left", "right"] as const) {
     const lead: boolean = side === stance.lead;
     const jaw: ReturnType<typeof StrikingBody.region> = StrikingBody.region(

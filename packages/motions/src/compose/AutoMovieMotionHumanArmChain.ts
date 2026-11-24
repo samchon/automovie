@@ -14,6 +14,12 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { AutoMovieMotionHumanArmAngles } from "./AutoMovieMotionHumanArmAngles";
 import { AutoMovieMotionHumanArmCourse } from "./AutoMovieMotionHumanArmCourse";
 
+/** The alternatives of `ContinuedLimb`'s site. */
+type ContinuedLimb = "leftArm" | "rightArm";
+
+/** The alternatives of `ContinuedFitLimb`'s site. */
+type ContinuedFitLimb = "leftArm" | "rightArm";
+
 /**
  * A law's arm goals fitted along the action's course, each instant's fit
  * continuing the swivel and the branch the course chose before it.
@@ -89,7 +95,7 @@ export namespace AutoMovieMotionHumanArmChain {
         >
       > = { ...near };
       for (const side of sides) {
-        const limb: "leftArm" | "rightArm" = `${side}Arm`;
+        const limb: ContinuedFitLimb = `${side}Arm`;
         arms[side] = AutoMovieMotionHumanArmAngles.angles(solved.pose, side);
         if (at.limbs[limb] === undefined) continue;
         const seed: IAutoMovieMotionHumanResolveHumanPosture.ISeeded["seeds"][typeof limb] =
@@ -142,7 +148,7 @@ export namespace AutoMovieMotionHumanArmChain {
       const joints: IAutoMovieMotionHumanPosture["joints"] = { ...at.joints };
       const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...at.limbs };
       for (const side of sides) {
-        const limb: "leftArm" | "rightArm" = `${side}Arm`;
+        const limb: ContinuedLimb = `${side}Arm`;
         if (at.limbs[limb] === undefined) continue;
         const from: IAutoMovieMotionHumanArmAngles.IAngles | undefined =
           before.arms[side] ?? after.arms[side];

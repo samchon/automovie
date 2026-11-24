@@ -1,5 +1,6 @@
 import { Quaternion, Vector3, advanceAutoMovieGrid } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieBone,
   IAutoMovieMotionHumanAuditMotion,
@@ -273,7 +274,7 @@ export namespace AutoMovieMotionHumanAuditTangle {
   export function arm(
     body: IAutoMovieMotionHumanBody,
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
-    side: "left" | "right",
+    side: AutoMovieHumanSide,
     prepared?: readonly IAutoMovieMotionHumanColliders.IPlaced[],
     targets: NonNullable<Parameters<typeof M.beyond>[4]> = [],
     exceeded?: (degrees: number) => boolean,

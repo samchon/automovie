@@ -20,6 +20,9 @@ import { HumanFrame } from "../posture/HumanFrame";
 import { walkFoot } from "./walkFoot";
 import { walkPoleFrame } from "./walkPoleFrame";
 
+/** The alternatives of `PrepareContext`'s site. */
+type PrepareContext = "body" | "entry" | "prop" | "cut";
+
 /**
  * A long held prop carried along a walk or a run: a prop held in one hand or
  * two whose end lies farther from the carrying grip than the hand hangs above
@@ -94,10 +97,7 @@ export namespace walkPoleCarriage {
    *   reach the floor hanging.
    */
   export function prepare(
-    context: Pick<
-      IAutoMovieMotionHumanActionContext,
-      "body" | "entry" | "prop" | "cut"
-    >,
+    context: Pick<IAutoMovieMotionHumanActionContext, PrepareContext>,
     events: readonly IAutoMovieMotionEvent[],
     duration: number,
   ): IHold[] {

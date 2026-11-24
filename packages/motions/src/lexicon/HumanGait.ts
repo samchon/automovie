@@ -25,6 +25,42 @@ import { HUMAN_GAIT_SWAGGER } from "../next/presets/HUMAN_GAIT_SWAGGER";
 import { HUMAN_GAIT_TRUDGE } from "../next/presets/HUMAN_GAIT_TRUDGE";
 import { HUMAN_DRILL_CADENCES } from "./HUMAN_DRILL_CADENCES";
 
+/** The record of `IDRUNKItem`'s site. */
+type IDRUNKItem = {
+  froude: number;
+  unevenness: number;
+  every: number;
+  aside: number;
+};
+
+/** The record of `ILIMPItem`'s site. */
+type ILIMPItem = { froude: number; step: number; share: number };
+
+/** The alternatives of `MOODSEntryItem`'s site. */
+type MOODSEntryItem = "sad" | "proud";
+
+/** The record of `IDOUBLEItem`'s site. */
+type IDOUBLEItem = { cadence: number; step: number };
+
+/** The record of `IMarchDrill`'s site. */
+type IMarchDrill = { cadence: number; step: number };
+
+/** The record of `ISNEAKItem`'s site. */
+type ISNEAKItem = {
+  froude: number;
+  step: number;
+  drop: number;
+  arms: IAutoMovieMotionHumanWalkGait["arms"];
+};
+
+/** The record of `IMARCHItem`'s site. */
+type IMARCHItem = {
+  cadence: number;
+  step: number;
+  arms: IAutoMovieMotionHumanWalkGait["arms"];
+  unevenness: number;
+};
+
 /**
  * Named ways of going somewhere on foot; the composition gives the destination.
  * Register the ones a film uses.
@@ -114,12 +150,7 @@ export namespace HumanGait {
    * nearly straight is provisional, and so is the half of a walk's step-to-step
    * unevenness a drill keeps.
    */
-  export const MARCH: Readonly<{
-    cadence: number;
-    step: number;
-    arms: IAutoMovieMotionHumanWalkGait["arms"];
-    unevenness: number;
-  }> = {
+  export const MARCH: Readonly<IMARCHItem> = {
     cadence: 120,
     step: 0.762,
     arms: { shoulder: 17, elbow: 10, swing: 0 },
@@ -132,12 +163,7 @@ export namespace HumanGait {
    * rides below a walk's, hip heights; and the arm's small swing with the elbow
    * bent.
    */
-  export const SNEAK: Readonly<{
-    froude: number;
-    step: number;
-    drop: number;
-    arms: IAutoMovieMotionHumanWalkGait["arms"];
-  }> = {
+  export const SNEAK: Readonly<ISNEAKItem> = {
     froude: 0.04,
     step: 0.8,
     drop: 0.05,
@@ -154,9 +180,7 @@ export namespace HumanGait {
         const l: number = context.body.measure.hipHeight;
 
         // The cadence and the drill step: the regulation's time, or the beat track's period when the march keeps step to one.
-        const drill: { cadence: number; step: number } = regulated(
-          context.params,
-        );
+        const drill: IMarchDrill = regulated(context.params);
         const beats: number[] =
           context.params.cadence === undefined
             ? []
@@ -199,7 +223,7 @@ export namespace HumanGait {
    * current edition), which at that cadence is a jog's speed, so the body runs
    * it in the jog's gait.
    */
-  export const DOUBLE: Readonly<{ cadence: number; step: number }> = {
+  export const DOUBLE: Readonly<IDOUBLEItem> = {
     cadence: 180,
     step: 0.762,
   };
@@ -264,7 +288,7 @@ export namespace HumanGait {
    * tempo sets the speed, its step and swing factors the step and the arms, so
    * one table owns the moods for every act.
    */
-  export const MOODS: Readonly<Record<"sad" | "proud", number>> = {
+  export const MOODS: Readonly<Record<MOODSEntryItem, number>> = {
     sad: 8,
     proud: 0,
   };
@@ -294,8 +318,11 @@ export namespace HumanGait {
    * of the stride and a painful one less (Perry and Burnfield 2010); the size
    * of the asymmetry awaits a measured cohort.
    */
-  export const LIMP: Readonly<{ froude: number; step: number; share: number }> =
-    { froude: 0.12, step: 0.85, share: 0.15 };
+  export const LIMP: Readonly<ILIMPItem> = {
+    froude: 0.12,
+    step: 0.85,
+    share: 0.15,
+  };
 
   /**
    * A stiff-knee limp: the spared leg also swings straight, barely clearing the
@@ -345,12 +372,12 @@ export namespace HumanGait {
    * steps, turn their feet out and sway more (Gimunova et al. 2022, Sci Rep
    * 12); the step width and the foot rotation are not modelled here.
    */
-  export const DRUNK: Readonly<{
-    froude: number;
-    unevenness: number;
-    every: number;
-    aside: number;
-  }> = { froude: 0.12, unevenness: 3, every: 2, aside: 0.15 };
+  export const DRUNK: Readonly<IDRUNKItem> = {
+    froude: 0.12,
+    unevenness: 3,
+    every: 2,
+    aside: 0.15,
+  };
 
   /**
    * An intoxicated walk: slow, unsteady in time, wandering off its line and
@@ -468,6 +495,8 @@ function limping(
     limp: { side: params.side ?? "right", share: HumanGait.LIMP.share },
   };
 }
+/** The alternatives of `MoodName`'s site. */
+type MoodName = "sad" | "proud";
 
 /**
  * A mood's gait: the normal walk in the manner preset of the mood's name, a
@@ -475,7 +504,7 @@ function limping(
  * with the mood's lean.
  */
 function mood(
-  name: "sad" | "proud",
+  name: MoodName,
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanGait.IParams>,
 ): IAutoMovieMotionHumanWalkGait {
   const manner: IAutoMovieMotionManner.IModifiers = AutoMovieMotionManner.of(
@@ -496,15 +525,17 @@ function mood(
     lean: HumanGait.MOODS[name],
   };
 }
+/** The record of `IRegulatedResult`'s site. */
+type IRegulatedResult = {
+  cadence: number;
+  step: number;
+};
 
 /**
  * A march's cadence and step in metres: its regulation's time and pace, or TC
  * 3-21.5's quick time.
  */
-function regulated(params: IAutoMovieMotionHumanGait.IMarch): {
-  cadence: number;
-  step: number;
-} {
+function regulated(params: IAutoMovieMotionHumanGait.IMarch): IRegulatedResult {
   if (params.regulation === undefined)
     return { cadence: HumanGait.MARCH.cadence, step: HumanGait.MARCH.step };
   const row: IAutoMovieMotionHumanDrillRegulation =

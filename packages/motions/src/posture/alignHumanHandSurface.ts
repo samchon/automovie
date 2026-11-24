@@ -9,16 +9,33 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+/** The alternatives of `AlignHumanHandSurfaceWorld`'s site. */
+type AlignHumanHandSurfaceWorld = "normal" | "forward";
+
+/** The alternatives of `AlignHumanHandSurfaceRest`'s site. */
+type AlignHumanHandSurfaceRest = "normal" | "forward";
+
 /**
  * Align the surface's normal exactly and its forward across that normal.
  * World-frame admission precedes rest-frame admission, as in HumanHand.align.
  */
 export function alignHumanHandSurface(
-  rest: Pick<IAutoMovieMotionHumanHand.IFrame, "normal" | "forward">,
-  world: Pick<IAutoMovieMotionHumanHand.IFrame, "normal" | "forward">,
+  rest: Pick<IAutoMovieMotionHumanHand.IFrame, AlignHumanHandSurfaceRest>,
+  world: Pick<IAutoMovieMotionHumanHand.IFrame, AlignHumanHandSurfaceWorld>,
 ): IAutoMovieQuaternion {
   return composed(basis(world), Quaternion.inverse(basis(rest)));
 }
+/** The alternatives of `AlignHumanHandSurfacePrepareWorld`'s site. */
+type AlignHumanHandSurfacePrepareWorld = "normal" | "forward";
+
+/** The alternatives of `AlignHumanHandSurfacePrepareFixed`'s site. */
+type AlignHumanHandSurfacePrepareFixed = "normal" | "forward";
+
+/** The alternatives of `AlignHumanHandSurfacePrepareWorldResult`'s site. */
+type AlignHumanHandSurfacePrepareWorldResult = "normal" | "forward";
+
+/** The alternatives of `AlignHumanHandSurfacePrepareRest`'s site. */
+type AlignHumanHandSurfacePrepareRest = "normal" | "forward";
 
 /** Fixed-rest alignment for repeated actual world direction pairs. */
 export namespace alignHumanHandSurface {
@@ -43,31 +60,44 @@ export namespace alignHumanHandSurface {
    * handle is retained.
    */
   export function prepare(
-    rest: Pick<IAutoMovieMotionHumanHand.IFrame, "normal" | "forward">,
+    rest: Pick<
+      IAutoMovieMotionHumanHand.IFrame,
+      AlignHumanHandSurfacePrepareRest
+    >,
   ): (
-    world: Pick<IAutoMovieMotionHumanHand.IFrame, "normal" | "forward">,
+    world: Pick<
+      IAutoMovieMotionHumanHand.IFrame,
+      AlignHumanHandSurfacePrepareWorldResult
+    >,
   ) => IAutoMovieQuaternion {
-    const fixed: Pick<IAutoMovieMotionHumanHand.IFrame, "normal" | "forward"> =
-      {
-        normal: { ...rest.normal },
-        forward: { ...rest.forward },
-      };
+    const fixed: Pick<
+      IAutoMovieMotionHumanHand.IFrame,
+      AlignHumanHandSurfacePrepareFixed
+    > = {
+      normal: { ...rest.normal },
+      forward: { ...rest.forward },
+    };
     let inverse: IAutoMovieQuaternion | undefined;
     return (
-      world: Pick<IAutoMovieMotionHumanHand.IFrame, "normal" | "forward">,
+      world: Pick<
+        IAutoMovieMotionHumanHand.IFrame,
+        AlignHumanHandSurfacePrepareWorld
+      >,
     ): IAutoMovieQuaternion => {
       const into: IAutoMovieQuaternion = basis(world);
       return composed(into, (inverse ??= Quaternion.inverse(basis(fixed))));
     };
   }
 }
+/** The alternatives of `BasisFrame`'s site. */
+type BasisFrame = "normal" | "forward";
 
 /**
  * Complete the original projected normal/forward basis, retaining its parallel
  * refusal.
  */
 function basis(
-  frame: Pick<IAutoMovieMotionHumanHand.IFrame, "normal" | "forward">,
+  frame: Pick<IAutoMovieMotionHumanHand.IFrame, BasisFrame>,
 ): IAutoMovieQuaternion {
   const n: IAutoMovieVector3 = Vector3.normalize(frame.normal);
   const across: IAutoMovieVector3 = Vector3.subtract(

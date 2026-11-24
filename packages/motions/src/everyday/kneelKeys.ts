@@ -1,5 +1,6 @@
 import { Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanFoot,
@@ -13,6 +14,9 @@ import { HumanFrame } from "../posture/HumanFrame";
 import { hipJoints } from "../posture/hipJoints";
 import { kneelPlace } from "./kneelPlace";
 import { kneelTrailingFoot } from "./kneelTrailingFoot";
+
+/** The alternatives of `SolveKind`'s site. */
+type SolveKind = "one" | "both" | "sitBack";
 
 /**
  * The key states of a kneel, solved from the body: standing, the kneeling leg
@@ -94,7 +98,7 @@ export namespace kneelKeys {
     root: IAutoMovieVector3;
 
     /** The feet. */
-    feet: Record<"left" | "right", IFoot>;
+    feet: Record<AutoMovieHumanSide, IFoot>;
   }
 
   /** The solved key states and the frame they were solved in. */
@@ -109,7 +113,7 @@ export namespace kneelKeys {
     forward: IAutoMovieVector3;
 
     /** The hip joints from the root. */
-    rest: Record<"left" | "right", IAutoMovieVector3>;
+    rest: Record<AutoMovieHumanSide, IAutoMovieVector3>;
 
     /**
      * The root's place about which it turns as the hips sit back: the first
@@ -138,7 +142,7 @@ export namespace kneelKeys {
    */
   export function tucked(
     body: IAutoMovieMotionHumanBody,
-    side: "left" | "right",
+    side: AutoMovieHumanSide,
     kneeAt: IAutoMovieVector3,
     yaw: number,
     floor: number,
@@ -281,8 +285,8 @@ export namespace kneelKeys {
    */
   export function lean(
     body: IAutoMovieMotionHumanBody,
-    hips: Record<"left" | "right", IAutoMovieVector3>,
-    ankles: Record<"left" | "right", IAutoMovieVector3>,
+    hips: Record<AutoMovieHumanSide, IAutoMovieVector3>,
+    ankles: Record<AutoMovieHumanSide, IAutoMovieVector3>,
     forward: IAutoMovieVector3,
   ): number {
     const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
@@ -329,19 +333,19 @@ export namespace kneelKeys {
   export function solve(
     body: IAutoMovieMotionHumanBody,
     standing: IAutoMovieMotionHumanPosture,
-    kind: "one" | "both" | "sitBack",
-    k: "left" | "right",
+    kind: SolveKind,
+    k: AutoMovieHumanSide,
     at?: IAutoMovieVector3,
   ): IKeys {
     const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
-    const f: "left" | "right" = k === "left" ? "right" : "left";
+    const f: AutoMovieHumanSide = k === "left" ? "right" : "left";
     const yaw: number = standing.yaw;
     const up: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
     const forward: IAutoMovieVector3 = HumanFrame.forward(yaw);
 
     // Standing feet as toes' joints on the floor with their headings.
     const flat = (
-      side: "left" | "right",
+      side: AutoMovieHumanSide,
     ): IAutoMovieMotionHumanFoot.IPlacement => {
       const goal: IAutoMovieHumanLimbGoal = standing.limbs[`${side}Leg`]!;
       return {
@@ -350,28 +354,28 @@ export namespace kneelKeys {
       };
     };
     const standingFeet: Record<
-      "left" | "right",
+      AutoMovieHumanSide,
       IAutoMovieMotionHumanFoot.IPlacement
     > = {
       left: flat("left"),
       right: flat("right"),
     };
-    const stood = (side: "left" | "right"): IFoot => ({
+    const stood = (side: AutoMovieHumanSide): IFoot => ({
       at: HumanFoot.point(body, side, "mtp", standingFeet[side]),
       heading: HumanFoot.heading(standingFeet[side].rotation),
       pitch: 0,
       toes: 0,
       planted: true,
     });
-    const foot0: Record<"left" | "right", IFoot> = {
+    const foot0: Record<AutoMovieHumanSide, IFoot> = {
       left: stood("left"),
       right: stood("right"),
     };
     const ankleOf: (
-      side: "left" | "right",
+      side: AutoMovieHumanSide,
       foot: IFoot,
     ) => IAutoMovieVector3 = (
-      side: "left" | "right",
+      side: AutoMovieHumanSide,
       foot: IFoot,
     ): IAutoMovieVector3 =>
       HumanFoot.pivot(body, side, "mtp", foot.at, foot.heading, foot.pitch)
@@ -386,16 +390,13 @@ export namespace kneelKeys {
     const behind: number = Math.sqrt(
       Math.max(0, m.thigh * m.thigh - above * above),
     );
-    const rest: Record<"left" | "right", IAutoMovieVector3> = hipJoints(
+    const rest: Record<AutoMovieHumanSide, IAutoMovieVector3> = hipJoints(
       body,
       { x: 0, y: 0, z: 0 },
       HumanFrame.turn(yaw),
     );
-    const standingHips: Record<"left" | "right", IAutoMovieVector3> = hipJoints(
-      body,
-      standing.root,
-      HumanFrame.turn(yaw),
-    );
+    const standingHips: Record<AutoMovieHumanSide, IAutoMovieVector3> =
+      hipJoints(body, standing.root, HumanFrame.turn(yaw));
     const hipK: IAutoMovieVector3 = kneelPlace({
       body,
       hip: standingHips[k],

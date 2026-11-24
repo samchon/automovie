@@ -10,6 +10,9 @@ import type {
 import type { HumanBodyFitRows } from "./HumanBodyFitRows";
 import { HumanJacobian } from "./HumanJacobian";
 
+/** The alternatives of `RowStep`'s site. */
+type RowStep = "at" | "motions" | "units" | "index" | "price";
+
 /**
  * The pairs of body segments a deep fold brings together in a whole-body fit
  * (`HumanBodyFit`), each kept apart by a gap row: an arm's upper arm and
@@ -154,10 +157,7 @@ export namespace HumanFitPairs {
    * @returns The row and the reading it linearises.
    */
   export function row(
-    step: Pick<
-      HumanBodyFitRows.IStep,
-      "at" | "motions" | "units" | "index" | "price"
-    >,
+    step: Pick<HumanBodyFitRows.IStep, RowStep>,
     pair: IPair,
     band: number,
     mm: number,

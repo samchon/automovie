@@ -1,5 +1,6 @@
 import { Vector3, minimumJerk } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanFoot,
@@ -9,8 +10,8 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanFootRelax } from "../compose/AutoMovieMotionHumanFootRelax";
+import { lowerHumanPosture } from "../posture/lowerHumanPosture";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { StrikingArrest } from "./StrikingArrest";
 import { StrikingStance } from "./StrikingStance";
 import { StrikingTarget } from "./StrikingTarget";
@@ -18,15 +19,32 @@ import { StrikingTwist } from "./StrikingTwist";
 import type { punchGeometry } from "./punchGeometry";
 import { strikingStepSupport } from "./strikingStepSupport";
 
+/** The alternatives of `CreateKindResult`'s site. */
+type CreateKindResult = "plant" | "pivot";
+
+/** The alternatives of `CreateRearKind`'s site. */
+type CreateRearKind = "plant" | "pivot";
+
+/** The alternatives of `CreateWindowKind`'s site. */
+type CreateWindowKind = "plant" | "pivot";
+
+/** The alternatives of `CreateWindowPart`'s site. */
+type CreateWindowPart = "leftFoot" | "rightFoot";
+
+/** The record of `ICreateArrestResult`'s site. */
+type ICreateArrestResult = { from: number; speed: number; rest: number };
+
+/** The record of `ICreateArrested`'s site. */
+type ICreateArrested = { from: number; speed: number; rest: number };
+
 /**
- * A punch's root, heading and feet: the lead foot steps in by the advance
- * with a small lift, the rear foot drags after it from mid-delivery to
- * mid-return (the IBA stepping jab: the rear foot follows at once), and a
- * rear-hand punch pivots the rear foot on its ball. A negative advance, a
- * target nearer than the arm's band, steps back the other way round: the
- * rear foot leaves first, by the delivery, and the lead foot follows over
- * the drag, so the foot that moves first is the one on the side it moves
- * toward.
+ * A punch's root, heading and feet: the lead foot steps in by the advance with
+ * a small lift, the rear foot drags after it from mid-delivery to mid-return
+ * (the IBA stepping jab: the rear foot follows at once), and a rear-hand punch
+ * pivots the rear foot on its ball. A negative advance, a target nearer than
+ * the arm's band, steps back the other way round: the rear foot leaves first,
+ * by the delivery, and the lead foot follows over the drag, so the foot that
+ * moves first is the one on the side it moves toward.
  *
  * The trunk's turn is shared by the pelvis (two fifths) and the lumbar and
  * thoracic spine (three tenths each), as the rotation of a punch runs up the
@@ -36,21 +54,32 @@ import { strikingStepSupport } from "./strikingStepSupport";
  * foot is twisted under a hip turning back over it.
  */
 export namespace punchFootwork {
-  /** Rear heel raise of a rear-hand punch's ball pivot at contact, degrees (provisional reading of the IBA cross drawing's released heel). */
+  /**
+   * Rear heel raise of a rear-hand punch's ball pivot at contact, degrees
+   * (provisional reading of the IBA cross drawing's released heel).
+   */
   export const HEEL_RAISE: number = 15;
 
-  /** The pelvis's share of the trunk's turn: two fifths, the heading turns by it. */
+  /**
+   * The pelvis's share of the trunk's turn: two fifths, the heading turns by
+   * it.
+   */
   export const PELVIS_SHARE: number = 0.4;
 
-  /** Each of the lumbar and the thoracic spine's share of the trunk's turn: three tenths. */
+  /**
+   * Each of the lumbar and the thoracic spine's share of the trunk's turn:
+   * three tenths.
+   */
   export const SPINE_SHARE: number = 0.3;
 
-  /** The least step along the line the feet take, metres: a launch plan's step no longer than this keeps both feet planted (provisional, a rounding-sized step). */
+  /**
+   * The least step along the line the feet take, metres: a launch plan's step
+   * no longer than this keeps both feet planted (provisional, a rounding-sized
+   * step).
+   */
   export const STEP: number = 0.02;
 
-  /**
-   * What the footwork is built from.
-   */
+  /** What the footwork is built from. */
   export interface IProps {
     /** The punch's context. */
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanPunch.IParams>;
@@ -64,10 +93,10 @@ export namespace punchFootwork {
     /**
      * The step along the line by a second since the start, metres: positive
      * steps in, the lead foot first and the rear foot dragging after it;
-     * negative steps back, the rear foot first and the lead foot after it.
-     * The launch plan's step at the start, carried by the tracker's
-     * corrections as they arrive; whether to step, and which way, is decided
-     * by the launch plan's.
+     * negative steps back, the rear foot first and the lead foot after it. The
+     * launch plan's step at the start, carried by the tracker's corrections as
+     * they arrive; whether to step, and which way, is decided by the launch
+     * plan's.
      */
     advance(seconds: number): number;
 
@@ -77,7 +106,10 @@ export namespace punchFootwork {
     /** How far the root lowers at contact, metres. */
     dip: number;
 
-    /** The committed stop's second, null when the arm met nothing, undefined when the punch offers no weapon. */
+    /**
+     * The committed stop's second, null when the arm met nothing, undefined
+     * when the punch offers no weapon.
+     */
     fixed: number | null | undefined;
 
     /** The share of the way out at seconds since the start. */
@@ -87,16 +119,15 @@ export namespace punchFootwork {
     back(seconds: number): number;
   }
 
-  /**
-   * A punch's built footwork.
-   */
+  /** A punch's built footwork. */
   export interface IFootwork {
     /**
      * The posture without the punching arm.
      *
      * @param seconds Seconds since the start, the feet's clock.
      * @param clock The trunk turn's clock; the feet's own when absent.
-     * @param resolution Optional exact FK supplier borrowed only during this synchronous base/lowering evaluation.
+     * @param resolution Optional exact FK supplier borrowed only during this
+     *   synchronous base/lowering evaluation.
      */
     base(
       seconds: number,
@@ -152,17 +183,19 @@ export namespace punchFootwork {
 
     const support: strikingStepSupport.ISupport | undefined =
       strikingStepSupport(context);
-    const feet: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement> =
-      { ...StrikingTarget.feet(context.entry), ...support?.landings };
-    const rear: "left" | "right" = StrikingStance.rear({ lead });
+    const feet: Record<
+      AutoMovieHumanSide,
+      IAutoMovieMotionHumanFoot.IPlacement
+    > = { ...StrikingTarget.feet(context.entry), ...support?.landings };
+    const rear: AutoMovieHumanSide = StrikingStance.rear({ lead });
     // A step in or, before a target too close, a step back along the line,
     // led by the foot on the side it moves toward.
     // Decided at the launch: a foot does not choose to step mid-delivery.
     const launched: number = advance(0);
     const stepping: boolean = Math.abs(launched) > STEP;
     const backing: boolean = stepping && launched < 0;
-    const first: "left" | "right" = backing ? rear : lead;
-    const next: "left" | "right" = first === lead ? rear : lead;
+    const first: AutoMovieHumanSide = backing ? rear : lead;
+    const next: AutoMovieHumanSide = first === lead ? rear : lead;
     // A punch can turn while a foot arrives, but a traveling punch must
     // finish the inherited transfer before lifting its old bearing shoe.
     const firstStart: number =
@@ -177,7 +210,7 @@ export namespace punchFootwork {
       firstStart === 0
         ? out(t)
         : minimumJerk.share((t - firstStart) / (shown - firstStart));
-    const landing = (side: "left" | "right"): number =>
+    const landing = (side: AutoMovieHumanSide): number =>
       support?.landings[side] === undefined
         ? 0
         : stepping && side === first
@@ -213,8 +246,8 @@ export namespace punchFootwork {
       const s: number = Math.max(0, fixed - t0);
       // Read once the stop is passed: the step by then is what the
       // corrections arrived before the stop made it.
-      let arrested: { from: number; speed: number; rest: number } | undefined;
-      const arrest = (): { from: number; speed: number; rest: number } => {
+      let arrested: ICreateArrested | undefined;
+      const arrest = (): ICreateArrestResult => {
         if (arrested === undefined) {
           const advanced: number = advance(s);
           const from: number = advanced * opens(s);
@@ -294,7 +327,7 @@ export namespace punchFootwork {
             )
           : slid;
       const placed: Record<
-        "left" | "right",
+        AutoMovieHumanSide,
         IAutoMovieMotionHumanFoot.IPlacement
       > =
         lead === "left"
@@ -308,7 +341,7 @@ export namespace punchFootwork {
         : t >= landing(next);
       const leadDown: boolean = backing ? nextDown : firstDown;
       const rearDown: boolean = backing ? firstDown : nextDown;
-      const down: Record<"left" | "right", boolean> =
+      const down: Record<AutoMovieHumanSide, boolean> =
         lead === "left"
           ? { left: leadDown, right: rearDown }
           : { left: rearDown, right: leadDown };
@@ -340,7 +373,7 @@ export namespace punchFootwork {
       // where the stance's flat foot, dragged or stepped, kept the loaded
       // stance's bend 12 degrees past it.
       const relaxed = (
-        side: "left" | "right",
+        side: AutoMovieHumanSide,
       ): IAutoMovieMotionHumanFoot.IPlacement =>
         down[side]
           ? placed[side]
@@ -350,7 +383,7 @@ export namespace punchFootwork {
               side,
               placed[side],
             );
-      return resolveHumanPosture.lower(
+      return lowerHumanPosture(
         body,
         {
           ...written,
@@ -360,7 +393,7 @@ export namespace punchFootwork {
             down,
           ),
         },
-        resolveHumanPosture.KNEE,
+        lowerHumanPosture.KNEE,
         resolution,
       );
     };
@@ -368,8 +401,8 @@ export namespace punchFootwork {
     // The feet's contact windows, as shares of the punch.
     const contacts: IAutoMovieMotionHumanContactWindow[] = [];
     const window = (
-      part: "leftFoot" | "rightFoot",
-      kind: "plant" | "pivot",
+      part: CreateWindowPart,
+      kind: CreateWindowKind,
       from: number,
       to: number,
     ): void => {
@@ -382,8 +415,8 @@ export namespace punchFootwork {
           support: { kind: "ground" },
         });
     };
-    const rearKind: "plant" | "pivot" = which === "rear" ? "pivot" : "plant";
-    const kind = (foot: "left" | "right"): "plant" | "pivot" =>
+    const rearKind: CreateRearKind = which === "rear" ? "pivot" : "plant";
+    const kind = (foot: AutoMovieHumanSide): CreateKindResult =>
       foot === rear ? rearKind : "plant";
     window(
       `${first}Foot`,

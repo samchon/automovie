@@ -5,6 +5,9 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+/** The alternatives of `PlaceHumanArmGeometryOwner`'s site. */
+type PlaceHumanArmGeometryOwner = "upper" | "lower" | "hand";
+
 /**
  * Attach the existing axis and optional collider probes to a completed arm
  * chain. The chain must be the actual FK of this setup and instant's frame.
@@ -52,7 +55,7 @@ export function placeHumanArmGeometry(
               s: IAutoMovieVector3,
               i: number,
             ): readonly [IAutoMovieVector3, number] => {
-              const owner: "upper" | "lower" | "hand" = at.owners[i]!;
+              const owner: PlaceHumanArmGeometryOwner = at.owners[i]!;
               const origin: IAutoMovieVector3 =
                 owner === "upper" ? pu : owner === "lower" ? pl : ph;
               const rotation: IAutoMovieQuaternion =

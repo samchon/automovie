@@ -1,6 +1,7 @@
 import { preparePoseResolution } from "@automovie/engine";
 import type {
   AutoMovieHumanLimb,
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanContactWindow,
@@ -12,7 +13,6 @@ import type {
 
 import { HumanLimbFit } from "../posture/HumanLimbFit";
 import { poseBones } from "../posture/poseBones";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { turnHumanPosture } from "../posture/turnHumanPosture";
 
 /**
@@ -74,7 +74,7 @@ export function overlayContactGoals(
       point: end.worldPosition,
       rotation: end.worldRotation,
       bend: placed!.get(chain.lower)!.worldPosition,
-      reference: resolveHumanPosture.reference(over, limb),
+      reference: HumanLimbFit.reference(over, limb),
       planted: true,
     };
   }
@@ -87,6 +87,6 @@ function limbOf(
 ): AutoMovieHumanLimb | undefined {
   if (part === "seat" || part === "back" || part === "head" || part === "chest")
     return undefined;
-  const side: "left" | "right" = part.startsWith("left") ? "left" : "right";
+  const side: AutoMovieHumanSide = part.startsWith("left") ? "left" : "right";
   return `${side}${/(Hand|Arm)$/.test(part) ? "Arm" : "Leg"}`;
 }

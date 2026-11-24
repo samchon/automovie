@@ -15,8 +15,8 @@ import { AutoMovieMotionHumanLean } from "../compose/AutoMovieMotionHumanLean";
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFrame } from "../posture/HumanFrame";
+import { humanPostureHeading } from "../posture/humanPostureHeading";
 import { poseBones } from "../posture/poseBones";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
 /**
  * A trunk leaned forward to bring work within the arms: a hip hinge, the whole
@@ -220,7 +220,7 @@ export namespace HumanTrunkLean {
     body: IAutoMovieMotionHumanBody,
     posture: IAutoMovieMotionHumanPosture,
   ): IAxis {
-    const heading: IAutoMovieQuaternion = resolveHumanPosture.heading(posture);
+    const heading: IAutoMovieQuaternion = humanPostureHeading(posture);
     const left: IAutoMovieVector3 = body.rest.get("leftUpperLeg")!;
     const right: IAutoMovieVector3 = body.rest.get("rightUpperLeg")!;
     return {
@@ -254,7 +254,7 @@ export namespace HumanTrunkLean {
     const level: IAutoMovieVector3 = Vector3.subtract(
       Vector3.add(
         posture.root,
-        Quaternion.rotateVector(resolveHumanPosture.heading(posture), hips),
+        Quaternion.rotateVector(humanPostureHeading(posture), hips),
       ),
       HumanFrame.point(
         { origin: { x: 0, y: 0, z: 0 }, yaw: posture.yaw },

@@ -7,6 +7,12 @@ import type {
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
 
+/** The alternatives of `GapRequest`'s site. */
+type GapRequest = IAutoMovieMotionHumanProxemics.Band | number;
+
+/** The alternatives of `ZONESEntryItem`'s site. */
+type ZONESEntryItem = "intimate" | "personal" | "social";
+
 /**
  * Interpersonal distance: the gaps people keep, by relationship and purpose, as
  * the chest-to-target gap an approach stops at.
@@ -42,7 +48,7 @@ import { HumanRefusal } from "../law/HumanRefusal";
 export namespace HumanProxemics {
   /** Hall's zones, metres. */
   export const ZONES: Readonly<
-    Record<"intimate" | "personal" | "social", readonly [number, number]>
+    Record<ZONESEntryItem, readonly [number, number]>
   > = {
     intimate: [0, 0.45],
     personal: [0.45, 1.2],
@@ -102,7 +108,7 @@ export namespace HumanProxemics {
    *   people's hands cannot meet ahead of their chests at the handover height.
    */
   export function gap(
-    request: IAutoMovieMotionHumanProxemics.Band | number,
+    request: GapRequest,
     self: IAutoMovieBodyMeasure,
     other: IAutoMovieBodyMeasure = self,
   ): number {

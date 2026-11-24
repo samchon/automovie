@@ -15,6 +15,9 @@ import { FamilyCaseKit } from "./FamilyCaseKit";
 import { TouchVerdicts } from "./TouchVerdicts";
 import { everydayVerdicts } from "./everydayVerdicts";
 
+/** The alternatives of `DanceCasesExtremesSign`'s site. */
+type DanceCasesExtremesSign = 1 | -1;
+
 /**
  * Capture cases of the solo dance steps, eight beats at 120 bpm from quiet
  * standing.
@@ -53,6 +56,8 @@ export function danceCases(
     ] as IAutoMovieMotionHumanDance.Kind[]) {
       const name: string = `dance-${kind}${suffix}`;
       let performance: IAutoMovieMotionHumanPerformance;
+
+      // Process boundary: a case that throws is reported as that case's refusal, and the remaining cases still run.
       try {
         performance = new HumanPerformance({
           seed: "dance",
@@ -86,7 +91,7 @@ export function danceCases(
       // The film seconds where a measure has a strict local extreme.
       const extremes = (
         measure: (t: number) => number,
-        sign: 1 | -1,
+        sign: DanceCasesExtremesSign,
       ): number[] => {
         const v: number[] = grid.map((t: number): number => sign * measure(t));
         const found: number[] = [];

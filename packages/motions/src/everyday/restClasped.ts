@@ -15,6 +15,18 @@ import { HumanHand } from "../posture/HumanHand";
 import { placeHumanHandSurface } from "../posture/placeHumanHandSurface";
 import { HumanTrunk } from "./HumanTrunk";
 
+/** The record of `IFrontGoalsPlace`'s site. */
+type IFrontGoalsPlace = { point: IAutoMovieVector3; normal: IAutoMovieVector3 };
+
+/** The record of `IFrontAtResult`'s site. */
+type IFrontAtResult = { point: IAutoMovieVector3; normal: IAutoMovieVector3 };
+
+/** The record of `IFrontAt`'s site. */
+type IFrontAt = {
+  point: IAutoMovieVector3;
+  normal: IAutoMovieVector3;
+};
+
 /**
  * The rest goals of two hands laid one on the other against the trunk: in front
  * of the pelvis or behind it.
@@ -99,10 +111,7 @@ export namespace restClasped {
       elbows.right,
       "relaxed",
     );
-    const at: (y: number) => {
-      point: IAutoMovieVector3;
-      normal: IAutoMovieVector3;
-    } = (y: number): { point: IAutoMovieVector3; normal: IAutoMovieVector3 } =>
+    const at: (y: number) => IFrontAt = (y: number): IFrontAtResult =>
       trunk.surface(
         {
           ...ray,
@@ -115,8 +124,7 @@ export namespace restClasped {
     ) => Record<AutoMovieHumanSide, IAutoMovieMotionHumanRest.IGoal> = (
       y: number,
     ): Record<AutoMovieHumanSide, IAutoMovieMotionHumanRest.IGoal> => {
-      const place: { point: IAutoMovieVector3; normal: IAutoMovieVector3 } =
-        at(y);
+      const place: IFrontGoalsPlace = at(y);
       const left: IAutoMovieMotionHumanRest.IGoal = layLeft(
         place.point,
         place.normal,
@@ -278,13 +286,18 @@ const FRAMES: ReadonlySet<AutoMovieHumanoidBone> =
     "leftUpperArm",
     "rightUpperArm",
   ]);
+/** The alternatives of `SegmentTo`'s site. */
+type SegmentTo = "LowerArm" | "Hand";
+
+/** The alternatives of `SegmentFrom`'s site. */
+type SegmentFrom = "UpperArm" | "LowerArm";
 
 /** A rest length between two joints of an arm, metres. */
 function segment(
   body: IAutoMovieMotionHumanBody,
   side: AutoMovieHumanSide,
-  from: "UpperArm" | "LowerArm",
-  to: "LowerArm" | "Hand",
+  from: SegmentFrom,
+  to: SegmentTo,
 ): number {
   return Vector3.distance(
     body.rest.get(`${side}${to}`)!,
@@ -335,6 +348,13 @@ function forearm(
     Vector3.subtract(Vector3.addScaled(shoulder, axis, reach), elbow),
   );
 }
+/** The record of `IPrepareLaidFixed`'s site. */
+type IPrepareLaidFixed = {
+  upper: number;
+  lower: number;
+  local: IAutoMovieMotionHumanHand.IFrame;
+  align: ReturnType<typeof HumanHand.prepareAlignment>;
+};
 
 /**
  * A hand surface laid on a surface point in a shape: its normal turned into the
@@ -352,14 +372,7 @@ function prepareLaid(
   elbow: IAutoMovieVector3,
   shape: IAutoMovieMotionHumanHand.Shape,
 ): Lay {
-  let fixed:
-    | {
-        upper: number;
-        lower: number;
-        local: IAutoMovieMotionHumanHand.IFrame;
-        align: ReturnType<typeof HumanHand.prepareAlignment>;
-      }
-    | undefined;
+  let fixed: IPrepareLaidFixed | undefined;
   return (
     point: IAutoMovieVector3,
     normal: IAutoMovieVector3,

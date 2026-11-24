@@ -1,9 +1,19 @@
 import type {
+  AutoMovieHumanSide,
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanBody,
 } from "@automovie/interface";
 
 import { HumanArmSwing } from "../posture/HumanArmSwing";
+
+/** The record of `IOfBoundsE2`'s site. */
+type IOfBoundsE2 = { seconds: number };
+
+/** The record of `IOfBoundsE`'s site. */
+type IOfBoundsE = { name: string };
+
+/** The record of `IOfEventsItem`'s site. */
+type IOfEventsItem = { name: string; seconds: number };
 
 /**
  * The arm carriage of a stepping take (`HumanArmSwing.carriage`), read over
@@ -29,21 +39,19 @@ export namespace walkCarriage {
    */
   export function of(
     body: IAutoMovieMotionHumanBody,
-    events: readonly { name: string; seconds: number }[],
+    events: readonly IOfEventsItem[],
     duration: number,
     posture: IAutoMovieMotionHumanActionPlan["posture"],
     resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
     projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3],
-  ): Record<"left" | "right", number> {
+  ): Record<AutoMovieHumanSide, number> {
     // The spans: the start to the first left heel strike, each stride, and
     // the last strike to the end.
     const bounds: number[] = [
       0,
       ...events
-        .filter((e: { name: string }): boolean =>
-          /^leftHeelStrike/.test(e.name),
-        )
-        .map((e: { seconds: number }): number => e.seconds)
+        .filter((e: IOfBoundsE): boolean => /^leftHeelStrike/.test(e.name))
+        .map((e: IOfBoundsE2): number => e.seconds)
         .filter((s: number): boolean => s > 0 && s < duration),
       duration,
     ];

@@ -56,4 +56,4 @@ The decision is made once and built geometry is dropped on settle when the strik
 
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
-Holds one built geometry cleared by settle and one lazy fixed-entry waiting reader. Plan release drops fixed metadata, and current maps, pose fits and borrowed query sources end with each synchronous return or failure.
+Holds one built geometry cleared by settle and one fixed-entry waiting reader prepared with the plan. Plan release drops fixed metadata, and current maps, pose fits and borrowed query sources end with each synchronous return or failure.

@@ -75,6 +75,8 @@ export namespace IAutoMovieMotionHumanArmTarget {
    *   target invocation.
    * @param projection Optional genuine same-body ROM projector borrowed only
    *   during this invocation.
+   * @param evaluation The explicit context of the evaluation the target is read
+   *   in, the arm primitive's own; never retained.
    * @returns The target.
    */
   export type Frame = (
@@ -82,6 +84,7 @@ export namespace IAutoMovieMotionHumanArmTarget {
     seconds: number,
     resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
     projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3],
+    evaluation?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[4],
   ) => IAutoMovieMotionHumanArmTarget.ITarget;
 
   /**

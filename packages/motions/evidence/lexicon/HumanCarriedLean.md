@@ -82,7 +82,7 @@ Constant work with no algorithm to choose.
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 
-Reuses `resolveHumanPosture.heading`; the layer and the coupled bearing tip through it.
+Reuses `humanPostureHeading`; the layer and the coupled bearing tip through it.
 
 ## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
 

@@ -44,13 +44,15 @@ import { hangMountedLeg } from "./hangMountedLeg";
 
 /** The law's context. */
 type Context = IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanBoard>;
+/** The alternatives of `BOUNDSEntryItem`'s site. */
+type BOUNDSEntryItem = "speed" | "reach" | "rise" | "drop";
 
 /**
  * Bounds of an admitted boarding, in the seat's moving frame (provisional): the
  * most the performer moves relative to the seat at the take-off, metres per
  * second; the farthest level way; the most it rises and drops.
  */
-const BOUNDS: Readonly<Record<"speed" | "reach" | "rise" | "drop", number>> = {
+const BOUNDS: Readonly<Record<BOUNDSEntryItem, number>> = {
   speed: 1.5,
   reach: 2.5,
   rise: 1.5,
@@ -73,6 +75,21 @@ const GRASP: number = 0.15;
 const LET_GO: number = 1;
 
 /**
+ * Admit the boarding, solve the seated key in the seat's frame, then sample.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States the steps and the refusals: bad time or height, a take-off moving too fast against the seat, and a way too long, too high or too deep.
+ * @evidence contracts/development/implementation.md#principled-implementation The relative take-off velocity is the central difference of the performer's own root against the seat's; the seated key is `seated.point` and `seated.root` on the seat with the upright back's angles.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Admission, the key, the bounds, then the sampler.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A boarding outside the bounds is refused, never shortened.
+ * @evidence contracts/development/implementation.md#efficient-algorithms One key per plan; a sample reads one seat frame and at most one held point.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work The key is shared by every sample.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains the key and the carrier reader.
+ */
+function planHumanBoard(context: Context): IAutoMovieMotionHumanActionPlan {
+  return plan(context);
+}
+
+/**
  * Board a moving carrier's seat (`IAutoMovieMotionHumanBoard`): in the seat
  * contact's moving frame the root travels from where it takes off to its seated
  * place on the seat by a minimum-jerk share, so it leaves and lands with the
@@ -84,31 +101,12 @@ const LET_GO: number = 1;
  * the partner's waist on its own side before the first lets go, as its arm
  * would come through the partner's trunk, so a hand holds the partner
  * throughout (`HumanBoardHandover`). Register `HumanBoard` to use it.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the path, its velocities at both ends, the shape and the hold.
- * @evidence contracts/development/design.md#principled-representation One law; the flight as a share in the seat's moving frame.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The law's name, cut table and planner.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The seat and the held contact are the carrier's own moving ones; a partner's bone is the partner's displayed one.
  */
 export const HumanBoard: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanBoard> =
   {
     name: "board",
     interrupts: {},
-    /**
-     * Admit the boarding, solve the seated key in the seat's frame, then
-     * sample.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States the steps and the refusals: bad time or height, a take-off moving too fast against the seat, and a way too long, too high or too deep.
-     * @evidence contracts/development/implementation.md#principled-implementation The relative take-off velocity is the central difference of the performer's own root against the seat's; the seated key is `seated.point` and `seated.root` on the seat with the upright back's angles.
-     * @evidence contracts/development/implementation.md#clear-and-simple-structure Admission, the key, the bounds, then the sampler.
-     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A boarding outside the bounds is refused, never shortened.
-     * @evidence contracts/development/implementation.md#efficient-algorithms One key per plan; a sample reads one seat frame and at most one held point.
-     * @evidence contracts/development/implementation.md#reuse-equivalent-work The key is shared by every sample.
-     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains the key and the carrier reader.
-     */
-    plan(context: Context): IAutoMovieMotionHumanActionPlan {
-      return plan(context);
-    },
+    plan: planHumanBoard,
   };
 
 /** Admit, solve the key and sample. */

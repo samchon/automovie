@@ -47,11 +47,6 @@ const COINCIDENCE: number = 1e-6;
  * depicts contacts on rigid bars for a staged shot. The author places and
  * supports the guitar and sets the three contact times. Both hands must be free
  * and within reach of the guitar.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the sources, the authoring requirements and how both targets and the sweep are located.
- * @evidence contracts/development/design.md#principled-representation One stationary base and two fingertip trajectories from one instrument and one authored clock.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The standalone law registers through the existing action registry.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The named fret and string must intersect within their finite runs. The soundboard and string select the other contact.
  */
 export const guitarNote: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanGuitarNote> =
   {
@@ -73,6 +68,8 @@ export const guitarNote: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanGui
  * @evidence contracts/development/implementation.md#efficient-algorithms Scans the instrument and rig once during planning, and evaluates two hands per requested posture.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Geometry and entry bones are read once per plan.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains its base and the geometry for these hands only.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States the sources, the authoring requirements and how both targets and the sweep are located.
  */
 function plan(context: Context): IAutoMovieMotionHumanActionPlan {
   const {

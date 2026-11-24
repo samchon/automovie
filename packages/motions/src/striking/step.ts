@@ -1,5 +1,6 @@
 import { AutoMovieGravity, Vector3, minimumJerk } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieMotionHumanActionName,
   IAutoMovieMotionEvent,
   IAutoMovieMotionHumanActionContext,
@@ -13,12 +14,20 @@ import type {
 } from "@automovie/interface";
 
 import { HumanBound } from "../law/HumanBound";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { lowerHumanPosture } from "../posture/lowerHumanPosture";
 import { StrikingGuard } from "./StrikingGuard";
 import { StrikingStance } from "./StrikingStance";
 import { StrikingStepTransition } from "./StrikingStepTransition";
 import { StrikingTarget } from "./StrikingTarget";
 import { strikingStepSupport } from "./strikingStepSupport";
+
+/** The record of `IPlanProgressResult`'s site. */
+type IPlanProgressResult = {
+  travelled: number;
+  swinging: boolean;
+  share: number;
+  first: boolean;
+};
 
 /**
  * Fighting-stance footwork: steps that keep the stance, the foot on the side of
@@ -104,7 +113,7 @@ export namespace step {
     const count: number = p.steps ?? 1;
     HumanBound.whole("steps", count);
     const body = context.body;
-    const lead: "left" | "right" = StrikingTarget.lead(context.entry);
+    const lead: AutoMovieHumanSide = StrikingTarget.lead(context.entry);
     const turn: number = p.turn ?? 0;
     HumanBound.within("turn", turn, -90 * count, 90 * count, "deg");
     const transition: boolean =
@@ -138,7 +147,7 @@ export namespace step {
       ...entry.joints,
       ...StrikingStance.joints(entry.joints),
     };
-    const rear: "left" | "right" = StrikingStance.rear({ lead });
+    const rear: AutoMovieHumanSide = StrikingStance.rear({ lead });
 
     // The line frame: the stance's line is the heading turned back by the
     // stance turn; the direction is read in it.
@@ -156,7 +165,7 @@ export namespace step {
           : p.direction === "left"
             ? left
             : Vector3.scale(left, -1);
-    const first: "left" | "right" =
+    const first: AutoMovieHumanSide =
       p.direction === "forward"
         ? lead
         : p.direction === "back"
@@ -164,16 +173,18 @@ export namespace step {
           : p.direction === "left"
             ? "left"
             : "right";
-    const feet: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement> =
-      StrikingTarget.feet(context.entry);
+    const feet: Record<
+      AutoMovieHumanSide,
+      IAutoMovieMotionHumanFoot.IPlacement
+    > = StrikingTarget.feet(context.entry);
     const lift: number = 0.015 * body.measure.stature;
-    const windows: Record<"left" | "right", readonly [number, number]> =
+    const windows: Record<AutoMovieHumanSide, readonly [number, number]> =
       first === "left"
         ? { left: [0, 0.5], right: [0.45, 0.95] }
         : { left: [0.45, 0.95], right: [0, 0.5] };
     // Finish an inherited swing before the old bearing foot lifts. A cut in
     // the overlap of two swings continues that already unsupported interval.
-    const cutFirst: "left" | "right" =
+    const cutFirst: AutoMovieHumanSide =
       support?.bearing === undefined
         ? first
         : StrikingStance.rear({ lead: support.bearing });
@@ -190,14 +201,9 @@ export namespace step {
 
     // A foot's progress: whole steps done plus the current step's share.
     const progress = (
-      side: "left" | "right",
+      side: AutoMovieHumanSide,
       t: number,
-    ): {
-      travelled: number;
-      swinging: boolean;
-      share: number;
-      first: boolean;
-    } => {
+    ): IPlanProgressResult => {
       const k: number = Math.min(count - 1, Math.floor(t / stride));
       const local: number = (t - k * stride) / stride;
       const [a, b] = (k === 0 ? opening : windows)[side];
@@ -249,10 +255,10 @@ export namespace step {
       posture: (seconds: number): IAutoMovieMotionHumanPosture => {
         const t: number = Math.min(duration, Math.max(0, seconds));
         const placed = {} as Record<
-          "left" | "right",
+          AutoMovieHumanSide,
           IAutoMovieMotionHumanFoot.IPlacement
         >;
-        const down = {} as Record<"left" | "right", boolean>;
+        const down = {} as Record<AutoMovieHumanSide, boolean>;
         for (const side of ["left", "right"] as const) {
           const g = progress(side, t);
           const fromY: number = feet[side].ankle.y;
@@ -273,7 +279,7 @@ export namespace step {
         }
         const carried: number =
           count * length * minimumJerk.share(t / duration);
-        const posture: IAutoMovieMotionHumanPosture = resolveHumanPosture.lower(
+        const posture: IAutoMovieMotionHumanPosture = lowerHumanPosture(
           body,
           {
             root: Vector3.add(entry.root, Vector3.scale(unit, carried)),
@@ -283,7 +289,7 @@ export namespace step {
             joints: { ...joints },
             limbs: StrikingStance.legs(body, placed, down),
           },
-          resolveHumanPosture.KNEE,
+          lowerHumanPosture.KNEE,
         );
         return {
           ...posture,

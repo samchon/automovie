@@ -16,7 +16,7 @@ import type {
 } from "@automovie/interface";
 
 import { HumanRefusal } from "../law/HumanRefusal";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { HumanLimbFit } from "../posture/HumanLimbFit";
 import { HumanPerformanceGrips } from "./HumanPerformanceGrips";
 import { HumanPerformanceLayers } from "./HumanPerformanceLayers";
 import { HumanPerformanceRead } from "./HumanPerformanceRead";
@@ -248,7 +248,7 @@ function layer(
     const pose: IAutoMoviePose = HumanPerformanceRead.pose(self, wearer, from);
     references = limbs.map(
       (l: IBound): IAutoMovieHumanLimbReference =>
-        resolveHumanPosture.reference(pose, l.limb),
+        HumanLimbFit.reference(pose, l.limb),
     );
     const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
       HumanPerformanceRead.bones(

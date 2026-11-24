@@ -11,6 +11,18 @@ import type {
 import { HumanHand } from "../posture/HumanHand";
 import { poseBones } from "../posture/poseBones";
 
+/** The record of `IPrepareGestureTransportGoalsResult`'s site. */
+type IPrepareGestureTransportGoalsResult = {
+  side: AutoMovieHumanSide;
+  hand: IAutoMovieMotionHumanGestureStroke.IHand;
+};
+
+/** The record of `IPrepareGestureTransportGoalsItem`'s site. */
+type IPrepareGestureTransportGoalsItem = {
+  side: AutoMovieHumanSide;
+  hand: IAutoMovieMotionHumanGestureStroke.IHand;
+};
+
 /**
  * Measure the farthest entry-to-stroke hand transport while sharing only the
  * fixed action-entry pose's demanded FK. Named and varied stroke probes still
@@ -38,16 +50,11 @@ export function prepareGestureTransport(
       side: AutoMovieHumanSide,
     ) => IAutoMovieMotionHumanGestureStroke.IHand,
   ): number => {
-    const goals: {
-      side: AutoMovieHumanSide;
-      hand: IAutoMovieMotionHumanGestureStroke.IHand;
-    }[] = sides.map(
-      (
-        side: AutoMovieHumanSide,
-      ): {
-        side: AutoMovieHumanSide;
-        hand: IAutoMovieMotionHumanGestureStroke.IHand;
-      } => ({ side, hand: stroke(side) }),
+    const goals: IPrepareGestureTransportGoalsItem[] = sides.map(
+      (side: AutoMovieHumanSide): IPrepareGestureTransportGoalsResult => ({
+        side,
+        hand: stroke(side),
+      }),
     );
     if (goals.length === 0) return 0;
     let changed: boolean = reference === undefined;

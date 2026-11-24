@@ -1,5 +1,6 @@
 import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieMotionHumanActionName,
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionClock,
@@ -30,7 +31,8 @@ import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMo
 import { HumanBound } from "../law/HumanBound";
 import { HumanPhysics } from "../law/HumanPhysics";
 import { HumanRefusal } from "../law/HumanRefusal";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { humanPostureHeading } from "../posture/humanPostureHeading";
+import { lowerHumanPosture } from "../posture/lowerHumanPosture";
 import { bendFloorHand } from "./bendFloorHand";
 import { braceOnThigh } from "./braceOnThigh";
 import { kneelContacts } from "./kneelContacts";
@@ -40,6 +42,12 @@ import { prepareKneelBalance } from "./prepareKneelBalance";
 import { prepareKneelClock } from "./prepareKneelClock";
 import { prepareKneelFoot } from "./prepareKneelFoot";
 import { prepareKneelPhases } from "./prepareKneelPhases";
+
+/** The record of `IPlanDisplayResult`'s site. */
+type IPlanDisplayResult = { name: string; seconds: number };
+
+/** The alternatives of `PHASESEntryItem`'s site. */
+type PHASESEntryItem = "step" | "lower" | "second" | "sit";
 
 /**
  * Kneeling from standing: on one knee (half kneel), on both knees upright, or
@@ -138,9 +146,12 @@ export namespace kneel {
    * hip height (dynamic similarity); the phases themselves have no located
    * measurement.
    */
-  export const PHASES: Readonly<
-    Record<"step" | "lower" | "second" | "sit", number>
-  > = { step: 0.7, lower: 1.0, second: 0.9, sit: 0.8 };
+  export const PHASES: Readonly<Record<PHASESEntryItem, number>> = {
+    step: 0.7,
+    lower: 1.0,
+    second: 0.9,
+    sit: 0.8,
+  };
 
   /**
    * The swinging ankle's greatest rise over its straight path, as a share of
@@ -161,7 +172,7 @@ export namespace kneel {
     const body: IAutoMovieMotionHumanBody = context.body;
     const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
     const kind: IAutoMovieMotionHumanKneel.Kind = context.params.kind ?? "one";
-    const k: "left" | "right" = context.params.knee ?? "right";
+    const k: AutoMovieHumanSide = context.params.knee ?? "right";
     const hold: number = context.params.hold ?? 1.5;
     const rise: boolean = context.params.rise ?? true;
     HumanBound.least("hold", hold, 0, "s");
@@ -237,10 +248,12 @@ export namespace kneel {
     }
     const display: IAutoMovieMotionClock = AutoMovieMotionManner.time(
       AutoMovieMotionClock.sequence(
-        phases.map((p: IPhase): { name: string; seconds: number } => ({
-          name: p.name,
-          seconds: p.seconds,
-        })),
+        phases.map(
+          (p: IPhase): IPlanDisplayResult => ({
+            name: p.name,
+            seconds: p.seconds,
+          }),
+        ),
       ),
       modifiers,
       { holds: ["settled"] },
@@ -330,7 +343,7 @@ export namespace kneel {
     ): IAutoMovieMotionHumanPosture => {
       const { phase, index, u, linear }: ReturnType<typeof at> = at(seconds);
       const feet: Record<
-        "left" | "right",
+        AutoMovieHumanSide,
         ReturnType<
           ReturnType<typeof prepareKneelPhases>[number]["feet"]["left"]
         >
@@ -370,7 +383,7 @@ export namespace kneel {
           (solved.extension + (REACH - solved.extension) * step) * length;
         const high: number = Math.min(
           ...(["left", "right"] as const).map(
-            (side: "left" | "right"): number => {
+            (side: AutoMovieHumanSide): number => {
               const ankle: IAutoMovieVector3 = feet[side].placement.ankle;
               const hip: IAutoMovieVector3 = Vector3.add(
                 flat,
@@ -461,7 +474,7 @@ export namespace kneel {
           goal,
           feet[side].toes,
           weight,
-          Quaternion.rotateVector(resolveHumanPosture.heading(placed), {
+          Quaternion.rotateVector(humanPostureHeading(placed), {
             x: 0,
             y: 0,
             z: 1,
@@ -470,7 +483,7 @@ export namespace kneel {
         limbs[`${side}Leg`] = turned.goal;
         joints[`${side}Toes`] = [turned.toes, 0, 0];
       }
-      return resolveHumanPosture.lower(
+      return lowerHumanPosture(
         body,
         { ...placed, joints, limbs },
         undefined,
@@ -581,8 +594,8 @@ export namespace kneel {
     };
     const arms: IAutoMovieMotionHumanArmPlanned.ITogether =
       AutoMovieMotionHumanArm.together(context.handover, true, context.tempo);
-    const hand: (side: "left" | "right") => IAutoMovieMotionHumanPrimitive = (
-      side: "left" | "right",
+    const hand: (side: AutoMovieHumanSide) => IAutoMovieMotionHumanPrimitive = (
+      side: AutoMovieHumanSide,
     ): IAutoMovieMotionHumanPrimitive =>
       braceOnThigh(
         body,
@@ -599,8 +612,8 @@ export namespace kneel {
     // and the flat hand's thumb, which projects past the palm, is turned on
     // its metacarpal until it clears the palm's plane, as a palm laid on the
     // floor's is (`bendFloorHand`).
-    const open: (side: "left" | "right") => IAutoMovieMotionHumanPrimitive = (
-      side: "left" | "right",
+    const open: (side: AutoMovieHumanSide) => IAutoMovieMotionHumanPrimitive = (
+      side: AutoMovieHumanSide,
     ): IAutoMovieMotionHumanPrimitive =>
       bendFloorHand(body, context.entry.posture, side, duration, lowered);
 
@@ -631,7 +644,8 @@ export namespace kneel {
           open("right"),
         ],
       });
-    let held: IAutoMovieMotionHumanPosture | undefined;
+    // The settled kneel is prepared once and holds through the rest.
+    const held: IAutoMovieMotionHumanPosture = course.posture(settled);
     const posture: IAutoMovieMotionHumanActionPlan["posture"] = (
       seconds,
       channels,
@@ -639,7 +653,7 @@ export namespace kneel {
       projection,
     ) =>
       settled <= seconds && seconds <= release
-        ? (held ??= course.posture(settled))
+        ? held
         : course.posture(
             movingSecond(seconds),
             channels,

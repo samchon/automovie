@@ -9,12 +9,18 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { HumanLimbFit } from "../posture/HumanLimbFit";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanSegment } from "./HumanSegment";
 import { HumanSegmentPose } from "./HumanSegmentPose";
 import type { prepareHumanSegmentPose } from "./prepareHumanSegmentPose";
+
+/** The alternatives of `CarriesResult`'s site. */
+type CarriesResult = "leftArm" | "rightArm";
+
+/** The alternatives of `CarriesItemResult`'s site. */
+type CarriesItemResult = "leftArm" | "rightArm";
 
 /**
  * The carry of a prop an earlier action left held: the holding arm's place
@@ -94,7 +100,7 @@ export namespace HumanSegmentCarry {
     holds: readonly IAutoMovieMotionHumanSegment.IHeld[],
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
     prepared?: prepareHumanSegmentPose.IPrepared,
-  ): ["leftArm" | "rightArm", IAutoMovieHumanLimbGoal][] {
+  ): [CarriesItemResult, IAutoMovieHumanLimbGoal][] {
     if (holds.length === 0) return [];
     const read: ReturnType<typeof prepareHumanPoseResolution> | undefined =
       resolution === undefined
@@ -106,7 +112,7 @@ export namespace HumanSegmentCarry {
     return holds.map(
       (
         h: IAutoMovieMotionHumanSegment.IHeld,
-      ): ["leftArm" | "rightArm", IAutoMovieHumanLimbGoal] => {
+      ): [CarriesResult, IAutoMovieHumanLimbGoal] => {
         h.carry ??= capture(person, h, read, prepared);
         return [
           h.side === "left" ? "leftArm" : "rightArm",
@@ -178,7 +184,7 @@ export namespace HumanSegmentCarry {
         Quaternion.multiply(inverse, hand.worldRotation),
       ),
       elbow: local(map.get(`${held.side}LowerArm`)!.worldPosition),
-      reference: resolveHumanPosture.reference(
+      reference: HumanLimbFit.reference(
         pose,
         held.side === "left" ? "leftArm" : "rightArm",
       ),

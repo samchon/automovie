@@ -1,4 +1,5 @@
 import type {
+  AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPosture,
   IAutoMovieQuaternion,
@@ -7,6 +8,21 @@ import type {
 
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
+
+/** The record of `IFixedEntryItem`'s site. */
+type IFixedEntryItem = {
+  /** The fixed toe-out heading in degrees. */
+  yaw: number;
+
+  /** The heading quaternion prepared from the same yaw and toe-out. */
+  rotation: IAutoMovieQuaternion;
+
+  /** The unchanged body's local metatarsophalangeal offset, metres. */
+  contact: IAutoMovieVector3;
+
+  /** Original nested knee-frame transforms with only the root varying. */
+  knee: (root: IAutoMovieVector3) => IAutoMovieVector3;
+};
 
 /**
  * Write the standing law's planted leg goals, either directly for one query or
@@ -24,26 +40,9 @@ export function standingLegs(
   body: IAutoMovieMotionHumanBody,
   root: IAutoMovieVector3,
   yaw: number,
-  feet: Record<"left" | "right", IAutoMovieVector3>,
+  feet: Record<AutoMovieHumanSide, IAutoMovieVector3>,
   toeOut: number,
-  fixed?: Readonly<
-    Record<
-      "left" | "right",
-      {
-        /** The fixed toe-out heading in degrees. */
-        yaw: number;
-
-        /** The heading quaternion prepared from the same yaw and toe-out. */
-        rotation: IAutoMovieQuaternion;
-
-        /** The unchanged body's local metatarsophalangeal offset, metres. */
-        contact: IAutoMovieVector3;
-
-        /** Original nested knee-frame transforms with only the root varying. */
-        knee: (root: IAutoMovieVector3) => IAutoMovieVector3;
-      }
-    >
-  >,
+  fixed?: Readonly<Record<AutoMovieHumanSide, IFixedEntryItem>>,
 ): IAutoMovieMotionHumanPosture["limbs"] {
   const limbs: IAutoMovieMotionHumanPosture["limbs"] = {};
   for (const side of ["left", "right"] as const) {

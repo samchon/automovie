@@ -13,6 +13,7 @@ import {
   swingTwistRange,
 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieBone,
   IAutoMovieJointAxes,
@@ -29,6 +30,18 @@ import type { HumanArmGeometryTypes as T } from "./HumanArmGeometryTypes";
 import { placeHumanArmGeometry } from "./placeHumanArmGeometry";
 import { prepareHumanArmChain } from "./prepareHumanArmChain";
 import { resolveHumanArmChain } from "./resolveHumanArmChain";
+
+/** The record of `IArmRead`'s site. */
+type IArmRead = { flexion: number; abduction: number; twist: number };
+
+/** The record of `IEncodePlace`'s site. */
+type IEncodePlace = { x: number; y: number; twist: number };
+
+/** The alternatives of `PrepareHasKey2`'s site. */
+type PrepareHasKey2 = "flexion" | "abduction" | "twist";
+
+/** The alternatives of `PrepareHasKey`'s site. */
+type PrepareHasKey = "flexion" | "abduction" | "twist";
 
 /**
  * An arm's joint-space coordinates and what they place: the shoulder's
@@ -78,7 +91,7 @@ export namespace HumanArmGeometry {
    */
   export function prepare(
     body: IAutoMovieMotionHumanBody,
-    side: "left" | "right",
+    side: AutoMovieHumanSide,
   ): IAutoMovieMotionHumanArmGeometry.ISetup {
     const bones: IAutoMovieMotionHumanArmGeometry.ISetup["bones"] = {
       upper: `${side}UpperArm`,
@@ -99,10 +112,10 @@ export namespace HumanArmGeometry {
     );
     const has: (
       c: IAutoMovieJointConstraint | null,
-      key: "flexion" | "abduction" | "twist",
+      key: PrepareHasKey,
     ) => boolean = (
       c: IAutoMovieJointConstraint | null,
-      key: "flexion" | "abduction" | "twist",
+      key: PrepareHasKey2,
     ): boolean => c === null || c[key] !== null;
     const bases: Map<AutoMovieHumanoidBone, IAutoMovieJointAxes> = new Map();
     const upperBone: IAutoMovieBone = find(body, bones.upper);
@@ -230,12 +243,11 @@ export namespace HumanArmGeometry {
     setup: IAutoMovieMotionHumanArmGeometry.ISetup,
     arm: IAutoMovieMotionHumanArmClearance.IArm,
   ): number[] {
-    const place: { x: number; y: number; twist: number } =
-      swingTwistRange.chart(
-        rotation(setup, setup.bones.upper, arm.upper),
-        setup.constraint.upper,
-        setup.joint,
-      );
+    const place: IEncodePlace = swingTwistRange.chart(
+      rotation(setup, setup.bones.upper, arm.upper),
+      setup.constraint.upper,
+      setup.joint,
+    );
     // An arm already past a range enters as it is shown, clamped.
     return [
       place.x * SCALE,
@@ -292,20 +304,19 @@ export namespace HumanArmGeometry {
     c: readonly number[],
     turned: IAutoMovieQuaternion = shoulder(setup, c),
   ): IAutoMovieMotionHumanArmClearance.IArm {
-    const read: { flexion: number; abduction: number; twist: number } =
-      decomposeJointRotationOnBasis(
-        turned,
-        setup.basis(setup.bones.upper, "decomposeJointRotation axes"),
-        HUMANOID_REST_FRAME[setup.bones.upper],
-        {
-          bone: setup.bones.upper,
-          constraint:
-            setup.constraint.upper.swingTwist !== undefined &&
-            setup.constraint.upper.swingTwist !== null
-              ? setup.constraint.upper
-              : { ...setup.constraint.upper, swingTwist: null },
-        },
-      );
+    const read: IArmRead = decomposeJointRotationOnBasis(
+      turned,
+      setup.basis(setup.bones.upper, "decomposeJointRotation axes"),
+      HUMANOID_REST_FRAME[setup.bones.upper],
+      {
+        bone: setup.bones.upper,
+        constraint:
+          setup.constraint.upper.swingTwist !== undefined &&
+          setup.constraint.upper.swingTwist !== null
+            ? setup.constraint.upper
+            : { ...setup.constraint.upper, swingTwist: null },
+      },
+    );
     return {
       upper: [read.flexion, read.abduction, read.twist],
       lower: [c[3]!, c[4]!, c[5]!],

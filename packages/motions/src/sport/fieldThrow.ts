@@ -38,6 +38,7 @@ import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanHand } from "../posture/HumanHand";
+import { humanPostureHeading } from "../posture/humanPostureHeading";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { AthleticsRunUp } from "./AthleticsRunUp";
@@ -336,10 +337,7 @@ export namespace fieldThrow {
         ...turned,
         root: Vector3.subtract(
           hips,
-          Quaternion.rotateVector(
-            resolveHumanPosture.heading(turned),
-            hipsRest,
-          ),
+          Quaternion.rotateVector(humanPostureHeading(turned), hipsRest),
         ),
       };
     };

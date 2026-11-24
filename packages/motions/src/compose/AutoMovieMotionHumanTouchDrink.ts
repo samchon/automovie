@@ -21,6 +21,27 @@ import { AutoMovieMotionHumanTouchEffector } from "./AutoMovieMotionHumanTouchEf
 import { AutoMovieMotionHumanTouchLaid } from "./AutoMovieMotionHumanTouchLaid";
 import { AutoMovieMotionHumanTouchUpright } from "./AutoMovieMotionHumanTouchUpright";
 
+/** The alternatives of `TrialLaidAt`'s site. */
+type TrialLaidAt = "point" | "normal";
+
+/** The alternatives of `TrialAnatomyName2`'s site. */
+type TrialAnatomyName2 = "fingers" | "palm" | "thumb";
+
+/** The alternatives of `TrialAnatomyName`'s site. */
+type TrialAnatomyName = "fingers" | "palm" | "thumb";
+
+/** The alternatives of `TrialPlace`'s site. */
+type TrialPlace = "point" | "normal";
+
+/** The alternatives of `HeldPlace`'s site. */
+type HeldPlace = "point" | "normal";
+
+/** The alternatives of `AdmittedPlace`'s site. */
+type AdmittedPlace = "point" | "normal";
+
+/** The alternatives of `DrinkingPlace`'s site. */
+type DrinkingPlace = "point" | "normal";
+
 /**
  * How far a vessel is leaned toward the face at the lips, and turned there, so
  * the arm that brings it holds it as a person drinks: the least lean, in
@@ -83,7 +104,7 @@ export namespace AutoMovieMotionHumanTouchDrink {
     posture: IAutoMovieMotionHumanPosture,
     side: AutoMovieHumanSide,
     effector: IAutoMovieMotionHumanTouchEffector.IEffector,
-    place: Pick<IAutoMovieMotionHumanTarget.IPlace, "point" | "normal">,
+    place: Pick<IAutoMovieMotionHumanTarget.IPlace, DrinkingPlace>,
     hint: IAutoMovieVector3,
     after?: IAutoMovieMotionHumanTouchDrink.IAfter,
     pool: AutoMovieMotionHumanDrinkingPool.IPool = AutoMovieMotionHumanDrinkingPool.of(
@@ -164,7 +185,7 @@ export namespace AutoMovieMotionHumanTouchDrink {
     posture: IAutoMovieMotionHumanPosture,
     side: AutoMovieHumanSide,
     effector: IAutoMovieMotionHumanTouchEffector.IEffector,
-    place: Pick<IAutoMovieMotionHumanTarget.IPlace, "point" | "normal">,
+    place: Pick<IAutoMovieMotionHumanTarget.IPlace, AdmittedPlace>,
     hint: IAutoMovieVector3,
     lean: number,
     after?: IAutoMovieMotionHumanTouchDrink.IAfter,
@@ -211,7 +232,7 @@ export namespace AutoMovieMotionHumanTouchDrink {
     posture: IAutoMovieMotionHumanPosture,
     side: AutoMovieHumanSide,
     effector: IAutoMovieMotionHumanTouchEffector.IEffector,
-    place: Pick<IAutoMovieMotionHumanTarget.IPlace, "point" | "normal">,
+    place: Pick<IAutoMovieMotionHumanTarget.IPlace, HeldPlace>,
     hint: IAutoMovieVector3,
     rotation: IAutoMovieQuaternion,
     after?: IAutoMovieMotionHumanTouchDrink.IAfter,
@@ -330,7 +351,7 @@ export namespace AutoMovieMotionHumanTouchDrink {
     posture: IAutoMovieMotionHumanPosture,
     side: AutoMovieHumanSide,
     effector: IAutoMovieMotionHumanTouchEffector.IEffector,
-    place: Pick<IAutoMovieMotionHumanTarget.IPlace, "point" | "normal">,
+    place: Pick<IAutoMovieMotionHumanTarget.IPlace, TrialPlace>,
     hint: IAutoMovieVector3,
     lean: number,
     seen: (arm: IAutoMovieMotionHumanDrinkingArm.IArm, at: string) => void,
@@ -354,8 +375,8 @@ export namespace AutoMovieMotionHumanTouchDrink {
     ).forward;
 
     // The vessel's axis read on the hand's anatomical axes, for the refusal.
-    const anatomy: (name: "fingers" | "palm" | "thumb") => string = (
-      name: "fingers" | "palm" | "thumb",
+    const anatomy: (name: TrialAnatomyName) => string = (
+      name: TrialAnatomyName2,
     ): string =>
       Vector3.dot(
         axis,
@@ -373,7 +394,7 @@ export namespace AutoMovieMotionHumanTouchDrink {
     const laid = (
       facing: IAutoMovieVector3,
       on: IAutoMovieMotionHumanPosture,
-      at: Pick<IAutoMovieMotionHumanTarget.IPlace, "point" | "normal">,
+      at: Pick<IAutoMovieMotionHumanTarget.IPlace, TrialLaidAt>,
       bend: IAutoMovieVector3,
     ): IAutoMovieHumanLimbGoal =>
       AutoMovieMotionHumanTouchLaid.rest(

@@ -1,8 +1,11 @@
 import { Quaternion, Vector3, placeChainPlant } from "@automovie/engine";
 import type {
   AutoMovieHumanLimb,
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieHumanLimbGoal,
+  IAutoMovieHumanLimbReference,
+  IAutoMovieJointPose,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanColliders,
   IAutoMoviePlantChain,
@@ -26,6 +29,12 @@ import { prepareHumanLimbFit } from "./prepareHumanLimbFit";
 import { prepareHumanPoseResolution } from "./prepareHumanPoseResolution";
 import { solveHumanLimbFit } from "./solveHumanLimbFit";
 
+/** The alternatives of `SolvedFitterParent`'s site. */
+type SolvedFitterParent = "worldPosition" | "worldRotation";
+
+/** The alternatives of `DirectPolicy`'s site. */
+type DirectPolicy = "ordinary" | "continuous";
+
 /**
  * The fit of one limb onto its goal, which `resolveHumanPosture` runs for each
  * limb after the trunk: the goal carried into the world by the bone it is
@@ -47,7 +56,7 @@ export namespace HumanLimbFit {
    * @returns Its three bones.
    */
   export function chain(limb: AutoMovieHumanLimb): IChain {
-    const side: "left" | "right" = limb.startsWith("left") ? "left" : "right";
+    const side: AutoMovieHumanSide = limb.startsWith("left") ? "left" : "right";
     return limb.endsWith("Arm")
       ? {
           upper: `${side}UpperArm`,
@@ -59,6 +68,34 @@ export namespace HumanLimbFit {
           lower: `${side}LowerLeg`,
           effector: `${side}Foot`,
         };
+  }
+
+  /**
+   * A limb's reference solution read off a pose: the clinical angles of its
+   * upper and lower bones. A law solves the limb once at the instant its action
+   * is about (the grasp, the clasp, the placement) and hands the result to
+   * every goal of the stroke as `HumanPosture.IGoal.reference`.
+   *
+   * @param pose The pose the limb was solved in.
+   * @param limb The limb.
+   * @returns The reference.
+   */
+  export function reference(
+    pose: IAutoMoviePose,
+    limb: AutoMovieHumanLimb,
+  ): IAutoMovieHumanLimbReference {
+    const bones: IChain = chain(limb);
+    const read: (
+      bone: AutoMovieHumanoidBone,
+    ) => readonly [number, number, number] = (
+      bone: AutoMovieHumanoidBone,
+    ): readonly [number, number, number] => {
+      const joint: IAutoMovieJointPose | undefined = pose.joints.find(
+        (j: IAutoMovieJointPose): boolean => j.bone === bone,
+      );
+      return [joint?.flexion ?? 0, joint?.abduction ?? 0, joint?.twist ?? 0];
+    };
+    return { upper: read(bones.upper), lower: read(bones.lower) };
   }
 
   /**
@@ -164,8 +201,8 @@ export namespace HumanLimbFit {
    * the world by that bone as the pose being fitted places it, so whatever
    * moved the bone before the fit (a trunk joint, a layer, a transition offset)
    * moves the goal with it. An arm fitted after the other arm (one whose goal
-   * rides the other, `resolveHumanPosture.order`) keeps clear of it too; two
-   * arms with goals that ride neither are fitted as one coupled problem
+   * rides the other, `orderHumanLimbs`) keeps clear of it too; two arms with
+   * goals that ride neither are fitted as one coupled problem
    * (`HumanLimbPair`), each first on its own with the other only a coming wrist
    * (`rival`). An arm keeps clear of the other bodies its goal names
    * (`HumanPosture.IGoal.clear`) and of the ones it lays the hand on (`rests`).
@@ -201,7 +238,7 @@ export namespace HumanLimbFit {
     pose: IAutoMoviePose,
     limb: AutoMovieHumanLimb,
     attached: IAutoMovieHumanLimbGoal,
-    placed: readonly ("left" | "right")[],
+    placed: readonly AutoMovieHumanSide[],
     rival?: IAutoMovieVector3,
     near?: IAutoMovieSwivelNear,
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
@@ -266,11 +303,11 @@ export namespace HumanLimbFit {
     pose: IAutoMoviePose,
     limb: AutoMovieHumanLimb,
     attached: IAutoMovieHumanLimbGoal,
-    placed: readonly ("left" | "right")[],
+    placed: readonly AutoMovieHumanSide[],
     rival: IAutoMovieVector3 | undefined,
     near: IAutoMovieSwivelNear | undefined,
     resolution: Parameters<typeof prepareHumanPoseResolution>[0],
-    policy: "ordinary" | "continuous",
+    policy: DirectPolicy,
     admit?: () => void,
     incumbent?: IAutoMovieSwivelSeed,
   ): IAutoMovieSeededChainFit {
@@ -298,7 +335,7 @@ export namespace HumanLimbFit {
     pose: IAutoMoviePose,
     limb: AutoMovieHumanLimb,
     attached: IAutoMovieHumanLimbGoal,
-    placed: readonly ("left" | "right")[],
+    placed: readonly AutoMovieHumanSide[],
     rival: IAutoMovieVector3 | undefined,
     near: IAutoMovieSwivelNear | undefined,
     resolution: Parameters<typeof prepareHumanPoseResolution>[0],
@@ -308,7 +345,7 @@ export namespace HumanLimbFit {
   ): IAutoMovieSeededChainFit {
     const readResolution: ReturnType<typeof prepareHumanPoseResolution> =
       prepareHumanPoseResolution(resolution);
-    const side: "left" | "right" = limb.startsWith("left") ? "left" : "right";
+    const side: AutoMovieHumanSide = limb.startsWith("left") ? "left" : "right";
     let authoredBones:
       | ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>
       | undefined;
@@ -334,7 +371,7 @@ export namespace HumanLimbFit {
         const kept: IAutoMovieMotionHumanBody["reads"][AutoMovieHumanLimb][number] =
           body.reads[limb][
             arm &&
-            placed.some((other: "left" | "right"): boolean => other !== side)
+            placed.some((other: AutoMovieHumanSide): boolean => other !== side)
               ? 1
               : 0
           ];
@@ -346,7 +383,7 @@ export namespace HumanLimbFit {
             arm
               ? HumanArmObstacleBones(
                   placed.filter(
-                    (other: "left" | "right"): boolean => other !== side,
+                    (other: AutoMovieHumanSide): boolean => other !== side,
                   ),
                 )
               : [],
@@ -376,7 +413,7 @@ export namespace HumanLimbFit {
         ? HumanArmClearance.obstacles(
             body,
             readAuthored(),
-            placed.filter((arm: "left" | "right"): boolean => arm !== side),
+            placed.filter((arm: AutoMovieHumanSide): boolean => arm !== side),
           )
         : null;
     const clear: IObstruction | undefined =
@@ -409,7 +446,7 @@ export namespace HumanLimbFit {
         ? undefined
         : (): ReturnType<typeof placeChainPlant> | null => {
             const parent:
-              | Pick<IAutoMovieResolvedBone, "worldPosition" | "worldRotation">
+              | Pick<IAutoMovieResolvedBone, SolvedFitterParent>
               | undefined =
               constants.parent === null
                 ? {
@@ -462,7 +499,10 @@ export namespace HumanLimbFit {
     return refusal;
   }
 
-  /** The refusals `vanishedRefusal` made, told apart from every other one by identity. */
+  /**
+   * The refusals `vanishedRefusal` made, told apart from every other one by
+   * identity.
+   */
   const VANISHED: WeakSet<HumanRefusal> = new WeakSet();
 
   /**
@@ -470,10 +510,11 @@ export namespace HumanLimbFit {
    * where the continued arm's admitted arc vanished
    * (`IAutoMovieSwivelSeed.vanished`), so a law choosing among targets (a
    * grasp's turn, a site) keeps only those its arm reaches on one elbow path
-   * from the seed it continues. One continued fit, no search beyond the
-   * fit's own; every other refusal is thrown as `fit` throws it.
+   * from the seed it continues. One continued fit, no search beyond the fit's
+   * own; every other refusal is thrown as `fit` throws it.
    *
-   * @param args The arguments of `fit`; `near` is the seed continued, its `admitted` arc the one to keep.
+   * @param args The arguments of `fit`; `near` is the seed continued, its
+   *   `admitted` arc the one to keep.
    * @returns The fit, or null where its admitted arc vanished.
    */
   export function continues(

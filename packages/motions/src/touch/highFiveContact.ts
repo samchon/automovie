@@ -25,6 +25,9 @@ import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanColliders } from "../posture/HumanColliders";
 import { HumanSeatedReach } from "./HumanSeatedReach";
 
+/** The alternatives of `BlockingContext`'s site. */
+type BlockingContext = "performer" | "start";
+
 /**
  * The two opposed hand frames of a high five. Both hands approach one contact
  * plane defined by their approach. For a fixed hand attitude the wrist is a
@@ -211,7 +214,7 @@ export namespace highFiveContact {
    * the shared hand contact.
    */
   export function blocking(
-    context: Pick<IAutoMovieMotionHumanActionContext, "performer" | "start">,
+    context: Pick<IAutoMovieMotionHumanActionContext, BlockingContext>,
     partner: string,
     arm: AutoMovieHumanSide,
   ): IAutoMovieMotionHumanColliders.IPlaced[] {

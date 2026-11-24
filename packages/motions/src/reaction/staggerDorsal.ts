@@ -1,5 +1,6 @@
 import { Vector3, convexHull2D } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanWalkFoot,
   IAutoMovieVector3,
@@ -34,17 +35,17 @@ export function staggerDorsal(
   body: IAutoMovieMotionHumanBody,
   pressure: IAutoMovieVector3,
   feet: Readonly<
-    Record<"left" | "right", IAutoMovieMotionHumanWalkFoot.IScheduled>
+    Record<AutoMovieHumanSide, IAutoMovieMotionHumanWalkFoot.IScheduled>
   >,
-): Partial<Record<"left" | "right", number>> {
-  const planted: ("left" | "right")[] = (["left", "right"] as const).filter(
-    (side: "left" | "right"): boolean => feet[side].swing === undefined,
+): Partial<Record<AutoMovieHumanSide, number>> {
+  const planted: AutoMovieHumanSide[] = (["left", "right"] as const).filter(
+    (side: AutoMovieHumanSide): boolean => feet[side].swing === undefined,
   );
   if (planted.length === 1) return { [planted[0]!]: walkLeg.dorsal(1) };
   if (planted.length === 0) return {};
   const p: IAutoMovieVector3 = { x: pressure.x, y: 0, z: pressure.z };
-  const away: (side: "left" | "right") => number = (
-    side: "left" | "right",
+  const away: (side: AutoMovieHumanSide) => number = (
+    side: AutoMovieHumanSide,
   ): number => {
     const outline: IAutoMovieVector3[] = convexHull2D(
       HumanFoot.sole(body, side, feet[side].placement).map(

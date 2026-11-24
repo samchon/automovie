@@ -38,6 +38,14 @@ const DEPTH: number = 0.15;
  */
 const PULL: number = 0.25;
 const LIFT: number = 0.1;
+/** The alternatives of `SwingResult`'s site. */
+type SwingResult = "period" | "leadward" | "chest";
+
+/** The alternatives of `OfSwung`'s site. */
+type OfSwung = "period" | "leadward" | "chest";
+
+/** The alternatives of `OfBase`'s site. */
+type OfBase = "period" | "leadward" | "chest";
 
 /**
  * The path of a long tool through one stroke, as a function of the stroke's
@@ -162,7 +170,7 @@ export namespace LongToolStroke {
   /** Build a stroke. */
   export function of(props: IProps): IStroke {
     const period: number = PERIODS[props.stroke];
-    const base: Pick<IStroke, "period" | "leadward" | "chest"> = {
+    const base: Pick<IStroke, OfBase> = {
       period,
       leadward: props.leadward,
       chest: props.chest,
@@ -171,8 +179,7 @@ export namespace LongToolStroke {
       case "chop":
       case "swing":
       case "side": {
-        const swung: Omit<IStroke, "period" | "leadward" | "chest"> =
-          swing(props);
+        const swung: Omit<IStroke, OfSwung> = swing(props);
         return { ...base, ...swung };
       }
       case "dig": {
@@ -211,9 +218,7 @@ export namespace LongToolStroke {
    * A swung stroke: the line turned in one plane from the top to the contact
    * and back.
    */
-  function swing(
-    props: IProps,
-  ): Omit<IStroke, "period" | "leadward" | "chest"> {
+  function swing(props: IProps): Omit<IStroke, SwingResult> {
     const { at, length, forward: f, leadward: lw, hips, lead } = props;
     const side: boolean = props.stroke === "side";
     // The hands meet the work in front of the hips (a chop or a swing) or

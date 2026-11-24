@@ -1,5 +1,6 @@
 import { Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPosture,
@@ -72,7 +73,7 @@ export function crawlDownTiming(
 /** Preserve the original left-then-right limb reduction order. */
 const TRAVELLING: readonly AutoMovieHumanoidBone[] = (
   ["left", "right"] as const
-).flatMap((side: "left" | "right"): AutoMovieHumanoidBone[] => [
+).flatMap((side: AutoMovieHumanSide): AutoMovieHumanoidBone[] => [
   `${side}UpperLeg`,
   `${side}LowerLeg`,
   `${side}Foot`,

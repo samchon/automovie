@@ -8,6 +8,11 @@ import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolutio
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { AutoMovieMotionHumanArmObservation } from "./AutoMovieMotionHumanArmObservation";
 
+/** The record of `IAutoMovieMotionHumanArmAimedAt`'s site. */
+type IAutoMovieMotionHumanArmAimedAt = {
+  posture: IAutoMovieMotionHumanPosture;
+};
+
 /**
  * A planner's reader of its arms' goals (`AutoMovieMotionHumanArmPlanned`):
  * each arm's goal at an instant as the plan perceives it
@@ -24,7 +29,7 @@ import { AutoMovieMotionHumanArmObservation } from "./AutoMovieMotionHumanArmObs
  */
 export function AutoMovieMotionHumanArmAimed(
   carries: readonly IAutoMovieMotionHumanArmPlanned.IPlanned[],
-  at: (t: number) => { posture: IAutoMovieMotionHumanPosture },
+  at: (t: number) => IAutoMovieMotionHumanArmAimedAt,
   resolution: ReturnType<typeof prepareHumanPoseResolution>,
   projection: ReturnType<typeof prepareHumanPostureProjection>,
 ): (a: number, t: number) => IAutoMovieHumanLimbGoal {

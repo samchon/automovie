@@ -15,6 +15,7 @@ import type {
 } from "@automovie/interface";
 
 import { HumanRefusal } from "../law/HumanRefusal";
+import { humanPostureHeading } from "../posture/humanPostureHeading";
 import { mixHumanPosture } from "../posture/mixHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
@@ -133,7 +134,7 @@ export namespace wireFlightTouches {
       point: IAutoMovieVector3,
     ): IAutoMovieVector3 =>
       Quaternion.rotateVector(
-        Quaternion.inverse(resolveHumanPosture.heading(posture)),
+        Quaternion.inverse(humanPostureHeading(posture)),
         Vector3.subtract(point, posture.root),
       );
     const key = (
@@ -193,7 +194,7 @@ export namespace wireFlightTouches {
         ? found.in
         : found.out;
       const u: number = coming ? w : 1 - w;
-      const turn: IAutoMovieQuaternion = resolveHumanPosture.heading(posture);
+      const turn: IAutoMovieQuaternion = humanPostureHeading(posture);
       const world = (
         from: IAutoMovieVector3,
         to: IAutoMovieVector3,

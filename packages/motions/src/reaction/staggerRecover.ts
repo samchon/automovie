@@ -1,5 +1,6 @@
 import { Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanFoot,
   IAutoMovieVector3,
@@ -23,7 +24,7 @@ export namespace staggerRecover {
   /** One recovery step. */
   export interface IStep {
     /** The stepping foot. */
-    side: "left" | "right";
+    side: AutoMovieHumanSide;
 
     /** Where it stood before the step. */
     from: IAutoMovieMotionHumanFoot.IPlacement;
@@ -89,7 +90,7 @@ export namespace staggerRecover {
   /** The original prefix state snapshot/restore transfers between foot orders. */
   export interface IState {
     /** The feet. */
-    feet: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement>;
+    feet: Record<AutoMovieHumanSide, IAutoMovieMotionHumanFoot.IPlacement>;
 
     /** The spans. */
     phases: IPhase[];
@@ -191,31 +192,31 @@ export namespace staggerRecover {
     // the unloaded leg, which lifts much sooner but swings a longer and more
     // complex path (Maki, McIlroy and Perry 1996, J Biomech 29:343); the
     // loaded leg's side-step is the other order of as many steps.
-    const ankle: (side: "left" | "right") => number = (
-      side: "left" | "right",
+    const ankle: (side: AutoMovieHumanSide) => number = (
+      side: AutoMovieHumanSide,
     ): number =>
       (entered[side].ankle.x - root.x) * push.x +
       (entered[side].ankle.z - root.z) * push.z;
-    const along: "left" | "right" =
+    const along: AutoMovieHumanSide =
       ankle("left") > ankle("right") ? "left" : "right";
     const sideways: boolean =
       Math.abs(Vector3.dot(push, across)) >
       Math.abs(Vector3.dot(push, forward));
-    const first: "left" | "right" = sideways
+    const first: AutoMovieHumanSide = sideways
       ? along === "left"
         ? "right"
         : "left"
       : along;
-    const other: (side: "left" | "right") => "left" | "right" = (
-      side: "left" | "right",
-    ): "left" | "right" => (side === "left" ? "right" : "left");
-    const orders: ("left" | "right")[][] = [];
+    const other: (side: AutoMovieHumanSide) => AutoMovieHumanSide = (
+      side: AutoMovieHumanSide,
+    ): AutoMovieHumanSide => (side === "left" ? "right" : "left");
+    const orders: AutoMovieHumanSide[][] = [];
     for (let n: number = 1; n <= STEPS; n++)
       for (let code: number = 0; code < 1 << n; code++) {
         // Bit k set: step k repeats the foot before it rather than
         // alternating; step 0 set takes the other foot first.
-        const order: ("left" | "right")[] = [];
-        let foot: "left" | "right" = (code & 1) === 0 ? first : other(first);
+        const order: AutoMovieHumanSide[] = [];
+        let foot: AutoMovieHumanSide = (code & 1) === 0 ? first : other(first);
         for (let k: number = 0; k < n; k++) {
           if (k > 0 && (code & (1 << k)) === 0) foot = other(foot);
           order.push(foot);

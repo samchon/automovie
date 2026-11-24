@@ -50,6 +50,15 @@ import { HumanPropFlight } from "./HumanPropFlight";
 import { HumanSegment } from "./HumanSegment";
 import { HumanSegmentOverlay } from "./HumanSegmentOverlay";
 import { HumanSegmentShown } from "./HumanSegmentShown";
+import { readHumanSegmentLegs } from "./readHumanSegmentLegs";
+
+/** The alternatives of `PlaceDraftedResult`'s site. */
+type PlaceDraftedResult = "prop" | "point";
+
+/** The record of `IPlaceDraftedResult`'s site. */
+type IPlaceDraftedResult = {
+  support?: IAutoMovieMotionHumanContactWindow.Support;
+};
 
 /**
  * One intent placed in the performance: its law found, its entry state read,
@@ -209,8 +218,7 @@ export namespace HumanPerformancePlace {
     // made, so its reads share the placed people's displayed poses by second
     // (`HumanSegment.planning`): a pose its samples, anchors or a held prop's
     // hand read again is read once, as an animation graph evaluates a pose
-    // once per update and lets every reader share it (Unreal Engine
-    // `FAnimNode_SaveCachedPose`).
+    // once per update and lets every reader share it.
     // An overlay entering where the act before it in its chain ends reads
     // that act's end, which hands its channels on (`HumanSegmentOverlay.handing`).
     const read: () => ReturnType<typeof HumanSegment.entry> = (): ReturnType<
@@ -316,9 +324,7 @@ export namespace HumanPerformancePlace {
                 );
               },
               // The prop the carrier plants on, the support the overlay rides.
-              ...((): {
-                support?: IAutoMovieMotionHumanContactWindow.Support;
-              } => {
+              ...((): IPlaceDraftedResult => {
                 const plant: IAutoMovieMotionHumanContactWindow | undefined =
                   previous.plan.contacts.find(
                     (c: IAutoMovieMotionHumanContactWindow): boolean =>
@@ -485,7 +491,7 @@ export namespace HumanPerformancePlace {
           mountAt: (
             seconds: number,
           ):
-            | Pick<IAutoMovieMotionHumanProp.IMounted, "prop" | "point">
+            | Pick<IAutoMovieMotionHumanProp.IMounted, PlaceDraftedResult>
             | undefined => HumanPerformanceHold.mount(self, subject, seconds),
           holderAt: (
             seconds: number,
@@ -646,6 +652,7 @@ export namespace HumanPerformancePlace {
       law,
       context,
       plan,
+      legSeeds: readHumanSegmentLegs.chain(plan, person.performer.body),
       start: context.start,
       entryTime: start,
       end: start + active,

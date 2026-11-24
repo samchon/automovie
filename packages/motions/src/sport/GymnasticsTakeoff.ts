@@ -1,5 +1,6 @@
 import { AutoMovieGravity } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   IAutoMovieMotionEvent,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionPlan,
@@ -13,6 +14,9 @@ import { jump } from "../actions/jump";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { GymnasticsFlight } from "./GymnasticsFlight";
 import { prepareGymnasticsLaunch } from "./prepareGymnasticsLaunch";
+
+/** The record of `IOfRead`'s site. */
+type IOfRead = { centre: IAutoMovieVector3; velocity: IAutoMovieVector3 };
 
 /**
  * A take-off at a chosen launch velocity: the jump's own push-off (`jump`),
@@ -46,7 +50,7 @@ export namespace GymnasticsTakeoff {
   export function of(
     context: IAutoMovieMotionHumanActionContext<object>,
     aim: (centre: IAutoMovieVector3) => IAutoMovieVector3,
-    foot?: "left" | "right",
+    foot?: AutoMovieHumanSide,
   ): IAutoMovieMotionHumanGymnasticsTakeoff.ITakeoff {
     const model: IAutoMovieResolveCenterOfMass.IModel = GymnasticsFlight.model(
       context.body,
@@ -103,8 +107,7 @@ export namespace GymnasticsTakeoff {
         foot,
       );
       const seconds: number = at(plan, "takeoff");
-      const read: { centre: IAutoMovieVector3; velocity: IAutoMovieVector3 } =
-        launch(plan, seconds);
+      const read: IOfRead = launch(plan, seconds);
       taken = { plan, seconds, ...read };
       if (pass === PASSES) break;
 

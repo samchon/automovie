@@ -1,11 +1,27 @@
 import { DEFAULT_HUMANOID_ROM } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieAngleRange,
   IAutoMovieMotionHumanJacobian,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanQuadraticProgram,
 } from "@automovie/interface";
+
+/** The record of `IWrittenHeading`'s site. */
+type IWrittenHeading = { yaw: number; pitch: number; roll: number };
+
+/** The record of `IWrittenRoot`'s site. */
+type IWrittenRoot = { x: number; y: number; z: number };
+
+/** The alternatives of `BODY2`'s site. */
+type BODY2 = 0 | 1 | 2;
+
+/** The alternatives of `ANGLESItemResult`'s site. */
+type ANGLESItemResult = 0 | 1 | 2;
+
+/** The alternatives of `ANGLESItem`'s site. */
+type ANGLESItem = 0 | 1 | 2;
 
 /**
  * The variables a whole-body fit (`HumanBodyFit`) moves a posture by, as the
@@ -26,7 +42,7 @@ export namespace HumanFitVariables {
    * spine, chest and neck and no `upperChest`, which the range table lists for
    * rigs that have one, so it is not a variable here.
    */
-  const ANGLES: readonly (readonly [AutoMovieHumanoidBone, 0 | 1 | 2])[] = [
+  const ANGLES: readonly (readonly [AutoMovieHumanoidBone, ANGLESItem])[] = [
     ["spine", 0],
     ["spine", 1],
     ["spine", 2],
@@ -37,8 +53,8 @@ export namespace HumanFitVariables {
     ["head", 0],
     ...(["left", "right"] as const).flatMap(
       (
-        side: "left" | "right",
-      ): (readonly [AutoMovieHumanoidBone, 0 | 1 | 2])[] => [
+        side: AutoMovieHumanSide,
+      ): (readonly [AutoMovieHumanoidBone, ANGLESItemResult])[] => [
         [`${side}UpperLeg`, 0],
         [`${side}UpperLeg`, 1],
         [`${side}UpperLeg`, 2],
@@ -70,7 +86,7 @@ export namespace HumanFitVariables {
     ...ANGLES.map(
       ([bone, axis]: readonly [
         AutoMovieHumanoidBone,
-        0 | 1 | 2,
+        BODY2,
       ]): IAutoMovieMotionHumanJacobian.IVariable => ({
         kind: "angle",
         bone,
@@ -144,8 +160,8 @@ export namespace HumanFitVariables {
     posture: IAutoMovieMotionHumanPosture,
     x: Float64Array,
   ): IAutoMovieMotionHumanPosture {
-    const root: { x: number; y: number; z: number } = { ...posture.root };
-    const heading: { yaw: number; pitch: number; roll: number } = {
+    const root: IWrittenRoot = { ...posture.root };
+    const heading: IWrittenHeading = {
       yaw: posture.yaw,
       pitch: posture.pitch,
       roll: posture.roll,

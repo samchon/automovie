@@ -18,7 +18,7 @@ import { walk } from "../actions/walk";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanMountPush } from "../lexicon/HumanMountPush";
 import { hipJoints } from "../posture/hipJoints";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { humanPostureHeading } from "../posture/humanPostureHeading";
 import { HumanSupportCarry } from "./HumanSupportCarry";
 import { HumanSupportFrame } from "./HumanSupportFrame";
 import { HumanSupportStepPlants } from "./HumanSupportStepPlants";
@@ -461,7 +461,7 @@ export function HumanSupportStep(
       const hips: Record<AutoMovieHumanSide, IAutoMovieVector3> = hipJoints(
         context.body,
         out.root,
-        resolveHumanPosture.heading(out),
+        humanPostureHeading(out),
         out.joints.hips,
       );
       for (const side of SIDES) {

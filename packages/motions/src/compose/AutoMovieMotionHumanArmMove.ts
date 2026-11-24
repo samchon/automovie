@@ -4,6 +4,7 @@ import type {
   IAutoMovieMotionClock,
   IAutoMovieMotionHumanArmTarget,
   IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanEvaluation,
   IAutoMovieMotionHumanHand,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanPrimitive,
@@ -13,9 +14,17 @@ import type {
 import { HumanFrame } from "../posture/HumanFrame";
 import { AutoMovieMotionClock } from "./AutoMovieMotionClock";
 import { AutoMovieMotionHumanArmTarget } from "./AutoMovieMotionHumanArmTarget";
-import type { AutoMovieMotionHumanBendRepeat } from "./AutoMovieMotionHumanBendRepeat";
+import { AutoMovieMotionHumanBendRepeat } from "./AutoMovieMotionHumanBendRepeat";
 import { AutoMovieMotionHumanHand } from "./AutoMovieMotionHumanHand";
-import { HumanBendRead } from "./HumanBendRead";
+
+/** The record of `IMoveShaped`'s site. */
+type IMoveShaped = {
+  shape: IAutoMovieMotionHumanHand.Shape;
+  write: ReturnType<typeof AutoMovieMotionHumanHand.prepareFingerWriter>;
+};
+
+/** The alternatives of `MoveLimb`'s site. */
+type MoveLimb = "leftArm" | "rightArm";
 
 /**
  * An arm moved between an origin and a target by a weight, and the three
@@ -37,17 +46,10 @@ export namespace AutoMovieMotionHumanArmMove {
       ...args: Parameters<IAutoMovieMotionHumanArmTarget.IMove["target"]>
     ) => IAutoMovieMotionHumanArmTarget.ITarget,
   ): IAutoMovieMotionHumanPrimitive {
-    const limb: "leftArm" | "rightArm" = `${props.side}Arm`;
+    const limb: MoveLimb = `${props.side}Arm`;
     // The side is the move's; the shape is the target's at each second, so
     // the writer is rebuilt only when the target names another shape.
-    let shaped:
-      | {
-          shape: IAutoMovieMotionHumanHand.Shape;
-          write: ReturnType<
-            typeof AutoMovieMotionHumanHand.prepareFingerWriter
-          >;
-        }
-      | undefined;
+    let shaped: IMoveShaped | undefined;
     const fingers: (
       joints: IAutoMovieMotionHumanPosture["joints"],
       shape: IAutoMovieMotionHumanHand.Shape,
@@ -75,12 +77,17 @@ export namespace AutoMovieMotionHumanArmMove {
       _before?: IAutoMovieMotionHumanPrimitive.Reader,
       resolution?: Parameters<IAutoMovieMotionHumanArmTarget.Frame>[2],
       projection?: Parameters<IAutoMovieMotionHumanArmTarget.Frame>[3],
-      loan?: AutoMovieMotionHumanBendRepeat.IRead,
+      evaluation?: IAutoMovieMotionHumanEvaluation,
     ): IAutoMovieMotionHumanPosture => {
+      // A contextual target takes the evaluation's bend loan when it has one.
+      const loan: AutoMovieMotionHumanBendRepeat.IRead | undefined =
+        contextual === undefined
+          ? undefined
+          : AutoMovieMotionHumanBendRepeat.loan(evaluation);
       const target: IAutoMovieMotionHumanArmTarget.ITarget =
-        loan === undefined
-          ? props.target(posture, seconds, resolution, projection)
-          : contextual!(loan, posture, seconds, resolution, projection);
+        loan === undefined || contextual === undefined
+          ? props.target(posture, seconds, resolution, projection, evaluation)
+          : contextual(loan, posture, seconds, resolution, projection);
       const s: number = Math.min(1, Math.max(0, props.weight(seconds)));
       const placed: IAutoMovieMotionHumanArmTarget.ITarget =
         s >= 1
@@ -121,19 +128,12 @@ export namespace AutoMovieMotionHumanArmMove {
         },
       };
     };
-    const primitive: IAutoMovieMotionHumanPrimitive = {
+    return {
       channels: [limb, `${props.side}Hand`],
       from: props.from,
       to: props.to,
       write,
     };
-    if (contextual !== undefined)
-      HumanBendRead.writes.set(primitive, {
-        original: write,
-        invoke: (loan, posture, seconds, before, source, projection) =>
-          write(posture, seconds, before, source, projection, loan),
-      });
-    return primitive;
   }
 
   /**

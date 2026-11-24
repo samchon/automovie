@@ -5,6 +5,27 @@ import { HumanQuadraticPreparation as Preparation } from "./HumanQuadraticPrepar
 import { HumanQuadraticSolve } from "./HumanQuadraticSolve";
 import { HumanQuadraticWorkspace as Workspace } from "./HumanQuadraticWorkspace";
 
+/** The alternatives of `OfRow`'s site. */
+type OfRow = "l" | "u" | "weight" | "key";
+
+/** The alternatives of `OfNext`'s site. */
+type OfNext = "l" | "u" | "weight" | "key";
+
+/** The alternatives of `OfBoundsItem`'s site. */
+type OfBoundsItem = "l" | "u" | "weight" | "key";
+
+/** The alternatives of `OfRowsResult`'s site. */
+type OfRowsResult = "l" | "u" | "weight" | "key";
+
+/** The alternatives of `OfRowsItem`'s site. */
+type OfRowsItem = "l" | "u" | "weight" | "key";
+
+/** The alternatives of `OfRawItem`'s site. */
+type OfRawItem = "index" | "coef";
+
+/** The alternatives of `SolveBoundsItem`'s site. */
+type SolveBoundsItem = "l" | "u" | "weight" | "key";
+
 /**
  * One convexification's owned numeric model. Fixed matrices are copied and
  * equilibrated once; later solves supply only intervals, penalties and keys.
@@ -31,7 +52,7 @@ export namespace HumanQuadraticModel {
     solve(
       bounds: readonly Pick<
         IAutoMovieMotionHumanQuadraticProgram.IRow,
-        "l" | "u" | "weight" | "key"
+        SolveBoundsItem
       >[],
       warm?: IAutoMovieMotionHumanQuadraticProgram.IState,
       duals?: ReadonlyMap<string, number>,
@@ -58,25 +79,20 @@ export namespace HumanQuadraticModel {
     // CSR already copies every entry of a zero-free row. Only omitted
     // entries require an original-layout snapshot for exceptional products.
     const raw: (
-      | Pick<IAutoMovieMotionHumanQuadraticProgram.IRow, "index" | "coef">
+      | Pick<IAutoMovieMotionHumanQuadraticProgram.IRow, OfRawItem>
       | undefined
     )[] = new Array(s.m);
-    const rows: Pick<
-      IAutoMovieMotionHumanQuadraticProgram.IRow,
-      "l" | "u" | "weight" | "key"
-    >[] = problem.rows.map(
-      (
-        row: IAutoMovieMotionHumanQuadraticProgram.IRow,
-        r: number,
-      ): Pick<
-        IAutoMovieMotionHumanQuadraticProgram.IRow,
-        "l" | "u" | "weight" | "key"
-      > => {
-        if (row.coef.length !== s.start[r + 1]! - s.start[r]!)
-          raw[r] = { index: [...row.index], coef: [...row.coef] };
-        return { l: row.l, u: row.u, weight: row.weight, key: row.key };
-      },
-    );
+    const rows: Pick<IAutoMovieMotionHumanQuadraticProgram.IRow, OfRowsItem>[] =
+      problem.rows.map(
+        (
+          row: IAutoMovieMotionHumanQuadraticProgram.IRow,
+          r: number,
+        ): Pick<IAutoMovieMotionHumanQuadraticProgram.IRow, OfRowsResult> => {
+          if (row.coef.length !== s.start[r + 1]! - s.start[r]!)
+            raw[r] = { index: [...row.index], coef: [...row.coef] };
+          return { l: row.l, u: row.u, weight: row.weight, key: row.key };
+        },
+      );
     s.raw = raw;
     const memory: Workspace.IMemory = {
       rho: new Float64Array(s.m),
@@ -96,7 +112,7 @@ export namespace HumanQuadraticModel {
       solve: (
         bounds: readonly Pick<
           IAutoMovieMotionHumanQuadraticProgram.IRow,
-          "l" | "u" | "weight" | "key"
+          OfBoundsItem
         >[],
         warm?: IAutoMovieMotionHumanQuadraticProgram.IState,
         duals?: ReadonlyMap<string, number>,
@@ -105,17 +121,12 @@ export namespace HumanQuadraticModel {
           throw new RangeError("Malformed quadratic row count");
         for (let r: number = 0; r < s.m; ++r) {
           const next:
-            | Pick<
-                IAutoMovieMotionHumanQuadraticProgram.IRow,
-                "l" | "u" | "weight" | "key"
-              >
+            | Pick<IAutoMovieMotionHumanQuadraticProgram.IRow, OfNext>
             | undefined = bounds[r];
           if (next === undefined)
             throw new RangeError(`Malformed quadratic row ${r}`);
-          const row: Pick<
-            IAutoMovieMotionHumanQuadraticProgram.IRow,
-            "l" | "u" | "weight" | "key"
-          > = rows[r]!;
+          const row: Pick<IAutoMovieMotionHumanQuadraticProgram.IRow, OfRow> =
+            rows[r]!;
           row.key = next.key;
           const l: number = next.l;
           const u: number = next.u;

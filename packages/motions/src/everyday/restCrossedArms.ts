@@ -19,6 +19,30 @@ import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolutio
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanTrunk } from "./HumanTrunk";
 
+/** The record of `IRestCrossedArmsGoalResult`'s site. */
+type IRestCrossedArmsGoalResult = {
+  goal: IAutoMovieMotionHumanRest.IGoal;
+  excess: number;
+};
+
+/** The record of `IRestCrossedArmsGoal`'s site. */
+type IRestCrossedArmsGoal = {
+  goal: IAutoMovieMotionHumanRest.IGoal;
+  excess: number;
+};
+
+/** The alternatives of `RestCrossedArmsLengthTo2`'s site. */
+type RestCrossedArmsLengthTo2 = "LowerArm" | "Hand";
+
+/** The alternatives of `RestCrossedArmsLengthFrom2`'s site. */
+type RestCrossedArmsLengthFrom2 = "UpperArm" | "LowerArm";
+
+/** The alternatives of `RestCrossedArmsLengthTo`'s site. */
+type RestCrossedArmsLengthTo = "LowerArm" | "Hand";
+
+/** The alternatives of `RestCrossedArmsLengthFrom`'s site. */
+type RestCrossedArmsLengthFrom = "UpperArm" | "LowerArm";
+
 /**
  * Both crossed-arms goals on upper arms set before the goals: each hangs
  * forward by `FLEXION` or, if more, until its elbow stands the forearm's radius
@@ -75,12 +99,12 @@ export function restCrossedArms(
   );
   const length: (
     side: AutoMovieHumanSide,
-    from: "UpperArm" | "LowerArm",
-    to: "LowerArm" | "Hand",
+    from: RestCrossedArmsLengthFrom,
+    to: RestCrossedArmsLengthTo,
   ) => number = (
     side: AutoMovieHumanSide,
-    from: "UpperArm" | "LowerArm",
-    to: "LowerArm" | "Hand",
+    from: RestCrossedArmsLengthFrom2,
+    to: RestCrossedArmsLengthTo2,
   ): number =>
     Vector3.distance(
       body.rest.get(`${side}${to}`)!,
@@ -94,7 +118,11 @@ export function restCrossedArms(
     right: prepare("right"),
   };
   const ahead: IAutoMovieVector3 = turn({ x: 0, y: 0, z: 1 });
-  const palms: Partial<Record<AutoMovieHumanSide, IAutoMovieVector3>> = {};
+  // Each relaxed palm's place in its hand, read once for both sides.
+  const palms: Record<AutoMovieHumanSide, IAutoMovieVector3> = {
+    left: HumanHand.offset(body, "left", "palm", "relaxed").point,
+    right: HumanHand.offset(body, "right", "palm", "relaxed").point,
+  };
   const elbowAt: (
     side: AutoMovieHumanSide,
     inward: number,
@@ -117,10 +145,10 @@ export function restCrossedArms(
   const goal: (
     side: AutoMovieHumanSide,
     elbows: Record<AutoMovieHumanSide, IAutoMovieVector3>,
-  ) => { goal: IAutoMovieMotionHumanRest.IGoal; excess: number } = (
+  ) => IRestCrossedArmsGoal = (
     side: AutoMovieHumanSide,
     elbows: Record<AutoMovieHumanSide, IAutoMovieVector3>,
-  ): { goal: IAutoMovieMotionHumanRest.IGoal; excess: number } => {
+  ): IRestCrossedArmsGoalResult => {
     const other: AutoMovieHumanSide = side === "left" ? "right" : "left";
     const from: IAutoMovieVector3 = geometry[other].world;
     const axis: IAutoMovieVector3 = Vector3.normalize(
@@ -149,12 +177,7 @@ export function restCrossedArms(
       palm: Vector3.scale(front, -1),
     });
     const elbow: IAutoMovieVector3 = elbows[side];
-    const palm: IAutoMovieVector3 = (palms[side] ??= HumanHand.offset(
-      body,
-      side,
-      "palm",
-      "relaxed",
-    ).point);
+    const palm: IAutoMovieVector3 = palms[side];
     const wrist: IAutoMovieVector3 = placeHumanHandSurface(
       palm,
       point,

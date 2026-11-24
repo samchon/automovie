@@ -1,4 +1,5 @@
 import type {
+  AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPosture,
 } from "@automovie/interface";
@@ -12,7 +13,9 @@ import { resolveHumanPostureSource } from "../posture/resolveHumanPostureSource"
 import { rangeSteppingFoot } from "./rangeSteppingFoot";
 
 /** The rotating push and landing have two direct arms to clear, in this order. */
-const ARMS: readonly ("left" | "right")[] = ["left", "right"];
+const ARMS: readonly AutoMovieHumanSide[] = ["left", "right"];
+/** The alternatives of `JumpGroundPosturePhase`'s site. */
+type JumpGroundPosturePhase = "left" | "right" | "landing";
 
 /**
  * Fit the reaching foot during push-off and clear the arms against the bent
@@ -28,7 +31,7 @@ const ARMS: readonly ("left" | "right")[] = ["left", "right"];
 export function jumpGroundPosture(
   body: IAutoMovieMotionHumanBody,
   posture: IAutoMovieMotionHumanPosture,
-  phase: "left" | "right" | "landing",
+  phase: JumpGroundPosturePhase,
   read: ReturnType<typeof prepareHumanPoseResolution>,
 ): IAutoMovieMotionHumanPosture {
   const lowered: IAutoMovieMotionHumanPosture =
@@ -37,6 +40,8 @@ export function jumpGroundPosture(
       : rangeSteppingFoot(body, posture, phase, read);
   return HumanArmSwing.of(body, lowered, ARMS, read);
 }
+/** The alternatives of `JumpGroundPostureSamplePhase`'s site. */
+type JumpGroundPostureSamplePhase = "left" | "right" | "landing";
 
 /** Native observation of the ground writer and its same-instant leg fit. */
 export namespace jumpGroundPosture {
@@ -55,7 +60,7 @@ export namespace jumpGroundPosture {
   export function sample(
     body: IAutoMovieMotionHumanBody,
     posture: IAutoMovieMotionHumanPosture,
-    phase: "left" | "right" | "landing",
+    phase: JumpGroundPostureSamplePhase,
     read: ReturnType<typeof prepareHumanPoseResolution>,
     projection?: ReturnType<typeof prepareHumanPostureProjection>,
   ): HumanPreparedPlayback.ISample {

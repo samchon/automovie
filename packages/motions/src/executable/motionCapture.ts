@@ -40,12 +40,19 @@ const VIEWS: Readonly<Record<string, string>> = {
   top: "top@ortho",
   threeQuarter: "three-quarter@ortho",
 };
+/** The record of `IRASTER`'s site. */
+type IRASTER = { width: number; height: number };
 
 /**
  * Pixels on each side of every still: square, so the four views share one cell
  * shape.
  */
-const RASTER: { width: number; height: number } = { width: 720, height: 720 };
+const RASTER: IRASTER = { width: 720, height: 720 };
+/** The record of `IMotionCaptureRecord`'s site. */
+type IMotionCaptureRecord = { state: "complete" };
+
+/** The record of `IMotionCaptureRequestInstant`'s site. */
+type IMotionCaptureRequestInstant = { seconds: number };
 
 /**
  * Draw motion cases through the shared capture host and report their verdicts.
@@ -130,6 +137,8 @@ export async function motionCapture(): Promise<void> {
     backend,
     env: process.env,
   });
+
+  // Process boundary: the capture host is closed whether the captures complete or fail.
   try {
     for (const capture of cases) {
       const props: IMotionCaptureProps = planMotionCaptureProps(
@@ -146,7 +155,10 @@ export async function motionCapture(): Promise<void> {
             [
               "at",
               props.instants
-                .map((instant: { seconds: number }): number => instant.seconds)
+                .map(
+                  (instant: IMotionCaptureRequestInstant): number =>
+                    instant.seconds,
+                )
                 .join(","),
             ],
             ["views", views],
@@ -157,7 +169,7 @@ export async function motionCapture(): Promise<void> {
         );
 
       // A case the host refuses, such as a page that cannot describe it, fails alone and the next case still draws.
-      let record: Extract<IAutoMovieCaptureRecord, { state: "complete" }>;
+      let record: Extract<IAutoMovieCaptureRecord, IMotionCaptureRecord>;
       try {
         record = await host.capture({
           request,

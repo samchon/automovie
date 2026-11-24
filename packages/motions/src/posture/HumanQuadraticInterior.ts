@@ -8,6 +8,30 @@ import { HumanQuadraticRow } from "./HumanQuadraticRow";
 import { HumanQuadraticSubstitute } from "./HumanQuadraticSubstitute";
 import { HumanQuadraticWorkspace as Workspace } from "./HumanQuadraticWorkspace";
 
+/** The record of `IHumanQuadraticInteriorWarmed`'s site. */
+type IHumanQuadraticInteriorWarmed = {
+  state: IAutoMovieMotionHumanQuadraticProgram.IState | undefined;
+  converged: boolean;
+};
+
+/** The record of `IRunEndedResult`'s site. */
+type IRunEndedResult = {
+  state: IAutoMovieMotionHumanQuadraticProgram.IState | undefined;
+  converged: boolean;
+};
+
+/** The record of `IHumanQuadraticInteriorRunKept`'s site. */
+type IHumanQuadraticInteriorRunKept = {
+  state: IAutoMovieMotionHumanQuadraticProgram.IState;
+  point: Session.IPoint;
+};
+
+/** The record of `IHumanQuadraticInteriorRunResult`'s site. */
+type IHumanQuadraticInteriorRunResult = {
+  state: IAutoMovieMotionHumanQuadraticProgram.IState | undefined;
+  converged: boolean;
+};
+
 /**
  * A banded convex quadratic program (`HumanQuadraticProgram.IProblem`) solved
  * by an infeasible-start primal-dual interior-point method with Mehrotra's
@@ -300,10 +324,7 @@ export function HumanQuadraticInterior(
   // One solve from the iterate the arrays hold, cold or warm: the state it
   // ends with, and whether it met `ACCURACY` (a converged solve, whose point
   // a session keeps for the next program of the same rows).
-  const run = (): {
-    state: IAutoMovieMotionHumanQuadraticProgram.IState | undefined;
-    converged: boolean;
-  } => {
+  const run = (): IHumanQuadraticInteriorRunResult => {
     let fair: IAutoMovieMotionHumanQuadraticProgram.IState | undefined;
 
     // The last iterate that met `ACCURACY`, with its point: the further
@@ -311,16 +332,8 @@ export function HumanQuadraticInterior(
     // reduced system near the solution grows rows rounding makes dependent,
     // and a step through them can raise the residuals again) or the solve
     // ends otherwise short, this iterate is the solve's answer, converged.
-    let kept:
-      | {
-          state: IAutoMovieMotionHumanQuadraticProgram.IState;
-          point: Session.IPoint;
-        }
-      | undefined;
-    const ended = (): {
-      state: IAutoMovieMotionHumanQuadraticProgram.IState | undefined;
-      converged: boolean;
-    } => {
+    let kept: IHumanQuadraticInteriorRunKept | undefined;
+    const ended = (): IRunEndedResult => {
       if (kept === undefined) return { state: fair, converged: false };
       if (session !== undefined) session.point = kept.point;
       return { state: kept.state, converged: true };
@@ -499,10 +512,7 @@ export function HumanQuadraticInterior(
       value,
     )
   ) {
-    const warmed: {
-      state: IAutoMovieMotionHumanQuadraticProgram.IState | undefined;
-      converged: boolean;
-    } = run();
+    const warmed: IHumanQuadraticInteriorWarmed = run();
     if (warmed.converged) return warmed.state;
   }
   cold();

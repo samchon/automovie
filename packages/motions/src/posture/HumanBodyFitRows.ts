@@ -15,6 +15,21 @@ import type { HumanFloorReading } from "./HumanFloorReading";
 import { HumanFoot } from "./HumanFoot";
 import { HumanJacobian } from "./HumanJacobian";
 
+/** The alternatives of `Of`'s site. */
+type Of = "at" | "motions";
+
+/** The record of `IReading2`'s site. */
+type IReading2 = {
+  /**
+   * Exact source clinical posture used for this reading's resolution/FK;
+   * kept unchanged while current Jacobian and final result consume it.
+   */
+  written: IAutoMovieMotionHumanPosture;
+
+  /** Requested base-of-support reading on these same bones. */
+  balance?: HumanFitBalance.IReading;
+};
+
 /**
  * The rows of one step of a whole-body fit (`HumanBodyFit`), each with the
  * reading it linearises: the floor's contacts, the targets' points and
@@ -26,16 +41,8 @@ import { HumanJacobian } from "./HumanJacobian";
 export namespace HumanBodyFitRows {
   /** A posture's reading for a fit, with its balance when the fit keeps one. */
   export type IReading = HumanFloorReading.IReading &
-    HumanFitGoals.IReading & {
-      /**
-       * Exact source clinical posture used for this reading's resolution/FK;
-       * kept unchanged while current Jacobian and final result consume it.
-       */
-      written: IAutoMovieMotionHumanPosture;
-
-      /** Requested base-of-support reading on these same bones. */
-      balance?: HumanFitBalance.IReading;
-    };
+    HumanFitGoals.IReading &
+    IReading2;
 
   /** A row of a step and the reading it linearises. */
   export interface IRead {
@@ -112,7 +119,7 @@ export namespace HumanBodyFitRows {
    * @returns The rows of the contacts, the targets and the balance.
    */
   export function of(step: IStep): IRead[] {
-    const { at, motions }: Pick<IStep, "at" | "motions"> = step;
+    const { at, motions }: Pick<IStep, Of> = step;
     const all: readonly number[] = step.index;
     const rows: IRead[] = [];
     const equal: (

@@ -10,6 +10,14 @@ import { supportContact } from "./supportContact";
 
 /** Only the subject and target parameters identify a support frame. */
 type ContextField = "subject" | "params";
+/** The alternatives of `OfHolds`'s site. */
+type OfHolds = "heel" | "ball" | undefined;
+
+/** The alternatives of `OfSocket`'s site. */
+type OfSocket = "heel" | "ball" | undefined;
+
+/** The alternatives of `BearingResult`'s site. */
+type BearingResult = "part" | "kind" | "support";
 
 /**
  * A support sequence's declared windows, including the frame each target
@@ -23,9 +31,7 @@ export namespace supportWindows {
       ContextField
     >,
     contact: IAutoMovieMotionHumanSupport.IContact,
-  ):
-    | Pick<IAutoMovieMotionHumanContactWindow, "part" | "kind" | "support">
-    | undefined {
+  ): Pick<IAutoMovieMotionHumanContactWindow, BearingResult> | undefined {
     const name: string = supportContact.window(contact.part);
     const part: IAutoMovieMotionHumanContactWindow["part"] | undefined =
       HumanContactWindow.PARTS.find(
@@ -100,9 +106,7 @@ export namespace supportWindows {
     keys: readonly IKey[],
     duration: number,
     observe?: Observe,
-    socket?: (
-      contact: IAutoMovieMotionHumanSupport.IContact,
-    ) => "heel" | "ball" | undefined,
+    socket?: (contact: IAutoMovieMotionHumanSupport.IContact) => OfSocket,
   ): IAutoMovieMotionHumanContactWindow[] {
     // An interval carries exactly the contacts common to its two solved keys.
     // A newly placed contact starts on the arriving key. A lifted contact
@@ -124,7 +128,7 @@ export namespace supportWindows {
         }
         const identity: ReturnType<typeof bearing> = bearing(context, contact);
         if (identity === undefined) continue;
-        const holds: "heel" | "ball" | undefined = socket?.(contact);
+        const holds: OfHolds = socket?.(contact);
         const window: IAutoMovieMotionHumanContactWindow = {
           ...identity,
           from: share,

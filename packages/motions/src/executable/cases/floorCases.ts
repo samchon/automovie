@@ -1,5 +1,6 @@
 import { resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   IAutoMovieMotionHumanCrawl,
   IAutoMovieMotionHumanLieDown,
   IAutoMovieMotionHumanPerformance,
@@ -10,6 +11,18 @@ import { HumanChain } from "../../HumanChain";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
 import { FamilyCaseKit } from "./FamilyCaseKit";
 import { everydayVerdicts } from "./everydayVerdicts";
+
+/** The alternatives of `FloorCasesRisesLimb`'s site. */
+type FloorCasesRisesLimb = "leftHand" | "rightHand" | "leftKnee" | "rightKnee";
+
+/** The record of `IFloorCasesKnee`'s site. */
+type IFloorCasesKnee = { low: number; high: number };
+
+/** The record of `IFloorCasesHeight`'s site. */
+type IFloorCasesHeight = { low: number; high: number };
+
+/** The record of `IFloorCasesSlip`'s site. */
+type IFloorCasesSlip = { value: number; where: string };
 
 /**
  * Capture cases of the lying and crawling family, each from quiet standing:
@@ -93,7 +106,7 @@ export function floorCases(
       const segment = performance.segments("a")[0]!;
       const at = (share: number): number =>
         segment.start + share * segment.plan.duration;
-      const palm = (side: "left" | "right", t: number): IAutoMovieVector3 => {
+      const palm = (side: AutoMovieHumanSide, t: number): IAutoMovieVector3 => {
         const frame =
           who.body.surfaces.sockets[side === "left" ? "palmLeft" : "palmRight"];
         return resolveAutoMovieHumanoidSurfaces.place(
@@ -101,14 +114,15 @@ export function floorCases(
           performance.bones("a", t).get(frame.bone)!,
         ).point;
       };
-      let slip: { value: number; where: string } = { value: 0, where: "none" };
-      const height: { low: number; high: number } = {
+      let slip: IFloorCasesSlip = { value: 0, where: "none" };
+      const height: IFloorCasesHeight = {
         low: Infinity,
         high: -Infinity,
       };
       for (const c of segment.plan.contacts) {
         if (c.part !== "leftHand" && c.part !== "rightHand") continue;
-        const side: "left" | "right" = c.part === "leftHand" ? "left" : "right";
+        const side: AutoMovieHumanSide =
+          c.part === "leftHand" ? "left" : "right";
         const anchor: IAutoMovieVector3 = palm(side, at(c.from));
         for (let t: number = at(c.from); t <= at(c.to) + 1e-9; t += 1 / 24) {
           const p: IAutoMovieVector3 = palm(side, t);
@@ -119,7 +133,7 @@ export function floorCases(
           height.high = Math.max(height.high, p.y);
         }
       }
-      const knee: { low: number; high: number } = {
+      const knee: IFloorCasesKnee = {
         low: Infinity,
         high: -Infinity,
       };
@@ -150,15 +164,12 @@ export function floorCases(
       const period: number =
         FamilyCaseKit.event(performance, "leftHandLiftoff3") -
         FamilyCaseKit.event(performance, "leftHandLiftoff2");
-      const rises = (
-        limb: "leftHand" | "rightHand" | "leftKnee" | "rightKnee",
-        k: number,
-      ): number => {
+      const rises = (limb: FloorCasesRisesLimb, k: number): number => {
         const planned: number = FamilyCaseKit.event(
           performance,
           `${limb}Liftoff${k}`,
         );
-        const side: "left" | "right" = limb.startsWith("left")
+        const side: AutoMovieHumanSide = limb.startsWith("left")
           ? "left"
           : "right";
         for (
@@ -214,15 +225,14 @@ export function floorCases(
   }
   return out;
 }
+/** The record of `ISpanRange`'s site. */
+type ISpanRange = { low: number; high: number };
 
 /**
  * A verdict that a measured range of heights lies within -10 to +15 mm of the
  * floor.
  */
-function span(
-  name: string,
-  range: { low: number; high: number },
-): IMotionCaptureCase.IVerdict {
+function span(name: string, range: ISpanRange): IMotionCaptureCase.IVerdict {
   return {
     name,
     passed: range.low >= -0.01 && range.high <= 0.015,

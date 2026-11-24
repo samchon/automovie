@@ -13,6 +13,12 @@ import type {
 import { HumanColliders } from "../posture/HumanColliders";
 import { strikingReadBack } from "./strikingReadBack";
 
+/** The alternatives of `ContactSlopeK`'s site. */
+type ContactSlopeK = 0 | 1 | 2;
+
+/** The alternatives of `ContactAxisK`'s site. */
+type ContactAxisK = 0 | 1 | 2;
+
 /**
  * A stopped weapon riding the body it met: after a strike's limb has stopped on
  * another person, that person keeps moving (a cover still closing, a trunk
@@ -131,8 +137,8 @@ export namespace StrikingRide {
    * @param props The stop, the met person and the weapon's axis.
    * @returns The ride, memoising the met segment's frames for its life.
    * @throws {HumanRefusal} From `carry`, when a grid node is read before the
-   *   nodes under it are known: the two-step lag excludes it for the poses
-   *   that read the grid, so only a read outside the lag reaches it.
+   *   nodes under it are known: the two-step lag excludes it for the poses that
+   *   read the grid, so only a read outside the lag reaches it.
    */
   export function create(props: IProps): IRide {
     const frames: IFrame[] = [];
@@ -181,12 +187,12 @@ export namespace StrikingRide {
       const [a, b] = props.axis(props.stop);
       const gap = (shift: IAutoMovieVector3): number =>
         geometry.segment(Vector3.add(a, shift), Vector3.add(b, shift)).distance;
-      const axis = (k: 0 | 1 | 2): IAutoMovieVector3 => ({
+      const axis = (k: ContactAxisK): IAutoMovieVector3 => ({
         x: k === 0 ? NORMAL_STEP : 0,
         y: k === 1 ? NORMAL_STEP : 0,
         z: k === 2 ? NORMAL_STEP : 0,
       });
-      const slope = (k: 0 | 1 | 2): number =>
+      const slope = (k: ContactSlopeK): number =>
         gap(axis(k)) - gap(Vector3.scale(axis(k), -1));
       const gradient: IAutoMovieVector3 = {
         x: slope(0),

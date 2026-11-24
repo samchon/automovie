@@ -1,10 +1,20 @@
 import { Vector3 } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  AutoMovieHumanSide,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
 import { HumanFoot } from "../posture/HumanFoot";
 import type { StaggerPendulum } from "./StaggerPendulum";
 import { staggerBounds } from "./staggerBounds";
+
+/** The record of `IStaggerCaptureResult`'s site. */
+type IStaggerCaptureResult = {
+  distance: (steps: number) => number;
+  offset: number;
+  fewest: number;
+};
 
 /**
  * The N-step capture distance of a pushed body in closed form (Koolen et al.
@@ -12,8 +22,10 @@ import { staggerBounds } from "./staggerBounds";
  * per step of time `T_s`, a body whose extrapolated centre of mass starts
  * within `d_N = r_max + l_max q (1 - q^N) / (1 - q)` of its stance ankle can be
  * caught in N steps, `r_max` the base's reach from the ankle and `l_max` the
- * longest step; the first step, after its own time `T_1`, gives `r_max + (l_max
- * - r_max + d_(N-1)) e^(-omega0 T_1)`.
+ * longest step; the first step, after its own time `T_1`, gives `r_max +
+ * (l_max
+ *
+ * - R_max + d_(N-1)) e^(-omega0 T_1)`.
  *
  * Koolen's model steps instantly, onto an optimally oriented foot, anywhere in
  * a disc of radius `l_max`; this recovery's steps take their measured times,
@@ -27,11 +39,9 @@ import { staggerBounds } from "./staggerBounds";
  * @param pendulum The push's pendulum at its start.
  * @returns The capture distances by step count and the push's own reading.
  */
-export function staggerCapture(pendulum: StaggerPendulum): {
-  distance: (steps: number) => number;
-  offset: number;
-  fewest: number;
-} {
+export function staggerCapture(
+  pendulum: StaggerPendulum,
+): IStaggerCaptureResult {
   const {
     STEP_TIME,
     STEP_LENGTH,
@@ -46,7 +56,7 @@ export function staggerCapture(pendulum: StaggerPendulum): {
   // longest measured step, the shortest measured swing.
   const reach: number = Math.max(
     ...(["left", "right"] as const).flatMap(
-      (side: "left" | "right"): number[] =>
+      (side: AutoMovieHumanSide): number[] =>
         HumanFoot.sole(body, side, pendulum.entered[side]).map(
           (q: IAutoMovieVector3): number =>
             Math.hypot(
@@ -94,7 +104,7 @@ export function staggerCapture(pendulum: StaggerPendulum): {
   // nearer entry ankle, and the fewest steps whose distance covers it.
   const xi: IAutoMovieVector3 = Vector3.add(pendulum.centre, pendulum.xi());
   const offset: number = Math.min(
-    ...(["left", "right"] as const).map((side: "left" | "right"): number =>
+    ...(["left", "right"] as const).map((side: AutoMovieHumanSide): number =>
       Math.hypot(
         xi.x - pendulum.entered[side].ankle.x,
         xi.z - pendulum.entered[side].ankle.z,

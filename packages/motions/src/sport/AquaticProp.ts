@@ -15,7 +15,10 @@ import type {
 
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanHand } from "../posture/HumanHand";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { humanPostureHeading } from "../posture/humanPostureHeading";
+
+/** The alternatives of `ContactWorld`'s site. */
+type ContactWorld = "translation" | "rotation";
 
 /**
  * Live small-craft contacts for grips which ride a prop or its articulated
@@ -47,7 +50,7 @@ export namespace AquaticProp {
     /** The named contact in the provider's current model frame. */
     affordance: IAutoMovieAffordance;
     /** The same contact placed in world metres and its current world rotation. */
-    world: Pick<IAutoMovieTransform, "translation" | "rotation">;
+    world: Pick<IAutoMovieTransform, ContactWorld>;
   }
 
   /**
@@ -172,7 +175,7 @@ export namespace AquaticProp {
       contact: grip.point,
       bend: Vector3.add(
         point,
-        Quaternion.rotateVector(resolveHumanPosture.heading(posture), {
+        Quaternion.rotateVector(humanPostureHeading(posture), {
           x: side === "left" ? 0.24 : -0.24,
           y: -0.22,
           z: -0.14,

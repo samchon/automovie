@@ -17,6 +17,16 @@ import { pianoScore } from "./pianoScore";
  * start on the same seated pose. The pedal owns the right leg and its contact
  * schedule, while the score writes the hands. Keys and pedal retain their
  * authored timing even when one part is shorter.
+ */
+export const pianoPerformance: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanPianoPerformance> =
+  {
+    name: "pianoPerformance",
+    interrupts: {},
+    plan,
+  };
+
+/**
+ * Join the two parts without adding a second transition or moving the bench.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the common entry, limb ownership and duration rule.
  * @evidence contracts/development/implementation.md#principled-implementation Composes disjoint joints and prop drives and changes normalized event shares to the combined duration.
@@ -26,14 +36,6 @@ import { pianoScore } from "./pianoScore";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the standalone keyboard and pedal plans.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Holds only the two prepared parts for this performance.
  */
-export const pianoPerformance: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanPianoPerformance> =
-  {
-    name: "pianoPerformance",
-    interrupts: {},
-    plan,
-  };
-
-/** Join the two parts without adding a second transition or moving the bench. */
 function plan(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanPianoPerformance>,
 ): IAutoMovieMotionHumanActionPlan {

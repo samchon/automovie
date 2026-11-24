@@ -3,6 +3,7 @@ import type {
   IAutoMovieMotionHumanLexiconPrecisionSportParams,
 } from "@automovie/interface";
 
+import { PRECISION_STROKE_FORMS } from "./PRECISION_STROKE_FORMS";
 import { createPrecisionSportStroke } from "./createPrecisionSportStroke";
 
 /**
@@ -20,15 +21,10 @@ export namespace HumanPrecisionSport {
   /** A two-handed level bat swing through a pitch. */
   export const baseballHit: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconPrecisionSportParams["baseballHit"]
-  > = createPrecisionSportStroke("baseballHit", {
-    point: "strike",
-    down: 4,
-    sweep: 75,
-    draw: 0,
-    turn: 18,
-    loft: 8,
-    impact: 0.55,
-  });
+  > = createPrecisionSportStroke(
+    "baseballHit",
+    PRECISION_STROKE_FORMS.baseballHit,
+  );
 
   /**
    * A two-handed cricket drive through the post-bounce ball, from an authored
@@ -36,29 +32,18 @@ export namespace HumanPrecisionSport {
    */
   export const cricketDrive: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconPrecisionSportParams["cricketDrive"]
-  > = createPrecisionSportStroke("cricketDrive", {
-    point: "blade",
-    down: 76,
-    sweep: 55,
-    draw: 0,
-    turn: 9,
-    loft: 0,
-    impact: 0.55,
-  });
+  > = createPrecisionSportStroke(
+    "cricketDrive",
+    PRECISION_STROKE_FORMS.cricketDrive,
+  );
 
   /** A one-handed forehand meets the tennis ball on the racket face. */
   export const tennisForehandReturn: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconPrecisionSportParams["tennisForehandReturn"]
-  > = createPrecisionSportStroke("tennisForehandReturn", {
-    point: "face",
-    down: -21,
-    sweep: 53,
-    draw: 0,
-    turn: 14,
-    loft: 18,
-    impact: 0.55,
-    oneHand: true,
-  });
+  > = createPrecisionSportStroke(
+    "tennisForehandReturn",
+    PRECISION_STROKE_FORMS.tennisForehandReturn,
+  );
 
   /**
    * A one-handed table tennis forehand drive through the bat's face
@@ -66,16 +51,10 @@ export namespace HumanPrecisionSport {
    */
   export const tableTennisForehand: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconPrecisionSportParams["tableTennisForehand"]
-  > = createPrecisionSportStroke("tableTennisForehand", {
-    point: "face",
-    down: -10,
-    sweep: 60,
-    draw: 0,
-    turn: 20,
-    loft: 10,
-    impact: 0.3,
-    oneHand: true,
-  });
+  > = createPrecisionSportStroke(
+    "tableTennisForehand",
+    PRECISION_STROKE_FORMS.tableTennisForehand,
+  );
 
   /**
    * A one-handed squash drive along the side wall through the racket face
@@ -83,16 +62,10 @@ export namespace HumanPrecisionSport {
    */
   export const squashDrive: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconPrecisionSportParams["squashDrive"]
-  > = createPrecisionSportStroke("squashDrive", {
-    point: "face",
-    down: 10,
-    sweep: 70,
-    draw: 0,
-    turn: 20,
-    loft: 8,
-    impact: 0.45,
-    oneHand: true,
-  });
+  > = createPrecisionSportStroke(
+    "squashDrive",
+    PRECISION_STROKE_FORMS.squashDrive,
+  );
 
   /**
    * A one-handed padel forehand through the solid racket's face (provisional
@@ -100,16 +73,10 @@ export namespace HumanPrecisionSport {
    */
   export const padelForehand: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconPrecisionSportParams["padelForehand"]
-  > = createPrecisionSportStroke("padelForehand", {
-    point: "face",
-    down: -15,
-    sweep: 55,
-    draw: 0,
-    turn: 15,
-    loft: 12,
-    impact: 0.5,
-    oneHand: true,
-  });
+  > = createPrecisionSportStroke(
+    "padelForehand",
+    PRECISION_STROKE_FORMS.padelForehand,
+  );
 
   /**
    * A one-handed overhead badminton clear lifting the shuttle deep (provisional
@@ -117,16 +84,10 @@ export namespace HumanPrecisionSport {
    */
   export const badmintonClear: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconPrecisionSportParams["badmintonClear"]
-  > = createPrecisionSportStroke("badmintonClear", {
-    point: "face",
-    down: -70,
-    sweep: 80,
-    draw: 0,
-    turn: 20,
-    loft: 40,
-    impact: 0.45,
-    oneHand: true,
-  });
+  > = createPrecisionSportStroke(
+    "badmintonClear",
+    PRECISION_STROKE_FORMS.badmintonClear,
+  );
 
   /**
    * A two-handed field hockey hit along the ground through the stick's blade
@@ -134,54 +95,25 @@ export namespace HumanPrecisionSport {
    */
   export const fieldHockeyHit: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconPrecisionSportParams["fieldHockeyHit"]
-  > = createPrecisionSportStroke("fieldHockeyHit", {
-    point: "blade",
-    down: 70,
-    sweep: 60,
-    draw: 0,
-    turn: 15,
-    loft: 0,
-    impact: 0.45,
-  });
+  > = createPrecisionSportStroke(
+    "fieldHockeyHit",
+    PRECISION_STROKE_FORMS.fieldHockeyHit,
+  );
 
   /** A two-handed full drive through the club face. */
   export const golfDrive: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconPrecisionSportParams["golfDrive"]
-  > = createPrecisionSportStroke("golfDrive", {
-    point: "face",
-    down: 72,
-    sweep: 102,
-    draw: 0,
-    turn: 25,
-    loft: 13,
-    impact: 0.85,
-  });
+  > = createPrecisionSportStroke("golfDrive", PRECISION_STROKE_FORMS.golfDrive);
 
   /** A compact two-handed chip with a steeper launch. */
   export const golfChip: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconPrecisionSportParams["golfChip"]
-  > = createPrecisionSportStroke("golfChip", {
-    point: "face",
-    down: 78,
-    sweep: 31,
-    draw: 0,
-    turn: 6,
-    loft: 28,
-    impact: 0.52,
-  });
+  > = createPrecisionSportStroke("golfChip", PRECISION_STROKE_FORMS.golfChip);
 
   /** A short putting stroke along the chosen green line. */
   export const golfPutt: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconPrecisionSportParams["golfPutt"]
-  > = createPrecisionSportStroke("golfPutt", {
-    point: "face",
-    down: 79,
-    sweep: 0,
-    draw: 0.35,
-    turn: 2,
-    loft: 0,
-    impact: 0.48,
-  });
+  > = createPrecisionSportStroke("golfPutt", PRECISION_STROKE_FORMS.golfPutt);
 
   /**
    * A one-handed overhead serve struck from the palm, the arm high and the ball
@@ -189,73 +121,37 @@ export namespace HumanPrecisionSport {
    */
   export const volleyballServe: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconPrecisionSportParams["volleyballServe"]
-  > = createPrecisionSportStroke("volleyballServe", {
-    point: "palm",
-    down: -70,
-    sweep: 70,
-    draw: 0,
-    turn: 15,
-    loft: 20,
-    impact: 0.5,
-    oneHand: true,
-    bare: true,
-  });
+  > = createPrecisionSportStroke(
+    "volleyballServe",
+    PRECISION_STROKE_FORMS.volleyballServe,
+  );
 
   /** An overhead set pushed steeply up from the palm. */
   export const volleyballSet: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconPrecisionSportParams["volleyballSet"]
-  > = createPrecisionSportStroke("volleyballSet", {
-    point: "palm",
-    down: -80,
-    sweep: 25,
-    draw: 0,
-    turn: 0,
-    loft: 65,
-    impact: 0.4,
-    oneHand: true,
-    bare: true,
-  });
+  > = createPrecisionSportStroke(
+    "volleyballSet",
+    PRECISION_STROKE_FORMS.volleyballSet,
+  );
 
   /** An overhead attack driven down from the palm. */
   export const volleyballSpike: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconPrecisionSportParams["volleyballSpike"]
-  > = createPrecisionSportStroke("volleyballSpike", {
-    point: "palm",
-    down: -55,
-    sweep: 90,
-    draw: 0,
-    turn: 20,
-    loft: -12,
-    impact: 0.5,
-    oneHand: true,
-    bare: true,
-  });
+  > = createPrecisionSportStroke(
+    "volleyballSpike",
+    PRECISION_STROKE_FORMS.volleyballSpike,
+  );
 
   /** A low dig that lifts the ball from the hand below the waist. */
   export const volleyballDig: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconPrecisionSportParams["volleyballDig"]
-  > = createPrecisionSportStroke("volleyballDig", {
-    point: "palm",
-    down: 35,
-    sweep: 25,
-    draw: 0,
-    turn: 0,
-    loft: 60,
-    impact: 0.4,
-    oneHand: true,
-    bare: true,
-  });
+  > = createPrecisionSportStroke(
+    "volleyballDig",
+    PRECISION_STROKE_FORMS.volleyballDig,
+  );
 
   /** A one-handed cue stroke with the other hand set on the table. */
   export const cueStroke: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconPrecisionSportParams["cueStroke"]
-  > = createPrecisionSportStroke("cueStroke", {
-    point: "tip",
-    down: 0,
-    sweep: 0,
-    draw: 0.4,
-    turn: 0,
-    loft: 0,
-    impact: 0.48,
-  });
+  > = createPrecisionSportStroke("cueStroke", PRECISION_STROKE_FORMS.cueStroke);
 }

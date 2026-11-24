@@ -16,6 +16,24 @@ import { placeHumanHandSurface } from "../posture/placeHumanHandSurface";
 import { StrikingHeld } from "../striking/StrikingHeld";
 import { StrikingRollHand } from "../striking/StrikingRollHand";
 
+/** The record of `IPrepareMovingPlaced`'s site. */
+type IPrepareMovingPlaced = {
+  hand: IAutoMovieMotionHumanStrikingHeld.IHandFrame;
+  wrist: IAutoMovieMotionHumanHand.IWrist;
+};
+
+/** The record of `IPrepareMovingResult`'s site. */
+type IPrepareMovingResult = {
+  target: (
+    posture: IAutoMovieMotionHumanPosture,
+    progress: number,
+  ) => IAutoMovieMotionHumanArmTarget.ITarget;
+  wrist: (
+    posture: IAutoMovieMotionHumanPosture,
+    progress: number,
+  ) => IAutoMovieMotionHumanHand.IWrist;
+};
+
 /**
  * Inserting a held prop along a socket's axis: a rammer down a bore, a sword
  * into its scabbard, a magazine into its well, an arrow back into a quiver, a
@@ -141,16 +159,7 @@ export namespace operateInsert {
     mechanism: IAutoMovieMotionHumanOperateInsert.IMechanism,
     tool: IAutoMovieMotionHumanStrikingHeld.ITool,
     socket: IAutoMovieMotionHumanOperateInsert.ITargetSocket,
-  ): {
-    target: (
-      posture: IAutoMovieMotionHumanPosture,
-      progress: number,
-    ) => IAutoMovieMotionHumanArmTarget.ITarget;
-    wrist: (
-      posture: IAutoMovieMotionHumanPosture,
-      progress: number,
-    ) => IAutoMovieMotionHumanHand.IWrist;
-  } {
+  ): IPrepareMovingResult {
     const side: AutoMovieHumanSide = tool.side;
     const inward: IAutoMovieVector3 = Vector3.scale(
       Vector3.normalize(socket.normal),
@@ -172,10 +181,7 @@ export namespace operateInsert {
     const placed: (
       posture: IAutoMovieMotionHumanPosture,
       progress: number,
-    ) => {
-      hand: IAutoMovieMotionHumanStrikingHeld.IHandFrame;
-      wrist: IAutoMovieMotionHumanHand.IWrist;
-    } = (
+    ) => IPrepareMovingPlaced = (
       posture: IAutoMovieMotionHumanPosture,
       progress: number,
     ): ReturnType<typeof placed> => {

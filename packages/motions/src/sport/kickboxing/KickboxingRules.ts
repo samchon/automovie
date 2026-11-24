@@ -6,6 +6,18 @@ import type {
   IAutoMovieScheduleEntry,
 } from "@automovie/interface";
 
+/** The record of `IRulesAt`'s site. */
+type IRulesAt = { at?: IAutoMovieMotionTarget };
+
+/** The record of `IFoulP2`'s site. */
+type IFoulP2 = {
+  at?: IAutoMovieMotionTarget;
+  technique?: string;
+};
+
+/** The record of `IFoulP`'s site. */
+type IFoulP = { at?: IAutoMovieMotionTarget; technique?: string };
+
 /**
  * The kickboxing ruleset a performance's schedule must keep, in the engine's
  * `checkAutoMovieLegality` form, for the motions vocabulary's `punch`, `kick`,
@@ -72,10 +84,7 @@ export namespace KickboxingRules {
       capability !== "knee"
     )
       return null;
-    const p: { at?: IAutoMovieMotionTarget; technique?: string } = params as {
-      at?: IAutoMovieMotionTarget;
-      technique?: string;
-    };
+    const p: IFoulP = params as IFoulP2;
     if (p.at?.kind !== "person") return null;
     if (FOUL_REGIONS.has(p.at.region))
       return `a strike at the ${p.at.region} is a foul`;
@@ -138,7 +147,7 @@ export namespace KickboxingRules {
         )
           return null;
         const at: IAutoMovieMotionTarget | undefined = (
-          params(entry) as { at?: IAutoMovieMotionTarget }
+          params(entry) as IRulesAt
         ).at;
         if (at?.kind !== "person") return null;
         const down: IAutoMovieScheduleEntry | undefined = schedule.entries.find(

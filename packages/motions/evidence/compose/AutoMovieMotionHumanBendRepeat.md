@@ -16,6 +16,36 @@ Each placed posture read gets its own pair of slots indexed by actual role.
 
 A different input, opaque dependency or failed trial runs its original search.
 
+# src/compose/AutoMovieMotionHumanBendRepeat.ts#AutoMovieMotionHumanBendRepeat.loan
+
+## @evidence contracts/development/common.md#meaningful-documentation
+
+States that an evaluation's bend loan is taken only when this owner made it, and that any other evaluation borrows no completed bend.
+
+## @evidence contracts/development/implementation.md#principled-implementation
+
+The loan arrives as the evaluation's explicit argument; one class check recognizes the owner's own loans, so no registry or side table says which writer may take one.
+
+## @evidence contracts/development/implementation.md#clear-and-simple-structure
+
+Read the evaluation's bend, keep it when it is this owner's loan, else none.
+
+## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
+
+No structural guess at a foreign object; a loan another owner made is ignored, never trusted.
+
+## @evidence contracts/development/implementation.md#efficient-algorithms
+
+One optional read and one class check per call.
+
+## @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work
+
+The check is the reuse's admission, not repeated work.
+
+## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
+
+Nothing is retained; the loan stays the caller's.
+
 # src/compose/AutoMovieMotionHumanBendRepeat.ts#AutoMovieMotionHumanBendRepeat.prototype.read
 
 ## @evidence contracts/development/common.md#meaningful-documentation
@@ -50,11 +80,11 @@ Every plan entry belongs to this sweep instance; each newly emitted result owns 
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-Defines the direct native writer's synchronous loan.
+Defines the direct native writer's synchronous loan, which an evaluation carries as its explicit bend.
 
 ## @evidence contracts/development/design.md#principled-representation
 
-Role-local reads own call inputs and refer to only the sweep's numeric slots.
+Role-local reads own call inputs and refer to only the sweep's numeric slots; the loan names the plan it was made for.
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 

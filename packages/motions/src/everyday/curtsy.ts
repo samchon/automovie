@@ -25,6 +25,7 @@ import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
+import { lowerHumanPosture } from "../posture/lowerHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
@@ -53,11 +54,6 @@ const FIT: number = 0.006;
  *
  * Register with HumanChain.extend({ curtsy }) and HumanPerformance's laws.
  * Enter from standing and cut into another action only after recovery.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the sequence, support, source, provisional parameters, fit and registration.
- * @evidence contracts/development/design.md#principled-representation Plans one reversible floor motion with a shared clock, root excursion and world foot placements.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Exposes a single registered law with the crossing side, depth and time as inputs.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Derives the landing and clearance from measured soles and audits resolved feet independently of the IK goals.
  */
 export const curtsy: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanCurtsy> =
   {
@@ -72,7 +68,11 @@ export const curtsy: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanCurtsy>
     plan,
   };
 
-/** Plan a single curtsy and reject key poses that fail the displayed foot fit. */
+/**
+ * Plan a single curtsy and reject key poses that fail the displayed foot fit.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States the sequence, support, source, provisional parameters, fit and registration.
+ */
 function plan(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanCurtsy>,
 ): IAutoMovieMotionHumanActionPlan {
@@ -188,29 +188,26 @@ function plan(
   ): number => {
     const carried: IAutoMovieMotionHumanPosture =
       AutoMovieMotionHumanRoot.place(entry.posture, { point: offset, yaw: 0 });
-    const ready: IAutoMovieMotionHumanPosture = resolveHumanPosture.lower(
-      body,
-      {
-        ...carried,
-        limbs: {
-          ...carried.limbs,
-          [`${lead}Leg`]: AutoMovieMotionHumanLeg.goal(
-            body,
-            carried,
-            lead,
-            front,
-            true,
-          ),
-          [`${rear}Leg`]: AutoMovieMotionHumanLeg.goal(
-            body,
-            carried,
-            rear,
-            trailing,
-            true,
-          ),
-        },
+    const ready: IAutoMovieMotionHumanPosture = lowerHumanPosture(body, {
+      ...carried,
+      limbs: {
+        ...carried.limbs,
+        [`${lead}Leg`]: AutoMovieMotionHumanLeg.goal(
+          body,
+          carried,
+          lead,
+          front,
+          true,
+        ),
+        [`${rear}Leg`]: AutoMovieMotionHumanLeg.goal(
+          body,
+          carried,
+          rear,
+          trailing,
+          true,
+        ),
       },
-    );
+    });
     return ready.root.y - carried.root.y;
   };
   const transferDrop: number = reach(transfer, rearEntry);

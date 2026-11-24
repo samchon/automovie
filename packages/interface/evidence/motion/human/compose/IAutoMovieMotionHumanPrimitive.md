@@ -10,7 +10,7 @@ A part's movement is a function from the posture so far and the time to a postur
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
-The claim, optional input dependencies, span, writer and optional planning, contacts and weapons serve the composer; omitted dependencies preserve complete input reads.
+The claim, optional input dependencies, span, writer and optional planning, contacts and weapons serve the composer; omitted dependencies preserve complete input reads. The writer's trailing evaluation is the composed plan's own explicit context, so no writer has a hidden contextual counterpart.
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 

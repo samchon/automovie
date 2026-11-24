@@ -12,6 +12,9 @@ import { lieDown } from "../floor/lieDown";
 import { clinch } from "./clinch";
 import { grappleSumo } from "./grappleSumo";
 
+/** The alternatives of `RowGrip`'s site. */
+type RowGrip = "collarSleeve" | "oneLeg" | "bothLegs" | "shoulders" | "mat";
+
 /**
  * Floor support keys and hand regions for preplanned grappling performances.
  * The phase shares, turns and body angles are provisional staging values. The
@@ -54,7 +57,7 @@ export namespace grappleStances {
     /** The shared transition to the final supports. */
     finish: Finish;
     /** Initiator's right-lead grip family. */
-    grip: "collarSleeve" | "oneLeg" | "bothLegs" | "shoulders" | "mat";
+    grip: RowGrip;
   }
 
   /**

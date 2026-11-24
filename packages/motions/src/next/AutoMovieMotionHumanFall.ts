@@ -209,8 +209,7 @@ export namespace AutoMovieMotionHumanFall {
    * so its back falls toward that direction.
    *
    * The trunk's recline and the hip's fold at the seat are provisional
-   * readings; detailed falls derived from the Euphoria behaviours belong to
-   * tier 2 of the kickboxing research.
+   * readings; detailed falls belong to tier 2 of the kickboxing research.
    */
   export import knockdown = knockdownLaw;
 

@@ -1,5 +1,6 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanFoot,
@@ -13,6 +14,27 @@ import { AutoMovieMotionHumanRange } from "../compose/AutoMovieMotionHumanRange"
 import { kneelKeys } from "../everyday/kneelKeys";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
+
+/** The record of `IPrepareRollResult2`'s site. */
+type IPrepareRollResult2 = {
+  placement: IAutoMovieMotionHumanFoot.IPlacement;
+  toes: number;
+  mtp: IAutoMovieVector3;
+};
+
+/** The record of `IPrepareRollResult`'s site. */
+type IPrepareRollResult = {
+  placement: IAutoMovieMotionHumanFoot.IPlacement;
+  toes: number;
+  mtp: IAutoMovieVector3;
+};
+
+/** The record of `IRolledResult`'s site. */
+type IRolledResult = {
+  placement: IAutoMovieMotionHumanFoot.IPlacement;
+  toes: number;
+  mtp: IAutoMovieVector3;
+};
 
 /**
  * The feet of a crawl on the knees: each tucked on its toes behind its knee
@@ -48,16 +70,12 @@ export namespace crawlFeet {
    */
   export function rolled(
     body: IAutoMovieMotionHumanBody,
-    side: "left" | "right",
+    side: AutoMovieHumanSide,
     standing: IAutoMovieMotionHumanFoot.IPlacement,
     heading: number,
     lift: number,
     share: number,
-  ): {
-    placement: IAutoMovieMotionHumanFoot.IPlacement;
-    toes: number;
-    mtp: IAutoMovieVector3;
-  } {
+  ): IRolledResult {
     return prepareRoll(body, side, standing, heading, lift)(share);
   }
 
@@ -67,15 +85,11 @@ export namespace crawlFeet {
    */
   export function prepareRoll(
     body: IAutoMovieMotionHumanBody,
-    side: "left" | "right",
+    side: AutoMovieHumanSide,
     standing: IAutoMovieMotionHumanFoot.IPlacement,
     heading: number,
     lift: number,
-  ): (share: number) => {
-    placement: IAutoMovieMotionHumanFoot.IPlacement;
-    toes: number;
-    mtp: IAutoMovieVector3;
-  } {
+  ): (share: number) => IPrepareRollResult {
     const from: number = HumanFoot.heading(standing.rotation);
     const extension: number = Math.min(
       lift,
@@ -104,13 +118,7 @@ export namespace crawlFeet {
       standing,
       0,
     );
-    return (
-      share: number,
-    ): {
-      placement: IAutoMovieMotionHumanFoot.IPlacement;
-      toes: number;
-      mtp: IAutoMovieVector3;
-    } => {
+    return (share: number): IPrepareRollResult2 => {
       const q: number = lift * share;
       const toes: number = Math.min(q, extension);
       const rotation: IAutoMovieQuaternion = HumanFoot.rotation(
@@ -127,6 +135,11 @@ export namespace crawlFeet {
       return { placement, toes, mtp: mtpAt(placement) };
     };
   }
+  /** The record of `IPlantedResult`'s site. */
+  type IPlantedResult = {
+    frame: IAutoMovieMotionHumanFrame;
+    tucks: Record<AutoMovieHumanSide, ITuck>;
+  };
 
   /**
    * The feet a crawl kneels on, and the floor frame that keeps them where the
@@ -147,15 +160,12 @@ export namespace crawlFeet {
     body: IAutoMovieMotionHumanBody,
     standing: IAutoMovieMotionHumanPosture,
     measured: IAutoMovieMotionHumanFrame,
-    knees: Record<"left" | "right", IAutoMovieVector3>,
+    knees: Record<AutoMovieHumanSide, IAutoMovieVector3>,
     ahead: number,
-  ): {
-    frame: IAutoMovieMotionHumanFrame;
-    tucks: Record<"left" | "right", ITuck>;
-  } {
+  ): IPlantedResult {
     const forward: IAutoMovieVector3 = HumanFrame.forward(measured.yaw);
     const sides = ["left", "right"] as const;
-    const feet = sides.map((side: "left" | "right") => {
+    const feet = sides.map((side: AutoMovieHumanSide) => {
       const goal: IAutoMovieHumanLimbGoal = standing.limbs[`${side}Leg`]!;
       const placement: IAutoMovieMotionHumanFoot.IPlacement = {
         ankle: goal.point,

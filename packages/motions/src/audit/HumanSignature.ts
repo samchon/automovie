@@ -4,6 +4,7 @@ import {
   resolveAutoMovieHumanoidSurfaces,
 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   AutoMovieHumanoidRegion,
   IAutoMovieMotionHumanBody,
@@ -180,7 +181,7 @@ export namespace HumanSignature {
   export function knee(
     reader: IAutoMovieMotionHumanSignature.IReader,
     seconds: number,
-    side: "left" | "right",
+    side: AutoMovieHumanSide,
   ): number {
     return flexion(
       joint(reader, seconds, `${side}UpperLeg`),
@@ -193,7 +194,7 @@ export namespace HumanSignature {
   export function hip(
     reader: IAutoMovieMotionHumanSignature.IReader,
     seconds: number,
-    side: "left" | "right",
+    side: AutoMovieHumanSide,
   ): number {
     // The trunk's line continued through the hip: straight is no flexion.
     return flexion(
@@ -207,7 +208,7 @@ export namespace HumanSignature {
   export function elbow(
     reader: IAutoMovieMotionHumanSignature.IReader,
     seconds: number,
-    side: "left" | "right",
+    side: AutoMovieHumanSide,
   ): number {
     return flexion(
       joint(reader, seconds, `${side}UpperArm`),
@@ -254,7 +255,7 @@ export namespace HumanSignature {
   export function sole(
     reader: IAutoMovieMotionHumanSignature.IReader,
     seconds: number,
-    side: "left" | "right",
+    side: AutoMovieHumanSide,
   ): IAutoMovieVector3 {
     return HumanFoot.sockets(reader.body, bones(reader, seconds), side)
       .map((s): IAutoMovieVector3 => s.point)
@@ -285,7 +286,7 @@ export namespace HumanSignature {
   export function bears(
     reader: IAutoMovieMotionHumanSignature.IReader,
     seconds: number,
-    side: "left" | "right",
+    side: AutoMovieHumanSide,
     floor: number = 0,
     origin?: number,
   ): boolean {

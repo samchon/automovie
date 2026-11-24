@@ -2,6 +2,12 @@ import type { IAutoMovieMotionHumanClimbStairsFlight } from "@automovie/interfac
 
 import { climbStairsFlight } from "./climbStairsFlight";
 
+/** The record of `IClimbStairsProfileEdgesResult`'s site. */
+type IClimbStairsProfileEdgesResult = { z: number; height: number };
+
+/** The record of `IClimbStairsProfileEdgesItem`'s site. */
+type IClimbStairsProfileEdgesItem = { z: number; height: number };
+
 /**
  * Prepare the stepped clearance profile a swinging sole point must clear.
  *
@@ -18,9 +24,9 @@ export function climbStairsProfile(
 ): (z: number) => number {
   const surface: ReturnType<typeof climbStairsFlight.prepareSurface> =
     climbStairsFlight.prepareSurface(stairs);
-  const edges: { z: number; height: number }[] = Array.from(
+  const edges: IClimbStairsProfileEdgesItem[] = Array.from(
     { length: stairs.count },
-    (_: unknown, i: number): { z: number; height: number } => {
+    (_: unknown, i: number): IClimbStairsProfileEdgesResult => {
       const z: number = stairs.first + i * stairs.tread;
       return {
         z,

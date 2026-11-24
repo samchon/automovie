@@ -15,6 +15,9 @@ import { WorkoutSupport } from "../exercise/WorkoutSupport";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { handspring } from "./handspring";
 
+/** The alternatives of `SurfaceOfAxis`'s site. */
+type SurfaceOfAxis = "on" | "landOn";
+
 /**
  * A handspring vault: a front handspring whose hands land on a prop's top, a
  * vaulting table, a box or a plyometric box, and fly from it to the floor or
@@ -66,7 +69,7 @@ export namespace vault {
   function surfaceOf(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanVault.IParams>,
     prop: string,
-    axis: "on" | "landOn",
+    axis: SurfaceOfAxis,
   ): IAutoMovieMotionHumanHandspring.ISurface {
     const surface: ReturnType<typeof WorkoutSupport.placed> =
       WorkoutSupport.placed(context, {

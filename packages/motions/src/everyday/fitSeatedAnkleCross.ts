@@ -534,11 +534,13 @@ function projectionScale(row: IShape): number {
     Math.max(Math.abs(min.z - position.z), Math.abs(max.z - position.z))
   );
 }
+/** The record of `IUpperSurfaceResult`'s site. */
+type IUpperSurfaceResult = { y: number; normal: IAutoMovieVector3 };
 
 function upperSurface(
   rows: readonly IShape[],
   station: IAutoMovieVector3,
-): { y: number; normal: IAutoMovieVector3 } | undefined {
+): IUpperSurfaceResult | undefined {
   let top: ReturnType<typeof upperSurface>;
   for (const { pose, shape, bounds } of rows) {
     const { min, max } = bounds;

@@ -8,6 +8,9 @@ import type {
 
 import { HumanColliderBound } from "./HumanColliderBound";
 
+/** The record of `ISphereResult`'s site. */
+type ISphereResult = { centre: IAutoMovieVector3; radius: number };
+
 /**
  * A placed collider shape's bounding sphere and, for a hull, its face planes in
  * its own frame: the bounds a clearance reading tests a point against before it
@@ -49,54 +52,39 @@ export namespace HumanShapeFraming {
   /**
    * A placed shape's bounding sphere (`sphere`) and, for a hull, its face
    * planes, the world point its frame is centred on and the rotation into that
-   * frame: the same numbers every call computes for the same posed frame and
-   * shape, so they are computed once per frame and shape, a swivel sweep
-   * reading one trunk's colliders at every candidate.
+   * frame. A sweep frames its colliders once, when it prepares its room
+   * (`HumanArmOvershootRoom.of`), and reads them at every candidate.
    */
   export function of(
     pose: IAutoMovieMotionHumanColliders.IPlaced["pose"],
     shape: IAutoMovieMotionHumanColliders.IPlaced["shapes"][number],
   ): IFramed {
-    let shapes:
-      | Map<IAutoMovieMotionHumanColliders.IPlaced["shapes"][number], IFramed>
-      | undefined = FRAMED.get(pose);
-    if (shapes === undefined) {
-      shapes = new Map();
-      FRAMED.set(pose, shapes);
-    }
-    let found: IFramed | undefined = shapes.get(shape);
-    if (found === undefined) {
-      found = {
-        ...sphere(pose, shape),
-        lead: 0,
-        ...(shape.kind === "hull"
-          ? {
-              faces: planes(shape.points),
-              origin: Vector3.add(
-                pose.position,
-                Quaternion.rotateVector(
-                  pose.rotation,
-                  shape.transform.position,
-                ),
-              ),
-              inverse: Quaternion.inverse(
-                Quaternion.multiply(pose.rotation, shape.transform.rotation),
-              ),
-            }
-          : {}),
-      };
-      if (
-        found.faces !== undefined &&
-        found.origin !== undefined &&
-        found.inverse !== undefined
-      )
-        BEND_FRAMES.set(found, {
-          centre: found.centre,
-          origin: found.origin,
-          inverse: found.inverse,
-        });
-      shapes.set(shape, found);
-    }
+    const found: IFramed = {
+      ...sphere(pose, shape),
+      lead: 0,
+      ...(shape.kind === "hull"
+        ? {
+            faces: planes(shape.points),
+            origin: Vector3.add(
+              pose.position,
+              Quaternion.rotateVector(pose.rotation, shape.transform.position),
+            ),
+            inverse: Quaternion.inverse(
+              Quaternion.multiply(pose.rotation, shape.transform.rotation),
+            ),
+          }
+        : {}),
+    };
+    if (
+      found.faces !== undefined &&
+      found.origin !== undefined &&
+      found.inverse !== undefined
+    )
+      BEND_FRAMES.set(found, {
+        centre: found.centre,
+        origin: found.origin,
+        inverse: found.inverse,
+      });
     return found;
   }
 
@@ -232,7 +220,7 @@ export namespace HumanShapeFraming {
   export function sphere(
     pose: IAutoMovieMotionHumanColliders.IPlaced["pose"],
     shape: IAutoMovieMotionHumanColliders.IPlaced["shapes"][number],
-  ): { centre: IAutoMovieVector3; radius: number } {
+  ): ISphereResult {
     const local: IAutoMovieMotionHumanColliders.IBall =
       HumanColliderBound(shape);
     return {
@@ -257,18 +245,6 @@ export namespace HumanShapeFraming {
  */
 const PLANES: WeakMap<readonly IAutoMovieVector3[], Float64Array> =
   new WeakMap();
-
-/**
- * Each posed segment frame's shapes as `HumanShapeFraming.of` reads them, kept
- * while the frame lives.
- */
-const FRAMED: WeakMap<
-  IAutoMovieMotionHumanColliders.IPlaced["pose"],
-  Map<
-    IAutoMovieMotionHumanColliders.IPlaced["shapes"][number],
-    HumanShapeFraming.IFramed
-  >
-> = new WeakMap();
 
 /** The producer identity of the broad-phase planes. */
 const DOUBLE: Float64ArrayConstructor = Float64Array;

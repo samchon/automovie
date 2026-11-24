@@ -141,19 +141,15 @@ export namespace HumanPreparedPlayback {
       (entry: IPhase): boolean => local >= entry.from && local <= entry.to,
     );
     if (phase === undefined) return undefined;
-    try {
-      return binding.source.mode === "fitted" && incumbents !== undefined
+    const sample: () => ISample | undefined = (): ISample | undefined =>
+      binding.source.mode === "fitted" && incumbents !== undefined
         ? HumanLimbIncumbent.within(
             { body, seeds: incumbents },
             (): ISample | undefined => phase.sample(...args),
           )
         : phase.sample(...args);
-    } catch (error) {
-      throw error instanceof HumanRefusal &&
-        placed &&
-        binding.where !== undefined
-        ? error.locate(binding.where)
-        : error;
-    }
+    return placed && binding.where !== undefined
+      ? HumanRefusal.located(binding.where, sample)
+      : sample();
   }
 }

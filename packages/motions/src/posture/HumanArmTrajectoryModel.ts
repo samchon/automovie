@@ -12,6 +12,48 @@ import { HumanArmTrajectoryPairs as P } from "./HumanArmTrajectoryPairs";
 import { HumanArmTrajectorySweep } from "./HumanArmTrajectorySweep";
 import { HumanArmTrajectoryTerms as T } from "./HumanArmTrajectoryTerms";
 
+/** The alternatives of `InnerC`'s site. */
+type InnerC = "n" | "open";
+
+/** The record of `IPairsItemItem`'s site. */
+type IPairsItemItem = {
+  deepest: Map<number, P.IPair>;
+  embedded: Map<number, P.IEmbedded>;
+};
+
+/** The alternatives of `ContextLyingSegment`'s site. */
+type ContextLyingSegment = "upperArm" | "lowerArm" | "hand";
+
+/** The record of `IContextBeyond`'s site. */
+type IContextBeyond = {
+  before?: readonly (readonly number[])[];
+  after?: readonly (readonly number[])[];
+};
+
+/** The alternatives of `RestPart`'s site. */
+type RestPart = "upperArm" | "lowerArm";
+
+/** The record of `ISiteOn`'s site. */
+type ISiteOn = {
+  /** The other arm's index in the problem. */
+  arm: number;
+  /** Its segment. */
+  owner: SiteOnOwner;
+  /** The point in the segment's frame. */
+  point: IAutoMovieVector3;
+  /**
+   * The touched collider's outward normal there, in the segment's frame;
+   * none for a grip on an object both hands hold, a closed chain whose
+   * contact is held to the point on every axis.
+   */
+  normal?: IAutoMovieVector3;
+  /** The hand's rotation in the segment's frame. */
+  rotation?: IAutoMovieQuaternion;
+};
+
+/** The alternatives of `SiteOnOwner`'s site. */
+type SiteOnOwner = "upper" | "lower" | "hand";
+
 /**
  * The objective and the constraints of an arms' trajectory
  * (`HumanArmTrajectory`), evaluated at an iterate; its context is built by
@@ -68,22 +110,7 @@ export namespace HumanArmTrajectoryModel {
      * that segment's own (`point` and `rotation` above where the base holds
      * it). A site of the body or another body rides nothing.
      */
-    on?: {
-      /** The other arm's index in the problem. */
-      arm: number;
-      /** Its segment. */
-      owner: "upper" | "lower" | "hand";
-      /** The point in the segment's frame. */
-      point: IAutoMovieVector3;
-      /**
-       * The touched collider's outward normal there, in the segment's frame;
-       * none for a grip on an object both hands hold, a closed chain whose
-       * contact is held to the point on every axis.
-       */
-      normal?: IAutoMovieVector3;
-      /** The hand's rotation in the segment's frame. */
-      rotation?: IAutoMovieQuaternion;
-    };
+    on?: ISiteOn;
   }
 
   /** One of an arm's three segments. */
@@ -95,7 +122,7 @@ export namespace HumanArmTrajectoryModel {
    */
   export interface IRest {
     /** The arm's segment. */
-    part: "upperArm" | "lowerArm";
+    part: RestPart;
     /** The bone it lies on. */
     on: string;
   }
@@ -202,10 +229,7 @@ export namespace HumanArmTrajectoryModel {
      * course beyond them; absent at an end, the arm is at rest beyond it, as at
      * an action's own rest and return.
      */
-    beyond?: {
-      before?: readonly (readonly number[])[];
-      after?: readonly (readonly number[])[];
-    };
+    beyond?: IContextBeyond;
     /** Each arm's setup. */
     setups: IAutoMovieMotionHumanArmGeometry.ISetup[];
     /** Each arm's frame at each waypoint. */
@@ -278,7 +302,7 @@ export namespace HumanArmTrajectoryModel {
     lying: (
       a: number,
       k: number,
-      segment: "upperArm" | "lowerArm" | "hand",
+      segment: ContextLyingSegment,
       bone: string,
     ) => boolean;
     /** Each site's outward normal, the touched collider's at the site's point. */
@@ -346,10 +370,7 @@ export namespace HumanArmTrajectoryModel {
      * reading found them, which the convex model reads again at the same
      * iterate.
      */
-    pairs: {
-      deepest: Map<number, P.IPair>;
-      embedded: Map<number, P.IEmbedded>;
-    }[][];
+    pairs: IPairsItemItem[][];
     /**
      * Each arm's probes' sweeps over each interval, by its first waypoint: the
      * axis spheres' (`HumanArmTrajectorySweep.of`) and the collider probes'
@@ -382,7 +403,7 @@ export namespace HumanArmTrajectoryModel {
    * @param k The waypoint.
    * @returns Whether the waypoint is solved for.
    */
-  export function inner(c: Pick<IContext, "n" | "open">, k: number): boolean {
+  export function inner(c: Pick<IContext, InnerC>, k: number): boolean {
     return k > 0 && (k < c.n - 1 || (c.open && k === c.n - 1));
   }
 
@@ -451,6 +472,8 @@ export namespace HumanArmTrajectoryModel {
   /** The chart radius owned by HumanArmTrajectoryInvalid.swing. */
   export const swing: typeof HumanArmTrajectoryInvalid.swing =
     HumanArmTrajectoryInvalid.swing;
+  /** The record of `IEvaluateKept`'s site. */
+  type IEvaluateKept = { reading: IEvaluation; laid: readonly boolean[] };
 
   /**
    * The objective and the constraints' violations at an iterate, read in full
@@ -469,7 +492,7 @@ export namespace HumanArmTrajectoryModel {
   export function evaluate(
     c: IContext,
     x: readonly (readonly number[])[][],
-    kept?: { reading: IEvaluation; laid: readonly boolean[] },
+    kept?: IEvaluateKept,
     contact?: readonly boolean[],
   ): IEvaluation {
     return HumanArmTrajectoryEvaluate(c, x, kept, contact);

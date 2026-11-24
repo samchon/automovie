@@ -19,6 +19,18 @@ import { AutoMovieMotionHumanLean } from "../compose/AutoMovieMotionHumanLean";
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 
+/** The record of `IGoal`'s site. */
+type IGoal = { shoulder: IAutoMovieVector3 };
+
+/** The alternatives of `PrepareLeanRole`'s site. */
+type PrepareLeanRole = "bones" | "posture";
+
+/** The alternatives of `LeanRole`'s site. */
+type LeanRole = "bones" | "posture";
+
+/** The alternatives of `RoomsRole`'s site. */
+type RoomsRole = "body" | "posture" | "bones" | "seated";
+
 /**
  * A seated reach with the trunk below the arm in task priority: the hand's
  * target first, and when the arm alone falls short, a lean of the trunk
@@ -56,10 +68,7 @@ export namespace HumanSeatedReach {
    * @returns The joints from the lowest, each with its room.
    */
   export function rooms(
-    role: Pick<
-      IAutoMovieMotionMeetingRole,
-      "body" | "posture" | "bones" | "seated"
-    >,
+    role: Pick<IAutoMovieMotionMeetingRole, RoomsRole>,
   ): IAutoMovieMotionHumanSeatedReach.IJoint[] {
     if (role.seated !== true) return [];
     const range = (bone: AutoMovieHumanoidBone): number | null =>
@@ -136,7 +145,7 @@ export namespace HumanSeatedReach {
    * @returns The leaned point.
    */
   export function lean(
-    role: Pick<IAutoMovieMotionMeetingRole, "bones" | "posture">,
+    role: Pick<IAutoMovieMotionMeetingRole, LeanRole>,
     joints: readonly IAutoMovieMotionHumanSeatedReach.IJoint[],
     point: IAutoMovieVector3,
     share: number,
@@ -149,7 +158,7 @@ export namespace HumanSeatedReach {
    * performs its actual ordered turns.
    */
   function prepareLean(
-    role: Pick<IAutoMovieMotionMeetingRole, "bones" | "posture">,
+    role: Pick<IAutoMovieMotionMeetingRole, PrepareLeanRole>,
     joints: readonly IAutoMovieMotionHumanSeatedReach.IJoint[],
     point: IAutoMovieVector3,
   ): (share: number) => IAutoMovieVector3 {
@@ -273,10 +282,7 @@ export namespace HumanSeatedReach {
    * @throws {Error} The resolution's own error when even the full lean cannot
    *   bring the arms together.
    */
-  export function goal<
-    Side extends { shoulder: IAutoMovieVector3 },
-    Result = IAutoMovieVector3,
-  >(
+  export function goal<Side extends IGoal, Result = IAutoMovieVector3>(
     roles: readonly [IAutoMovieMotionMeetingRole, IAutoMovieMotionMeetingRole],
     sides: readonly [Side, Side],
     resolve: (a: Side, b: Side) => Result,

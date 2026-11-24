@@ -19,6 +19,36 @@ import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanFormation } from "./HumanFormation";
 
+/** The record of `ICycleNextS`'s site. */
+type ICycleNextS = { seconds: number; side: string };
+
+/** The record of `ICycleNext`'s site. */
+type ICycleNext = { seconds: number; side: string };
+
+/** The record of `ICycleStart`'s site. */
+type ICycleStart = { seconds: number; side: string };
+
+/** The record of `ICycleStrikesB`'s site. */
+type ICycleStrikesB = { seconds: number };
+
+/** The record of `ICycleStrikesA`'s site. */
+type ICycleStrikesA = { seconds: number };
+
+/** The record of `ICycleStrikesS`'s site. */
+type ICycleStrikesS = { seconds: number };
+
+/** The record of `ICycleStrikesResult`'s site. */
+type ICycleStrikesResult = { seconds: number; side: string };
+
+/** The record of `ICycleStrikesItem`'s site. */
+type ICycleStrikesItem = { seconds: number; side: string };
+
+/** The record of `IDesignResult`'s site. */
+type IDesignResult = { slot: number; actor: string };
+
+/** The record of `IDesignOrigin`'s site. */
+type IDesignOrigin = { at: IAutoMovieVector3; heading: number };
+
 /**
  * Background members handed to the instanced population layer: their places as
  * one formation design, and their motion as a cycle of a performed template
@@ -71,8 +101,9 @@ export namespace HumanPopulation {
             : "the ensemble has no population member",
         fix: "give the ensemble a formation and declare its background members `population`",
       });
-    const origin: { at: IAutoMovieVector3; heading: number } =
-      HumanFormation.frame(formation, props.seconds ?? 0);
+    const origin: IDesignOrigin = HumanFormation.prepare(formation).frame(
+      props.seconds ?? 0,
+    );
     return {
       id: props.id,
       model: props.model,
@@ -99,9 +130,7 @@ export namespace HumanPopulation {
             m.detail !== "population",
         )
         .map(
-          (
-            m: IAutoMovieMotionHumanEnsemble.IMember,
-          ): { slot: number; actor: string } => ({
+          (m: IAutoMovieMotionHumanEnsemble.IMember): IDesignResult => ({
             slot: m.index,
             actor: m.subject,
           }),
@@ -132,27 +161,26 @@ export namespace HumanPopulation {
         (s: IAutoMovieMotionHumanSegment): boolean =>
           s.entryTime <= from && from < s.end,
       );
-    const strikes: { seconds: number; side: string }[] = (
-      segment?.plan.events ?? []
-    )
+    const strikes: ICycleStrikesItem[] = (segment?.plan.events ?? [])
       .filter((e: IAutoMovieMotionEvent): boolean =>
         /^(left|right)HeelStrike\d+$/.test(e.name),
       )
-      .map((e: IAutoMovieMotionEvent): { seconds: number; side: string } => ({
-        seconds: segment!.start + e.share * segment!.plan.duration,
-        side: e.name.startsWith("left") ? "left" : "right",
-      }))
+      .map(
+        (e: IAutoMovieMotionEvent): ICycleStrikesResult => ({
+          seconds: segment!.start + e.share * segment!.plan.duration,
+          side: e.name.startsWith("left") ? "left" : "right",
+        }),
+      )
       .filter(
-        (s: { seconds: number }): boolean =>
+        (s: ICycleStrikesS): boolean =>
           s.seconds >= from && s.seconds <= segment!.end,
       )
       .sort(
-        (a: { seconds: number }, b: { seconds: number }): number =>
-          a.seconds - b.seconds,
+        (a: ICycleStrikesA, b: ICycleStrikesB): number => a.seconds - b.seconds,
       );
-    const start: { seconds: number; side: string } | undefined = strikes[0];
-    const next: { seconds: number; side: string } | undefined = strikes.find(
-      (s: { seconds: number; side: string }): boolean =>
+    const start: ICycleStart | undefined = strikes[0];
+    const next: ICycleNext | undefined = strikes.find(
+      (s: ICycleNextS): boolean =>
         start !== undefined &&
         s.side === start.side &&
         s.seconds > start.seconds,

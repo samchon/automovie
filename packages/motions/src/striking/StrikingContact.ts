@@ -8,6 +8,9 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+/** The record of `INearestBest`'s site. */
+type INearestBest = { name: string; distance: number };
+
 /**
  * When and where a moving weapon first touches a surface of another body.
  *
@@ -80,7 +83,7 @@ export namespace StrikingContact {
     p: IAutoMovieVector3,
     shapes: readonly IAutoMovieMotionHumanStrikingContact.ICollider[],
   ): IAutoMovieMotionHumanStrikingContact.INearestResult {
-    let best: { name: string; distance: number } | undefined;
+    let best: INearestBest | undefined;
     for (const s of shapes) {
       const d: number = distance(p, s);
       if (best === undefined || d < best.distance)

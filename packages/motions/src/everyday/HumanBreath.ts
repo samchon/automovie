@@ -392,6 +392,8 @@ const TIDAL_ENTRIES: readonly [
   AutoMovieHumanoidBone,
   readonly [number, number, number],
 ][];
+/** The record of `IFixedDrawPrevious`'s site. */
+type IFixedDrawPrevious = { seed: string; value: number };
 
 /**
  * Reuse one fixed-index scalar draw only while its pure stream seed is
@@ -400,7 +402,7 @@ const TIDAL_ENTRIES: readonly [
 function fixedDraw(
   draw: (random: IAutoMovieRandom) => number,
 ): (random: IAutoMovieRandom) => number {
-  let previous: { seed: string; value: number } | undefined;
+  let previous: IFixedDrawPrevious | undefined;
   return (random: IAutoMovieRandom): number => {
     if (previous === undefined || previous.seed !== random.seed)
       previous = { seed: random.seed, value: draw(random) };

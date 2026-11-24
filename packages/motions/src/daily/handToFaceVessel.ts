@@ -13,6 +13,9 @@ import { AutoMovieMotionHumanTouchDrink } from "../compose/AutoMovieMotionHumanT
 import { AutoMovieMotionHumanTouchStance } from "../compose/AutoMovieMotionHumanTouchStance";
 import { AutoMovieMotionHumanTouchUpright } from "../compose/AutoMovieMotionHumanTouchUpright";
 
+/** The alternatives of `OfPlace`'s site. */
+type OfPlace = "point" | "normal";
+
 /**
  * The side of a held vessel's rim a drink is taken from, found by the drink's
  * own admission (`AutoMovieMotionHumanTouchDrink.drinking`): the first side, in
@@ -64,7 +67,7 @@ export namespace handToFaceVessel {
     posture: IAutoMovieMotionHumanPosture,
     side: AutoMovieHumanSide,
     sides: readonly IAutoMovieMotionHumanTouchEffector.IEffector[],
-    place: Pick<IAutoMovieMotionHumanTarget.IPlace, "point" | "normal">,
+    place: Pick<IAutoMovieMotionHumanTarget.IPlace, OfPlace>,
     hint: IAutoMovieVector3,
     after: IAutoMovieMotionHumanTouchDrink.IAfter,
   ): IVessel {

@@ -19,6 +19,9 @@ import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanHand } from "../posture/HumanHand";
 import { poseBones } from "../posture/poseBones";
 
+/** The alternatives of `OfContext`'s site. */
+type OfContext = "body" | "entry" | "prop";
+
 /**
  * A long prop held in one hand or two, placed by its line: the carrying hand's
  * grip, the prop's axis from that grip to its end, and its roll about that
@@ -112,10 +115,7 @@ export namespace walkPoleFrame {
    *   end.
    */
   export function of(
-    context: Pick<
-      IAutoMovieMotionHumanActionContext,
-      "body" | "entry" | "prop"
-    >,
+    context: Pick<IAutoMovieMotionHumanActionContext, OfContext>,
     prop: string,
     end: string,
   ): IPole | undefined {

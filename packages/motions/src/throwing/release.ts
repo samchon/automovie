@@ -31,9 +31,28 @@ import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMo
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanPropFrame } from "../perform/HumanPropFrame";
+import { HumanBoneGroups } from "../posture/HumanBoneGroups";
 import { HumanHand } from "../posture/HumanHand";
 import { placeHumanHandSurface } from "../posture/placeHumanHandSurface";
 import { poseBones } from "../posture/poseBones";
+
+/** The alternatives of `PlanPlacedShape`'s site. */
+type PlanPlacedShape = "fist" | "flat";
+
+/** The record of `IPlanPlacedResult`'s site. */
+type IPlanPlacedResult = {
+  wrist: IAutoMovieMotionHumanHand.IWrist;
+  contact: IAutoMovieVector3;
+};
+
+/** The record of `IPlanPlaced`'s site. */
+type IPlanPlaced = {
+  wrist: IAutoMovieMotionHumanHand.IWrist;
+  contact: IAutoMovieVector3;
+};
+
+/** The alternatives of `OffsetsEntryItem`'s site. */
+type OffsetsEntryItem = "fist" | "flat";
 
 /**
  * Letting go: a hand opens on what it holds, and the held prop leaves it.
@@ -122,30 +141,28 @@ export namespace release {
     ): IAutoMovieRigidTransform =>
       HumanPropFrame.compose(
         HumanPropFrame.bone(
-          HumanTrunk.resolve(body, posture, undefined, resolution, CHEST).get(
-            "chest",
-          )!,
+          HumanTrunk.resolve(
+            body,
+            posture,
+            undefined,
+            resolution,
+            HumanBoneGroups.CHEST,
+          ).get("chest")!,
         ),
         kept,
       );
-    const offsets: Partial<Record<"fist" | "flat", IAutoMovieVector3>> = {};
+    const offsets: Partial<Record<OffsetsEntryItem, IAutoMovieVector3>> = {};
     const placed: (
       posture: IAutoMovieMotionHumanPosture,
       seconds: number,
       resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
-    ) => {
-      wrist: IAutoMovieMotionHumanHand.IWrist;
-      contact: IAutoMovieVector3;
-    } = (
+    ) => IPlanPlaced = (
       posture: IAutoMovieMotionHumanPosture,
       seconds: number,
       resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
-    ): {
-      wrist: IAutoMovieMotionHumanHand.IWrist;
-      contact: IAutoMovieVector3;
-    } => {
+    ): IPlanPlacedResult => {
       const at: IAutoMovieRigidTransform = carried(posture, resolution);
-      const shape: "fist" | "flat" = seconds < open ? "fist" : "flat";
+      const shape: PlanPlacedShape = seconds < open ? "fist" : "flat";
       const contact: IAutoMovieVector3 = (offsets[shape] ??= {
         ...HumanHand.offset(body, side, "grip", shape).point,
       });
@@ -279,6 +296,3 @@ export namespace release {
     return { ...composed, launches };
   }
 }
-
-/** The frame whose fixed offset carries the released hand. */
-const CHEST: ReadonlySet<AutoMovieHumanoidBone> = new Set(["chest"]);

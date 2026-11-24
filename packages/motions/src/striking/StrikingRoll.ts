@@ -21,6 +21,25 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { StrikingHeld } from "./StrikingHeld";
 import { StrikingStrain } from "./StrikingStrain";
 
+/** The record of `IHandCandidate`'s site. */
+type IHandCandidate = { values: number[] };
+
+/** The record of `IHandB`'s site. */
+type IHandB = { rank: number };
+
+/** The record of `IHandA`'s site. */
+type IHandA = { rank: number };
+
+/** The record of `IHandCandidatesItem`'s site. */
+type IHandCandidatesItem = { values: number[]; rank: number };
+
+/** The alternatives of `HandPosture`'s site. */
+type HandPosture =
+  | IAutoMovieMotionHumanPosture
+  | ((
+      frame: IAutoMovieMotionHumanStrikingHeld.IHandFrame,
+    ) => IAutoMovieMotionHumanPosture);
+
 /**
  * Whether the arm can hold a held tool in a pose, and the turn of the tool
  * about its own line where the action leaves it free.
@@ -137,11 +156,7 @@ export namespace StrikingRoll {
     at: IAutoMovieVector3,
     axis: IAutoMovieVector3,
     cone: number,
-    posture:
-      | IAutoMovieMotionHumanPosture
-      | ((
-          frame: IAutoMovieMotionHumanStrikingHeld.IHandFrame,
-        ) => IAutoMovieMotionHumanPosture),
+    posture: HandPosture,
   ): IAutoMovieMotionHumanStrikingHeld.IHandFrame {
     const along: IAutoMovieVector3 = Vector3.normalize(axis);
     const from: IAutoMovieVector3 | undefined =
@@ -195,7 +210,7 @@ export namespace StrikingRoll {
         throw error;
       }
     };
-    const candidates: { values: number[]; rank: number }[] = [];
+    const candidates: IHandCandidatesItem[] = [];
     for (let tilt: number = 0; tilt <= cone + 1e-9; tilt += 10)
       for (let around: number = 0; around < 360; around += 45) {
         for (let turn: number = 0; turn < 360; turn += 30) {
@@ -207,14 +222,12 @@ export namespace StrikingRoll {
         }
         if (tilt === 0) break;
       }
-    candidates.sort(
-      (a: { rank: number }, b: { rank: number }): number => a.rank - b.rank,
-    );
+    candidates.sort((a: IHandA, b: IHandB): number => a.rank - b.rank);
     return chosen(context, tool, {
       frame,
       tried: candidates
         .slice(0, TRIED)
-        .map((candidate: { values: number[] }): number[] => candidate.values),
+        .map((candidate: IHandCandidate): number[] => candidate.values),
       freedoms: [
         { kind: "bounded", step: cone > 0 ? 5 : 0, least: 0, greatest: cone },
         { kind: "wrapped", step: 22.5, period: 360 },

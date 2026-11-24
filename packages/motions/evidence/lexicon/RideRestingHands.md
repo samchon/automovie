@@ -40,7 +40,7 @@ One forward-kinematics read of the wrists and elbows per plan.
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 
-Reuses `poseBones` and `resolveHumanPosture.heading`.
+Reuses `poseBones` and `humanPostureHeading`.
 
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
@@ -70,7 +70,7 @@ Constant work per call.
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 
-Reuses `resolveHumanPosture.heading`.
+Reuses `humanPostureHeading`.
 
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 

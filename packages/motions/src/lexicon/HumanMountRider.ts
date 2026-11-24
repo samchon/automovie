@@ -20,6 +20,7 @@ import type {
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { HumanGrip } from "../handling/HumanGrip";
 import { HumanHand } from "../posture/HumanHand";
+import { humanPostureHeading } from "../posture/humanPostureHeading";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
@@ -28,6 +29,9 @@ import { HumanMountReach } from "./HumanMountReach";
 import type { HumanRideHands } from "./HumanRideHands";
 import { ankleRidePedalFoot } from "./ankleRidePedalFoot";
 import { placeRideReinPalm } from "./placeRideReinPalm";
+
+/** The alternatives of `FreeHandsArm`'s site. */
+type FreeHandsArm = "leftArm" | "rightArm";
 
 /**
  * What a seated rider's own body gives to stay on a mount's parts: the ankle
@@ -88,7 +92,7 @@ export namespace HumanMountRider {
    */
   export function ankled(
     body: IAutoMovieMotionHumanBody,
-    side: "left" | "right",
+    side: AutoMovieHumanSide,
     goal: IAutoMovieHumanLimbGoal,
     hip: IAutoMovieVector3,
     level: IAutoMovieQuaternion,
@@ -187,7 +191,7 @@ export namespace HumanMountRider {
    */
   export function hold(
     body: IAutoMovieMotionHumanBody,
-    side: "left" | "right",
+    side: AutoMovieHumanSide,
     posture: IAutoMovieMotionHumanPosture,
     grip: IAutoMovieMotionHumanMountRider.IHoldGrip,
     share: number,
@@ -320,7 +324,7 @@ export namespace HumanMountRider {
     const rest: Set<AutoMovieHumanoidBone> = new Set();
     const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...posture.limbs };
     for (const bone of requested) {
-      const arm: "leftArm" | "rightArm" = bone.startsWith("left")
+      const arm: FreeHandsArm = bone.startsWith("left")
         ? "leftArm"
         : "rightArm";
       const goal: IAutoMovieHumanLimbGoal | undefined = posture.limbs[arm];
@@ -408,7 +412,7 @@ export namespace HumanMountRider {
    */
   export function closed(
     body: IAutoMovieMotionHumanBody,
-    side: "left" | "right",
+    side: AutoMovieHumanSide,
     posture: IAutoMovieMotionHumanPosture,
     grip: IAutoMovieMotionHumanMountRider.IHoldGrip,
     shapes: readonly IAutoMoviePhysicalShape[],
@@ -487,10 +491,10 @@ export namespace HumanMountRider {
   export function lean(
     body: IAutoMovieMotionHumanBody,
     seated: IAutoMovieMotionHumanPosture,
-    points: Partial<Record<"left" | "right", IAutoMovieVector3>>,
+    points: Partial<Record<AutoMovieHumanSide, IAutoMovieVector3>>,
   ): number {
-    const sides: ("left" | "right")[] = (["left", "right"] as const).filter(
-      (side: "left" | "right"): boolean => points[side] !== undefined,
+    const sides: AutoMovieHumanSide[] = (["left", "right"] as const).filter(
+      (side: AutoMovieHumanSide): boolean => points[side] !== undefined,
     );
     return sides.length === 0
       ? 0
@@ -503,7 +507,7 @@ export namespace HumanMountRider {
  * side.
  */
 function forward(posture: IAutoMovieMotionHumanPosture): IAutoMovieVector3 {
-  return Quaternion.rotateVector(resolveHumanPosture.heading(posture), {
+  return Quaternion.rotateVector(humanPostureHeading(posture), {
     x: 0,
     y: 0,
     z: 1,

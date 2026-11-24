@@ -1,4 +1,5 @@
 import type {
+  AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanChain,
   IAutoMovieMotionHumanPerformance,
@@ -83,6 +84,8 @@ interface IPerson {
   /** Its motion body. */
   body: IAutoMovieMotionHumanBody;
 }
+/** The record of `IThrownOther`'s site. */
+type IThrownOther = { id: string; body: IAutoMovieMotionHumanBody };
 
 /** One strike of a case: who throws it, at whom, and its segment. */
 interface IThrown {
@@ -93,11 +96,20 @@ interface IThrown {
   body: IAutoMovieMotionHumanBody;
 
   /** The other person, when there is one. */
-  other: { id: string; body: IAutoMovieMotionHumanBody } | undefined;
+  other: IThrownOther | undefined;
 
   /** The strike's segment. */
   segment: IAutoMovieMotionHumanSegment;
 }
+/** The record of `IBuildTargetsItem`'s site. */
+type IBuildTargetsItem = {
+  at: IAutoMovieVector3;
+  radius: number;
+  color: number;
+};
+
+/** The record of `IBuildTrailsItem`'s site. */
+type IBuildTrailsItem = { color: number; points: IAutoMovieVector3[] };
 
 /**
  * Build one case: run the scenario's performance for the two bodies and read
@@ -152,9 +164,8 @@ function build(
       : [{ id: "b", body: B.body, other: { id: "a", body: A.body } }]),
   ];
   const times: IMotionCaptureCase.ITime[] = [];
-  const trails: { color: number; points: IAutoMovieVector3[] }[] = [];
-  const targets: { at: IAutoMovieVector3; radius: number; color: number }[] =
-    [];
+  const trails: IBuildTrailsItem[] = [];
+  const targets: IBuildTargetsItem[] = [];
   const verdicts: IMotionCaptureCase.IVerdict[] = [];
   const chambers: Record<string, Record<string, number>> = {};
   for (const p of people)
@@ -206,7 +217,7 @@ function build(
         chamber <= g.end &&
         (stop === undefined || chamber <= stop)
       ) {
-        const side: "left" | "right" = StrikingLimb.side(limb);
+        const side: AutoMovieHumanSide = StrikingLimb.side(limb);
         const shown: StrikingLimb.Bones = performance.bones(p.id, chamber);
         const others: StrikingLimb.Bones | undefined =
           p.other === undefined

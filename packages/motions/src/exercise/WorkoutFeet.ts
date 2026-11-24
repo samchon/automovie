@@ -1,4 +1,5 @@
 import type {
+  AutoMovieHumanSide,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanFoot,
   IAutoMovieMotionHumanPosture,
@@ -7,6 +8,39 @@ import type {
 
 import { AutoMovieMotionHumanLeg } from "../compose/AutoMovieMotionHumanLeg";
 import { HumanFoot } from "../posture/HumanFoot";
+
+/** The alternatives of `Plan`'s site. */
+type Plan = IPlan3 | IPlan4;
+
+/** The record of `IPlan4`'s site. */
+type IPlan4 = {
+  /** A turn about the metatarsophalangeal contact. */
+  kind: "pivot";
+  /** The fixed contact in world metres. */
+  at: ReturnType<typeof HumanFoot.point>;
+  /** The entry heading in degrees. */
+  heading: number;
+};
+
+/** The record of `IPlan3`'s site. */
+type IPlan3 = {
+  /** An unturned plant. */
+  kind: "plant";
+  /**
+   * The fixed entry placement's goal reader, with its current-root knee
+   * hint.
+   */
+  goal: ReturnType<typeof AutoMovieMotionHumanLeg.prepareGoal>;
+};
+
+/** The record of `IPlan2`'s site. */
+type IPlan2 = {
+  /** The bearing leg. */
+  side: AutoMovieHumanSide;
+};
+
+/** The alternatives of `KeepContext`'s site. */
+type KeepContext = "body" | "entry";
 
 /**
  * The feet of a workout that stands: a foot the kind never moves is held by the
@@ -30,29 +64,29 @@ export namespace WorkoutFeet {
    *   itself for a kind that is not anchored on its stance.
    */
   export function keep(
-    context: Pick<IAutoMovieMotionHumanActionContext, "body" | "entry">,
+    context: Pick<IAutoMovieMotionHumanActionContext, KeepContext>,
     kind: IAutoMovieMotionHumanWorkoutKind,
     yaw: number,
   ): (placed: IAutoMovieMotionHumanPosture) => IAutoMovieMotionHumanPosture {
     const bearing: (
       how: IAutoMovieMotionHumanWorkoutKind.ISupport["kind"],
-    ) => readonly ("left" | "right")[] = (
+    ) => readonly AutoMovieHumanSide[] = (
       how: IAutoMovieMotionHumanWorkoutKind.ISupport["kind"],
-    ): readonly ("left" | "right")[] =>
+    ): readonly AutoMovieHumanSide[] =>
       kind.anchor !== "stance"
         ? []
         : (["left", "right"] as const).filter(
-            (side: "left" | "right"): boolean =>
+            (side: AutoMovieHumanSide): boolean =>
               kind.supports.some(
                 (support: IAutoMovieMotionHumanWorkoutKind.ISupport): boolean =>
                   support.part === `${side}Foot` && support.kind === how,
               ),
           );
-    const planted: readonly ("left" | "right")[] =
+    const planted: readonly AutoMovieHumanSide[] =
       kind.strides === true ? [] : bearing("plant");
-    const pivots: readonly ("left" | "right")[] = bearing("pivot");
+    const pivots: readonly AutoMovieHumanSide[] = bearing("pivot");
     const plans: IPlan[] = [...planted, ...pivots].map(
-      (side: "left" | "right"): IPlan => {
+      (side: AutoMovieHumanSide): IPlan => {
         const stance: IAutoMovieMotionHumanFoot.IPlacement = {
           ankle: context.entry.feet[side].ankle,
           rotation: context.entry.feet[side].rotation,
@@ -82,7 +116,7 @@ export namespace WorkoutFeet {
       if (plans.length === 0) return placed;
       const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...placed.limbs };
       for (const plan of plans) {
-        const side: "left" | "right" = plan.side;
+        const side: AutoMovieHumanSide = plan.side;
         limbs[`${side}Leg`] =
           plan.kind === "plant"
             ? plan.goal(placed)
@@ -106,26 +140,5 @@ export namespace WorkoutFeet {
   }
 
   /** Fixed entry geometry needed by each support's actual contact rule. */
-  type IPlan = {
-    /** The bearing leg. */
-    side: "left" | "right";
-  } & (
-    | {
-        /** An unturned plant. */
-        kind: "plant";
-        /**
-         * The fixed entry placement's goal reader, with its current-root knee
-         * hint.
-         */
-        goal: ReturnType<typeof AutoMovieMotionHumanLeg.prepareGoal>;
-      }
-    | {
-        /** A turn about the metatarsophalangeal contact. */
-        kind: "pivot";
-        /** The fixed contact in world metres. */
-        at: ReturnType<typeof HumanFoot.point>;
-        /** The entry heading in degrees. */
-        heading: number;
-      }
-  );
+  type IPlan = IPlan2 & Plan;
 }

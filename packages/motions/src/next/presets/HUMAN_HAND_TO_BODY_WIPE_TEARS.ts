@@ -8,11 +8,6 @@ import type { IAutoMovieMotionHumanHandToBody } from "@automovie/interface";
  * touching as a visible component of crying (Wróbel, Zickfeld and Ciesielski
  * 2025, https://doi.org/10.3758/s13428-025-02766-4); the path, the palm shape
  * and the timing are authored choices.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the fixed cheek, palm, stroke, count, hold, head and arrival event with their units, how it is applied and which row reads it.
- * @evidence contracts/development/design.md#principled-representation The wipe's fixed members of the hand-to-face law as one `IWipeTearsPreset`.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Re-exported as `AutoMovieMotionHumanHandToBody.WIPE_TEARS`; the `wipeTears` row reads it.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts None: the row and the preset share one value instead of two copies.
  */
 export const HUMAN_HAND_TO_BODY_WIPE_TEARS: IAutoMovieMotionHumanHandToBody.IWipeTearsPreset =
   {

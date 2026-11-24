@@ -19,6 +19,9 @@ import { HumanSkill } from "../skill/HumanSkill";
 import { StrikingHeld } from "../striking/StrikingHeld";
 import { StrikingSkill } from "../striking/StrikingSkill";
 
+/** The alternatives of `SettingContext`'s site. */
+type SettingContext = "body" | "entry";
+
 /**
  * The clock of a blade's attack, shared by the cut and the thrust: every
  * movement of the hand is one minimum-jerk unit (Flash and Hogan 1985) at the
@@ -97,7 +100,7 @@ export namespace HumanSwordTiming {
    * landing's takes as long as the arm needs.
    */
   export const setting = (
-    context: Pick<IAutoMovieMotionHumanActionContext, "body" | "entry">,
+    context: Pick<IAutoMovieMotionHumanActionContext, SettingContext>,
     tool: IAutoMovieMotionHumanStrikingHeld.ITool,
     entered: IAutoMovieMotionHumanStrikingHeld.IHandFrame,
     start: IAutoMovieMotionHumanStrikingHeld.IHandFrame,

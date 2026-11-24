@@ -6,7 +6,7 @@ States the input, the plan and the refusals.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-The impulse changes the centre's velocity by `J / m`; the engine's balance outcome reads it against the planted feet's base, its first capture step landing when the step `stagger` lays for this push lands (a push `stagger` cannot catch is a fall); the absorb is the critically damped linear inverted pendulum at the body's own frequency, and the step and the fall are the shipped laws at the impulse's speed and side.
+The impulse changes the centre's velocity by `J / m`; the engine's balance outcome reads it against the planted feet's base, its first capture step landing when the step `stagger` lays for this push lands (a push the stagger's admission, `staggerRecovery`, does not catch is a fall; any other refusal of the stagger surfaces); the absorb is the critically damped linear inverted pendulum at the body's own frequency, and the step and the fall are the shipped laws at the impulse's speed and side.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 

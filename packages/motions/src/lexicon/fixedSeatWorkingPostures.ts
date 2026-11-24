@@ -8,6 +8,8 @@ import type {
 } from "@automovie/interface";
 
 import { seated } from "../everyday/seated";
+import { HumanBoneGroups } from "../posture/HumanBoneGroups";
+import { humanPostureHeading } from "../posture/humanPostureHeading";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { fixedSeatFootSwing } from "./fixedSeatFootSwing";
@@ -34,10 +36,6 @@ const BONES: readonly AutoMovieHumanoidBone[] = [
   "leftShoulder",
   "rightShoulder",
 ];
-const SHOULDERS: ReadonlySet<AutoMovieHumanoidBone> = new Set([
-  "leftUpperArm",
-  "rightUpperArm",
-]);
 
 /** Move only the trunk coordinates that the closed bilateral fit supplied. */
 function withTrunk(base: Posture, target: Joints, share: number): Posture {
@@ -80,11 +78,11 @@ export function fixedSeatWorkingPostures(
   if (!designs.length) return undefined;
   const neutral: ReturnType<typeof Quaternion.multiply> = Quaternion.multiply(
     Quaternion.inverse(origin.rotation),
-    resolveHumanPosture.heading(poseAt(0)),
+    humanPostureHeading(poseAt(0)),
   );
   const read: ReturnType<typeof poseBones.prepare> = poseBones.prepare(
     body,
-    SHOULDERS,
+    HumanBoneGroups.SHOULDERS,
   );
   return function* alternatives(
     raw: Posture,
@@ -96,14 +94,14 @@ export function fixedSeatWorkingPostures(
     );
     const turn: ReturnType<typeof Quaternion.multiply> = Quaternion.multiply(
       Quaternion.inverse(level),
-      resolveHumanPosture.heading(raw),
+      humanPostureHeading(raw),
     );
     const sign: number = turn.w < 0 ? -1 : 1;
     const degrees: number =
       (2 * Math.atan2(sign * turn.x, sign * turn.w)) / Quaternion.DEG2RAD;
     if (degrees <= cap) return;
-    const angles: ReturnType<typeof resolveHumanPosture.angles> =
-      resolveHumanPosture.angles(
+    const angles: ReturnType<typeof humanPostureHeading.angles> =
+      humanPostureHeading.angles(
         Quaternion.multiply(
           level,
           Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, cap),

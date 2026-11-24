@@ -19,6 +19,7 @@ import type {
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
+import { lowerHumanPosture } from "../posture/lowerHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { ExerciseKey } from "./ExerciseKey";
@@ -163,14 +164,14 @@ export namespace balletPirouette {
     // their feet in fourth, which stand further apart than the entry's: each
     // hip joint over the plié's place at the end's heading stands no higher
     // over its ankle than the leg reaches at a planted knee's least flexion
-    // (`resolveHumanPosture.KNEE`).
+    // (`lowerHumanPosture.KNEE`).
     const reach: number = Math.sqrt(
       body.measure.thigh ** 2 +
         body.measure.shank ** 2 +
         2 *
           body.measure.thigh *
           body.measure.shank *
-          Math.cos((resolveHumanPosture.KNEE * Math.PI) / 180),
+          Math.cos((lowerHumanPosture.KNEE * Math.PI) / 180),
     );
     const top: number = Math.min(
       standing.y,

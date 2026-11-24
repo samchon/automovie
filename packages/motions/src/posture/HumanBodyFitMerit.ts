@@ -17,6 +17,38 @@ import { HumanFitVariables } from "./HumanFitVariables";
 import { HumanFloorReading } from "./HumanFloorReading";
 import { prepareHumanPoseResolution } from "./prepareHumanPoseResolution";
 
+/** The record of `IOfReadBearers`'s site. */
+type IOfReadBearers = {
+  points: IAutoMovieVector3[];
+  owners: AutoMovieHumanoidBone[];
+};
+
+/** The record of `IOfSupportsResult`'s site. */
+type IOfSupportsResult = {
+  points: IAutoMovieVector3[];
+  owners: AutoMovieHumanoidBone[];
+};
+
+/** The record of `IOfSupports`'s site. */
+type IOfSupports = {
+  points: IAutoMovieVector3[];
+  owners: AutoMovieHumanoidBone[];
+};
+
+/** The alternatives of `Of`'s site. */
+type Of =
+  | "body"
+  | "posture"
+  | "variables"
+  | "targets"
+  | "bearing"
+  | "pairs"
+  | "key"
+  | "price";
+
+/** The alternatives of `Props`'s site. */
+type Props = "body" | "posture" | "balance" | "centre";
+
 /**
  * The whole-body fit's merit (`HumanBodyFit`): an iterate read on the body,
  * what it misses each row by, the l1 merit of those misses (the objective's
@@ -87,7 +119,7 @@ export namespace HumanBodyFitMerit {
   /** The merit's inputs. */
   export interface IProps extends Pick<
     IAutoMovieMotionHumanBodyFitTypes.IProps,
-    "body" | "posture" | "balance" | "centre"
+    Props
   > {
     /** The variables moved. */
     variables: readonly IAutoMovieMotionHumanJacobian.IVariable[];
@@ -139,17 +171,7 @@ export namespace HumanBodyFitMerit {
       pairs,
       key,
       price,
-    }: Pick<
-      IProps,
-      | "body"
-      | "posture"
-      | "variables"
-      | "targets"
-      | "bearing"
-      | "pairs"
-      | "key"
-      | "price"
-    > = props;
+    }: Pick<IProps, Of> = props;
     const n: number = variables.length;
     const BAND: number = HumanBodyFitRows.BAND;
     const MM: number = HumanBodyFitRows.MM;
@@ -164,12 +186,9 @@ export namespace HumanBodyFitMerit {
         ? props.balance.parts.map((p: RegExp): string => p.source)
         : [],
     );
-    const supports: (r: HumanFloorReading.IReading) => {
-      points: IAutoMovieVector3[];
-      owners: AutoMovieHumanoidBone[];
-    } = (
+    const supports: (r: HumanFloorReading.IReading) => IOfSupports = (
       r: HumanFloorReading.IReading,
-    ): { points: IAutoMovieVector3[]; owners: AutoMovieHumanoidBone[] } => {
+    ): IOfSupportsResult => {
       const out: IAutoMovieVector3[] = [];
       const owners: AutoMovieHumanoidBone[] = [];
       bearing.forEach((part: RegExp, k: number): void => {
@@ -219,10 +238,7 @@ export namespace HumanBodyFitMerit {
             measured.centre,
           ),
         };
-      const bearers: {
-        points: IAutoMovieVector3[];
-        owners: AutoMovieHumanoidBone[];
-      } = supports(r);
+      const bearers: IOfReadBearers = supports(r);
       return {
         ...measured,
         balance: HumanFitBalance.of(

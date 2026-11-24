@@ -61,6 +61,8 @@ export function handToFaceCases(
       const row: IAutoMovieMotionHumanHandToFaceRows.IRow =
         handToFace.ROWS[task];
       let performance: IAutoMovieMotionHumanPerformance;
+
+      // Process boundary: a case that throws is reported as that case's refusal, and the remaining cases still run.
       try {
         performance = perform(
           body,

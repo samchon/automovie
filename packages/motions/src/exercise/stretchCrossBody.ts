@@ -1,5 +1,6 @@
 import { Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   IAutoMovieMotionHumanArmAngles,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPlaced,
@@ -10,6 +11,16 @@ import type {
 
 import { AutoMovieMotionHumanPlaced } from "../compose/AutoMovieMotionHumanPlaced";
 import { HumanFrame } from "../posture/HumanFrame";
+
+/** The record of `IArmsProps`'s site. */
+type IArmsProps = {
+  body: IAutoMovieMotionHumanBody;
+  side: AutoMovieHumanSide;
+  duration: number;
+  rest: (side: AutoMovieHumanSide) => IAutoMovieMotionHumanArmAngles.IAngles;
+  weight: (seconds: number) => number;
+  forward: IAutoMovieVector3;
+};
 
 /**
  * The arms of the cross-body shoulder stretch (`stretch`): the stretched arm
@@ -27,17 +38,10 @@ export namespace stretchCrossBody {
    *   arm's resting angles, the weight over time and the heading's forward.
    * @returns The primitives.
    */
-  export function arms(props: {
-    body: IAutoMovieMotionHumanBody;
-    side: "left" | "right";
-    duration: number;
-    rest: (side: "left" | "right") => IAutoMovieMotionHumanArmAngles.IAngles;
-    weight: (seconds: number) => number;
-    forward: IAutoMovieVector3;
-  }): IAutoMovieMotionHumanPrimitive[] {
+  export function arms(props: IArmsProps): IAutoMovieMotionHumanPrimitive[] {
     const { body, side, rest, weight, forward } = props;
     const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
-    const other: "left" | "right" = side === "right" ? "left" : "right";
+    const other: AutoMovieHumanSide = side === "right" ? "left" : "right";
     const sign: number = side === "left" ? 1 : -1;
     const target: IAutoMovieVector3 = {
       x: -sign * 1.2 * m.shoulderHalfWidth,

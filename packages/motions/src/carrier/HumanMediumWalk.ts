@@ -18,8 +18,8 @@ import { walk } from "../actions/walk";
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanWater } from "../perform/HumanWater";
+import { humanPostureHeading } from "../posture/humanPostureHeading";
 import { poseBones } from "../posture/poseBones";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { shankTilt } from "./shankTilt";
 import { unloadedFoot } from "./unloadedFoot";
 
@@ -60,6 +60,8 @@ const EASE: number = 0.1;
 
 /** The trunk's forward lean while wading, degrees (provisional staging). */
 const WADE_LEAN: number = 10;
+/** The alternatives of `TERRAINEntryItem`'s site. */
+type TERRAINEntryItem = "sand" | "mud";
 
 /**
  * Terrain factors of the walking-energy equation (Pandolf, Givoni and Goldman
@@ -67,7 +69,7 @@ const WADE_LEAN: number = 10;
  * for mud, 1.8. Soft snow's factor rises with depth; 1.3 a decimetre of sinking
  * is a provisional reading.
  */
-const TERRAIN: Readonly<Record<"sand" | "mud", number>> = {
+const TERRAIN: Readonly<Record<TERRAINEntryItem, number>> = {
   sand: 2.1,
   mud: 1.8,
 };
@@ -244,7 +246,7 @@ export function HumanMediumWalk(
         posture.root,
         // As the wind leans the body.
         Quaternion.rotateVector(
-          resolveHumanPosture.heading({
+          humanPostureHeading({
             ...posture,
             pitch:
               posture.pitch +

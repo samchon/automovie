@@ -1,4 +1,5 @@
 import type {
+  AutoMovieHumanSide,
   IAutoMovieMotionHumanArmClearance,
   IAutoMovieMotionHumanArmTrajectory,
   IAutoMovieMotionHumanBody,
@@ -38,7 +39,7 @@ export namespace HumanArmTrajectory {
   /** One arm's task. */
   export interface IArm {
     /** The arm. */
-    side: "left" | "right";
+    side: AutoMovieHumanSide;
     /** The arm at the first waypoint, and at the last unless `back` is given. */
     rest: IAutoMovieMotionHumanArmClearance.IArm;
     /**

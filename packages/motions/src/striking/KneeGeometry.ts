@@ -1,5 +1,6 @@
 import { Vector3, wrapDegrees } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanFoot,
@@ -82,8 +83,8 @@ export namespace KneeGeometry {
    */
   export function solve(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanKnee.IParams>,
-    side: "left" | "right",
-    feet: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement>,
+    side: AutoMovieHumanSide,
+    feet: Record<AutoMovieHumanSide, IAutoMovieMotionHumanFoot.IPlacement>,
     carriage: (
       thrust: IAutoMovieVector3,
       turn: number,

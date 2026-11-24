@@ -388,6 +388,8 @@ export function flyPerformanceFlight(
     }
   }
 }
+/** The record of `IMOMENTUMACCURACYItem`'s site. */
+type IMOMENTUMACCURACYItem = { relative: number; absolute: number };
 
 /**
  * The target-relative dense angular-momentum budget, independently of the
@@ -398,13 +400,15 @@ export function flyPerformanceFlight(
  * this implication does not certify every time or the separate
  * finite-difference pose-observation error.
  */
-const MOMENTUM_ACCURACY: Readonly<{ relative: number; absolute: number }> = {
+const MOMENTUM_ACCURACY: Readonly<IMOMENTUMACCURACYItem> = {
   relative: 0.01 / (2 + 0.01),
   absolute: 0,
 };
 
 /** A regular playback knot is empty until its unturned pose is first evaluated. */
 type UniformPose = IAutoMoviePose | null;
+/** The alternatives of `Playback2`'s site. */
+type Playback2 = "step" | "times" | "table";
 
 /**
  * Numeric playback data shared by staged and physical rotation policies
@@ -412,5 +416,5 @@ type UniformPose = IAutoMoviePose | null;
  */
 type IPlayback = Pick<
   Parameters<typeof HumanPerformanceFlightRotation>[0],
-  "step" | "times" | "table"
+  Playback2
 >;

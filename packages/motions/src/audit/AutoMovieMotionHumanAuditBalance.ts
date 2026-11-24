@@ -1,5 +1,6 @@
 import { resolveAutoMovieCenterOfMass } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   IAutoMovieMotionHumanAuditMeasure,
   IAutoMovieMotionHumanAuditMotion,
   IAutoMovieMotionHumanBody,
@@ -276,11 +277,11 @@ export namespace AutoMovieMotionHumanAuditBalance {
           w.contact.part !== "leftFoot" &&
           w.contact.part !== "rightFoot"),
     );
-    const feet: ("left" | "right")[] =
+    const feet: AutoMovieHumanSide[] =
       borne.length === 0
         ? ["left", "right"]
         : (["left", "right"] as const).filter(
-            (side: "left" | "right"): boolean =>
+            (side: AutoMovieHumanSide): boolean =>
               open.some(
                 (w: IAutoMovieMotionHumanAuditMotion.IWindow): boolean =>
                   w.contact.part === `${side}Foot` &&

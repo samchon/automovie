@@ -21,6 +21,7 @@ import type {
 import { HumanPreparedPlayback } from "../perform/HumanPreparedPlayback";
 import { HumanArmTrajectoryModel } from "../posture/HumanArmTrajectoryModel";
 import { HumanArmTrajectoryTerms } from "../posture/HumanArmTrajectoryTerms";
+import { HumanBoneGroups } from "../posture/HumanBoneGroups";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { resolveHumanPostureSource } from "../posture/resolveHumanPostureSource";
@@ -46,20 +47,12 @@ function immutable(value: unknown): void {
   Object.freeze(value);
 }
 
-const FEET: ReadonlySet<AutoMovieHumanoidBone> = new Set([
-  "leftFoot",
-  "rightFoot",
-]);
-
 /**
  * The native working-seat ride. It proposes torso articulation only when
  * keeping the original feet requires it. A complete actual pair judgement and
  * both actual sole positions admit a candidate. A single bare display leaf can
  * consume the very result that decided this law sample. A native stationary
  * carrier can also prepare its fully acquired endpoints once.
- *
- * @evidence contracts/development/implementation.md#principled-implementation The original world-space goals enter the ordinary ordered/mirrored refit. Both original sole offsets are transformed by their realised bone frames. A candidate is accepted only on the complete existing pair predicate.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Only this native plan with its original reader issues a private single-use sample. A changed or composed raw posture never consumes it. No previous sample, frame key, prepared flag on user data or global result history is involved.
  */
 export class WorkingSeatRidePlan implements WorkingSeatRidePlan.IPlan {
   /** Duration of the original ride. */
@@ -162,28 +155,22 @@ export class WorkingSeatRidePlan implements WorkingSeatRidePlan.IPlan {
       const event: RigidCarrierSample.IHold | undefined = held.hold(local);
       if (event === undefined || prepared.has(event)) continue;
       prepared.add(event);
-      try {
-        const written: WorkingSeatRidePlan.IWritten = held.frame(local);
-        terminal.prepare(
-          event,
-          written.frame,
-          written.posture,
-          (): WorkingSeatTerminal.IResult =>
-            this.#sample(
-              written,
-              (
-                posture: Posture,
-                fit?: Seeded,
-              ): WorkingSeatTerminal.IResult => ({
-                posture,
-                fit: fit ?? resolveHumanPosture.seeded(this.#body, posture),
-              }),
-              [local],
-            ),
-        );
-      } catch {
-        // A failed optional preparation does not move the original sample's refusal to placement.
-      }
+      // An event's refusal surfaces here, at placement, with its own reason.
+      const written: WorkingSeatRidePlan.IWritten = held.frame(local);
+      terminal.prepare(
+        event,
+        written.frame,
+        written.posture,
+        (): WorkingSeatTerminal.IResult =>
+          this.#sample(
+            written,
+            (posture: Posture, fit?: Seeded): WorkingSeatTerminal.IResult => ({
+              posture,
+              fit: fit ?? resolveHumanPosture.seeded(this.#body, posture),
+            }),
+            [local],
+          ),
+      );
     }
   }
 
@@ -263,7 +250,7 @@ export class WorkingSeatRidePlan implements WorkingSeatRidePlan.IPlan {
       this.#body,
       solved.pose,
       undefined,
-      FEET,
+      HumanBoneGroups.FEET,
     );
     for (const side of SIDES) {
       const goal: IAutoMovieHumanLimbGoal | undefined = raw.limbs[`${side}Leg`];

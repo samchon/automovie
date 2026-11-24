@@ -1,5 +1,6 @@
 import { Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanMartialArt,
   IAutoMovieMotionHumanPerformance,
@@ -17,6 +18,13 @@ import { FamilyCaseKit } from "./FamilyCaseKit";
 import { StanceVerdicts } from "./StanceVerdicts";
 import { TouchVerdicts } from "./TouchVerdicts";
 import { everydayVerdicts } from "./everydayVerdicts";
+
+/** The record of `IMartialArtCasesPeaksItem`'s site. */
+type IMartialArtCasesPeaksItem = {
+  t: number;
+  side: AutoMovieHumanSide;
+  reach: number;
+};
 
 /**
  * Capture cases of the martial-art techniques from quiet standing.
@@ -55,6 +63,8 @@ export function martialArtCases(
     ] as const satisfies readonly IAutoMovieMotionHumanMartialArt.Kind[]) {
       const name: string = `martial-${kind}${suffix}`;
       let performance: IAutoMovieMotionHumanPerformance;
+
+      // Process boundary: a case that throws is reported as that case's refusal, and the remaining cases still run.
       try {
         performance = new HumanPerformance({
           seed: "martial",
@@ -114,7 +124,7 @@ export function martialArtCases(
         }
         case "chokuZuki": {
           const fist = { surface: "fist", shape: "fist" } as const;
-          const reach = (t: number, side: "left" | "right"): number =>
+          const reach = (t: number, side: AutoMovieHumanSide): number =>
             Vector3.length(
               Vector3.subtract(
                 AutoMovieMotionHumanTouchEffector.point(
@@ -126,8 +136,7 @@ export function martialArtCases(
                 at(t, `${side}UpperArm`),
               ),
             );
-          const peaks: { t: number; side: "left" | "right"; reach: number }[] =
-            [];
+          const peaks: IMartialArtCasesPeaksItem[] = [];
           for (const side of ["left", "right"] as const) {
             const grid: number[] = [];
             for (let t: number = ready; t <= relax + 1e-9; t += 1 / 96)

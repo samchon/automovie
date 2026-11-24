@@ -11,8 +11,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { humanPostureHeading } from "../posture/humanPostureHeading";
 import { poseBones } from "../posture/poseBones";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
 /**
  * A ride's hands that take none of its grips (`HumanRide`): an arm its seated
@@ -76,7 +76,7 @@ export namespace RideRestingHands {
       ),
     );
     const back: IAutoMovieQuaternion = Quaternion.inverse(
-      resolveHumanPosture.heading(seated),
+      humanPostureHeading(seated),
     );
     const local = (point: IAutoMovieVector3): IAutoMovieVector3 =>
       Quaternion.rotateVector(back, Vector3.subtract(point, seated.root));
@@ -104,7 +104,7 @@ export namespace RideRestingHands {
     rest: IRest,
     posture: IAutoMovieMotionHumanPosture,
   ): IAutoMovieHumanLimbGoal {
-    const heading: IAutoMovieQuaternion = resolveHumanPosture.heading(posture);
+    const heading: IAutoMovieQuaternion = humanPostureHeading(posture);
     return {
       point: Vector3.add(
         posture.root,

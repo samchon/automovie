@@ -32,6 +32,11 @@ interface IRacketWrist {
     recovery: number,
   ) => IAutoMovieHumanLimbGoal;
 }
+/** The alternatives of `CourtRacketWristHand`'s site. */
+type CourtRacketWristHand = "rightHand" | "leftHand";
+
+/** The alternatives of `CourtRacketWristContext`'s site. */
+type CourtRacketWristContext = "body" | "entry";
 
 /**
  * Orient a held racket at the strike and recover the actual entry wrist,
@@ -45,13 +50,13 @@ interface IRacketWrist {
  * @returns The contact offset and a goal reader for the wrist path.
  */
 export function courtRacketWrist(
-  context: Pick<IAutoMovieMotionHumanActionContext, "body" | "entry">,
+  context: Pick<IAutoMovieMotionHumanActionContext, CourtRacketWristContext>,
   tool: IAutoMovieMotionHumanStrikingHeld.ITool,
   axis: IAutoMovieVector3,
   face: IAutoMovieVector3,
   bend: IAutoMovieVector3,
 ): IRacketWrist {
-  const hand: "rightHand" | "leftHand" = `${tool.side}Hand`;
+  const hand: CourtRacketWristHand = `${tool.side}Hand`;
   const bones: ReturnType<typeof poseBones> = poseBones(
     context.body,
     context.entry.pose,

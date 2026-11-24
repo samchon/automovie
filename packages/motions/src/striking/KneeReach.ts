@@ -6,6 +6,9 @@ import type {
 
 import { KneeForm } from "./KneeForm";
 
+/** The record of `IFootResult`'s site. */
+type IFootResult = { toes: IAutoMovieVector3; instep: IAutoMovieVector3 };
+
 /**
  * The knee strike's reach: the thigh carries the knee on a circle about the
  * hip, whose front lies one thigh plus one patella depth from the hip along the
@@ -158,7 +161,7 @@ export namespace KneeReach {
   export function foot(
     shank: IAutoMovieVector3,
     heading: IAutoMovieVector3,
-  ): { toes: IAutoMovieVector3; instep: IAutoMovieVector3 } {
+  ): IFootResult {
     const front: IAutoMovieVector3 = Vector3.normalize(
       Vector3.subtract(
         heading,

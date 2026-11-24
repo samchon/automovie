@@ -35,6 +35,21 @@ import { highJumpBar } from "./highJumpBar";
 import { highJumpFlight } from "./highJumpFlight";
 import { prepareGymnasticsFrame } from "./prepareGymnasticsFrame";
 
+/** The record of `IPlanLaunchFrameResult`'s site. */
+type IPlanLaunchFrameResult = {
+  posture: IAutoMovieMotionHumanPosture;
+  centre: IAutoMovieVector3;
+};
+
+/** The record of `IPlanLaunchFrame`'s site. */
+type IPlanLaunchFrame = {
+  posture: IAutoMovieMotionHumanPosture;
+  centre: IAutoMovieVector3;
+};
+
+/** The alternatives of `CrossbarContext`'s site. */
+type CrossbarContext = "prop" | "start";
+
 /**
  * A high jump in the Fosbury flop: a one-foot take-off, a half turn that puts
  * the back to the bar, a backward lay-out over it with the back arched, the
@@ -160,7 +175,7 @@ export namespace highJump {
    * @throws {HumanRefusal} When the prop declares no `bar`.
    */
   export function crossbar(
-    context: Pick<IAutoMovieMotionHumanActionContext, "prop" | "start">,
+    context: Pick<IAutoMovieMotionHumanActionContext, CrossbarContext>,
     subject: string,
   ): number {
     return highJumpBar.of(context, subject).point.y;
@@ -289,13 +304,7 @@ export namespace highJump {
     // does not step at the take-off where the push-off's flight, which the
     // launch is read from, does not meet its take-off pose. Its vertical
     // speed takes that centre to the requested apex.
-    const launchFrame: {
-      posture: IAutoMovieMotionHumanPosture;
-      centre: IAutoMovieVector3;
-    } = ((): {
-      posture: IAutoMovieMotionHumanPosture;
-      centre: IAutoMovieVector3;
-    } => {
+    const launchFrame: IPlanLaunchFrame = ((): IPlanLaunchFrameResult => {
       const read: ReturnType<typeof prepareHumanPoseResolution> =
         prepareHumanPoseResolution();
       const projection: ReturnType<typeof prepareHumanPostureProjection> =

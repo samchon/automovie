@@ -1,5 +1,6 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanFoot,
   IAutoMovieQuaternion,
@@ -7,6 +8,9 @@ import type {
 } from "@automovie/interface";
 
 import { HumanFoot } from "./HumanFoot";
+
+/** The alternatives of `PrepareHumanFootAtPivot`'s site. */
+type PrepareHumanFootAtPivot = "heel" | "ball" | "toe" | "sole" | "mtp";
 
 /**
  * Prepare a foot's fixed articulation while its sole contact moves in space.
@@ -23,8 +27,8 @@ import { HumanFoot } from "./HumanFoot";
  */
 export function prepareHumanFootAt(
   body: IAutoMovieMotionHumanBody,
-  side: "left" | "right",
-  pivot: "heel" | "ball" | "toe" | "sole" | "mtp",
+  side: AutoMovieHumanSide,
+  pivot: PrepareHumanFootAtPivot,
   heading: number,
   pitch: number,
   toes: number = 0,

@@ -1,10 +1,12 @@
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanEntryState,
   IAutoMovieResolvedBone,
 } from "@automovie/interface";
 
+import { HumanBoneGroups } from "../posture/HumanBoneGroups";
 import { poseBones } from "../posture/poseBones";
 
 /**
@@ -20,25 +22,19 @@ import { poseBones } from "../posture/poseBones";
 export function jumpTakeoff(
   body: IAutoMovieMotionHumanBody,
   entry: IAutoMovieMotionHumanEntryState,
-): "left" | "right" {
-  const planted: ("left" | "right")[] = (["left", "right"] as const).filter(
-    (side: "left" | "right"): boolean => entry.feet[side].planted,
+): AutoMovieHumanSide {
+  const planted: AutoMovieHumanSide[] = (["left", "right"] as const).filter(
+    (side: AutoMovieHumanSide): boolean => entry.feet[side].planted,
   );
   if (planted.length === 1) return planted[0]!;
   const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
     body,
     { ...entry.pose, root: null },
     undefined,
-    FEET,
+    HumanBoneGroups.FEET,
   );
   return bones.get("leftFoot")!.worldPosition.z >=
     bones.get("rightFoot")!.worldPosition.z
     ? "left"
     : "right";
 }
-
-/** Leading-foot selection consumes only the two achieved ankle positions. */
-const FEET: ReadonlySet<AutoMovieHumanoidBone> = new Set([
-  "leftFoot",
-  "rightFoot",
-]);

@@ -1,5 +1,8 @@
 import { minimumJerk } from "@automovie/engine";
-import type { IAutoMovieMotionClock } from "@automovie/interface";
+import type {
+  AutoMovieHumanSide,
+  IAutoMovieMotionClock,
+} from "@automovie/interface";
 
 /**
  * The fraction of body weight the right foot bears along the stair clock. A
@@ -11,11 +14,11 @@ import type { IAutoMovieMotionClock } from "@automovie/interface";
  * @returns Right-foot load from zero to one at a local action second.
  */
 export function climbStairsWeight(
-  sides: readonly ("left" | "right")[],
+  sides: readonly AutoMovieHumanSide[],
   clock: IAutoMovieMotionClock,
 ): (seconds: number) => number {
   const knots: IKnot[] = [{ seconds: 0, right: 0.5 }];
-  sides.forEach((side: "left" | "right", index: number): void => {
+  sides.forEach((side: AutoMovieHumanSide, index: number): void => {
     const right: number = side === "left" ? 1 : 0;
     knots.push(
       { seconds: clock.at(`toeOff${index + 1}`), right },

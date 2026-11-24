@@ -18,6 +18,24 @@ import { HumanSupportFrame } from "../carrier/HumanSupportFrame";
 import { HumanFrame } from "../posture/HumanFrame";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 
+/** The record of `IPlanLast`'s site. */
+type IPlanLast = { mid: IAutoMovieVector3; turn: number };
+
+/** The record of `IAskedH`'s site. */
+type IAskedH = { point: IAutoMovieVector3; normal: IAutoMovieVector3 };
+
+/** The record of `IAskedResult`'s site. */
+type IAskedResult = { mid: IAutoMovieVector3; turn: number };
+
+/** The record of `IPlanTaken`'s site. */
+type IPlanTaken = { point: IAutoMovieVector3; normal: IAutoMovieVector3 };
+
+/** The record of `IPropsHandle`'s site. */
+type IPropsHandle = {
+  point: IAutoMovieVector3;
+  normal: IAutoMovieVector3;
+};
+
 /**
  * The walk a person takes with a door they pull open, the hand on its handle: a
  * walk that keeps the place relative to the leaf the handle was taken from, at
@@ -54,10 +72,7 @@ export namespace HumanTravelLeafWalk {
      * Where the hand holds the handle at an action-local second, metres in
      * world coordinates, with the handle's outward world normal.
      */
-    handle: (seconds: number) => {
-      point: IAutoMovieVector3;
-      normal: IAutoMovieVector3;
-    };
+    handle: (seconds: number) => IPropsHandle;
   }
 
   /** Readings of the handle's path, seconds apart. */
@@ -106,15 +121,13 @@ export namespace HumanTravelLeafWalk {
       v: IAutoMovieVector3,
       degrees: number,
     ): IAutoMovieVector3 => Quaternion.rotateVector(yaw(degrees), v);
-    const taken: { point: IAutoMovieVector3; normal: IAutoMovieVector3 } =
-      props.handle(take);
+    const taken: IPlanTaken = props.handle(take);
     const local: IAutoMovieVector3 = Vector3.subtract(taken.point, mid0);
     const takenHeading: number = heading(taken.normal);
 
     // The feet's midpoint and the turn the take relation asks at a second.
-    function asked(t: number): { mid: IAutoMovieVector3; turn: number } {
-      const h: { point: IAutoMovieVector3; normal: IAutoMovieVector3 } =
-        props.handle(t);
+    function asked(t: number): IAskedResult {
+      const h: IAskedH = props.handle(t);
       const turn: number = turned(takenHeading, heading(h.normal));
       const at: IAutoMovieVector3 = Vector3.subtract(
         h.point,
@@ -131,7 +144,7 @@ export namespace HumanTravelLeafWalk {
       if (Vector3.length(Vector3.subtract(now, before)) > 1e-4) rests = t;
       before = now;
     }
-    const last: { mid: IAutoMovieVector3; turn: number } = asked(rests);
+    const last: IPlanLast = asked(rests);
     if (rests <= take || Math.abs(last.turn) < 1) return null;
 
     // The way, its points a spacing apart along the handle's path.

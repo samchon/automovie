@@ -9,7 +9,6 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanBendRead } from "../compose/HumanBendRead";
 import { HumanRefusal } from "../law/HumanRefusal";
 import type { HumanPreparedPlayback } from "../perform/HumanPreparedPlayback";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
@@ -169,13 +168,18 @@ export namespace prepareJumpPosture {
     /** Where the landing's absorption ends, action-local seconds. */
     settled: number;
   }
+  /** The alternatives of `PrepareJumpPostureConstructionDeclared`'s site. */
+  type PrepareJumpPostureConstructionDeclared = "flight" | "airborne";
 
   /** Existing plan members produced by the actual dispatcher constructor. */
   export interface IConstruction {
     /** Actual full-phase posture callback, before error location. */
     posture: IAutoMovieMotionHumanActionPlan["posture"];
     /** Original requested flight and handed-back airborne callback. */
-    declared: Pick<IAutoMovieMotionHumanActionPlan, "flight" | "airborne">;
+    declared: Pick<
+      IAutoMovieMotionHumanActionPlan,
+      PrepareJumpPostureConstructionDeclared
+    >;
     /**
      * The native bare-leaf source, aligned to exactly the same phase
      * boundaries.
@@ -205,25 +209,12 @@ export namespace prepareJumpPosture {
       channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1],
       resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
       projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3],
-    ): IAutoMovieMotionHumanPosture => {
-      try {
-        return source(seconds, channels, resolution, projection);
-      } catch (error) {
-        throw error instanceof HumanRefusal ? error.locate(where) : error;
-      }
-    };
-    const raw: HumanBendRead.Posture | undefined =
-      HumanBendRead.postures.get(source);
-    if (raw !== undefined)
-      HumanBendRead.postures.set(
-        placed,
-        (read, seconds): IAutoMovieMotionHumanPosture => {
-          try {
-            return raw(read, seconds);
-          } catch (error) {
-            throw error instanceof HumanRefusal ? error.locate(where) : error;
-          }
-        },
+      evaluation?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[4],
+    ): IAutoMovieMotionHumanPosture =>
+      HumanRefusal.located(
+        where,
+        (): IAutoMovieMotionHumanPosture =>
+          source(seconds, channels, resolution, projection, evaluation),
       );
     return placed;
   }

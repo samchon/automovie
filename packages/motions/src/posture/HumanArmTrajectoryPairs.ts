@@ -21,6 +21,32 @@ import { HumanArmTrajectoryOverlap } from "./HumanArmTrajectoryOverlap";
 import { HumanArmTrajectoryTerms as T } from "./HumanArmTrajectoryTerms";
 import { HumanAuditModel } from "./HumanAuditModel";
 
+/** The record of `IRelativeResult`'s site. */
+type IRelativeResult = { point: IAutoMovieVector3; turn: IAutoMovieQuaternion };
+
+/** The record of `ILocatedRotation`'s site. */
+type ILocatedRotation = { rotation?: IAutoMovieQuaternion };
+
+/** The alternatives of `LocatedPlaced`'s site. */
+type LocatedPlaced =
+  | readonly (readonly IAutoMovieMotionHumanArmGeometry.IPlaced[])[]
+  | ((arm: number) => IAutoMovieMotionHumanArmGeometry.IPlaced);
+
+/** The record of `ILocatedOn`'s site. */
+type ILocatedOn = {
+  /** Index of the arm carrying the site at this waypoint. */
+  arm: number;
+
+  /** Its rigid segment carrying the site. */
+  owner: LocatedOnOwner;
+
+  /** That segment's actual world origin, metres. */
+  origin: IAutoMovieVector3;
+};
+
+/** The alternatives of `LocatedOnOwner`'s site. */
+type LocatedOnOwner = "upper" | "lower" | "hand";
+
 /**
  * What the arm trajectory reads at one waypoint (`HumanArmTrajectoryModel`):
  * each segment's deepest collider probe against the body and another body, the
@@ -87,16 +113,7 @@ export namespace HumanArmTrajectoryPairs {
     normalAt: (p: IAutoMovieVector3) => IAutoMovieVector3;
 
     /** The other arm's segment the site rides on, and that segment's origin. */
-    on?: {
-      /** Index of the arm carrying the site at this waypoint. */
-      arm: number;
-
-      /** Its rigid segment carrying the site. */
-      owner: "upper" | "lower" | "hand";
-
-      /** That segment's actual world origin, metres. */
-      origin: IAutoMovieVector3;
-    };
+    on?: ILocatedOn;
   }
 
   /** The three world axes. */
@@ -269,9 +286,7 @@ export namespace HumanArmTrajectoryPairs {
    */
   export function located(
     c: M.IContext,
-    placed:
-      | readonly (readonly IAutoMovieMotionHumanArmGeometry.IPlaced[])[]
-      | ((arm: number) => IAutoMovieMotionHumanArmGeometry.IPlaced),
+    placed: LocatedPlaced,
     a: number,
     k: number,
     site: M.ISite,
@@ -316,7 +331,7 @@ export namespace HumanArmTrajectoryPairs {
       origin,
       Quaternion.rotateVector(turn, on.point),
     );
-    const rotation: { rotation?: IAutoMovieQuaternion } =
+    const rotation: ILocatedRotation =
       on.rotation === undefined
         ? {}
         : { rotation: Quaternion.multiply(turn, on.rotation) };
@@ -371,7 +386,7 @@ export namespace HumanArmTrajectoryPairs {
     k: number,
     shape: number,
     p: IAutoMovieVector3,
-  ): { point: IAutoMovieVector3; turn: IAutoMovieQuaternion } {
+  ): IRelativeResult {
     // A shape read at both waypoints by the same index is the same segment
     // (the body's colliders lead every frame in profile order).
     return HumanArmTrajectoryHalfStep.relative(c, a, k, shape, p);

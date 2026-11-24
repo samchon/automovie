@@ -1,4 +1,5 @@
 import type {
+  AutoMovieHumanSide,
   AutoMovieMotionHumanActionKey,
   IAutoMovieMotionClockInstant,
   IAutoMovieMotionHumanActionContext,
@@ -107,7 +108,7 @@ export namespace balletStep {
         fix: "ask for a single or a double pirouette",
       });
     if (p.kind === "grandJete") {
-      const leading: "left" | "right" = p.side ?? "right";
+      const leading: AutoMovieHumanSide = p.side ?? "right";
       const reach: number =
         (AutoMovieMotionHumanRange.limit(
           leading === "left" ? "leftUpperLeg" : "rightUpperLeg",

@@ -13,9 +13,6 @@ import { HumanConversation } from "./HumanConversation";
  * @returns Gaze layer requests in time order.
  * @throws {HumanRefusal} For a turn that does not start at a finite film
  *   second, at least 0, or does not end at a finite second after its start.
- * @evidence contracts/development/design.md#principled-representation Pure function of the turns and the stream, over the Gaze family's layer request.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One reader, `AutoMovieMotionHumanConversation.gaze`; the cadence is `HumanConversation`'s.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the family's request type; no consumer is special-cased.
  */
 export function conversationGaze(
   params: IAutoMovieMotionHumanConversation.IGaze,

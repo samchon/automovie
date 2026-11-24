@@ -17,6 +17,7 @@ import type {
 import { HumanSupportFrame } from "../carrier/HumanSupportFrame";
 import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
 import { rise } from "../everyday/rise";
+import { HumanLimbFit } from "../posture/HumanLimbFit";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { crutchSitKit } from "./crutchSitKit";
 import { crutchSitPath } from "./crutchSitPath";
@@ -80,7 +81,7 @@ export function crutchSitUp(
     frameA,
     kit.affordances(injured),
   );
-  const sat: IAutoMovieHumanLimbReference = resolveHumanPosture.reference(
+  const sat: IAutoMovieHumanLimbReference = HumanLimbFit.reference(
     resolveHumanPosture(body, entry),
     `${injured}Leg`,
   );

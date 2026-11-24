@@ -1,5 +1,6 @@
 import { Vector3, minimumJerk } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   IAutoMovieAffordance,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionPlan,
@@ -138,7 +139,7 @@ export function planSkydive(
       hips,
       turned(offsetOf(pose), heading),
     );
-  const pulled = (t: number, side: "left" | "right"): number => {
+  const pulled = (t: number, side: AutoMovieHumanSide): number => {
     let w: number = 0;
     for (const toggle of p.toggles ?? []) {
       if (toggle.side !== side) continue;

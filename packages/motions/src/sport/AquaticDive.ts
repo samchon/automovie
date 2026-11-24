@@ -1,5 +1,6 @@
 import { Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanContactWindow,
@@ -287,7 +288,7 @@ export namespace AquaticDive {
     const contacts: IAutoMovieMotionHumanContactWindow[] = (
       ["left", "right"] as const
     ).map(
-      (side: "left" | "right"): IAutoMovieMotionHumanContactWindow => ({
+      (side: AutoMovieHumanSide): IAutoMovieMotionHumanContactWindow => ({
         part: `${side}Foot`,
         kind: "plant",
         from: 0,

@@ -85,9 +85,11 @@ export namespace HumanPopulationAnchors {
     "forearmCircumference",
     "inseam",
   ];
+  /** The alternatives of `ANCHORSEntry`'s site. */
+  type ANCHORSEntry = Anchored | Part;
 
   /** Each anchored course and its carrier. */
-  export const ANCHORS: Record<Anchored | Part, IAnchor> = {
+  export const ANCHORS: Record<ANCHORSEntry, IAnchor> = {
     // Neck to waist over the natural waist back length (cervicale to waist).
     backNeckToWaist: {
       proxy: "waistBackLength",

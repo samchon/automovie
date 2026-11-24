@@ -12,6 +12,9 @@ import { AutoMovieMotionHumanLeg } from "../compose/AutoMovieMotionHumanLeg";
 import { HumanFoot } from "../posture/HumanFoot";
 import type { HumanFrame } from "../posture/HumanFrame";
 
+/** The alternatives of `SoleOfPoint`'s site. */
+type SoleOfPoint = "heel" | "ball" | "toe";
+
 /**
  * The footprints of a stair climb: each foot's settled flat sole on its tread
  * at the standing lateral place, its leg placement and its sole points about
@@ -112,7 +115,7 @@ export namespace climbStairsPrints {
     margin: number,
   ): IPrints {
     const goals: Record<
-      "left" | "right",
+      AutoMovieHumanSide,
       ReturnType<typeof AutoMovieMotionHumanLeg.preparePlacement>
     > = {
       left: AutoMovieMotionHumanLeg.preparePlacement(
@@ -129,12 +132,10 @@ export namespace climbStairsPrints {
     // The sole's heel, ball and toe about the ankle of a flat foot, along
     // the flight and in height.
     function soleOf(
-      side: "left" | "right",
+      side: AutoMovieHumanSide,
     ): IAutoMovieMotionHumanClearance.IPoint[] {
       return (["heel", "ball", "toe"] as const).map(
-        (
-          point: "heel" | "ball" | "toe",
-        ): IAutoMovieMotionHumanClearance.IPoint => {
+        (point: SoleOfPoint): IAutoMovieMotionHumanClearance.IPoint => {
           const at: IAutoMovieVector3 = HumanFoot.point(
             body,
             side,
@@ -149,14 +150,14 @@ export namespace climbStairsPrints {
       );
     }
     const soles: Record<
-      "left" | "right",
+      AutoMovieHumanSide,
       IAutoMovieMotionHumanClearance.IPoint[]
     > = {
       left: soleOf("left"),
       right: soleOf("right"),
     };
-    const printOf: (side: "left" | "right", level: number) => IPrint = (
-      side: "left" | "right",
+    const printOf: (side: AutoMovieHumanSide, level: number) => IPrint = (
+      side: AutoMovieHumanSide,
       level: number,
     ): IPrint => {
       if (level === 0) return { placement: entered[side], level: 0 };
@@ -186,12 +187,12 @@ export namespace climbStairsPrints {
         level,
       };
     };
-    const footprints: Record<"left" | "right", Map<number, IPrint>> = {
+    const footprints: Record<AutoMovieHumanSide, Map<number, IPrint>> = {
       left: new Map(),
       right: new Map(),
     };
-    const print: (side: "left" | "right", level: number) => IPrint = (
-      side: "left" | "right",
+    const print: (side: AutoMovieHumanSide, level: number) => IPrint = (
+      side: AutoMovieHumanSide,
       level: number,
     ): IPrint => {
       let out: IPrint | undefined = footprints[side].get(level);

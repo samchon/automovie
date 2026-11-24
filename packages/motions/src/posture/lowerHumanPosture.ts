@@ -1,4 +1,5 @@
 import type {
+  AutoMovieHumanSide,
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPosture,
@@ -7,8 +8,8 @@ import type {
 
 import { AutoMovieMotionHumanAuditLimits } from "../audit/AutoMovieMotionHumanAuditLimits";
 import { hipJoints } from "./hipJoints";
+import { humanPostureHeading } from "./humanPostureHeading";
 import { prepareHumanPoseResolution } from "./prepareHumanPoseResolution";
-import { resolveHumanPosture } from "./resolveHumanPosture";
 
 /** An absent plant, distinct from an invalid point on a present plant. */
 const NO_PLANT: unique symbol = Symbol();
@@ -26,7 +27,7 @@ const NO_PLANT: unique symbol = Symbol();
  * @param body The performer's body.
  * @param posture The posture; legs with `planted` goals are kept reachable.
  * @param knee The least knee flexion, degrees; a planted leg's
- *   (`resolveHumanPosture.KNEE`) when absent.
+ *   (`lowerHumanPosture.KNEE`) when absent.
  * @param resolution Optional exact FK reader or lazy supplier borrowed from
  *   this synchronous person evaluation; never requested without an actual
  *   planted-leg read.
@@ -39,12 +40,17 @@ const NO_PLANT: unique symbol = Symbol();
 export function lowerHumanPosture(
   body: IAutoMovieMotionHumanBody,
   posture: IAutoMovieMotionHumanPosture,
-  knee: number = resolveHumanPosture.KNEE,
+  knee: number = lowerHumanPosture.KNEE,
   resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
   step?: number,
 ): IAutoMovieMotionHumanPosture {
   return lower(body, posture, knee, resolution, undefined, step);
 }
+/** The alternatives of `LowerRight`'s site. */
+type LowerRight = IAutoMovieVector3 | typeof NO_PLANT;
+
+/** The alternatives of `LowerLeft`'s site. */
+type LowerLeft = IAutoMovieVector3 | typeof NO_PLANT;
 
 /**
  * One current-goal/hip/drop law; the optional scalar reader belongs only to
@@ -60,17 +66,13 @@ function lower(
 ): IAutoMovieMotionHumanPosture {
   // Only world-anchored plants are lowered for: a leg goal attached to a
   // bone moves with that bone, so the root cannot be solved against it here.
-  const left: IAutoMovieVector3 | typeof NO_PLANT = worldPlant(
-    posture.limbs.leftLeg,
-  );
-  const right: IAutoMovieVector3 | typeof NO_PLANT = worldPlant(
-    posture.limbs.rightLeg,
-  );
+  const left: LowerLeft = worldPlant(posture.limbs.leftLeg);
+  const right: LowerRight = worldPlant(posture.limbs.rightLeg);
   if (left === NO_PLANT && right === NO_PLANT) return posture;
-  const hips: Record<"left" | "right", IAutoMovieVector3> = hipJoints(
+  const hips: Record<AutoMovieHumanSide, IAutoMovieVector3> = hipJoints(
     body,
     posture.root,
-    resolveHumanPosture.heading(posture),
+    humanPostureHeading(posture),
     posture.joints.hips,
     resolution === undefined
       ? undefined
@@ -95,11 +97,13 @@ function lower(
     ? posture
     : { ...posture, root: { ...posture.root, y: posture.root.y - drop } };
 }
+/** The alternatives of `WorldPlantResult`'s site. */
+type WorldPlantResult = IAutoMovieVector3 | typeof NO_PLANT;
 
 /** Read an actual world-anchored plant before hip FK. */
 function worldPlant(
   goal: IAutoMovieHumanLimbGoal | undefined,
-): IAutoMovieVector3 | typeof NO_PLANT {
+): WorldPlantResult {
   return goal?.planted === true && goal.on === undefined
     ? goal.point
     : NO_PLANT;
@@ -108,35 +112,41 @@ function worldPlant(
 /** Scalar reach geometry used by posture lowering. */
 export namespace lowerHumanPosture {
   /**
+   * The least knee flexion of a planted leg, degrees: the knee's greatest
+   * extension in stance, about 5 degrees at initial contact and through
+   * terminal stance (Perry and Burnfield 2010, Gait Analysis: Normal and
+   * Pathological Function, ch. 7; provisional, read through secondary
+   * summaries, the primary not read). Every planted leg's lowering and every
+   * walking stance (`walkReach`) keeps it.
+   */
+  export const KNEE: number = 5;
+
+  /**
    * Bind the actual unchanged body and minimum knee degrees for repeated
    * current-posture lowering. Every query still collects its world plants,
    * resolves current hips with its own optional synchronous FK loan and runs
-   * the original greatest-drop law. The first actual leg's scalar read, after
-   * hip FK, lazily prepares fixed reach once through prepareShort; no-plant
-   * paths read neither dimensions nor the FK supplier.
+   * the original greatest-drop law. The fixed reach is prepared here, once,
+   * through prepareShort; a no-plant query reads no FK supplier.
    *
    * All strict horizontal comparisons, negative slack, -Infinity and output
    * identity rules stay with the raw law. Body dimensions/knee must remain
-   * unchanged or be prepared again. Two factory closures and at most one
-   * scalar-reach reader remain with the caller; postures, loans, points and
-   * results are never retained, and each query performs its actual geometry.
+   * unchanged or be prepared again. One factory closure and one scalar-reach
+   * reader remain with the caller; postures, loans, points and results are
+   * never retained, and each query performs its actual geometry.
    */
   export function prepare(
     body: IAutoMovieMotionHumanBody,
-    knee: number = resolveHumanPosture.KNEE,
+    knee: number = KNEE,
     step?: number,
   ): (
     posture: IAutoMovieMotionHumanPosture,
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
   ) => IAutoMovieMotionHumanPosture {
-    let short: ReturnType<typeof prepareShort> | undefined;
-    const read: ReturnType<typeof prepareShort> = (
-      hip: IAutoMovieVector3,
-      ankle: IAutoMovieVector3,
-    ): number => {
-      short ??= prepareShort(body, knee, step);
-      return short(hip, ankle);
-    };
+    const read: ReturnType<typeof prepareShort> = prepareShort(
+      body,
+      knee,
+      step,
+    );
     return (
       posture: IAutoMovieMotionHumanPosture,
       resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
@@ -247,9 +257,10 @@ function reachLimit(
  * reach: without bound as the leg straightens. Eased over a band of width `w`
  * ending at the least-flexion reach, the reach moves by `g / w` of the hip's
  * motion, `g` its gap to that reach, so the knee moves at most `sqrt(c / (2 (w
- * + g0))) step` a frame, `g0` the straight leg's gap to the least-flexion
- * reach, greatest at the band's entry. Held to the bound `J`, `w >= c step^2 /
- * (2 J^2) - g0`; a slow enough hip needs no band.
+ *
+ * - G0))) step`a frame,`g0`the straight leg's gap to the least-flexion reach,
+ *   greatest at the band's entry. Held to the bound`J`, `w >= c step^2 / (2
+ *   J^2) - g0`; a slow enough hip needs no band.
  */
 function soft(a: number, b: number, limit: number, step: number): number {
   const c: number = (a * b) / (a + b);
@@ -262,10 +273,12 @@ function soft(a: number, b: number, limit: number, step: number): number {
  * horizontal reach refusal (`-Infinity`) first, then the hip's height over the
  * ankle against the leg's vertical reach. A hard reach (`width` 0) asks the
  * excess over that reach and reports a reach to spare as negative slack. A soft
- * reach eases the leg's vertical extent over the band below it, `s(v) = (V - w)
- * + w (1 - exp(-(v - (V - w)) / w))` for a hip `v` above the band's start, so a
- * hip rising through full extension straightens the knee continuously, and
- * measures slack to the band's start below it.
+ * reach eases the leg's vertical extent over the band below it, `s(v) = (V -
+ * w)
+ *
+ * - W (1 - exp(-(v - (V - w)) / w))`for a hip`v` above the band's start, so a hip
+ *   rising through full extension straightens the knee continuously, and
+ *   measures slack to the band's start below it.
  */
 function reachDrop(
   reach: IReach,

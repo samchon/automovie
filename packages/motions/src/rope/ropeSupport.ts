@@ -62,6 +62,13 @@ const CLIMB: IAutoMovieMotionHumanLieDown.IPose = {
  * between the feet).
  */
 const SPLIT: number = 0.04;
+/** The alternatives of `OneFootAtATimeFootPart`'s site. */
+type OneFootAtATimeFootPart = "leftFoot" | "rightFoot";
+
+/** The alternatives of `UprightP`'s site. */
+type UprightP =
+  | IAutoMovieMotionHumanRope.IClimb
+  | IAutoMovieMotionHumanRope.IDescend;
 
 /**
  * Climbs and descents of an upright rope fitted by the shared support law: a
@@ -94,7 +101,7 @@ export namespace ropeSupport {
    */
   export function upright(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanRope.IParams>,
-    p: IAutoMovieMotionHumanRope.IClimb | IAutoMovieMotionHumanRope.IDescend,
+    p: UprightP,
   ): IAutoMovieMotionHumanActionPlan {
     const body: IAutoMovieMotionHumanBody = context.body;
     const measure: IAutoMovieMotionHumanBody["measure"] = body.measure;
@@ -372,13 +379,6 @@ export namespace ropeSupport {
    *
    * @param stances The stances in order.
    * @returns The stances with the intermediate ones.
-   * @evidence contracts/development/common.md#meaningful-documentation States the rule and why.
-   * @evidence contracts/development/implementation.md#principled-implementation A foot changes when its target differs; the intermediate stance takes the later stance's contacts with the right foot's earlier one.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One pass over consecutive pairs.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A pair where one foot or none changes is left as it is.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the stances.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its input.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a new array and retains nothing.
    */
   function oneFootAtATime(
     stances: readonly IAutoMovieMotionHumanSupport.IStance[],
@@ -386,7 +386,7 @@ export namespace ropeSupport {
     const out: IAutoMovieMotionHumanSupport.IStance[] = [];
     const foot = (
       stance: IAutoMovieMotionHumanSupport.IStance,
-      part: "leftFoot" | "rightFoot",
+      part: OneFootAtATimeFootPart,
     ): IAutoMovieMotionHumanSupport.IContact | undefined =>
       stance.contacts.find(
         (c: IAutoMovieMotionHumanSupport.IContact): boolean => c.part === part,

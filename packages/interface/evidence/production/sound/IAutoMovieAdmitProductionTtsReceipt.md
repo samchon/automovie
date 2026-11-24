@@ -1,21 +1,3 @@
-# src/production/sound/IAutoMovieAdmitProductionTtsReceipt.ts#IAutoMovieAdmitProductionTtsReceipt
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Names the admission's inputs and result; the members state each refusal and unit.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Groups the admission's input and output records under the operation they belong to.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Interface owns the contracts ingest's `admitProductionTtsReceipt` exposes; render's route and the admission test use them.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The namespace declares no member of its own beyond the two records.
-
 # src/production/sound/IAutoMovieAdmitProductionTtsReceipt.ts#IAutoMovieAdmitProductionTtsReceipt.IProps
 
 ## @evidence contracts/development/common.md#meaningful-documentation

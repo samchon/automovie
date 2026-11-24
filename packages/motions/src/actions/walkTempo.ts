@@ -1,4 +1,5 @@
 import type {
+  AutoMovieHumanSide,
   IAutoMovieMotionEvent,
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanContactWindow,
@@ -6,6 +7,9 @@ import type {
 } from "@automovie/interface";
 
 import type { walkStation } from "./walkStation";
+
+/** The record of `IWalkTempoLimp`'s site. */
+type IWalkTempoLimp = { side: AutoMovieHumanSide; share: number };
 
 /**
  * A stepping plan with its steps taken a little unevenly in time, as a person's
@@ -38,11 +42,11 @@ import type { walkStation } from "./walkStation";
 export function walkTempo(
   plan: walkStation.IPlan,
   stretch: (index: number) => number,
-  limp?: { side: "left" | "right"; share: number },
+  limp?: IWalkTempoLimp,
 ): walkStation.IPlan {
   return warped(
     plan,
-    (index: number, planned: number, side: "left" | "right"): number =>
+    (index: number, planned: number, side: AutoMovieHumanSide): number =>
       planned *
       (1 +
         Math.max(
@@ -85,8 +89,10 @@ export namespace walkTempo {
     seconds: number;
 
     /** The striking foot. */
-    side: "left" | "right";
+    side: AutoMovieHumanSide;
   }
+  /** The alternatives of `WalkTempoStrikesPlan`'s site. */
+  type WalkTempoStrikesPlan = "duration" | "events";
 
   /**
    * The heel strikes a plan names (`leftHeelStrike<n>`, `rightHeelStrike<n>`),
@@ -96,7 +102,7 @@ export namespace walkTempo {
    * @returns Its strikes.
    */
   export function strikes(
-    plan: Pick<IAutoMovieMotionHumanActionPlan, "duration" | "events">,
+    plan: Pick<IAutoMovieMotionHumanActionPlan, WalkTempoStrikesPlan>,
   ): IStrike[] {
     return plan.events
       .filter((e: IAutoMovieMotionEvent): boolean =>
@@ -177,7 +183,7 @@ export namespace walkTempo {
  */
 function warped(
   plan: walkStation.IPlan,
-  length: (index: number, planned: number, side: "left" | "right") => number,
+  length: (index: number, planned: number, side: AutoMovieHumanSide) => number,
 ): walkStation.IPlan {
   const clock: walkTempo.IClock | undefined = makeClock(
     walkTempo.strikes(plan),
@@ -185,24 +191,44 @@ function warped(
   );
   return clock === undefined ? plan : retime(plan, clock);
 }
+/** The alternatives of `MakeClockWithinClock2`'s site. */
+type MakeClockWithinClock2 = "plan" | "film";
+
+/** The alternatives of `MakeClockWithinClock`'s site. */
+type MakeClockWithinClock = "plan" | "film";
+
+/** The record of `IMakeClockGoneStep2`'s site. */
+type IMakeClockGoneStep2 = { amplitude: number; lasts: number };
+
+/** The record of `IMakeClockGoneStep`'s site. */
+type IMakeClockGoneStep = { amplitude: number; lasts: number };
+
+/** The record of `IMakeClockEnd`'s site. */
+type IMakeClockEnd = { plan: number; film: number };
+
+/** The record of `IMakeClockStepsItem`'s site. */
+type IMakeClockStepsItem = {
+  plan: number;
+  film: number;
+  amplitude: number;
+  lasts: number;
+};
+
+/** The record of `IMakeClockStrikesS`'s site. */
+type IMakeClockStrikesS = { seconds: number };
 
 /** Prepare the monotone two-way clock over a sequence of heel strikes. */
 function makeClock(
   struck: readonly walkTempo.IStrike[],
-  length: (index: number, planned: number, side: "left" | "right") => number,
+  length: (index: number, planned: number, side: AutoMovieHumanSide) => number,
 ): walkTempo.IClock | undefined {
   const strikes: number[] = struck.map(
-    (s: { seconds: number }): number => s.seconds,
+    (s: IMakeClockStrikesS): number => s.seconds,
   );
   if (strikes.length < 2) return undefined;
 
   // Each step's planned span, its stretched span on the film's clock and the rate's amplitude that covers one in the other: the rate `1 + k sin^2(pi u)` integrates to `1 + k / 2` over a step, so `k = 2 (planned / lasts - 1)`.
-  const steps: {
-    plan: number;
-    film: number;
-    amplitude: number;
-    lasts: number;
-  }[] = [];
+  const steps: IMakeClockStepsItem[] = [];
   let film: number = strikes[0]!;
   for (let i: number = 0; i + 1 < strikes.length; ++i) {
     const planned: number = strikes[i + 1]! - strikes[i]!;
@@ -215,25 +241,22 @@ function makeClock(
     });
     film += lasts;
   }
-  const end: { plan: number; film: number } = {
+  const end: IMakeClockEnd = {
     plan: strikes[strikes.length - 1]!,
     film,
   };
 
   // The plan's seconds gone at a share of a step: the integral of the rate.
-  const gone: (
-    step: { amplitude: number; lasts: number },
-    u: number,
-  ) => number = (
-    step: { amplitude: number; lasts: number },
+  const gone: (step: IMakeClockGoneStep, u: number) => number = (
+    step: IMakeClockGoneStep2,
     u: number,
   ): number =>
     step.lasts *
     (u + step.amplitude * (u / 2 - Math.sin(2 * Math.PI * u) / (4 * Math.PI)));
 
   // The step a second falls in, on either clock: the last one that has begun.
-  const within: (clock: "plan" | "film", seconds: number) => number = (
-    clock: "plan" | "film",
+  const within: (clock: MakeClockWithinClock, seconds: number) => number = (
+    clock: MakeClockWithinClock2,
     seconds: number,
   ): number => {
     let index: number = 0;

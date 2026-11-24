@@ -6,8 +6,8 @@ import type {
   IAutoMovieMotionHumanPosture,
 } from "@automovie/interface";
 
+import { HumanPosturePreparation } from "./HumanPosturePreparation";
 import { prepareHumanPostureRigCheck } from "./prepareHumanPostureRigCheck";
-import { resolveHumanPosture } from "./resolveHumanPosture";
 
 /**
  * Construct a constant posture from an owned complete clinical payload.
@@ -50,10 +50,8 @@ export namespace createHumanPostureCurve {
       prepareHumanPostureRigCheck(body);
     if (unchanged === undefined) return undefined;
 
-    const prepared: resolveHumanPosture.IPrepared = resolveHumanPosture.prepare(
-      body,
-      saved,
-    );
+    const prepared: HumanPosturePreparation.IPrepared =
+      HumanPosturePreparation.prepare(body, saved);
     if (!unchanged()) return undefined;
     let active: boolean = true;
     return {
@@ -74,7 +72,7 @@ export namespace createHumanPostureCurve {
      * Genuine resolver-issued source; COM/FK/rigid placement remain with that
      * numerical owner.
      */
-    readonly prepared: resolveHumanPosture.IPrepared;
+    readonly prepared: HumanPosturePreparation.IPrepared;
 
     /**
      * Check before consuming the preparation; false permanently ends its

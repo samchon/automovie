@@ -4,6 +4,7 @@ import {
   softBodyRestConfiguration,
 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   AutoMovieHumanoidSocket,
   IAutoMovieHumanoidSurfaces,
@@ -23,6 +24,12 @@ import type {
 import { HumanObjectCord } from "./HumanObjectCord";
 import { HumanPerformanceObject } from "./HumanPerformanceObject";
 import { HumanPerformanceRead } from "./HumanPerformanceRead";
+
+/** The record of `IHumanPerformanceSoftBoundaryAnchorsItem`'s site. */
+type IHumanPerformanceSoftBoundaryAnchorsItem = {
+  particle: number;
+  position: IAutoMovieVector3;
+};
 
 /**
  * One step's boundary of a soft prop in a performance: every moving anchor's
@@ -52,7 +59,7 @@ export function HumanPerformanceSoftBoundary(
   seconds: number,
   spanEnds?: IAutoMovieMotionHumanObject.ISpanEnds,
 ): IAutoMovieSoftBodyBoundarySample {
-  const anchors: { particle: number; position: IAutoMovieVector3 }[] = [];
+  const anchors: IHumanPerformanceSoftBoundaryAnchorsItem[] = [];
   const released: number[] = [];
   for (const anchor of domain.anchors) {
     const binding: IAutoMovieSoftAnchorBinding | undefined = anchor.binding;
@@ -145,7 +152,7 @@ export namespace HumanPerformanceSoftBoundary {
     person: string;
 
     /** The gripping hand. */
-    side: "left" | "right";
+    side: AutoMovieHumanSide;
 
     /** The grip's first film second. */
     from: number;
@@ -215,14 +222,14 @@ export namespace HumanPerformanceSoftBoundary {
     state: IAutoMovieMotionHumanPerformanceState,
     bones: BoneReader,
     person: string,
-    side: "left" | "right",
+    side: AutoMovieHumanSide,
     k: number,
     seconds: number,
   ) => IAutoMovieVector3 = (
     state: IAutoMovieMotionHumanPerformanceState,
     bones: BoneReader,
     person: string,
-    side: "left" | "right",
+    side: AutoMovieHumanSide,
     k: number,
     seconds: number,
   ): IAutoMovieVector3 => {
@@ -238,6 +245,11 @@ export namespace HumanPerformanceSoftBoundary {
       hand.worldPosition,
       Quaternion.rotateVector(hand.worldRotation, socket.point),
     );
+  };
+  /** The record of `IHumanPerformanceSoftBoundarySeedResult`'s site. */
+  type IHumanPerformanceSoftBoundarySeedResult = {
+    seed: IAutoMovieSoftBodyDomain;
+    spans?: readonly IAutoMovieMotionHumanObject.ISpanEnds[];
   };
 
   /**
@@ -257,10 +269,7 @@ export namespace HumanPerformanceSoftBoundary {
     domain: IAutoMovieSoftBodyDomain,
     span: IAutoMovieMotionHumanProp.ISoftSpan | undefined,
     count: number,
-  ): {
-    seed: IAutoMovieSoftBodyDomain;
-    spans?: readonly IAutoMovieMotionHumanObject.ISpanEnds[];
-  } {
+  ): IHumanPerformanceSoftBoundarySeedResult {
     if (span === undefined) return { seed: domain };
 
     const initial: IAutoMovieMotionHumanObject.ISpanEnds = placedSpan(

@@ -10,6 +10,8 @@ import type { IMotionCaptureProps } from "./IMotionCaptureProps";
  * whole-frame check needs and a seek's match of seconds relies on.
  */
 const FPS: number = 32;
+/** The record of `IPlanMotionCapturePropsRaster`'s site. */
+type IPlanMotionCapturePropsRaster = { width: number; height: number };
 
 /**
  * Turn a built motion case into the data its draw page receives: every
@@ -25,7 +27,7 @@ const FPS: number = 32;
  */
 export function planMotionCaptureProps(
   capture: IMotionCaptureCase,
-  raster: { width: number; height: number },
+  raster: IPlanMotionCapturePropsRaster,
 ): IMotionCaptureProps {
   // The case's own instants, then every frame of the grid up to the last of them that is not one already.
   const instants: number[] = capture.times.map(

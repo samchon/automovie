@@ -10,6 +10,27 @@ import { HumanBound } from "../law/HumanBound";
 import { AutoMovieMotionHumanTiming } from "./AutoMovieMotionHumanTiming";
 import { AutoMovieMotionHumanVariationDraw } from "./AutoMovieMotionHumanVariationDraw";
 
+/** The alternatives of `OfManner`'s site. */
+type OfManner = "variation" | "consistency";
+
+/** The alternatives of `OfContext`'s site. */
+type OfContext = "skill" | "series";
+
+/** The alternatives of `BOUNDSEntryItem`'s site. */
+type BOUNDSEntryItem = "direction" | "bend" | "curvature";
+
+/** The alternatives of `SPREADSEntryItem`'s site. */
+type SPREADSEntryItem =
+  | "place"
+  | "strike"
+  | "direction"
+  | "amount"
+  | "duration"
+  | "pause"
+  | "swivel"
+  | "bend"
+  | "curvature";
+
 /**
  * The seeded offset of a symbolic slot: how one performance of an action
  * differs from the next.
@@ -81,18 +102,7 @@ export namespace AutoMovieMotionHumanVariation {
    * (provisional).
    */
   export const SPREADS: Readonly<
-    Record<
-      | "place"
-      | "strike"
-      | "direction"
-      | "amount"
-      | "duration"
-      | "pause"
-      | "swivel"
-      | "bend"
-      | "curvature",
-      readonly [novice: number, elite: number]
-    >
+    Record<SPREADSEntryItem, readonly [novice: number, elite: number]>
   > = {
     place: [0.04, 0.013],
     strike: [0.5, 0.2],
@@ -111,9 +121,7 @@ export namespace AutoMovieMotionHumanVariation {
    * share of the path's length (provisional; twice the novice's spread, so a
    * full variation is not shrunk).
    */
-  export const BOUNDS: Readonly<
-    Record<"direction" | "bend" | "curvature", number>
-  > = {
+  export const BOUNDS: Readonly<Record<BOUNDSEntryItem, number>> = {
     direction: 10,
     bend: 0.1,
     curvature: 0.04,
@@ -128,10 +136,8 @@ export namespace AutoMovieMotionHumanVariation {
    * @throws {Error} When the variation or the proficiency lies outside [0, 1].
    */
   export function of(
-    context: Pick<IAutoMovieMotionHumanActionContext, "skill" | "series">,
-    manner:
-      | Pick<IAutoMovieMotionManner, "variation" | "consistency">
-      | undefined,
+    context: Pick<IAutoMovieMotionHumanActionContext, OfContext>,
+    manner: Pick<IAutoMovieMotionManner, OfManner> | undefined,
   ): IAutoMovieMotionHumanVariation.ISource | undefined {
     const variation: number = manner?.variation ?? 0;
     HumanBound.within("manner.variation", variation, 0, 1);

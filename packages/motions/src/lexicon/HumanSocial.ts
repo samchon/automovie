@@ -16,6 +16,60 @@ import { highFive } from "../touch/highFive";
 import { kiss } from "../touch/kiss";
 import { touch } from "../touch/touch";
 
+/** The alternatives of `CastEntryItem5`'s site. */
+type CastEntryItem5 = "host" | "guest" | "third" | "fourth";
+
+/** The alternatives of `ToastOfFourRole`'s site. */
+type ToastOfFourRole = "host" | "guest" | "third" | "fourth";
+
+/** The alternatives of `ToastOfFour`'s site. */
+type ToastOfFour = "host" | "guest" | "third" | "fourth";
+
+/** The alternatives of `CastEntryItem4`'s site. */
+type CastEntryItem4 = "one" | "other";
+
+/** The alternatives of `ThumbWrestleRole`'s site. */
+type ThumbWrestleRole = "one" | "other";
+
+/** The alternatives of `ThumbWrestle`'s site. */
+type ThumbWrestle = "one" | "other";
+
+/** The alternatives of `CastEntryItem3`'s site. */
+type CastEntryItem3 = "one" | "other";
+
+/** The alternatives of `ArmWrestleRole`'s site. */
+type ArmWrestleRole = "one" | "other";
+
+/** The alternatives of `ArmWrestle`'s site. */
+type ArmWrestle = "one" | "other";
+
+/** The alternatives of `RockPaperScissors`'s site. */
+type RockPaperScissors = "one" | "other";
+
+/** The alternatives of `CastEntryItem2`'s site. */
+type CastEntryItem2 = "host" | "guest";
+
+/** The alternatives of `ToastRole`'s site. */
+type ToastRole = "host" | "guest";
+
+/** The alternatives of `Toast`'s site. */
+type Toast = "host" | "guest";
+
+/** The alternatives of `CastEntryItem`'s site. */
+type CastEntryItem = "one" | "other";
+
+/** The record of `IBumpParams`'s site. */
+type IBumpParams = { window?: IAutoMovieMotionMeeting.IWindow };
+
+/** The alternatives of `BumpRole`'s site. */
+type BumpRole = "one" | "other";
+
+/** The alternatives of `Bump`'s site. */
+type Bump = "one" | "other";
+
+/** The record of `IBump`'s site. */
+type IBump = { window?: IAutoMovieMotionMeeting.IWindow };
+
 /**
  * Things two people do together or to each other in company, as rows of shipped
  * actions and as mutual records over them (`HumanChain.mutual`). Register the
@@ -108,16 +162,13 @@ export namespace HumanSocial {
    * film seconds, the fists meet no earlier than its `from` and part at its
    * `to` (`AutoMovieMotionMeeting.IWindow`).
    */
-  export const bump: IAutoMovieMotionHumanMutual<
-    { window?: IAutoMovieMotionMeeting.IWindow },
-    "one" | "other"
-  > = {
+  export const bump: IAutoMovieMotionHumanMutual<IBump, Bump> = {
     name: "fistBump",
     roles: ["one", "other"],
     act: (
-      role: "one" | "other",
-      params: { window?: IAutoMovieMotionMeeting.IWindow },
-      cast: Readonly<Record<"one" | "other", string>>,
+      role: BumpRole,
+      params: IBumpParams,
+      cast: Readonly<Record<CastEntryItem, string>>,
     ): IAutoMovieMotionHumanMutual.IAct => ({
       name: "fistBump",
       params: {
@@ -142,14 +193,14 @@ export namespace HumanSocial {
    */
   export const toast: IAutoMovieMotionHumanMutual<
     IAutoMovieMotionHumanSocial.IToast,
-    "host" | "guest"
+    Toast
   > = {
     name: "toast",
     roles: ["host", "guest"],
     act: (
-      role: "host" | "guest",
+      role: ToastRole,
       params: IAutoMovieMotionHumanSocial.IToast,
-      cast: Readonly<Record<"host" | "guest", string>>,
+      cast: Readonly<Record<CastEntryItem2, string>>,
     ): IAutoMovieMotionHumanMutual.IAct => ({
       name: "fistBump",
       params: {
@@ -183,7 +234,7 @@ export namespace HumanSocial {
    */
   export const rockPaperScissors: IAutoMovieMotionHumanMutual<
     object,
-    "one" | "other"
+    RockPaperScissors
   > = {
     name: "rockPaperScissors",
     roles: ["one", "other"],
@@ -230,14 +281,14 @@ export namespace HumanSocial {
    */
   export const armWrestle: IAutoMovieMotionHumanMutual<
     IAutoMovieMotionHumanSocial.IArmWrestle,
-    "one" | "other"
+    ArmWrestle
   > = {
     name: "armWrestle",
     roles: ["one", "other"],
     act: (
-      role: "one" | "other",
+      role: ArmWrestleRole,
       params: IAutoMovieMotionHumanSocial.IArmWrestle,
-      cast: Readonly<Record<"one" | "other", string>>,
+      cast: Readonly<Record<CastEntryItem3, string>>,
     ): IAutoMovieMotionHumanMutual.IAct => {
       if (params === undefined)
         throw new Error("An arm wrestle states its table point and its winner");
@@ -260,21 +311,19 @@ export namespace HumanSocial {
    * handshake's 2.43 Hz, about 2.1 s (Tagne et al. 2016; `handshake`), after
    * the clasp; a playful contest between friends or siblings.
    */
-  export const thumbWrestle: IAutoMovieMotionHumanMutual<
-    object,
-    "one" | "other"
-  > = {
-    name: "thumbWrestle",
-    roles: ["one", "other"],
-    act: (
-      role: "one" | "other",
-      _params: object,
-      cast: Readonly<Record<"one" | "other", string>>,
-    ): IAutoMovieMotionHumanMutual.IAct => ({
-      name: "handshake",
-      params: { partner: cast[role === "one" ? "other" : "one"], pumps: 5 },
-    }),
-  };
+  export const thumbWrestle: IAutoMovieMotionHumanMutual<object, ThumbWrestle> =
+    {
+      name: "thumbWrestle",
+      roles: ["one", "other"],
+      act: (
+        role: ThumbWrestleRole,
+        _params: object,
+        cast: Readonly<Record<CastEntryItem4, string>>,
+      ): IAutoMovieMotionHumanMutual.IAct => ({
+        name: "handshake",
+        params: { partner: cast[role === "one" ? "other" : "one"], pumps: 5 },
+      }),
+    };
 
   /**
    * A toast of four: two pairs clink at once, host with guest and third with
@@ -286,14 +335,14 @@ export namespace HumanSocial {
    */
   export const toastOfFour: IAutoMovieMotionHumanMutual<
     IAutoMovieMotionHumanSocial.IToastOfFour,
-    "host" | "guest" | "third" | "fourth"
+    ToastOfFour
   > = {
     name: "toastOfFour",
     roles: ["host", "guest", "third", "fourth"],
     act: (
-      role: "host" | "guest" | "third" | "fourth",
+      role: ToastOfFourRole,
       params: IAutoMovieMotionHumanSocial.IToastOfFour,
-      cast: Readonly<Record<"host" | "guest" | "third" | "fourth", string>>,
+      cast: Readonly<Record<CastEntryItem5, string>>,
     ): IAutoMovieMotionHumanMutual.IAct => ({
       name: "fistBump",
       params: {

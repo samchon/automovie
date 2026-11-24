@@ -1,5 +1,6 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanWalkLegClearance,
@@ -47,7 +48,7 @@ export namespace walkLegCapsules {
     readable: (i: number, j: number) => IReadable;
 
     /** Each side's toes joint less its foot joint at rest, metres. */
-    toes: Record<"left" | "right", IAutoMovieVector3>;
+    toes: Record<AutoMovieHumanSide, IAutoMovieVector3>;
 
     /**
      * A side's collider placement reader for its four leg bones
@@ -55,7 +56,7 @@ export namespace walkLegCapsules {
      * that side.
      */
     placements: (
-      side: "left" | "right",
+      side: AutoMovieHumanSide,
     ) => ReturnType<typeof HumanColliders.preparePlaced>;
   }
 
@@ -71,15 +72,18 @@ export namespace walkLegCapsules {
     const model: AutoMovieMotionHumanAuditTangleModel.IModel =
       AutoMovieMotionHumanAuditTangleModel.model(body);
     const pairs: Map<number, IReadable> = new Map<number, IReadable>();
-    const offset: (side: "left" | "right") => IAutoMovieVector3 = (
-      side: "left" | "right",
+    const offset: (side: AutoMovieHumanSide) => IAutoMovieVector3 = (
+      side: AutoMovieHumanSide,
     ): IAutoMovieVector3 =>
       Vector3.subtract(
         body.rest.get(`${side}Toes`)!,
         body.rest.get(`${side}Foot`)!,
       );
     const placed: Partial<
-      Record<"left" | "right", ReturnType<typeof HumanColliders.preparePlaced>>
+      Record<
+        AutoMovieHumanSide,
+        ReturnType<typeof HumanColliders.preparePlaced>
+      >
     > = {};
     return {
       body,
@@ -104,7 +108,7 @@ export namespace walkLegCapsules {
       },
       toes: { left: offset("left"), right: offset("right") },
       placements: (
-        side: "left" | "right",
+        side: AutoMovieHumanSide,
       ): ReturnType<typeof HumanColliders.preparePlaced> =>
         (placed[side] ??= HumanColliders.preparePlaced(
           body,
@@ -235,7 +239,7 @@ export namespace walkLegCapsules {
 
   /** Each side's leg bones by their name without the side. */
   export const NAMES: Readonly<
-    Record<"left" | "right", Record<string, AutoMovieHumanoidBone>>
+    Record<AutoMovieHumanSide, Record<string, AutoMovieHumanoidBone>>
   > = {
     left: {
       UpperLeg: "leftUpperLeg",

@@ -22,6 +22,7 @@ import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
 import { deriveHumanPosture } from "../posture/deriveHumanPosture";
 import { hipJoints } from "../posture/hipJoints";
+import { humanPostureHeading } from "../posture/humanPostureHeading";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
@@ -206,12 +207,7 @@ export function prepareBendSquat(
       pitch: q[2]!,
       roll: q[3]!,
     };
-    const hips = hipJoints(
-      body,
-      p.root,
-      resolveHumanPosture.heading(p),
-      p.joints.hips,
-    );
+    const hips = hipJoints(body, p.root, humanPostureHeading(p), p.joints.hips);
     return kneePlanes(body, {
       ...p,
       root: Vector3.subtract(centre, Vector3.lerp(hips.left, hips.right, 0.5)),
@@ -391,7 +387,7 @@ export function prepareBendSquat(
     const standingHips = hipJoints(
       body,
       standing.root,
-      resolveHumanPosture.heading(standing),
+      humanPostureHeading(standing),
       standing.joints.hips,
     );
     const start = Vector3.lerp(standingHips.left, standingHips.right, 0.5);
@@ -433,7 +429,7 @@ export function prepareBendSquat(
     const hips = hipJoints(
       body,
       { x: 0, y: 0, z: 0 },
-      resolveHumanPosture.heading(result),
+      humanPostureHeading(result),
       result.joints.hips,
     );
     return kneePlanes(body, {
@@ -451,7 +447,7 @@ function kneePlanes(
   const hips = hipJoints(
     body,
     original.root,
-    resolveHumanPosture.heading(original),
+    humanPostureHeading(original),
     original.joints.hips,
   );
   const limbs = { ...original.limbs };

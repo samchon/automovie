@@ -22,6 +22,18 @@ import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolutio
 import { blendGazeJoint } from "./blendGazeJoint";
 import { readHumanGazeBones } from "./readHumanGazeBones";
 
+/** The record of `ILayerTowards`'s site. */
+type ILayerTowards = { yaw: number; pitch: number };
+
+/** The record of `IAimFacingTarget`'s site. */
+type IAimFacingTarget = { yaw: number; pitch: number };
+
+/** The record of `IAimTowards`'s site. */
+type IAimTowards = { yaw: number; pitch: number };
+
+/** The record of `IHEADItem`'s site. */
+type IHEADItem = { yaw: number; down: number; up: number };
+
 /**
  * Gaze as a goal: the eyes' lines brought onto a target, with the eyes, the
  * head and neck and the trunk recruited in that order as the target lies
@@ -75,7 +87,7 @@ export namespace HumanGaze {
    * over daily tasks); the 40 down and 30 up have no measured source
    * (provisional).
    */
-  export const HEAD: Readonly<{ yaw: number; down: number; up: number }> = {
+  export const HEAD: Readonly<IHEADItem> = {
     yaw: 60,
     down: 40,
     up: 30,
@@ -202,11 +214,11 @@ export namespace HumanGaze {
     recruit: IAutoMovieMotionHumanGaze.Recruit,
     weights: IAutoMovieMotionHumanGaze.IAimWeights,
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
-    towards?: { yaw: number; pitch: number },
+    towards?: IAimTowards,
   ): IAutoMovieMotionHumanPosture {
     const read: ReturnType<typeof prepareHumanPoseResolution> =
       prepareHumanPoseResolution(resolution);
-    const facingTarget: { yaw: number; pitch: number } =
+    const facingTarget: IAimFacingTarget =
       towards ?? direction(body, posture, point, read);
     const parts: IAutoMovieMotionHumanGaze.ISplit = split(
       facingTarget.yaw,
@@ -380,7 +392,7 @@ export namespace HumanGaze {
             request.target,
             seconds,
           ).point;
-          const towards: { yaw: number; pitch: number } = direction(
+          const towards: ILayerTowards = direction(
             context.body,
             posture,
             point,
@@ -492,6 +504,8 @@ const ZERO: readonly [number, number, number] = [0, 0, 0];
 
 /** A part of the body a gaze recruits on its own timing. */
 type GazePart = "eyes" | "head" | "trunk";
+/** The record of `IStageTowards`'s site. */
+type IStageTowards = { yaw: number; pitch: number };
 
 /**
  * One request showing at an instant: the request, its target's point, its
@@ -509,7 +523,7 @@ interface IStage {
    * The target's direction from the eyes on the posture under the layer,
    * degrees.
    */
-  towards: { yaw: number; pitch: number };
+  towards: IStageTowards;
 
   /** Each part's onset and return duration, seconds. */
   durations: Record<GazePart, number>;

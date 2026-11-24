@@ -1,4 +1,5 @@
 import type {
+  AutoMovieHumanSide,
   IAutoMovieMotionHumanFoot,
   IAutoMovieMotionHumanPosture,
   IAutoMovieVector3,
@@ -38,7 +39,7 @@ export namespace jumpEndpoints {
     props: Parameters<typeof jumpPushEnd>[0],
     rootT: IAutoMovieVector3,
     rootL: IAutoMovieVector3,
-    landing: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement>,
+    landing: Record<AutoMovieHumanSide, IAutoMovieMotionHumanFoot.IPlacement>,
     landingHeading: number,
     landingKnee: typeof props.knee,
   ): IEnds {

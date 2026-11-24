@@ -28,9 +28,15 @@ import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMo
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanBound } from "../law/HumanBound";
 import { HumanFrame } from "../posture/HumanFrame";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { humanPostureHeading } from "../posture/humanPostureHeading";
 import { HumanSkill } from "../skill/HumanSkill";
 import { SwimStroke } from "./SwimStroke";
+
+/** The alternatives of `PlanLimb`'s site. */
+type PlanLimb = "leftLeg" | "rightLeg";
+
+/** The record of `ICOORDINATION`'s site. */
+type ICOORDINATION = { novice: number; elite: number };
 
 /**
  * Swimming on a declared water plane: treading water and the front crawl. There
@@ -101,7 +107,7 @@ export namespace swim {
    * and an elite's near-opposition (-6.07 % and -1.76 % by level, Chollet et
    * al. 2000 as the research reads them), read on the `sequencing` skill axis.
    */
-  export const COORDINATION: { novice: number; elite: number } = {
+  export const COORDINATION: ICOORDINATION = {
     novice: -0.0607,
     elite: -0.0176,
   };
@@ -199,7 +205,7 @@ export namespace swim {
 
     // The root floats: upright with the mouth above the plane, or prone with the hips under it.
     const proneHeading: IAutoMovieQuaternion | undefined = prone
-      ? resolveHumanPosture.heading({
+      ? humanPostureHeading({
           ...entry,
           pitch: entry.pitch + 90,
         })
@@ -305,7 +311,7 @@ export namespace swim {
     const kneeFlexion: number = prone ? 15 : 60;
     const ankleFlexion: number = prone ? -40 : 0;
     for (const side of ["left", "right"] as const) {
-      const limb: "leftLeg" | "rightLeg" = `${side}Leg`;
+      const limb: PlanLimb = `${side}Leg`;
       const offset: number = side === "left" ? 0 : 1 / kicks;
       primitives.push({
         channels: [limb],

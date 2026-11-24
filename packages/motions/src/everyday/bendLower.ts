@@ -17,10 +17,12 @@ import { AutoMovieMotionHumanAuditTangle } from "../audit/AutoMovieMotionHumanAu
 import { createHumanBody } from "../body/createHumanBody";
 import { HumanPhysics } from "../law/HumanPhysics";
 import { HumanRefusal } from "../law/HumanRefusal";
+import { HumanBoneGroups } from "../posture/HumanBoneGroups";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
 import { hipJoints } from "../posture/hipJoints";
+import { humanPostureHeading } from "../posture/humanPostureHeading";
 import { lowerHumanPosture } from "../posture/lowerHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
@@ -282,7 +284,7 @@ export namespace bendLower {
       for (const leg of ["leftLeg", "rightLeg"] as const) {
         const goal0: IAutoMovieHumanLimbGoal | undefined = posture.limbs[leg];
         if (goal0 === undefined || goal0.rotation === undefined) continue;
-        const side: "left" | "right" = leg === "leftLeg" ? "left" : "right";
+        const side: AutoMovieHumanSide = leg === "leftLeg" ? "left" : "right";
         const flat: IAutoMovieMotionHumanFoot.IPlacement = {
           ankle: goal0.point,
           rotation: goal0.rotation,
@@ -344,7 +346,7 @@ export namespace bendLower {
       limbs,
       root: Vector3.subtract(
         goal,
-        Quaternion.rotateVector(resolveHumanPosture.heading(tipped), hips),
+        Quaternion.rotateVector(humanPostureHeading(tipped), hips),
       ),
     };
     if (strategy === "stoop" && share > 0) {
@@ -356,14 +358,14 @@ export namespace bendLower {
       const standing: ReturnType<typeof hipJoints> = hipJoints(
         body,
         posture.root,
-        resolveHumanPosture.heading(posture),
+        humanPostureHeading(posture),
         posture.joints.hips,
         read(),
       );
       const lowered: ReturnType<typeof hipJoints> = hipJoints(
         body,
         placed.root,
-        resolveHumanPosture.heading(placed),
+        humanPostureHeading(placed),
         placed.joints.hips,
         read(),
       );
@@ -397,7 +399,7 @@ export namespace bendLower {
         };
     }
     return lowerPlanted === undefined
-      ? resolveHumanPosture.lower(body, placed, undefined, resolution)
+      ? lowerHumanPosture(body, placed, undefined, resolution)
       : lowerPlanted(placed, resolution);
   }
 
@@ -548,8 +550,8 @@ export namespace bendLower {
       poseBones(body, resolveHumanPosture(body, key)),
     ))
       if (
-        (TRUNK.has(pair.a) && THIGHS.has(pair.b)) ||
-        (TRUNK.has(pair.b) && THIGHS.has(pair.a))
+        (TRUNK.has(pair.a) && HumanBoneGroups.THIGHS.has(pair.b)) ||
+        (TRUNK.has(pair.b) && HumanBoneGroups.THIGHS.has(pair.a))
       )
         deepest = Math.max(deepest, pair.depth);
     return deepest;
@@ -562,10 +564,6 @@ export namespace bendLower {
    */
   const TRUNK: ReadonlySet<AutoMovieHumanoidBone> =
     new Set<AutoMovieHumanoidBone>(["spine", "chest", "upperChest"]);
-
-  /** The thighs a lowering folds the trunk onto. */
-  const THIGHS: ReadonlySet<AutoMovieHumanoidBone> =
-    new Set<AutoMovieHumanoidBone>(["leftUpperLeg", "rightUpperLeg"]);
 
   /**
    * The frontal inclination that directs the upper trunk toward a target beside

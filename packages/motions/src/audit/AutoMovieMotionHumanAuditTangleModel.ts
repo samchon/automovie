@@ -4,6 +4,7 @@ import {
   physicalShapeSegmentDistance,
 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieBone,
   IAutoMovieMotionHumanBody,
@@ -91,7 +92,7 @@ export namespace AutoMovieMotionHumanAuditTangleModel {
      * Whether each segment is of that side's arm: its upper arm, its forearm,
      * or its hand with the fingers.
      */
-    arms: Record<"left" | "right", boolean[]>;
+    arms: Record<AutoMovieHumanSide, boolean[]>;
 
     /** The segments placed in the rest T-pose. */
     rest: IAutoMovieMotionHumanColliders.IPlaced[];
@@ -289,8 +290,8 @@ export namespace AutoMovieMotionHumanAuditTangleModel {
           ),
         ),
       );
-    const arm: (side: "left" | "right") => boolean[] = (
-      side: "left" | "right",
+    const arm: (side: AutoMovieHumanSide) => boolean[] = (
+      side: AutoMovieHumanSide,
     ): boolean[] =>
       parts.map(
         (p: IPart): boolean =>

@@ -51,6 +51,11 @@ interface IReachAt {
   /** The pelvis there. */
   pelvis: walkReach.IPelvis;
 }
+/** The record of `IReachingSwing`'s site. */
+type IReachingSwing = { off: number; on: number };
+
+/** The alternatives of `WalkLocomoteAuthoredEntry`'s site. */
+type WalkLocomoteAuthoredEntry = "stride" | "arms";
 
 /**
  * Plan stepping locomotion in a gait: footprints, their timing, the pelvis and
@@ -84,7 +89,7 @@ export function walkLocomote(
   );
   const speed: number =
     Math.sqrt(froude * AutoMovieGravity.STANDARD * l) / manner.tempo;
-  const authored: Record<"stride" | "arms", number> = {
+  const authored: Record<WalkLocomoteAuthoredEntry, number> = {
     stride: p.stride ?? 1,
     arms: p.armSwing ?? 1,
   };
@@ -172,8 +177,8 @@ export function walkLocomote(
     rotation: foot.placement.rotation,
     toes: foot.toes,
   });
-  const scheduled: (side: "left" | "right", t: number) => walkFoot.IEnd = (
-    side: "left" | "right",
+  const scheduled: (side: AutoMovieHumanSide, t: number) => walkFoot.IEnd = (
+    side: AutoMovieHumanSide,
     t: number,
   ): walkFoot.IEnd => endOf(steps.foot(side, t));
 
@@ -198,8 +203,8 @@ export function walkLocomote(
 
   // The lowering a swinging leg asks of the pelvis at a share of its swing for the ankle the schedule swings there, read from the schedule alone so that it needs no settled pelvis and every instant settles the same.
   function reaching(
-    side: "left" | "right",
-    swing: { off: number; on: number },
+    side: AutoMovieHumanSide,
+    swing: IReachingSwing,
     u: number,
     resolution?: ReturnType<typeof preparePoseResolution>,
     current?: IReachAt,
@@ -231,7 +236,7 @@ export function walkLocomote(
   const flights: Map<string, [number, number]> = new Map();
   function settle(
     t: number,
-    feet: Record<"left" | "right", IAutoMovieMotionHumanWalkFoot.IScheduled>,
+    feet: Record<AutoMovieHumanSide, IAutoMovieMotionHumanWalkFoot.IScheduled>,
     amount: number = steps.amount(t),
     hips: readonly [number, number, number] = pelvis(t, steps.phase(t), amount),
     resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
@@ -250,7 +255,7 @@ export function walkLocomote(
       read,
     );
     const current: IReachAt = { seconds: t, pelvis: frame };
-    const claims: Partial<Record<"left" | "right", number>> = {};
+    const claims: Partial<Record<AutoMovieHumanSide, number>> = {};
     for (const side of ["left", "right"] as const) {
       const swing: IAutoMovieMotionHumanWalkFoot.IScheduled["swing"] =
         feet[side].swing;
@@ -332,11 +337,11 @@ export function walkLocomote(
   // than again at every second the swing is read.
   const ends: Map<string, walkFoot.IEnd> = new Map();
   const end: (
-    side: "left" | "right",
+    side: AutoMovieHumanSide,
     t: number,
     resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
   ) => walkFoot.IEnd = (
-    side: "left" | "right",
+    side: AutoMovieHumanSide,
     t: number,
     resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
   ): walkFoot.IEnd => {
@@ -364,7 +369,7 @@ export function walkLocomote(
     closing,
   );
   const ranged: Partial<
-    Record<"left" | "right", ReturnType<typeof walkReach.prepareSwing>>
+    Record<AutoMovieHumanSide, ReturnType<typeof walkReach.prepareSwing>>
   > = {};
   // The landings of footfalls taken in place at the arrival, by foot and heel strike.
   const turning: ReadonlySet<string> = new Set(
@@ -384,7 +389,7 @@ export function walkLocomote(
   // toe-off.
   const leavings: Map<string, IAutoMovieVector3> = new Map();
   function leaving(
-    side: "left" | "right",
+    side: AutoMovieHumanSide,
     swing: NonNullable<IAutoMovieMotionHumanWalkFoot.IScheduled["swing"]>,
     resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
   ): IAutoMovieVector3 {
@@ -418,13 +423,13 @@ export function walkLocomote(
   }
   function solve(
     t: number,
-    legs: readonly ("left" | "right")[],
+    legs: readonly AutoMovieHumanSide[],
     phase: number,
     amount: number,
     resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
   ): walkPosture.ISettled {
     const feet: Record<
-      "left" | "right",
+      AutoMovieHumanSide,
       IAutoMovieMotionHumanWalkFoot.IScheduled
     > = {
       left: steps.foot("left", t),
@@ -438,8 +443,8 @@ export function walkLocomote(
       hips,
       resolution,
     );
-    const reached: Record<"left" | "right", walkFoot.IEnd> = {} as Record<
-      "left" | "right",
+    const reached: Record<AutoMovieHumanSide, walkFoot.IEnd> = {} as Record<
+      AutoMovieHumanSide,
       walkFoot.IEnd
     >;
     for (const side of ["left", "right"] as const) {
@@ -483,7 +488,7 @@ export function walkLocomote(
   // The swinging arms are carried clear of the body, the hands passing the
   // thighs no nearer than they hang beside them, by one abduction read
   // over one of its strides (`walkCarriage`).
-  let carried: Record<"left" | "right", number> | undefined;
+  let carried: Record<AutoMovieHumanSide, number> | undefined;
   // A hand carrying a long prop is driven by the walk, which takes the prop
   // over with a grip window, so the performance lets the walk's carriage
   // reach it (`walkPoleCarriage`).
@@ -508,10 +513,10 @@ export function walkLocomote(
     ): IAutoMovieMotionHumanPosture => {
       const resolution: ReturnType<typeof prepareHumanPoseResolution> =
         prepareHumanPoseResolution(source);
-      const legs: readonly ("left" | "right")[] =
+      const legs: readonly AutoMovieHumanSide[] =
         channels === undefined
           ? walkReach.SIDES
-          : walkReach.SIDES.filter((side: "left" | "right"): boolean =>
+          : walkReach.SIDES.filter((side: AutoMovieHumanSide): boolean =>
               channels.includes(`${side}Leg`),
             );
       const posture: IAutoMovieMotionHumanPosture = unswung(

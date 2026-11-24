@@ -21,8 +21,8 @@ import type {
 
 import { lieDown } from "../floor/lieDown";
 import { createHumanPostureRotation } from "../posture/createHumanPostureRotation";
+import { humanPostureHeading } from "../posture/humanPostureHeading";
 import { poseBones } from "../posture/poseBones";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { GymnasticsFlight } from "../sport/GymnasticsFlight";
 import { stuntFallPose } from "./stuntFallPose";
 import { vehicleFront } from "./vehicleFront";
@@ -58,6 +58,8 @@ const VAULT: number = 0.5;
  * admits).
  */
 const PROJECTION: number = 10;
+/** The alternatives of `PlanVehicleHitContactsPart`'s site. */
+type PlanVehicleHitContactsPart = "leftFoot" | "rightFoot";
 
 /**
  * Plan a pedestrian struck by a moving car. The pedestrian stands until the
@@ -141,7 +143,7 @@ export function planVehicleHit(
   // carried by the posture's turn about its hips.
   const joints: IAutoMovieMotionHumanPosture["joints"] =
     GymnasticsFlight.frozen(body, entry).joints;
-  const q0: IAutoMovieQuaternion = resolveHumanPosture.heading(entry);
+  const q0: IAutoMovieQuaternion = humanPostureHeading(entry);
   const shaped: (
     hips: IAutoMovieVector3,
     turn: IAutoMovieQuaternion,
@@ -334,7 +336,7 @@ export function planVehicleHit(
     Math.hypot(vS.x, vS.z) > 0
       ? (Math.atan2(vS.x, vS.z) * 180) / Math.PI
       : entry.yaw;
-  const qLie: IAutoMovieQuaternion = resolveHumanPosture.heading({
+  const qLie: IAutoMovieQuaternion = humanPostureHeading({
     yaw: heading,
     pitch: supine.pitch,
     roll: supine.roll,
@@ -440,7 +442,9 @@ export function planVehicleHit(
     seconds / duration;
   const contacts: IAutoMovieMotionHumanContactWindow[] = [
     ...(["leftFoot", "rightFoot"] as const).map(
-      (part: "leftFoot" | "rightFoot"): IAutoMovieMotionHumanContactWindow => ({
+      (
+        part: PlanVehicleHitContactsPart,
+      ): IAutoMovieMotionHumanContactWindow => ({
         part,
         kind: "plant",
         support: { kind: "ground" },

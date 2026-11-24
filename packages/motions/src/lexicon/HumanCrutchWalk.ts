@@ -41,6 +41,8 @@ const FLOOR: number = 0.01;
  * ball.
  */
 const THROUGH: number = 12 * 0.0254;
+/** The alternatives of `HELDEntryItem`'s site. */
+type HELDEntryItem = "hip" | "knee";
 
 /**
  * The hip's and knee's flexion that hold a three-point gait's injured foot off
@@ -48,7 +50,7 @@ const THROUGH: number = 12 * 0.0254;
  * a little forward, so the foot clears the floor by a hand's breadth even as
  * the sound knee gives under the swing).
  */
-const HELD: Readonly<Record<"hip" | "knee", number>> = { hip: 30, knee: 80 };
+const HELD: Readonly<Record<HELDEntryItem, number>> = { hip: 30, knee: 80 };
 
 /**
  * How far above the crutch pads the axillae stay while the body swings, metres:

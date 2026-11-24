@@ -1,4 +1,5 @@
 import type {
+  AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanExercise,
   IAutoMovieMotionHumanPerformance,
@@ -57,6 +58,8 @@ export function exerciseCases(
     ] as IAutoMovieMotionHumanExercise.Kind[]) {
       const name: string = `exercise-${kind}${suffix}`;
       let performance: IAutoMovieMotionHumanPerformance;
+
+      // Process boundary: a case that throws is reported as that case's refusal, and the remaining cases still run.
       try {
         performance = new HumanPerformance({
           seed: "exercise",
@@ -83,7 +86,7 @@ export function exerciseCases(
       );
       const at = (t: number, bone: string): IAutoMovieVector3 =>
         performance.bones("a", t).get(bone as never)!.worldPosition;
-      const thigh = (t: number, side: "left" | "right"): number => {
+      const thigh = (t: number, side: AutoMovieHumanSide): number => {
         const hip: IAutoMovieVector3 = at(t, `${side}UpperLeg`);
         const knee: IAutoMovieVector3 = at(t, `${side}LowerLeg`);
         const d: number = Math.hypot(

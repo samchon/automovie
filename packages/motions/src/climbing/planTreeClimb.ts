@@ -12,6 +12,7 @@ import { support } from "../actions/support";
 import { poseBones } from "../posture/poseBones";
 import { treeClimbDrop } from "./treeClimbDrop";
 import { treeClimbRoute } from "./treeClimbRoute";
+import { treeClimbRouteExpand } from "./treeClimbRouteExpand";
 import { treeLimbs } from "./treeLimbs";
 
 /**
@@ -110,7 +111,7 @@ export function planTreeClimb(
       ];
     } else stances = down;
   }
-  const route: treeClimbRoute.IRoute = treeClimbRoute.expand(
+  const route: treeClimbRoute.IRoute = treeClimbRouteExpand(
     context.body,
     tree,
     stances,

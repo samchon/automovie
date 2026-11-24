@@ -10,6 +10,9 @@ import { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
 import type { HumanArmTrajectorySweep } from "./HumanArmTrajectorySweep";
 import { HumanArmTrajectoryTerms as T } from "./HumanArmTrajectoryTerms";
 
+/** The record of `IOfArmRowsItem`'s site. */
+type IOfArmRowsItem = { coef: number[]; gain: number };
+
 /**
  * The detour that lays a transport of an arms' course clear of the body
  * (`HumanArmTrajectoryLaid`): where the course's reading finds an arm's probe
@@ -178,7 +181,7 @@ export namespace HumanArmTrajectoryClear {
       at.placed[arm]![waypoint]!;
     const pairs: NonNullable<M.IEvaluation["pairs"][number][number]> =
       at.pairs[arm]![waypoint]!;
-    const rows: { coef: number[]; gain: number }[] = [];
+    const rows: IOfArmRowsItem[] = [];
 
     // A sweep's row at its inner end: the shape's normal at that end of the
     // swept probe, read in the shape's frame at the interval's first
@@ -259,6 +262,26 @@ export namespace HumanArmTrajectoryClear {
     return u * u * (3 - 2 * u);
   }
 }
+/** The record of `ILeastRow`'s site. */
+type ILeastRow = { coef: number[] };
+
+/** The record of `ILeastYRow`'s site. */
+type ILeastYRow = { gain: number };
+
+/** The record of `ILeastGramQ`'s site. */
+type ILeastGramQ = { coef: number[] };
+
+/** The record of `ILeastGramP`'s site. */
+type ILeastGramP = { coef: number[] };
+
+/** The record of `ILeastChosenRow`'s site. */
+type ILeastChosenRow = { coef: number[]; gain: number };
+
+/** The record of `ILeastChosenItem`'s site. */
+type ILeastChosenItem = { coef: number[]; gain: number };
+
+/** The record of `ILeastRowsItem`'s site. */
+type ILeastRowsItem = { coef: number[]; gain: number };
 
 /**
  * The change meeting the rows that need a gain, by damped least squares
@@ -270,16 +293,16 @@ export namespace HumanArmTrajectoryClear {
  * is left.
  */
 function least(
-  rows: readonly { coef: number[]; gain: number }[],
+  rows: readonly ILeastRowsItem[],
   region: number,
 ): number[] | undefined {
-  const chosen: { coef: number[]; gain: number }[] = rows.filter(
-    (row: { coef: number[]; gain: number }): boolean => row.gain > 0,
+  const chosen: ILeastChosenItem[] = rows.filter(
+    (row: ILeastChosenRow): boolean => row.gain > 0,
   );
   if (chosen.length === 0) return undefined;
   const size: number = chosen[0]!.coef.length;
-  const gram: number[][] = chosen.map((p: { coef: number[] }): number[] =>
-    chosen.map((q: { coef: number[] }): number =>
+  const gram: number[][] = chosen.map((p: ILeastGramP): number[] =>
+    chosen.map((q: ILeastGramQ): number =>
       p.coef.reduce(
         (s: number, v: number, d: number): number => s + v * q.coef[d]!,
         0,
@@ -295,11 +318,11 @@ function least(
   });
   const y: number[] | undefined = solve(
     gram,
-    chosen.map((row: { gain: number }): number => row.gain),
+    chosen.map((row: ILeastYRow): number => row.gain),
   );
   if (y === undefined) return undefined;
   const step: number[] = new Array<number>(size).fill(0);
-  chosen.forEach((row: { coef: number[] }, r: number): void => {
+  chosen.forEach((row: ILeastRow, r: number): void => {
     row.coef.forEach((v: number, d: number): void => {
       step[d]! += v * y[r]!;
     });

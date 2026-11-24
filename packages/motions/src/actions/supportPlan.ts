@@ -12,7 +12,7 @@ import type {
 } from "@automovie/interface";
 
 import { HumanPreparedPlayback } from "../perform/HumanPreparedPlayback";
-import { HumanArmClearance } from "../posture/HumanArmClearance";
+import { HumanArmSwing } from "../posture/HumanArmSwing";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { prepareSupportHelperGrip } from "./prepareSupportHelperGrip";
@@ -21,6 +21,9 @@ import { supportBalance } from "./supportBalance";
 import { supportCourse } from "./supportCourse";
 import { supportHeldSocket } from "./supportHeldSocket";
 import { supportWindows } from "./supportWindows";
+
+/** The record of `IOfUnbalancedResult`'s site. */
+type IOfUnbalancedResult = { name: string; share: number };
 
 /**
  * The support sequence's plan from its solved keys: the contact windows, the
@@ -159,7 +162,7 @@ export namespace supportPlan {
 
     /**
      * Carry a support interval, its hanging arms let out of the legs and trunk
-     * the keys move under them (`HumanArmClearance.swung`).
+     * the keys move under them (`HumanArmSwing.of`).
      */
     const transfer = (
       index: number,
@@ -178,7 +181,7 @@ export namespace supportPlan {
       const sides: AutoMovieHumanSide[] = free[index] ?? hanging;
       return sides.length === 0
         ? carried
-        : HumanArmClearance.swung(body, carried, sides, resolution, projection);
+        : HumanArmSwing.of(body, carried, sides, resolution, projection);
     };
 
     /** Carry a support interval after the containing transfer has been selected. */
@@ -225,10 +228,12 @@ export namespace supportPlan {
     };
     const unbalanced: IAutoMovieMotionHumanActionPlan = {
       duration,
-      events: keys.slice(1).map((k: IKey): { name: string; share: number } => ({
-        name: k.name,
-        share: k.seconds / duration,
-      })),
+      events: keys.slice(1).map(
+        (k: IKey): IOfUnbalancedResult => ({
+          name: k.name,
+          share: k.seconds / duration,
+        }),
+      ),
       contacts,
       yields,
       settle: (): void => {
@@ -270,9 +275,11 @@ export namespace supportPlan {
             from: key.seconds,
             to: keys[i + 1]!.seconds,
             sample: (
-              ...args: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>
+              ...[seconds, channels, resolution, projection]: Parameters<
+                IAutoMovieMotionHumanActionPlan["posture"]
+              >
             ): IAutoMovieMotionHumanPlayback.ISample => ({
-              posture: transfer(i, ...args),
+              posture: transfer(i, seconds, channels, resolution, projection),
             }),
           }),
         ),

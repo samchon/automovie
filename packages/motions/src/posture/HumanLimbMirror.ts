@@ -1,5 +1,6 @@
 import type {
   AutoMovieHumanLimb,
+  AutoMovieHumanSide,
   IAutoMovieHumanEffectorPointLimit,
   IAutoMovieHumanLimbGoal,
   IAutoMovieJointPose,
@@ -103,7 +104,7 @@ export namespace HumanLimbMirror {
   }
 
   /** The other side. */
-  export function side(side: "left" | "right"): "left" | "right" {
+  export function side(side: AutoMovieHumanSide): AutoMovieHumanSide {
     return side === "left" ? "right" : "left";
   }
 }

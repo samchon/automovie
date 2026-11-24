@@ -77,11 +77,6 @@ const SET: number = 0.6;
  *
  * Refusals: an operator without a target or not holding the line, a line
  * without the named grip, bail or tip, and a grip beyond the arm.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States both roles, the reaction's source, the shared lean, the timing and the refusals.
- * @evidence contracts/development/design.md#principled-representation A law record over the line's declared grips, bail and tip.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The name, the cancel table and the plan.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The backup grips without carrying, so the line has one carrier.
  */
 export const hoseLine: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanFirefight.IHoseLine> =
   {
@@ -92,7 +87,11 @@ export const hoseLine: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanFiref
     plan,
   };
 
-/** Plan the member's role. */
+/**
+ * Plan the member's role.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States both roles, the reaction's source, the shared lean, the timing and the refusals.
+ */
 function plan(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanFirefight.IHoseLine>,
 ): IAutoMovieMotionHumanActionPlan {

@@ -40,6 +40,7 @@ import { AutoMovieMotionHumanHeld } from "../compose/AutoMovieMotionHumanHeld";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
+import { HumanLimbFit } from "../posture/HumanLimbFit";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
@@ -49,6 +50,29 @@ import { HumanGraspTarget } from "./HumanGraspTarget";
 import { HumanGrip } from "./HumanGrip";
 import { heldSupportGrip } from "./heldSupportGrip";
 import { prepareHumanShapeBlend } from "./prepareHumanShapeBlend";
+
+/** The record of `IPlanHumanHeldSupportSelected`'s site. */
+type IPlanHumanHeldSupportSelected = {
+  wrist: IAutoMovieMotionHumanHand.IWrist;
+  reference: IAutoMovieHumanLimbReference;
+  miss: number;
+  station: number;
+  reserve: number;
+  digits: IAutoMovieMotionHumanPosture["joints"];
+};
+
+/** The alternatives of `PlanHumanHeldSupportLimb`'s site. */
+type PlanHumanHeldSupportLimb = "leftArm" | "rightArm";
+
+/** The record of `IPlanHumanHeldSupportProps`'s site. */
+type IPlanHumanHeldSupportProps = {
+  context: IAutoMovieMotionHumanActionContext;
+  lead: IAutoMovieMotionHumanActionPlan;
+  span: IAutoMovieMotionHumanArmPlanned.ISpan;
+};
+
+/** The alternatives of `PlanHumanHeldSupportProps`'s site. */
+type PlanHumanHeldSupportProps = "context" | "key" | "goal" | "weight";
 
 /**
  * Plan the support grip while the primary arm holds a tool at its use.
@@ -69,12 +93,9 @@ import { prepareHumanShapeBlend } from "./prepareHumanShapeBlend";
 export function planHumanHeldSupport(
   props: Omit<
     IAutoMovieMotionHumanHeldUse.ISecondProps,
-    "context" | "key" | "goal" | "weight"
-  > & {
-    context: IAutoMovieMotionHumanActionContext;
-    lead: IAutoMovieMotionHumanActionPlan;
-    span: IAutoMovieMotionHumanArmPlanned.ISpan;
-  },
+    PlanHumanHeldSupportProps
+  > &
+    IPlanHumanHeldSupportProps,
 ): IAutoMovieMotionHumanPrimitive[] {
   const { context, clock, lead, span } = props;
   const body: IAutoMovieMotionHumanBody = context.body;
@@ -167,7 +188,7 @@ export function planHumanHeldSupport(
     tilt: number,
   ): IAutoMovieMotionHumanHand.IWrist =>
     placed(HumanGrasp.around(used, turn), tilt);
-  const limb: "leftArm" | "rightArm" = `${other}Arm`;
+  const limb: PlanHumanHeldSupportLimb = `${other}Arm`;
   const supportBone: AutoMovieHumanoidBone = `${other}Hand`;
   const supportArm: ReadonlySet<string> = new Set([
     supportBone,
@@ -183,16 +204,7 @@ export function planHumanHeldSupport(
     hand: IAutoMovieMotionHumanHand.IWrist,
   ): IAutoMovieVector3 =>
     Vector3.add(hand.point, Quaternion.rotateVector(hand.rotation, palm.point));
-  let selected:
-    | {
-        wrist: IAutoMovieMotionHumanHand.IWrist;
-        reference: IAutoMovieHumanLimbReference;
-        miss: number;
-        station: number;
-        reserve: number;
-        digits: IAutoMovieMotionHumanPosture["joints"];
-      }
-    | undefined;
+  let selected: IPlanHumanHeldSupportSelected | undefined;
   for (const { grip, station, tilt, turns } of heldSupportGrip.stations(
     used,
     length,
@@ -303,7 +315,7 @@ export function planHumanHeldSupport(
         continue;
       selected = {
         wrist: reached,
-        reference: resolveHumanPosture.reference(pose, limb),
+        reference: HumanLimbFit.reference(pose, limb),
         miss,
         station,
         reserve,

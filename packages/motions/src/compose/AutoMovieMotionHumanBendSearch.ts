@@ -22,6 +22,24 @@ import { AutoMovieMotionHumanBendSide } from "./AutoMovieMotionHumanBendSide";
 import { AutoMovieMotionHumanBendStrain } from "./AutoMovieMotionHumanBendStrain";
 import { AutoMovieMotionHumanBendSweep } from "./AutoMovieMotionHumanBendSweep";
 
+/** The alternatives of `PrepareTrial`'s site. */
+type PrepareTrial = 0 | 1;
+
+/** The alternatives of `PrepareGoal`'s site. */
+type PrepareGoal = "point" | "rotation";
+
+/** The alternatives of `PrepareTrialResult`'s site. */
+type PrepareTrialResult = 0 | 1;
+
+/** The alternatives of `PrepareGoalResult`'s site. */
+type PrepareGoalResult = "point" | "rotation";
+
+/** The alternatives of `PrepareProps`'s site. */
+type PrepareProps = "body" | "posture" | "side";
+
+/** The alternatives of `ContinuedProps`'s site. */
+type ContinuedProps = "body" | "posture" | "side" | "point" | "rotation";
+
 /**
  * The elbow search of `AutoMovieMotionHumanBend`: the swivel sweep of a hand
  * goal's elbow over its circle, each place read for its joints' overshoot, the
@@ -185,6 +203,20 @@ export namespace AutoMovieMotionHumanBendSearch {
         (): IAutoMovieQuaternion => lowerWorld,
       );
   }
+  /** The alternatives of `ContinuedResult2`'s site. */
+  type ContinuedResult2 = IContinuedResult2 | string;
+
+  /** The record of `IContinuedResult2`'s site. */
+  type IContinuedResult2 = {
+    candidate: ICandidate;
+    seed: IAutoMovieSwivelSeed;
+  };
+
+  /** The alternatives of `ContinuedResult`'s site. */
+  type ContinuedResult = IContinuedResult | string;
+
+  /** The record of `IContinuedResult`'s site. */
+  type IContinuedResult = { candidate: ICandidate; seed: IAutoMovieSwivelSeed };
 
   /**
    * `AutoMovieMotionHumanBend.solve`'s search with the seed it was chosen at,
@@ -198,19 +230,12 @@ export namespace AutoMovieMotionHumanBendSearch {
    *   is none.
    */
   export function continued(
-    props: Pick<
-      IAutoMovieMotionHumanBend.ISolve,
-      "body" | "posture" | "side" | "point" | "rotation"
-    >,
-  ): (
-    near?: IAutoMovieSwivelNear,
-  ) => { candidate: ICandidate; seed: IAutoMovieSwivelSeed } | string {
+    props: Pick<IAutoMovieMotionHumanBend.ISolve, ContinuedProps>,
+  ): (near?: IAutoMovieSwivelNear) => ContinuedResult {
     const chain: AutoMovieMotionHumanBendChain.IChain | null =
       AutoMovieMotionHumanBendChain.of(props.body, props.posture, props.side);
     const neutral: IAngles | null = props.body.hanging(props.side);
-    return (
-      near?: IAutoMovieSwivelNear,
-    ): { candidate: ICandidate; seed: IAutoMovieSwivelSeed } | string => {
+    return (near?: IAutoMovieSwivelNear): ContinuedResult2 => {
       if (chain === null || neutral === null) return "the rig has no arm chain";
       if (
         Vector3.length(Vector3.subtract(props.point, chain.shoulder)) >
@@ -286,6 +311,8 @@ export namespace AutoMovieMotionHumanBendSearch {
       )?.candidate.angles ?? null
     );
   }
+  /** The alternatives of `SearchResult`'s site. */
+  type SearchResult = ICandidate | string;
 
   /**
    * The search `solve` and `strain` share: prepares the chain, refuses a wrist
@@ -302,22 +329,27 @@ export namespace AutoMovieMotionHumanBendSearch {
     rank: (
       chain: AutoMovieMotionHumanBendChain.IChain,
     ) => (candidate: ICandidate) => IScore,
-  ): ICandidate | string {
+  ): SearchResult {
     return prepare(props)(props, rank);
   }
+  /** The alternatives of `PrepareResult2`'s site. */
+  type PrepareResult2 = ICandidate | string;
+
+  /** The alternatives of `PrepareResult`'s site. */
+  type PrepareResult = ICandidate | string;
 
   /**
    * Prepare one unchanged body's trunk/side for actual differently ranked
    * sweeps.
    */
   export function prepare(
-    props: Pick<IAutoMovieMotionHumanBend.ISolve, "body" | "posture" | "side">,
+    props: Pick<IAutoMovieMotionHumanBend.ISolve, PrepareProps>,
     source?: AutoMovieMotionHumanBendChain.IPrepared,
   ): (
-    goal: Pick<IAutoMovieMotionHumanBend.ISolve, "point" | "rotation">,
+    goal: Pick<IAutoMovieMotionHumanBend.ISolve, PrepareGoalResult>,
     rank: Parameters<typeof search>[1],
-    trial?: readonly [AutoMovieMotionHumanBendRepeat.IRead, 0 | 1],
-  ) => ICandidate | string {
+    trial?: readonly [AutoMovieMotionHumanBendRepeat.IRead, PrepareTrialResult],
+  ) => PrepareResult {
     const chain: AutoMovieMotionHumanBendChain.IChain | null =
       AutoMovieMotionHumanBendChain.of(
         props.body,
@@ -327,10 +359,10 @@ export namespace AutoMovieMotionHumanBendSearch {
       );
     const neutral: IAngles | null = props.body.hanging(props.side);
     return (
-      goal: Pick<IAutoMovieMotionHumanBend.ISolve, "point" | "rotation">,
+      goal: Pick<IAutoMovieMotionHumanBend.ISolve, PrepareGoal>,
       rank: Parameters<typeof search>[1],
-      trial?: readonly [AutoMovieMotionHumanBendRepeat.IRead, 0 | 1],
-    ): ICandidate | string => {
+      trial?: readonly [AutoMovieMotionHumanBendRepeat.IRead, PrepareTrial],
+    ): PrepareResult2 => {
       if (chain === null || neutral === null) return "the rig has no arm chain";
       const distance: number = Vector3.length(
         Vector3.subtract(goal.point, chain.shoulder),

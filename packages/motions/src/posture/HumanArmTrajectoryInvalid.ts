@@ -7,6 +7,12 @@ import { HumanArmTrajectoryPairs as P } from "./HumanArmTrajectoryPairs";
 import { HumanArmTrajectoryTerms as T } from "./HumanArmTrajectoryTerms";
 import { nameArmTrajectoryPair } from "./nameArmTrajectoryPair";
 
+/** The record of `IOfWorst`'s site. */
+type IOfWorst = { value: number; what: string };
+
+/** The record of `IOfResult`'s site. */
+type IOfResult = { value: number; what: string };
+
 /**
  * Configuration validity for the arm path and its refinement: the forward
  * surface probes, reverse body corners, two arms' crossings, hard task points
@@ -57,7 +63,7 @@ export namespace HumanArmTrajectoryInvalid {
     q: readonly (readonly number[])[],
     forwardCertified: boolean = false,
     tasks: boolean = true,
-  ): { value: number; what: string } {
+  ): IOfResult {
     const placed: IAutoMovieMotionHumanArmGeometry.IPlaced[] = q.map(
       (
         v: readonly number[],
@@ -65,7 +71,7 @@ export namespace HumanArmTrajectoryInvalid {
       ): IAutoMovieMotionHumanArmGeometry.IPlaced =>
         G.placed(c.setups[a]!, c.frames[a]![k]!, v),
     );
-    let worst: { value: number; what: string } = { value: -Infinity, what: "" };
+    let worst: IOfWorst = { value: -Infinity, what: "" };
     const note = (value: number, what: () => string): void => {
       if (value > worst.value) worst = { value, what: what() };
     };

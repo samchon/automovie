@@ -38,8 +38,9 @@ import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMo
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFoot } from "../posture/HumanFoot";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { humanPostureHeading } from "../posture/humanPostureHeading";
 import { ExerciseKey } from "./ExerciseKey";
+import type { ILineWalkFall } from "./ILineWalkFall";
 import { lineWalkPole } from "./lineWalkPole";
 
 /**
@@ -263,7 +264,7 @@ export namespace lineWalk {
 
     // Each foot's footfall seconds and placements: the stepping foot of
     // step k lands at the k-th footprint at the end of its swing.
-    const falls: Record<AutoMovieHumanSide, IFall[]> = {
+    const falls: Record<AutoMovieHumanSide, ILineWalkFall[]> = {
       left: [
         {
           at: 0,
@@ -304,14 +305,14 @@ export namespace lineWalk {
     };
     const passing: number = 2 * body.measure.shankRadius;
     for (const side of ["left", "right"] as const) {
-      const list: IFall[] = falls[side];
+      const list: ILineWalkFall[] = falls[side];
       const placementAt: (t: number) => IAutoMovieMotionHumanFoot.IPlacement = (
         t: number,
       ): IAutoMovieMotionHumanFoot.IPlacement => {
         // The last footfall landed by now, and the next one it swings to.
         let i: number = 0;
         while (i + 1 < list.length && list[i + 1]!.at <= t) i++;
-        const next: IFall | undefined = list[i + 1];
+        const next: ILineWalkFall | undefined = list[i + 1];
         if (next === undefined) return list[i]!.place;
         const lift: number = next.at - SWING * PERIOD;
         if (t <= lift) return list[i]!.place;
@@ -353,7 +354,7 @@ export namespace lineWalk {
       };
       const planted: (t: number) => boolean = (t: number): boolean =>
         list.every(
-          (f: IFall): boolean =>
+          (f: ILineWalkFall): boolean =>
             !(t > f.at - SWING * PERIOD && t < f.at) || f.at === 0,
         );
       const leg: IAutoMovieMotionHumanPrimitive = AutoMovieMotionHumanLeg.place(
@@ -467,10 +468,7 @@ export namespace lineWalk {
           ...turned,
           root: Vector3.subtract(
             hips,
-            Quaternion.rotateVector(
-              resolveHumanPosture.heading(turned),
-              hipsRest,
-            ),
+            Quaternion.rotateVector(humanPostureHeading(turned), hipsRest),
           ),
         };
       },
@@ -490,14 +488,5 @@ export namespace lineWalk {
       clock,
       primitives,
     });
-  }
-
-  /** One footfall of a foot: when it lands and where. */
-  interface IFall {
-    /** Seconds since the walk's start; 0 for the entry's stance. */
-    at: number;
-
-    /** The foot's placement on landing. */
-    place: IAutoMovieMotionHumanFoot.IPlacement;
   }
 }

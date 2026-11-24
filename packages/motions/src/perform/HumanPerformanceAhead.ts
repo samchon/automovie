@@ -10,6 +10,9 @@ import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanPerformanceAim } from "./HumanPerformanceAim";
 
+/** The alternatives of `ReaderContext`'s site. */
+type ReaderContext = "subject" | "body" | "skill" | "prop" | "start";
+
 /**
  * What a performer's next action on a prop demands of a grip an earlier action
  * of theirs is still choosing (`IHumanActionContext.demands`): the goal poses
@@ -43,10 +46,7 @@ export namespace HumanPerformanceAhead {
    */
   export function reader(
     self: IAutoMovieMotionHumanPerformanceState,
-    context: Pick<
-      IAutoMovieMotionHumanActionContext,
-      "subject" | "body" | "skill" | "prop" | "start"
-    >,
+    context: Pick<IAutoMovieMotionHumanActionContext, ReaderContext>,
     ordinal: number,
   ): (
     grip: IAutoMovieMotionHumanActionLaw.IGrip,

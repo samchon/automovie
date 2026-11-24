@@ -15,6 +15,12 @@ import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanColliders } from "../posture/HumanColliders";
 import { HumanHand } from "../posture/HumanHand";
 
+/** The alternatives of `PointBonesEntry`'s site. */
+type PointBonesEntry = "worldPosition" | "worldRotation";
+
+/** The alternatives of `LocalItem`'s site. */
+type LocalItem = "fingers" | "palm" | "thumb";
+
 /**
  * What touches in a touch: a hand surface, or the tip of a tool the hand holds,
  * stated in the hand's anatomical axes (where the fingers point, where the palm
@@ -126,7 +132,7 @@ export namespace AutoMovieMotionHumanTouchEffector {
     const hand: number = body.measure.hand;
     let point: IAutoMovieVector3 = surface.point;
     for (const [name, share] of Object.entries(effector.tool ?? {}) as [
-      "fingers" | "palm" | "thumb",
+      LocalItem,
       number,
     ][])
       point = Vector3.add(point, Vector3.scale(axis(side, name), share * hand));
@@ -156,7 +162,7 @@ export namespace AutoMovieMotionHumanTouchEffector {
     body: IAutoMovieMotionHumanBody,
     bones: ReadonlyMap<
       AutoMovieHumanoidBone,
-      Pick<IAutoMovieResolvedBone, "worldPosition" | "worldRotation">
+      Pick<IAutoMovieResolvedBone, PointBonesEntry>
     >,
     side: AutoMovieHumanSide,
     effector: IAutoMovieMotionHumanTouchEffector.IEffector,

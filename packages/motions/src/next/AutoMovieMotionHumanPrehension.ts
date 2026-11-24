@@ -274,9 +274,8 @@ export namespace AutoMovieMotionHumanPrehension {
    * rotation, and then sets the palm on the grasped part's near surface, half
    * the grasped width back from the affordance point on the part's axis, so a
    * thick part is not entered by a palm placed for the socket's nominal 50 mm
-   * handle; the arm is then solved by inverse kinematics, the Final IK
-   * InteractionObject and Unreal hand-socket practice of an effector frame laid
-   * on an object's authored grip marker.
+   * handle; the arm is then solved by inverse kinematics, an effector frame
+   * laid on the object's authored grip marker.
    *
    * The grasped width is the affordance's `aperture`, or else the extent along
    * the approach axis of the prop's collider nearest the grip point (the span
@@ -303,11 +302,12 @@ export namespace AutoMovieMotionHumanPrehension {
    * digit's phalanges as the body's own colliders, and the finger angles at
    * contact, solved, never authored.
    *
-   * Closure is the engine's `curlChainUntilContact` (GraspIt!'s auto-grasp
-   * stopping rule): the digits named by the grip kind close proximal to distal
-   * until each phalanx first touches the object, the four fingers before the
-   * thumb so the thumb closes over them as in a power grip (Napier 1956; the
-   * Cutkosky and Feix oppositions the grip kinds name):
+   * Closure is the engine's `curlChainUntilContact` (the auto-grasp stopping
+   * rule of Miller and Allen 2004, IEEE Robot. Autom. Mag. 11(4):110): the
+   * digits named by the grip kind close proximal to distal until each phalanx
+   * first touches the object, the four fingers before the thumb so the thumb
+   * closes over them as in a power grip (Napier 1956; the Cutkosky and Feix
+   * oppositions the grip kinds name):
    *
    * - `power`, `lateral` and `two-hand`: the four fingers, then the thumb;
    * - `hook`: the four fingers, the thumb left relaxed;

@@ -12,6 +12,17 @@ import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { HumanClaspClearance } from "./HumanClaspClearance";
 
+/** The record of `IHumanClaspCandidateFramesResult`'s site. */
+type IHumanClaspCandidateFramesResult = {
+  /**
+   * Indices into `reaches` admitted by reach and by the lowest attained
+   * upper-arm band.
+   */
+  indices: number[];
+  /** Lower arm, hand and digit frames of each admitted fit, world metres. */
+  bones: Map<number, Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>>;
+};
+
 /**
  * The clasp candidates an arm may take, and the displayed frames their
  * clearance test reads: of the fits that reach the clasp within `reached`,
@@ -33,15 +44,7 @@ export function HumanClaspCandidateFrames(
   reaches: readonly IAutoMovieMotionHumanGrasp.IReach[],
   reached: number,
   bands: readonly number[],
-): {
-  /**
-   * Indices into `reaches` admitted by reach and by the lowest attained
-   * upper-arm band.
-   */
-  indices: number[];
-  /** Lower arm, hand and digit frames of each admitted fit, world metres. */
-  bones: Map<number, Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>>;
-} {
+): IHumanClaspCandidateFramesResult {
   const all: number[] = reaches.map(
     (_reach: IAutoMovieMotionHumanGrasp.IReach, index: number): number => index,
   );

@@ -20,6 +20,13 @@ import { HumanPropOutcome } from "./HumanPropOutcome";
 import { HumanPropSweep } from "./HumanPropSweep";
 import { launchPropProjectile } from "./launchPropProjectile";
 
+/** The record of `IFlightsLaunchesItem`'s site. */
+type IFlightsLaunchesItem = {
+  seconds: number;
+  source: IAutoMovieMotionHumanPropFlight.IFlight["source"];
+  launch: IAutoMovieMotionPropLaunch;
+};
+
 /**
  * Props that fly: every launch an action publishes
  * (`IHumanActionPlan.launches`) turns its prop into the engine's flight
@@ -77,11 +84,7 @@ export namespace HumanPropFlight {
     if (building !== undefined) return building;
     const prop: IAutoMovieMotionHumanProp | undefined = self.props.get(subject);
     if (prop === undefined) return [];
-    const launches: {
-      seconds: number;
-      source: IAutoMovieMotionHumanPropFlight.IFlight["source"];
-      launch: IAutoMovieMotionPropLaunch;
-    }[] = [];
+    const launches: IFlightsLaunchesItem[] = [];
     let filmEnd: number = self.resolving ? 0 : self.schedule.duration;
     for (const person of self.people.values())
       for (const segment of [...person.segments, ...person.overlays]) {

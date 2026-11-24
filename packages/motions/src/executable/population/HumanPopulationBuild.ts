@@ -14,6 +14,8 @@ import { f1, m1 } from "./human-parameters/index";
 type P = IAutoMovieHumanParameters;
 type Sex = HumanPopulationSurvey.Sex;
 type Variable = HumanPopulationSurvey.Variable;
+/** The alternatives of `BodyK`'s site. */
+type BodyK = 0 | 1;
 
 /**
  * A population end as a full public input set, written from the end's surveyed
@@ -61,7 +63,7 @@ export namespace HumanPopulationBuild {
     x: Record<Variable, number>,
     anchor: (a: HumanPopulationAnchors.IAnchor) => number,
   ): void {
-    const k: 0 | 1 = sex === "female" ? 0 : 1;
+    const k: BodyK = sex === "female" ? 0 : 1;
     const bmi: number = x.mass / (x.stature / 1000) ** 2;
 
     anatomy.sex =

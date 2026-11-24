@@ -1,5 +1,6 @@
 import { Vector3, convexHull2D, pointInHull } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanFoot,
   IAutoMovieVector3,
@@ -15,6 +16,36 @@ import { staggerNearest } from "./staggerNearest";
 import { staggerPendulumCourses } from "./staggerPendulumCourses";
 import type { staggerRecover } from "./staggerRecover";
 import { staggerTransfer } from "./staggerTransfer";
+
+/** The record of `IFootprintResult`'s site. */
+type IFootprintResult = {
+  placement: IAutoMovieMotionHumanFoot.IPlacement;
+  relative: IAutoMovieVector3[];
+};
+
+/** The alternatives of `OfEntryItem`'s site. */
+type OfEntryItem = "forward" | "side" | "backward";
+
+/** The alternatives of `PrepareResult`'s site. */
+type PrepareResult =
+  | "w"
+  | "centre"
+  | "root"
+  | "forward"
+  | "across"
+  | "entered"
+  | "width"
+  | "length"
+  | "bend";
+
+/** The record of `IFootprintsEntryItem`'s site. */
+type IFootprintsEntryItem = {
+  placement: IAutoMovieMotionHumanFoot.IPlacement;
+  relative: IAutoMovieVector3[];
+};
+
+/** The alternatives of `StaggerPendulumBendEntry`'s site. */
+type StaggerPendulumBendEntry = "pitch" | "roll";
 
 /**
  * A pushed body's centre of mass over the floor as Hof's inverted pendulum
@@ -65,7 +96,7 @@ export class StaggerPendulum {
 
   /** The feet as the entry stands them. */
   public readonly entered: Record<
-    "left" | "right",
+    AutoMovieHumanSide,
     IAutoMovieMotionHumanFoot.IPlacement
   >;
 
@@ -82,10 +113,10 @@ export class StaggerPendulum {
    * The centre of mass's shift per sine of the trunk's pitch and roll on the
    * entry's feet, metres (`staggerKnots.bending`).
    */
-  public readonly bend: Record<"pitch" | "roll", IAutoMovieVector3>;
+  public readonly bend: Record<StaggerPendulumBendEntry, IAutoMovieVector3>;
 
   /** The feet as the steps so far placed them. */
-  public feet: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement>;
+  public feet: Record<AutoMovieHumanSide, IAutoMovieMotionHumanFoot.IPlacement>;
 
   /**
    * The spans so far: each start, its centre of pressure and the state it
@@ -107,13 +138,7 @@ export class StaggerPendulum {
 
   /** One exact placement snapshot per foot; the body's sole geometry is fixed. */
   private readonly footprints: Partial<
-    Record<
-      "left" | "right",
-      {
-        placement: IAutoMovieMotionHumanFoot.IPlacement;
-        relative: IAutoMovieVector3[];
-      }
-    >
+    Record<AutoMovieHumanSide, IFootprintsEntryItem>
   > = {};
 
   /**
@@ -169,25 +194,14 @@ export class StaggerPendulum {
   public static prepare(
     body: IAutoMovieMotionHumanActionContext["body"],
     entry: IAutoMovieMotionHumanActionContext["entry"],
-  ): Pick<
-    StaggerPendulum,
-    | "w"
-    | "centre"
-    | "root"
-    | "forward"
-    | "across"
-    | "entered"
-    | "width"
-    | "length"
-    | "bend"
-  > {
+  ): Pick<StaggerPendulum, PrepareResult> {
     const forward: IAutoMovieVector3 = HumanFrame.point(
       { origin: { x: 0, y: 0, z: 0 }, yaw: entry.posture.yaw },
       { x: 0, y: 0, z: 1 },
     );
     const across: IAutoMovieVector3 = { x: forward.z, y: 0, z: -forward.x };
     const entered: Record<
-      "left" | "right",
+      AutoMovieHumanSide,
       IAutoMovieMotionHumanFoot.IPlacement
     > = StrikingTarget.feet(entry);
     return {
@@ -246,10 +260,10 @@ export class StaggerPendulum {
   }
 
   /** The bearing feet's convex outline from the entry's centre of mass. */
-  public bearing(sides: readonly ("left" | "right")[]): IAutoMovieVector3[] {
+  public bearing(sides: readonly AutoMovieHumanSide[]): IAutoMovieVector3[] {
     return convexHull2D(
       sides.flatMap(
-        (side: "left" | "right"): IAutoMovieVector3[] =>
+        (side: AutoMovieHumanSide): IAutoMovieVector3[] =>
           this.footprint(side, this.feet[side]).relative,
       ),
     );
@@ -266,7 +280,7 @@ export class StaggerPendulum {
    * centre of mass as the bearing feet reach (on it, which holds it, or at the
    * nearest point of their outline).
    */
-  public bear(sides: readonly ("left" | "right")[], seconds: number): void {
+  public bear(sides: readonly AutoMovieHumanSide[], seconds: number): void {
     this.advance(staggerNearest.of(this.bearing(sides), this.xi()), seconds);
   }
 
@@ -307,7 +321,7 @@ export class StaggerPendulum {
    * ms), and the projection onto the convex outline does not expand distances,
    * so the rule contracts and is iterated to `FIXED`.
    */
-  public transfer(stance: "left" | "right", seconds: number): void {
+  public transfer(stance: AutoMovieHumanSide, seconds: number): void {
     // It leaves from where the centre of pressure stands, so the weight
     // reaches a foot that has just landed over this transfer, its loading,
     // and never at its touch-down.
@@ -432,7 +446,7 @@ export class StaggerPendulum {
    */
   public bound(
     direction: IAutoMovieVector3,
-    of: Readonly<Record<"forward" | "side" | "backward", number>>,
+    of: Readonly<Record<OfEntryItem, number>>,
   ): number {
     const length: number = Vector3.length(direction);
     if (!(length > 0)) return of.side;
@@ -449,12 +463,9 @@ export class StaggerPendulum {
    * replacing a slot never mutates an earlier outline record.
    */
   private footprint(
-    side: "left" | "right",
+    side: AutoMovieHumanSide,
     placement: IAutoMovieMotionHumanFoot.IPlacement,
-  ): {
-    placement: IAutoMovieMotionHumanFoot.IPlacement;
-    relative: IAutoMovieVector3[];
-  } {
+  ): IFootprintResult {
     const known: (typeof this.footprints)["left"] = this.footprints[side];
     if (
       known !== undefined &&
@@ -505,17 +516,19 @@ export class StaggerPendulum {
    */
   private static extent(
     body: IAutoMovieMotionHumanActionContext["body"],
-    entered: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement>,
+    entered: Record<AutoMovieHumanSide, IAutoMovieMotionHumanFoot.IPlacement>,
     axis: IAutoMovieVector3,
   ): number {
     return Math.max(
-      ...(["left", "right"] as const).map((side: "left" | "right"): number => {
-        const along: number[] = HumanFoot.sole(body, side, entered[side]).map(
-          (q: IAutoMovieVector3): number =>
-            Vector3.dot(Vector3.subtract(q, entered[side].ankle), axis),
-        );
-        return Math.max(...along) - Math.min(...along);
-      }),
+      ...(["left", "right"] as const).map(
+        (side: AutoMovieHumanSide): number => {
+          const along: number[] = HumanFoot.sole(body, side, entered[side]).map(
+            (q: IAutoMovieVector3): number =>
+              Vector3.dot(Vector3.subtract(q, entered[side].ankle), axis),
+          );
+          return Math.max(...along) - Math.min(...along);
+        },
+      ),
     );
   }
 }

@@ -8,6 +8,15 @@ import { walk } from "../actions/walk";
 import { walkFoot } from "../actions/walkFoot";
 import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
 
+/** The alternatives of `STEPLENGTHEntryItem`'s site. */
+type STEPLENGTHEntryItem = "forward" | "side" | "backward";
+
+/** The alternatives of `LATERALEntryItem`'s site. */
+type LATERALEntryItem = "footOff" | "swing";
+
+/** The alternatives of `STEPTIMEEntryItem`'s site. */
+type STEPTIMEEntryItem = "forward" | "side" | "backward";
+
 /**
  * The measured bounds and the model's own constants of a stagger's recovery
  * (`stagger`): the reaction, the weight shift and the steps' times and lengths
@@ -41,9 +50,11 @@ export namespace staggerBounds {
    * (the mean of the dominant and non-dominant sides, 184 and 167 ms) and
    * backward (Telonio, Cyr, Moglo and Smeesters 2005, ISB XXth Congress 430).
    */
-  export const STEP_TIME: Readonly<
-    Record<"forward" | "side" | "backward", number>
-  > = { forward: 0.238, side: 0.1755, backward: 0.193 };
+  export const STEP_TIME: Readonly<Record<STEPTIMEEntryItem, number>> = {
+    forward: 0.238,
+    side: 0.1755,
+    backward: 0.193,
+  };
 
   /**
    * A forward recovery step's landing after the push, the time a capture step
@@ -78,7 +89,7 @@ export namespace staggerBounds {
    * steps (`STEP_LENGTH`) bound a step already, and an average step's
    * lengthening says nothing of the longest.
    */
-  export const LATERAL: Readonly<Record<"footOff" | "swing", number>> = {
+  export const LATERAL: Readonly<Record<LATERALEntryItem, number>> = {
     footOff: 0.8,
     swing: 1.7,
   };
@@ -88,9 +99,11 @@ export namespace staggerBounds {
    * the subjects' mean stature of 1.74 m (Telonio, Cyr, Moglo and Smeesters
    * 2005).
    */
-  export const STEP_LENGTH: Readonly<
-    Record<"forward" | "side" | "backward", number>
-  > = { forward: 1.032 / 1.74, side: 0.664 / 1.74, backward: 0.724 / 1.74 };
+  export const STEP_LENGTH: Readonly<Record<STEPLENGTHEntryItem, number>> = {
+    forward: 1.032 / 1.74,
+    side: 0.664 / 1.74,
+    backward: 0.724 / 1.74,
+  };
 
   /** The trunk's righting after the last step at a neutral manner (provisional). */
   export const RIGHTING: IAutoMovieMotionHumanTiming.Span = {

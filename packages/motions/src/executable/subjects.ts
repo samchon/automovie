@@ -60,6 +60,11 @@ export const subjects: AutoMovieDrawSubjects = (
     },
   };
 };
+/** The record of `IBuildFiguresItem`'s site. */
+type IBuildFiguresItem = {
+  figure: MotionCaptureFigure;
+  poses: IAutoMoviePose[];
+};
 
 /** Build the case's scene. */
 function build(data: IMotionCaptureProps): IAutoMovieDrawScene {
@@ -72,8 +77,7 @@ function build(data: IMotionCaptureProps): IAutoMovieDrawScene {
   const disposers: (() => void)[] = [];
 
   // Figures, solid and translucent.
-  const figures: { figure: MotionCaptureFigure; poses: IAutoMoviePose[] }[] =
-    [];
+  const figures: IBuildFiguresItem[] = [];
   for (const performer of data.performers) {
     const figure: MotionCaptureFigure = new MotionCaptureFigure(
       performer.body,

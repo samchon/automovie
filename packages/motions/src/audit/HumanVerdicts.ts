@@ -28,6 +28,9 @@ import { AutoMovieMotionHumanAuditStatics } from "./AutoMovieMotionHumanAuditSta
 import { AutoMovieMotionHumanAuditTiming } from "./AutoMovieMotionHumanAuditTiming";
 import { solvedHumanAuditSpans } from "./solvedHumanAuditSpans";
 
+/** The alternatives of `OfPlaceResult`'s site. */
+type OfPlaceResult = "act" | "instance";
+
 /**
  * The verdict report of a performance: every physical bound that holds for any
  * human motion whatever it means to do, read on the film a composition gives,
@@ -175,7 +178,7 @@ export namespace HumanVerdicts {
     const place = (
       subject: string,
       seconds: number,
-    ): Pick<IAutoMovieMotionHumanVerdicts.IFinding, "act" | "instance"> => {
+    ): Pick<IAutoMovieMotionHumanVerdicts.IFinding, OfPlaceResult> => {
       const spans = performance.segments(subject);
       const span = [...spans]
         .reverse()

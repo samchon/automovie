@@ -20,28 +20,28 @@ No reader keeps a copy of a member; the caches live here and are settled here.
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States ordinary equal-input memo reuse and explicit diagnostic cold planning without retaining an observer in the result.
+States that every input is resolved afresh, that a refusal is thrown on each resolution, and what the diagnostic observation receives.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-Pure unobserved resolution uses structural-key memoization with LRU eviction; requested physical-work observation resolves afresh. Both paths pass the key owner's single effective flight-policy capture into construction, so getters, inherited fields and non-enumerable fields cannot classify the cache and constructed state differently.
+A resolution is a pure function of its input, so constructing it is the whole method: the admitted flight mode (`HumanPerformanceFlightMode.of`) and the optional observer go to construction. No process-wide memo holds another performance's state.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-Obtain key plus admitted captured policy together; observed planning constructs with that policy, while ordinary inputs keep lookup and miss construction with the same policy. Neither constructor branch adds another input.flight access.
+Admit the mode, construct; the flight mode has its own owner and the state owns its caches.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
-Diagnostics changes no authored input, physical bound or refusal. Neither cold branch rereads the flight getter after keying; an invalid captured policy refuses before serialization or lookup and cannot borrow a valid cached staged state. Keys remain content/identity values rather than mutable caller references.
+No structural key, identity numbering or least-recently-used list decides which state a caller gets; equal inputs resolve to equal states.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
-Both paths pay the original key walk and one observer branch; an ordinary memo hit still skips resolution. Explicit observation pays full cold construction without concealing the ordinary key cost and is not a speedup path.
+One resolution per call; an equal input resolved twice pays two resolutions, the cost of owning its state instead of borrowing a process-wide one.
 
-## @evidence contracts/development/implementation.md#reuse-equivalent-work
+## @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work
 
-Equal unobserved inputs retain the existing whole-performance sharing. Observed construction still shares only its actually equivalent internal preparation, never another completed performance.
+Nothing is shared between two resolutions; the readers' caches live in the state each resolution returns.
 
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
-At most KEEP ordinary resolutions remain in the memo. Observed states are neither read from nor inserted into it, and the observer is passed through construction without becoming a retained state field.
+The returned state is the caller's and is released with it; the module retains nothing.

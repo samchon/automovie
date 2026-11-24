@@ -52,6 +52,15 @@ import { gestureTouch } from "./gestureTouch";
 import { handGoals } from "./handGoals";
 import { prepareGestureTransport } from "./prepareGestureTransport";
 
+/** The record of `IPlanPriorHand`'s site. */
+type IPlanPriorHand = {
+  request: IAutoMovieMotionHumanArmTarget.ISided;
+  fingers: IAutoMovieMotionHumanPosture["joints"];
+};
+
+/** The alternatives of `PlanSidesWhich`'s site. */
+type PlanSidesWhich = "one" | "both" | "none";
+
 /**
  * A communicative gesture while standing: the hand, head or trunk moves through
  * Kendon's phases (Kendon 1980; McNeill 1992, Hand and Mind): preparation from
@@ -204,7 +213,7 @@ export namespace gesture {
       });
 
     const sides: AutoMovieHumanSide[] = ((): AutoMovieHumanSide[] => {
-      const which: "one" | "both" | "none" = gestureStrokeTables.HANDS[p.kind];
+      const which: PlanSidesWhich = gestureStrokeTables.HANDS[p.kind];
       return which === "both"
         ? ["left", "right"]
         : which === "one"
@@ -503,10 +512,7 @@ export namespace gesture {
           );
           continue;
         }
-        const hand: {
-          request: IAutoMovieMotionHumanArmTarget.ISided;
-          fingers: IAutoMovieMotionHumanPosture["joints"];
-        } = hands[side]!.hand(
+        const hand: IPlanPriorHand = hands[side]!.hand(
           posture,
           gestureStroke.hand(
             p.kind,

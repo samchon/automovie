@@ -15,6 +15,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { HumanBoneGroups } from "../posture/HumanBoneGroups";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
@@ -61,10 +62,6 @@ const TRUNK: readonly Trunk[] = [
   "rightShoulder",
 ];
 const AXES: readonly Axis[] = ["flexion", "abduction", "twist"];
-const SHOULDERS: ReadonlySet<AutoMovieHumanoidBone> = new Set([
-  "leftUpperArm",
-  "rightUpperArm",
-]);
 
 /** The greater of the two shoulder-to-site distances squared. */
 function maximum(reading: Pair): number {
@@ -175,7 +172,7 @@ export function fixedSeatTrunk(
   // Shoulder origins read only their direct ancestors. Finger, wrist and leg
   // records never enter this planning workspace; all remain on the raw action.
   const entry: Joints = {};
-  for (const shoulder of SHOULDERS) {
+  for (const shoulder of HumanBoneGroups.SHOULDERS) {
     let ancestor: AutoMovieHumanoidBone | null | undefined =
       body.bones.get(shoulder)?.parent;
     while (ancestor) {
@@ -185,7 +182,7 @@ export function fixedSeatTrunk(
     }
   }
   const read: ReturnType<typeof poseBones.prepareTuples> =
-    poseBones.prepareTuples(body, SHOULDERS);
+    poseBones.prepareTuples(body, HumanBoneGroups.SHOULDERS);
   const root: IAutoMoviePose = resolveHumanPosture(body, {
     ...posture,
     limbs: {},

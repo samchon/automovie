@@ -1,6 +1,5 @@
 import type {
   IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanExerciseKey,
   IAutoMovieMotionHumanWorkoutKind,
   IAutoMovieMotionHumanWorkoutPoses,
 } from "@automovie/interface";
@@ -8,6 +7,8 @@ import type {
 import { ExerciseKey } from "./ExerciseKey";
 import { WorkoutKind } from "./WorkoutKind";
 import { WorkoutStance } from "./WorkoutStance";
+import { karateBlockChamber } from "./karateBlockChamber";
+import { workoutTurn } from "./workoutTurn";
 
 /**
  * The standing poses and single acts of the workout law: stretches and yoga
@@ -27,50 +28,6 @@ import { WorkoutStance } from "./WorkoutStance";
  * onto it; the partner of a closed hold or an underarm turn is not met.
  */
 export namespace WorkoutPoses {
-  /** A full turn on the left foot's ball with the arms as given at its half. */
-  const turn = (
-    seconds: number,
-    arms: IAutoMovieMotionHumanExerciseKey.ILimb,
-  ): IAutoMovieMotionHumanWorkoutKind =>
-    WorkoutStance.of(
-      ["leftToes"],
-      [{ part: "leftFoot", kind: "pivot" }],
-      0,
-      1,
-      (
-        body: IAutoMovieMotionHumanBody,
-      ): IAutoMovieMotionHumanWorkoutKind.IStep[] => [
-        WorkoutKind.step(ExerciseKey.standing(body), 0, "reset", "stood"),
-        WorkoutKind.step(
-          ExerciseKey.from(body, { yaw: 180 }, arms, {}, { hip: 25, knee: 50 }),
-          seconds,
-          "turn",
-          "half",
-        ),
-        WorkoutKind.step(
-          { ...ExerciseKey.standing(body), yaw: 360 },
-          seconds,
-          "close",
-          "full",
-        ),
-      ],
-    );
-
-  /**
-   * A karate block's chamber: the fists at the hips, the blocking arm folded
-   * across.
-   */
-  const chamber = (
-    body: IAutoMovieMotionHumanBody,
-  ): IAutoMovieMotionHumanExerciseKey.IKey =>
-    ExerciseKey.from(
-      body,
-      {},
-      { shoulder: -10, elbow: 90 },
-      {},
-      { shoulder: 60, raise: 0, elbow: 140 },
-    );
-
   /** The exercises. */
   export const KINDS: Readonly<
     Record<
@@ -352,7 +309,7 @@ export namespace WorkoutPoses {
       (
         body: IAutoMovieMotionHumanBody,
       ): IAutoMovieMotionHumanWorkoutKind.IStep[] => [
-        WorkoutKind.step(chamber(body), 0.3, "chamber", "chambered"),
+        WorkoutKind.step(karateBlockChamber(body), 0.3, "chamber", "chambered"),
         WorkoutKind.step(
           ExerciseKey.from(
             body,
@@ -378,7 +335,7 @@ export namespace WorkoutPoses {
       (
         body: IAutoMovieMotionHumanBody,
       ): IAutoMovieMotionHumanWorkoutKind.IStep[] => [
-        WorkoutKind.step(chamber(body), 0.3, "chamber", "chambered"),
+        WorkoutKind.step(karateBlockChamber(body), 0.3, "chamber", "chambered"),
         WorkoutKind.step(
           ExerciseKey.from(
             body,
@@ -479,16 +436,16 @@ export namespace WorkoutPoses {
     ),
 
     /** A dancer's full turn on the left foot. */
-    spin: turn(0.4, { raise: 30, elbow: 60 }),
+    spin: workoutTurn(0.4, { raise: 30, elbow: 60 }),
 
     /** The follower's underarm turn: a full turn under the raised right hand. */
-    underarmTurn: turn(0.6, { raise: 20, elbow: 40 }),
+    underarmTurn: workoutTurn(0.6, { raise: 20, elbow: 40 }),
 
     /**
      * One turn of a hammer or discus thrower, the arms long ahead; the release
      * is a throw after it.
      */
-    hammerTurn: turn(0.5, { shoulder: 80, raise: 0, elbow: 3 }),
+    hammerTurn: workoutTurn(0.5, { shoulder: 80, raise: 0, elbow: 3 }),
 
     /**
      * A ballroom closed hold: the left hand out at the shoulder's height, the

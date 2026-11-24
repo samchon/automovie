@@ -36,6 +36,18 @@ import { HumanHandDirection } from "../posture/HumanHandDirection";
 import { poseBones } from "../posture/poseBones";
 import { armPhraseFacing } from "./armPhraseFacing";
 
+/** The record of `IPlanArmsNamed`'s site. */
+type IPlanArmsNamed = {
+  point: IAutoMovieVector3;
+  direction: IAutoMovieVector3;
+};
+
+/** The record of `IPlanArmsAimed`'s site. */
+type IPlanArmsAimed = { point: IAutoMovieVector3; normal: IAutoMovieVector3 };
+
+/** The record of `IPlanAimResult`'s site. */
+type IPlanAimResult = { point: IAutoMovieVector3; normal: IAutoMovieVector3 };
+
 /**
  * One arm phrase on a target: the hand visits a place, strokes along a path or
  * oscillates about a pose, on the standard instants of a phrase (Kendon 1980's
@@ -153,9 +165,7 @@ export namespace armPhrase {
     // The target where it is at the phrase's start, for one arm: a target
     // written for the right hand reads a self region of a side on the arm's
     // own side.
-    const aim = (
-      side: AutoMovieHumanSide,
-    ): { point: IAutoMovieVector3; normal: IAutoMovieVector3 } =>
+    const aim = (side: AutoMovieHumanSide): IPlanAimResult =>
       context.aim(
         p.mirror === true && p.target.kind === "self"
           ? { ...p.target, region: handToFace.mirrored(p.target.region, side) }
@@ -195,18 +205,14 @@ export namespace armPhrase {
               ),
               reach,
             );
-      const aimed: { point: IAutoMovieVector3; normal: IAutoMovieVector3 } =
-        aim(side);
+      const aimed: IPlanArmsAimed = aim(side);
       const place: IAutoMovieVector3 = Vector3.add(
         aimed.point,
         shift(p.offset),
       );
       // A held prop's working point, from the grip socket in the hand's rest
       // axes, with the direction it faces out of the prop.
-      const named: {
-        point: IAutoMovieVector3;
-        direction: IAutoMovieVector3;
-      } | null =
+      const named: IPlanArmsNamed | null =
         p.point === undefined || p.held === undefined
           ? null
           : AutoMovieMotionHumanHeld.point(

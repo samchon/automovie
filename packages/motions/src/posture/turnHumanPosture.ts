@@ -9,7 +9,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { resolveHumanPosture } from "./resolveHumanPosture";
+import { humanPostureHeading } from "./humanPostureHeading";
 
 /**
  * A posture's root and world limb goals after its whole-body `rotation` : the
@@ -25,7 +25,7 @@ import { resolveHumanPosture } from "./resolveHumanPosture";
  * The root's rotation is composed as a quaternion and never read back into
  * Euler angles, so a turn through the vertical keeps every digit, which the
  * heading's angles lose near a pitch of 90 degrees
- * (`resolveHumanPosture.angles`).
+ * (`humanPostureHeading.angles`).
  *
  * @param posture The posture.
  * @returns Its root's world position and rotation and its limb goals, turned.
@@ -35,7 +35,7 @@ import { resolveHumanPosture } from "./resolveHumanPosture";
 export function turnHumanPosture(
   posture: IAutoMovieMotionHumanPosture,
 ): IAutoMovieMotionHumanTurnHumanPosture.ITurned {
-  const heading: IAutoMovieQuaternion = resolveHumanPosture.heading(posture);
+  const heading: IAutoMovieQuaternion = humanPostureHeading(posture);
   const rotation: IAutoMovieHumanPostureRotation | undefined = posture.rotation;
   if (rotation === undefined)
     return { position: posture.root, rotation: heading, limbs: posture.limbs };

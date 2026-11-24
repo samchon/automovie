@@ -1,3 +1,5 @@
+import type { AutoMovieHumanSide } from "@automovie/interface";
+
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanArmOptimiser } from "./HumanArmOptimiser";
 import { HumanArmRefine } from "./HumanArmRefine";
@@ -336,7 +338,7 @@ export namespace HumanArmTrajectoryStretch {
     const contextOf: ContextOf = HumanArmTrajectoryContext.prepare(
       problem.body,
       problem.arms.map(
-        (arm: HumanArmTrajectory.IArm): "left" | "right" => arm.side,
+        (arm: HumanArmTrajectory.IArm): AutoMovieHumanSide => arm.side,
       ),
     );
     const grid: IGrid = {

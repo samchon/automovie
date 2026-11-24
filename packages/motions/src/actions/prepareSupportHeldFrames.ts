@@ -208,6 +208,8 @@ function angles(
     lower: posture.joints[lower] ?? zero,
   };
 }
+/** The alternatives of `PrepareSupportHeldFramesSocket2`'s site. */
+type PrepareSupportHeldFramesSocket2 = "heel" | "ball" | undefined;
 
 /**
  * The retained contact selection and the solved frames used by support
@@ -220,7 +222,7 @@ export namespace prepareSupportHeldFrames {
    */
   export type Socket = (
     contact: IAutoMovieMotionHumanSupport.IContact,
-  ) => "heel" | "ball" | undefined;
+  ) => PrepareSupportHeldFramesSocket2;
 
   /**
    * A limb retained between two support keys and the bones defining its fit.
@@ -243,6 +245,14 @@ export namespace prepareSupportHeldFrames {
     /** The shared contact supplying the end-effector datum. */
     contact: IAutoMovieMotionHumanSupport.IContact;
   }
+  /** The record of `IPrepareSupportHeldFramesHeldFramesPivot`'s site. */
+  type IPrepareSupportHeldFramesHeldFramesPivot = {
+    /** The offset in the end bone's frame, metres. */
+    local: IAutoMovieVector3;
+
+    /** The socket's world place at the key before, then after. */
+    at: readonly [IAutoMovieVector3, IAutoMovieVector3];
+  };
 
   /**
    * The solved frames and held datum for one limb at both support keys.
@@ -286,12 +296,6 @@ export namespace prepareSupportHeldFrames {
      * The held anatomical point in the wrist or ankle frame and its world place
      * at both keys.
      */
-    pivot?: {
-      /** The offset in the end bone's frame, metres. */
-      local: IAutoMovieVector3;
-
-      /** The socket's world place at the key before, then after. */
-      at: readonly [IAutoMovieVector3, IAutoMovieVector3];
-    };
+    pivot?: IPrepareSupportHeldFramesHeldFramesPivot;
   }
 }

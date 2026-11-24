@@ -26,6 +26,19 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { AutoMovieMotionHumanArmAngles } from "./AutoMovieMotionHumanArmAngles";
 import { AutoMovieMotionHumanTiming } from "./AutoMovieMotionHumanTiming";
 
+/** The alternatives of `Sited`'s site. */
+type Sited = "side" | "skinDistance" | "disc";
+
+/** The record of `IMovedResult`'s site. */
+type IMovedResult = {
+  error: IAutoMovieVector3;
+  contact: IAutoMovieVector3;
+  base: HumanArmTrajectory.IProblem["bases"][number];
+};
+
+/** The alternatives of `ReachingGoalLimb`'s site. */
+type ReachingGoalLimb = "leftArm" | "rightArm";
+
 /**
  * Physical observations used by arm planning and target feedback: travel
  * duration, perceived goals and rigid contact sites on the actual body.
@@ -162,7 +175,7 @@ export namespace AutoMovieMotionHumanArmObservation {
   ): number {
     const resolution: ReturnType<typeof prepareHumanPoseResolution> =
       prepareHumanPoseResolution();
-    const limb: "leftArm" | "rightArm" = `${side}Arm`;
+    const limb: ReachingGoalLimb = `${side}Arm`;
     const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...posture.limbs };
     delete limbs[limb];
     const base: IAutoMoviePose = resolveHumanPosture.seeded(
@@ -230,11 +243,7 @@ export namespace AutoMovieMotionHumanArmObservation {
     seconds: number,
     source?: Parameters<typeof prepareHumanPoseResolution>[0],
     projection?: Parameters<typeof resolveHumanPosture.seeded>[6],
-  ): {
-    error: IAutoMovieVector3;
-    contact: IAutoMovieVector3;
-    base: HumanArmTrajectory.IProblem["bases"][number];
-  } {
+  ): IMovedResult {
     const resolution: ReturnType<typeof prepareHumanPoseResolution> =
       prepareHumanPoseResolution(source);
     const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...posture.limbs };
@@ -303,10 +312,7 @@ export namespace AutoMovieMotionHumanArmObservation {
    * What of an arm's carry its site reads: the side, the skin distance the hand
    * keeps and the contact disc.
    */
-  export type ISited = Pick<
-    IAutoMovieMotionHumanArmPlanned.IPlanned,
-    "side" | "skinDistance" | "disc"
-  >;
+  export type ISited = Pick<IAutoMovieMotionHumanArmPlanned.IPlanned, Sited>;
 
   /**
    * What the arms are read against at an instant: the pose with the planned
@@ -400,7 +406,7 @@ export namespace AutoMovieMotionHumanArmObservation {
     goal: IAutoMovieHumanLimbGoal,
     source?: Parameters<typeof prepareHumanPoseResolution>[0],
   ): HumanArmTrajectory.ISite {
-    const world: IAutoMovieHumanLimbGoal = resolveHumanPosture.world(
+    const world: IAutoMovieHumanLimbGoal = HumanLimbFit.world(
       body,
       pose,
       `${carry.side}Arm`,

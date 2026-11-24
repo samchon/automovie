@@ -1,12 +1,13 @@
 import type {
+  AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPosture,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { lowerHumanPosture } from "../posture/lowerHumanPosture";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { seated } from "./seated";
 
 /**
@@ -30,21 +31,21 @@ import { seated } from "./seated";
 export function riseRested(
   body: IAutoMovieMotionHumanBody,
   posture: IAutoMovieMotionHumanPosture,
-  rests: Partial<Record<"left" | "right", IAutoMovieVector3>> | undefined,
+  rests: Partial<Record<AutoMovieHumanSide, IAutoMovieVector3>> | undefined,
   yaw: number,
   share: number,
   resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
   projection?: ReturnType<typeof prepareHumanPostureProjection>,
 ): IAutoMovieMotionHumanPosture {
   if (share <= 0)
-    return resolveHumanPosture.lower(body, posture, undefined, resolution);
+    return lowerHumanPosture(body, posture, undefined, resolution);
   const read: ReturnType<typeof prepareHumanPoseResolution> =
     prepareHumanPoseResolution(resolution);
   const project: ReturnType<typeof prepareHumanPostureProjection> =
     projection ?? prepareHumanPostureProjection(body);
   return seated.rested(
     body,
-    resolveHumanPosture.lower(body, posture, undefined, read),
+    lowerHumanPosture(body, posture, undefined, read),
     rests,
     yaw,
     share,

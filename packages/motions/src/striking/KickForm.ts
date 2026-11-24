@@ -1,3 +1,24 @@
+/** The record of `IBAND`'s site. */
+type IBAND = { readonly low: number; readonly middle: number };
+
+/** The record of `ITRAVEL`'s site. */
+type ITRAVEL = {
+  readonly across: number;
+  readonly along: number;
+  readonly vertical: Readonly<Record<VerticalEntryItem, number>>;
+};
+
+/** The alternatives of `VerticalEntryItem`'s site. */
+type VerticalEntryItem = "low" | "middle" | "high";
+
+/** The record of `IPIVOT`'s site. */
+type IPIVOT = { readonly raise: number; readonly turn: number };
+
+/** The alternatives of `AZIMUTHEntryItem`'s site. */
+type AZIMUTHEntryItem = "low" | "middle" | "high";
+
+/** The alternatives of `FLEXIONEntryItem`'s site. */
+type FLEXIONEntryItem = "round" | "push";
 /**
  * The kick's form: every coefficient of its contact solve, its carriage of the
  * body and its chamber, each with its source or marked provisional where no
@@ -9,7 +30,7 @@ export namespace KickForm {
    * (kickboxing research: "a bent knee can remain at delivery").
    */
   export const FLEXION: Readonly<
-    Record<"round" | "push", readonly [number, number]>
+    Record<FLEXIONEntryItem, readonly [number, number]>
   > = { round: [5, 40], push: [5, 35] };
 
   /**
@@ -26,7 +47,7 @@ export namespace KickForm {
    * through the hip's flexion with less turnover. Provisional: no study gives
    * the angle.
    */
-  export const AZIMUTH: Readonly<Record<"low" | "middle" | "high", number>> = {
+  export const AZIMUTH: Readonly<Record<AZIMUTHEntryItem, number>> = {
     low: 35,
     middle: 25,
     high: 15,
@@ -55,7 +76,7 @@ export namespace KickForm {
    * Support heel raise and the most the support foot turns on its ball at
    * contact, degrees (provisional reading of the pivot on the ball).
    */
-  export const PIVOT: { readonly raise: number; readonly turn: number } = {
+  export const PIVOT: IPIVOT = {
     raise: 15,
     turn: 60,
   };
@@ -163,11 +184,7 @@ export namespace KickForm {
    * down into a low kick and rising into a high one (provisional readings of
    * the kickboxing research).
    */
-  export const TRAVEL: {
-    readonly across: number;
-    readonly along: number;
-    readonly vertical: Readonly<Record<"low" | "middle" | "high", number>>;
-  } = {
+  export const TRAVEL: ITRAVEL = {
     across: 0.85,
     along: 0.35,
     vertical: { low: -0.25, middle: 0, high: 0.1 },
@@ -177,7 +194,7 @@ export namespace KickForm {
    * The height bands' upper bounds: low below this share of the waist height,
    * middle below this share of the shoulder height (provisional).
    */
-  export const BAND: { readonly low: number; readonly middle: number } = {
+  export const BAND: IBAND = {
     low: 0.85,
     middle: 1.02,
   };

@@ -66,7 +66,7 @@ States start angles, hand/object world frames, digit ordering and returned clini
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-One rigid transform carries the world colliders into the rest hand's frame, then the engine's ordered first-contact curl (GraspIt!'s auto-grasp) closes each chain within its range of motion.
+One rigid transform carries the world colliders into the rest hand's frame, then the engine's ordered first-contact curl (the auto-grasp stopping rule of Miller and Allen 2004, IEEE Robot. Autom. Mag. 11(4):110) closes each chain within its range of motion.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 

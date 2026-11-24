@@ -23,6 +23,21 @@ import type {
 import { HumanColliders } from "./HumanColliders";
 import { poseBones } from "./poseBones";
 
+/** The alternatives of `TipSide`'s site. */
+type TipSide = "Left" | "Right";
+
+/** The alternatives of `AimToward`'s site. */
+type AimToward = "up" | "down";
+
+/** The alternatives of `DigitAtSegment2`'s site. */
+type DigitAtSegment2 = "Proximal" | "Distal";
+
+/** The alternatives of `DigitAtSegment`'s site. */
+type DigitAtSegment = "Proximal" | "Distal";
+
+/** The alternatives of `DigitName`'s site. */
+type DigitName = "Thumb" | "Index";
+
 /**
  * The finger joints of a named hand shape: the angles `HumanHand.Shape` stands
  * for on every finger and thumb segment of one hand.
@@ -43,18 +58,6 @@ export namespace HumanHandShape {
     side: AutoMovieHumanSide,
     form: IAutoMovieMotionHumanHand.Shape,
   ): Partial<Record<AutoMovieHumanoidBone, readonly [number, number, number]>> {
-    const key: string | undefined =
-      (side === "left" || side === "right") &&
-      (form === "relaxed" ||
-        form === "flat" ||
-        form === "point" ||
-        form === "fist" ||
-        form === "bridge")
-        ? `working:${side}:${form}`
-        : undefined;
-    const known: readonly IShapeEntry[] | undefined =
-      key === undefined ? undefined : SHAPES.get(key);
-    if (known !== undefined) return copyShape(known);
     const out: Partial<
       Record<AutoMovieHumanoidBone, readonly [number, number, number]>
     > = {};
@@ -95,7 +98,6 @@ export namespace HumanHandShape {
     set("ThumbMetacarpal", form === "flat" ? FLAT_THUMB : 0);
     set("ThumbProximal", folded ? 40 : form === "relaxed" ? 25 : 0);
     set("ThumbDistal", folded ? 50 : form === "relaxed" ? 25 : 0);
-    if (key !== undefined) rememberShape(key, out);
     return out;
   }
 
@@ -126,13 +128,6 @@ export namespace HumanHandShape {
     side: AutoMovieHumanSide,
     form: IAutoMovieMotionHumanHandShape.Emblem,
   ): Partial<Record<AutoMovieHumanoidBone, readonly [number, number, number]>> {
-    const key: string | undefined =
-      (side === "left" || side === "right") && EMBLEMS.includes(form)
-        ? `emblem:${side}:${form}`
-        : undefined;
-    const known: readonly IShapeEntry[] | undefined =
-      key === undefined ? undefined : SHAPES.get(key);
-    if (known !== undefined) return copyShape(known);
     const out: Partial<
       Record<AutoMovieHumanoidBone, readonly [number, number, number]>
     > = {};
@@ -200,7 +195,6 @@ export namespace HumanHandShape {
     out[`${side}ThumbMetacarpal` as AutoMovieHumanoidBone] = [0, 0, 0];
     out[`${side}ThumbProximal` as AutoMovieHumanoidBone] = [thumb[0], 0, 0];
     out[`${side}ThumbDistal` as AutoMovieHumanoidBone] = [thumb[1], 0, 0];
-    if (key !== undefined) rememberShape(key, out);
     return out;
   }
 
@@ -225,7 +219,7 @@ export namespace HumanHandShape {
     joints: Partial<
       Record<AutoMovieHumanoidBone, readonly [number, number, number]>
     >,
-    name: "Thumb" | "Index",
+    name: DigitName,
   ): IAutoMovieVector3 {
     const pose: IAutoMoviePose = {
       skeleton: body.skeleton.id,
@@ -251,8 +245,8 @@ export namespace HumanHandShape {
       body,
       pose,
     );
-    const at: (segment: "Proximal" | "Distal") => IAutoMovieVector3 = (
-      segment: "Proximal" | "Distal",
+    const at: (segment: DigitAtSegment) => IAutoMovieVector3 = (
+      segment: DigitAtSegment2,
     ): IAutoMovieVector3 =>
       bones.get(`${side}${name}${segment}` as AutoMovieHumanoidBone)!
         .worldPosition;
@@ -279,7 +273,7 @@ export namespace HumanHandShape {
   export function aim(
     rotation: IAutoMovieQuaternion,
     digit: IAutoMovieVector3,
-    toward: "up" | "down",
+    toward: AimToward,
   ): IAutoMovieQuaternion {
     const from: IAutoMovieVector3 = Vector3.normalize(
       Quaternion.rotateVector(rotation, digit),
@@ -351,7 +345,7 @@ export namespace HumanHandShape {
       body,
       { skeleton: body.skeleton.id, root: null, joints },
     );
-    const Side: "Left" | "Right" = side === "left" ? "Left" : "Right";
+    const Side: TipSide = side === "left" ? "Left" : "Right";
     const region: IAutoMovieHumanoidSurfaces.IFrame =
       body.surfaces.regions[`${surface}${Side}` as AutoMovieHumanoidRegion];
     const placed: ReturnType<typeof resolveAutoMovieHumanoidSurfaces.place> =
@@ -442,45 +436,3 @@ const TIPS: WeakMap<
   IAutoMovieMotionHumanBody,
   Map<string, IAutoMovieMotionHumanHand.IFrame>
 > = new WeakMap();
-
-/** A canonical joint key and its three clinical angles, copied as scalars. */
-type IShapeEntry = readonly [AutoMovieHumanoidBone, number, number, number];
-
-/** Closed working and emblem tables: two hands times four plus eleven shapes. */
-const SHAPES: Map<string, readonly IShapeEntry[]> = new Map();
-
-/**
- * Snapshot numbers before the first caller can edit its returned record or
- * tuples.
- */
-function rememberShape(
-  key: string,
-  source: Partial<
-    Record<AutoMovieHumanoidBone, readonly [number, number, number]>
-  >,
-): void {
-  const entries: IShapeEntry[] = [];
-  for (const [bone, angles] of Object.entries(source))
-    if (angles !== undefined)
-      entries.push([
-        bone as AutoMovieHumanoidBone,
-        angles[0],
-        angles[1],
-        angles[2],
-      ]);
-  SHAPES.set(key, entries);
-}
-
-/**
- * Each call owns its record and every nested tuple, in the original insertion
- * order.
- */
-function copyShape(
-  entries: readonly IShapeEntry[],
-): Partial<Record<AutoMovieHumanoidBone, readonly [number, number, number]>> {
-  const out: Partial<
-    Record<AutoMovieHumanoidBone, readonly [number, number, number]>
-  > = {};
-  for (const entry of entries) out[entry[0]] = [entry[1], entry[2], entry[3]];
-  return out;
-}

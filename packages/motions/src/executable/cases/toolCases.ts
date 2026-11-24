@@ -22,6 +22,9 @@ import type { IMotionCaptureCase } from "../IMotionCaptureCase";
 import { FamilyCaseKit } from "./FamilyCaseKit";
 import { everydayVerdicts } from "./everydayVerdicts";
 
+/** The record of `IToolCasesWorst`'s site. */
+type IToolCasesWorst = { value: number; where: string };
+
 /**
  * Capture cases of the cyclic tool-use family, four cycles each with the right
  * hand from quiet standing, the tool first taken up from a bench beside the
@@ -110,7 +113,7 @@ export function toolCases(
           ),
         );
       };
-      let worst: { value: number; where: string } = { value: 0, where: "none" };
+      let worst: IToolCasesWorst = { value: 0, where: "none" };
       for (let k: number = 1; k <= 4; k++) {
         const t: number = FamilyCaseKit.event(performance, `contact${k}`);
         const gap: number = Vector3.length(Vector3.subtract(tip(t), at));
@@ -175,13 +178,6 @@ function contact(
  * @param kind The work the tool serves.
  * @param at Where its butt lies, world metres.
  * @returns The tool.
- * @evidence contracts/development/common.md#meaningful-documentation States the shape, the contacts and how it lies.
- * @evidence contracts/development/implementation.md#principled-implementation The `grip` and `face` contacts `createTool` declares, at its frames, on one handle collider a pick-up can grasp.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One collider, two contacts.
- * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts The motions package does not depend on the archetypes, so the case declares the tool's contacts itself.
- * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Built once per case.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Plain data.
  */
 function held(
   kind: IAutoMovieMotionHumanToolWork.Kind,
@@ -238,13 +234,6 @@ function held(
  *
  * @param at Where its base stands, world metres.
  * @returns The pot.
- * @evidence contracts/development/common.md#meaningful-documentation States the size and the contacts.
- * @evidence contracts/development/implementation.md#principled-implementation `createVessel`'s `inside` and `rim` contacts at its frames.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Two contacts.
- * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts The motions package does not depend on the archetypes, so the case declares the pot's contacts itself.
- * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Built once per case.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Plain data.
  */
 function pot(at: IAutoMovieVector3): IAutoMovieMotionHumanProp {
   const up: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };

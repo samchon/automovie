@@ -1,5 +1,6 @@
 import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   AutoMovieMotionHumanActionKey,
   IAutoMovieHumanLimbGoal,
@@ -22,10 +23,14 @@ import { HumanBound } from "../law/HumanBound";
 import { HumanPhysics } from "../law/HumanPhysics";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanArmTrajectoryTerms } from "../posture/HumanArmTrajectoryTerms";
+import { humanPostureHeading } from "../posture/humanPostureHeading";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+
+/** The alternatives of `PlanRestBone`'s site. */
+type PlanRestBone = "UpperLeg" | "LowerLeg" | "Foot" | "Toes";
 
 /**
  * A touch with the leg while standing (effectors below the hip): the toes, the
@@ -101,8 +106,8 @@ export namespace legTouch {
     const p: IAutoMovieMotionHumanLegTouch.IParams = context.params;
     const body = context.body;
     const part: IAutoMovieMotionHumanLegTouch.With = p.with ?? "toes";
-    const side: "left" | "right" = p.side ?? "right";
-    const standing: "left" | "right" = side === "right" ? "left" : "right";
+    const side: AutoMovieHumanSide = p.side ?? "right";
+    const standing: AutoMovieHumanSide = side === "right" ? "left" : "right";
     const hold: number = p.hold ?? 0.5;
     HumanBound.least("hold", hold, 0, "s");
     const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
@@ -147,16 +152,15 @@ export namespace legTouch {
         Vector3.add(
           entry.root,
           Quaternion.rotateVector(
-            resolveHumanPosture.heading(entry),
+            humanPostureHeading(entry),
             body.rest.get("hips")!,
           ),
         ),
       ),
     );
     // The moving leg's goal on the place.
-    const rest = (
-      bone: "UpperLeg" | "LowerLeg" | "Foot" | "Toes",
-    ): IAutoMovieVector3 => body.rest.get(`${side}${bone}`)!;
+    const rest = (bone: PlanRestBone): IAutoMovieVector3 =>
+      body.rest.get(`${side}${bone}`)!;
 
     // The leg's two lengths are this body's own, between its rest joints: the
     // knee falls on its place only on the circle those lengths allow.

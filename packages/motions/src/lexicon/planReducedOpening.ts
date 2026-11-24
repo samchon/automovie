@@ -27,6 +27,7 @@ import { HumanSegmentPlant } from "../perform/HumanSegmentPlant";
 import { HumanColliders } from "../posture/HumanColliders";
 import { HumanFrame } from "../posture/HumanFrame";
 import { hipJoints } from "../posture/hipJoints";
+import { humanPostureHeading } from "../posture/humanPostureHeading";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
@@ -346,7 +347,7 @@ function sideStepPosture(
   const hips: ReturnType<typeof hipJoints> = hipJoints(
     body,
     posture.root,
-    resolveHumanPosture.heading(posture),
+    humanPostureHeading(posture),
     posture.joints.hips,
   );
   const length: number = (body.measure.thigh + body.measure.shank) * STRAIGHT;

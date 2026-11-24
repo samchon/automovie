@@ -22,8 +22,11 @@ import { AutoMovieMotionHumanLeg } from "../compose/AutoMovieMotionHumanLeg";
 import { AutoMovieMotionHumanToesOnFloor } from "../compose/AutoMovieMotionHumanToesOnFloor";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import { HumanFoot } from "../posture/HumanFoot";
+import { humanPostureHeading } from "../posture/humanPostureHeading";
 import { pelvisReachHeight } from "../posture/pelvisReachHeight";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+
+/** The alternatives of `OverCourse`'s site. */
+type OverCourse = "duration" | "left" | "right" | "yaw";
 
 /**
  * The footwork every keyed dance law shares (tap and ballet, street steps):
@@ -270,7 +273,7 @@ export namespace DanceFootwork {
           },
           root: Vector3.subtract(
             hips(t),
-            Quaternion.rotateVector(resolveHumanPosture.heading(turned), rest),
+            Quaternion.rotateVector(humanPostureHeading(turned), rest),
           ),
         };
       },
@@ -354,10 +357,7 @@ export namespace DanceFootwork {
   export function over(
     body: IAutoMovieMotionHumanBody,
     entry: IAutoMovieMotionHumanEntryState,
-    course: Pick<
-      IAutoMovieMotionHumanDanceCourse,
-      "duration" | "left" | "right" | "yaw"
-    >,
+    course: Pick<IAutoMovieMotionHumanDanceCourse, OverCourse>,
     crouch: number,
   ): (seconds: number) => IAutoMovieVector3 {
     const ground: IAutoMovieMotionHumanContactWindow["support"] = {
@@ -380,7 +380,7 @@ export namespace DanceFootwork {
     const hips: IAutoMovieVector3 = Vector3.add(
       entry.posture.root,
       Quaternion.rotateVector(
-        resolveHumanPosture.heading(entry.posture),
+        humanPostureHeading(entry.posture),
         body.rest.get("hips")!,
       ),
     );

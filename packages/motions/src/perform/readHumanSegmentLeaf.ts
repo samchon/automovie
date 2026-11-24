@@ -309,16 +309,16 @@ export namespace readHumanSegmentLeaf {
    * apart: the least waypoint spacing of a planned arm, between which a goal at
    * a daily reach's peak speed travels at most that plan's spacing. Each anchor
    * is read once, the first continuing the arms the entry displays and each
-   * later one continuing the one before
-   * it (`anchor`), and kept by the segment; that read is never shown. A second
-   * between two anchors takes each fit's shortest-turn interpolation of their
-   * swivels where both give it on one branch, and otherwise the nearer anchor's
-   * seed (the other's where only it gives the fit); an anchor second takes its
-   * own seeds. The closed form places each arm at that swivel on its displayed
-   * goal and falls back to refining from it only where the placement misses the
-   * goal, leaves the range of motion or meets what the arm keeps clear of
-   * (Tolani, Goswami and Badler 2000, §3.2.4: the swivel is the one free
-   * parameter of an arm on its goal). None while an anchor is read.
+   * later one continuing the one before it (`anchor`), and kept by the segment;
+   * that read is never shown. A second between two anchors takes each fit's
+   * shortest-turn interpolation of their swivels where both give it on one
+   * branch, and otherwise the nearer anchor's seed (the other's where only it
+   * gives the fit); an anchor second takes its own seeds. The closed form
+   * places each arm at that swivel on its displayed goal and falls back to
+   * refining from it only where the placement misses the goal, leaves the range
+   * of motion or meets what the arm keeps clear of (Tolani, Goswami and Badler
+   * 2000, §3.2.4: the swivel is the one free parameter of an arm on its goal).
+   * None while an anchor is read.
    *
    * @param person The person.
    * @param segment The action.
@@ -403,13 +403,13 @@ export namespace readHumanSegmentLeaf {
    * An anchor's arm fits, kept by the segment under the person's overlay count,
    * since a read under fewer overlays (`HumanSegmentShown.laid`) shows other
    * fits. The anchors are chained from the action's start: the first continues
-   * the leaf arms the entry displays (`HumanLimbFit.seed` on its pose), the rest
-   * of its fits read cold, and each later one continues the one before it (each fit refined from
-   * that anchor's seed of it, keeping its branch and swivel where they stay
-   * legal), the warm start from the previous swivel a display holds a limb's
-   * branch by. A missing anchor reads every missing one below it first, once
-   * each, so an anchor's fits depend on the action alone, never on which second
-   * was read first.
+   * the leaf arms the entry displays (`HumanLimbFit.seed` on its pose), the
+   * rest of its fits read cold, and each later one continues the one before it
+   * (each fit refined from that anchor's seed of it, keeping its branch and
+   * swivel where they stay legal), the warm start from the previous swivel a
+   * display holds a limb's branch by. A missing anchor reads every missing one
+   * below it first, once each, so an anchor's fits depend on the action alone,
+   * never on which second was read first.
    */
   function anchor(
     person: IAutoMovieMotionHumanSegment.IPerson,
@@ -429,7 +429,9 @@ export namespace readHumanSegmentLeaf {
     // where the display showed each arm rather than from a cold fit, which
     // may take another solution of the same goal.
     let kept: IAutoMovieMotionHumanSegment.IAnchorFits | undefined =
-      first === 0 ? entered(person, segment) : segment.anchors!.get(key(first - 1));
+      first === 0
+        ? entered(person, segment)
+        : segment.anchors!.get(key(first - 1));
     for (let i: number = first; i <= index; ++i) {
       const previous: IAutoMovieMotionHumanSegment.IAnchorFits | undefined =
         kept;
@@ -457,7 +459,10 @@ export namespace readHumanSegmentLeaf {
     }
     return kept!;
   }
-  /** Each leaf arm's swivel and branch as the segment's entry displays it, by its fit's name; an arm the entry pose cannot seed is left to a cold fit. */
+  /**
+   * Each leaf arm's swivel and branch as the segment's entry displays it, by
+   * its fit's name; an arm the entry pose cannot seed is left to a cold fit.
+   */
   function entered(
     person: IAutoMovieMotionHumanSegment.IPerson,
     segment: IAutoMovieMotionHumanSegment,

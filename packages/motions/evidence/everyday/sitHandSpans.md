@@ -28,7 +28,7 @@ The course and the meeting instants are made once for the plan and read by every
 
 The returned readers hold the legs' course and two numbers for as long as the plan holds them.
 
-# src/everyday/sitHandSpans.ts#sitHandSpans.IProps
+# src/everyday/sitHandSpans.ts#ISitHandSpansProps
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -46,7 +46,7 @@ What the spans and the course need, each a value the sit already owns.
 
 None.
 
-# src/everyday/sitHandSpans.ts#sitHandSpans.ISpans
+# src/everyday/sitHandSpans.ts#ISitHandSpansSpans
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

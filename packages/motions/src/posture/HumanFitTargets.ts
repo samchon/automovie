@@ -12,6 +12,15 @@ import type { HumanBodyFitRows } from "./HumanBodyFitRows";
 import { HumanFitTargetSlopes } from "./HumanFitTargetSlopes";
 import { HumanJacobian } from "./HumanJacobian";
 
+/** The record of `IResidualResult`'s site. */
+type IResidualResult = { point: number; turn: number };
+
+/** The alternatives of `MissesOutAxis`'s site. */
+type MissesOutAxis = "x" | "y" | "z";
+
+/** The alternatives of `RowsAxesItem`'s site. */
+type RowsAxesItem = "x" | "y" | "z";
+
 /** Effector constraints in a fixed world frame or a moving bone frame. */
 export namespace HumanFitTargets {
   /**
@@ -46,11 +55,7 @@ export namespace HumanFitTargets {
             ): IAutoMovieMotionHumanJacobian.ITwist =>
               relative(target, current, k, motion, at),
           );
-        const axes: readonly ("x" | "y" | "z")[] = target.axes ?? [
-          "x",
-          "y",
-          "z",
-        ];
+        const axes: readonly RowsAxesItem[] = target.axes ?? ["x", "y", "z"];
         const scaled: (
           f: (
             motion: IAutoMovieMotionHumanJacobian.ITwist,
@@ -183,7 +188,7 @@ export namespace HumanFitTargets {
     const out: number[] =
       target.bound === undefined
         ? (target.axes ?? (["x", "y", "z"] as const)).map(
-            (axis: "x" | "y" | "z"): number => delta[axis],
+            (axis: MissesOutAxis): number => delta[axis],
           )
         : [Math.max(0, Vector3.length(delta) - target.bound)];
     if (target.rotation !== undefined) {
@@ -211,7 +216,7 @@ export namespace HumanFitTargets {
     target: IAutoMovieMotionHumanBodyFitTypes.ITarget,
     r: HumanBodyFitRows.IReading,
     k: number,
-  ): { point: number; turn: number } {
+  ): IResidualResult {
     const at: IFrame = frame(target, r, k);
     return {
       point: Vector3.length(error(target, at.point)) * 1000,
@@ -284,6 +289,11 @@ export namespace HumanFitTargets {
     return [u, Vector3.cross(n, u)];
   }
 }
+/** The record of `IFrameAnchor`'s site. */
+type IFrameAnchor = {
+  bone: AutoMovieHumanoidBone;
+  inverse: IAutoMovieQuaternion;
+};
 
 /** An effector expressed in its goal's reference frame. */
 interface IFrame {
@@ -294,7 +304,7 @@ interface IFrame {
    * Present only for a moving goal frame; its inverse also transforms this
    * model's relative twists.
    */
-  anchor?: { bone: AutoMovieHumanoidBone; inverse: IAutoMovieQuaternion };
+  anchor?: IFrameAnchor;
 }
 
 /** The additive identity for world or goal-frame velocities. */
@@ -357,6 +367,8 @@ function relative(
     ),
   };
 }
+/** The alternatives of `ErrorAxesItem`'s site. */
+type ErrorAxesItem = "x" | "y" | "z";
 
 /** Point error projected on the declared axes; a bound is a metric radius. */
 function error(
@@ -368,7 +380,7 @@ function error(
     (!(target.bound >= 0) || !Number.isFinite(target.bound))
   )
     throw new Error("A point bound must be finite nonnegative metres");
-  const axes: readonly ("x" | "y" | "z")[] = target.axes ?? ["x", "y", "z"];
+  const axes: readonly ErrorAxesItem[] = target.axes ?? ["x", "y", "z"];
   return {
     x: axes.includes("x") ? point.x - target.goal.x : 0,
     y: axes.includes("y") ? point.y - target.goal.y : 0,

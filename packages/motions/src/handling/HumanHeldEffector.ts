@@ -14,6 +14,9 @@ import { AutoMovieMotionHumanTouchEffector } from "../compose/AutoMovieMotionHum
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanHand } from "../posture/HumanHand";
 
+/** The alternatives of `HumanHeldEffectorContext`'s site. */
+type HumanHeldEffectorContext = "body" | "entry" | "prop";
+
 /**
  * Prepare the effector of a held prop's point (`HumanHeld.effector`): the point
  * and its directions in the hand's frame, read once at the entry, and for an
@@ -35,7 +38,7 @@ import { HumanHand } from "../posture/HumanHand";
  *   contact.
  */
 export function HumanHeldEffector(
-  context: Pick<IAutoMovieMotionHumanActionContext, "body" | "entry" | "prop">,
+  context: Pick<IAutoMovieMotionHumanActionContext, HumanHeldEffectorContext>,
   row: IAutoMovieMotionHumanHeld.IUse,
   side: AutoMovieHumanSide,
   subject: string,
@@ -122,6 +125,16 @@ export function HumanHeldEffector(
     },
   });
 }
+/** The record of `IGeometryRing`'s site. */
+type IGeometryRing = {
+  centre: IAutoMovieVector3;
+  radius: number;
+  toward: IAutoMovieVector3;
+  across: IAutoMovieVector3;
+};
+
+/** The alternatives of `GeometryAxesEntry`'s site. */
+type GeometryAxesEntry = "fingers" | "palm" | "thumb";
 
 /** A held contact's hand-local geometry. */
 interface IGeometry {
@@ -150,20 +163,13 @@ interface IGeometry {
   scale: number;
 
   /** The hand's three orthonormal anatomical axes. */
-  axes: Record<"fingers" | "palm" | "thumb", IAutoMovieVector3>;
+  axes: Record<GeometryAxesEntry, IAutoMovieVector3>;
 
   /**
    * An upright vessel's rim: centre, radius and the two in-plane directions;
    * absent for other props.
    */
-  ring:
-    | {
-        centre: IAutoMovieVector3;
-        radius: number;
-        toward: IAutoMovieVector3;
-        across: IAutoMovieVector3;
-      }
-    | undefined;
+  ring: IGeometryRing | undefined;
 }
 
 /**
@@ -174,6 +180,8 @@ interface IGeometry {
  * normal is taken instead).
  */
 const ACROSS: number = 0.3;
+/** The alternatives of `AcrossSpareAxis`'s site. */
+type AcrossSpareAxis = "fingers" | "palm" | "thumb";
 
 /**
  * A direction laid across the normal: its projection, or the hand axis least
@@ -195,7 +203,7 @@ function across(
   if (Vector3.length(projected) > ACROSS) return Vector3.normalize(projected);
   const spare: IAutoMovieVector3 = (["fingers", "palm", "thumb"] as const)
     .map(
-      (axis: "fingers" | "palm" | "thumb"): IAutoMovieVector3 =>
+      (axis: AcrossSpareAxis): IAutoMovieVector3 =>
         AutoMovieMotionHumanTouchEffector.axis(side, axis),
     )
     .sort(
@@ -236,12 +244,14 @@ function turning(
     };
   };
 }
+/** The alternatives of `WeightsEntryResult`'s site. */
+type WeightsEntryResult = "fingers" | "palm" | "thumb";
 
 /** A vector's components along the hand's anatomical axes. */
 function weights(
   vector: IAutoMovieVector3,
   axes: IGeometry["axes"],
-): Record<"fingers" | "palm" | "thumb", number> {
+): Record<WeightsEntryResult, number> {
   return {
     fingers: Vector3.dot(vector, axes.fingers),
     palm: Vector3.dot(vector, axes.palm),

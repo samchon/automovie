@@ -22,8 +22,9 @@ import { vclose } from "../../internal/vclose";
  * Four named walkers follow one authored social-group course through a bend.
  *
  * Scenarios:
- * 1. Before stepping off, ankle centres retain their relative slot positions.
- *    Each performer arrives at its own authored floor mark.
+ *
+ * 1. Before stepping off, ankle centres retain their relative slot positions. Each
+ *    performer arrives at its own authored floor mark.
  * 2. During the turn, two neighbours keep travelling at distinct positions.
  * 3. Reading late, early and then late again gives the same displayed root.
  *
@@ -71,11 +72,9 @@ export function test_motion_ensemble_crowd_group_walk(): void {
         chain: IAutoMovieMotionHumanChain,
       ): IAutoMovieMotionHumanChain =>
         chain.stand({ hold: start }).walk({
-          to: AutoMovieMotionHumanEnsemble.HumanFormation.slot(
+          to: AutoMovieMotionHumanEnsemble.HumanFormation.prepare(
             formation,
-            member.index,
-            end,
-          ).at,
+          ).slot(member.index, end).at,
           station: { formation, slot: member.index, until: end },
         }),
     ),
@@ -105,8 +104,7 @@ export function test_motion_ensemble_crowd_group_walk(): void {
     const first: IAutoMovieVector3 = markAt(member.subject, 0.75);
     const stopped: IAutoMovieVector3 = markAt(member.subject, 30);
     const mark: IAutoMovieVector3 =
-      AutoMovieMotionHumanEnsemble.HumanFormation.slot(
-        formation,
+      AutoMovieMotionHumanEnsemble.HumanFormation.prepare(formation).slot(
         member.index,
         end,
       ).at;

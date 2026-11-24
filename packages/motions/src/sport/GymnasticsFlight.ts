@@ -21,12 +21,22 @@ import type {
 } from "@automovie/interface";
 
 import { HumanColliders } from "../posture/HumanColliders";
+import { humanPostureHeading } from "../posture/humanPostureHeading";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { knockdown } from "../reaction/knockdown";
 import { prepareGymnasticsLaunch } from "./prepareGymnasticsLaunch";
+
+/** The alternatives of `PrepareTurnedAfter`'s site. */
+type PrepareTurnedAfter = "yaw" | "pitch" | "roll";
+
+/** The record of `IFreezeResult`'s site. */
+type IFreezeResult = {
+  posture: IAutoMovieMotionHumanPosture;
+  pose: IAutoMoviePose;
+};
 
 /**
  * The airborne kernel of the gymnastic and jumping laws: a body in flight is a
@@ -114,7 +124,7 @@ export namespace GymnasticsFlight {
     posture: IAutoMovieMotionHumanPosture,
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
     projection?: ReturnType<typeof prepareHumanPostureProjection>,
-  ): { posture: IAutoMovieMotionHumanPosture; pose: IAutoMoviePose } {
+  ): IFreezeResult {
     const pose: IAutoMoviePose = resolveHumanPosture.seeded(
       body,
       posture,
@@ -271,17 +281,14 @@ export namespace GymnasticsFlight {
         ),
       );
     return (yaw: number, pitch: number): IAutoMovieMotionHumanPosture => {
-      const after: Pick<
-        IAutoMovieMotionHumanPosture,
-        "yaw" | "pitch" | "roll"
-      > = {
+      const after: Pick<IAutoMovieMotionHumanPosture, PrepareTurnedAfter> = {
         yaw: posture.yaw + yaw,
         pitch: posture.pitch + pitch,
         roll: 0,
       };
-      const heading: IAutoMovieQuaternion = resolveHumanPosture.heading(after);
+      const heading: IAutoMovieQuaternion = humanPostureHeading(after);
       if (before === undefined)
-        before = Quaternion.inverse(resolveHumanPosture.heading(posture));
+        before = Quaternion.inverse(humanPostureHeading(posture));
       const turn: IAutoMovieQuaternion = Quaternion.multiply(heading, before);
       const round: (point: IAutoMovieVector3) => IAutoMovieVector3 = (
         point: IAutoMovieVector3,

@@ -3,6 +3,15 @@ import type {
   IAutoMovieMotionHumanPushPullLean,
 } from "@automovie/interface";
 
+/** The alternatives of `OfTableEntry`'s site. */
+type OfTableEntry = "waist" | "shoulder";
+
+/** The alternatives of `OfWay`'s site. */
+type OfWay = IAutoMovieMotionHumanPushPullLean.Way | "drag";
+
+/** The alternatives of `EntryEntryEntry`'s site. */
+type EntryEntryEntry = "waist" | "shoulder";
+
 /**
  * How far the trunk leans when a load is pushed, pulled or dragged by its
  * handles, by the load's declared level and the handles' height.
@@ -36,7 +45,7 @@ export namespace pushPullLean {
       IAutoMovieMotionHumanPushPullLean.Way,
       Record<
         IAutoMovieMotionHumanPushPullLean.Load,
-        Record<"waist" | "shoulder", number>
+        Record<EntryEntryEntry, number>
       >
     >
   > = {
@@ -64,11 +73,11 @@ export namespace pushPullLean {
    */
   export function of(
     body: IAutoMovieMotionHumanBody,
-    way: IAutoMovieMotionHumanPushPullLean.Way | "drag",
+    way: OfWay,
     load: IAutoMovieMotionHumanPushPullLean.Load,
     height: number,
   ): number {
-    const table: Record<"waist" | "shoulder", number> =
+    const table: Record<OfTableEntry, number> =
       ANGLES[way === "pull" ? "pull" : "push"][load];
     const waist: number = body.measure.waistHeight;
     const shoulder: number = body.measure.shoulderHeight;

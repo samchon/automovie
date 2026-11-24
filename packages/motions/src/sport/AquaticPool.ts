@@ -1,5 +1,6 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanContactWindow,
@@ -16,6 +17,12 @@ import { HumanFrame } from "../posture/HumanFrame";
 import { AquaticDive } from "./AquaticDive";
 import { AquaticPosture } from "./AquaticPosture";
 import { swim } from "./swim";
+
+/** The alternatives of `RaceStroke`'s site. */
+type RaceStroke = "breaststroke" | "frontCrawl";
+
+/** The alternatives of `RaceKind`'s site. */
+type RaceKind = "crawlStartTurn" | "breaststrokeStartTurn";
 
 /**
  * Pool racing starts, stroke and wall reversal. World Aquatics distinguishes
@@ -42,7 +49,7 @@ export namespace AquaticPool {
   export function race(
     context: AquaticPosture.Context,
     water: number,
-    kind: "crawlStartTurn" | "breaststrokeStartTurn",
+    kind: RaceKind,
   ): IAutoMovieMotionHumanActionPlan {
     const { body, entry } = context;
     const forward: IAutoMovieVector3 = HumanFrame.forward(entry.posture.yaw);
@@ -54,9 +61,7 @@ export namespace AquaticPool {
     const flight: ReturnType<typeof AquaticDive.departure> =
       AquaticDive.departure(context, water, false);
     const breast: boolean = kind === "breaststrokeStartTurn";
-    const stroke: "breaststroke" | "frontCrawl" = breast
-      ? "breaststroke"
-      : "frontCrawl";
+    const stroke: RaceStroke = breast ? "breaststroke" : "frontCrawl";
     const inbound: IAutoMovieMotionHumanActionPlan = swim.plan({
       ...context,
       params: { kind: stroke, water, count: 2 },
@@ -232,7 +237,9 @@ export namespace AquaticPool {
       context.params.support === undefined
         ? []
         : (["left", "right"] as const).flatMap(
-            (side: "left" | "right"): IAutoMovieMotionHumanContactWindow[] => [
+            (
+              side: AutoMovieHumanSide,
+            ): IAutoMovieMotionHumanContactWindow[] => [
               ...(breast
                 ? [
                     {

@@ -9,6 +9,39 @@ import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTimin
 import { HumanFrame } from "../posture/HumanFrame";
 import { staggerBounds } from "./staggerBounds";
 
+/** The record of `IStaggerLeanTrunk`'s site. */
+type IStaggerLeanTrunk = { pitch: number; roll: number };
+
+/** The record of `IStaggerLeanResult2`'s site. */
+type IStaggerLeanResult2 = {
+  trunk: IStaggerLeanTrunkResult2;
+  root: IAutoMovieVector3;
+  ease: number;
+};
+
+/** The record of `IStaggerLeanTrunkResult2`'s site. */
+type IStaggerLeanTrunkResult2 = { pitch: number; roll: number };
+
+/** The record of `IStaggerLeanResult`'s site. */
+type IStaggerLeanResult = {
+  trunk: IStaggerLeanTrunkResult;
+  root: IAutoMovieVector3;
+  ease: number;
+};
+
+/** The record of `IStaggerLeanTrunkResult`'s site. */
+type IStaggerLeanTrunkResult = { pitch: number; roll: number };
+
+/** The alternatives of `StaggerLeanBendEntry`'s site. */
+type StaggerLeanBendEntry = "pitch" | "roll";
+
+/** The record of `IStaggerLeanWalk`'s site. */
+type IStaggerLeanWalk = {
+  course: (seconds: number) => IAutoMovieVector3;
+  extrapolated: (seconds: number) => IAutoMovieVector3;
+  centre: IAutoMovieVector3;
+};
+
 /**
  * A stagger's trunk and the root that carries it, as prepared curves of the
  * recovery's courses (`staggerRecover`).
@@ -55,17 +88,9 @@ import { staggerBounds } from "./staggerBounds";
 export function staggerLean(
   body: IAutoMovieMotionHumanActionContext["body"],
   entry: IAutoMovieMotionHumanActionContext["entry"],
-  walk: {
-    course: (seconds: number) => IAutoMovieVector3;
-    extrapolated: (seconds: number) => IAutoMovieVector3;
-    centre: IAutoMovieVector3;
-  },
-  bend: Record<"pitch" | "roll", IAutoMovieVector3>,
-): (seconds: number) => {
-  trunk: { pitch: number; roll: number };
-  root: IAutoMovieVector3;
-  ease: number;
-} {
+  walk: IStaggerLeanWalk,
+  bend: Record<StaggerLeanBendEntry, IAutoMovieVector3>,
+): (seconds: number) => IStaggerLeanResult {
   const forward: IAutoMovieVector3 = HumanFrame.point(
     { origin: { x: 0, y: 0, z: 0 }, yaw: entry.posture.yaw },
     { x: 0, y: 0, z: 1 },
@@ -80,13 +105,7 @@ export function staggerLean(
   );
   const rolling: number = Vector3.dot(bend.roll, across) < 0 ? -1 : 1;
   const root: IAutoMovieVector3 = entry.posture.root;
-  return (
-    seconds: number,
-  ): {
-    trunk: { pitch: number; roll: number };
-    root: IAutoMovieVector3;
-    ease: number;
-  } => {
+  return (seconds: number): IStaggerLeanResult2 => {
     const travel: IAutoMovieVector3 = walk.course(seconds);
     const xi: IAutoMovieVector3 = walk.extrapolated(seconds);
 
@@ -111,7 +130,7 @@ export function staggerLean(
     const against: (axis: IAutoMovieVector3) => number = (
       axis: IAutoMovieVector3,
     ): number => (size > 0 ? -Vector3.dot(lead, axis) / size : 0);
-    const trunk: { pitch: number; roll: number } = {
+    const trunk: IStaggerLeanTrunk = {
       pitch: angle * against(forward),
       roll: rolling * angle * against(across),
     };

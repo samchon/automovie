@@ -1,5 +1,8 @@
 import type { IAutoMovieGait } from "@automovie/interface";
 
+/** The alternatives of `HUMANOIDGAITSEntry`'s site. */
+type HUMANOIDGAITSEntry = "walk" | "run" | "sprint" | "sneak" | "march";
+
 /**
  * The five canonical humanoid gaits, the locomotion the `locomote` verb's
  * `gait` enum names (`walk`/`run`/`sprint`/`sneak`/`march`), as ready
@@ -31,10 +34,7 @@ import type { IAutoMovieGait } from "@automovie/interface";
  * context; the engine validates and samples them. Fixed table construction
  * happens once and retains no per-frame task or host resource.
  */
-export const HUMANOID_GAITS: Record<
-  "walk" | "run" | "sprint" | "sneak" | "march",
-  IAutoMovieGait
-> = {
+export const HUMANOID_GAITS: Record<HUMANOIDGAITSEntry, IAutoMovieGait> = {
   walk: {
     name: "walk",
     period: 0.95,

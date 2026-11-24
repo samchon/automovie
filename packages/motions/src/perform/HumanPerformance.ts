@@ -1,5 +1,6 @@
 import { integrateAirborneRotation } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   AutoMovieMotionHumanScheduledInstant,
   IAutoMovieInteractionEvent,
@@ -42,6 +43,9 @@ import { HumanPropFlight } from "./HumanPropFlight";
 import { HumanPropFracture } from "./HumanPropFracture";
 import { HumanSegment } from "./HumanSegment";
 
+/** The record of `IAimResult`'s site. */
+type IAimResult = { point: IAutoMovieVector3; normal: IAutoMovieVector3 };
+
 /**
  * A performance of people and props: their chained actions placed on the film
  * clock, every cut checked against the actions' interrupt tables, and each
@@ -58,13 +62,13 @@ import { HumanSegment } from "./HumanSegment";
  * search to `HumanPerformanceSchedule.CUT`, about 4e-8 s, deterministic on a
  * fixed grid whose last sample is the action's end; a distance never met leaves
  * the action uncut. Given rules, the placed schedule is checked with the
- * engine's legality check and a violation refuses the performance. An input
- * equal to one the process resolved recently reads that resolution again
- * (`HumanPerformanceState.of`): the resolution is a pure function of its input.
- * Authored airborne turn counts use staged rigid rotation by default, keeping
- * the law's centre path, heading and articulation. Explicit physical mode
- * solves their angular momentum instead; a supplied momentum always uses
- * physical integration regardless of this authored-turn policy.
+ * engine's legality check and a violation refuses the performance. Each
+ * performance resolves its own input (`HumanPerformanceState.of`): the
+ * resolution is a pure function of its input. Authored airborne turn counts use
+ * staged rigid rotation by default, keeping the law's centre path, heading and
+ * articulation. Explicit physical mode solves their angular momentum instead; a
+ * supplied momentum always uses physical integration regardless of this
+ * authored-turn policy.
  *
  * Sampling a person at a second takes the active action's posture, resolves it
  * to a pose, adds the decaying inertialization offset of the transition that
@@ -423,7 +427,7 @@ export class HumanPerformance {
   public softLoad(
     subject: string,
     person: string,
-    side: "left" | "right",
+    side: AutoMovieHumanSide,
     seconds: number,
   ): IAutoMovieVector3 {
     return HumanPerformanceSoft.load(
@@ -485,7 +489,7 @@ export class HumanPerformance {
     target: IAutoMovieMotionTarget,
     seconds: number,
     frame: IAutoMovieMotionHumanPerformanceAim.IFrame,
-  ): { point: IAutoMovieVector3; normal: IAutoMovieVector3 } {
+  ): IAimResult {
     return HumanPerformanceAim.aim(this.resolved, target, seconds, frame);
   }
 }

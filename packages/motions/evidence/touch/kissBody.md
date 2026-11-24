@@ -6,7 +6,7 @@ States what the body is at a share, why one model serves the solve and the displ
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-The rise's lift and the lean's pivot scale with the share; standing, the root is lowered as far as the planted legs ask to reach their risen feet (`resolveHumanPosture.lower`).
+The rise's lift and the lean's pivot scale with the share; standing, the root is lowered as far as the planted legs ask to reach their risen feet (`lowerHumanPosture`).
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 

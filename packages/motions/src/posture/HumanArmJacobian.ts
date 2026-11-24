@@ -1,5 +1,6 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieChainBone,
   IAutoMovieJointPose,
@@ -17,6 +18,9 @@ import type {
 import { HumanArmFrame } from "./HumanArmFrame";
 import { HumanArmGeometry as G } from "./HumanArmGeometry";
 import { HumanJacobian } from "./HumanJacobian";
+
+/** The alternatives of `AXESItem`'s site. */
+type AXESItem = 0 | 1 | 2;
 
 /**
  * The analytic Jacobian of the arm planner's coordinates: for each free
@@ -179,7 +183,7 @@ export namespace HumanArmJacobian {
    */
   export function read(
     body: IAutoMovieMotionHumanBody,
-    side: "left" | "right",
+    side: AutoMovieHumanSide,
     pose: IAutoMoviePose,
     arm: IAutoMovieMotionHumanArmClearance.IArm,
     offset: readonly number[] = [],
@@ -215,14 +219,17 @@ export namespace HumanArmJacobian {
   };
 
   /** A joint's angles by index: flexion, abduction, twist. */
-  const AXES: readonly (0 | 1 | 2)[] = [0, 1, 2];
+  const AXES: readonly AXESItem[] = [0, 1, 2];
 
   /**
    * Fixed variable labels of the canonical arms, borrowed only by the read-only
    * Jacobian consumer.
    */
   const JOINTS: Readonly<
-    Record<"left" | "right", readonly IAutoMovieMotionHumanJacobian.IVariable[]>
+    Record<
+      AutoMovieHumanSide,
+      readonly IAutoMovieMotionHumanJacobian.IVariable[]
+    >
   > = {
     left: jointVariables("leftLowerArm", "leftHand"),
     right: jointVariables("rightLowerArm", "rightHand"),

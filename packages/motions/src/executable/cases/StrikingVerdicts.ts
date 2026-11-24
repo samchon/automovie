@@ -4,6 +4,7 @@ import {
   resolveAutoMovieHumanoidSurfaces,
 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanBody,
@@ -17,6 +18,18 @@ import type {
 
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
 import { StrikingLimb } from "./StrikingLimb";
+
+/** The record of `IPenetrationDeepest`'s site. */
+type IPenetrationDeepest = { at: number };
+
+/** The record of `IContactClosest`'s site. */
+type IContactClosest = { at: number };
+
+/** The alternatives of `ContactDeclared`'s site. */
+type ContactDeclared = "feint" | "miss" | "graze" | undefined;
+
+/** The record of `IStrikeOther`'s site. */
+type IStrikeOther = { id: string; body: IAutoMovieMotionHumanBody };
 
 /**
  * The verdicts of a displayed strike, each measured on the shown bones against
@@ -72,7 +85,7 @@ export namespace StrikingVerdicts {
     body: IAutoMovieMotionHumanBody;
 
     /** The other person, when there is one. */
-    other: { id: string; body: IAutoMovieMotionHumanBody } | undefined;
+    other: IStrikeOther | undefined;
 
     /** The strike's segment. */
     segment: IAutoMovieMotionHumanSegment;
@@ -197,14 +210,14 @@ export namespace StrikingVerdicts {
             : `cut before its contact but stopped at ${strike.stop.toFixed(3)} s`,
       };
     if (strike.other === undefined) return extension(strike);
-    const declared: "feint" | "miss" | "graze" | undefined =
+    const declared: ContactDeclared =
       params.feint !== undefined
         ? "feint"
         : params.accuracy === "miss" || params.accuracy === "graze"
           ? params.accuracy
           : undefined;
     if (declared !== undefined) {
-      let closest: StrikingLimb.IGap & { at: number } = {
+      let closest: StrikingLimb.IGap & IContactClosest = {
         ...gap(strike, g.entryTime),
         at: g.entryTime,
       };
@@ -319,7 +332,7 @@ export namespace StrikingVerdicts {
    */
   export function penetration(strike: IStrike): IMotionCaptureCase.IVerdict {
     const g: IAutoMovieMotionHumanSegment = strike.segment;
-    let deepest: StrikingLimb.IGap & { at: number } = {
+    let deepest: StrikingLimb.IGap & IPenetrationDeepest = {
       distance: Infinity,
       bone: undefined,
       part: "nothing",
@@ -433,7 +446,7 @@ export namespace StrikingVerdicts {
    */
   export function goal(strike: IStrike): IMotionCaptureCase.IVerdict {
     const g: IAutoMovieMotionHumanSegment = strike.segment;
-    const side: "left" | "right" = StrikingLimb.side(strike.limb);
+    const side: AutoMovieHumanSide = StrikingLimb.side(strike.limb);
     const from: number = Math.max(g.entryTime, at(g, "launch") ?? g.entryTime);
     const to: number = Math.min(g.end, strike.stop ?? peak(g));
     let worst: number = 0;

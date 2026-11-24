@@ -97,12 +97,9 @@ export namespace HumanManipulate {
    * on its surface. The carrier must yield the holding thumb. As a standalone
    * action the right thumb presses an unheld pad.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Identifies the standalone and overlay inputs and the overlay's existing hold and channel requirements.
-   * @evidence contracts/development/design.md#principled-representation Both modes consume the same keyed contact contract. The held grip supplies the otherwise missing wrist frame.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The existing row exposes the overlay with its original parameter schema.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Uses the existing keyed sequence off a carrier and the sampled thumb plan over one.
-   *
-   * One touch every 0.5 s at novice skill to 0.15 s at elite (`manipulate`, a typing interval, provisional for thumbs) unless the contacts give their times; texting.
+   * One touch every 0.5 s at novice skill to 0.15 s at elite (`manipulate`, a
+   * typing interval, provisional for thumbs) unless the contacts give their
+   * times; texting.
    */
   export const thumbText: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["manipulate"]["thumbText"]

@@ -1,5 +1,6 @@
 import { Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   IAutoMovieMotionClock,
   IAutoMovieMotionClockInstant,
   IAutoMovieMotionHumanActionContext,
@@ -19,11 +20,11 @@ import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanPostureRaw } from "../posture/HumanPostureRaw";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { lowerHumanPosture } from "../posture/lowerHumanPosture";
 import { StrikingStance } from "../striking/StrikingStance";
 
 /** A stage foot selected in the leading or following path. */
-type Side = "left" | "right";
+type Side = AutoMovieHumanSide;
 
 /** A normalized starting and settling window for one moving foot. */
 type Window = readonly [start: number, settle: number];
@@ -145,11 +146,6 @@ const MAX_TRAVEL: number = 0.23;
  * the floor, and an armoured cast can use a deliberate cadence. These are
  * screen-blocking profiles. A prop cue belongs to the editor's clock
  * independently of footholds. Props remain attached by the normal grip owner.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the action's profiles, frame, independent events and inherited grip.
- * @evidence contracts/development/design.md#principled-representation One action clock owns both foot phases. The support and posture owners retain canonical ground coordinates and independently described planted windows.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Exposes one registered action, its profile choice and a stage synchronization cue.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Profile numbers are authored screen choices. The optional prop cue declares neither a hit nor a geometric contact.
  */
 export const stageBladeFootwork: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanStageBladeFootwork.IParams> =
   {
@@ -163,6 +159,8 @@ export const stageBladeFootwork: IAutoMovieMotionHumanActionLaw<IAutoMovieMotion
 /**
  * Resolve the parameters once and transport the carried upper posture over the
  * same floor frame as the two foot paths.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States the action's profiles, frame, independent events and inherited grip.
  */
 function plan(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanStageBladeFootwork.IParams>,
@@ -268,14 +266,11 @@ function plan(
 
       // Fit the root height against both placements to keep their reach
       // limit continuous as a travelling foot becomes a plant.
-      const lower: IAutoMovieMotionHumanPosture = resolveHumanPosture.lower(
-        body,
-        {
-          ...entry,
-          root,
-          limbs: StrikingStance.legs(body, placed),
-        },
-      );
+      const lower: IAutoMovieMotionHumanPosture = lowerHumanPosture(body, {
+        ...entry,
+        root,
+        limbs: StrikingStance.legs(body, placed),
+      });
       const upper: IAutoMovieMotionHumanPosture = HumanPostureRaw.translated(
         entry,
         lower.root,

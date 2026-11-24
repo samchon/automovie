@@ -1,5 +1,6 @@
 import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   IAutoMovieMotionEvent,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionPlan,
@@ -13,7 +14,7 @@ import type {
 import { AutoMovieMotionHumanLeg } from "../compose/AutoMovieMotionHumanLeg";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { lowerHumanPosture } from "../posture/lowerHumanPosture";
 import { StrikingGuard } from "./StrikingGuard";
 import { StrikingStance } from "./StrikingStance";
 import { StrikingTarget } from "./StrikingTarget";
@@ -21,7 +22,7 @@ import { StrikingTwist } from "./StrikingTwist";
 import type { strikingStepSupport } from "./strikingStepSupport";
 
 /** A single stance side. */
-type Side = "left" | "right";
+type Side = AutoMovieHumanSide;
 
 /** Both feet in world metres with their actual rotations. */
 type Feet = Record<Side, IAutoMovieMotionHumanFoot.IPlacement>;
@@ -247,7 +248,7 @@ export namespace StrikingStepTransition {
           left: bearingAt(beat, "left", local),
           right: bearingAt(beat, "right", local),
         };
-        const posture: IAutoMovieMotionHumanPosture = resolveHumanPosture.lower(
+        const posture: IAutoMovieMotionHumanPosture = lowerHumanPosture(
           body,
           {
             root: {
@@ -263,7 +264,7 @@ export namespace StrikingStepTransition {
             ),
             limbs: StrikingStance.legs(body, placed, down),
           },
-          resolveHumanPosture.KNEE,
+          lowerHumanPosture.KNEE,
         );
         return {
           ...posture,
@@ -386,6 +387,8 @@ function placement(
     share,
   );
 }
+/** The alternatives of `BookAddKind`'s site. */
+type BookAddKind = "plant" | "pivot";
 
 /** Declare only the ground windows occupied by each motion. */
 function book(
@@ -395,7 +398,7 @@ function book(
   index: number,
   count: number,
 ): void {
-  const add = (kind: "plant" | "pivot", from: number, to: number): void => {
+  const add = (kind: BookAddKind, from: number, to: number): void => {
     if (from < to)
       contacts.push({
         part: `${side}Foot`,

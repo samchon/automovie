@@ -1,4 +1,5 @@
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidRegion,
   AutoMovieMotionHumanActionName,
   IAutoMovieMotionEvent,
@@ -22,6 +23,18 @@ import { StrikingTarget } from "./StrikingTarget";
 import { defendFootwork } from "./defendFootwork";
 import { defendGeometry } from "./defendGeometry";
 import { strikingReadBack } from "./strikingReadBack";
+
+/** The record of `IPlanAt`'s site. */
+type IPlanAt = {
+  at?: IPlanAtAt;
+};
+
+/** The record of `IPlanAtAt`'s site. */
+type IPlanAtAt = {
+  kind: string;
+  subject?: string;
+  region?: AutoMovieHumanoidRegion;
+};
 
 /**
  * A defence against one placed strike: a glove, forearm or shin brought to
@@ -140,15 +153,7 @@ export namespace defend {
         reason: `${p.against} has no contact or shown peak to defend against`,
         fix: "defend against the anchor of a strike that lands or is shown",
       });
-    const at = (
-      attack.params as {
-        at?: {
-          kind: string;
-          subject?: string;
-          region?: AutoMovieHumanoidRegion;
-        };
-      }
-    ).at;
+    const at = (attack.params as IPlanAt).at;
     if (
       at === undefined ||
       at.kind !== "person" ||
@@ -203,8 +208,8 @@ export namespace defend {
       duration,
       read: Math.max(context.start, decided.start),
     };
-    const lead: "left" | "right" = StrikingTarget.lead(context.entry);
-    const checking: "left" | "right" | undefined =
+    const lead: AutoMovieHumanSide = StrikingTarget.lead(context.entry);
+    const checking: AutoMovieHumanSide | undefined =
       p.kind === "check" ? defendGeometry.attacked(region, lead) : undefined;
     const support: defendFootwork.ISupport | undefined = defendFootwork(
       context,
@@ -229,7 +234,11 @@ export namespace defend {
     };
     const contacts: IAutoMovieMotionHumanContactWindow[] =
       defendGeometry.windows(checking, timing, support);
-    let waiting: IAutoMovieMotionHumanActionPlan["posture"] | undefined;
+    const waiting: IAutoMovieMotionHumanActionPlan["posture"] = idle(
+      context,
+      lead,
+      support,
+    );
     const out: IAutoMovieMotionHumanActionPlan = {
       duration,
       events,
@@ -242,12 +251,7 @@ export namespace defend {
       ): IAutoMovieMotionHumanPosture => {
         const t: number = Math.min(duration, Math.max(0, seconds));
         return t <= begin + 1e-9
-          ? (waiting ??= idle(context, lead, support))(
-              t,
-              channels,
-              resolution,
-              projection,
-            )
+          ? waiting(t, channels, resolution, projection)
           : geometry().posture(t, channels, resolution, projection);
       },
       settle: (): void => {
@@ -263,7 +267,7 @@ export namespace defend {
    */
   function idle(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanDefend.IParams>,
-    lead: "left" | "right",
+    lead: AutoMovieHumanSide,
     support: defendFootwork.ISupport | undefined,
   ): IAutoMovieMotionHumanActionPlan["posture"] {
     const legs: ReturnType<typeof StrikingStance.prepareLegs> =

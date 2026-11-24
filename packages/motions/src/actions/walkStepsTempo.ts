@@ -5,6 +5,9 @@ import type {
 
 import { HumanSkill } from "../skill/HumanSkill";
 
+/** The alternatives of `WalkStepsTempoContext`'s site. */
+type WalkStepsTempoContext = "skill" | "subject" | "series";
+
 /**
  * The stream a take's tempo is drawn from: one per performer and per occurrence
  * of the action in their chain, keyed as a walk whatever the gait is called. A
@@ -16,10 +19,7 @@ import { HumanSkill } from "../skill/HumanSkill";
  * @returns The stream.
  */
 export function walkStepsTempo(
-  context: Pick<
-    IAutoMovieMotionHumanActionContext,
-    "skill" | "subject" | "series"
-  >,
+  context: Pick<IAutoMovieMotionHumanActionContext, WalkStepsTempoContext>,
 ): IAutoMovieRandom {
   return HumanSkill.stream(
     context.skill,

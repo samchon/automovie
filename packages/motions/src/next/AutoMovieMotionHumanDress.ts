@@ -129,15 +129,12 @@ export namespace AutoMovieMotionHumanDress {
    * then rides the carrier's slide socket while the action drives the carrier's
    * slider from the seat to the opening on one minimum-jerk movement, timed as
    * a loaded carry (`HumanPrehension.carry`), so the carrier keeps it on its
-   * line as a scabbard guides its blade, the parent-constraint handoff of
-   * digital prop work (Autodesk Maya, Parent constraint,
-   * https://help.autodesk.com/cloudhelp/2022/ENU/Maya-CharacterAnimation/files/GUID-F6785389-FAC1-429F-8783-B06B0B8AF1A8.htm).
-   * The hand follows on its grip, its wrist placed through the grip's rigid
-   * offset read from the displayed frames at the start, and takes the object
-   * over at the opening. The rest of the body holds the posture the action was
-   * entered in, so the carrier, worn or placed, holds still under the line.
-   * Adult insertion trials separate the transport to an opening from the
-   * aligned insertion (Ossmy et al. 2020,
+   * line as a scabbard guides its blade. The hand follows on its grip, its
+   * wrist placed through the grip's rigid offset read from the displayed frames
+   * at the start, and takes the object over at the opening. The rest of the
+   * body holds the posture the action was entered in, so the carrier, worn or
+   * placed, holds still under the line. Adult insertion trials separate the
+   * transport to an opening from the aligned insertion (Ossmy et al. 2020,
    * https://pmc.ncbi.nlm.nih.gov/articles/PMC6851484/); this is the aligned
    * part run backward. The fitted hand is judged against its planned place on
    * the grip at plan time, and a draw it cannot follow is refused rather than
@@ -171,9 +168,7 @@ export namespace AutoMovieMotionHumanDress {
    * subject through seat, guide, hand, guide and seat again.
    *
    * Stage practice draws and resheathes along the scabbard's line so the blade
-   * never binds or cuts the throat (Autodesk parent-constraint workflow for the
-   * custody handoff,
-   * https://help.autodesk.com/cloudhelp/2022/ENU/Maya-CharacterAnimation/files/GUID-F6785389-FAC1-429F-8783-B06B0B8AF1A8.htm).
+   * never binds or cuts the throat.
    */
   export import HumanSheath = HumanSheathSource;
 

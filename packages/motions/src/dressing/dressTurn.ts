@@ -22,19 +22,8 @@ import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolutio
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanWorn } from "./HumanWorn";
 
-/**
- * Choose the turn about the crown at which a held hat is set on the head
- * (`dress`): the turn whose wear socket the fitted arm brings nearest the
- * receiving region.
- *
- * @param props The body, the entry posture, the carrying hand, the wearable and
- *   the region it goes onto, the inverse of the wearable's rotation in the hand
- *   and its grip-local offset, the hand's grip socket and the wearable's wear
- *   point in the hand's frame, and the spacing of the turns tried first,
- *   degrees (`dress.TURN`).
- * @returns The chosen turn, degrees.
- */
-export function dressTurn(props: {
+/** The record of `IDressTurnProps`'s site. */
+type IDressTurnProps = {
   body: IAutoMovieMotionHumanBody;
   posture: IAutoMovieMotionHumanPosture;
   side: AutoMovieHumanSide;
@@ -49,7 +38,21 @@ export function dressTurn(props: {
    * degrees; positive.
    */
   step: number;
-}): number {
+};
+
+/**
+ * Choose the turn about the crown at which a held hat is set on the head
+ * (`dress`): the turn whose wear socket the fitted arm brings nearest the
+ * receiving region.
+ *
+ * @param props The body, the entry posture, the carrying hand, the wearable and
+ *   the region it goes onto, the inverse of the wearable's rotation in the hand
+ *   and its grip-local offset, the hand's grip socket and the wearable's wear
+ *   point in the hand's frame, and the spacing of the turns tried first,
+ *   degrees (`dress.TURN`).
+ * @returns The chosen turn, degrees.
+ */
+export function dressTurn(props: IDressTurnProps): number {
   // The body, the posture, the wearable and the region are fixed, so the
   // receiving site is read once for every turn tried.
   const site: ReturnType<typeof HumanWorn.prepareSite> = HumanWorn.prepareSite(
@@ -140,6 +143,11 @@ export function dressTurn(props: {
     judge: (values: readonly number[]): number[] => [missed(values[0]!)],
   }).values[0]!;
 }
+/** The record of `IDressTurnCarriedResult`'s site. */
+type IDressTurnCarriedResult = {
+  grip: IAutoMovieVector3;
+  rotation: IAutoMovieQuaternion;
+};
 
 /**
  * The rigid hold of a wearable undone: where the carrying hand's grip socket
@@ -162,7 +170,7 @@ export namespace dressTurn {
     worn: IAutoMovieRigidTransform,
     inverse: IAutoMovieQuaternion,
     offset: IAutoMovieVector3,
-  ): { grip: IAutoMovieVector3; rotation: IAutoMovieQuaternion } {
+  ): IDressTurnCarriedResult {
     const rotation: IAutoMovieQuaternion = Quaternion.normalize(
       Quaternion.multiply(worn.rotation, inverse),
     );

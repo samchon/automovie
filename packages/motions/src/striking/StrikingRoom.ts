@@ -1,5 +1,6 @@
 import { Vector3, bracketedBisection } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanBody,
@@ -17,6 +18,15 @@ import { HumanFoot } from "../posture/HumanFoot";
 import { StrikingStance } from "./StrikingStance";
 import { StrikingTarget } from "./StrikingTarget";
 import { StrikingWeapon } from "./StrikingWeapon";
+
+/** The alternatives of `FeintContext`'s site. */
+type FeintContext = "body" | "performer";
+
+/** The alternatives of `BehindContext`'s site. */
+type BehindContext = "body" | "obstacles";
+
+/** The alternatives of `AheadContext`'s site. */
+type AheadContext = "body" | "performer";
 
 /**
  * The room a striker has to close on another person: how far its body may
@@ -140,7 +150,7 @@ export namespace StrikingRoom {
    * @returns Metres, or infinity for a target that is not a person.
    */
   export function ahead(
-    context: Pick<IAutoMovieMotionHumanActionContext, "body" | "performer">,
+    context: Pick<IAutoMovieMotionHumanActionContext, AheadContext>,
     target: IAutoMovieMotionTarget,
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
     line: IAutoMovieVector3,
@@ -175,9 +185,9 @@ export namespace StrikingRoom {
    * @returns Metres in `[0, stance length]`.
    */
   export function behind(
-    context: Pick<IAutoMovieMotionHumanActionContext, "body" | "obstacles">,
+    context: Pick<IAutoMovieMotionHumanActionContext, BehindContext>,
     feet: Readonly<
-      Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement>
+      Record<AutoMovieHumanSide, IAutoMovieMotionHumanFoot.IPlacement>
     >,
     line: IAutoMovieVector3,
   ): number {
@@ -248,7 +258,7 @@ export namespace StrikingRoom {
    *   that is not a person or a path with no travel along the line.
    */
   export function feint(
-    context: Pick<IAutoMovieMotionHumanActionContext, "body" | "performer">,
+    context: Pick<IAutoMovieMotionHumanActionContext, FeintContext>,
     target: IAutoMovieMotionTarget,
     feint: IFeint,
   ): number {

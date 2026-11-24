@@ -435,6 +435,8 @@ function onBowArm(
     },
   };
 }
+/** The alternatives of `CrossbowMarksContext`'s site. */
+type CrossbowMarksContext = "params" | "prop";
 
 /**
  * Read the modeled presentation marks when the caller leaves them open.
@@ -443,7 +445,7 @@ function onBowArm(
 function crossbowMarks(
   context: Pick<
     IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanWeaponPresent.IPresent>,
-    "params" | "prop"
+    CrossbowMarksContext
   >,
 ): IAutoMovieMotionHumanWeaponPresent.IPresent {
   const params: IAutoMovieMotionHumanWeaponPresent.IPresent = context.params;

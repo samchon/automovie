@@ -5,6 +5,7 @@ import {
   resolveAutoMovieHumanoidSurfaces,
 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   AutoMovieMotionHumanActionName,
   AutoMovieMotionHumanChannel,
@@ -25,6 +26,7 @@ import type {
 } from "@automovie/interface";
 
 import { HumanPerception } from "../law/HumanPerception";
+import { lowerHumanPosture } from "../posture/lowerHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
@@ -41,6 +43,9 @@ import { StrikingStroke } from "./StrikingStroke";
 import { StrikingTarget } from "./StrikingTarget";
 import { StrikingWeapon } from "./StrikingWeapon";
 import { StrikingWeaponTable } from "./StrikingWeaponTable";
+
+/** The alternatives of `PlanLeg`'s site. */
+type PlanLeg = "leftLeg" | "rightLeg";
 
 /**
  * A knee strike: the knee driven up and forward onto the target while the hands
@@ -95,10 +100,10 @@ export namespace knee {
     const p: IAutoMovieMotionHumanKnee.IParams = context.params;
     const body = context.body;
     const m = body.measure;
-    const lead: "left" | "right" = StrikingTarget.lead(context.entry);
-    const side: "left" | "right" =
+    const lead: AutoMovieHumanSide = StrikingTarget.lead(context.entry);
+    const side: AutoMovieHumanSide =
       (p.leg ?? "rear") === "lead" ? lead : StrikingStance.rear({ lead });
-    const support: "left" | "right" = side === "left" ? "right" : "left";
+    const support: AutoMovieHumanSide = side === "left" ? "right" : "left";
     const slow: number = StrikingSkill.recovery(context.skill);
     const prep: number = StrikingSkill.KICK_PREPARATION;
     const impact: number = prep + StrikingSkill.KICK_CHAMBER * slow;
@@ -112,12 +117,13 @@ export namespace knee {
     };
     const guardAt: ReturnType<typeof StrikingStance.prepareGuard> =
       StrikingStance.prepareGuard(body, { lead });
-    const feet: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement> =
-      StrikingTarget.feet(context.entry);
+    const feet: Record<
+      AutoMovieHumanSide,
+      IAutoMovieMotionHumanFoot.IPlacement
+    > = StrikingTarget.feet(context.entry);
     const up: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
     const t0: number = context.start;
-    const leg: "leftLeg" | "rightLeg" =
-      side === "left" ? "leftLeg" : "rightLeg";
+    const leg: PlanLeg = side === "left" ? "leftLeg" : "rightLeg";
 
     // The pelvis travels by drive and squares/leans by whole; the support
     // foot pivots with it and lowering preserves its planted reach.
@@ -136,7 +142,7 @@ export namespace knee {
           turn * whole,
           KneeForm.HEEL_RAISE * whole,
         );
-      return resolveHumanPosture.lower(
+      return lowerHumanPosture(
         body,
         {
           root: Vector3.add(entry.root, Vector3.scale(thrust, drive)),
@@ -152,7 +158,7 @@ export namespace knee {
             { left: side !== "left", right: side !== "right" },
           ),
         },
-        resolveHumanPosture.KNEE,
+        lowerHumanPosture.KNEE,
         resolution,
       );
     };

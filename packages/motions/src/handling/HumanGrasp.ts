@@ -20,6 +20,12 @@ import { HumanGraspReach } from "./HumanGraspReach";
 import { HumanGraspSearch } from "./HumanGraspSearch";
 import { HumanGraspTarget } from "./HumanGraspTarget";
 
+/** The alternatives of `StandingBonesEntry`'s site. */
+type StandingBonesEntry = "worldPosition" | "worldRotation";
+
+/** The alternatives of `Frame`'s site. */
+type Frame = "point" | "approach" | "axis" | "width";
+
 /**
  * A prop's grip affordance as a grasp target, and the hand that grasps it:
  * where the grip socket goes, how the hand turns, how wide it opens on the way
@@ -34,9 +40,9 @@ import { HumanGraspTarget } from "./HumanGraspTarget";
  * which fixes the hand's rotation, and then sets the palm on the grasped part's
  * near surface, half the grasped width back from the affordance point on the
  * part's axis, so a thick part is not entered by a palm placed for the socket's
- * nominal 50 mm handle; the arm is then solved by inverse kinematics, the Final
- * IK InteractionObject and Unreal hand-socket practice of an effector frame
- * laid on an object's authored grip marker.
+ * nominal 50 mm handle; the arm is then solved by inverse kinematics to that
+ * effector frame, laid on the object's authored grip marker (Tolani, Goswami
+ * and Badler 2000, Graphical Models 62(5):353).
  *
  * The grasped width is the affordance's `aperture`, or else the extent along
  * the approach axis of the prop's collider nearest the grip point (the span the
@@ -45,10 +51,7 @@ import { HumanGraspTarget } from "./HumanGraspTarget";
  */
 export namespace HumanGrasp {
   /** The existing target fields a hand placement actually consumes. */
-  export type IFrame = Pick<
-    IAutoMovieMotionHumanGrasp.ITarget,
-    "point" | "approach" | "axis" | "width"
-  >;
+  export type IFrame = Pick<IAutoMovieMotionHumanGrasp.ITarget, Frame>;
 
   /**
    * A prop affordance as a target at a film second, from its displayed frame.
@@ -211,7 +214,7 @@ export namespace HumanGrasp {
     body: IAutoMovieMotionHumanBody,
     bones: ReadonlyMap<
       AutoMovieHumanoidBone,
-      Pick<IAutoMovieResolvedBone, "worldPosition" | "worldRotation">
+      Pick<IAutoMovieResolvedBone, StandingBonesEntry>
     >,
   ): IAutoMovieMotionHumanPosture {
     return HumanGraspReach.standing(body, bones);

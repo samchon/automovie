@@ -9,6 +9,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { HumanBoneGroups } from "../posture/HumanBoneGroups";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
@@ -16,10 +17,6 @@ type PostureAtAngle = (degrees: number) => IAutoMovieMotionHumanPosture;
 type OptionalAngle = number | undefined;
 type OptionalGoal = IAutoMovieHumanLimbGoal | undefined;
 const SIDES: readonly AutoMovieHumanSide[] = ["left", "right"];
-const FEET: ReadonlySet<AutoMovieHumanoidBone> = new Set([
-  "leftFoot",
-  "rightFoot",
-]);
 
 /**
  * A tilt between neutral and the request with both original floor contacts. The
@@ -45,7 +42,7 @@ export function fixedSeatFootSwing(
   }
   const read: ReturnType<typeof poseBones.prepare> = poseBones.prepare(
     body,
-    FEET,
+    HumanBoneGroups.FEET,
   );
   const leg: number = body.measure.thigh + body.measure.shank;
   const supported = (degrees: number): boolean => {

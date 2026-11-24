@@ -4,6 +4,7 @@ import {
   resolveAutoMovieHumanoidSurfaces,
 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanColliders,
@@ -140,7 +141,7 @@ export namespace StrikingLimb {
    * @param limb The end joint.
    * @returns Left or right.
    */
-  export function side(limb: End): "left" | "right" {
+  export function side(limb: End): AutoMovieHumanSide {
     return limb === "leftHand" || limb === "leftFoot" ? "left" : "right";
   }
 
@@ -208,7 +209,7 @@ export namespace StrikingLimb {
     bones: Bones,
     limb: End,
   ): ICapsule[] {
-    const s: "left" | "right" = side(limb);
+    const s: AutoMovieHumanSide = side(limb);
     if (leg(limb)) {
       const foot: IAutoMovieResolvedBone = bones.get(`${s}Foot`)!;
       const knee: IAutoMovieVector3 = bones.get(`${s}LowerLeg`)!.worldPosition;

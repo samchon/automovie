@@ -19,6 +19,32 @@ import { MotionBodies } from "../MotionBodies";
 import type { humanPolygonMan } from "../humanPolygonMan";
 import { everydayVerdicts } from "./everydayVerdicts";
 
+/** The alternatives of `DriftPoint`'s site. */
+type DriftPoint = IAutoMovieVector3 | ((seconds: number) => IAutoMovieVector3);
+
+/** The alternatives of `BandUnit`'s site. */
+type BandUnit = "mm" | "deg" | "s";
+
+/** The record of `IStabilityWorst`'s site. */
+type IStabilityWorst = { value: number; at: number };
+
+/** The record of `IStabilityResult`'s site. */
+type IStabilityResult = { value: number; at: number };
+
+/** The alternatives of `AngleAxis`'s site. */
+type AngleAxis = 0 | 1 | 2;
+
+/** The alternatives of `PerformComposition`'s site. */
+type PerformComposition = IAutoMovieComposition | IAutoMovieMotionHumanChain;
+
+/** The record of `IPerformPerformersItem`'s site. */
+type IPerformPerformersItem = {
+  subject: string;
+  body: IAutoMovieMotionHumanBody;
+  at?: IAutoMovieVector3;
+  yaw?: number;
+};
+
 /**
  * The shared steps of the step 2 to 5 family capture cases: a polygon man of
  * the population, one performance of a chain from quiet standing at the origin
@@ -66,13 +92,8 @@ export namespace FamilyCaseKit {
    */
   export function perform(
     seed: string,
-    performers: readonly {
-      subject: string;
-      body: IAutoMovieMotionHumanBody;
-      at?: IAutoMovieVector3;
-      yaw?: number;
-    }[],
-    composition: IAutoMovieComposition | IAutoMovieMotionHumanChain,
+    performers: readonly IPerformPerformersItem[],
+    composition: PerformComposition,
     props: readonly IAutoMovieMotionHumanProp[] = [],
   ): IAutoMovieMotionHumanPerformance {
     return new HumanPerformance({
@@ -172,7 +193,7 @@ export namespace FamilyCaseKit {
     subject: string,
     seconds: number,
     bone: string,
-    axis: 0 | 1 | 2 = 0,
+    axis: AngleAxis = 0,
   ): number {
     const joint: IAutoMovieJointPose | undefined = performance
       .pose(subject, seconds)
@@ -251,8 +272,8 @@ export namespace FamilyCaseKit {
     body: IAutoMovieMotionHumanBody,
     from: number,
     to: number,
-  ): { value: number; at: number } {
-    let worst: { value: number; at: number } = { value: Infinity, at: from };
+  ): IStabilityResult {
+    let worst: IStabilityWorst = { value: Infinity, at: from };
     for (let t: number = from; t <= to + 1e-9; t += 1 / 24) {
       const at: number = Math.min(
         performance.duration - 1 / 120,
@@ -284,7 +305,7 @@ export namespace FamilyCaseKit {
     value: number,
     lo: number,
     hi: number,
-    unit: "mm" | "deg" | "s",
+    unit: BandUnit,
   ): IMotionCaptureCase.IVerdict {
     const show = (v: number): string =>
       unit === "mm"
@@ -315,7 +336,7 @@ export namespace FamilyCaseKit {
     performance: IAutoMovieMotionHumanPerformance,
     subject: string,
     bone: AutoMovieHumanoidBone,
-    point: IAutoMovieVector3 | ((seconds: number) => IAutoMovieVector3),
+    point: DriftPoint,
     from: number,
     to: number,
   ): number {

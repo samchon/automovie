@@ -17,6 +17,12 @@ import { demandedHumanChannels } from "./demandedHumanChannels";
 import { observableHumanSegment } from "./observableHumanSegment";
 import { prepareHumanSegmentPose } from "./prepareHumanSegmentPose";
 
+/** The record of `IBonesBound`'s site. */
+type IBonesBound = {
+  pose: ReturnType<typeof poseBones.prepare>;
+  reading: ReturnType<typeof poseBones.prepareRead>;
+};
+
 /**
  * A person's displayed pose at a film second as the person keeps it: the pose
  * is evaluated once and kept as a record (`HumanSegment.IShown`), and what its
@@ -81,8 +87,7 @@ export namespace HumanSegmentShown {
     // on the channels its bones hang from alone (`demandedHumanChannels`),
     // never running an arm's writers, which may read a partner who reads
     // this person back (a mutual hold, each read a reaction time earlier
-    // than the one before), the demand-driven evaluation of required bones
-    // (Unreal Engine `FBoneContainer`).
+    // than the one before), the demand-driven evaluation of required bones.
     const active: IAutoMovieMotionHumanSegment | undefined =
       HumanSegmentSelection.last(person.segments, seconds);
     // A segment chosen through the entry allowance is shown from its entry,
@@ -242,10 +247,7 @@ export namespace HumanSegmentShown {
     prepared: prepareHumanSegmentPose.IPrepared = prepareHumanSegmentPose(
       person.performer.body,
     ),
-    bound?: {
-      pose: ReturnType<typeof poseBones.prepare>;
-      reading: ReturnType<typeof poseBones.prepareRead>;
-    },
+    bound?: IBonesBound,
   ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> {
     const body: IAutoMovieMotionHumanBody = person.performer.body;
     const entry: HumanSegmentShown.IRead = of(

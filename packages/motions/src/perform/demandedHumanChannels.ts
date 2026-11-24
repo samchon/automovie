@@ -12,7 +12,7 @@ import { AutoMovieMotionHumanChannel as HumanChannels } from "../compose/AutoMov
  * ancestors' joints (`AutoMovieMotionHumanChannel`'s partition by the kinematic
  * tree), so a posture read on these channels alone gives those bones exactly as
  * the whole posture does: the demand-driven evaluation of an animation graph's
- * required bones (Unreal Engine `FBoneContainer`).
+ * required bones.
  *
  * @param bones The bones demanded.
  * @returns The channels, in writing order

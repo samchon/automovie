@@ -12,6 +12,9 @@ import type {
 
 import { AutoMovieMotionHumanAuditMotion as HumanAuditMotion } from "./AutoMovieMotionHumanAuditMotion";
 
+/** The alternatives of `UnloadedBearsPart`'s site. */
+type UnloadedBearsPart = "leftFoot" | "rightFoot";
+
 /**
  * Whether every joint of a displayed motion stays inside its anatomical range
  * of motion at every instant.
@@ -120,7 +123,7 @@ export namespace AutoMovieMotionHumanAuditRange {
           w.contact.kind === "pivot" ||
           w.contact.kind === "bear",
       );
-    const bears = (part: "leftFoot" | "rightFoot", seconds: number): boolean =>
+    const bears = (part: UnloadedBearsPart, seconds: number): boolean =>
       plants.some(
         (w: IAutoMovieMotionHumanAuditMotion.IWindow): boolean =>
           w.contact.part === part &&

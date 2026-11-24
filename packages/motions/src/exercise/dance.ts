@@ -1,5 +1,6 @@
 import { Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieMotionHumanActionName,
   IAutoMovieMotionClock,
   IAutoMovieMotionClockInstant,
@@ -26,7 +27,7 @@ import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFrame } from "../posture/HumanFrame";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { lowerHumanPosture } from "../posture/lowerHumanPosture";
 import { prepareDanceBeats } from "./prepareDanceBeats";
 import { prepareDanceSteps } from "./prepareDanceSteps";
 import { prepareWaltzBox } from "./prepareWaltzBox";
@@ -153,7 +154,7 @@ export namespace dance {
       { x: 0, y: 0, z: 1 },
     );
     const stance: Record<
-      "left" | "right",
+      AutoMovieHumanSide,
       IAutoMovieMotionHumanFoot.IPlacement
     > = {
       left: {
@@ -266,14 +267,14 @@ export namespace dance {
             rotate: waltz?.rotate,
           });
         const placed: (
-          foot: "left" | "right",
+          foot: AutoMovieHumanSide,
           s: number,
         ) => IAutoMovieMotionHumanFoot.IPlacement = (
-          foot: "left" | "right",
+          foot: AutoMovieHumanSide,
           s: number,
         ): IAutoMovieMotionHumanFoot.IPlacement => courses[foot].placed(s);
-        const planted: (foot: "left" | "right", s: number) => boolean = (
-          foot: "left" | "right",
+        const planted: (foot: AutoMovieHumanSide, s: number) => boolean = (
+          foot: AutoMovieHumanSide,
           s: number,
         ): boolean => courses[foot].planted(s);
         // The hips follow the feet's mean and sink until each leg reaches
@@ -376,7 +377,7 @@ export namespace dance {
                   };
                   return {
                     ...turned,
-                    root: resolveHumanPosture.lower(
+                    root: lowerHumanPosture(
                       body,
                       { ...turned, limbs },
                       undefined,

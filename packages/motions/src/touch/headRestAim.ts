@@ -23,6 +23,11 @@ type Angles = readonly [number, number, number, number];
 
 /** A three-vector as components, or a row of the 3 by 3 system. */
 type Triple = readonly [number, number, number];
+/** The alternatives of `PosedAddBone2`'s site. */
+type PosedAddBone2 = "neck" | "head";
+
+/** The alternatives of `PosedAddBone`'s site. */
+type PosedAddBone = "neck" | "head";
 
 /**
  * How a resting head is aimed at a point: the kiss's lean from the hips and
@@ -115,10 +120,8 @@ export namespace headRestAim {
       const posture: IAutoMovieMotionHumanPosture = leaned(s);
       const bend: IAutoMovieMotionHumanJoints.Angles =
         AutoMovieMotionHumanHead.share(1, s.tilt);
-      const add: (
-        bone: "neck" | "head",
-      ) => readonly [number, number, number] = (
-        bone: "neck" | "head",
+      const add: (bone: PosedAddBone) => readonly [number, number, number] = (
+        bone: PosedAddBone2,
       ): readonly [number, number, number] => {
         const held: readonly [number, number, number] = posture.joints[
           bone

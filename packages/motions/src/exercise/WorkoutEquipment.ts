@@ -16,6 +16,15 @@ import { ExerciseKey } from "./ExerciseKey";
 import { WorkoutFloor } from "./WorkoutFloor";
 import { WorkoutKind } from "./WorkoutKind";
 
+/** The record of `IThrustFrom`'s site. */
+type IThrustFrom = { forth: number; up: number };
+
+/** The record of `IThrustFeet`'s site. */
+type IThrustFeet = { forth: number; up: number };
+
+/** The record of `IThrustHipsResult`'s site. */
+type IThrustHipsResult = { forth: number; up: number };
+
 /**
  * The exercises of the workout law that are done on a box or a bench the author
  * names (`on`): the step-up, the incline push-up (the hands on the bench), the
@@ -159,7 +168,7 @@ export namespace WorkoutEquipment {
     const backed: number = knockdown.rest(body, lying) + pivot.y;
     const top: number = edge + backed;
     // The hip joints from the back's joint with the trunk turned down.
-    const hips = (angle: number): { forth: number; up: number } => ({
+    const hips = (angle: number): IThrustHipsResult => ({
       forth: along * Math.cos(rad(angle)) + up * Math.sin(rad(angle)),
       up: -along * Math.sin(rad(angle)) + up * Math.cos(rad(angle)),
     });
@@ -192,7 +201,7 @@ export namespace WorkoutEquipment {
       else highest = middle;
     }
     const locked: number = (low + highest) / 2;
-    const feet: { forth: number; up: number } = {
+    const feet: IThrustFeet = {
       forth: hips(locked).forth + thigh * Math.cos(rad(locked)),
       up: hips(locked).up - thigh * Math.sin(rad(locked)) - shank,
     };
@@ -201,7 +210,7 @@ export namespace WorkoutEquipment {
     // high above the floor as when the body lies on it.
     let sunk: number = locked + DROP;
     while (sunk > locked && top + hips(sunk).up < backed + up) sunk -= 1;
-    const from: { forth: number; up: number } = hips(sunk);
+    const from: IThrustFrom = hips(sunk);
     const reach: number = Math.min(
       thigh + shank,
       Math.hypot(feet.forth - from.forth, feet.up - from.up),

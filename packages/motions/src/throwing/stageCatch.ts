@@ -26,11 +26,6 @@ import { catchObject } from "./catchObject";
  * provisional planning horizon, so a long pass is caught after the thrower's
  * action has ended. Final flight admission checks that the launch survives and
  * its frame matches the grip.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the chain use, the planning horizon, supported prop and authoritative catch instant.
- * @evidence contracts/development/design.md#principled-representation The base catch owns arm goals and timing. A hold publishes the borrowed launch identity and frame check at the interception the base plan names.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Reuses the catch's parameter and plan types plus the prop reader's public placement. The film and hand carry still belong to the performance.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No second catch trajectory, grip proxy or special body model. The law admits a staged capture only where its existing arm plan and the authoritative prop trajectory agree.
  */
 export const stageCatch: IAutoMovieMotionHumanCatchObject.IStageLaw = {
   ...catchObject,

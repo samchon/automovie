@@ -149,11 +149,6 @@ import { tuckHair } from "./tuckHair";
 /**
  * Sources of named laws for each lexicon family. `HUMAN_LEXICON` reads these
  * records for explicit installation.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what the table holds and the two readers that derive from it.
- * @evidence contracts/development/design.md#principled-representation One readonly list of sources per family. Each source exposes existing typed law records.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The family table; the families own their rows.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Standalone laws and row namespaces retain their canonical export and registration names.
  */
 export const HUMAN_LEXICON_FAMILIES: IAutoMovieMotionHumanLexiconFamilies = {
   emblem: [HumanEmblem],

@@ -47,13 +47,15 @@ export function touchStance(
         : stepped(props, feet!),
   });
 }
+/** The alternatives of `TouchStanceContext`'s site. */
+type TouchStanceContext = "carrier" | "entry";
 
 /** Types shared by the touch and its base selection. */
 export namespace touchStance {
   /** The entry and optional carrier a base may read. */
   export type IContext = Pick<
     IAutoMovieMotionHumanActionContext,
-    "carrier" | "entry"
+    TouchStanceContext
   >;
 
   /** The candidate bases a touch's stance is chosen among. */

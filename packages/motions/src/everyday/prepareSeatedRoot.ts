@@ -5,8 +5,11 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { humanPostureHeading } from "../posture/humanPostureHeading";
 import { seated } from "./seated";
+
+/** The alternatives of `PrepareSeatedRootHeading`'s site. */
+type PrepareSeatedRootHeading = "yaw" | "pitch" | "roll";
 
 /**
  * Prepare a fixed body's seat socket under an unchanged rigid heading. The
@@ -20,12 +23,12 @@ import { seated } from "./seated";
  */
 export function prepareSeatedRoot(
   body: IAutoMovieMotionHumanBody,
-  heading: Pick<IAutoMovieMotionHumanPosture, "yaw" | "pitch" | "roll">,
+  heading: Pick<IAutoMovieMotionHumanPosture, PrepareSeatedRootHeading>,
 ): (at: IAutoMovieVector3) => IAutoMovieVector3 {
   let offset: IAutoMovieVector3 | undefined;
   return (at: IAutoMovieVector3): IAutoMovieVector3 => {
     offset ??= Quaternion.rotateVector(
-      resolveHumanPosture.heading(heading),
+      humanPostureHeading(heading),
       seated.offset(body),
     );
     return Vector3.subtract(at, offset);

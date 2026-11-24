@@ -35,9 +35,12 @@ import { manipulateFacing } from "./manipulateFacing";
 import { manipulateShape } from "./manipulateShape";
 import { prepareZipperPinch } from "./prepareZipperPinch";
 
+/** The alternatives of `DigitGoalDigit`'s site. */
+type DigitGoalDigit = "thumb" | "index";
+
 /** A sampled fingertip contact within one planned hand shape. */
 interface IDigitGoal {
-  digit: "thumb" | "index";
+  digit: DigitGoalDigit;
   at: (seconds: number) => IAutoMovieMotionHumanOperateDrive.IPlace;
 }
 
@@ -49,17 +52,6 @@ interface IDigitGoal {
  * (https://lyncs.ykkfastening.com/shop/pages/about_products_09.aspx). The flat
  * modeled brace anchors the casing. The model's coupled lips, the working
  * fingertips and the retained travel follow one authored stroke.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Identifies the contacts, mechanism, source and settled effect.
- * @evidence contracts/development/design.md#principled-representation Uses one bounded slider and three digit goals on two arms, with lip coupling owned by the model.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Uses existing contact, arm, clock and articulation contracts.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Requires geometry-bearing followers and opposing live tab contacts before planning.
- * @evidence contracts/development/implementation.md#principled-implementation Uses the slider's posed thumb point and rigid offset to its opposing index face, and shares stroke progress with the drive.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Admits contacts and stroke endpoints, fits a common wrist for the pinch, then composes brace and working hands.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Refuses invalid bindings, contact planes and travel before returning a plan.
- * @evidence contracts/development/implementation.md#efficient-algorithms Requires one posed tab read per sample; fitting uses the shared arm and digit solvers.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Both working digits and the wrist reuse the same tab reader and clock.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources A plan holds two arm trajectories and the existing drive reader, and acquires no external resources.
  */
 export const zip: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanZip> = {
   name: "zip",
@@ -69,7 +61,17 @@ export const zip: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanZip> = {
   plan,
 };
 
-/** Admit a single independent slider carrying the two opposing tab faces. */
+/**
+ * Admit a single independent slider carrying the two opposing tab faces.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Identifies the contacts, mechanism, source and settled effect.
+ * @evidence contracts/development/implementation.md#principled-implementation Uses the slider's posed thumb point and rigid offset to its opposing index face, and shares stroke progress with the drive.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Admits contacts and stroke endpoints, fits a common wrist for the pinch, then composes brace and working hands.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Refuses invalid bindings, contact planes and travel before returning a plan.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Requires one posed tab read per sample; fitting uses the shared arm and digit solvers.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Both working digits and the wrist reuse the same tab reader and clock.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources A plan holds two arm trajectories and the existing drive reader, and acquires no external resources.
+ */
 function plan(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanZip>,
 ): IAutoMovieMotionHumanActionPlan {

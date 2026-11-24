@@ -5,10 +5,15 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { humanPostureHeading } from "../posture/humanPostureHeading";
+
+/** The alternatives of `Tilt2`'s site. */
+type Tilt2 = "yaw" | "pitch" | "roll";
 
 /** A posture's whole-body tilt angles. */
-type Tilt = Pick<IAutoMovieMotionHumanPosture, "yaw" | "pitch" | "roll">;
+type Tilt = Pick<IAutoMovieMotionHumanPosture, Tilt2>;
+/** The alternatives of `TURNSEntryItem`'s site. */
+type TURNSEntryItem = "supine" | "lateralLeft" | "prone" | "lateralRight";
 
 /**
  * A lying body's turn about its own long axis. A lying body is the supine one,
@@ -32,9 +37,7 @@ export namespace lyingTurn {
   }
 
   /** The named lying positions' turns, degrees. */
-  export const TURNS: Readonly<
-    Record<"supine" | "lateralLeft" | "prone" | "lateralRight", number>
-  > = {
+  export const TURNS: Readonly<Record<TURNSEntryItem, number>> = {
     supine: 0,
     lateralLeft: 90,
     prone: 180,
@@ -48,7 +51,7 @@ export namespace lyingTurn {
    * @returns Its supine heading and its turn in (-180, 180].
    */
   export function of(posture: Tilt): ITurn {
-    const rotation: IAutoMovieQuaternion = resolveHumanPosture.heading(posture);
+    const rotation: IAutoMovieQuaternion = humanPostureHeading(posture);
     const head: IAutoMovieVector3 = Quaternion.rotateVector(rotation, {
       x: 0,
       y: 1,
@@ -78,7 +81,7 @@ export namespace lyingTurn {
    * @returns The posture's yaw, pitch and roll.
    */
   export function tilt(turn: ITurn): Tilt {
-    return resolveHumanPosture.angles(
+    return humanPostureHeading.angles(
       Quaternion.multiply(
         Quaternion.multiply(
           Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, turn.yaw),

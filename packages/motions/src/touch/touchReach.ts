@@ -25,6 +25,15 @@ import { prepareHumanPostureProjection } from "../posture/prepareHumanPosturePro
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import type { touchHold } from "./touchHold";
 
+/** The record of `IPlaceEntry`'s site. */
+type IPlaceEntry = {
+  posture: IAutoMovieMotionHumanPosture;
+  pose: IAutoMoviePose;
+};
+
+/** The alternatives of `MeetingSurface`'s site. */
+type MeetingSurface = "palm" | "fist";
+
 /**
  * How long a touch's reach must take for its arms to keep within the audit's
  * travel bound (`AutoMovieMotionHumanArmPlanned.reaching`).
@@ -103,7 +112,7 @@ export namespace touchReach {
     bones: IAutoMovieMotionMeetingRole["bones"],
     entry: IAutoMovieMotionMeetingRole["entry"],
     side: AutoMovieHumanSide,
-    surface: "palm" | "fist",
+    surface: MeetingSurface,
     point: IAutoMovieVector3,
   ): number {
     const from: IAutoMovieVector3 = HumanHand.frame(
@@ -148,7 +157,7 @@ export namespace touchReach {
    */
   export function place(
     body: IAutoMovieMotionHumanBody,
-    entry: { posture: IAutoMovieMotionHumanPosture; pose: IAutoMoviePose },
+    entry: IPlaceEntry,
     side: AutoMovieHumanSide,
     effector: IAutoMovieMotionHumanTouchEffector.IEffector,
     point: IAutoMovieVector3,
@@ -179,6 +188,8 @@ export namespace touchReach {
     );
   }
 }
+/** The record of `ILaidReachPlace`'s site. */
+type ILaidReachPlace = { point: IAutoMovieVector3; normal: IAutoMovieVector3 };
 
 /**
  * The shortest reach of one arm onto a place: from its angles at the entry to
@@ -203,7 +214,7 @@ function laidReach(
   entry: IAutoMoviePose,
   side: AutoMovieHumanSide,
   effector: IAutoMovieMotionHumanTouchEffector.IEffector,
-  place: { point: IAutoMovieVector3; normal: IAutoMovieVector3 },
+  place: ILaidReachPlace,
   tangent: IAutoMovieMotionHumanTouchForm.Tangent,
   read?: ReturnType<typeof prepareHumanPoseResolution>,
   project?: ReturnType<typeof prepareHumanPostureProjection>,

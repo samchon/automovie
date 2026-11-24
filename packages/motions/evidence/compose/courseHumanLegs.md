@@ -28,7 +28,7 @@ The knots are the course's own, made once for the plan and read by every second'
 
 The returned stamp holds the course's knots, one per frame of the span and instant, for as long as the plan holds the stamp.
 
-# src/compose/courseHumanLegs.ts#courseHumanLegs.IProps
+# src/compose/courseHumanLegs.ts#ICourseHumanLegsProps
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -46,7 +46,7 @@ What the legs' course needs and nothing of the law beyond its posture.
 
 The posture is read, never copied ahead; the entry is the displayed pose, not an assumed rest.
 
-# src/compose/courseHumanLegs.ts#courseHumanLegs.Seeded
+# src/compose/courseHumanLegs.ts#CourseHumanLegsSeeded
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

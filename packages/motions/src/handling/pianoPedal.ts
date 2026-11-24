@@ -37,6 +37,16 @@ const SWING_CLEARANCE: number = 0.025;
  * (https://hub.yamaha.com/music-educators/instruments/piano/piano-pedagogy-pedaling/).
  * MIDI Control Change 64 provides separate damper timing from note events. See
  * https://midi.org/midi-1-0-control-change-messages.
+ */
+export const pianoPedal: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanPianoPedal> =
+  {
+    name: "pianoPedal",
+    interrupts: {},
+    plan,
+  };
+
+/**
+ * Resolve a seated right-foot path and independent pedal travel.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the seated path, target and references for an independent damper clock.
  * @evidence contracts/development/implementation.md#principled-implementation Intersects the body's heel-centred forefoot circle with the rigidly rotated pedal plane. One minimum-jerk angular signal drives the hinge and the target plane.
@@ -46,14 +56,6 @@ const SWING_CLEARANCE: number = 0.025;
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the foot sockets, heel-pivot geometry, seated base, leg fit and articulation admission.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Each plan owns its stroke boundaries and staged geometry through its callbacks.
  */
-export const pianoPedal: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanPianoPedal> =
-  {
-    name: "pianoPedal",
-    interrupts: {},
-    plan,
-  };
-
-/** Resolve a seated right-foot path and independent pedal travel. */
 function plan(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanPianoPedal>,
 ): IAutoMovieMotionHumanActionPlan {
@@ -386,9 +388,11 @@ function travel(presses: readonly Press[], seconds: number): number {
       : (press.to - seconds) / (press.to - press.release);
   return Math.min(1, minimumJerk.share(share));
 }
+/** The alternatives of `RefuseValue`'s site. */
+type RefuseValue = string | number;
 
 /** Report a placement or clock the author can correct. */
-function refuse(axis: string, value: string | number, fix: string): never {
+function refuse(axis: string, value: RefuseValue, fix: string): never {
   throw new HumanRefusal({
     kind: axis === "prop" ? "reach" : "parameter",
     axis,

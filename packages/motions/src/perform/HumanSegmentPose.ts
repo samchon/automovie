@@ -6,6 +6,7 @@ import {
 } from "@automovie/engine";
 import type {
   AutoMovieHumanLimb,
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanBody,
@@ -34,6 +35,9 @@ import { HumanSegmentStop } from "./HumanSegmentStop";
 import { observableHumanSegment } from "./observableHumanSegment";
 import { prepareHumanSegmentPose } from "./prepareHumanSegmentPose";
 import { readHumanSegmentLeaf } from "./readHumanSegmentLeaf";
+
+/** The alternatives of `ContinuedSide`'s site. */
+type ContinuedSide = "before" | "after";
 
 /**
  * A person's displayed pose: the layered action, carried holds, overlays,
@@ -186,7 +190,7 @@ export namespace HumanSegmentPose {
     if (carried.length !== 0) {
       const active: IAutoMovieMotionHumanSegment.IOverlay[] =
         HumanSegmentOverlay.running(person, seconds);
-      const driven: Partial<Record<"left" | "right", boolean>> = {};
+      const driven: Partial<Record<AutoMovieHumanSide, boolean>> = {};
       kept = carried.filter(
         (h: IAutoMovieMotionHumanSegment.IHeld): boolean =>
           !(driven[h.side] ??= active.some(
@@ -352,7 +356,7 @@ export namespace HumanSegmentPose {
   export function continued(
     read: (seconds: number, near?: INear) => ISeeded,
     seconds: number,
-    side: "before" | "after",
+    side: ContinuedSide,
     rig: IAutoMoviePoseRig,
     duration: number,
     prepared?: Parameters<typeof samplePoseVelocity>[6],

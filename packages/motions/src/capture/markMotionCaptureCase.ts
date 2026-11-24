@@ -9,6 +9,23 @@ import type {
  * reserves for nothing.
  */
 const DRIFT: number = 0x7b4fa8;
+/** The record of `IMarkMotionCaptureCaseSamplesSample2`'s site. */
+type IMarkMotionCaptureCaseSamplesSample2 = {
+  at: IAutoMovieVector3;
+  drift: number;
+};
+
+/** The record of `IMarkMotionCaptureCaseSamplesSample`'s site. */
+type IMarkMotionCaptureCaseSamplesSample = {
+  at: IAutoMovieVector3;
+  drift: number;
+};
+
+/** The alternatives of `MarkMotionCaptureCaseKindResult`'s site. */
+type MarkMotionCaptureCaseKindResult = "kind" | "label" | "color";
+
+/** The alternatives of `MarkMotionCaptureCaseKind`'s site. */
+type MarkMotionCaptureCaseKind = "kind" | "label" | "color";
 
 /**
  * Turn a motion case's overlays into inspection marks: trails as polylines,
@@ -48,9 +65,9 @@ export function markMotionCaptureCase(
   for (const target of props.targets) use(target.color, "target");
   const kind: (
     color: number,
-  ) => Pick<IAutoMovieMark, "kind" | "label" | "color"> = (
+  ) => Pick<IAutoMovieMark, MarkMotionCaptureCaseKind> = (
     color: number,
-  ): Pick<IAutoMovieMark, "kind" | "label" | "color"> => {
+  ): Pick<IAutoMovieMark, MarkMotionCaptureCaseKindResult> => {
     const hex: string = color.toString(16).padStart(6, "0");
     return {
       kind: `case/${hex}`,
@@ -104,14 +121,12 @@ export function markMotionCaptureCase(
       for (const beyond of [false, true]) {
         const samples: IAutoMovieVector3[] = set.samples
           .filter(
-            (sample: { at: IAutoMovieVector3; drift: number }): boolean =>
+            (sample: IMarkMotionCaptureCaseSamplesSample): boolean =>
               sample.drift > set.limit === beyond,
           )
           .map(
-            (sample: {
-              at: IAutoMovieVector3;
-              drift: number;
-            }): IAutoMovieVector3 => sample.at,
+            (sample: IMarkMotionCaptureCaseSamplesSample2): IAutoMovieVector3 =>
+              sample.at,
           );
         if (samples.length === 0) continue;
         marks.push({

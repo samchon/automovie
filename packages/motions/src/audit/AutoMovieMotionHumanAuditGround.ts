@@ -1,5 +1,6 @@
 import { Quaternion, Vector3, physicalShapeBounds } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   IAutoMovieMotionHumanAuditMeasure,
   IAutoMovieMotionHumanAuditMotion,
   IAutoMovieMotionHumanBody,
@@ -70,14 +71,15 @@ export namespace AutoMovieMotionHumanAuditGround {
     // A leg is read against the floor under its own foot, the rest of the
     // body against the floor under the person: a person on two treads has
     // one leg over each.
-    const legs: Record<"left" | "right", (seconds: number) => number | null> = {
-      left: HumanAuditMotion.feet(motion, subject, "left"),
-      right: HumanAuditMotion.feet(motion, subject, "right"),
-    };
+    const legs: Record<AutoMovieHumanSide, (seconds: number) => number | null> =
+      {
+        left: HumanAuditMotion.feet(motion, subject, "left"),
+        right: HumanAuditMotion.feet(motion, subject, "right"),
+      };
     for (const t of HumanAuditMotion.grid(0, motion.duration, rate)) {
       const floor: number | null = under(t);
       if (floor === null) continue;
-      const leg: Record<"left" | "right", number | null> = {
+      const leg: Record<AutoMovieHumanSide, number | null> = {
         left: legs.left(t),
         right: legs.right(t),
       };
@@ -86,7 +88,7 @@ export namespace AutoMovieMotionHumanAuditGround {
         motion.bones(subject, t),
       ))
         for (const shape of shapes) {
-          const side: "left" | "right" | undefined = LEG.test(bone)
+          const side: AutoMovieHumanSide | undefined = LEG.test(bone)
             ? bone.startsWith("left")
               ? "left"
               : "right"
@@ -153,7 +155,7 @@ export namespace AutoMovieMotionHumanAuditGround {
   export function held(
     body: IAutoMovieMotionHumanBody,
     bones: ReturnType<IAutoMovieMotionHumanAuditMotion["bones"]>,
-    side: "left" | "right",
+    side: AutoMovieHumanSide,
     declared: IAutoMovieMotionHumanContactWindow.Socket | undefined,
   ): IHeld {
     if (declared !== undefined && typeof declared !== "string") {
@@ -234,7 +236,7 @@ const plants = (
       : new Map();
     const declared: IAutoMovieMotionHumanContactWindow.Socket | undefined =
       window.contact.socket;
-    const side: "left" | "right" = part === "leftFoot" ? "left" : "right";
+    const side: AutoMovieHumanSide = part === "leftFoot" ? "left" : "right";
     const frame = (seconds: number): IAutoMovieRigidTransform | null =>
       surface.kind === "ground" || motion.support === undefined
         ? null

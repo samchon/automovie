@@ -11,6 +11,9 @@ import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanTouchDrink } from "../compose/AutoMovieMotionHumanTouchDrink";
 import { AutoMovieMotionHumanTouchLaid } from "../compose/AutoMovieMotionHumanTouchLaid";
 
+/** The alternatives of `OfAt`'s site. */
+type OfAt = "point" | "normal";
+
 /**
  * The arm a hand-to-face task lays on its place (`handToFace`): how the
  * effector lies, the elbow's hint and the reference every second's fit is held
@@ -49,8 +52,7 @@ export namespace handToFaceArm {
     // The place at the face and, for a held vessel, where it is held while
     // the drinker drinks: each read once, since over a carrier a read
     // resolves the posture.
-    const at: Pick<IAutoMovieMotionHumanTarget.IPlace, "point" | "normal"> =
-      place(atFace, 0);
+    const at: Pick<IAutoMovieMotionHumanTarget.IPlace, OfAt> = place(atFace, 0);
     let after: IAutoMovieMotionHumanTouchDrink.IAfter | undefined;
     const drinking: () => IAutoMovieMotionHumanTouchDrink.IAfter =
       (): IAutoMovieMotionHumanTouchDrink.IAfter =>

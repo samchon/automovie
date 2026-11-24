@@ -7,6 +7,7 @@ import {
   wrapDegrees,
 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   IAutoMovieAngleRange,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanWalkFoot,
@@ -16,8 +17,8 @@ import type {
 
 import { HumanFoot } from "../posture/HumanFoot";
 import { hipJoints } from "../posture/hipJoints";
+import { humanPostureHeading } from "../posture/humanPostureHeading";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { prepareWalkReachSwing } from "./prepareWalkReachSwing";
 import type { walkFoot } from "./walkFoot";
 import { walkHipTwist } from "./walkHipTwist";
@@ -25,6 +26,33 @@ import { walkLeg } from "./walkLeg";
 import { walkReachFeet } from "./walkReachFeet";
 import { walkReachShort } from "./walkReachShort";
 import { walkReachStance } from "./walkReachStance";
+
+/** The alternatives of `EXTENSIONBone`'s site. */
+type EXTENSIONBone = "leftUpperLeg" | "rightUpperLeg";
+
+/** The alternatives of `GroundCompleted`'s site. */
+type GroundCompleted = "feet" | "contacts";
+
+/** The record of `IGroundPlaceOut`'s site. */
+type IGroundPlaceOut = { end: walkFoot.IEnd; contact: IAutoMovieVector3 };
+
+/** The record of `IGroundPlaceKnown`'s site. */
+type IGroundPlaceKnown = { end: walkFoot.IEnd; contact: IAutoMovieVector3 };
+
+/** The record of `IReadEntryEntry`'s site. */
+type IReadEntryEntry = { end: walkFoot.IEnd; contact: IAutoMovieVector3 };
+
+/** The record of `IGroundTilt`'s site. */
+type IGroundTilt = {
+  rotation: IAutoMovieQuaternion;
+  hips: Record<AutoMovieHumanSide, IAutoMovieVector3>;
+};
+
+/** The alternatives of `TurnResult`'s site. */
+type TurnResult = "yaw" | "pivots";
+
+/** The alternatives of `Pelvis`'s site. */
+type Pelvis = "yaw" | "pivots";
 
 /**
  * Makes every foot goal of a stepping gait reachable on the actual pelvis, the
@@ -82,10 +110,10 @@ export namespace walkReach {
     yaw: number;
 
     /** Each foot's pivot turn on its toe pad, degrees. */
-    pivots: Record<"left" | "right", number>;
+    pivots: Record<AutoMovieHumanSide, number>;
 
     /** The hip joints, world metres. */
-    hips: Record<"left" | "right", IAutoMovieVector3>;
+    hips: Record<AutoMovieHumanSide, IAutoMovieVector3>;
   }
 
   /** A requested heading, or the pelvis already evaluated at the same stance. */
@@ -100,13 +128,13 @@ export namespace walkReach {
     root: IAutoMovieVector3;
 
     /** The hip joints under that root, world metres. */
-    hips: Record<"left" | "right", IAutoMovieVector3>;
+    hips: Record<AutoMovieHumanSide, IAutoMovieVector3>;
 
     /** Each foot's stance as reached. */
-    feet: Record<"left" | "right", walkFoot.IEnd>;
+    feet: Record<AutoMovieHumanSide, walkFoot.IEnd>;
 
     /** Each stance's contact point in its foot's frame. */
-    contacts: Record<"left" | "right", IAutoMovieVector3>;
+    contacts: Record<AutoMovieHumanSide, IAutoMovieVector3>;
 
     /**
      * The pelvis's world rotation, where the caller tilts it from upright under
@@ -164,21 +192,18 @@ export namespace walkReach {
     planned: number,
     hips: readonly [number, number, number],
     feet: Readonly<
-      Record<"left" | "right", IAutoMovieMotionHumanWalkFoot.IScheduled>
+      Record<AutoMovieHumanSide, IAutoMovieMotionHumanWalkFoot.IScheduled>
     >,
     resolution?: ReturnType<typeof preparePoseResolution>,
   ): IPelvis {
-    const { yaw, pivots }: Pick<IPelvis, "yaw" | "pivots"> = turn(
-      planned,
-      feet,
-    );
+    const { yaw, pivots }: Pick<IPelvis, Pelvis> = turn(planned, feet);
     return {
       yaw,
       pivots,
       hips: hipJoints(
         body,
         root,
-        resolveHumanPosture.heading({ yaw, pitch: 0, roll: 0 }),
+        humanPostureHeading({ yaw, pitch: 0, roll: 0 }),
         hips,
         resolution,
       ),
@@ -195,10 +220,10 @@ export namespace walkReach {
   export function turn(
     planned: number,
     feet: Readonly<
-      Record<"left" | "right", IAutoMovieMotionHumanWalkFoot.IScheduled>
+      Record<AutoMovieHumanSide, IAutoMovieMotionHumanWalkFoot.IScheduled>
     >,
-  ): Pick<IPelvis, "yaw" | "pivots"> {
-    const pivots: Record<"left" | "right", number> = { left: 0, right: 0 };
+  ): Pick<IPelvis, TurnResult> {
+    const pivots: Record<AutoMovieHumanSide, number> = { left: 0, right: 0 };
     let yaw: number = planned;
     // Each claiming foot's band: its pivoted heading, near the planned one,
     // give or take `TWIST` over its claim.
@@ -292,20 +317,17 @@ export namespace walkReach {
     planned: PlannedPelvis,
     hips: readonly [number, number, number],
     feet: Readonly<
-      Record<"left" | "right", IAutoMovieMotionHumanWalkFoot.IScheduled>
+      Record<AutoMovieHumanSide, IAutoMovieMotionHumanWalkFoot.IScheduled>
     >,
-    claims: Readonly<Partial<Record<"left" | "right", number>>> = {},
+    claims: Readonly<Partial<Record<AutoMovieHumanSide, number>>> = {},
     rocker: number = walkLeg.ROCKER,
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
     tilt?: (
       root: IAutoMovieVector3,
       yaw: number,
-      joints: Readonly<Record<"left" | "right", IAutoMovieVector3>>,
-    ) => {
-      rotation: IAutoMovieQuaternion;
-      hips: Record<"left" | "right", IAutoMovieVector3>;
-    },
-    dorsal: Readonly<Partial<Record<"left" | "right", number>>> = {},
+      joints: Readonly<Record<AutoMovieHumanSide, IAutoMovieVector3>>,
+    ) => IGroundTilt,
+    dorsal: Readonly<Partial<Record<AutoMovieHumanSide, number>>> = {},
     step?: number,
   ): IGround {
     const {
@@ -331,45 +353,45 @@ export namespace walkReach {
       yaw,
       upright,
     );
-    const joints: Record<"left" | "right", IAutoMovieVector3> =
+    const joints: Record<AutoMovieHumanSide, IAutoMovieVector3> =
       tilted?.hips ?? upright;
-    const hip: (side: "left" | "right", drop: number) => IAutoMovieVector3 = (
-      side: "left" | "right",
+    const hip: (side: AutoMovieHumanSide, drop: number) => IAutoMovieVector3 = (
+      side: AutoMovieHumanSide,
       drop: number,
     ): IAutoMovieVector3 => {
       const p: IAutoMovieVector3 = joints[side];
       return { x: p.x, y: p.y - drop, z: p.z };
     };
-    const weights: Record<"left" | "right", number> = {
+    const weights: Record<AutoMovieHumanSide, number> = {
       left: weight(feet.left),
       right: weight(feet.right),
     };
     let short: ReturnType<typeof prepareShort> | undefined;
-    const bearing: Record<"left" | "right", boolean> = {
+    const bearing: Record<AutoMovieHumanSide, boolean> = {
       left: claims.left === undefined && weights.left > 0,
       right: claims.right === undefined && weights.right > 0,
     };
-    let share: Record<"left" | "right", number> = {
+    let share: Record<AutoMovieHumanSide, number> = {
       left: bearing.left ? 1 : 0,
       right: bearing.right ? 1 : 0,
     };
     const placed: IGround["feet"] = {} as IGround["feet"];
     const contacts: IGround["contacts"] = {} as IGround["contacts"];
     const readers: Partial<
-      Record<"left" | "right", ReturnType<typeof walkReachStance.prepare>>
+      Record<AutoMovieHumanSide, ReturnType<typeof walkReachStance.prepare>>
     > = {};
-    const read: Record<
-      "left" | "right",
-      Map<number, { end: walkFoot.IEnd; contact: IAutoMovieVector3 }>
-    > = { left: new Map(), right: new Map() };
+    const read: Record<AutoMovieHumanSide, Map<number, IReadEntryEntry>> = {
+      left: new Map(),
+      right: new Map(),
+    };
     const place: (
       drop: number,
       inactive?: boolean,
-      requested?: "left" | "right",
+      requested?: AutoMovieHumanSide,
     ) => void = (
       drop: number,
       inactive: boolean = false,
-      requested?: "left" | "right",
+      requested?: AutoMovieHumanSide,
     ): void => {
       for (const side of SIDES) {
         if (requested !== undefined && side !== requested) continue;
@@ -379,10 +401,10 @@ export namespace walkReach {
         if (bearing[side] === inactive) continue;
         if (!inactive && !(share[side] > 0)) continue;
         // A bearing stance's reading is its hip's alone, so a lowering asked again (drop 0 under each fading mask) takes it.
-        const known:
-          | { end: walkFoot.IEnd; contact: IAutoMovieVector3 }
-          | undefined = inactive ? undefined : read[side].get(drop);
-        const out: { end: walkFoot.IEnd; contact: IAutoMovieVector3 } =
+        const known: IGroundPlaceKnown | undefined = inactive
+          ? undefined
+          : read[side].get(drop);
+        const out: IGroundPlaceOut =
           known ??
           (readers[side] ??= walkReachStance.prepare(
             body,
@@ -400,8 +422,8 @@ export namespace walkReach {
     };
     // A foot claims its stance's lowering, or `CLAIM` under none when it
     // has no share in the lowering being solved.
-    const claim: (side: "left" | "right") => number = (
-      side: "left" | "right",
+    const claim: (side: AutoMovieHumanSide) => number = (
+      side: AutoMovieHumanSide,
     ): number => {
       const named: number | undefined = claims[side];
       if (named !== undefined) return named;
@@ -461,14 +483,14 @@ export namespace walkReach {
     // lowering with the foot's whole claim and the lowering without it are
     // each well placed, and the weight runs between the two, continuous in
     // the weight by construction and theirs at its two ends.
-    const fading: ("left" | "right")[] = SIDES.filter(
-      (side: "left" | "right"): boolean => bearing[side] && weights[side] < 1,
+    const fading: AutoMovieHumanSide[] = SIDES.filter(
+      (side: AutoMovieHumanSide): boolean => bearing[side] && weights[side] < 1,
     );
     let drop: number = 0;
     for (let mask: number = 0; mask < 1 << fading.length; mask++) {
       let part: number = 1;
       share = { left: bearing.left ? 1 : 0, right: bearing.right ? 1 : 0 };
-      fading.forEach((side: "left" | "right", i: number): void => {
+      fading.forEach((side: AutoMovieHumanSide, i: number): void => {
         const kept: boolean = (mask & (1 << i)) !== 0;
         share[side] = kept ? 1 : 0;
         part *= kept ? weights[side] : 1 - weights[side];
@@ -477,10 +499,10 @@ export namespace walkReach {
     }
     share = { left: bearing.left ? 1 : 0, right: bearing.right ? 1 : 0 };
     place(drop);
-    const completed: Pick<IGround, "feet" | "contacts"> = walkReachFeet(
+    const completed: Pick<IGround, GroundCompleted> = walkReachFeet(
       { feet: placed, contacts },
       bearing,
-      (side: "left" | "right"): void => place(drop, true, side),
+      (side: AutoMovieHumanSide): void => place(drop, true, side),
     );
     return {
       yaw,
@@ -511,7 +533,7 @@ export namespace walkReach {
    */
   export function swing(
     body: IAutoMovieMotionHumanBody,
-    side: "left" | "right",
+    side: AutoMovieHumanSide,
     settled: IGround,
     foot: IAutoMovieMotionHumanWalkFoot.IFoot,
     share?: number,
@@ -528,7 +550,7 @@ export namespace walkReach {
    */
   export function prepareSwing(
     body: IAutoMovieMotionHumanBody,
-    side: "left" | "right",
+    side: AutoMovieHumanSide,
   ): ReturnType<typeof prepareWalkReachSwing> {
     return prepareWalkReachSwing(body, side, {
       knee: walkReachShort.KNEE,
@@ -558,7 +580,7 @@ export namespace walkReach {
   export const EXTENSION: number =
     Math.min(
       ...(["leftUpperLeg", "rightUpperLeg"] as const).map(
-        (bone: "leftUpperLeg" | "rightUpperLeg"): number => {
+        (bone: EXTENSIONBone): number => {
           const flexion: IAutoMovieAngleRange | null | undefined =
             DEFAULT_HUMANOID_ROM[bone]?.flexion;
           if (flexion === null || flexion === undefined)

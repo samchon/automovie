@@ -31,6 +31,21 @@ import type { AutoMovieMotionHumanBendRepeat } from "./AutoMovieMotionHumanBendR
 import type { AutoMovieMotionHumanBendSearch } from "./AutoMovieMotionHumanBendSearch";
 import { AutoMovieMotionHumanBendStrain } from "./AutoMovieMotionHumanBendStrain";
 
+/** The record of `IAutoMovieMotionHumanBendSweepMid`'s site. */
+type IAutoMovieMotionHumanBendSweepMid = {
+  rotation: IAutoMovieQuaternion;
+  overshoot: number;
+};
+
+/** The record of `IAutoMovieMotionHumanBendSweepResult`'s site. */
+type IAutoMovieMotionHumanBendSweepResult = {
+  candidate: ICandidate;
+  seed: IAutoMovieSwivelSeed;
+};
+
+/** The alternatives of `AutoMovieMotionHumanBendSweepRepeat`'s site. */
+type AutoMovieMotionHumanBendSweepRepeat = 0 | 1;
+
 /**
  * The best elbow place of a prepared arm chain for a wrist's place under a
  * ranking: the engine's swivel sweep over the elbow's circle, each place read
@@ -65,9 +80,12 @@ export function AutoMovieMotionHumanBendSweep(
   neutral: IAutoMovieResolvedJointAngles | null,
   score: (candidate: ICandidate) => IScore,
   near?: IAutoMovieSwivelNear,
-  repeat?: readonly [AutoMovieMotionHumanBendRepeat.IRead, 0 | 1],
+  repeat?: readonly [
+    AutoMovieMotionHumanBendRepeat.IRead,
+    AutoMovieMotionHumanBendSweepRepeat,
+  ],
   byStrain: boolean = false,
-): { candidate: ICandidate; seed: IAutoMovieSwivelSeed } | null {
+): IAutoMovieMotionHumanBendSweepResult | null {
   const prepared: AutoMovieMotionHumanBendChain.IChain["prepared"] =
     chain.prepared;
   const upperBone: AutoMovieHumanoidBone = prepared.chain.upper;
@@ -163,7 +181,7 @@ export function AutoMovieMotionHumanBendSweep(
   // A branch's candidates share one lower rotation, the same record, and
   // differ only in the swivel of the upper arm, so the lower joint's
   // overshoot is read once per record: the same value, read once.
-  let mid: { rotation: IAutoMovieQuaternion; overshoot: number } | undefined;
+  let mid: IAutoMovieMotionHumanBendSweepMid | undefined;
   const midOf: (lower: IAutoMovieQuaternion) => number = (
     lower: IAutoMovieQuaternion,
   ): number => {

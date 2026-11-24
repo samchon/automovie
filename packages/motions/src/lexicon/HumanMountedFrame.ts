@@ -19,7 +19,10 @@ import type {
 
 import { HumanRefusal } from "../law/HumanRefusal";
 import { carryHumanPosture } from "../posture/carryHumanPosture";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { humanPostureHeading } from "../posture/humanPostureHeading";
+
+/** The alternatives of `MoveAttitude`'s site. */
+type MoveAttitude = "yaw" | "pitch" | "roll";
 
 /**
  * The moving frame a mounted performance is planned in: one of the carrier's
@@ -216,12 +219,10 @@ export namespace HumanMountedFrame {
       to.rotation,
       Quaternion.inverse(from.rotation),
     );
-    const attitude: Pick<
-      IAutoMovieMotionHumanPosture,
-      "yaw" | "pitch" | "roll"
-    > = resolveHumanPosture.angles(
-      Quaternion.multiply(turn, resolveHumanPosture.heading(posture)),
-    );
+    const attitude: Pick<IAutoMovieMotionHumanPosture, MoveAttitude> =
+      humanPostureHeading.angles(
+        Quaternion.multiply(turn, humanPostureHeading(posture)),
+      );
     return {
       ...carried,
       yaw: attitude.yaw + 360 * Math.round((carried.yaw - attitude.yaw) / 360),

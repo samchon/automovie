@@ -6,6 +6,7 @@ import {
   smoothMinimum,
 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   IAutoMovieAngleRange,
   IAutoMovieMotionHumanBody,
   IAutoMovieQuaternion,
@@ -17,6 +18,12 @@ import { HumanFrame } from "../posture/HumanFrame";
 import { prepareWalkLegLean } from "./prepareWalkLegLean";
 import { walkLegLow } from "./walkLegLow";
 import { walkRockerReachBoundary } from "./walkRockerReachBoundary";
+
+/** The alternatives of `RiseStale`'s site. */
+type RiseStale = -1 | 0 | 1;
+
+/** The alternatives of `PLANTARBone`'s site. */
+type PLANTARBone = "leftFoot" | "rightFoot";
 
 /**
  * The two-bone geometry of a stepping leg, read without solving it: where the
@@ -36,15 +43,13 @@ export namespace walkLeg {
    * `ANKLE_DORSIFLEXION` relays it).
    */
   export const PLANTAR: number = Math.min(
-    ...(["leftFoot", "rightFoot"] as const).map(
-      (bone: "leftFoot" | "rightFoot"): number => {
-        const flexion: IAutoMovieAngleRange | null | undefined =
-          DEFAULT_HUMANOID_ROM[bone]?.flexion;
-        if (flexion === null || flexion === undefined)
-          throw new Error(`The range-of-motion table gives ${bone} no flexion`);
-        return -flexion.min;
-      },
-    ),
+    ...(["leftFoot", "rightFoot"] as const).map((bone: PLANTARBone): number => {
+      const flexion: IAutoMovieAngleRange | null | undefined =
+        DEFAULT_HUMANOID_ROM[bone]?.flexion;
+      if (flexion === null || flexion === undefined)
+        throw new Error(`The range-of-motion table gives ${bone} no flexion`);
+      return -flexion.min;
+    }),
   );
 
   /**
@@ -219,7 +224,7 @@ export namespace walkLeg {
    */
   export function heelRise(
     body: IAutoMovieMotionHumanBody,
-    side: "left" | "right",
+    side: AutoMovieHumanSide,
     hip: IAutoMovieVector3,
     pivot: IAutoMovieVector3,
     heading: number,
@@ -270,7 +275,7 @@ export namespace walkLeg {
    */
   export function prepareHeelRise(
     body: IAutoMovieMotionHumanBody,
-    side: "left" | "right",
+    side: AutoMovieHumanSide,
     pivot: IAutoMovieVector3,
     heading: number,
     width: number,
@@ -438,7 +443,7 @@ export namespace walkLeg {
     let above: number = room(low) - kept;
     if (above >= 0) {
       let below: number = -Infinity;
-      let stale: -1 | 0 | 1 = 0;
+      let stale: RiseStale = 0;
       for (let k: number = 0; k < 2 * HALVINGS && high - low > RESOLVED; k++) {
         const secant: number =
           Number.isFinite(above) && Number.isFinite(below)

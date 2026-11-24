@@ -5,7 +5,7 @@ import type {
   IAutoMovieSwivelNear,
 } from "@automovie/interface";
 
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { orderHumanLimbs } from "../posture/orderHumanLimbs";
 import { HumanSegmentPose } from "./HumanSegmentPose";
 
 /**
@@ -21,7 +21,7 @@ export function overlayContinuations(
   near: HumanSegmentPose.INear | undefined,
   tag?: string,
 ): IAutoMovieMotionHumanResolveHumanPosture.INear | undefined {
-  const ordered: AutoMovieHumanLimb[] = resolveHumanPosture.order(limbs);
+  const ordered: AutoMovieHumanLimb[] = orderHumanLimbs(limbs);
   if (near === undefined) return undefined;
   const prefix: string = tag === undefined ? "contact" : `leaf:${tag}`;
   return Object.fromEntries(

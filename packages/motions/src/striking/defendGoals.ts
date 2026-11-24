@@ -1,5 +1,6 @@
 import { Vector3, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   AutoMovieHumanoidRegion,
   IAutoMovieHumanLimbGoal,
@@ -16,6 +17,9 @@ import type {
 import { StrikingBody } from "./StrikingBody";
 import { StrikingQuality } from "./StrikingQuality";
 import { StrikingStance } from "./StrikingStance";
+
+/** The alternatives of `AtArmResult`'s site. */
+type AtArmResult = "leftArm" | "rightArm";
 
 /**
  * Where a defence brings its arms and its checking leg: goals on the defender's
@@ -51,7 +55,7 @@ export namespace defendGoals {
     outside: number;
 
     /** The defender's side the struck region lies on. */
-    attackedSide: "left" | "right";
+    attackedSide: AutoMovieHumanSide;
   }
 
   /** The inputs of one instant's goals. */
@@ -137,18 +141,18 @@ export namespace defendGoals {
               bones.get(props.frame.bone)!,
             ));
     const glove = (
-      side: "left" | "right",
+      side: AutoMovieHumanSide,
       at: IAutoMovieVector3,
       elbow: IAutoMovieVector3,
     ): IAutoMovieHumanLimbGoal => StrikingStance.glove(body, side, at, elbow);
-    const shoulder = (side: "left" | "right"): IAutoMovieVector3 =>
+    const shoulder = (side: AutoMovieHumanSide): IAutoMovieVector3 =>
       bones.get(`${side}UpperArm` as AutoMovieHumanoidBone)!.worldPosition;
     const toward: IAutoMovieVector3 = Vector3.normalize({
       x: -incoming.x,
       y: 0,
       z: -incoming.z,
     });
-    const low = (side: "left" | "right"): IAutoMovieVector3 =>
+    const low = (side: AutoMovieHumanSide): IAutoMovieVector3 =>
       Vector3.add(
         shoulder(side),
         Vector3.add(
@@ -157,9 +161,9 @@ export namespace defendGoals {
         ),
       );
     const out: Partial<IAutoMovieMotionHumanPosture["limbs"]> = {};
-    const arm = (side: "left" | "right"): "leftArm" | "rightArm" =>
+    const arm = (side: AutoMovieHumanSide): AtArmResult =>
       side === "left" ? "leftArm" : "rightArm";
-    const cover = (side: "left" | "right"): void => {
+    const cover = (side: AutoMovieHumanSide): void => {
       // The glove on the incoming line just in front of the region, where
       // the weapon will pass, not merely on the region's own normal.
       const at: IAutoMovieVector3 = Vector3.subtract(
@@ -177,7 +181,7 @@ export namespace defendGoals {
         }
         break;
       case "parry": {
-        const side: "left" | "right" = outside > 0 ? "left" : "right";
+        const side: AutoMovieHumanSide = outside > 0 ? "left" : "right";
         const meet: IAutoMovieVector3 = Vector3.add(
           Vector3.subtract(
             regionPoint(),

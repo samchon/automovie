@@ -21,6 +21,17 @@ const maximumTime: number = 2;
 
 /** Frame checks are at most one 120 Hz interval apart. */
 const samplesPerSecond: number = 120;
+/** The record of `IPickUpInterceptResult`'s site. */
+type IPickUpInterceptResult = {
+  /** The grasp, including colliders, at closure. */
+  target: IAutoMovieMotionHumanGrasp.ITarget;
+  /** The prop's displayed world frame at closure. */
+  frame: IAutoMovieRigidTransform;
+  /** Seconds from action time zero to closure. */
+  seconds: number;
+  /** The support's horizontal velocity in world metres per second. */
+  velocity: IAutoMovieVector3;
+};
 
 /**
  * Resolve a mounted prop's closure frame and incoming translation before
@@ -35,16 +46,7 @@ const samplesPerSecond: number = 120;
 export function pickUpIntercept(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanPickUpMoving>,
   closeAt: number,
-): {
-  /** The grasp, including colliders, at closure. */
-  target: IAutoMovieMotionHumanGrasp.ITarget;
-  /** The prop's displayed world frame at closure. */
-  frame: IAutoMovieRigidTransform;
-  /** Seconds from action time zero to closure. */
-  seconds: number;
-  /** The support's horizontal velocity in world metres per second. */
-  velocity: IAutoMovieVector3;
-} {
+): IPickUpInterceptResult {
   /** Report what the authored closure could not intercept. */
   const refuse = (reason: string): never => {
     throw new HumanRefusal({

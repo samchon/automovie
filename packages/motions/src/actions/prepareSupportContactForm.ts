@@ -1,6 +1,6 @@
 import { Quaternion } from "@automovie/engine";
 import type {
-  AutoMovieHumanoidBone,
+  AutoMovieHumanSide,
   AutoMovieHumanoidRegion,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanHand,
@@ -8,12 +8,16 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { HumanBoneGroups } from "../posture/HumanBoneGroups";
 import { HumanHand } from "../posture/HumanHand";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { stand } from "./stand";
 import type { supportContact } from "./supportContact";
 import { supportContactOnFloor } from "./supportContactOnFloor";
+
+/** The alternatives of `PrepareSupportContactFormAxesItem`'s site. */
+type PrepareSupportContactFormAxesItem = "x" | "y" | "z";
 
 /**
  * Prepare contact forms for one unchanged body operation. Foot normals come
@@ -33,11 +37,11 @@ export function prepareSupportContactForm(
   contact: IAutoMovieMotionHumanSupport.IContact,
   aimed: IAutoMovieVector3 | null,
 ) => supportContact.IForm {
-  let feet: Partial<Record<"left" | "right", IAutoMovieVector3>> | undefined;
+  let feet: Partial<Record<AutoMovieHumanSide, IAutoMovieVector3>> | undefined;
 
   /** Read the exact quiet toe frames once, retaining only body-local directions. */
-  const toeNormal: (side: "left" | "right") => IAutoMovieVector3 = (
-    side: "left" | "right",
+  const toeNormal: (side: AutoMovieHumanSide) => IAutoMovieVector3 = (
+    side: AutoMovieHumanSide,
   ): IAutoMovieVector3 => {
     let observed: IAutoMovieVector3 | undefined = feet?.[side];
     if (observed === undefined) {
@@ -45,12 +49,12 @@ export function prepareSupportContactForm(
         body,
         resolveHumanPosture(body, stand.posture(body, { x: 0, y: 0, z: 0 }, 0)),
         undefined,
-        TOES,
+        HumanBoneGroups.TOES,
       );
 
       /** Re-express world down in a measured toe's local rotation. */
-      const normal: (foot: "left" | "right") => IAutoMovieVector3 = (
-        foot: "left" | "right",
+      const normal: (foot: AutoMovieHumanSide) => IAutoMovieVector3 = (
+        foot: AutoMovieHumanSide,
       ): IAutoMovieVector3 =>
         Quaternion.rotateVector(
           Quaternion.inverse(bones.get(`${foot}Toes`)!.worldRotation),
@@ -61,7 +65,7 @@ export function prepareSupportContactForm(
       feet[side] = observed;
 
       // A canonical rig may omit the unrequested counterpart's toe bone.
-      const other: "left" | "right" = side === "left" ? "right" : "left";
+      const other: AutoMovieHumanSide = side === "left" ? "right" : "left";
       if (bones.has(`${other}Toes`)) feet[other] = normal(other);
     }
     return { ...observed };
@@ -70,10 +74,12 @@ export function prepareSupportContactForm(
     c: IAutoMovieMotionHumanSupport.IContact,
     aimed: IAutoMovieVector3 | null,
   ): supportContact.IForm => {
-    const side: "left" | "right" = c.part.startsWith("left") ? "left" : "right";
+    const side: AutoMovieHumanSide = c.part.startsWith("left")
+      ? "left"
+      : "right";
     const point: IAutoMovieVector3 = aimed ?? { x: 0, y: 0, z: 0 };
     const floor: boolean = supportContactOnFloor(point);
-    const axes: readonly ("x" | "y" | "z")[] =
+    const axes: readonly PrepareSupportContactFormAxesItem[] =
       aimed === null ? [] : floor ? ["x", "z"] : ["x", "y", "z"];
     const down: IAutoMovieVector3 = { x: 0, y: -1, z: 0 };
     if (c.part.endsWith("Foot"))
@@ -160,8 +166,3 @@ export function prepareSupportContactForm(
     };
   };
 }
-
-/** The quiet-foot datum observes only the two actual toe frames. */
-const TOES: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>(
-  ["leftToes", "rightToes"],
-);

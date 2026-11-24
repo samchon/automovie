@@ -20,6 +20,12 @@ import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolutio
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { touchSite } from "./touchSite";
 
+/** The alternatives of `DiscContext`'s site. */
+type DiscContext = "body" | "performer";
+
+/** The alternatives of `ReaderContext`'s site. */
+type ReaderContext = "aim" | "body" | "prop" | "series" | "start";
+
 /**
  * Where the touch law reads a region at a second: on which bones, and moved to
  * which site; and how far about that site a hand may land.
@@ -47,10 +53,7 @@ export namespace touchRegion {
    *   0.5], or on a contact without a length.
    */
   export function reader(
-    context: Pick<
-      IAutoMovieMotionHumanActionContext,
-      "aim" | "body" | "prop" | "series" | "start"
-    >,
+    context: Pick<IAutoMovieMotionHumanActionContext, ReaderContext>,
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
     side: AutoMovieHumanSide,
     target: IAutoMovieMotionTarget,
@@ -183,7 +186,7 @@ export namespace touchRegion {
    * @returns Metres, or `undefined`.
    */
   export function disc(
-    context: Pick<IAutoMovieMotionHumanActionContext, "body" | "performer">,
+    context: Pick<IAutoMovieMotionHumanActionContext, DiscContext>,
     target: IAutoMovieMotionTarget,
     site: IAutoMovieMotionHumanTouchSite.ISite | undefined,
   ): number | undefined {

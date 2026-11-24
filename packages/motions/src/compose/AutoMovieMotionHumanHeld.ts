@@ -1,5 +1,6 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieAffordance,
   IAutoMovieMotionHumanActionContext,
@@ -20,6 +21,9 @@ import { HumanGrip } from "../handling/HumanGrip";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanHand } from "../posture/HumanHand";
 import { poseBones } from "../posture/poseBones";
+
+/** The alternatives of `OfContext`'s site. */
+type OfContext = "body" | "entry" | "prop";
 
 /**
  * The prop a hand holds as an action enters, in that hand's own frame: the one
@@ -50,11 +54,8 @@ export namespace AutoMovieMotionHumanHeld {
    *   `side` when the body has no bone for that hand, naming the hands it has.
    */
   export function of(
-    context: Pick<
-      IAutoMovieMotionHumanActionContext,
-      "body" | "entry" | "prop"
-    >,
-    side: "left" | "right",
+    context: Pick<IAutoMovieMotionHumanActionContext, OfContext>,
+    side: AutoMovieHumanSide,
     prop: string,
   ): IAutoMovieMotionHumanHeld.IHeld {
     const held: string | undefined = context.entry.holds[side];
@@ -79,7 +80,7 @@ export namespace AutoMovieMotionHumanHeld {
         feasible: {
           kind: "alternatives",
           values: (["left", "right"] as const).filter(
-            (other: "left" | "right"): boolean =>
+            (other: AutoMovieHumanSide): boolean =>
               readHumanBone(context.body, `${other}Hand`) !== undefined,
           ),
         },
@@ -135,7 +136,7 @@ export namespace AutoMovieMotionHumanHeld {
    */
   export function grasped(
     body: IAutoMovieMotionHumanBody,
-    side: "left" | "right",
+    side: AutoMovieHumanSide,
     prop: string,
     lying: IAutoMovieRigidTransform,
     affordances: readonly IAutoMovieAffordance[],

@@ -10,12 +10,16 @@ import type {
 } from "@automovie/interface";
 
 import { HumanFoot } from "../posture/HumanFoot";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { humanPostureHeading } from "../posture/humanPostureHeading";
+import { lowerHumanPosture } from "../posture/lowerHumanPosture";
 import { KickCarriage } from "./KickCarriage";
 import { StrikingFootPoint } from "./StrikingFootPoint";
 import { StrikingStance } from "./StrikingStance";
 import { StrikingTarget } from "./StrikingTarget";
 import { punchFootwork } from "./punchFootwork";
+
+/** The alternatives of `CloseStrikeLegsLeg`'s site. */
+type CloseStrikeLegsLeg = "leftLeg" | "rightLeg";
 
 /**
  * The lower body of a close strike: the pelvis turned about the vertical and
@@ -28,9 +32,9 @@ import { punchFootwork } from "./punchFootwork";
  * does. A planted turn may pivot the rear foot on its ball by half the turn
  * with the heel raised, as a rear-hand punch does; a drop lowers the hips for a
  * low target; a jump lifts both feet and the root. The root is lowered until
- * both legs reach their feet (`resolveHumanPosture.lower`). A kick's support
- * may rise onto its ball with the share, and a tilt turns the whole body about
- * a world axis through the pivoting foot's hip, which stays put. A leg another
+ * both legs reach their feet (`lowerHumanPosture`). A kick's support may rise
+ * onto its ball with the share, and a tilt turns the whole body about a world
+ * axis through the pivoting foot's hip, which stays put. A leg another
  * primitive writes (a kick's) is left out.
  *
  * @param body The body.
@@ -62,7 +66,7 @@ export function CloseStrikeLegs(
       "root",
       "trunk",
       ...(["leftLeg", "rightLeg"] as const).filter(
-        (leg: "leftLeg" | "rightLeg"): boolean => leg !== `${free}Leg`,
+        (leg: CloseStrikeLegsLeg): boolean => leg !== `${free}Leg`,
       ),
     ],
     from: 0,
@@ -71,7 +75,7 @@ export function CloseStrikeLegs(
       posture: IAutoMovieMotionHumanPosture,
       seconds: number,
       _before?: IAutoMovieMotionHumanPrimitive.Reader,
-      resolution?: Parameters<typeof resolveHumanPosture.lower>[3],
+      resolution?: Parameters<typeof lowerHumanPosture>[3],
     ): IAutoMovieMotionHumanPosture => {
       const share: number = motion.share(seconds);
       const spun: number = motion.spin(seconds);
@@ -192,11 +196,11 @@ export function CloseStrikeLegs(
           ? flat
           : {
               ...flat,
-              ...resolveHumanPosture.angles(
+              ...humanPostureHeading.angles(
                 Quaternion.normalize(
                   Quaternion.multiply(
                     Quaternion.fromAxisAngle(motion.tilt.axis, degrees),
-                    resolveHumanPosture.heading(flat),
+                    humanPostureHeading(flat),
                   ),
                 ),
               ),
@@ -214,7 +218,7 @@ export function CloseStrikeLegs(
                 ),
               ),
             };
-      const lowered: IAutoMovieMotionHumanPosture = resolveHumanPosture.lower(
+      const lowered: IAutoMovieMotionHumanPosture = lowerHumanPosture(
         body,
         {
           ...tilted,
@@ -246,7 +250,7 @@ export function CloseStrikeLegs(
             ),
           },
         },
-        resolveHumanPosture.KNEE,
+        lowerHumanPosture.KNEE,
         resolution,
       );
       return lowered;

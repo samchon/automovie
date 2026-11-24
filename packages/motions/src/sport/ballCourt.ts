@@ -37,23 +37,20 @@ type Kind =
   | "setShot"
   | "handballThrow"
   | "highHandContest";
+/** The record of `IPHRASESEntryItem`'s site. */
+type IPHRASESEntryItem = {
+  depth: number;
+  lean: number;
+  prepare: number;
+  attack: number;
+  flight: number;
+};
 
 /**
  * Planted motion parameters. Depth scales by stature; lean is forward degrees.
  * Durations are provisional seconds.
  */
-const PHRASES: Readonly<
-  Record<
-    Kind,
-    {
-      depth: number;
-      lean: number;
-      prepare: number;
-      attack: number;
-      flight: number;
-    }
-  >
-> = {
+const PHRASES: Readonly<Record<Kind, IPHRASESEntryItem>> = {
   dribbleRelease: {
     depth: 0.04,
     lean: 14,
@@ -91,6 +88,11 @@ const PHRASES: Readonly<
     flight: 0,
   },
 };
+/** The record of `ISphericalBallResult`'s site. */
+type ISphericalBallResult = {
+  reader: IAutoMovieMotionHumanPropReader;
+  sphere: NonNullable<IAutoMovieMotionPropLaunch["sphere"]>;
+};
 
 /**
  * Resolve the one spherical ball the release moves. The collider's centre need
@@ -100,10 +102,7 @@ function sphericalBall(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanBallSport.IParams>,
   subject: string,
   hands: readonly AutoMovieHumanSide[],
-): {
-  reader: IAutoMovieMotionHumanPropReader;
-  sphere: NonNullable<IAutoMovieMotionPropLaunch["sphere"]>;
-} {
+): ISphericalBallResult {
   const reader: IAutoMovieMotionHumanPropReader = context.prop(subject);
   if (
     !hands.some(

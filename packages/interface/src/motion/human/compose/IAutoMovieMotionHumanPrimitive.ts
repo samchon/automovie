@@ -3,6 +3,7 @@ import type { IAutoMovieMotionHumanContactWindow } from "../law/IAutoMovieMotion
 import type { IAutoMovieMotionWeaponPath } from "../law/IAutoMovieMotionWeaponPath";
 import type { IAutoMovieMotionHumanPosture } from "../posture/IAutoMovieMotionHumanPosture";
 import type { AutoMovieMotionHumanChannel } from "./AutoMovieMotionHumanChannel";
+import type { IAutoMovieMotionHumanEvaluation } from "./IAutoMovieMotionHumanEvaluation";
 
 /**
  * One part's movement over one window of an action: a pure function of time
@@ -65,6 +66,9 @@ export interface IAutoMovieMotionHumanPrimitive {
    *   callback.
    * @param projection Optional genuine same-body direct ROM projector, used
    *   only for actual current solves during this write.
+   * @param evaluation The explicit context of the evaluation this write is part
+   *   of, the composed plan's own; passed on unchanged to any plan or primitive
+   *   the write reads, never retained.
    * @returns The posture; fields outside the claimed channels are ignored.
    */
   write(
@@ -73,6 +77,7 @@ export interface IAutoMovieMotionHumanPrimitive {
     before?: IAutoMovieMotionHumanPrimitive.Reader,
     resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
     projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3],
+    evaluation?: IAutoMovieMotionHumanEvaluation,
   ): IAutoMovieMotionHumanPosture;
 
   /**

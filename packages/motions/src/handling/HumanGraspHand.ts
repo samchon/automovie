@@ -11,6 +11,14 @@ import { HumanHand } from "../posture/HumanHand";
 import type { HumanGrasp } from "./HumanGrasp";
 import { HumanGraspReach } from "./HumanGraspReach";
 
+/** The record of `ITurnsPrevious`'s site. */
+type ITurnsPrevious = {
+  turn: number;
+  alignment: IAutoMovieQuaternion;
+  tilt: ReturnType<typeof Quaternion.prepareAxisAngle>;
+  point: IAutoMovieVector3;
+};
+
 /**
  * The wrist goal that lays a hand's grip socket on a grasp target: the grip
  * frame aligned with the target's approach and wrapped axis, tilted about the
@@ -66,14 +74,7 @@ export namespace HumanGraspHand {
     authored: HumanGrasp.IFrame,
   ): (turn: number, tilt: number) => IAutoMovieMotionHumanHand.IWrist {
     const fixed: IHand = geometry(body, side);
-    let previous:
-      | {
-          turn: number;
-          alignment: IAutoMovieQuaternion;
-          tilt: ReturnType<typeof Quaternion.prepareAxisAngle>;
-          point: IAutoMovieVector3;
-        }
-      | undefined;
+    let previous: ITurnsPrevious | undefined;
     return (turn: number, tilt: number): IAutoMovieMotionHumanHand.IWrist => {
       if (previous === undefined || !Object.is(previous.turn, turn)) {
         const target: HumanGrasp.IFrame = HumanGraspReach.around(

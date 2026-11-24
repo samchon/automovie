@@ -5,6 +5,7 @@ import {
   wrapDegrees,
 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieMotionHumanActionName,
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionEvent,
@@ -20,39 +21,48 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { lowerHumanPosture } from "../posture/lowerHumanPosture";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { StrikingFootPoint } from "./StrikingFootPoint";
 import { StrikingGuardYield } from "./StrikingGuardYield";
 import { StrikingStance } from "./StrikingStance";
 import { StrikingTarget } from "./StrikingTarget";
 import { strikingStepSupport } from "./strikingStepSupport";
 
+/** The alternatives of `BlendArmsOut`'s site. */
+type BlendArmsOut = "leftArm" | "rightArm";
+
+/** The alternatives of `BlendArmsResult`'s site. */
+type BlendArmsResult = "leftArm" | "rightArm";
+
+/** The alternatives of `BlendArmsHands`'s site. */
+type BlendArmsHands = "leftArm" | "rightArm";
+
 /**
  * The fighting stance taken and held: from whatever the performer stands in,
- * each foot steps to its stance place in turn, cleared from the floor before
- * it travels and pointed in the air (the rear foot first, so the
- * lead foot stays a support), the root sinks until both knees soften and
- * turns to the stance heading, and the gloves come up to the guard, then the
- * stance holds with a light bounce through the knees.
- * If a step is interrupted, its airborne foot takes the first swing and the
- * existing bearing foot holds through that landing.
+ * each foot steps to its stance place in turn, cleared from the floor before it
+ * travels and pointed in the air (the rear foot first, so the lead foot stays a
+ * support), the root sinks until both knees soften and turns to the stance
+ * heading, and the gloves come up to the guard, then the stance holds with a
+ * light bounce through the knees. If a step is interrupted, its airborne foot
+ * takes the first swing and the existing bearing foot holds through that
+ * landing.
  *
  * The stance itself is {@link StrikingStance}: measured on the body, so any
- * stature takes its own. A foot already within 1 cm of its place stays
- * planted. The line faces the `facing` target when one is given (read at
- * the start), otherwise it keeps the entry's line: a performer already in a
- * stance keeps its line, and one standing square faces straight ahead.
+ * stature takes its own. A foot already within 1 cm of its place stays planted.
+ * The line faces the `facing` target when one is given (read at the start),
+ * otherwise it keeps the entry's line: a performer already in a stance keeps
+ * its line, and one standing square faces straight ahead.
  *
- * A guard facing a person steps back from them by its half of the least
- * step along the line between them that keeps its guard and theirs, both
- * held, clear of each other (`StrikingGuardYield`), so two fighters in
- * guard never stand inside each other, whatever their sizes.
+ * A guard facing a person steps back from them by its half of the least step
+ * along the line between them that keeps its guard and theirs, both held, clear
+ * of each other (`StrikingGuardYield`), so two fighters in guard never stand
+ * inside each other, whatever their sizes.
  *
- * The bounce: kickboxers keep a rhythmic bounce between exchanges; its
- * height is a third of the stance's sink and its rate two bounces a second,
- * provisional readings of coaching footage (the kickboxing research's
- * rhythm share) with no located measurement.
+ * The bounce: kickboxers keep a rhythmic bounce between exchanges; its height
+ * is a third of the stance's sink and its rate two bounces a second,
+ * provisional readings of coaching footage (the kickboxing research's rhythm
+ * share) with no located measurement.
  */
 export namespace guard {
   /** The action's name. */
@@ -73,7 +83,10 @@ export namespace guard {
   /** A stepping foot's clearance at mid-step, a share of stature (provisional). */
   export const STEP_LIFT: number = 0.03;
 
-  /** The shares of a step between which the foot travels, after it clears the floor and before it lands (provisional). */
+  /**
+   * The shares of a step between which the foot travels, after it clears the
+   * floor and before it lands (provisional).
+   */
   export const STEP_TRAVEL: readonly [number, number] = [0.25, 0.75];
 
   /** Bounce rate, per second (provisional). */
@@ -120,13 +133,19 @@ export namespace guard {
 
   /** A built guard. */
   interface IGeometry {
-    /** The complete posture at action-relative seconds, with same-call FK/ROM borrowing and no retained query source. */
+    /**
+     * The complete posture at action-relative seconds, with same-call FK/ROM
+     * borrowing and no retained query source.
+     */
     posture: IAutoMovieMotionHumanActionPlan["posture"];
     /** The feet's contact windows. */
     contacts: IAutoMovieMotionHumanContactWindow[];
   }
 
-  /** Build the stance from the entry and the line, stepped back from a faced person's guard. */
+  /**
+   * Build the stance from the entry and the line, stepped back from a faced
+   * person's guard.
+   */
   function build(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanGuard.IParams>,
     duration: number,
@@ -136,7 +155,7 @@ export namespace guard {
       ...entry.joints,
       ...StrikingStance.joints(entry.joints),
     };
-    const lead: "left" | "right" =
+    const lead: AutoMovieHumanSide =
       context.params.stance === undefined
         ? StrikingTarget.lead(context.entry)
         : context.params.stance === "orthodox"
@@ -169,8 +188,10 @@ export namespace guard {
             (lead === "left" ? StrikingStance.TURN : -StrikingStance.TURN)
           : entry.yaw;
     const stance: IAutoMovieMotionHumanStrikingStance.IStance = { lead, line };
-    const from: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement> =
-      StrikingTarget.feet(context.entry);
+    const from: Record<
+      AutoMovieHumanSide,
+      IAutoMovieMotionHumanFoot.IPlacement
+    > = StrikingTarget.feet(context.entry);
     const centre: IAutoMovieVector3 = {
       x: (from.left.ankle.x + from.right.ankle.x) / 2,
       y: 0,
@@ -202,14 +223,14 @@ export namespace guard {
     duration: number,
     joints: IAutoMovieMotionHumanPosture["joints"],
     stance: IAutoMovieMotionHumanStrikingStance.IStance,
-    from: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement>,
+    from: Record<AutoMovieHumanSide, IAutoMovieMotionHumanFoot.IPlacement>,
     centre: IAutoMovieVector3,
   ): IGeometry {
     const body: IAutoMovieMotionHumanBody = context.body;
     const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
-    const lead: "left" | "right" = stance.lead;
+    const lead: AutoMovieHumanSide = stance.lead;
     const line: number = stance.line;
-    const to: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement> =
+    const to: Record<AutoMovieHumanSide, IAutoMovieMotionHumanFoot.IPlacement> =
       StrikingStance.feet(body, stance, centre);
     const heading: number = StrikingStance.heading(stance);
 
@@ -238,7 +259,7 @@ export namespace guard {
     // shoe. A guard entered from a settled stance takes its usual rear step.
     const support: strikingStepSupport.ISupport | undefined =
       strikingStepSupport(context);
-    const moving: Record<"left" | "right", boolean> = {
+    const moving: Record<AutoMovieHumanSide, boolean> = {
       left:
         support?.landings.left !== undefined ||
         Vector3.distance(from.left.ankle, to.left.ankle) > 0.01,
@@ -255,17 +276,17 @@ export namespace guard {
           : first[1],
       0.55,
     ];
-    const bearing: "left" | "right" = support?.bearing ?? lead;
-    const window: Record<"left" | "right", readonly [number, number]> =
+    const bearing: AutoMovieHumanSide = support?.bearing ?? lead;
+    const window: Record<AutoMovieHumanSide, readonly [number, number]> =
       bearing === "left"
         ? { left: second, right: first }
         : { left: first, right: second };
     const lift: number = STEP_LIFT * body.measure.stature;
     const rotations: Partial<
-      Record<"left" | "right", ReturnType<typeof Quaternion.prepareSlerp>>
+      Record<AutoMovieHumanSide, ReturnType<typeof Quaternion.prepareSlerp>>
     > = {};
     const foot = (
-      side: "left" | "right",
+      side: AutoMovieHumanSide,
       t: number,
     ): IAutoMovieMotionHumanFoot.IPlacement => {
       if (!moving[side]) return from[side];
@@ -369,23 +390,23 @@ export namespace guard {
           limbs: {},
         };
         const feet: Record<
-          "left" | "right",
+          AutoMovieHumanSide,
           IAutoMovieMotionHumanFoot.IPlacement
         > = {
           left: foot("left", t),
           right: foot("right", t),
         };
-        const down = (side: "left" | "right"): boolean =>
+        const down = (side: AutoMovieHumanSide): boolean =>
           !moving[side] ||
           (support?.landings[side] === undefined && t <= window[side][0]) ||
           t >= window[side][1];
         // The root lowered until each leg reaches its foot, the stepping one
         // included, so the root does not drop when that foot lands, as the
         // stance turns and travels over feet that have not moved yet.
-        const reached: IAutoMovieMotionHumanPosture = resolveHumanPosture.lower(
+        const reached: IAutoMovieMotionHumanPosture = lowerHumanPosture(
           body,
           { ...posture, limbs: StrikingStance.legs(body, feet) },
-          resolveHumanPosture.KNEE,
+          lowerHumanPosture.KNEE,
           resolution,
         );
         const lowered: IAutoMovieMotionHumanPosture = {
@@ -408,16 +429,16 @@ export namespace guard {
     };
   }
 
-  /** The entry's arms blended toward the guard by a share: from the hands' entry goals, or the guard alone when the entry wrote none. */
+  /**
+   * The entry's arms blended toward the guard by a share: from the hands' entry
+   * goals, or the guard alone when the entry wrote none.
+   */
   function blendArms(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanGuard.IParams>,
-    hands: Pick<IAutoMovieMotionHumanPosture["limbs"], "leftArm" | "rightArm">,
+    hands: Pick<IAutoMovieMotionHumanPosture["limbs"], BlendArmsHands>,
     s: number,
-  ): Pick<IAutoMovieMotionHumanPosture["limbs"], "leftArm" | "rightArm"> {
-    const out: Pick<
-      IAutoMovieMotionHumanPosture["limbs"],
-      "leftArm" | "rightArm"
-    > = {};
+  ): Pick<IAutoMovieMotionHumanPosture["limbs"], BlendArmsResult> {
+    const out: Pick<IAutoMovieMotionHumanPosture["limbs"], BlendArmsOut> = {};
     for (const arm of ["leftArm", "rightArm"] as const) {
       const to: IAutoMovieHumanLimbGoal = hands[arm]!;
       const from: IAutoMovieHumanLimbGoal | undefined =

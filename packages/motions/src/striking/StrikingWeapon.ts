@@ -1,6 +1,7 @@
 import { Vector3, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
 import type {
   AutoMovieHumanLimb,
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   AutoMovieMotionHumanChannel,
   IAutoMovieMotionHumanBody,
@@ -19,6 +20,18 @@ import { StrikingWeaponGirth } from "./StrikingWeaponGirth";
 import type { StrikingWeaponRecord } from "./StrikingWeaponRecord";
 import { StrikingWeaponSample } from "./StrikingWeaponSample";
 import { StrikingWeaponTable } from "./StrikingWeaponTable";
+
+/** The alternatives of `AxisChain`'s site. */
+type AxisChain = "ids" | "ends";
+
+/** The alternatives of `RadiusResult`'s site. */
+type RadiusResult = "radius" | "tailRadius";
+
+/** The alternatives of `RadiusRadii`'s site. */
+type RadiusRadii = number | readonly [number, number];
+
+/** The alternatives of `ChainRadiiItem`'s site. */
+type ChainRadiiItem = number | readonly [number, number];
 
 /**
  * A striking limb as the capsule weapons the performance's joint contact
@@ -76,7 +89,7 @@ export namespace StrikingWeapon {
   export function arm(
     body: IAutoMovieMotionHumanBody,
     course: Course,
-    side: "left" | "right",
+    side: AutoMovieHumanSide,
     seconds: number,
     near?: Parameters<typeof StrikingWeaponBones>[5],
     kept?: Parameters<typeof StrikingWeaponBones>[6],
@@ -126,7 +139,7 @@ export namespace StrikingWeapon {
   export function posed(
     body: IAutoMovieMotionHumanBody,
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
-    side: "left" | "right",
+    side: AutoMovieHumanSide,
   ): IAutoMovieVector3[] {
     const hand: IAutoMovieResolvedBone = bones.get(`${side}Hand`)!;
     const knuckles: IAutoMovieVector3 = resolveAutoMovieHumanoidSurfaces.place(
@@ -163,7 +176,7 @@ export namespace StrikingWeapon {
   export function leg(
     body: IAutoMovieMotionHumanBody,
     course: Course,
-    side: "left" | "right",
+    side: AutoMovieHumanSide,
     seconds: number,
     near?: Parameters<typeof StrikingWeaponBones>[5],
     kept?: Parameters<typeof StrikingWeaponBones>[6],
@@ -205,7 +218,7 @@ export namespace StrikingWeapon {
      * or the radii at its two axis ends for a tapered capsule, as a limb
      * narrows from one joint's girth to the next.
      */
-    radii: readonly (number | readonly [number, number])[];
+    radii: readonly ChainRadiiItem[];
 
     /** Film second they become live. */
     from: number;
@@ -344,8 +357,8 @@ export namespace StrikingWeapon {
 
   /** A capsule's radius members as a weapon carries them. */
   function radius(
-    radii: number | readonly [number, number],
-  ): Pick<IAutoMovieMotionWeaponPath, "radius" | "tailRadius"> {
+    radii: RadiusRadii,
+  ): Pick<IAutoMovieMotionWeaponPath, RadiusResult> {
     return typeof radii === "number"
       ? { radius: radii }
       : { radius: radii[0], tailRadius: radii[1] };
@@ -376,7 +389,7 @@ export namespace StrikingWeapon {
    * @throws {Error} When the chain has no such capsule.
    */
   export function axis(
-    chain: Pick<IChain, "ids" | "ends">,
+    chain: Pick<IChain, AxisChain>,
     id: string,
     seconds: number,
   ): readonly [IAutoMovieVector3, IAutoMovieVector3] {
@@ -421,7 +434,7 @@ const ENDS: Readonly<
  * cannot move it.
  */
 const LEG_CHANNELS: Readonly<
-  Record<"left" | "right", readonly AutoMovieMotionHumanChannel[]>
+  Record<AutoMovieHumanSide, readonly AutoMovieMotionHumanChannel[]>
 > = {
   left: ["root", "trunk", "leftLeg"],
   right: ["root", "trunk", "rightLeg"],

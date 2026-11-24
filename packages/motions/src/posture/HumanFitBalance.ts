@@ -16,6 +16,45 @@ import { HumanFitBalanceBase } from "./HumanFitBalanceBase";
 import { HumanFoot } from "./HumanFoot";
 import { HumanJacobian } from "./HumanJacobian";
 
+/** The record of `ISideResult`'s site. */
+type ISideResult = { x: number; z: number };
+
+/** The record of `ISlopesT`'s site. */
+type ISlopesT = { x: number; z: number };
+
+/** The record of `ISlopesN`'s site. */
+type ISlopesN = { x: number; z: number };
+
+/** The record of `ISlopes`'s site. */
+type ISlopes = { x: number; z: number };
+
+/** The record of `IDistanceA`'s site. */
+type IDistanceA = { x: number; z: number };
+
+/** The record of `IDistanceNormal`'s site. */
+type IDistanceNormal = { x: number; z: number };
+
+/** The record of `IDistanceAnchorsItem`'s site. */
+type IDistanceAnchorsItem = { x: number; z: number };
+
+/** The record of `IAtWas`'s site. */
+type IAtWas = { x: number; z: number };
+
+/** The record of `IAtT`'s site. */
+type IAtT = { x: number; z: number };
+
+/** The record of `IAtN`'s site. */
+type IAtN = { x: number; z: number };
+
+/** The record of `IOf`'s site. */
+type IOf = { x: number; z: number };
+
+/** The record of `IReadingNormalsItem`'s site. */
+type IReadingNormalsItem = { x: number; z: number };
+
+/** The record of `IReadingAnchorsItem`'s site. */
+type IReadingAnchorsItem = { x: number; z: number };
+
 /**
  * A posed body's static balance as rows of a whole-body fit (`HumanBodyFit`):
  * its centre of mass over the floor kept inside the outline of the feet where
@@ -54,10 +93,10 @@ export namespace HumanFitBalance {
      * through: a hull's corners in order round it, a segment's first end thrice
      * and its second, or a point four times.
      */
-    anchors: { x: number; z: number }[];
+    anchors: IReadingAnchorsItem[];
 
     /** Each half-plane's unit inward direction, in the anchors' order. */
-    normals: { x: number; z: number }[];
+    normals: IReadingNormalsItem[];
 
     /**
      * Each half-plane's signed distance of the centre inside it, metres, in the
@@ -128,9 +167,8 @@ export namespace HumanFitBalance {
       com,
       anchors: planes.anchors,
       normals: planes.normals,
-      inside: planes.anchors.map(
-        (_: { x: number; z: number }, k: number): number =>
-          distance(planes.anchors, k, com, planes.normals[k]!),
+      inside: planes.anchors.map((_: IOf, k: number): number =>
+        distance(planes.anchors, k, com, planes.normals[k]!),
       ),
       ...(owners === undefined
         ? {}
@@ -184,12 +222,12 @@ export namespace HumanFitBalance {
       );
     };
     const p: IAutoMovieVector3 = placed(reading.riders[through.p]!);
-    const n: { x: number; z: number } = reading.normals[k]!;
+    const n: IAtN = reading.normals[k]!;
     if (through.kind === "point")
       return n.x * (com.x - p.x) + n.z * (com.z - p.z);
     const q: IAutoMovieVector3 = placed(reading.riders[through.q]!);
     const length: number = Math.hypot(q.x - p.x, q.z - p.z);
-    const t: { x: number; z: number } = {
+    const t: IAtT = {
       x: (q.x - p.x) / length,
       z: (q.z - p.z) / length,
     };
@@ -197,7 +235,7 @@ export namespace HumanFitBalance {
       return t.x * (com.x - p.x) + t.z * (com.z - p.z);
 
     // A side keeps the reading's inward orientation of its line.
-    const was: { x: number; z: number } = side(reading, through);
+    const was: IAtWas = side(reading, through);
     const sign: number = n.x * -was.z + n.z * was.x >= 0 ? 1 : -1;
     return sign * (-t.z * (com.x - p.x) + t.x * (com.z - p.z));
   }
@@ -213,12 +251,12 @@ export namespace HumanFitBalance {
    * @returns Metres, positive inside.
    */
   export function distance(
-    anchors: readonly { x: number; z: number }[],
+    anchors: readonly IDistanceAnchorsItem[],
     k: number,
     point: IAutoMovieVector3,
-    normal: { x: number; z: number },
+    normal: IDistanceNormal,
   ): number {
-    const a: { x: number; z: number } = anchors[k]!;
+    const a: IDistanceA = anchors[k]!;
     return normal.x * (point.x - a.x) + normal.z * (point.z - a.z);
   }
 
@@ -250,52 +288,50 @@ export namespace HumanFitBalance {
         ),
     );
     const c: IAutoMovieVector3 = reading.com;
-    return reading.anchors.map(
-      (_: { x: number; z: number }, k: number): number[] => {
-        const n: { x: number; z: number } = reading.normals[k]!;
-        const through: IThrough | undefined = reading.through?.[k];
-        if (corners === undefined || through === undefined)
-          return columns.map(
-            (v: IAutoMovieVector3): number => n.x * v.x + n.z * v.z,
-          );
-        const p: IAutoMovieVector3 = riders![through.p]!.world;
-        const vp: IAutoMovieVector3[] = corners[through.p]!;
-        if (through.kind === "point")
-          return columns.map(
-            (v: IAutoMovieVector3, j: number): number =>
-              n.x * (v.x - vp[j]!.x) + n.z * (v.z - vp[j]!.z),
-          );
-        const q: IAutoMovieVector3 = riders![through.q]!.world;
-        const vq: IAutoMovieVector3[] = corners[through.q]!;
-        const length: number = Math.hypot(q.x - p.x, q.z - p.z);
-        const t: { x: number; z: number } = {
-          x: (q.x - p.x) / length,
-          z: (q.z - p.z) / length,
-        };
-        if (through.kind === "cap") {
-          // The cap turns with the segment: the centre's offset across it
-          // times the segment's own turn.
-          const across: number = -t.z * (c.x - p.x) + t.x * (c.z - p.z);
-          return columns.map(
-            (v: IAutoMovieVector3, j: number): number =>
-              t.x * (v.x - vp[j]!.x) +
-              t.z * (v.z - vp[j]!.z) +
-              (across *
-                (-t.z * (vq[j]!.x - vp[j]!.x) + t.x * (vq[j]!.z - vp[j]!.z))) /
-                length,
-          );
-        }
-
-        // A side moves at its corners' velocities blended where the
-        // centre projects on it.
-        const s: number = (t.x * (c.x - p.x) + t.z * (c.z - p.z)) / length;
+    return reading.anchors.map((_: ISlopes, k: number): number[] => {
+      const n: ISlopesN = reading.normals[k]!;
+      const through: IThrough | undefined = reading.through?.[k];
+      if (corners === undefined || through === undefined)
+        return columns.map(
+          (v: IAutoMovieVector3): number => n.x * v.x + n.z * v.z,
+        );
+      const p: IAutoMovieVector3 = riders![through.p]!.world;
+      const vp: IAutoMovieVector3[] = corners[through.p]!;
+      if (through.kind === "point")
         return columns.map(
           (v: IAutoMovieVector3, j: number): number =>
-            n.x * (v.x - (1 - s) * vp[j]!.x - s * vq[j]!.x) +
-            n.z * (v.z - (1 - s) * vp[j]!.z - s * vq[j]!.z),
+            n.x * (v.x - vp[j]!.x) + n.z * (v.z - vp[j]!.z),
         );
-      },
-    );
+      const q: IAutoMovieVector3 = riders![through.q]!.world;
+      const vq: IAutoMovieVector3[] = corners[through.q]!;
+      const length: number = Math.hypot(q.x - p.x, q.z - p.z);
+      const t: ISlopesT = {
+        x: (q.x - p.x) / length,
+        z: (q.z - p.z) / length,
+      };
+      if (through.kind === "cap") {
+        // The cap turns with the segment: the centre's offset across it
+        // times the segment's own turn.
+        const across: number = -t.z * (c.x - p.x) + t.x * (c.z - p.z);
+        return columns.map(
+          (v: IAutoMovieVector3, j: number): number =>
+            t.x * (v.x - vp[j]!.x) +
+            t.z * (v.z - vp[j]!.z) +
+            (across *
+              (-t.z * (vq[j]!.x - vp[j]!.x) + t.x * (vq[j]!.z - vp[j]!.z))) /
+              length,
+        );
+      }
+
+      // A side moves at its corners' velocities blended where the
+      // centre projects on it.
+      const s: number = (t.x * (c.x - p.x) + t.z * (c.z - p.z)) / length;
+      return columns.map(
+        (v: IAutoMovieVector3, j: number): number =>
+          n.x * (v.x - (1 - s) * vp[j]!.x - s * vq[j]!.x) +
+          n.z * (v.z - (1 - s) * vp[j]!.z - s * vq[j]!.z),
+      );
+    });
   }
 
   /**
@@ -371,10 +407,7 @@ export namespace HumanFitBalance {
   }
 
   /** A side's unit direction from its first corner to its second at the reading. */
-  function side(
-    reading: IReading,
-    through: IThrough,
-  ): { x: number; z: number } {
+  function side(reading: IReading, through: IThrough): ISideResult {
     const p: IAutoMovieVector3 = reading.riders![through.p]!.world;
     const q: IAutoMovieVector3 = reading.riders![through.q]!.world;
     const length: number = Math.hypot(q.x - p.x, q.z - p.z);

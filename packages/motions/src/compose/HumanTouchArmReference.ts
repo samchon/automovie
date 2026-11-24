@@ -9,7 +9,11 @@ import type {
 } from "@automovie/interface";
 
 import { readHumanBone } from "../body/readHumanBone";
+import { HumanLimbFit } from "../posture/HumanLimbFit";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+
+/** The alternatives of `ReferenceLimb`'s site. */
+type ReferenceLimb = "leftArm" | "rightArm";
 
 /** The joint reference for a hand laid on a region, from an actual arm fit. */
 export namespace HumanTouchArmReference {
@@ -42,10 +46,10 @@ export namespace HumanTouchArmReference {
     projection?: Parameters<typeof resolveHumanPosture.seeded>[6],
     fitted?: (
       goal: IAutoMovieHumanLimbGoal,
-    ) => Parameters<typeof resolveHumanPosture.reference>[0],
+    ) => Parameters<typeof HumanLimbFit.reference>[0],
   ): NonNullable<IAutoMovieHumanLimbGoal["reference"]> {
-    const limb: "leftArm" | "rightArm" = `${side}Arm`;
-    const solved: IAutoMovieHumanLimbReference = resolveHumanPosture.reference(
+    const limb: ReferenceLimb = `${side}Arm`;
+    const solved: IAutoMovieHumanLimbReference = HumanLimbFit.reference(
       fitted !== undefined
         ? fitted(goal)
         : resolveHumanPosture.seeded(

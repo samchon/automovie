@@ -198,7 +198,7 @@ export namespace AutoMovieMotionHumanStance {
    * so the pelvis pitches 0.64 of it, the lumbar spine flexes 0.28 and the
    * thorax 0.08 (`HumanTrunk.incline`). The legs are solved onto the planted
    * feet, lowering the pelvis where a leg could not reach
-   * (`resolveHumanPosture.lower`); a squat, which outruns the ankles' 20 degree
+   * (`lowerHumanPosture`); a squat, which outruns the ankles' 20 degree
    * dorsiflexion range, lets the heels rise up to 30 degrees, the feet rolling
    * on their balls (provisional). The arm goes onto the palm's goal and the
    * gaze onto the target, and the free hand braces on its own thigh just above

@@ -1,5 +1,6 @@
 import { minimumJerk } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieMotionHumanActionName,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
@@ -109,7 +110,7 @@ export namespace shift {
     );
     const slide: number = 0.6 + Math.abs(context.params.by);
     const duration: number = slide + (context.params.hold ?? 0.5);
-    const feet: Record<"left" | "right", IAutoMovieVector3> = stand.feet(
+    const feet: Record<AutoMovieHumanSide, IAutoMovieVector3> = stand.feet(
       body,
       context.entry,
       entry.yaw,

@@ -10,6 +10,24 @@ import type {
 
 import { AutoMovieMotionHumanLeg } from "../compose/AutoMovieMotionHumanLeg";
 
+/** The record of `ISupportFlight`'s site. */
+type ISupportFlight = {
+  /** Whether the profile calls for flight. */
+  enabled: boolean;
+
+  /** Local second of liftoff. */
+  takeoff: number;
+
+  /** Local second of touchdown. */
+  landing: number;
+
+  /** Whether the given action-local second is strictly inside flight. */
+  airborne: (seconds: number) => boolean;
+
+  /** Current flight height in metres, zero outside flight. */
+  lift: (seconds: number) => number;
+};
+
 /** The actual anchoring and flight phases available to the stroke's feet. */
 interface ISupport {
   /** Body used to fit both leg goals. */
@@ -35,23 +53,16 @@ interface ISupport {
   clearance: number;
 
   /** Optional jump phase and shared ballistic displacement. */
-  flight: {
-    /** Whether the profile calls for flight. */
-    enabled: boolean;
-
-    /** Local second of liftoff. */
-    takeoff: number;
-
-    /** Local second of touchdown. */
-    landing: number;
-
-    /** Whether the given action-local second is strictly inside flight. */
-    airborne: (seconds: number) => boolean;
-
-    /** Current flight height in metres, zero outside flight. */
-    lift: (seconds: number) => number;
-  };
+  flight: ISupportFlight;
 }
+/** The record of `ICourtStrokeFeetResult`'s site. */
+type ICourtStrokeFeetResult = {
+  /** The two leg placement rows. */
+  primitives: IAutoMovieMotionHumanPrimitive[];
+
+  /** Their ordered plant windows. */
+  contacts: IAutoMovieMotionHumanContactWindow[];
+};
 
 /**
  * Prepare the two court stroke foot placements and the corresponding
@@ -69,13 +80,7 @@ export function courtStrokeFeet({
   clock,
   clearance,
   flight,
-}: ISupport): {
-  /** The two leg placement rows. */
-  primitives: IAutoMovieMotionHumanPrimitive[];
-
-  /** Their ordered plant windows. */
-  contacts: IAutoMovieMotionHumanContactWindow[];
-} {
+}: ISupport): ICourtStrokeFeetResult {
   const duration: number = clock.duration;
   const primitives: IAutoMovieMotionHumanPrimitive[] = [];
   const contacts: IAutoMovieMotionHumanContactWindow[] = [];

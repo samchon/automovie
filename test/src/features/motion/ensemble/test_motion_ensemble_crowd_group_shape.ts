@@ -7,14 +7,16 @@ import { TestValidator } from "@nestia/e2e";
 
 /**
  * Reads pedestrian group slots on their shared course. At the two field
- * densities, pairs stay abreast, trios bend forward, and four members form
- * two inside positions behind the outside ones. Wider members keep lateral
- * shoulder clearance. The course transports the shape as a rigid layout.
+ * densities, pairs stay abreast, trios bend forward, and four members form two
+ * inside positions behind the outside ones. Wider members keep lateral shoulder
+ * clearance. The course transports the shape as a rigid layout.
  *
  * Scenarios:
+ *
  * 1. Field geometry changes with group size and density.
  * 2. Wide shoulders preserve the bend while increasing lateral clearance.
- * 3. A translated quarter-turn carries the same ordered slot layout through off-grid and backward reads.
+ * 3. A translated quarter-turn carries the same ordered slot layout through
+ *    off-grid and backward reads.
  * 4. Malformed density, breadth and member counts are refused.
  * 5. A placed outer slot can reach a footprint beyond the centroid proxy.
  *
@@ -48,8 +50,10 @@ export function test_motion_ensemble_crowd_group_shape(): void {
     Array.from(
       { length: AutoMovieMotionHumanEnsemble.HumanFormation.count(formation) },
       (_: unknown, i: number): IAutoMovieVector3 =>
-        AutoMovieMotionHumanEnsemble.HumanFormation.slot(formation, i, seconds)
-          .at,
+        AutoMovieMotionHumanEnsemble.HumanFormation.prepare(formation).slot(
+          i,
+          seconds,
+        ).at,
     );
 
   /** Measure the planar separation of two slots. */

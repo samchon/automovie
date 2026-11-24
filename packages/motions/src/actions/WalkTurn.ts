@@ -1,3 +1,17 @@
+/** The record of `IAtB`'s site. */
+type IAtB = { seconds: number; yaw: number };
+
+/** The record of `IAtA`'s site. */
+type IAtA = { seconds: number; yaw: number };
+
+/** The record of `IAtLast`'s site. */
+type IAtLast = { seconds: number; yaw: number };
+
+/** The record of `IAtFirst`'s site. */
+type IAtFirst = { seconds: number; yaw: number };
+
+/** The record of `IWalkTurnKnotsItem`'s site. */
+type IWalkTurnKnotsItem = { seconds: number; yaw: number };
 /**
  * The pelvis's heading through a stepping gait, a curve through the headings
  * its footfalls give it: at each heel strike the pelvis faces midway between
@@ -15,9 +29,7 @@ export class WalkTurn {
    * @param knots The headings in degrees at ascending seconds, unwrapped so
    *   neighbours never differ by a full turn; at least one.
    */
-  public constructor(
-    private readonly knots: readonly { seconds: number; yaw: number }[],
-  ) {
+  public constructor(private readonly knots: readonly IWalkTurnKnotsItem[]) {
     const slope: (i: number) => number = (i: number): number =>
       (knots[i + 1]!.yaw - knots[i]!.yaw) /
       Math.max(1e-9, knots[i + 1]!.seconds - knots[i]!.seconds);
@@ -44,8 +56,8 @@ export class WalkTurn {
    * @returns Degrees.
    */
   public at(seconds: number): number {
-    const first: { seconds: number; yaw: number } = this.knots[0]!;
-    const last: { seconds: number; yaw: number } = this.knots.at(-1)!;
+    const first: IAtFirst = this.knots[0]!;
+    const last: IAtLast = this.knots.at(-1)!;
     if (seconds <= first.seconds) return first.yaw;
     if (seconds >= last.seconds) return last.yaw;
     let i: number = 0;
@@ -55,8 +67,8 @@ export class WalkTurn {
       if (this.knots[middle + 1]!.seconds < seconds) i = middle + 1;
       else high = middle;
     }
-    const a: { seconds: number; yaw: number } = this.knots[i]!;
-    const b: { seconds: number; yaw: number } = this.knots[i + 1]!;
+    const a: IAtA = this.knots[i]!;
+    const b: IAtB = this.knots[i + 1]!;
     const h: number = b.seconds - a.seconds;
     if (h < 1e-9) return b.yaw;
     const u: number = (seconds - a.seconds) / h;

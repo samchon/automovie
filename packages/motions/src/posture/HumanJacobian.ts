@@ -22,7 +22,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { resolveHumanPosture } from "./resolveHumanPosture";
+import { humanPostureHeading } from "./humanPostureHeading";
 
 /**
  * The analytic Jacobian of a posed body: how each of a posture's variables (the
@@ -32,24 +32,26 @@ import { resolveHumanPosture } from "./resolveHumanPosture";
  * Each variable is a twist: the bones it moves turn about a world axis through
  * a point, or move along a direction (Siciliano et al. 2009, section 3.1.3). A
  * bone's segment then has the twist's angular velocity and its origin the
- * linear velocity `v + ω × (o − pivot)`, and any point on it moves at `v_origin
- * + ω × (p − o)`, so a caller with many probes on few segments reads each
- * segment's twist once (`twist`) and a caller with few points reads their
- * columns directly (`velocity`). The root's place moves every bone along its
- * axis; its heading turns every bone about the root, yaw about the world's up,
- * pitch about the yawed left axis and roll about the yawed and pitched forward
- * axis (`resolveHumanPosture.heading`). A joint's three angles compose its
- * rotation in the engine's order (`jointToQuaternion`): twist, abduction,
- * flexion for a proximal twist, so the flexion axis is the basis axis turned by
- * the twist and the abduction before it, and abduction, flexion, twist for a
- * distal one. The frame before the joint is its parent's world rotation turned
- * by its rest rotation, and a clinical angle is the rig's angle mapped by the
- * rest frame, so a turn per clinical degree is the axis scaled by the frame's
- * sign. The angles are the clamped ones forward kinematics reads, so at a range
- * limit the motion is the one the joint makes inward. The established
- * body-indexed rig snapshot requires that body's skeleton, topology and
- * clinical bases to remain unchanged for its lifetime; reads retain that
- * existing policy rather than introducing another global cache.
+ * linear velocity `v + ω × (o − pivot)`, and any point on it moves at
+ * `v_origin
+ *
+ * - Ω × (p − o)`, so a caller with many probes on few segments reads each
+ *   segment's twist once (`twist`) and a caller with few points reads their
+ *   columns directly (`velocity`). The root's place moves every bone along its
+ *   axis; its heading turns every bone about the root, yaw about the world's
+ *   up, pitch about the yawed left axis and roll about the yawed and pitched
+ *   forward axis (`humanPostureHeading`). A joint's three angles compose its
+ *   rotation in the engine's order (`jointToQuaternion`): twist, abduction,
+ *   flexion for a proximal twist, so the flexion axis is the basis axis turned
+ *   by the twist and the abduction before it, and abduction, flexion, twist for
+ *   a distal one. The frame before the joint is its parent's world rotation
+ *   turned by its rest rotation, and a clinical angle is the rig's angle mapped
+ *   by the rest frame, so a turn per clinical degree is the axis scaled by the
+ *   frame's sign. The angles are the clamped ones forward kinematics reads, so
+ *   at a range limit the motion is the one the joint makes inward. The
+ *   established body-indexed rig snapshot requires that body's skeleton,
+ *   topology and clinical bases to remain unchanged for its lifetime; reads
+ *   retain that existing policy rather than introducing another global cache.
  */
 export namespace HumanJacobian {
   /**
@@ -106,7 +108,7 @@ export namespace HumanJacobian {
       yawed,
       Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, posture.pitch),
     );
-    const heading: IAutoMovieQuaternion = resolveHumanPosture.heading(posture);
+    const heading: IAutoMovieQuaternion = humanPostureHeading(posture);
     let clamp:
       | ((joint: IAutoMovieJointPose) => IAutoMovieJointPose)
       | undefined = projection;

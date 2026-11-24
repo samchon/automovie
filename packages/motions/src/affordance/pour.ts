@@ -39,6 +39,11 @@ const UPRIGHT: number = Math.cos((5 * Math.PI) / 180);
 const TIP_ALIGNMENT: number = Math.cos((10 * Math.PI) / 180);
 /** World vertical for the stationary vessel and the gravity cue. */
 const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
+/** The alternatives of `LiquidPlan`'s site. */
+type LiquidPlan = "duration" | "events";
+
+/** The record of `IPlanOpening`'s site. */
+type IPlanOpening = { center: IAutoMovieVector3; radius: number };
 
 /**
  * A registered, stationary-base pour. Bring the held source above a fixed
@@ -50,17 +55,9 @@ const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
  * inputs. The liquid query gives the volume cue for one action instance.
  */
 export namespace pour {
-  /**
-   * Registered action name.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the lookup key used by the chain.
-   */
+  /** Registered action name. */
   export const name: string = "pour";
-  /**
-   * The whole transfer plays together, without an offered cut.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation No authored interruption window is offered during the pour.
-   */
+  /** The whole transfer plays together, without an offered cut. */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {};
 
   /**
@@ -118,7 +115,7 @@ export namespace pour {
         source.subject,
         "the source needs a rigid rim lip and a movable body",
       );
-    const opening: { center: IAutoMovieVector3; radius: number } = openingOf(
+    const opening: IPlanOpening = openingOf(
       source.subject,
       target,
       context.start,
@@ -311,7 +308,7 @@ export namespace pour {
    */
   export function liquid(
     params: IAutoMovieMotionHumanPour.IParams,
-    plan: Pick<IAutoMovieMotionHumanActionPlan, "duration" | "events">,
+    plan: Pick<IAutoMovieMotionHumanActionPlan, LiquidPlan>,
     seconds: number,
   ): IAutoMovieMotionHumanPour.ILiquid {
     validateVolumes(params);
@@ -356,13 +353,16 @@ export namespace pour {
     };
   }
 }
+/** The record of `IClockOfPhasesItem`'s site. */
+type IClockOfPhasesItem = { name: string; seconds: number };
+
 /** Admit a bounded, nonempty authored stage sequence and usable tip geometry. */
 function clockOf(
   params: IAutoMovieMotionHumanPour.IParams,
   tempo: number,
 ): IAutoMovieMotionClock {
   const { timing, gap, tilt } = params;
-  const phases: { name: string; seconds: number }[] = [
+  const phases: IClockOfPhasesItem[] = [
     { name: "approachStart", seconds: timing?.approach },
     { name: "tipStart", seconds: timing?.tip },
     { name: "flowStart", seconds: timing?.flow },
@@ -425,6 +425,9 @@ function validateVolumes(params: IAutoMovieMotionHumanPour.IParams): void {
       fix: "supply the initial fills and capacity in millilitres and discharge at most the available source volume",
     });
 }
+/** The record of `IOpeningOfResult`'s site. */
+type IOpeningOfResult = { center: IAutoMovieVector3; radius: number };
+
 /**
  * Read the stationary recipient's upright circular opening from its centre and
  * rim.
@@ -433,7 +436,7 @@ function openingOf(
   source: string,
   receiver: IAutoMovieMotionHumanPropReader,
   seconds: number,
-): { center: IAutoMovieVector3; radius: number } {
+): IOpeningOfResult {
   const target: IAutoMovieMotionHumanProp = receiver.prop;
   const mouth: IAutoMovieAffordance | undefined = target.affordances?.find(
     (site: IAutoMovieAffordance): boolean =>
@@ -496,9 +499,12 @@ function rimOf(
       site.id === "lip" && site.kind === "ledge" && site.rides === undefined,
   );
 }
+/** The alternatives of `VesselRefusalAxis`'s site. */
+type VesselRefusalAxis = "source" | "target";
+
 /** Report the vessel feature that must change. */
 function vesselRefusal(
-  axis: "source" | "target",
+  axis: VesselRefusalAxis,
   value: string,
   reason: string,
 ): HumanRefusal {

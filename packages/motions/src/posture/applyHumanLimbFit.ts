@@ -1,5 +1,6 @@
 import type {
   AutoMovieHumanLimb,
+  AutoMovieHumanSide,
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanBody,
   IAutoMoviePose,
@@ -25,7 +26,7 @@ export function applyHumanLimbFit(
   pose: IAutoMoviePose,
   limb: AutoMovieHumanLimb,
   goal: IAutoMovieHumanLimbGoal,
-  placed: readonly ("left" | "right")[],
+  placed: readonly AutoMovieHumanSide[],
   rival?: IAutoMovieVector3,
   near?: IAutoMovieSwivelNear,
   resolution?: Parameters<typeof prepareHumanPoseResolution>[0],

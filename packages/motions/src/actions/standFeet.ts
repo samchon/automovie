@@ -1,5 +1,6 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieHumanLimbGoal,
   IAutoMovieJointPose,
@@ -26,7 +27,7 @@ export namespace standFeet {
   /** A planted foot's flattening course. */
   export interface ICourse {
     /** Final ankle points, world metres. */
-    flat: Record<"left" | "right", IAutoMovieVector3>;
+    flat: Record<AutoMovieHumanSide, IAutoMovieVector3>;
     /** Read both rockers once for one share; the caller owns the sample. */
     sample(share: number): ISample;
     /** Mean ankle displacement from the flat targets at share 0 to 1. */
@@ -51,17 +52,10 @@ export namespace standFeet {
     ): IAutoMovieMotionHumanPosture;
   }
 
-  /**
-   * One foot's fixed-contact evaluations.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each evaluator names its unit or frame.
-   * @evidence contracts/development/design.md#principled-representation The same share places the ankle, articulates the toes and reads their contact offset.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Only the per-foot evaluations the paired course reads.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Uses the existing foot placement and vector types.
-   */
+  /** One foot's fixed-contact evaluations. */
   interface IPlan {
     /** The foot. */
-    side: "left" | "right";
+    side: AutoMovieHumanSide;
     /** The ankle and rotation at a share. */
     at(share: number): IAutoMovieMotionHumanFoot.IPlacement;
     /** Toe flexion, degrees, at a share. */
@@ -108,11 +102,11 @@ export namespace standFeet {
       undefined,
       requested,
     );
-    const planted: ("left" | "right")[] = sides.filter(
-      (side: "left" | "right"): boolean => entry.feet[side].planted,
+    const planted: AutoMovieHumanSide[] = sides.filter(
+      (side: AutoMovieHumanSide): boolean => entry.feet[side].planted,
     );
     const socketsBySide: Partial<
-      Record<"left" | "right", IAutoMovieMotionHumanFoot.ISocket[]>
+      Record<AutoMovieHumanSide, IAutoMovieMotionHumanFoot.ISocket[]>
     > = {};
     for (const side of planted)
       socketsBySide[side] = HumanFoot.sockets(body, bones, side);
@@ -120,13 +114,13 @@ export namespace standFeet {
       planted.length === 0
         ? 0
         : Math.min(
-            ...planted.flatMap((side: "left" | "right"): number[] =>
+            ...planted.flatMap((side: AutoMovieHumanSide): number[] =>
               socketsBySide[side]!.map(
                 (s: IAutoMovieMotionHumanFoot.ISocket): number => s.point.y,
               ),
             ),
           );
-    const plans: IPlan[] = sides.map((side: "left" | "right"): IPlan => {
+    const plans: IPlan[] = sides.map((side: AutoMovieHumanSide): IPlan => {
       const heading: number =
         yaw + (side === "left" ? stand.TOE_OUT : -stand.TOE_OUT);
       const rest: IAutoMovieVector3 = body.rest.get(`${side}Foot`)!;

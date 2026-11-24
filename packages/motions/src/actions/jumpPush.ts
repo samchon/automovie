@@ -6,6 +6,7 @@ import {
   minimumJerk,
 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanEntryState,
@@ -19,9 +20,9 @@ import type {
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
 import { hipJoints } from "../posture/hipJoints";
+import { humanPostureHeading } from "../posture/humanPostureHeading";
 import { lowerHumanPosture } from "../posture/lowerHumanPosture";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { jumpJoints } from "./jumpJoints";
 import { jumpPath } from "./jumpPath";
 import { jumpPushEnd } from "./jumpPushEnd";
@@ -51,6 +52,20 @@ const STEP: number = 1e-3;
  * a rounding of side by side.
  */
 const PASS_GAP: number = 1e-9;
+/** The alternatives of `OfAbout`'s site. */
+type OfAbout = "heel" | "mtp";
+
+/** The alternatives of `OfEnd`'s site. */
+type OfEnd = "joints" | "limbs";
+
+/** The record of `IOfEdgeResult`'s site. */
+type IOfEdgeResult = {
+  met: number;
+  excess: number;
+};
+
+/** The record of `IOfEdge`'s site. */
+type IOfEdge = { met: number; excess: number };
 
 /**
  * A jump's push-off, from the entry exactly: the pelvis and the heading from
@@ -71,7 +86,7 @@ export namespace jumpPush {
    * The hip a planted leg stands from at an asked pitch: the push's own hip,
    * lowered along gravity as the posture's lowering lowers it to reach that
    * pitch's ankle (`lowerHumanPosture`, the planted leg's least knee bend
-   * `resolveHumanPosture.KNEE`). The heel rule is a stance's, and read at an
+   * `lowerHumanPosture.KNEE`). The heel rule is a stance's, and read at an
    * unlowered hip beyond the leg's reach it has no lean to read: a gate that
    * kept the asked pitch there and the rule's pitch within reach switched
    * between the two where the hip crossed the reach, a 5 degree step of the
@@ -105,10 +120,10 @@ export namespace jumpPush {
     entry: IAutoMovieMotionHumanEntryState;
 
     /** The foot that pushes off. */
-    takeoff: "left" | "right";
+    takeoff: AutoMovieHumanSide;
 
     /** The foot that leaves at once. */
-    reaching: "left" | "right";
+    reaching: AutoMovieHumanSide;
 
     /** The take-off foot as entered. */
     support: IAutoMovieMotionHumanFoot.IPlacement;
@@ -143,7 +158,7 @@ export namespace jumpPush {
     /** The knee's bend point for a root, a side and a heading. */
     knee: (
       root: IAutoMovieVector3,
-      side: "left" | "right",
+      side: AutoMovieHumanSide,
       yaw: number,
     ) => IAutoMovieVector3;
   }
@@ -154,10 +169,10 @@ export namespace jumpPush {
     sample: (t: number) => IPhase;
 
     /** An upper arm's entry flexion rate, degrees per second. */
-    swinging: (side: "left" | "right") => number;
+    swinging: (side: AutoMovieHumanSide) => number;
 
     /** The upper-arm flexion at one current push sample, clinical degrees. */
-    arm: (phase: IPhase, side: "left" | "right") => number;
+    arm: (phase: IPhase, side: AutoMovieHumanSide) => number;
 
     /**
      * How far an elbow stands from the jump's own elbow rule at one push
@@ -165,7 +180,7 @@ export namespace jumpPush {
      * shoulder, fading from its entered gap and gap rate to none at the
      * take-off, so the elbow is not straightened ahead of the arm swing.
      */
-    elbow: (phase: IPhase, side: "left" | "right") => number;
+    elbow: (phase: IPhase, side: AutoMovieHumanSide) => number;
 
     /** Write the pelvis, both legs and toes at a local push second. */
     write: (
@@ -320,8 +335,8 @@ export namespace jumpPush {
               ],
       };
     };
-    const prepareArm: (side: "left" | "right") => IArmTrack = (
-      side: "left" | "right",
+    const prepareArm: (side: AutoMovieHumanSide) => IArmTrack = (
+      side: AutoMovieHumanSide,
     ): IArmTrack => {
       const from: number = entry.posture.joints[`${side}UpperArm`]?.[0] ?? 0;
       const rate: number =
@@ -344,16 +359,16 @@ export namespace jumpPush {
               rate / jumpJoints.SHOULDER_PER_ELBOW,
       };
     };
-    const arms: Record<"left" | "right", IArmTrack> = {
+    const arms: Record<AutoMovieHumanSide, IArmTrack> = {
       left: prepareArm("left"),
       right: prepareArm("right"),
     };
-    const swinging: (side: "left" | "right") => number = (
-      side: "left" | "right",
+    const swinging: (side: AutoMovieHumanSide) => number = (
+      side: AutoMovieHumanSide,
     ): number => arms[side].rate;
     const armAt: IPush["arm"] = (
       phase: IPhase,
-      side: "left" | "right",
+      side: AutoMovieHumanSide,
     ): number => {
       const track: IArmTrack = arms[side];
       return (
@@ -362,7 +377,7 @@ export namespace jumpPush {
     };
     const elbowAt: IPush["elbow"] = (
       phase: IPhase,
-      side: "left" | "right",
+      side: AutoMovieHumanSide,
     ): number => {
       const track: IArmTrack = arms[side];
       return track.bend * (1 - phase.progress) + track.bending * phase.carry;
@@ -408,7 +423,7 @@ export namespace jumpPush {
     // dorsal limit asks. A foot the walk held by that rule is met by it.
     // The rule reads the hip the planted leg stands from (`standing`).
     const short: ReturnType<typeof lowerHumanPosture.prepareShort> =
-      lowerHumanPosture.prepareShort(body, resolveHumanPosture.KNEE);
+      lowerHumanPosture.prepareShort(body, lowerHumanPosture.KNEE);
     const ruled: (
       phase: IPhase,
       resolution?: ReturnType<typeof prepareHumanPoseResolution>,
@@ -419,7 +434,7 @@ export namespace jumpPush {
       const hip: IAutoMovieVector3 = hipJoints(
         body,
         phase.root,
-        resolveHumanPosture.heading({ yaw: phase.yaw, pitch: 0, roll: 0 }),
+        humanPostureHeading({ yaw: phase.yaw, pitch: 0, roll: 0 }),
         phase.pelvis,
         resolution?.(),
       )[takeoff];
@@ -440,10 +455,7 @@ export namespace jumpPush {
     // one-sided difference over two steps of `STEP` seconds, whose O(STEP^2)
     // error is far below a degree per second for a rule that changes over
     // the push's tenths of a second.
-    const edge: { met: number; excess: number } = ((): {
-      met: number;
-      excess: number;
-    } => {
+    const edge: IOfEdge = ((): IOfEdgeResult => {
       const read: ReturnType<typeof prepareHumanPoseResolution> =
         prepareHumanPoseResolution();
       const met: number = ruled(sample(lowered), read);
@@ -534,8 +546,11 @@ export namespace jumpPush {
         const t: number = phase.seconds;
         const root: IAutoMovieVector3 = phase.root;
         if (t >= P) {
-          const end: Pick<IAutoMovieMotionHumanPosture, "joints" | "limbs"> =
-            jumpPushEnd(props, root, resolution);
+          const end: Pick<IAutoMovieMotionHumanPosture, OfEnd> = jumpPushEnd(
+            props,
+            root,
+            resolution,
+          );
           Object.assign(joints, end.joints);
           Object.assign(limbs, end.limbs);
           return;
@@ -545,7 +560,7 @@ export namespace jumpPush {
         // From the entry's own pitch and pitch rate, so a foot rolling on
         // its heel or its ball keeps rolling.
         const pitch: number = pitchAt(phase, resolution);
-        const about: "heel" | "mtp" = t < lowered ? "heel" : "mtp";
+        const about: OfAbout = t < lowered ? "heel" : "mtp";
         const foot: IAutoMovieMotionHumanFoot.IPlacement =
           about === "heel" ? heelAt!(pitch) : ballAt(pitch);
         limbs[`${takeoff}Leg`] = {

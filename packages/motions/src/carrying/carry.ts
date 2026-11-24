@@ -32,6 +32,15 @@ import { HumanHandTarget } from "../posture/HumanHandTarget";
 import { blendHumanJoint } from "../posture/blendHumanJoint";
 import { loadedWalkPace } from "./loadedWalkPace";
 
+/** The record of `IPlanClockResult`'s site. */
+type IPlanClockResult = { name: string; seconds: number };
+
+/** The record of `IHangResult`'s site. */
+type IHangResult = {
+  upper: readonly [number, number, number];
+  lower: readonly [number, number, number];
+};
+
 /**
  * Walking to a floor point while carrying a load or pushing a wheeled one: a
  * bag in one hand, a box in both hands before the body, a child on the hip, or
@@ -184,10 +193,7 @@ export namespace carry {
   export function hang(
     body: IAutoMovieMotionHumanBody,
     side: AutoMovieHumanSide,
-  ): {
-    upper: readonly [number, number, number];
-    lower: readonly [number, number, number];
-  } {
+  ): IHangResult {
     const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
     const elbow: IAutoMovieAngleRange | null | undefined =
       DEFAULT_HUMANOID_ROM[`${side}LowerArm`]?.flexion;
@@ -345,7 +351,7 @@ export namespace carry {
       base.events.map(
         (
           e: IAutoMovieMotionHumanActionPlan["events"][number],
-        ): { name: string; seconds: number } => ({
+        ): IPlanClockResult => ({
           name: e.name,
           seconds: e.share * duration,
         }),
@@ -549,13 +555,18 @@ export namespace carry {
     };
   }
 }
+/** The alternatives of `CarryPostureItem`'s site. */
+type CarryPostureItem = "pitch" | "roll" | "joints";
+
+/** The alternatives of `CarryPosture2`'s site. */
+type CarryPosture2 = "root" | "yaw";
 
 /**
  * Root and heading with the optional authored trunk channels that move a hand's
  * support frame.
  */
-type CarryPosture = Pick<IAutoMovieMotionHumanPosture, "root" | "yaw"> &
-  Partial<Pick<IAutoMovieMotionHumanPosture, "pitch" | "roll" | "joints">>;
+type CarryPosture = Pick<IAutoMovieMotionHumanPosture, CarryPosture2> &
+  Partial<Pick<IAutoMovieMotionHumanPosture, CarryPostureItem>>;
 
 /** A same-body FK loan scoped to the current posture evaluation. */
 type FK = Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2];

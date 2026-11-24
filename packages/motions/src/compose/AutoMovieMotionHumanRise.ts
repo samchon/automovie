@@ -1,5 +1,6 @@
 import { Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanFoot,
   IAutoMovieMotionHumanPosture,
@@ -34,7 +35,7 @@ export namespace AutoMovieMotionHumanRise {
    */
   export function foot(
     body: IAutoMovieMotionHumanBody,
-    side: "left" | "right",
+    side: AutoMovieHumanSide,
     flat: IAutoMovieMotionHumanFoot.IPlacement,
     degrees: number,
   ): IAutoMovieMotionHumanFoot.IPlacement {
@@ -62,7 +63,7 @@ export namespace AutoMovieMotionHumanRise {
     stance: IAutoMovieMotionHumanRise.Stance,
     degrees: number,
   ): IAutoMovieVector3 {
-    const travel = (side: "left" | "right"): IAutoMovieVector3 =>
+    const travel = (side: AutoMovieHumanSide): IAutoMovieVector3 =>
       Vector3.subtract(
         foot(body, side, stance[side], degrees).ankle,
         stance[side].ankle,
@@ -82,7 +83,7 @@ export namespace AutoMovieMotionHumanRise {
     props: IAutoMovieMotionHumanRise.ILegsProps,
   ): IAutoMovieMotionHumanPrimitive[] {
     return (["left", "right"] as const).map(
-      (side: "left" | "right"): IAutoMovieMotionHumanPrimitive => ({
+      (side: AutoMovieHumanSide): IAutoMovieMotionHumanPrimitive => ({
         channels: [`${side}Leg`],
         reads: ["root", `${side}Leg`],
         from: props.from,

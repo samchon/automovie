@@ -12,6 +12,15 @@ import type {
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanFrame } from "../posture/HumanFrame";
 
+/** The alternatives of `HeadContext`'s site. */
+type HeadContext = "body" | "carrier";
+
+/** The alternatives of `OfResult`'s site. */
+type OfResult = "point" | "normal";
+
+/** The alternatives of `OfContext`'s site. */
+type OfContext = "body" | "carrier";
+
 /**
  * Where a hand-to-face task holds a sheet to be read: the one task whose place
  * is not a region of the face but a point before the eyes, split from
@@ -87,10 +96,10 @@ export namespace handToFaceSheet {
    * @returns The place.
    */
   export function of(
-    context: Pick<IAutoMovieMotionHumanActionContext, "body" | "carrier">,
+    context: Pick<IAutoMovieMotionHumanActionContext, OfContext>,
     posture: IAutoMovieMotionHumanPosture,
     side: AutoMovieHumanSide,
-  ): Pick<IAutoMovieMotionHumanTarget.IPlace, "point" | "normal"> {
+  ): Pick<IAutoMovieMotionHumanTarget.IPlace, OfResult> {
     const m: IAutoMovieMotionHumanActionContext["body"]["measure"] =
       context.body.measure;
     const bones: ReturnType<typeof HumanTrunk.resolve> = HumanTrunk.resolve(
@@ -199,7 +208,7 @@ export namespace handToFaceSheet {
    * @returns Degrees of flexion, positive down.
    */
   export function head(
-    context: Pick<IAutoMovieMotionHumanActionContext, "body" | "carrier">,
+    context: Pick<IAutoMovieMotionHumanActionContext, HeadContext>,
     posture: IAutoMovieMotionHumanPosture,
     side: AutoMovieHumanSide,
   ): number {

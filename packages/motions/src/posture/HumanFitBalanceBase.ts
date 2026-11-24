@@ -1,5 +1,74 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
+/** The record of `IHalfPlanes2`'s site. */
+type IHalfPlanes2 = { x: number; z: number };
+
+/** The record of `IHalfPlanesResult`'s site. */
+type IHalfPlanesResult = { x: number; z: number };
+
+/** The record of `IHalfPlanes`'s site. */
+type IHalfPlanes = { x: number; z: number };
+
+/** The record of `IHalfPlanesMiddle`'s site. */
+type IHalfPlanesMiddle = { x: number; z: number };
+
+/** The record of `IHalfPlanesD`'s site. */
+type IHalfPlanesD = { x: number; z: number };
+
+/** The record of `IHalfPlanesB`'s site. */
+type IHalfPlanesB = { x: number; z: number };
+
+/** The record of `IHalfPlanesA`'s site. */
+type IHalfPlanesA = { x: number; z: number };
+
+/** The record of `IHalfPlanesCornersItem`'s site. */
+type IHalfPlanesCornersItem = { x: number; z: number };
+
+/** The record of `IPlanesNormalsItem`'s site. */
+type IPlanesNormalsItem = { x: number; z: number };
+
+/** The record of `IPlanesAnchorsItem`'s site. */
+type IPlanesAnchorsItem = { x: number; z: number };
+
+/** The alternatives of `HullChainStride2`'s site. */
+type HullChainStride2 = 1 | -1;
+
+/** The alternatives of `HullChainStride`'s site. */
+type HullChainStride = 1 | -1;
+
+/** The record of `IHull`'s site. */
+type IHull = { x: number; z: number };
+
+/** The record of `IMeanResult`'s site. */
+type IMeanResult = {
+  x: number;
+  z: number;
+};
+
+/** The record of `IMeanOutlineItem`'s site. */
+type IMeanOutlineItem = { x: number; z: number };
+
+/** The record of `IInwardN`'s site. */
+type IInwardN = { x: number; z: number };
+
+/** The record of `IInwardB`'s site. */
+type IInwardB = { x: number; z: number };
+
+/** The record of `IInwardA`'s site. */
+type IInwardA = { x: number; z: number };
+
+/** The record of `IInwardResult`'s site. */
+type IInwardResult = { x: number; z: number };
+
+/** The record of `IInwardMiddle`'s site. */
+type IInwardMiddle = { x: number; z: number };
+
+/** The record of `IInwardOutlineItem`'s site. */
+type IInwardOutlineItem = { x: number; z: number };
+
+/** The alternatives of `ThroughKind`'s site. */
+type ThroughKind = "side" | "cap" | "point";
+
 /**
  * The base of support of a balance (`HumanFitBalance`) as half-planes: the
  * convex hull of the bearing points on the floor (Andrew's monotone chain), and
@@ -15,7 +84,7 @@ export namespace HumanFitBalanceBase {
    */
   export interface IThrough {
     /** The half-plane's kind. */
-    kind: "side" | "cap" | "point";
+    kind: ThroughKind;
 
     /** Its first corner; a cap's own end. */
     p: number;
@@ -23,6 +92,8 @@ export namespace HumanFitBalanceBase {
     /** Its second corner; a cap's other end; `p` for a point. */
     q: number;
   }
+  /** The record of `IOfResult`'s site. */
+  type IOfResult = { corners: ICorner[] };
 
   /**
    * The hull of floor points and its half-planes.
@@ -33,7 +104,7 @@ export namespace HumanFitBalanceBase {
    */
   export function of(
     points: readonly IAutoMovieVector3[],
-  ): IPlanes & { corners: ICorner[] } {
+  ): IPlanes & IOfResult {
     const corners: ICorner[] = hull(
       points.map(
         (p: IAutoMovieVector3, i: number): ICorner => ({ x: p.x, z: p.z, i }),
@@ -47,16 +118,16 @@ export namespace HumanFitBalanceBase {
    * next; the monotone chain leaves no edge of zero length.
    */
   function inward(
-    outline: readonly { x: number; z: number }[],
+    outline: readonly IInwardOutlineItem[],
     k: number,
-    middle: { x: number; z: number },
-  ): { x: number; z: number } {
-    const a: { x: number; z: number } = outline[k]!;
-    const b: { x: number; z: number } = outline[(k + 1) % outline.length]!;
+    middle: IInwardMiddle,
+  ): IInwardResult {
+    const a: IInwardA = outline[k]!;
+    const b: IInwardB = outline[(k + 1) % outline.length]!;
     const dx: number = b.x - a.x;
     const dz: number = b.z - a.z;
     const length: number = Math.hypot(dx, dz);
-    const n: { x: number; z: number } = { x: -dz / length, z: dx / length };
+    const n: IInwardN = { x: -dz / length, z: dx / length };
 
     // The normal that points toward the outline's centroid, which a convex
     // outline holds inside, whichever way the corners run.
@@ -69,10 +140,7 @@ export namespace HumanFitBalanceBase {
    * The same ordered arithmetic mean of corners previously read independently
    * for every edge.
    */
-  function mean(outline: readonly { x: number; z: number }[]): {
-    x: number;
-    z: number;
-  } {
+  function mean(outline: readonly IMeanOutlineItem[]): IMeanResult {
     let x: number = 0;
     let z: number = 0;
     for (const p of outline) {
@@ -87,18 +155,18 @@ export namespace HumanFitBalanceBase {
    * place and traversed in both directions without a reversed copy; the corners
    * kept are the caller's own records.
    */
-  function hull<T extends { x: number; z: number }>(points: T[]): T[] {
+  function hull<T extends IHull>(points: T[]): T[] {
     const sorted: T[] = points.sort(
       (a: T, b: T): number => a.x - b.x || a.z - b.z,
     );
     if (sorted.length < 3) return sorted;
     const turn: (o: T, a: T, b: T) => number = (o: T, a: T, b: T): number =>
       (a.x - o.x) * (b.z - o.z) - (a.z - o.z) * (b.x - o.x);
-    const chain: (first: number, end: number, stride: 1 | -1) => T[] = (
+    const chain: (
       first: number,
       end: number,
-      stride: 1 | -1,
-    ): T[] => {
+      stride: HullChainStride,
+    ) => T[] = (first: number, end: number, stride: HullChainStride2): T[] => {
       const out: T[] = [];
       for (let i: number = first; i !== end; i += stride) {
         const p: T = sorted[i]!;
@@ -139,10 +207,10 @@ export namespace HumanFitBalanceBase {
    */
   export interface IPlanes {
     /** A floor point each half-plane passes through, world metres. */
-    anchors: { x: number; z: number }[];
+    anchors: IPlanesAnchorsItem[];
 
     /** Each half-plane's unit inward direction. */
-    normals: { x: number; z: number }[];
+    normals: IPlanesNormalsItem[];
 
     /** Each half-plane's corners among the hull's. */
     through: IThrough[];
@@ -155,10 +223,10 @@ export namespace HumanFitBalanceBase {
    * axis half-planes, which meet only at it. No hull has none but an empty one,
    * which bears nothing.
    */
-  function halfPlanes(corners: readonly { x: number; z: number }[]): IPlanes {
+  function halfPlanes(corners: readonly IHalfPlanesCornersItem[]): IPlanes {
     if (corners.length === 0) return { anchors: [], normals: [], through: [] };
-    const a: { x: number; z: number } = corners[0]!;
-    const b: { x: number; z: number } = corners[corners.length - 1]!;
+    const a: IHalfPlanesA = corners[0]!;
+    const b: IHalfPlanesB = corners[corners.length - 1]!;
     const span: number = Math.hypot(b.x - a.x, b.z - a.z);
     if (corners.length === 1 || (corners.length === 2 && span === 0))
       return {
@@ -174,7 +242,7 @@ export namespace HumanFitBalanceBase {
         ),
       };
     if (corners.length === 2) {
-      const d: { x: number; z: number } = {
+      const d: IHalfPlanesD = {
         x: (b.x - a.x) / span,
         z: (b.z - a.z) / span,
       };
@@ -194,15 +262,15 @@ export namespace HumanFitBalanceBase {
         ],
       };
     }
-    const middle: { x: number; z: number } = mean(corners);
+    const middle: IHalfPlanesMiddle = mean(corners);
     return {
       anchors: [...corners],
       normals: corners.map(
-        (_: { x: number; z: number }, k: number): { x: number; z: number } =>
+        (_: IHalfPlanes, k: number): IHalfPlanesResult =>
           inward(corners, k, middle),
       ),
       through: corners.map(
-        (_: { x: number; z: number }, k: number): IThrough => ({
+        (_: IHalfPlanes2, k: number): IThrough => ({
           kind: "side",
           p: k,
           q: (k + 1) % corners.length,

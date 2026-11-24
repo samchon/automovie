@@ -22,7 +22,7 @@ Constant work per call.
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 
-Reuses `resolveHumanPosture.heading`, the one owner of a posture's root rotation.
+Reuses `humanPostureHeading`, the one owner of a posture's root rotation.
 
 ## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
 

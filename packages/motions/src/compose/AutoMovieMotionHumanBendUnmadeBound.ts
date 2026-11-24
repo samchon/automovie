@@ -260,6 +260,8 @@ interface IReserve {
   /** The reserved end, degrees. */
   hi: number;
 }
+/** The alternatives of `WristSigma`'s site. */
+type WristSigma = 1 | -1;
 
 /** The hand's admitted basis, read in the swing's frame, and its reserves. */
 interface IWrist {
@@ -270,7 +272,7 @@ interface IWrist {
   abduction: IAutoMovieVector3;
 
   /** The sign of the handed twist axis along the forearm's axis. */
-  sigma: 1 | -1;
+  sigma: WristSigma;
 
   /** The hand's rest frame. */
   frame: IAutoMovieRestFrame | undefined;

@@ -1,5 +1,6 @@
 import { Vector3, carriedRate } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanBody,
@@ -14,7 +15,7 @@ import { jump } from "../actions/jump";
 import { stand } from "../actions/stand";
 import { ExerciseKey } from "../exercise/ExerciseKey";
 import { HumanFoot } from "../posture/HumanFoot";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { lowerHumanPosture } from "../posture/lowerHumanPosture";
 import { StrikingBody } from "../striking/StrikingBody";
 
 /**
@@ -94,7 +95,7 @@ export function handspringLanding(
   const touched: IAutoMovieMotionHumanPosture = flying(flight);
   const shown: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
     StrikingBody.trunk(body, touched, undefined, footBones);
-  const landed: Record<"left" | "right", IAutoMovieVector3> = {
+  const landed: Record<AutoMovieHumanSide, IAutoMovieVector3> = {
     left: shown.get("leftFoot")!.worldPosition,
     right: shown.get("rightFoot")!.worldPosition,
   };
@@ -124,11 +125,11 @@ export function handspringLanding(
     y: 0,
     z: Math.cos((yaw * Math.PI) / 180),
   };
-  const footRotations: Record<"left" | "right", IAutoMovieQuaternion> = {
+  const footRotations: Record<AutoMovieHumanSide, IAutoMovieQuaternion> = {
     left: HumanFoot.rotation(yaw + stand.TOE_OUT, 0),
     right: HumanFoot.rotation(yaw - stand.TOE_OUT, 0),
   };
-  const bends: Record<"left" | "right", IAutoMovieVector3> = {
+  const bends: Record<AutoMovieHumanSide, IAutoMovieVector3> = {
     left: Vector3.add(landed.left, {
       x: forward.x,
       y: body.measure.hipHeight / 2,
@@ -158,7 +159,7 @@ export function handspringLanding(
         bend: { ...bends[side] },
         planted: true,
       };
-    return resolveHumanPosture.lower(
+    return lowerHumanPosture(
       body,
       {
         ...ExerciseKey.posed(rising(u), yaw),

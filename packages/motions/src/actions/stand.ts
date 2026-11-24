@@ -212,7 +212,7 @@ export namespace stand {
     body: IAutoMovieMotionHumanBody,
     entry: IAutoMovieMotionHumanEntryState,
     yaw: number,
-  ): Record<"left" | "right", IAutoMovieVector3> {
+  ): Record<AutoMovieHumanSide, IAutoMovieVector3> {
     return standFeet.of(body, entry, yaw).flat;
   }
 
@@ -234,7 +234,7 @@ export namespace stand {
    */
   export function root(
     body: IAutoMovieMotionHumanBody,
-    feet: Readonly<Record<"left" | "right", IAutoMovieVector3>>,
+    feet: Readonly<Record<AutoMovieHumanSide, IAutoMovieVector3>>,
     yaw: number,
   ): IAutoMovieVector3 {
     return standRoot(body, feet, yaw, DROP);
@@ -259,7 +259,7 @@ export namespace stand {
     body: IAutoMovieMotionHumanBody,
     root: IAutoMovieVector3,
     yaw: number,
-    feet: Record<"left" | "right", IAutoMovieVector3>,
+    feet: Record<AutoMovieHumanSide, IAutoMovieVector3>,
   ): IAutoMovieMotionHumanPosture["limbs"] {
     return standingLegs(body, root, yaw, feet, TOE_OUT);
   }
@@ -310,8 +310,8 @@ export namespace stand {
     >,
   ): IAutoMovieMotionHumanPosture {
     const frame: IAutoMovieMotionHumanFrame = { origin: at, yaw };
-    const foot: (side: "left" | "right") => IAutoMovieVector3 = (
-      side: "left" | "right",
+    const foot: (side: AutoMovieHumanSide) => IAutoMovieVector3 = (
+      side: AutoMovieHumanSide,
     ): IAutoMovieVector3 => {
       const rest: IAutoMovieVector3 = body.rest.get(`${side}Foot`)!;
       return HumanFrame.point(frame, {
@@ -320,7 +320,7 @@ export namespace stand {
         z: rest.z,
       });
     };
-    const feet: Record<"left" | "right", IAutoMovieVector3> = {
+    const feet: Record<AutoMovieHumanSide, IAutoMovieVector3> = {
       left: foot("left"),
       right: foot("right"),
     };
@@ -356,10 +356,10 @@ export namespace stand {
     const settled: IAutoMovieMotionHumanPosture = stood.posture(stood.duration);
     const placement: (
       posture: IAutoMovieMotionHumanPosture,
-      side: "left" | "right",
+      side: AutoMovieHumanSide,
     ) => IAutoMovieMotionHumanFoot.IPlacement = (
       posture: IAutoMovieMotionHumanPosture,
-      side: "left" | "right",
+      side: AutoMovieHumanSide,
     ): IAutoMovieMotionHumanFoot.IPlacement => {
       const goal: IAutoMovieHumanLimbGoal = posture.limbs[`${side}Leg`]!;
       return {
@@ -386,9 +386,9 @@ export namespace stand {
     standing: IAutoMovieMotionHumanPosture;
 
     /** Each foot where the entry put it, world metres. */
-    entered: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement>;
+    entered: Record<AutoMovieHumanSide, IAutoMovieMotionHumanFoot.IPlacement>;
 
     /** Each foot flat in the settled quiet stance, world metres. */
-    settled: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement>;
+    settled: Record<AutoMovieHumanSide, IAutoMovieMotionHumanFoot.IPlacement>;
   }
 }

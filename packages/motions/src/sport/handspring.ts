@@ -35,6 +35,18 @@ import { handspringLanding } from "./handspringLanding";
 import { prepareGymnasticsPlacement } from "./prepareGymnasticsPlacement";
 import { salto } from "./salto";
 
+/** The alternatives of `OverContactsPart`'s site. */
+type OverContactsPart = "leftFoot" | "rightFoot";
+
+/** The record of `IOverLaunchResult`'s site. */
+type IOverLaunchResult = {
+  centre: IAutoMovieVector3;
+  slope: IAutoMovieVector3;
+};
+
+/** The record of `IOverLaunch`'s site. */
+type IOverLaunch = { centre: IAutoMovieVector3; slope: IAutoMovieVector3 };
+
 /**
  * A front handspring: from standing, the body reaches forward into a lunge,
  * turns head over heels in pitch over its hands, leaves them and flies to its
@@ -275,33 +287,32 @@ export namespace handspring {
     );
 
     // The release: the centre and its change with the angle, per degree.
-    const launch: { centre: IAutoMovieVector3; slope: IAutoMovieVector3 } =
-      ((): { centre: IAutoMovieVector3; slope: IAutoMovieVector3 } => {
-        const read: ReturnType<typeof prepareHumanPoseResolution> =
-          prepareHumanPoseResolution();
-        const projection: ReturnType<typeof prepareHumanPostureProjection> =
-          prepareHumanPostureProjection(body);
-        const centre: IAutoMovieVector3 = GymnasticsFlight.centre(
-          body,
-          model,
-          placedAt(RELEASE),
-          read,
-          projection,
-        );
-        return {
+    const launch: IOverLaunch = ((): IOverLaunchResult => {
+      const read: ReturnType<typeof prepareHumanPoseResolution> =
+        prepareHumanPoseResolution();
+      const projection: ReturnType<typeof prepareHumanPostureProjection> =
+        prepareHumanPostureProjection(body);
+      const centre: IAutoMovieVector3 = GymnasticsFlight.centre(
+        body,
+        model,
+        placedAt(RELEASE),
+        read,
+        projection,
+      );
+      return {
+        centre,
+        slope: Vector3.subtract(
           centre,
-          slope: Vector3.subtract(
-            centre,
-            GymnasticsFlight.centre(
-              body,
-              model,
-              placedAt(RELEASE - 1),
-              read,
-              projection,
-            ),
+          GymnasticsFlight.centre(
+            body,
+            model,
+            placedAt(RELEASE - 1),
+            read,
+            projection,
           ),
-        };
-      })();
+        ),
+      };
+    })();
     const cr: IAutoMovieVector3 = launch.centre;
     const slope: IAutoMovieVector3 = launch.slope;
 
@@ -410,9 +421,7 @@ export namespace handspring {
     const contacts: IAutoMovieMotionHumanContactWindow[] = [
       ...GymnasticsWheel.contacts(wheel, spokes, share),
       ...(["leftFoot", "rightFoot"] as const).map(
-        (
-          part: "leftFoot" | "rightFoot",
-        ): IAutoMovieMotionHumanContactWindow => ({
+        (part: OverContactsPart): IAutoMovieMotionHumanContactWindow => ({
           part,
           kind: "plant",
           from: touchdown / duration,

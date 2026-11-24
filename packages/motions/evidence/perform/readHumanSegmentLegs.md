@@ -22,7 +22,7 @@ Two to the running overlays' count names a leg, in practice one to four. A secon
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 
-The chain is the plan's, kept per plan; its frames are built from the plan's start in order whichever seconds read them, so leaving it unread at a second changes no frame.
+The chain is the placed action's own reader (`segment.legs`), prepared once when the action is placed; its frames are built from the plan's start in order whichever seconds read them, so leaving it unread at a second changes no frame.
 
 ## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
 

@@ -1,4 +1,5 @@
 import type {
+  AutoMovieHumanSide,
   IAutoMovieHumanLimbGoal,
   IAutoMovieJointPose,
   IAutoMoviePose,
@@ -12,9 +13,9 @@ import type {
  */
 export function compareHumanLimbPair(
   original: IAutoMoviePose,
-  goals: Readonly<Record<"left" | "right", IAutoMovieHumanLimbGoal>>,
+  goals: Readonly<Record<AutoMovieHumanSide, IAutoMovieHumanLimbGoal>>,
   image: IAutoMoviePose,
-  reflected: Readonly<Record<"left" | "right", IAutoMovieHumanLimbGoal>>,
+  reflected: Readonly<Record<AutoMovieHumanSide, IAutoMovieHumanLimbGoal>>,
 ): number {
   const a: string = key(original, goals);
   const b: string = key(image, reflected);
@@ -27,7 +28,7 @@ export function compareHumanLimbPair(
  */
 function key(
   pose: IAutoMoviePose,
-  goals: Readonly<Record<"left" | "right", IAutoMovieHumanLimbGoal>>,
+  goals: Readonly<Record<AutoMovieHumanSide, IAutoMovieHumanLimbGoal>>,
 ): string {
   return JSON.stringify([
     pose.root,

@@ -1,4 +1,5 @@
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieJointPose,
   IAutoMovieMotionHumanBody,
@@ -42,7 +43,7 @@ export namespace KickChamber {
    */
   export function fold(
     body: IAutoMovieMotionHumanBody,
-    side: "left" | "right",
+    side: AutoMovieHumanSide,
     pose: IAutoMoviePose,
     flexion: number,
   ): IKey {
@@ -72,7 +73,7 @@ export namespace KickChamber {
 
 /** The only two FK records consumed by a folded chamber key. */
 const OUTPUTS: Readonly<
-  Record<"left" | "right", ReadonlySet<AutoMovieHumanoidBone>>
+  Record<AutoMovieHumanSide, ReadonlySet<AutoMovieHumanoidBone>>
 > = {
   left: new Set<AutoMovieHumanoidBone>(["leftLowerLeg", "leftFoot"]),
   right: new Set<AutoMovieHumanoidBone>(["rightLowerLeg", "rightFoot"]),

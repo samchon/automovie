@@ -5,6 +5,39 @@ import { StaggerPendulum } from "./StaggerPendulum";
 import type { staggerRecover } from "./staggerRecover";
 import { staggerTransfer } from "./staggerTransfer";
 
+/** The record of `IStaggerPendulumCoursesStateAtStart`'s site. */
+type IStaggerPendulumCoursesStateAtStart = {
+  s: IAutoMovieVector3;
+  v: IAutoMovieVector3;
+  p: IAutoMovieVector3;
+};
+
+/** The record of `IStaggerPendulumCoursesStateAtResult`'s site. */
+type IStaggerPendulumCoursesStateAtResult = {
+  s: IAutoMovieVector3;
+  v: IAutoMovieVector3;
+  p: IAutoMovieVector3;
+};
+
+/** The record of `IStaggerPendulumCoursesStateAt`'s site. */
+type IStaggerPendulumCoursesStateAt = {
+  s: IAutoMovieVector3;
+  v: IAutoMovieVector3;
+  p: IAutoMovieVector3;
+};
+
+/** The record of `IStaggerPendulumCoursesPhaseAtResult`'s site. */
+type IStaggerPendulumCoursesPhaseAtResult = {
+  phase: staggerRecover.IPhase;
+  u: number;
+};
+
+/** The record of `IStaggerPendulumCoursesPhaseAt`'s site. */
+type IStaggerPendulumCoursesPhaseAt = {
+  phase: staggerRecover.IPhase;
+  u: number;
+};
+
 /**
  * Read the pendulum's held-pressure spans at action-local seconds.
  *
@@ -21,10 +54,9 @@ export function staggerPendulumCourses(
 ): staggerRecover.ICourses {
   // The last span whose start is at or before the second: the spans' starts
   // never decrease, as the pendulum appends each at its own clock.
-  const phaseAt: (seconds: number) => {
-    phase: staggerRecover.IPhase;
-    u: number;
-  } = (seconds: number): { phase: staggerRecover.IPhase; u: number } => {
+  const phaseAt: (seconds: number) => IStaggerPendulumCoursesPhaseAt = (
+    seconds: number,
+  ): IStaggerPendulumCoursesPhaseAtResult => {
     let lo: number = 0;
     let hi: number = phases.length - 1;
     while (lo < hi) {
@@ -39,19 +71,11 @@ export function staggerPendulumCourses(
   // A span's state u seconds in: a weight shift's closed form up to its
   // end (`staggerTransfer`), then the held pressure at its end; a held span
   // in closed form throughout.
-  const stateAt: (seconds: number) => {
-    s: IAutoMovieVector3;
-    v: IAutoMovieVector3;
-    p: IAutoMovieVector3;
-  } = (
+  const stateAt: (seconds: number) => IStaggerPendulumCoursesStateAt = (
     seconds: number,
-  ): { s: IAutoMovieVector3; v: IAutoMovieVector3; p: IAutoMovieVector3 } => {
+  ): IStaggerPendulumCoursesStateAtResult => {
     const { phase, u }: ReturnType<typeof phaseAt> = phaseAt(seconds);
-    let start: {
-      s: IAutoMovieVector3;
-      v: IAutoMovieVector3;
-      p: IAutoMovieVector3;
-    } = phase;
+    let start: IStaggerPendulumCoursesStateAtStart = phase;
     let rest: number = u;
     if (phase.to !== undefined && phase.span !== undefined) {
       if (u <= phase.span)

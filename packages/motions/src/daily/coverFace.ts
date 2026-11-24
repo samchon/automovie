@@ -17,11 +17,6 @@ import { handToFace } from "./handToFace";
  * (2025)](https://doi.org/10.3758/s13428-025-02766-4) describes face hiding as
  * part of crying behavior. The bilateral pose, 15 degrees of head flexion and
  * the default 1.2 s additional hold are authored choices.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the bilateral pose, head action, event and open inputs.
- * @evidence contracts/development/design.md#principled-representation A hand-to-face hold on two distinct facial regions, with the owner's synchronized arm planning and head pulse.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Fixes the gesture and exposes only hold duration and manner.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Uses the existing planner and canonical cheek regions with fixed bare-hand contact.
  */
 export const coverFace: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanHandToBody.ICoverFace> =
   HumanActionRow.of("coverFace", handToFace, HUMAN_HAND_TO_BODY_COVER_FACE);

@@ -1,4 +1,5 @@
 import type {
+  AutoMovieHumanSide,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanPosture,
   IAutoMovieVector3,
@@ -8,12 +9,32 @@ import { AutoMovieMotionHumanAuditContact } from "../audit/AutoMovieMotionHumanA
 import { AutoMovieMotionHumanLean } from "../compose/AutoMovieMotionHumanLean";
 import { HumanBalance } from "../everyday/HumanBalance";
 import { HumanFrame } from "../posture/HumanFrame";
+import { lowerHumanPosture } from "../posture/lowerHumanPosture";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { StrikingStance } from "../striking/StrikingStance";
 import { StrikingTarget } from "../striking/StrikingTarget";
 import { staggerBounds } from "./staggerBounds";
+
+/** The alternatives of `KneePolePrepared`'s site. */
+type KneePolePrepared =
+  | ReturnType<typeof HumanFrame.preparePoint>
+  | IAutoMovieVector3;
+
+/** The record of `IBendingShiftMore2`'s site. */
+type IBendingShiftMore2 = {
+  pitch: number;
+  roll: number;
+};
+
+/** The record of `IBendingShiftMore`'s site. */
+type IBendingShiftMore = {
+  pitch: number;
+  roll: number;
+};
+
+/** The alternatives of `BendingEntryResult`'s site. */
+type BendingEntryResult = "pitch" | "roll";
 
 /**
  * The body readings a stagger's legs and trunk share (`StaggerFeet`,
@@ -41,7 +62,7 @@ export namespace staggerKnots {
     entry: IAutoMovieMotionHumanActionContext["entry"],
     source?: Parameters<typeof prepareHumanPoseResolution>[0],
     projector?: ReturnType<typeof prepareHumanPostureProjection>,
-  ): Record<"pitch" | "roll", IAutoMovieVector3> {
+  ): Record<BendingEntryResult, IAutoMovieVector3> {
     const resolution: ReturnType<typeof prepareHumanPoseResolution> =
       prepareHumanPoseResolution(source);
     const projection: ReturnType<typeof prepareHumanPostureProjection> =
@@ -61,22 +82,18 @@ export namespace staggerKnots {
       projection,
     );
     const sine: number = Math.sin((staggerBounds.REFERENCE * Math.PI) / 180);
-    const shift: (more: {
-      pitch: number;
-      roll: number;
-    }) => IAutoMovieVector3 = (more: {
-      pitch: number;
-      roll: number;
-    }): IAutoMovieVector3 => {
+    const shift: (more: IBendingShiftMore) => IAutoMovieVector3 = (
+      more: IBendingShiftMore2,
+    ): IAutoMovieVector3 => {
       const tilted: IAutoMovieMotionHumanPosture =
         AutoMovieMotionHumanLean.pivot(body, standing, more);
       const centre: IAutoMovieVector3 = centreOf(
         {
           ...tilted,
-          root: resolveHumanPosture.lower(
+          root: lowerHumanPosture(
             body,
             tilted,
-            resolveHumanPosture.KNEE,
+            lowerHumanPosture.KNEE,
             resolution,
           ).root,
         },
@@ -112,9 +129,9 @@ export namespace staggerKnots {
     body: IAutoMovieMotionHumanActionContext["body"],
     root: IAutoMovieVector3,
     yaw: number,
-    side: "left" | "right",
+    side: AutoMovieHumanSide,
     heading: number,
-    prepared?: ReturnType<typeof HumanFrame.preparePoint> | IAutoMovieVector3,
+    prepared?: KneePolePrepared,
   ): IAutoMovieVector3 {
     return HumanFrame.point(
       {

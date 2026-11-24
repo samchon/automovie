@@ -1,4 +1,5 @@
 import type {
+  AutoMovieHumanSide,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -61,7 +62,7 @@ export namespace staggerLimit {
       fixed,
     );
     const near: number = Math.min(
-      ...(["left", "right"] as const).map((side: "left" | "right"): number =>
+      ...(["left", "right"] as const).map((side: AutoMovieHumanSide): number =>
         Math.hypot(
           fixed.centre.x - fixed.entered[side].ankle.x,
           fixed.centre.z - fixed.entered[side].ankle.z,

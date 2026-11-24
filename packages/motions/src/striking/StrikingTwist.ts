@@ -1,5 +1,8 @@
 import type { IAutoMovieMotionHumanPosture } from "@automovie/interface";
 
+/** The alternatives of `TrunkResult`'s site. */
+type TrunkResult = "spine" | "chest";
+
 /**
  * A strike's trunk turn laid on the trunk it enters with: the spine and the
  * chest each twisted by the given share, their flexion and side bend kept.
@@ -20,7 +23,7 @@ export namespace StrikingTwist {
   export function trunk(
     joints: IAutoMovieMotionHumanPosture["joints"],
     degrees: number,
-  ): Pick<IAutoMovieMotionHumanPosture["joints"], "spine" | "chest"> {
+  ): Pick<IAutoMovieMotionHumanPosture["joints"], TrunkResult> {
     const twisted = (
       angles: readonly [number, number, number] | undefined,
     ): [number, number, number] => [

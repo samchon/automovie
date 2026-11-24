@@ -11,6 +11,9 @@ import type {
 import { HumanRefusal } from "../law/HumanRefusal";
 import type { AthleticsRunUp } from "./AthleticsRunUp";
 
+/** The alternatives of `OfContext`'s site. */
+type OfContext = "prop" | "start";
+
 /**
  * The high jump's crossbar as the scene places it, and the approach rule it
  * sets: the side of the bar the take-off foot must be on.
@@ -38,7 +41,7 @@ export namespace highJumpBar {
    * @throws {HumanRefusal} When the prop declares no `bar`.
    */
   export function of(
-    context: Pick<IAutoMovieMotionHumanActionContext, "prop" | "start">,
+    context: Pick<IAutoMovieMotionHumanActionContext, OfContext>,
     subject: string,
   ): IBar {
     const read: IAutoMovieMotionHumanPropReader = context.prop(subject);

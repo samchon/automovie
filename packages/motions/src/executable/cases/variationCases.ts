@@ -95,13 +95,27 @@ interface IRepeat {
   /** The stroke's length, seconds. */
   stroke: number;
 }
+/** The alternatives of `PLACESEntryItem`'s site. */
+type PLACESEntryItem = "wave" | "stopPalm";
 
 /** The names `wave` and `stopPalm` state. */
 const PLACES: Readonly<
-  Record<"wave" | "stopPalm", IAutoMovieMotionHumanTargetGrid.IGrid>
+  Record<PLACESEntryItem, IAutoMovieMotionHumanTargetGrid.IGrid>
 > = {
   wave: { height: "eye", lateral: "outside", distance: "near" },
   stopPalm: { height: "shoulder", lateral: "inside", distance: "far" },
+};
+/** The record of `IBuildStartsRun`'s site. */
+type IBuildStartsRun = { repeats: IRepeat[] };
+
+/** The record of `IBuildHandsRun`'s site. */
+type IBuildHandsRun = { repeats: IRepeat[] };
+
+/** The record of `IBuildTargetsItem`'s site. */
+type IBuildTargetsItem = {
+  at: IAutoMovieVector3;
+  radius: number;
+  color: number;
 };
 
 /** Build one body's case. */
@@ -120,8 +134,7 @@ function build(name: string, who: string): IMotionCaptureCase {
   );
   const arm: number = body.measure.upperArm + body.measure.forearm;
   const verdicts: IMotionCaptureCase.IVerdict[] = [];
-  const targets: { at: IAutoMovieVector3; radius: number; color: number }[] =
-    [];
+  const targets: IBuildTargetsItem[] = [];
   const metrics: Record<string, unknown> = { partner };
   let drawn: IAutoMovieMotionHumanPerformance | undefined;
   const times: IMotionCaptureCase.ITime[] = [];
@@ -143,7 +156,7 @@ function build(name: string, who: string): IMotionCaptureCase {
         detail: `${run.repeats.length - missed.length} of ${run.repeats.length}${missed.length === 0 ? "" : `; first other: ${missed[0]!.placed.detail}`}`,
       });
     }
-    const hands = (run: { repeats: IRepeat[] }): IAutoMovieVector3[] =>
+    const hands = (run: IBuildHandsRun): IAutoMovieVector3[] =>
       run.repeats.map((r: IRepeat): IAutoMovieVector3 => r.hand);
     const wide: number = VariationSeries.dispersion(hands(novice));
     const narrow: number = VariationSeries.dispersion(hands(expert));
@@ -153,7 +166,7 @@ function build(name: string, who: string): IMotionCaptureCase {
       passed: wide > 0 && wide >= VariationSeries.RATIO * narrow,
       detail: `${(1000 * wide).toFixed(1)} mm at proficiency 0, ${(1000 * narrow).toFixed(1)} mm at 1, ratio ${(wide / narrow).toFixed(2)}; bound ${VariationSeries.RATIO}`,
     });
-    const starts = (run: { repeats: IRepeat[] }): number =>
+    const starts = (run: IBuildStartsRun): number =>
       VariationSeries.deviation(
         run.repeats.map((r: IRepeat): number => r.prepare),
       );
@@ -236,17 +249,25 @@ function build(name: string, who: string): IMotionCaptureCase {
     metrics,
   };
 }
+/** The record of `IGesturesResult`'s site. */
+type IGesturesResult = {
+  performance: IAutoMovieMotionHumanPerformance;
+  repeats: IRepeat[];
+  middles: number[];
+};
+
+/** The record of `IGesturesManner`'s site. */
+type IGesturesManner = { variation: number; proficiency: number };
+
+/** The alternatives of `GesturesKind`'s site. */
+type GesturesKind = "wave" | "stopPalm";
 
 /** The repeats of one gesture in a row, read at each stroke's middle. */
 function gestures(
   body: IAutoMovieMotionHumanBody,
-  kind: "wave" | "stopPalm",
-  manner: { variation: number; proficiency: number } | undefined,
-): {
-  performance: IAutoMovieMotionHumanPerformance;
-  repeats: IRepeat[];
-  middles: number[];
-} {
+  kind: GesturesKind,
+  manner: IGesturesManner | undefined,
+): IGesturesResult {
   let chain: IAutoMovieMotionHumanChain = HumanChain.subject("a");
   for (let i: number = 0; i < VariationSeries.REPEATS; i++)
     chain = chain.gesture({

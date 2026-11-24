@@ -1,5 +1,6 @@
 import { ANKLE_DORSIFLEXION, Quaternion, Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanBody,
   IAutoMovieQuaternion,
@@ -131,7 +132,7 @@ export namespace HumanMountPush {
    */
   export function roll(
     body: IAutoMovieMotionHumanBody,
-    side: "left" | "right",
+    side: AutoMovieHumanSide,
     planted: IAutoMovieHumanLimbGoal,
     hip: IAutoMovieVector3,
     heading: number,
@@ -230,7 +231,7 @@ export namespace HumanMountPush {
    */
   export function tip(
     body: IAutoMovieMotionHumanBody,
-    side: "left" | "right",
+    side: AutoMovieHumanSide,
     hip: IAutoMovieVector3,
     goal: IAutoMovieHumanLimbGoal,
     weight: number,
@@ -287,13 +288,6 @@ export namespace HumanMountPush {
    * @param pivot The point the foot turns about, world metres.
    * @param target The ankle's bend to leave, degrees.
    * @returns The turn; null for a degenerate leg.
-   * @evidence contracts/development/common.md#meaningful-documentation States the closed form, the choice of root and the degenerate case.
-   * @evidence contracts/development/implementation.md#principled-implementation The foot and shank held at the asked angle form one rigid link, so the knee's place is the meeting of two circles, the bend's own two-link plane read exactly rather than by a first-order turn.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The plane, the two circles, their meeting, the angle.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No margin and no iteration; circles that do not meet read the leg at its reach, as `bend` does.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The plane is `bend`'s.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   function pitch(
     body: IAutoMovieMotionHumanBody,

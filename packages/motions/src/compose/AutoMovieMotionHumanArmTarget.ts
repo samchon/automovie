@@ -16,6 +16,33 @@ import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
 import { placeHumanHandSurface } from "../posture/placeHumanHandSurface";
 
+/** The alternatives of `PrepareSidedTargetPlacement`'s site. */
+type PrepareSidedTargetPlacement = "surface" | "shape";
+
+/** The alternatives of `PrepareSidedTargetPlacementResult`'s site. */
+type PrepareSidedTargetPlacementResult = "surface" | "shape";
+
+/** The alternatives of `PrepareTargetPlacement`'s site. */
+type PrepareTargetPlacement = "surface" | "shape";
+
+/** The alternatives of `PrepareTargetPlacementResult`'s site. */
+type PrepareTargetPlacementResult = "surface" | "shape";
+
+/** The alternatives of `PrepareSurfaceGoalTarget`'s site. */
+type PrepareSurfaceGoalTarget = "point" | "rotation" | "bend";
+
+/** The alternatives of `PrepareSurfaceGoalTargetResult`'s site. */
+type PrepareSurfaceGoalTargetResult = "point" | "rotation" | "bend";
+
+/** The alternatives of `PrepareGoalTarget`'s site. */
+type PrepareGoalTarget = "point" | "curl";
+
+/** The alternatives of `PointPosture`'s site. */
+type PointPosture = "root" | "yaw";
+
+/** The alternatives of `OriginBonesEntry`'s site. */
+type OriginBonesEntry = "worldPosition" | "worldRotation";
+
 /**
  * What an arm primitive is given: a hand surface's target, the origin the hand
  * leaves from and returns to, and the wrist goal the two make.
@@ -38,7 +65,7 @@ export namespace AutoMovieMotionHumanArmTarget {
     body: IAutoMovieMotionHumanBody,
     bones: ReadonlyMap<
       AutoMovieHumanoidBone,
-      Pick<IAutoMovieResolvedBone, "worldPosition" | "worldRotation">
+      Pick<IAutoMovieResolvedBone, OriginBonesEntry>
     >,
     frame: IAutoMovieMotionHumanFrame,
     side: AutoMovieHumanSide,
@@ -64,7 +91,7 @@ export namespace AutoMovieMotionHumanArmTarget {
    * @returns The world point, metres.
    */
   export function point(
-    posture: Pick<IAutoMovieMotionHumanPosture, "root" | "yaw">,
+    posture: Pick<IAutoMovieMotionHumanPosture, PointPosture>,
     from: IAutoMovieMotionHumanArmTarget.IOrigin,
   ): IAutoMovieVector3 {
     return HumanFrame.point(
@@ -144,7 +171,7 @@ export namespace AutoMovieMotionHumanArmTarget {
   export function prepareGoal(
     body: IAutoMovieMotionHumanBody,
     side: AutoMovieHumanSide,
-    target: Omit<IAutoMovieMotionHumanArmTarget.ITarget, "point" | "curl">,
+    target: Omit<IAutoMovieMotionHumanArmTarget.ITarget, PrepareGoalTarget>,
   ): (point: IAutoMovieVector3) => IAutoMovieHumanLimbGoal {
     const contact: IAutoMovieVector3 = {
       ...HumanHand.offset(body, side, target.surface, target.shape).point,
@@ -177,7 +204,7 @@ export namespace AutoMovieMotionHumanArmTarget {
   ): (
     target: Pick<
       IAutoMovieMotionHumanArmTarget.ITarget,
-      "point" | "rotation" | "bend"
+      PrepareSurfaceGoalTargetResult
     >,
   ) => IAutoMovieHumanLimbGoal {
     const contact: IAutoMovieVector3 = {
@@ -187,7 +214,7 @@ export namespace AutoMovieMotionHumanArmTarget {
     return (
       target: Pick<
         IAutoMovieMotionHumanArmTarget.ITarget,
-        "point" | "rotation" | "bend"
+        PrepareSurfaceGoalTarget
       >,
     ): IAutoMovieHumanLimbGoal =>
       assembled(
@@ -210,7 +237,7 @@ export namespace AutoMovieMotionHumanArmTarget {
   ): (
     placement: Omit<
       IAutoMovieMotionHumanArmTarget.ITarget,
-      "surface" | "shape"
+      PrepareTargetPlacementResult
     >,
   ) => IAutoMovieMotionHumanArmTarget.ITarget {
     const offset: IAutoMovieVector3 = Object.freeze({
@@ -219,7 +246,7 @@ export namespace AutoMovieMotionHumanArmTarget {
     return (
       placement: Omit<
         IAutoMovieMotionHumanArmTarget.ITarget,
-        "surface" | "shape"
+        PrepareTargetPlacement
       >,
     ): IAutoMovieMotionHumanArmTarget.ITarget => ({
       surface,
@@ -241,7 +268,7 @@ export namespace AutoMovieMotionHumanArmTarget {
   ): (
     placement: Omit<
       IAutoMovieMotionHumanArmTarget.ITarget,
-      "surface" | "shape"
+      PrepareSidedTargetPlacementResult
     >,
   ) => IAutoMovieMotionHumanArmTarget.ISided {
     const offset: IAutoMovieVector3 = Object.freeze({
@@ -250,7 +277,7 @@ export namespace AutoMovieMotionHumanArmTarget {
     return (
       placement: Omit<
         IAutoMovieMotionHumanArmTarget.ITarget,
-        "surface" | "shape"
+        PrepareSidedTargetPlacement
       >,
     ): IAutoMovieMotionHumanArmTarget.ISided => ({
       side,

@@ -25,11 +25,22 @@ import { stand } from "../actions/stand";
 import { support } from "../actions/support";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import { HumanRefusal } from "../law/HumanRefusal";
+import { HumanBoneGroups } from "../posture/HumanBoneGroups";
 import { HumanHand } from "../posture/HumanHand";
+import { humanPostureHeading } from "../posture/humanPostureHeading";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { floorEntry } from "./floorEntry";
 import { lieDown } from "./lieDown";
+
+/** The record of `IKeyedA`'s site. */
+type IKeyedA = { hip: number; knee: number; ankle: number; shoulder: number };
+
+/** The alternatives of `PlanStancesPart`'s site. */
+type PlanStancesPart = IAutoMovieMotionHumanSupport.Part | "lead" | "trail";
+
+/** The alternatives of `ItemEntryItem`'s site. */
+type ItemEntryItem = IAutoMovieMotionHumanSupport.Part | "lead" | "trail";
 
 /**
  * Getting up from the floor to standing: from lying on the back or the front,
@@ -124,10 +135,7 @@ export namespace getUp {
    * (`lead`, the leading foot; `trail`, the trailing knee).
    */
   export const BEARS: Readonly<
-    Record<
-      IAutoMovieMotionHumanGetUp.Stage,
-      readonly (IAutoMovieMotionHumanSupport.Part | "lead" | "trail")[]
-    >
+    Record<IAutoMovieMotionHumanGetUp.Stage, readonly ItemEntryItem[]>
   > = {
     sit: ["seat", "leftFoot", "rightFoot", "leftHand", "rightHand"],
     squat: ["leftFoot", "rightFoot"],
@@ -199,7 +207,7 @@ export namespace getUp {
             : "lie down, kneel or crawl before it, or leave it out",
       });
     const entered: IAutoMovieMotionHumanPosture = floorEntry.displayed(context);
-    const heading: IAutoMovieQuaternion = resolveHumanPosture.heading(entered);
+    const heading: IAutoMovieQuaternion = humanPostureHeading(entered);
 
     // On the back the chest faces up; anything else rises by the rotation.
     const up: number = Quaternion.rotateVector(heading, { x: 0, y: 0, z: 1 }).y;
@@ -219,8 +227,8 @@ export namespace getUp {
         : supine
           ? ROUTES[pattern]
           : ROUTES.rotation.slice(1);
-    const lead: "left" | "right" = context.params.lead ?? "right";
-    const trail: "left" | "right" = lead === "right" ? "left" : "right";
+    const lead: AutoMovieHumanSide = context.params.lead ?? "right";
+    const trail: AutoMovieHumanSide = lead === "right" ? "left" : "right";
 
     // Each phase takes its share of a whole rise from lying.
     const modifiers: IAutoMovieMotionManner.IModifiers =
@@ -247,9 +255,7 @@ export namespace getUp {
         i: number,
       ): IAutoMovieMotionHumanSupport.IStance => ({
         contacts: BEARS[key].map(
-          (
-            part: IAutoMovieMotionHumanSupport.Part | "lead" | "trail",
-          ): IAutoMovieMotionHumanSupport.IContact => ({
+          (part: PlanStancesPart): IAutoMovieMotionHumanSupport.IContact => ({
             part:
               part === "lead"
                 ? `${lead}Foot`
@@ -352,7 +358,7 @@ export namespace getUp {
   /** A floor posture from its tilt and symmetric limb angles. */
   function keyed(
     pitch: number,
-    a: { hip: number; knee: number; ankle: number; shoulder: number },
+    a: IKeyedA,
   ): IAutoMovieMotionHumanLieDown.IPose {
     // The hands at rest; every arm angle is the key's own below.
     const joints: IAutoMovieMotionHumanJoints.Angles = {
@@ -395,12 +401,6 @@ interface IFootTarget {
   target: IAutoMovieMotionTarget;
 }
 
-/** Named toe joints demanded on the seated and upright keys. */
-const TOE_BONES: ReadonlySet<AutoMovieHumanoidBone> = new Set([
-  "leftToes",
-  "rightToes",
-]);
-
 /**
  * Place the unplanted feet at the sit key's preferred centre with their
  * eventual quiet stance's separation. Only the new placement is set here; the
@@ -419,7 +419,7 @@ function symmetricFeet(
       body,
       resolveHumanPosture(body, { ...entry, ...key, limbs: {} }),
       undefined,
-      TOE_BONES,
+      HumanBoneGroups.TOES,
     );
     return {
       left: read.get("leftToes")!.worldPosition,

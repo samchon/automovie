@@ -23,10 +23,6 @@ const KNEES: readonly AutoMovieHumanoidBone[] = [
  * separation and measured thickness of the touching segments. The thighs can
  * swing while the bearer walks without pulling a carried knee through a hip.
  * The sternum and the hands still use their own contacts.
- *
- * @evidence contracts/development/design.md#principled-representation The side envelope uses the two measured hip centres and the girths of the contacting legs.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The straddling key fit consumes the two signed gaps and the exact geometric check together.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The collision verdict uses the real fitted shapes and the existing skin limit when the envelope cannot establish clearance.
  */
 export function HumanCarriedStraddle(
   bearer: IAutoMovieMotionHumanBody,

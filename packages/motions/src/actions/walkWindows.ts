@@ -6,6 +6,15 @@ import type {
 
 import { walkReach } from "./walkReach";
 
+/** The alternatives of `OfPushKind2`'s site. */
+type OfPushKind2 = "plant" | "pivot";
+
+/** The alternatives of `OfPushKind`'s site. */
+type OfPushKind = "plant" | "pivot";
+
+/** The alternatives of `OfPart`'s site. */
+type OfPart = "leftFoot" | "rightFoot";
+
 /**
  * What a stepping gait declares of its footstep plan, as shares of its length:
  * each named instant, and the floor contacts, each foot's stance a `plant` but
@@ -39,13 +48,12 @@ export namespace walkWindows {
       events.push({ name: event.name, share: event.seconds / duration });
     const contacts: IAutoMovieMotionHumanContactWindow[] = [];
     for (const stance of steps.stances) {
-      const part: "leftFoot" | "rightFoot" =
-        stance.side === "left" ? "leftFoot" : "rightFoot";
-      const push: (
-        kind: "plant" | "pivot",
+      const part: OfPart = stance.side === "left" ? "leftFoot" : "rightFoot";
+      const push: (kind: OfPushKind, from: number, to: number) => void = (
+        kind: OfPushKind2,
         from: number,
         to: number,
-      ) => void = (kind: "plant" | "pivot", from: number, to: number): void => {
+      ): void => {
         contacts.push({
           part,
           kind,

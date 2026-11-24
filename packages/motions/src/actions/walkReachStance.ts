@@ -6,6 +6,7 @@ import {
   Vector3,
 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   IAutoMovieAngleRange,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanFoot,
@@ -18,6 +19,21 @@ import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFootRotation } from "../posture/HumanFootRotation";
 import { walkFoot } from "./walkFoot";
 import { walkLeg } from "./walkLeg";
+
+/** The record of `IPrepareResult2`'s site. */
+type IPrepareResult2 = { end: walkFoot.IEnd; contact: IAutoMovieVector3 };
+
+/** The alternatives of `PrepareAbout`'s site. */
+type PrepareAbout = "heel" | "mtp";
+
+/** The record of `IPrepareResult`'s site. */
+type IPrepareResult = {
+  end: walkFoot.IEnd;
+  contact: IAutoMovieVector3;
+};
+
+/** The alternatives of `SIDEBone`'s site. */
+type SIDEBone = "leftFoot" | "rightFoot";
 
 /**
  * A planted foot of a stepping gait as its leg can hold it under a hip
@@ -55,7 +71,7 @@ export namespace walkReachStance {
    */
   export const SIDE: number = Math.min(
     ...(["leftFoot", "rightFoot"] as const).flatMap(
-      (bone: "leftFoot" | "rightFoot"): number[] => {
+      (bone: SIDEBone): number[] => {
         const abduction: IAutoMovieAngleRange | null | undefined =
           DEFAULT_HUMANOID_ROM[bone]?.abduction;
         if (abduction === null || abduction === undefined)
@@ -86,16 +102,13 @@ export namespace walkReachStance {
    */
   export function prepare(
     body: IAutoMovieMotionHumanBody,
-    side: "left" | "right",
+    side: AutoMovieHumanSide,
     foot: IAutoMovieMotionHumanWalkFoot.IFoot,
     yaw: number,
     pivoted: number,
     rocker: number,
     dorsal: number = ANKLE_DORSIFLEXION.unloaded,
-  ): (hip: IAutoMovieVector3) => {
-    end: walkFoot.IEnd;
-    contact: IAutoMovieVector3;
-  } {
+  ): (hip: IAutoMovieVector3) => IPrepareResult {
     const initial: IAutoMovieMotionHumanFoot.IPlacement = foot.placement;
     const direction: ReturnType<typeof HumanFoot.headingPitch> =
       HumanFoot.headingPitch(initial.rotation);
@@ -106,7 +119,7 @@ export namespace walkReachStance {
     // pose's rounding (a few millionths of a degree either way), and a flat
     // foot must not become a heel strike by its sign. Within the joints'
     // resolution of flat (`ROM_TOLERANCE`) the foot stands on its ball.
-    const about: "heel" | "mtp" = starting > ROM_TOLERANCE ? "heel" : "mtp";
+    const about: PrepareAbout = starting > ROM_TOLERANCE ? "heel" : "mtp";
     const pivot: IAutoMovieVector3 = HumanFoot.point(
       body,
       side,
@@ -147,9 +160,7 @@ export namespace walkReachStance {
       Math.max(0, 1 - starting / walkFoot.STRIKE),
     );
     let ball: IHandover | undefined;
-    return (
-      h: IAutoMovieVector3,
-    ): { end: walkFoot.IEnd; contact: IAutoMovieVector3 } => {
+    return (h: IAutoMovieVector3): IPrepareResult2 => {
       let placement: IAutoMovieMotionHumanFoot.IPlacement = initial;
       let pitch: number = starting;
       let held: IAutoMovieVector3 = contact;
@@ -374,7 +385,7 @@ export namespace walkReachStance {
    */
   function handover(
     body: IAutoMovieMotionHumanBody,
-    side: "left" | "right",
+    side: AutoMovieHumanSide,
     flatFoot: IAutoMovieMotionHumanFoot.IPlacement,
     heading: number,
     rocker: number,

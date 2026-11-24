@@ -28,7 +28,7 @@ A pure reading of its arguments at plan time.
 
 Returns a number and retains nothing.
 
-# src/everyday/sitHandMeet.ts#sitHandMeet.IProps
+# src/everyday/sitHandMeet.ts#ISitHandMeetProps
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

@@ -1,5 +1,6 @@
 import { Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanFoot,
   IAutoMovieMotionHumanWalkFoot,
@@ -42,7 +43,7 @@ export function staggerSwingBow(
     bow: number,
   ) => IAutoMovieMotionHumanWalkFoot.IScheduled,
 ): number {
-  const stance: "left" | "right" = step.side === "left" ? "right" : "left";
+  const stance: AutoMovieHumanSide = step.side === "left" ? "right" : "left";
   const along: IAutoMovieVector3 = { x: normal.z, y: 0, z: -normal.x };
   const extent: (
     points: readonly IAutoMovieVector3[],

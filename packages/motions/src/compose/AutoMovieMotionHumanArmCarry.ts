@@ -27,6 +27,9 @@ import { AutoMovieMotionHumanArmFollow } from "./AutoMovieMotionHumanArmFollow";
 import { AutoMovieMotionHumanArmPlanned } from "./AutoMovieMotionHumanArmPlanned";
 import { AutoMovieMotionHumanChannel as HumanChannels } from "./AutoMovieMotionHumanChannel";
 
+/** The alternatives of `CarriedLimb`'s site. */
+type CarriedLimb = "leftArm" | "rightArm";
+
 /**
  * An arm carried toward a goal: the joint-space carry between held angles
  * (`AutoMovieMotionHumanArmAngles`) and a goal, and the primitive that writes
@@ -171,7 +174,7 @@ export namespace AutoMovieMotionHumanArmCarry {
   export function carried(
     props: IAutoMovieMotionHumanArmCarry.ICarry,
   ): IAutoMovieMotionHumanPrimitive {
-    const limb: "leftArm" | "rightArm" = `${props.side}Arm`;
+    const limb: CarriedLimb = `${props.side}Arm`;
     const span: IAutoMovieMotionHumanArmPlanned.ISpan | undefined = props.span;
 
     // The arm's whole action, solved once over its span, with the other

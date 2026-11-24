@@ -72,6 +72,11 @@ export function walkClock(
         walkStation.rests(context, station),
       );
 }
+/** The record of `IWalkClockStepsResult`'s site. */
+type IWalkClockStepsResult = {
+  plan: IAutoMovieMotionHumanWalkSteps.IPlan;
+  clock?: walkTempo.IClock | null;
+};
 
 /** Companions of {@link walkClock}. */
 export namespace walkClock {
@@ -89,10 +94,7 @@ export namespace walkClock {
       Omit<IAutoMovieMotionHumanWalkParams, "pace">
     >,
     input: IAutoMovieMotionHumanWalkSteps.IInput,
-  ): {
-    plan: IAutoMovieMotionHumanWalkSteps.IPlan;
-    clock?: walkTempo.IClock | null;
-  } {
+  ): IWalkClockStepsResult {
     let plan: ReturnType<typeof walkSteps.plan> = walkSteps.plan(input);
     const travel: IAutoMovieMotionHumanWalkSteps.IInput["travel"] =
       input.travel;
@@ -123,6 +125,8 @@ export namespace walkClock {
       plan = fitted;
     }
   }
+  /** The alternatives of `WalkClockEntrainmentPlanned`'s site. */
+  type WalkClockEntrainmentPlanned = "duration" | "events";
 
   /**
    * Read the cue and phase correction for this sequence of heel strikes.
@@ -135,7 +139,7 @@ export namespace walkClock {
     context: IAutoMovieMotionHumanActionContext<
       Omit<IAutoMovieMotionHumanWalkParams, "pace">
     >,
-    planned: Pick<IAutoMovieMotionHumanActionPlan, "duration" | "events">,
+    planned: Pick<IAutoMovieMotionHumanActionPlan, WalkClockEntrainmentPlanned>,
   ): walkTempo.IClock | null {
     if (context.params.cadence === undefined) return null;
     const strikes: walkTempo.IStrike[] = walkTempo.strikes(planned);

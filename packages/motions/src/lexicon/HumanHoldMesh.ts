@@ -10,6 +10,9 @@ import type {
 
 import { HumanInteractionMesh } from "../posture/HumanInteractionMesh";
 
+/** The alternatives of `AdaptAdaptedSide`'s site. */
+type AdaptAdaptedSide = 0 | 1;
+
 /**
  * A two-person hold's key pose adapted to any pair of bodies: the joints of
  * both bodies at the key pose, the target bodies' bone lengths and the hold's
@@ -96,7 +99,9 @@ export namespace HumanHoldMesh {
           }),
         ),
       });
-    const adapted = (side: 0 | 1): IAutoMovieMotionHumanHoldMesh.IAdapted => {
+    const adapted = (
+      side: AdaptAdaptedSide,
+    ): IAutoMovieMotionHumanHoldMesh.IAdapted => {
       const joints: Map<AutoMovieHumanoidBone, IAutoMovieVector3> = new Map();
       for (const bone of key[side].bones.keys())
         joints.set(bone, result.points[at(side, bone)]!);

@@ -27,19 +27,30 @@ import { seated } from "../everyday/seated";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFrame } from "../posture/HumanFrame";
 import { hipJoints } from "../posture/hipJoints";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { humanPostureHeading } from "../posture/humanPostureHeading";
 import { HumanMount } from "./HumanMount";
 import { HumanMountPush } from "./HumanMountPush";
 import { HumanSwungLeg } from "./HumanSwungLeg";
+
+/** The alternatives of `Frame2`'s site. */
+type Frame2 = "root" | "yaw" | "pitch" | "joints";
 
 /**
  * Where the pelvis is at an instant of getting off: the root, the heading, the
  * pelvis pitch and the set joints.
  */
-type Frame = Pick<
-  IAutoMovieMotionHumanPosture,
-  "root" | "yaw" | "pitch" | "joints"
->;
+type Frame = Pick<IAutoMovieMotionHumanPosture, Frame2>;
+/** The alternatives of `PlanLowerLimb`'s site. */
+type PlanLowerLimb = "leftLeg" | "rightLeg";
+
+/** The alternatives of `PlanPart`'s site. */
+type PlanPart = "leftFoot" | "rightFoot";
+
+/** The record of `IPlanFrameAtTilt`'s site. */
+type IPlanFrameAtTilt = {
+  pitch: number;
+  joints: IAutoMovieMotionHumanPosture["joints"];
+};
 
 /**
  * Getting off a high seat onto the floor: what `rise` plans where a foot is off
@@ -92,7 +103,7 @@ export namespace HumanMountOff {
     const pitch0: number = entry.posture.pitch;
     const sat: IAutoMovieMotionHumanBase.ISeat | undefined =
       entry.base.kind === "seated" ? entry.base.seat : undefined;
-    const side: "left" | "right" | undefined =
+    const side: AutoMovieHumanSide | undefined =
       sat?.mount === "left" || sat?.mount === "right" ? sat.mount : undefined;
     const to: NonNullable<IAutoMovieMotionHumanRise.IParams["to"]> =
       context.params.to ?? (sat?.astride === true ? (side ?? "left") : "front");
@@ -108,13 +119,13 @@ export namespace HumanMountOff {
         fix: `leave \`to\` out, or give ${side}`,
       });
     const sideways: boolean = to !== "front";
-    const near: "left" | "right" = to === "right" ? "right" : "left";
-    const leader: "left" | "right" = sideways
+    const near: AutoMovieHumanSide = to === "right" ? "right" : "left";
+    const leader: AutoMovieHumanSide = sideways
       ? near === "left"
         ? "right"
         : "left"
       : "left";
-    const follower: "left" | "right" = leader === "left" ? "right" : "left";
+    const follower: AutoMovieHumanSide = leader === "left" ? "right" : "left";
 
     // Where it stands afterwards: the pelvis clear of the seat, the feet at their rest places under it.
     const under: IAutoMovieMotionHumanFrame = {
@@ -137,7 +148,7 @@ export namespace HumanMountOff {
       ),
       yaw,
     };
-    const floorPlace = (side: "left" | "right"): IAutoMovieVector3 => {
+    const floorPlace = (side: AutoMovieHumanSide): IAutoMovieVector3 => {
       const rest: IAutoMovieVector3 = body.rest.get(`${side}Foot`)!;
       return HumanFrame.point(stood, {
         x: rest.x,
@@ -145,7 +156,7 @@ export namespace HumanMountOff {
         z: rest.z,
       });
     };
-    const landing: Record<"left" | "right", IAutoMovieVector3> = {
+    const landing: Record<AutoMovieHumanSide, IAutoMovieVector3> = {
       left: floorPlace("left"),
       right: floorPlace("right"),
     };
@@ -189,10 +200,7 @@ export namespace HumanMountOff {
             (HumanMount.LEAN - pitch0) * minimumJerk.share(t / (0.4 * duration))
           : HumanMount.LEAN *
             (1 - minimumJerk.share((t - 0.4 * duration) / (0.6 * duration)));
-      const tilt: {
-        pitch: number;
-        joints: IAutoMovieMotionHumanPosture["joints"];
-      } = HumanTrunk.incline(relaxed, lean);
+      const tilt: IPlanFrameAtTilt = HumanTrunk.incline(relaxed, lean);
       return {
         root: seated.root(body, socket, { yaw, pitch: tilt.pitch, roll: 0 }),
         yaw,
@@ -203,7 +211,7 @@ export namespace HumanMountOff {
     const span: readonly [number, number] = HumanMount.span(body);
     const stretch = (
       t: number,
-      side: "left" | "right",
+      side: AutoMovieHumanSide,
       ankle: IAutoMovieVector3,
     ): number => {
       const frame: Frame = frameAt(t);
@@ -213,7 +221,7 @@ export namespace HumanMountOff {
           hipJoints(
             body,
             frame.root,
-            resolveHumanPosture.heading({ ...frame, roll: 0 }),
+            humanPostureHeading({ ...frame, roll: 0 }),
             frame.joints.hips,
           )[side],
         ),
@@ -221,13 +229,13 @@ export namespace HumanMountOff {
     };
 
     // A leg reaches a place within its reachable band, or as far as it stands stretched in the quiet stance the getting off ends in, which holds it nearer straight than the band's edge.
-    const standingReach: Record<"left" | "right", number> = {
+    const standingReach: Record<AutoMovieHumanSide, number> = {
       left: Math.max(span[1], stretch(duration, "left", landing.left)),
       right: Math.max(span[1], stretch(duration, "right", landing.right)),
     };
     const reaches = (
       t: number,
-      side: "left" | "right",
+      side: AutoMovieHumanSide,
       ankle: IAutoMovieVector3,
     ): boolean => {
       const d: number = stretch(t, side, ankle);
@@ -244,7 +252,7 @@ export namespace HumanMountOff {
     };
 
     // Where each foot is held until it leaves: its rest, or where it hangs.
-    const holds: Record<"left" | "right", HumanMount.IFoot> = {
+    const holds: Record<AutoMovieHumanSide, HumanMount.IFoot> = {
       left: HumanMount.held(entry, "left"),
       right: HumanMount.held(entry, "right"),
     };
@@ -256,7 +264,7 @@ export namespace HumanMountOff {
       (t: number): boolean => reaches(t, leader, landing[leader]),
     );
     const leaves: number = (2 / 3) * seatOff;
-    const flight: Record<"left" | "right", readonly [number, number]> = {
+    const flight: Record<AutoMovieHumanSide, readonly [number, number]> = {
       left: [0, 0],
       right: [0, 0],
     };
@@ -292,7 +300,7 @@ export namespace HumanMountOff {
       },
     ];
     for (const side of ["left", "right"] as const) {
-      const part: "leftFoot" | "rightFoot" = `${side}Foot`;
+      const part: PlanPart = `${side}Foot`;
       if (entry.feet[side].planted)
         contacts.push({
           part,
@@ -321,14 +329,14 @@ export namespace HumanMountOff {
         landing,
       );
       const limbs: IAutoMovieMotionHumanPosture["limbs"] = {};
-      const hips: Record<"left" | "right", IAutoMovieVector3> = hipJoints(
+      const hips: Record<AutoMovieHumanSide, IAutoMovieVector3> = hipJoints(
         body,
         frame.root,
-        resolveHumanPosture.heading({ ...frame, roll: 0 }),
+        humanPostureHeading({ ...frame, roll: 0 }),
         frame.joints.hips,
       );
       for (const side of ["left", "right"] as const) {
-        const limb: "leftLeg" | "rightLeg" = `${side}Leg`;
+        const limb: PlanLowerLimb = `${side}Leg`;
         const down: IAutoMovieHumanLimbGoal = standing[limb]!;
         const [departs, arrives]: readonly [number, number] = flight[side];
         // A foot that bears nothing turns its toes down about its ball

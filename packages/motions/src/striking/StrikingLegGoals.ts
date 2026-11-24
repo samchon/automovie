@@ -1,5 +1,6 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanFoot,
@@ -10,18 +11,30 @@ import type {
 
 import { HumanFoot } from "../posture/HumanFoot";
 
+/** The alternatives of `PrepareOut`'s site. */
+type PrepareOut = "leftLeg" | "rightLeg";
+
+/** The alternatives of `PrepareResult2`'s site. */
+type PrepareResult2 = "leftLeg" | "rightLeg";
+
+/** The alternatives of `PrepareResult`'s site. */
+type PrepareResult = "leftLeg" | "rightLeg";
+
+/** The alternatives of `ReadOut`'s site. */
+type ReadOut = "leftLeg" | "rightLeg";
+
+/** The alternatives of `ReadResult`'s site. */
+type ReadResult = "leftLeg" | "rightLeg";
+
 /** Authored stance leg goals and fixed-foot preparation, without a pose solve. */
 export namespace StrikingLegGoals {
   /** The original fresh goals, borrowing each supplied ankle and rotation. */
   export function read(
     body: IAutoMovieMotionHumanBody,
-    feet: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement>,
-    planted: Record<"left" | "right", boolean>,
-  ): Pick<IAutoMovieMotionHumanPosture["limbs"], "leftLeg" | "rightLeg"> {
-    const out: Pick<
-      IAutoMovieMotionHumanPosture["limbs"],
-      "leftLeg" | "rightLeg"
-    > = {};
+    feet: Record<AutoMovieHumanSide, IAutoMovieMotionHumanFoot.IPlacement>,
+    planted: Record<AutoMovieHumanSide, boolean>,
+  ): Pick<IAutoMovieMotionHumanPosture["limbs"], ReadResult> {
+    const out: Pick<IAutoMovieMotionHumanPosture["limbs"], ReadOut> = {};
     for (const side of ["left", "right"] as const) {
       const foot: IAutoMovieMotionHumanFoot.IPlacement = feet[side];
       const hint: IAutoMovieVector3 = bend(body, foot);
@@ -40,17 +53,14 @@ export namespace StrikingLegGoals {
   /** Prepare one unchanged body, pair of feet and planted selection. */
   export function prepare(
     body: IAutoMovieMotionHumanBody,
-    feet: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement>,
-    planted: Record<"left" | "right", boolean>,
-  ): () => Pick<IAutoMovieMotionHumanPosture["limbs"], "leftLeg" | "rightLeg"> {
+    feet: Record<AutoMovieHumanSide, IAutoMovieMotionHumanFoot.IPlacement>,
+    planted: Record<AutoMovieHumanSide, boolean>,
+  ): () => Pick<IAutoMovieMotionHumanPosture["limbs"], PrepareResult> {
     let seeds: readonly ISeed[] | undefined;
-    return (): Pick<
-      IAutoMovieMotionHumanPosture["limbs"],
-      "leftLeg" | "rightLeg"
-    > => {
+    return (): Pick<IAutoMovieMotionHumanPosture["limbs"], PrepareResult2> => {
       if (seeds === undefined)
         seeds = (["left", "right"] as const).map(
-          (side: "left" | "right"): ISeed => {
+          (side: AutoMovieHumanSide): ISeed => {
             const foot: IAutoMovieMotionHumanFoot.IPlacement = feet[side];
             const bearing: boolean = planted[side];
             return {
@@ -65,10 +75,7 @@ export namespace StrikingLegGoals {
             };
           },
         );
-      const out: Pick<
-        IAutoMovieMotionHumanPosture["limbs"],
-        "leftLeg" | "rightLeg"
-      > = {};
+      const out: Pick<IAutoMovieMotionHumanPosture["limbs"], PrepareOut> = {};
       for (const seed of seeds)
         out[seed.side === "left" ? "leftLeg" : "rightLeg"] = goal(
           { ...seed.point },
@@ -87,7 +94,7 @@ export namespace StrikingLegGoals {
    */
   interface ISeed {
     /** Which original output goal this describes. */
-    side: "left" | "right";
+    side: AutoMovieHumanSide;
     /** Fixed world ankle, metres. */
     point: IAutoMovieVector3;
     /** Fixed world foot rotation. */

@@ -12,6 +12,9 @@ import { AutoMovieMotionHumanTargetGrid } from "../../compose/AutoMovieMotionHum
 import { HumanFrame } from "../../posture/HumanFrame";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
 
+/** The alternatives of `AtPosture`'s site. */
+type AtPosture = "root" | "yaw";
+
 /**
  * Checks that a captured point is at the place a law names.
  *
@@ -37,7 +40,7 @@ export namespace MotionPlaceVerdicts {
   export function at(
     name: string,
     body: IAutoMovieMotionHumanBody,
-    posture: Pick<IAutoMovieMotionHumanPosture, "root" | "yaw">,
+    posture: Pick<IAutoMovieMotionHumanPosture, AtPosture>,
     side: AutoMovieHumanSide,
     point: IAutoMovieVector3,
     expected: IAutoMovieMotionHumanTargetGrid.IGrid,

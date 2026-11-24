@@ -1,5 +1,6 @@
 import { Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   AutoMovieHumanoidRegion,
   IAutoMovieMotionCoupling,
@@ -275,7 +276,7 @@ export namespace HumanCarriedBorne {
           };
           const limbs: IAutoMovieMotionHumanPosture["limbs"] = {};
           (["left", "right"] as const).forEach(
-            (side: "left" | "right", index: number): void => {
+            (side: AutoMovieHumanSide, index: number): void => {
               const region: AutoMovieHumanoidRegion | null =
                 row.clings[index] ?? null;
               if (region !== null)

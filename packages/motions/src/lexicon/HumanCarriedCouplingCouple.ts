@@ -23,7 +23,7 @@ import type {
 
 import { AutoMovieMotionHumanTarget } from "../compose/AutoMovieMotionHumanTarget";
 import { HumanRefusal } from "../law/HumanRefusal";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { humanPostureHeading } from "../posture/humanPostureHeading";
 import { HumanCarriedCouplingFit } from "./HumanCarriedCouplingFit";
 import { HumanCarriedCouplingLoad } from "./HumanCarriedCouplingLoad";
 import { HumanCarriedCouplingPose } from "./HumanCarriedCouplingPose";
@@ -221,7 +221,7 @@ export namespace HumanCarriedCouplingCouple {
       row,
       fit.legs,
     );
-    const keyHeading: IAutoMovieQuaternion = resolveHumanPosture.heading(keyed);
+    const keyHeading: IAutoMovieQuaternion = humanPostureHeading(keyed);
     const root: IAutoMovieVector3 = fit.place({ x: 0, y: 0, z: 0 });
     const inverse: IAutoMovieQuaternion = Quaternion.inverse(
       anchored.worldRotation,

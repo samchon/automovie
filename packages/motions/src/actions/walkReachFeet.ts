@@ -1,7 +1,16 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  AutoMovieHumanSide,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import type { walkFoot } from "./walkFoot";
 import type { walkReach } from "./walkReach";
+
+/** The alternatives of `WalkReachFeetResult`'s site. */
+type WalkReachFeetResult = "feet" | "contacts";
+
+/** The alternatives of `WalkReachFeetHeld`'s site. */
+type WalkReachFeetHeld = "feet" | "contacts";
 
 /**
  * Read final stance endpoints only when a grounded result consumes them.
@@ -16,16 +25,16 @@ import type { walkReach } from "./walkReach";
  *   reads.
  */
 export function walkReachFeet(
-  held: Pick<walkReach.IGround, "feet" | "contacts">,
-  bearing: Readonly<Record<"left" | "right", boolean>>,
-  complete: (side: "left" | "right") => void,
-): Pick<walkReach.IGround, "feet" | "contacts"> {
-  const pending: Record<"left" | "right", boolean> = {
+  held: Pick<walkReach.IGround, WalkReachFeetHeld>,
+  bearing: Readonly<Record<AutoMovieHumanSide, boolean>>,
+  complete: (side: AutoMovieHumanSide) => void,
+): Pick<walkReach.IGround, WalkReachFeetResult> {
+  const pending: Record<AutoMovieHumanSide, boolean> = {
     left: true,
     right: true,
   };
-  const ensure: (side: "left" | "right") => void = (
-    side: "left" | "right",
+  const ensure: (side: AutoMovieHumanSide) => void = (
+    side: AutoMovieHumanSide,
   ): void => {
     if (bearing[side] || !pending[side]) return;
     complete(side);

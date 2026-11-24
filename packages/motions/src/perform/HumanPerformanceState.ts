@@ -43,16 +43,42 @@ import { HumanPerformanceAim } from "./HumanPerformanceAim";
 import { HumanPerformanceBonds } from "./HumanPerformanceBonds";
 import { HumanPerformanceContacts } from "./HumanPerformanceContacts";
 import { HumanPerformanceFlight } from "./HumanPerformanceFlight";
-import { HumanPerformanceKey } from "./HumanPerformanceKey";
+import { HumanPerformanceFlightMode } from "./HumanPerformanceFlightMode";
 import { HumanPerformanceLayers } from "./HumanPerformanceLayers";
 import { HumanPerformanceObject } from "./HumanPerformanceObject";
 import { HumanPerformanceOverlays } from "./HumanPerformanceOverlays";
 import { HumanPerformanceRead } from "./HumanPerformanceRead";
 import { HumanPerformanceSchedule } from "./HumanPerformanceSchedule";
 import { HumanPerformanceSoftBudget } from "./HumanPerformanceSoftBudget";
+import { HumanPerformanceTether } from "./HumanPerformanceTether";
 import { HumanPreparedPlayback } from "./HumanPreparedPlayback";
 import { HumanSegment } from "./HumanSegment";
 import { validateInitialPropMounts } from "./validateInitialPropMounts";
+
+/** The alternatives of `HumanPerformanceStateLayer2`'s site. */
+type HumanPerformanceStateLayer2 =
+  | IAutoMovieMotionHumanLayer
+  | IAutoMovieMotionHumanLayer.IScheduled;
+
+/** The alternatives of `HumanPerformanceStateLayer`'s site. */
+type HumanPerformanceStateLayer =
+  | IAutoMovieMotionHumanLayer
+  | IAutoMovieMotionHumanLayer.IScheduled;
+
+/** The record of `IHumanPerformanceStatePosedEntry`'s site. */
+type IHumanPerformanceStatePosedEntry = {
+  seconds: number;
+  posed: IAutoMovieMotionHumanProp.IPosed;
+};
+
+/** The record of `IHumanPerformanceStateMeetingsEntry`'s site. */
+type IHumanPerformanceStateMeetingsEntry = {
+  subject: string;
+  meeting: IAutoMovieMotionMeeting;
+};
+
+/** The record of `IHumanPerformanceStateAnchorsEntry`'s site. */
+type IHumanPerformanceStateAnchorsEntry = { subject: string };
 
 /**
  * Everything a performance resolves and its readers share: the people with
@@ -85,12 +111,21 @@ export class HumanPerformanceState {
   public readonly props: Map<string, IAutoMovieMotionHumanProp>;
 
   /**
+   * The lines between props by the far prop each runs to, built once from the
+   * props (`HumanPerformanceTether.index`).
+   */
+  public readonly tethered: ReadonlyMap<
+    string,
+    readonly IAutoMovieMotionHumanPerformanceState.ITethered[]
+  >;
+
+  /**
    * The placed actions that carry an anchor, by the anchor, with their
    * performer.
    */
   public readonly anchors: Map<
     string,
-    IAutoMovieMotionHumanSegment & { subject: string }
+    IAutoMovieMotionHumanSegment & IHumanPerformanceStateAnchorsEntry
   >;
 
   /**
@@ -107,10 +142,8 @@ export class HumanPerformanceState {
    * The meetings of the mutual actions, by their kind, start and performers:
    * the performer who computed each and the meeting every role reads.
    */
-  public readonly meetings: Map<
-    string,
-    { subject: string; meeting: IAutoMovieMotionMeeting }
-  > = new Map();
+  public readonly meetings: Map<string, IHumanPerformanceStateMeetingsEntry> =
+    new Map();
 
   /**
    * Every law the performance runs, by name: the vocabulary's and the ones it
@@ -246,10 +279,8 @@ export class HumanPerformanceState {
    * Each prop's last posed reading with its film second, by the prop, kept once
    * the performance is placed (`HumanPerformanceObject.posed`).
    */
-  public readonly posed: Map<
-    string,
-    { seconds: number; posed: IAutoMovieMotionHumanProp.IPosed }
-  > = new Map();
+  public readonly posed: Map<string, IHumanPerformanceStatePosedEntry> =
+    new Map();
 
   /**
    * Each launched prop's flights, by the prop, kept once the performance is
@@ -300,6 +331,7 @@ export class HumanPerformanceState {
       ),
     );
     validateInitialPropMounts(this.props);
+    this.tethered = HumanPerformanceTether.index(this.props);
     this.performers = [...input.performers];
     this.cues = input.cues ?? {};
     this.obstacles = input.obstacles ?? [];
@@ -357,9 +389,7 @@ export class HumanPerformanceState {
         // A windowed layer waits until the schedule gives its instants.
         layers: (input.layers?.[performer.subject] ?? []).flatMap(
           (
-            layer:
-              | IAutoMovieMotionHumanLayer
-              | IAutoMovieMotionHumanLayer.IScheduled,
+            layer: HumanPerformanceStateLayer,
           ): IAutoMovieMotionHumanSegment.ILayered[] =>
             "apply" in layer
               ? [{ layer, from: -Infinity, to: Infinity, fade: 0 }]
@@ -502,9 +532,7 @@ export class HumanPerformanceState {
         HumanPerformanceRead.person(this, subject);
       person.layers = layers.map(
         (
-          layer:
-            | IAutoMovieMotionHumanLayer
-            | IAutoMovieMotionHumanLayer.IScheduled,
+          layer: HumanPerformanceStateLayer2,
         ): IAutoMovieMotionHumanSegment.ILayered =>
           "apply" in layer
             ? { layer, from: -Infinity, to: Infinity, fade: 0 }
@@ -559,29 +587,14 @@ export class HumanPerformanceState {
 /** Companion types of {@link HumanPerformanceState}. */
 export namespace HumanPerformanceState {
   /**
-   * How many resolved performances a process keeps, the most recently read: a
-   * memory bound no act reads, sized to the most distinct inputs a consumer
-   * reads between two reads of one input, plus that one. Measured at 1: over
-   * nine row families of the touch and hand-to-face laws read in the test
-   * program's order (68 reads of 12 inputs, every reread at most one other
-   * input after its last read), and on the website, where the playground asks a
-   * take's verdicts of the worker that built it right after the take and a
-   * scene page's repeated takes are its own cache's.
-   */
-  export const KEEP: number = 2;
-
-  /**
-   * The resolved performance of an input: the one resolved before from an equal
-   * input (`HumanPerformanceKey`) when the process keeps it, the input resolved
-   * afresh otherwise. A resolution is a pure function of its input, so an equal
-   * input reads the same plans, schedule and contacts; what its readers add
-   * later is caches of the same pure functions. A refusal is not kept, so it is
-   * thrown afresh each time.
+   * The resolved performance of an input, resolved afresh on every call: a
+   * resolution is a pure function of its input, so it owns its plans, schedule
+   * and contacts and shares nothing with another performance's. A refusal is
+   * thrown each time the input is resolved.
    *
    * @param input The chain seed, the performers, the props and the composition.
-   * @param observation An explicit native diagnostic request performs cold
-   *   planning rather than observing a reused complete answer; absent, the
-   *   existing memo policy is unchanged.
+   * @param observation An explicit native diagnostic request, which planning
+   *   records into; absent, nothing is observed.
    * @returns The resolved performance.
    * @throws {HumanRefusal} When the input does not resolve.
    */
@@ -589,25 +602,10 @@ export namespace HumanPerformanceState {
     input: IAutoMovieMotionHumanPerformance.IInput,
     observation?: ReturnType<typeof integrateAirborneRotation.observe>,
   ): IAutoMovieMotionHumanPerformanceState {
-    const selection: ReturnType<typeof HumanPerformanceKey.of> =
-      HumanPerformanceKey.of(input);
-    const key: string = selection.key;
-    if (observation !== undefined)
-      return new HumanPerformanceState(input, selection.flight, observation);
-    const kept: IAutoMovieMotionHumanPerformanceState | undefined =
-      KEPT.get(key);
-    if (kept !== undefined) {
-      KEPT.delete(key);
-      KEPT.set(key, kept);
-      return kept;
-    }
-    const state: IAutoMovieMotionHumanPerformanceState =
-      new HumanPerformanceState(input, selection.flight);
-    KEPT.set(key, state);
-    if (KEPT.size > KEEP) KEPT.delete(KEPT.keys().next().value!);
-    return state;
+    return new HumanPerformanceState(
+      input,
+      HumanPerformanceFlightMode.of(input),
+      observation,
+    );
   }
-
-  /** The kept resolutions by key, the least recently read first. */
-  const KEPT: Map<string, IAutoMovieMotionHumanPerformanceState> = new Map();
 }

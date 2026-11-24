@@ -22,6 +22,9 @@ import { FamilyCaseKit } from "./FamilyCaseKit";
 import { TouchVerdicts } from "./TouchVerdicts";
 import { everydayVerdicts } from "./everydayVerdicts";
 
+/** The record of `IAffectionCasesRegion`'s site. */
+type IAffectionCasesRegion = { region: AutoMovieHumanoidRegion };
+
 /**
  * Capture cases of affectionate and social touch between two polygon men of the
  * same body: `a` touches, `b` stands.
@@ -119,7 +122,7 @@ export function affectionCases(
       const region: TouchVerdicts.IRegion = {
         subject: "b",
         body,
-        region: (params.target as { region: AutoMovieHumanoidRegion }).region,
+        region: (params.target as IAffectionCasesRegion).region,
       };
       const pad: number = AutoMovieMotionHumanTouchEffector.pad(
         body,
@@ -354,6 +357,7 @@ function attempt(
   name: string,
   run: () => IAutoMovieMotionHumanPerformance,
 ): IAutoMovieMotionHumanPerformance | null {
+  // Process boundary: a case that throws is reported as that case's refusal, and the remaining cases still run.
   try {
     return run();
   } catch (error) {

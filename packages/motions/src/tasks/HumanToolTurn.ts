@@ -4,6 +4,24 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+/** The record of `IHumanToolTurnResult2`'s site. */
+type IHumanToolTurnResult2 = {
+  grip: IAutoMovieVector3;
+  rotation: IAutoMovieQuaternion;
+};
+
+/** The record of `IHumanToolTurnResult`'s site. */
+type IHumanToolTurnResult = {
+  grip: IAutoMovieVector3;
+  rotation: IAutoMovieQuaternion;
+};
+
+/** The record of `IHumanToolTurnPose`'s site. */
+type IHumanToolTurnPose = {
+  grip: IAutoMovieVector3;
+  rotation: IAutoMovieQuaternion;
+};
+
 /**
  * A held tool's working pose turned about a fixed world axis through a pivot
  * (`useTool`): a hammer's head raised about the grip, a screwdriver turned
@@ -17,18 +35,13 @@ import type {
  *   and hand rotation, fresh records.
  */
 export function HumanToolTurn(
-  pose: { grip: IAutoMovieVector3; rotation: IAutoMovieQuaternion },
+  pose: IHumanToolTurnPose,
   axis: IAutoMovieVector3,
   about: IAutoMovieVector3,
-): (degrees: number) => {
-  grip: IAutoMovieVector3;
-  rotation: IAutoMovieQuaternion;
-} {
+): (degrees: number) => IHumanToolTurnResult {
   const turning: ReturnType<typeof Quaternion.prepareAxisAngle> =
     Quaternion.prepareAxisAngle(axis);
-  return (
-    degrees: number,
-  ): { grip: IAutoMovieVector3; rotation: IAutoMovieQuaternion } => {
+  return (degrees: number): IHumanToolTurnResult2 => {
     const turn: IAutoMovieQuaternion = turning(degrees);
     const orbit: IAutoMovieVector3 = Vector3.subtract(pose.grip, about);
     return {

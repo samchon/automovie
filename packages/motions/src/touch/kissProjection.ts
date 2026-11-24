@@ -6,7 +6,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { humanPostureHeading } from "../posture/humanPostureHeading";
 
 /**
  * Aim the hip-to-mouth vector at the horizontal projection of the skin. A roll
@@ -26,13 +26,13 @@ export function kissProjection(
   mouth: IAutoMovieVector3,
   target: IAutoMovieVector3,
 ): IAutoMovieMotionHumanLean.IAngles | null {
-  const yaw: IAutoMovieQuaternion = resolveHumanPosture.heading({
+  const yaw: IAutoMovieQuaternion = humanPostureHeading({
     yaw: entry.yaw,
     pitch: 0,
     roll: 0,
   });
   const held: IAutoMovieVector3 = Quaternion.rotateVector(
-    Quaternion.inverse(resolveHumanPosture.heading(entry)),
+    Quaternion.inverse(humanPostureHeading(entry)),
     Vector3.subtract(mouth, hip),
   );
   const goal: IAutoMovieVector3 = Quaternion.rotateVector(

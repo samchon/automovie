@@ -23,18 +23,21 @@ import { AutoMovieMotionHumanPlaced } from "../compose/AutoMovieMotionHumanPlace
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import { HumanFrame } from "../posture/HumanFrame";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { lowerHumanPosture } from "../posture/lowerHumanPosture";
 import { StrikingBlade } from "../striking/StrikingBlade";
 import { StrikingHeld } from "../striking/StrikingHeld";
 import { CourtStrokeProfiles } from "./CourtStrokeProfiles";
 import { courtRacketWrist } from "./courtRacketWrist";
 import { courtStrokeFeet } from "./courtStrokeFeet";
 
-/** Which registered action inputs the court stroke reads. */
-type Context = IAutoMovieMotionHumanActionContext<{
+/** The record of `IContext`'s site. */
+type IContext = {
   side?: AutoMovieHumanSide;
   manner?: IAutoMovieMotionManner;
-}>;
+};
+
+/** Which registered action inputs the court stroke reads. */
+type Context = IAutoMovieMotionHumanActionContext<IContext>;
 
 /** Optional elected working point and held racket for a stroke. */
 interface IOptions {
@@ -49,6 +52,8 @@ const REFERENCE_STATURE: number = 1.75;
 
 /** Half of the provisional racket contact window, in film seconds. */
 const RACKET_CONTACT_HALF: number = 0.018;
+/** The alternatives of `NominalPosturePhaseAngleAxis`'s site. */
+type NominalPosturePhaseAngleAxis = 0 | 1 | 2;
 
 /**
  * Plan the court athlete from entry stance through support, load, strike and
@@ -181,7 +186,7 @@ export function courtStroke(
   ): IAutoMovieMotionHumanPosture => {
     const weight: number = extent(s);
     const t: number = turn(s);
-    const phaseAngle = (axis: 0 | 1 | 2): number =>
+    const phaseAngle = (axis: NominalPosturePhaseAngleAxis): number =>
       weight *
       (profile.chamber[axis] + (profile.hit[axis] - profile.chamber[axis]) * t);
     const horizontal: IAutoMovieVector3 = Vector3.scale(
@@ -210,7 +215,7 @@ export function courtStroke(
   const drop: number =
     touchdown !== undefined
       ? touchdown.root.y -
-        resolveHumanPosture.lower(body, {
+        lowerHumanPosture(body, {
           ...touchdown,
           limbs: {
             leftLeg: AutoMovieMotionHumanLeg.goal(

@@ -11,6 +11,9 @@ import type {
 
 import { HumanRefusal } from "../law/HumanRefusal";
 
+/** The alternatives of `OfContext`'s site. */
+type OfContext = "prop" | "start";
+
 /**
  * The two handles a sled push (`pushSled`) takes, read on the pushed prop where
  * it stands at the push's start.
@@ -46,7 +49,7 @@ export namespace pushSledHandles {
    *   has no handle of that name, listing its affordances.
    */
   export function of(
-    context: Pick<IAutoMovieMotionHumanActionContext, "prop" | "start">,
+    context: Pick<IAutoMovieMotionHumanActionContext, OfContext>,
     sled: string,
     left: string,
     right: string,

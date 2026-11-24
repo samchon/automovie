@@ -6,7 +6,7 @@ States the fixed body and hand, the target and degree tilt, and the world wrist 
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-The hand's grip normal and forward are aligned with the approach and the wrapped axis, the result turned about the approach by the tilt, and the wrist placed so the flat palm's point lies half the width back from the grip point (the Final IK InteractionObject and Unreal hand-socket practice of an effector frame on an authored grip).
+The hand's grip normal and forward are aligned with the approach and the wrapped axis, the result turned about the approach by the tilt, and the wrist placed so the flat palm's point lies half the width back from the grip point.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 

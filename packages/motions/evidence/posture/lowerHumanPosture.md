@@ -2,7 +2,7 @@
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States gravity-axis lowering, minimum knee degrees, original targets and synchronous FK borrowing; prepare binds an unchanged body/knee with lazy first-use reach production. short/prepareShort document metre/degree inputs, live versus fixed dimensions, negative slack and the horizontally-unreachable -Infinity result.
+States gravity-axis lowering, minimum knee degrees, original targets and synchronous FK borrowing; prepare binds an unchanged body/knee and prepares its fixed reach once. short/prepareShort document metre/degree inputs, live versus fixed dimensions, negative slack and the horizontally-unreachable -Infinity result.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
@@ -10,7 +10,7 @@ Actual pelvis-to-hip FK supplies origins. The common reachLimit applies a*a+b*b+
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-Raw lowering and prepare share one current-goal/hip/drop owner. Its scalar source is either the original live short or prepare's privately created lazy fixed-reach reader. Both use reachLimit/reachDrop, separating fixed segment geometry from every current hip/ankle query without duplicating lowering or allocating per-query callbacks.
+Raw lowering and prepare share one current-goal/hip/drop owner. Its scalar source is either the original live short or prepare's fixed-reach reader, created once with it. Both use reachLimit/reachDrop, separating fixed segment geometry from every current hip/ankle query without duplicating lowering or allocating per-query callbacks.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
@@ -26,4 +26,4 @@ A supplied same-person reader shares exact FK prerequisites; changed root/pelvis
 
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
-Lowering's local goals, hip frames and getter end on return or throw. prepare retains its unchanged body/knee and at most one private scalar reader until its plan owner releases it. A prepareShort reader retains only the fixed reach constants without body or points. Neither path stores query history, handles or tasks.
+Lowering's local goals, hip frames and getter end on return or throw. prepare retains its unchanged body/knee and one private scalar reader until its plan owner releases it. A prepareShort reader retains only the fixed reach constants without body or points. Neither path stores query history, handles or tasks.

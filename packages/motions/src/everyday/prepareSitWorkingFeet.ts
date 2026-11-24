@@ -16,8 +16,8 @@ import { walkFoot } from "../actions/walkFoot";
 import { HumanSupportFrame } from "../carrier/HumanSupportFrame";
 import { unloadedFoot } from "../carrier/unloadedFoot";
 import { hipJoints } from "../posture/hipJoints";
+import { humanPostureHeading } from "../posture/humanPostureHeading";
 import { lowerHumanPosture } from "../posture/lowerHumanPosture";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { seated } from "./seated";
 import { sitPlace } from "./sitPlace";
 
@@ -55,7 +55,7 @@ export function prepareSitWorkingFeet(
   const hips: Feet = hipJoints(
     body,
     seated.root(body, goal, angles),
-    resolveHumanPosture.heading(angles),
+    humanPostureHeading(angles),
   );
   const radians: number = (seat.yaw * Math.PI) / 180;
   const forward: IAutoMovieVector3 = {
@@ -205,7 +205,7 @@ export function prepareSitWorkingFeet(
         const hip: IAutoMovieVector3 = hipJoints(
           body,
           root,
-          resolveHumanPosture.heading({ yaw, pitch: 0, roll: 0 }),
+          humanPostureHeading({ yaw, pitch: 0, roll: 0 }),
           joints.hips,
         )[side];
         limbs[`${side}Leg`] = unloadedFoot(body, hip, {

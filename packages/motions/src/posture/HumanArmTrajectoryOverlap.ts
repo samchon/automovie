@@ -17,6 +17,15 @@ import type { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
 import { HumanArmTrajectoryTerms as T } from "./HumanArmTrajectoryTerms";
 import { HumanAuditModel } from "./HumanAuditModel";
 
+/** The alternatives of `EmbeddedVisitOwn`'s site. */
+type EmbeddedVisitOwn = "upperArm" | "lowerArm" | "hand";
+
+/** The alternatives of `EmbeddedOwner`'s site. */
+type EmbeddedOwner = "upper" | "lower" | "hand";
+
+/** The alternatives of `CrossingOwner`'s site. */
+type CrossingOwner = "upper" | "lower" | "hand";
+
 /**
  * Collision pairs against moving arm colliders: the two solved arms against
  * each other, and the body's and external segments' corners inside an arm.
@@ -35,7 +44,7 @@ export namespace HumanArmTrajectoryOverlap {
     /** The other arm's shape, placed. */
     shape: IAutoMovieMotionHumanArmGeometry.IShape;
     /** The other arm's segment the shape rides on. */
-    owner: "upper" | "lower" | "hand";
+    owner: CrossingOwner;
     /** The shape's bone. */
     bone: string;
     /** How far the probe lies below what it may, millimetres. */
@@ -60,7 +69,7 @@ export namespace HumanArmTrajectoryOverlap {
      */
     index: number;
     /** The arm's segment the shape rides on. */
-    owner: "upper" | "lower" | "hand";
+    owner: EmbeddedOwner;
     /** The corner's bone. */
     bone: string;
     /** How far the corner lies below what it may, millimetres. */
@@ -335,7 +344,7 @@ export namespace HumanArmTrajectoryOverlap {
           if (apart >= T.REACH) return;
           if (frame.related[corner.part]?.[shape.part] === true) return;
           const key: number = corner.part * mine.length + j;
-          const own: "upperArm" | "lowerArm" | "hand" =
+          const own: EmbeddedVisitOwn =
             owners[j] === "upper"
               ? "upperArm"
               : owners[j] === "lower"

@@ -4,6 +4,18 @@ import type {
   IAutoMovieMotionHumanInterruptRow,
 } from "@automovie/interface";
 
+/** The alternatives of `TableItem`'s site. */
+type TableItem = AutoMovieMotionHumanActionKey | "any";
+
+/** The alternatives of `OutEntryItem`'s site. */
+type OutEntryItem = AutoMovieMotionHumanActionKey | "any";
+
+/** The alternatives of `TableEntryItemResult`'s site. */
+type TableEntryItemResult = AutoMovieMotionHumanActionKey | "any";
+
+/** The alternatives of `RowsEntryItem`'s site. */
+type RowsEntryItem = AutoMovieMotionHumanActionKey | "any";
+
 /**
  * Cancel rows by name: when an action may be cancelled, as a window of its
  * phrase, and how fast the next action blends in.
@@ -89,7 +101,7 @@ export namespace AutoMovieMotionHumanInterrupt {
   export function table(
     rows: Partial<
       Record<
-        AutoMovieMotionHumanActionKey | "any",
+        RowsEntryItem,
         readonly [
           IAutoMovieMotionHumanInterrupt.Window,
           IAutoMovieMotionHumanInterrupt.Blend,
@@ -97,19 +109,13 @@ export namespace AutoMovieMotionHumanInterrupt {
       >
     >,
   ): Partial<
-    Record<
-      AutoMovieMotionHumanActionKey | "any",
-      IAutoMovieMotionHumanInterruptRow[]
-    >
+    Record<TableEntryItemResult, IAutoMovieMotionHumanInterruptRow[]>
   > {
     const out: Partial<
-      Record<
-        AutoMovieMotionHumanActionKey | "any",
-        IAutoMovieMotionHumanInterruptRow[]
-      >
+      Record<OutEntryItem, IAutoMovieMotionHumanInterruptRow[]>
     > = {};
     for (const [name, spec] of Object.entries(rows) as [
-      AutoMovieMotionHumanActionKey | "any",
+      TableItem,
       readonly [
         IAutoMovieMotionHumanInterrupt.Window,
         IAutoMovieMotionHumanInterrupt.Blend,

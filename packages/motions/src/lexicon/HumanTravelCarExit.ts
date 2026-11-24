@@ -1,5 +1,6 @@
 import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionEvent,
   IAutoMovieMotionHumanActionContext,
@@ -30,7 +31,15 @@ import { carExitAnkleAt } from "./carExitAnkleAt";
 type Feet = IAutoMovieMotionHumanEntryState["feet"];
 
 /** The two ankle goal points used by the shared standing stance. */
-type Ankles = Record<"left" | "right", IAutoMovieVector3>;
+type Ankles = Record<AutoMovieHumanSide, IAutoMovieVector3>;
+/** The alternatives of `GetOutPart`'s site. */
+type GetOutPart = "leftFoot" | "rightFoot";
+
+/** The alternatives of `GetOutPosturePart`'s site. */
+type GetOutPosturePart = "leftLeg" | "rightLeg";
+
+/** The record of `IGetOutFrame`'s site. */
+type IGetOutFrame = { origin: IAutoMovieVector3; yaw: number };
 
 /**
  * Static rear-seat egress via the adjacent, already-open door. Shippen (2012,
@@ -48,17 +57,6 @@ export namespace HumanTravelCarExit {
    * clearance, turn timing, landing offset and flexion. The pelvis rocks back
    * about the supported seat socket through the two sill crossings, and the
    * spine completes its duck before the last one.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the entered support, authored phase controls and refusal conditions.
-   * @evidence contracts/development/design.md#principled-representation Stages authored foot trajectories outside the aperture before transferring support through rise.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Registers only getOut and retains the existing rise events with the added sill and landing markers.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Uses the actual bench, placed opening and entered feet, with authored timing and flexion.
-   * @evidence contracts/development/implementation.md#principled-implementation Eased lift, passage, lowering and rotation use minimum jerk. Each foot lands in the stance rise reads at its start, while a delayed foot keeps the entered support until lift. The backward rock uses the existing seated lean at the sill and leaves the seat socket on its original course. The authored duck reaches maximum at the trailing sill independently of the slide.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Checks the opening and entry, places a rise, builds the two foot paths and remaps the contacts.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Geometry follows the supplied door; checking the crown at seat-off leaves continuous clearance to inspection.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One new entry fit, one starting rise posture and one crown query per plan; each preparation posture evaluates at most two closed-form foot paths.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The start footholds, sill waypoints and exterior landing goals are computed once.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains its phase controls and rise for the instance lifetime.
    */
   export const getOut: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanTravelCarExit.IParams> =
     {
@@ -168,7 +166,7 @@ export namespace HumanTravelCarExit {
           });
 
         // Set the seat socket along the door centerline as far as the cushion permits.
-        const frame: { origin: IAutoMovieVector3; yaw: number } = {
+        const frame: IGetOutFrame = {
           origin: bench.at,
           yaw: bench.yaw,
         };
@@ -203,7 +201,7 @@ export namespace HumanTravelCarExit {
           ),
           y: ankleY,
         };
-        const level = (side: "left" | "right"): IAutoMovieVector3 =>
+        const level = (side: AutoMovieHumanSide): IAutoMovieVector3 =>
           HumanFrame.point(
             { origin: stance, yaw },
             {
@@ -229,7 +227,7 @@ export namespace HumanTravelCarExit {
           limbs: {},
         };
         poseAtEdge.limbs = stand.legs(body, poseAtEdge.root, yaw, ankles);
-        const planted = (side: "left" | "right"): Feet["left"] => ({
+        const planted = (side: AutoMovieHumanSide): Feet["left"] => ({
           ...entry.feet[side],
           ankle: ankles[side],
           rotation: poseAtEdge.limbs[`${side}Leg`]!.rotation!,
@@ -258,14 +256,14 @@ export namespace HumanTravelCarExit {
         const riseEntry: IAutoMovieMotionHumanPosture = up.posture(0);
 
         // The outward knee leads and the second foot lands just before the rise.
-        const lead: "left" | "right" = turn > 0 ? "left" : "right";
-        const timing: Record<"left" | "right", readonly [number, number]> = {
+        const lead: AutoMovieHumanSide = turn > 0 ? "left" : "right";
+        const timing: Record<AutoMovieHumanSide, readonly [number, number]> = {
           left: lead === "left" ? [0, 1 - stagger] : [stagger, 1],
           right: lead === "right" ? [0, 1 - stagger] : [stagger, 1],
         };
         const prepare: number = turnSeconds * (context.tempo ?? 1);
         const duration: number = prepare + up.duration;
-        const starts: Record<"left" | "right", HumanMount.IFoot> = {
+        const starts: Record<AutoMovieHumanSide, HumanMount.IFoot> = {
           left: HumanMount.held(entry, "left"),
           right: HumanMount.held(entry, "right"),
         };
@@ -339,7 +337,7 @@ export namespace HumanTravelCarExit {
               Math.max(0, (u - from) / (to - from)),
             );
             const initial: HumanMount.IFoot = starts[side];
-            const part: "leftLeg" | "rightLeg" = `${side}Leg`;
+            const part: GetOutPosturePart = `${side}Leg`;
             const landed: IAutoMovieHumanLimbGoal = riseEntry.limbs[part]!;
             if (u >= to) {
               limbs[part] = landed;
@@ -432,7 +430,7 @@ export namespace HumanTravelCarExit {
         );
         for (const side of ["left", "right"] as const) {
           const [from, to]: readonly [number, number] = timing[side];
-          const part: "leftFoot" | "rightFoot" = `${side}Foot`;
+          const part: GetOutPart = `${side}Foot`;
           if (from > 0 && entry.feet[side].planted)
             contacts.push({
               part,
@@ -454,7 +452,7 @@ export namespace HumanTravelCarExit {
             share: share(e.share),
           }),
         );
-        const cross = (side: "left" | "right"): number =>
+        const cross = (side: AutoMovieHumanSide): number =>
           (((timing[side][0] + timing[side][1]) / 2) * prepare) / duration;
         events.unshift(
           { name: "leadSill", share: cross(lead) },

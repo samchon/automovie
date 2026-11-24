@@ -10,9 +10,15 @@ import type {
 } from "@automovie/interface";
 
 import { seated } from "../everyday/seated";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { humanPostureHeading } from "../posture/humanPostureHeading";
 import { HumanMountedStirrups } from "./HumanMountedStirrups";
 import { respondHumanMounted } from "./respondHumanMounted";
+
+/** The alternatives of `KeyAttitude`'s site. */
+type KeyAttitude = "yaw" | "pitch" | "roll";
+
+/** The alternatives of `Phase2`'s site. */
+type Phase2 = "index" | "share";
 
 /**
  * The bank seats of a mounted performance: down a bank the rider sits with the
@@ -37,10 +43,7 @@ export namespace HumanMountedBank {
    * A mounted clock's phase: the current figure and how far its transfer has
    * gone.
    */
-  export type Phase = Pick<
-    IAutoMovieMotionHumanMounted.IPhase,
-    "index" | "share"
-  >;
+  export type Phase = Pick<IAutoMovieMotionHumanMounted.IPhase, Phase2>;
 
   /**
    * Whether a seat kind is a bank seat.
@@ -75,10 +78,11 @@ export namespace HumanMountedBank {
     key: IAutoMovieMotionHumanPosture,
   ): IAutoMovieMotionHumanPosture {
     if (seat !== "descent") return key;
-    const attitude: Pick<
-      IAutoMovieMotionHumanPosture,
-      "yaw" | "pitch" | "roll"
-    > = { yaw: key.yaw, pitch: 0, roll: 0 };
+    const attitude: Pick<IAutoMovieMotionHumanPosture, KeyAttitude> = {
+      yaw: key.yaw,
+      pitch: 0,
+      roll: 0,
+    };
     const joints: IAutoMovieMotionHumanPosture["joints"] = { ...key.joints };
     for (const bone of TRUNK)
       joints[bone] = [0, 0, (joints[bone] ?? [0, 0, 0])[2]];
@@ -125,8 +129,8 @@ export namespace HumanMountedBank {
       phase,
       (seat: IAutoMovieMotionHumanMounted.Seat): number => (bank(seat) ? 1 : 0),
     );
-    const level: IAutoMovieQuaternion = resolveHumanPosture.heading({
-      yaw: resolveHumanPosture.angles(start).yaw,
+    const level: IAutoMovieQuaternion = humanPostureHeading({
+      yaw: humanPostureHeading.angles(start).yaw,
       pitch: 0,
       roll: 0,
     });

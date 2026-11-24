@@ -1,6 +1,7 @@
 import { Transform } from "@automovie/engine";
 import { AutoMovieHumanCanonicalBody } from "@automovie/human";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieBone,
   IAutoMovieHumanCanonicalBody,
@@ -10,6 +11,15 @@ import type {
 
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
 import { MotionBodies } from "../MotionBodies";
+
+/** The record of `IGalleryCasesGalleryP`'s site. */
+type IGalleryCasesGalleryP = { label: string };
+
+/** The record of `IGalleryCasesPosesItem`'s site. */
+type IGalleryCasesPosesItem = {
+  label: string;
+  joints: Partial<Record<AutoMovieHumanoidBone, [number, number, number]>>;
+};
 
 /**
  * Inspection cases of the polygon man itself: `gallery` shows one body in
@@ -25,10 +35,7 @@ import { MotionBodies } from "../MotionBodies";
 export function galleryCases(): IMotionCaptureCase[] {
   const body: IAutoMovieHumanCanonicalBody.IBody =
     MotionBodies.population("m-average").body;
-  const poses: {
-    label: string;
-    joints: Partial<Record<AutoMovieHumanoidBone, [number, number, number]>>;
-  }[] = [
+  const poses: IGalleryCasesPosesItem[] = [
     { label: "neutral", joints: {} },
     { label: "L sh flex 90", joints: { leftUpperArm: [90, 0, 0] } },
     { label: "R sh abd 90", joints: { rightUpperArm: [0, 90, 0] } },
@@ -66,7 +73,7 @@ export function galleryCases(): IMotionCaptureCase[] {
   const gallery: IMotionCaptureCase = {
     name: "gallery",
     times: poses.map(
-      (p: { label: string }, i: number): IMotionCaptureCase.ITime => ({
+      (p: IGalleryCasesGalleryP, i: number): IMotionCaptureCase.ITime => ({
         seconds: i,
         label: p.label,
       }),
@@ -130,7 +137,7 @@ function zero(
 
 /** Every finger segment of one hand flexed into a fist. */
 function fist(
-  side: "left" | "right",
+  side: AutoMovieHumanSide,
 ): Partial<Record<AutoMovieHumanoidBone, [number, number, number]>> {
   const out: Partial<Record<AutoMovieHumanoidBone, [number, number, number]>> =
     {};
@@ -145,13 +152,15 @@ function fist(
   out[`${side}ThumbDistal` as AutoMovieHumanoidBone] = [50, 0, 0];
   return out;
 }
+/** The record of `IJointResult`'s site. */
+type IJointResult = { x: number; y: number; z: number };
 
 /** One Human joint's canonical position under a pose. */
 function joint(
   body: IAutoMovieHumanCanonicalBody.IBody,
   pose: IAutoMoviePose,
   bone: string,
-): { x: number; y: number; z: number } {
+): IJointResult {
   return AutoMovieHumanCanonicalBody.place(body, pose).find(
     (p: IAutoMovieHumanCanonicalBody.IPlacement): boolean => p.bone === bone,
   )!.position;

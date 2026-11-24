@@ -20,7 +20,7 @@ Linear in the members and in the samples, the frame shared by every station.
 
 ## @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work
 
-The frame is built once and shared.
+The frame is built once and shared; the two formations arrive prepared from the manoeuvre's plan, so their frames are not laid again.
 
 ## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
 

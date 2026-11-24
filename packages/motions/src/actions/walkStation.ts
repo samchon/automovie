@@ -179,11 +179,16 @@ export function walkStation(
   clock[clock.length - 1] = plan.duration;
   return walkPaced(plan, tick, clock);
 }
+/** The alternatives of `WalkStationHorizontalPoint2`'s site. */
+type WalkStationHorizontalPoint2 = "x" | "z";
 
 /** Constants of {@link walkStation}. */
 export namespace walkStation {
   /** The world axes which contribute to travelled ground distance. */
-  export type HorizontalPoint = Pick<IAutoMovieVector3, "x" | "z">;
+  export type HorizontalPoint = Pick<
+    IAutoMovieVector3,
+    WalkStationHorizontalPoint2
+  >;
 
   /** Read the displayed root's horizontal coordinates at an action-local second. */
   export type HorizontalRoot = (seconds: number) => HorizontalPoint;
@@ -319,7 +324,7 @@ export namespace walkStation {
     station: IAutoMovieMotionHumanFormation.IStation,
   ): number {
     const until: number | null =
-      station.until ?? HumanFormation.end(station.formation);
+      station.until ?? HumanFormation.prepare(station.formation).end;
     if (until === null && station.formation.frame.kind === "fixed")
       return context.start;
     if (until === null)
@@ -432,6 +437,9 @@ export namespace walkStation {
       },
     };
   }
+  /** The record of `IWalkStationPointDress`'s site. */
+  type IWalkStationPointDress = { bound: number; seed: string };
+
   /**
    * The point a walk's station keeps at a film second: its slot, moved by the
    * member's slow dress deviation when the station carries one.
@@ -449,10 +457,13 @@ export namespace walkStation {
       t: number,
     ): IAutoMovieMotionHumanActionContext.IRoot =>
       context.performer(subject).root(t);
-    const dress: { bound: number; seed: string } | undefined = station.dress;
+    const prepared: HumanFormation.IPrepared = HumanFormation.prepare(
+      station.formation,
+    );
+    const dress: IWalkStationPointDress | undefined = station.dress;
     if (dress === undefined || !(dress.bound > 0))
       return (seconds: number): IAutoMovieVector3 =>
-        HumanFormation.slot(station.formation, station.slot, seconds, read).at;
+        prepared.slot(station.slot, seconds, read).at;
 
     // A slow deviation from the slot along each of the frame's axes, smooth and zero where the station begins and ends (`seededSmoothNoise`), swinging at most `DRESS_FREQUENCY` hertz.
     const local: IAutoMovieMotionHumanFormation.ILocal = HumanFormation.local(
@@ -466,17 +477,14 @@ export namespace walkStation {
     const depth: IAutoMovieRandom = random.stream("depth");
     return (seconds: number): IAutoMovieVector3 => {
       const u: number = (seconds - from) / span;
-      return HumanFormation.place(
-        HumanFormation.frame(station.formation, seconds, read),
-        {
-          lateral:
-            local.lateral +
-            dress.bound * seededSmoothNoise(lateral, u, span, DRESS_FREQUENCY),
-          depth:
-            local.depth +
-            dress.bound * seededSmoothNoise(depth, u, span, DRESS_FREQUENCY),
-        },
-      );
+      return HumanFormation.place(prepared.frame(seconds, read), {
+        lateral:
+          local.lateral +
+          dress.bound * seededSmoothNoise(lateral, u, span, DRESS_FREQUENCY),
+        depth:
+          local.depth +
+          dress.bound * seededSmoothNoise(depth, u, span, DRESS_FREQUENCY),
+      });
     };
   }
 }

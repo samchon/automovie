@@ -15,8 +15,10 @@ import type {
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanArmTarget,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanClinch,
+  IAutoMovieMotionHumanEvaluation,
   IAutoMovieMotionHumanPerformerReader,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionManner,
@@ -37,6 +39,27 @@ import { HumanBound } from "../law/HumanBound";
 import { HumanPhysics } from "../law/HumanPhysics";
 import { HumanColliders } from "../posture/HumanColliders";
 import { poseBones } from "../posture/poseBones";
+
+/**
+ * The partner snapshot one clinch plan lends both hands of one evaluation
+ * (`IAutoMovieMotionHumanEvaluation.loan`), read on the first hand that needs
+ * it and honoured only at its own second.
+ */
+class ClinchLoan implements IAutoMovieMotionHumanEvaluation.ILoan {
+  /** The partner's bones at that second, once a hand has read them. */
+  public bones?: ReturnType<IAutoMovieMotionHumanPerformerReader["bones"]>;
+
+  /**
+   * @param owner The lending plan's token.
+   * @param seconds Action seconds of the evaluation.
+   */
+  public constructor(
+    public readonly owner: object,
+    public readonly seconds: number,
+  ) {}
+}
+/** The record of `IRegionsEntry`'s site. */
+type IRegionsEntry = { region: AutoMovieHumanoidRegion; across: number };
 
 /**
  * Taking a clinch grip on a partner standing within reach and holding it: the
@@ -115,10 +138,7 @@ export namespace clinch {
         region: collar === "right" ? "elbowRight" : "elbowLeft",
         across: 0,
       },
-    } as Record<
-      AutoMovieHumanSide,
-      { region: AutoMovieHumanoidRegion; across: number }
-    >;
+    } as Record<AutoMovieHumanSide, IRegionsEntry>;
   }
 
   /**
@@ -192,22 +212,29 @@ export namespace clinch {
       requested.add("leftUpperArm");
       requested.add("rightUpperArm");
     }
-    /** Exact partner frames owned only by the current explicit posture call. */
-    let scope:
-      | {
-          seconds: number;
-          bones?: ReturnType<IAutoMovieMotionHumanPerformerReader["bones"]>;
-        }
-      | undefined;
-    /** Both hands may read one partner snapshot before this invocation returns. */
+    /** The token this plan knows its own evaluations' partner snapshots by. */
+    const owner: object = {};
+
+    /**
+     * Both hands of one evaluation read one partner snapshot: the one its
+     * evaluation's loan (`ClinchLoan`) holds at that second, read on the first
+     * hand that needs it; any other read reads the partner afresh.
+     */
     const partnerAt: (
       seconds: number,
+      evaluation: IAutoMovieMotionHumanEvaluation | undefined,
     ) => ReturnType<IAutoMovieMotionHumanPerformerReader["bones"]> = (
       seconds: number,
-    ): ReturnType<IAutoMovieMotionHumanPerformerReader["bones"]> =>
-      scope === undefined || scope.seconds !== seconds
-        ? partner.bones(context.start + seconds, requested)
-        : (scope.bones ??= partner.bones(context.start + seconds, requested));
+      evaluation: IAutoMovieMotionHumanEvaluation | undefined,
+    ): ReturnType<IAutoMovieMotionHumanPerformerReader["bones"]> => {
+      const loan: IAutoMovieMotionHumanEvaluation.ILoan | undefined =
+        evaluation?.loan;
+      return loan instanceof ClinchLoan &&
+        loan.owner === owner &&
+        loan.seconds === seconds
+        ? (loan.bones ??= partner.bones(context.start + seconds, requested))
+        : partner.bones(context.start + seconds, requested);
+    };
     const modifiers: IAutoMovieMotionManner.IModifiers =
       AutoMovieMotionManner.of(context, context.params.manner);
     const reach: number = AutoMovieMotionHumanTiming.aimed(
@@ -264,8 +291,14 @@ export namespace clinch {
             region: table[side].region,
           },
         },
-        target: (posture: IAutoMovieMotionHumanPosture, seconds: number) => {
-          const partnerBones = partnerAt(seconds);
+        target: (
+          posture: IAutoMovieMotionHumanPosture,
+          seconds: number,
+          _resolution?: Parameters<IAutoMovieMotionHumanArmTarget.Frame>[2],
+          _projection?: Parameters<IAutoMovieMotionHumanArmTarget.Frame>[3],
+          evaluation?: Parameters<IAutoMovieMotionHumanArmTarget.Frame>[4],
+        ) => {
+          const partnerBones = partnerAt(seconds, evaluation);
           const at = place(
             partner.body,
             partnerBones,
@@ -358,12 +391,16 @@ export namespace clinch {
           projection?: Parameters<
             IAutoMovieMotionHumanActionPlan["posture"]
           >[3],
+          evaluation?: Parameters<
+            IAutoMovieMotionHumanActionPlan["posture"]
+          >[4],
         ): IAutoMovieMotionHumanPosture => {
           const posture: IAutoMovieMotionHumanPosture = base.posture(
             seconds,
             channels,
             source,
             projection,
+            evaluation,
           );
           const entered: number = clock.progress(
             AutoMovieMotionClock.START,
@@ -395,15 +432,12 @@ export namespace clinch {
         channels?: readonly AutoMovieMotionHumanChannel[],
         source?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
         projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3],
-      ): IAutoMovieMotionHumanPosture => {
-        const previous: typeof scope = scope;
-        scope = { seconds };
-        try {
-          return composed.posture(seconds, channels, source, projection);
-        } finally {
-          scope = previous;
-        }
-      },
+        evaluation?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[4],
+      ): IAutoMovieMotionHumanPosture =>
+        composed.posture(seconds, channels, source, projection, {
+          ...evaluation,
+          loan: new ClinchLoan(owner, seconds),
+        }),
     };
   }
 }

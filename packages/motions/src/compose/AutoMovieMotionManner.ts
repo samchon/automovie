@@ -11,6 +11,15 @@ import { HumanEffort } from "../everyday/HumanEffort";
 import { HumanBound } from "../law/HumanBound";
 import { AutoMovieMotionClock } from "./AutoMovieMotionClock";
 
+/** The alternatives of `TimeModifiers`'s site. */
+type TimeModifiers = "tempo" | "hold";
+
+/** The alternatives of `OfContext`'s site. */
+type OfContext = "skill" | "random" | "tempo";
+
+/** The alternatives of `BOUNDSEntryItem`'s site. */
+type BOUNDSEntryItem = "tempo" | "extent";
+
 /**
  * How an action is performed, as distinct from which action it is: how fast,
  * how large, how forceful, how skilled and how varied.
@@ -48,7 +57,7 @@ export namespace AutoMovieMotionManner {
    * (coefficients of variation 0.07 and 0.025); the extent's are provisional.
    */
   export const BOUNDS: Readonly<
-    Record<"tempo" | "extent", readonly [novice: number, elite: number]>
+    Record<BOUNDSEntryItem, readonly [novice: number, elite: number]>
   > = {
     tempo: [0.14, 0.05],
     extent: [0.2, 0.08],
@@ -112,10 +121,7 @@ export namespace AutoMovieMotionManner {
    * @returns The modifiers.
    */
   export function of(
-    context: Pick<
-      IAutoMovieMotionHumanActionContext,
-      "skill" | "random" | "tempo"
-    >,
+    context: Pick<IAutoMovieMotionHumanActionContext, OfContext>,
     manner: IAutoMovieMotionManner | undefined,
   ): IAutoMovieMotionManner.IModifiers {
     const own: IAutoMovieMotionManner.IModifiers =
@@ -146,7 +152,7 @@ export namespace AutoMovieMotionManner {
    */
   export function time(
     clock: IAutoMovieMotionClock,
-    modifiers: Pick<IAutoMovieMotionManner.IModifiers, "tempo" | "hold">,
+    modifiers: Pick<IAutoMovieMotionManner.IModifiers, TimeModifiers>,
     spans: IAutoMovieMotionManner.ISpans = {},
   ): IAutoMovieMotionClock {
     const named = new Set<string>(

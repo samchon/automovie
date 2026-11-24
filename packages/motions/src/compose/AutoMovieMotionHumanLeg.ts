@@ -15,6 +15,24 @@ import type {
 import { HumanFoot } from "../posture/HumanFoot";
 import { AutoMovieMotionHumanBend } from "./AutoMovieMotionHumanBend";
 
+/** The alternatives of `PlaceLimb`'s site. */
+type PlaceLimb = "leftLeg" | "rightLeg";
+
+/** The alternatives of `PreparePlacementPosture`'s site. */
+type PreparePlacementPosture = "root" | "yaw";
+
+/** The alternatives of `PreparePlacementPostureResult`'s site. */
+type PreparePlacementPostureResult = "root" | "yaw";
+
+/** The alternatives of `PrepareGoalPosture`'s site. */
+type PrepareGoalPosture = "root" | "yaw";
+
+/** The alternatives of `PrepareGoalPostureResult`'s site. */
+type PrepareGoalPostureResult = "root" | "yaw";
+
+/** The alternatives of `GoalPosture`'s site. */
+type GoalPosture = "root" | "yaw";
+
 /**
  * Leg primitives: a foot kept on the floor, and a foot lifted and set down
  * somewhere else.
@@ -89,7 +107,7 @@ export namespace AutoMovieMotionHumanLeg {
    */
   export function goal(
     body: IAutoMovieMotionHumanBody,
-    posture: Pick<IAutoMovieMotionHumanPosture, "root" | "yaw">,
+    posture: Pick<IAutoMovieMotionHumanPosture, GoalPosture>,
     side: AutoMovieHumanSide,
     placement: IAutoMovieMotionHumanFoot.IPlacement,
     planted: boolean,
@@ -125,11 +143,11 @@ export namespace AutoMovieMotionHumanLeg {
     placement: IAutoMovieMotionHumanFoot.IPlacement,
     planted: boolean,
   ): (
-    posture: Pick<IAutoMovieMotionHumanPosture, "root" | "yaw">,
+    posture: Pick<IAutoMovieMotionHumanPosture, PrepareGoalPostureResult>,
   ) => IAutoMovieHumanLimbGoal {
     let read: ReturnType<typeof placementReader> | undefined;
     return (
-      posture: Pick<IAutoMovieMotionHumanPosture, "root" | "yaw">,
+      posture: Pick<IAutoMovieMotionHumanPosture, PrepareGoalPosture>,
     ): IAutoMovieHumanLimbGoal => {
       const point: IAutoMovieVector3 = placement.ankle;
       const rotation: IAutoMovieQuaternion = placement.rotation;
@@ -155,7 +173,7 @@ export namespace AutoMovieMotionHumanLeg {
     side: AutoMovieHumanSide,
     rotation: IAutoMovieQuaternion,
   ): (
-    posture: Pick<IAutoMovieMotionHumanPosture, "root" | "yaw">,
+    posture: Pick<IAutoMovieMotionHumanPosture, PreparePlacementPostureResult>,
     placement: IAutoMovieMotionHumanFoot.IPlacement,
     planted: boolean,
   ) => IAutoMovieHumanLimbGoal {
@@ -165,7 +183,7 @@ export namespace AutoMovieMotionHumanLeg {
       rotation,
     );
     return (
-      posture: Pick<IAutoMovieMotionHumanPosture, "root" | "yaw">,
+      posture: Pick<IAutoMovieMotionHumanPosture, PreparePlacementPosture>,
       placement: IAutoMovieMotionHumanFoot.IPlacement,
       planted: boolean,
     ): IAutoMovieHumanLimbGoal =>
@@ -181,7 +199,7 @@ export namespace AutoMovieMotionHumanLeg {
   export function place(
     props: IAutoMovieMotionHumanLeg.IPlace,
   ): IAutoMovieMotionHumanPrimitive {
-    const limb: "leftLeg" | "rightLeg" = `${props.side}Leg`;
+    const limb: PlaceLimb = `${props.side}Leg`;
     return {
       channels: [limb],
       from: props.from,
@@ -310,6 +328,8 @@ function formed(
     ...(contact === undefined ? {} : { planted: true, contact }),
   };
 }
+/** The alternatives of `GoalAtPosture`'s site. */
+type GoalAtPosture = "root" | "yaw";
 
 /**
  * Original cold heading, current knee and actual bearing-contact admission
@@ -317,7 +337,7 @@ function formed(
  */
 function goalAt(
   body: IAutoMovieMotionHumanBody,
-  posture: Pick<IAutoMovieMotionHumanPosture, "root" | "yaw">,
+  posture: Pick<IAutoMovieMotionHumanPosture, GoalAtPosture>,
   side: AutoMovieHumanSide,
   point: IAutoMovieVector3,
   rotation: IAutoMovieQuaternion,
@@ -337,6 +357,11 @@ function goalAt(
     planted ? HumanFoot.offset(body, side, "mtp") : undefined,
   );
 }
+/** The alternatives of `PlacementReaderPosture`'s site. */
+type PlacementReaderPosture = "root" | "yaw";
+
+/** The alternatives of `PlacementReaderPostureResult`'s site. */
+type PlacementReaderPostureResult = "root" | "yaw";
 
 /**
  * Genuine fixed-rotation producer shared by both actual prepared-placement
@@ -347,7 +372,7 @@ function placementReader(
   side: AutoMovieHumanSide,
   fixed: IAutoMovieQuaternion,
 ): (
-  posture: Pick<IAutoMovieMotionHumanPosture, "root" | "yaw">,
+  posture: Pick<IAutoMovieMotionHumanPosture, PlacementReaderPostureResult>,
   point: IAutoMovieVector3,
   rotation: IAutoMovieQuaternion,
   planted: boolean,
@@ -359,7 +384,7 @@ function placementReader(
   let knee: ReturnType<typeof AutoMovieMotionHumanBend.prepareKnee> | undefined;
   let contact: IAutoMovieVector3 | undefined;
   return (
-    posture: Pick<IAutoMovieMotionHumanPosture, "root" | "yaw">,
+    posture: Pick<IAutoMovieMotionHumanPosture, PlacementReaderPosture>,
     point: IAutoMovieVector3,
     rotation: IAutoMovieQuaternion,
     planted: boolean,

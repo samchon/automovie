@@ -1,5 +1,6 @@
 import { getConstraint } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPosture,
@@ -38,7 +39,7 @@ export namespace HumanTrunkTurn {
     body: IAutoMovieMotionHumanBody,
     posture: IAutoMovieMotionHumanPosture,
     share: number,
-    side: "left" | "right",
+    side: AutoMovieHumanSide,
   ): IAutoMovieMotionHumanPosture {
     const toLeft: number = side === "left" ? 1 : -1;
     const joints: IAutoMovieMotionHumanPosture["joints"] = {

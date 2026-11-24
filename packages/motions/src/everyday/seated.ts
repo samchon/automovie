@@ -1,5 +1,6 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanEntryState,
@@ -11,11 +12,14 @@ import type {
 import { HumanSupportFrame } from "../carrier/HumanSupportFrame";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFrame } from "../posture/HumanFrame";
+import { humanPostureHeading } from "../posture/humanPostureHeading";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import type { prepareSeatedPalms } from "./prepareSeatedPalms";
 import { seatedHands } from "./seatedHands";
+
+/** The alternatives of `RootHeading`'s site. */
+type RootHeading = "yaw" | "pitch" | "roll";
 
 /**
  * The geometry every seat law shares: where on a seat the body's seat socket
@@ -94,7 +98,7 @@ export namespace seated {
     return (
       (socket.y - under) / popliteal(body) > RATIO[1] &&
       (["left", "right"] as const).some(
-        (side: "left" | "right"): boolean =>
+        (side: AutoMovieHumanSide): boolean =>
           !entry.feet[side].planted ||
           entry.feet[side].ankle.y >
             under +
@@ -230,7 +234,7 @@ export namespace seated {
       return Vector3.add(
         seat.at,
         Quaternion.rotateVector(
-          resolveHumanPosture.heading({
+          humanPostureHeading({
             yaw: seat.yaw,
             pitch: seat.pitch ?? 0,
             roll: seat.roll ?? 0,
@@ -268,14 +272,11 @@ export namespace seated {
   export function root(
     body: IAutoMovieMotionHumanBody,
     at: IAutoMovieVector3,
-    heading: Pick<IAutoMovieMotionHumanPosture, "yaw" | "pitch" | "roll">,
+    heading: Pick<IAutoMovieMotionHumanPosture, RootHeading>,
   ): IAutoMovieVector3 {
     return Vector3.subtract(
       at,
-      Quaternion.rotateVector(
-        resolveHumanPosture.heading(heading),
-        offset(body),
-      ),
+      Quaternion.rotateVector(humanPostureHeading(heading), offset(body)),
     );
   }
 
@@ -292,10 +293,7 @@ export namespace seated {
   ): IAutoMovieVector3 {
     return Vector3.add(
       posture.root,
-      Quaternion.rotateVector(
-        resolveHumanPosture.heading(posture),
-        offset(body),
-      ),
+      Quaternion.rotateVector(humanPostureHeading(posture), offset(body)),
     );
   }
 
@@ -315,7 +313,7 @@ export namespace seated {
   export function hands(
     body: IAutoMovieMotionHumanBody,
     posture: IAutoMovieMotionHumanPosture,
-    side?: "left" | "right",
+    side?: AutoMovieHumanSide,
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
     projection?: ReturnType<typeof prepareHumanPostureProjection>,
   ): IAutoMovieMotionHumanPosture["limbs"] {
@@ -382,7 +380,7 @@ export namespace seated {
   export function rested(
     body: IAutoMovieMotionHumanBody,
     posture: IAutoMovieMotionHumanPosture,
-    rests: Partial<Record<"left" | "right", IAutoMovieVector3>> | undefined,
+    rests: Partial<Record<AutoMovieHumanSide, IAutoMovieVector3>> | undefined,
     yaw: number,
     share: number,
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
@@ -414,7 +412,7 @@ export namespace seated {
   export function armrest(
     body: IAutoMovieMotionHumanBody,
     posture: IAutoMovieMotionHumanPosture,
-    side: "left" | "right",
+    side: AutoMovieHumanSide,
     rest: IAutoMovieVector3,
     yaw: number,
   ): IAutoMovieHumanLimbGoal {

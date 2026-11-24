@@ -16,6 +16,7 @@ import type {
 } from "@automovie/interface";
 
 import { HumanRefusal } from "../law/HumanRefusal";
+import { HumanBoneGroups } from "../posture/HumanBoneGroups";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
 import { ExerciseKey } from "./ExerciseKey";
@@ -41,10 +42,6 @@ export namespace groupDanceConga {
 
   /** How far above the shoulder joint the palm rests, metres. */
   export const ON: number = 0.06;
-
-  /** The shoulder bones the hands rest on. */
-  const SHOULDERS: ReadonlySet<AutoMovieHumanoidBone> =
-    new Set<AutoMovieHumanoidBone>(["leftUpperArm", "rightUpperArm"]);
 
   /**
    * The conga's course.
@@ -186,7 +183,7 @@ export namespace groupDanceConga {
     ): IAutoMovieVector3 => {
       const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = context
         .performer(ahead!)
-        .bones(context.start + t, SHOULDERS);
+        .bones(context.start + t, HumanBoneGroups.SHOULDERS);
       return Vector3.add(
         bones.get(side === "left" ? "leftUpperArm" : "rightUpperArm")!
           .worldPosition,

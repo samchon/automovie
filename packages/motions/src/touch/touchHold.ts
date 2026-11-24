@@ -33,6 +33,57 @@ import { touchHoldRests } from "./touchHoldRests";
 import { touchLimb } from "./touchLimb";
 import { touchRegion } from "./touchRegion";
 
+/** The record of `IPerceivedResult2`'s site. */
+type IPerceivedResult2 = {
+  clear: IAutoMovieMotionHumanColliders.IPlaced[];
+  rests: IAutoMovieMotionHumanColliders.IPlaced[];
+};
+
+/** The record of `IPerceivedResult`'s site. */
+type IPerceivedResult = {
+  region: IAutoMovieMotionHumanTouch.ITouch["region"];
+  others: (
+    posture: IAutoMovieMotionHumanPosture,
+    seconds: number,
+  ) => IPerceivedOthersResult;
+};
+
+/** The record of `IPerceivedOthersResult`'s site. */
+type IPerceivedOthersResult = {
+  clear: IAutoMovieMotionHumanColliders.IPlaced[];
+  rests: IAutoMovieMotionHumanColliders.IPlaced[];
+};
+
+/** The record of `IPerceivedTarget`'s site. */
+type IPerceivedTarget = { subject: string; region: AutoMovieHumanoidRegion };
+
+/** The alternatives of `PerceivedContext`'s site. */
+type PerceivedContext = "performer" | "start" | "body";
+
+/** The record of `IOthersResult2`'s site. */
+type IOthersResult2 = {
+  clear: IAutoMovieMotionHumanColliders.IPlaced[];
+  rests: IAutoMovieMotionHumanColliders.IPlaced[];
+};
+
+/** The record of `IOthersResult`'s site. */
+type IOthersResult = {
+  clear: IAutoMovieMotionHumanColliders.IPlaced[];
+  rests: IAutoMovieMotionHumanColliders.IPlaced[];
+};
+
+/** The record of `IOthersTarget`'s site. */
+type IOthersTarget = { subject: string; region: AutoMovieHumanoidRegion };
+
+/** The alternatives of `OthersContext`'s site. */
+type OthersContext = "performer" | "start" | "body";
+
+/** The record of `IFeltResult`'s site. */
+type IFeltResult = { point: IAutoMovieVector3; normal: IAutoMovieVector3 };
+
+/** The alternatives of `Felt`'s site. */
+type Felt = "aim" | "performer";
+
 /**
  * How a touch reads the person it touches: as perceived on the way to them, and
  * as they are while the hand is on them.
@@ -75,17 +126,11 @@ export namespace touchHold {
    *   before.
    */
   export function felt<
-    Context extends Pick<
-      IAutoMovieMotionHumanActionContext,
-      "aim" | "performer"
-    >,
+    Context extends Pick<IAutoMovieMotionHumanActionContext, Felt>,
   >(context: Context): Context {
     return {
       ...context,
-      aim: (
-        target: IAutoMovieMotionTarget,
-        seconds: number,
-      ): { point: IAutoMovieVector3; normal: IAutoMovieVector3 } => {
+      aim: (target: IAutoMovieMotionTarget, seconds: number): IFeltResult => {
         if (target.kind !== "person") return context.aim(target, seconds);
         const other: IAutoMovieMotionHumanPerformerReader = context.performer(
           target.subject,
@@ -145,19 +190,10 @@ export namespace touchHold {
    *   where the performer saw them a reaction time earlier otherwise.
    */
   export function others(
-    context: Pick<
-      IAutoMovieMotionHumanActionContext,
-      "performer" | "start" | "body"
-    >,
-    target: { subject: string; region: AutoMovieHumanoidRegion },
+    context: Pick<IAutoMovieMotionHumanActionContext, OthersContext>,
+    target: IOthersTarget,
     clock: IAutoMovieMotionClock,
-  ): (
-    posture: IAutoMovieMotionHumanPosture,
-    seconds: number,
-  ) => {
-    clear: IAutoMovieMotionHumanColliders.IPlaced[];
-    rests: IAutoMovieMotionHumanColliders.IPlaced[];
-  } {
+  ): (posture: IAutoMovieMotionHumanPosture, seconds: number) => IOthersResult {
     const partner: IAutoMovieMotionHumanPerformerReader = context.performer(
       target.subject,
     );
@@ -174,10 +210,7 @@ export namespace touchHold {
     return (
       _: IAutoMovieMotionHumanPosture,
       seconds: number,
-    ): {
-      clear: IAutoMovieMotionHumanColliders.IPlaced[];
-      rests: IAutoMovieMotionHumanColliders.IPlaced[];
-    } => {
+    ): IOthersResult2 => {
       const bones: ReturnType<typeof partner.bones> = partner.bones(
         context.start +
           seconds -
@@ -214,23 +247,11 @@ export namespace touchHold {
    *   and second.
    */
   export function perceived(
-    context: Pick<
-      IAutoMovieMotionHumanActionContext,
-      "performer" | "start" | "body"
-    >,
-    target: { subject: string; region: AutoMovieHumanoidRegion },
+    context: Pick<IAutoMovieMotionHumanActionContext, PerceivedContext>,
+    target: IPerceivedTarget,
     clock: IAutoMovieMotionClock,
     perceived: IAutoMovieMotionHumanTouch.ITouch["region"],
-  ): {
-    region: IAutoMovieMotionHumanTouch.ITouch["region"];
-    others: (
-      posture: IAutoMovieMotionHumanPosture,
-      seconds: number,
-    ) => {
-      clear: IAutoMovieMotionHumanColliders.IPlaced[];
-      rests: IAutoMovieMotionHumanColliders.IPlaced[];
-    };
-  } {
+  ): IPerceivedResult {
     const at: number = clock.at("start");
     const colliders: ReturnType<typeof others> = others(context, target, clock);
     return {
@@ -241,12 +262,8 @@ export namespace touchHold {
         projection?: Parameters<IAutoMovieMotionHumanTouch.ITouch["region"]>[3],
       ): IAutoMovieMotionHumanTouchSite.IFrame =>
         perceived(posture, at, resolution, projection),
-      others: (
-        posture: IAutoMovieMotionHumanPosture,
-      ): {
-        clear: IAutoMovieMotionHumanColliders.IPlaced[];
-        rests: IAutoMovieMotionHumanColliders.IPlaced[];
-      } => colliders(posture, at),
+      others: (posture: IAutoMovieMotionHumanPosture): IPerceivedResult2 =>
+        colliders(posture, at),
     };
   }
 
@@ -348,6 +365,8 @@ export namespace touchHold {
     tangent: IAutoMovieMotionHumanTouchForm.Tangent;
   }
 }
+/** The alternatives of `RubbedPlace`'s site. */
+type RubbedPlace = "point" | "normal";
 
 /**
  * The tangent a hand on the performer's own region travels on
@@ -359,7 +378,7 @@ function rubbed(
   posture: IAutoMovieMotionHumanPosture,
   side: AutoMovieHumanSide,
   effector: IAutoMovieMotionHumanTouchEffector.IEffector,
-  place: Pick<IAutoMovieMotionHumanTarget.IPlace, "point" | "normal">,
+  place: Pick<IAutoMovieMotionHumanTarget.IPlace, RubbedPlace>,
   travel: number,
   elbow: IAutoMovieMotionHumanTouch.IParams["elbow"],
 ): IAutoMovieMotionHumanTouchForm.Tangent {

@@ -1,21 +1,3 @@
-# src/cinematics/IAutoMoviePlanFilmSamples.ts#IAutoMoviePlanFilmSamples
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Names the operation; its members document the frame and each sample.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A namespace holding the sample planner's input and its per-sample record.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-interface owns it for `planAutoMovieFilmSamples`, read by render's `accumulateAutoMovieFilmSamples`.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-None present.
-
 # src/cinematics/IAutoMoviePlanFilmSamples.ts#IAutoMoviePlanFilmSamples.IProps
 
 ## @evidence contracts/development/common.md#meaningful-documentation

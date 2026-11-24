@@ -1,5 +1,6 @@
 import { AutoMovieGravity, projectileAt } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanThrowObjectLaunch,
   IAutoMovieMotionPropLaunch,
@@ -23,7 +24,7 @@ export namespace throwObjectLaunch {
    */
   export function held(
     prop: string | undefined,
-    side: "left" | "right",
+    side: AutoMovieHumanSide,
     release: number,
   ): IAutoMovieMotionHumanContactWindow[] {
     return prop === undefined

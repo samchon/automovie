@@ -8,7 +8,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { humanPostureHeading } from "../posture/humanPostureHeading";
 import { supportContact } from "./supportContact";
 import { supportWindows } from "./supportWindows";
 
@@ -52,6 +52,12 @@ interface IFloor {
     contacts: readonly IAutoMovieMotionHumanSupport.IContact[],
   ): void;
 }
+/** The record of `IPrepareSupportFloorNamedItem`'s site. */
+type IPrepareSupportFloorNamedItem = {
+  contact: IAutoMovieMotionHumanSupport.IContact;
+  at: IAutoMovieVector3;
+  ground: boolean;
+};
 
 /**
  * Identify inherited support at entry and record unnamed floor placements.
@@ -111,18 +117,14 @@ export function prepareSupportFloor(
   // which surface is already bearing on it.
   const frontUp: number =
     entryState.base.kind === "lying"
-      ? Quaternion.rotateVector(resolveHumanPosture.heading(entry), {
+      ? Quaternion.rotateVector(humanPostureHeading(entry), {
           x: 0,
           y: 0,
           z: 1,
         }).y
       : 0;
   const matched: Set<IAutoMovieMotionHumanSupport.IContact> = new Set();
-  const named: {
-    contact: IAutoMovieMotionHumanSupport.IContact;
-    at: IAutoMovieVector3;
-    ground: boolean;
-  }[] = [];
+  const named: IPrepareSupportFloorNamedItem[] = [];
   for (const contact of contacts) {
     if (
       contact.step === true ||

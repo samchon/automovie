@@ -1,5 +1,6 @@
 import { minimumJerk, preparePoseResolution } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieJointPose,
   IAutoMovieMotionHumanActionPlan,
@@ -31,6 +32,12 @@ import { overlayContactGoals } from "./overlayContactGoals";
 import { overlayContinuations } from "./overlayContinuations";
 import type { prepareHumanSegmentPose } from "./prepareHumanSegmentPose";
 import { unplantedHumanObservation } from "./unplantedHumanObservation";
+
+/** The record of `IBuildResult`'s site. */
+type IBuildResult = {
+  pose: IAutoMoviePose;
+  contacts: IAutoMovieMotionHumanPosture["limbs"];
+};
 
 /**
  * A carrier's pose with its overlays written over it: which overlays run at a
@@ -151,7 +158,7 @@ export namespace HumanSegmentOverlay {
     let driving:
       | Map<
           IAutoMovieMotionHumanSegment.IOverlay,
-          Partial<Record<"left" | "right", boolean>>
+          Partial<Record<AutoMovieHumanSide, boolean>>
         >
       | undefined;
     const mergers: (
@@ -160,9 +167,9 @@ export namespace HumanSegmentOverlay {
     )[] = [];
     function drives(
       overlay: IAutoMovieMotionHumanSegment.IOverlay,
-      side: "left" | "right",
+      side: AutoMovieHumanSide,
     ): boolean {
-      let sides: Partial<Record<"left" | "right", boolean>> | undefined =
+      let sides: Partial<Record<AutoMovieHumanSide, boolean>> | undefined =
         driving?.get(overlay);
       if (sides === undefined) {
         sides = {};
@@ -203,10 +210,7 @@ export namespace HumanSegmentOverlay {
       used: readonly IAutoMovieMotionHumanSegment.IOverlay[],
       tag: string,
       repeated: boolean,
-    ): {
-      pose: IAutoMoviePose;
-      contacts: IAutoMovieMotionHumanPosture["limbs"];
-    } {
+    ): IBuildResult {
       const overlay: IAutoMovieMotionHumanSegment.IOverlay | undefined =
         active?.[k];
       if (overlay === undefined) {
@@ -402,7 +406,7 @@ export namespace HumanSegmentOverlay {
           Math.max(0, (seconds - overlay.entryTime) / HumanSegment.FADE),
         ),
       );
-      const holding: Partial<Record<"left" | "right", boolean>> = {};
+      const holding: Partial<Record<AutoMovieHumanSide, boolean>> = {};
       for (const bone of owned) {
         const pair: [
           IAutoMovieJointPose | undefined,
@@ -412,7 +416,7 @@ export namespace HumanSegmentOverlay {
         const to: readonly [number, number, number] = angles(pair[1]);
         const channel: ReturnType<typeof AutoMovieMotionHumanChannel.of> =
           AutoMovieMotionHumanChannel.of(bone);
-        const side: "left" | "right" | undefined = bone.startsWith("left")
+        const side: AutoMovieHumanSide | undefined = bone.startsWith("left")
           ? "left"
           : bone.startsWith("right")
             ? "right"
@@ -547,7 +551,7 @@ function handsOn(
 function holdsOn(
   person: IAutoMovieMotionHumanSegment.IPerson,
   overlay: IAutoMovieMotionHumanSegment.IOverlay,
-  side: "left" | "right",
+  side: AutoMovieHumanSide,
 ): boolean {
   return (
     HumanSegment.drives(overlay.plan, side) &&

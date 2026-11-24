@@ -15,13 +15,20 @@ import type {
 } from "@automovie/interface";
 
 import { HumanTrunk } from "../everyday/HumanTrunk";
+import { HumanBoneGroups } from "../posture/HumanBoneGroups";
 import { HumanHand } from "../posture/HumanHand";
 import { HumanHandTarget } from "../posture/HumanHandTarget";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { humanPostureHeading } from "../posture/humanPostureHeading";
 import { AutoMovieMotionHumanArm } from "./AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanHand } from "./AutoMovieMotionHumanHand";
 import { AutoMovieMotionHumanTarget } from "./AutoMovieMotionHumanTarget";
 import { AutoMovieMotionHumanTargetGrid } from "./AutoMovieMotionHumanTargetGrid";
+
+/** The alternatives of `RootPosture`'s site. */
+type RootPosture = "yaw" | "pitch" | "roll";
+
+/** The alternatives of `GridPosture`'s site. */
+type GridPosture = "root" | "yaw" | "pitch" | "roll";
 
 /**
  * An arm carried to a place of the air: the hand surface laid on a point with a
@@ -102,10 +109,7 @@ export namespace AutoMovieMotionHumanPlaced {
    */
   export function grid(
     body: IAutoMovieMotionHumanBody,
-    posture: Pick<
-      IAutoMovieMotionHumanPosture,
-      "root" | "yaw" | "pitch" | "roll"
-    >,
+    posture: Pick<IAutoMovieMotionHumanPosture, GridPosture>,
     side: AutoMovieHumanSide,
     grid: IAutoMovieMotionHumanTargetGrid.IGrid,
     nudge?: IAutoMovieMotionHumanTargetGrid.INudge,
@@ -113,10 +117,10 @@ export namespace AutoMovieMotionHumanPlaced {
     const rest: IAutoMovieVector3 = body.rest.get("hips")!;
     const hips: IAutoMovieVector3 = Vector3.add(
       posture.root,
-      Quaternion.rotateVector(resolveHumanPosture.heading(posture), rest),
+      Quaternion.rotateVector(humanPostureHeading(posture), rest),
     );
     const standing: IAutoMovieVector3 = Quaternion.rotateVector(
-      resolveHumanPosture.heading({ yaw: posture.yaw, pitch: 0, roll: 0 }),
+      humanPostureHeading({ yaw: posture.yaw, pitch: 0, roll: 0 }),
       rest,
     );
     return AutoMovieMotionHumanTarget.fallback(
@@ -201,7 +205,7 @@ export namespace AutoMovieMotionHumanPlaced {
       standing,
       undefined,
       undefined,
-      CHEST,
+      HumanBoneGroups.CHEST,
     ).get("chest")!;
     const inverse: ReturnType<typeof Quaternion.inverse> = Quaternion.inverse(
       from.worldRotation,
@@ -215,7 +219,7 @@ export namespace AutoMovieMotionHumanPlaced {
         posture,
         undefined,
         resolution,
-        CHEST,
+        HumanBoneGroups.CHEST,
       ).get("chest")!;
       const rotation: ReturnType<typeof Quaternion.multiply> =
         Quaternion.multiply(to.worldRotation, inverse);
@@ -249,7 +253,7 @@ export namespace AutoMovieMotionHumanPlaced {
       posture,
       undefined,
       resolution,
-      SHOULDERS,
+      HumanBoneGroups.SHOULDERS,
     );
     return Vector3.lerp(
       bones.get("leftUpperArm")!.worldPosition,
@@ -300,13 +304,13 @@ export namespace AutoMovieMotionHumanPlaced {
    * @returns The root.
    */
   export function root(
-    posture: Pick<IAutoMovieMotionHumanPosture, "yaw" | "pitch" | "roll">,
+    posture: Pick<IAutoMovieMotionHumanPosture, RootPosture>,
     rest: IAutoMovieVector3,
     point: IAutoMovieVector3,
   ): IAutoMovieVector3 {
     return Vector3.subtract(
       point,
-      Quaternion.rotateVector(resolveHumanPosture.heading(posture), rest),
+      Quaternion.rotateVector(humanPostureHeading(posture), rest),
     );
   }
 
@@ -355,15 +359,6 @@ export namespace AutoMovieMotionHumanPlaced {
     );
   }
 }
-
-/** Frame demanded by a point carried with the chest. */
-const CHEST: ReadonlySet<AutoMovieHumanoidBone> = new Set(["chest"]);
-
-/** Joints whose midpoint places a two-hand target. */
-const SHOULDERS: ReadonlySet<AutoMovieHumanoidBone> = new Set([
-  "leftUpperArm",
-  "rightUpperArm",
-]);
 
 /** Genuine current-person exact FK source borrowed only by actual observations. */
 type IFK = Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2];

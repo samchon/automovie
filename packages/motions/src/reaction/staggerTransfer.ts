@@ -1,12 +1,41 @@
 import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
+/** The record of `IStaggerTransferParticularResult`'s site. */
+type IStaggerTransferParticularResult = {
+  x: IAutoMovieVector3;
+  dx: IAutoMovieVector3;
+  p: IAutoMovieVector3;
+};
+
+/** The record of `IStaggerTransferParticular`'s site. */
+type IStaggerTransferParticular = {
+  x: IAutoMovieVector3;
+  dx: IAutoMovieVector3;
+  p: IAutoMovieVector3;
+};
+
+/** The record of `IStaggerTransferResult`'s site. */
+type IStaggerTransferResult = {
+  s: IAutoMovieVector3;
+  v: IAutoMovieVector3;
+  p: IAutoMovieVector3;
+};
+
+/** The record of `IStaggerTransferFrom`'s site. */
+type IStaggerTransferFrom = {
+  p: IAutoMovieVector3;
+  s: IAutoMovieVector3;
+  v: IAutoMovieVector3;
+};
+
 /**
  * Hof's pendulum over a weight shift in closed form: the centre of pressure
  * runs from `p` to `q` on a minimum-jerk course over `span` seconds (`p(t) = p
- * + (q - p) s(t / span)`, `s` the quintic `10 u^3 - 15 u^4 + 6 u^5`, Flash and
- * Hogan 1985), and the centre of mass follows `x'' = omega^2 (x - p(t))`. A
- * quintic's sixth derivative is zero, so `x_p = p + p'' / omega^2
+ *
+ * - (q - p) s(t / span)`, `s`the quintic`10 u^3 - 15 u^4 + 6 u^5`, Flash and
+ *   Hogan 1985), and the centre of mass follows `x'' = omega^2 (x - p(t))`. A
+ *   quintic's sixth derivative is zero, so `x_p = p + p'' / omega^2
  *
  * - P'''' / omega^4`solves the equation exactly, and`x = x_p + A cosh(omega t) +
  *   B sinh(omega t)` meets the span's initial travel and velocity.
@@ -20,12 +49,12 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
  * @returns The travel, the velocity and the centre of pressure there.
  */
 export function staggerTransfer(
-  from: { p: IAutoMovieVector3; s: IAutoMovieVector3; v: IAutoMovieVector3 },
+  from: IStaggerTransferFrom,
   to: IAutoMovieVector3,
   span: number,
   w: number,
   u: number,
-): { s: IAutoMovieVector3; v: IAutoMovieVector3; p: IAutoMovieVector3 } {
+): IStaggerTransferResult {
   const d: IAutoMovieVector3 = Vector3.subtract(to, from.p);
   const T: number = Math.max(span, 1e-12);
 
@@ -45,13 +74,9 @@ export function staggerTransfer(
   // The particular solution and its rate: p + p''/w^2 + p''''/w^4.
   const w2: number = w * w;
   const w4: number = w2 * w2;
-  const particular: (t: number) => {
-    x: IAutoMovieVector3;
-    dx: IAutoMovieVector3;
-    p: IAutoMovieVector3;
-  } = (
+  const particular: (t: number) => IStaggerTransferParticular = (
     t: number,
-  ): { x: IAutoMovieVector3; dx: IAutoMovieVector3; p: IAutoMovieVector3 } => {
+  ): IStaggerTransferParticularResult => {
     const s: number[] = shares(t);
     const p: IAutoMovieVector3 = Vector3.add(from.p, Vector3.scale(d, s[0]!));
     return {

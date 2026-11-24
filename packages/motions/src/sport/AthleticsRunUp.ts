@@ -12,7 +12,10 @@ import type {
 } from "@automovie/interface";
 
 import { HumanRefusal } from "../law/HumanRefusal";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { humanPostureHeading } from "../posture/humanPostureHeading";
+
+/** The alternatives of `OfContext`'s site. */
+type OfContext = "body" | "entry";
 
 /**
  * The run-up a field event is entered from: a `run` cut at the footfall of the
@@ -57,7 +60,7 @@ export namespace AthleticsRunUp {
    *   one foot, is not planted, or when the body moves slower than `minimum`.
    */
   export function of(
-    context: Pick<IAutoMovieMotionHumanActionContext, "body" | "entry">,
+    context: Pick<IAutoMovieMotionHumanActionContext, OfContext>,
     minimum: number,
     axis: string,
     foot: AutoMovieHumanSide | undefined,
@@ -132,7 +135,7 @@ export namespace AthleticsRunUp {
     return Vector3.add(
       posture.root,
       Quaternion.rotateVector(
-        resolveHumanPosture.heading(posture),
+        humanPostureHeading(posture),
         body.rest.get("hips")!,
       ),
     );

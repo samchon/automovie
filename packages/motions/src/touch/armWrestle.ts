@@ -27,6 +27,12 @@ import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolutio
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
+/** The alternatives of `PlanSpanTo`'s site. */
+type PlanSpanTo = "LowerArm" | "Hand";
+
+/** The alternatives of `PlanSpanFrom`'s site. */
+type PlanSpanFrom = "UpperArm" | "LowerArm";
+
 /**
  * Arm wrestling, one role of it: the elbow planted on a table's top, the hand
  * clasped with the partner's above it, the struggle and the pin.
@@ -132,8 +138,8 @@ export namespace armWrestle {
     // elbow falls on its place only on the circle those lengths allow.
     const span = (
       of: typeof body,
-      from: "UpperArm" | "LowerArm",
-      to: "LowerArm" | "Hand",
+      from: PlanSpanFrom,
+      to: PlanSpanTo,
     ): number =>
       Vector3.distance(
         of.rest.get(`${side}${to}`)!,

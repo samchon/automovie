@@ -1,7 +1,25 @@
 import type {
+  AutoMovieHumanSide,
   IAutoMovieMotionHumanCollapse,
   IAutoMovieMotionHumanJoints,
 } from "@automovie/interface";
+
+/** The record of `IARMSItem`'s site. */
+type IARMSItem = {
+  reach: number;
+  ahead: number;
+  sweep: number;
+  yield: number;
+  brace: number;
+  open: number;
+  elbow: number;
+  limp: number;
+  limpElbow: number;
+  neck: number;
+};
+
+/** The record of `ISAGItem`'s site. */
+type ISAGItem = { knee: number; pitch: number };
 
 /**
  * The trunk lean and clinical joint angles of a collapse at its sag, drop and
@@ -48,7 +66,7 @@ export namespace CollapseFold {
   export function of(
     direction: Exclude<IAutoMovieMotionHumanCollapse.Direction, "backward">,
     tone: IAutoMovieMotionHumanCollapse.Tone,
-    side: "left" | "right",
+    side: AutoMovieHumanSide,
     sag: number,
     drop: number,
     lay: number,
@@ -68,7 +86,7 @@ export namespace CollapseFold {
     // down; sideways only the arm on the fall's side braces.
     const giving: number = Math.max(0, (lay - HANDS) / (1 - HANDS));
     const bracing = (
-      arm: "left" | "right",
+      arm: AutoMovieHumanSide,
     ): readonly [number, number, number] =>
       protective && (direction !== "sideways" || arm === side)
         ? [
@@ -155,24 +173,13 @@ export namespace CollapseFold {
   };
 
   /** The sag's knee softening and trunk sway, degrees (provisional). */
-  const SAG: Readonly<{ knee: number; pitch: number }> = { knee: 15, pitch: 4 };
+  const SAG: Readonly<ISAGItem> = { knee: 15, pitch: 4 };
 
   /**
    * The arms of each tone, degrees (provisional): a protective reach toward the
    * floor and its brace, a limp arm hanging.
    */
-  const ARMS: Readonly<{
-    reach: number;
-    ahead: number;
-    sweep: number;
-    yield: number;
-    brace: number;
-    open: number;
-    elbow: number;
-    limp: number;
-    limpElbow: number;
-    neck: number;
-  }> = {
+  const ARMS: Readonly<IARMSItem> = {
     reach: 100,
     ahead: 0,
     sweep: 90,

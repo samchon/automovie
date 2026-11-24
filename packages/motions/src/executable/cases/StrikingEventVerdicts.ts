@@ -3,6 +3,9 @@ import type { IAutoMovieMotionHumanSegment } from "@automovie/interface";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
 import { StrikingVerdicts } from "./StrikingVerdicts";
 
+/** The record of `IDefenceParams`'s site. */
+type IDefenceParams = { outcome?: string };
+
 /**
  * The striking capture's verdicts read off a plan's events rather than off a
  * strike's displayed limb: whether a defence's events class as its declared
@@ -41,7 +44,7 @@ export namespace StrikingEventVerdicts {
     const movement: number = set - read;
     const shown: string =
       margin >= 0 ? "inTime" : margin > -0.5 * movement ? "late" : "fail";
-    const params: { outcome?: string } = segment.params;
+    const params: IDefenceParams = segment.params;
     return {
       name,
       passed: params.outcome === undefined || params.outcome === shown,
@@ -58,6 +61,8 @@ export namespace StrikingEventVerdicts {
    */
   export function refusal(attempt: () => unknown): IMotionCaptureCase.IVerdict {
     let message: string | undefined;
+
+    // Process boundary: the attempt's thrown message is the verdict this case reports.
     try {
       attempt();
     } catch (error) {

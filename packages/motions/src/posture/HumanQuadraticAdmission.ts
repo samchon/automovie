@@ -2,6 +2,16 @@ import type { IAutoMovieMotionHumanQuadraticProgram } from "@automovie/interface
 
 import type { HumanQuadraticPreparation as Prep } from "./HumanQuadraticPreparation";
 
+/** The record of `IHumanQuadraticAdmissionResult`'s site. */
+type IHumanQuadraticAdmissionResult = {
+  entries: number;
+  same: boolean;
+  curvature: boolean;
+  linear: boolean;
+  rows: boolean;
+  topology: boolean;
+};
+
 /**
  * Validate all original entries and compare copied dependencies in one scan.
  *
@@ -18,14 +28,7 @@ import type { HumanQuadraticPreparation as Prep } from "./HumanQuadraticPreparat
 export function HumanQuadraticAdmission(
   problem: IAutoMovieMotionHumanQuadraticProgram.IProblem,
   prepared: Prep.IPrepared | undefined,
-): {
-  entries: number;
-  same: boolean;
-  curvature: boolean;
-  linear: boolean;
-  rows: boolean;
-  topology: boolean;
-} {
+): IHumanQuadraticAdmissionResult {
   const {
     n,
     band,

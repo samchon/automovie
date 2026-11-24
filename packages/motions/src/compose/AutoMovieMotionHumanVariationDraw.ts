@@ -8,6 +8,12 @@ import type {
 
 import { HumanSkill } from "../skill/HumanSkill";
 
+/** The alternatives of `NormalsCount`'s site. */
+type NormalsCount = 1 | 2 | 3;
+
+/** The alternatives of `UniformsCount`'s site. */
+type UniformsCount = 1 | 2 | 3;
+
 /**
  * The draws and the bound rules every slot function of the seeded variation
  * shares.
@@ -61,7 +67,7 @@ export namespace AutoMovieMotionHumanVariationDraw {
    */
   export function uniforms(
     draws: IAutoMovieMotionHumanActionContext.ISeries,
-    count: 1 | 2 | 3,
+    count: UniformsCount,
   ): number[] {
     return ALPHA[count]!.map((alpha: number, c: number): number => {
       const value: number = draws.random.float(c) + draws.index * alpha;
@@ -78,7 +84,7 @@ export namespace AutoMovieMotionHumanVariationDraw {
    */
   export function normals(
     draws: IAutoMovieMotionHumanActionContext.ISeries,
-    count: 1 | 2 | 3,
+    count: NormalsCount,
   ): number[] {
     return uniforms(draws, count).map((u: number): number =>
       quantile(TAIL + u * (1 - 2 * TAIL)),

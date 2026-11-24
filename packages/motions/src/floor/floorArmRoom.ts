@@ -25,6 +25,17 @@ const SCAN: number = 16;
 
 /** Arm rooms by side, degrees. */
 type Rooms = Record<AutoMovieHumanSide, number>;
+/** The record of `IPrepareEnds`'s site. */
+type IPrepareEnds = { from: Rooms; to: Rooms };
+
+/** The record of `IPrepareBlend`'s site. */
+type IPrepareBlend = { from: Rooms; to: Rooms; flagged: boolean };
+
+/** The record of `IPrepareAllowedEnds`'s site. */
+type IPrepareAllowedEnds = { from: Rooms; to: Rooms };
+
+/** The record of `IPrepareBlendsItem`'s site. */
+type IPrepareBlendsItem = { from: Rooms; to: Rooms; flagged: boolean };
 
 /**
  * The trunk as a constraint on a floor law's way between two of its postures.
@@ -62,18 +73,17 @@ export namespace floorArmRoom {
     read: ReturnType<typeof prepareHumanPoseResolution>,
     project: ReturnType<typeof prepareHumanPostureProjection>,
   ) => IAutoMovieMotionHumanPosture {
-    const blends: { from: Rooms; to: Rooms; flagged: boolean }[] = [];
+    const blends: IPrepareBlendsItem[] = [];
     return (index, weight, keyed, read, project) => {
       const posture: IAutoMovieMotionHumanPosture = keyed(weight);
       if (!(weight > 0 && weight < 1)) return posture;
-      const allowed = (ends: { from: Rooms; to: Rooms }, w: number): Rooms => ({
+      const allowed = (ends: IPrepareAllowedEnds, w: number): Rooms => ({
         left: ends.from.left + (ends.to.left - ends.from.left) * w,
         right: ends.from.right + (ends.to.right - ends.from.right) * w,
       });
-      let blend: { from: Rooms; to: Rooms; flagged: boolean } | undefined =
-        blends[index];
+      let blend: IPrepareBlend | undefined = blends[index];
       if (blend === undefined) {
-        const ends: { from: Rooms; to: Rooms } = {
+        const ends: IPrepareEnds = {
           from: rooms(body, posed(body, keyed(0), read, project)),
           to: rooms(body, posed(body, keyed(1), read, project)),
         };
@@ -154,23 +164,28 @@ const READ: ReadonlySet<string> = new Set<string>([
   "rightLowerArm",
   "rightHand",
 ]);
+/** The record of `IREACHESItem`'s site. */
+type IREACHESItem = { bone: AutoMovieHumanoidBone; reach: number };
 
 /** Each body's joint reaches, read once. */
-const REACHES: WeakMap<
-  IAutoMovieMotionHumanBody,
-  { bone: AutoMovieHumanoidBone; reach: number }[]
-> = new WeakMap();
+const REACHES: WeakMap<IAutoMovieMotionHumanBody, IREACHESItem[]> =
+  new WeakMap();
+/** The record of `IReachesOutItem`'s site. */
+type IReachesOutItem = { bone: AutoMovieHumanoidBone; reach: number };
+
+/** The record of `IReachesKnownItem`'s site. */
+type IReachesKnownItem = { bone: AutoMovieHumanoidBone; reach: number };
+
+/** The record of `IReachesItemResult`'s site. */
+type IReachesItemResult = { bone: AutoMovieHumanoidBone; reach: number };
 
 /**
  * Read a body's joint reaches from its profile at rest: for each joint that
  * carries some but not all of the read colliders, the longest chain length from
  * it to a read collider's farthest bound, metres.
  */
-function reaches(
-  body: IAutoMovieMotionHumanBody,
-): { bone: AutoMovieHumanoidBone; reach: number }[] {
-  const known: { bone: AutoMovieHumanoidBone; reach: number }[] | undefined =
-    REACHES.get(body);
+function reaches(body: IAutoMovieMotionHumanBody): IReachesItemResult[] {
+  const known: IReachesKnownItem[] | undefined = REACHES.get(body);
   if (known) return known;
   const profile: IAutoMovieMotionHumanBody["profile"] = body.profile;
   const pose = (bone: string): IAutoMovieRigidTransform =>
@@ -229,7 +244,7 @@ function reaches(
           )?.parent;
       return false;
     }).length;
-  const out: { bone: AutoMovieHumanoidBone; reach: number }[] = [];
+  const out: IReachesOutItem[] = [];
   for (const joint of profile.joints) {
     const count: number = carried(joint.child);
     if (count === 0 || count === READ.size) continue;

@@ -21,8 +21,20 @@ import { bendLower } from "../everyday/bendLower";
 import { seated } from "../everyday/seated";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFrame } from "../posture/HumanFrame";
+import { lowerHumanPosture } from "../posture/lowerHumanPosture";
 import { poseBones } from "../posture/poseBones";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+
+/** The alternatives of `LeanedLeanBodyHeading`'s site. */
+type LeanedLeanBodyHeading = "yaw" | "pitch" | "roll";
+
+/** The record of `ILeanedLeanBodyTilt`'s site. */
+type ILeanedLeanBodyTilt = {
+  pitch: number;
+  joints: IAutoMovieMotionHumanPosture["joints"];
+};
+
+/** The record of `IStanceStep`'s site. */
+type IStanceStep = { side: AutoMovieHumanSide; off: number; on: number };
 
 /**
  * The body a pick up reaches from, and the reach it reads.
@@ -94,7 +106,7 @@ export namespace pickUpPosture {
      * The adjustment step the stance takes, if any: the stepping foot and the
      * shares of the way down at which it leaves the floor and lands.
      */
-    step?: { side: "left" | "right"; off: number; on: number };
+    step?: IStanceStep;
   }
 
   /**
@@ -282,19 +294,17 @@ export namespace pickUpPosture {
     ): IAutoMovieMotionHumanPosture => {
       if (pitch <= 0) return posture;
       const socket: IAutoMovieVector3 = seated.socket(context.body, posture);
-      const tilt: {
-        pitch: number;
-        joints: IAutoMovieMotionHumanPosture["joints"];
-      } = HumanTrunk.incline(posture.joints, pitch);
-      const heading: Pick<
-        IAutoMovieMotionHumanPosture,
-        "yaw" | "pitch" | "roll"
-      > = {
-        yaw: posture.yaw,
-        pitch: posture.pitch + tilt.pitch,
-        roll: posture.roll,
-      };
-      return resolveHumanPosture.lower(
+      const tilt: ILeanedLeanBodyTilt = HumanTrunk.incline(
+        posture.joints,
+        pitch,
+      );
+      const heading: Pick<IAutoMovieMotionHumanPosture, LeanedLeanBodyHeading> =
+        {
+          yaw: posture.yaw,
+          pitch: posture.pitch + tilt.pitch,
+          roll: posture.roll,
+        };
+      return lowerHumanPosture(
         context.body,
         {
           ...posture,

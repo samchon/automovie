@@ -12,6 +12,9 @@ import type {
 import { AutoMovieMotionHumanTrunk } from "../compose/AutoMovieMotionHumanTrunk";
 import { HumanFrame } from "../posture/HumanFrame";
 
+/** The alternatives of `StanceContext`'s site. */
+type StanceContext = "body" | "carrier" | "entry";
+
 /** Geometry added by the three precision delivery styles to the shared throw. */
 export namespace precisionThrow {
   /**
@@ -52,10 +55,7 @@ export namespace precisionThrow {
    * delivery. A carrier remains responsible for its own base and feet.
    */
   export function stance(
-    context: Pick<
-      IAutoMovieMotionHumanActionContext,
-      "body" | "carrier" | "entry"
-    >,
+    context: Pick<IAutoMovieMotionHumanActionContext, StanceContext>,
     style: IAutoMovieMotionHumanThrowObjectForm.Style,
   ):
     | ((

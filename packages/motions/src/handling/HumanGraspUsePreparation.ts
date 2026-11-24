@@ -21,6 +21,9 @@ import { HumanHand } from "../posture/HumanHand";
 import { poseBones } from "../posture/poseBones";
 import { HumanGraspUse } from "./HumanGraspUse";
 
+/** The record of `IOfPlaced`'s site. */
+type IOfPlaced = { point: IAutoMovieVector3; normal: IAutoMovieVector3 };
+
 /**
  * The geometry a presented use key is built from (`HumanGraspUse.presented`):
  * the tool's contacts, the line it lies on and the line asked, the region or
@@ -170,9 +173,7 @@ export namespace HumanGraspUsePreparation {
     );
     const bearer: IAutoMovieResolvedBone | undefined =
       region === undefined ? undefined : bones.get(region.bone);
-    const placed:
-      | { point: IAutoMovieVector3; normal: IAutoMovieVector3 }
-      | undefined =
+    const placed: IOfPlaced | undefined =
       region !== undefined && bearer !== undefined
         ? resolveAutoMovieHumanoidSurfaces.place(region, bearer)
         : undefined;

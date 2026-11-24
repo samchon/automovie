@@ -35,12 +35,14 @@ interface ITrack {
   amplitude: number;
   frequency: number;
 }
-
-/** Sample the reach, held handshake and withdrawal by their actual events. */
-export function handshakePlayback(track: ITrack): {
+/** The record of `IHandshakePlaybackResult`'s site. */
+type IHandshakePlaybackResult = {
   posture: IAutoMovieMotionHumanActionPlan["posture"];
   phases: readonly IAutoMovieMotionHumanPlayback.IPhase[];
-} {
+};
+
+/** Sample the reach, held handshake and withdrawal by their actual events. */
+export function handshakePlayback(track: ITrack): IHandshakePlaybackResult {
   const {
     body,
     side,

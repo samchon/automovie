@@ -8,6 +8,9 @@ import type {
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
 
+/** The alternatives of `PrepareDanceBeatsContext`'s site. */
+type PrepareDanceBeatsContext = "cue" | "start";
+
 /**
  * The beat clock every dance law shares: beat `k` at `lead + (k - 1) period`.
  * Unlocked, the period is `60 / bpm` and the lead one period; locked to a cue
@@ -26,7 +29,7 @@ import { HumanRefusal } from "../law/HumanRefusal";
  *   positive whole number, or the locked track has too few beats.
  */
 export function prepareDanceBeats(
-  context: Pick<IAutoMovieMotionHumanActionContext, "cue" | "start">,
+  context: Pick<IAutoMovieMotionHumanActionContext, PrepareDanceBeatsContext>,
   bpm: number,
   beats: number,
   lock: IAutoMovieMotionHumanDance.IParams["lock"],

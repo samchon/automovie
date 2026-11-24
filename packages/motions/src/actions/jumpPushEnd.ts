@@ -7,11 +7,27 @@ import type {
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
 import { hipJoints } from "../posture/hipJoints";
+import { humanPostureHeading } from "../posture/humanPostureHeading";
 import { lowerHumanPosture } from "../posture/lowerHumanPosture";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { jumpPush } from "./jumpPush";
 import { walkLeg } from "./walkLeg";
+
+/** The alternatives of `JumpPushEndResult`'s site. */
+type JumpPushEndResult = "joints" | "limbs";
+
+/** The alternatives of `JumpPushEndProps`'s site. */
+type JumpPushEndProps =
+  | "body"
+  | "takeoff"
+  | "reaching"
+  | "supportPitch"
+  | "supportHeading"
+  | "ball"
+  | "upright"
+  | "heading"
+  | "tuck"
+  | "knee";
 
 /**
  * The raw end of the planted push, shared with the airborne initial state. All
@@ -27,28 +43,16 @@ import { walkLeg } from "./walkLeg";
  *   lowering and physical resolution.
  */
 export function jumpPushEnd(
-  props: Pick<
-    jumpPush.IProps,
-    | "body"
-    | "takeoff"
-    | "reaching"
-    | "supportPitch"
-    | "supportHeading"
-    | "ball"
-    | "upright"
-    | "heading"
-    | "tuck"
-    | "knee"
-  >,
+  props: Pick<jumpPush.IProps, JumpPushEndProps>,
   root: IAutoMovieVector3,
   resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
-): Pick<IAutoMovieMotionHumanPosture, "joints" | "limbs"> {
+): Pick<IAutoMovieMotionHumanPosture, JumpPushEndResult> {
   const read: ReturnType<typeof prepareHumanPoseResolution> =
     prepareHumanPoseResolution(resolution);
   const hip: IAutoMovieVector3 = hipJoints(
     props.body,
     root,
-    resolveHumanPosture.heading({ yaw: props.heading, pitch: 0, roll: 0 }),
+    humanPostureHeading({ yaw: props.heading, pitch: 0, roll: 0 }),
     props.upright.joints.hips,
     read(),
   )[props.takeoff];
@@ -65,7 +69,7 @@ export function jumpPushEnd(
       props.supportHeading,
       asked,
     ).ankle,
-    lowerHumanPosture.prepareShort(props.body, resolveHumanPosture.KNEE),
+    lowerHumanPosture.prepareShort(props.body, lowerHumanPosture.KNEE),
   );
   const pitch: number =
     stood === undefined

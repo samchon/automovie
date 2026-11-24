@@ -10,6 +10,12 @@ import type {
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanPerformanceLayers } from "./HumanPerformanceLayers";
 
+/** The record of `IPoseLast`'s site. */
+type IPoseLast = { seconds: number; posed: IAutoMovieMotionHumanProp.IPosed };
+
+/** The record of `IPointResult`'s site. */
+type IPointResult = { point: IAutoMovieVector3; normal: IAutoMovieVector3 };
+
 /**
  * The state of the props' articulations over the film: what the acts drive
  * (`IHumanActionPlan.drives`) and what the props run themselves
@@ -145,7 +151,7 @@ export namespace HumanPerformanceObject {
     prop: IAutoMovieMotionHumanProp,
     id: string,
     seconds: number,
-  ): { point: IAutoMovieVector3; normal: IAutoMovieVector3 } | undefined {
+  ): IPointResult | undefined {
     const rest = prop.points[id];
     if (rest === undefined || prop.articulate === undefined) return rest;
     if (writers(self, prop).length === 0) return rest;
@@ -179,9 +185,7 @@ export namespace HumanPerformanceObject {
     prop: IAutoMovieMotionHumanProp,
     seconds: number,
   ): IAutoMovieMotionHumanProp.IPosed {
-    const last:
-      | { seconds: number; posed: IAutoMovieMotionHumanProp.IPosed }
-      | undefined = self.posed.get(prop.subject);
+    const last: IPoseLast | undefined = self.posed.get(prop.subject);
     if (last !== undefined && last.seconds === seconds && !self.resolving)
       return last.posed;
     const posed: IAutoMovieMotionHumanProp.IPosed = prop.articulate!(

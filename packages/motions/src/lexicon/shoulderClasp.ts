@@ -3,6 +3,15 @@ import type {
   IAutoMovieMotionHumanTouch,
 } from "@automovie/interface";
 
+/** The alternatives of `CastEntryItem`'s site. */
+type CastEntryItem = "one" | "other";
+
+/** The alternatives of `ShoulderClaspRole`'s site. */
+type ShoulderClaspRole = "one" | "other";
+
+/** The alternatives of `ShoulderClasp`'s site. */
+type ShoulderClasp = "one" | "other";
+
 /**
  * Two facing partners within arm's reach each rest their right palm on the
  * other's left shoulder, then return their hands. Pass to `HumanChain.mutual`
@@ -14,20 +23,18 @@ import type {
  * Yahiro et al. (2026) studied face-to-face palm contact on the shoulder in
  * greetings and comforting gestures. Reciprocity and the default one-second
  * hold are staging choices. https://doi.org/10.5100/jje.62.75
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the staging, contact sides, timing in seconds, out-of-reach rule and source.
  */
 export const shoulderClasp: IAutoMovieMotionHumanMutual<
   IAutoMovieMotionHumanTouch.IHold,
-  "one" | "other"
+  ShoulderClasp
 > = {
   name: "shoulderClasp",
   roles: ["one", "other"],
   /** Each role performs a palm hold on the opposite role's left shoulder. */
   act: (
-    role: "one" | "other",
+    role: ShoulderClaspRole,
     params: IAutoMovieMotionHumanTouch.IHold,
-    cast: Readonly<Record<"one" | "other", string>>,
+    cast: Readonly<Record<CastEntryItem, string>>,
   ): IAutoMovieMotionHumanMutual.IAct => ({
     name: "touch",
     params: {

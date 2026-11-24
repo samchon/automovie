@@ -8,6 +8,7 @@ import {
   preparePoseResolution,
 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieHingedArmSwivel,
   IAutoMovieHingedChainGeometry,
@@ -21,9 +22,19 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { HumanBoneGroups } from "./HumanBoneGroups";
 import { HumanLimbFit } from "./HumanLimbFit";
 import { poseBones } from "./poseBones";
 import { prepareHumanLegSeededFit } from "./prepareHumanLegSeededFit";
+
+/** The alternatives of `PlacedChain`'s site. */
+type PlacedChain = "target" | "range";
+
+/** The alternatives of `SourceOfResult`'s site. */
+type SourceOfResult = "target" | "range";
+
+/** The alternatives of `PrepareSource`'s site. */
+type PrepareSource = "target" | "range";
 
 /**
  * A leg posed as the posture's own fit poses it, read through the engine's
@@ -50,7 +61,7 @@ export namespace HumanLegChain {
    */
   export function pose(
     body: IAutoMovieMotionHumanBody,
-    side: "left" | "right",
+    side: AutoMovieHumanSide,
     pelvis: IAutoMovieQuaternion,
     hip: IAutoMovieVector3,
     target: IAutoMovieVector3,
@@ -87,15 +98,19 @@ export namespace HumanLegChain {
    */
   export function prepare(
     body: IAutoMovieMotionHumanBody,
-    side: "left" | "right",
+    side: AutoMovieHumanSide,
     pelvis: IAutoMovieQuaternion,
     hip: IAutoMovieVector3,
   ): (
     target: IAutoMovieVector3,
     held: IAutoMovieMotionHumanLegChain.ISwivel,
   ) => IAutoMovieMotionHumanLegChain.IPosed | null {
-    const source: Omit<IAutoMovieHingedChainGeometry, "target" | "range"> =
-      sourceOf(body, side, pelvis, hip);
+    const source: Omit<IAutoMovieHingedChainGeometry, PrepareSource> = sourceOf(
+      body,
+      side,
+      pelvis,
+      hip,
+    );
     const geometry: hingedArmSwivel.IPrepared = hingedArmSwivel.prepare(source);
     return (
       point: IAutoMovieVector3,
@@ -122,7 +137,7 @@ export namespace HumanLegChain {
    */
   export function read(
     body: IAutoMovieMotionHumanBody,
-    side: "left" | "right",
+    side: AutoMovieHumanSide,
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
   ): IAutoMovieMotionHumanLegChain.ISwivel {
     const thigh: IAutoMovieResolvedBone = bones.get(`${side}UpperLeg`)!;
@@ -178,7 +193,7 @@ export namespace HumanLegChain {
    */
   export function fit(
     body: IAutoMovieMotionHumanBody,
-    side: "left" | "right",
+    side: AutoMovieHumanSide,
     pelvis: IAutoMovieQuaternion,
     hip: IAutoMovieVector3,
     target: IAutoMovieVector3,
@@ -208,7 +223,7 @@ export namespace HumanLegChain {
    */
   export function seeded(
     body: IAutoMovieMotionHumanBody,
-    side: "left" | "right",
+    side: AutoMovieHumanSide,
     pelvis: IAutoMovieQuaternion,
     hip: IAutoMovieVector3,
     target: IAutoMovieVector3,
@@ -225,7 +240,7 @@ export namespace HumanLegChain {
    */
   export function prepareSeeded(
     body: IAutoMovieMotionHumanBody,
-    side: "left" | "right",
+    side: AutoMovieHumanSide,
     pelvis: IAutoMovieQuaternion,
     hip: IAutoMovieVector3,
   ): ReturnType<typeof prepareHumanLegSeededFit> {
@@ -242,7 +257,7 @@ export namespace HumanLegChain {
   /** The leg's hinged chain at a pelvis toward a target. */
   function chainOf(
     body: IAutoMovieMotionHumanBody,
-    side: "left" | "right",
+    side: AutoMovieHumanSide,
     pelvis: IAutoMovieQuaternion,
     hip: IAutoMovieVector3,
     target: IAutoMovieVector3,
@@ -253,10 +268,10 @@ export namespace HumanLegChain {
   /** Fixed source fields, independent of ankle targets and held bend choices. */
   function sourceOf(
     body: IAutoMovieMotionHumanBody,
-    side: "left" | "right",
+    side: AutoMovieHumanSide,
     pelvis: IAutoMovieQuaternion,
     hip: IAutoMovieVector3,
-  ): Omit<IAutoMovieHingedChainGeometry, "target" | "range"> {
+  ): Omit<IAutoMovieHingedChainGeometry, SourceOfResult> {
     const rest: IRest = restOf(body, side);
     return {
       upper: {
@@ -272,7 +287,7 @@ export namespace HumanLegChain {
 
   /** Actual leg FK shared by ordinary and fixed-source posing. */
   function placed(
-    chain: Omit<IAutoMovieHingedChainGeometry, "target" | "range">,
+    chain: Omit<IAutoMovieHingedChainGeometry, PlacedChain>,
     upper: IAutoMovieQuaternion,
     lower: IAutoMovieQuaternion,
   ): IAutoMovieMotionHumanLegChain.IPosed {
@@ -315,7 +330,7 @@ export namespace HumanLegChain {
    */
   function restOf(
     body: IAutoMovieMotionHumanBody,
-    side: "left" | "right",
+    side: AutoMovieHumanSide,
   ): IRest {
     let sides: Map<string, IRest> | undefined = RESTS.get(body);
     if (sides === undefined) {
@@ -349,7 +364,7 @@ export namespace HumanLegChain {
       body,
       pose,
       resolution,
-      HIPS,
+      HumanBoneGroups.HIPS,
     ).get("hips")!.worldRotation;
     const out: IRest = {
       prepared,
@@ -368,7 +383,4 @@ export namespace HumanLegChain {
     IAutoMovieMotionHumanBody,
     Map<string, IRest>
   > = new WeakMap();
-
-  /** The single neutral parent frame required while preparing a leg. */
-  const HIPS: ReadonlySet<AutoMovieHumanoidBone> = new Set(["hips"]);
 }

@@ -1,5 +1,6 @@
 import { Quaternion, Vector3, getConstraint } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieJointConstraint,
   IAutoMovieMotionHumanBody,
@@ -12,7 +13,7 @@ import { readHumanBone } from "../body/readHumanBone";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { humanPostureHeading } from "../posture/humanPostureHeading";
 import { HumanMount } from "./HumanMount";
 import { HumanMountPush } from "./HumanMountPush";
 
@@ -52,7 +53,7 @@ export namespace HumanMountPlace {
    */
   export function of(
     body: IAutoMovieMotionHumanBody,
-    side: "left" | "right",
+    side: AutoMovieHumanSide,
     hip: IAutoMovieVector3,
     yaw: number,
     pitch: number,
@@ -148,7 +149,7 @@ export namespace HumanMountPlace {
       pole,
     );
     if (knee === null) return 0;
-    const pelvis: IAutoMovieQuaternion = resolveHumanPosture.heading({
+    const pelvis: IAutoMovieQuaternion = humanPostureHeading({
       yaw,
       pitch,
       roll: 0,
@@ -174,7 +175,7 @@ export namespace HumanMountPlace {
    */
   function hipRange(
     body: IAutoMovieMotionHumanBody,
-    side: "left" | "right",
+    side: AutoMovieHumanSide,
   ): number {
     const bone: AutoMovieHumanoidBone = `${side}UpperLeg`;
     const constraint: IAutoMovieJointConstraint | null = getConstraint(

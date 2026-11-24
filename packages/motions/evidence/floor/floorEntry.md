@@ -114,7 +114,7 @@ States what is read and what the result resolves to.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-The displayed pose holds each joint's clinical triple and the root's frame, and `resolveHumanPosture.angles` inverts the heading the resolver composes, so nothing is re-derived from bone directions.
+The displayed pose holds each joint's clinical triple and the root's frame, and `humanPostureHeading.angles` inverts the heading the resolver composes, so nothing is re-derived from bone directions.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 

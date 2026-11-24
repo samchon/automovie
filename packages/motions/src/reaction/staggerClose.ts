@@ -1,5 +1,6 @@
 import { Vector3, minimumJerk } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   IAutoMovieMinimumJerk,
   IAutoMovieMotionHumanFoot,
   IAutoMovieVector3,
@@ -52,7 +53,7 @@ export namespace staggerClose {
    */
   export function of(
     pendulum: StaggerPendulum,
-    stepped: "left" | "right",
+    stepped: AutoMovieHumanSide,
     righting: number,
   ): staggerRecover.IRecovery | null {
     const {
@@ -66,12 +67,12 @@ export namespace staggerClose {
     const { centre, across, forward, entered, w }: StaggerPendulum = pendulum;
     const feet: StaggerPendulum["feet"] = pendulum.feet;
     const steps: StaggerPendulum["steps"] = pendulum.steps;
-    const anchor: "left" | "right" = stepped;
-    const closer: "left" | "right" = anchor === "left" ? "right" : "left";
+    const anchor: AutoMovieHumanSide = stepped;
+    const closer: AutoMovieHumanSide = anchor === "left" ? "right" : "left";
     const middle: (
-      of: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement>,
+      of: Record<AutoMovieHumanSide, IAutoMovieMotionHumanFoot.IPlacement>,
     ) => IAutoMovieVector3 = (
-      of: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement>,
+      of: Record<AutoMovieHumanSide, IAutoMovieMotionHumanFoot.IPlacement>,
     ): IAutoMovieVector3 =>
       flat(Vector3.scale(Vector3.add(of.left.ankle, of.right.ankle), 0.5));
     const stance: number = Vector3.dot(

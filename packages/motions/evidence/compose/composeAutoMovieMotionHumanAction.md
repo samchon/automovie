@@ -22,7 +22,7 @@ Sorting is O(P log P) and overlap admission O(P squared) once. Each actual prefi
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 
-Fixed claims/dependencies reuse plan masks; exact time/prefix/demand keys share completed pure writes only inside one query/context. FK/ROM loans reach actual base reads and synchronous primitive writes. Prefix readers inherit omitted loans; a changed explicit loan starts a fresh map, while top-level preparation/posture reads remain independent.
+Fixed claims/dependencies reuse plan masks; exact time/prefix/demand keys share completed pure writes only inside one query/context. FK/ROM loans reach actual base reads and synchronous primitive writes, and the posture's explicit evaluation reaches every primitive write of its query as the write's trailing argument. Prefix readers inherit omitted loans; a changed explicit loan starts a fresh map, while top-level preparation/posture reads remain independent.
 
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 

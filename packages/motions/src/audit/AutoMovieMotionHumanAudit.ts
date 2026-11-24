@@ -13,19 +13,20 @@ import { AutoMovieMotionHumanAuditBalance } from "./AutoMovieMotionHumanAuditBal
 import { AutoMovieMotionHumanAuditContinuity } from "./AutoMovieMotionHumanAuditContinuity";
 import { AutoMovieMotionHumanAuditGround } from "./AutoMovieMotionHumanAuditGround";
 import { AutoMovieMotionHumanAuditLimits } from "./AutoMovieMotionHumanAuditLimits";
+import { AutoMovieMotionHumanAuditMotion as HumanAuditMotion } from "./AutoMovieMotionHumanAuditMotion";
 import { AutoMovieMotionHumanAuditTangle } from "./AutoMovieMotionHumanAuditTangle";
 
 /**
- * The generic audit of a displayed human motion: every check that holds for
- * any action whatever it means to do, read from the displayed bones alone.
+ * The generic audit of a displayed human motion: every check that holds for any
+ * action whatever it means to do, read from the displayed bones alone.
  *
  * - `tangle`: no part of the body passes into another part of it.
  * - `floor`: no collider sinks below the floor.
  * - `slip`, `lift`: a foot declared planted stays where it stands, on the floor.
  * - `jump`, `reversal`, `speed`: every joint centre travels a continuous path
  *   with no out-and-back spike and no impossible speed.
- * - `balance`: while both feet alone bear the body, its extrapolated centre
- *   of mass stays over them.
+ * - `balance`: while both feet alone bear the body, its extrapolated centre of
+ *   mass stays over them.
  *
  * Each reading and limit is in metres, except `speed` in metres per second.
  * Each check has a limit; a reading above its limit is a finding. A limit of
@@ -55,8 +56,8 @@ export namespace AutoMovieMotionHumanAudit {
   /**
    * Audit one person of a motion.
    *
-   * The checks share one grid, so the displayed bones of an instant are
-   * resolved once and read by all of them.
+   * The checks share one grid, so the displayed bones of each of its instants
+   * are evaluated once, before the checks, and passed to all of them.
    *
    * @param source The motion.
    * @param subject The person.
@@ -70,8 +71,12 @@ export namespace AutoMovieMotionHumanAudit {
     body: IAutoMovieMotionHumanBody,
     options: IAutoMovieMotionHumanAudit.IOptions = {},
   ): IAutoMovieMotionHumanAudit.IReport {
-    const motion: IAutoMovieMotionHumanAuditMotion = remember(source);
     const rate: number = options.rate ?? 24;
+    const motion: IAutoMovieMotionHumanAuditMotion = prepareFrames(
+      source,
+      subject,
+      rate,
+    );
     const limits: IAutoMovieMotionHumanAudit.ILimits = {
       ...LIMITS,
       ...options.limits,
@@ -148,7 +153,8 @@ export namespace AutoMovieMotionHumanAudit {
    * One line per finding, for a failed assertion's message.
    *
    * @param report An audit's report.
-   * @returns The findings in millimetres (metres per second for `speed`), or `clean`.
+   * @returns The findings in millimetres (metres per second for `speed`), or
+   *   `clean`.
    */
   export function describe(report: IAutoMovieMotionHumanAudit.IReport): string {
     if (report.findings.length === 0) return "clean";
@@ -162,40 +168,41 @@ export namespace AutoMovieMotionHumanAudit {
   }
 }
 
-/** The same motion with each person's bones of an instant resolved once, for the span of one audit. */
-const remember = (
+/**
+ * The same motion with the audited person's bones at every instant of the
+ * checks' shared grid evaluated once, before any check reads them, and passed
+ * to each; any other read evaluates the source directly.
+ */
+const prepareFrames = (
   source: IAutoMovieMotionHumanAuditMotion,
+  subject: string,
+  rate: number,
 ): IAutoMovieMotionHumanAuditMotion => {
-  const known: Map<
-    string,
-    Map<number, Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>>
-  > = new Map();
+  const frames: Map<
+    number,
+    Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>
+  > = new Map(
+    HumanAuditMotion.grid(0, source.duration, rate).map(
+      (
+        seconds: number,
+      ): [number, Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>] => [
+        seconds,
+        source.bones(subject, seconds),
+      ],
+    ),
+  );
   return {
     duration: source.duration,
-    segments: (subject: string) => source.segments(subject),
+    segments: (who: string) => source.segments(who),
     ...(source.support === undefined
       ? {}
       : { support: source.support.bind(source) }),
     ...(source.water === undefined ? {} : { water: source.water.bind(source) }),
     bones: (
-      subject: string,
+      who: string,
       seconds: number,
-    ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> => {
-      let person:
-        | Map<number, Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>>
-        | undefined = known.get(subject);
-      if (person === undefined) {
-        person = new Map();
-        known.set(subject, person);
-      }
-      let bones:
-        | Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>
-        | undefined = person.get(seconds);
-      if (bones === undefined) {
-        bones = source.bones(subject, seconds);
-        person.set(seconds, bones);
-      }
-      return bones;
-    },
+    ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =>
+      (who === subject ? frames.get(seconds) : undefined) ??
+      source.bones(who, seconds),
   };
 };

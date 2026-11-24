@@ -2,6 +2,7 @@ import { readPreparedBendClinical } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanEvaluation,
   IAutoMovieQuaternion,
   IAutoMovieSwivelSeed,
   IAutoMovieVector3,
@@ -36,6 +37,21 @@ export class AutoMovieMotionHumanBendRepeat {
   readonly #plans: WeakMap<object, (IAutoMovieCompletedBend | undefined)[]> =
     new WeakMap();
 
+  /**
+   * The bend loan an evaluation carries, when it is one this owner made; an
+   * evaluation without one, or with another's, borrows no completed bend.
+   *
+   * @param evaluation The evaluation's explicit context.
+   * @returns The loan, or undefined.
+   */
+  public static loan(
+    evaluation: IAutoMovieMotionHumanEvaluation | undefined,
+  ): AutoMovieMotionHumanBendRepeat.IRead | undefined {
+    const bend: IAutoMovieMotionHumanEvaluation.IBendLoan | undefined =
+      evaluation?.bend;
+    return bend instanceof Read ? bend : undefined;
+  }
+
   /** Create the private per-read loan of an ordinary Bend numerical trial. */
   public read(owner: object): AutoMovieMotionHumanBendRepeat.IRead {
     let slots: (IAutoMovieCompletedBend | undefined)[] | undefined =
@@ -44,7 +60,7 @@ export class AutoMovieMotionHumanBendRepeat {
       slots = [];
       this.#plans.set(owner, slots);
     }
-    return new Read(slots);
+    return new Read(slots, owner);
   }
 }
 
@@ -63,16 +79,19 @@ interface IAutoMovieBendTrialInput {
   neutral: AutoMovieMotionHumanBendSearch.IAngles;
   clinical: Parameters<typeof readPreparedBendClinical>[0];
 }
+/** The alternatives of `StartRole`'s site. */
+type StartRole = 0 | 1;
 
 /** Role-indexed trial creation for one original placed posture. */
-class Read {
+class Read implements IAutoMovieMotionHumanEvaluation.IBendLoan {
   public constructor(
     private readonly slots: (IAutoMovieCompletedBend | undefined)[],
+    public readonly owner: object,
   ) {}
 
   /** Start an ordinary search for the original current or onset role. */
   public start(
-    role: 0 | 1,
+    role: StartRole,
     input: IAutoMovieBendTrialInput,
   ): Trial | undefined {
     const measure: readonly [number, number] | undefined =
@@ -140,6 +159,8 @@ function vector(value: IAutoMovieVector3): readonly number[] {
 function orientation(value: IAutoMovieQuaternion): readonly number[] {
   return [...vector(value), value.w];
 }
+/** The alternatives of `TrialRole`'s site. */
+type TrialRole = 0 | 1;
 
 /** One ordinary numeric search and its current first real score. */
 class Trial {
@@ -150,7 +171,7 @@ class Trial {
 
   public constructor(
     private readonly slots: (IAutoMovieCompletedBend | undefined)[],
-    private readonly role: 0 | 1,
+    private readonly role: TrialRole,
     private readonly words: readonly AutoMovieBendWord[],
   ) {}
 

@@ -8,6 +8,15 @@ import type {
 import { HumanGaze } from "./HumanGaze";
 import { HumanProxemics } from "./HumanProxemics";
 
+/** The alternatives of `AVERSIONSEntryItem`'s site. */
+type AVERSIONSEntryItem = "right" | "left" | "down" | "diagonal" | "up";
+
+/** The record of `IGLANCESEntryItem`'s site. */
+type IGLANCESEntryItem = { on: number; away: number };
+
+/** The alternatives of `GLANCESEntryItem`'s site. */
+type GLANCESEntryItem = "speaking" | "listening";
+
 /**
  * Where a person in a conversation looks: at the partner's face for seeded
  * glances, away between them, more while listening than while speaking.
@@ -39,21 +48,18 @@ export namespace HumanConversation {
    * interviewee's and the listening interviewer's (Acarturk et al. 2021, Table
    * 3).
    */
-  export const GLANCES: Readonly<
-    Record<"speaking" | "listening", { on: number; away: number }>
-  > = {
-    speaking: { on: 1.82, away: 0.83 },
-    listening: { on: 3.89, away: 0.29 },
-  };
+  export const GLANCES: Readonly<Record<GLANCESEntryItem, IGLANCESEntryItem>> =
+    {
+      speaking: { on: 1.82, away: 0.83 },
+      listening: { on: 3.89, away: 0.29 },
+    };
 
   /**
    * Where a speaker's look away goes after a look at the face, as shares of the
    * speaker's aversions (Acarturk et al. 2021, Table 5); a listener's go
    * diagonally.
    */
-  export const AVERSIONS: Readonly<
-    Record<"right" | "left" | "down" | "diagonal" | "up", number>
-  > = {
+  export const AVERSIONS: Readonly<Record<AVERSIONSEntryItem, number>> = {
     right: 0.39,
     left: 0.19,
     down: 0.2,
@@ -130,6 +136,11 @@ function away(
     frame: "performer",
   };
 }
+/** The record of `IPlanGlancesMean`'s site. */
+type IPlanGlancesMean = { on: number; away: number };
+
+/** The alternatives of `PlanGlancesRole`'s site. */
+type PlanGlancesRole = "speaking" | "listening";
 
 /** Apply the shared speaker/listener cadence to each span's selected face. */
 function planGlances<Turn extends IAutoMovieMotionHumanConversation.ITurn>(
@@ -145,9 +156,9 @@ function planGlances<Turn extends IAutoMovieMotionHumanConversation.ITurn>(
   const exponential = (mean: number): number =>
     -mean * Math.log(Math.max(1e-12, 1 - random.float(draw++)));
   for (const turn of turns) {
-    const role: "speaking" | "listening" =
+    const role: PlanGlancesRole =
       turn.speaker === subject ? "speaking" : "listening";
-    const mean: { on: number; away: number } = HumanConversation.GLANCES[role];
+    const mean: IPlanGlancesMean = HumanConversation.GLANCES[role];
     const face: IAutoMovieMotionTarget = {
       kind: "person",
       subject: partner(turn),

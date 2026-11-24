@@ -29,6 +29,15 @@ import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
+/** The record of `IPlanPalmReader`'s site. */
+type IPlanPalmReader = {
+  body: IAutoMovieMotionHumanActionContext["body"];
+  read: ReturnType<typeof HumanHand.preparePoint>;
+};
+
+/** The record of `IBACKItem`'s site. */
+type IBACKItem = { down: number; back: number };
+
 /**
  * A relay baton pass, one role of it, performed over a run (`HumanChain.over`):
  * the outgoing runner's hand goes back, open, palm back, and the incoming
@@ -76,7 +85,7 @@ export namespace relayPass {
    * The outgoing wrist's place from the shoulder, shares of the arm: down and
    * behind (provisional, the upsweep).
    */
-  export const BACK: Readonly<{ down: number; back: number }> = {
+  export const BACK: Readonly<IBACKItem> = {
     down: 0.75,
     back: 0.5,
   };
@@ -168,12 +177,7 @@ export namespace relayPass {
             : 1 - minimumJerk.share(Math.min(1, (t - relax) / REACH));
 
     // The hand's goal at a second, on the run's posture there.
-    let palmReader:
-      | {
-          body: IAutoMovieMotionHumanActionContext["body"];
-          read: ReturnType<typeof HumanHand.preparePoint>;
-        }
-      | undefined;
+    let palmReader: IPlanPalmReader | undefined;
     const goal: (
       posture: IAutoMovieMotionHumanPosture,
       t: number,

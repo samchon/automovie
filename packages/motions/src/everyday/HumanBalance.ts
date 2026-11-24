@@ -27,6 +27,15 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanBalanceExtrapolated } from "./HumanBalanceExtrapolated";
 import { prepareHumanBalanceCentre } from "./prepareHumanBalanceCentre";
 
+/** The record of `IShiftDown`'s site. */
+type IShiftDown = { found: boolean; back: number };
+
+/** The record of `IShiftFirstResult`'s site. */
+type IShiftFirstResult = { found: boolean; back: number };
+
+/** The record of `IShiftFirst`'s site. */
+type IShiftFirst = { found: boolean; back: number };
+
 /**
  * Backward hip travel to support the body's segmental centre (Winter, ch. 4).
  * The closest boundary suffices (Hof et al. 2005). The planted legs may move
@@ -153,12 +162,12 @@ export namespace HumanBalance {
         sign: number,
         error: (r: IReading) => number,
         smooth: boolean,
-      ) => { found: boolean; back: number } = (
+      ) => IShiftFirst = (
         from: number,
         sign: number,
         error: (r: IReading) => number,
         smooth: boolean,
-      ): { found: boolean; back: number } => {
+      ): IShiftFirstResult => {
         const near: number = error(at(from));
         if (near <= 0) return { found: true, back: from };
         const end: number = from + sign * span;
@@ -186,7 +195,7 @@ export namespace HumanBalance {
       // Flat feet first: a heel the planted leg lifted is brought down by
       // moving the hips back; on flat feet a centre ahead of the target is
       // brought back to it, and one behind it is left while it lies inside.
-      const down: { found: boolean; back: number } = first(
+      const down: IShiftDown = first(
         0,
         1,
         (r: IReading): number => (r.flat ? 0 : 1),
@@ -275,8 +284,6 @@ export namespace HumanBalance {
    * actual profile-name producer prepares only immutable FK demand; each reader
    * call keeps complete fitting, current mass placement and optional
    * same-operation FK/ROM borrowing. Release it with the owning action.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names prepareHumanBalanceCentre as the implementation owner and states fixed metadata, complete current fitting, borrowed operation context and lifetime.
    */
   export const prepareCentre: typeof prepareHumanBalanceCentre =
     prepareHumanBalanceCentre;
@@ -306,8 +313,6 @@ export namespace HumanBalance {
    * Every t-h, t+h and t callback/full fit remains actual; current callbacks
    * may synchronously borrow FK/ROM metadata and no sample enters retained
    * state.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the fixed-body dynamic reader owner, original three-instant full-fit policy, optional synchronous loans and absence of retained movement samples.
    */
   export const prepareExtrapolated: typeof HumanBalanceExtrapolated.prepare =
     HumanBalanceExtrapolated.prepare;
@@ -467,7 +472,7 @@ function read(
 
     // A heel bears within the bearing height of the lowest sole socket.
     flat: (["left", "right"] as const).every(
-      (side: "left" | "right"): boolean => {
+      (side: AutoMovieHumanSide): boolean => {
         const sockets: readonly IAutoMovieMotionHumanFoot.ISocket[] =
           placed.feet.sockets(side);
         return (

@@ -22,7 +22,7 @@ Constant work.
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 
-The knee's limit is `AutoMovieMotionHumanRange`'s and the least flexion `resolveHumanPosture.KNEE`.
+The knee's limit is `AutoMovieMotionHumanRange`'s and the least flexion `lowerHumanPosture.KNEE`.
 
 ## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
 

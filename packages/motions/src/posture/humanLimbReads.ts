@@ -4,6 +4,7 @@ import type {
 } from "@automovie/engine";
 import type {
   AutoMovieHumanLimb,
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieBone,
   IAutoMovieMotionHumanLimbReads,
@@ -11,6 +12,11 @@ import type {
 } from "@automovie/interface";
 
 import { HumanArmObstacleBones } from "./HumanArmObstacleBones";
+
+/** The alternatives of `HumanLimbReadsReadObstacles`'s site. */
+type HumanLimbReadsReadObstacles =
+  | ReadonlySet<AutoMovieHumanoidBone>
+  | readonly AutoMovieHumanoidBone[];
 
 /**
  * What each limb's fit reads of a pose, read once off the rig: per limb and per
@@ -44,14 +50,12 @@ export function humanLimbReads(
     limb: AutoMovieHumanLimb,
     placed: boolean,
   ): humanLimbReads.IRead => {
-    const side: "left" | "right" = limb.startsWith("left") ? "left" : "right";
+    const side: AutoMovieHumanSide = limb.startsWith("left") ? "left" : "right";
     const arm: boolean = limb.endsWith("Arm");
-    const others: ("left" | "right")[] = placed
+    const others: AutoMovieHumanSide[] = placed
       ? [side === "left" ? "right" : "left"]
       : [];
-    const obstacles:
-      | ReadonlySet<AutoMovieHumanoidBone>
-      | readonly AutoMovieHumanoidBone[] = arm
+    const obstacles: HumanLimbReadsReadObstacles = arm
       ? HumanArmObstacleBones(others)
       : [];
 

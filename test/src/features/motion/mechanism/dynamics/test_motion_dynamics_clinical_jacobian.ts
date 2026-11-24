@@ -13,6 +13,7 @@ import {
 } from "@automovie/motions";
 import {
   HumanJacobian,
+  HumanPosturePreparation,
   poseBones,
   resolveHumanPosture,
 } from "@automovie/motions/internal";
@@ -22,13 +23,15 @@ import { motionHumanBody } from "../../../internal/motionHumanBody";
 import { vclose } from "../../../internal/vclose";
 
 /**
- * A hip chart's ordered joint axes agree with the displayed foot derivative
- * and belong to the prepared posture's rig identity.
+ * A hip chart's ordered joint axes agree with the displayed foot derivative and
+ * belong to the prepared posture's rig identity.
  *
  * Scenarios:
- * 1. Each flexion-first hip variable predicts the derivative of the same
- *    material point on a posed foot.
- * 2. Changing only the live joint order returns an issued bone observation to cold resolution.
+ *
+ * 1. Each flexion-first hip variable predicts the derivative of the same material
+ *    point on a posed foot.
+ * 2. Changing only the live joint order returns an issued bone observation to cold
+ *    resolution.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the physical point, axes and isolated rig edit.
  * @evidence contracts/development/testing.md#behavioral-verification Compares each real kinematic derivative with a central difference of displayed forward kinematics, then changes just the source metadata.
@@ -126,13 +129,11 @@ export function test_motion_dynamics_clinical_jacobian(): void {
       return current.joints;
     },
   };
-  const prepared: resolveHumanPosture.IPrepared = resolveHumanPosture.prepare(
-    body,
-    raw,
-  );
+  const prepared: HumanPosturePreparation.IPrepared =
+    HumanPosturePreparation.prepare(body, raw);
   const requested = new Set(["rightFoot"] as const);
   reads = 0;
-  const reused = resolveHumanPosture.preparedBones(prepared, requested);
+  const reused = HumanPosturePreparation.bones(prepared, requested);
   TestValidator.predicate(
     "the issued source reads the foot without re-reading authored joints",
     reads === 0 && vclose(point(reused.get("rightFoot")!), point(foot), 1e-9),
@@ -141,7 +142,7 @@ export function test_motion_dynamics_clinical_jacobian(): void {
   body.skeleton.bones.find(
     (def: IAutoMovieBone): boolean => def.bone === hip.bone,
   )!.axes = basis;
-  const fallback = resolveHumanPosture.preparedBones(prepared, requested);
+  const fallback = HumanPosturePreparation.bones(prepared, requested);
   const coldRead: boolean = reads > 0;
   const expected = poseBones(
     body,

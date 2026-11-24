@@ -1,4 +1,5 @@
 import type {
+  AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanExerciseKey,
   IAutoMovieMotionHumanWorkoutKind,
@@ -398,7 +399,7 @@ export namespace WorkoutLying {
         body: IAutoMovieMotionHumanBody,
       ): IAutoMovieMotionHumanWorkoutKind.IStep[] => {
         const pedal = (
-          down: "left" | "right",
+          down: AutoMovieHumanSide,
         ): IAutoMovieMotionHumanExerciseKey.IKey => {
           const low: IAutoMovieMotionHumanExerciseKey.ILimb = {
             hip: 60,

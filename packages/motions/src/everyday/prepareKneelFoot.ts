@@ -1,5 +1,6 @@
 import { minimumJerk } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanFoot,
 } from "@automovie/interface";
@@ -7,6 +8,20 @@ import type {
 import { AutoMovieMotionHumanLeg } from "../compose/AutoMovieMotionHumanLeg";
 import { HumanFoot } from "../posture/HumanFoot";
 import { kneelKeys } from "./kneelKeys";
+
+/** The record of `IPrepareKneelFootResult2`'s site. */
+type IPrepareKneelFootResult2 = {
+  placement: IAutoMovieMotionHumanFoot.IPlacement;
+  planted: boolean;
+  toes: number;
+};
+
+/** The record of `IPrepareKneelFootResult`'s site. */
+type IPrepareKneelFootResult = {
+  placement: IAutoMovieMotionHumanFoot.IPlacement;
+  planted: boolean;
+  toes: number;
+};
 
 /**
  * Prepare one foot's course between fixed kneeling keys. A stationary toe joint
@@ -28,18 +43,11 @@ import { kneelKeys } from "./kneelKeys";
  */
 export function prepareKneelFoot(
   body: IAutoMovieMotionHumanBody,
-  side: "left" | "right",
+  side: AutoMovieHumanSide,
   from: kneelKeys.IFoot,
   to: kneelKeys.IFoot,
   clearance: number,
-): (
-  share: number,
-  linear: number,
-) => {
-  placement: IAutoMovieMotionHumanFoot.IPlacement;
-  planted: boolean;
-  toes: number;
-} {
+): (share: number, linear: number) => IPrepareKneelFootResult {
   const moves: boolean = !kneelKeys.still(from, to);
   const place: (
     share: number,
@@ -93,14 +101,7 @@ export function prepareKneelFoot(
   // until the knee has risen as long, then lifts.
   const strike: number = prepareKneelFoot.arrival(from, to);
   const lift: number = prepareKneelFoot.departure(from, to);
-  return (
-    share: number,
-    linear: number,
-  ): {
-    placement: IAutoMovieMotionHumanFoot.IPlacement;
-    planted: boolean;
-    toes: number;
-  } => {
+  return (share: number, linear: number): IPrepareKneelFootResult2 => {
     const timed: boolean = strike < 1 || lift > 0;
     const l: number = timed
       ? Math.min(1, Math.max(0, (linear - lift) / (strike - lift)))

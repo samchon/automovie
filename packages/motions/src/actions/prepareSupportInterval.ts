@@ -11,9 +11,9 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanArmCourse } from "../compose/AutoMovieMotionHumanArmCourse";
+import { lowerHumanPosture } from "../posture/lowerHumanPosture";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { knockdown } from "../reaction/knockdown";
 import { prepareSupportHeldFrames } from "./prepareSupportHeldFrames";
 import { prepareSupportHeldLegs } from "./prepareSupportHeldLegs";
@@ -49,6 +49,13 @@ interface IInterval {
 
 /** A contact the root can keep through an interval. */
 type Pin = IAutoMovieMotionHumanSupport.IContact | undefined;
+/** The record of `IPrepareSupportIntervalFixed`'s site. */
+type IPrepareSupportIntervalFixed = {
+  held: IAutoMovieVector3;
+  arrived: IAutoMovieVector3;
+  originalPoint: ReturnType<typeof supportContact.preparePoints>;
+  pinFloor: ReturnType<typeof prepareSupportPinFloor>;
+};
 
 /**
  * Prepare one support interval: the joint blend between its two keys, the root
@@ -109,15 +116,9 @@ export function prepareSupportInterval(
     ) ?? common[0];
   const limbs: prepareSupportHeldFrames.IHeld[] = heldLimbs(common);
   let frames: prepareSupportHeldFrames.IHeldFrames[] | undefined;
-  let fixed:
-    | {
-        held: IAutoMovieVector3;
-        arrived: IAutoMovieVector3;
-        originalPoint: ReturnType<typeof supportContact.preparePoints>;
-        pinFloor: ReturnType<typeof prepareSupportPinFloor>;
-      }
-    | undefined;
-  let floor: ReturnType<typeof knockdown.prepareRest> | undefined;
+  let fixed: IPrepareSupportIntervalFixed | undefined;
+  const floor: ReturnType<typeof knockdown.prepareRest> =
+    knockdown.prepareRest(body);
   const write: IInterval["write"] = (
     w: number,
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
@@ -129,7 +130,7 @@ export function prepareSupportInterval(
     const project: ReturnType<typeof prepareHumanPostureProjection> =
       projection ?? prepareHumanPostureProjection(body);
     const rest = (posture: IAutoMovieMotionHumanPosture): number =>
-      (floor ??= knockdown.prepareRest(body))(posture, read, project);
+      floor(posture, read, project);
     if (pin === undefined)
       return {
         ...shaped,
@@ -203,7 +204,7 @@ export function prepareSupportInterval(
       // The hand pin can carry the hip above a raised foot's reachable
       // height between keys. Retain the target and limit the hip first.
       const reachable: IAutoMovieMotionHumanPosture = elevatedFoot
-        ? resolveHumanPosture.lower(body, moved, undefined, read)
+        ? lowerHumanPosture(body, moved, undefined, read)
         : moved;
       const low: number =
         reachable === moved ? (fused?.floor ?? rest(moved)) : rest(reachable);

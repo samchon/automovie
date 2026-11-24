@@ -180,18 +180,17 @@ export namespace AutoMovieMotionHumanHandover {
    * other's forearm and which both arms reach best at the clasp and at the
    * pump's top and bottom alike (`HumanClasp.choose`), so each hand's fingers
    * close round the other's hand rather than lie along its wrist. Inverse
-   * kinematics solves each arm (`HumanHand.place`, the Final IK and Unreal
-   * Control Rig practice of an effector socket on a world target), and through
-   * the clasp and the pump the arm keeps the configuration it clasped in
-   * (`HumanPosture.IGoal.reference`); the feet stay planted as the stand law
-   * places them. Both partners read the point from one meeting record
-   * (`handshakeMeeting`), computed once from the two shoulders, so the palms
-   * meet without either reading the other's moving hand. A seated pair whose
-   * arms alone fall short leans its trunks forward over the seat, the hand's
-   * target first (`HumanSeatedReach`, Chan and Dubey 1995), the lean coming in
-   * over the reach and going over the return. The comfortable reach is the
-   * shoulder-to-palm distance of an arm offering a hand: the upper arm 30
-   * degrees forward of hanging and the elbow flexed 45 degrees, which slopes
+   * kinematics solves each arm (`HumanHand.place`, an effector on a world
+   * target), and through the clasp and the pump the arm keeps the configuration
+   * it clasped in (`HumanPosture.IGoal.reference`); the feet stay planted as
+   * the stand law places them. Both partners read the point from one meeting
+   * record (`handshakeMeeting`), computed once from the two shoulders, so the
+   * palms meet without either reading the other's moving hand. A seated pair
+   * whose arms alone fall short leans its trunks forward over the seat, the
+   * hand's target first (`HumanSeatedReach`, Chan and Dubey 1995), the lean
+   * coming in over the reach and going over the return. The comfortable reach
+   * is the shoulder-to-palm distance of an arm offering a hand: the upper arm
+   * 30 degrees forward of hanging and the elbow flexed 45 degrees, which slopes
    * the forearm 15 degrees down to the hand, both provisional, as no
    * measurement of the offering arm was located. The slope is what lets two
    * hands clasp with both elbows low: each hand's fingers clear the partner's

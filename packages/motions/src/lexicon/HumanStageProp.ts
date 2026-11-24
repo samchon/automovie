@@ -157,11 +157,6 @@ const BEATS: Readonly<Record<IAutoMovieMotionHumanStageProp["beat"], IBeat>> = {
  * A held digital prop display law. `stroke` is the authored screen beat,
  * available to another performance chain as a synchronization anchor. The
  * existing body and arm planners own support and grip fitting.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Documents digital scope, mark ownership, phase cue and body reuse.
- * @evidence contracts/development/design.md#principled-representation The closed visual beats use the shared pose clock and fitted body. Each strike-like appearance is an authored visual timing beat.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One law with explicit view mark and optional named second grip. Partner motion is composed separately.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Keeps grip windows while omitting physical hit metadata and the decisive contact.
  */
 export const HumanStageProp: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanStageProp> =
   {
@@ -315,13 +310,6 @@ function plan(
  * @param support The support handle's offset.
  * @returns The support site from the grip socket, metres, in the hand bone's
  *   axes.
- * @evidence contracts/development/common.md#meaningful-documentation States the basis and the result's frame.
- * @evidence contracts/development/implementation.md#principled-implementation The inverse of the offset's projection onto the orthonormal axis, edge and their cross product.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One weighted sum of three axes.
- * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts Pure vector algebra with no fallback.
- * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 function supportPoint(
   tool: IAutoMovieMotionHumanStrikingHeld.ITool,

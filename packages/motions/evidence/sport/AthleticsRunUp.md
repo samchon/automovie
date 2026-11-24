@@ -54,7 +54,7 @@ States the input, the frame and the result.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-The root carries the hips' rest offset rotated by the yaw, pitch and roll the posture's heading composes (`resolveHumanPosture.heading`).
+The root carries the hips' rest offset rotated by the yaw, pitch and roll the posture's heading composes (`humanPostureHeading`).
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 

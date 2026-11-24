@@ -15,6 +15,15 @@ import type { HumanArmTrajectoryContext } from "./HumanArmTrajectoryContext";
 import type { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
 import { HumanArmTrajectoryTerms as T } from "./HumanArmTrajectoryTerms";
 
+/** The alternatives of `NormalsOwnersResult`'s site. */
+type NormalsOwnersResult = "upper" | "lower" | "hand";
+
+/** The alternatives of `OwnersItemResult`'s site. */
+type OwnersItemResult = "upper" | "lower" | "hand";
+
+/** The alternatives of `NormalsOwnersItem`'s site. */
+type NormalsOwnersItem = "upper" | "lower" | "hand";
+
 /**
  * What an arms' trajectory reads at one waypoint, built once per waypoint and
  * kept by every later reading of the same arms
@@ -136,14 +145,14 @@ export namespace HumanArmTrajectoryWaypoint {
         const on: M.ISite["on"] = site.on;
         const candidates: IAutoMovieMotionHumanArmGeometry.IShape[] =
           on === undefined ? frames[a]!.shapes : colliders[on.arm]!;
-        const owners: ("upper" | "lower" | "hand")[] =
+        const owners: NormalsOwnersItem[] =
           on === undefined
             ? []
             : frames[on.arm]!.colliders.flatMap(
                 (
                   col: IAutoMovieMotionHumanArmGeometry.IFrame["colliders"][number],
-                ): ("upper" | "lower" | "hand")[] =>
-                  col.shapes.map((): "upper" | "lower" | "hand" => col.owner),
+                ): OwnersItemResult[] =>
+                  col.shapes.map((): NormalsOwnersResult => col.owner),
               );
         let best: number = -1;
         let least: number = Infinity;

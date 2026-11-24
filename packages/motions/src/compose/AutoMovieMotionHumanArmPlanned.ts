@@ -46,6 +46,29 @@ const SPACING: number = 0.08;
  * 3:18).
  */
 const PEAK: number = 0.55;
+/** The alternatives of `PlannedTravelSign`'s site. */
+type PlannedTravelSign = -1 | 1;
+
+/** The record of `IPlannedAtFound`'s site. */
+type IPlannedAtFound = {
+  posture: IAutoMovieMotionHumanPosture;
+  pose: IAutoMoviePose;
+};
+
+/** The record of `IPlannedAtResult`'s site. */
+type IPlannedAtResult = {
+  posture: IAutoMovieMotionHumanPosture;
+  pose: IAutoMoviePose;
+};
+
+/** The record of `IPlannedReadEntry`'s site. */
+type IPlannedReadEntry = {
+  posture: IAutoMovieMotionHumanPosture;
+  pose: IAutoMoviePose;
+};
+
+/** The alternatives of `PlannedPlan`'s site. */
+type PlannedPlan = "warm" | "last" | "stretches" | "tempo" | "ordinal";
 
 /**
  * An arm's whole action planned as one trajectory (`HumanArmTrajectory`): its
@@ -287,10 +310,7 @@ export namespace AutoMovieMotionHumanArmPlanned {
     span: IAutoMovieMotionHumanArmPlanned.ISpan,
     carries: readonly IAutoMovieMotionHumanArmPlanned.IPlanned[],
     before: IAutoMovieMotionHumanActionPlan["posture"],
-    plan?: Pick<
-      IAutoMovieMotionHumanArmPlanned.ITogether,
-      "warm" | "last" | "stretches" | "tempo" | "ordinal"
-    >,
+    plan?: Pick<IAutoMovieMotionHumanArmPlanned.ITogether, PlannedPlan>,
     inheritedPace?: (seconds: number) => number,
     still?: boolean,
   ): Map<AutoMovieHumanSide, IAutoMovieMotionHumanArmTrajectory.Trajectory> {
@@ -329,10 +349,7 @@ export namespace AutoMovieMotionHumanArmPlanned {
     // out, the base each arm is read against, and each arm's goal there as
     // the plan perceives it, each read once however often the plan and its
     // refinement ask (each arm's goal by AutoMovieMotionHumanArmAimed).
-    const read: Map<
-      number,
-      { posture: IAutoMovieMotionHumanPosture; pose: IAutoMoviePose }
-    > = new Map();
+    const read: Map<number, IPlannedReadEntry> = new Map();
     // The instant resolved last and its limbs' seeds: an instant within a
     // frame of it continues those fits instead of sweeping every swivel
     // again, the frame-to-frame coherence an animation system's IK keeps
@@ -341,12 +358,8 @@ export namespace AutoMovieMotionHumanArmPlanned {
     // feasible swivel nearest the previous one, Tolani, Goswami and Badler
     // 2000, section 3.2.4). An instant farther from it is solved cold.
     let latest: ILatest | undefined;
-    const at = (
-      t: number,
-    ): { posture: IAutoMovieMotionHumanPosture; pose: IAutoMoviePose } => {
-      let found:
-        | { posture: IAutoMovieMotionHumanPosture; pose: IAutoMoviePose }
-        | undefined = read.get(t);
+    const at = (t: number): IPlannedAtResult => {
+      let found: IPlannedAtFound | undefined = read.get(t);
       if (found === undefined) {
         const posture: IAutoMovieMotionHumanPosture = before(
           t,
@@ -454,7 +467,7 @@ export namespace AutoMovieMotionHumanArmPlanned {
       }
       return found;
     };
-    const travel = (t: number, sign: -1 | 1): number => {
+    const travel = (t: number, sign: PlannedTravelSign): number => {
       let longest: number = 0;
       const p: IAutoMovieMotionHumanPosture = at(t).posture;
       carries.forEach(

@@ -1,4 +1,5 @@
 import type {
+  AutoMovieHumanSide,
   AutoMovieMotionHumanChannel,
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanBody,
@@ -42,14 +43,14 @@ export function walkPosture(
   steps: IAutoMovieMotionHumanWalkSteps.IPlan,
   solve: (
     seconds: number,
-    legs: readonly ("left" | "right")[],
+    legs: readonly AutoMovieHumanSide[],
     phase: number,
     amount: number,
     resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
   ) => walkPosture.ISettled,
 ): (
   seconds: number,
-  legs?: readonly ("left" | "right")[],
+  legs?: readonly AutoMovieHumanSide[],
   channels?: readonly AutoMovieMotionHumanChannel[],
   resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
 ) => IAutoMovieMotionHumanPosture {
@@ -57,15 +58,15 @@ export function walkPosture(
   let relaxed: IAutoMovieMotionHumanPosture["joints"] | undefined;
   let abduction: number | undefined;
   const shapes: Partial<
-    Record<"left" | "right", IAutoMovieMotionHumanPosture["joints"]>
+    Record<AutoMovieHumanSide, IAutoMovieMotionHumanPosture["joints"]>
   > = {};
-  const rest: Record<"left" | "right", IAutoMovieVector3> = {
+  const rest: Record<AutoMovieHumanSide, IAutoMovieVector3> = {
     left: body.rest.get("leftLowerLeg")!,
     right: body.rest.get("rightLowerLeg")!,
   };
   return (
     seconds: number,
-    legs: readonly ("left" | "right")[] = walkReach.SIDES,
+    legs: readonly AutoMovieHumanSide[] = walkReach.SIDES,
     channels?: readonly AutoMovieMotionHumanChannel[],
     resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
   ): IAutoMovieMotionHumanPosture => {
@@ -160,7 +161,7 @@ export namespace walkPosture {
   /** The settled feet and pelvis the gait's posture reads at one second. */
   export interface ISettled {
     /** Each foot as its schedule has it. */
-    feet: Record<"left" | "right", IAutoMovieMotionHumanWalkFoot.IScheduled>;
+    feet: Record<AutoMovieHumanSide, IAutoMovieMotionHumanWalkFoot.IScheduled>;
 
     /** The pelvis joint's clinical angles, degrees. */
     hips: readonly [number, number, number];
@@ -169,7 +170,7 @@ export namespace walkPosture {
     settled: walkReach.IGround;
 
     /** Each foot as reached from the settled pelvis. */
-    reached: Record<"left" | "right", walkFoot.IEnd>;
+    reached: Record<AutoMovieHumanSide, walkFoot.IEnd>;
   }
 
   /**

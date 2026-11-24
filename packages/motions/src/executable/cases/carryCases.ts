@@ -1,5 +1,6 @@
 import { Vector3, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidSocket,
   IAutoMovieMotionHumanCarry,
   IAutoMovieMotionHumanPerformance,
@@ -41,7 +42,7 @@ export function carryCases(
     const who: FamilyCaseKit.IBody = FamilyCaseKit.body(id);
     const suffix: string = bodies.length === 1 ? "" : `-${id}`;
     for (const how of ["oneHand", "twoHands", "hip", "push"] as const) {
-      const loaded: "left" | "right" = how === "hip" ? "left" : "right";
+      const loaded: AutoMovieHumanSide = how === "hip" ? "left" : "right";
       const params: IAutoMovieMotionHumanCarry.IParams = {
         to: { x: 0, y: 0, z: 2.5 },
         kind: how,
@@ -133,7 +134,7 @@ export function carryCases(
 
       // A rigid two-handed load.
       if (how === "twoHands" || how === "push") {
-        const name = (side: "left" | "right"): AutoMovieHumanoidSocket =>
+        const name = (side: AutoMovieHumanSide): AutoMovieHumanoidSocket =>
           how === "push"
             ? side === "left"
               ? "gripLeft"
@@ -142,7 +143,7 @@ export function carryCases(
               ? "palmLeft"
               : "palmRight";
         const surface = (
-          side: "left" | "right",
+          side: AutoMovieHumanSide,
           t: number,
         ): IAutoMovieVector3 => {
           const frame = who.body.surfaces.sockets[name(side)];

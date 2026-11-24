@@ -1,5 +1,6 @@
 import { Vector3, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   AutoMovieMotionHumanActionName,
   IAutoMovieHumanoidSurfaces,
@@ -34,6 +35,15 @@ import { StrikingWeaponTable } from "./StrikingWeaponTable";
 import { punchGeometry } from "./punchGeometry";
 import { punchLaunch } from "./punchLaunch";
 import { strikingReadBack } from "./strikingReadBack";
+
+/** The alternatives of `PlanLimb`'s site. */
+type PlanLimb = "leftArm" | "rightArm";
+
+/** The alternatives of `PlanWhich`'s site. */
+type PlanWhich = "lead" | "rear";
+
+/** The alternatives of `HandResult`'s site. */
+type HandResult = "lead" | "rear";
 
 /**
  * A punch: the fist's knuckles brought onto the target along a measured path
@@ -104,9 +114,7 @@ export namespace punch {
    * @param params The parameters.
    * @returns The lead or the rear hand.
    */
-  export function hand(
-    params: IAutoMovieMotionHumanPunch.IParams,
-  ): "lead" | "rear" {
+  export function hand(params: IAutoMovieMotionHumanPunch.IParams): HandResult {
     return params.hand ?? (params.technique === "uppercut" ? "rear" : "lead");
   }
 
@@ -124,9 +132,9 @@ export namespace punch {
     const p: IAutoMovieMotionHumanPunch.IParams = context.params;
     if (p.feint !== undefined && !(p.feint > 0 && p.feint < 1))
       throw new Error("A feint shows a share of the delivery in (0, 1)");
-    const lead: "left" | "right" = StrikingTarget.lead(context.entry);
-    const which: "lead" | "rear" = hand(p);
-    const side: "left" | "right" =
+    const lead: AutoMovieHumanSide = StrikingTarget.lead(context.entry);
+    const which: PlanWhich = hand(p);
+    const side: AutoMovieHumanSide =
       which === "lead" ? lead : StrikingStance.rear({ lead });
 
     // Delivery: from the previous punch's contact at the combination
@@ -144,7 +152,7 @@ export namespace punch {
         0.9 * (measure.upperArm + measure.forearm) +
         0.5 * measure.shoulderHalfWidth,
     );
-    const rearSide: "left" | "right" = StrikingStance.rear({ lead });
+    const rearSide: AutoMovieHumanSide = StrikingStance.rear({ lead });
     const fists: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
       context.body,
       context.entry.pose,
@@ -225,8 +233,7 @@ export namespace punch {
     // anywhere along it (as when two crosses cross), and the resolution meets
     // the arm the figure shows, the upper arm tapered from the shoulder's
     // girth to the elbow's.
-    const limb: "leftArm" | "rightArm" =
-      side === "left" ? "leftArm" : "rightArm";
+    const limb: PlanLimb = side === "left" ? "leftArm" : "rightArm";
     const course: StrikingWeapon.Course = (
       at: number,
       _channels?: Parameters<StrikingWeapon.Course>[1],

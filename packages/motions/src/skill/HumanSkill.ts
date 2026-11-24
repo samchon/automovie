@@ -6,6 +6,9 @@ import type {
   IAutoMovieReactionTimeDistribution,
 } from "@automovie/interface";
 
+/** The alternatives of `LEVELSEntryItem`'s site. */
+type LEVELSEntryItem = "novice" | "amateur" | "trained" | "elite";
+
 /**
  * A performer's skill as numbers laws read: each proficiency axis resolved to
  * [0, 1], the interpolation every family's quantities use, the seeded draw
@@ -48,9 +51,7 @@ export namespace HumanSkill {
    * replication), so each stage takes an equal third and the two inner levels
    * sit at its boundaries.
    */
-  export const LEVELS: Readonly<
-    Record<"novice" | "amateur" | "trained" | "elite", number>
-  > = {
+  export const LEVELS: Readonly<Record<LEVELSEntryItem, number>> = {
     novice: 0,
     amateur: 1 / 3,
     trained: 2 / 3,

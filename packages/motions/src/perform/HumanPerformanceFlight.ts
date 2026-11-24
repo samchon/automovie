@@ -26,6 +26,9 @@ import { HumanPerformanceStagedFlightRotation } from "./HumanPerformanceStagedFl
 import { flyPerformanceFlight } from "./flyPerformanceFlight";
 import { prepareHumanSegmentPose } from "./prepareHumanSegmentPose";
 
+/** The record of `IACCURACYItem`'s site. */
+type IACCURACYItem = { relative: number; absolute: number };
+
 /**
  * Hand each placed flight its rigid turn after placement and contacts. Authored
  * turn counts use the performance's staged default: exact unwrapped angles
@@ -75,7 +78,7 @@ export namespace HumanPerformanceFlight {
    * the dense angular rate or its inertia-conditioned momentum error; the
    * independent physical momentum budget checks the latter directly.
    */
-  export const ACCURACY: Readonly<{ relative: number; absolute: number }> = {
+  export const ACCURACY: Readonly<IACCURACYItem> = {
     relative: 0.01 / 2,
     absolute: 0,
   };
@@ -204,11 +207,13 @@ export namespace HumanPerformanceFlight {
     );
   }
 }
+/** The alternatives of `Playback`'s site. */
+type Playback = "step" | "times" | "table";
 
 /** Numeric playback data shared by staged and physical rotation policies. */
 type IPlayback = Pick<
   Parameters<typeof HumanPerformanceFlightRotation>[0],
-  "step" | "times" | "table"
+  Playback
 >;
 
 /**

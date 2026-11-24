@@ -1,5 +1,6 @@
 import type {
   AutoMovieHumanDigit,
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   AutoMovieMotionHumanChannelClaim,
   AutoMovieMotionHumanChannel as AutoMovieMotionHumanChannelContract,
@@ -49,7 +50,7 @@ export namespace AutoMovieMotionHumanChannel {
   export function of(
     bone: AutoMovieHumanoidBone,
   ): AutoMovieMotionHumanChannelContract {
-    const side: "left" | "right" | undefined = bone.startsWith("left")
+    const side: AutoMovieHumanSide | undefined = bone.startsWith("left")
       ? "left"
       : bone.startsWith("right")
         ? "right"

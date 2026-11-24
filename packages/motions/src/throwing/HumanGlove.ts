@@ -15,6 +15,9 @@ import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanHand } from "../posture/HumanHand";
 import { poseBones } from "../posture/poseBones";
 
+/** The alternatives of `PocketContext`'s site. */
+type PocketContext = "body" | "entry" | "prop" | "start" | "subject";
+
 /**
  * A glove a catching hand wears, as a catch reads it: where its `pocket` stands
  * from the palm (`createGlove`'s contacts).
@@ -33,10 +36,7 @@ export namespace HumanGlove {
    *   on the catching hand of this performer, or it declares no `pocket`.
    */
   export function pocket(
-    context: Pick<
-      IAutoMovieMotionHumanActionContext,
-      "body" | "entry" | "prop" | "start" | "subject"
-    >,
+    context: Pick<IAutoMovieMotionHumanActionContext, PocketContext>,
     subject: string,
     sides: readonly AutoMovieHumanSide[],
   ): IAutoMovieVector3 {

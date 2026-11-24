@@ -7,6 +7,12 @@ import type {
 
 import { HumanRefusal } from "../law/HumanRefusal";
 
+/** The record of `ILayResult`'s site. */
+type ILayResult = { at: IAutoMovieVector3; heading: number };
+
+/** The record of `IAtResult`'s site. */
+type IAtResult = { at: IAutoMovieVector3; heading: number };
+
 /**
  * A path frame laid out on the film clock: where its origin is and which way it
  * faces at any second, read in closed form.
@@ -38,7 +44,7 @@ export namespace HumanFormationPath {
      * @param seconds Film seconds.
      * @returns Its origin and heading.
      */
-    at(seconds: number): { at: IAutoMovieVector3; heading: number };
+    at(seconds: number): IAtResult;
   }
 
   /**
@@ -221,7 +227,7 @@ export namespace HumanFormationPath {
     return {
       length: total,
       end: profile.end,
-      at: (seconds: number): { at: IAutoMovieVector3; heading: number } => {
+      at: (seconds: number): ILayResult => {
         const s: number = Math.min(total, profile.at(seconds).distance);
         let k: number = 0;
         while (k + 1 < stretches.length && stretches[k + 1]!.start <= s) ++k;

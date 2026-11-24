@@ -16,9 +16,9 @@ import type {
 
 import { HumanArmClearance } from "../posture/HumanArmClearance";
 import { HumanArmObstacleBones } from "../posture/HumanArmObstacleBones";
+import { humanPostureHeading } from "../posture/humanPostureHeading";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
 /**
  * An arm chain prepared on a posture's trunk for the elbow search of
@@ -90,7 +90,7 @@ export namespace AutoMovieMotionHumanBendChain {
       skeleton: body.skeleton.id,
       root: Transform.of(
         posture.root,
-        resolveHumanPosture.heading({
+        humanPostureHeading({
           yaw: posture.yaw,
           pitch: posture.pitch ?? 0,
           roll: posture.roll ?? 0,
@@ -159,7 +159,7 @@ export namespace AutoMovieMotionHumanBendChain {
         skeleton: body.skeleton.id,
         root: Transform.of(
           { x: posture.root.x, y: posture.root.y, z: posture.root.z },
-          resolveHumanPosture.heading({
+          humanPostureHeading({
             yaw: posture.yaw,
             pitch: posture.pitch ?? 0,
             roll: posture.roll ?? 0,

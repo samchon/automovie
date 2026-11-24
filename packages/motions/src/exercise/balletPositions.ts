@@ -14,8 +14,11 @@ import type {
 
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { humanPostureHeading } from "../posture/humanPostureHeading";
 import { ExerciseKey } from "./ExerciseKey";
+
+/** The alternatives of `FeetContext`'s site. */
+type FeetContext = "body" | "entry";
 
 /**
  * Ballet's five positions of the feet and what the legs do in them. Each foot
@@ -74,7 +77,7 @@ export namespace balletPositions {
    * @returns Each foot's flat placement.
    */
   export function feet(
-    context: Pick<IAutoMovieMotionHumanActionContext, "body" | "entry">,
+    context: Pick<IAutoMovieMotionHumanActionContext, FeetContext>,
     position: number,
     turnout: number,
     front: AutoMovieHumanSide,
@@ -172,7 +175,7 @@ export namespace balletPositions {
     return Vector3.add(
       entry.root,
       Quaternion.rotateVector(
-        resolveHumanPosture.heading(entry),
+        humanPostureHeading(entry),
         body.rest.get("hips")!,
       ),
     );

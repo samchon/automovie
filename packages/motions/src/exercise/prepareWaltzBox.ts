@@ -7,6 +7,16 @@ import type {
 
 import { HumanFrame } from "../posture/HumanFrame";
 
+/** The record of `IPrepareWaltzBoxResult`'s site. */
+type IPrepareWaltzBoxResult = {
+  yaw: (seconds: number) => number;
+  depth: (seconds: number) => number;
+  rotate: (
+    placement: IAutoMovieMotionHumanFoot.IPlacement,
+    seconds: number,
+  ) => IAutoMovieMotionHumanFoot.IPlacement;
+};
+
 /**
  * Prepare the optional waltz box's common clock, turning placements and
  * vertical excursion. Yoshida et al. (2022, DOI 10.3389/fspor.2022.941042)
@@ -36,14 +46,7 @@ export function prepareWaltzBox(
   firstBeat: number,
   lastBeat: number,
   duration: number,
-): {
-  yaw: (seconds: number) => number;
-  depth: (seconds: number) => number;
-  rotate: (
-    placement: IAutoMovieMotionHumanFoot.IPlacement,
-    seconds: number,
-  ) => IAutoMovieMotionHumanFoot.IPlacement;
-} {
+): IPrepareWaltzBoxResult {
   const start: IAutoMovieVector3 = options.pivot ?? origin;
   const turn: number = options.turn ?? 0;
   const travel: IAutoMovieVector3 = options.travel ?? { x: 0, y: 0, z: 0 };

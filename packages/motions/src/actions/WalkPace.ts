@@ -1,5 +1,11 @@
 import type { IAutoMovieMotionHumanWalkPace } from "@automovie/interface";
 
+/** The record of `IWalkPaceProps`'s site. */
+type IWalkPaceProps = {
+  steps: number;
+  longest: number;
+};
+
 /**
  * The timing of a stepping gait over a distance: its step period, its swing,
  * and how far along its path the pelvis is at each instant.
@@ -139,10 +145,7 @@ export class WalkPace {
    *   realised period for a planned one.
    */
   public constructor(
-    props: IAutoMovieMotionHumanWalkPace.IProps & {
-      steps: number;
-      longest: number;
-    },
+    props: IAutoMovieMotionHumanWalkPace.IProps & IWalkPaceProps,
   ) {
     // The first toe-off at a period: a standing start's initiation, or a
     // gait in stride's next footfall one period after the standing foot's

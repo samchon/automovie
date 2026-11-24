@@ -22,6 +22,12 @@ import { HumanLimbMirror } from "./HumanLimbMirror";
 import { HumanLimbView } from "./HumanLimbView";
 import { poseBones } from "./poseBones";
 
+/** The record of `IAtPosed`'s site. */
+type IAtPosed = { shortfall: number };
+
+/** The record of `IAtResult`'s site. */
+type IAtResult = { shortfall: number };
+
 /**
  * A limb posed at a prescribed swivel and bend branch, and the swivel and
  * branch a posed limb has, in the frame its fits' seeds use: the closed-form
@@ -57,11 +63,11 @@ export namespace HumanLimbAt {
     goal: IAutoMovieHumanLimbGoal,
     swivel: number,
     branch: number,
-  ): (IAutoMovieSeededChainFit & { shortfall: number }) | null {
+  ): (IAutoMovieSeededChainFit & IAtResult) | null {
     // The chain is posed on the records it reads (`HumanLimbView`), a left
     // limb's in their mirror image, and the posed records are merged back.
     const read: IRead = mirrored(body, pose, limb, goal);
-    const posed: (IAutoMovieSeededChainFit & { shortfall: number }) | null =
+    const posed: (IAutoMovieSeededChainFit & IAtPosed) | null =
       fitHingedChainAt(read.request, swivel, branch);
     return posed === null
       ? null
@@ -228,13 +234,15 @@ function mirrored(
   HumanLimbView.admitted(body, pose);
   return { view, left, image, request: request(body, image, chain, carried) };
 }
+/** The alternatives of `RequestGoal`'s site. */
+type RequestGoal = "point" | "bend" | "rotation";
 
 /** The fit's own request for a limb toward a world goal. */
 function request(
   body: IAutoMovieMotionHumanBody,
   pose: IAutoMoviePose,
   limb: AutoMovieHumanLimb,
-  goal: Pick<IAutoMovieHumanLimbGoal, "point" | "bend" | "rotation">,
+  goal: Pick<IAutoMovieHumanLimbGoal, RequestGoal>,
 ): IAutoMovieFitChainToTargetProps {
   return {
     skeleton: body.skeleton,

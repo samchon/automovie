@@ -14,63 +14,56 @@ import { HumanFoot } from "../posture/HumanFoot";
 import { AutoMovieMotionHumanAuditGround } from "./AutoMovieMotionHumanAuditGround";
 import { AutoMovieMotionHumanAuditMotion as HumanAuditMotion } from "./AutoMovieMotionHumanAuditMotion";
 
+/** The alternatives of `MeasurePart`'s site. */
+type MeasurePart = "leftFoot" | "rightFoot";
+
 /**
- * Whether the feet's contact with the floor, inferred from the displayed
- * motion itself, agrees with the contact the actions declare.
+ * Whether the feet's contact with the floor, inferred from the displayed motion
+ * itself, agrees with the contact the actions declare.
  *
  * The slip and lift readings of the ground audit look only inside declared
  * plant windows, so a foot that skates along the floor while no window is
- * declared on it goes unread. This reading infers contact the way gait
- * analysis does from kinematics alone: a sole socket (heel, ball or toe) is
- * on the floor while it is no higher than {@link HEIGHT} above the floor under
- * that foot (`AutoMovieMotionHumanAuditMotion.feet`; where none is, in water
- * or on a saddle, no step is read for a skate), and a socket on the
- * floor is at rest while its horizontal speed is no more than {@link SPEED}.
- * Each step between two grid instants is then read twice, `skate` and `loose`
- * in metres per second and `afloat` in metres:
+ * declared on it goes unread. This reading infers contact the way gait analysis
+ * does from kinematics alone: a sole socket (heel, ball or toe) is on the floor
+ * while it is no higher than {@link HEIGHT} above the floor under that foot
+ * (`AutoMovieMotionHumanAuditMotion.feet`; where none is, in water or on a
+ * saddle, no step is read for a skate), and a socket on the floor is at rest
+ * while its horizontal speed is no more than {@link SPEED}. Each step between
+ * two grid instants is then read twice, `skate` and `loose` in metres per
+ * second and `afloat` in metres:
  *
- * - `skate`: outside every window declared on the foot, a socket on the
- *   floor at both ends of the step travels horizontally: a foot dragged or
- *   skated along the floor. `share` is the part of the film's steps in which
- *   some socket does so faster than `SPEED`.
- * - `loose` and `afloat`: inside a plant window, the point the window declares held (`IAutoMovieMotionHumanContactWindow.socket`), else the foot's lowest socket,
- *   must be the contact: `loose` is its horizontal speed in the frame of the
- *   window's support (`IAutoMovieMotionHumanAuditMotion.support`; a deck or a
- *   saddle carries a planted foot) while the same socket stays the lowest,
+ * - `skate`: outside every window declared on the foot, a socket on the floor at
+ *   both ends of the step travels horizontally: a foot dragged or skated along
+ *   the floor. `share` is the part of the film's steps in which some socket
+ *   does so faster than `SPEED`.
+ * - `loose` and `afloat`: inside a plant window, the point the window declares
+ *   held (`IAutoMovieMotionHumanContactWindow.socket`), else the foot's lowest
+ *   socket, must be the contact: `loose` is its horizontal speed in the frame
+ *   of the window's support (`IAutoMovieMotionHumanAuditMotion.support`; a deck
+ *   or a saddle carries a planted foot) while the same socket stays the lowest,
  *   and, on the ground, `afloat` its height off the floor.
  *
- * A window of any kind declared on a foot (a plant, a pivot, a strike)
- * declares its contact, so only steps wholly outside all of them are read
- * for `skate`: a step a window's edge falls inside, between two grid
- * instants, is partly declared and is not read.
+ * A window of any kind declared on a foot (a plant, a pivot, a strike) declares
+ * its contact, so only steps wholly outside all of them are read for `skate`: a
+ * step a window's edge falls inside, between two grid instants, is partly
+ * declared and is not read.
  */
 export namespace AutoMovieMotionHumanAuditContact {
   /**
-   * The height under which a sole socket is on the floor, metres: the
-   * foot's own bearing height (`HumanFoot.BEARING`), under half the 12.9 mm
-   * mean minimum toe clearance of the swinging foot in normal walking
-   * (Winter 1992, Foot trajectory in human gait, Physical Therapy
-   * 72(1):45-53), so a foot at the lowest point of a normal swing is not
-   * read as on the floor.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the unit, the source and why the bound sits where it does.
-   * @evidence contracts/development/design.md#principled-representation One length compared with a socket's height.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Read by this audit and by the tests that set a film at its two sides; the base of support reads the same height from its owner.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Derived from a measured clearance, not tuned to a motion, and held once by the foot.
+   * The height under which a sole socket is on the floor, metres: the foot's
+   * own bearing height (`HumanFoot.BEARING`), under half the 12.9 mm mean
+   * minimum toe clearance of the swinging foot in normal walking (Winter 1992,
+   * Foot trajectory in human gait, Physical Therapy 72(1):45-53), so a foot at
+   * the lowest point of a normal swing is not read as on the floor.
    */
   export const HEIGHT: number = HumanFoot.BEARING;
 
   /**
-   * The horizontal speed under which a socket on the floor is at rest,
-   * metres per second: the 50 mm/s marker speed threshold that detects foot
-   * contact in barefoot walking (Ghoussayni, Stevens, Durham and Ewins 2004,
-   * Assessment and validation of a simple automated method for the detection
-   * of gait events and intervals, Gait and Posture 20(3):266-272).
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the unit and the source.
-   * @evidence contracts/development/design.md#principled-representation One speed compared with a socket's horizontal speed.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Read by this audit and by the tests that set a film at its two sides.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The study's threshold, not tuned to a motion.
+   * The horizontal speed under which a socket on the floor is at rest, metres
+   * per second: the 50 mm/s marker speed threshold that detects foot contact in
+   * barefoot walking (Ghoussayni, Stevens, Durham and Ewins 2004, Assessment
+   * and validation of a simple automated method for the detection of gait
+   * events and intervals, Gait and Posture 20(3):266-272).
    */
   export const SPEED: number = 0.05;
 
@@ -121,7 +114,7 @@ export namespace AutoMovieMotionHumanAuditContact {
       );
     };
     for (const side of ["left", "right"] as const) {
-      const part: "leftFoot" | "rightFoot" = `${side}Foot`;
+      const part: MeasurePart = `${side}Foot`;
       // Each foot is read against the floor under it, so a foot on one
       // tread is not read against the other foot's.
       const floors: (number | null)[] = frames.map(

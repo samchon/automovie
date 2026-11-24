@@ -26,6 +26,7 @@ import { AutoMovieMotionHumanLean } from "../compose/AutoMovieMotionHumanLean";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
 import { hipJoints } from "../posture/hipJoints";
+import { humanPostureHeading } from "../posture/humanPostureHeading";
 import { lowerHumanPosture } from "../posture/lowerHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
@@ -237,10 +238,10 @@ export namespace stepOver {
     // flexed no less than a planted leg's least flexion.
     const lower: ReturnType<typeof lowerHumanPosture.prepare> =
       lowerHumanPosture.prepare(body);
-    const short: ReturnType<typeof resolveHumanPosture.prepareShort> =
-      resolveHumanPosture.prepareShort(body, resolveHumanPosture.KNEE);
+    const short: ReturnType<typeof lowerHumanPosture.prepareShort> =
+      lowerHumanPosture.prepareShort(body, lowerHumanPosture.KNEE);
     const knees: Record<
-      "left" | "right",
+      AutoMovieHumanSide,
       ReturnType<typeof HumanFrame.preparePoint>
     > = {
       left: HumanFrame.preparePoint(yaw, {
@@ -252,7 +253,7 @@ export namespace stepOver {
         z: body.rest.get("rightLowerLeg")!.z + 1,
       }),
     };
-    const contacts: Record<"left" | "right", IAutoMovieVector3> = {
+    const contacts: Record<AutoMovieHumanSide, IAutoMovieVector3> = {
       left: HumanFoot.offset(body, "left", "mtp"),
       right: HumanFoot.offset(body, "right", "mtp"),
     };
@@ -315,7 +316,7 @@ export namespace stepOver {
       // Each foot plants before its swing on the floor it stands on, and
       // after it on that floor or on the named landing surface's prop.
       contacts: [lead, trail].flatMap(
-        (side: "left" | "right"): IAutoMovieMotionHumanContactWindow[] => [
+        (side: AutoMovieHumanSide): IAutoMovieMotionHumanContactWindow[] => [
           {
             part: `${side}Foot`,
             kind: "plant",
@@ -344,8 +345,11 @@ export namespace stepOver {
         const t: number = Math.min(duration, Math.max(0, seconds));
         const root: IAutoMovieVector3 = rootAt(t);
         const limbs: IAutoMovieMotionHumanPosture["limbs"] = {};
-        const toes: Record<"left" | "right", number> = { left: 0, right: 0 };
-        const footings: Record<"left" | "right", ReturnType<typeof footAt>> = {
+        const toes: Record<AutoMovieHumanSide, number> = { left: 0, right: 0 };
+        const footings: Record<
+          AutoMovieHumanSide,
+          ReturnType<typeof footAt>
+        > = {
           left: footAt("left", t),
           right: footAt("right", t),
         };
@@ -432,7 +436,7 @@ export namespace stepOver {
         const hip: IAutoMovieVector3 = hipJoints(
           body,
           posture.root,
-          resolveHumanPosture.heading(posture),
+          humanPostureHeading(posture),
           posture.joints.hips,
           resolution(),
         )[side];

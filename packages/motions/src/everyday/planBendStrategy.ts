@@ -31,6 +31,7 @@ import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanColliders } from "../posture/HumanColliders";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
+import { lowerHumanPosture } from "../posture/lowerHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
@@ -271,7 +272,7 @@ export function planBendStrategy(
                   resolution,
                   lateralTilt,
                 )
-              : resolveHumanPosture.lower(
+              : lowerHumanPosture(
                   body,
                   {
                     ...lowered,
@@ -432,7 +433,7 @@ export function planBendStrategy(
       })
     : armCourse;
   // A bracing palm must bear on the front of its thigh (`admitBendBrace`).
-  let held: IAutoMovieMotionHumanPosture | undefined =
+  const braced: IAutoMovieMotionHumanPosture | undefined =
     region === undefined ? undefined : admitBendBrace(body, course, down, free);
   if (hold === 0 || window !== null)
     return { ...course, ...HumanPhysics.declared(context.params, window) };
@@ -440,6 +441,7 @@ export function planBendStrategy(
   // Nothing changes while holding a bend. Measure one actual lowest
   // body with both hands placed. The reaching and returning courses
   // meet on this single key regardless of how long it is held.
+  const held: IAutoMovieMotionHumanPosture = braced ?? course.posture(down);
   const posture: IAutoMovieMotionHumanActionPlan["posture"] = (
     seconds,
     channels,
@@ -453,7 +455,7 @@ export function planBendStrategy(
           resolution,
           projection,
         )
-      : (held ??= course.posture(down));
+      : held;
   return {
     ...course,
     ...HumanPhysics.declared(context.params, window),

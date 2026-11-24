@@ -8,6 +8,12 @@ import type {
 
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 
+/** The alternatives of `PlantsPart`'s site. */
+type PlantsPart = "leftFoot" | "rightFoot";
+
+/** The alternatives of `UnderContext`'s site. */
+type UnderContext = "carrier" | "entry";
+
 /**
  * Bases of composed actions: the plan whose posture every unclaimed channel
  * keeps.
@@ -58,7 +64,7 @@ export namespace AutoMovieMotionHumanBase {
    * @returns The plan.
    */
   export function under(
-    context: Pick<IAutoMovieMotionHumanActionContext, "carrier" | "entry">,
+    context: Pick<IAutoMovieMotionHumanActionContext, UnderContext>,
     duration: number,
     contacts?: readonly IAutoMovieMotionHumanContactWindow[],
   ): IAutoMovieMotionHumanActionPlan {
@@ -103,7 +109,7 @@ export namespace AutoMovieMotionHumanBase {
     to: number = 1,
   ): IAutoMovieMotionHumanContactWindow[] {
     return (["leftFoot", "rightFoot"] as const).map(
-      (part: "leftFoot" | "rightFoot"): IAutoMovieMotionHumanContactWindow => ({
+      (part: PlantsPart): IAutoMovieMotionHumanContactWindow => ({
         part,
         kind: "plant",
         from,

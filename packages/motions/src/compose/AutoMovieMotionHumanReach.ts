@@ -1,5 +1,6 @@
 import { Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPosture,
@@ -11,9 +12,12 @@ import type {
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { hipJoints } from "../posture/hipJoints";
+import { humanPostureHeading } from "../posture/humanPostureHeading";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { AutoMovieMotionHumanLean } from "./AutoMovieMotionHumanLean";
+
+/** The alternatives of `LeanLimb`'s site. */
+type LeanLimb = "leftArm" | "rightArm";
 
 /**
  * Whether a limb can put its end on a point, and what happens when it cannot.
@@ -192,7 +196,7 @@ export namespace AutoMovieMotionHumanReach {
   export function lean(
     body: IAutoMovieMotionHumanBody,
     posture: IAutoMovieMotionHumanPosture,
-    limb: "leftArm" | "rightArm",
+    limb: LeanLimb,
     point: IAutoMovieVector3,
     limit: number = LEAN_LIMIT,
   ): number {
@@ -264,7 +268,7 @@ export namespace AutoMovieMotionHumanReach {
 
 /** Actual goal-independent arm roots, with canonical FK owning their ancestry. */
 const SHOULDERS: Readonly<
-  Record<"left" | "right", ReadonlySet<AutoMovieHumanoidBone>>
+  Record<AutoMovieHumanSide, ReadonlySet<AutoMovieHumanoidBone>>
 > = {
   left: new Set<AutoMovieHumanoidBone>(["leftUpperArm"]),
   right: new Set<AutoMovieHumanoidBone>(["rightUpperArm"]),
@@ -282,13 +286,13 @@ function checkOn(
   resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
   read?: ReturnType<typeof HumanTrunk.prepareResolve>,
 ): IAutoMovieMotionHumanReach.ICheck {
-  const side: "left" | "right" = limb.startsWith("left") ? "left" : "right";
+  const side: AutoMovieHumanSide = limb.startsWith("left") ? "left" : "right";
   if (limb.endsWith("Leg"))
     return AutoMovieMotionHumanReach.measure(
       hipJoints(
         body,
         posture.root,
-        resolveHumanPosture.heading(posture),
+        humanPostureHeading(posture),
         posture.joints.hips,
         typeof resolution === "function" ? resolution() : resolution,
       )[side],

@@ -4,6 +4,7 @@ import {
   resolveAutoMovieCenterOfMass,
 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   AutoMovieMotionHumanActionName,
   IAutoMovieMotionClock,
@@ -20,6 +21,7 @@ import type {
   IAutoMovieMotionHumanLean,
   IAutoMovieMotionHumanPerturb,
   IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanStagger,
   IAutoMovieMotionTarget,
   IAutoMovieResolveBalanceOutcome,
   IAutoMovieResolveCenterOfMass,
@@ -45,6 +47,22 @@ import { collapse } from "./collapse";
 import { knockdown } from "./knockdown";
 import { stagger } from "./stagger";
 import { staggerBounds } from "./staggerBounds";
+import { staggerRecovery } from "./staggerRecovery";
+
+/** The alternatives of `AbsorbPlantPart2`'s site. */
+type AbsorbPlantPart2 = "leftFoot" | "rightFoot";
+
+/** The alternatives of `AbsorbPlantPart`'s site. */
+type AbsorbPlantPart = "leftFoot" | "rightFoot";
+
+/** The alternatives of `PlanChosen`'s site. */
+type PlanChosen = "absorb" | "step" | "fall";
+
+/** The alternatives of `PlanAsked`'s site. */
+type PlanAsked = "auto" | "absorb" | "step" | "fall";
+
+/** The alternatives of `PlanSuffix`'s site. */
+type PlanSuffix = "Left" | "Right";
 
 /**
  * One perturbation law whose response follows from the forces on its performer:
@@ -148,7 +166,7 @@ export namespace perturb {
     // Prepare both sides' fixed socket demand without observing planted
     // state before the original pose admission and centre measurement.
     for (const side of ["left", "right"] as const) {
-      const suffix: "Left" | "Right" = side === "left" ? "Left" : "Right";
+      const suffix: PlanSuffix = side === "left" ? "Left" : "Right";
       for (const socket of ["heel", "ball", "toe"] as const)
         requestedBones.add(body.surfaces.sockets[`${socket}${suffix}`].bone);
     }
@@ -162,10 +180,10 @@ export namespace perturb {
       model,
       bones,
     );
-    const planted: ("left" | "right")[] = (["left", "right"] as const).filter(
-      (side: "left" | "right"): boolean => entry.feet[side].planted,
+    const planted: AutoMovieHumanSide[] = (["left", "right"] as const).filter(
+      (side: AutoMovieHumanSide): boolean => entry.feet[side].planted,
     );
-    const bearing: readonly ("left" | "right")[] =
+    const bearing: readonly AutoMovieHumanSide[] =
       planted.length === 0 ? ["left", "right"] : planted;
     const support: IAutoMovieVector3[] = HumanFoot.base(body, bones, bearing);
     // The steps' times are `stagger`'s: each later one after the swing of a
@@ -225,16 +243,20 @@ export namespace perturb {
       at: Vector3.subtract(entry.posture.root, push),
       frame: "world",
     };
-    let caught: IAutoMovieMotionHumanActionPlan | null = null;
-    if (balanced.outcome !== "absorb")
-      try {
-        caught = stagger.plan({
-          ...context,
-          params: { target: from, speed: Math.max(speed, Number.MIN_VALUE) },
-        });
-      } catch (error) {
-        if (!(error instanceof HumanRefusal)) throw error;
-      }
+    // Past the absorb, the stagger's own admission decides whether its
+    // recovery steps catch this push (`staggerRecovery`); a push they do not
+    // catch is a fall, and any other refusal of the stagger is this law's.
+    const staggered: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanStagger.IParams> =
+      {
+        ...context,
+        params: { target: from, speed: Math.max(speed, Number.MIN_VALUE) },
+      };
+    const admitted: staggerRecovery.IAdmitted | null =
+      balanced.outcome === "absorb" ? null : staggerRecovery.of(staggered);
+    const caught: IAutoMovieMotionHumanActionPlan | null =
+      admitted === null || admitted.recovery === null
+        ? null
+        : stagger.recovered(staggered, admitted.recovery, admitted.fixed);
     const landing: IAutoMovieMotionEvent | undefined = caught?.events.find(
       (e: IAutoMovieMotionEvent): boolean => e.name === "caught",
     );
@@ -256,9 +278,8 @@ export namespace perturb {
       requested === "thrown"
     )
       return HumanForceResponse.plan(context, requested, outcome);
-    const asked: "auto" | "absorb" | "step" | "fall" = requested;
-    const chosen: "absorb" | "step" | "fall" =
-      asked === "auto" ? outcome.outcome : asked;
+    const asked: PlanAsked = requested;
+    const chosen: PlanChosen = asked === "auto" ? outcome.outcome : asked;
     if (asked !== "auto" && asked !== outcome.outcome)
       throw new HumanRefusal({
         kind: "parameter",
@@ -350,8 +371,10 @@ export namespace perturb {
       { origin: { x: 0, y: 0, z: 0 }, yaw: entry.yaw },
       push,
     );
-    const feet: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement> =
-      StrikingTarget.feet(context.entry);
+    const feet: Record<
+      AutoMovieHumanSide,
+      IAutoMovieMotionHumanFoot.IPlacement
+    > = StrikingTarget.feet(context.entry);
     const legsAt: ReturnType<typeof StrikingStance.prepareLegs> =
       StrikingStance.prepareLegs(body, feet);
     const composed: IAutoMovieMotionHumanActionPlan =
@@ -397,9 +420,9 @@ export namespace perturb {
 
     // Both feet stay planted through the absorb.
     const plant: (
-      part: "leftFoot" | "rightFoot",
+      part: AbsorbPlantPart,
     ) => IAutoMovieMotionHumanContactWindow = (
-      part: "leftFoot" | "rightFoot",
+      part: AbsorbPlantPart2,
     ): IAutoMovieMotionHumanContactWindow => ({
       part,
       kind: "plant",

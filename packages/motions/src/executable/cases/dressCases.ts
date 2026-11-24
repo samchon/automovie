@@ -6,6 +6,7 @@ import {
   resolveAutoMovieHumanoidSurfaces,
 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieAffordance,
   IAutoMovieMotionHumanDress,
@@ -90,7 +91,7 @@ export function dressCases(
           act.plan.duration;
       const surface = (
         bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
-        side: "left" | "right",
+        side: AutoMovieHumanSide,
       ): IAutoMovieVector3 =>
         item === "hat"
           ? resolveAutoMovieHumanoidSurfaces.place(
@@ -102,7 +103,7 @@ export function dressCases(
           : HumanHand.frame(who.body, bones, side, "indexTip", "point").point;
       const want = (
         bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
-        side: "left" | "right",
+        side: AutoMovieHumanSide,
       ): IAutoMovieVector3 => {
         const region =
           item === "hat" ? "crown" : side === "left" ? "earLeft" : "earRight";
@@ -248,13 +249,6 @@ const WEAR: Readonly<
  * @param item The item.
  * @param at Where it lies, world metres.
  * @returns The prop.
- * @evidence contracts/development/common.md#meaningful-documentation States the shapes, the contacts and how it lies.
- * @evidence contracts/development/implementation.md#principled-implementation `createWearable`'s `hold` and `wear` contacts at its frames, on one box collider a pick-up can grasp.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One collider, two contacts.
- * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts The motions package does not depend on the archetypes, so the case declares the item's contacts itself.
- * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Built once per case.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Plain data.
  */
 function wearable(
   item: IAutoMovieMotionHumanDress.Item,

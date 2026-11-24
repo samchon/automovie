@@ -7,6 +7,9 @@ import type {
 
 import { HumanSkill } from "../skill/HumanSkill";
 
+/** The alternatives of `IMPACTSPEEDSHAREEntryItem`'s site. */
+type IMPACTSPEEDSHAREEntryItem = "punch" | "kick";
+
 /**
  * The striking family's measured timing, speed, reaction and guard numbers,
  * from novice to elite, as `HumanSkill.quantity` reads them. They belong to
@@ -137,8 +140,9 @@ export namespace StrikingSkill {
    * target: its minimum-jerk unit would end beyond the contact point, at the
    * share of the unit where its speed has fallen to this share of the peak.
    */
-  export const IMPACT_SPEED_SHARE: Readonly<Record<"punch" | "kick", number>> =
-    { punch: 0.78, kick: 0.55 };
+  export const IMPACT_SPEED_SHARE: Readonly<
+    Record<IMPACTSPEEDSHAREEntryItem, number>
+  > = { punch: 0.78, kick: 0.55 };
 
   /**
    * Latency of an online correction of a moving hand toward a displaced target,

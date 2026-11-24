@@ -11,13 +11,42 @@ import type {
 } from "@automovie/interface";
 
 import { HumanRefusal } from "../law/HumanRefusal";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { humanPostureHeading } from "../posture/humanPostureHeading";
 import { AutoMovieMotionHumanBendChain } from "./AutoMovieMotionHumanBendChain";
 import { AutoMovieMotionHumanBendMemo } from "./AutoMovieMotionHumanBendMemo";
 import { AutoMovieMotionHumanBendPreparation } from "./AutoMovieMotionHumanBendPreparation";
 import { AutoMovieMotionHumanBendSearch } from "./AutoMovieMotionHumanBendSearch";
 import { AutoMovieMotionHumanBendTurn } from "./AutoMovieMotionHumanBendTurn";
 import { AutoMovieMotionHumanKneeBend } from "./AutoMovieMotionHumanKneeBend";
+
+/** The alternatives of `LevelFound`'s site. */
+type LevelFound = AutoMovieMotionHumanBendSearch.ICandidate | string;
+
+/** The alternatives of `PrepareBothFixed`'s site. */
+type PrepareBothFixed = "body" | "posture";
+
+/** The alternatives of `PrepareFixed`'s site. */
+type PrepareFixed = "body" | "posture" | "side";
+
+/** The alternatives of `KneePosture`'s site. */
+type KneePosture = "root" | "yaw";
+
+/** The alternatives of `HangPostureItem`'s site. */
+type HangPostureItem = "pitch" | "roll";
+
+/** The alternatives of `HangPosture`'s site. */
+type HangPosture = "root" | "yaw";
+
+/** The alternatives of `ArmPreset`'s site. */
+type ArmPreset =
+  | IAutoMovieMotionHumanBend.Arm
+  | IAutoMovieMotionHumanBend.IShares;
+
+/** The alternatives of `ArmPostureItem`'s site. */
+type ArmPostureItem = "pitch" | "roll";
+
+/** The alternatives of `ArmPosture`'s site. */
+type ArmPosture = "root" | "yaw";
 
 /**
  * Bend hints: the world point an elbow or a knee bends toward, from a named
@@ -94,12 +123,10 @@ export namespace AutoMovieMotionHumanBend {
    */
   export function arm(
     body: IAutoMovieMotionHumanBody,
-    posture: Pick<IAutoMovieMotionHumanPosture, "root" | "yaw"> &
-      Partial<Pick<IAutoMovieMotionHumanPosture, "pitch" | "roll">>,
+    posture: Pick<IAutoMovieMotionHumanPosture, ArmPosture> &
+      Partial<Pick<IAutoMovieMotionHumanPosture, ArmPostureItem>>,
     side: AutoMovieHumanSide,
-    preset:
-      | IAutoMovieMotionHumanBend.Arm
-      | IAutoMovieMotionHumanBend.IShares = "hang",
+    preset: ArmPreset = "hang",
     out: number = 0,
   ): IAutoMovieVector3 {
     const shares: IAutoMovieMotionHumanBend.IShares =
@@ -110,7 +137,7 @@ export namespace AutoMovieMotionHumanBend {
     return Vector3.add(
       posture.root,
       Quaternion.rotateVector(
-        resolveHumanPosture.heading({
+        humanPostureHeading({
           yaw: posture.yaw,
           pitch: posture.pitch ?? 0,
           roll: posture.roll ?? 0,
@@ -135,8 +162,8 @@ export namespace AutoMovieMotionHumanBend {
    */
   export function hang(
     body: IAutoMovieMotionHumanBody,
-    posture: Pick<IAutoMovieMotionHumanPosture, "root" | "yaw"> &
-      Partial<Pick<IAutoMovieMotionHumanPosture, "pitch" | "roll">>,
+    posture: Pick<IAutoMovieMotionHumanPosture, HangPosture> &
+      Partial<Pick<IAutoMovieMotionHumanPosture, HangPostureItem>>,
     side: AutoMovieHumanSide,
     out: number = 0,
   ): IAutoMovieVector3 {
@@ -158,7 +185,7 @@ export namespace AutoMovieMotionHumanBend {
    */
   export function knee(
     body: IAutoMovieMotionHumanBody,
-    posture: Pick<IAutoMovieMotionHumanPosture, "root" | "yaw">,
+    posture: Pick<IAutoMovieMotionHumanPosture, KneePosture>,
     side: AutoMovieHumanSide,
     heading: number = posture.yaw,
     splay: number = 0,
@@ -181,7 +208,7 @@ export namespace AutoMovieMotionHumanBend {
 
   /** Prepare a fixed body's trunk and side for actual solve/strain queries. */
   export function prepare(
-    fixed: Pick<IAutoMovieMotionHumanBend.ISolve, "body" | "posture" | "side">,
+    fixed: Pick<IAutoMovieMotionHumanBend.ISolve, PrepareFixed>,
   ): AutoMovieMotionHumanBendPreparation.IPrepared {
     return AutoMovieMotionHumanBendPreparation.of(fixed);
   }
@@ -191,7 +218,7 @@ export namespace AutoMovieMotionHumanBend {
    * evaluation.
    */
   export function prepareBoth(
-    fixed: Pick<IAutoMovieMotionHumanBend.ISolve, "body" | "posture">,
+    fixed: Pick<IAutoMovieMotionHumanBend.ISolve, PrepareBothFixed>,
     resolution?: Parameters<typeof AutoMovieMotionHumanBendPreparation.both>[1],
   ): ReturnType<typeof AutoMovieMotionHumanBendPreparation.both> {
     return AutoMovieMotionHumanBendPreparation.both(fixed, resolution);
@@ -245,25 +272,24 @@ export namespace AutoMovieMotionHumanBend {
   export function level(
     props: IAutoMovieMotionHumanBend.ISolve,
   ): IAutoMovieVector3 {
-    const found: AutoMovieMotionHumanBendSearch.ICandidate | string =
-      AutoMovieMotionHumanBendSearch.search(
-        props,
+    const found: LevelFound = AutoMovieMotionHumanBendSearch.search(
+      props,
+      (
+        chain: AutoMovieMotionHumanBendChain.IChain,
+      ): ((
+        candidate: AutoMovieMotionHumanBendSearch.ICandidate,
+      ) => AutoMovieMotionHumanBendSearch.IScore) =>
         (
-          chain: AutoMovieMotionHumanBendChain.IChain,
-        ): ((
           candidate: AutoMovieMotionHumanBendSearch.ICandidate,
-        ) => AutoMovieMotionHumanBendSearch.IScore) =>
-          (
-            candidate: AutoMovieMotionHumanBendSearch.ICandidate,
-          ): AutoMovieMotionHumanBendSearch.IScore => ({
-            overshoot: candidate.overshoot,
+        ): AutoMovieMotionHumanBendSearch.IScore => ({
+          overshoot: candidate.overshoot,
 
-            // Metres from the shoulder's height; the strain only breaks a tie.
-            deviation:
-              Math.abs(candidate.elbow.y - chain.shoulder.y) +
-              1e-4 * Math.min(candidate.strain, 10),
-          }),
-      );
+          // Metres from the shoulder's height; the strain only breaks a tie.
+          deviation:
+            Math.abs(candidate.elbow.y - chain.shoulder.y) +
+            1e-4 * Math.min(candidate.strain, 10),
+        }),
+    );
     if (typeof found !== "string" && found.overshoot === 0) return found.elbow;
     if (props.fallback !== undefined)
       return arm(props.body, props.posture, props.side, props.fallback);

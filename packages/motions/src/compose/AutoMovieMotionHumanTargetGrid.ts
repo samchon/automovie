@@ -11,6 +11,12 @@ import { HumanBound } from "../law/HumanBound";
 import { HumanFrame } from "../posture/HumanFrame";
 import { AutoMovieMotionHumanTarget } from "./AutoMovieMotionHumanTarget";
 
+/** The alternatives of `NearestResult`'s site. */
+type NearestResult = "height" | "lateral" | "distance";
+
+/** The alternatives of `NearestPosture`'s site. */
+type NearestPosture = "root" | "yaw";
+
 /**
  * The places of the air around a performer by name: the heights, lateral
  * offsets and distances a law states a hand's place with, the three rungs of a
@@ -215,15 +221,10 @@ export namespace AutoMovieMotionHumanTargetGrid {
    */
   export function nearest(
     body: Pick<IAutoMovieMotionHumanBody, "measure">,
-    posture: Pick<IAutoMovieMotionHumanPosture, "root" | "yaw">,
+    posture: Pick<IAutoMovieMotionHumanPosture, NearestPosture>,
     side: AutoMovieHumanSide,
     point: IAutoMovieVector3,
-  ): Required<
-    Pick<
-      IAutoMovieMotionHumanTargetGrid.IGrid,
-      "height" | "lateral" | "distance"
-    >
-  > {
+  ): Required<Pick<IAutoMovieMotionHumanTargetGrid.IGrid, NearestResult>> {
     const m = body.measure;
     const local: IAutoMovieVector3 = HumanFrame.local(
       {
@@ -254,6 +255,10 @@ export namespace AutoMovieMotionHumanTargetGrid {
     };
   }
 }
+/** The alternatives of `NamedBase`'s site. */
+type NamedBase =
+  | IAutoMovieMotionHumanTarget.Name
+  | IAutoMovieMotionHumanTargetGrid.IGrid;
 
 /**
  * The share record of a whole place name or of three grid names, the lateral
@@ -262,9 +267,7 @@ export namespace AutoMovieMotionHumanTargetGrid {
 function named(
   body: Pick<IAutoMovieMotionHumanBody, "measure">,
   side: AutoMovieHumanSide,
-  base:
-    | IAutoMovieMotionHumanTarget.Name
-    | IAutoMovieMotionHumanTargetGrid.IGrid,
+  base: NamedBase,
 ): IAutoMovieMotionHumanTarget.IDefault {
   return typeof base === "string"
     ? AutoMovieMotionHumanTarget.DEFAULTS[base]
@@ -277,6 +280,14 @@ function named(
         facing: base.facing ?? "performer",
       };
 }
+/** The alternatives of `NudgedComponentAxis`'s site. */
+type NudgedComponentAxis = "out" | "up" | "forward";
+
+/** The alternatives of `NudgedBase`'s site. */
+type NudgedBase =
+  | IAutoMovieMotionHumanTarget.Name
+  | IAutoMovieMotionHumanTargetGrid.IGrid
+  | undefined;
 
 /**
  * A share record moved by a nudge, each component converted from arm lengths to
@@ -288,14 +299,11 @@ function nudged(
   side: AutoMovieHumanSide,
   record: IAutoMovieMotionHumanTarget.IDefault,
   nudge: IAutoMovieMotionHumanTargetGrid.INudge,
-  base:
-    | IAutoMovieMotionHumanTarget.Name
-    | IAutoMovieMotionHumanTargetGrid.IGrid
-    | undefined,
+  base: NudgedBase,
 ): IAutoMovieMotionHumanTarget.IDefault {
   const m = body.measure;
   const arm: number = m.upperArm + m.forearm;
-  const component = (axis: "out" | "up" | "forward"): number => {
+  const component = (axis: NudgedComponentAxis): number => {
     const value: number = nudge[axis] ?? 0;
     if (!(Math.abs(value) <= AutoMovieMotionHumanTargetGrid.NUDGE)) {
       const names: readonly string[] =

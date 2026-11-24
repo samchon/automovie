@@ -13,6 +13,17 @@ import type {
 import { AutoMovieMotionHumanChannel as HumanChannels } from "../compose/AutoMovieMotionHumanChannel";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanPerformanceContacts } from "./HumanPerformanceContacts";
+import { readHumanSegmentLegs } from "./readHumanSegmentLegs";
+
+/** The record of `IPlaceResult`'s site. */
+type IPlaceResult = {
+  duration: number;
+  contact?: number;
+  events: IPlaceEventsItemResult[];
+};
+
+/** The record of `IPlaceEventsItemResult`'s site. */
+type IPlaceEventsItemResult = { name: string; share: number };
 
 /**
  * A planned action placed over its carrier: the channels it claims checked
@@ -64,11 +75,7 @@ export namespace HumanPerformanceOverlays {
     intent: IAutoMovieIntent,
     entries: readonly IAutoMovieScheduleEntry[],
     planned: IPlanned,
-  ): {
-    duration: number;
-    contact?: number;
-    events: { name: string; share: number }[];
-  } {
+  ): IPlaceResult {
     const { name, params, law, context, plan, start }: IPlanned = planned;
     // The carrier must yield the channels claimed at entry.
     const channels: readonly AutoMovieMotionHumanChannelClaim[] =
@@ -84,6 +91,7 @@ export namespace HumanPerformanceOverlays {
       law,
       context,
       plan,
+      legSeeds: readHumanSegmentLegs.chain(plan, person.performer.body),
       start,
       entryTime: start,
       end,

@@ -9,6 +9,9 @@ import type {
 import { StrikingHeld } from "../striking/StrikingHeld";
 import { StrikingRoll } from "../striking/StrikingRoll";
 
+/** The alternatives of `READYEntryItem`'s site. */
+type READYEntryItem = "lowReady" | "highReady";
+
 /**
  * Where a firearm is held at a ready position (`HumanWeaponFirearm.present`): a
  * region the doctrine describes, not one pose, and the arm holds the weapon
@@ -62,7 +65,7 @@ export namespace HumanFirearmReady {
    * those bounds are provisional (0.3 to 0.5 of the arm ahead up high, 0.4 to
    * 0.75 down low, at most 75 degrees up, 30 degrees of roll either way).
    */
-  export const READY: Readonly<Record<"lowReady" | "highReady", IReady>> = {
+  export const READY: Readonly<Record<READYEntryItem, IReady>> = {
     lowReady: {
       elevation: [-45, -30, -45],
       roll: 30,

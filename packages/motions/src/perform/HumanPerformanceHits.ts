@@ -1,5 +1,6 @@
 import { Vector3, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   AutoMovieHumanoidRegion,
   IAutoMovieHumanoidSurfaces,
@@ -21,6 +22,30 @@ import { HumanPerformanceLayers } from "./HumanPerformanceLayers";
 import { HumanPerformanceRead } from "./HumanPerformanceRead";
 import { HumanPropFlight } from "./HumanPropFlight";
 import { HumanPropOutcome } from "./HumanPropOutcome";
+
+/** The alternatives of `DemandKind`'s site. */
+type DemandKind = "regions" | "contact";
+
+/** The alternatives of `SourcesEntryItem`'s site. */
+type SourcesEntryItem = "regions" | "contact";
+
+/** The alternatives of `ReadingKind`'s site. */
+type ReadingKind = "regions" | "contact";
+
+/** The alternatives of `EntryItemEntry`'s site. */
+type EntryItemEntry = "regions" | "contact";
+
+/** The alternatives of `ReadBonesKind`'s site. */
+type ReadBonesKind = "regions" | "contact";
+
+/** The record of `IPersonResult`'s site. */
+type IPersonResult = {
+  distance: number;
+  bone: AutoMovieHumanoidBone;
+  point: IAutoMovieVector3;
+  normal: IAutoMovieVector3;
+  region?: AutoMovieHumanoidRegion;
+};
 
 /**
  * The hit record of a performance: every contact that strikes a person or a
@@ -108,7 +133,7 @@ export namespace HumanPerformanceHits {
           self,
           strike.subject,
         ).performer.body;
-        const side: "left" | "right" = strike.weapon.limb.startsWith("left")
+        const side: AutoMovieHumanSide = strike.weapon.limb.startsWith("left")
           ? "left"
           : "right";
         const distal: IDistal = strike.weapon.limb.endsWith("Arm")
@@ -258,13 +283,7 @@ export namespace HumanPerformanceHits {
     a: IAutoMovieVector3,
     b: IAutoMovieVector3,
     read: IReadBones,
-  ): {
-    distance: number;
-    bone: AutoMovieHumanoidBone;
-    point: IAutoMovieVector3;
-    normal: IAutoMovieVector3;
-    region?: AutoMovieHumanoidRegion;
-  } {
+  ): IPersonResult {
     const who: IAutoMovieMotionHumanSegment.IPerson =
       HumanPerformanceRead.person(self, subject);
     const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = read(
@@ -288,7 +307,7 @@ export namespace HumanPerformanceHits {
   type IReadBones = (
     who: IAutoMovieMotionHumanSegment.IPerson,
     seconds: number,
-    kind: "regions" | "contact",
+    kind: ReadBonesKind,
   ) => Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
 
   /**
@@ -301,7 +320,7 @@ export namespace HumanPerformanceHits {
           IAutoMovieMotionHumanSegment.IPerson,
           Partial<
             Record<
-              "regions" | "contact",
+              EntryItemEntry,
               ReturnType<typeof HumanPerformanceRead.prepareBones>
             >
           >
@@ -310,13 +329,13 @@ export namespace HumanPerformanceHits {
     return (
       who: IAutoMovieMotionHumanSegment.IPerson,
       seconds: number,
-      kind: "regions" | "contact",
+      kind: ReadingKind,
     ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> => {
       readers ??= new Map();
       let sources:
         | Partial<
             Record<
-              "regions" | "contact",
+              SourcesEntryItem,
               ReturnType<typeof HumanPerformanceRead.prepareBones>
             >
           >
@@ -346,7 +365,7 @@ export namespace HumanPerformanceHits {
    */
   function demand(
     body: IAutoMovieMotionHumanBody,
-    kind: "regions" | "contact",
+    kind: DemandKind,
   ): ReadonlySet<AutoMovieHumanoidBone> {
     const selected: Set<AutoMovieHumanoidBone> = new Set(
       kind === "contact" ? HumanColliders.bones(body) : undefined,

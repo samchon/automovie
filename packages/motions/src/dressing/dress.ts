@@ -42,6 +42,15 @@ import { poseBones } from "../posture/poseBones";
 import { HumanWorn } from "./HumanWorn";
 import { dressTurn } from "./dressTurn";
 
+/** The record of `IPlanCarriedResult`'s site. */
+type IPlanCarriedResult = {
+  grip: IAutoMovieVector3;
+  rotation: IAutoMovieQuaternion;
+};
+
+/** The record of `IHATItem`'s site. */
+type IHATItem = { out: number; ahead: number; down: number };
+
 /**
  * Putting on a hat or a pair of glasses held in one hand, with both hands,
  * while standing.
@@ -112,7 +121,7 @@ export namespace dress {
    * there, half way between the brow and the ears, which keeps the elbows ahead
    * of the chest and below the hands.
    */
-  export const HAT: Readonly<{ out: number; ahead: number; down: number }> = {
+  export const HAT: Readonly<IHATItem> = {
     out: Math.SQRT1_2,
     ahead: Math.SQRT1_2,
     down: 1,
@@ -282,7 +291,7 @@ export namespace dress {
       posture: IAutoMovieMotionHumanPosture,
       degrees: number,
       resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
-    ): { grip: IAutoMovieVector3; rotation: IAutoMovieQuaternion } => {
+    ): IPlanCarriedResult => {
       return dressTurn.carried(
         wornAt(posture, degrees, resolution),
         inverse,

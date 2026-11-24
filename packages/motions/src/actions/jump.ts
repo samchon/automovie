@@ -4,6 +4,7 @@ import {
   resolveAutoMovieCenterOfMass,
 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   AutoMovieMotionHumanActionName,
   IAutoMovieMotionEvent,
@@ -79,6 +80,14 @@ const TUCK_HEIGHT: number = 0.3;
  * (provisional).
  */
 const TUCK_AHEAD: number = 0.1;
+/** The record of `IPlanResult`'s site. */
+type IPlanResult = {
+  takeoff: IAutoMovieVector3;
+  landing: IAutoMovieVector3;
+};
+
+/** The record of `IPlan`'s site. */
+type IPlan = { takeoff: IAutoMovieVector3; landing: IAutoMovieVector3 };
 
 /**
  * A jump to a floor point: a push-off from a planted foot, a ballistic flight
@@ -197,7 +206,7 @@ export namespace jump {
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanJump.IParams>,
-    supportFoot?: "left" | "right",
+    supportFoot?: AutoMovieHumanSide,
   ): IAutoMovieMotionHumanActionPlan {
     const body: IAutoMovieMotionHumanBody = context.body;
     const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
@@ -223,8 +232,8 @@ export namespace jump {
       origin: { ...origin, y: 0 },
       yaw: heading,
     });
-    const planted: ("left" | "right")[] = (["left", "right"] as const).filter(
-      (s: "left" | "right"): boolean => entry.feet[s].planted,
+    const planted: AutoMovieHumanSide[] = (["left", "right"] as const).filter(
+      (s: AutoMovieHumanSide): boolean => entry.feet[s].planted,
     );
     if (planted.length === 0)
       throw new HumanRefusal({
@@ -243,8 +252,8 @@ export namespace jump {
         fix: "end the approach on that foot or select the planted foot",
       });
     // A symmetric double support must choose the same foot after a rigid move.
-    const takeoff: "left" | "right" = supportFoot ?? jumpTakeoff(body, entry);
-    const reaching: "left" | "right" = takeoff === "left" ? "right" : "left";
+    const takeoff: AutoMovieHumanSide = supportFoot ?? jumpTakeoff(body, entry);
+    const reaching: AutoMovieHumanSide = takeoff === "left" ? "right" : "left";
     const support: IAutoMovieMotionHumanFoot.IPlacement = {
       ankle: entry.feet[takeoff].ankle,
       rotation: entry.feet[takeoff].rotation,
@@ -293,14 +302,14 @@ export namespace jump {
       0,
     );
     const landing: Record<
-      "left" | "right",
+      AutoMovieHumanSide,
       IAutoMovieMotionHumanFoot.IPlacement
     > = landed.feet;
-    const landingYaw: Record<"left" | "right", number> = {
+    const landingYaw: Record<AutoMovieHumanSide, number> = {
       left: HumanFoot.heading(landing.left.rotation),
       right: HumanFoot.heading(landing.right.rotation),
     };
-    const landingContact: Record<"left" | "right", IAutoMovieVector3> = {
+    const landingContact: Record<AutoMovieHumanSide, IAutoMovieVector3> = {
       left: HumanFoot.offset(body, "left", "mtp"),
       right: HumanFoot.offset(body, "right", "mtp"),
     };
@@ -358,13 +367,7 @@ export namespace jump {
     for (const segment of model.segments) massBones.add(segment.bone);
     const readMassBones: ReturnType<typeof poseBones.prepare> =
       poseBones.prepare(body, massBones);
-    const {
-      takeoff: comT,
-      landing: comL,
-    }: { takeoff: IAutoMovieVector3; landing: IAutoMovieVector3 } = ((): {
-      takeoff: IAutoMovieVector3;
-      landing: IAutoMovieVector3;
-    } => {
+    const { takeoff: comT, landing: comL }: IPlan = ((): IPlanResult => {
       const read: ReturnType<typeof prepareHumanPoseResolution> =
         prepareHumanPoseResolution();
       return {

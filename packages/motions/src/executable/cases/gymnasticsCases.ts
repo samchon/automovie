@@ -4,6 +4,7 @@ import {
   resolveAutoMovieCenterOfMass,
 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPerformance,
   IAutoMovieVector3,
@@ -46,6 +47,8 @@ export function gymnasticsCases(
     );
     const name: string = `gymnastics-handstand${bodies.length === 1 ? "" : `-${id}`}`;
     let performance: IAutoMovieMotionHumanPerformance;
+
+    // Process boundary: a case that throws is reported as that case's refusal, and the remaining cases still run.
     try {
       performance = new HumanPerformance({
         seed: "gymnastics",
@@ -68,7 +71,7 @@ export function gymnasticsCases(
     const inverted: number = TouchVerdicts.event(performance, "a", "inverted");
     const release: number = TouchVerdicts.event(performance, "a", "release");
     const palm = { surface: "palm", shape: "flat" } as const;
-    const palmAt = (t: number, side: "left" | "right"): IAutoMovieVector3 =>
+    const palmAt = (t: number, side: AutoMovieHumanSide): IAutoMovieVector3 =>
       AutoMovieMotionHumanTouchEffector.point(
         body,
         performance.bones("a", t),

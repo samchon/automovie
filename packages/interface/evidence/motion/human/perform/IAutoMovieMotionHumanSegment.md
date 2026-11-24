@@ -14,7 +14,7 @@ Performance placement creates planned segments consumed by pose evaluation, over
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 
-Film placement and the plan's action-local clock stay separate, and a transition explicitly references its source segment. The performance scheduler owns admission and recursive evaluation guards.
+Film placement and the plan's action-local clock stay separate, and a transition explicitly references its source segment. The legs' continuation seeds are a reader the placement prepares once with the segment, not a table keyed by the plan. The performance scheduler owns admission and recursive evaluation guards.
 
 # src/motion/human/perform/IAutoMovieMotionHumanSegment.ts#IAutoMovieMotionHumanSegment.IAnchorFits
 
@@ -92,7 +92,7 @@ Shares the canonical IAutoMovieMotionHumanLayer identities used at the listed ru
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-until: Film second a later action takes the hand over; infinite while none has. carry: The holding arm relative to the chest, captured when the carry starts.
+until: Film second a later action takes the hand over; infinite while none has. takenBy: the order of the action that took the hand over, absent while none has. carry: The holding arm relative to the chest, captured when the carry starts.
 
 ## @evidence contracts/development/design.md#principled-representation
 

@@ -69,13 +69,15 @@ export function HumanArmShapeBox(
   const z: number = Math.max(0, dz);
   return Math.sqrt(x * x + y * y + z * z) - ROUNDING;
 }
+/** The record of `IUnturnQ`'s site. */
+type IUnturnQ = { x: number; y: number; z: number; w: number };
 
 /**
  * A vector turned by the inverse of a unit rotation: the rotation's conjugate
  * applied.
  */
 function unturn(
-  q: { x: number; y: number; z: number; w: number },
+  q: IUnturnQ,
   vx: number,
   vy: number,
   vz: number,

@@ -5,6 +5,7 @@ import {
   wrapDegrees,
 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanFoot,
   IAutoMovieMotionHumanWalkFoot,
@@ -15,7 +16,7 @@ import type {
 import { AutoMovieMotionHumanAuditContact } from "../audit/AutoMovieMotionHumanAuditContact";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { humanPostureHeading } from "../posture/humanPostureHeading";
 import { walkFoot } from "./walkFoot";
 import { walkLeg } from "./walkLeg";
 import type { walkReach } from "./walkReach";
@@ -45,6 +46,47 @@ interface IBounds {
   /** Swing share over which the ranges enter or leave. */
   fade: number;
 }
+/** The record of `IPrepareWalkReachSwingProbe`'s site. */
+type IPrepareWalkReachSwingProbe = {
+  ankle: IAutoMovieVector3;
+  rotation: IAutoMovieQuaternion;
+  low: number;
+};
+
+/** The record of `IPrepareWalkReachSwingAbove`'s site. */
+type IPrepareWalkReachSwingAbove = {
+  ankle: IAutoMovieVector3;
+  rotation: IAutoMovieQuaternion;
+  low: number;
+};
+
+/** The record of `IPrepareWalkReachSwingNext`'s site. */
+type IPrepareWalkReachSwingNext = {
+  ankle: IAutoMovieVector3;
+  rotation: IAutoMovieQuaternion;
+  low: number;
+};
+
+/** The record of `IPrepareWalkReachSwingRead`'s site. */
+type IPrepareWalkReachSwingRead = {
+  ankle: IAutoMovieVector3;
+  rotation: IAutoMovieQuaternion;
+  low: number;
+};
+
+/** The record of `IPrepareWalkReachSwingPlacedResult`'s site. */
+type IPrepareWalkReachSwingPlacedResult = {
+  ankle: IAutoMovieVector3;
+  rotation: IAutoMovieQuaternion;
+  low: number;
+};
+
+/** The record of `IPrepareWalkReachSwingPlaced`'s site. */
+type IPrepareWalkReachSwingPlaced = {
+  ankle: IAutoMovieVector3;
+  rotation: IAutoMovieQuaternion;
+  low: number;
+};
 
 /**
  * Prepare one body's swing reach bounds and heel socket for changing feet.
@@ -56,7 +98,7 @@ interface IBounds {
  */
 export function prepareWalkReachSwing(
   body: IAutoMovieMotionHumanBody,
-  side: "left" | "right",
+  side: AutoMovieHumanSide,
   bounds: IBounds,
 ): (
   settled: walkReach.IGround,
@@ -89,7 +131,7 @@ export function prepareWalkReachSwing(
     // A trunk tilt counts because extension is measured in the settled pelvis.
     const frame: IAutoMovieQuaternion =
       settled.pelvis ??
-      resolveHumanPosture.heading({ yaw: settled.yaw, pitch: 0, roll: 0 });
+      humanPostureHeading({ yaw: settled.yaw, pitch: 0, roll: 0 });
     // The ankle the leg reaches nearest a point: within the leg's length,
     // and, past the thigh's extension and the knee's bend behind the hip,
     // the thigh stopped at its extension and the shank folded toward the
@@ -194,17 +236,9 @@ export function prepareWalkReachSwing(
       Math.max(0, lowest(foot.placement)),
       walkFoot.CLEARANCE,
     );
-    const placed: (lift: number) => {
-      ankle: IAutoMovieVector3;
-      rotation: IAutoMovieQuaternion;
-      low: number;
-    } = (
+    const placed: (lift: number) => IPrepareWalkReachSwingPlaced = (
       lift: number,
-    ): {
-      ankle: IAutoMovieVector3;
-      rotation: IAutoMovieQuaternion;
-      low: number;
-    } => {
+    ): IPrepareWalkReachSwingPlacedResult => {
       const at: IAutoMovieVector3 =
         lift === 0 ? ankle : { ...ankle, y: ankle.y + lift };
       const turned: IAutoMovieQuaternion = ankleRange(h, at, own);
@@ -220,17 +254,9 @@ export function prepareWalkReachSwing(
     // straight leg) hands over to a bisection on the lift, between the last
     // lift and the lift to hip height, where the foot hangs clear of any floor.
     let lift: number = 0;
-    let read: {
-      ankle: IAutoMovieVector3;
-      rotation: IAutoMovieQuaternion;
-      low: number;
-    } = placed(0);
+    let read: IPrepareWalkReachSwingRead = placed(0);
     while (read.low < target - SETTLED) {
-      const next: {
-        ankle: IAutoMovieVector3;
-        rotation: IAutoMovieQuaternion;
-        low: number;
-      } = placed(lift + target - read.low);
+      const next: IPrepareWalkReachSwingNext = placed(lift + target - read.low);
       if (
         next.low >= target - SETTLED ||
         target - next.low <= (target - read.low) / 2
@@ -241,18 +267,10 @@ export function prepareWalkReachSwing(
       }
       let low: number = lift + target - read.low;
       let high: number = Math.max(low, h.y - ankle.y);
-      let above: {
-        ankle: IAutoMovieVector3;
-        rotation: IAutoMovieQuaternion;
-        low: number;
-      } = placed(high);
+      let above: IPrepareWalkReachSwingAbove = placed(high);
       while (high - low > SETTLED) {
         const middle: number = (low + high) / 2;
-        const probe: {
-          ankle: IAutoMovieVector3;
-          rotation: IAutoMovieQuaternion;
-          low: number;
-        } = placed(middle);
+        const probe: IPrepareWalkReachSwingProbe = placed(middle);
         if (probe.low >= target) {
           high = middle;
           above = probe;

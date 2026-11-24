@@ -1,5 +1,6 @@
 import { Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanSeated,
@@ -9,8 +10,20 @@ import type {
 import { AutoMovieMotionHumanRange } from "../compose/AutoMovieMotionHumanRange";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { hipJoints } from "../posture/hipJoints";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { humanPostureHeading } from "../posture/humanPostureHeading";
+import { lowerHumanPosture } from "../posture/lowerHumanPosture";
 import { seated } from "./seated";
+
+/** The record of `IBACKSEntryItem`'s site. */
+type IBACKSEntryItem = {
+  pitch: number;
+  joints: Partial<
+    Record<AutoMovieHumanoidBone, readonly [number, number, number]>
+  >;
+};
+
+/** The alternatives of `BACKSEntryItem`'s site. */
+type BACKSEntryItem = "upright" | "lean" | "slump";
 
 /**
  * Where and how a sit sits: the backs it settles into, the feet the seated legs
@@ -22,17 +35,7 @@ export namespace sitPlace {
    * Seated pitch and trunk angles of each back the sit settles into, degrees:
    * `upright`, `lean` (back onto a backrest) and `slump` (provisional).
    */
-  export const BACKS: Readonly<
-    Record<
-      "upright" | "lean" | "slump",
-      {
-        pitch: number;
-        joints: Partial<
-          Record<AutoMovieHumanoidBone, readonly [number, number, number]>
-        >;
-      }
-    >
-  > = {
+  export const BACKS: Readonly<Record<BACKSEntryItem, IBACKSEntryItem>> = {
     upright: { pitch: 0, joints: {} },
     lean: { pitch: -12, joints: {} },
     slump: { pitch: -10, joints: { chest: [12, 0, 0], spine: [8, 0, 0] } },
@@ -42,7 +45,7 @@ export namespace sitPlace {
    * The distances from a hip joint at which a leg places its ankle, metres: the
    * knee flexed to the range table's limit (`AutoMovieMotionHumanRange`) at the
    * near end, and at the far end the knee kept at the least flexion of a
-   * planted leg (`resolveHumanPosture.KNEE`, Perry and Burnfield's knee at
+   * planted leg (`lowerHumanPosture.KNEE`, Perry and Burnfield's knee at
    * initial contact), each by the law of cosines on the thigh and the shank.
    * Sitting, getting onto a high seat and getting off it place feet within this
    * one band.
@@ -54,7 +57,7 @@ export namespace sitPlace {
    */
   export function band(
     body: IAutoMovieMotionHumanBody,
-    side: "left" | "right",
+    side: AutoMovieHumanSide,
   ): readonly [number, number] {
     const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
     const limit: number | null = AutoMovieMotionHumanRange.limit(
@@ -68,7 +71,7 @@ export namespace sitPlace {
           m.shank * m.shank +
           2 * m.thigh * m.shank * Math.cos((flexion * Math.PI) / 180),
       );
-    return [chord(limit), chord(resolveHumanPosture.KNEE)];
+    return [chord(limit), chord(lowerHumanPosture.KNEE)];
   }
 
   /**
@@ -87,7 +90,7 @@ export namespace sitPlace {
     body: IAutoMovieMotionHumanBody,
     seat: IAutoMovieMotionHumanSeated.ISeat,
     goal: IAutoMovieVector3,
-    feet: Record<"left" | "right", IAutoMovieVector3>,
+    feet: Record<AutoMovieHumanSide, IAutoMovieVector3>,
     pitch: number,
   ): void {
     const root: IAutoMovieVector3 = seated.root(body, goal, {
@@ -96,10 +99,10 @@ export namespace sitPlace {
       roll: 0,
     });
 
-    const hips: Record<"left" | "right", IAutoMovieVector3> = hipJoints(
+    const hips: Record<AutoMovieHumanSide, IAutoMovieVector3> = hipJoints(
       body,
       root,
-      resolveHumanPosture.heading({ yaw: seat.yaw, pitch, roll: 0 }),
+      humanPostureHeading({ yaw: seat.yaw, pitch, roll: 0 }),
     );
     for (const side of ["left", "right"] as const) {
       const [shortest, longest]: readonly [number, number] = band(body, side);

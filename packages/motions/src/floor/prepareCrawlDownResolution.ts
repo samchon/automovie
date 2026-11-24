@@ -7,6 +7,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { HumanBoneGroups } from "../posture/HumanBoneGroups";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
@@ -45,7 +46,7 @@ export function prepareCrawlDownResolution(
     prepareHumanPostureProjection(body);
   const shoulders: ReturnType<typeof poseBones.prepare> = poseBones.prepare(
     body,
-    SHOULDERS,
+    HumanBoneGroups.SHOULDERS,
   );
   const knees: ReturnType<typeof poseBones.prepare> = poseBones.prepare(
     body,
@@ -83,10 +84,6 @@ export function prepareCrawlDownResolution(
     pose,
   };
 }
-
-/** The hands-down lean predicate observes only the two shoulder frames. */
-const SHOULDERS: ReadonlySet<AutoMovieHumanoidBone> =
-  new Set<AutoMovieHumanoidBone>(["leftUpperArm", "rightUpperArm"]);
 
 /** The sitting-back contact predicate observes only the two knee frames. */
 const KNEES: ReadonlySet<AutoMovieHumanoidBone> =

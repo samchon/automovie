@@ -11,6 +11,27 @@ import type { AutoMovieMotionHumanBendRepeat } from "./AutoMovieMotionHumanBendR
 import { AutoMovieMotionHumanBendSearch } from "./AutoMovieMotionHumanBendSearch";
 import { AutoMovieMotionHumanBendSide } from "./AutoMovieMotionHumanBendSide";
 
+/** The alternatives of `BothFixed`'s site. */
+type BothFixed = "body" | "posture";
+
+/** The alternatives of `DefaultBendTrial`'s site. */
+type DefaultBendTrial = 0 | 1;
+
+/** The alternatives of `OfFound2`'s site. */
+type OfFound2 = AutoMovieMotionHumanBendSearch.ICandidate | string;
+
+/** The alternatives of `OfFound`'s site. */
+type OfFound = AutoMovieMotionHumanBendSearch.ICandidate | string;
+
+/** The alternatives of `OfTrial`'s site. */
+type OfTrial = 0 | 1;
+
+/** The alternatives of `OfFixed`'s site. */
+type OfFixed = "body" | "posture" | "side";
+
+/** The alternatives of `Goal`'s site. */
+type Goal = "point" | "rotation" | "fallback";
+
 /**
  * Actual solve/strain sweeps sharing fixed arm geometry and optional paired
  * trunk preparation.
@@ -20,10 +41,7 @@ export namespace AutoMovieMotionHumanBendPreparation {
    * Variable fields of the existing bend request, after body/trunk/side are
    * fixed.
    */
-  export type IGoal = Pick<
-    IAutoMovieMotionHumanBend.ISolve,
-    "point" | "rotation" | "fallback"
-  >;
+  export type IGoal = Pick<IAutoMovieMotionHumanBend.ISolve, Goal>;
 
   /** Two original numerical queries on one fixed body/trunk/side geometry. */
   export interface IPrepared {
@@ -39,32 +57,31 @@ export namespace AutoMovieMotionHumanBendPreparation {
    * sweeps.
    */
   export function of(
-    fixed: Pick<IAutoMovieMotionHumanBend.ISolve, "body" | "posture" | "side">,
+    fixed: Pick<IAutoMovieMotionHumanBend.ISolve, OfFixed>,
     source?: AutoMovieMotionHumanBendChain.IPrepared,
-    trial?: readonly [AutoMovieMotionHumanBendRepeat.IRead, 0 | 1],
+    trial?: readonly [AutoMovieMotionHumanBendRepeat.IRead, OfTrial],
   ): IPrepared {
     const search: ReturnType<typeof AutoMovieMotionHumanBendSearch.prepare> =
       AutoMovieMotionHumanBendSearch.prepare(fixed, source);
     return {
       solve: (goal: IGoal): IAutoMovieVector3 => {
-        const found: AutoMovieMotionHumanBendSearch.ICandidate | string =
-          search(
-            goal,
-            (): ((
-              candidate: AutoMovieMotionHumanBendSearch.ICandidate,
-            ) => AutoMovieMotionHumanBendSearch.IScore) =>
-              // A trial's witness compares the first score's exact strain, so
-              // only a search without one defers it.
-              trial === undefined
-                ? AutoMovieMotionHumanBendSearch.strained
-                : (
-                    candidate: AutoMovieMotionHumanBendSearch.ICandidate,
-                  ): AutoMovieMotionHumanBendSearch.IScore => ({
-                    overshoot: candidate.overshoot,
-                    deviation: candidate.strain,
-                  }),
-            trial,
-          );
+        const found: OfFound = search(
+          goal,
+          (): ((
+            candidate: AutoMovieMotionHumanBendSearch.ICandidate,
+          ) => AutoMovieMotionHumanBendSearch.IScore) =>
+            // A trial's witness compares the first score's exact strain, so
+            // only a search without one defers it.
+            trial === undefined
+              ? AutoMovieMotionHumanBendSearch.strained
+              : (
+                  candidate: AutoMovieMotionHumanBendSearch.ICandidate,
+                ): AutoMovieMotionHumanBendSearch.IScore => ({
+                  overshoot: candidate.overshoot,
+                  deviation: candidate.strain,
+                }),
+          trial,
+        );
         if (typeof found !== "string" && found.overshoot === 0)
           return found.elbow;
         if (goal.fallback !== undefined)
@@ -83,22 +100,21 @@ export namespace AutoMovieMotionHumanBendPreparation {
         });
       },
       strain: (goal: IGoal, bend: IAutoMovieVector3): number => {
-        const found: AutoMovieMotionHumanBendSearch.ICandidate | string =
-          search(
-            goal,
-            (
-              chain: Parameters<
-                Parameters<typeof AutoMovieMotionHumanBendSearch.search>[1]
-              >[0],
-            ): ((
-              candidate: AutoMovieMotionHumanBendSearch.ICandidate,
-            ) => AutoMovieMotionHumanBendSearch.IScore) =>
-              AutoMovieMotionHumanBendSide.prepare(
-                chain.shoulder,
-                goal.point,
-                bend,
-              ),
-          );
+        const found: OfFound2 = search(
+          goal,
+          (
+            chain: Parameters<
+              Parameters<typeof AutoMovieMotionHumanBendSearch.search>[1]
+            >[0],
+          ): ((
+            candidate: AutoMovieMotionHumanBendSearch.ICandidate,
+          ) => AutoMovieMotionHumanBendSearch.IScore) =>
+            AutoMovieMotionHumanBendSide.prepare(
+              chain.shoulder,
+              goal.point,
+              bend,
+            ),
+        );
         return typeof found === "string" || found.overshoot !== 0
           ? Infinity
           : found.strain;
@@ -109,7 +125,7 @@ export namespace AutoMovieMotionHumanBendPreparation {
   /** Select the original default elbow ranking for a current moving hand. */
   export function defaultBend(
     goal: IAutoMovieMotionHumanBend.ISolve,
-    trial?: readonly [AutoMovieMotionHumanBendRepeat.IRead, 0 | 1],
+    trial?: readonly [AutoMovieMotionHumanBendRepeat.IRead, DefaultBendTrial],
   ): IAutoMovieVector3 {
     return trial === undefined
       ? AutoMovieMotionHumanBend.solve(goal)
@@ -120,7 +136,7 @@ export namespace AutoMovieMotionHumanBendPreparation {
    * operation.
    */
   export function both(
-    fixed: Pick<IAutoMovieMotionHumanBend.ISolve, "body" | "posture">,
+    fixed: Pick<IAutoMovieMotionHumanBend.ISolve, BothFixed>,
     resolution?: Parameters<typeof AutoMovieMotionHumanBendChain.prepare>[2],
   ): (side: AutoMovieHumanSide) => IPrepared {
     let source: AutoMovieMotionHumanBendChain.IPrepared | undefined;

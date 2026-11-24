@@ -1,21 +1,3 @@
-# src/cinematics/IAutoMovieCheckExposureContinuity.ts#IAutoMovieCheckExposureContinuity
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Names the operation; its members document the cuts, the tolerance and the findings.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A namespace grouping the checker's input, cut and finding records.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-interface owns it for `checkAutoMovieExposureContinuity`.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-None present.
-
 # src/cinematics/IAutoMovieCheckExposureContinuity.ts#IAutoMovieCheckExposureContinuity.IProps
 
 ## @evidence contracts/development/common.md#meaningful-documentation

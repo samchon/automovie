@@ -1,5 +1,6 @@
 import { Vector3, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidSocket,
   IAutoMovieComposition,
   IAutoMovieMotionHumanPerformance,
@@ -10,6 +11,9 @@ import { clinch } from "../../grappling/clinch";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
 import { FamilyCaseKit } from "./FamilyCaseKit";
 import { everydayVerdicts } from "./everydayVerdicts";
+
+/** The record of `IGrappleCasesWorst`'s site. */
+type IGrappleCasesWorst = { value: number; where: string };
 
 /**
  * Capture cases of the grappling family: performer `a` takes a clinch grip on
@@ -56,10 +60,11 @@ export function grappleCases(
         );
       const segment = performance.segments("a")[0]!;
       const table = clinch.regions(grip, "right");
-      let worst: { value: number; where: string } = { value: 0, where: "none" };
+      let worst: IGrappleCasesWorst = { value: 0, where: "none" };
       for (const c of segment.plan.contacts) {
         if (c.kind !== "grip") continue;
-        const side: "left" | "right" = c.part === "leftHand" ? "left" : "right";
+        const side: AutoMovieHumanSide =
+          c.part === "leftHand" ? "left" : "right";
         const name: AutoMovieHumanoidSocket =
           grip === "plum"
             ? side === "left"

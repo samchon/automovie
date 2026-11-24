@@ -49,6 +49,19 @@ import { operateInsert } from "./operateInsert";
 import { operateInsertRoute } from "./operateInsertRoute";
 import { operateState } from "./operateState";
 
+/** The record of `IPlanStroke`'s site. */
+type IPlanStroke = {
+  contact: NonNullable<IAutoMovieMotionHumanArmPhrase.IStrokeProps["contact"]>;
+};
+
+/** The record of `IPACEItem`'s site. */
+type IPACEItem = {
+  press: number;
+  turn: number;
+  slide: number;
+  swing: number;
+};
+
 /**
  * Operating an articulated thing with one hand while standing: pressing a
  * button along its axis, turning a knob about its axis, pulling or pushing a
@@ -142,12 +155,12 @@ export namespace operate {
    * 0.25 s, a knob at 180 degrees a second, a slider at 0.4 m/s, a door's
    * handle at 0.6 m/s along its arc.
    */
-  export const PACE: Readonly<{
-    press: number;
-    turn: number;
-    slide: number;
-    swing: number;
-  }> = { press: 0.25, turn: 180, slide: 0.4, swing: 0.6 };
+  export const PACE: Readonly<IPACEItem> = {
+    press: 0.25,
+    turn: 180,
+    slide: 0.4,
+    swing: 0.6,
+  };
 
   /**
    * The share of the arm's length the wrist is kept within, so the elbow never
@@ -351,7 +364,8 @@ export namespace operate {
       : undefined;
     const corrections: IAutoMovieMotionHumanPrimitive[] = [];
     if (window !== null) {
-      let trunk: ReturnType<typeof prepareHumanTrunkBalance> | undefined;
+      const trunk: ReturnType<typeof prepareHumanTrunkBalance> | undefined =
+        window.by === "trunk" ? prepareHumanTrunkBalance(body) : undefined;
       corrections.push({
         ...reachLean,
         channels: reachLean?.channels ?? [
@@ -376,10 +390,8 @@ export namespace operate {
             ) ?? posture;
           const weight: number = HumanPhysics.weightAt(window, seconds);
           if (weight === 0) return posture;
-          if (window.by === "trunk") {
-            trunk ??= prepareHumanTrunkBalance(body);
+          if (trunk !== undefined)
             return trunk(posture, weight, resolution, projection);
-          }
           const direction: IAutoMovieVector3 = HumanFrame.forward(posture.yaw);
           const shift: HumanPhysics.SupportOffset = HumanPhysics.supportOffset(
             HumanBalance.support(body, posture, resolution, projection),
@@ -398,11 +410,7 @@ export namespace operate {
         },
       });
     }
-    const stroke: IAutoMovieMotionHumanArmPhrase.IStrokeProps & {
-      contact: NonNullable<
-        IAutoMovieMotionHumanArmPhrase.IStrokeProps["contact"]
-      >;
-    } = {
+    const stroke: IAutoMovieMotionHumanArmPhrase.IStrokeProps & IPlanStroke = {
       body,
       clock,
       side,

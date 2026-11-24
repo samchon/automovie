@@ -4,6 +4,7 @@ import {
   resolveAutoMovieHumanoidSurfaces,
 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieHumanoidSurfaces,
   IAutoMovieMotionHumanBody,
@@ -22,6 +23,21 @@ import { prepareHumanFootAt } from "./prepareHumanFootAt";
 import { prepareHumanFootHeight } from "./prepareHumanFootHeight";
 import { prepareHumanFootSole } from "./prepareHumanFootSole";
 import { readHumanFoot } from "./readHumanFoot";
+
+/** The alternatives of `PreparePointPoint`'s site. */
+type PreparePointPoint = "heel" | "ball" | "toe" | "sole" | "mtp";
+
+/** The alternatives of `PointPoint`'s site. */
+type PointPoint = "heel" | "ball" | "toe" | "sole" | "mtp";
+
+/** The alternatives of `PreparePivotPivot`'s site. */
+type PreparePivotPivot = "heel" | "ball" | "toe" | "sole" | "mtp";
+
+/** The record of `IHeadingPitchResult`'s site. */
+type IHeadingPitchResult = {
+  heading: number;
+  pitch: number;
+};
 
 /**
  * A foot on the floor as a rigid rocker: where its ankle and its sole points
@@ -88,7 +104,7 @@ export namespace HumanFoot {
   export function sockets(
     body: IAutoMovieMotionHumanBody,
     bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
-    side: "left" | "right",
+    side: AutoMovieHumanSide,
   ): IAutoMovieMotionHumanFoot.ISocket[] {
     return (["heel", "ball", "toe"] as const).map(
       (
@@ -139,7 +155,7 @@ export namespace HumanFoot {
   export function base(
     body: IAutoMovieMotionHumanBody,
     bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
-    sides: readonly ("left" | "right")[] = ["left", "right"],
+    sides: readonly AutoMovieHumanSide[] = ["left", "right"],
   ): IAutoMovieVector3[] {
     return readHumanFoot(body, bones).base(sides);
   }
@@ -155,7 +171,7 @@ export namespace HumanFoot {
    */
   export function sole(
     body: IAutoMovieMotionHumanBody,
-    side: "left" | "right",
+    side: AutoMovieHumanSide,
     foot: IAutoMovieMotionHumanFoot.IPlacement,
   ): IAutoMovieVector3[] {
     return prepareHumanFootSole(body, side)(foot);
@@ -173,7 +189,7 @@ export namespace HumanFoot {
    */
   export function lowest(
     body: IAutoMovieMotionHumanBody,
-    side: "left" | "right",
+    side: AutoMovieHumanSide,
     foot: IAutoMovieMotionHumanFoot.IPlacement,
   ): number {
     return Math.min(
@@ -299,10 +315,9 @@ export namespace HumanFoot {
    * @param rotation The foot's world rotation.
    * @returns A fresh degree-valued pair, preserving pitch beyond vertical.
    */
-  export function headingPitch(rotation: IAutoMovieQuaternion): {
-    heading: number;
-    pitch: number;
-  } {
+  export function headingPitch(
+    rotation: IAutoMovieQuaternion,
+  ): IHeadingPitchResult {
     const angle: number = heading(rotation);
     const toes: IAutoMovieVector3 = Quaternion.rotateVector(rotation, {
       x: 0,
@@ -371,7 +386,7 @@ export namespace HumanFoot {
    */
   export function edge(
     body: IAutoMovieMotionHumanBody,
-    side: "left" | "right",
+    side: AutoMovieHumanSide,
     border: number,
     half: number = body.measure.footBreadth / 2,
   ): IAutoMovieVector3 {
@@ -399,7 +414,7 @@ export namespace HumanFoot {
    */
   export function pivot(
     body: IAutoMovieMotionHumanBody,
-    side: "left" | "right",
+    side: AutoMovieHumanSide,
     pivot: Pivot,
     at: IAutoMovieVector3,
     heading: number,
@@ -434,8 +449,8 @@ export namespace HumanFoot {
    */
   export function preparePivot(
     body: IAutoMovieMotionHumanBody,
-    side: "left" | "right",
-    pivot: "heel" | "ball" | "toe" | "sole" | "mtp",
+    side: AutoMovieHumanSide,
+    pivot: PreparePivotPivot,
     at: IAutoMovieVector3,
     heading: number,
     toes: number = 0,
@@ -502,8 +517,8 @@ export namespace HumanFoot {
    */
   export function point(
     body: IAutoMovieMotionHumanBody,
-    side: "left" | "right",
-    point: "heel" | "ball" | "toe" | "sole" | "mtp",
+    side: AutoMovieHumanSide,
+    point: PointPoint,
     foot: IAutoMovieMotionHumanFoot.IPlacement,
     toes: number = 0,
   ): IAutoMovieVector3 {
@@ -522,8 +537,8 @@ export namespace HumanFoot {
    */
   export function preparePoint(
     body: IAutoMovieMotionHumanBody,
-    side: "left" | "right",
-    point: "heel" | "ball" | "toe" | "sole" | "mtp",
+    side: AutoMovieHumanSide,
+    point: PreparePointPoint,
     toes: number = 0,
   ): (foot: IAutoMovieMotionHumanFoot.IPlacement) => IAutoMovieVector3 {
     const local: IAutoMovieVector3 = offset(body, side, point, toes);

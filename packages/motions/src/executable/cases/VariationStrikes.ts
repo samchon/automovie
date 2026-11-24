@@ -28,6 +28,15 @@ import { StrikingLimb } from "./StrikingLimb";
 import { VariationSeries } from "./VariationSeries";
 import { strikingScenarios } from "./strikingScenarios";
 
+/** The record of `IReadResult`'s site. */
+type IReadResult = {
+  verdicts: IMotionCaptureCase.IVerdict[];
+  metrics: IReadMetricsResult;
+};
+
+/** The record of `IReadMetricsResult`'s site. */
+type IReadMetricsResult = { radius: number; wide: number; narrow: number };
+
 /**
  * The strike verdicts of the variation capture: the points a straight punch
  * aims at within the partner's abdomen over `VariationSeries.REPEATS` repeats
@@ -54,10 +63,7 @@ export namespace VariationStrikes {
   export function read(
     body: IAutoMovieMotionHumanBody,
     struck: IAutoMovieMotionHumanBody,
-  ): {
-    verdicts: IMotionCaptureCase.IVerdict[];
-    metrics: { radius: number; wide: number; narrow: number };
-  } {
+  ): IReadResult {
     const verdicts: IMotionCaptureCase.IVerdict[] = [];
     const radius: number = StrikingBody.radius(struck, "abdomen");
     const novice = strikes(body, struck, 0);
@@ -263,6 +269,12 @@ function strikes(
   }
   return out;
 }
+/** The record of `IDefendedReadResult`'s site. */
+type IDefendedReadResult = {
+  carried: IAutoMovieHumanoidSurfaces.ITangent | undefined;
+  audit: IAutoMovieVector3;
+  point: IAutoMovieVector3;
+};
 
 /**
  * Two performed, varied punches at the abdomen. Against a partner standing in
@@ -282,13 +294,7 @@ function defended(
     at: ABDOMEN,
     manner: { variation: 1, proficiency: 0 },
   } as const;
-  const read = (
-    manner: boolean,
-  ): {
-    carried: IAutoMovieHumanoidSurfaces.ITangent | undefined;
-    audit: IAutoMovieVector3;
-    point: IAutoMovieVector3;
-  } => {
+  const read = (manner: boolean): IDefendedReadResult => {
     const standing: IAutoMovieMotionHumanPerformance = VariationSeries.perform(
       body,
       ready(2)

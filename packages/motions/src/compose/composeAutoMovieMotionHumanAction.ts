@@ -3,6 +3,7 @@ import type {
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanComposeAutoMovieMotionHumanAction,
   IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanEvaluation,
   IAutoMovieMotionHumanFollow,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanPrimitive,
@@ -12,9 +13,26 @@ import type {
 
 import { HumanRefusal } from "../law/HumanRefusal";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
-import type { AutoMovieMotionHumanBendRepeat } from "./AutoMovieMotionHumanBendRepeat";
 import { AutoMovieMotionHumanChannel as HumanChannels } from "./AutoMovieMotionHumanChannel";
-import { HumanBendRead } from "./HumanBendRead";
+
+/** The alternatives of `SoDependency`'s site. */
+type SoDependency = number | ((seconds: number) => number);
+
+/**
+ * The alternatives of `ComposeAutoMovieMotionHumanActionDependenciesResult`'s
+ * site.
+ */
+type ComposeAutoMovieMotionHumanActionDependenciesResult =
+  | number
+  | ((seconds: number) => number);
+
+/**
+ * The alternatives of `ComposeAutoMovieMotionHumanActionDependenciesItem`'s
+ * site.
+ */
+type ComposeAutoMovieMotionHumanActionDependenciesItem =
+  | number
+  | ((seconds: number) => number);
 
 /**
  * An action composed of part primitives over a base.
@@ -133,8 +151,11 @@ export function composeAutoMovieMotionHumanAction(
    * `later`, made when a second one is read.
    */
   interface Evaluation {
-    /** Contextual numeric loan, owned by one explicit native raw evaluation. */
-    bend?: AutoMovieMotionHumanBendRepeat.IRead;
+    /**
+     * The explicit context the plan's posture was called with, which every
+     * primitive's write of this evaluation receives.
+     */
+    evaluation?: IAutoMovieMotionHumanEvaluation;
 
     /** The first clamped second this evaluation read; absent until one is. */
     seconds: number | undefined;
@@ -169,11 +190,11 @@ export function composeAutoMovieMotionHumanAction(
     (p: IAutoMovieMotionHumanPrimitive): Merger =>
       HumanChannels.prepareMerge(p.channels),
   );
-  const dependencies: (number | ((seconds: number) => number))[] =
+  const dependencies: ComposeAutoMovieMotionHumanActionDependenciesItem[] =
     primitives.map(
       (
         p: IAutoMovieMotionHumanPrimitive,
-      ): number | ((seconds: number) => number) => {
+      ): ComposeAutoMovieMotionHumanActionDependenciesResult => {
         const reads: IAutoMovieMotionHumanPrimitive["reads"] = p.reads;
         return reads === undefined
           ? all
@@ -285,25 +306,6 @@ export function composeAutoMovieMotionHumanAction(
         }),
     posture,
   };
-  if (
-    primitives.some((primitive: IAutoMovieMotionHumanPrimitive): boolean =>
-      HumanBendRead.writes.has(primitive),
-    )
-  )
-    HumanBendRead.postures.set(
-      posture,
-      (
-        bend: AutoMovieMotionHumanBendRepeat.IRead,
-        seconds: number,
-      ): IAutoMovieMotionHumanPosture =>
-        evaluate(
-          (current: Evaluation): IAutoMovieMotionHumanPosture =>
-            so(primitives.length, seconds, current, all),
-          undefined,
-          undefined,
-          bend,
-        ),
-    );
   return plan;
 
   function posture(
@@ -311,6 +313,7 @@ export function composeAutoMovieMotionHumanAction(
     channels?: readonly AutoMovieMotionHumanChannel[],
     source?: Resolution,
     projector?: Projection,
+    evaluation?: IAutoMovieMotionHumanEvaluation,
   ): IAutoMovieMotionHumanPosture {
     return evaluate(
       (current: Evaluation): IAutoMovieMotionHumanPosture =>
@@ -322,6 +325,7 @@ export function composeAutoMovieMotionHumanAction(
         ),
       source,
       projector,
+      evaluation,
     );
   }
 
@@ -333,7 +337,7 @@ export function composeAutoMovieMotionHumanAction(
     run: (current: Evaluation) => T,
     source?: Resolution,
     projector?: Projection,
-    bend?: AutoMovieMotionHumanBendRepeat.IRead,
+    evaluation?: IAutoMovieMotionHumanEvaluation,
   ): T {
     const previous: Evaluation | undefined = scope;
     const previousResolution: Resolution = resolution;
@@ -342,7 +346,7 @@ export function composeAutoMovieMotionHumanAction(
       seconds: undefined,
       first: undefined,
       later: undefined,
-      ...(bend === undefined ? {} : { bend }),
+      ...(evaluation === undefined ? {} : { evaluation }),
     };
     scope = current;
     resolution = source;
@@ -423,8 +427,7 @@ export function composeAutoMovieMotionHumanAction(
       (masks[previous]! & demand) !== 0 &&
       t >= p.from - 1e-9 &&
       t <= p.to + 1e-9;
-    const dependency: number | ((seconds: number) => number) =
-      dependencies[previous]!;
+    const dependency: SoDependency = dependencies[previous]!;
     const needed: number = contributes
       ? (demand & ~masks[previous]!) |
         (typeof dependency === "function"
@@ -437,29 +440,18 @@ export function composeAutoMovieMotionHumanAction(
       current,
       needed,
     );
-    if (contributes) {
-      const contextual: HumanBendRead.Write | undefined =
-        current.bend === undefined ? undefined : HumanBendRead.writer(p);
+    if (contributes)
       posture = mergers[previous]!(
         posture,
-        contextual === undefined
-          ? p.write(
-              posture,
-              Math.min(p.to, Math.max(p.from, t)),
-              readers[previous]!,
-              resolution,
-              projection,
-            )
-          : contextual(
-              current.bend!,
-              posture,
-              Math.min(p.to, Math.max(p.from, t)),
-              readers[previous]!,
-              resolution,
-              projection,
-            ),
+        p.write(
+          posture,
+          Math.min(p.to, Math.max(p.from, t)),
+          readers[previous]!,
+          resolution,
+          projection,
+          current.evaluation,
+        ),
       );
-    }
     postures.set(key, posture);
     return posture;
   }

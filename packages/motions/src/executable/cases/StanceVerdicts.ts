@@ -1,5 +1,6 @@
 import { resolveAutoMovieCenterOfMass } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieJointPose,
   IAutoMovieMotionHumanBody,
@@ -9,6 +10,12 @@ import type {
 
 import { AutoMovieMotionHumanAuditBalance } from "../../audit/AutoMovieMotionHumanAuditBalance";
 import { HumanFoot } from "../../posture/HumanFoot";
+
+/** The record of `IWorstOutsideWorst`'s site. */
+type IWorstOutsideWorst = { value: number; at: number };
+
+/** The record of `IWorstOutsideResult`'s site. */
+type IWorstOutsideResult = { value: number; at: number };
 
 /**
  * Measures of a held stance on displayed poses, shared by the step 4 capture
@@ -34,7 +41,7 @@ export namespace StanceVerdicts {
     performance: IAutoMovieMotionHumanPerformance,
     subject: string,
     body: IAutoMovieMotionHumanBody,
-    side: "left" | "right",
+    side: AutoMovieHumanSide,
     seconds: number,
   ): number {
     const centre: (t: number) => IAutoMovieVector3 = (
@@ -87,11 +94,11 @@ export namespace StanceVerdicts {
     performance: IAutoMovieMotionHumanPerformance,
     subject: string,
     body: IAutoMovieMotionHumanBody,
-    side: "left" | "right",
+    side: AutoMovieHumanSide,
     from: number,
     to: number,
-  ): { value: number; at: number } {
-    let worst: { value: number; at: number } = { value: -Infinity, at: from };
+  ): IWorstOutsideResult {
+    let worst: IWorstOutsideWorst = { value: -Infinity, at: from };
     for (let t: number = from; t <= to + 1e-9; t += 1 / 24) {
       const v: number = outside(performance, subject, body, side, t);
       if (v > worst.value) worst = { value: v, at: t };

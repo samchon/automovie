@@ -19,6 +19,9 @@ import { HumanQuadraticProgram } from "./HumanQuadraticProgram";
 import { HumanQuadraticValue } from "./HumanQuadraticValue";
 import { HumanSequentialConvex } from "./HumanSequentialConvex";
 
+/** The alternatives of `Fit`'s site. */
+type Fit = "body" | "posture";
+
 /**
  * A whole-body fit: the static posture nearest a preferred one in which points
  * of the body reach their goals, the parts that bear rest on the floor, nothing
@@ -96,8 +99,7 @@ export namespace HumanBodyFit {
     const {
       body,
       posture,
-    }: Pick<IAutoMovieMotionHumanBodyFitTypes.IProps, "body" | "posture"> =
-      props;
+    }: Pick<IAutoMovieMotionHumanBodyFitTypes.IProps, Fit> = props;
     const variables: readonly IAutoMovieMotionHumanJacobian.IVariable[] =
       props.variables ?? HumanFitVariables.BODY;
     const targets: readonly IAutoMovieMotionHumanBodyFitTypes.ITarget[] =

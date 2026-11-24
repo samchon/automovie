@@ -1,5 +1,6 @@
 import { Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -26,12 +27,12 @@ import { standUpright } from "./standUpright";
  */
 export function standRoot(
   body: IAutoMovieMotionHumanBody,
-  feet: Readonly<Record<"left" | "right", IAutoMovieVector3>>,
+  feet: Readonly<Record<AutoMovieHumanSide, IAutoMovieVector3>>,
   yaw: number,
   drop: number,
 ): IAutoMovieVector3 {
   const placed: IAutoMovieVector3 = level(body, feet, yaw, drop);
-  const quiet: Record<"left" | "right", IAutoMovieVector3> = {
+  const quiet: Record<AutoMovieHumanSide, IAutoMovieVector3> = {
     left: { ...body.rest.get("leftFoot")!, y: body.measure.ankleHeight },
     right: { ...body.rest.get("rightFoot")!, y: body.measure.ankleHeight },
   };
@@ -67,7 +68,7 @@ export function standRoot(
  */
 function level(
   body: IAutoMovieMotionHumanBody,
-  feet: Readonly<Record<"left" | "right", IAutoMovieVector3>>,
+  feet: Readonly<Record<AutoMovieHumanSide, IAutoMovieVector3>>,
   yaw: number,
   drop: number,
 ): IAutoMovieVector3 {

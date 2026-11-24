@@ -13,6 +13,9 @@ import type {
 
 import { carryHumanPosture } from "../posture/carryHumanPosture";
 
+/** The alternatives of `SitCarriedContext`'s site. */
+type SitCarriedContext = "prop" | "start";
+
 /**
  * A sit onto the seat of a prop that may move, carried by that prop: the seat
  * is read where its carrier stands when the sit begins, so the plan is made in
@@ -39,7 +42,7 @@ import { carryHumanPosture } from "../posture/carryHumanPosture";
  * @returns The plan carried by the seat's carrier.
  */
 export function sitCarried(
-  context: Pick<IAutoMovieMotionHumanActionContext, "prop" | "start">,
+  context: Pick<IAutoMovieMotionHumanActionContext, SitCarriedContext>,
   seat: IAutoMovieMotionHumanSeated.ISeat,
   plan: IAutoMovieMotionHumanActionPlan,
   declared: boolean = false,

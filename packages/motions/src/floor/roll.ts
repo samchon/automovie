@@ -16,11 +16,15 @@ import type {
 import { prepareHumanShapeBlend } from "../handling/prepareHumanShapeBlend";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanPreparedPlayback } from "../perform/HumanPreparedPlayback";
+import { HumanBoneGroups } from "../posture/HumanBoneGroups";
 import { HumanFrame } from "../posture/HumanFrame";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+
+/** The alternatives of `PlanContactsPart`'s site. */
+type PlanContactsPart = "leftFoot" | "rightFoot";
 
 /**
  * A forward or backward roll on the floor: the body crouches into a tuck over
@@ -207,9 +211,7 @@ export namespace roll {
     const share = (seconds: number): number => seconds / duration;
     const contacts: IAutoMovieMotionHumanContactWindow[] = [
       ...(["leftFoot", "rightFoot"] as const).flatMap(
-        (
-          part: "leftFoot" | "rightFoot",
-        ): IAutoMovieMotionHumanContactWindow[] => [
+        (part: PlanContactsPart): IAutoMovieMotionHumanContactWindow[] => [
           {
             part,
             kind: "plant",
@@ -263,7 +265,7 @@ export namespace roll {
     };
     const observe: ReturnType<typeof poseBones.prepare> = poseBones.prepare(
       body,
-      FEET,
+      HumanBoneGroups.FEET,
     );
     let blend: typeof joints;
     HumanPreparedPlayback.attach(planned, body, {
@@ -323,15 +325,9 @@ export namespace roll {
     function rawAnkles(
       pose: ReturnType<typeof resolveHumanPosture>,
     ): ReturnType<typeof poseBones> {
-      return poseBones(body, pose, undefined, FEET);
+      return poseBones(body, pose, undefined, HumanBoneGroups.FEET);
     }
   }
-
-  /** Only the ankles place each crouch on its authored floor points. */
-  const FEET: ReadonlySet<AutoMovieHumanoidBone> = new Set([
-    "leftFoot",
-    "rightFoot",
-  ]);
 }
 
 /**

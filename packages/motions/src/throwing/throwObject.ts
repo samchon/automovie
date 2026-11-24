@@ -47,6 +47,9 @@ import { throwObjectLever } from "./throwObjectLever";
 import { throwObjectRelease } from "./throwObjectRelease";
 import { throwObjectSwing } from "./throwObjectSwing";
 
+/** The alternatives of `GripFrame2`'s site. */
+type GripFrame2 = "point" | "rotation";
+
 /**
  * Throwing a held object to a target: overarm, underarm, or a gentle toss.
  *
@@ -254,10 +257,7 @@ export namespace throwObject {
      * Actual world grip-surface point and hand attitude, before inverse wrist
      * placement.
      */
-    type GripFrame = Pick<
-      IAutoMovieMotionHumanArmTarget.ITarget,
-      "point" | "rotation"
-    >;
+    type GripFrame = Pick<IAutoMovieMotionHumanArmTarget.ITarget, GripFrame2>;
     const restAt: (posture: IAutoMovieMotionHumanPosture) => GripFrame = (
       posture: IAutoMovieMotionHumanPosture,
     ): GripFrame => ({

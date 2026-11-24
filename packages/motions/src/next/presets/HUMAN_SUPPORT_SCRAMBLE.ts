@@ -16,11 +16,6 @@ const HALF_KNEEL: IAutoMovieMotionHumanSupport.IStance["prefer"] =
  * stance takes the planner's `SECONDS`, 1 s, so about 4 s (provisional: no
  * timing study). Passed as `support`'s `stances`; the `scramble` row of
  * `HumanSupportRows` reads it.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the stances, the insets, the time and what is provisional.
- * @evidence contracts/development/design.md#principled-representation The stances as the support planner's own data, with the floor laws' standing key.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Re-exported as `AutoMovieMotionHumanSupport.SCRAMBLE`; the scramble row reads it.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts None: the row and the preset share one value instead of two copies.
  */
 export const HUMAN_SUPPORT_SCRAMBLE: IAutoMovieMotionHumanSupport.IPreset = {
   stances: [

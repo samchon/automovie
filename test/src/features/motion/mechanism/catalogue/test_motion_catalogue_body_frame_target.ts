@@ -22,6 +22,7 @@ import {
   AutoMovieMotionHumanTarget,
   HumanFoot,
   HumanHand,
+  humanPostureHeading,
   poseBones,
   resolveHumanPosture,
 } from "@automovie/motions/internal";
@@ -30,42 +31,40 @@ import { motionComplaints } from "../../../internal/motionComplaints";
 import { motionHumanBody } from "../../../internal/motionHumanBody";
 
 /**
- * The places a law reads around a posture (`AutoMovieMotionHumanPlaced`)
- * and the arm goals that lay a hand on them
- * (`AutoMovieMotionHumanArm.origin`, `goal`, `carried`), on the average
- * man.
+ * The places a law reads around a posture (`AutoMovieMotionHumanPlaced`) and
+ * the arm goals that lay a hand on them (`AutoMovieMotionHumanArm.origin`,
+ * `goal`, `carried`), on the average man.
  *
  * Every place is checked on the engine's forward kinematics of a posture: a
- * root from `root` holds the resting point on the asked world point; the
- * pitch from `pitch` stands the resting shoulders' midpoint (`girdle`) the
- * asked height above the hips; `joint` and `shoulders` are the displayed
- * joints; `carried` keeps a point's place in the chest's frame; `grid`
- * reads a place from the floor point under the hips, so a trunk pitched
- * over the same hips reads the same place. A hand laid by a goal lies on its
- * target: the wrist from `wrist` or `goal`, turned as asked, puts the
- * surface on the point.
+ * root from `root` holds the resting point on the asked world point; the pitch
+ * from `pitch` stands the resting shoulders' midpoint (`girdle`) the asked
+ * height above the hips; `joint` and `shoulders` are the displayed joints;
+ * `carried` keeps a point's place in the chest's frame; `grid` reads a place
+ * from the floor point under the hips, so a trunk pitched over the same hips
+ * reads the same place. A hand laid by a goal lies on its target: the wrist
+ * from `wrist` or `goal`, turned as asked, puts the surface on the point.
  *
  * Scenarios:
- * 1. `girdle` is the resting shoulders' midpoint; `root` at headings and
- *    tilts holds the resting hips on the asked point; `pitch` stands the
- *    girdle the asked height above the hips for five rises, and a rise past
- *    the trunk's length reads the nearest end.
- * 2. `joint`, `shoulders` and `carried` on the stance and on a trunk pitched
- *    by 30 degrees.
- * 3. `grid` reads the same place on the upright stance and on a trunk
- *    pitched over the same hips, at the stated heights and distances.
- * 4. `wrist` and `AutoMovieMotionHumanArm.goal` put the palm on the point,
- *    facing as asked; `AutoMovieMotionHumanArm.origin` read on the stance
- *    and carried back by `AutoMovieMotionHumanArm.point` is the palm's
- *    displayed point.
- * 5. `AutoMovieMotionHumanPlaced.arm` claims the arm and the hand; at weight
- *    0 it holds the rest angles and at weight 1 its arm, resolved, lays the
- *    palm within 10 mm of a place ahead at chest height.
- * 6. `AutoMovieMotionHumanTarget.hand` lays the palm on a table-top place
- *    facing down against its normal; `AutoMovieMotionHumanTarget.foot` puts
- *    the ball on a floor place, flat, along the heading;
- *    `AutoMovieMotionHumanArm.carried` claims the arm, holds its rest at
- *    weight 0 and takes its goal at weight 1.
+ *
+ * 1. `girdle` is the resting shoulders' midpoint; `root` at headings and tilts
+ *    holds the resting hips on the asked point; `pitch` stands the girdle the
+ *    asked height above the hips for five rises, and a rise past the trunk's
+ *    length reads the nearest end.
+ * 2. `joint`, `shoulders` and `carried` on the stance and on a trunk pitched by 30
+ *    degrees.
+ * 3. `grid` reads the same place on the upright stance and on a trunk pitched over
+ *    the same hips, at the stated heights and distances.
+ * 4. `wrist` and `AutoMovieMotionHumanArm.goal` put the palm on the point, facing
+ *    as asked; `AutoMovieMotionHumanArm.origin` read on the stance and carried
+ *    back by `AutoMovieMotionHumanArm.point` is the palm's displayed point.
+ * 5. `AutoMovieMotionHumanPlaced.arm` claims the arm and the hand; at weight 0 it
+ *    holds the rest angles and at weight 1 its arm, resolved, lays the palm
+ *    within 10 mm of a place ahead at chest height.
+ * 6. `AutoMovieMotionHumanTarget.hand` lays the palm on a table-top place facing
+ *    down against its normal; `AutoMovieMotionHumanTarget.foot` puts the ball
+ *    on a floor place, flat, along the heading;
+ *    `AutoMovieMotionHumanArm.carried` claims the arm, holds its rest at weight
+ *    0 and takes its goal at weight 1.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Reads every place against the forward kinematics of real postures and lays a real arm; a root off its pivot, a wrong pitch, a joint read off the wrong pose, a grid anchored on the root or a hand off its target fails.
  * @evidence contracts/development/testing.md#independent-expectations Every expectation is a displayed bone or a stated point, never the function's own arithmetic.
@@ -140,7 +139,7 @@ export function test_motion_catalogue_body_frame_target(): void {
       skeleton: body.skeleton.id,
       root: {
         translation: root,
-        rotation: resolveHumanPosture.heading(turn),
+        rotation: humanPostureHeading(turn),
         scale: { x: 1, y: 1, z: 1 },
       },
       joints: [],

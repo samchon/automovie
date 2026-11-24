@@ -16,26 +16,26 @@ import { TestValidator } from "@nestia/e2e";
 import { motionHumanBody } from "../../internal/motionHumanBody";
 
 /**
- * Pedestrians in two opposing flows part around a carriage crossing the
- * street and close behind it: nobody walks through the carriage or through
- * anybody, everybody arrives, and the same seed steers them the same way.
+ * Pedestrians in two opposing flows part around a carriage crossing the street
+ * and close behind it: nobody walks through the carriage or through anybody,
+ * everybody arrives, and the same seed steers them the same way.
  *
  * Scenarios, 40 civilians on three bodies in two flows of 20 along a street,
- * each three abreast 0.8 m apart in ranks 1.1 m apart, a 2.4 by 1.6 m
- * carriage footprint crossing it at 3 m/s:
- * 1. No member's course comes within its shoulders' half breadth of the
- *    carriage's footprint at any 1/24 s sample.
- * 2. No two members' courses come within their summed half breadths at any
- *    1/24 s sample (the pass reports no contact).
+ * each three abreast 0.8 m apart in ranks 1.1 m apart, a 2.4 by 1.6 m carriage
+ * footprint crossing it at 3 m/s:
+ *
+ * 1. No member's course comes within its shoulders' half breadth of the carriage's
+ *    footprint at any 1/24 s sample.
+ * 2. No two members' courses come within their summed half breadths at any 1/24 s
+ *    sample (the pass reports no contact).
  * 3. Every member reaches its goal before the pass ends: the course over the
- *    slowest desired speed the law can draw, plus the law's start and
- *    arrival times.
+ *    slowest desired speed the law can draw, plus the law's start and arrival
+ *    times.
  * 4. Steering again with the same seed gives bit-identical courses.
- * 5. Moving the whole scene by (4, 0, -2) m moves every course by the same
- *    vector within 1e-6 m over the first second, inside the divergence a
- *    crowd of 40 was measured to show (1.8e-15 m at 0 s, 1.2e-6 m at 2 s),
- *    and every member of the moved scene arrives (the pass refuses any
- *    contact in it too).
+ * 5. Moving the whole scene by (4, 0, -2) m moves every course by the same vector
+ *    within 1e-6 m over the first second, inside the divergence a crowd of 40
+ *    was measured to show (1.8e-15 m at 0 s, 1.2e-6 m at 2 s), and every member
+ *    of the moved scene arrives (the pass refuses any contact in it too).
  * 6. Authored groups of two and four receive exactly one sampled course and
  *    arrival each, with independent route goals for the two leaders.
  *
@@ -76,7 +76,12 @@ export function test_motion_ensemble_crowd_parting(): void {
     tau +
     tau *
       steerAutoMovieCrowd.ARRIVAL *
-      Math.log(near / Math.min(...e.members.map(AutoMovieMotionHumanEnsemble.HumanCrowd.half)));
+      Math.log(
+        near /
+          Math.min(
+            ...e.members.map(AutoMovieMotionHumanEnsemble.HumanCrowd.half),
+          ),
+      );
   const scene = (dx: number, dz: number): IScene => {
     const ensemble: IAutoMovieMotionHumanEnsemble.IEnsemble =
       AutoMovieMotionHumanEnsemble.HumanEnsemble.of({
@@ -117,9 +122,8 @@ export function test_motion_ensemble_crowd_parting(): void {
         yaw: 90,
       }),
     };
-    const result: IAutoMovieMotionHumanCrowd.IResult = AutoMovieMotionHumanEnsemble.HumanCrowd.steer(
-      ensemble,
-      {
+    const result: IAutoMovieMotionHumanCrowd.IResult =
+      AutoMovieMotionHumanEnsemble.HumanCrowd.steer(ensemble, {
         goals: (
           m: IAutoMovieMotionHumanEnsemble.IMember,
         ): IAutoMovieVector3 => ({
@@ -131,8 +135,7 @@ export function test_motion_ensemble_crowd_parting(): void {
         start: 0,
         until: spanOf(ensemble),
         obstacles: [carriage],
-      },
-    );
+      });
     return { result, ensemble, carriage };
   };
   const { result, ensemble, carriage }: IScene = scene(0, 0);
@@ -141,8 +144,10 @@ export function test_motion_ensemble_crowd_parting(): void {
     frame: IAutoMovieMotionHumanFormation.ICourse,
     t: number,
   ): IAutoMovieVector3 =>
-    AutoMovieMotionHumanEnsemble.HumanFormation.frame({ blocks: [], frame }, t)
-      .at;
+    AutoMovieMotionHumanEnsemble.HumanFormation.prepare({
+      blocks: [],
+      frame,
+    }).frame(t).at;
   for (let t: number = 0; t <= SPAN; t += 1 / 24) {
     const c: IAutoMovieVector3 = carriage.motion!(t).position;
     const points: IAutoMovieVector3[] = result.frames.map(
@@ -150,7 +155,9 @@ export function test_motion_ensemble_crowd_parting(): void {
         at(f, t),
     );
     for (const [i, p] of points.entries()) {
-      const half: number = AutoMovieMotionHumanEnsemble.HumanCrowd.half(ensemble.members[i]!);
+      const half: number = AutoMovieMotionHumanEnsemble.HumanCrowd.half(
+        ensemble.members[i]!,
+      );
 
       // The carriage faces +X: its 2.4 m runs along X, its 1.6 m along Z.
       const gap: number = Math.hypot(
@@ -166,7 +173,9 @@ export function test_motion_ensemble_crowd_parting(): void {
       }
       for (let j: number = i + 1; j < points.length; ++j) {
         const d: number = Math.hypot(points[j]!.x - p.x, points[j]!.z - p.z);
-        const sum: number = half + AutoMovieMotionHumanEnsemble.HumanCrowd.half(ensemble.members[j]!);
+        const sum: number =
+          half +
+          AutoMovieMotionHumanEnsemble.HumanCrowd.half(ensemble.members[j]!);
         if (d < sum - 1e-6) {
           findings.push(
             `${ensemble.members[i]!.subject} and ${ensemble.members[j]!.subject} are ${d.toFixed(3)} m apart at ${t.toFixed(2)} s, within ${sum.toFixed(3)} m`,
@@ -222,21 +231,22 @@ export function test_motion_ensemble_crowd_parting(): void {
       }),
     });
   const requested: number[] = [];
-  const groups: IAutoMovieMotionHumanCrowd.IResult = AutoMovieMotionHumanEnsemble.HumanCrowd.steer(grouped, {
-    goals: (
-      member: IAutoMovieMotionHumanEnsemble.IMember,
-    ): IAutoMovieVector3 => {
-      requested.push(member.index);
-      return { ...member.place.at, z: 2 };
-    },
-    gait: "walk",
-    start: 3,
-    until: 10,
-    groups: [
-      { index: 0, members: [0, 1] },
-      { index: 1, members: [2, 3, 4, 5] },
-    ],
-  });
+  const groups: IAutoMovieMotionHumanCrowd.IResult =
+    AutoMovieMotionHumanEnsemble.HumanCrowd.steer(grouped, {
+      goals: (
+        member: IAutoMovieMotionHumanEnsemble.IMember,
+      ): IAutoMovieVector3 => {
+        requested.push(member.index);
+        return { ...member.place.at, z: 2 };
+      },
+      gait: "walk",
+      start: 3,
+      until: 10,
+      groups: [
+        { index: 0, members: [0, 1] },
+        { index: 1, members: [2, 3, 4, 5] },
+      ],
+    });
   TestValidator.equals(
     "only authored group leaders supply goals",
     requested,

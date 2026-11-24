@@ -17,6 +17,8 @@ import type { AutoMovieMotionHumanBendRepeat } from "../compose/AutoMovieMotionH
 type ITargetEmitter = ReturnType<
   typeof AutoMovieMotionHumanArmTarget.prepareTarget
 >;
+/** The alternatives of `AssembleHumanHandTargetTrial`'s site. */
+type AssembleHumanHandTargetTrial = 0 | 1;
 
 /** Assemble a full hand target with its original default or authored elbow. */
 export function assembleHumanHandTarget(
@@ -30,7 +32,10 @@ export function assembleHumanHandTarget(
   rotation: IAutoMovieQuaternion,
   wrist: () => IAutoMovieVector3,
   emit?: ITargetEmitter,
-  trial?: readonly [AutoMovieMotionHumanBendRepeat.IRead, 0 | 1],
+  trial?: readonly [
+    AutoMovieMotionHumanBendRepeat.IRead,
+    AssembleHumanHandTargetTrial,
+  ],
 ): IAutoMovieMotionHumanArmTarget.ITarget {
   const bend: IAutoMovieVector3 =
     options.bend === undefined && options.out === undefined

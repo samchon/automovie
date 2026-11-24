@@ -33,6 +33,9 @@ import { measureRidePalmDepth } from "./measureRidePalmDepth";
 import { readRideHandles } from "./readRideHandles";
 import { sideRideGrips } from "./sideRideGrips";
 
+/** The alternatives of `OfBowAngles`'s site. */
+type OfBowAngles = "yaw" | "pitch" | "roll";
+
 /**
  * The hands of a ride (`HumanRide`): the support's points they are told to
  * hold, checked against the support, the trunk's lean that brings them in
@@ -191,10 +194,7 @@ export namespace HumanRideHands {
     const bow = (degrees: number): IAutoMovieMotionHumanPosture => {
       if (degrees === 0) return seated;
       if (!fixedSeat) return HumanMountRider.leant(seated, degrees);
-      const angles: Pick<
-        IAutoMovieMotionHumanPosture,
-        "yaw" | "pitch" | "roll"
-      > = {
+      const angles: Pick<IAutoMovieMotionHumanPosture, OfBowAngles> = {
         yaw: seated.yaw,
         pitch: seated.pitch + degrees,
         roll: seated.roll,

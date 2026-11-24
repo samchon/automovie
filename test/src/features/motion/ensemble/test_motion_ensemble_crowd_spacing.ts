@@ -11,7 +11,9 @@ import { motionHumanBody } from "../../internal/motionHumanBody";
  * A formation retains its grid spacing when its frame translates and turns.
  *
  * Scenarios:
- * 1. Place each member of two ranks of two on the stated rank and file spacings, with and without a bounded dressing offset.
+ *
+ * 1. Place each member of two ranks of two on the stated rank and file spacings,
+ *    with and without a bounded dressing offset.
  * 2. Compare pairwise separations after translating and rotating the entire frame.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names the frame, units and membership geometry under test.
@@ -48,7 +50,7 @@ export function test_motion_ensemble_crowd_spacing(): void {
       const rank: number = Math.floor(i / 2);
       const file: number = i % 2;
       const at: IAutoMovieVector3 =
-        AutoMovieMotionHumanEnsemble.HumanFormation.slot(f, i, 0).at;
+        AutoMovieMotionHumanEnsemble.HumanFormation.prepare(f).slot(i, 0).at;
 
       // Facing +Z, the frame's right is -X and its rear -Z.
       const lattice: IAutoMovieVector3 = {
@@ -72,11 +74,9 @@ export function test_motion_ensemble_crowd_spacing(): void {
   }
   if (
     !(
-      AutoMovieMotionHumanEnsemble.HumanFormation.slot(
+      AutoMovieMotionHumanEnsemble.HumanFormation.prepare(
         AutoMovieMotionHumanEnsemble.HumanFormation.of(line(0)),
-        0,
-        0,
-      ).at.x > 0
+      ).slot(0, 0).at.x > 0
     )
   )
     findings.push("file 0 does not stand on the frame's left");
@@ -93,9 +93,9 @@ export function test_motion_ensemble_crowd_spacing(): void {
     j: number,
   ): number => {
     const a: IAutoMovieVector3 =
-      AutoMovieMotionHumanEnsemble.HumanFormation.slot(f, i, 0).at;
+      AutoMovieMotionHumanEnsemble.HumanFormation.prepare(f).slot(i, 0).at;
     const b: IAutoMovieVector3 =
-      AutoMovieMotionHumanEnsemble.HumanFormation.slot(f, j, 0).at;
+      AutoMovieMotionHumanEnsemble.HumanFormation.prepare(f).slot(j, 0).at;
     return Math.hypot(a.x - b.x, a.z - b.z);
   };
   for (let i: number = 0; i < 4; ++i)
@@ -108,7 +108,10 @@ export function test_motion_ensemble_crowd_spacing(): void {
   TestValidator.equals("formation spacing and frame", findings, []);
 }
 
-/** Two walkers and a translating square directly exercise agent and obstacle clearance. */
+/**
+ * Two walkers and a translating square directly exercise agent and obstacle
+ * clearance.
+ */
 function checkCrossing(): void {
   const body = motionHumanBody("m-average");
   const ensemble = AutoMovieMotionHumanEnsemble.HumanEnsemble.of({
@@ -149,15 +152,17 @@ function checkCrossing(): void {
     result.arrivals.length === 2 &&
       result.arrivals.every((time) => time !== null),
   );
-  const radii = ensemble.members.map(AutoMovieMotionHumanEnsemble.HumanCrowd.half);
+  const radii = ensemble.members.map(
+    AutoMovieMotionHumanEnsemble.HumanCrowd.half,
+  );
   for (let frame = 0; frame <= 24 * end; ++frame) {
     const time = frame / 24;
     const [left, right] = result.frames.map(
       (course) =>
-        AutoMovieMotionHumanEnsemble.HumanFormation.frame(
-          { blocks: [], frame: course },
-          time,
-        ).at,
+        AutoMovieMotionHumanEnsemble.HumanFormation.prepare({
+          blocks: [],
+          frame: course,
+        }).frame(time).at,
     );
     TestValidator.predicate(
       "the two bodies stay apart",

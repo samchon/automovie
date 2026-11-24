@@ -1,10 +1,14 @@
 import type {
+  AutoMovieHumanSide,
   IAutoMovieMotionHumanChain,
   IAutoMovieMotionHumanObject,
   IAutoMovieMotionHumanSeated,
 } from "@automovie/interface";
 
 import { HumanObject } from "../perform/HumanObject";
+
+/** The record of `IBedsidePerchPlacement`'s site. */
+type IBedsidePerchPlacement = { yaw: number };
 
 /**
  * Sit on a fixed bed's long edge, pause, then stand. Enter facing away from the
@@ -26,8 +30,11 @@ import { HumanObject } from "../perform/HumanObject";
 export function bedsidePerch(
   chain: IAutoMovieMotionHumanChain,
   bed: IAutoMovieMotionHumanObject.IModel,
-  placement: Extract<IAutoMovieMotionHumanObject.Placement, { yaw: number }>,
-  side: "left" | "right",
+  placement: Extract<
+    IAutoMovieMotionHumanObject.Placement,
+    IBedsidePerchPlacement
+  >,
+  side: AutoMovieHumanSide,
   seconds: number = 1,
 ): IAutoMovieMotionHumanChain {
   const edge: IAutoMovieMotionHumanSeated.ISeat = HumanObject.seat(

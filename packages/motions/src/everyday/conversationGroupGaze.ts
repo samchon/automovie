@@ -20,9 +20,6 @@ import { HumanConversation } from "./HumanConversation";
  * @returns Requests for HumanGaze.layer. The last request of each span releases
  *   at its end.
  * @throws When a subject, span, or eye height falls outside the stated bounds.
- * @evidence contracts/development/design.md#principled-representation Pure function of the spans and the stream, over the Gaze family's layer request.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One reader, `AutoMovieMotionHumanConversation.groupGaze`; the cadence is `HumanConversation`'s.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the family's request type; no consumer is special-cased.
  */
 export function conversationGroupGaze(
   params: IAutoMovieMotionHumanConversation.IGroupGaze,

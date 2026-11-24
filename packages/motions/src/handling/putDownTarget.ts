@@ -19,6 +19,27 @@ import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { StrikingRoll } from "../striking/StrikingRoll";
 
+/** The alternatives of `OfPose`'s site. */
+type OfPose = IAutoMoviePose | (() => IAutoMoviePose);
+
+/** The alternatives of `OfContext`'s site. */
+type OfContext = "params" | "body" | "prop" | "start";
+
+/** The alternatives of `SeatedContext`'s site. */
+type SeatedContext = "params" | "prop" | "start";
+
+/** The record of `ITrackMountsItem2`'s site. */
+type ITrackMountsItem2 = {
+  parent: IAutoMovieMotionHumanPropReader;
+  point: string;
+};
+
+/** The record of `ITrackMountsItem`'s site. */
+type ITrackMountsItem = {
+  parent: IAutoMovieMotionHumanPropReader;
+  point: string;
+};
+
 /**
  * The rigid frame a prop is set on: a bone of the performer or another prop's
  * socket. The placement and the grasp chosen for it read this same frame, with
@@ -215,8 +236,7 @@ export namespace putDownTarget {
     subject: string,
   ): ITrack | undefined {
     const visited: Set<string> = new Set();
-    const mounts: { parent: IAutoMovieMotionHumanPropReader; point: string }[] =
-      [];
+    const mounts: ITrackMountsItem[] = [];
     let reader: IAutoMovieMotionHumanPropReader = context.prop(subject);
     while (!visited.has(reader.prop.subject)) {
       visited.add(reader.prop.subject);
@@ -234,10 +254,7 @@ export namespace putDownTarget {
     /** The prop that owns the world track. */
     reader: IAutoMovieMotionHumanPropReader;
     /** Links in order from the receiver toward the track. */
-    mounts: readonly {
-      parent: IAutoMovieMotionHumanPropReader;
-      point: string;
-    }[];
+    mounts: readonly ITrackMountsItem2[];
   }
 
   /**
@@ -253,7 +270,7 @@ export namespace putDownTarget {
   export function seated(
     context: Pick<
       IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanPutDown.IParams>,
-      "params" | "prop" | "start"
+      SeatedContext
     >,
   ): IAutoMovieRigidTransform {
     const via: string | undefined = context.params.onto?.via;
@@ -292,9 +309,9 @@ export namespace putDownTarget {
   export function of(
     context: Pick<
       IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanPutDown.IParams>,
-      "params" | "body" | "prop" | "start"
+      OfContext
     >,
-    pose: IAutoMoviePose | (() => IAutoMoviePose),
+    pose: OfPose,
   ): IAutoMovieRigidTransform | undefined {
     const onto: IAutoMovieMotionHumanPutDown.IParams["onto"] =
       context.params.onto;

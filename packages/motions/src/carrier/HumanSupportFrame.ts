@@ -4,6 +4,7 @@ import {
   integrateMotionTrajectory,
 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanBase,
@@ -22,6 +23,15 @@ import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanPropFrame } from "../perform/HumanPropFrame";
 import { HumanFoot } from "../posture/HumanFoot";
 import { poseBones } from "../posture/poseBones";
+
+/** The alternatives of `AtContext`'s site. */
+type AtContext = "entry" | "prop" | "performer";
+
+/** The alternatives of `BoardContext`'s site. */
+type BoardContext = "entry" | "prop" | "performer" | "start";
+
+/** The alternatives of `OfContext`'s site. */
+type OfContext = "entry" | "carrier";
 
 /**
  * The one reader of the frame a body's base rests on: the ground, a prop it
@@ -49,7 +59,7 @@ export namespace HumanSupportFrame {
    * @returns The support.
    */
   export function of(
-    context: Pick<IAutoMovieMotionHumanActionContext, "entry" | "carrier">,
+    context: Pick<IAutoMovieMotionHumanActionContext, OfContext>,
   ): IAutoMovieMotionHumanContactWindow.Support {
     // An overlay rides what its carrier stands on, even where its entry
     // still stood on the ground before the carrier began.
@@ -102,8 +112,8 @@ export namespace HumanSupportFrame {
     // 0.34 m above the quiet stance's after getting off).
     const rests: IAutoMovieMotionHumanBase.ISeat["footrests"] =
       entry.base.kind === "seated" ? entry.base.seat?.footrests : undefined;
-    const planted: ("left" | "right")[] = (["left", "right"] as const).filter(
-      (side: "left" | "right"): boolean =>
+    const planted: AutoMovieHumanSide[] = (["left", "right"] as const).filter(
+      (side: AutoMovieHumanSide): boolean =>
         entry.feet[side].planted && rests?.[side] === undefined,
     );
     if (planted.length === 0) return 0;
@@ -112,7 +122,7 @@ export namespace HumanSupportFrame {
       entry.pose,
     );
     return Math.min(
-      ...planted.flatMap((side: "left" | "right"): number[] =>
+      ...planted.flatMap((side: AutoMovieHumanSide): number[] =>
         HumanFoot.sockets(body, bones, side).map(
           (socket: IAutoMovieMotionHumanFoot.ISocket): number => socket.point.y,
         ),
@@ -132,10 +142,7 @@ export namespace HumanSupportFrame {
    *   fix.
    */
   export function board(
-    context: Pick<
-      IAutoMovieMotionHumanActionContext,
-      "entry" | "prop" | "performer" | "start"
-    >,
+    context: Pick<IAutoMovieMotionHumanActionContext, BoardContext>,
     prop: string,
     speed: number,
   ): void {
@@ -165,10 +172,7 @@ export namespace HumanSupportFrame {
    * @returns The frame.
    */
   export function at(
-    context: Pick<
-      IAutoMovieMotionHumanActionContext,
-      "entry" | "prop" | "performer"
-    >,
+    context: Pick<IAutoMovieMotionHumanActionContext, AtContext>,
     seconds: number,
     named?: IAutoMovieMotionHumanContactWindow.Support,
   ): IAutoMovieMotionHumanSupportFrame.IFrame {

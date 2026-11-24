@@ -74,27 +74,27 @@ interface IRow {
 }
 
 /**
- * Decompose the same flight observation into its actual displayed body and
- * the already observed root carrying the canonical unturned articulation.
+ * Decompose the same flight observation into its actual displayed body and the
+ * already observed root carrying the canonical unturned articulation.
  *
- * The single-case prerequisites are checked: one stand followed by this
- * jump, no configured layers/external forces/props, no overlays/holds/weapons,
- * no transition offset or contact window at the original momentum endpoints,
- * and free raw limb goals there. Only the raw posture's rotation is removed.
- * Public resolution plus its final clamp gives the unturned joints; replacing
- * only that canonical pose's root with the recorded actual root then performs
- * fresh FK. Both momenta use the original mass model and two-DELTA interval.
+ * The single-case prerequisites are checked: one stand followed by this jump,
+ * no configured layers/external forces/props, no overlays/holds/weapons, no
+ * transition offset or contact window at the original momentum endpoints, and
+ * free raw limb goals there. Only the raw posture's rotation is removed. Public
+ * resolution plus its final clamp gives the unturned joints; replacing only
+ * that canonical pose's root with the recorded actual root then performs fresh
+ * FK. Both momenta use the original mass model and two-DELTA interval.
  *
  * Displayed-minus-rigid momentum isolates the changed articulation pipeline
  * while keeping observed root motion equal. Drift of rigid momentum still
- * combines the root trajectory and planned shape history; it does not by
- * itself prove one numerical cause. Joint differences are observations, not
- * a substitute for the representative's unchanged one-percent assertion.
- * All work happens after its original observations and timing have finished.
- * Three additional direct displayed reads straddle takeoff by adjacent
- * binary64 seconds. Their actual poses, world centres and root-local FK are
- * observed without the unturned reconstruction. Unavailable boundary data
- * is logged separately and changes no original physical acceptance result.
+ * combines the root trajectory and planned shape history; it does not by itself
+ * prove one numerical cause. Joint differences are observations, not a
+ * substitute for the representative's unchanged one-percent assertion. All work
+ * happens after its original observations and timing have finished. Three
+ * additional direct displayed reads straddle takeoff by adjacent binary64
+ * seconds. Their actual poses, world centres and root-local FK are observed
+ * without the unturned reconstruction. Unavailable boundary data is logged
+ * separately and changes no original physical acceptance result.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the checked momentum-row prerequisites, same-film/root decomposition, direct adjacent-time takeoff observations, units, execution order, separate boundary problems and causal interpretation limits.
  * @evidence contracts/development/implementation.md#principled-implementation Rigid motion preserves a canonical articulation: actual root plus unturned joints defines that same shape under the measured turn. Public FK and momentum measure it without another film or an ideal angular target.
@@ -120,7 +120,10 @@ export function motionHumanFlightDiagnostic(props: {
   /** Original physical mass model, shared with the displayed measurements. */
   model: IAutoMovieResolveCenterOfMass.IModel;
 
-  /** Original takeoff; momentum supports follow it and direct seam reads straddle it. */
+  /**
+   * Original takeoff; momentum supports follow it and direct seam reads
+   * straddle it.
+   */
   from: number;
 
   /** Original touchdown in film seconds; all difference endpoints precede it. */
@@ -427,19 +430,14 @@ export function motionHumanFlightDiagnostic(props: {
 }
 
 /**
- * The input observation owned by the same-film flight diagnostic.
- * SI world momentum and copied canonical poses retain the original film's
- * seconds and clinical joints; runtime checks admit the decomposition.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Documents the observed world momentum, midpoint time and owned endpoint poses. Private result rows document their unavailable values and joint differences separately.
- * @evidence contracts/development/design.md#principled-representation Existing canonical pose and SI vector types carry actual world state; the observation distinguishes the midpoint from both finite-difference endpoint poses, with validity checked by the diagnostic.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The representative records this one input type for the diagnostic after original measurements. Returned rows remain private to this module's calculation and completion log.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Captured poses and vectors are measured evidence, never target physics or solver expectations. The interior sample grid remains a checked property of this specific diagnostic rather than an altered motion contract.
+ * The input observation owned by the same-film flight diagnostic. SI world
+ * momentum and copied canonical poses retain the original film's seconds and
+ * clinical joints; runtime checks admit the decomposition.
  */
 export namespace motionHumanFlightDiagnostic {
   /**
-   * One original momentum read and owned copies of the displayed poses its
-   * two bone reads used. These values preserve evidence for later diagnosis.
+   * One original momentum read and owned copies of the displayed poses its two
+   * bone reads used. These values preserve evidence for later diagnosis.
    */
   export interface IObservation {
     /** Reference or original numbered conservation read. */

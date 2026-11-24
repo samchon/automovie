@@ -4,6 +4,7 @@ import {
   resolveAutoMovieHumanoidSurfaces,
 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   AutoMovieHumanoidRegion,
   IAutoMovieHumanoidSurfaces,
@@ -21,6 +22,13 @@ import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { turnHumanPosture } from "../posture/turnHumanPosture";
 import { authoredHumanTrunkPose } from "./authoredHumanTrunkPose";
+
+/** The record of `IRHYTHMItem`'s site. */
+type IRHYTHMItem = {
+  pelvis: number;
+  lumbar: number;
+  thorax: number;
+};
 
 /**
  * The trunk and head of a posture placed in the world without solving its
@@ -112,11 +120,11 @@ export namespace HumanTrunk {
    * against 70 of hip flexion (Esola et al. 1996, Spine 21:71), so the pelvis
    * takes 0.64 and the spine 0.36, split 0.28 lumbar and 0.08 thoracic.
    */
-  export const RHYTHM: Readonly<{
-    pelvis: number;
-    lumbar: number;
-    thorax: number;
-  }> = { pelvis: 0.64, lumbar: 0.28, thorax: 0.08 };
+  export const RHYTHM: Readonly<IRHYTHMItem> = {
+    pelvis: 0.64,
+    lumbar: 0.28,
+    thorax: 0.08,
+  };
 
   /**
    * A trunk inclined forward by an angle shared by the lumbopelvic rhythm: the
@@ -187,7 +195,7 @@ export namespace HumanTrunk {
     body: IAutoMovieMotionHumanBody,
     root: IAutoMovieVector3,
     yaw: number,
-    ankles: Record<"left" | "right", IAutoMovieVector3>,
+    ankles: Record<AutoMovieHumanSide, IAutoMovieVector3>,
   ): number {
     const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
     const turn: number = (yaw * Math.PI) / 180;
@@ -477,11 +485,13 @@ function surfaceOf(
     resolveAutoMovieHumanoidSurfaces.place(frame, bone);
   return { point: placed.point, normal: placed.normal };
 }
+/** The alternatives of `AddInclinationBone`'s site. */
+type AddInclinationBone = "spine" | "chest";
 
 /** Add a share of the spine's flexion to one bone, keeping its other angles. */
 function addInclination(
   joints: IAutoMovieMotionHumanPosture["joints"],
-  bone: "spine" | "chest",
+  bone: AddInclinationBone,
   part: number,
   spine: number,
 ): void {

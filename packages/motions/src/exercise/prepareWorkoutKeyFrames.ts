@@ -12,6 +12,18 @@ import { prepareHumanPostureProjection } from "../posture/prepareHumanPosturePro
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { ExerciseKey } from "./ExerciseKey";
 
+/** The record of `IPrepareWorkoutKeyFramesResult2`'s site. */
+type IPrepareWorkoutKeyFramesResult2 = {
+  posture: IAutoMovieMotionHumanPosture;
+  bones: ReturnType<typeof poseBones>;
+};
+
+/** The record of `IPrepareWorkoutKeyFramesResult`'s site. */
+type IPrepareWorkoutKeyFramesResult = {
+  posture: IAutoMovieMotionHumanPosture;
+  bones: ReturnType<typeof poseBones>;
+};
+
 /**
  * Own actual key-to-frame observations within one synchronous workout geometry
  * search. A key's posed representation has no limb/digit/rotation goals, but
@@ -28,10 +40,9 @@ import { ExerciseKey } from "./ExerciseKey";
 export function prepareWorkoutKeyFrames(
   body: IAutoMovieMotionHumanBody,
   requested?: ReadonlySet<AutoMovieHumanoidBone>,
-): (key: IAutoMovieMotionHumanExerciseKey.IKey) => {
-  posture: IAutoMovieMotionHumanPosture;
-  bones: ReturnType<typeof poseBones>;
-} {
+): (
+  key: IAutoMovieMotionHumanExerciseKey.IKey,
+) => IPrepareWorkoutKeyFramesResult {
   const resolution: ReturnType<typeof prepareHumanPoseResolution> =
     prepareHumanPoseResolution();
   const projection: ReturnType<typeof prepareHumanPostureProjection> =
@@ -40,10 +51,7 @@ export function prepareWorkoutKeyFrames(
     requested === undefined ? undefined : poseBones.prepare(body, requested);
   return (
     key: IAutoMovieMotionHumanExerciseKey.IKey,
-  ): {
-    posture: IAutoMovieMotionHumanPosture;
-    bones: ReturnType<typeof poseBones>;
-  } => {
+  ): IPrepareWorkoutKeyFramesResult2 => {
     const posture: IAutoMovieMotionHumanPosture = ExerciseKey.posed(key, 0);
     const pose: IAutoMoviePose = resolveHumanPosture.seeded(
       body,

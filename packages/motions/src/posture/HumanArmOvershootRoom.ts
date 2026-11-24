@@ -1,5 +1,6 @@
 import { Quaternion } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   IAutoMovieMotionHumanColliders,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -62,10 +63,11 @@ export namespace HumanArmOvershootRoom {
   }
 
   /**
-   * The room of a reading's colliders, built once per trunk list, others' list,
-   * rests' list and side, and read by every candidate of a sweep, which passes
-   * the same lists: the chest, its outward axis, whether the other arm is
-   * present and every shape framed (`HumanShapeFraming.of`).
+   * The room of a reading's colliders, built by the sweep's preparation once
+   * per trunk list, others' list, rests' list and side
+   * (`HumanArmOvershoot.prepare`) and read by every candidate: the chest, its
+   * outward axis, whether the other arm is present and every shape framed
+   * (`HumanShapeFraming.of`).
    *
    * @param shapes The trunk's colliders.
    * @param others Another body's colliders the wrist has no goal on.
@@ -77,38 +79,8 @@ export namespace HumanArmOvershootRoom {
     shapes: readonly IAutoMovieMotionHumanColliders.IPlaced[],
     others: readonly IAutoMovieMotionHumanColliders.IFramed[],
     rests: readonly IAutoMovieMotionHumanColliders.IPlaced[],
-    side: "left" | "right",
+    side: AutoMovieHumanSide,
   ): IRoom {
-    const key: (
-      list: readonly IAutoMovieMotionHumanColliders.IFramed[],
-    ) => object = (
-      list: readonly IAutoMovieMotionHumanColliders.IFramed[],
-    ): object => (list.length === 0 ? EMPTY : list);
-    let byOthers:
-      | WeakMap<
-          object,
-          WeakMap<object, Partial<Record<"left" | "right", IRoom>>>
-        >
-      | undefined = ROOMS.get(key(shapes));
-    if (byOthers === undefined) {
-      byOthers = new WeakMap();
-      ROOMS.set(key(shapes), byOthers);
-    }
-    let byRests:
-      | WeakMap<object, Partial<Record<"left" | "right", IRoom>>>
-      | undefined = byOthers.get(key(others));
-    if (byRests === undefined) {
-      byRests = new WeakMap();
-      byOthers.set(key(others), byRests);
-    }
-    let sides: Partial<Record<"left" | "right", IRoom>> | undefined =
-      byRests.get(key(rests));
-    if (sides === undefined) {
-      sides = {};
-      byRests.set(key(rests), sides);
-    }
-    const known: IRoom | undefined = sides[side];
-    if (known !== undefined) return known;
     const chest: IAutoMovieMotionHumanColliders.IPlaced | undefined =
       shapes.find(
         (s: IAutoMovieMotionHumanColliders.IPlaced): boolean =>
@@ -118,8 +90,8 @@ export namespace HumanArmOvershootRoom {
         (s: IAutoMovieMotionHumanColliders.IPlaced): boolean =>
           s.bone === "chest",
       );
-    const other: "left" | "right" = side === "left" ? "right" : "left";
-    const room: IRoom = {
+    const other: AutoMovieHumanSide = side === "left" ? "right" : "left";
+    return {
       chest,
       out:
         chest === undefined
@@ -180,28 +152,5 @@ export namespace HumanArmOvershootRoom {
           ),
       ),
     };
-    sides[side] = room;
-    return room;
   }
 }
-
-/**
- * The rooms read, by the trunk's list, the others' list and the rests' list,
- * then by side; an empty list is keyed by `EMPTY`.
- */
-const ROOMS: WeakMap<
-  object,
-  WeakMap<
-    object,
-    WeakMap<
-      object,
-      Partial<Record<"left" | "right", HumanArmOvershootRoom.IRoom>>
-    >
-  >
-> = new WeakMap();
-
-/**
- * The key of an empty collider list: a reading given none makes a fresh empty
- * list each time.
- */
-const EMPTY: object = Object.freeze({});

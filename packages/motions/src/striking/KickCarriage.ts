@@ -1,5 +1,6 @@
 import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanFoot,
@@ -9,9 +10,10 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { humanPostureHeading } from "../posture/humanPostureHeading";
+import { lowerHumanPosture } from "../posture/lowerHumanPosture";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { KickForm } from "./KickForm";
 import { StrikingBody } from "./StrikingBody";
 import { StrikingStance } from "./StrikingStance";
@@ -48,10 +50,10 @@ export namespace KickCarriage {
     joints?: IAutoMovieMotionHumanPosture["joints"];
 
     /** The feet the kick starts on. */
-    feet: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement>;
+    feet: Record<AutoMovieHumanSide, IAutoMovieMotionHumanFoot.IPlacement>;
 
     /** The kicking side. */
-    side: "left" | "right";
+    side: AutoMovieHumanSide;
 
     /** The horizontal unit line toward the target. */
     line: IAutoMovieVector3;
@@ -101,7 +103,7 @@ export namespace KickCarriage {
     const read: ReturnType<typeof prepareHumanPoseResolution> =
       prepareHumanPoseResolution(resolution);
     const { body, entry, feet, side, line, timing } = props;
-    const support: "left" | "right" = side === "left" ? "right" : "left";
+    const support: AutoMovieHumanSide = side === "left" ? "right" : "left";
     const up: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
     const w: number =
       minimumJerk.share(turning / timing.chamber) -
@@ -190,7 +192,7 @@ export namespace KickCarriage {
             read,
             projection,
           );
-    return resolveHumanPosture.lower(
+    return lowerHumanPosture(
       body,
       {
         ...tilted,
@@ -211,7 +213,7 @@ export namespace KickCarriage {
           },
         ),
       },
-      resolveHumanPosture.KNEE,
+      lowerHumanPosture.KNEE,
       read,
     );
   }
@@ -231,7 +233,7 @@ export namespace KickCarriage {
   export function hip(
     body: IAutoMovieMotionHumanBody,
     posture: IAutoMovieMotionHumanPosture,
-    side: "left" | "right",
+    side: AutoMovieHumanSide,
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
     projection?: ReturnType<typeof prepareHumanPostureProjection>,
   ): IAutoMovieVector3 {
@@ -252,7 +254,7 @@ export namespace KickCarriage {
   function tilt(
     body: IAutoMovieMotionHumanBody,
     flat: IAutoMovieMotionHumanPosture,
-    support: "left" | "right",
+    support: AutoMovieHumanSide,
     axis: IAutoMovieVector3,
     degrees: number,
     resolution: ReturnType<typeof prepareHumanPoseResolution>,
@@ -261,12 +263,12 @@ export namespace KickCarriage {
     const rotation: IAutoMovieQuaternion = Quaternion.normalize(
       Quaternion.multiply(
         Quaternion.fromAxisAngle(axis, degrees),
-        resolveHumanPosture.heading(flat),
+        humanPostureHeading(flat),
       ),
     );
     const turned: IAutoMovieMotionHumanPosture = {
       ...flat,
-      ...resolveHumanPosture.angles(rotation),
+      ...humanPostureHeading.angles(rotation),
     };
     return {
       ...turned,
@@ -286,7 +288,7 @@ export namespace KickCarriage {
  * joint.
  */
 const HIPS: Readonly<
-  Record<"left" | "right", ReadonlySet<AutoMovieHumanoidBone>>
+  Record<AutoMovieHumanSide, ReadonlySet<AutoMovieHumanoidBone>>
 > = {
   left: new Set<AutoMovieHumanoidBone>(["leftUpperLeg"]),
   right: new Set<AutoMovieHumanoidBone>(["rightUpperLeg"]),

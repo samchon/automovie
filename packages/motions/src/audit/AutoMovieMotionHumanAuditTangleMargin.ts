@@ -11,6 +11,33 @@ import { HumanLinkCertificate } from "../posture/HumanLinkCertificate";
 import { AutoMovieMotionHumanAuditTangleModel as M } from "./AutoMovieMotionHumanAuditTangleModel";
 import { prepareAutoMovieMotionHumanAuditDepths } from "./prepareAutoMovieMotionHumanAuditDepths";
 
+/** The record of `IAcrossResult`'s site. */
+type IAcrossResult = { depth: number; base: number };
+
+/** The record of `IOwnResult`'s site. */
+type IOwnResult = { excess: number; base: number };
+
+/** The record of `IEnteringReading`'s site. */
+type IEnteringReading = { depth: number; base: number };
+
+/** The record of `IEnteringRead`'s site. */
+type IEnteringRead = {
+  due: (index: number) => boolean;
+  heard: (index: number, base: number, apart: boolean, depth: number) => void;
+};
+
+/** The record of `IWithinBackward`'s site. */
+type IWithinBackward = { excess: number; base: number };
+
+/** The record of `IWithinForward`'s site. */
+type IWithinForward = { excess: number; base: number };
+
+/** The record of `IWithinRead`'s site. */
+type IWithinRead = {
+  due: (index: number) => boolean;
+  heard: (index: number, base: number, apart: boolean, depth: number) => void;
+};
+
 /**
  * What lets the penetration audits (`AutoMovieMotionHumanAuditTangle` of one
  * body, `AutoMovieMotionHumanAuditPartner` of two) leave a pair of segments
@@ -47,11 +74,6 @@ export namespace AutoMovieMotionHumanAuditTangleMargin {
   /**
    * A nanometre, metres: below it a depth is the rounding of the two frames,
    * and no pair is recorded.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the unit and what it decides.
-   * @evidence contracts/development/design.md#principled-representation One length every pair reading compares a depth with.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Read by the pair readings here and by the two audits' certificates, which must not certify past it.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The audits' existing roundoff threshold, named once.
    */
   export const NANOMETRE: number = 1e-9;
 
@@ -85,15 +107,7 @@ export namespace AutoMovieMotionHumanAuditTangleMargin {
     skip: ReadonlySet<string>,
     pressed: ReadonlyMap<string, number>,
     key: (a: AutoMovieHumanoidBone, b: AutoMovieHumanoidBone) => string,
-    read?: {
-      due: (index: number) => boolean;
-      heard: (
-        index: number,
-        base: number,
-        apart: boolean,
-        depth: number,
-      ) => void;
-    },
+    read?: IWithinRead,
   ): IAutoMovieMotionHumanAuditTangle.IPair[] {
     const out: IAutoMovieMotionHumanAuditTangle.IPair[] = [];
     const centres: IAutoMovieVector3[] = placed.map(
@@ -140,20 +154,8 @@ export namespace AutoMovieMotionHumanAuditTangleMargin {
           read?.heard(index, clear, true, 0);
           continue;
         }
-        const forward: { excess: number; base: number } = own(
-          m,
-          placed,
-          i,
-          j,
-          targets,
-        );
-        const backward: { excess: number; base: number } = own(
-          m,
-          placed,
-          j,
-          i,
-          targets,
-        );
+        const forward: IWithinForward = own(m, placed, i, j, targets);
+        const backward: IWithinBackward = own(m, placed, j, i, targets);
         const depth: number =
           Math.max(forward.excess, backward.excess) -
           (pressed.size === 0
@@ -196,15 +198,7 @@ export namespace AutoMovieMotionHumanAuditTangleMargin {
     mine: readonly IAutoMovieMotionHumanColliders.IPlaced[],
     o: M.IModel,
     theirs: readonly IAutoMovieMotionHumanColliders.IPlaced[],
-    read?: {
-      due: (index: number) => boolean;
-      heard: (
-        index: number,
-        base: number,
-        apart: boolean,
-        depth: number,
-      ) => void;
-    },
+    read?: IEnteringRead,
   ): IAutoMovieMotionHumanAuditTangle.IPair[] {
     const out: IAutoMovieMotionHumanAuditTangle.IPair[] = [];
     const near: IAutoMovieVector3[] = mine.map(
@@ -244,7 +238,7 @@ export namespace AutoMovieMotionHumanAuditTangleMargin {
           read?.heard(index, clear, true, 0);
           continue;
         }
-        const reading: { depth: number; base: number } = across(
+        const reading: IEnteringReading = across(
           m.parts[i]!.probes,
           mine[i]!,
           (targets[j] ??= prepareAutoMovieMotionHumanAuditDepths(theirs[j]!)),
@@ -283,7 +277,7 @@ export namespace AutoMovieMotionHumanAuditTangleMargin {
     i: number,
     j: number,
     targets: Parameters<typeof M.beyond>[4],
-  ): { excess: number; base: number } {
+  ): IOwnResult {
     const room: Float64Array = new Float64Array(m.parts[i]!.probes.length);
     const over: Float64Array = M.beyond(m, placed, i, j, targets, room);
     const reference: Float64Array = M.reference(m, i, j);
@@ -315,7 +309,7 @@ export namespace AutoMovieMotionHumanAuditTangleMargin {
     probes: readonly IAutoMovieVector3[],
     mine: IAutoMovieMotionHumanColliders.IPlaced,
     read: ReturnType<typeof prepareAutoMovieMotionHumanAuditDepths>,
-  ): { depth: number; base: number } {
+  ): IAcrossResult {
     const room: Float64Array = new Float64Array(probes.length);
     const depths: Float64Array = read(probes, mine, room);
     let depth: number = 0;

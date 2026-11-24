@@ -174,11 +174,6 @@ function gripReader(
  * helper's clasp stays until the new seat bears. The paired measurements in
  * [Riccoboni et al.](https://pubmed.ncbi.nlm.nih.gov/33070065/) motivate
  * observing the helper and occupant separately over the same motion.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the role clock, continuously held clasp, actual source and destination, and final release.
- * @evidence contracts/development/design.md#principled-representation The law uses one common world grip point and distinct body support targets, on the existing stance representation.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Owns the contact sequence. The native support plan owns fitting and transitions and the archetype owns seat geometry.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Named seat contacts are resolved on actual staged prop state. The action uses no precomputed body poses except the shared standing and sitting preferences.
  */
 export const HumanAssistedTransfer: IAutoMovieMotionHumanAssistedTransfer.ILaw =
   {

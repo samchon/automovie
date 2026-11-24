@@ -14,13 +14,6 @@ export class WalkPath {
   /**
    * @param points The fixed floor points in order, world metres; keep them
    *   unchanged until this path is released.
-   * @evidence contracts/development/common.md#meaningful-documentation Defines ordered fixed world-metre inputs and the resulting cumulative/segment geometry lifetime.
-   * @evidence contracts/development/implementation.md#principled-implementation Retains each original ordered hypot and cumulative sum, then stores every span as that same cumulative difference and each exact coordinate delta/denominator square for later interpolation/projection.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One cumulative-length pass and one segment-prerequisite pass precede unchanged position/nearest/heading readers.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Spans use cumulative differences as before, retaining their exact arithmetic rather than substituting independently measured lengths; repeated points and all authored corners remain.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Linear preparation/storage in N points removes fixed coordinate subtraction, cumulative subtraction and denominator squaring from repeated path/nearest queries.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The callers own one unchanged authored floor polyline; each segment's deltas, span and squared span therefore remain valid while every current projected point/distance is evaluated normally.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One path retains its supplied fixed points and O(N) private scalar records until its take/station releases it; no queried position, nearest answer or time history is stored.
    */
   public constructor(private readonly points: readonly IAutoMovieVector3[]) {
     this.cumulative = [0];

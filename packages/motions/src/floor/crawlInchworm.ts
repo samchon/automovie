@@ -1,5 +1,6 @@
 import { AutoMovieGravity } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanBody,
@@ -24,6 +25,18 @@ import { crawlFrame } from "./crawlFrame";
 import { crawlInchwormPose } from "./crawlInchwormPose";
 import { floorEntry } from "./floorEntry";
 import { getUp } from "./getUp";
+
+/** The record of `IPlanB`'s site. */
+type IPlanB = { share: number };
+
+/** The record of `IPlanA`'s site. */
+type IPlanA = { share: number };
+
+/** The record of `IPlanItemResult`'s site. */
+type IPlanItemResult = {
+  name: string;
+  share: number;
+};
 
 /**
  * The inchworm, the crawl's `inchworm` kind: from standing the body folds until
@@ -89,6 +102,33 @@ export namespace crawlInchworm {
 
   /** A limb that bears in the inchworm. */
   export type Limb = (typeof LIMBS)[number];
+  /** The record of `IPlanS`'s site. */
+  type IPlanS = {
+    limb: Limb;
+    n: number;
+    at: number;
+  };
+
+  /** The record of `IPlanStepsItem2`'s site. */
+  type IPlanStepsItem2 = { limb: Limb; n: number; at: number };
+
+  /** The record of `IPlanResult`'s site. */
+  type IPlanResult = {
+    stances: IAutoMovieMotionHumanSupport.IStance[];
+    steps: IStepsItemResult[];
+  };
+
+  /** The record of `IStepsItemResult`'s site. */
+  type IStepsItemResult = { limb: Limb; n: number; at: number };
+
+  /** The record of `IPlan`'s site. */
+  type IPlan = {
+    stances: IAutoMovieMotionHumanSupport.IStance[];
+    steps: IPlanStepsItem[];
+  };
+
+  /** The record of `IPlanStepsItem`'s site. */
+  type IPlanStepsItem = { limb: Limb; n: number; at: number };
 
   /**
    * Plan an inchworm.
@@ -149,16 +189,7 @@ export namespace crawlInchworm {
       Math.sqrt(m.hipHeight / AutoMovieGravity.STANDARD) * modifiers.tempo;
     const step: number = STEP * scale;
 
-    const {
-      stances,
-      steps,
-    }: {
-      stances: IAutoMovieMotionHumanSupport.IStance[];
-      steps: { limb: Limb; n: number; at: number }[];
-    } = ((): {
-      stances: IAutoMovieMotionHumanSupport.IStance[];
-      steps: { limb: Limb; n: number; at: number }[];
-    } => {
+    const { stances, steps }: IPlan = ((): IPlanResult => {
       const resolution: ReturnType<typeof prepareHumanPoseResolution> =
         prepareHumanPoseResolution();
       const projection: ReturnType<typeof prepareHumanPostureProjection> =
@@ -175,7 +206,7 @@ export namespace crawlInchworm {
       // A bearing hand is placed by its wrist across the floor (`support`), so
       // its place is the wrist over its flat palm, under the shoulder.
       const point = (limb: Limb): IAutoMovieMotionTarget => {
-        const side: "left" | "right" = limb.startsWith("left")
+        const side: AutoMovieHumanSide = limb.startsWith("left")
           ? "left"
           : "right";
         return {
@@ -226,7 +257,7 @@ export namespace crawlInchworm {
           prefer: prefer(),
         },
       ];
-      const steps: { limb: Limb; n: number; at: number }[] = [];
+      const steps: IPlanStepsItem2[] = [];
       const counts: Record<Limb, number> = {
         leftHand: 0,
         rightHand: 0,
@@ -290,24 +321,12 @@ export namespace crawlInchworm {
       ...planned,
       events: [
         ...planned.events,
-        ...steps.flatMap(
-          (s: {
-            limb: Limb;
-            n: number;
-            at: number;
-          }): {
-            name: string;
-            share: number;
-          }[] => [
-            { name: `${s.limb}Liftoff${s.n}`, share: share(held(s.at - 1)) },
-            { name: `${s.limb}Touchdown${s.n}`, share: share(`bear${s.at}`) },
-          ],
-        ),
+        ...steps.flatMap((s: IPlanS): IPlanItemResult[] => [
+          { name: `${s.limb}Liftoff${s.n}`, share: share(held(s.at - 1)) },
+          { name: `${s.limb}Touchdown${s.n}`, share: share(`bear${s.at}`) },
+        ]),
         { name: "rising", share: share(`folded${cycles}`) },
-      ].sort(
-        (a: { share: number }, b: { share: number }): number =>
-          a.share - b.share,
-      ),
+      ].sort((a: IPlanA, b: IPlanB): number => a.share - b.share),
       base: { kind: "standing" },
     };
   }

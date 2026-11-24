@@ -8,6 +8,34 @@ import type {
 import { HumanRefusal } from "../law/HumanRefusal";
 import type { handshakeOffer } from "./handshakeOffer";
 
+/** The record of `IMiss6`'s site. */
+type IMiss6 = {
+  bound: "pump";
+  gap: number;
+  partner: MissPartner;
+  distance: number;
+  reach: number;
+  flexed: number;
+};
+
+/** The alternatives of `MissPartner`'s site. */
+type MissPartner = 0 | 1;
+
+/** The record of `IMiss5`'s site. */
+type IMiss5 = { bound: "far"; gap: number; elbows: number; forearms: number };
+
+/** The record of `IMiss4`'s site. */
+type IMiss4 = { bound: "chests"; gap: number; chests: number };
+
+/** The record of `IMiss3`'s site. */
+type IMiss3 = { bound: "cross"; gap: number };
+
+/** The record of `IMiss2`'s site. */
+type IMiss2 = { bound: "apart"; gap: number };
+
+/** The record of `IRefusalBand`'s site. */
+type IRefusalBand = { minimum: number; maximum: number };
+
 /**
  * Why two offering arms do not meet, and where the same pair would: the
  * handshake's refusal (`handshakeOffer.point`).
@@ -20,6 +48,9 @@ import type { handshakeOffer } from "./handshakeOffer";
  * which the pair does meet, found by trying the pair along the same line.
  */
 export namespace handshakeReach {
+  /** The alternatives of `RefusalAttempt`'s site. */
+  type RefusalAttempt = handshakeOffer.IMeeting | IMiss;
+
   /**
    * The refusal of a missed meeting: the bound that failed with its measured
    * value, and the band of shoulder gaps at which this pair does shake hands,
@@ -47,7 +78,7 @@ export namespace handshakeReach {
       b: handshakeOffer.ISide,
       side: AutoMovieHumanSide,
       pump: number,
-    ) => handshakeOffer.IMeeting | IMiss,
+    ) => RefusalAttempt,
   ): IAutoMovieMotionHumanRefusal {
     const span: IAutoMovieVector3 = Vector3.subtract(b.shoulder, a.shoulder);
     const level: number = Math.hypot(span.x, span.z);
@@ -99,7 +130,7 @@ export namespace handshakeReach {
         inside,
         Math.abs(inside - outside) / 2 ** 20,
       );
-    const band: { minimum: number; maximum: number } | null =
+    const band: IRefusalBand | null =
       first === undefined || last === undefined
         ? null
         : {
@@ -146,17 +177,5 @@ export namespace handshakeReach {
   const BAND: readonly [number, number] = [0.05, 2.5];
 
   /** A meeting missed, and by which bound. */
-  export type IMiss =
-    | { bound: "apart"; gap: number }
-    | { bound: "cross"; gap: number }
-    | { bound: "chests"; gap: number; chests: number }
-    | { bound: "far"; gap: number; elbows: number; forearms: number }
-    | {
-        bound: "pump";
-        gap: number;
-        partner: 0 | 1;
-        distance: number;
-        reach: number;
-        flexed: number;
-      };
+  export type IMiss = IMiss2 | IMiss3 | IMiss4 | IMiss5 | IMiss6;
 }

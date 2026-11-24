@@ -78,8 +78,6 @@ import { walk } from "./walk";
  * A law's parameter type is its own; the table erases it to `never` so one
  * table holds every law, and the chain method that names an action is what
  * supplies its parameters.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what the table holds, who dispatches through it and why its parameter type is erased.
  */
 export const HUMAN_ACTIONS: Readonly<
   Record<AutoMovieMotionHumanActionName, IAutoMovieMotionHumanActionLaw<never>>

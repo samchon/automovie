@@ -28,7 +28,7 @@ import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import { HumanBound } from "../law/HumanBound";
 import { HumanFrame } from "../posture/HumanFrame";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { humanPostureHeading } from "../posture/humanPostureHeading";
 
 /**
  * A handstand kicked up from standing, held and stepped down.
@@ -148,11 +148,11 @@ export namespace gymnastics {
     const hipsRest: IAutoMovieVector3 = body.rest.get("hips")!;
     const standing: IAutoMovieVector3 = Vector3.add(
       entry.root,
-      Quaternion.rotateVector(resolveHumanPosture.heading(entry), hipsRest),
+      Quaternion.rotateVector(humanPostureHeading(entry), hipsRest),
     );
     // The hips from the shoulders at the hands' touchdown, in the entry's frame.
     const carried: IAutoMovieVector3 = Quaternion.rotateVector(
-      resolveHumanPosture.heading({ yaw: 0, pitch: DOWN, roll: 0 }),
+      humanPostureHeading({ yaw: 0, pitch: DOWN, roll: 0 }),
       Vector3.subtract(hipsRest, girdle),
     );
     // The hips go as far ahead of the ankles as the planted legs reach at that height.
@@ -178,7 +178,7 @@ export namespace gymnastics {
     const down: IAutoMovieVector3 = Vector3.add(
       shoulders,
       Quaternion.rotateVector(
-        resolveHumanPosture.heading({ yaw: entry.yaw, pitch: DOWN, roll: 0 }),
+        humanPostureHeading({ yaw: entry.yaw, pitch: DOWN, roll: 0 }),
         Vector3.subtract(hipsRest, girdle),
       ),
     );
@@ -219,7 +219,7 @@ export namespace gymnastics {
                 : Vector3.subtract(
                     Vector3.lerp(standing, down, folded),
                     Quaternion.rotateVector(
-                      resolveHumanPosture.heading(pitched),
+                      humanPostureHeading(pitched),
                       hipsRest,
                     ),
                   ),
@@ -269,8 +269,7 @@ export namespace gymnastics {
             s: number,
           ): IAutoMovieMotionHumanFoot.IPlacement => {
             // The straight leg's ankle and foot as the pitched body carries them.
-            const turn: IAutoMovieQuaternion =
-              resolveHumanPosture.heading(posture);
+            const turn: IAutoMovieQuaternion = humanPostureHeading(posture);
             const carried: IAutoMovieMotionHumanFoot.IPlacement = {
               ankle: Vector3.add(
                 posture.root,

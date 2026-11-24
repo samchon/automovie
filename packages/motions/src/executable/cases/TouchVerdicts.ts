@@ -21,6 +21,18 @@ import { HumanColliders } from "../../posture/HumanColliders";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
 import type { humanPolygonMan } from "../humanPolygonMan";
 
+/** The record of `IEntryBest`'s site. */
+type IEntryBest = { gap: number; at: number };
+
+/** The record of `IEntryResult`'s site. */
+type IEntryResult = { gap: number; at: number };
+
+/** The record of `IEntryOther`'s site. */
+type IEntryOther = { subject: string; body: IAutoMovieMotionHumanBody };
+
+/** The record of `IPlaceResult`'s site. */
+type IPlaceResult = { point: IAutoMovieVector3; normal: IAutoMovieVector3 };
+
 /**
  * Measures of a touch on displayed poses, shared by the touch families' capture
  * cases: where an effector is against the region it touches, how far the acting
@@ -52,7 +64,7 @@ export namespace TouchVerdicts {
     performance: IAutoMovieMotionHumanPerformance,
     region: IRegion,
     seconds: number,
-  ): { point: IAutoMovieVector3; normal: IAutoMovieVector3 } {
+  ): IPlaceResult {
     const frame = region.body.surfaces.regions[region.region];
     const placed = resolveAutoMovieHumanoidSurfaces.place(
       frame,
@@ -200,10 +212,10 @@ export namespace TouchVerdicts {
     subject: string,
     body: IAutoMovieMotionHumanBody,
     side: AutoMovieHumanSide,
-    other: { subject: string; body: IAutoMovieMotionHumanBody },
+    other: IEntryOther,
     from: number,
     to: number,
-  ): { gap: number; at: number } {
+  ): IEntryResult {
     const own = (bone: AutoMovieHumanoidBone): boolean =>
       other.subject === subject &&
       bone.startsWith(side) &&
@@ -212,7 +224,7 @@ export namespace TouchVerdicts {
       !bone.endsWith("Foot") &&
       !bone.endsWith("Toes") &&
       bone !== `${side}Shoulder`;
-    let best: { gap: number; at: number } = { gap: Infinity, at: from };
+    let best: IEntryBest = { gap: Infinity, at: from };
     for (let t: number = from; t <= to + 1e-9; t += 1 / 24) {
       const arm = performance.bones(subject, t);
       const a: IAutoMovieVector3 = arm.get(`${side}LowerArm`)!.worldPosition;

@@ -23,6 +23,27 @@ import { AutoMovieMotionHumanTouchPath } from "./AutoMovieMotionHumanTouchPath";
 import { AutoMovieMotionHumanTouchUpright } from "./AutoMovieMotionHumanTouchUpright";
 import { HumanTouchArmReference } from "./HumanTouchArmReference";
 
+/** The alternatives of `LiePosture`'s site. */
+type LiePosture = "root" | "yaw";
+
+/** The alternatives of `SettledPlace`'s site. */
+type SettledPlace = "point" | "normal";
+
+/** The alternatives of `RestPlace`'s site. */
+type RestPlace = "point" | "normal";
+
+/** The alternatives of `RestPosture`'s site. */
+type RestPosture = "root" | "yaw";
+
+/** The alternatives of `LaidPlace`'s site. */
+type LaidPlace = "point" | "normal";
+
+/** The alternatives of `BendElbow`'s site. */
+type BendElbow = "natural" | "level";
+
+/** The alternatives of `BendPlace`'s site. */
+type BendPlace = "point" | "normal";
+
 /**
  * An effector laid on a region at rest, before any stroke moves it: the arm
  * goal that lays it, what its two directions lie on by the touch's lay, the
@@ -56,11 +77,11 @@ export namespace AutoMovieMotionHumanTouchLaid {
     posture: IAutoMovieMotionHumanPosture,
     side: AutoMovieHumanSide,
     effector: IAutoMovieMotionHumanTouchEffector.IEffector,
-    place: Pick<IAutoMovieMotionHumanTarget.IPlace, "point" | "normal">,
+    place: Pick<IAutoMovieMotionHumanTarget.IPlace, BendPlace>,
     tangent: IAutoMovieMotionHumanTouchForm.Tangent,
     along: IAutoMovieMotionHumanTouch.ITouch["lay"] = "tangent",
     facing?: IAutoMovieVector3,
-    elbow: "natural" | "level" = "natural",
+    elbow: BendElbow = "natural",
     lean?: number,
   ): IAutoMovieVector3 {
     const normal: IAutoMovieVector3 = Vector3.normalize(place.normal);
@@ -133,7 +154,7 @@ export namespace AutoMovieMotionHumanTouchLaid {
     posture: IAutoMovieMotionHumanPosture,
     side: AutoMovieHumanSide,
     effector: IAutoMovieMotionHumanTouchEffector.IEffector,
-    place: Pick<IAutoMovieMotionHumanTarget.IPlace, "point" | "normal">,
+    place: Pick<IAutoMovieMotionHumanTarget.IPlace, LaidPlace>,
     tangent: IAutoMovieMotionHumanTouchForm.Tangent,
     hint: IAutoMovieVector3,
     along: IAutoMovieMotionHumanTouch.ITouch["lay"] = "tangent",
@@ -192,10 +213,10 @@ export namespace AutoMovieMotionHumanTouchLaid {
    */
   export function rest(
     body: IAutoMovieMotionHumanBody,
-    posture: Pick<IAutoMovieMotionHumanPosture, "root" | "yaw">,
+    posture: Pick<IAutoMovieMotionHumanPosture, RestPosture>,
     side: AutoMovieHumanSide,
     effector: IAutoMovieMotionHumanTouchEffector.IEffector,
-    place: Pick<IAutoMovieMotionHumanTarget.IPlace, "point" | "normal">,
+    place: Pick<IAutoMovieMotionHumanTarget.IPlace, RestPlace>,
     tangent: IAutoMovieMotionHumanTouchForm.Tangent,
     hint: IAutoMovieVector3,
     along: IAutoMovieMotionHumanTouch.ITouch["lay"] = "tangent",
@@ -267,7 +288,7 @@ export namespace AutoMovieMotionHumanTouchLaid {
     posture: IAutoMovieMotionHumanPosture,
     side: AutoMovieHumanSide,
     effector: IAutoMovieMotionHumanTouchEffector.IEffector,
-    place: Pick<IAutoMovieMotionHumanTarget.IPlace, "point" | "normal">,
+    place: Pick<IAutoMovieMotionHumanTarget.IPlace, SettledPlace>,
     tangent: IAutoMovieMotionHumanTouchForm.Tangent,
     elbow: NonNullable<IAutoMovieMotionHumanTouch.ITouch["elbow"]> = "natural",
   ): IAutoMovieVector3 {
@@ -383,7 +404,7 @@ export namespace AutoMovieMotionHumanTouchLaid {
    */
   export function lie(
     body: IAutoMovieMotionHumanBody,
-    posture: Pick<IAutoMovieMotionHumanPosture, "root" | "yaw">,
+    posture: Pick<IAutoMovieMotionHumanPosture, LiePosture>,
     side: AutoMovieHumanSide,
     lay: IAutoMovieMotionHumanTouch.ITouch["lay"],
     point: IAutoMovieVector3,

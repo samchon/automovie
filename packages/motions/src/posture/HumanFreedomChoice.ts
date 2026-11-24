@@ -1,4 +1,28 @@
-import type { IAutoMovieMotionHumanFreedomChoice } from "@automovie/interface";
+import type {
+  AutoMovieHumanSide,
+  IAutoMovieMotionHumanFreedomChoice,
+} from "@automovie/interface";
+
+/** The record of `IChosenFound`'s site. */
+type IChosenFound = { values: number[]; miss: number };
+
+/** The record of `IChosenB`'s site. */
+type IChosenB = { miss: number };
+
+/** The record of `IChosenA`'s site. */
+type IChosenA = { miss: number };
+
+/** The record of `IChosenS`'s site. */
+type IChosenS = { values: number[] };
+
+/** The record of `IChosenFirst`'s site. */
+type IChosenFirst = { values: number[]; miss: number };
+
+/** The record of `IChosenSearchResult`'s site. */
+type IChosenSearchResult = { values: number[]; miss: number };
+
+/** The record of `IChosenSeedsItem`'s site. */
+type IChosenSeedsItem = { values: number[]; miss: number };
 
 /**
  * The values of the freedoms a law leaves a held thing's grasp or pose, chosen
@@ -52,7 +76,7 @@ export namespace HumanFreedomChoice {
    * @throws {RangeError} For a step that is not positive, or so fine that the
    *   multiples up to the half turn are not a safe integer count.
    */
-  export function turns(step: number, side: "left" | "right"): number[] {
+  export function turns(step: number, side: AutoMovieHumanSide): number[] {
     const count: number = Math.floor(180 / step);
     if (!(step > 0 && Number.isSafeInteger(count)))
       throw new RangeError(
@@ -106,7 +130,7 @@ export namespace HumanFreedomChoice {
 
     let best: number[] = within(tried[0]!);
     let least: number = Infinity;
-    const seeds: { values: number[]; miss: number }[] = [];
+    const seeds: IChosenSeedsItem[] = [];
     for (const values of tried) {
       if (least <= EXACT) break;
       const v: number[] = within(values);
@@ -125,7 +149,7 @@ export namespace HumanFreedomChoice {
       start: number[],
       missed: number,
       shares: readonly number[],
-    ): { values: number[]; miss: number } => {
+    ): IChosenSearchResult => {
       let here: number[] = start;
       let low: number = missed;
       for (const share of shares)
@@ -178,22 +202,20 @@ export namespace HumanFreedomChoice {
       });
 
     // The least missed tried value starts first, as the single search did.
-    const first: { values: number[]; miss: number } = {
+    const first: IChosenFirst = {
       values: best,
       miss: least,
     };
     for (const seed of [
       first,
       ...seeds
-        .filter((s: { values: number[] }): boolean => s.values !== best)
-        .sort(
-          (a: { miss: number }, b: { miss: number }): number => a.miss - b.miss,
-        ),
+        .filter((s: IChosenS): boolean => s.values !== best)
+        .sort((a: IChosenA, b: IChosenB): number => a.miss - b.miss),
     ]) {
       if (least <= EXACT || fits >= FITS) break;
       if (ended.some((end: number[]): boolean => near(seed.values, end)))
         continue;
-      const found: { values: number[]; miss: number } = search(
+      const found: IChosenFound = search(
         seed.values,
         seed.miss,
         seed === first ? REFINE : REFINE.slice(1),

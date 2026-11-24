@@ -31,11 +31,6 @@ const ALIGNMENT: number = 1e-6;
  * corridor between the two. The kinematic staging assumes zero apparent gravity
  * and a stationary, upright entry. Full-body clearance, contact forces and
  * transitions into or out of the clip require separate staging.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the contact premise, source, scene constraints and author controls.
- * @evidence contracts/development/design.md#principled-representation An opt-in action law uses existing prop windows, posture goals and action events to represent one push, coast and catch.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The law publishes only its registered name, empty cut table and one plan function.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts A free span uses no ground stance or guessed support. The midpoint clearance is capped by the performer's measured arm extension. The staged values carry no NASA performance claims.
  */
 export const spacecraftGlide: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanSpacecraftGlide> =
   {
@@ -43,10 +38,14 @@ export const spacecraftGlide: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHum
     interrupts: {},
     plan,
   };
+/** The alternatives of `PlanPart`'s site. */
+type PlanPart = "leftHand" | "rightHand";
 
 /**
  * Resolve the handrails once, then evaluate an analytic root path and one grip
  * goal.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States the contact premise, source, scene constraints and author controls.
  */
 function plan(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanSpacecraftGlide>,
@@ -267,7 +266,7 @@ function plan(
   const digits: (keyof typeof closed)[] = Object.keys(
     closed,
   ) as (keyof typeof closed)[];
-  const part: "leftHand" | "rightHand" = `${p.hand}Hand`;
+  const part: PlanPart = `${p.hand}Hand`;
 
   return {
     duration,
@@ -348,12 +347,14 @@ function plan(
     },
   };
 }
+/** The alternatives of `RailField`'s site. */
+type RailField = "departure" | "arrival";
 
 /** Read a named fixed mobility aid from a prop's affordances. */
 function rail(
   craft: IAutoMovieMotionHumanPropReader,
   id: string,
-  field: "departure" | "arrival",
+  field: RailField,
 ): IAutoMovieAffordance {
   const found: IAutoMovieAffordance | undefined = craft.prop.affordances?.find(
     (candidate: IAutoMovieAffordance): boolean => candidate.id === id,

@@ -7,10 +7,13 @@ import type {
 
 import { HumanRefusal } from "../law/HumanRefusal";
 
+/** The alternatives of `EndpointAxis`'s site. */
+type EndpointAxis = "from" | "to";
+
 /** A named support rectangle and its owning prop's motion. */
 interface Endpoint {
   /** The transfer argument identifying the support. */
-  axis: "from" | "to";
+  axis: EndpointAxis;
   /** Read the owning prop's world frame at a film second. */
   frame(seconds: number): IAutoMovieRigidTransform;
   /** The owning prop's world frame at the transfer start. */

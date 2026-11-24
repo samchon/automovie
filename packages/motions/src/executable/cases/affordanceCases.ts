@@ -20,6 +20,18 @@ import type { IMotionCaptureCase } from "../IMotionCaptureCase";
 import { FamilyCaseKit } from "./FamilyCaseKit";
 import { everydayVerdicts } from "./everydayVerdicts";
 
+/** The record of `IAffordanceCasesWorst`'s site. */
+type IAffordanceCasesWorst = { value: number; at: number };
+
+/** The record of `IAffordanceCasesHinge`'s site. */
+type IAffordanceCasesHinge = { at: IAutoMovieVector3 };
+
+/** The record of `IAffordanceCasesRest`'s site. */
+type IAffordanceCasesRest = { at: IAutoMovieVector3 };
+
+/** The record of `IAffordanceCasesMechanismsItem`'s site. */
+type IAffordanceCasesMechanismsItem = { kind: "insert" };
+
 /**
  * Capture cases of the articulated affordances family, each from quiet standing
  * with the right hand, every part within the 2010 ADA hardware band (865 to
@@ -61,7 +73,10 @@ export function affordanceCases(
     });
     const mechanisms: [
       string,
-      Exclude<IAutoMovieMotionHumanOperate.Mechanism, { kind: "insert" }>,
+      Exclude<
+        IAutoMovieMotionHumanOperate.Mechanism,
+        IAffordanceCasesMechanismsItem
+      >,
     ][] = [
       ["button", { kind: "button", at: at(-0.15, 1.1, 0.5) }],
       ["knob", { kind: "knob", at: at(-0.2, 0.95, 0.5), turn: 90 }],
@@ -92,12 +107,12 @@ export function affordanceCases(
       const end: number = FamilyCaseKit.event(performance, "strokeEnd");
       const relax: number = FamilyCaseKit.event(performance, "relax");
       const rest = {
-        point: (mechanism.at as { at: IAutoMovieVector3 }).at,
+        point: (mechanism.at as IAffordanceCasesRest).at,
         normal: towardPerformer,
       };
       const hinge: IAutoMovieMotionHumanOperateDrive.IHinge | undefined =
         mechanism.kind === "hinge"
-          ? { point: (mechanism.hinge as { at: IAutoMovieVector3 }).at }
+          ? { point: (mechanism.hinge as IAffordanceCasesHinge).at }
           : undefined;
       const progress = (t: number): number =>
         t <= start ? 0 : t >= end ? 1 : (t - start) / (end - start);
@@ -116,7 +131,7 @@ export function affordanceCases(
         const u: number = progress(t);
         return u * u * u * (10 - 15 * u + 6 * u * u);
       };
-      let worst: { value: number; at: number } = { value: 0, at: ready };
+      let worst: IAffordanceCasesWorst = { value: 0, at: ready };
       for (let t: number = ready; t <= relax + 1e-9; t += 1 / 24) {
         const want: IAutoMovieVector3 = operate.state(
           mechanism,

@@ -25,6 +25,22 @@ import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { HumanHand } from "../posture/HumanHand";
 import { HumanHandShape } from "../posture/HumanHandShape";
 
+/** The alternatives of `FingersGoal`'s site. */
+type FingersGoal = "shape" | "curl";
+
+/** The alternatives of `PrepareFingersGoal`'s site. */
+type PrepareFingersGoal = "shape" | "curl";
+
+/** The record of `IPrepareTarget`'s site. */
+type IPrepareTarget = {
+  surface: IAutoMovieMotionHumanHand.Surface;
+  shape: IAutoMovieMotionHumanHand.Shape;
+  emit: ReturnType<typeof AutoMovieMotionHumanArmTarget.prepareSidedTarget>;
+};
+
+/** The alternatives of `PrepareP`'s site. */
+type PrepareP = "turn" | "shape" | "aim";
+
 /**
  * A gesture's hands: each moving hand's request on the stroke's goal and its
  * fingers' shape at a second, and the moving arms planned over the whole
@@ -65,7 +81,7 @@ export namespace gestureHands {
   export function prepare(
     body: IAutoMovieMotionHumanBody,
     side: AutoMovieHumanSide,
-    p: Pick<IAutoMovieMotionHumanGesture.IParams, "turn" | "shape" | "aim">,
+    p: Pick<IAutoMovieMotionHumanGesture.IParams, PrepareP>,
     digit: IAutoMovieVector3 | undefined,
     elbow: number,
   ): IPrepared {
@@ -84,17 +100,9 @@ export namespace gestureHands {
       p.shape === undefined ? undefined : HumanHandShape.emblem(side, p.shape);
     const shapes: Map<IAutoMovieMotionHumanHand.Shape, readonly IFinger[]> =
       new Map();
-    let target:
-      | {
-          surface: IAutoMovieMotionHumanHand.Surface;
-          shape: IAutoMovieMotionHumanHand.Shape;
-          emit: ReturnType<
-            typeof AutoMovieMotionHumanArmTarget.prepareSidedTarget
-          >;
-        }
-      | undefined;
+    let target: IPrepareTarget | undefined;
     const fingers: IPrepared["fingers"] = (
-      goal: Pick<IAutoMovieMotionHumanGestureStroke.IHand, "shape" | "curl">,
+      goal: Pick<IAutoMovieMotionHumanGestureStroke.IHand, PrepareFingersGoal>,
       envelope: number,
       output?: IAutoMovieMotionHumanPosture["joints"],
     ): IAutoMovieMotionHumanPosture["joints"] => {
@@ -225,7 +233,7 @@ export namespace gestureHands {
      * map.
      */
     fingers(
-      goal: Pick<IAutoMovieMotionHumanGestureStroke.IHand, "shape" | "curl">,
+      goal: Pick<IAutoMovieMotionHumanGestureStroke.IHand, FingersGoal>,
       envelope: number,
       output?: IAutoMovieMotionHumanPosture["joints"],
     ): IAutoMovieMotionHumanPosture["joints"];

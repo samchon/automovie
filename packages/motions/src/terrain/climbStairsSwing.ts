@@ -30,12 +30,12 @@ export function climbStairsSwing(
   framed: HumanFrame.IPrepared,
   required: (side: AutoMovieHumanSide) => (z: number) => number,
 ): (
-  side: "left" | "right",
+  side: AutoMovieHumanSide,
   a: IAutoMovieMotionHumanFoot.IPlacement,
   b: IAutoMovieMotionHumanFoot.IPlacement,
 ) => (s: number) => IAutoMovieMotionHumanFoot.IPlacement {
   return (
-    side: "left" | "right",
+    side: AutoMovieHumanSide,
     a: IAutoMovieMotionHumanFoot.IPlacement,
     b: IAutoMovieMotionHumanFoot.IPlacement,
   ): ((s: number) => IAutoMovieMotionHumanFoot.IPlacement) => {

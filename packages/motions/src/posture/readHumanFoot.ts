@@ -1,5 +1,6 @@
 import { resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieHumanoidSurfaces,
   IAutoMovieMotionHumanBody,
@@ -16,12 +17,14 @@ interface IReading {
    * The original bearing base; sides keep their given order and default to
    * both.
    */
-  base(sides?: readonly ("left" | "right")[]): IAutoMovieVector3[];
+  base(sides?: readonly AutoMovieHumanSide[]): IAutoMovieVector3[];
   /**
    * A side's borrowed placed sockets, heel first; do not mutate them during
    * this reading.
    */
-  sockets(side: "left" | "right"): readonly IAutoMovieMotionHumanFoot.ISocket[];
+  sockets(
+    side: AutoMovieHumanSide,
+  ): readonly IAutoMovieMotionHumanFoot.ISocket[];
 }
 
 /**
@@ -35,13 +38,13 @@ export function readHumanFoot(
   body: IAutoMovieMotionHumanBody,
   bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
 ): IReading {
-  const placed: Map<"left" | "right", IAutoMovieMotionHumanFoot.ISocket[]> =
+  const placed: Map<AutoMovieHumanSide, IAutoMovieMotionHumanFoot.ISocket[]> =
     new Map();
-  const outlines: Map<"left" | "right", IAutoMovieVector3[]> = new Map();
+  const outlines: Map<AutoMovieHumanSide, IAutoMovieVector3[]> = new Map();
 
   /** Place a side's actual sockets on its bound displayed bones once. */
   function sockets(
-    side: "left" | "right",
+    side: AutoMovieHumanSide,
   ): IAutoMovieMotionHumanFoot.ISocket[] {
     let points: IAutoMovieMotionHumanFoot.ISocket[] | undefined =
       placed.get(side);
@@ -54,9 +57,9 @@ export function readHumanFoot(
   return {
     sockets,
     base: (
-      sides: readonly ("left" | "right")[] = ["left", "right"],
+      sides: readonly AutoMovieHumanSide[] = ["left", "right"],
     ): IAutoMovieVector3[] =>
-      sides.flatMap((side: "left" | "right"): IAutoMovieVector3[] => {
+      sides.flatMap((side: AutoMovieHumanSide): IAutoMovieVector3[] => {
         let corners: IAutoMovieVector3[] | undefined = outlines.get(side);
         if (corners === undefined) {
           corners = HumanFoot.outline(body, side).map(

@@ -5,6 +5,7 @@ import {
   superposeMinimumJerk,
 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieHumanLimbGoal,
   IAutoMovieHumanLimbReference,
@@ -23,6 +24,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { HumanLimbFit } from "../posture/HumanLimbFit";
 import { blendHumanJoint } from "../posture/blendHumanJoint";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
@@ -37,6 +39,21 @@ import { punchContact } from "./punchContact";
 import { punchFootwork } from "./punchFootwork";
 import type { punchLaunch } from "./punchLaunch";
 import type { punchReach } from "./punchReach";
+
+/** The record of `IBuildComposeBare`'s site. */
+type IBuildComposeBare = {
+  base: punchFootwork.IFootwork["base"];
+  hint: (clock: number) => IAutoMovieVector3;
+};
+
+/** The alternatives of `BuildOff`'s site. */
+type BuildOff = "leftArm" | "rightArm";
+
+/** The alternatives of `BuildArm`'s site. */
+type BuildArm = "leftArm" | "rightArm";
+
+/** The alternatives of `TimingWhich`'s site. */
+type TimingWhich = "lead" | "rear";
 
 /**
  * A built punch: the stroke of the wrist from the launch through the contact
@@ -64,13 +81,13 @@ export namespace punchGeometry {
   /** A punch's timing. */
   export interface ITiming {
     /** The punching side. */
-    side: "left" | "right";
+    side: AutoMovieHumanSide;
 
     /** The stance's lead side. */
-    lead: "left" | "right";
+    lead: AutoMovieHumanSide;
 
     /** Lead or rear hand. */
-    which: "lead" | "rear";
+    which: TimingWhich;
 
     /** Launch to contact, seconds. */
     delivery: number;
@@ -133,8 +150,7 @@ export namespace punchGeometry {
       StrikingStance.prepareGuard(context.body, { lead });
     const body = context.body;
     const t0: number = context.start;
-    const arm: "leftArm" | "rightArm" =
-      side === "left" ? "leftArm" : "rightArm";
+    const arm: BuildArm = side === "left" ? "leftArm" : "rightArm";
     const contact: punchContact.IContact = punchContact.solve(
       context,
       timing,
@@ -303,7 +319,7 @@ export namespace punchGeometry {
     // the contact. Each solution's anchor is the arm resolved on it at the
     // contact, its own step under it; the anchor carried at a second
     // follows the corrections arrived by then.
-    const launch: IAutoMovieHumanLimbReference = resolveHumanPosture.reference(
+    const launch: IAutoMovieHumanLimbReference = HumanLimbFit.reference(
       context.entry.pose,
       arm,
     );
@@ -315,7 +331,7 @@ export namespace punchGeometry {
         const fixedStep: punchFootwork.IFootwork = walk(
           (): number => reach.advance,
         );
-        found = resolveHumanPosture.reference(
+        found = HumanLimbFit.reference(
           resolveHumanPosture(
             body,
             compose(shown, reach.solved.end, shown, {
@@ -378,9 +394,8 @@ export namespace punchGeometry {
     // over the delivery: a punch thrown from a guard keeps it, one thrown
     // from a stand raises it, instead of the guard's goal being taken at the
     // launch and the arm thrown out round it.
-    const off: "leftArm" | "rightArm" =
-      arm === "leftArm" ? "rightArm" : "leftArm";
-    const offSide: "left" | "right" = side === "left" ? "right" : "left";
+    const off: BuildOff = arm === "leftArm" ? "rightArm" : "leftArm";
+    const offSide: AutoMovieHumanSide = side === "left" ? "right" : "left";
     const offHeld: IAutoMovieHumanLimbGoal | undefined =
       context.entry.posture.limbs[off];
     const shownOff: ReturnType<typeof poseBones> | undefined =
@@ -423,10 +438,7 @@ export namespace punchGeometry {
       t: number,
       end: IAutoMovieVector3,
       clock: number = t,
-      bare?: {
-        base: punchFootwork.IFootwork["base"];
-        hint: (clock: number) => IAutoMovieVector3;
-      },
+      bare?: IBuildComposeBare,
       source?: Parameters<typeof prepareHumanPoseResolution>[0],
       projection?: ReturnType<typeof prepareHumanPostureProjection>,
     ): IAutoMovieMotionHumanPosture => {

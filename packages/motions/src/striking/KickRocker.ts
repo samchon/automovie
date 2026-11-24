@@ -1,5 +1,6 @@
 import { Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanFoot,
   IAutoMovieVector3,
@@ -26,7 +27,7 @@ import type { KickChamber } from "./KickChamber";
  */
 export function KickRocker(
   body: IAutoMovieMotionHumanBody,
-  side: "left" | "right",
+  side: AutoMovieHumanSide,
   plant: KickChamber.IKey,
 ): KickRocker.Reader {
   const sole: ReturnType<typeof HumanFoot.headingPitch> =

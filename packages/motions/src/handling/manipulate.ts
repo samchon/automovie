@@ -22,6 +22,20 @@ import { manipulateFacing } from "./manipulateFacing";
 import { manipulateFingering } from "./manipulateFingering";
 import { manipulatePlan } from "./manipulatePlan";
 
+/** The record of `ISequenceGivenPlaced`'s site. */
+type ISequenceGivenPlaced = {
+  point: IAutoMovieVector3;
+  normal: IAutoMovieVector3;
+  travel: number | undefined;
+};
+
+/** The record of `ISequenceSitesEntry`'s site. */
+type ISequenceSitesEntry = {
+  point: IAutoMovieVector3;
+  normal: IAutoMovieVector3;
+  travel: number | undefined;
+};
+
 /**
  * A keyed contact sequence: digits of one hand or both pressing sites of a prop
  * one after another, timed by the caller or by skill. Typing, a piano's keys, a
@@ -103,14 +117,7 @@ export namespace manipulate {
     const read: IAutoMovieMotionHumanPropReader = context.prop(params.prop);
     const frame: IAutoMovieRigidTransform = read.frame(context.start);
     const side: AutoMovieHumanSide = params.hand === "left" ? "left" : "right";
-    const sites: Map<
-      string,
-      {
-        point: IAutoMovieVector3;
-        normal: IAutoMovieVector3;
-        travel: number | undefined;
-      }
-    > = new Map();
+    const sites: Map<string, ISequenceSitesEntry> = new Map();
 
     // A text on a keyboard: each key's site from typing's layout and its
     // digit from the touch-typing chart.
@@ -121,13 +128,7 @@ export namespace manipulate {
             (
               c: IAutoMovieMotionHumanManipulate.IContact,
             ): IAutoMovieMotionHumanManipulate.IContactAt => {
-              let placed:
-                | {
-                    point: IAutoMovieVector3;
-                    normal: IAutoMovieVector3;
-                    travel: number | undefined;
-                  }
-                | undefined = sites.get(c.site);
+              let placed: ISequenceGivenPlaced | undefined = sites.get(c.site);
               if (placed === undefined) {
                 const affordance: IAutoMovieAffordance = site(
                   read.prop,
@@ -331,6 +332,8 @@ const site: (
     });
   return found;
 };
+/** The record of `ITypedKey`'s site. */
+type ITypedKey = { at: IAutoMovieVector3; side: AutoMovieHumanSide };
 
 /** A text's presses on a keyboard prop: typing's key layout, the chart's digits. */
 const typed: (
@@ -350,8 +353,7 @@ const typed: (
   );
   return [...text].map(
     (letter: string): IAutoMovieMotionHumanManipulate.IContactAt => {
-      const key: { at: IAutoMovieVector3; side: AutoMovieHumanSide } =
-        typeText.key(letter);
+      const key: ITypedKey = typeText.key(letter);
 
       // A named digit types every key with the hand on the key's side, as two-
       // finger typing does; otherwise the touch-typing chart assigns it.

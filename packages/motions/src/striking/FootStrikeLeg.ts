@@ -15,6 +15,7 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanFootRelax } from "../compose/AutoMovieMotionHumanFootRelax";
+import { HumanLimbFit } from "../posture/HumanLimbFit";
 import { blendHumanJoint } from "../posture/blendHumanJoint";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
@@ -31,6 +32,8 @@ interface IKey {
   /** The ankle's clinical angles there, degrees. */
   ankle: readonly [number, number, number];
 }
+/** The alternatives of `FootStrikeLegSolveGoal`'s site. */
+type FootStrikeLegSolveGoal = "point" | "bend" | "rotation";
 
 /**
  * The kicking leg of a foot strike: planted until its release, lifted and
@@ -95,7 +98,7 @@ export function FootStrikeLeg(
   // keys' own attitudes: free at the chamber, the form's at the contact.
   const solve = (
     seconds: number,
-    goal: Pick<IAutoMovieHumanLimbGoal, "point" | "bend" | "rotation">,
+    goal: Pick<IAutoMovieHumanLimbGoal, FootStrikeLegSolveGoal>,
   ): IKey => {
     const pose: ReturnType<typeof resolveHumanPosture> = resolveHumanPosture(
       body,
@@ -108,7 +111,7 @@ export function FootStrikeLeg(
       },
     );
     return {
-      reference: resolveHumanPosture.reference(pose, limb),
+      reference: HumanLimbFit.reference(pose, limb),
       attitude: poseBones(
         body,
         pose,
@@ -125,7 +128,7 @@ export function FootStrikeLeg(
     return [j?.flexion ?? 0, j?.abduction ?? 0, j?.twist ?? 0];
   }
   const rest: IKey = {
-    reference: resolveHumanPosture.reference(pose, limb),
+    reference: HumanLimbFit.reference(pose, limb),
     attitude: feet[side].rotation,
     ankle: ankleOf(pose),
   };

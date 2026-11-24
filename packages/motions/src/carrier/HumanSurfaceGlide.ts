@@ -1,5 +1,6 @@
 import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionPlan,
@@ -18,7 +19,7 @@ import { HumanRefusal } from "../law/HumanRefusal";
 import { carryHumanPosture } from "../posture/carryHumanPosture";
 
 /** Fixed traversal order of the two independently fitted feet. */
-const SIDES: readonly ("left" | "right")[] = ["left", "right"];
+const SIDES: readonly AutoMovieHumanSide[] = ["left", "right"];
 
 /** Up and right of the tangent-plane frame before it is turned to the entry. */
 const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
@@ -28,6 +29,8 @@ const RIGHT: IAutoMovieVector3 = { x: 1, y: 0, z: 0 };
 
 /** Forward of the tangent-plane frame before it is turned to the entry. */
 const FORWARD: IAutoMovieVector3 = { x: 0, y: 0, z: 1 };
+/** The alternatives of `PlanPart`'s site. */
+type PlanPart = "leftLeg" | "rightLeg";
 
 /**
  * One continuous bilateral glide for ice and snow. An authored arc travels in a
@@ -104,7 +107,7 @@ export namespace HumanSurfaceGlide {
     if (
       entry.base.kind !== "standing" ||
       SIDES.some(
-        (side: "left" | "right"): boolean =>
+        (side: AutoMovieHumanSide): boolean =>
           !entry.supports.some(
             (support: IAutoMovieMotionHumanEntryState.ISupport): boolean =>
               support.part === `${side}Foot` &&
@@ -125,7 +128,7 @@ export namespace HumanSurfaceGlide {
       });
 
     const start: IAutoMovieMotionHumanPosture = entry.posture;
-    const ankle: Record<"left" | "right", IAutoMovieVector3> = {
+    const ankle: Record<AutoMovieHumanSide, IAutoMovieVector3> = {
       left: entry.feet.left.ankle,
       right: entry.feet.right.ankle,
     };
@@ -150,12 +153,12 @@ export namespace HumanSurfaceGlide {
     const travel: number =
       speed * (seconds - braking / 2) + ((enteredSpeed - speed) * acquire) / 2;
     const curvature: number = (turn * Quaternion.DEG2RAD) / travel;
-    const foot = (side: "left" | "right"): IAutoMovieVector3 =>
+    const foot = (side: AutoMovieHumanSide): IAutoMovieVector3 =>
       Quaternion.rotateVector(
         inverse,
         Vector3.subtract(ankle[side], origin.position),
       );
-    const local: Record<"left" | "right", IAutoMovieVector3> = {
+    const local: Record<AutoMovieHumanSide, IAutoMovieVector3> = {
       left: foot("left"),
       right: foot("right"),
     };
@@ -163,7 +166,8 @@ export namespace HumanSurfaceGlide {
       !Number.isFinite(travel) ||
       !Number.isFinite(curvature) ||
       SIDES.some(
-        (side: "left" | "right"): boolean => 1 - curvature * local[side].x <= 0,
+        (side: AutoMovieHumanSide): boolean =>
+          1 - curvature * local[side].x <= 0,
       )
     )
       throw new HumanRefusal({
@@ -176,13 +180,13 @@ export namespace HumanSurfaceGlide {
         fix: "use a gentler turn, a longer duration or a higher travel speed",
       });
 
-    const tangent = (side: "left" | "right"): IAutoMovieQuaternion =>
+    const tangent = (side: AutoMovieHumanSide): IAutoMovieQuaternion =>
       Quaternion.fromAxisAngle(
         UP,
         Math.atan2(curvature * local[side].z, 1 - curvature * local[side].x) /
           Quaternion.DEG2RAD,
       );
-    const toe: Record<"left" | "right", IAutoMovieQuaternion> = {
+    const toe: Record<AutoMovieHumanSide, IAutoMovieQuaternion> = {
       left: tangent("left"),
       right: tangent("right"),
     };
@@ -194,7 +198,7 @@ export namespace HumanSurfaceGlide {
       0,
     );
     const contacts: IAutoMovieMotionHumanContactWindow[] = SIDES.map(
-      (side: "left" | "right"): IAutoMovieMotionHumanContactWindow => ({
+      (side: AutoMovieHumanSide): IAutoMovieMotionHumanContactWindow => ({
         part: `${side}Foot`,
         kind: "bear",
         from: 0,
@@ -275,7 +279,7 @@ export namespace HumanSurfaceGlide {
           inverse,
         );
         for (const side of SIDES) {
-          const part: "leftLeg" | "rightLeg" = `${side}Leg`;
+          const part: PlanPart = `${side}Leg`;
           const knee: IAutoMovieHumanLimbGoal = knees[part]!;
           const before: IAutoMovieQuaternion = Quaternion.multiply(
             delta,

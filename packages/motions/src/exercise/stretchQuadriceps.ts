@@ -1,10 +1,21 @@
 import { Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanRange } from "../compose/AutoMovieMotionHumanRange";
+
+/** The record of `IStretchQuadricepsProps`'s site. */
+type IStretchQuadricepsProps = {
+  body: IAutoMovieMotionHumanBody;
+  side: AutoMovieHumanSide;
+  hip: IAutoMovieVector3;
+  shoulder: IAutoMovieVector3;
+  forward: IAutoMovieVector3;
+  least: number;
+};
 
 /**
  * Where the lifted ankle is held in the standing quadriceps stretch: the least
@@ -23,14 +34,9 @@ import { AutoMovieMotionHumanRange } from "../compose/AutoMovieMotionHumanRange"
  *   points in world metres.
  * @returns The ankle, world metres.
  */
-export function stretchQuadriceps(props: {
-  body: IAutoMovieMotionHumanBody;
-  side: "left" | "right";
-  hip: IAutoMovieVector3;
-  shoulder: IAutoMovieVector3;
-  forward: IAutoMovieVector3;
-  least: number;
-}): IAutoMovieVector3 {
+export function stretchQuadriceps(
+  props: IStretchQuadricepsProps,
+): IAutoMovieVector3 {
   const m: IAutoMovieMotionHumanBody["measure"] = props.body.measure;
   // A segment hanging straight down, turned back by an angle.
   const turned: (length: number, degrees: number) => IAutoMovieVector3 = (

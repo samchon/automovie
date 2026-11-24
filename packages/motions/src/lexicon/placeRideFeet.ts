@@ -18,6 +18,7 @@ import type {
 
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFoot } from "../posture/HumanFoot";
+import { humanPostureHeading } from "../posture/humanPostureHeading";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
@@ -175,7 +176,7 @@ export namespace placeRideFeet {
     const goal: IAutoMovieHumanLimbGoal =
       pose.limbs[foot.side === "left" ? "leftLeg" : "rightLeg"]!;
     if (share <= 0) return goal;
-    const level: IAutoMovieQuaternion = resolveHumanPosture.heading(pose);
+    const level: IAutoMovieQuaternion = humanPostureHeading(pose);
     const entry: IAutoMovieQuaternion = goal.rotation ?? level;
     const target: IAutoMovieMotionHumanProp.IPlacedPoint = foot.at(film);
     const normal: IAutoMovieVector3 = Quaternion.rotateVector(

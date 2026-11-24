@@ -9,6 +9,7 @@ import {
   preparePoseResolution,
 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   AutoMovieHumanoidRegion,
   IAutoMovieCurlChainUntilContact,
@@ -35,6 +36,12 @@ import { HumanShapeFraming } from "./HumanShapeFraming";
 import { poseBones } from "./poseBones";
 import { prepareHumanPoseResolution } from "./prepareHumanPoseResolution";
 import { selectHumanDigitGoals } from "./selectHumanDigitGoals";
+
+/** The record of `IFittedWorld`'s site. */
+type IFittedWorld = { point: IAutoMovieVector3; normal?: IAutoMovieVector3 };
+
+/** The alternatives of `FittedSide`'s site. */
+type FittedSide = "Left" | "Right";
 
 /**
  * A posture's digit goals fitted on a pose whose arms are already placed: each
@@ -93,18 +100,18 @@ export namespace HumanDigitFit {
       const goal: IAutoMovieHumanDigitGoal | undefined = digits[digit];
       if (goal === undefined) continue;
       const workspace: ReturnType<typeof preparePoseResolution> = prepared();
-      const side: "left" | "right" = digit.startsWith("left")
+      const side: AutoMovieHumanSide = digit.startsWith("left")
         ? "left"
         : "right";
       const name: string = digit.slice(side.length);
-      const Side: "Left" | "Right" = side === "left" ? "Left" : "Right";
+      const Side: FittedSide = side === "left" ? "Left" : "Right";
       const region: IAutoMovieHumanoidSurfaces.IFrame =
         body.surfaces.regions[
           `${name.toLowerCase()}${goal.surface === "tip" ? "Tip" : "Pad"}${Side}` as AutoMovieHumanoidRegion
         ];
 
       // A goal on a bone is read in that bone's posed frame.
-      const world: { point: IAutoMovieVector3; normal?: IAutoMovieVector3 } =
+      const world: IFittedWorld =
         goal.on === undefined
           ? goal
           : carried(body, out, goal.on, goal, workspace);
@@ -173,7 +180,7 @@ export namespace HumanDigitFit {
   export function depth(
     body: IAutoMovieMotionHumanBody,
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
-    side?: "left" | "right",
+    side?: AutoMovieHumanSide,
     placed: readonly IAutoMovieMotionHumanColliders.IPlaced[] = HumanColliders.placed(
       body,
       bones,
@@ -385,7 +392,7 @@ export namespace HumanDigitFit {
    * @returns The bones.
    */
   export function bones(
-    side: "left" | "right",
+    side: AutoMovieHumanSide,
     name: string,
   ): AutoMovieHumanoidBone[] {
     const segments: readonly string[] =
@@ -440,7 +447,7 @@ function depthAt(
   body: IAutoMovieMotionHumanBody,
   bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
   placed: readonly IAutoMovieMotionHumanColliders.IPlaced[],
-  side: "left" | "right",
+  side: AutoMovieHumanSide,
   threshold: number = Infinity,
 ): number {
   const near: IAutoMovieCurlChainUntilContact.ICollider[] = nearBody(
@@ -474,6 +481,8 @@ function depthAt(
   }
   return deepest;
 }
+/** The record of `INearBodyBall`'s site. */
+type INearBodyBall = { centre: IAutoMovieVector3; radius: number };
 
 /**
  * The body's colliders near a hand, in the world: every shape but its own
@@ -484,12 +493,12 @@ const nearBody: (
   body: IAutoMovieMotionHumanBody,
   bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
   placed: readonly IAutoMovieMotionHumanColliders.IPlaced[],
-  side: "left" | "right",
+  side: AutoMovieHumanSide,
 ) => IAutoMovieCurlChainUntilContact.ICollider[] = (
   body: IAutoMovieMotionHumanBody,
   bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
   placed: readonly IAutoMovieMotionHumanColliders.IPlaced[],
-  side: "left" | "right",
+  side: AutoMovieHumanSide,
 ): IAutoMovieCurlChainUntilContact.ICollider[] => {
   const hand: IAutoMovieVector3 = bones.get(`${side}Hand`)!.worldPosition;
   return placed
@@ -504,8 +513,7 @@ const nearBody: (
       ): IAutoMovieCurlChainUntilContact.ICollider[] =>
         p.shapes
           .filter((shape: IAutoMoviePhysicalShape): boolean => {
-            const ball: { centre: IAutoMovieVector3; radius: number } =
-              HumanShapeFraming.sphere(p.pose, shape);
+            const ball: INearBodyBall = HumanShapeFraming.sphere(p.pose, shape);
             return (
               Vector3.length(Vector3.subtract(ball.centre, hand)) <
               ball.radius + body.measure.hand
@@ -546,6 +554,11 @@ const phalanges: (
   );
   return points;
 };
+/** The record of `ICarriedResult`'s site. */
+type ICarriedResult = { point: IAutoMovieVector3; normal?: IAutoMovieVector3 };
+
+/** The record of `ICarried`'s site. */
+type ICarried = { point: IAutoMovieVector3; normal?: IAutoMovieVector3 };
 
 /** A goal's point and normal carried from a bone's posed frame into the world. */
 const carried: (
@@ -554,13 +567,13 @@ const carried: (
   bone: AutoMovieHumanoidBone,
   goal: IAutoMovieHumanDigitGoal,
   prepared: ReturnType<typeof preparePoseResolution>,
-) => { point: IAutoMovieVector3; normal?: IAutoMovieVector3 } = (
+) => ICarried = (
   body: IAutoMovieMotionHumanBody,
   pose: IAutoMoviePose,
   bone: AutoMovieHumanoidBone,
   goal: IAutoMovieHumanDigitGoal,
   prepared: ReturnType<typeof preparePoseResolution>,
-): { point: IAutoMovieVector3; normal?: IAutoMovieVector3 } => {
+): ICarriedResult => {
   const placed: IAutoMovieResolvedBone = poseBones(
     body,
     pose,

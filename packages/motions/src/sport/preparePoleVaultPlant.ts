@@ -21,6 +21,32 @@ import { prepareHumanPostureProjection } from "../posture/prepareHumanPosturePro
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { GymnasticsFlight } from "./GymnasticsFlight";
 
+/** The record of `IPreparePoleVaultPlantLast`'s site. */
+type IPreparePoleVaultPlantLast = { y: number; miss: number };
+
+/** The record of `IPreparePoleVaultPlantResult`'s site. */
+type IPreparePoleVaultPlantResult = {
+  posture: IAutoMovieMotionHumanPosture;
+  tip: IAutoMovieVector3;
+  grip: IAutoMovieVector3;
+  centre: IAutoMovieVector3;
+};
+
+/** The record of `IPreparePoleVaultPlantProps`'s site. */
+type IPreparePoleVaultPlantProps = {
+  body: IAutoMovieMotionHumanBody;
+  model: IAutoMovieResolveCenterOfMass.IModel;
+  side: AutoMovieHumanSide;
+  end: IAutoMovieVector3;
+  height: number;
+  passes: number;
+  posture: (
+    height: number,
+    resolution: ReturnType<typeof prepareHumanPoseResolution>,
+    projection: ReturnType<typeof prepareHumanPostureProjection>,
+  ) => IAutoMovieMotionHumanPosture;
+};
+
 /**
  * Fit the pole end to the floor with the vault's original wrist-height secant
  * corrections. Every actual trial keeps its full source solve, original
@@ -34,24 +60,9 @@ import { GymnasticsFlight } from "./GymnasticsFlight";
  *   all in world metres except the posture's clinical degrees. No workspace or
  *   canonical trial pose escapes.
  */
-export function preparePoleVaultPlant(props: {
-  body: IAutoMovieMotionHumanBody;
-  model: IAutoMovieResolveCenterOfMass.IModel;
-  side: AutoMovieHumanSide;
-  end: IAutoMovieVector3;
-  height: number;
-  passes: number;
-  posture: (
-    height: number,
-    resolution: ReturnType<typeof prepareHumanPoseResolution>,
-    projection: ReturnType<typeof prepareHumanPostureProjection>,
-  ) => IAutoMovieMotionHumanPosture;
-}): {
-  posture: IAutoMovieMotionHumanPosture;
-  tip: IAutoMovieVector3;
-  grip: IAutoMovieVector3;
-  centre: IAutoMovieVector3;
-} {
+export function preparePoleVaultPlant(
+  props: IPreparePoleVaultPlantProps,
+): IPreparePoleVaultPlantResult {
   const read: ReturnType<typeof prepareHumanPoseResolution> =
     prepareHumanPoseResolution();
   const projection: ReturnType<typeof prepareHumanPostureProjection> =
@@ -90,7 +101,7 @@ export function preparePoleVaultPlant(props: {
     );
   let height: number = props.height;
   let shown: ITrial = trial(height);
-  let last: { y: number; miss: number } | undefined;
+  let last: IPreparePoleVaultPlantLast | undefined;
   for (let pass: number = 0; pass < props.passes; pass++) {
     const miss: number = endOf(shown.bones).y;
     if (Math.abs(miss) <= 1e-3) break;

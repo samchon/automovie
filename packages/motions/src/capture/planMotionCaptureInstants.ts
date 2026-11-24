@@ -1,5 +1,23 @@
 import type { IAutoMovieMotionHumanPlanMotionCaptureInstants } from "@automovie/interface";
 
+/** The record of `IPlanMotionCaptureInstantsResult`'s site. */
+type IPlanMotionCaptureInstantsResult = { seconds: number; label: string };
+
+/** The record of `IPlanMotionCaptureInstantsInstant`'s site. */
+type IPlanMotionCaptureInstantsInstant = {
+  seconds: number;
+  labels: string[];
+};
+
+/** The record of `IPlanMotionCaptureInstantsKnown`'s site. */
+type IPlanMotionCaptureInstantsKnown = { seconds: number; labels: string[] };
+
+/** The record of `IPlanMotionCaptureInstantsInstantsEntry`'s site. */
+type IPlanMotionCaptureInstantsInstantsEntry = {
+  seconds: number;
+  labels: string[];
+};
+
 /**
  * The instants a motion case's capture draws, each named by the case's own
  * label: one per second written to the millisecond, the resolution a capture
@@ -16,21 +34,20 @@ import type { IAutoMovieMotionHumanPlanMotionCaptureInstants } from "@automovie/
 export function planMotionCaptureInstants(
   times: IAutoMovieMotionHumanPlanMotionCaptureInstants.ITimes,
 ): IAutoMovieMotionHumanPlanMotionCaptureInstants.IResult {
-  const instants: Map<string, { seconds: number; labels: string[] }> =
+  const instants: Map<string, IPlanMotionCaptureInstantsInstantsEntry> =
     new Map();
   for (const time of times) {
     const key: string = time.seconds.toFixed(3);
-    const known: { seconds: number; labels: string[] } | undefined =
+    const known: IPlanMotionCaptureInstantsKnown | undefined =
       instants.get(key);
     if (known === undefined)
       instants.set(key, { seconds: time.seconds, labels: [time.label] });
     else if (!known.labels.includes(time.label)) known.labels.push(time.label);
   }
   return [...instants.values()].map(
-    (instant: {
-      seconds: number;
-      labels: string[];
-    }): { seconds: number; label: string } => ({
+    (
+      instant: IPlanMotionCaptureInstantsInstant,
+    ): IPlanMotionCaptureInstantsResult => ({
       seconds: instant.seconds,
       label: instant.labels.join(" / "),
     }),

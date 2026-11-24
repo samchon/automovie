@@ -18,6 +18,9 @@ import type { HumanArmTrajectorySweep } from "./HumanArmTrajectorySweep";
 import { HumanArmTrajectoryTerms as T } from "./HumanArmTrajectoryTerms";
 import { HumanArmTrajectoryTravel as V } from "./HumanArmTrajectoryTravel";
 
+/** The alternatives of `ConvexifyCarriedOwner`'s site. */
+type ConvexifyCarriedOwner = "upper" | "lower" | "hand";
+
 /**
  * The convex subproblem of an arms' trajectory about an iterate
  * (`HumanArmTrajectoryModel`), TrajOpt's: the objective's quadratic model and
@@ -106,7 +109,7 @@ export namespace HumanArmTrajectoryConvex {
     const carried = (
       b: number,
       k: number,
-      owner: "upper" | "lower" | "hand",
+      owner: ConvexifyCarriedOwner,
       p: IAutoMovieVector3,
     ): IAutoMovieVector3[] => J.carried(at, jac, b, k, owner, p);
     x.forEach((arm, a: number): void => {

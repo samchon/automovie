@@ -1,4 +1,5 @@
 import type {
+  AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanFoot,
   IAutoMovieVector3,
@@ -22,7 +23,7 @@ export namespace jumpLanding {
   /** The landing's places. */
   export interface ILanding {
     /** Each foot flat on its footprint, world metres. */
-    feet: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement>;
+    feet: Record<AutoMovieHumanSide, IAutoMovieMotionHumanFoot.IPlacement>;
 
     /** The root at touchdown, world metres. */
     touched: IAutoMovieVector3;
@@ -67,9 +68,9 @@ export namespace jumpLanding {
       yaw: heading,
     });
     const footprint: (
-      s: "left" | "right",
+      s: AutoMovieHumanSide,
     ) => IAutoMovieMotionHumanFoot.IPlacement = (
-      s: "left" | "right",
+      s: AutoMovieHumanSide,
     ): IAutoMovieMotionHumanFoot.IPlacement => ({
       ankle: frame.point({
         x: (s === "left" ? 1 : -1) * Math.abs(body.rest.get(`${s}Foot`)!.x),
@@ -81,11 +82,13 @@ export namespace jumpLanding {
         0,
       ),
     });
-    const feet: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement> =
-      {
-        left: footprint("left"),
-        right: footprint("right"),
-      };
+    const feet: Record<
+      AutoMovieHumanSide,
+      IAutoMovieMotionHumanFoot.IPlacement
+    > = {
+      left: footprint("left"),
+      right: footprint("right"),
+    };
 
     // The landing ends in the quiet stance over these feet, so it ends at
     // the root the standing law places there; touchdown and absorption are

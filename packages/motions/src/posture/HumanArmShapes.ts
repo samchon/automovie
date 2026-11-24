@@ -14,6 +14,36 @@ import type {
 import { HumanArmGeometry as G } from "./HumanArmGeometry";
 import { HumanShapeFraming } from "./HumanShapeFraming";
 
+/** The record of `IRelativeResult`'s site. */
+type IRelativeResult = { point: IAutoMovieVector3; turn: IAutoMovieQuaternion };
+
+/** The alternatives of `ReachableOwner`'s site. */
+type ReachableOwner = "upper" | "lower" | "hand";
+
+/** The alternatives of `ReachableOriginEntry`'s site. */
+type ReachableOriginEntry = "upper" | "lower" | "hand";
+
+/** The alternatives of `ReachableBeforeEntry`'s site. */
+type ReachableBeforeEntry = "upper" | "lower" | "hand";
+
+/** The alternatives of `ScreenOfOwner2`'s site. */
+type ScreenOfOwner2 = "upper" | "lower" | "hand";
+
+/** The alternatives of `ScreenOfOwner`'s site. */
+type ScreenOfOwner = "upper" | "lower" | "hand";
+
+/** The alternatives of `ScreenEntry`'s site. */
+type ScreenEntry = "upper" | "lower" | "hand";
+
+/** The alternatives of `NearbyOwner`'s site. */
+type NearbyOwner = "upper" | "lower" | "hand";
+
+/** The alternatives of `SegmentOwner`'s site. */
+type SegmentOwner = "upper" | "lower" | "hand";
+
+/** The alternatives of `SegmentResult`'s site. */
+type SegmentResult = "upperArm" | "lowerArm" | "hand";
+
 /**
  * The shapes an arm placed by the trajectory's coordinates (`HumanArmGeometry`)
  * meets: the segment each of its probes lies on, the shapes a probe or a
@@ -34,9 +64,9 @@ export namespace HumanArmShapes {
   export function segment(
     at: IAutoMovieMotionHumanArmGeometry.IFrame,
     probe: number,
-  ): "upperArm" | "lowerArm" | "hand" {
+  ): SegmentResult {
     if (probe >= G.SURFACE) {
-      const owner: "upper" | "lower" | "hand" = at.owners[probe - G.SURFACE]!;
+      const owner: SegmentOwner = at.owners[probe - G.SURFACE]!;
       return owner === "upper"
         ? "upperArm"
         : owner === "lower"
@@ -72,7 +102,7 @@ export namespace HumanArmShapes {
   ): number[] {
     const [p, r]: readonly [IAutoMovieVector3, number] = placed.probes[probe]!;
     if (probe < G.SURFACE) return near(at, p, r + reach, gaps);
-    const owner: "upper" | "lower" | "hand" = at.owners[probe - G.SURFACE]!;
+    const owner: NearbyOwner = at.owners[probe - G.SURFACE]!;
     const among: readonly number[] = (screened ?? screen(at, placed, reach))[
       owner
     ];
@@ -90,7 +120,7 @@ export namespace HumanArmShapes {
    * The shapes each of a placed arm's segments may come within a reach of, by
    * their bounding spheres.
    */
-  export type IScreen = Record<"upper" | "lower" | "hand", number[]>;
+  export type IScreen = Record<ScreenEntry, number[]>;
 
   /**
    * The shapes each of a placed arm's segments may come within a reach of: the
@@ -112,11 +142,11 @@ export namespace HumanArmShapes {
     among?: readonly number[],
   ): IScreen {
     const of: (
-      owner: "upper" | "lower" | "hand",
+      owner: ScreenOfOwner,
       o: IAutoMovieVector3,
       w: IAutoMovieQuaternion,
     ) => number[] = (
-      owner: "upper" | "lower" | "hand",
+      owner: ScreenOfOwner2,
       o: IAutoMovieVector3,
       w: IAutoMovieQuaternion,
     ): number[] =>
@@ -261,12 +291,12 @@ export namespace HumanArmShapes {
     reach: number,
   ): number[] {
     const upper: number = Vector3.distance(placed.elbow, placed.shoulder);
-    const before: Record<"upper" | "lower" | "hand", number> = {
+    const before: Record<ReachableBeforeEntry, number> = {
       upper: 0,
       lower: upper,
       hand: upper + Vector3.distance(placed.wrist, placed.elbow),
     };
-    const origin: Record<"upper" | "lower" | "hand", IAutoMovieVector3> = {
+    const origin: Record<ReachableOriginEntry, IAutoMovieVector3> = {
       upper: placed.shoulder,
       lower: placed.elbow,
       hand: placed.wrist,
@@ -274,7 +304,7 @@ export namespace HumanArmShapes {
     let far: number = 0;
     placed.probes.forEach(
       ([p, r]: readonly [IAutoMovieVector3, number], probe: number): void => {
-        const owner: "upper" | "lower" | "hand" =
+        const owner: ReachableOwner =
           probe >= G.SURFACE
             ? at.owners[probe - G.SURFACE]!
             : probe < 2
@@ -382,7 +412,7 @@ export namespace HumanArmShapes {
     now: IAutoMovieMotionHumanArmGeometry.IShape,
     next: IAutoMovieMotionHumanArmGeometry.IShape,
     point: IAutoMovieVector3,
-  ): { point: IAutoMovieVector3; turn: IAutoMovieQuaternion } {
+  ): IRelativeResult {
     const turn: IAutoMovieQuaternion = Quaternion.multiply(
       now.pose.rotation,
       Quaternion.inverse(next.pose.rotation),

@@ -1,5 +1,6 @@
 import { resolveAutoMovieCenterOfMass } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPerformance,
@@ -50,6 +51,8 @@ export function athleticsCases(
     );
     const name: string = `athletics-set${bodies.length === 1 ? "" : `-${id}`}`;
     let performance: IAutoMovieMotionHumanPerformance;
+
+    // Process boundary: a case that throws is reported as that case's refusal, and the remaining cases still run.
     try {
       performance = new HumanPerformance({
         seed: "athletics",
@@ -75,7 +78,7 @@ export function athleticsCases(
     const mass: IAutoMovieResolveCenterOfMass.IModel =
       resolveAutoMovieCenterOfMass(body.skeleton, body.profile);
     const knee = (
-      side: "left" | "right",
+      side: AutoMovieHumanSide,
       want: number,
       limit: number,
     ): IMotionCaptureCase.IVerdict =>

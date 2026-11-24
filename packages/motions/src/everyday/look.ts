@@ -18,10 +18,19 @@ import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
-import { HumanArmClearance } from "../posture/HumanArmClearance";
+import { HumanArmSwing } from "../posture/HumanArmSwing";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { HumanSkill } from "../skill/HumanSkill";
 import { HumanGaze } from "./HumanGaze";
+
+/** The alternatives of `ReactionLawCue`'s site. */
+type ReactionLawCue = "seen" | "signal";
+
+/** The alternatives of `ReactionCue`'s site. */
+type ReactionCue = "seen" | "signal";
+
+/** The record of `IPlanFirst`'s site. */
+type IPlanFirst = { yaw: number; pitch: number };
 
 /**
  * Standing and turning the eyes, head and trunk to a target, either at once or,
@@ -98,7 +107,7 @@ export namespace look {
       seconds: number,
     ): IAutoMovieVector3 =>
       context.aim(context.params.target, context.start + seconds).point;
-    const first: { yaw: number; pitch: number } = HumanGaze.direction(
+    const first: IPlanFirst = HumanGaze.direction(
       context.body,
       context.entry.posture,
       at(0),
@@ -212,9 +221,9 @@ export namespace look {
         );
         // A trunk turned on the look's own stand carries the hanging arms
         // across the thighs: they are let out as a swinging arm is, no
-        // nearer the body than in the quiet stance (`HumanArmClearance.swung`).
+        // nearer the body than in the quiet stance (`HumanArmSwing.of`).
         return context.carrier === undefined && parts.trunk !== 0
-          ? HumanArmClearance.swung(
+          ? HumanArmSwing.of(
               context.body,
               aimed,
               ["left", "right"],
@@ -234,18 +243,11 @@ export namespace look {
    * @param random The stream; reads indices 0 to 2.
    * @param cue Visual or acoustic.
    * @returns Seconds; at least 0.1.
-   * @evidence contracts/development/common.md#meaningful-documentation States the distribution, the skill scaling, the stream indices read, the unit and the floor.
-   * @evidence contracts/development/implementation.md#principled-implementation Draws an ex-Gaussian, the distribution simple reaction times follow (Hohle 1965): a normal from HumanSkill.normal plus an inverse-transform exponential, with mu, sigma and tau interpolated on the `reaction` axis and mu 40 ms lower for an acoustic cue (Welford 1980).
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One pure draw from the caller's seeded stream, kept apart from the plan that uses it.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The parameter values are documented as provisional; the 0.1 s floor cuts the rare draw below the shortest simple reaction instead of letting a look start before its cue could be sensed, and the 1e-12 guard only keeps the logarithm finite.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant time, three stream reads.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Deterministic in its stream; the plan calls it once.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   function reaction(
     skill: IAutoMovieMotionHumanSkill,
     random: IAutoMovieRandom,
-    cue: "seen" | "signal",
+    cue: ReactionCue,
   ): number {
     return Math.max(
       0.1,
@@ -264,7 +266,7 @@ export namespace look {
    */
   export function reactionLaw(
     skill: IAutoMovieMotionHumanSkill,
-    cue: "seen" | "signal",
+    cue: ReactionLawCue,
   ): IAutoMovieReactionTimeDistribution {
     return {
       mu:

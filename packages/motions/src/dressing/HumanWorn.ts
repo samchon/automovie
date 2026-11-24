@@ -16,6 +16,12 @@ import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 
+/** The record of `IPrepareSiteResult`'s site. */
+type IPrepareSiteResult = {
+  frame: (turn: number) => IAutoMovieRigidTransform;
+  point: () => IAutoMovieVector3;
+};
+
 /**
  * Where a wearable sits once worn: its `wear` socket on the body region it goes
  * onto, the socket's `+Y` toward the body (into the region, against the
@@ -62,10 +68,7 @@ export namespace HumanWorn {
     posture: IAutoMovieMotionHumanPosture,
     prop: IAutoMovieMotionHumanProp,
     region: AutoMovieHumanoidRegion,
-  ): {
-    frame: (turn: number) => IAutoMovieRigidTransform;
-    point: () => IAutoMovieVector3;
-  } {
+  ): IPrepareSiteResult {
     const wear: IAutoMovieAffordance = socketOf(prop);
     const at: ReturnType<typeof HumanTrunk.region> = HumanTrunk.region(
       body,

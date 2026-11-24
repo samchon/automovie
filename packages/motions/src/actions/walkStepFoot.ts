@@ -1,5 +1,6 @@
 import { Vector3, wrapDegrees } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanFoot,
   IAutoMovieMotionHumanWalkFoot,
@@ -10,6 +11,50 @@ import { HumanFoot } from "../posture/HumanFoot";
 import { stand } from "./stand";
 import { walkFoot } from "./walkFoot";
 import { walkReach } from "./walkReach";
+
+/** The record of `IScheduleEndsResult`'s site. */
+type IScheduleEndsResult = {
+  from: IAutoMovieMotionHumanWalkFoot.IFoot;
+  to: IAutoMovieMotionHumanWalkFoot.IFoot;
+};
+
+/** The record of `IScheduleEndsItem`'s site. */
+type IScheduleEndsItem = {
+  from: IAutoMovieMotionHumanWalkFoot.IFoot;
+  to: IAutoMovieMotionHumanWalkFoot.IFoot;
+};
+
+/** The record of `IWindowsStancesItem`'s site. */
+type IWindowsStancesItem = {
+  side: AutoMovieHumanSide;
+  from: number;
+  to: number;
+};
+
+/** The record of `IWindowsB`'s site. */
+type IWindowsB = { name: string; seconds: number };
+
+/** The record of `IWindowsA`'s site. */
+type IWindowsA = { name: string; seconds: number };
+
+/** The record of `IWindowsEventsItem`'s site. */
+type IWindowsEventsItem = { name: string; seconds: number };
+
+/** The record of `IWindowsResult`'s site. */
+type IWindowsResult = {
+  events: IWindowsEventsItemResult[];
+  stances: IWindowsStancesItemResult[];
+};
+
+/** The record of `IWindowsStancesItemResult`'s site. */
+type IWindowsStancesItemResult = {
+  side: AutoMovieHumanSide;
+  from: number;
+  to: number;
+};
+
+/** The record of `IWindowsEventsItemResult`'s site. */
+type IWindowsEventsItemResult = { name: string; seconds: number };
 
 /**
  * Each foot's schedule in a walk's footstep plan (`walkSteps`): from its
@@ -41,7 +86,7 @@ export namespace walkStepFoot {
   /** One footfall. */
   export interface IStep {
     /** The foot. */
-    side: "left" | "right";
+    side: AutoMovieHumanSide;
 
     /** When the heel strikes, seconds. */
     heelStrike: number;
@@ -97,10 +142,10 @@ export namespace walkStepFoot {
    */
   export function pushed(
     steps: readonly IStep[],
-    start: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement>,
+    start: Record<AutoMovieHumanSide, IAutoMovieMotionHumanFoot.IPlacement>,
     yaw: (seconds: number) => number,
     push: number,
-    stiff?: "left" | "right",
+    stiff?: AutoMovieHumanSide,
   ): void {
     for (const side of ["left", "right"] as const) {
       let leaving: number = HumanFoot.heading(start[side].rotation);
@@ -136,12 +181,9 @@ export namespace walkStepFoot {
     steps: readonly IStep[],
     last: number,
     duration: number,
-  ): {
-    events: { name: string; seconds: number }[];
-    stances: { side: "left" | "right"; from: number; to: number }[];
-  } {
+  ): IWindowsResult {
     const counts: Record<string, number> = {};
-    const events: { name: string; seconds: number }[] = [];
+    const events: IWindowsEventsItem[] = [];
     for (const step of steps) {
       counts[step.side] = (counts[step.side] ?? 0) + 1;
       events.push(
@@ -159,13 +201,8 @@ export namespace walkStepFoot {
       { name: "lastFootfall", seconds: last },
       { name: "arrive", seconds: duration },
     );
-    events.sort(
-      (
-        a: { name: string; seconds: number },
-        b: { name: string; seconds: number },
-      ): number => a.seconds - b.seconds,
-    );
-    const stances: { side: "left" | "right"; from: number; to: number }[] = [];
+    events.sort((a: IWindowsA, b: IWindowsB): number => a.seconds - b.seconds);
+    const stances: IWindowsStancesItem[] = [];
     for (const side of ["left", "right"] as const) {
       let from: number = 0;
       for (const step of steps.filter((s: IStep): boolean => s.side === side)) {
@@ -199,7 +236,7 @@ export namespace walkStepFoot {
    */
   export function schedule(
     body: IAutoMovieMotionHumanBody,
-    side: "left" | "right",
+    side: AutoMovieHumanSide,
     start: IAutoMovieMotionHumanFoot.IPlacement,
     own: readonly IStep[],
     typical: number,
@@ -243,17 +280,8 @@ export namespace walkStepFoot {
             ),
       );
     }
-    const ends: {
-      from: IAutoMovieMotionHumanWalkFoot.IFoot;
-      to: IAutoMovieMotionHumanWalkFoot.IFoot;
-    }[] = own.map(
-      (
-        step: IStep,
-        i: number,
-      ): {
-        from: IAutoMovieMotionHumanWalkFoot.IFoot;
-        to: IAutoMovieMotionHumanWalkFoot.IFoot;
-      } => ({
+    const ends: IScheduleEndsItem[] = own.map(
+      (step: IStep, i: number): IScheduleEndsResult => ({
         from:
           i === 0 && airborne !== undefined
             ? {

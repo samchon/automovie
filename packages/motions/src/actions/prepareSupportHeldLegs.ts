@@ -14,7 +14,7 @@ import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
-import { prepareSupportHeldFrames } from "./prepareSupportHeldFrames";
+import { type prepareSupportHeldFrames } from "./prepareSupportHeldFrames";
 
 /**
  * A reader of the lowest collider of a support interval's held legs as their

@@ -4,6 +4,7 @@ import {
   resolveAutoMovieCenterOfMass,
 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieJointPose,
   IAutoMovieMotionHumanBody,
@@ -15,6 +16,21 @@ import type {
 import { HumanFoot } from "../../posture/HumanFoot";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
 import { FootSlip } from "./FootSlip";
+
+/** The alternatives of `WithinUnit`'s site. */
+type WithinUnit = "mm" | "deg";
+
+/** The record of `IGroundedWorst`'s site. */
+type IGroundedWorst = { value: number; where: string };
+
+/** The record of `IGroundedResult`'s site. */
+type IGroundedResult = { value: number; where: string };
+
+/** The record of `ISlipWorst`'s site. */
+type ISlipWorst = { value: number; where: string };
+
+/** The record of `ISlipResult`'s site. */
+type ISlipResult = { value: number; where: string };
 
 /**
  * The numeric checks the everyday capture cases report beside their sheets,
@@ -39,8 +55,8 @@ export namespace everydayVerdicts {
     performance: IAutoMovieMotionHumanPerformance,
     subject: string,
     body: IAutoMovieMotionHumanBody,
-  ): { value: number; where: string } {
-    let worst: { value: number; where: string } = { value: 0, where: "none" };
+  ): ISlipResult {
+    let worst: ISlipWorst = { value: 0, where: "none" };
     for (const plant of plants(performance, subject)) {
       const anchors: Map<string, IAutoMovieVector3> = new Map();
       for (let t: number = plant.from; t <= plant.to + 1e-9; t += 1 / 24) {
@@ -77,8 +93,8 @@ export namespace everydayVerdicts {
     performance: IAutoMovieMotionHumanPerformance,
     subject: string,
     body: IAutoMovieMotionHumanBody,
-  ): { value: number; where: string } {
-    let worst: { value: number; where: string } = { value: 0, where: "none" };
+  ): IGroundedResult {
+    let worst: IGroundedWorst = { value: 0, where: "none" };
     for (const plant of plants(performance, subject)) {
       if (plant.ground === false) continue;
       for (let t: number = plant.from; t <= plant.to + 1e-9; t += 1 / 24) {
@@ -204,7 +220,7 @@ export namespace everydayVerdicts {
     name: string,
     value: number,
     limit: number,
-    unit: "mm" | "deg",
+    unit: WithinUnit,
   ): IMotionCaptureCase.IVerdict {
     const show = (v: number): string =>
       unit === "mm" ? `${(v * 1000).toFixed(1)} mm` : `${v.toFixed(2)} deg`;
@@ -247,12 +263,14 @@ export namespace everydayVerdicts {
     ];
   }
 }
+/** The alternatives of `PlantPart`'s site. */
+type PlantPart = "leftFoot" | "rightFoot";
 
 /** A foot's plant window in film seconds, clipped to its action's own span. */
 interface IPlant {
   action: string;
-  part: "leftFoot" | "rightFoot";
-  side: "left" | "right";
+  part: PlantPart;
+  side: AutoMovieHumanSide;
   from: number;
   to: number;
   ground: boolean;

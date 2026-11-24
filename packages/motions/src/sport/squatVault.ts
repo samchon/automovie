@@ -5,6 +5,7 @@ import {
   minimumJerk,
 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieMotionHumanActionKey,
   IAutoMovieAffordance,
   IAutoMovieMotionHumanActionContext,
@@ -29,6 +30,18 @@ import { getUp } from "../floor/getUp";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
+
+/** The alternatives of `PlanPart`'s site. */
+type PlanPart = "leftFoot" | "rightFoot";
+
+/** The record of `IPlanResult`'s site. */
+type IPlanResult = { name: string; share: number };
+
+/** The record of `IPlanE`'s site. */
+type IPlanE = {
+  name: string;
+  share: number;
+};
 
 /**
  * A squat vault over a box: the hands set on the near edge of the box's top,
@@ -121,9 +134,9 @@ export namespace squatVault {
       { x: 1, y: 0, z: 0 },
     );
     const palm: (
-      side: "left" | "right",
+      side: AutoMovieHumanSide,
     ) => IAutoMovieMotionHumanSupport.IContact = (
-      side: "left" | "right",
+      side: AutoMovieHumanSide,
     ): IAutoMovieMotionHumanSupport.IContact => ({
       part: `${side}Hand`,
       kind: "bear",
@@ -219,10 +232,7 @@ export namespace squatVault {
       base: { kind: "standing" },
       events: [
         ...held.events.map(
-          (e: {
-            name: string;
-            share: number;
-          }): { name: string; share: number } => ({
+          (e: IPlanE): IPlanResult => ({
             name: e.name,
             share: share(e.share),
           }),
@@ -240,9 +250,7 @@ export namespace squatVault {
           }),
         ),
         ...(["leftFoot", "rightFoot"] as const).map(
-          (
-            part: "leftFoot" | "rightFoot",
-          ): IAutoMovieMotionHumanContactWindow => ({
+          (part: PlanPart): IAutoMovieMotionHumanContactWindow => ({
             part,
             kind: "plant",
             from: touchdown / duration,

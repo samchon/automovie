@@ -1,5 +1,6 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieAffordance,
   IAutoMovieHumanLimbGoal,
@@ -20,11 +21,14 @@ import { AutoMovieMotionInterval } from "../compose/AutoMovieMotionInterval";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
+import { lowerHumanPosture } from "../posture/lowerHumanPosture";
 import { poseBones } from "../posture/poseBones";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanSupportCarry } from "./HumanSupportCarry";
 import { HumanSupportFrame } from "./HumanSupportFrame";
 import { checkSupportTransferDock } from "./checkSupportTransferDock";
+
+/** The alternatives of `SupportTransferContext`'s site. */
+type SupportTransferContext = "body" | "entry" | "params" | "prop" | "start";
 
 /**
  * Plan one staged, level boarding transfer. LA Metro asks passengers to wait
@@ -51,7 +55,7 @@ import { checkSupportTransferDock } from "./checkSupportTransferDock";
 export function supportTransfer(
   context: Pick<
     IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanSupportTransfer>,
-    "body" | "entry" | "params" | "prop" | "start"
+    SupportTransferContext
   >,
 ): IAutoMovieMotionHumanActionPlan {
   const { body, entry, params, start } = context;
@@ -61,8 +65,8 @@ export function supportTransfer(
   const forward: IAutoMovieVector3 = HumanFrame.forward(yaw);
   const lift: number = 0.065;
   const sides: readonly ["left", "right"] = ["left", "right"];
-  const lead: "left" | "right" = params.lead;
-  const trail: "left" | "right" = lead === "left" ? "right" : "left";
+  const lead: AutoMovieHumanSide = params.lead;
+  const trail: AutoMovieHumanSide = lead === "left" ? "right" : "left";
   const leadOff: number = 0.18;
   const leadOn: number = 0.44;
   const trailOff: number = 0.55;
@@ -141,12 +145,12 @@ export function supportTransfer(
   const entryBones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
     poseBones(body, entry.pose);
   const targets: Partial<
-    Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement>
+    Record<AutoMovieHumanSide, IAutoMovieMotionHumanFoot.IPlacement>
   > = {};
   const anchors: Partial<
-    Record<"left" | "right", IAutoMovieMotionHumanFoot.ISocket>
+    Record<AutoMovieHumanSide, IAutoMovieMotionHumanFoot.ISocket>
   > = {};
-  const entryToes = (side: "left" | "right"): number =>
+  const entryToes = (side: AutoMovieHumanSide): number =>
     entry.posture.joints[`${side}Toes`]?.[0] ?? 0;
 
   for (const side of sides) {
@@ -318,22 +322,19 @@ export function supportTransfer(
     }
     // Keep both ankles in the reach envelope throughout the swing. A change
     // in bearing status must not change the pelvis height at that instant.
-    const lowered: IAutoMovieMotionHumanPosture = resolveHumanPosture.lower(
-      body,
-      {
-        ...base,
-        root,
-        joints,
-        limbs: {
-          leftLeg: { ...limbs.leftLeg!, planted: true },
-          rightLeg: { ...limbs.rightLeg!, planted: true },
-        },
+    const lowered: IAutoMovieMotionHumanPosture = lowerHumanPosture(body, {
+      ...base,
+      root,
+      joints,
+      limbs: {
+        leftLeg: { ...limbs.leftLeg!, planted: true },
+        rightLeg: { ...limbs.rightLeg!, planted: true },
       },
-    );
+    });
     return { ...lowered, limbs };
   };
   const contacts: IAutoMovieMotionHumanContactWindow[] = sides.flatMap(
-    (side: "left" | "right"): IAutoMovieMotionHumanContactWindow[] => [
+    (side: AutoMovieHumanSide): IAutoMovieMotionHumanContactWindow[] => [
       plant(side, 0, side === lead ? leadOff : trailOff, params.from.prop),
       plant(side, side === lead ? leadOn : trailOn, 1, params.to.prop),
     ],
@@ -361,11 +362,13 @@ export function supportTransfer(
     },
   };
 }
+/** The alternatives of `SurfaceAxis`'s site. */
+type SurfaceAxis = "from" | "to";
 
 /** A rigid, unarticulated rectangle and its evaluated dock frame. */
 interface Surface {
   /** The parameter naming this rectangle. */
-  axis: "from" | "to";
+  axis: SurfaceAxis;
   /** The live prop reader. */
   frame(seconds: number): IAutoMovieRigidTransform;
   /** The prop's baseline frame at the start. */
@@ -379,12 +382,14 @@ interface Surface {
   /** Half-depth along the surface's Z axis, metres. */
   z: number;
 }
+/** The alternatives of `SurfaceAxis2`'s site. */
+type SurfaceAxis2 = "from" | "to";
 
 /** Read a named level rectangle rigidly attached to its prop. */
 function surface(
   reader: IAutoMovieMotionHumanPropReader,
   target: IAutoMovieMotionHumanSupportTransfer.ISurface,
-  axis: "from" | "to",
+  axis: SurfaceAxis2,
   start: number,
 ): Surface {
   const found: IAutoMovieAffordance | undefined = reader.prop.affordances?.find(
@@ -453,7 +458,7 @@ function contains(s: Surface, position: IAutoMovieVector3): boolean {
 
 /** Declare a fixed foot contact in its bearing prop's frame. */
 function plant(
-  side: "left" | "right",
+  side: AutoMovieHumanSide,
   from: number,
   to: number,
   subject: string,

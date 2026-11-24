@@ -13,11 +13,16 @@ import type {
 
 import { HumanColliders } from "../posture/HumanColliders";
 
+/** The record of `IPersonTarget`'s site. */
+type IPersonTarget = { kind: "person" };
+
 /** A target on a person: another performer's region. */
-type PersonTarget = Extract<IAutoMovieMotionTarget, { kind: "person" }>;
+type PersonTarget = Extract<IAutoMovieMotionTarget, IPersonTarget>;
+/** The record of `ISelfTarget`'s site. */
+type ISelfTarget = { kind: "self" };
 
 /** A target on the performer's own body. */
-type SelfTarget = Extract<IAutoMovieMotionTarget, { kind: "self" }>;
+type SelfTarget = Extract<IAutoMovieMotionTarget, ISelfTarget>;
 
 /** A target a touch lays its hand on: the performer's own region or another's. */
 type BodyTarget = SelfTarget | PersonTarget;

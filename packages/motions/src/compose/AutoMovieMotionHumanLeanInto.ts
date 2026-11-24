@@ -9,10 +9,16 @@ import type {
 
 import { HumanBalance } from "../everyday/HumanBalance";
 import { HumanRefusal } from "../law/HumanRefusal";
+import { lowerHumanPosture } from "../posture/lowerHumanPosture";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { AutoMovieMotionHumanLean } from "./AutoMovieMotionHumanLean";
 import { AutoMovieMotionHumanReach } from "./AutoMovieMotionHumanReach";
+
+/** The record of `ISolvePitchNearest`'s site. */
+type ISolvePitchNearest = { pitch: number; beyond: number };
+
+/** The alternatives of `SolveLimb`'s site. */
+type SolveLimb = "leftArm" | "rightArm";
 
 /**
  * The lean of a standing body into a hand's work that lies beyond its standing
@@ -49,7 +55,7 @@ export namespace AutoMovieMotionHumanLeanInto {
     // proportion between two steps misplaces the centre by less).
     const KNOT: number = 5;
     const limit: number = props.limit ?? AutoMovieMotionHumanReach.LEAN_LIMIT;
-    const limb: "leftArm" | "rightArm" = `${props.side}Arm`;
+    const limb: SolveLimb = `${props.side}Arm`;
     const checkReach: ReturnType<
       typeof AutoMovieMotionHumanReach.prepareCheck
     > = AutoMovieMotionHumanReach.prepareCheck(props.body, limb);
@@ -63,7 +69,7 @@ export namespace AutoMovieMotionHumanLeanInto {
     ): IAutoMovieMotionHumanPosture => {
       const lowered: IAutoMovieMotionHumanPosture = {
         ...posture,
-        root: resolveHumanPosture.lower(props.body, posture).root,
+        root: lowerHumanPosture(props.body, posture).root,
       };
       return props.arm === undefined
         ? lowered
@@ -146,7 +152,7 @@ export namespace AutoMovieMotionHumanLeanInto {
       // scan is not found.
       let low: number = 0;
       let high: number | undefined;
-      let nearest: { pitch: number; beyond: number } = {
+      let nearest: ISolvePitchNearest = {
         pitch: 0,
         beyond: beyond(0),
       };
@@ -202,12 +208,8 @@ export namespace AutoMovieMotionHumanLeanInto {
           );
           return {
             ...leaned,
-            root: resolveHumanPosture.lower(
-              props.body,
-              leaned,
-              undefined,
-              resolution,
-            ).root,
+            root: lowerHumanPosture(props.body, leaned, undefined, resolution)
+              .root,
           };
         },
       }),

@@ -1,5 +1,23 @@
 import type { IAutoMovieMotionHumanArmClearance } from "@automovie/interface";
 
+/** The record of `ICourseProps`'s site. */
+type ICourseProps = {
+  plain: (share: number) => IAutoMovieMotionHumanArmClearance.IArm;
+  planned?: (share: number) => IAutoMovieMotionHumanArmClearance.IArm;
+  share: number;
+  clear: (
+    arm: IAutoMovieMotionHumanArmClearance.IArm,
+    share: number,
+  ) => IAutoMovieMotionHumanArmClearance.IArm;
+};
+
+/** The record of `IOfProps`'s site. */
+type IOfProps = {
+  arm: IAutoMovieMotionHumanArmClearance.IArm;
+  over: (arm: IAutoMovieMotionHumanArmClearance.IArm) => number;
+  range: (arm: IAutoMovieMotionHumanArmClearance.IArm) => number;
+};
+
 /**
  * The turn that clears an arm: of the two freedoms that move a forearm without
  * a goal, the upper arm's abduction and the elbow's flexion, the least turn
@@ -78,11 +96,7 @@ export namespace HumanArmClearing {
    * @returns The arm's joint angles, the hand's unchanged; the arm with the
    *   least lacking room met when no direction clears it.
    */
-  export function of(props: {
-    arm: IAutoMovieMotionHumanArmClearance.IArm;
-    over: (arm: IAutoMovieMotionHumanArmClearance.IArm) => number;
-    range: (arm: IAutoMovieMotionHumanArmClearance.IArm) => number;
-  }): IAutoMovieMotionHumanArmClearance.IArm {
+  export function of(props: IOfProps): IAutoMovieMotionHumanArmClearance.IArm {
     const arm: IAutoMovieMotionHumanArmClearance.IArm = props.arm;
     if (props.over(arm) <= TOLERANCE) return arm;
     const turned = (
@@ -203,15 +217,9 @@ export namespace HumanArmClearing {
    *   elbow's flexion only).
    * @returns The arm's joint angles at the share.
    */
-  export function course(props: {
-    plain: (share: number) => IAutoMovieMotionHumanArmClearance.IArm;
-    planned?: (share: number) => IAutoMovieMotionHumanArmClearance.IArm;
-    share: number;
-    clear: (
-      arm: IAutoMovieMotionHumanArmClearance.IArm,
-      share: number,
-    ) => IAutoMovieMotionHumanArmClearance.IArm;
-  }): IAutoMovieMotionHumanArmClearance.IArm {
+  export function course(
+    props: ICourseProps,
+  ): IAutoMovieMotionHumanArmClearance.IArm {
     return sample(
       (): IAutoMovieMotionHumanArmClearance.IArm => props.plain(props.share),
       (key: number): Turn =>

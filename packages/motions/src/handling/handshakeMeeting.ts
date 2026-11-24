@@ -24,6 +24,32 @@ import { HumanSeatedReach } from "../touch/HumanSeatedReach";
 import { HumanPrehension } from "./HumanPrehension";
 import { handshakeOffer } from "./handshakeOffer";
 
+/** The record of `ILeanedPhases`'s site. */
+type ILeanedPhases = { reach: number; shake: number; back: number };
+
+/** The record of `IReadPhases`'s site. */
+type IReadPhases = { pump: number; shake: number };
+
+/** The record of `IReadContext`'s site. */
+type IReadContext = { partner: string };
+
+/** The record of `IReadLean`'s site. */
+type IReadLean = {
+  share: number;
+  joints: IAutoMovieMotionHumanSeatedReach.IJoint[];
+};
+
+/** The record of `IKindProps`'s site. */
+type IKindProps = {
+  side: AutoMovieHumanSide;
+  pump: number;
+  shake: number;
+  arm: (
+    body: IAutoMovieMotionHumanBody,
+    shoulder: IAutoMovieVector3,
+  ) => IAutoMovieResolveMutualGoal.ISide;
+};
+
 /**
  * The meeting of a handshake (`AutoMovieMotionMeeting`): one record for both
  * partners, the single owner of where the two palms meet, of the line the first
@@ -46,15 +72,7 @@ export namespace handshakeMeeting {
    * @returns The kind: contacts `meet` (the palms' point) and `along` (that
    *   point plus the first ordered partner's finger direction, a unit vector).
    */
-  export function kind(props: {
-    side: AutoMovieHumanSide;
-    pump: number;
-    shake: number;
-    arm: (
-      body: IAutoMovieMotionHumanBody,
-      shoulder: IAutoMovieVector3,
-    ) => IAutoMovieResolveMutualGoal.ISide;
-  }): IAutoMovieMotionMeetingKind {
+  export function kind(props: IKindProps): IAutoMovieMotionMeetingKind {
     const shoulder = (role: IAutoMovieMotionMeetingRole): IAutoMovieVector3 =>
       role.bones.get(`${props.side}UpperArm`)!.worldPosition;
     return {
@@ -108,7 +126,7 @@ export namespace handshakeMeeting {
      * The trunk's forward lean, a share of its seated joints' rooms
      * (`HumanSeatedReach.need`); none standing.
      */
-    lean: { share: number; joints: IAutoMovieMotionHumanSeatedReach.IJoint[] };
+    lean: IReadLean;
   }
 
   /**
@@ -121,9 +139,9 @@ export namespace handshakeMeeting {
    * @returns The point, this partner's finger line and its lean.
    */
   export function read(
-    context: IAutoMovieMotionHumanActionContext<{ partner: string }>,
+    context: IAutoMovieMotionHumanActionContext<IReadContext>,
     side: AutoMovieHumanSide,
-    phases: { pump: number; shake: number },
+    phases: IReadPhases,
     arm: (
       body: IAutoMovieMotionHumanBody,
       shoulder: IAutoMovieVector3,
@@ -208,7 +226,7 @@ export namespace handshakeMeeting {
     body: IAutoMovieMotionHumanBody,
     base: IAutoMovieMotionHumanActionPlan,
     lean: IRead["lean"],
-    phases: { reach: number; shake: number; back: number },
+    phases: ILeanedPhases,
   ): IAutoMovieMotionHumanActionPlan {
     if (lean.share === 0) return base;
     const { reach, shake, back } = phases;

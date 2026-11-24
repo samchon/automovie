@@ -63,6 +63,8 @@ export function stretchCases(
     ] as IAutoMovieMotionHumanStretch.Kind[]) {
       const name: string = `stretch-${kind}${suffix}`;
       let performance: IAutoMovieMotionHumanPerformance;
+
+      // Process boundary: a case that throws is reported as that case's refusal, and the remaining cases still run.
       try {
         performance = new HumanPerformance({
           seed: "stretch",

@@ -30,8 +30,6 @@ const SIDES = ["left", "right"] as const;
  * choices for a low hop. The arm and fist angles stage the grip, and the
  * action's named instants let a prop producer author its own rope turn.
  * https://periodicos.ufsc.br/index.php/rbcdh/article/download/1980-0037.2009v11n4p379/10901
- *
- * @evidence contracts/development/common.md#meaningful-documentation Gives the supported motion, default timing derivation, and registration path.
  */
 export const ropeSkip = {
   name: "ropeSkip",
@@ -43,14 +41,6 @@ export const ropeSkip = {
   /**
    * Plan one bipedal support, flight, and recovery cycle using the entry's
    * ground stance. Both ankle goals and the root translate together in flight.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the entry stance, phases and airborne translation.
-   * @evidence contracts/development/implementation.md#principled-implementation A gravity parabola determines both-foot flight. A pair of mirrored Hermite ground paths matches vertical launch and landing speeds with fixed foot goals. Admission keeps the phase boundaries, quarter-flight samples and compression extrema distinct in the local, event and film clocks.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit the entry and times, prepare one stance and grip, then evaluate the phase and two foot goals.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Uses the engine gravity and the stand planner's placements and emits separate support windows; phase markers do not claim a simulated cord.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One stand evaluation at plan time and constant work per sample.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The planned ground stance and grip angles serve every sample.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains its small stance and timing records; it opens no resources or time-indexed cache.
    */
   plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanRopeSkip.IParams>,

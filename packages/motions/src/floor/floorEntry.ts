@@ -12,11 +12,39 @@ import type {
 import { stand } from "../actions/stand";
 import { prepareHumanShapeBlend } from "../handling/prepareHumanShapeBlend";
 import { HumanRefusal } from "../law/HumanRefusal";
+import { humanPostureHeading } from "../posture/humanPostureHeading";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { knockdown } from "../reaction/knockdown";
 import { GymnasticsFlight } from "../sport/GymnasticsFlight";
+
+/** The alternatives of `HipsPosture`'s site. */
+type HipsPosture = "root" | "yaw" | "pitch" | "roll";
+
+/** The alternatives of `BetweenHeading`'s site. */
+type BetweenHeading = "yaw" | "pitch" | "roll";
+
+/** The record of `IBetweenFixed`'s site. */
+type IBetweenFixed = {
+  hips: ReturnType<typeof Vector3.prepareLerp>;
+  sunkFrom: number;
+  sunkTo: number;
+};
+
+/** The alternatives of `DisplayedFrameResult`'s site. */
+type DisplayedFrameResult = "root" | "yaw" | "pitch" | "roll";
+
+/** The alternatives of `ReferenceFromOver`'s site. */
+type ReferenceFromOver = "hips" | "feet";
+
+/** The alternatives of `ReferenceFromContext`'s site. */
+type ReferenceFromContext = "body" | "entry";
+
+/** The alternatives of `StartOver`'s site. */
+type StartOver = "hips" | "feet";
+
+/** The alternatives of `StartContext`'s site. */
+type StartContext = "body" | "entry";
 
 /**
  * How a law that gets the body down onto the floor (a crawl, an inchworm, a lie
@@ -97,9 +125,9 @@ export namespace floorEntry {
    *   (`standing`).
    */
   export function start(
-    context: Pick<IAutoMovieMotionHumanActionContext, "body" | "entry">,
+    context: Pick<IAutoMovieMotionHumanActionContext, StartContext>,
     action: string,
-    over: "hips" | "feet",
+    over: StartOver,
     stood: () => IAutoMovieMotionHumanPosture,
   ): IStart {
     if (standing(context, action)) return { standing: stood(), entered: null };
@@ -162,8 +190,8 @@ export namespace floorEntry {
    * the displayed entry (`stand.posture` at a floor point read off it).
    */
   function referenceFrom(
-    context: Pick<IAutoMovieMotionHumanActionContext, "body" | "entry">,
-    over: "hips" | "feet",
+    context: Pick<IAutoMovieMotionHumanActionContext, ReferenceFromContext>,
+    over: ReferenceFromOver,
     entered: IAutoMovieMotionHumanPosture,
   ): IAutoMovieMotionHumanPosture {
     const at: IAutoMovieVector3 =
@@ -211,7 +239,7 @@ export namespace floorEntry {
    */
   function displayedFrame(
     context: Pick<IAutoMovieMotionHumanActionContext, "entry">,
-  ): Pick<IAutoMovieMotionHumanPosture, "root" | "yaw" | "pitch" | "roll"> {
+  ): Pick<IAutoMovieMotionHumanPosture, DisplayedFrameResult> {
     const pose: IAutoMoviePose = context.entry.pose;
     const posture: IAutoMovieMotionHumanPosture = context.entry.posture;
     return pose.root === undefined || pose.root === null
@@ -223,7 +251,7 @@ export namespace floorEntry {
         }
       : {
           root: pose.root.translation,
-          ...resolveHumanPosture.angles(pose.root.rotation),
+          ...humanPostureHeading.angles(pose.root.rotation),
         };
   }
 
@@ -256,13 +284,7 @@ export namespace floorEntry {
     );
     const turn: number = ((((to.yaw - from.yaw) % 360) + 540) % 360) - 180;
     let floor: ReturnType<typeof knockdown.prepareRest> | undefined;
-    let fixed:
-      | {
-          hips: ReturnType<typeof Vector3.prepareLerp>;
-          sunkFrom: number;
-          sunkTo: number;
-        }
-      | undefined;
+    let fixed: IBetweenFixed | undefined;
     return (
       weight: number,
       resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
@@ -288,10 +310,7 @@ export namespace floorEntry {
       const lerp = (a: number, b: number): number => a + (b - a) * weight;
       const joints: IAutoMovieMotionHumanPosture["joints"] =
         interpolate(weight);
-      const heading: Pick<
-        IAutoMovieMotionHumanPosture,
-        "yaw" | "pitch" | "roll"
-      > = {
+      const heading: Pick<IAutoMovieMotionHumanPosture, BetweenHeading> = {
         yaw: from.yaw + turn * weight,
         pitch: lerp(from.pitch, to.pitch),
         roll: lerp(from.roll, to.roll),
@@ -301,7 +320,7 @@ export namespace floorEntry {
         root: Vector3.subtract(
           fixed.hips(weight),
           Quaternion.rotateVector(
-            resolveHumanPosture.heading(heading),
+            humanPostureHeading(heading),
             body.rest.get("hips")!,
           ),
         ),
@@ -328,15 +347,12 @@ export namespace floorEntry {
    */
   function hips(
     body: IAutoMovieMotionHumanBody,
-    posture: Pick<
-      IAutoMovieMotionHumanPosture,
-      "root" | "yaw" | "pitch" | "roll"
-    >,
+    posture: Pick<IAutoMovieMotionHumanPosture, HipsPosture>,
   ): IAutoMovieVector3 {
     return Vector3.add(
       posture.root,
       Quaternion.rotateVector(
-        resolveHumanPosture.heading(posture),
+        humanPostureHeading(posture),
         body.rest.get("hips")!,
       ),
     );

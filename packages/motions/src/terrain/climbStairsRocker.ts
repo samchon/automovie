@@ -22,6 +22,11 @@ type AutoMovieClimbStairsRockerSource = (
   hip: IAutoMovieVector3,
   dorsal: number,
 ) => IAutoMovieClimbStairsRocker;
+/** The record of `IItemEntryItem`'s site. */
+type IItemEntryItem = { print: IPrintItemEntry };
+
+/** The record of `IPrintItemEntry`'s site. */
+type IPrintItemEntry = { placement: IAutoMovieMotionHumanFoot.IPlacement };
 
 /**
  * Bind rigid stair rocker geometry to each material footprint.
@@ -33,12 +38,7 @@ type AutoMovieClimbStairsRockerSource = (
  */
 export function climbStairsRocker(
   body: IAutoMovieMotionHumanBody,
-  prints: Readonly<
-    Record<
-      AutoMovieHumanSide,
-      readonly { print: { placement: IAutoMovieMotionHumanFoot.IPlacement } }[]
-    >
-  >,
+  prints: Readonly<Record<AutoMovieHumanSide, readonly IItemEntryItem[]>>,
 ): (
   side: AutoMovieHumanSide,
   placement: IAutoMovieMotionHumanFoot.IPlacement,

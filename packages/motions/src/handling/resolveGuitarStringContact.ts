@@ -23,6 +23,8 @@ interface ISites {
 
 /** Tolerance for intersecting the rigid coplanar affordance axes, metres. */
 const COINCIDENCE: number = 1e-6;
+/** The record of `IResolveGuitarStringContactParamsItem`'s site. */
+type IResolveGuitarStringContactParamsItem = { fret: string; string: string };
 
 /**
  * Resolve the crossing of one pitched string with a fret and the place to sound
@@ -37,7 +39,7 @@ const COINCIDENCE: number = 1e-6;
  *   incompatible.
  */
 export function resolveGuitarStringContact(
-  params: Readonly<{ fret: string; string: string }>,
+  params: Readonly<IResolveGuitarStringContactParamsItem>,
   affordances: readonly IAutoMovieAffordance[],
 ): ISites {
   const fret: IAutoMovieAffordance = site(affordances, params.fret, "bar");
@@ -136,12 +138,14 @@ export function resolveGuitarStringContact(
     });
   return { stop, pluck, normal, sweep: Vector3.scale(sweep, spacing / 2) };
 }
+/** The alternatives of `SiteKind`'s site. */
+type SiteKind = "bar" | "surface";
 
 /** A named rigid guitar affordance of the kind the law uses. */
 function site(
   affordances: readonly IAutoMovieAffordance[],
   id: string,
-  kind: "bar" | "surface",
+  kind: SiteKind,
 ): IAutoMovieAffordance {
   const found: IAutoMovieAffordance | undefined = affordances.find(
     (a: IAutoMovieAffordance): boolean => a.id === id && a.kind === kind,

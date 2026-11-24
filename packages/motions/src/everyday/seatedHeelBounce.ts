@@ -5,6 +5,7 @@ import {
   minimumJerk,
 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanActionContext,
@@ -26,6 +27,15 @@ import { HumanFoot } from "../posture/HumanFoot";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { seated } from "./seated";
+
+/** The alternatives of `PlanLimb`'s site. */
+type PlanLimb = "leftLeg" | "rightLeg";
+
+/** The alternatives of `PlanToes`'s site. */
+type PlanToes = "leftToes" | "rightToes";
+
+/** The alternatives of `PlanPart`'s site. */
+type PlanPart = "leftFoot" | "rightFoot";
 
 /**
  * Repeated seated heel raises, with the moving foot rocking about its ball. Qi
@@ -104,9 +114,9 @@ export namespace seatedHeelBounce {
         fix: "specify a positive finite number of beats per second",
       });
 
-    const part: "leftFoot" | "rightFoot" = `${side}Foot`;
-    const toes: "leftToes" | "rightToes" = `${side}Toes`;
-    const limb: "leftLeg" | "rightLeg" = `${side}Leg`;
+    const part: PlanPart = `${side}Foot`;
+    const toes: PlanToes = `${side}Toes`;
+    const limb: PlanLimb = `${side}Leg`;
     const seat: IAutoMovieMotionHumanEntryState.ISupport | undefined =
       entry.supports.find(
         (s: IAutoMovieMotionHumanEntryState.ISupport): boolean =>
@@ -117,7 +127,7 @@ export namespace seatedHeelBounce {
       body,
       entry.pose,
     );
-    const flat = (foot: "left" | "right"): boolean =>
+    const flat = (foot: AutoMovieHumanSide): boolean =>
       entry.feet[foot].planted &&
       HumanFoot.sockets(body, bones, foot).every(
         (socket: IAutoMovieMotionHumanFoot.ISocket): boolean =>

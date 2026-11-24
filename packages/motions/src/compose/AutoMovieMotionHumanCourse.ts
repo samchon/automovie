@@ -13,6 +13,12 @@ import { HumanBalance } from "../everyday/HumanBalance";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 
+/** The record of `ISolveResult`'s site. */
+type ISolveResult = { knots: number[]; count: number; dt: number };
+
+/** The record of `ISolve`'s site. */
+type ISolve = { knots: number[]; count: number; dt: number };
+
 /**
  * The course of the hips along a heading that keeps a body's extrapolated
  * centre of mass on a target while its feet move.
@@ -60,59 +66,55 @@ export namespace AutoMovieMotionHumanCourse {
       { x: 0, y: 0, z: 1 },
     );
     const from: number = props.from;
-    const { knots, count, dt }: { knots: number[]; count: number; dt: number } =
-      ((): { knots: number[]; count: number; dt: number } => {
-        const resolution: ReturnType<typeof prepareHumanPoseResolution> =
-          prepareHumanPoseResolution();
-        let projection:
-          | ReturnType<typeof prepareHumanPostureProjection>
-          | undefined;
-        let mass: ReturnType<typeof HumanBalance.prepareCentre> | undefined;
-        const centre: (seconds: number, along: number) => number = (
-          seconds: number,
-          along: number,
-        ): number => {
-          const posture: IAutoMovieMotionHumanPosture = props.posture(
-            seconds,
-            along,
-            resolution,
-          );
-          mass ??= HumanBalance.prepareCentre(props.body);
-          projection ??= prepareHumanPostureProjection(props.body);
-          return Vector3.dot(mass(posture, resolution, projection), forward);
-        };
-        const omega: number = resolveAutoMovieCenterOfMass.frequency(
-          resolveAutoMovieCenterOfMass.pendulum(props.body.measure.hipHeight),
+    const { knots, count, dt }: ISolve = ((): ISolveResult => {
+      const resolution: ReturnType<typeof prepareHumanPoseResolution> =
+        prepareHumanPoseResolution();
+      let projection:
+        | ReturnType<typeof prepareHumanPostureProjection>
+        | undefined;
+      let mass: ReturnType<typeof HumanBalance.prepareCentre> | undefined;
+      const centre: (seconds: number, along: number) => number = (
+        seconds: number,
+        along: number,
+      ): number => {
+        const posture: IAutoMovieMotionHumanPosture = props.posture(
+          seconds,
+          along,
+          resolution,
         );
-        const count: number = Math.max(
-          1,
-          Math.ceil((props.to - props.from) / STEP),
-        );
-        const dt: number = (props.to - props.from) / count;
-        const decay: number = Math.exp(-omega * dt);
-        const knots: number[] = [props.start];
-        let c: number = centre(props.from, props.start);
-        // Preserve the full grid spacing and every predecessor in the
-        // recurrence. The cubic on interval i reads through knot i+2.
-        const end: number =
-          dt === 0
-            ? count
-            : Math.min(
-                count,
-                Math.max(0, Math.floor((through - from) / dt)) + 2,
-              );
-        for (let i: number = 1; i <= end; i++) {
-          const t: number = props.from + i * dt;
-          const target: number = props.target(t - dt / 2);
-          const next: number = target + (c - target) * decay;
-          let along: number = knots[i - 1]! + (next - c);
-          for (let k: number = 0; k < CORRECTIONS; k++)
-            along -= centre(t, along) - next;
-          knots.push(along);
-          c = next;
-        }
-        return { knots, count, dt };
-      })();
+        mass ??= HumanBalance.prepareCentre(props.body);
+        projection ??= prepareHumanPostureProjection(props.body);
+        return Vector3.dot(mass(posture, resolution, projection), forward);
+      };
+      const omega: number = resolveAutoMovieCenterOfMass.frequency(
+        resolveAutoMovieCenterOfMass.pendulum(props.body.measure.hipHeight),
+      );
+      const count: number = Math.max(
+        1,
+        Math.ceil((props.to - props.from) / STEP),
+      );
+      const dt: number = (props.to - props.from) / count;
+      const decay: number = Math.exp(-omega * dt);
+      const knots: number[] = [props.start];
+      let c: number = centre(props.from, props.start);
+      // Preserve the full grid spacing and every predecessor in the
+      // recurrence. The cubic on interval i reads through knot i+2.
+      const end: number =
+        dt === 0
+          ? count
+          : Math.min(count, Math.max(0, Math.floor((through - from) / dt)) + 2);
+      for (let i: number = 1; i <= end; i++) {
+        const t: number = props.from + i * dt;
+        const target: number = props.target(t - dt / 2);
+        const next: number = target + (c - target) * decay;
+        let along: number = knots[i - 1]! + (next - c);
+        for (let k: number = 0; k < CORRECTIONS; k++)
+          along -= centre(t, along) - next;
+        knots.push(along);
+        c = next;
+      }
+      return { knots, count, dt };
+    })();
     const at: (seconds: number) => number = interpolate(knots, count, dt, from);
     return through >= props.to
       ? at

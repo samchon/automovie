@@ -2,6 +2,21 @@ import type { IAutoMovieMotionHumanQuadraticProgram } from "@automovie/interface
 
 import type { HumanQuadraticBand as B } from "./HumanQuadraticBand";
 
+/** The alternatives of `HumanQuadraticEntriesOut2`'s site. */
+type HumanQuadraticEntriesOut2 = "index" | "coef";
+
+/** The alternatives of `HumanQuadraticEntriesOut`'s site. */
+type HumanQuadraticEntriesOut = "index" | "coef";
+
+/** The alternatives of `HumanQuadraticEntriesOriginal`'s site. */
+type HumanQuadraticEntriesOriginal = "index" | "coef";
+
+/** The alternatives of `HumanQuadraticEntriesKnown`'s site. */
+type HumanQuadraticEntriesKnown = "index" | "coef";
+
+/** The alternatives of `HumanQuadraticEntriesResult`'s site. */
+type HumanQuadraticEntriesResult = "index" | "coef";
+
 /**
  * Restore an admitted row's original ordered zeros for a product whose operand
  * became nonfinite. Finite products use the compressed CSR directly; IEEE-754
@@ -23,13 +38,22 @@ import type { HumanQuadraticBand as B } from "./HumanQuadraticBand";
 export function HumanQuadraticEntries(
   s: B.IScaled,
   r: number,
-): Pick<IAutoMovieMotionHumanQuadraticProgram.IRow, "index" | "coef"> {
+): Pick<
+  IAutoMovieMotionHumanQuadraticProgram.IRow,
+  HumanQuadraticEntriesResult
+> {
   const known:
-    | Pick<IAutoMovieMotionHumanQuadraticProgram.IRow, "index" | "coef">
+    | Pick<
+        IAutoMovieMotionHumanQuadraticProgram.IRow,
+        HumanQuadraticEntriesKnown
+      >
     | undefined = s.restored?.get(r);
   if (known !== undefined) return known;
   const original:
-    | Pick<IAutoMovieMotionHumanQuadraticProgram.IRow, "index" | "coef">
+    | Pick<
+        IAutoMovieMotionHumanQuadraticProgram.IRow,
+        HumanQuadraticEntriesOriginal
+      >
     | undefined = s.raw[r];
   if (original === undefined) {
     const first: number = s.start[r]!;
@@ -42,7 +66,7 @@ export function HumanQuadraticEntries(
     }
     const out: Pick<
       IAutoMovieMotionHumanQuadraticProgram.IRow,
-      "index" | "coef"
+      HumanQuadraticEntriesOut
     > = { index, coef };
     (s.restored ??= new Map()).set(r, out);
     return out;
@@ -55,7 +79,7 @@ export function HumanQuadraticEntries(
   }
   const out: Pick<
     IAutoMovieMotionHumanQuadraticProgram.IRow,
-    "index" | "coef"
+    HumanQuadraticEntriesOut2
   > = { index: original.index, coef };
   (s.restored ??= new Map()).set(r, out);
   return out;

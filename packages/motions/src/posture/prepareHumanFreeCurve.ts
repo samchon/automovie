@@ -10,6 +10,7 @@ import {
 } from "@automovie/engine";
 import type {
   AutoMovieHumanLimb,
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieHumanLimbGoal,
   IAutoMovieJointPose,
@@ -28,6 +29,12 @@ import { poseBones } from "./poseBones";
 import { prepareHumanPoseResolution } from "./prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "./prepareHumanPostureProjection";
 import { prepareHumanPostureRigCheck } from "./prepareHumanPostureRigCheck";
+
+/** The record of `ISeedAtKept`'s site. */
+type ISeedAtKept = { share: number; value: IAnchor };
+
+/** The record of `IPrepareHumanFreeCurveAnchorsEntry`'s site. */
+type IPrepareHumanFreeCurveAnchorsEntry = { share: number; value: IAnchor };
 
 /**
  * Continue a constructor-owned, pure free-leg curve from its canonical endpoint
@@ -77,7 +84,7 @@ export function prepareHumanFreeCurve(
         swingTwistRange.of(bone.bone, body.skeleton),
       ),
     );
-  const anchors: Map<number, { share: number; value: IAnchor }> = new Map();
+  const anchors: Map<number, IPrepareHumanFreeCurveAnchorsEntry> = new Map();
   const observations: Map<number, IObserved> = new Map();
   const intervals: Map<string, IInterval> = new Map();
   let origin: IAnchor | undefined;
@@ -135,7 +142,7 @@ export function prepareHumanFreeCurve(
     if (observed === undefined) {
       const names: Set<AutoMovieHumanoidBone> = new Set();
       for (const [limb] of limbs) {
-        const side: "left" | "right" = limb === "leftLeg" ? "left" : "right";
+        const side: AutoMovieHumanSide = limb === "leftLeg" ? "left" : "right";
         names.add(`${side}UpperLeg`);
         names.add(`${side}LowerLeg`);
         names.add(`${side}Foot`);
@@ -168,7 +175,7 @@ export function prepareHumanFreeCurve(
     }
     const rotations: IAutoMovieQuaternion[] = [];
     for (const [limb, goal] of limbs) {
-      const side: "left" | "right" = limb === "leftLeg" ? "left" : "right";
+      const side: AutoMovieHumanSide = limb === "leftLeg" ? "left" : "right";
       const hip: IAutoMovieResolvedBone = bones.get(`${side}UpperLeg`)!;
       const knee: IAutoMovieResolvedBone = bones.get(`${side}LowerLeg`)!;
       const foot: IAutoMovieResolvedBone = bones.get(`${side}Foot`)!;
@@ -459,8 +466,7 @@ export function prepareHumanFreeCurve(
     projection: ReturnType<typeof prepareHumanPostureProjection> | undefined,
   ): IAnchor | undefined {
     if (share === pivot) return origin;
-    const kept: { share: number; value: IAnchor } | undefined =
-      anchors.get(level);
+    const kept: ISeedAtKept | undefined = anchors.get(level);
     if (kept?.share === share) return kept.value;
     const raw: IAutoMovieMotionHumanPosture = at(share);
     const prepared: HumanPosturePreparation.IPrepared = cold(
@@ -680,18 +686,24 @@ interface ISolved {
    */
   anchor?: IAnchor;
 }
+/** The record of `ICorrection3`'s site. */
+type ICorrection3 = { kind: CorrectionKind };
+
+/** The alternatives of `CorrectionKind`'s site. */
+type CorrectionKind = "refine" | "unusable";
+
+/** The record of `ICorrection2`'s site. */
+type ICorrection2 = {
+  kind: "accepted";
+  prepared: HumanPosturePreparation.IPrepared;
+  anchor: IAnchor;
+};
 
 /**
  * Only a validated correction carries a current preparation and numerical
  * anchor.
  */
-type ICorrection =
-  | {
-      kind: "accepted";
-      prepared: HumanPosturePreparation.IPrepared;
-      anchor: IAnchor;
-    }
-  | { kind: "refine" | "unusable" };
+type ICorrection = ICorrection2 | ICorrection3;
 
 /** A canonical interval owns numeric anchors only, without child links or poses. */
 interface IInterval {

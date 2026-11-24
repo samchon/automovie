@@ -2,6 +2,7 @@ import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieHumanPostureRotation,
   IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanFlight,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -86,20 +87,8 @@ export namespace jumpTouchdownRotation {
    *
    * @evidence contracts/development/common.md#meaningful-documentation Distinguishes the turned ground phase, physical shooting angle and actual handed-back rotation.
    * @evidence contracts/development/design.md#principled-representation Holds the target and read-back check derived from the same known landing geometry.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The jump sends the ground-phase policy and geometry requirement through its native flight record.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The shape is the flight record's own `IAutoMovieMotionHumanFlight.ITouchdown`; the jump writes it on the native flight request it declares (`touchdown`), where the flight pass reads it.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts The required angle is a target for the original solver and grants no ability to override the physical result.
    */
-  export interface IRequirement {
-    /** Whether the ground phase already adopts the terminal yaw. */
-    turnedLanding: boolean;
-
-    /**
-     * Physical shooting residual limit in radians, derived from the
-     * displacement budget.
-     */
-    angularTolerance: number;
-
-    /** Verify the actual rigid rotation received from the flight pass. */
-    check: (rotation: IAutoMovieHumanPostureRotation) => void;
-  }
+  export type IRequirement = IAutoMovieMotionHumanFlight.ITouchdown;
 }

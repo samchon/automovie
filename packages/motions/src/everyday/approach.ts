@@ -25,6 +25,9 @@ import { HumanEffort } from "./HumanEffort";
 import { HumanProxemics } from "./HumanProxemics";
 import { HumanTrunk } from "./HumanTrunk";
 
+/** The record of `IToStop`'s site. */
+type IToStop = { at: IAutoMovieVector3; yaw: number };
+
 /**
  * Walking up to a person, a prop or a point and stopping at an interpersonal
  * distance, facing it.
@@ -311,7 +314,7 @@ export namespace approach {
     const lead: number = approach.chest(body);
 
     // The stop: along the line from the start, or on a named side of a person.
-    let stop: { at: IAutoMovieVector3; yaw: number };
+    let stop: IToStop;
     if (p.from === undefined) {
       const now: number = Math.hypot(point.x - feet.x, point.z - feet.z) - lead;
       if (now < gap - 1e-9)
@@ -452,13 +455,6 @@ export namespace approach {
    * @param point The point to pass.
    * @param pass The least passing distance, metres.
    * @returns The waypoint on the floor, or undefined.
-   * @evidence contracts/development/common.md#meaningful-documentation States the waypoint's placement, the side chosen and the three cases that return none, with the floor frame and metres.
-   * @evidence contracts/development/implementation.md#principled-implementation Projects the point onto the leg's horizontal direction (along) and its normal (across) and places the waypoint at the passing distance on the far side; a degenerate leg shorter than 1e-9 m returns none.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One pure function of the leg, the point and the distance; the plan chains legs by calling it per avoided person.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No case-specific values; a point beyond either end of the leg is left to the walk, which never passes it on this leg.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant time and space.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work A pure function with nothing to share.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Allocates only the returned point and retains nothing.
    */
   function abeam(
     from: IAutoMovieVector3,

@@ -28,8 +28,11 @@ import type {
 
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanRefusal } from "../law/HumanRefusal";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { humanPostureHeading } from "../posture/humanPostureHeading";
 import { HumanForceExchange } from "./HumanForceExchange";
+
+/** The record of `IPlanState`'s site. */
+type IPlanState = { angle: number; rate: number };
 
 /**
  * The throw of a pulled body whose base has broken: the swing over the
@@ -151,9 +154,7 @@ export namespace HumanForceThrow {
     ): IAutoMovieQuaternion =>
       Quaternion.fromAxisAngle(axis, ((angle - start) * 180) / Math.PI);
     const release: number = broken + swing.release;
-    const state: { angle: number; rate: number } = swing.sample?.(
-      swing.release,
-    ) ?? {
+    const state: IPlanState = swing.sample?.(swing.release) ?? {
       angle: swing.angle(swing.release),
       rate: swing.rate(swing.release),
     };
@@ -179,7 +180,7 @@ export namespace HumanForceThrow {
       y: from.y + velocity.y * tau - (g * tau * tau) / 2,
       z: from.z + velocity.z * tau,
     });
-    const heading: IAutoMovieQuaternion = resolveHumanPosture.heading(frozen);
+    const heading: IAutoMovieQuaternion = humanPostureHeading(frozen);
     const inverse: IAutoMovieQuaternion = Quaternion.inverse(heading);
     const own: IAutoMovieMotionHumanPosture = {
       ...frozen,

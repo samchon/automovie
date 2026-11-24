@@ -17,8 +17,8 @@ import { AutoMovieMotionHumanLeg } from "../compose/AutoMovieMotionHumanLeg";
 import { seated } from "../everyday/seated";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFoot } from "../posture/HumanFoot";
+import { humanPostureHeading } from "../posture/humanPostureHeading";
 import { poseBones } from "../posture/poseBones";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { AquaticPosture } from "./AquaticPosture";
 import { AquaticProp } from "./AquaticProp";
 
@@ -152,11 +152,8 @@ function kneel(
     );
     return {
       ...current,
-      ...resolveHumanPosture.angles(
-        Quaternion.multiply(
-          carry.turn,
-          resolveHumanPosture.heading(entry.posture),
-        ),
+      ...humanPostureHeading.angles(
+        Quaternion.multiply(carry.turn, humanPostureHeading(entry.posture)),
       ),
       joints: {
         ...current.joints,
@@ -197,7 +194,7 @@ function sit(
     );
     const posture: IAutoMovieMotionHumanPosture = {
       ...shape,
-      ...resolveHumanPosture.angles(seat.world.rotation),
+      ...humanPostureHeading.angles(seat.world.rotation),
       limbs: {},
     };
     posture.root = seated.root(body, center, posture);

@@ -28,6 +28,9 @@ import { restClasped } from "./restClasped";
 import { restCrossedArms } from "./restCrossedArms";
 import { restElbowSupport } from "./restElbowSupport";
 
+/** The alternatives of `RestGoalsSuffix`'s site. */
+type RestGoalsSuffix = "Left" | "Right";
+
 /**
  * Both hands' rest goals on a posture.
  *
@@ -66,7 +69,7 @@ export function restGoals(
   const targets: Partial<Record<AutoMovieHumanSide, AutoMovieHumanoidRegion>> =
     {};
   for (const side of ["left", "right"] as const) {
-    const suffix: "Left" | "Right" = side === "left" ? "Left" : "Right";
+    const suffix: RestGoalsSuffix = side === "left" ? "Left" : "Right";
     const place: IAutoMovieMotionHumanRest.Place = places[side];
     const name: AutoMovieHumanoidRegion | undefined =
       place === "pocket"
@@ -395,6 +398,8 @@ const AKIMBO: IAutoMovieVector3 = { x: 0, y: -0.6, z: 0.8 };
  * toward the midline (provisional).
  */
 const NAPE: number = 0.6;
+/** The alternatives of `BENDSEntryItem`'s site. */
+type BENDSEntryItem = "side" | "crossed";
 
 /**
  * The elbow's bend preset of `AutoMovieMotionHumanBend` by place, one per place
@@ -402,7 +407,7 @@ const NAPE: number = 0.6;
  */
 const BENDS: Readonly<
   Record<
-    Exclude<IAutoMovieMotionHumanRest.Place, "side" | "crossed">,
+    Exclude<IAutoMovieMotionHumanRest.Place, BENDSEntryItem>,
     IAutoMovieMotionHumanBend.Arm
   >
 > = {

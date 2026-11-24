@@ -1,5 +1,6 @@
 import type {
   AutoMovieHumanLimb,
+  AutoMovieHumanSide,
   IAutoMovieHumanLimbGoal,
   IAutoMovieJointPose,
   IAutoMovieMotionHumanBody,
@@ -165,19 +166,20 @@ function fitted(
   };
   const seeds: IAutoMovieMotionHumanResolveHumanPosture.ISeeded["seeds"] = {};
   const values: IAutoMovieMotionHumanResolveHumanPosture.ISeeded["values"] = {};
-  const placed: ("left" | "right")[] = (["left", "right"] as const).filter(
-    (side: "left" | "right"): boolean => limbs[`${side}Arm`] === undefined,
+  const placed: AutoMovieHumanSide[] = (["left", "right"] as const).filter(
+    (side: AutoMovieHumanSide): boolean => limbs[`${side}Arm`] === undefined,
   );
-  const arms: Record<"left" | "right", IAutoMovieHumanLimbGoal | undefined> = {
-    left: limbs.leftArm,
-    right: limbs.rightArm,
-  };
+  const arms: Record<AutoMovieHumanSide, IAutoMovieHumanLimbGoal | undefined> =
+    {
+      left: limbs.leftArm,
+      right: limbs.rightArm,
+    };
   const riding: (
     goal: IAutoMovieHumanLimbGoal | undefined,
-    other: "left" | "right",
+    other: AutoMovieHumanSide,
   ) => boolean = (
     goal: IAutoMovieHumanLimbGoal | undefined,
-    other: "left" | "right",
+    other: AutoMovieHumanSide,
   ): boolean => goal?.on !== undefined && goal.on.startsWith(other);
   const paired: boolean =
     arms.left !== undefined &&

@@ -85,6 +85,18 @@ export interface IAutoMovieMotionHumanSegment {
   >;
 
   /**
+   * The legs' continuation seeds at a plan second: the plan's leg chain on the
+   * arm-course frame grid, prepared when the action is placed
+   * (`readHumanSegmentLegs.chain`).
+   *
+   * @param seconds Plan seconds.
+   * @returns Each leg's seed at that second.
+   */
+  legSeeds(
+    seconds: number,
+  ): ReadonlyMap<AutoMovieHumanLimb, IAutoMovieSwivelSeed>;
+
+  /**
    * The arms' fits of the action's displayed leaf at its anchor seconds, each
    * read cold once, keyed by the person's overlay count and the anchor (the
    * plan second over the anchor spacing, rounded), as `<overlays>:<anchor>`. A
@@ -235,6 +247,12 @@ export namespace IAutoMovieMotionHumanSegment {
 
     /** Film second a later action takes the hand over; infinite while none has. */
     until: number;
+
+    /**
+     * The order, within the person's actions, of the action that took the hand
+     * over at `until`; absent while none has.
+     */
+    takenBy?: number;
 
     /**
      * Whether the action that took the hand over rides a carrier. The carrier

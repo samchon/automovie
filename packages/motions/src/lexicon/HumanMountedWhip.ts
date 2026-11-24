@@ -12,7 +12,7 @@ import type {
 
 import { HumanRefusal } from "../law/HumanRefusal";
 import { hipJoints } from "../posture/hipJoints";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { humanPostureHeading } from "../posture/humanPostureHeading";
 import type { HumanMountedTimeline } from "./HumanMountedTimeline";
 
 /** One instant of a performance cue track. */
@@ -212,7 +212,7 @@ export namespace HumanMountedWhip {
     posture: IAutoMovieMotionHumanPosture,
     side: AutoMovieHumanSide,
   ): IAutoMovieVector3 {
-    const turn: IAutoMovieQuaternion = resolveHumanPosture.heading(posture);
+    const turn: IAutoMovieQuaternion = humanPostureHeading(posture);
     const hip: IAutoMovieVector3 = hipJoints(
       body,
       posture.root,

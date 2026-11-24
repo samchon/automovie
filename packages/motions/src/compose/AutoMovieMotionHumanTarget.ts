@@ -21,6 +21,27 @@ import { HumanHandTarget } from "../posture/HumanHandTarget";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { AutoMovieMotionHumanTouchStance } from "./AutoMovieMotionHumanTouchStance";
 
+/** The alternatives of `FootPivot`'s site. */
+type FootPivot = "heel" | "ball" | "toe" | "sole";
+
+/** The alternatives of `HandPlace`'s site. */
+type HandPlace = "point" | "normal";
+
+/** The alternatives of `HandPostureItem`'s site. */
+type HandPostureItem = "pitch" | "roll";
+
+/** The alternatives of `HandPosture`'s site. */
+type HandPosture = "root" | "yaw";
+
+/** The alternatives of `ResolveContext`'s site. */
+type ResolveContext = "aim" | "body";
+
+/** The alternatives of `FallbackPosture`'s site. */
+type FallbackPosture = "root" | "yaw";
+
+/** The alternatives of `DEFAULTSEntryItem`'s site. */
+type DEFAULTSEntryItem = "ahead" | "desk" | "floor";
+
 /**
  * Where an action is directed: a target resolved to a place, and a place turned
  * into a hand's or a foot's goal.
@@ -68,7 +89,7 @@ export namespace AutoMovieMotionHumanTarget {
    *   picked up or put down.
    */
   export const DEFAULTS: Readonly<
-    Record<"ahead" | "desk" | "floor", IAutoMovieMotionHumanTarget.IDefault>
+    Record<DEFAULTSEntryItem, IAutoMovieMotionHumanTarget.IDefault>
   > = {
     ahead: { height: 0.72, range: 0.8, facing: "performer" },
     desk: { height: 0.42, range: 0.6, facing: "up" },
@@ -85,7 +106,7 @@ export namespace AutoMovieMotionHumanTarget {
    */
   export function fallback(
     body: IAutoMovieMotionHumanBody,
-    posture: Pick<IAutoMovieMotionHumanPosture, "root" | "yaw">,
+    posture: Pick<IAutoMovieMotionHumanPosture, FallbackPosture>,
     place: IAutoMovieMotionHumanTarget.IDefault,
   ): IAutoMovieMotionHumanTarget.IPlace {
     const m = body.measure;
@@ -124,7 +145,7 @@ export namespace AutoMovieMotionHumanTarget {
    *   place before its limbs are solved.
    */
   export function resolve(
-    context: Pick<IAutoMovieMotionHumanActionContext, "aim" | "body">,
+    context: Pick<IAutoMovieMotionHumanActionContext, ResolveContext>,
     target: IAutoMovieMotionTarget | undefined,
     seconds: number,
     posture: IAutoMovieMotionHumanPosture,
@@ -211,10 +232,10 @@ export namespace AutoMovieMotionHumanTarget {
    */
   export function hand(
     body: IAutoMovieMotionHumanBody,
-    posture: Pick<IAutoMovieMotionHumanPosture, "root" | "yaw"> &
-      Partial<Pick<IAutoMovieMotionHumanPosture, "pitch" | "roll">>,
+    posture: Pick<IAutoMovieMotionHumanPosture, HandPosture> &
+      Partial<Pick<IAutoMovieMotionHumanPosture, HandPostureItem>>,
     side: AutoMovieHumanSide,
-    place: Pick<IAutoMovieMotionHumanTarget.IPlace, "point" | "normal">,
+    place: Pick<IAutoMovieMotionHumanTarget.IPlace, HandPlace>,
     options: IAutoMovieMotionHumanTarget.IHand = {},
   ): IAutoMovieMotionHumanArmTarget.ITarget {
     return HumanHandTarget(body, posture, side, place, options);
@@ -289,10 +310,10 @@ export namespace AutoMovieMotionHumanTarget {
    */
   export function foot(
     body: IAutoMovieMotionHumanBody,
-    side: "left" | "right",
+    side: AutoMovieHumanSide,
     place: Pick<IAutoMovieMotionHumanTarget.IPlace, "point">,
     heading: number,
-    pivot: "heel" | "ball" | "toe" | "sole" = "ball",
+    pivot: FootPivot = "ball",
   ): IAutoMovieMotionHumanFoot.IPlacement {
     return HumanFoot.pivot(body, side, pivot, place.point, heading, 0);
   }

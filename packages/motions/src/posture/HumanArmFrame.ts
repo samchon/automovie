@@ -1,5 +1,6 @@
 import { Quaternion, Vector3, preparePoseResolution } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanArmGeometry,
   IAutoMovieMotionHumanBody,
@@ -17,6 +18,41 @@ import { HumanArmTrajectoryTerms } from "./HumanArmTrajectoryTerms";
 import { HumanColliderCorners } from "./HumanColliderCorners";
 import { HumanColliders } from "./HumanColliders";
 import { poseBones } from "./poseBones";
+
+/** The record of `IBuiltOfResult`'s site. */
+type IBuiltOfResult = { centre: IAutoMovieVector3; radius: number };
+
+/** The alternatives of `BuiltOfOwner2`'s site. */
+type BuiltOfOwner2 = "upper" | "lower" | "hand";
+
+/** The record of `IBuiltOf`'s site. */
+type IBuiltOf = {
+  centre: IAutoMovieVector3;
+  radius: number;
+};
+
+/** The alternatives of `BuiltOfOwner`'s site. */
+type BuiltOfOwner = "upper" | "lower" | "hand";
+
+/** The alternatives of `BuiltOwner`'s site. */
+type BuiltOwner = "upper" | "lower" | "hand" | null;
+
+/** The alternatives of `InversesEntryItem`'s site. */
+type InversesEntryItem = "upper" | "lower" | "hand";
+
+/** The alternatives of `BuiltFramesEntry`'s site. */
+type BuiltFramesEntry = "upper" | "lower" | "hand";
+
+/** The alternatives of `BuiltOwnersItem`'s site. */
+type BuiltOwnersItem = "upper" | "lower" | "hand";
+
+/** The alternatives of `BuiltByOwnerEntry`'s site. */
+type BuiltByOwnerEntry = "upper" | "lower" | "hand";
+
+/** The alternatives of `OfPrepared`'s site. */
+type OfPrepared =
+  | ReturnType<typeof preparePoseResolution>
+  | (() => ReturnType<typeof preparePoseResolution>);
 
 /**
  * What an arm is read against at one instant (`HumanArmGeometry.IFrame`), built
@@ -46,9 +82,7 @@ export namespace HumanArmFrame {
     setup: IAutoMovieMotionHumanArmGeometry.ISetup,
     base: G.IBase,
     alone: boolean,
-    prepared?:
-      | ReturnType<typeof preparePoseResolution>
-      | (() => ReturnType<typeof preparePoseResolution>),
+    prepared?: OfPrepared,
   ): IAutoMovieMotionHumanArmGeometry.IFrame {
     let kept: Map<string, IAutoMovieMotionHumanArmGeometry.IFrame> | undefined =
       FRAMES.get(base);
@@ -75,7 +109,7 @@ export namespace HumanArmFrame {
     const bones: IAutoMovieMotionHumanArmGeometry.ISetup["bones"] = setup.bones;
     const resolved: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
       poseBones(body, base.pose, prepared);
-    const side: "left" | "right" = bones.upper.startsWith("left")
+    const side: AutoMovieHumanSide = bones.upper.startsWith("left")
       ? "left"
       : "right";
     const parent: IAutoMovieResolvedBone = resolved.get(
@@ -183,7 +217,7 @@ export namespace HumanArmFrame {
     // `HumanArmClearance.obstacles`) let a planned course lay a thumb in a
     // shank the audit then refused (a small body's hand passing its knee
     // as it sits onto a chair).
-    const opposite: "left" | "right" = side === "left" ? "right" : "left";
+    const opposite: AutoMovieHumanSide = side === "left" ? "right" : "left";
     const read: IAutoMovieMotionHumanColliders.IPlaced[] = placed.filter(
       (segment: IAutoMovieMotionHumanColliders.IPlaced): boolean => {
         const group: string = AutoMovieMotionHumanAuditTangleModel.group(
@@ -231,25 +265,25 @@ export namespace HumanArmFrame {
     // The arm's own colliders and their probes, the audit's corners, each
     // carried into the frame of the arm's segment it rides on.
     const surface: IAutoMovieVector3[] = [];
-    const byOwner: Record<"upper" | "lower" | "hand", IAutoMovieVector3[]> = {
+    const byOwner: Record<BuiltByOwnerEntry, IAutoMovieVector3[]> = {
       upper: [],
       lower: [],
       hand: [],
     };
-    const owners: ("upper" | "lower" | "hand")[] = [];
+    const owners: BuiltOwnersItem[] = [];
     const segments: number[] = [];
     const indices: number[] = [];
     const colliders: IAutoMovieMotionHumanArmGeometry.IFrame["colliders"] = [];
     const corners: IAutoMovieMotionHumanArmGeometry.IFrame["body"] = [];
-    const other: "left" | "right" = side === "left" ? "right" : "left";
-    const frames: Record<"upper" | "lower" | "hand", IAutoMovieResolvedBone> = {
+    const other: AutoMovieHumanSide = side === "left" ? "right" : "left";
+    const frames: Record<BuiltFramesEntry, IAutoMovieResolvedBone> = {
       upper: resolved.get(bones.upper)!,
       lower: resolved.get(bones.lower)!,
       hand,
     };
-    const inverses: Partial<
-      Record<"upper" | "lower" | "hand", IAutoMovieQuaternion>
-    > = { hand: unturn };
+    const inverses: Partial<Record<InversesEntryItem, IAutoMovieQuaternion>> = {
+      hand: unturn,
+    };
 
     // The body's segments whose corners the arm is read against, the other
     // arm's left out where it is solved too: their corners are placed once
@@ -258,7 +292,7 @@ export namespace HumanArmFrame {
     const obstacles: number[] = [];
     placed.forEach(
       (segment: IAutoMovieMotionHumanColliders.IPlaced, i: number): void => {
-        const owner: "upper" | "lower" | "hand" | null =
+        const owner: BuiltOwner =
           segment.bone === bones.upper
             ? "upper"
             : segment.bone === bones.lower
@@ -320,12 +354,9 @@ export namespace HumanArmFrame {
         }
       },
     );
-    const of: (owner: "upper" | "lower" | "hand") => {
-      centre: IAutoMovieVector3;
-      radius: number;
-    } = (
-      owner: "upper" | "lower" | "hand",
-    ): { centre: IAutoMovieVector3; radius: number } => sphere(byOwner[owner]);
+    const of: (owner: BuiltOfOwner) => IBuiltOf = (
+      owner: BuiltOfOwner2,
+    ): IBuiltOfResult => sphere(byOwner[owner]);
     const bounds: IAutoMovieMotionHumanArmGeometry.IFrame["bounds"] = {
       upper: of("upper"),
       lower: of("lower"),
@@ -451,12 +482,14 @@ const NEAR: number = HumanArmTrajectoryTerms.REACH;
  * keeps.
  */
 const MARGIN: number = 1e-9;
-
-/** A sphere about points: their mean and the farthest one's distance. */
-function sphere(points: readonly IAutoMovieVector3[]): {
+/** The record of `ISphereResult`'s site. */
+type ISphereResult = {
   centre: IAutoMovieVector3;
   radius: number;
-} {
+};
+
+/** A sphere about points: their mean and the farthest one's distance. */
+function sphere(points: readonly IAutoMovieVector3[]): ISphereResult {
   const scale: number = 1 / Math.max(1, points.length);
   let x: number = 0;
   let y: number = 0;

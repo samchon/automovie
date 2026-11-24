@@ -14,6 +14,15 @@ import type {
 import { AutoMovieMotionHumanDrinkingArm } from "./AutoMovieMotionHumanDrinkingArm";
 import { AutoMovieMotionHumanTouchLaid } from "./AutoMovieMotionHumanTouchLaid";
 
+/** The alternatives of `FacingsFirst`'s site. */
+type FacingsFirst = 1 | -1;
+
+/** The alternatives of `TiltPlace`'s site. */
+type TiltPlace = "point" | "normal";
+
+/** The alternatives of `SolvePlace`'s site. */
+type SolvePlace = "point" | "normal";
+
 /**
  * How a held vessel is turned about its own upright axis at a region, so the
  * arm that brings it there keeps it upright, and how far it is leaned.
@@ -62,7 +71,7 @@ export namespace AutoMovieMotionHumanTouchUpright {
     posture: IAutoMovieMotionHumanPosture,
     side: AutoMovieHumanSide,
     effector: IAutoMovieMotionHumanTouchEffector.IEffector,
-    place: Pick<IAutoMovieMotionHumanTarget.IPlace, "point" | "normal">,
+    place: Pick<IAutoMovieMotionHumanTarget.IPlace, SolvePlace>,
     hint: IAutoMovieVector3,
   ): IAutoMovieMotionHumanTouchUpright.IFacing {
     const level: number = Math.hypot(place.normal.x, place.normal.z);
@@ -137,7 +146,7 @@ export namespace AutoMovieMotionHumanTouchUpright {
     posture: IAutoMovieMotionHumanPosture,
     side: AutoMovieHumanSide,
     effector: IAutoMovieMotionHumanTouchEffector.IEffector,
-    place: Pick<IAutoMovieMotionHumanTarget.IPlace, "point" | "normal">,
+    place: Pick<IAutoMovieMotionHumanTarget.IPlace, TiltPlace>,
     hint: IAutoMovieVector3,
     facing: IAutoMovieVector3,
     read?: ReturnType<typeof AutoMovieMotionHumanDrinkingArm.prepareRead>,
@@ -182,7 +191,7 @@ export namespace AutoMovieMotionHumanTouchUpright {
     span: number = SPAN,
     side: AutoMovieHumanSide = "right",
   ): IAutoMovieVector3[] {
-    const first: 1 | -1 = side === "left" ? -1 : 1;
+    const first: FacingsFirst = side === "left" ? -1 : 1;
     const out: IAutoMovieVector3[] = [];
     for (let k: number = 0; k <= 2 * Math.floor(span / STEP + 1e-9); k++) {
       const turn: number =

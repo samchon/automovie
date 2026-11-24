@@ -22,11 +22,15 @@ import type {
 
 import { readHumanBone } from "../body/readHumanBone";
 import { AutoMovieMotionHumanArmCourse } from "../compose/AutoMovieMotionHumanArmCourse";
+import { HumanBoneGroups } from "../posture/HumanBoneGroups";
 import { HumanFoot } from "../posture/HumanFoot";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { writtenHumanSeeds } from "../posture/writtenHumanSeeds";
 import { HumanMountPush } from "./HumanMountPush";
+
+/** The alternatives of `AtAngleAxis`'s site. */
+type AtAngleAxis = 0 | 1 | 2;
 
 /**
  * A leg swung over a seat in joint space: the leg's fitted joints where it
@@ -312,7 +316,7 @@ export namespace HumanSwungLeg {
         keys.apex[bone];
       if (from === undefined || to === undefined || apex === undefined)
         continue;
-      const angle = (axis: 0 | 1 | 2): number => {
+      const angle = (axis: AtAngleAxis): number => {
         const value: number =
           from[axis] +
           (to[axis] - from[axis]) * s +
@@ -323,7 +327,7 @@ export namespace HumanSwungLeg {
           axis,
         );
         const high: number =
-          axis === 0 && FEET.has(bone)
+          axis === 0 && HumanBoneGroups.FEET.has(bone)
             ? Math.min(bound, Math.max(HumanMountPush.DORSAL, from[0], to[0]))
             : bound;
         return Math.min(high, Math.max(low, value));
@@ -382,10 +386,6 @@ export namespace HumanSwungLeg {
       "rightUpperLeg",
       "rightLowerLeg",
     ]);
-
-  /** The feet, whose flexion the unloaded ankle bounds. */
-  const FEET: ReadonlySet<AutoMovieHumanoidBone> =
-    new Set<AutoMovieHumanoidBone>(["leftFoot", "rightFoot"]);
 
   /** The clinical axes in a joint record's order. */
   const AXES: readonly ["flexion", "abduction", "twist"] = [

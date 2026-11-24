@@ -71,11 +71,6 @@ const RPM: number = 120;
  *
  * Refusals: a wheel without its head, rise or wall faces; a rise outside the
  * wheel's; a non-positive duration; a face beyond either arm.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the two contacts, the drives, why the contact holds in the turning frame, the timing and the refusals.
- * @evidence contracts/development/design.md#principled-representation A law record over the wheel's declared articulations and faces.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The name, the cancel table and the plan.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The clay's flow is the wheel's rigid rise; no free path is authored.
  */
 export const throwPottery: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanThrowPottery.IParams> =
   {
@@ -86,7 +81,11 @@ export const throwPottery: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanT
     plan,
   };
 
-/** Admit the wheel, then place both palms on the rising wall and drive it. */
+/**
+ * Admit the wheel, then place both palms on the rising wall and drive it.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States the two contacts, the drives, why the contact holds in the turning frame, the timing and the refusals.
+ */
 function plan(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanThrowPottery.IParams>,
 ): IAutoMovieMotionHumanActionPlan {

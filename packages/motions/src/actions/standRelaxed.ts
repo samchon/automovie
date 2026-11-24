@@ -21,6 +21,12 @@ import { prepareHumanPostureProjection } from "../posture/prepareHumanPosturePro
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { stand } from "./stand";
 
+/** The record of `IStandRelaxedFirst`'s site. */
+type IStandRelaxedFirst = {
+  pose: IAutoMoviePose;
+  still: readonly IAutoMovieMotionHumanColliders.IPlaced[];
+};
+
 /**
  * The relaxed arm's least shoulder abduction that leaves its digits clear of
  * the body in a quiet stance. The elbow stays at the standing law's
@@ -79,12 +85,7 @@ export function standRelaxed(
   // frames and colliders that move; the rest of the body is placed once.
   const clampJoint: ReturnType<typeof prepareHumanPostureProjection.joints> =
     prepareHumanPostureProjection.joints(body, projection);
-  let first:
-    | {
-        pose: IAutoMoviePose;
-        still: readonly IAutoMovieMotionHumanColliders.IPlaced[];
-      }
-    | undefined;
+  let first: IStandRelaxedFirst | undefined;
   let carried: ReadonlySet<AutoMovieHumanoidBone> | undefined;
   let clearance: ReturnType<typeof HumanDigitFit.hanging>;
   const shoulders: Set<AutoMovieHumanoidBone> = new Set([

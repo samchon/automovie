@@ -1,9 +1,40 @@
 import type {
+  AutoMovieHumanSide,
   IAutoMovieMotionClock,
   IAutoMovieMotionHumanFoot,
 } from "@automovie/interface";
 
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
+
+/** The record of `IClimbStairsFeetResult2`'s site. */
+type IClimbStairsFeetResult2 = {
+  placement: IAutoMovieMotionHumanFoot.IPlacement;
+  planted: boolean;
+};
+
+/** The record of `IIntervalsItemEntry`'s site. */
+type IIntervalsItemEntry = {
+  off: number;
+  on: number;
+  from: IAutoMovieMotionHumanFoot.IPlacement;
+  progress: (seconds: number) => number;
+  read: (share: number) => IAutoMovieMotionHumanFoot.IPlacement;
+};
+
+/** The record of `IClimbStairsFeetResult`'s site. */
+type IClimbStairsFeetResult = {
+  placement: IAutoMovieMotionHumanFoot.IPlacement;
+  planted: boolean;
+};
+
+/** The record of `IItemEntryItem`'s site. */
+type IItemEntryItem = {
+  print: IPrintItemEntry;
+  step: number;
+};
+
+/** The record of `IPrintItemEntry`'s site. */
+type IPrintItemEntry = { placement: IAutoMovieMotionHumanFoot.IPlacement };
 
 /**
  * Prepare each stair foot's timed swings and select its active interval.
@@ -14,38 +45,18 @@ import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
  * @returns Each foot's placement and bearing state at any action second.
  */
 export function climbStairsFeet(
-  prints: Readonly<
-    Record<
-      "left" | "right",
-      readonly {
-        print: { placement: IAutoMovieMotionHumanFoot.IPlacement };
-        step: number;
-      }[]
-    >
-  >,
+  prints: Readonly<Record<AutoMovieHumanSide, readonly IItemEntryItem[]>>,
   clock: IAutoMovieMotionClock,
   swing: (
-    side: "left" | "right",
+    side: AutoMovieHumanSide,
     from: IAutoMovieMotionHumanFoot.IPlacement,
     to: IAutoMovieMotionHumanFoot.IPlacement,
   ) => (share: number) => IAutoMovieMotionHumanFoot.IPlacement,
-): (
-  side: "left" | "right",
-  seconds: number,
-) => {
-  placement: IAutoMovieMotionHumanFoot.IPlacement;
-  planted: boolean;
-} {
-  const intervals: Record<
-    "left" | "right",
-    {
-      off: number;
-      on: number;
-      from: IAutoMovieMotionHumanFoot.IPlacement;
-      progress: (seconds: number) => number;
-      read: (share: number) => IAutoMovieMotionHumanFoot.IPlacement;
-    }[]
-  > = { left: [], right: [] };
+): (side: AutoMovieHumanSide, seconds: number) => IClimbStairsFeetResult {
+  const intervals: Record<AutoMovieHumanSide, IIntervalsItemEntry[]> = {
+    left: [],
+    right: [],
+  };
   for (const side of ["left", "right"] as const)
     for (let i: number = 1; i < prints[side].length; i++) {
       const from: IAutoMovieMotionHumanFoot.IPlacement =
@@ -64,12 +75,9 @@ export function climbStairsFeet(
       });
     }
   return (
-    side: "left" | "right",
+    side: AutoMovieHumanSide,
     seconds: number,
-  ): {
-    placement: IAutoMovieMotionHumanFoot.IPlacement;
-    planted: boolean;
-  } => {
+  ): IClimbStairsFeetResult2 => {
     const own: (typeof intervals)["left"] = intervals[side];
     let low: number = 0;
     let high: number = own.length;

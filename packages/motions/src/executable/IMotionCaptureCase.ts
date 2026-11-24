@@ -4,6 +4,35 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+/** The record of `IMotionCaptureCaseBoxesItem`'s site. */
+type IMotionCaptureCaseBoxesItem = {
+  centre: IAutoMovieVector3;
+  half: IAutoMovieVector3;
+  color: number;
+};
+
+/** The record of `IMotionCaptureCaseDriftItem`'s site. */
+type IMotionCaptureCaseDriftItem = {
+  samples: ISamplesItemItem[];
+  limit: number;
+};
+
+/** The record of `ISamplesItemItem`'s site. */
+type ISamplesItemItem = { at: IAutoMovieVector3; drift: number };
+
+/** The record of `IMotionCaptureCaseTargetsItem`'s site. */
+type IMotionCaptureCaseTargetsItem = {
+  at: IAutoMovieVector3;
+  radius: number;
+  color: number;
+};
+
+/** The record of `IMotionCaptureCaseTrailsItem`'s site. */
+type IMotionCaptureCaseTrailsItem = {
+  color: number;
+  points: IAutoMovieVector3[];
+};
+
 /**
  * One capture of the motion harness: who is drawn, at which instants, with
  * which overlays, and which numeric verdicts the run reports.
@@ -27,26 +56,19 @@ export interface IMotionCaptureCase {
   ghosts?: IMotionCaptureCase.IGhost[];
 
   /** Polylines in world metres. */
-  trails?: { color: number; points: IAutoMovieVector3[] }[];
+  trails?: IMotionCaptureCaseTrailsItem[];
 
   /** Marked world points. */
-  targets?: { at: IAutoMovieVector3; radius: number; color: number }[];
+  targets?: IMotionCaptureCaseTargetsItem[];
 
   /** Points coloured by drift, metres, against a limit, metres. */
-  drift?: {
-    samples: { at: IAutoMovieVector3; drift: number }[];
-    limit: number;
-  }[];
+  drift?: IMotionCaptureCaseDriftItem[];
 
   /**
    * Static boxes, such as a bag, a seat or a step: centre and half extents,
    * metres.
    */
-  boxes?: {
-    centre: IAutoMovieVector3;
-    half: IAutoMovieVector3;
-    color: number;
-  }[];
+  boxes?: IMotionCaptureCaseBoxesItem[];
 
   /** Numeric checks the run reports; a failed one fails the process. */
   verdicts?: IMotionCaptureCase.IVerdict[];

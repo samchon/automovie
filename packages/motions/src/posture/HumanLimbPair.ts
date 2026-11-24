@@ -21,6 +21,7 @@ import { HumanArmMirror } from "./HumanArmMirror";
 import { HumanArmOptimiser } from "./HumanArmOptimiser";
 import { HumanArmTrajectoryContext } from "./HumanArmTrajectoryContext";
 import { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
+import { HumanBoneGroups } from "./HumanBoneGroups";
 import { HumanLimbFit } from "./HumanLimbFit";
 import type { HumanLimbView } from "./HumanLimbView";
 import { applyHumanLimbFit } from "./applyHumanLimbFit";
@@ -89,9 +90,9 @@ export namespace HumanLimbPair {
   export function fitted(
     body: IAutoMovieMotionHumanBody,
     pose: IAutoMoviePose,
-    goals: Readonly<Record<"left" | "right", IAutoMovieHumanLimbGoal>>,
+    goals: Readonly<Record<AutoMovieHumanSide, IAutoMovieHumanLimbGoal>>,
     near: Readonly<
-      Partial<Record<"left" | "right", IAutoMovieSwivelNear>>
+      Partial<Record<AutoMovieHumanSide, IAutoMovieSwivelNear>>
     > = {},
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
     assess?: Assessment,
@@ -102,7 +103,7 @@ export namespace HumanLimbPair {
       pose,
       others: [],
     }).pose;
-    const image: Record<"left" | "right", IAutoMovieHumanLimbGoal> = {
+    const image: Record<AutoMovieHumanSide, IAutoMovieHumanLimbGoal> = {
       left: HumanLimbFit.reflected(goals.right),
       right: HumanLimbFit.reflected(goals.left),
     };
@@ -134,13 +135,13 @@ export namespace HumanLimbPair {
     pose: IAutoMoviePose;
 
     /** Each arm's seed. */
-    seeds: Record<"left" | "right", IAutoMovieSwivelSeed | null>;
+    seeds: Record<AutoMovieHumanSide, IAutoMovieSwivelSeed | null>;
 
     /**
      * Each arm's own fit's value (`IAutoMovieSeededChainFit.value`); absent
      * where the coupled solve replaced the arms' own fits.
      */
-    values: Record<"left" | "right", IAutoMovieSeededChainFit["value"]>;
+    values: Record<AutoMovieHumanSide, IAutoMovieSeededChainFit["value"]>;
   }
 }
 
@@ -151,8 +152,8 @@ export namespace HumanLimbPair {
 function solved(
   body: IAutoMovieMotionHumanBody,
   pose: IAutoMoviePose,
-  goals: Readonly<Record<"left" | "right", IAutoMovieHumanLimbGoal>>,
-  near: Readonly<Partial<Record<"left" | "right", IAutoMovieSwivelNear>>>,
+  goals: Readonly<Record<AutoMovieHumanSide, IAutoMovieHumanLimbGoal>>,
+  near: Readonly<Partial<Record<AutoMovieHumanSide, IAutoMovieSwivelNear>>>,
   resolution: ReturnType<typeof prepareHumanPoseResolution>,
   assess?: HumanLimbPair.Assessment,
 ): HumanLimbPair.IFitted {
@@ -183,7 +184,7 @@ function solved(
   };
   // Both arms are fitted on this one pose, so it is admitted once for both.
   const admission: HumanLimbView.IAdmission = { admitted: false };
-  const own: Record<"left" | "right", IAutoMovieSeededChainFit> = {
+  const own: Record<AutoMovieHumanSide, IAutoMovieSeededChainFit> = {
     left: applyHumanLimbFit(
       body,
       pose,
@@ -207,16 +208,16 @@ function solved(
       admission,
     ),
   };
-  const seeds: Record<"left" | "right", IAutoMovieSwivelSeed | null> = {
+  const seeds: Record<AutoMovieHumanSide, IAutoMovieSwivelSeed | null> = {
     left: own.left.seed,
     right: own.right.seed,
   };
   const arm: (
     p: IAutoMoviePose,
-    side: "left" | "right",
+    side: AutoMovieHumanSide,
   ) => IAutoMovieMotionHumanArmClearance.IArm = (
     p: IAutoMoviePose,
-    side: "left" | "right",
+    side: AutoMovieHumanSide,
   ): IAutoMovieMotionHumanArmClearance.IArm => {
     const read: (
       bone: AutoMovieHumanoidBone,
@@ -234,11 +235,13 @@ function solved(
       hand: read(`${side}Hand`),
     };
   };
-  const fits: Record<"left" | "right", IAutoMovieMotionHumanArmClearance.IArm> =
-    {
-      left: arm(own.left.pose, "left"),
-      right: arm(own.right.pose, "right"),
-    };
+  const fits: Record<
+    AutoMovieHumanSide,
+    IAutoMovieMotionHumanArmClearance.IArm
+  > = {
+    left: arm(own.left.pose, "left"),
+    right: arm(own.right.pose, "right"),
+  };
   const both: IAutoMoviePose = HumanArmClearance.posed(
     HumanArmClearance.posed(pose, "left", fits.left),
     "right",
@@ -266,10 +269,10 @@ function solved(
     body,
     both,
     resolution(),
-    ARM_BONES,
+    HumanBoneGroups.ARMS,
   );
-  const meets: (side: "left" | "right") => boolean = (
-    side: "left" | "right",
+  const meets: (side: AutoMovieHumanSide) => boolean = (
+    side: AutoMovieHumanSide,
   ): boolean => {
     const other: AutoMovieHumanSide = side === "left" ? "right" : "left";
     const shapes: IAutoMovieMotionHumanColliders.IPlaced[] =
@@ -297,8 +300,8 @@ function solved(
 
   // The arms meet: one still configuration of both, drawn to their fits,
   // each hand on its goal, the two arms' probes clear of each other.
-  const site: (side: "left" | "right") => M.ISite = (
-    side: "left" | "right",
+  const site: (side: AutoMovieHumanSide) => M.ISite = (
+    side: AutoMovieHumanSide,
   ): M.ISite => {
     const goal: IAutoMovieHumanLimbGoal = world[side];
     const contact: IAutoMovieVector3 = goal.contact ?? { x: 0, y: 0, z: 0 };
@@ -318,7 +321,7 @@ function solved(
   const others: IAutoMovieMotionHumanColliders.IPlaced[] = (
     ["left", "right"] as const
   ).flatMap(
-    (side: "left" | "right"): IAutoMovieMotionHumanColliders.IPlaced[] => [
+    (side: AutoMovieHumanSide): IAutoMovieMotionHumanColliders.IPlaced[] => [
       ...(goals[side].clear ?? []),
       ...(goals[side].rests ?? []),
     ],
@@ -326,7 +329,7 @@ function solved(
   const rests: IAutoMovieMotionHumanColliders.IPlaced[] = (
     ["left", "right"] as const
   ).flatMap(
-    (side: "left" | "right"): IAutoMovieMotionHumanColliders.IPlaced[] => [
+    (side: AutoMovieHumanSide): IAutoMovieMotionHumanColliders.IPlaced[] => [
       ...(goals[side].rests ?? []),
     ],
   );
@@ -342,7 +345,7 @@ function solved(
     bases: [base, base, base],
     arms: sides.map(
       (
-        side: "left" | "right",
+        side: AutoMovieHumanSide,
       ): HumanArmTrajectoryContext.IProblem["arms"][number] => ({
         side,
         rest: arm(pose, side),
@@ -353,7 +356,7 @@ function solved(
     still: true,
   });
   const start: number[][][] = sides.map(
-    (side: "left" | "right", a: number): number[][] => [
+    (side: AutoMovieHumanSide, a: number): number[][] => [
       [...context.rest[a]!],
       G.encode(context.setups[a]!, fits[side]),
       [...context.back[a]!],
@@ -424,7 +427,7 @@ function solved(
     HumanArmOptimiser.optimise(context, start);
   assess?.inspect(result.evaluation);
   let out: IAutoMoviePose = pose;
-  sides.forEach((side: "left" | "right", a: number): void => {
+  sides.forEach((side: AutoMovieHumanSide, a: number): void => {
     out = HumanArmClearance.posed(
       out,
       side,
@@ -446,17 +449,3 @@ function solved(
     values: { left: undefined, right: undefined },
   };
 }
-
-/**
- * Only the two actual arm chains feed the independent-fit mutual-clearance
- * check.
- */
-const ARM_BONES: ReadonlySet<AutoMovieHumanoidBone> =
-  new Set<AutoMovieHumanoidBone>([
-    "leftUpperArm",
-    "leftLowerArm",
-    "leftHand",
-    "rightUpperArm",
-    "rightLowerArm",
-    "rightHand",
-  ]);

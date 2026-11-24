@@ -262,6 +262,8 @@ export namespace strikingScenarios {
    */
   export const REDIRECT_RANGE: number = 0.85;
 }
+/** The alternatives of `TouchingExtentSign`'s site. */
+type TouchingExtentSign = 1 | -1;
 
 /**
  * The root gap at which two bodies, each holding its chain's last pose and
@@ -300,7 +302,7 @@ function touching(
   const extent = (
     body: IAutoMovieMotionHumanBody,
     subject: string,
-    sign: 1 | -1,
+    sign: TouchingExtentSign,
   ): number => {
     const seconds: number = performance.segments(subject).at(-1)!.end;
     let most: number = -Infinity;

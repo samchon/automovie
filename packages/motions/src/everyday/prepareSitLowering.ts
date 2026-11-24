@@ -1,5 +1,6 @@
 import { minimumJerk } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPosture,
@@ -11,6 +12,12 @@ import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolutio
 import { HumanTrunk } from "./HumanTrunk";
 import { seated } from "./seated";
 import { seatedLumbarTransfer } from "./seatedLumbarTransfer";
+
+/** The record of `IPropsFinal`'s site. */
+type IPropsFinal = {
+  pitch: number;
+  joints: IAutoMovieMotionHumanPosture["joints"];
+};
 
 /** The sitting law's unchanged entry, target and descent geometry. */
 interface IProps {
@@ -57,10 +64,10 @@ interface IProps {
   joints: IAutoMovieMotionHumanPosture["joints"];
 
   /** Final back inclination and additive clinical joint angles, degrees. */
-  final: { pitch: number; joints: IAutoMovieMotionHumanPosture["joints"] };
+  final: IPropsFinal;
 
   /** Both original planted ankle points used by the pelvis limit, world metres. */
-  feet: Record<"left" | "right", IAutoMovieVector3>;
+  feet: Record<AutoMovieHumanSide, IAutoMovieVector3>;
 
   /** Actual current leg goals, including the sitting law's crossed-foot course. */
   legs(

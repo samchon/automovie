@@ -1,5 +1,6 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   IAutoMovieMotionClock,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionPlan,
@@ -13,10 +14,16 @@ import type {
 
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { carryHumanPosture } from "../posture/carryHumanPosture";
+import { lowerHumanPosture } from "../posture/lowerHumanPosture";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { StrikingStance } from "./StrikingStance";
 import { StrikingTarget } from "./StrikingTarget";
+
+/** The alternatives of `StoodContext`'s site. */
+type StoodContext = "body" | "entry";
+
+/** The alternatives of `BasePlantPart`'s site. */
+type BasePlantPart = "leftFoot" | "rightFoot";
 
 /**
  * The advance of a stroke: how the body goes with a held tool's cut, thrust or
@@ -61,8 +68,8 @@ export namespace StrikingAdvance {
     if (stroke.advance === "none")
       return AutoMovieMotionHumanBase.under(context, duration);
     const length: number = stroke.travel ?? travel(context, stroke.advance);
-    const lead: "left" | "right" = stroke.tool.side;
-    const rear: "left" | "right" = lead === "left" ? "right" : "left";
+    const lead: AutoMovieHumanSide = stroke.tool.side;
+    const rear: AutoMovieHumanSide = lead === "left" ? "right" : "left";
     const lift: number = 0.02 * context.body.measure.stature;
     const out = (seconds: number): number =>
       clock.progress("strokeStart", "stroke", seconds);
@@ -70,7 +77,7 @@ export namespace StrikingAdvance {
       stroke.stay ? 0 : clock.progress("relax", "end", seconds);
     const share = (at: string): number => clock.at(at) / duration;
     const plant = (
-      part: "leftFoot" | "rightFoot",
+      part: BasePlantPart,
       from: number,
       to: number,
     ): IAutoMovieMotionHumanContactWindow => ({
@@ -129,19 +136,21 @@ export namespace StrikingAdvance {
    *   goals.
    */
   export const stood = (
-    context: Pick<IAutoMovieMotionHumanActionContext, "body" | "entry">,
-    lead: "left" | "right",
+    context: Pick<IAutoMovieMotionHumanActionContext, StoodContext>,
+    lead: AutoMovieHumanSide,
     line: IAutoMovieVector3,
     along: number,
     raised: number | null,
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
   ): IAutoMovieMotionHumanPosture => {
     const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
-    const rear: "left" | "right" = lead === "left" ? "right" : "left";
-    const feet: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement> =
-      StrikingTarget.feet(context.entry);
+    const rear: AutoMovieHumanSide = lead === "left" ? "right" : "left";
+    const feet: Record<
+      AutoMovieHumanSide,
+      IAutoMovieMotionHumanFoot.IPlacement
+    > = StrikingTarget.feet(context.entry);
     const placed: Record<
-      "left" | "right",
+      AutoMovieHumanSide,
       IAutoMovieMotionHumanFoot.IPlacement
     > = {
       ...feet,
@@ -163,7 +172,7 @@ export namespace StrikingAdvance {
         rotation: identity,
       },
     );
-    return resolveHumanPosture.lower(
+    return lowerHumanPosture(
       context.body,
       {
         ...carried,
@@ -172,10 +181,10 @@ export namespace StrikingAdvance {
           ...StrikingStance.legs(context.body, placed, {
             [lead]: raised === null,
             [rear]: true,
-          } as Record<"left" | "right", boolean>),
+          } as Record<AutoMovieHumanSide, boolean>),
         },
       },
-      resolveHumanPosture.KNEE,
+      lowerHumanPosture.KNEE,
       resolution,
     );
   };

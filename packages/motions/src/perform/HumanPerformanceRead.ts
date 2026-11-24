@@ -1,4 +1,5 @@
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   AutoMovieMotionHumanChannel,
   IAutoMovieIntent,
@@ -24,6 +25,32 @@ import { HumanSegmentShown } from "./HumanSegmentShown";
 import { placeDemandedHumanPerformer } from "./placeDemandedHumanPerformer";
 import { prepareHumanSegmentPose } from "./prepareHumanSegmentPose";
 import { readPlacedHumanPosture } from "./readPlacedHumanPosture";
+
+/** The alternatives of `MissingWhat`'s site. */
+type MissingWhat = "performer" | "prop";
+
+/** The alternatives of `AvailableAxis`'s site. */
+type AvailableAxis = string | (() => string);
+
+/** The alternatives of `WhenAxis`'s site. */
+type WhenAxis = string | (() => string);
+
+/** The alternatives of `RootAxis`'s site. */
+type RootAxis = string | (() => string);
+
+/** The record of `IPropOwn`'s site. */
+type IPropOwn = {
+  subject: string;
+  bones: (
+    requested?: ReadonlySet<AutoMovieHumanoidBone>,
+  ) => ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
+};
+
+/** The alternatives of `BonesAxis`'s site. */
+type BonesAxis = string | (() => string);
+
+/** The alternatives of `PostureAxis`'s site. */
+type PostureAxis = string | (() => string);
 
 /**
  * What a performance is read by: a person's pose, posture and bones, a prop's
@@ -68,7 +95,7 @@ export namespace HumanPerformanceRead {
     subject: string,
     seconds: number,
     channels?: readonly AutoMovieMotionHumanChannel[],
-    axis?: string | (() => string),
+    axis?: PostureAxis,
     met?: number,
   ): IAutoMovieMotionHumanPosture {
     if (axis === undefined)
@@ -98,7 +125,7 @@ export namespace HumanPerformanceRead {
     subject: string,
     seconds: number,
     requested?: ReadonlySet<AutoMovieHumanoidBone>,
-    axis?: string | (() => string),
+    axis?: BonesAxis,
     met?: number,
   ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> {
     if (axis === undefined)
@@ -193,12 +220,7 @@ export namespace HumanPerformanceRead {
     self: IAutoMovieMotionHumanPerformanceState,
     subject: string,
     seconds: number,
-    own?: {
-      subject: string;
-      bones: (
-        requested?: ReadonlySet<AutoMovieHumanoidBone>,
-      ) => ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
-    },
+    own?: IPropOwn,
   ): IAutoMovieRigidTransform {
     // A line running to the prop holds it within its length (`HumanPerformanceTether`).
     return HumanPerformanceTether.pull(
@@ -253,7 +275,7 @@ export namespace HumanPerformanceRead {
   export function hand(
     self: IAutoMovieMotionHumanPerformanceState,
     subject: string,
-    side: "left" | "right",
+    side: AutoMovieHumanSide,
     seconds: number,
   ): IAutoMovieRigidTransform {
     const person: IAutoMovieMotionHumanSegment.IPerson =
@@ -290,7 +312,7 @@ export namespace HumanPerformanceRead {
     self: IAutoMovieMotionHumanPerformanceState,
     subject: string,
     seconds: number,
-    axis: string | (() => string),
+    axis: RootAxis,
     met?: number,
   ): IAutoMovieMotionHumanActionContext.IRoot {
     const read: IAvailable = available(self, subject, seconds, axis, met);
@@ -322,7 +344,7 @@ export namespace HumanPerformanceRead {
     self: IAutoMovieMotionHumanPerformanceState,
     subject: string,
     seconds: number,
-    axis: string | (() => string),
+    axis: WhenAxis,
     met?: number,
   ): number {
     return available(self, subject, seconds, axis, met).seconds;
@@ -336,7 +358,7 @@ export namespace HumanPerformanceRead {
     self: IAutoMovieMotionHumanPerformanceState,
     subject: string,
     seconds: number,
-    axis: string | (() => string),
+    axis: AvailableAxis,
     met?: number,
   ): IAvailable {
     const person: IAutoMovieMotionHumanSegment.IPerson =
@@ -446,7 +468,7 @@ export namespace HumanPerformanceRead {
 
   /** Construct the missing-performer or missing-prop refusal with alternatives. */
   export function missing(
-    what: "performer" | "prop",
+    what: MissingWhat,
     subject: string,
     known: readonly string[],
     axis: string = what,

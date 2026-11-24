@@ -3,6 +3,15 @@ import type {
   IAutoMovieMotionHumanTiming,
 } from "@automovie/interface";
 
+/** The alternatives of `HANDSEntryItem`'s site. */
+type HANDSEntryItem = "one" | "both" | "none";
+
+/** The record of `IRHYTHMEntryItem`'s site. */
+type IRHYTHMEntryItem = {
+  cycles: number;
+  period: IAutoMovieMotionHumanTiming.Span;
+};
+
 /**
  * The tables every gesture is read from by its kind: its timing and which hands
  * it moves, total records over `gestureStroke.Kind`, split from the stroke so
@@ -17,10 +26,7 @@ export namespace gestureStrokeTables {
    * is the bow's hold at its deepest, Kawabata et al.'s).
    */
   export const RHYTHM: Readonly<
-    Record<
-      IAutoMovieMotionHumanGestureStroke.Kind,
-      { cycles: number; period: IAutoMovieMotionHumanTiming.Span }
-    >
+    Record<IAutoMovieMotionHumanGestureStroke.Kind, IRHYTHMEntryItem>
   > = {
     wave: { cycles: 3, period: "beat" },
     raiseHand: { cycles: 1, period: { pause: "beat", scale: 1.25 } },
@@ -61,7 +67,7 @@ export namespace gestureStrokeTables {
 
   /** Which hands each gesture moves: `one` the chosen side, `both`, or `none`. */
   export const HANDS: Readonly<
-    Record<IAutoMovieMotionHumanGestureStroke.Kind, "one" | "both" | "none">
+    Record<IAutoMovieMotionHumanGestureStroke.Kind, HANDSEntryItem>
   > = {
     wave: "one",
     raiseHand: "one",

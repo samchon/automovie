@@ -26,6 +26,8 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
  * after (provisional: the workout's setup beat).
  */
 const REACH: number = 0.25;
+/** The alternatives of `FistLimb`'s site. */
+type FistLimb = "leftArm" | "rightArm";
 
 /** One fist laid on its grip over the plan's windows. */
 interface IFist {
@@ -33,7 +35,7 @@ interface IFist {
   side: AutoMovieHumanSide;
 
   /** The arm's limb. */
-  limb: "leftArm" | "rightArm";
+  limb: FistLimb;
 
   /** The hand and forearm bones. */
   hand: AutoMovieHumanoidBone;

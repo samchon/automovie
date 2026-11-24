@@ -3,6 +3,18 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
 import type { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
 import { HumanArmTrajectoryTerms } from "./HumanArmTrajectoryTerms";
 
+/** The record of `IPrepareHermiteResult2`'s site. */
+type IPrepareHermiteResult2 = {
+  readonly knot: number;
+  readonly coordinates: number[];
+};
+
+/** The record of `IPrepareHermiteResult`'s site. */
+type IPrepareHermiteResult = {
+  readonly knot: number;
+  readonly coordinates: number[];
+};
+
 /**
  * A trajectory's interpolant between its waypoints, and where the waypoints are
  * too far apart for the path their sites must follow.
@@ -126,10 +138,7 @@ export namespace HumanArmRefine {
   export function prepareHermite(
     times: readonly number[],
     x: readonly (readonly number[])[],
-  ): (seconds: number) => {
-    readonly knot: number;
-    readonly coordinates: number[];
-  } {
+  ): (seconds: number) => IPrepareHermiteResult {
     const n: number = times.length;
     const slopes: number[][] = times.map((_t: number, i: number): number[] =>
       tangent(times, x, i),
@@ -140,9 +149,7 @@ export namespace HumanArmRefine {
     const spans: number[] = times
       .slice(1)
       .map((t: number, i: number): number => t - times[i]!);
-    return (
-      seconds: number,
-    ): { readonly knot: number; readonly coordinates: number[] } => {
+    return (seconds: number): IPrepareHermiteResult2 => {
       if (seconds <= times[0]!) return { knot: 0, coordinates: [...x[0]!] };
       if (seconds >= times[n - 1]!)
         return { knot: n - 1, coordinates: [...x[n - 1]!] };

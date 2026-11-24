@@ -13,8 +13,8 @@ import type {
 
 import { HumanBound } from "../law/HumanBound";
 import { HumanFrame } from "../posture/HumanFrame";
+import { humanPostureHeading } from "../posture/humanPostureHeading";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { turnHumanPosture } from "../posture/turnHumanPosture";
 import { GymnasticsFlight } from "../sport/GymnasticsFlight";
 import { HumanCarriedLiftKnots } from "./HumanCarriedLiftKnots";
@@ -140,7 +140,7 @@ export namespace HumanCarriedLift {
           about: blended.root,
           turn: Quaternion.multiply(
             rotation,
-            Quaternion.inverse(resolveHumanPosture.heading(blended)),
+            Quaternion.inverse(humanPostureHeading(blended)),
           ),
         },
       };

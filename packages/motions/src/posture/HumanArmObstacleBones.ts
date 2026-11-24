@@ -1,4 +1,7 @@
-import type { AutoMovieHumanoidBone } from "@automovie/interface";
+import type {
+  AutoMovieHumanSide,
+  AutoMovieHumanoidBone,
+} from "@automovie/interface";
 
 /**
  * Bone frames whose colliders the forearm clearance reads: the trunk and both
@@ -6,7 +9,7 @@ import type { AutoMovieHumanoidBone } from "@automovie/interface";
  * already placed arm's three segments.
  */
 export function HumanArmObstacleBones(
-  arms: readonly ("left" | "right")[] = [],
+  arms: readonly AutoMovieHumanSide[] = [],
 ): ReadonlySet<AutoMovieHumanoidBone> {
   let mask: number = 0;
   for (const side of arms) {

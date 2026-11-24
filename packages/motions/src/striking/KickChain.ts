@@ -1,31 +1,27 @@
-import {
-  ANKLE_DORSIFLEXION,
-  Quaternion,
-  ROM_TOLERANCE,
-  Vector3,
-} from "@automovie/engine";
+import { ANKLE_DORSIFLEXION, Quaternion, Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
-  IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanStrikingReach,
   IAutoMoviePose,
   IAutoMovieQuaternion,
-  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanFoot } from "../posture/HumanFoot";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { KickCarriage } from "./KickCarriage";
 import { KickForm } from "./KickForm";
 import { StrikingBody } from "./StrikingBody";
 import { StrikingReach } from "./StrikingReach";
 import { StrikingWeapon } from "./StrikingWeapon";
+import { kickChainRead } from "./kickChainRead";
+
+/** The alternatives of `PropsTechnique`'s site. */
+type PropsTechnique = "round" | "push";
 
 /**
  * The kicking leg at contact: the two-segment solve ({@link StrikingReach}) that
@@ -42,6 +38,18 @@ import { StrikingWeapon } from "./StrikingWeapon";
  * ({@link fit}) until the weapon of the fitted leg is on the point.
  */
 export namespace KickChain {
+  /** What one fit asks the leg for. */
+  export interface IAsked {
+    /** The ankle's goal, world metres. */
+    goal: IAutoMovieVector3;
+
+    /** The knee's bend hint, world metres. */
+    hint: IAutoMovieVector3;
+
+    /** The foot's world rotation from its rest. */
+    asked: IAutoMovieQuaternion;
+  }
+
   /**
    * How many times a fit is repeated from its own answer. Each round moves the
    * ankle's goal by the weapon's remaining error, which shrinks geometrically
@@ -65,10 +73,10 @@ export namespace KickChain {
     body: IAutoMovieMotionHumanBody;
 
     /** The kicking side. */
-    side: "left" | "right";
+    side: AutoMovieHumanSide;
 
     /** The technique. */
-    technique: "round" | "push";
+    technique: PropsTechnique;
 
     /** The horizontal unit line toward the target. */
     line: IAutoMovieVector3;
@@ -328,7 +336,7 @@ export namespace KickChain {
         KickForm.HINT_SHARE * body.measure.thigh,
       );
       let asked: IAutoMovieQuaternion = pointed(solved.middle, solved.end);
-      let best: IFit = read(
+      let best: IFit = kickChainRead(
         props,
         base,
         solved,
@@ -358,7 +366,7 @@ export namespace KickChain {
         );
         hint = last.knee;
         asked = pointed(last.knee, last.ankle);
-        last = read(
+        last = kickChainRead(
           props,
           base,
           solved,
@@ -370,111 +378,6 @@ export namespace KickChain {
         if (last.residual < best.residual) best = last;
       }
       return best;
-    };
-  }
-
-  /** What one fit asks the leg for. */
-  interface IAsked {
-    /** The ankle's goal, world metres. */
-    goal: IAutoMovieVector3;
-
-    /** The knee's bend hint, world metres. */
-    hint: IAutoMovieVector3;
-
-    /** The foot's world rotation from its rest. */
-    asked: IAutoMovieQuaternion;
-  }
-
-  /** Fit the leg once and read the fitted bones back. */
-  function read(
-    props: IProps,
-    base: IAutoMovieMotionHumanPosture,
-    solved: IAutoMovieMotionHumanStrikingReach.ISolution,
-    ask: IAsked,
-    resolution: ReturnType<typeof prepareHumanPoseResolution>,
-    projection: ReturnType<typeof prepareHumanPostureProjection>,
-    frames: ReturnType<typeof poseBones.prepare>,
-  ): IFit {
-    const { body, side }: IProps = props;
-    const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
-    const support: "left" | "right" = side === "left" ? "right" : "left";
-    const pose: IAutoMoviePose = resolveHumanPosture.seeded(
-      body,
-      {
-        ...base,
-        limbs: {
-          ...base.limbs,
-          [`${side}Leg`]: {
-            point: ask.goal,
-            bend: ask.hint,
-            rotation: ask.asked,
-          },
-        },
-      },
-      undefined,
-      {},
-      resolution,
-      undefined,
-      projection,
-    ).pose;
-    const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = frames(
-      pose,
-      resolution(),
-    );
-    const knee: IAutoMovieVector3 = bones.get(
-      `${side}LowerLeg` as AutoMovieHumanoidBone,
-    )!.worldPosition;
-    const foot: IAutoMovieResolvedBone = bones.get(
-      `${side}Foot` as AutoMovieHumanoidBone,
-    )!;
-    const reached: IAutoMovieVector3 =
-      props.technique === "round"
-        ? Vector3.add(
-            Vector3.lerp(knee, foot.worldPosition, solved.along / m.shank),
-            Vector3.scale(
-              props.direction,
-              StrikingWeapon.girth(
-                StrikingWeapon.legRadii(body)[1],
-                solved.along / m.shank,
-              ),
-            ),
-          )
-        : Vector3.add(
-            Vector3.add(
-              foot.worldPosition,
-              StrikingBody.socket(
-                body,
-                side === "left" ? "ballLeft" : "ballRight",
-                foot.worldRotation,
-              ),
-            ),
-            Vector3.scale(props.direction, StrikingWeapon.legRadii(body)[2]),
-          );
-    const residual: number = Vector3.distance(reached, props.planned);
-    const flexion: number =
-      pose.joints.find((j): boolean => j.bone === `${side}LowerLeg`)?.flexion ??
-      0;
-
-    // The fitted knee, not the solve's, decides a jam: the fit moves the
-    // ankle's goal until the weapon is on the point, and where the foot's
-    // own range turns the ball off the solve's assumed rotation that folds
-    // the knee past the band the solve held (the staged push kick reached
-    // its point with the knee at 45 to 50 degrees, its band ending at 35).
-    return {
-      pose,
-      knee,
-      ankle: foot.worldPosition,
-      rotation: foot.worldRotation,
-      flexion,
-      reached,
-      slip: slip(body, support, base, bones),
-      residual,
-      status:
-        residual > KickForm.RESIDUAL
-          ? "short"
-          : flexion > KickForm.FLEXION[props.technique][1] + ROM_TOLERANCE
-            ? "jammed"
-            : "reached",
     };
   }
 
@@ -500,37 +403,11 @@ export namespace KickChain {
       sole(props.line),
     );
   }
-
-  /**
-   * How far the fitted support foot's ball is from where its planted goal puts
-   * it, metres.
-   */
-  function slip(
-    body: IAutoMovieMotionHumanBody,
-    support: "left" | "right",
-    base: IAutoMovieMotionHumanPosture,
-    bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
-  ): number {
-    const goal: IAutoMovieHumanLimbGoal | undefined =
-      base.limbs[`${support}Leg`];
-    if (goal === undefined || goal.rotation === undefined) return 0;
-    const offset: IAutoMovieVector3 = HumanFoot.offset(body, support, "ball");
-    const foot: IAutoMovieResolvedBone = bones.get(
-      `${support}Foot` as AutoMovieHumanoidBone,
-    )!;
-    return Vector3.distance(
-      Vector3.add(
-        foot.worldPosition,
-        Quaternion.rotateVector(foot.worldRotation, offset),
-      ),
-      Vector3.add(goal.point, Quaternion.rotateVector(goal.rotation, offset)),
-    );
-  }
 }
 
 /** Read-back needs the kicking knee/foot and the planted support foot only. */
 const CONTACT_BONES: Readonly<
-  Record<"left" | "right", ReadonlySet<AutoMovieHumanoidBone>>
+  Record<AutoMovieHumanSide, ReadonlySet<AutoMovieHumanoidBone>>
 > = {
   left: new Set<AutoMovieHumanoidBone>([
     "leftLowerLeg",

@@ -71,6 +71,8 @@ export namespace HumanEnsembleMembers {
       input.formation === undefined
         ? undefined
         : HumanFormation.of(input.formation);
+    const prepared: HumanFormation.IPrepared | undefined =
+      formation === undefined ? undefined : HumanFormation.prepare(formation);
     if (
       formation !== undefined &&
       HumanFormation.count(formation) < input.count
@@ -148,8 +150,8 @@ export namespace HumanEnsembleMembers {
       const slot: IAutoMovieMotionHumanFormation.ILocal | null =
         formation === undefined ? null : HumanFormation.local(formation, index);
       const place: IAutoMovieMotionHumanEnsemble.IPlace =
-        formation !== undefined
-          ? placeOf(HumanFormation.slot(formation, index, 0, read))
+        prepared !== undefined
+          ? placeOf(prepared.slot(index, 0, read))
           : typeof input.places === "function"
             ? input.places(index)
             : (input.places![index] ??

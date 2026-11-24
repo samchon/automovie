@@ -2,6 +2,20 @@ import type { IAutoMovieHumanBodyAnatomy } from "@automovie/interface";
 
 import { HUMAN_POPULATION_SURVEY } from "./HUMAN_POPULATION_SURVEY";
 
+/** The alternatives of `EntryItemEntry`'s site. */
+type EntryItemEntry =
+  | "faceHeight"
+  | "mandibularWidth"
+  | "minimumFrontalWidth"
+  | "intercanthalWidth"
+  | "fissureLength"
+  | "noseWidth"
+  | "noseHeight"
+  | "noseProtrusion"
+  | "mouthWidth"
+  | "upperVermilion"
+  | "lowerVermilion";
+
 /**
  * The published statistics every test person is built from and checked against:
  * the ANSUR 1988 summary statistics per sex (Gordon et al. 1989;
@@ -147,25 +161,7 @@ export namespace HumanPopulationSurvey {
    * (Weinberg et al. 2016; `weinberg-2016-3d-facial-norms.md`), for the face
    * inputs the body survey does not measure.
    */
-  export const FACE: Record<
-    Sex,
-    Readonly<
-      Record<
-        | "faceHeight"
-        | "mandibularWidth"
-        | "minimumFrontalWidth"
-        | "intercanthalWidth"
-        | "fissureLength"
-        | "noseWidth"
-        | "noseHeight"
-        | "noseProtrusion"
-        | "mouthWidth"
-        | "upperVermilion"
-        | "lowerVermilion",
-        number
-      >
-    >
-  > = {
+  export const FACE: Record<Sex, Readonly<Record<EntryItemEntry, number>>> = {
     female: {
       faceHeight: 118.6,
       mandibularWidth: 97.0,

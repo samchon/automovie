@@ -8,6 +8,9 @@ import type {
 
 import { HumanBound } from "../law/HumanBound";
 
+/** The alternatives of `PickUpAlongContext`'s site. */
+type PickUpAlongContext = "params" | "prop";
+
 /**
  * A pick up's grasp target moved to the place along its grip's band the
  * parameters name (`IAutoMovieMotionHumanPickUp.Along`): the grip point slid
@@ -23,7 +26,7 @@ import { HumanBound } from "../law/HumanBound";
 export function pickUpAlong(
   context: Pick<
     IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanPickUp.IParams>,
-    "params" | "prop"
+    PickUpAlongContext
   >,
   target: IAutoMovieMotionHumanGrasp.ITarget,
 ): IAutoMovieMotionHumanGrasp.ITarget {

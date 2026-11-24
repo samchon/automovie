@@ -31,6 +31,9 @@ import { dance } from "./dance";
 import { prepareDanceBeats } from "./prepareDanceBeats";
 import { tapDanceSteps } from "./tapDanceSteps";
 
+/** The alternatives of `SetSocket`'s site. */
+type SetSocket = "ball" | "heel";
+
 /**
  * Tap dance on the dance law's beat clock. Each step is a table of strikes in
  * quarter beats from its first beat (`tapDanceSteps.STEPS`): which foot (the
@@ -343,7 +346,7 @@ export namespace tapDance {
   ): IAutoMovieMotionHumanFoot.IPlacement {
     const heading: number = HumanFoot.heading(moved.rotation);
     if (mode === "flat") return moved;
-    const socket: "ball" | "heel" = mode;
+    const socket: SetSocket = mode;
     return HumanFoot.pivot(
       body,
       side,

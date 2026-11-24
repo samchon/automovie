@@ -13,6 +13,27 @@ import { poseBones } from "./poseBones";
 import { prepareHumanPoseResolution } from "./prepareHumanPoseResolution";
 import { resolveHumanPosture } from "./resolveHumanPosture";
 
+/** The record of `ICandidatesShape`'s site. */
+type ICandidatesShape = { kind: "hull" };
+
+/** The record of `IOfTarget2`'s site. */
+type IOfTarget2 = { bone: AutoMovieHumanoidBone };
+
+/** The record of `IOfTarget`'s site. */
+type IOfTarget = {
+  bone: AutoMovieHumanoidBone;
+  point?: IAutoMovieVector3;
+};
+
+/** The record of `IOfBox`'s site. */
+type IOfBox = { min: IAutoMovieVector3; max: IAutoMovieVector3 };
+
+/** The record of `IOfTargetsItem`'s site. */
+type IOfTargetsItem = {
+  bone: AutoMovieHumanoidBone;
+  point?: IAutoMovieVector3;
+};
+
 /**
  * What a posture shows of the floor, read as the floor audit reads it: the
  * lowest point of each collider of the posed body, the lowest of the colliders
@@ -82,10 +103,7 @@ export namespace HumanFloorReading {
     body: IAutoMovieMotionHumanBody,
     posture: IAutoMovieMotionHumanPosture,
     bearing: readonly RegExp[],
-    targets: readonly {
-      bone: AutoMovieHumanoidBone;
-      point?: IAutoMovieVector3;
-    }[],
+    targets: readonly IOfTargetsItem[],
     source?: Parameters<typeof prepareHumanPoseResolution>[0],
   ): IReading {
     const resolution:
@@ -126,20 +144,19 @@ export namespace HumanFloorReading {
           shape.transform.rotation,
         );
         const found: ICandidate[] = [];
-        const box: { min: IAutoMovieVector3; max: IAutoMovieVector3 } =
-          physicalShapeBounds.fromFrame(
-            centre,
-            rotation,
-            shape,
-            shape.kind !== "hull"
-              ? undefined
-              : (point: IAutoMovieVector3): void => {
-                  point.x = centre.x + point.x;
-                  point.y = centre.y + point.y;
-                  point.z = centre.z + point.z;
-                  found.push({ point, lift: 0 });
-                },
-          );
+        const box: IOfBox = physicalShapeBounds.fromFrame(
+          centre,
+          rotation,
+          shape,
+          shape.kind !== "hull"
+            ? undefined
+            : (point: IAutoMovieVector3): void => {
+                point.x = centre.x + point.x;
+                point.y = centre.y + point.y;
+                point.z = centre.z + point.z;
+                found.push({ point, lift: 0 });
+              },
+        );
         lows.push(box.min.y);
         owners.push(segment.bone);
         if (shape.kind !== "hull") candidates(centre, rotation, shape, found);
@@ -158,22 +175,17 @@ export namespace HumanFloorReading {
     return {
       parts,
       members,
-      points: targets.map(
-        (target: {
-          bone: AutoMovieHumanoidBone;
-          point?: IAutoMovieVector3;
-        }): IAutoMovieVector3 => {
-          const at: IAutoMovieResolvedBone = bones.get(target.bone)!;
-          return target.point === undefined
-            ? at.worldPosition
-            : Vector3.add(
-                at.worldPosition,
-                Quaternion.rotateVector(at.worldRotation, target.point),
-              );
-        },
-      ),
+      points: targets.map((target: IOfTarget): IAutoMovieVector3 => {
+        const at: IAutoMovieResolvedBone = bones.get(target.bone)!;
+        return target.point === undefined
+          ? at.worldPosition
+          : Vector3.add(
+              at.worldPosition,
+              Quaternion.rotateVector(at.worldRotation, target.point),
+            );
+      }),
       turns: targets.map(
-        (target: { bone: AutoMovieHumanoidBone }): IAutoMovieQuaternion =>
+        (target: IOfTarget2): IAutoMovieQuaternion =>
           bones.get(target.bone)!.worldRotation,
       ),
       lows,
@@ -209,7 +221,7 @@ export namespace HumanFloorReading {
   function candidates(
     centre: IAutoMovieVector3,
     rotation: IAutoMovieQuaternion,
-    shape: Exclude<Parameters<typeof physicalShapeBounds>[1], { kind: "hull" }>,
+    shape: Exclude<Parameters<typeof physicalShapeBounds>[1], ICandidatesShape>,
     out: ICandidate[],
   ): void {
     const at: (local: IAutoMovieVector3) => IAutoMovieVector3 = (

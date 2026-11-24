@@ -26,7 +26,6 @@ import { HumanSupportCarry } from "../carrier/HumanSupportCarry";
 import { swungArms } from "../carrier/swungArms";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
-import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
 import { AutoMovieMotionHumanLean } from "../compose/AutoMovieMotionHumanLean";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
@@ -34,8 +33,10 @@ import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
 import { hipJoints } from "../posture/hipJoints";
+import { humanPostureHeading } from "../posture/humanPostureHeading";
+import { lowerHumanPosture } from "../posture/lowerHumanPosture";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { climbStairsBounds } from "./climbStairsBounds";
 import { climbStairsCarry } from "./climbStairsCarry";
 import { climbStairsFeet } from "./climbStairsFeet";
 import { climbStairsFlight } from "./climbStairsFlight";
@@ -46,13 +47,6 @@ import { climbStairsRail } from "./climbStairsRail";
 import { climbStairsRocker } from "./climbStairsRocker";
 import { climbStairsSwing } from "./climbStairsSwing";
 import { climbStairsWeight } from "./climbStairsWeight";
-
-/**
- * Offset decay time of a cut out of the arrived climb, seconds (a deliberate
- * change of the whole body's action,
- * `AutoMovieMotionHumanInterrupt.BLENDS.deliberate`).
- */
-const BLEND: number = AutoMovieMotionHumanInterrupt.BLENDS.deliberate;
 
 /**
  * Climbing a flight of stairs up or down from standing before its first nosing,
@@ -118,10 +112,20 @@ export namespace climbStairs {
    */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     stand: [
-      { window: ["arrived", 1], kind: "inertialize", entry: 0, blend: BLEND },
+      {
+        window: ["arrived", 1],
+        kind: "inertialize",
+        entry: 0,
+        blend: climbStairsBounds.BLEND,
+      },
     ],
     walk: [
-      { window: ["arrived", 1], kind: "inertialize", entry: 0, blend: BLEND },
+      {
+        window: ["arrived", 1],
+        kind: "inertialize",
+        entry: 0,
+        blend: climbStairsBounds.BLEND,
+      },
     ],
   };
 
@@ -150,6 +154,8 @@ export namespace climbStairs {
   /** The flight a set of parameters describes (`climbStairsFlight.flight`). */
   export const flight: typeof climbStairsFlight.flight =
     climbStairsFlight.flight;
+  /** The record of `IPrintsItemEntry`'s site. */
+  type IPrintsItemEntry = { print: IPrint; step: number };
 
   /**
    * Plan a climb.
@@ -164,17 +170,17 @@ export namespace climbStairs {
     const body: IAutoMovieMotionHumanBody = context.body;
     const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
     const p: IAutoMovieMotionHumanClimbStairs.IParams = context.params;
-    const lead: "left" | "right" = p.lead ?? "right";
+    const lead: AutoMovieHumanSide = p.lead ?? "right";
     // The feet leave the floor from the entry; the treads repeat the
     // settled stance's flat feet (`stand.footprints`).
     const stood: stand.IFootprints = stand.footprints(context);
     const standing: IAutoMovieMotionHumanPosture = stood.standing;
     const entered: Record<
-      "left" | "right",
+      AutoMovieHumanSide,
       IAutoMovieMotionHumanFoot.IPlacement
     > = stood.entered;
     const flats: Record<
-      "left" | "right",
+      AutoMovieHumanSide,
       IAutoMovieMotionHumanFoot.IPlacement
     > = stood.settled;
     const yaw: number = standing.yaw;
@@ -206,7 +212,7 @@ export namespace climbStairs {
     // it is passing.
     const profile: (z: number) => number = climbStairsProfile(
       stairs,
-      EDGE - EDGE_MARGIN,
+      EDGE - climbStairsBounds.EDGE_MARGIN,
       CLEARANCE,
     );
     const required: (side: AutoMovieHumanSide) => (z: number) => number = (
@@ -232,22 +238,26 @@ export namespace climbStairs {
     });
     instants.push({ name: "arrived", seconds: steps.length * period });
     const clock: IAutoMovieMotionClock = AutoMovieMotionManner.time(
-      AutoMovieMotionClock.of((steps.length + SETTLE) * period, instants),
+      AutoMovieMotionClock.of(
+        (steps.length + climbStairsBounds.SETTLE) * period,
+        instants,
+      ),
       modifiers,
       { holds: [] },
     );
     const duration: number = clock.duration;
     const rightLoad: (seconds: number) => number = climbStairsWeight(
-      steps.map((step: (typeof steps)[number]): "left" | "right" => step.side),
+      steps.map(
+        (step: (typeof steps)[number]): AutoMovieHumanSide => step.side,
+      ),
       clock,
     );
 
     // Each foot's prints in order, with the step that brings it there.
-    const prints: Record<"left" | "right", { print: IPrint; step: number }[]> =
-      {
-        left: [{ print: print("left", 0), step: 0 }],
-        right: [{ print: print("right", 0), step: 0 }],
-      };
+    const prints: Record<AutoMovieHumanSide, IPrintsItemEntry[]> = {
+      left: [{ print: print("left", 0), step: 0 }],
+      right: [{ print: print("right", 0), step: 0 }],
+    };
     steps.forEach((s: (typeof steps)[number], j: number): void => {
       prints[s.side].push({ print: print(s.side, s.level), step: j + 1 });
     });
@@ -256,10 +266,10 @@ export namespace climbStairs {
     // middle as high as both legs reach from it.
     function reached(
       posture: IAutoMovieMotionHumanPosture,
-      feet: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement>,
+      feet: Record<AutoMovieHumanSide, IAutoMovieMotionHumanFoot.IPlacement>,
       resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
     ): IAutoMovieVector3 {
-      return resolveHumanPosture.lower(
+      return lowerHumanPosture(
         body,
         {
           ...posture,
@@ -277,7 +287,7 @@ export namespace climbStairs {
     {
       const resolution: ReturnType<typeof prepareHumanPoseResolution> =
         prepareHumanPoseResolution();
-      const now: Record<"left" | "right", IPrint> = {
+      const now: Record<AutoMovieHumanSide, IPrint> = {
         left: print("left", 0),
         right: print("right", 0),
       };
@@ -334,9 +344,9 @@ export namespace climbStairs {
     // level, and is shared by the pelvis and the spine.
     const inclined: ReturnType<typeof HumanTrunk.incline> = HumanTrunk.incline(
       standUpright.of(body).joints,
-      p.direction === "down" ? walk.LEAN : ASCENT_LEAN,
+      p.direction === "down" ? walk.LEAN : climbStairsBounds.ASCENT_LEAN,
     );
-    const contact: Record<"left" | "right", IAutoMovieVector3> = {
+    const contact: Record<AutoMovieHumanSide, IAutoMovieVector3> = {
       left: HumanFoot.offset(body, "left", "mtp"),
       right: HumanFoot.offset(body, "right", "mtp"),
     };
@@ -364,7 +374,7 @@ export namespace climbStairs {
           );
         // The root stays where the swinging leg reaches its foot too, so
         // the foot keeps its clearing path.
-        const feet: Record<"left" | "right", ReturnType<typeof footAt>> = {
+        const feet: Record<AutoMovieHumanSide, ReturnType<typeof footAt>> = {
           left: footAt("left", seconds),
           right: footAt("right", seconds),
         };
@@ -390,7 +400,7 @@ export namespace climbStairs {
         const hips: ReturnType<typeof hipJoints> = hipJoints(
           body,
           root,
-          resolveHumanPosture.heading(placed),
+          humanPostureHeading(placed),
           placed.joints.hips,
           read(),
         );
@@ -479,22 +489,3 @@ export namespace climbStairs {
   /** A footprint: the foot's placement and the tread it is on, 0 for the floor. */
   type IPrint = climbStairsPrints.IPrint;
 }
-
-/**
- * The trunk's forward inclination ascending stairs, degrees (provisional: more
- * than a walk's, McFadyen and Winter 1988, J Biomech 21:733).
- */
-const ASCENT_LEAN: number = 8;
-
-/**
- * How much narrower than `EDGE` the band around a nosing that asks for
- * clearance is, metres: a planted sole held `EDGE` from the nosing lies outside
- * the band, not on its edge.
- */
-const EDGE_MARGIN: number = 0.003;
-
-/**
- * Step periods the climb holds both feet on the last tread after arriving
- * (provisional).
- */
-const SETTLE: number = 0.3;

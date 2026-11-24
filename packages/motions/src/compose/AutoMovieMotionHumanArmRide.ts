@@ -19,6 +19,9 @@ import type { HumanArmTrajectory } from "../posture/HumanArmTrajectory";
 import { HumanColliders } from "../posture/HumanColliders";
 import { poseBones } from "../posture/poseBones";
 
+/** The alternatives of `RidingOwner`'s site. */
+type RidingOwner = "upper" | "lower" | "hand";
+
 /**
  * A planned arm's site that rides another arm of the same plan
  * (`HumanArmTrajectory.ISite.on`), read off where the base and the lead arm's
@@ -80,7 +83,7 @@ export namespace AutoMovieMotionHumanArmRide {
     point: IAutoMovieVector3,
     rotation: IAutoMovieQuaternion | undefined,
   ): Omit<NonNullable<HumanArmTrajectory.ISite["on"]>, "arm"> {
-    const owner: "upper" | "lower" | "hand" = bone.endsWith("UpperArm")
+    const owner: RidingOwner = bone.endsWith("UpperArm")
       ? "upper"
       : bone.endsWith("LowerArm")
         ? "lower"

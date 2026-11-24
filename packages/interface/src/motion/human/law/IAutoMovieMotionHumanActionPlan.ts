@@ -4,6 +4,7 @@ import type { IAutoMoviePoseResolution } from "../../../pose/IAutoMoviePoseResol
 import type { IAutoMovieMotionEvent } from "../../IAutoMovieMotionEvent";
 import type { AutoMovieMotionHumanChannel } from "../compose/AutoMovieMotionHumanChannel";
 import type { AutoMovieMotionHumanChannelClaim } from "../compose/AutoMovieMotionHumanChannelClaim";
+import type { IAutoMovieMotionHumanEvaluation } from "../compose/IAutoMovieMotionHumanEvaluation";
 import type { IAutoMovieHumanPostureRotation } from "../posture/IAutoMovieHumanPostureRotation";
 import type { IAutoMovieMotionHumanPosture } from "../posture/IAutoMovieMotionHumanPosture";
 import type { IAutoMovieMotionHumanBalance } from "./IAutoMovieMotionHumanBalance";
@@ -147,6 +148,9 @@ export interface IAutoMovieMotionHumanActionPlan {
    * @param projection Optional genuine same-body ROM projector borrowed for
    *   this call only; every actual direct joint is still projected, and unknown
    *   functions fall back to ordinary admission.
+   * @param evaluation The explicit context of this evaluation, lent for this
+   *   call only; passed on unchanged to every plan and primitive the posture
+   *   reads at this evaluation, never retained.
    * @returns The borrowed posture; when a demand is supplied, only requested
    *   channels are guaranteed current.
    */
@@ -155,6 +159,7 @@ export interface IAutoMovieMotionHumanActionPlan {
     channels?: readonly AutoMovieMotionHumanChannel[],
     resolution?: IAutoMoviePoseResolution.ISource,
     projection?: (pose: IAutoMoviePose) => IAutoMoviePose,
+    evaluation?: IAutoMovieMotionHumanEvaluation,
   ): IAutoMovieMotionHumanPosture;
 
   /**

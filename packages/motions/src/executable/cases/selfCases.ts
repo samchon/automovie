@@ -24,6 +24,12 @@ import { FamilyCaseKit } from "./FamilyCaseKit";
 import { TouchVerdicts } from "./TouchVerdicts";
 import { everydayVerdicts } from "./everydayVerdicts";
 
+/** The record of `ISelfCasesHands2`'s site. */
+type ISelfCasesHands2 = { region: AutoMovieHumanoidRegion };
+
+/** The record of `ISelfCasesHands`'s site. */
+type ISelfCasesHands = { region: AutoMovieHumanoidRegion };
+
 /**
  * Capture cases of the self-directed body actions on one polygon man standing
  * from quiet standing.
@@ -134,17 +140,14 @@ export function selfCases(
         ...everydayVerdicts.standard(performance, "a", body),
       ];
       const hands: [AutoMovieHumanSide, AutoMovieHumanoidRegion][] = [
-        [
-          "right",
-          (params.target as { region: AutoMovieHumanoidRegion }).region,
-        ],
+        ["right", (params.target as ISelfCasesHands).region],
         ...(params.other === undefined
           ? []
           : [
-              [
-                "left",
-                (params.other as { region: AutoMovieHumanoidRegion }).region,
-              ] as [AutoMovieHumanSide, AutoMovieHumanoidRegion],
+              ["left", (params.other as ISelfCasesHands2).region] as [
+                AutoMovieHumanSide,
+                AutoMovieHumanoidRegion,
+              ],
             ]),
       ];
       for (const [side, region] of hands) {
@@ -311,6 +314,7 @@ function attempt(
   name: string,
   run: () => IAutoMovieMotionHumanPerformance,
 ): IAutoMovieMotionHumanPerformance | null {
+  // Process boundary: a case that throws is reported as that case's refusal, and the remaining cases still run.
   try {
     return run();
   } catch (error) {

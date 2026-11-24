@@ -1,4 +1,4 @@
-import { AutoMovieGravity, Vector3 } from "@automovie/engine";
+import { Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
@@ -8,104 +8,11 @@ import type {
 } from "@automovie/interface";
 
 import { getUp } from "../floor/getUp";
-import { HumanHand } from "../posture/HumanHand";
+import { treeClimbRouteForms } from "./treeClimbRouteForms";
 import { treeLimbs } from "./treeLimbs";
 
-/** Seconds per single hand or foot move (provisional). */
-const BEAT: number = 0.6;
-
-/**
- * The names of the change groups a step expands into, by rank: holds taken,
- * feet moved, hands moved, holds let go.
- */
-const GROUPS: readonly string[] = ["Take", "Feet", "Hands", "Release"];
-
-/**
- * The near and far hold on a branch, metres out from the trunk face
- * (provisional: two hands' widths apart, near the strong root).
- */
-const HOLDS: readonly [number, number] = [0.15, 0.45];
-
-/**
- * The near and far foot on a branch's top, metres out from the trunk face
- * (provisional).
- */
-const STEPS: readonly [number, number] = [0.25, 0.5];
-
-/**
- * The feet's heights walking up the bole, metres above its foot: a knee-high
- * and a hip-high step, at the body's own knee (the ankle's height and the
- * shank) and hip heights, so a small body's steps are its own.
- *
- * @param measure The body's measure.
- * @returns The two heights, lower first.
- * @evidence contracts/development/common.md#meaningful-documentation States both heights and the measures they are read from.
- * @evidence contracts/development/implementation.md#principled-implementation A step at the knee's and the hip's height is reached by the body's own legs, where fixed metres outgrow a small body's.
- * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure Two sums.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The heights are the body's measure, not tuned values.
- * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Reads the measure.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
- */
-function walkHeights(
-  measure: IAutoMovieMotionHumanBody["measure"],
-): readonly [number, number] {
-  return [measure.ankleHeight + measure.shank, measure.hipHeight];
-}
-
-/**
- * A foot's slide either side of the line facing the bole, metres (provisional:
- * the feet hip width apart).
- */
-const SPLAY: number = 0.12;
-
-/**
- * A hand's slide either side on the bole when no branch is above, metres
- * (provisional: a hug's span).
- */
-const HUG: number = 0.2;
-
-/**
- * The heel hook: hanging from the branch, the left leg drawn up to hook its
- * heel over it, the right foot on the bole (provisional angles, degrees).
- */
-const HOOK: IAutoMovieMotionHumanLieDown.IPose = {
-  pitch: -10,
-  roll: 0,
-  joints: {
-    ...HumanHand.shape("left", "fist"),
-    ...HumanHand.shape("right", "fist"),
-    leftUpperLeg: [120, 10, 0],
-    rightUpperLeg: [60, 5, 0],
-    leftLowerLeg: [110, 0, 0],
-    rightLowerLeg: [80, 0, 0],
-    leftUpperArm: [160, 15, 0],
-    rightUpperArm: [160, 15, 0],
-    leftLowerArm: [40, 0, 0],
-    rightLowerArm: [40, 0, 0],
-  },
-};
-
-/**
- * The astride sitting pose: the thighs spread over the branch, the shins
- * hanging, the hands forward on it (provisional).
- */
-const ASTRIDE: IAutoMovieMotionHumanLieDown.IPose = {
-  pitch: 10,
-  roll: 0,
-  joints: {
-    ...HumanHand.shape("left", "fist"),
-    ...HumanHand.shape("right", "fist"),
-    leftUpperLeg: [70, 30, 0],
-    rightUpperLeg: [70, 30, 0],
-    leftLowerLeg: [80, 0, 0],
-    rightLowerLeg: [80, 0, 0],
-    leftUpperArm: [60, 10, 0],
-    rightUpperArm: [60, 10, 0],
-    leftLowerArm: [20, 0, 0],
-    rightLowerArm: [20, 0, 0],
-  },
-};
+/** The alternatives of `HoldKind`'s site. */
+type HoldKind = "bear" | "grip";
 
 /**
  * A tree climb's stances on staged points of the tree, one hand or foot moving
@@ -123,7 +30,7 @@ export namespace treeClimbRoute {
     part: IAutoMovieMotionHumanSupport.IContact["part"];
 
     /** How it touches. */
-    kind: "bear" | "grip";
+    kind: HoldKind;
 
     /** The staged point's name. */
     key: string;
@@ -197,7 +104,8 @@ export namespace treeClimbRoute {
         `the tree has branches 0 to ${tree.branches.length - 1}`,
       );
     const measure: IAutoMovieMotionHumanBody["measure"] = body.measure;
-    const WALK: readonly [number, number] = walkHeights(measure);
+    const WALK: readonly [number, number] =
+      treeClimbRouteForms.walkHeights(measure);
     const lowest: treeLimbs.IBranch = tree.branches[0]!;
     const reach: number =
       measure.shoulderHeight + measure.upperArm + measure.forearm;
@@ -230,7 +138,7 @@ export namespace treeClimbRoute {
       branch: treeLimbs.IBranch,
       side: AutoMovieHumanSide,
     ): IHold => {
-      const out: number = sided(branch, HOLDS)[side];
+      const out: number = sided(branch, treeClimbRouteForms.HOLDS)[side];
       return {
         part: `${side}Hand`,
         kind: "grip",
@@ -244,7 +152,7 @@ export namespace treeClimbRoute {
       branch: treeLimbs.IBranch,
       side: AutoMovieHumanSide,
     ): IHold => {
-      const out: number = sided(branch, STEPS)[side];
+      const out: number = sided(branch, treeClimbRouteForms.STEPS)[side];
       return {
         part: `${side}Foot`,
         kind: "bear",
@@ -259,7 +167,9 @@ export namespace treeClimbRoute {
       height: number,
       hand: boolean,
     ): IHold => {
-      const aside: number = (side === "right" ? 1 : -1) * (hand ? HUG : SPLAY);
+      const aside: number =
+        (side === "right" ? 1 : -1) *
+        (hand ? treeClimbRouteForms.HUG : treeClimbRouteForms.SPLAY);
       const point: IAutoMovieVector3 = treeLimbs.face(
         tree,
         height,
@@ -323,7 +233,7 @@ export namespace treeClimbRoute {
       const ahead: IAutoMovieVector3 = { x: -right.z, y: 0, z: right.x };
       const under: IAutoMovieVector3 = treeLimbs.on(
         lowest,
-        (HOLDS[0] + HOLDS[1]) / 2,
+        (treeClimbRouteForms.HOLDS[0] + treeClimbRouteForms.HOLDS[1]) / 2,
         0,
       );
       const centre: IAutoMovieVector3 = Vector3.addScaled(
@@ -340,7 +250,7 @@ export namespace treeClimbRoute {
         point: Vector3.addScaled(
           centre,
           right,
-          (side === "right" ? 1 : -1) * SPLAY,
+          (side === "right" ? 1 : -1) * treeClimbRouteForms.SPLAY,
         ),
       });
       const leftFloor: IHold = placed(from, "left");
@@ -361,7 +271,7 @@ export namespace treeClimbRoute {
           tree,
           height,
           facingBole,
-          (side === "right" ? 1 : -1) * SPLAY,
+          (side === "right" ? 1 : -1) * treeClimbRouteForms.SPLAY,
         );
         return {
           part: `${side}Foot`,
@@ -399,14 +309,17 @@ export namespace treeClimbRoute {
             {
               ...stand(lowest, "left"),
               key: `leftFoot@b${lowest.index}@hook`,
-              point: treeLimbs.on(lowest, STEPS[0], 1),
-              branch: { index: lowest.index, out: STEPS[0] },
+              point: treeLimbs.on(lowest, treeClimbRouteForms.STEPS[0], 1),
+              branch: {
+                index: lowest.index,
+                out: treeClimbRouteForms.STEPS[0],
+              },
             },
             step("right", WALK[1]),
             ...grips,
           ],
           event: "hook",
-          prefer: HOOK,
+          prefer: treeClimbRouteForms.HOOK,
         },
         {
           holds: [stand(lowest, "left"), stand(lowest, "right"), ...hands(0)],
@@ -449,7 +362,7 @@ export namespace treeClimbRoute {
               grip(lowest, "right"),
             ],
             event: "hook",
-            prefer: HOOK,
+            prefer: treeClimbRouteForms.HOOK,
           },
           {
             holds: [stand(lowest, "left"), stand(lowest, "right"), ...hands(0)],
@@ -497,7 +410,7 @@ export namespace treeClimbRoute {
       (hold: IHold): boolean => hold.kind === "grip",
     );
     return [
-      { holds: hands, event: "lift", prefer: ASTRIDE },
+      { holds: hands, event: "lift", prefer: treeClimbRouteForms.ASTRIDE },
       {
         holds: [
           {
@@ -511,112 +424,8 @@ export namespace treeClimbRoute {
           ...hands,
         ],
         event: "astride",
-        prefer: ASTRIDE,
+        prefer: treeClimbRouteForms.ASTRIDE,
       },
     ];
-  }
-  /**
-   * Expand stances so the holds change a group at a time (taken, feet, hands,
-   * let go), and check every one against the branches' loads.
-   *
-   * @param body The canonical motion body.
-   * @param tree The tree.
-   * @param stances The stances in order.
-   * @returns The support stances, with every staged point by name.
-   * @throws {HumanRefusal} If a stance loads a branch past its limit, naming
-   *   the branch and the load.
-   */
-  export function expand(
-    body: IAutoMovieMotionHumanBody,
-    tree: treeLimbs.ITree,
-    stances: readonly IStance[],
-  ): IRoute {
-    const weight: number = body.massModel.mass * AutoMovieGravity.STANDARD;
-    const staged: Map<string, IHold> = new Map();
-    const out: IAutoMovieMotionHumanSupport.IStance[] = [];
-    const emit = (
-      holds: readonly IHold[],
-      event: string,
-      prefer?: IAutoMovieMotionHumanLieDown.IPose,
-    ): void => {
-      const share: number = weight / Math.max(1, holds.length);
-      for (const hold of holds) {
-        staged.set(hold.key, hold);
-        if (hold.branch === undefined) continue;
-        const branch: treeLimbs.IBranch = tree.branches[hold.branch.index]!;
-        const bound: number = treeLimbs.limit(branch, hold.branch.out);
-        if (share > bound)
-          throw treeLimbs.refusal(
-            "branch",
-            hold.branch.index,
-            `branch ${hold.branch.index} bears ${bound.toFixed(0)} N ${hold.branch.out.toFixed(2)} m out, but the ${hold.part} loads it with ${share.toFixed(0)} N`,
-          );
-      }
-      out.push({
-        contacts: holds.map(
-          (hold: IHold): IAutoMovieMotionHumanSupport.IContact => ({
-            part: hold.part,
-            kind: hold.kind,
-            target: { kind: "prop", subject: tree.subject, point: hold.key },
-          }),
-        ),
-        seconds: BEAT,
-        event,
-        ...(prefer === undefined ? {} : { prefer }),
-      });
-    };
-    let current: IHold[] = [];
-    for (const stance of stances) {
-      if (out.length === 0) {
-        emit(stance.holds, stance.event, stance.prefer);
-        current = [...stance.holds];
-        continue;
-      }
-      const parts: string[] = [
-        ...new Set(
-          [...current, ...stance.holds].map((hold: IHold): string => hold.part),
-        ),
-      ];
-      const of = (holds: readonly IHold[], part: string): IHold | undefined =>
-        holds.find((hold: IHold): boolean => hold.part === part);
-      // New holds first, then moves, the feet before the hands as a climber
-      // steps before reaching on, then the holds let go.
-      const rank: (part: string) => number = (part: string): number =>
-        of(current, part) === undefined
-          ? 0
-          : of(stance.holds, part) === undefined
-            ? 3
-            : part.endsWith("Foot")
-              ? 1
-              : 2;
-      const changes: string[] = parts
-        .filter(
-          (part: string): boolean =>
-            of(current, part)?.key !== of(stance.holds, part)?.key,
-        )
-        .sort((a: string, b: string): number => rank(a) - rank(b));
-      // The changes of one rank go together: the new holds, then the feet,
-      // then the hands, then the holds let go, each group one stance, so a
-      // step costs at most four keys whatever the number of limbs it moves.
-      const ranks: number[] = [...new Set(changes.map(rank))];
-      ranks.forEach((r: number, i: number): void => {
-        for (const part of changes.filter(
-          (p: string): boolean => rank(p) === r,
-        )) {
-          const next: IHold | undefined = of(stance.holds, part);
-          current = current.filter(
-            (hold: IHold): boolean => hold.part !== part,
-          );
-          if (next !== undefined) current.push(next);
-        }
-        const last: boolean = i === ranks.length - 1;
-        emit(
-          current,
-          last ? stance.event : `${stance.event}${GROUPS[r]}`,
-          last ? stance.prefer : undefined,
-        );
-      });
-    }
-    return { stances: out, staged };
   }
 }

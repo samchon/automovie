@@ -15,6 +15,9 @@ import type {
 
 import { HumanForceDrawn } from "./HumanForceDrawn";
 
+/** The record of `ISwingResult`'s site. */
+type ISwingResult = { angle: number; rate: number };
+
 /**
  * The mechanics of a force exchanged through grips: a pull that draws a partner
  * off balance (kuzushi), the counter-lean that resists it, and a throw's
@@ -230,7 +233,7 @@ export namespace HumanForceExchange {
       release,
       angle: (seconds: number): number => at(Math.min(release, seconds))[0]!,
       rate: (seconds: number): number => at(Math.min(release, seconds))[1]!,
-      sample: (seconds: number): { angle: number; rate: number } => {
+      sample: (seconds: number): ISwingResult => {
         const state: readonly number[] = at(Math.min(release, seconds));
         return { angle: state[0]!, rate: state[1]! };
       },

@@ -43,6 +43,9 @@ import { HumanSeatedReach } from "./HumanSeatedReach";
 import { highFiveContact } from "./highFiveContact";
 import { touchReach } from "./touchReach";
 
+/** The alternatives of `PlanLay`'s site. */
+type PlanLay = "upright" | "tangent";
+
 /**
  * A high five, a low five or a fist bump between two standing partners: both
  * bring one hand to one shared point between them and meet there at one shared
@@ -252,8 +255,7 @@ export namespace highFive {
         : highFiveContact.hand(kind);
 
     // A held vessel stands upright at the meeting and the fingers keep it.
-    const lay: "upright" | "tangent" =
-      p.prop === undefined ? "tangent" : "upright";
+    const lay: PlanLay = p.prop === undefined ? "tangent" : "upright";
     const tangent: IAutoMovieMotionHumanTouchForm.Tangent =
       p.prop === undefined ? highFiveContact.tangent(kind) : "up";
 

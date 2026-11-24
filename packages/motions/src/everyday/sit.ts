@@ -39,6 +39,9 @@ import { sitHandSpans } from "./sitHandSpans";
 import { sitHands } from "./sitHands";
 import { sitPlace } from "./sitPlace";
 
+/** The alternatives of `CROSSEDEntryItem`'s site. */
+type CROSSEDEntryItem = "ahead" | "over" | "lift";
+
 /**
  * Sitting down on a chair, bench or stool from standing in front of it: the
  * body's seat socket is lowered onto the seat while the trunk leans forward and
@@ -144,7 +147,7 @@ export namespace sit {
    * spacing: `ahead` of the right ankle, `over` across it, and the `lift` of
    * its swing (provisional).
    */
-  const CROSSED: Readonly<Record<"ahead" | "over" | "lift", number>> = {
+  const CROSSED: Readonly<Record<CROSSEDEntryItem, number>> = {
     ahead: 0.6,
     over: 0.4,
     lift: 0.3,
@@ -393,7 +396,7 @@ export namespace sit {
               prepareHumanPoseResolution.isNativeSource(resolution)
               ? structuredClone(seatedKey)
               : lowered(t, travel(t), resolution),
-            (side: "left" | "right"): number => spans.hand(side, t),
+            (side: AutoMovieHumanSide): number => spans.hand(side, t),
           ),
           t,
         );
@@ -411,8 +414,8 @@ export namespace sit {
         true,
         context.tempo,
       );
-    const arm: (side: "left" | "right") => IAutoMovieMotionHumanPrimitive = (
-      side: "left" | "right",
+    const arm: (side: AutoMovieHumanSide) => IAutoMovieMotionHumanPrimitive = (
+      side: AutoMovieHumanSide,
     ): IAutoMovieMotionHumanPrimitive => {
       const rest: IAutoMovieVector3 | undefined = seat.armrests?.[side];
       return AutoMovieMotionHumanArm.carried({
@@ -464,7 +467,7 @@ export namespace sit {
       lowered: (seconds: number): IAutoMovieMotionHumanPosture =>
         lowered(seconds, travel(seconds)),
       entry: context.entry.pose,
-      armrest: (side: "left" | "right"): boolean =>
+      armrest: (side: AutoMovieHumanSide): boolean =>
         seat.armrests?.[side] !== undefined,
       contact,
       descent,

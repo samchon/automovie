@@ -1,5 +1,14 @@
 import type { HumanQuadraticBand as B } from "./HumanQuadraticBand";
 
+/** The record of `IWorkActive`'s site. */
+type IWorkActive = { rows: number[]; bounds: number[] };
+
+/** The record of `IMemorySpare`'s site. */
+type IMemorySpare = { x: Float64Array; z: Float64Array; y: Float64Array };
+
+/** The record of `IMemoryAdapted`'s site. */
+type IMemoryAdapted = { rho: Float64Array; thresholds: Float64Array };
+
 /**
  * Disposable numeric buffers shared between the phases of one quadratic solve
  * or fixed-matrix model. ADMM finishes reading rhs and xt before a residual
@@ -50,7 +59,7 @@ export namespace HumanQuadraticWorkspace {
      * Optional distinct m-entry adaptation buffers; every use overwrites both
      * completely from current base, bounds and weights.
      */
-    adapted?: { rho: Float64Array; thresholds: Float64Array };
+    adapted?: IMemoryAdapted;
 
     /**
      * M-entry rho*z-y, emitted by the preceding prox step and rebuilt after any
@@ -77,7 +86,7 @@ export namespace HumanQuadraticWorkspace {
      * Only a discarded ADMM or polishing candidate, never returned state; every
      * entry is reset or overwritten before reuse.
      */
-    spare?: { x: Float64Array; z: Float64Array; y: Float64Array };
+    spare?: IMemorySpare;
   }
 
   /**
@@ -132,7 +141,7 @@ export namespace HumanQuadraticWorkspace {
     adaptive?: IAdaptive;
 
     /** Disposable active row indices and their current bound right-hand sides. */
-    active?: { rows: number[]; bounds: number[] };
+    active?: IWorkActive;
 
     /**
      * Disposable n-entry polishing rhs, distinct from the cost rhs retained in

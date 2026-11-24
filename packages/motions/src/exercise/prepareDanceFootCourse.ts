@@ -37,6 +37,29 @@ interface IReading {
   /** Original half-beat progress, or one while held. */
   swing: number;
 }
+/** The record of `IPrepareDanceFootCourseReadNext`'s site. */
+type IPrepareDanceFootCourseReadNext = { beat: number; at: IOffset };
+
+/** The record of `IPrepareDanceFootCourseMovingFall`'s site. */
+type IPrepareDanceFootCourseMovingFall = { beat: number; at: IOffset };
+
+/** The record of `IPrepareDanceFootCourseOffsetsFall`'s site. */
+type IPrepareDanceFootCourseOffsetsFall = { beat: number; at: IOffset };
+
+/** The record of `IPrepareDanceFootCourseResult`'s site. */
+type IPrepareDanceFootCourseResult = {
+  /** Current local offset in metres, with the original unclipped interpolation. */
+  along: (seconds: number) => IOffset;
+
+  /** Fresh current world ankle and foot rotation from the native arc. */
+  placed: (seconds: number) => IAutoMovieMotionHumanFoot.IPlacement;
+
+  /** Whether the original half-beat swing has completed. */
+  planted: (seconds: number) => boolean;
+};
+
+/** The record of `IPrepareDanceFootCoursePathItem`'s site. */
+type IPrepareDanceFootCoursePathItem = { beat: number; at: IOffset };
 
 /**
  * Prepare a dance foot's fixed footfalls and rigid swing geometry. Each
@@ -54,24 +77,15 @@ interface IReading {
  *   placement and bearing.
  */
 export function prepareDanceFootCourse(
-  path: readonly { beat: number; at: IOffset }[],
+  path: readonly IPrepareDanceFootCoursePathItem[],
   placements: ReadonlyMap<IOffset, IAutoMovieMotionHumanFoot.IPlacement>,
   origin: IOffset,
   period: number,
   clearance: number,
-): {
-  /** Current local offset in metres, with the original unclipped interpolation. */
-  along: (seconds: number) => IOffset;
-
-  /** Fresh current world ankle and foot rotation from the native arc. */
-  placed: (seconds: number) => IAutoMovieMotionHumanFoot.IPlacement;
-
-  /** Whether the original half-beat swing has completed. */
-  planted: (seconds: number) => boolean;
-} {
+): IPrepareDanceFootCourseResult {
   const offsets: readonly IOffset[] = [
     origin,
-    ...path.map((fall: { beat: number; at: IOffset }): IOffset => fall.at),
+    ...path.map((fall: IPrepareDanceFootCourseOffsetsFall): IOffset => fall.at),
   ];
   const pair: (from: IOffset, at: IOffset) => IInterval = (
     from: IOffset,
@@ -85,7 +99,7 @@ export function prepareDanceFootCourse(
     (at: IOffset): IInterval => pair(at, at),
   );
   const moving: IInterval[] = path.map(
-    (fall: { beat: number; at: IOffset }, index: number): IInterval =>
+    (fall: IPrepareDanceFootCourseMovingFall, index: number): IInterval =>
       pair(offsets[index]!, fall.at),
   );
   const read: (seconds: number) => IReading = (seconds: number): IReading => {
@@ -96,7 +110,7 @@ export function prepareDanceFootCourse(
       if (seconds >= path[mid]!.beat) lo = mid + 1;
       else hi = mid;
     }
-    const next: { beat: number; at: IOffset } | undefined = path[lo];
+    const next: IPrepareDanceFootCourseReadNext | undefined = path[lo];
     return next !== undefined && seconds > next.beat - period / 2
       ? {
           interval: moving[lo]!,

@@ -19,6 +19,9 @@ import type { KickLaunch } from "./KickLaunch";
 import { StrikingTarget } from "./StrikingTarget";
 import { StrikingWeapon } from "./StrikingWeapon";
 
+/** The alternatives of `OfEarlyGirth`'s site. */
+type OfEarlyGirth = number | readonly [number, number];
+
 /**
  * A kick's way to its contact, kept clear of the person it is thrown at.
  *
@@ -146,7 +149,7 @@ export namespace KickClear {
           frames,
         );
         for (let i: number = 0; i < radii.length; i++) {
-          const girth: number | readonly [number, number] = radii[i]!;
+          const girth: OfEarlyGirth = radii[i]!;
           const taper: readonly [number, number] =
             typeof girth === "number" ? [girth, girth] : girth;
           if (reading.segment(ends[i]!, ends[i + 1]!, taper).distance <= 0)

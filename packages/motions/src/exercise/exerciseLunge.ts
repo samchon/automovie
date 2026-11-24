@@ -1,5 +1,6 @@
 import { Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanFoot,
@@ -12,6 +13,12 @@ import { AutoMovieMotionHumanLeg } from "../compose/AutoMovieMotionHumanLeg";
 import { AutoMovieMotionHumanRange } from "../compose/AutoMovieMotionHumanRange";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
+
+/** The record of `IPlanResult`'s site. */
+type IPlanResult = {
+  primitives: IAutoMovieMotionHumanPrimitive[];
+  contacts: IAutoMovieMotionHumanContactWindow[];
+};
 
 /**
  * The forward lunge of `exercise`: the hips come down until the lead thigh is
@@ -30,13 +37,13 @@ export namespace exerciseLunge {
     entry: IAutoMovieMotionHumanPosture;
 
     /** The feet at the entry. */
-    stance: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement>;
+    stance: Record<AutoMovieHumanSide, IAutoMovieMotionHumanFoot.IPlacement>;
 
     /** The heading's forward, world. */
     forward: IAutoMovieVector3;
 
     /** The leg that steps out. */
-    lead: "left" | "right";
+    lead: AutoMovieHumanSide;
 
     /** The share of the way into any repetition's low position at a second. */
     any: (seconds: number) => number;
@@ -55,13 +62,10 @@ export namespace exerciseLunge {
    *   the depth share, the extent and the duration.
    * @returns The primitives and the contact windows.
    */
-  export function plan(props: IProps): {
-    primitives: IAutoMovieMotionHumanPrimitive[];
-    contacts: IAutoMovieMotionHumanContactWindow[];
-  } {
+  export function plan(props: IProps): IPlanResult {
     const { body, entry, stance, forward, lead, any, extent, duration } = props;
     const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
-    const trail: "left" | "right" = lead === "right" ? "left" : "right";
+    const trail: AutoMovieHumanSide = lead === "right" ? "left" : "right";
     const hip: IAutoMovieVector3 = HumanFrame.point(
       { origin: entry.root, yaw: entry.yaw },
       body.rest.get(`${lead}UpperLeg`)!,

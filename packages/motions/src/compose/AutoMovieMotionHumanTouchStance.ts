@@ -16,6 +16,8 @@ import type {
 } from "@automovie/interface";
 
 import { HumanRefusal } from "../law/HumanRefusal";
+import { HumanBoneGroups } from "../posture/HumanBoneGroups";
+import { lowerHumanPosture } from "../posture/lowerHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
@@ -24,6 +26,9 @@ import { AutoMovieMotionHumanLeg } from "./AutoMovieMotionHumanLeg";
 import { AutoMovieMotionHumanRange } from "./AutoMovieMotionHumanRange";
 import { AutoMovieMotionHumanReach } from "./AutoMovieMotionHumanReach";
 import { AutoMovieMotionHumanRise } from "./AutoMovieMotionHumanRise";
+
+/** The alternatives of `SolveShoulder`'s site. */
+type SolveShoulder = "leftShoulder" | "rightShoulder";
 
 /**
  * What the body behind the arm does so a hand reaches a region its arm alone
@@ -76,7 +81,7 @@ export namespace AutoMovieMotionHumanTouchStance {
     props: IAutoMovieMotionHumanTouchStance.IProps,
   ): IAutoMovieMotionHumanTouchStance.IStance {
     const { body, standing, feet } = props;
-    const shoulder: "leftShoulder" | "rightShoulder" = `${props.side}Shoulder`;
+    const shoulder: SolveShoulder = `${props.side}Shoulder`;
     const checkReach: ReturnType<
       typeof AutoMovieMotionHumanReach.prepareCheck
     > = AutoMovieMotionHumanReach.prepareCheck(body, `${props.side}Arm`);
@@ -192,7 +197,12 @@ export namespace AutoMovieMotionHumanTouchStance {
       posture: IAutoMovieMotionHumanPosture,
     ): IAutoMovieVector3 => {
       const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
-        poseBones(body, resolveHumanPosture(body, posture), undefined, ARMS);
+        poseBones(
+          body,
+          resolveHumanPosture(body, posture),
+          undefined,
+          HumanBoneGroups.SHOULDERS,
+        );
       return Vector3.lerp(
         bones.get("leftUpperArm")!.worldPosition,
         bones.get("rightUpperArm")!.worldPosition,
@@ -309,7 +319,7 @@ export namespace AutoMovieMotionHumanTouchStance {
       feet !== undefined && raise > 0
         ? planted(tipped, feet, raise)
         : leaning
-          ? { ...tipped, root: resolveHumanPosture.lower(body, tipped).root }
+          ? { ...tipped, root: lowerHumanPosture(body, tipped).root }
           : risen;
     return {
       girdle,
@@ -407,7 +417,7 @@ export namespace AutoMovieMotionHumanTouchStance {
                   : leaning
                     ? {
                         ...leaned,
-                        root: resolveHumanPosture.lower(
+                        root: lowerHumanPosture(
                           body,
                           leaned,
                           undefined,
@@ -462,8 +472,7 @@ export namespace AutoMovieMotionHumanTouchStance {
       };
       return {
         ...raised,
-        root: resolveHumanPosture.lower(body, raised, undefined, resolution)
-          .root,
+        root: lowerHumanPosture(body, raised, undefined, resolution).root,
       };
     }
   }
@@ -624,11 +633,6 @@ const FACING: number = 6;
 
 /** The change of turn below which a facing has settled, degrees (provisional). */
 const SETTLED: number = 0.5;
-
-/** The bones whose joints the shoulders' middle is read between. */
-const ARMS: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>(
-  ["leftUpperArm", "rightUpperArm"],
-);
 
 /**
  * The spine's bones a turn of the trunk toward a wrist off to the side twists:

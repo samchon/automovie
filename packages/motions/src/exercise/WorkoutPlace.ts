@@ -12,11 +12,15 @@ import type {
 } from "@automovie/interface";
 
 import { HumanRefusal } from "../law/HumanRefusal";
+import { humanPostureHeading } from "../posture/humanPostureHeading";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { knockdown } from "../reaction/knockdown";
 import { GymnasticsWheel } from "../sport/GymnasticsWheel";
 import { ExerciseKey } from "./ExerciseKey";
+
+/** The alternatives of `OfContext`'s site. */
+type OfContext = "body" | "entry";
 
 /**
  * Where a workout's bearing bones stay: the one place the kind's pin keeps
@@ -58,7 +62,7 @@ export namespace WorkoutPlace {
     props: IAutoMovieMotionHumanWorkoutPlace.IOfProps,
     keepFloorPins: boolean = false,
   ): IAutoMovieVector3 {
-    const context: Pick<IAutoMovieMotionHumanActionContext, "body" | "entry"> =
+    const context: Pick<IAutoMovieMotionHumanActionContext, OfContext> =
       props.context;
     const unhung = (): never => {
       throw new HumanRefusal({
@@ -80,7 +84,7 @@ export namespace WorkoutPlace {
     );
     const pelvis = (posture: IAutoMovieMotionHumanPosture): IAutoMovieVector3 =>
       Quaternion.rotateVector(
-        resolveHumanPosture.heading(posture),
+        humanPostureHeading(posture),
         body.rest.get("hips")!,
       );
     const stood: IAutoMovieVector3 = Vector3.add(

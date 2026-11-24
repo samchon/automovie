@@ -1,5 +1,6 @@
 import { Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanEntryState,
@@ -35,7 +36,7 @@ export namespace StrikingTarget {
    */
   export function lead(
     entry: IAutoMovieMotionHumanEntryState,
-  ): "left" | "right" {
+  ): AutoMovieHumanSide {
     const r: number = (entry.posture.yaw * Math.PI) / 180;
     const forward: IAutoMovieVector3 = { x: Math.sin(r), y: 0, z: Math.cos(r) };
     const ahead: number = Vector3.dot(
@@ -87,7 +88,7 @@ export namespace StrikingTarget {
    */
   export function feet(
     entry: IAutoMovieMotionHumanEntryState,
-  ): Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement> {
+  ): Record<AutoMovieHumanSide, IAutoMovieMotionHumanFoot.IPlacement> {
     return {
       left: {
         ankle: entry.feet.left.ankle,
@@ -138,7 +139,7 @@ export namespace StrikingTarget {
    */
   export function pivot(
     body: IAutoMovieMotionHumanBody,
-    side: "left" | "right",
+    side: AutoMovieHumanSide,
     foot: IAutoMovieMotionHumanFoot.IPlacement,
     turn: number,
     raise: number,

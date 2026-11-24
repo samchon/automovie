@@ -10,7 +10,7 @@ import type {
 } from "@automovie/interface";
 
 import { HumanLoad } from "../perform/HumanLoad";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { humanPostureHeading } from "../posture/humanPostureHeading";
 
 /**
  * The carrier's lean against the load of a carried person: a load on the back
@@ -155,7 +155,7 @@ export namespace HumanCarriedLean {
             1 / legs.length,
           );
     const own: IAutoMovieVector3 = Quaternion.rotateVector(
-      Quaternion.inverse(resolveHumanPosture.heading(posture)),
+      Quaternion.inverse(humanPostureHeading(posture)),
       Vector3.subtract(pivot, posture.root),
     );
     const turned: IAutoMovieMotionHumanPosture = {
@@ -167,7 +167,7 @@ export namespace HumanCarriedLean {
       ...turned,
       root: Vector3.subtract(
         pivot,
-        Quaternion.rotateVector(resolveHumanPosture.heading(turned), own),
+        Quaternion.rotateVector(humanPostureHeading(turned), own),
       ),
     };
   }

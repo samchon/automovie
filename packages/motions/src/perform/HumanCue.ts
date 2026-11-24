@@ -3,6 +3,15 @@ import type {
   IAutoMovieScheduleCue,
 } from "@automovie/interface";
 
+/** The record of `IInstantsI2`'s site. */
+type IInstantsI2 = { label: string; seconds: number };
+
+/** The record of `IInstantsI`'s site. */
+type IInstantsI = { label: string };
+
+/** The record of `IOrdersTrackItem`'s site. */
+type IOrdersTrackItem = { cue: IAutoMovieScheduleCue; order: number };
+
 /**
  * Cue tracks: the named instants for speech, music and staged actions, to sync
  * to and cut on (`HumanPerformance.IInput.cues`).
@@ -101,7 +110,7 @@ export namespace HumanCue {
   export function orders(
     orders: readonly IAutoMovieMotionHumanCue.IOrder[],
   ): IAutoMovieScheduleCue[] {
-    const track: { cue: IAutoMovieScheduleCue; order: number }[] = [];
+    const track: IOrdersTrackItem[] = [];
     const sorted: IAutoMovieMotionHumanCue.IOrder[] = [...orders].sort(
       (
         a: IAutoMovieMotionHumanCue.IOrder,
@@ -160,10 +169,10 @@ export namespace HumanCue {
   ): IAutoMovieScheduleCue[] {
     return source.instants
       .filter(
-        (i: { label: string }): boolean =>
+        (i: IInstantsI): boolean =>
           names === undefined || names.includes(i.label),
       )
-      .map((i: { label: string; seconds: number }, order: number) => ({
+      .map((i: IInstantsI2, order: number) => ({
         cue: { name: i.label, seconds: i.seconds },
         order,
       }))

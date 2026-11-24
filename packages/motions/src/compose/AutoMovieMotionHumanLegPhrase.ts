@@ -13,6 +13,15 @@ import { HumanFoot } from "../posture/HumanFoot";
 import { AutoMovieMotionClock } from "./AutoMovieMotionClock";
 import { AutoMovieMotionHumanLeg } from "./AutoMovieMotionHumanLeg";
 
+/** The alternatives of `ClearedProps`'s site. */
+type ClearedProps = "body" | "side" | "stance";
+
+/** The alternatives of `BearingProps`'s site. */
+type BearingProps = "clock" | "side" | "contact";
+
+/** The alternatives of `ExtendedProps`'s site. */
+type ExtendedProps = "contact" | "manner";
+
 /**
  * Leg phrases: one foot leaving and rejoining its stance on one clock, a lift,
  * a tap, a swing and a pivot, each built on the leg's own movement
@@ -26,7 +35,7 @@ export namespace AutoMovieMotionHumanLegPhrase {
    * place.
    */
   const extended = (
-    props: Pick<IAutoMovieMotionHumanLegPhrase.IPhrase, "contact" | "manner">,
+    props: Pick<IAutoMovieMotionHumanLegPhrase.IPhrase, ExtendedProps>,
     about: IAutoMovieMotionHumanFoot.IPlacement,
     target: IAutoMovieMotionHumanFoot.IPlacement,
   ): IAutoMovieMotionHumanFoot.IPlacement => {
@@ -45,10 +54,7 @@ export namespace AutoMovieMotionHumanLegPhrase {
    * @returns One window when the phrase states a contact, none otherwise.
    */
   export function bearing(
-    props: Pick<
-      IAutoMovieMotionHumanLegPhrase.IPhrase,
-      "clock" | "side" | "contact"
-    >,
+    props: Pick<IAutoMovieMotionHumanLegPhrase.IPhrase, BearingProps>,
     from: string,
     to: string,
   ): IAutoMovieMotionHumanContactWindow[] {
@@ -145,10 +151,7 @@ export namespace AutoMovieMotionHumanLegPhrase {
    * ball is reached exactly.
    */
   const cleared = (
-    props: Pick<
-      IAutoMovieMotionHumanLegPhrase.IPhrase,
-      "body" | "side" | "stance"
-    >,
+    props: Pick<IAutoMovieMotionHumanLegPhrase.IPhrase, ClearedProps>,
     moving: IAutoMovieMotionHumanFoot.IPlacement,
     share: number,
   ): IAutoMovieMotionHumanFoot.IPlacement => {

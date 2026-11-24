@@ -1,5 +1,6 @@
 import { Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanEntryState,
@@ -9,6 +10,12 @@ import type {
 import { sitPlace } from "../everyday/sitPlace";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
+
+/** The record of `IOVERItem`'s site. */
+type IOVERItem = { above: number; behind: number };
+
+/** The alternatives of `HANGEntryItem`'s site. */
+type HANGEntryItem = "ahead" | "astride";
 
 /**
  * The shapes of getting onto and off a high seat (`HumanMountOn`,
@@ -78,7 +85,7 @@ export namespace HumanMount {
    * sat astride (provisional; the shank hangs plumb under the knee).
    */
   export const HANG: Readonly<
-    Record<"ahead" | "astride", readonly [number, number, number]>
+    Record<HANGEntryItem, readonly [number, number, number]>
   > = {
     ahead: [0.05, 0, 1],
     astride: [0.5, -0.55, 0.67],
@@ -88,7 +95,7 @@ export namespace HumanMount {
    * Where the ankle of a leg swung over a seat sat astride passes, thigh
    * lengths above and behind the seated socket (provisional).
    */
-  export const OVER: Readonly<{ above: number; behind: number }> = {
+  export const OVER: Readonly<IOVERItem> = {
     above: 0.6,
     behind: 0.8,
   };
@@ -162,7 +169,7 @@ export namespace HumanMount {
    */
   export function held(
     entry: IAutoMovieMotionHumanEntryState,
-    side: "left" | "right",
+    side: AutoMovieHumanSide,
   ): IFoot {
     const limb: IAutoMovieHumanLimbGoal | undefined =
       entry.posture.limbs[`${side}Leg`];
@@ -191,7 +198,7 @@ export namespace HumanMount {
    */
   export function leg(
     body: IAutoMovieMotionHumanBody,
-    side: "left" | "right",
+    side: AutoMovieHumanSide,
     foot: IFoot,
     planted: boolean,
   ): IAutoMovieHumanLimbGoal {

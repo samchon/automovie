@@ -11,8 +11,9 @@ import type {
 
 import { AutoMovieMotionHumanArmCourse } from "../compose/AutoMovieMotionHumanArmCourse";
 import { HumanArmTrajectoryTerms } from "../posture/HumanArmTrajectoryTerms";
+import { humanPostureHeading } from "../posture/humanPostureHeading";
 import { poseBones } from "../posture/poseBones";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { resolveHumanPostureSource } from "../posture/resolveHumanPostureSource";
 import { turnHumanPosture } from "../posture/turnHumanPosture";
 
 /**
@@ -208,7 +209,10 @@ export namespace HumanCarriedLiftKnots {
     body: IAutoMovieMotionHumanBody,
     posture: IAutoMovieMotionHumanPosture,
   ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> {
-    return poseBones(body, resolveHumanPosture.assemble(body, posture).pose);
+    return poseBones(
+      body,
+      resolveHumanPostureSource.assemble(body, posture).pose,
+    );
   }
 
   /**
@@ -264,7 +268,7 @@ export namespace HumanCarriedLiftKnots {
           about: position,
           turn: Quaternion.multiply(
             rotation,
-            Quaternion.inverse(resolveHumanPosture.heading(heading)),
+            Quaternion.inverse(humanPostureHeading(heading)),
           ),
         },
       },
@@ -278,6 +282,8 @@ export namespace HumanCarriedLiftKnots {
 type Halves =
   | readonly [HumanCarriedLiftKnots.IInterval, HumanCarriedLiftKnots.IInterval]
   | null;
+/** The alternatives of `Heading`'s site. */
+type Heading = "yaw" | "pitch" | "roll";
 
 /** A posture's heading angles, degrees. */
-type IHeading = Pick<IAutoMovieMotionHumanPosture, "yaw" | "pitch" | "roll">;
+type IHeading = Pick<IAutoMovieMotionHumanPosture, Heading>;

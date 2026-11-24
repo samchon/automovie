@@ -4,6 +4,12 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+/** The record of `IRowsResult`'s site. */
+type IRowsResult = { point: number; value: number };
+
+/** The record of `IRowItem`'s site. */
+type IRowItem = { point: number; value: number };
+
 /**
  * The Laplacian of an interaction mesh (Ho, Komura and Tai 2010, sections 5 and
  * 5.1): nearby parts influence each other by inverse-distance weights; the
@@ -12,7 +18,7 @@ import type {
  */
 export namespace HumanInteractionMeshLaplacian {
   /** A sparse row of the Laplacian over point indices. */
-  export type Row = { point: number; value: number }[];
+  export type Row = IRowItem[];
 
   /**
    * Build the deformation rows on the reference geometry.
@@ -53,7 +59,7 @@ export namespace HumanInteractionMeshLaplacian {
       return [
         { point: i, value: 1 },
         ...kept.map(
-          (j: number, k: number): { point: number; value: number } => ({
+          (j: number, k: number): IRowsResult => ({
             point: j,
             value: -weights[k]! / sum,
           }),

@@ -19,6 +19,12 @@ import { readHumanBone } from "../body/readHumanBone";
 import type { AutoMovieMotionHumanBendChain } from "./AutoMovieMotionHumanBendChain";
 import type { AutoMovieMotionHumanBendSearch } from "./AutoMovieMotionHumanBendSearch";
 
+/** The record of `IPastRange`'s site. */
+type IPastRange = { min: number; max: number };
+
+/** The record of `IHalfRange`'s site. */
+type IHalfRange = { min: number; max: number };
+
 /**
  * The strain of an elbow place that `AutoMovieMotionHumanBendSearch` ranks
  * places by, the terms `AutoMovieMotionHumanBend.solve` states: the shoulder's
@@ -226,7 +232,7 @@ export namespace AutoMovieMotionHumanBendStrain {
    * @param range The axis's range.
    * @returns Half its width, or null.
    */
-  function half(range: { min: number; max: number } | null): number | null {
+  function half(range: IHalfRange | null): number | null {
     return range === null || range.max <= range.min
       ? null
       : (range.max - range.min) / 2;
@@ -267,10 +273,7 @@ export namespace AutoMovieMotionHumanBendStrain {
   }
 
   /** Original degree excess beyond the clinical range's reserved interior. */
-  function past(
-    value: number,
-    range: { min: number; max: number } | null | undefined,
-  ): number {
+  function past(value: number, range: IPastRange | null | undefined): number {
     return range === null || range === undefined
       ? 0
       : Math.max(

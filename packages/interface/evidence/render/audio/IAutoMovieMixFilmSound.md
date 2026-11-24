@@ -1,21 +1,3 @@
-# src/render/audio/IAutoMovieMixFilmSound.ts#IAutoMovieMixFilmSound
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Names the mix's inputs and result; the members state units, refusals and ownership.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Groups the route's input, result and adopted-line records under the operation.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Interface owns the contracts render's `mixAutoMovieFilmSound` exposes; `renderAutoMovieDrawnVideo` consumes them.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The namespace declares nothing beyond its three records.
-
 # src/render/audio/IAutoMovieMixFilmSound.ts#IAutoMovieMixFilmSound.IProps
 
 ## @evidence contracts/development/common.md#meaningful-documentation

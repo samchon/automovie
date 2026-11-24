@@ -50,6 +50,8 @@ interface ICatchObjectFingers {
     rotation: IAutoMovieQuaternion,
   ) => IAutoMovieVector3;
 }
+/** The record of `ICatchObjectFingersBest`'s site. */
+type ICatchObjectFingersBest = { fingers: IAutoMovieVector3; strain: number };
 
 /**
  * Rank the palm rolls for one catching hand by the displayed arm's strain.
@@ -90,7 +92,7 @@ export function catchObjectFingers(
     meet,
     Vector3.scale(outward, radius),
   );
-  let best: { fingers: IAutoMovieVector3; strain: number } = {
+  let best: ICatchObjectFingersBest = {
     fingers: first,
     strain: Infinity,
   };

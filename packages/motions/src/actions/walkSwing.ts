@@ -13,10 +13,13 @@ import { WALK_TICK } from "./WALK_TICK";
 import { walkFoot } from "./walkFoot";
 import { walkSteps } from "./walkSteps";
 
+/** The alternatives of `Swing2`'s site. */
+type Swing2 = "off" | "on";
+
 /** Swing endpoints in action seconds. */
 type Swing = Pick<
   NonNullable<IAutoMovieMotionHumanWalkFoot.IScheduled["swing"]>,
-  "off" | "on"
+  Swing2
 >;
 
 /** A swing evaluated at its normalized time from toe-off to heel strike. */
@@ -30,6 +33,8 @@ interface IArrival {
   /** The owner's prepared swing. */
   read: ReadSwing;
 }
+/** The alternatives of `WalkSwingGait`'s site. */
+type WalkSwingGait = "lift" | "stiff" | "swing" | "toeClearance" | "width";
 
 /**
  * Prepare a swing from the stance reader that owns its endpoints: the
@@ -48,19 +53,16 @@ interface IArrival {
  */
 export function walkSwing(
   body: IAutoMovieMotionHumanBody,
-  gait: Pick<
-    IAutoMovieMotionHumanWalkGait,
-    "lift" | "stiff" | "swing" | "toeClearance" | "width"
-  >,
+  gait: Pick<IAutoMovieMotionHumanWalkGait, WalkSwingGait>,
   at: (
-    side: "left" | "right",
+    side: AutoMovieHumanSide,
     seconds: number,
     resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
   ) => walkFoot.IEnd,
-  closing: (side: "left" | "right", on: number) => boolean = (): boolean =>
+  closing: (side: AutoMovieHumanSide, on: number) => boolean = (): boolean =>
     false,
 ): (
-  side: "left" | "right",
+  side: AutoMovieHumanSide,
   swing: Swing,
   resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
 ) => ReadSwing {
@@ -69,7 +71,7 @@ export function walkSwing(
     right: new Map(),
   };
   return (
-    side: "left" | "right",
+    side: AutoMovieHumanSide,
     swing: Swing,
     resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
   ): ReadSwing => {
@@ -166,7 +168,7 @@ export function walkSwing(
  *   the stance foot.
  */
 function passing(
-  side: "left" | "right",
+  side: AutoMovieHumanSide,
   width: number,
   from: IAutoMovieVector3,
   to: IAutoMovieVector3,

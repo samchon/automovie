@@ -1,4 +1,5 @@
 import type {
+  AutoMovieHumanSide,
   IAutoMovieMotionClock,
   IAutoMovieMotionHumanBallSport,
   IAutoMovieMotionHumanContactWindow,
@@ -8,6 +9,12 @@ import type {
 
 import { HumanRefusal } from "../law/HumanRefusal";
 import { throwObjectLaunch } from "../throwing/throwObjectLaunch";
+
+/** The record of `IThrowInReleaseResult`'s site. */
+type IThrowInReleaseResult = {
+  contacts: IAutoMovieMotionHumanContactWindow[];
+  launches: IAutoMovieMotionPropLaunch[];
+};
 
 /**
  * Publish the prop held in both hands until a football throw-in releases it. An
@@ -26,12 +33,7 @@ export function throwInRelease(
   clock: IAutoMovieMotionClock,
   point: IAutoMovieVector3,
   degrees: number,
-):
-  | {
-      contacts: IAutoMovieMotionHumanContactWindow[];
-      launches: IAutoMovieMotionPropLaunch[];
-    }
-  | undefined {
+): IThrowInReleaseResult | undefined {
   const { prop, at }: IAutoMovieMotionHumanBallSport.IParams = params;
   if (prop === undefined) return undefined;
   if (at === undefined)
@@ -60,7 +62,7 @@ export function throwInRelease(
   const share: number = seconds / clock.duration;
   return {
     contacts: (["left", "right"] as const).map(
-      (side: "left" | "right"): IAutoMovieMotionHumanContactWindow => ({
+      (side: AutoMovieHumanSide): IAutoMovieMotionHumanContactWindow => ({
         part: `${side}Hand`,
         kind: "grip",
         from: 0,

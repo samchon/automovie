@@ -2,54 +2,16 @@ import type {
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanPerformanceState,
   IAutoMovieMotionHumanPosture,
-  IAutoMovieMotionHumanPrimitive,
   IAutoMovieMotionHumanSegment,
 } from "@automovie/interface";
 
 import type { AutoMovieMotionHumanBendRepeat } from "./AutoMovieMotionHumanBendRepeat";
 
 /**
- * Explicit contextual callbacks owned by the original native writer and raw
- * reader.
+ * The numerical trial's read of a proved native phase: the plan's own posture
+ * evaluated with the trial's bend loan as its explicit evaluation.
  */
 export namespace HumanBendRead {
-  /**
-   * The private writer receives its loan before the otherwise unchanged
-   * arguments.
-   */
-  export type Write = (
-    read: AutoMovieMotionHumanBendRepeat.IRead,
-    ...args: Parameters<IAutoMovieMotionHumanPrimitive["write"]>
-  ) => IAutoMovieMotionHumanPosture;
-
-  /** Raw native reader with an explicit operation loan. */
-  export type Posture = (
-    read: AutoMovieMotionHumanBendRepeat.IRead,
-    seconds: number,
-  ) => IAutoMovieMotionHumanPosture;
-
-  /** The original action primitive and its optional contextual dispatcher. */
-  export const writes: WeakMap<
-    IAutoMovieMotionHumanPrimitive,
-    { original: IAutoMovieMotionHumanPrimitive["write"]; invoke: Write }
-  > = new WeakMap();
-
-  /** Recheck the actual known primitive before taking its contextual write. */
-  export function writer(
-    primitive: IAutoMovieMotionHumanPrimitive,
-  ): Write | undefined {
-    const known = writes.get(primitive);
-    return known !== undefined && own(primitive, "write") === known.original
-      ? known.invoke
-      : undefined;
-  }
-
-  /** The contextual counterpart of a genuine native posture callback. */
-  export const postures: WeakMap<
-    IAutoMovieMotionHumanActionPlan["posture"],
-    Posture
-  > = new WeakMap();
-
   /** Actual final performance states observed at their construction boundary. */
   export const resolved: WeakSet<IAutoMovieMotionHumanPerformanceState> =
     new WeakSet();
@@ -81,12 +43,7 @@ export namespace HumanBendRead {
     const posture: IAutoMovieMotionHumanActionPlan["posture"] | undefined =
       Object.getOwnPropertyDescriptor(plan, "posture")?.value;
     const duration: unknown = own(plan, "duration");
-    if (
-      posture === undefined ||
-      !postures.has(posture) ||
-      typeof duration !== "number"
-    )
-      return;
+    if (posture === undefined || typeof duration !== "number") return;
     segments.set(segment, {
       plan,
       posture,
@@ -122,7 +79,9 @@ export namespace HumanBendRead {
       Math.max(0, seconds - entry.start),
     );
     if (!(at >= entry.readFrom)) return undefined;
-    return postures.get(entry.posture)?.(sweep.read(entry.plan), at);
+    return entry.plan.posture(at, undefined, undefined, undefined, {
+      bend: sweep.read(entry.plan),
+    });
   }
 }
 

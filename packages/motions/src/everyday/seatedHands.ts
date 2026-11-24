@@ -107,7 +107,7 @@ export namespace seatedHands {
   export function rested(
     body: IAutoMovieMotionHumanBody,
     posture: IAutoMovieMotionHumanPosture,
-    rests: Partial<Record<"left" | "right", IAutoMovieVector3>> | undefined,
+    rests: Partial<Record<AutoMovieHumanSide, IAutoMovieVector3>> | undefined,
     yaw: number,
     share: number,
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
@@ -168,7 +168,7 @@ export namespace seatedHands {
   function onArmrests(
     body: IAutoMovieMotionHumanBody,
     posture: IAutoMovieMotionHumanPosture,
-    rests: Partial<Record<"left" | "right", IAutoMovieVector3>>,
+    rests: Partial<Record<AutoMovieHumanSide, IAutoMovieVector3>>,
     yaw: number,
     share: number,
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
@@ -206,7 +206,7 @@ export namespace seatedHands {
   function restGoals(
     body: IAutoMovieMotionHumanBody,
     posture: IAutoMovieMotionHumanPosture,
-    rests: Partial<Record<"left" | "right", IAutoMovieVector3>>,
+    rests: Partial<Record<AutoMovieHumanSide, IAutoMovieVector3>>,
     yaw: number,
     share: number,
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,

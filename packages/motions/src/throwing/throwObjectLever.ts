@@ -12,6 +12,25 @@ import { AutoMovieMotionHumanHeld } from "../compose/AutoMovieMotionHumanHeld";
 import { StrikingHeld } from "../striking/StrikingHeld";
 import { throwObjectLaunch } from "./throwObjectLaunch";
 
+/** The alternatives of `SpinContext`'s site. */
+type SpinContext = "body" | "entry" | "prop" | "subject";
+
+/** The record of `IOfProps`'s site. */
+type IOfProps = {
+  context: Pick<IAutoMovieMotionHumanActionContext, OfPropsContext>;
+  side: AutoMovieHumanSide;
+  shoulder: IAutoMovieVector3;
+  release: IAutoMovieVector3;
+  held: IAutoMovieQuaternion;
+  target: IAutoMovieVector3;
+  degrees: number;
+  implement?: IAutoMovieMotionHumanThrowObjectLever.IImplement;
+  prop?: string;
+};
+
+/** The alternatives of `OfPropsContext`'s site. */
+type OfPropsContext = "body" | "entry" | "prop" | "subject";
+
 /**
  * The throw's lever: the arm from the shoulder to the hand, lengthened by an
  * implement the hand holds (a sling, an atlatl), turning as one rigid lever at
@@ -78,20 +97,7 @@ export namespace throwObjectLever {
    * @throws {HumanRefusal} When the implement lacks the named point
    *   (`StrikingHeld.of`).
    */
-  export function of(props: {
-    context: Pick<
-      IAutoMovieMotionHumanActionContext,
-      "body" | "entry" | "prop" | "subject"
-    >;
-    side: AutoMovieHumanSide;
-    shoulder: IAutoMovieVector3;
-    release: IAutoMovieVector3;
-    held: IAutoMovieQuaternion;
-    target: IAutoMovieVector3;
-    degrees: number;
-    implement?: IAutoMovieMotionHumanThrowObjectLever.IImplement;
-    prop?: string;
-  }): ILever | undefined {
+  export function of(props: IOfProps): ILever | undefined {
     // The point that flies, in the hand's grip frame: the implement's
     // working point, else the thrown prop's origin as the hand holds it,
     // else the grip itself.
@@ -181,10 +187,7 @@ export namespace throwObjectLever {
    *   (`AutoMovieMotionHumanHeld.of`).
    */
   export function spin(
-    context: Pick<
-      IAutoMovieMotionHumanActionContext,
-      "body" | "entry" | "prop" | "subject"
-    >,
+    context: Pick<IAutoMovieMotionHumanActionContext, SpinContext>,
     side: AutoMovieHumanSide,
     prop: string,
     lever: ILever,

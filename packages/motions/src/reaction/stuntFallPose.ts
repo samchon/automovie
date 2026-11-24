@@ -5,6 +5,7 @@ import {
   wrapDegrees,
 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPosture,
   IAutoMovieQuaternion,
@@ -295,7 +296,7 @@ export namespace stuntFallPose {
   }
 
   /** A side of the body. */
-  export type Side = "left" | "right";
+  export type Side = AutoMovieHumanSide;
 
   /** Where a foot stands. */
   export interface IFoot {

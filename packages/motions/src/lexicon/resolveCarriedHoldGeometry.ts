@@ -19,7 +19,7 @@ import type {
 
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanColliders } from "../posture/HumanColliders";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { humanPostureHeading } from "../posture/humanPostureHeading";
 
 /** A bearing contact when that hand is occupied. */
 type MaybeContact = IAutoMovieMotionCoupling.IContact | undefined;
@@ -79,7 +79,7 @@ export function resolveCarriedHoldGeometry(
   const mine: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
     HumanTrunk.resolve(borne, keyed, undefined, undefined, wanted);
   const back: IAutoMovieQuaternion = Quaternion.inverse(
-    resolveHumanPosture.heading(keyed),
+    humanPostureHeading(keyed),
   );
   const inverse: IAutoMovieQuaternion | undefined =
     frame === undefined ? undefined : Quaternion.inverse(frame.rotation);

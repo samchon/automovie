@@ -1,5 +1,6 @@
 import type {
   AutoMovieHumanLimb,
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieHumanLimbGoal,
   IAutoMovieJointPose,
@@ -65,9 +66,9 @@ export namespace HumanLimbView {
     pose: IAutoMoviePose,
     limb: AutoMovieHumanLimb,
     goal: IAutoMovieHumanLimbGoal,
-    placed: readonly ("left" | "right")[],
+    placed: readonly AutoMovieHumanSide[],
   ): IView {
-    const side: "left" | "right" = limb.startsWith("left") ? "left" : "right";
+    const side: AutoMovieHumanSide = limb.startsWith("left") ? "left" : "right";
     const arm: boolean = limb.endsWith("Arm");
 
     // The bones whose frames or records the fit reads, closed under the
@@ -76,7 +77,8 @@ export namespace HumanLimbView {
     // bone adds it and the parents the body's set does not already hold,
     // climbed until one it holds.
     const others: boolean =
-      arm && placed.some((other: "left" | "right"): boolean => other !== side);
+      arm &&
+      placed.some((other: AutoMovieHumanSide): boolean => other !== side);
     const kept: ReadonlySet<AutoMovieHumanoidBone> =
       body.reads[limb][others ? 1 : 0].bones;
     let read: ReadonlySet<AutoMovieHumanoidBone> = kept;

@@ -21,6 +21,9 @@ import { HUMAN_GAIT_CONFRONT } from "../next/presets/HUMAN_GAIT_CONFRONT";
 import { HUMAN_GAIT_ESCORT } from "../next/presets/HUMAN_GAIT_ESCORT";
 import { HUMAN_GAIT_FOLLOW } from "../next/presets/HUMAN_GAIT_FOLLOW";
 
+/** The record of `ISEARCHItem`'s site. */
+type ISEARCHItem = { pause: number; aside: number };
+
 /**
  * Travel relative to another person, each a row of `approach`: the composition
  * gives the person as the target. Register the ones a film uses.
@@ -185,7 +188,7 @@ export namespace HumanPursuit {
    * look goes, degrees from straight ahead (provisional: no study of search
    * pauses was read).
    */
-  export const SEARCH: Readonly<{ pause: number; aside: number }> = {
+  export const SEARCH: Readonly<ISEARCHItem> = {
     pause: 2,
     aside: 60,
   };

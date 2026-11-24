@@ -9,7 +9,7 @@ import type {
 } from "@automovie/interface";
 
 import { hipJoints } from "../posture/hipJoints";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { humanPostureHeading } from "../posture/humanPostureHeading";
 import { HumanMount } from "./HumanMount";
 
 /**
@@ -28,7 +28,7 @@ export function hangMountedLeg(
   posture: IAutoMovieMotionHumanPosture,
   side: AutoMovieHumanSide,
 ): IAutoMovieHumanLimbGoal {
-  const turn: IAutoMovieQuaternion = resolveHumanPosture.heading({
+  const turn: IAutoMovieQuaternion = humanPostureHeading({
     ...posture,
     pitch: 0,
     roll: 0,
@@ -36,7 +36,7 @@ export function hangMountedLeg(
   const hip: IAutoMovieVector3 = hipJoints(
     body,
     posture.root,
-    resolveHumanPosture.heading(posture),
+    humanPostureHeading(posture),
     posture.joints.hips,
   )[side];
   const [out, down, ahead]: readonly [number, number, number] =

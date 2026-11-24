@@ -18,6 +18,52 @@ import { HumanHandTarget } from "../posture/HumanHandTarget";
 import { operateInsert } from "./operateInsert";
 import { operateState } from "./operateState";
 
+/** The alternatives of `OperateHandTrial`'s site. */
+type OperateHandTrial = 0 | 1;
+
+/** The record of `IOperateHandFrame`'s site. */
+type IOperateHandFrame = {
+  place: IOperateHandFramePlace;
+  forward: IAutoMovieVector3;
+};
+
+/** The record of `IOperateHandFramePlace`'s site. */
+type IOperateHandFramePlace = {
+  point: IAutoMovieVector3;
+  normal: IAutoMovieVector3;
+};
+
+/** The record of `IOperateHandResult`'s site. */
+type IOperateHandResult = {
+  target: (
+    posture: IAutoMovieMotionHumanPosture,
+    progress: number,
+    seconds?: number,
+    trial?: readonly [
+      AutoMovieMotionHumanBendRepeat.IRead,
+      OperateHandTargetTrialResult,
+    ],
+  ) => IAutoMovieMotionHumanArmTarget.ITarget;
+  wrist: (
+    posture: IAutoMovieMotionHumanPosture,
+    progress: number,
+    seconds?: number,
+  ) => IAutoMovieVector3;
+};
+
+/** The alternatives of `OperateHandTargetTrialResult`'s site. */
+type OperateHandTargetTrialResult = 0 | 1;
+
+/** The record of `IOperateHandProps`'s site. */
+type IOperateHandProps = {
+  clock: IAutoMovieMotionClock;
+  place: ReturnType<IAutoMovieMotionHumanActionContext["aim"]>;
+  part: IAutoMovieMotionHumanOperateDrive.IPart | undefined;
+  hinge: IAutoMovieMotionHumanOperateDrive.IHinge | undefined;
+  inserted: IAutoMovieMotionHumanStrikingHeld.ITool | undefined;
+  upright: number;
+};
+
 /**
  * Prepare an operation's original hand geometry for its actual arm targets and
  * the lean's wrist-only reach observations.
@@ -31,27 +77,8 @@ import { operateState } from "./operateState";
  */
 export function operateHand(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanOperate.IParams>,
-  props: {
-    clock: IAutoMovieMotionClock;
-    place: ReturnType<IAutoMovieMotionHumanActionContext["aim"]>;
-    part: IAutoMovieMotionHumanOperateDrive.IPart | undefined;
-    hinge: IAutoMovieMotionHumanOperateDrive.IHinge | undefined;
-    inserted: IAutoMovieMotionHumanStrikingHeld.ITool | undefined;
-    upright: number;
-  },
-): {
-  target: (
-    posture: IAutoMovieMotionHumanPosture,
-    progress: number,
-    seconds?: number,
-    trial?: readonly [AutoMovieMotionHumanBendRepeat.IRead, 0 | 1],
-  ) => IAutoMovieMotionHumanArmTarget.ITarget;
-  wrist: (
-    posture: IAutoMovieMotionHumanPosture,
-    progress: number,
-    seconds?: number,
-  ) => IAutoMovieVector3;
-} {
+  props: IOperateHandProps,
+): IOperateHandResult {
   const mechanism: IAutoMovieMotionHumanOperate.Mechanism = context.params.kind;
   const side: AutoMovieHumanSide = context.params.hand ?? "right";
   if (mechanism.kind === "insert") {
@@ -115,10 +142,7 @@ export function operateHand(
     posture: IAutoMovieMotionHumanPosture,
     progress: number,
     seconds?: number,
-  ) => {
-    place: { point: IAutoMovieVector3; normal: IAutoMovieVector3 };
-    forward: IAutoMovieVector3;
-  } = (
+  ) => IOperateHandFrame = (
     posture: IAutoMovieMotionHumanPosture,
     progress: number,
     seconds?: number,
@@ -184,7 +208,7 @@ export function operateHand(
       posture: IAutoMovieMotionHumanPosture,
       progress: number,
       seconds?: number,
-      trial?: readonly [AutoMovieMotionHumanBendRepeat.IRead, 0 | 1],
+      trial?: readonly [AutoMovieMotionHumanBendRepeat.IRead, OperateHandTrial],
     ): IAutoMovieMotionHumanArmTarget.ITarget => {
       const current: ReturnType<typeof frame> = frame(
         posture,

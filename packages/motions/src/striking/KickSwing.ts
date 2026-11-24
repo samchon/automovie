@@ -5,6 +5,7 @@ import {
   rotationBetween,
 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanKickGeometry,
   IAutoMovieMotionHumanPosture,
@@ -14,7 +15,7 @@ import type {
 
 import { walkFoot } from "../actions/walkFoot";
 import { walkLeg } from "../actions/walkLeg";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { humanPostureHeading } from "../posture/humanPostureHeading";
 import { KickCarriage } from "./KickCarriage";
 import { KickChain } from "./KickChain";
 import type { KickChamber } from "./KickChamber";
@@ -22,6 +23,12 @@ import { KickForm } from "./KickForm";
 import { KickRocker } from "./KickRocker";
 import { KickThrust } from "./KickThrust";
 import { StrikingStroke } from "./StrikingStroke";
+
+/** The record of `IPropsFlexion`'s site. */
+type IPropsFlexion = { chamber: number; contact: number; least: number };
+
+/** The alternatives of `PropsPath`'s site. */
+type PropsPath = "hinge" | "thrust";
 
 /**
  * The kicking leg's path: from its plant up to the chamber, out to the contact,
@@ -87,7 +94,7 @@ export namespace KickSwing {
     body: IAutoMovieMotionHumanBody;
 
     /** The kicking side. */
-    side: "left" | "right";
+    side: AutoMovieHumanSide;
 
     /** The kick's timing. */
     timing: IAutoMovieMotionHumanKickGeometry.ITiming;
@@ -104,7 +111,7 @@ export namespace KickSwing {
      * straight from a chamber with the knee lifted to the target's height (the
      * push kick).
      */
-    path: "hinge" | "thrust";
+    path: PropsPath;
 
     /**
      * The fitted contact leg under that posture; the chamber itself for a
@@ -116,7 +123,7 @@ export namespace KickSwing {
      * The knee's flexion at the chamber and at the contact, and the least it
      * may open to, degrees.
      */
-    flexion: { chamber: number; contact: number; least: number };
+    flexion: IPropsFlexion;
 
     /** The share of the opening's peak speed left at the contact, in (0, 1]. */
     speed: number;
@@ -156,7 +163,7 @@ export namespace KickSwing {
     // the rotation that carries the chambered foot onto the contact foot.
     const hip: IAutoMovieVector3 = KickCarriage.hip(body, props.base, side);
     const inverse: IAutoMovieQuaternion = Quaternion.inverse(
-      resolveHumanPosture.heading(props.base),
+      humanPostureHeading(props.base),
     );
     const local = (v: IAutoMovieVector3): IAutoMovieVector3 =>
       Quaternion.rotateVector(inverse, v);
@@ -236,7 +243,7 @@ export namespace KickSwing {
       shift: IAutoMovieVector3,
       atHip?: IAutoMovieVector3,
     ): IAutoMovieMotionHumanKickGeometry.ILeg => {
-      const heading: IAutoMovieQuaternion = resolveHumanPosture.heading(base);
+      const heading: IAutoMovieQuaternion = humanPostureHeading(base);
       const currentHip: IAutoMovieVector3 =
         atHip ?? KickCarriage.hip(body, base, side);
       const opened: IAutoMovieQuaternion = Quaternion.fromAxisAngle(

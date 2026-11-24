@@ -17,7 +17,7 @@ import type {
 import { readHumanBone } from "../body/readHumanBone";
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { humanPostureHeading } from "../posture/humanPostureHeading";
 
 /** The ride law's context after the seated entry has been admitted. */
 type Context =
@@ -28,6 +28,8 @@ type Jump = readonly [number, number, number, number];
 
 /** Kept in parent-to-child order to describe the same four joints in each pose. */
 const BONES = ["spine", "chest", "neck", "head"] as const;
+/** The alternatives of `LookDirection`'s site. */
+type LookDirection = 1 | -1;
 
 /** The centred over-shoulder film beat on the ride's clock. */
 interface ILook {
@@ -36,7 +38,7 @@ interface ILook {
   /** Half the turn's duration, seconds. */
   half: number;
   /** Left is positive about the rider's up axis. */
-  direction: 1 | -1;
+  direction: LookDirection;
 }
 
 /**
@@ -249,12 +251,11 @@ export function prepareHumanEquestrianRide(
             (1 - Math.cos(cycle))
           : 0;
       if (pitch !== 0 || roll !== 0 || rise !== 0) {
-        const original: IAutoMovieQuaternion =
-          resolveHumanPosture.heading(posture);
+        const original: IAutoMovieQuaternion = humanPostureHeading(posture);
         posture.pitch = (posture.pitch ?? 0) + pitch + 6 * rise;
         posture.roll = (posture.roll ?? 0) + roll;
         const tilt: IAutoMovieQuaternion = Quaternion.multiply(
-          resolveHumanPosture.heading(posture),
+          humanPostureHeading(posture),
           Quaternion.inverse(original),
         );
         const seat: IAutoMovieVector3 = Vector3.add(
@@ -302,6 +303,8 @@ export function prepareHumanEquestrianRide(
     },
   };
 }
+/** The record of `ITimesCue`'s site. */
+type ITimesCue = { seconds: number };
 
 /** Read unique, finite local seconds once from an authored cue track. */
 function times(context: Context, id: string): readonly number[] {
@@ -309,7 +312,7 @@ function times(context: Context, id: string): readonly number[] {
     ...new Set(
       context
         .cue(id)
-        .map((cue: { seconds: number }): number => cue.seconds - context.start)
+        .map((cue: ITimesCue): number => cue.seconds - context.start)
         .filter(Number.isFinite),
     ),
   ].sort((a: number, b: number): number => a - b);
@@ -438,6 +441,8 @@ function jumping(jump: Jump | undefined, at: number): number {
     return minimumJerk.share((recovery - at) / (recovery - landing));
   return 1;
 }
+/** The record of `IBoundedLimits`'s site. */
+type IBoundedLimits = { min: number; max: number };
 
 /**
  * Add a joint offset within the body's angle range. A missing degree of freedom
@@ -446,7 +451,7 @@ function jumping(jump: Jump | undefined, at: number): number {
 function bounded(
   start: number,
   delta: number,
-  limits: { min: number; max: number } | null | undefined,
+  limits: IBoundedLimits | null | undefined,
 ): number {
   return limits === null || limits === undefined || delta === 0
     ? start

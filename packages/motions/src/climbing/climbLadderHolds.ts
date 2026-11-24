@@ -20,6 +20,13 @@ import type { HumanLadder } from "./HumanLadder";
  * `climbLadder` owns the beats and the clock.
  */
 export namespace climbLadderHolds {
+  /**
+   * How far below the shoulder the hands' first rung is sought, upper-arm
+   * lengths (provisional: a grip with the elbow part bent rather than a
+   * straight overhead reach).
+   */
+  export const GRIP_DROP: number = 0.5;
+
   /** The prepared holds. */
   export interface IHolds {
     /** Each foot's placement on the floor (0) and on each rung it climbs. */
@@ -156,7 +163,7 @@ export namespace climbLadderHolds {
   ): IHolds {
     // A foot's placement on a rung: the ball on the rung's top.
     const onRung: Record<
-      "left" | "right",
+      AutoMovieHumanSide,
       ReturnType<typeof HumanFoot.prepareAt>
     > = {
       left: HumanFoot.prepareAt(
@@ -175,10 +182,10 @@ export namespace climbLadderHolds {
       ),
     };
     const footOn: (
-      side: "left" | "right",
+      side: AutoMovieHumanSide,
       index: number,
     ) => IAutoMovieMotionHumanFoot.IPlacement = (
-      side: "left" | "right",
+      side: AutoMovieHumanSide,
       index: number,
     ): IAutoMovieMotionHumanFoot.IPlacement =>
       index === 0
@@ -191,7 +198,7 @@ export namespace climbLadderHolds {
             }),
           );
     const footprints: Record<
-      "left" | "right",
+      AutoMovieHumanSide,
       IAutoMovieMotionHumanFoot.IPlacement[]
     > = {
       left: Array.from(
@@ -206,7 +213,7 @@ export namespace climbLadderHolds {
       ),
     };
     const footArcs: Record<
-      "left" | "right",
+      AutoMovieHumanSide,
       ReturnType<typeof AutoMovieMotionHumanLeg.prepareArc>[]
     > = {
       left: footprints.left
@@ -237,7 +244,7 @@ export namespace climbLadderHolds {
         ),
     };
     const goals: Record<
-      "left" | "right",
+      AutoMovieHumanSide,
       ReturnType<typeof AutoMovieMotionHumanLeg.preparePlacement>
     > = {
       left: AutoMovieMotionHumanLeg.preparePlacement(
@@ -275,7 +282,7 @@ export namespace climbLadderHolds {
       ),
     };
     const handArcs: Record<
-      "left" | "right",
+      AutoMovieHumanSide,
       ReturnType<typeof Vector3.prepareLerp>[]
     > = {
       left: handholds.left

@@ -22,7 +22,7 @@ import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMo
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFoot } from "../posture/HumanFoot";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { humanPostureHeading } from "../posture/humanPostureHeading";
 import { CloseStrikeLegs } from "./CloseStrikeLegs";
 import { FootStrikeForms } from "./FootStrikeForms";
 import { FootStrikeLeg } from "./FootStrikeLeg";
@@ -314,7 +314,7 @@ export namespace footStrike {
       // The knee bends toward the line between the hip and the ankle, raised,
       // its turn about the leg kept inside the hip's twist range
       // (`FootStrikeTilt.knee`).
-      const pelvis: IAutoMovieQuaternion = resolveHumanPosture.heading(
+      const pelvis: IAutoMovieQuaternion = humanPostureHeading(
         lower.write(entry, shown),
       );
       const hinted = (at: IAutoMovieVector3): IAutoMovieVector3 =>

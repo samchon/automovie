@@ -28,6 +28,7 @@ import { AutoMovieMotionHumanLeg } from "../compose/AutoMovieMotionHumanLeg";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
+import { humanPostureHeading } from "../posture/humanPostureHeading";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { ExerciseKey } from "./ExerciseKey";
@@ -256,7 +257,7 @@ export namespace trampolineBounce {
     const rest: IAutoMovieVector3 = body.rest.get("hips")!;
     const standingHips: IAutoMovieVector3 = Vector3.add(
       entry.root,
-      Quaternion.rotateVector(resolveHumanPosture.heading(entry), rest),
+      Quaternion.rotateVector(humanPostureHeading(entry), rest),
     );
     const shape: IAutoMovieMotionHumanExerciseKey.ILimb =
       SHAPES[p.shape ?? "straight"];
@@ -306,7 +307,7 @@ export namespace trampolineBounce {
         };
         const root: IAutoMovieVector3 = Vector3.subtract(
           hips,
-          Quaternion.rotateVector(resolveHumanPosture.heading(turned), rest),
+          Quaternion.rotateVector(humanPostureHeading(turned), rest),
         );
         const onBed: boolean = phaseAt(s).kind !== "flight";
         // The feet ride the bed on it; in the air each foot leaves the bed's

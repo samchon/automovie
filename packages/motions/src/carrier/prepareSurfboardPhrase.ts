@@ -25,15 +25,18 @@ import { lieDown } from "../floor/lieDown";
 import { HumanBound } from "../law/HumanBound";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanHand } from "../posture/HumanHand";
+import { humanPostureHeading } from "../posture/humanPostureHeading";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanSurfaceBoard } from "./HumanSurfaceBoard";
 
 /** The two sides are fitted independently. */
 const SIDES: readonly AutoMovieHumanSide[] = ["left", "right"];
+/** The alternatives of `TorsoAngles2`'s site. */
+type TorsoAngles2 = "yaw" | "pitch" | "roll";
 
 /** The whole-body heading, pitch and roll of a staged surf posture, degrees. */
-type TorsoAngles = Pick<IAutoMovieMotionHumanPosture, "yaw" | "pitch" | "roll">;
+type TorsoAngles = Pick<IAutoMovieMotionHumanPosture, TorsoAngles2>;
 
 // The staging coefficients below are provisional. The cited study orders
 // the palm and foot supports but measures no posture angles or heights, so
@@ -221,8 +224,7 @@ export function prepareSurfboardPhrase(
   };
   const proneBones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
     poseBones(body, resolveHumanPosture(body, pronePose));
-  const proneTurn: IAutoMovieQuaternion =
-    resolveHumanPosture.heading(pronePose);
+  const proneTurn: IAutoMovieQuaternion = humanPostureHeading(pronePose);
   const inverseProne: IAutoMovieQuaternion = Quaternion.inverse(proneTurn);
   const proneHeight: number =
     Quaternion.rotateVector(proneTurn, hips).y -
@@ -306,8 +308,7 @@ export function prepareSurfboardPhrase(
       PRESS_PITCH * pitchUp -
       TUCK_PITCH * tuck;
     const torso: TorsoAngles = { yaw, pitch, roll: 0 };
-    const bodyRotation: IAutoMovieQuaternion =
-      resolveHumanPosture.heading(torso);
+    const bodyRotation: IAutoMovieQuaternion = humanPostureHeading(torso);
     // Keep the shoulders in reach while the palms bear. Centre between the
     // new foot targets before rising over both soles.
     const balance: number = fade(phases.palms, firstFoot);

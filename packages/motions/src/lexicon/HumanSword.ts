@@ -27,6 +27,18 @@ import { HumanSwordFollow } from "./HumanSwordFollow";
 import { HumanSwordLanding } from "./HumanSwordLanding";
 import { HumanSwordTiming } from "./HumanSwordTiming";
 
+/** The alternatives of `StoppedContext`'s site. */
+type StoppedContext = "body" | "params";
+
+/** The alternatives of `HeldContext`'s site. */
+type HeldContext = "body" | "entry";
+
+/** The alternatives of `SPEEDEntryItem`'s site. */
+type SPEEDEntryItem = "thrust" | "cut";
+
+/** The alternatives of `LANDSEntryItem`'s site. */
+type LANDSEntryItem = "cut" | "parry";
+
 /**
  * Blade work with the blade as the effector: the cut on the eight lines, and
  * what every blade action shares. `HumanSwordThrust` holds the thrust,
@@ -96,7 +108,7 @@ export namespace HumanSword {
    * forte's middle (`THIRDS`). A thing that declares no edge lands a cut with
    * its working point.
    */
-  export const LANDS: Readonly<Record<"cut" | "parry", number>> = {
+  export const LANDS: Readonly<Record<LANDSEntryItem, number>> = {
     cut: 2 / 3,
     parry: THIRDS[0],
   };
@@ -130,7 +142,7 @@ export namespace HumanSword {
    * instead (`cutAt`).
    */
   export const SPEED: Readonly<
-    Record<"thrust" | "cut", readonly [number, number]>
+    Record<SPEEDEntryItem, readonly [number, number]>
   > = { thrust: [2.6, 3.2], cut: [6, 10] };
 
   /**
@@ -314,7 +326,7 @@ export namespace HumanSword {
    * stroke leaves from and returns to.
    */
   export const held = (
-    context: Pick<IAutoMovieMotionHumanActionContext, "body" | "entry">,
+    context: Pick<IAutoMovieMotionHumanActionContext, HeldContext>,
     side: AutoMovieHumanSide,
   ): IAutoMovieMotionHumanStrikingHeld.IHandFrame => {
     const bones: ReturnType<typeof poseBones> = poseBones(
@@ -342,7 +354,7 @@ export namespace HumanSword {
   export const stopped = (
     context: Pick<
       IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanSword.IAttack>,
-      "body" | "params"
+      StoppedContext
     >,
     from: IAutoMovieVector3,
     to: IAutoMovieVector3,

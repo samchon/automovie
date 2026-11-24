@@ -22,6 +22,8 @@ const STILL: IAutoMovieMotionHumanSupportCarry.ICarry = {
   turn: { x: 0, y: 0, z: 0, w: 1 },
   yaw: 0,
 };
+/** The alternatives of `ClimbStairsCarryContext`'s site. */
+type ClimbStairsCarryContext = "prop" | "start";
 
 /**
  * A flight climbed onto a moving prop, carried footprint by footprint: the
@@ -39,7 +41,7 @@ const STILL: IAutoMovieMotionHumanSupportCarry.ICarry = {
  * @returns The carried plan.
  */
 export function climbStairsCarry(
-  context: Pick<IAutoMovieMotionHumanActionContext, "prop" | "start">,
+  context: Pick<IAutoMovieMotionHumanActionContext, ClimbStairsCarryContext>,
   plan: IAutoMovieMotionHumanActionPlan,
   prop: string,
 ): IAutoMovieMotionHumanActionPlan {
@@ -229,6 +231,8 @@ export namespace climbStairsCarry {
    * still stand on it, metres (provisional: a sole's give).
    */
   const FLOOR: number = 0.02;
+  /** The alternatives of `ClimbStairsCarryBoardedContext`'s site. */
+  type ClimbStairsCarryBoardedContext = "entry" | "body";
 
   /**
    * Whether the body already stands on the moving prop at the climb's start, a
@@ -247,7 +251,10 @@ export namespace climbStairsCarry {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function boarded(
-    context: Pick<IAutoMovieMotionHumanActionContext, "entry" | "body">,
+    context: Pick<
+      IAutoMovieMotionHumanActionContext,
+      ClimbStairsCarryBoardedContext
+    >,
   ): boolean {
     return (["left", "right"] as const).every(
       (side: AutoMovieHumanSide): boolean =>
@@ -256,6 +263,7 @@ export namespace climbStairsCarry {
     );
   }
 }
+
 /** A foot's plant windows, in order. */
 function footPlants(
   contacts: readonly IAutoMovieMotionHumanContactWindow[],

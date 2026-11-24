@@ -24,6 +24,20 @@ import { everydayTypeCases } from "./everydayTypeCases";
 import { everydayVerdicts } from "./everydayVerdicts";
 
 const { perform, figure, event, angle, frame } = everydayCaseKit;
+/** The record of `IEverydayCasesMarginsResult`'s site. */
+type IEverydayCasesMarginsResult = { push: number; side: number };
+
+/** The alternatives of `EverydayCasesFamily`'s site. */
+type EverydayCasesFamily =
+  | "approach"
+  | "look"
+  | "gesture"
+  | "rest"
+  | "seat"
+  | "bend"
+  | "step"
+  | "brace"
+  | "type";
 
 /**
  * Capture cases of the everyday laws on the polygon man, each with the numeric
@@ -73,16 +87,7 @@ const { perform, figure, event, angle, frame } = everydayCaseKit;
  * @returns The cases.
  */
 export function everydayCases(
-  family?:
-    | "approach"
-    | "look"
-    | "gesture"
-    | "rest"
-    | "seat"
-    | "bend"
-    | "step"
-    | "brace"
-    | "type",
+  family?: EverydayCasesFamily,
   bodies: readonly string[] = ["m-average"],
 ): IMotionCaptureCase[] {
   const wants = (name: string): boolean =>
@@ -299,7 +304,7 @@ export function everydayCases(
         }),
       );
       const set: number = event(performance, "a", 0, "set");
-      const margins = (t: number): { push: number; side: number } => {
+      const margins = (t: number): IEverydayCasesMarginsResult => {
         const held = HumanBalance.support(body, performance.posture("a", t));
         return {
           push: HumanBalance.along(held.centre, held.points, {

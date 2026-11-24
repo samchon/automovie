@@ -1,7 +1,11 @@
 import type {
+  AutoMovieHumanSide,
   IAutoMovieMotionHumanAuditMotion as IAutoMovieMotionHumanAuditMotionContract,
   IAutoMovieMotionHumanContactWindow,
 } from "@automovie/interface";
+
+/** The alternatives of `FeetPart`'s site. */
+type FeetPart = "leftFoot" | "rightFoot";
 
 /**
  * Contact-window, floor and sample-grid readers for the canonical motion-audit
@@ -137,10 +141,10 @@ export namespace AutoMovieMotionHumanAuditMotion {
   export function feet(
     motion: IAutoMovieMotionHumanAuditMotionContract,
     subject: string,
-    side: "left" | "right",
+    side: AutoMovieHumanSide,
   ): (seconds: number) => number | null {
     const person: (seconds: number) => number | null = floors(motion, subject);
-    const part: "leftFoot" | "rightFoot" = `${side}Foot`;
+    const part: FeetPart = `${side}Foot`;
     const own: IAutoMovieMotionHumanAuditMotionContract.IWindow[] = windows(
       motion,
       subject,

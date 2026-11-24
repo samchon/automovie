@@ -1,5 +1,6 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanBody,
   IAutoMovieQuaternion,
@@ -8,8 +9,11 @@ import type {
 
 import { HumanFoot } from "../posture/HumanFoot";
 
+/** The alternatives of `Placement2`'s site. */
+type Placement2 = "point" | "rotation";
+
 /** A foot's ankle point and turn. */
-type Placement = Required<Pick<IAutoMovieHumanLimbGoal, "point" | "rotation">>;
+type Placement = Required<Pick<IAutoMovieHumanLimbGoal, Placement2>>;
 
 /**
  * A foot goal turned toes-down about its contact until its ankle is within the
@@ -30,7 +34,7 @@ type Placement = Required<Pick<IAutoMovieHumanLimbGoal, "point" | "rotation">>;
  */
 export function ankleRidePedalFoot(
   body: IAutoMovieMotionHumanBody,
-  side: "left" | "right",
+  side: AutoMovieHumanSide,
   goal: IAutoMovieHumanLimbGoal,
   hip: IAutoMovieVector3,
   level: IAutoMovieQuaternion,

@@ -26,16 +26,32 @@ import type {
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 
+/** The alternatives of `PrepareApertureTipDigit2`'s site. */
+type PrepareApertureTipDigit2 = "Thumb" | "Index";
+
+/** The alternatives of `PrepareApertureTipDigit`'s site. */
+type PrepareApertureTipDigit = "Thumb" | "Index";
+
+/** The record of `IChainDistal`'s site. */
+type IChainDistal = { kind: "capsule" };
+
+/** The record of `IChainCapsuleResult`'s site. */
+type IChainCapsuleResult = { kind: "capsule" };
+
+/** The record of `IChainCapsule`'s site. */
+type IChainCapsule = { kind: "capsule" };
+
 /**
  * A hand closing on an object: which digits close for a grip kind, each digit's
  * phalanges as the body's own colliders, and the finger angles at contact,
  * solved, never authored.
  *
- * Closure is the engine's `curlChainUntilContact` (GraspIt!'s auto-grasp
- * stopping rule): the digits named by the grip kind close proximal to distal
- * until each phalanx first touches the object, the four fingers before the
- * thumb so the thumb closes over them as in a power grip (Napier 1956; the
- * Cutkosky and Feix oppositions the grip kinds name):
+ * Closure is the engine's `curlChainUntilContact` (the auto-grasp stopping rule
+ * of Miller and Allen 2004, IEEE Robot. Autom. Mag. 11(4):110): the digits
+ * named by the grip kind close proximal to distal until each phalanx first
+ * touches the object, the four fingers before the thumb so the thumb closes
+ * over them as in a power grip (Napier 1956; the Cutkosky and Feix oppositions
+ * the grip kinds name):
  *
  * - `power`, `lateral` and `two-hand`: the four fingers, then the thumb;
  * - `hook`: the four fingers, the thumb left relaxed;
@@ -104,9 +120,9 @@ export namespace HumanGrip {
     const list: AutoMovieHumanoidBone[] = bones(side, digit);
     const capsule: (
       bone: AutoMovieHumanoidBone,
-    ) => Extract<IAutoMoviePhysicalShape, { kind: "capsule" }> = (
+    ) => Extract<IAutoMoviePhysicalShape, IChainCapsule> = (
       bone: AutoMovieHumanoidBone,
-    ): Extract<IAutoMoviePhysicalShape, { kind: "capsule" }> => {
+    ): Extract<IAutoMoviePhysicalShape, IChainCapsuleResult> => {
       const shape: IAutoMoviePhysicalShape | undefined = body.profile.segments
         .find((s: IAutoMoviePhysicalSegment): boolean => s.bone === bone)
         ?.shapes.find(
@@ -118,8 +134,9 @@ export namespace HumanGrip {
         );
       return shape;
     };
-    const distal: Extract<IAutoMoviePhysicalShape, { kind: "capsule" }> =
-      capsule(list[2]!);
+    const distal: Extract<IAutoMoviePhysicalShape, IChainDistal> = capsule(
+      list[2]!,
+    );
     return {
       bones: list,
       tip: Vector3.add(
@@ -303,10 +320,10 @@ export namespace HumanGrip {
       poseBones.prepareTuples(body, requested);
     const tip: (
       resolved: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
-      digit: "Thumb" | "Index",
+      digit: PrepareApertureTipDigit,
     ) => IAutoMovieVector3 = (
       resolved: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
-      digit: "Thumb" | "Index",
+      digit: PrepareApertureTipDigit2,
     ): IAutoMovieVector3 => {
       const prepared: IAutoMovieCurlChainUntilContact.IChain =
         digit === "Thumb"

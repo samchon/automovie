@@ -1,5 +1,6 @@
 import { Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanBodyFitTypes,
   IAutoMovieMotionHumanFrame,
@@ -8,6 +9,9 @@ import type {
 
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
+
+/** The record of `IFrameFeetEntry`'s site. */
+type IFrameFeetEntry = { ankle: IAutoMovieVector3 };
 
 /**
  * The set's hands on the bridge of the thumb and index finger: in the set a
@@ -40,7 +44,7 @@ export namespace sprintStartSetHands {
    */
   export function frame(
     body: IAutoMovieMotionHumanBody,
-    feet: Record<"left" | "right", { ankle: IAutoMovieVector3 }>,
+    feet: Record<AutoMovieHumanSide, IFrameFeetEntry>,
     yaw: number,
   ): IAutoMovieMotionHumanFrame {
     const rest: IAutoMovieVector3 = Vector3.lerp(
@@ -87,7 +91,7 @@ export namespace sprintStartSetHands {
   export function of(
     body: IAutoMovieMotionHumanBody,
     frame: IAutoMovieMotionHumanFrame,
-    side: "left" | "right",
+    side: AutoMovieHumanSide,
   ): IBridge {
     const index: IAutoMovieVector3 = HumanHand.offset(
       body,

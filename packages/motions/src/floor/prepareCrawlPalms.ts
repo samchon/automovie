@@ -1,4 +1,5 @@
 import type {
+  AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanHand,
   IAutoMovieMotionHumanPosture,
@@ -30,15 +31,15 @@ export function prepareCrawlPalms(
   body: IAutoMovieMotionHumanBody,
   forward: IAutoMovieVector3,
   flat: Readonly<
-    Record<"left" | "right", IAutoMovieMotionHumanPosture["joints"]>
+    Record<AutoMovieHumanSide, IAutoMovieMotionHumanPosture["joints"]>
   >,
 ): (
   posture: IAutoMovieMotionHumanPosture,
-  palm: (side: "left" | "right") => IAutoMovieVector3,
+  palm: (side: AutoMovieHumanSide) => IAutoMovieVector3,
   resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
 ) => IAutoMovieMotionHumanPosture {
   const frames: Record<
-    "left" | "right",
+    AutoMovieHumanSide,
     ReturnType<typeof HumanHandTarget.prepareFrame>
   > = {
     left: HumanHandTarget.prepareFrame(
@@ -54,10 +55,10 @@ export function prepareCrawlPalms(
       { surface: "palm", shape: "flat", forward },
     ),
   };
-  const contacts: Partial<Record<"left" | "right", IAutoMovieVector3>> = {};
+  const contacts: Partial<Record<AutoMovieHumanSide, IAutoMovieVector3>> = {};
   return (
     posture: IAutoMovieMotionHumanPosture,
-    palm: (side: "left" | "right") => IAutoMovieVector3,
+    palm: (side: AutoMovieHumanSide) => IAutoMovieVector3,
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
   ): IAutoMovieMotionHumanPosture => {
     const both: ReturnType<typeof AutoMovieMotionHumanBend.prepareBoth> =

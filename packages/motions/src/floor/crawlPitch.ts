@@ -6,11 +6,15 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { HumanPosturePreparation } from "../posture/HumanPosturePreparation";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { crawlFrame } from "./crawlFrame";
+
+/** The record of `ICrawlPitchResult`'s site. */
+type ICrawlPitchResult = { pitch: number; bones: ReturnType<typeof poseBones> };
 
 /**
  * Solve the crawl's trunk pitch with the hip joints at a fixed world point and
@@ -28,7 +32,7 @@ export function crawlPitch(
   hips: IAutoMovieVector3,
   shoulderY: number,
   template: IAutoMovieMotionHumanPosture,
-): { pitch: number; bones: ReturnType<typeof poseBones> } {
+): ICrawlPitchResult {
   const resolution: ReturnType<typeof prepareHumanPoseResolution> =
     prepareHumanPoseResolution();
   const projection: ReturnType<typeof prepareHumanPostureProjection> =
@@ -37,7 +41,7 @@ export function crawlPitch(
     body,
     MEASURED,
   );
-  let source: resolveHumanPosture.IPrepared | undefined;
+  let source: HumanPosturePreparation.IPrepared | undefined;
   const at: (degrees: number) => ReturnType<typeof poseBones> = (
     degrees: number,
   ): ReturnType<typeof poseBones> => {
@@ -51,7 +55,7 @@ export function crawlPitch(
     };
     let pose: IAutoMoviePose;
     if (source === undefined) {
-      source = resolveHumanPosture.prepare(
+      source = HumanPosturePreparation.prepare(
         body,
         posture,
         resolution,
@@ -61,7 +65,7 @@ export function crawlPitch(
     } else {
       pose = resolveHumanPosture.seeded(
         body,
-        resolveHumanPosture.rigid(
+        HumanPosturePreparation.rigid(
           source,
           posture.root,
           posture.yaw,

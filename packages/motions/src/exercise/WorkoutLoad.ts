@@ -29,6 +29,15 @@ import { StrikingBody } from "../striking/StrikingBody";
 import { StrikingHeld } from "../striking/StrikingHeld";
 import { StrikingRoll } from "../striking/StrikingRoll";
 
+/** The alternatives of `OfBendGoal2`'s site. */
+type OfBendGoal2 = "point" | "rotation";
+
+/** The alternatives of `OfBendGoal`'s site. */
+type OfBendGoal = "point" | "rotation";
+
+/** The alternatives of `OfContext`'s site. */
+type OfContext = "body" | "entry" | "prop" | "subject";
+
 /**
  * The load a workout is done with: a prop the performer already holds (a
  * barbell, a dumbbell, a kettlebell taken by `pickUp`), carried through the
@@ -83,10 +92,7 @@ export namespace WorkoutLoad {
    *   is unavailable, or the two handles coincide.
    */
   export function of(
-    context: Pick<
-      IAutoMovieMotionHumanActionContext,
-      "body" | "entry" | "prop" | "subject"
-    >,
+    context: Pick<IAutoMovieMotionHumanActionContext, OfContext>,
     load: IAutoMovieMotionHumanWorkoutLoad.IParams,
     midfoot: boolean = false,
     turnover: boolean = false,
@@ -177,7 +183,7 @@ export namespace WorkoutLoad {
           (["left", "right"] as const).reduce(
             (
               sum: IAutoMovieVector3,
-              foot: "left" | "right",
+              foot: AutoMovieHumanSide,
             ): IAutoMovieVector3 =>
               Vector3.add(
                 sum,
@@ -415,10 +421,10 @@ export namespace WorkoutLoad {
           AutoMovieMotionHumanBend.prepareBoth({ body, posture }, read);
         const bend: (
           arm: AutoMovieHumanSide,
-          goal: Pick<IAutoMovieHumanLimbGoal, "point" | "rotation">,
+          goal: Pick<IAutoMovieHumanLimbGoal, OfBendGoal>,
         ) => IAutoMovieVector3 = (
           arm: AutoMovieHumanSide,
-          goal: Pick<IAutoMovieHumanLimbGoal, "point" | "rotation">,
+          goal: Pick<IAutoMovieHumanLimbGoal, OfBendGoal2>,
         ): IAutoMovieVector3 =>
           both(arm).solve({
             point: goal.point,

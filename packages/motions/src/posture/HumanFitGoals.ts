@@ -12,6 +12,9 @@ import type { HumanBodyFitRows } from "./HumanBodyFitRows";
 import { HumanFitBalance } from "./HumanFitBalance";
 import { HumanJacobian } from "./HumanJacobian";
 
+/** The alternatives of `DirectionsAxis`'s site. */
+type DirectionsAxis = "x" | "y" | "z" | IAutoMovieVector3;
+
 /**
  * Included angles and a centre-of-mass position in the whole-body fit. These
  * are relationships of the displayed body, rather than a bone moved as a
@@ -169,7 +172,7 @@ export namespace HumanFitGoals {
     target: IAutoMovieMotionHumanFitGoals.ICentre,
   ): IAutoMovieVector3[] {
     return (target.axes ?? (["x", "y", "z"] as const)).map(
-      (axis: "x" | "y" | "z" | IAutoMovieVector3): IAutoMovieVector3 => {
+      (axis: DirectionsAxis): IAutoMovieVector3 => {
         if (typeof axis === "string") {
           if (axis === "x") return { x: 1, y: 0, z: 0 };
           if (axis === "y") return { x: 0, y: 1, z: 0 };

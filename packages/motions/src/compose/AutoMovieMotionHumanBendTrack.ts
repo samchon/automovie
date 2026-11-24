@@ -13,6 +13,11 @@ import { AutoMovieMotionHumanArmCourse } from "./AutoMovieMotionHumanArmCourse";
 import { AutoMovieMotionHumanBend } from "./AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanBendWalk } from "./AutoMovieMotionHumanBendWalk";
 
+/** The alternatives of `PropsFallback`'s site. */
+type PropsFallback =
+  | IAutoMovieMotionHumanBend.Arm
+  | IAutoMovieMotionHumanBend.IShares;
+
 /**
  * The elbow of least strain of an arm a primitive writes over its span
  * (`AutoMovieMotionHumanBend.solve`), solved once when the action is planned
@@ -66,7 +71,7 @@ export namespace AutoMovieMotionHumanBendTrack {
     goal: (posture: IAutoMovieMotionHumanPosture, seconds: number) => IGoal;
 
     /** The preset `solve` returns where no elbow place is allowed. */
-    fallback: IAutoMovieMotionHumanBend.Arm | IAutoMovieMotionHumanBend.IShares;
+    fallback: PropsFallback;
   }
 
   /** A track's two readers, a primitive's `prepare` and its elbow. */

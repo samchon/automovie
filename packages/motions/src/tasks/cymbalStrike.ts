@@ -19,11 +19,6 @@ import { useTool } from "./useTool";
  * single-cycle held-tool arc and its provisional timing. Register it with
  * `HumanPerformance` and align `contact1` with the chain's `sync`. Stage the
  * named edge within reach in front of the performer.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the site, reference, inherited timing, cue and stage premise.
- * @evidence contracts/development/design.md#principled-representation One opt-in law over the existing held-tool arc, using the prop's named edge.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One registration record with the held-tool cut windows.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Uses the declared stick face and rim point. No second arm plan or synthetic cymbal motion.
  */
 export const cymbalStrike: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanCymbalStrike> =
   {
@@ -40,6 +35,7 @@ export const cymbalStrike: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanC
  * @returns The held-stick plan with `contact1` as its decisive instant.
  * @throws {HumanRefusal} When the hand or either subject is invalid, the hand
  *   lacks the stick or its required contacts, or the edge fails admission.
+ * @evidence contracts/development/common.md#meaningful-documentation States the site, reference, inherited timing, cue and stage premise.
  */
 function plan(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanCymbalStrike>,

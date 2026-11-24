@@ -44,6 +44,35 @@ type Ankle = IAutoMovieHumanLimbGoal | undefined;
 
 /** Whether another admitted reach adjustment can use the stepped base. */
 type Accept = (posture: IAutoMovieMotionHumanPosture) => boolean;
+/** The alternatives of `PlantsPart`'s site. */
+type PlantsPart = "leftFoot" | "rightFoot";
+
+/** The alternatives of `TwistAddBone2`'s site. */
+type TwistAddBone2 = "chest" | "spine";
+
+/** The alternatives of `TwistAddBone`'s site. */
+type TwistAddBone = "chest" | "spine";
+
+/** The alternatives of `TurnedLeastBone`'s site. */
+type TurnedLeastBone = "chest" | "spine";
+
+/** The alternatives of `TurnedMostBone`'s site. */
+type TurnedMostBone = "chest" | "spine";
+
+/** The alternatives of `TurnedHeldBone2`'s site. */
+type TurnedHeldBone2 = "chest" | "spine";
+
+/** The alternatives of `TurnedHeldBone`'s site. */
+type TurnedHeldBone = "chest" | "spine";
+
+/** The alternatives of `ShareEntryItem`'s site. */
+type ShareEntryItem = "chest" | "spine";
+
+/** The alternatives of `TurnedRangeBone2`'s site. */
+type TurnedRangeBone2 = "chest" | "spine";
+
+/** The alternatives of `TurnedRangeBone`'s site. */
+type TurnedRangeBone = "chest" | "spine";
 
 /**
  * How a standing reach adapts its body before its arm refuses a grip it still
@@ -101,8 +130,8 @@ export namespace pickUpAdjust {
     grip: IAutoMovieVector3,
     stance: pickUpPosture.IStance,
   ): pickUpPosture.IStance {
-    const range: (bone: "chest" | "spine") => IAutoMovieAngleRange = (
-      bone: "chest" | "spine",
+    const range: (bone: TurnedRangeBone) => IAutoMovieAngleRange = (
+      bone: TurnedRangeBone2,
     ): IAutoMovieAngleRange => {
       const twist: IAutoMovieAngleRange | null | undefined =
         DEFAULT_HUMANOID_ROM[bone]?.twist;
@@ -110,23 +139,23 @@ export namespace pickUpAdjust {
         throw new Error(`The range-of-motion table gives the ${bone} no twist`);
       return twist;
     };
-    const share: Readonly<Record<"chest" | "spine", number>> = {
+    const share: Readonly<Record<ShareEntryItem, number>> = {
       chest: AutoMovieMotionHumanTrunk.CHEST,
       spine: 1 - AutoMovieMotionHumanTrunk.CHEST,
     };
-    const held: (bone: "chest" | "spine") => number = (
-      bone: "chest" | "spine",
+    const held: (bone: TurnedHeldBone) => number = (
+      bone: TurnedHeldBone2,
     ): number => stance.posture.joints[bone]?.[2] ?? 0;
     // The turn either way the two joints allow with what they hold.
     const most: number = Math.min(
       ...(["chest", "spine"] as const).map(
-        (bone: "chest" | "spine"): number =>
+        (bone: TurnedMostBone): number =>
           (range(bone).max - held(bone)) / share[bone],
       ),
     );
     const least: number = Math.max(
       ...(["chest", "spine"] as const).map(
-        (bone: "chest" | "spine"): number =>
+        (bone: TurnedLeastBone): number =>
           (range(bone).min - held(bone)) / share[bone],
       ),
     );
@@ -138,8 +167,8 @@ export namespace pickUpAdjust {
       degrees: number,
     ): IAutoMovieMotionHumanPosture => {
       if (degrees === 0) return posture;
-      const add: (bone: "chest" | "spine") => [number, number, number] = (
-        bone: "chest" | "spine",
+      const add: (bone: TwistAddBone) => [number, number, number] = (
+        bone: TwistAddBone2,
       ): [number, number, number] => {
         const at: readonly [number, number, number] = posture.joints[bone] ?? [
           0, 0, 0,
@@ -525,9 +554,8 @@ export namespace pickUpAdjust {
     const back: (time: number) => number = (time: number): number =>
       (end + up * timed(1 - minimumJerk.share(time) / share)) / duration;
     return (["left", "right"] as const).flatMap(
-      (foot: "left" | "right"): IAutoMovieMotionHumanContactWindow[] => {
-        const part: "leftFoot" | "rightFoot" =
-          foot === "left" ? "leftFoot" : "rightFoot";
+      (foot: AutoMovieHumanSide): IAutoMovieMotionHumanContactWindow[] => {
+        const part: PlantsPart = foot === "left" ? "leftFoot" : "rightFoot";
         const ground: IAutoMovieMotionHumanContactWindow["support"] = {
           kind: "ground",
         };

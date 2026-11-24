@@ -16,19 +16,7 @@ import { HumanPerformanceObject } from "./HumanPerformanceObject";
 const SAMPLES: number = 16;
 
 /** A tether found by its far prop: the declaring prop and the line. */
-interface IHeld {
-  /** The prop the line runs from. */
-  owner: IAutoMovieMotionHumanProp;
-
-  /** The line. */
-  tether: IAutoMovieMotionHumanTether;
-}
-
-/** The lines by far prop, per resolved performance. */
-const INDEX: WeakMap<
-  IAutoMovieMotionHumanPerformanceState,
-  Map<string, IHeld[]>
-> = new WeakMap();
+type IHeld = IAutoMovieMotionHumanPerformanceState.ITethered;
 
 /**
  * The lines between props (`IAutoMovieMotionHumanTether`): where a line lies at
@@ -112,7 +100,7 @@ export namespace HumanPerformanceTether {
     rested: IAutoMovieRigidTransform,
     frame: (prop: string, seconds: number) => IAutoMovieRigidTransform,
   ): IAutoMovieRigidTransform {
-    const lines: IHeld[] | undefined = index(self).get(subject);
+    const lines: readonly IHeld[] | undefined = self.tethered.get(subject);
     if (lines === undefined) return rested;
     // A driven line pulls only once paid in: before its articulation moves it
     // is the line let out, which a cast only pays out further. Read first, it
@@ -170,23 +158,27 @@ export namespace HumanPerformanceTether {
   export function stretch(span: IAutoMovieMotionHumanTether.ISpan): number {
     return Math.max(0, Vector3.distance(span.from, span.to) - span.length);
   }
-}
 
-/** The lines by far prop, built once per resolved performance. */
-function index(
-  self: IAutoMovieMotionHumanPerformanceState,
-): Map<string, IHeld[]> {
-  const known: Map<string, IHeld[]> | undefined = INDEX.get(self);
-  if (known !== undefined) return known;
-  const out: Map<string, IHeld[]> = new Map();
-  for (const owner of self.props.values())
-    for (const tether of owner.tethers ?? []) {
-      const list: IHeld[] = out.get(tether.to.prop) ?? [];
-      list.push({ owner, tether });
-      out.set(tether.to.prop, list);
-    }
-  INDEX.set(self, out);
-  return out;
+  /**
+   * The lines by far prop, built once when the performance's props are known
+   * (`IAutoMovieMotionHumanPerformanceState.tethered`).
+   *
+   * @param props The performance's props, by subject.
+   * @returns Each far prop's lines with the prop each runs from, in prop and
+   *   declaration order.
+   */
+  export function index(
+    props: ReadonlyMap<string, IAutoMovieMotionHumanProp>,
+  ): Map<string, IHeld[]> {
+    const out: Map<string, IHeld[]> = new Map();
+    for (const owner of props.values())
+      for (const tether of owner.tethers ?? []) {
+        const list: IHeld[] = out.get(tether.to.prop) ?? [];
+        list.push({ owner, tether });
+        out.set(tether.to.prop, list);
+      }
+    return out;
+  }
 }
 
 /**
@@ -350,11 +342,13 @@ function hang(
     },
   );
 }
+/** The alternatives of `RefuseValue`'s site. */
+type RefuseValue = string | number;
 
 /** A tether refusal. */
 function refuse(
   axis: string,
-  value: string | number,
+  value: RefuseValue,
   reason: string,
 ): HumanRefusal {
   return new HumanRefusal({

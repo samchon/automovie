@@ -18,6 +18,7 @@ import type {
 import { AutoMovieMotionHumanStance, HumanVerdicts } from "@automovie/motions";
 import {
   HumanBodyFit,
+  HumanLimbFit,
   poseBones,
   resolveHumanPosture,
 } from "@automovie/motions/internal";
@@ -28,16 +29,17 @@ import { motionHumanBody } from "../../../internal/motionHumanBody";
 import { nclose } from "../../../internal/nclose";
 
 /**
- * Bone-carried goals remain attached while other hard goals move the body;
- * a physical point radius is a Euclidean maximum, including its boundary.
+ * Bone-carried goals remain attached while other hard goals move the body; a
+ * physical point radius is a Euclidean maximum, including its boundary.
  *
  * Scenarios:
- * 1. On small, average and short-armed bodies, translated and turned above
- *    the floor, recover a known posture with world head/chest goals and a
- *    hand point and rotation relative to the moving chest. The other hand's
- *    relative normal and a head point carried by the head stay invariant.
- * 2. A root translation and physical mass-centre goal move a point inside
- *    a 20 mm ball; the final FK distance must actually lie inside it.
+ *
+ * 1. On small, average and short-armed bodies, translated and turned above the
+ *    floor, recover a known posture with world head/chest goals and a hand
+ *    point and rotation relative to the moving chest. The other hand's relative
+ *    normal and a head point carried by the head stay invariant.
+ * 2. A root translation and physical mass-centre goal move a point inside a 20 mm
+ *    ball; the final FK distance must actually lie inside it.
  * 3. Rigid points inside, exactly on and diagonally outside the same radius
  *    distinguish a sphere from an XYZ box and prevent a numerical equality
  *    tolerance from enlarging the requested radius. A negative radius throws.
@@ -313,19 +315,19 @@ interface IGoalFrame {
 }
 
 /**
- * Observational leg selection keeps the complete coupled solve whenever
- * another goal's reference or clearance context prevents independent omission.
+ * Observational leg selection keeps the complete coupled solve whenever another
+ * goal's reference or clearance context prevents independent omission.
  *
  * Scenarios:
- * 1. Both hands rise4cm and move forward5cm while a foot rises5cm.
- *    A reference-bearing arm requires full fallback even when only the foot
- *    is requested; both wrists and the foot still meet their actual goals.
- * 2. Selecting either wrist retains both arms and the leg. The forearms keep
- *    the actual body's two-radius separation less its existing skin allowance,
- *    and full-cold joint/seed geometry remains numerically unchanged.
- * 3. A leg-only world goal remains correctly observed when independent
- *    omission is legal; the full raw goal record is retained for its caller.
  *
+ * 1. Both hands rise4cm and move forward5cm while a foot rises5cm. A
+ *    reference-bearing arm requires full fallback even when only the foot is
+ *    requested; both wrists and the foot still meet their actual goals.
+ * 2. Selecting either wrist retains both arms and the leg. The forearms keep the
+ *    actual body's two-radius separation less its existing skin allowance, and
+ *    full-cold joint/seed geometry remains numerically unchanged.
+ * 3. A leg-only world goal remains correctly observed when independent omission is
+ *    legal; the full raw goal record is retained for its caller.
  */
 function checkSelectedFallback(): void {
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
@@ -347,7 +349,7 @@ function checkSelectedFallback(): void {
     leftArm: {
       point: { x: left.x, y: left.y + 0.04, z: left.z + 0.05 },
       bend: { ...bones.get("leftLowerArm")!.worldPosition },
-      reference: resolveHumanPosture.reference(rest, "leftArm"),
+      reference: HumanLimbFit.reference(rest, "leftArm"),
     },
     rightArm: {
       point: { x: right.x, y: right.y + 0.04, z: right.z + 0.05 },

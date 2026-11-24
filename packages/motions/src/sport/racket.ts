@@ -1,5 +1,6 @@
 import { Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieMotionHumanActionName,
   IAutoMovieMotionClock,
   IAutoMovieMotionHumanActionContext,
@@ -28,6 +29,12 @@ import { HumanBound } from "../law/HumanBound";
 import { HumanFrame } from "../posture/HumanFrame";
 import { courtStroke } from "./courtStroke";
 import { racketStance } from "./racketStance";
+
+/** The alternatives of `PlanGripBend2`'s site. */
+type PlanGripBend2 = "front" | "forward";
+
+/** The alternatives of `PlanGripBend`'s site. */
+type PlanGripBend = "front" | "forward";
 
 /**
  * Racket stroke dispatch and the original solo racket or golf positions. The
@@ -98,8 +105,8 @@ export namespace racket {
     HumanBound.least("hold", hold, 0, "s");
     const modifiers: IAutoMovieMotionManner.IModifiers =
       AutoMovieMotionManner.of(context, p.manner);
-    const side: "left" | "right" = p.hand ?? "right";
-    const other: "left" | "right" = side === "right" ? "left" : "right";
+    const side: AutoMovieHumanSide = p.hand ?? "right";
+    const other: AutoMovieHumanSide = side === "right" ? "left" : "right";
     const clock: IAutoMovieMotionClock = AutoMovieMotionManner.time(
       AutoMovieMotionClock.phrase({
         prepare: 0.6,
@@ -137,19 +144,19 @@ export namespace racket {
     let contacts: IAutoMovieMotionHumanContactWindow[] =
       AutoMovieMotionHumanBase.plants();
     const grip: (
-      hand: "left" | "right",
+      hand: AutoMovieHumanSide,
       place: (
         posture: IAutoMovieMotionHumanPosture,
         s: number,
       ) => IAutoMovieVector3,
-      bend: "front" | "forward",
+      bend: PlanGripBend,
     ) => IAutoMovieMotionHumanPrimitive[] = (
-      hand: "left" | "right",
+      hand: AutoMovieHumanSide,
       place: (
         posture: IAutoMovieMotionHumanPosture,
         s: number,
       ) => IAutoMovieVector3,
-      bend: "front" | "forward",
+      bend: PlanGripBend2,
     ): IAutoMovieMotionHumanPrimitive[] =>
       AutoMovieMotionHumanPlaced.arm({
         body,

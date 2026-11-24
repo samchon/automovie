@@ -1,5 +1,6 @@
 import { Vector3, minimumJerk } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   AutoMovieMotionHumanActionName,
   IAutoMovieHumanLimbReference,
@@ -7,8 +8,8 @@ import type {
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanActionPlan,
-  IAutoMovieMotionHumanArmAngles,
   IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanEvaluation,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanPrimitive,
   IAutoMovieMotionHumanStagger,
@@ -17,26 +18,39 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
-import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
-import { AutoMovieMotionHumanTarget } from "../compose/AutoMovieMotionHumanTarget";
 import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
-import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
-import { HumanRefusal } from "../law/HumanRefusal";
+import { HumanLimbFit } from "../posture/HumanLimbFit";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
-import { StrikingTarget } from "../striking/StrikingTarget";
-import { ReactionSource } from "./ReactionSource";
 import { StaggerFeet } from "./StaggerFeet";
-import { StaggerPendulum } from "./StaggerPendulum";
+import { staggerArms } from "./staggerArms";
 import { staggerBounds } from "./staggerBounds";
 import { staggerContacts } from "./staggerContacts";
-import { staggerLimit } from "./staggerLimit";
 import { staggerRecover } from "./staggerRecover";
+import { staggerRecovery } from "./staggerRecovery";
 import { staggerResolved } from "./staggerResolved";
 import { staggerRocking } from "./staggerRocking";
 import { staggerShift } from "./staggerShift";
+
+/**
+ * A settled sample one stagger plan lends its own legs' writer for one
+ * evaluation (`IAutoMovieMotionHumanEvaluation.loan`), honoured only at its own
+ * second.
+ */
+class StaggerLoan implements IAutoMovieMotionHumanEvaluation.ILoan {
+  /**
+   * @param owner The lending plan's token.
+   * @param seconds Action seconds the sample was solved at.
+   * @param solved The foot, pelvis and trunk result at that instant.
+   */
+  public constructor(
+    public readonly owner: object,
+    public readonly seconds: number,
+    public readonly solved: ReturnType<StaggerFeet["solve"]>,
+  ) {}
+}
 
 /**
  * A stagger: a blow pushes the centre of mass past the base of support and
@@ -133,14 +147,6 @@ import { staggerShift } from "./staggerShift";
  * stagger is refused, naming the speed it can catch.
  */
 export namespace stagger {
-  /** A settled sample lent only to the writer that is evaluating that instant. */
-  interface ILoan {
-    /** Action seconds. */
-    seconds: number;
-
-    /** The foot, pelvis and trunk result at that instant. */
-    solved: ReturnType<StaggerFeet["solve"]>;
-  }
   /** The action's name. */
   export const name: AutoMovieMotionHumanActionName = "stagger";
 
@@ -186,69 +192,32 @@ export namespace stagger {
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanStagger.IParams>,
   ): IAutoMovieMotionHumanActionPlan {
-    const {
-      RIGHTING,
-      STEPS,
-      VERIFIED,
-      RESOLUTION,
-      ONSET,
-      ABDUCTION,
-    }: typeof staggerBounds = staggerBounds;
-    const p: IAutoMovieMotionHumanStagger.IParams = context.params;
-    if (!(p.speed > 0)) throw new Error("A stagger's speed is positive");
+    // The push and the recovery it asks for (`staggerRecovery`); a push no
+    // `STEPS` steps catch is a fall, refused with the fastest push this body
+    // catches that way.
+    const admitted: staggerRecovery.IAdmitted = staggerRecovery.of(context);
+    if (admitted.recovery === null)
+      throw staggerRecovery.refusal(context, admitted);
+    return recovered(context, admitted.recovery, admitted.fixed);
+  }
+
+  /**
+   * Plan an admitted stagger: the steps, the catch and the settling of a
+   * recovery `staggerRecovery` laid.
+   *
+   * @param context The action's context.
+   * @param recovery The recovery that catches the push.
+   * @param fixed The entry geometry the recovery was laid from.
+   * @returns The plan.
+   */
+  export function recovered(
+    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanStagger.IParams>,
+    recovery: staggerRecover.IRecovery,
+    fixed: staggerRecovery.Fixed,
+  ): IAutoMovieMotionHumanActionPlan {
     const body: IAutoMovieMotionHumanActionContext["body"] = context.body;
     const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
-    const righting: number =
-      AutoMovieMotionManner.of(context, p.manner).tempo *
-      AutoMovieMotionHumanTiming.seconds(RIGHTING);
 
-    // The push, read where its source is as the plan begins, the causal read
-    // a reaction makes (`ReactionSource`), and the recovery it asks for; a
-    // push no `STEPS` steps catch is a fall, refused with the fastest push
-    // this body catches that way.
-    const push: IAutoMovieVector3 = Vector3.normalize({
-      ...AutoMovieMotionHumanTarget.away(
-        ReactionSource.at(
-          context,
-          p.target,
-          context.start - StrikingTarget.LOOK,
-          entry,
-          AutoMovieMotionHumanTarget.DEFAULTS.ahead,
-        ),
-        entry.root,
-        entry.yaw,
-      ),
-      y: 0,
-    });
-
-    const fixed: ReturnType<typeof StaggerPendulum.prepare> =
-      StaggerPendulum.prepare(body, context.entry);
-    const recovery: staggerRecover.IRecovery | null = staggerRecover.recover(
-      body,
-      context.entry,
-      push,
-      p.speed,
-      righting,
-      true,
-      fixed,
-    );
-    if (recovery === null) {
-      const caught: number = staggerLimit.of(
-        body,
-        context.entry,
-        push,
-        p.speed,
-        fixed,
-      );
-      throw new HumanRefusal({
-        kind: "parameter",
-        axis: "speed",
-        value: p.speed,
-        feasible: { kind: "range", minimum: 0, maximum: caught, unit: "m/s" },
-        reason: `a ${p.speed} m/s push this way is a fall: no ${STEPS} recovery steps within a person's measured step times and lengths and the legs' ranges catch it; this body catches up to ${caught.toFixed(2)} m/s pushed this way, to a centimetre per second, every push over the ${VERIFIED} m/s below it verified at every ${RESOLUTION} m/s`,
-        fix: `push no harder than ${caught.toFixed(2)} m/s, or play the fall`,
-      });
-    }
     // The first step's landing, the instant the clock names the catch by.
     const swing: number = recovery.steps[0]!.land;
     const clock: IAutoMovieMotionClock = AutoMovieMotionClock.of(
@@ -261,7 +230,6 @@ export namespace stagger {
       ],
     );
     const duration: number = clock.duration;
-    const last: () => number = (): number => recovery.steps.at(-1)!.land;
     const feet: StaggerFeet = new StaggerFeet(
       body,
       context.entry,
@@ -298,6 +266,8 @@ export namespace stagger {
         ? { x: 0, y: 0, z: 0 }
         : Vector3.lerp(a, b, at - k);
     };
+    // The token the legs' writer knows its own plan's loans by.
+    const owner: object = {};
     const legs: IAutoMovieMotionHumanPrimitive = {
       channels: ["root", "trunk", "leftLeg", "rightLeg"],
       from: 0,
@@ -307,6 +277,8 @@ export namespace stagger {
         seconds: number,
         _before?: IAutoMovieMotionHumanPrimitive.Reader,
         resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
+        _projection?: Parameters<IAutoMovieMotionHumanPrimitive["write"]>[4],
+        evaluation?: Parameters<IAutoMovieMotionHumanPrimitive["write"]>[5],
       ): IAutoMovieMotionHumanPosture => {
         if (seconds <= 0) return entry;
         // The root carries the plan-time residual of the displayed centre of
@@ -318,9 +290,13 @@ export namespace stagger {
           shiftAt(seconds),
           reacting,
         );
+        const loan: IAutoMovieMotionHumanEvaluation.ILoan | undefined =
+          evaluation?.loan;
         const solved: ReturnType<StaggerFeet["solve"]> =
-          lent !== undefined && lent.seconds === seconds
-            ? lent.solved
+          loan instanceof StaggerLoan &&
+          loan.owner === owner &&
+          loan.seconds === seconds
+            ? loan.solved
             : feet.solve(seconds, resolution, shift);
         const settled: ReturnType<StaggerFeet["solve"]>["settled"] =
           solved.settled;
@@ -338,70 +314,14 @@ export namespace stagger {
     };
     // Both arms abduct from the entry's angles as balance reactions and come
     // down as the body settles, each let out further where it would pass
-    // into the body by its plan-time carriage (`carried`).
-    const held: Record<
-      "left" | "right",
-      IAutoMovieMotionHumanArmAngles.IAngles
-    > = {
-      left: AutoMovieMotionHumanArm.angles(context.entry.pose, "left"),
-      right: AutoMovieMotionHumanArm.angles(context.entry.pose, "right"),
-    };
-    const onset: number = AutoMovieMotionHumanTiming.seconds(ONSET);
-    const raised: (seconds: number) => number = (seconds: number): number => {
-      const end: number = last();
-      const rise: number = minimumJerk.share(
-        Math.min(1, Math.max(0, (seconds - onset) / (swing - onset))),
-      );
-      const fall: number = minimumJerk.share(
-        Math.min(1, Math.max(0, (seconds - end) / (duration - end))),
-      );
-      return ABDUCTION * Math.max(0, rise - fall);
-    };
-    const arms: IAutoMovieMotionHumanPrimitive = {
-      channels: ["leftArm", "rightArm"],
-      from: 0,
-      to: duration,
-      write: (
-        posture: IAutoMovieMotionHumanPosture,
-        seconds: number,
-      ): IAutoMovieMotionHumanPosture => {
-        const more: number = raised(seconds);
-
-        // The let-out's envelope between the two samples around this second.
-        const at: number = Math.min(
-          Math.max(0, seconds * KNOTS),
-          Math.max(0, carried.left.length - 1),
-        );
-        const k: number = Math.floor(at);
-        const out: (side: "left" | "right") => number = (
-          side: "left" | "right",
-        ): number => {
-          const series: number[] = carried[side];
-          if (series.length === 0) return 0;
-          const a: number = series[k]!;
-          const b: number = series[Math.min(series.length - 1, k + 1)]!;
-          return a + (b - a) * (at - k);
-        };
-        const abducted: (
-          side: "left" | "right",
-        ) => IAutoMovieMotionHumanArmAngles.IAngles = (
-          side: "left" | "right",
-        ): IAutoMovieMotionHumanArmAngles.IAngles => ({
-          ...held[side],
-          upper: [
-            held[side].upper[0],
-            held[side].upper[1] + more + out(side),
-            held[side].upper[2],
-          ],
-        });
-        return AutoMovieMotionHumanArm.carry(
-          body,
-          posture,
-          { left: abducted("left"), right: abducted("right") },
-          0,
-        );
-      },
-    };
+    // into the body by its plan-time carriage (`carried`, `staggerArms`).
+    const arms: IAutoMovieMotionHumanPrimitive = staggerArms(
+      body,
+      context.entry,
+      recovery,
+      duration,
+      (): Record<AutoMovieHumanSide, number[]> => carried,
+    );
     // Each arm's let-out from the body (`HumanArmSwing.carriage`, the gait's
     // own clearance), read once at plan time at `KNOTS` a second against the
     // plan's own posture there (its dropped pelvis and swinging thighs), each
@@ -409,9 +329,8 @@ export namespace stagger {
     // let-out holds at both samples around every second; no pose query fits
     // an arm.
     const KNOTS: number = staggerBounds.KNOTS;
-    let carried: Record<"left" | "right", number[]> = { left: [], right: [] };
+    let carried: Record<AutoMovieHumanSide, number[]> = { left: [], right: [] };
     let balanced: IAutoMovieVector3[] = [];
-    let lent: ILoan | undefined;
     const composed: IAutoMovieMotionHumanActionPlan =
       composeAutoMovieMotionHumanAction({
         base: {
@@ -440,33 +359,42 @@ export namespace stagger {
       (seconds: number): ReturnType<StaggerFeet["solve"]> =>
         feet.solve(seconds),
     );
-    const lend: <T>(i: number, read: () => T) => T = <T>(
+    const lend: <T>(
       i: number,
-      read: () => T,
-    ): T => {
-      lent =
+      read: (evaluation: IAutoMovieMotionHumanEvaluation | undefined) => T,
+    ) => T = <T>(
+      i: number,
+      read: (evaluation: IAutoMovieMotionHumanEvaluation | undefined) => T,
+    ): T =>
+      read(
         balanced.length === 0
-          ? { seconds: samples[i]!, solved: unshifted[i]! }
-          : undefined;
-      try {
-        return read();
-      } finally {
-        lent = undefined;
-      }
-    };
+          ? { loan: new StaggerLoan(owner, samples[i]!, unshifted[i]!) }
+          : undefined,
+      );
     const resolved: staggerResolved.IReader = staggerResolved(body);
-    const needs: Record<"left" | "right", number>[] = samples.map(
-      (seconds: number, i: number): Record<"left" | "right", number> =>
+    const needs: Record<AutoMovieHumanSide, number>[] = samples.map(
+      (seconds: number, i: number): Record<AutoMovieHumanSide, number> =>
         lend(
           i,
-          (): Record<"left" | "right", number> =>
-            resolved.carriage(i, composed.posture(seconds)),
+          (
+            evaluation: IAutoMovieMotionHumanEvaluation | undefined,
+          ): Record<AutoMovieHumanSide, number> =>
+            resolved.carriage(
+              i,
+              composed.posture(
+                seconds,
+                undefined,
+                undefined,
+                undefined,
+                evaluation,
+              ),
+            ),
         ),
     );
-    const envelope: (side: "left" | "right") => number[] = (
-      side: "left" | "right",
+    const envelope: (side: AutoMovieHumanSide) => number[] = (
+      side: AutoMovieHumanSide,
     ): number[] =>
-      needs.map((_: Record<"left" | "right", number>, i: number): number =>
+      needs.map((_: Record<AutoMovieHumanSide, number>, i: number): number =>
         Math.max(
           needs[Math.max(0, i - 1)]![side],
           needs[i]![side],
@@ -488,8 +416,19 @@ export namespace stagger {
       samples.map((seconds: number, i: number): IAutoMovieVector3 => {
         const shown: IAutoMovieVector3 = lend(
           i,
-          (): IAutoMovieVector3 =>
-            resolved.centre(i, composed.posture(seconds)),
+          (
+            evaluation: IAutoMovieMotionHumanEvaluation | undefined,
+          ): IAutoMovieVector3 =>
+            resolved.centre(
+              i,
+              composed.posture(
+                seconds,
+                undefined,
+                undefined,
+                undefined,
+                evaluation,
+              ),
+            ),
         );
         const travel: IAutoMovieVector3 = recovery.course(seconds);
         return {
@@ -528,7 +467,7 @@ export namespace stagger {
           undefined,
           wanted,
         );
-      landing.set(step, resolveHumanPosture.reference(solved.pose, key));
+      landing.set(step, HumanLimbFit.reference(solved.pose, key));
     }
     const contacts: IAutoMovieMotionHumanContactWindow[] = staggerContacts(
       recovery,

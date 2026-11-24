@@ -64,11 +64,6 @@ interface IArm {
  * span must also fit within the two digit chains and their knuckle spacing. The
  * first pitched contact is decisive. Each crossing event names the actual
  * string in either direction.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Gives the contacts, decisive instant, source, scope and admission rule.
- * @evidence contracts/development/design.md#principled-representation A single sweep traverses two actual guitar strings while two articulated fretting digits hold their own contacts.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The law owns this stroke and uses the shared note geometry and arm and digit primitives.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The sweep and fret targets derive from rigid affordances in the staged guitar frame.
  */
 export const guitarChord: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanGuitarChord> =
   { name: "guitarChord", interrupts: {}, plan };
@@ -81,6 +76,7 @@ export const guitarChord: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanGu
  * @returns The carried base, named crossings and three digit goals.
  * @throws {HumanRefusal} For invalid clocks, instruments, occupied hands or
  *   unreachable wrist paths.
+ * @evidence contracts/development/common.md#meaningful-documentation Gives the contacts, decisive instant, source, scope and admission rule.
  */
 function plan(context: Context): IAutoMovieMotionHumanActionPlan {
   const {

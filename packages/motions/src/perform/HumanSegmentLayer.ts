@@ -15,6 +15,9 @@ import { prepareHumanPostureProjection } from "../posture/prepareHumanPosturePro
 import { HumanSkill } from "../skill/HumanSkill";
 import { HumanSegmentSelection } from "./HumanSegmentSelection";
 
+/** The alternatives of `ApplyPhase`'s site. */
+type ApplyPhase = "display" | "entry";
+
 /** The ordered additive layers of one person's posture at a film second. */
 export namespace HumanSegmentLayer {
   /**
@@ -41,7 +44,7 @@ export namespace HumanSegmentLayer {
     resolution?: Resolution,
     projection?: Projection,
     assembly?: HumanAirborneShape.Assembly,
-    phase: "display" | "entry" = "display",
+    phase: ApplyPhase = "display",
   ): IAutoMovieMotionHumanPosture {
     if (person.layers.length === 0) return posture;
 
@@ -139,15 +142,17 @@ type Resolution = NonNullable<
 
 /** A genuine direct-joint projector borrowed within this layer application. */
 type Projection = ReturnType<typeof prepareHumanPostureProjection>;
+/** The record of `IBorrowProjectionResult`'s site. */
+type IBorrowProjectionResult = {
+  read: NonNullable<IAutoMovieMotionHumanLayer.IContext["projection"]>;
+  release: () => void;
+};
 
 /** A retained getter cannot retain the parent operation's ROM preparation. */
 function borrowProjection(
   body: IAutoMovieMotionHumanBody,
   source: Projection | undefined,
-): {
-  read: NonNullable<IAutoMovieMotionHumanLayer.IContext["projection"]>;
-  release: () => void;
-} {
+): IBorrowProjectionResult {
   let borrowed: Projection | undefined = source;
   source = undefined;
   return {
@@ -157,12 +162,16 @@ function borrowProjection(
     },
   };
 }
-
-/** Revoke a synchronous loan even if a layer retains its context or getter. */
-function borrowResolution(source: Resolution | undefined): {
+/** The record of `IBorrowResolutionResult`'s site. */
+type IBorrowResolutionResult = {
   read: Resolution;
   release: () => void;
-} {
+};
+
+/** Revoke a synchronous loan even if a layer retains its context or getter. */
+function borrowResolution(
+  source: Resolution | undefined,
+): IBorrowResolutionResult {
   let borrowed: Resolution | undefined = source;
   source = undefined;
   return {

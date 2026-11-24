@@ -10,6 +10,9 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+/** The alternatives of `OfHitStill`'s site. */
+type OfHitStill = "restitution" | "hardness" | "penetrability";
+
 /**
  * Forces on a performer as input to a performance: an impulse at an instant (a
  * blow, a shove, a hit) or a force sustained over a span (a load, a pull, a
@@ -63,10 +66,11 @@ export namespace HumanForce {
         Vector3.scale(Vector3.subtract(hit.velocity, hit.exit), hit.mass),
       );
     if (hit.normal === undefined) return null;
-    const still: Pick<
-      IAutoMovieImpactBodyState,
-      "restitution" | "hardness" | "penetrability"
-    > = { restitution: 0, hardness: 0, penetrability: 0 };
+    const still: Pick<IAutoMovieImpactBodyState, OfHitStill> = {
+      restitution: 0,
+      hardness: 0,
+      penetrability: 0,
+    };
     const response: IAutoMovieImpact = resolveImpact(
       { mass: receiver.mass, velocity: receiver.velocity, ...still },
       { mass: hit.mass, velocity: hit.velocity, ...still },

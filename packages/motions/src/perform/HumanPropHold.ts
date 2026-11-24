@@ -4,6 +4,7 @@ import {
   resolveAutoMovieHumanoidSurfaces,
 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBody,
   IAutoMovieQuaternion,
@@ -11,6 +12,9 @@ import type {
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
+
+/** The record of `IFrameGrip`'s site. */
+type IFrameGrip = { side: AutoMovieHumanSide; bone?: AutoMovieHumanoidBone };
 
 /**
  * Where a held prop is: the frame a hand holds it in, and a prop held in both
@@ -139,7 +143,7 @@ export namespace HumanPropHold {
   export function frame(
     body: IAutoMovieMotionHumanBody,
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
-    grip: { side: "left" | "right"; bone?: AutoMovieHumanoidBone },
+    grip: IFrameGrip,
   ): IAutoMovieRigidTransform {
     if (grip.bone !== undefined) {
       const bone: IAutoMovieResolvedBone = bones.get(grip.bone)!;

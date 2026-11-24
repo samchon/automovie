@@ -3,6 +3,7 @@ import {
   preparePoseResolution,
 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   IAutoMovieMotionHumanArmClearance,
   IAutoMovieMotionHumanArmGeometry,
   IAutoMovieMotionHumanBody,
@@ -16,6 +17,56 @@ import { HumanArmShapes as S } from "./HumanArmShapes";
 import type { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
 import { HumanArmTrajectoryTerms as T } from "./HumanArmTrajectoryTerms";
 import { HumanArmTrajectoryWaypoint as W } from "./HumanArmTrajectoryWaypoint";
+
+/** The alternatives of `BuiltInsideOwn`'s site. */
+type BuiltInsideOwn = "upperArm" | "lowerArm" | "hand";
+
+/** The alternatives of `BuiltLyingOwn`'s site. */
+type BuiltLyingOwn = "upperArm" | "lowerArm" | "hand";
+
+/** The record of `IProblemArmsItem`'s site. */
+type IProblemArmsItem = {
+  /** The arm. */
+  side: AutoMovieHumanSide;
+
+  /**
+   * The arm at the first waypoint, and the arm the allowances are read from
+   * at every waypoint but a fixed last one.
+   */
+  rest: IAutoMovieMotionHumanArmClearance.IArm;
+
+  /**
+   * The arm at the last waypoint, which the allowances there are read from
+   * when the waypoint is fixed; `rest` when absent.
+   */
+  back?: IAutoMovieMotionHumanArmClearance.IArm;
+
+  /** Its site at each waypoint, on the hold. */
+  sites: readonly (M.ISite | undefined)[];
+
+  /** Its segments' declared rests over the hold. */
+  rests?: readonly M.IRest[];
+
+  /**
+   * Its segments that grasp one object with the other arm over the action
+   * (`HumanArmTrajectoryModel.IContext.grasped`); none when absent.
+   */
+  grasp?: readonly M.Segment[];
+
+  /**
+   * The arm the goal's own solution gives at the hold's start, whose
+   * grasping pairs' depth the closing and the parting keep
+   * (`HumanArmTrajectoryModel.IContext.grasped`); none when absent.
+   */
+  guess?: IAutoMovieMotionHumanArmClearance.IArm;
+
+  /**
+   * The arm a still configuration is drawn to, its distance from it the
+   * objective's (`HumanArmTrajectoryModel.IContext.anchor`); none when
+   * absent.
+   */
+  anchor?: IAutoMovieMotionHumanArmClearance.IArm;
+};
 
 /**
  * What an arms' trajectory reads, built once per problem
@@ -43,48 +94,7 @@ export namespace HumanArmTrajectoryContext {
     material?: M.IMaterialSource;
 
     /** The arms. */
-    arms: readonly {
-      /** The arm. */
-      side: "left" | "right";
-
-      /**
-       * The arm at the first waypoint, and the arm the allowances are read from
-       * at every waypoint but a fixed last one.
-       */
-      rest: IAutoMovieMotionHumanArmClearance.IArm;
-
-      /**
-       * The arm at the last waypoint, which the allowances there are read from
-       * when the waypoint is fixed; `rest` when absent.
-       */
-      back?: IAutoMovieMotionHumanArmClearance.IArm;
-
-      /** Its site at each waypoint, on the hold. */
-      sites: readonly (M.ISite | undefined)[];
-
-      /** Its segments' declared rests over the hold. */
-      rests?: readonly M.IRest[];
-
-      /**
-       * Its segments that grasp one object with the other arm over the action
-       * (`HumanArmTrajectoryModel.IContext.grasped`); none when absent.
-       */
-      grasp?: readonly M.Segment[];
-
-      /**
-       * The arm the goal's own solution gives at the hold's start, whose
-       * grasping pairs' depth the closing and the parting keep
-       * (`HumanArmTrajectoryModel.IContext.grasped`); none when absent.
-       */
-      guess?: IAutoMovieMotionHumanArmClearance.IArm;
-
-      /**
-       * The arm a still configuration is drawn to, its distance from it the
-       * objective's (`HumanArmTrajectoryModel.IContext.anchor`); none when
-       * absent.
-       */
-      anchor?: IAutoMovieMotionHumanArmClearance.IArm;
-    }[];
+    arms: readonly IProblemArmsItem[];
 
     /**
      * Whether the problem is a still configuration
@@ -125,11 +135,11 @@ export namespace HumanArmTrajectoryContext {
    */
   export function prepare(
     body: IAutoMovieMotionHumanBody,
-    sides: readonly ("left" | "right")[],
+    sides: readonly AutoMovieHumanSide[],
   ): (problem: IProblem, previous?: M.IContext) => M.IContext {
-    const names: readonly ("left" | "right")[] = [...sides];
+    const names: readonly AutoMovieHumanSide[] = [...sides];
     const setups: IAutoMovieMotionHumanArmGeometry.ISetup[] = names.map(
-      (side: "left" | "right"): IAutoMovieMotionHumanArmGeometry.ISetup =>
+      (side: AutoMovieHumanSide): IAutoMovieMotionHumanArmGeometry.ISetup =>
         G.prepare(body, side),
     );
     return (problem: IProblem, previous?: M.IContext): M.IContext =>
@@ -139,7 +149,7 @@ export namespace HumanArmTrajectoryContext {
         problem.body === body &&
           problem.arms.length === names.length &&
           names.every(
-            (side: "left" | "right", index: number): boolean =>
+            (side: AutoMovieHumanSide, index: number): boolean =>
               problem.arms[index]!.side === side,
           )
           ? setups
@@ -416,7 +426,7 @@ export namespace HumanArmTrajectoryContext {
     const lying: M.IContext["lying"] = (
       a: number,
       k: number,
-      own: "upperArm" | "lowerArm" | "hand",
+      own: BuiltLyingOwn,
       bone: string,
     ): boolean =>
       sites[a]![k] !== undefined &&
@@ -464,7 +474,7 @@ export namespace HumanArmTrajectoryContext {
           point.frames[a]!.body[corner]!;
         const col: IAutoMovieMotionHumanArmGeometry.IFrame["colliders"][number] =
           collider(a, k, shape);
-        const own: "upperArm" | "lowerArm" | "hand" =
+        const own: BuiltInsideOwn =
           col.owner === "upper"
             ? "upperArm"
             : col.owner === "lower"
@@ -684,6 +694,14 @@ export namespace HumanArmTrajectoryContext {
  * built from it, kept while a context that reads them is held.
  */
 const STORES: WeakMap<M.IContext, Map<number, W.IWaypoint>> = new WeakMap();
+/** The record of `IBoxesR`'s site. */
+type IBoxesR = { min: number; max: number };
+
+/** The alternatives of `BoxesKey`'s site. */
+type BoxesKey = "flexion" | "abduction" | "twist";
+
+/** The record of `IBoxesTwist`'s site. */
+type IBoxesTwist = { min: number; max: number };
 
 /**
  * Each coordinate's hard bounds, every QP's box constraints as in TrajOpt: the
@@ -700,20 +718,18 @@ function boxes(
   back: readonly number[],
 ): ([number, number] | null)[] {
   const out: ([number, number] | null)[] = new Array(G.DIMENSIONS).fill(null);
-  const twist: { min: number; max: number } =
-    setup.constraint.upper.swingTwist!.twist;
+  const twist: IBoxesTwist = setup.constraint.upper.swingTwist!.twist;
   out[2] = [
     Math.min(twist.min, rest[2]!, back[2]!),
     Math.max(twist.max, rest[2]!, back[2]!),
   ];
   (["flexion", "abduction", "twist"] as const).forEach(
-    (key: "flexion" | "abduction" | "twist", i: number): void => {
+    (key: BoxesKey, i: number): void => {
       for (const [constraint, o] of [
         [setup.constraint.lower, 3],
         [setup.constraint.hand, 6],
       ] as const) {
-        const r: { min: number; max: number } | null | undefined =
-          constraint?.[key];
+        const r: IBoxesR | null | undefined = constraint?.[key];
         if (r !== null && r !== undefined) out[o + i] = [r.min, r.max];
       }
     },

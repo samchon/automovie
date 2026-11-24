@@ -25,6 +25,9 @@ import { HumanColliders } from "../posture/HumanColliders";
 import { humanLimbReads } from "../posture/humanLimbReads";
 import { humanSettledJoints } from "../posture/humanSettledJoints";
 
+/** The alternatives of `CreateHumanBody`'s site. */
+type CreateHumanBody = "measure" | "surfaces";
+
 /**
  * Derive a performer's body from a canonical rig and profile.
  *
@@ -56,7 +59,7 @@ export function createHumanBody(
   const {
     measure,
     surfaces,
-  }: Pick<IAutoMovieMotionHumanBody, "measure" | "surfaces"> =
+  }: Pick<IAutoMovieMotionHumanBody, CreateHumanBody> =
     measureAutoMovieHumanoidBody.withSurfaces(skeleton, profile);
   const topology: IAutoMovieMotionHumanBody["topology"] =
     indexSkeletonTopology(skeleton);

@@ -301,15 +301,8 @@ export namespace HumanCarried {
    * other side on `with`, and a borne mass no lean of a carrier balances on
    * `mass` with the feasible mass.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States what is kept, who does what, the phases and both refusals.
-   * @evidence contracts/development/implementation.md#principled-implementation The coupling is read from the meeting, computed once whichever role plans first; at each second the carrier's displayed bones are read and the carry's key posture rides the carrier's displayed bone its resting region lies on, at the coupling's key offset (`HumanCarriedCouplingPose.posture`). A meeting that is not solid falls back to the single-region placement on the carrier's region, found by one forward kinematics of the trunk.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The row, the coupling, the windows, then one posture function.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The posture is rigid in the carry (no sag, no sway) and its angles are provisional; with no carrier the posture is taken in place and declares no support.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One key resolution, one read of the carrier's bones and one frame composition per posture.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Planned once per instance; nothing is shared between instances.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over its constants and the entry state, released with the plan.
-   *
-   * It lasts 2 s when `seconds` is absent, the lift and set-down inside it (`HumanCarriedBorne`, provisional).
+   * It lasts 2 s when `seconds` is absent, the lift and set-down inside it
+   * (`HumanCarriedBorne`, provisional).
    */
   export const borne: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanCarried.IBorne> =
     {
@@ -335,15 +328,8 @@ export namespace HumanCarried {
    * composition schedules that tip as a layer (`HumanCarriedLean.coupled`), and
    * with no person named the table's lean (`HumanCarriedLean.layer`).
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the hands do, how it is composed and what is missing.
-   * @evidence contracts/development/implementation.md#principled-implementation With the carried person named (`of`), each holding wrist goes where the coupled carry lays the held region, in the frame of the carrier's own displayed bone the borne body rides (`HumanCarriedCouplingPose.holds`); otherwise to a place measured from one of the carrier's own regions on the trunk the carrier's action has placed, in arm lengths. A named person's pair tips the carrier about its feet by its static balance. Either way the hold follows the walk, and the arm is carried in joint space from what it held (`AutoMovieMotionHumanArm.carried`).
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One arm primitive per holding hand over the inherited base.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The hands do not read the carried body, which reads the carrier, so the two cannot chase each other; the holds' places are provisional.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One trunk resolution per holding arm per posture.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Planned once per instance; nothing is shared between instances.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over its constants and the entry state, released with the plan.
-   *
-   * It lasts 2 s when `seconds` is absent; the carrier's hands take their hold in 0.4 s (`HumanCarried.TAKE`, provisional).
+   * It lasts 2 s when `seconds` is absent; the carrier's hands take their hold
+   * in 0.4 s (`HumanCarried.TAKE`, provisional).
    */
   export const bearing: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanCarried.IBearing> =
     {

@@ -28,6 +28,7 @@ import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
+import { HumanLimbFit } from "../posture/HumanLimbFit";
 import { blendHumanJoint } from "../posture/blendHumanJoint";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
@@ -38,6 +39,12 @@ import { HumanHandoverMeeting } from "./HumanHandoverMeeting";
 import { HumanHandoverUpright } from "./HumanHandoverUpright";
 import { HumanPrehension } from "./HumanPrehension";
 import { handshake } from "./handshake";
+
+/** The record of `IPlanLean`'s site. */
+type IPlanLean = {
+  share: number;
+  joints: IAutoMovieMotionHumanSeatedReach.IJoint[];
+};
 
 /**
  * Handing a held prop to a receiver: the giver's half of a handover.
@@ -177,10 +184,7 @@ export namespace handOver {
     const shoulder: IAutoMovieVector3 = entered.get(
       `${side}UpperArm`,
     )!.worldPosition;
-    const lean: {
-      share: number;
-      joints: IAutoMovieMotionHumanSeatedReach.IJoint[];
-    } = HumanSeatedReach.need(
+    const lean: IPlanLean = HumanSeatedReach.need(
       {
         name: HumanHandoverMeeting.GIVER,
         subject: context.subject,
@@ -250,11 +254,11 @@ export namespace handOver {
     // solved once on its own. The offer at a small giver's shoulder height
     // needs another elbow than the carry, so a reference of the carry alone
     // left the wrist to make up the forearm's pitch and tilted the prop.
-    const carried: IAutoMovieHumanLimbReference = resolveHumanPosture.reference(
+    const carried: IAutoMovieHumanLimbReference = HumanLimbFit.reference(
       context.entry.pose,
       limb,
     );
-    const offered: IAutoMovieHumanLimbReference = resolveHumanPosture.reference(
+    const offered: IAutoMovieHumanLimbReference = HumanLimbFit.reference(
       resolveHumanPosture(body, {
         ...leaned(1),
         limbs: {

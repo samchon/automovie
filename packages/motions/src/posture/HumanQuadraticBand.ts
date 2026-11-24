@@ -8,6 +8,62 @@ import { HumanQuadraticRow } from "./HumanQuadraticRow";
 import { HumanQuadraticSubstitute } from "./HumanQuadraticSubstitute";
 import { HumanQuadraticWorkspace as Work } from "./HumanQuadraticWorkspace";
 
+/** The record of `IPolishResult`'s site. */
+type IPolishResult = {
+  x: Float64Array;
+  z: Float64Array;
+  y: Float64Array;
+  products: Pick<Work.IWork, PolishProductsResult>;
+};
+
+/** The alternatives of `PolishProductsResult`'s site. */
+type PolishProductsResult = "rows" | "transpose" | "productFiniteX";
+
+/** The alternatives of `ResidualsKnown`'s site. */
+type ResidualsKnown = "rows" | "transpose" | "productFiniteX";
+
+/** The alternatives of `ScaledRestoredEntry`'s site. */
+type ScaledRestoredEntry = "index" | "coef";
+
+/** The alternatives of `ScaledRawItem`'s site. */
+type ScaledRawItem = "index" | "coef";
+
+/** The record of `IScaledTranspose`'s site. */
+type IScaledTranspose = {
+  /** N+1 column offsets into the parallel source row and entry buffers. */
+  start: Int32Array;
+
+  /**
+   * Original row index of each contribution, in original order within its
+   * column.
+   */
+  rows: Int32Array;
+
+  /** Original CSR entry position supplying the current scaled coefficient. */
+  entries: Int32Array;
+};
+
+/** The record of `IScaledFactorOrder`'s site. */
+type IScaledFactorOrder = {
+  /**
+   * Prefix positions of each row's factor-only order; ordered rows own
+   * empty spans.
+   */
+  start: Int32Array;
+
+  /** Original CSR entry positions sorted by column then original position. */
+  entries: Int32Array;
+};
+
+/** The record of `IScaledPPattern`'s site. */
+type IScaledPPattern = {
+  /** Exact numeric prefix positions of n curvature rows, with a final end. */
+  start: Float64Array;
+
+  /** Increasing relative column offsets within each original curvature row. */
+  offsets: Float64Array;
+};
+
 /**
  * The linear algebra of `HumanQuadraticProgram`'s OSQP solve on a banded
  * problem: the banded reduced KKT system and its Cholesky factor, the unscaled
@@ -49,13 +105,7 @@ export namespace HumanQuadraticBand {
      * uses the full band. Originally nonzero off-diagonal entries remain listed
      * after underflow.
      */
-    pPattern?: {
-      /** Exact numeric prefix positions of n curvature rows, with a final end. */
-      start: Float64Array;
-
-      /** Increasing relative column offsets within each original curvature row. */
-      offsets: Float64Array;
-    };
+    pPattern?: IScaledPPattern;
 
     /** The scaled linear term. */
     q: Float64Array;
@@ -97,34 +147,13 @@ export namespace HumanQuadraticBand {
      * Stable factor-only CSR positions for unordered rows; original row
      * products keep their original order.
      */
-    factorOrder?: {
-      /**
-       * Prefix positions of each row's factor-only order; ordered rows own
-       * empty spans.
-       */
-      start: Int32Array;
-
-      /** Original CSR entry positions sorted by column then original position. */
-      entries: Int32Array;
-    };
+    factorOrder?: IScaledFactorOrder;
 
     /**
      * Column gathers preserving the original CSR contribution sequence for each
      * variable.
      */
-    transpose: {
-      /** N+1 column offsets into the parallel source row and entry buffers. */
-      start: Int32Array;
-
-      /**
-       * Original row index of each contribution, in original order within its
-       * column.
-       */
-      rows: Int32Array;
-
-      /** Original CSR entry position supplying the current scaled coefficient. */
-      entries: Int32Array;
-    };
+    transpose: IScaledTranspose;
 
     /**
      * Original index/coef layout for exceptional zero restoration; one-shot
@@ -132,7 +161,7 @@ export namespace HumanQuadraticBand {
      * Absence means CSR already preserves that entire original row.
      */
     raw: readonly (
-      | Pick<IAutoMovieMotionHumanQuadraticProgram.IRow, "index" | "coef">
+      | Pick<IAutoMovieMotionHumanQuadraticProgram.IRow, ScaledRawItem>
       | undefined
     )[];
 
@@ -143,7 +172,7 @@ export namespace HumanQuadraticBand {
      */
     restored?: Map<
       number,
-      Pick<IAutoMovieMotionHumanQuadraticProgram.IRow, "index" | "coef">
+      Pick<IAutoMovieMotionHumanQuadraticProgram.IRow, ScaledRestoredEntry>
     >;
 
     /** Each row's scaled lower end. */
@@ -292,16 +321,18 @@ export namespace HumanQuadraticBand {
     z: Float64Array,
     y: Float64Array,
     work: Work.IWork,
-    known?: Pick<Work.IWork, "rows" | "transpose" | "productFiniteX">,
+    known?: Pick<Work.IWork, ResidualsKnown>,
   ): IResiduals {
     return HumanQuadraticResiduals(s, x, z, y, work, known);
   }
 
   /**
    * Whether the multipliers' last change certifies the hard rows primal
-   * infeasible (section 3.4): `δy` with `‖Aᵀδy‖∞ <= ε ‖δy‖∞` and `uᵀ max(δy, 0)
-   * + lᵀ min(δy, 0) < -ε ‖δy‖∞`, read unscaled. A soft row is never infeasible,
-   * so it is left out.
+   * infeasible (section 3.4): `δy` with `‖Aᵀδy‖∞ <= ε ‖δy‖∞` and `uᵀ max(δy,
+   * 0)
+   *
+   * - Lᵀ min(δy, 0) < -ε ‖δy‖∞`, read unscaled. A soft row is never infeasible,
+   *   so it is left out.
    *
    * @param s The scaled problem.
    * @param y The scaled multipliers.
@@ -391,12 +422,7 @@ export namespace HumanQuadraticBand {
     delta: number,
     refine: number,
     work: Work.IWork,
-  ): {
-    x: Float64Array;
-    z: Float64Array;
-    y: Float64Array;
-    products: Pick<Work.IWork, "rows" | "transpose" | "productFiniteX">;
-  } {
+  ): IPolishResult {
     return HumanQuadraticPolish(s, z, y, delta, refine, work);
   }
 }

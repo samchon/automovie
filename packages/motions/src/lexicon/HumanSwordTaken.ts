@@ -38,14 +38,6 @@ export namespace HumanSwordTaken {
    * Taken: the stopped blade kept on the parry that took it while it is carried
    * aside, then held there until `until` ends. A parry that wields no blade is
    * refused on `against`; an action that ends before this starts on `until`.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the hand follows, the duration and the refusals.
-   * @evidence contracts/development/implementation.md#principled-implementation The hand is the entry hold translated by the parrying blade's displayed translation since this action's start, read no later than the parry's relax, so the blades that met stay together while the parry carries them; the arm keeps the entry's reference.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The parry and the end it holds to, the translation, then the shared stroke planner holding the entry hold.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No constant: the translation is read off the parrying blade and the duration off the named action.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One read of the parrying blade per second up to the parry's relax, then the translation kept there, read once.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Planned once per instance; nothing is shared between instances.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan keeps the parrying blade's frame at its start and at the parry's relax, dropped on settle and released with the plan.
    */
   export const taken: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanSwordParry.ITaken> =
     {

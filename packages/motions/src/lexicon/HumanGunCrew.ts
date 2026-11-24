@@ -10,6 +10,9 @@ import type {
 import { HumanChain } from "../HumanChain";
 import { HumanGunDrill } from "./HumanGunDrill";
 
+/** The alternatives of `StageCue`'s site. */
+type StageCue = "of" | "event";
+
 /**
  * One field gun's crew serving one load and fire: the duties of the National
  * Park Service's drill for the 12-pounder Napoleon, each role's rows
@@ -60,7 +63,7 @@ export namespace HumanGunCrew {
    *   an empty parallel composition.
    */
   export function stage(
-    cue: Required<Pick<IAutoMovieMotionHumanChainCore.ISync, "of" | "event">> &
+    cue: Required<Pick<IAutoMovieMotionHumanChainCore.ISync, StageCue>> &
       Pick<IAutoMovieMotionHumanChainCore.ISync, "index">,
     stations: readonly IStageStation[],
   ): IAutoMovieComposition {

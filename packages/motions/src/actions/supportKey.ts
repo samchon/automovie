@@ -39,6 +39,17 @@ type ContactPoint = IAutoMovieVector3 | null;
 
 /** An imported rig can omit a heel socket. */
 type HeelFrame = IAutoMovieHumanoidSurfaces.IFrame | undefined;
+/** The record of `IAnchorsItemResult`'s site. */
+type IAnchorsItemResult = {
+  contact: IAutoMovieMotionHumanSupport.IContact;
+  at: IAutoMovieVector3;
+};
+
+/** The record of `IPreferredAnchorsItem`'s site. */
+type IPreferredAnchorsItem = {
+  contact: IAutoMovieMotionHumanSupport.IContact;
+  at: IAutoMovieVector3;
+};
 
 /**
  * A support planner's key postures (`support`): one solved on a stance's
@@ -404,16 +415,8 @@ export namespace supportKey {
     ) => IAutoMovieVector3 | null = (): null => null,
   ): IAutoMovieMotionHumanPosture {
     if (stance.prefer === undefined) return base;
-    const anchors: {
-      contact: IAutoMovieMotionHumanSupport.IContact;
-      at: IAutoMovieVector3;
-    }[] = stance.contacts.flatMap(
-      (
-        c: IAutoMovieMotionHumanSupport.IContact,
-      ): {
-        contact: IAutoMovieMotionHumanSupport.IContact;
-        at: IAutoMovieVector3;
-      }[] => {
+    const anchors: IPreferredAnchorsItem[] = stance.contacts.flatMap(
+      (c: IAutoMovieMotionHumanSupport.IContact): IAnchorsItemResult[] => {
         const at: IAutoMovieVector3 | null = place(c);
         return at === null ? [] : [{ contact: c, at }];
       },

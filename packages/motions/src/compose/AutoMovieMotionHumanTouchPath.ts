@@ -8,6 +8,18 @@ import type {
 
 import { HumanFrame } from "../posture/HumanFrame";
 
+/** The alternatives of `ReachElbow`'s site. */
+type ReachElbow = "natural" | "level";
+
+/** The alternatives of `ReachPosture`'s site. */
+type ReachPosture = "root" | "yaw";
+
+/** The alternatives of `LayElbow`'s site. */
+type LayElbow = "natural" | "level";
+
+/** The alternatives of `LayPosture`'s site. */
+type LayPosture = "root" | "yaw";
+
 /**
  * The direction a hand lies on a surface region when the arm chooses it
  * (`lay`), and the direction a hand that continues its forearm points at a
@@ -37,12 +49,12 @@ export namespace AutoMovieMotionHumanTouchPath {
    */
   export function lay(
     body: IAutoMovieMotionHumanBody,
-    posture: Pick<IAutoMovieMotionHumanPosture, "root" | "yaw">,
+    posture: Pick<IAutoMovieMotionHumanPosture, LayPosture>,
     side: AutoMovieHumanSide,
     point: IAutoMovieVector3,
     normal: IAutoMovieVector3,
     fallback: IAutoMovieVector3,
-    elbow: "natural" | "level" = "natural",
+    elbow: LayElbow = "natural",
   ): IAutoMovieVector3 {
     const way: IAutoMovieVector3 = Vector3.subtract(
       point,
@@ -75,10 +87,10 @@ export namespace AutoMovieMotionHumanTouchPath {
    */
   export function reach(
     body: IAutoMovieMotionHumanBody,
-    posture: Pick<IAutoMovieMotionHumanPosture, "root" | "yaw">,
+    posture: Pick<IAutoMovieMotionHumanPosture, ReachPosture>,
     side: AutoMovieHumanSide,
     point: IAutoMovieVector3,
-    elbow: "natural" | "level" = "natural",
+    elbow: ReachElbow = "natural",
     from?: IAutoMovieVector3,
   ): IAutoMovieVector3 {
     const way: IAutoMovieVector3 = Vector3.subtract(
@@ -90,6 +102,11 @@ export namespace AutoMovieMotionHumanTouchPath {
       : { x: 0, y: 1, z: 0 };
   }
 }
+/** The alternatives of `ElbowOfElbow`'s site. */
+type ElbowOfElbow = "natural" | "level";
+
+/** The alternatives of `ElbowOfPosture`'s site. */
+type ElbowOfPosture = "root" | "yaw";
 
 /**
  * Where the elbow is read for a hand's lay: hanging under the shoulder, or out
@@ -97,9 +114,9 @@ export namespace AutoMovieMotionHumanTouchPath {
  */
 function elbowOf(
   body: IAutoMovieMotionHumanBody,
-  posture: Pick<IAutoMovieMotionHumanPosture, "root" | "yaw">,
+  posture: Pick<IAutoMovieMotionHumanPosture, ElbowOfPosture>,
   side: AutoMovieHumanSide,
-  elbow: "natural" | "level",
+  elbow: ElbowOfElbow,
 ): IAutoMovieVector3 {
   const outward: number = side === "left" ? 1 : -1;
   return HumanFrame.point(

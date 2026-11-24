@@ -11,6 +11,12 @@ import type {
 import { AutoMovieMotionHumanHeld } from "../compose/AutoMovieMotionHumanHeld";
 import { HumanRefusal } from "../law/HumanRefusal";
 
+/** The record of `IReadEdged`'s site. */
+type IReadEdged = { point: IAutoMovieVector3; direction: IAutoMovieVector3 };
+
+/** The record of `IReadTip`'s site. */
+type IReadTip = { point: IAutoMovieVector3; direction: IAutoMovieVector3 };
+
 /**
  * The working points and axes read from a held prop's rigid frame. A two-point
  * working line is distinct from a surface normal, and the point's own frame
@@ -38,8 +44,7 @@ export namespace StrikingHeldFrame {
   ): IAutoMovieMotionHumanStrikingHeld.ITool {
     const prop: string = held.prop;
     const side: AutoMovieHumanSide = held.side;
-    const tip: { point: IAutoMovieVector3; direction: IAutoMovieVector3 } =
-      AutoMovieMotionHumanHeld.point(held, points.tip);
+    const tip: IReadTip = AutoMovieMotionHumanHeld.point(held, points.tip);
     // An explicit origin defines the working line separately from the
     // point's normal. Without one, a working
     // affordance whose +Y the archetype declares along the tool (a muzzle, a
@@ -77,9 +82,7 @@ export namespace StrikingHeldFrame {
       Quaternion.rotateVector(pointFrame, { x: 0, y: 0, z: 1 }),
       Quaternion.rotateVector(pointFrame, { x: 1, y: 0, z: 0 }),
     ];
-    const edged:
-      | { point: IAutoMovieVector3; direction: IAutoMovieVector3 }
-      | undefined =
+    const edged: IReadEdged | undefined =
       points.edge !== undefined &&
       held.affordances.some(
         (a: IAutoMovieAffordance): boolean => a.id === points.edge,

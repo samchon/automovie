@@ -34,6 +34,12 @@ import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMo
 import { HumanBound } from "../law/HumanBound";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
+/** The alternatives of `PlanLiftBone`'s site. */
+type PlanLiftBone = "leftShoulder" | "rightShoulder";
+
+/** The alternatives of `PLACESEntryItem`'s site. */
+type PLACESEntryItem = "stretch" | "victory" | "fistPump";
+
 /**
  * A whole-body self action while standing: the yawn-and-stretch with both arms
  * overhead, both arms raised in victory, a fist pump, a neck roll and a
@@ -82,10 +88,7 @@ export namespace selfAction {
 
   /** Each arm action's place for the right hand (the left mirrors). */
   const PLACES: Readonly<
-    Record<
-      "stretch" | "victory" | "fistPump",
-      IAutoMovieMotionHumanTargetGrid.IGrid
-    >
+    Record<PLACESEntryItem, IAutoMovieMotionHumanTargetGrid.IGrid>
   > = {
     stretch: { height: "overhead", lateral: "shoulder", distance: "close" },
     victory: { height: "overhead", lateral: "outside", distance: "close" },
@@ -373,7 +376,7 @@ export namespace selfAction {
       }
       case "shoulderRoll": {
         const lift = (
-          bone: "leftShoulder" | "rightShoulder",
+          bone: PlanLiftBone,
           motion: IAutoMovieMotionHumanRange.Motion,
         ): number =>
           AutoMovieMotionHumanRange.degrees(bone, motion, "light") *

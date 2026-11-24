@@ -16,6 +16,7 @@ import {
   HumanBodyFit,
   HumanHand,
   HumanSkill,
+  humanPostureHeading,
   poseBones,
   resolveHumanPosture,
 } from "@automovie/motions/internal";
@@ -25,28 +26,29 @@ import { motionContactArmFixture as fixture } from "../../../internal/motionCont
 import { motionHumanBody } from "../../../internal/motionHumanBody";
 
 /**
- * The whole-body fit finds the static posture in which the palms land flat
- * on the floor from a full squat while the feet keep their toes' joints
- * planted, the centre of mass stays over the feet and every joint stays in
- * its range, and reports a contact it cannot reach.
+ * The whole-body fit finds the static posture in which the palms land flat on
+ * the floor from a full squat while the feet keep their toes' joints planted,
+ * the centre of mass stays over the feet and every joint stays in its range,
+ * and reports a contact it cannot reach.
  *
  * The seed is the crouch law's full squat held at its lowest, the stance a
- * hands-down landing starts from (Escande, Kheddar and Miossec 2013: a
- * stance is solved from its parent). Each palm's target holds only its side
- * place, the shoulder's, so the fit chooses how far ahead it lands, and its
- * normal faces the floor; each foot's toes' joint stays where it stood with
- * the toes flat. The bounds are the fit's own contract: every contact within
- * the audits' contact skin (`AutoMovieMotionHumanAuditSkin.BUILT`, 10 mm),
- * every contact normal within 1 degree of the floor's (provisional: a flat
- * palm read by eye), the centre of mass inside the feet's base within the
- * same skin, and the loop's own convergence flag.
+ * hands-down landing starts from (Escande, Kheddar and Miossec 2013: a stance
+ * is solved from its parent). Each palm's target holds only its side place, the
+ * shoulder's, so the fit chooses how far ahead it lands, and its normal faces
+ * the floor; each foot's toes' joint stays where it stood with the toes flat.
+ * The bounds are the fit's own contract: every contact within the audits'
+ * contact skin (`AutoMovieMotionHumanAuditSkin.BUILT`, 10 mm), every contact
+ * normal within 1 degree of the floor's (provisional: a flat palm read by eye),
+ * the centre of mass inside the feet's base within the same skin, and the
+ * loop's own convergence flag.
  *
  * Scenarios:
- * 1. On the average man and the small woman (`m-average`, `f-small`), the
- *    palms land flat with the feet planted, the centre over the feet, and
- *    the fit says it converged.
- * 2. On the average man, a palm sent a metre past the arm's reach is
- *    reported unconverged with a residual over the skin, never claimed met.
+ *
+ * 1. On the average man and the small woman (`m-average`, `f-small`), the palms
+ *    land flat with the feet planted, the centre over the feet, and the fit
+ *    says it converged.
+ * 2. On the average man, a palm sent a metre past the arm's reach is reported
+ *    unconverged with a residual over the skin, never claimed met.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Runs the fit on real bodies from a real crouch and reads the result's own residuals and convergence; a palm that hovers, a foot that slides, a body off its feet or a miss claimed met fails with the body and its numbers.
  * @evidence contracts/development/testing.md#independent-expectations The contact bound is the audits' skin, the balance the static equilibrium of a body standing still, the normal's degree marked provisional.
@@ -178,7 +180,7 @@ export function test_motion_posture_staged_limb(): void {
     if (root === null) throw new Error("the crouch displays no root");
     const squat = {
       root: root.translation,
-      ...resolveHumanPosture.angles(root.rotation),
+      ...humanPostureHeading.angles(root.rotation),
       joints: Object.fromEntries(
         pose.joints.map((j) => [
           j.bone,

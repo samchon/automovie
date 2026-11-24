@@ -10,7 +10,7 @@ The gaze goal is the eyes' lines on the target, recruited eyes, head and trunk i
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-The plan times the shift; the stand law places the body, its hanging arms let out of a turned trunk's way by `HumanArmClearance.swung`, or the carrier does when the look is an overlay, which then takes the head and, when recruited, the trunk; direction, split, durations and the aiming solve are owned by HumanGaze, and the reaction draw is `reaction`.
+The plan times the shift; the stand law places the body, its hanging arms let out of a turned trunk's way by `HumanArmSwing.of`, or the carrier does when the look is an overlay, which then takes the head and, when recruited, the trunk; direction, split, durations and the aiming solve are owned by HumanGaze, and the reaction draw is `reaction`.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 

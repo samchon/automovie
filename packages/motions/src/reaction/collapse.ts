@@ -1,4 +1,5 @@
 import type {
+  AutoMovieHumanSide,
   AutoMovieMotionHumanActionKey,
   IAutoMovieMotionClock,
   IAutoMovieMotionHumanActionContext,
@@ -152,7 +153,7 @@ export namespace collapse {
       { origin: { x: 0, y: 0, z: 0 }, yaw: entry.yaw },
       away,
     );
-    const side: "left" | "right" =
+    const side: AutoMovieHumanSide =
       context.params.side ?? (local.x >= 0 ? "left" : "right");
     const turn: number =
       direction === "forward"
@@ -293,7 +294,7 @@ export namespace collapse {
   function contacts(
     direction: IAutoMovieMotionHumanCollapse.Direction,
     tone: IAutoMovieMotionHumanCollapse.Tone,
-    side: "left" | "right",
+    side: AutoMovieHumanSide,
     kneel: number,
     down: number,
     duration: number,

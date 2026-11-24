@@ -14,6 +14,15 @@ import { HUMAN_GRAPPLE_JUDO_GRIP } from "../next/presets/HUMAN_GRAPPLE_JUDO_GRIP
 import { HUMAN_TOUCH_PARTNER_DANCE_HOLD } from "../next/presets/HUMAN_TOUCH_PARTNER_DANCE_HOLD";
 import { touch } from "../touch/touch";
 
+/** The alternatives of `CastEntryItem`'s site. */
+type CastEntryItem = "tori" | "uke";
+
+/** The alternatives of `JudoThrowRole`'s site. */
+type JudoThrowRole = "tori" | "uke";
+
+/** The alternatives of `JudoThrow`'s site. */
+type JudoThrow = "tori" | "uke";
+
 /**
  * Things two people do as partners in sport and dance, each a row of a law
  * whose roles share a stated instant or a meeting. Register the rows a film
@@ -116,17 +125,16 @@ export namespace HumanPartner {
    * `judoBroken`, provisional); the throw's own timing is the force input's; a
    * judo match or a demonstration.
    */
-  export const judoThrow: IAutoMovieMotionHumanMutual<object, "tori" | "uke"> =
-    {
-      name: "judoThrow",
-      roles: ["tori", "uke"],
-      act: (
-        role: "tori" | "uke",
-        _params: object,
-        cast: Readonly<Record<"tori" | "uke", string>>,
-      ): IAutoMovieMotionHumanMutual.IAct =>
-        role === "tori"
-          ? { name: "judoGrip", params: { partner: cast.uke } }
-          : { name: "judoBroken", params: { partner: cast.tori } },
-    };
+  export const judoThrow: IAutoMovieMotionHumanMutual<object, JudoThrow> = {
+    name: "judoThrow",
+    roles: ["tori", "uke"],
+    act: (
+      role: JudoThrowRole,
+      _params: object,
+      cast: Readonly<Record<CastEntryItem, string>>,
+    ): IAutoMovieMotionHumanMutual.IAct =>
+      role === "tori"
+        ? { name: "judoGrip", params: { partner: cast.uke } }
+        : { name: "judoBroken", params: { partner: cast.tori } },
+  };
 }

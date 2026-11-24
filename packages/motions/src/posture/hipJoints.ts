@@ -1,5 +1,6 @@
 import { Transform, preparePoseResolution } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBody,
   IAutoMovieQuaternion,
@@ -7,16 +8,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { HumanBoneGroups } from "./HumanBoneGroups";
 import { poseBones } from "./poseBones";
-
-/**
- * Only the two upper-leg origins are outputs; FK includes their pelvis
- * ancestry.
- */
-const HIP_BONES: ReadonlySet<AutoMovieHumanoidBone> = new Set([
-  "leftUpperLeg",
-  "rightUpperLeg",
-]);
 
 /**
  * One genuine static two-hip demand per live unchanged body, without any pose
@@ -46,11 +39,11 @@ export function hipJoints(
   rotation: IAutoMovieQuaternion,
   pelvis?: readonly [number, number, number],
   prepared?: ReturnType<typeof preparePoseResolution>,
-): Record<"left" | "right", IAutoMovieVector3> {
+): Record<AutoMovieHumanSide, IAutoMovieVector3> {
   let read: ReturnType<typeof poseBones.prepare> | undefined =
     HIP_READERS.get(body);
   if (read === undefined) {
-    read = poseBones.prepare(body, HIP_BONES);
+    read = poseBones.prepare(body, HumanBoneGroups.THIGHS);
     HIP_READERS.set(body, read);
   }
   const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = read(
@@ -77,7 +70,7 @@ export function hipJoints(
 /** Read one fresh hip origin without allocating a per-query side closure. */
 function hipOf(
   bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
-  side: "left" | "right",
+  side: AutoMovieHumanSide,
 ): IAutoMovieVector3 {
   const hip: IAutoMovieResolvedBone | undefined = bones.get(`${side}UpperLeg`);
   if (hip === undefined)

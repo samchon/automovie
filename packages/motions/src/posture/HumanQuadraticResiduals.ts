@@ -2,6 +2,9 @@ import type { HumanQuadraticBand as B } from "./HumanQuadraticBand";
 import { HumanQuadraticEntries } from "./HumanQuadraticEntries";
 import { HumanQuadraticWorkspace as Work } from "./HumanQuadraticWorkspace";
 
+/** The alternatives of `HumanQuadraticResidualsKnown`'s site. */
+type HumanQuadraticResidualsKnown = "rows" | "transpose" | "productFiniteX";
+
 /**
  * The original scaled and unscaled OSQP residuals and normalization values.
  * Prepared zeros may be omitted only while their product operands are finite;
@@ -24,7 +27,7 @@ export function HumanQuadraticResiduals(
   z: Float64Array,
   y: Float64Array,
   work: Work.IWork,
-  known?: Pick<Work.IWork, "rows" | "transpose" | "productFiniteX">,
+  known?: Pick<Work.IWork, HumanQuadraticResidualsKnown>,
 ): B.IResiduals {
   const out: B.IResiduals = work.residuals;
   out.primal = 0;

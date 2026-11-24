@@ -91,13 +91,6 @@ export function ballStrikeCases(
  * @param centre The ball's centre, world metres.
  * @param radius Its radius, metres.
  * @returns The ball.
- * @evidence contracts/development/common.md#meaningful-documentation States the contact.
- * @evidence contracts/development/implementation.md#principled-implementation The `grip` contact `createBall` declares, at the prop's origin.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One prop literal.
- * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts The motions package does not depend on the archetypes, so the case declares the ball's contact itself.
- * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Built once per case.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Plain data.
  */
 function ball(
   centre: IAutoMovieVector3,

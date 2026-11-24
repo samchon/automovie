@@ -1,5 +1,6 @@
 import type {
   AutoMovieHumanLimb,
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieHumanLimbGoal,
   IAutoMovieJointPose,
@@ -19,6 +20,9 @@ import { HumanLimbMirror } from "./HumanLimbMirror";
 import { HumanLimbView } from "./HumanLimbView";
 import { mirrorHumanLimbSource } from "./mirrorHumanLimbSource";
 import { prepareHumanPoseResolution } from "./prepareHumanPoseResolution";
+
+/** The alternatives of `SolveHumanLimbFitPolicy`'s site. */
+type SolveHumanLimbFitPolicy = "ordinary" | "continuous";
 
 /**
  * Solve one limb fit directly, every time, with no memory of earlier fits.
@@ -61,11 +65,11 @@ export function solveHumanLimbFit(
   pose: IAutoMoviePose,
   limb: AutoMovieHumanLimb,
   goal: IAutoMovieHumanLimbGoal,
-  placed: readonly ("left" | "right")[],
+  placed: readonly AutoMovieHumanSide[],
   rival?: IAutoMovieVector3,
   near?: IAutoMovieSwivelNear,
   resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
-  policy: "ordinary" | "continuous" = "ordinary",
+  policy: SolveHumanLimbFitPolicy = "ordinary",
   admission?: HumanLimbView.IAdmission,
 ): IAutoMovieSeededChainFit {
   return solved(
@@ -82,6 +86,8 @@ export function solveHumanLimbFit(
     admission,
   );
 }
+/** The alternatives of `SolveHumanLimbFitWorldPolicy`'s site. */
+type SolveHumanLimbFitWorldPolicy = "ordinary" | "continuous";
 
 /** The same solve without the root-position frame. */
 export namespace solveHumanLimbFit {
@@ -96,11 +102,11 @@ export namespace solveHumanLimbFit {
     pose: IAutoMoviePose,
     limb: AutoMovieHumanLimb,
     goal: IAutoMovieHumanLimbGoal,
-    placed: readonly ("left" | "right")[],
+    placed: readonly AutoMovieHumanSide[],
     rival: IAutoMovieVector3 | undefined,
     near: IAutoMovieSwivelNear | undefined,
     resolution: Parameters<typeof prepareHumanPoseResolution>[0],
-    policy: "ordinary" | "continuous",
+    policy: SolveHumanLimbFitWorldPolicy,
   ): IAutoMovieSeededChainFit {
     return solved(
       body,
@@ -117,6 +123,8 @@ export namespace solveHumanLimbFit {
     );
   }
 }
+/** The alternatives of `SolvedPolicy`'s site. */
+type SolvedPolicy = "ordinary" | "continuous";
 
 /**
  * Reduce, mirror a left limb, move into the frame when asked, solve the right
@@ -127,11 +135,11 @@ function solved(
   pose: IAutoMoviePose,
   limb: AutoMovieHumanLimb,
   goal: IAutoMovieHumanLimbGoal,
-  placed: readonly ("left" | "right")[],
+  placed: readonly AutoMovieHumanSide[],
   rival: IAutoMovieVector3 | undefined,
   near: IAutoMovieSwivelNear | undefined,
   resolution: Parameters<typeof prepareHumanPoseResolution>[0],
-  policy: "ordinary" | "continuous",
+  policy: SolvedPolicy,
   framed: boolean,
   admission: HumanLimbView.IAdmission | undefined,
 ): IAutoMovieSeededChainFit {
@@ -156,7 +164,7 @@ function solved(
   const asked: IAutoMovieHumanLimbGoal = left
     ? HumanLimbMirror.goal(goal)
     : goal;
-  const others: readonly ("left" | "right")[] = left
+  const others: readonly AutoMovieHumanSide[] = left
     ? placed.map(HumanLimbMirror.side)
     : placed;
   const coming: IAutoMovieVector3 | undefined =

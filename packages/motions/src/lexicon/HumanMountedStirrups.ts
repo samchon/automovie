@@ -1,5 +1,6 @@
 import { Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanFoot,
@@ -14,9 +15,12 @@ import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
 import { hipJoints } from "../posture/hipJoints";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { humanPostureHeading } from "../posture/humanPostureHeading";
 import { HumanMount } from "./HumanMount";
 import type { HumanMountedSeats } from "./HumanMountedSeats";
+
+/** The alternatives of `SolveAttitude`'s site. */
+type SolveAttitude = "yaw" | "pitch" | "roll";
 
 /**
  * The out-of-saddle seats of a mounted performance: the two-point seat, the
@@ -165,30 +169,33 @@ export namespace HumanMountedStirrups {
     const shape: IProfile = profile(seat);
     const slack: number = context.slack * shape.decouple;
     const facing: number = 360 * Math.round(entry.yaw / 360);
-    const attitude: Pick<
-      IAutoMovieMotionHumanPosture,
-      "yaw" | "pitch" | "roll"
-    > = { yaw: facing, pitch: shape.pitch, roll: 0 };
-    const turn: IAutoMovieQuaternion = resolveHumanPosture.heading(attitude);
-    const feet: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement> =
-      {
-        left: HumanFoot.pivot(
-          body,
-          "left",
-          "ball",
-          context.point(supports.leftFoot!),
-          facing,
-          0,
-        ),
-        right: HumanFoot.pivot(
-          body,
-          "right",
-          "ball",
-          context.point(supports.rightFoot!),
-          facing,
-          0,
-        ),
-      };
+    const attitude: Pick<IAutoMovieMotionHumanPosture, SolveAttitude> = {
+      yaw: facing,
+      pitch: shape.pitch,
+      roll: 0,
+    };
+    const turn: IAutoMovieQuaternion = humanPostureHeading(attitude);
+    const feet: Record<
+      AutoMovieHumanSide,
+      IAutoMovieMotionHumanFoot.IPlacement
+    > = {
+      left: HumanFoot.pivot(
+        body,
+        "left",
+        "ball",
+        context.point(supports.leftFoot!),
+        facing,
+        0,
+      ),
+      right: HumanFoot.pivot(
+        body,
+        "right",
+        "ball",
+        context.point(supports.rightFoot!),
+        facing,
+        0,
+      ),
+    };
     const ankles: IAutoMovieVector3 = Vector3.lerp(
       feet.left.ankle,
       feet.right.ankle,
@@ -201,7 +208,7 @@ export namespace HumanMountedStirrups {
 
     // The height: the socket's clearance, or the hips where the knee's flexion leaves them over the ankles, and never higher than a leg can hold its stirrup through the carrier's rise and fall.
     const [near, far]: readonly [number, number] = HumanMount.span(body);
-    const rest: Record<"left" | "right", IAutoMovieVector3> = hipJoints(
+    const rest: Record<AutoMovieHumanSide, IAutoMovieVector3> = hipJoints(
       body,
       { x: 0, y: 0, z: 0 },
       turn,
@@ -253,7 +260,7 @@ export namespace HumanMountedStirrups {
       ...anchor,
       y: lifted === undefined ? top : Math.min(lifted.y, top),
     };
-    const hips: Record<"left" | "right", IAutoMovieVector3> = hipJoints(
+    const hips: Record<AutoMovieHumanSide, IAutoMovieVector3> = hipJoints(
       body,
       root,
       turn,
@@ -296,7 +303,7 @@ export namespace HumanMountedStirrups {
         reason: `the ${seat} seat leaves the seat socket ${socket.toFixed(3)} m over the saddle, not clear of it, the legs holding their stirrups ${feet.left.ankle.y.toFixed(3)} m below it through the carrier's rise and fall of ${slack.toFixed(3)} m`,
         fix: "shorten the stirrups, or ride seated",
       });
-    const leg = (side: "left" | "right"): IAutoMovieHumanLimbGoal => ({
+    const leg = (side: AutoMovieHumanSide): IAutoMovieHumanLimbGoal => ({
       point: feet[side].ankle,
       rotation: feet[side].rotation,
       bend: Vector3.add(

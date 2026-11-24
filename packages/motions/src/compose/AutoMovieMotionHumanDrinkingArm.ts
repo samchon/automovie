@@ -35,6 +35,18 @@ import { AutoMovieMotionHumanTouchLaid } from "./AutoMovieMotionHumanTouchLaid";
 import { HumanTouchArmReference } from "./HumanTouchArmReference";
 import { measureDrinkingShoulder } from "./measureDrinkingShoulder";
 
+/** The alternatives of `CarriedTouch`'s site. */
+type CarriedTouch = "body" | "side" | "rest" | "effector" | "held";
+
+/** The record of `IPrepareReadBased`'s site. */
+type IPrepareReadBased = {
+  posture: IAutoMovieMotionHumanPosture;
+  pose: IAutoMoviePose;
+};
+
+/** The alternatives of `ReadLimb`'s site. */
+type ReadLimb = "leftArm" | "rightArm";
+
 /**
  * The arm a held vessel is brought to the lips with, read as a person drinks:
  * the arm the resolver fits for a goal, read on its displayed bones, and
@@ -104,7 +116,7 @@ export namespace AutoMovieMotionHumanDrinkingArm {
     base?: (posture: IAutoMovieMotionHumanPosture) => IAutoMoviePose,
     select?: SelectReference,
   ): IObservation {
-    const limb: "leftArm" | "rightArm" = `${side}Arm`;
+    const limb: ReadLimb = `${side}Arm`;
     const requested: ReadonlySet<AutoMovieHumanoidBone> =
       new Set<AutoMovieHumanoidBone>([
         `${side}UpperArm`,
@@ -220,7 +232,7 @@ export namespace AutoMovieMotionHumanDrinkingArm {
       arm.reference = HumanTouchArmReference.boundedReference(
         body,
         side,
-        resolveHumanPosture.reference(pose, limb),
+        HumanLimbFit.reference(pose, limb),
       );
     return arm;
   }
@@ -251,9 +263,7 @@ export namespace AutoMovieMotionHumanDrinkingArm {
 
     // The body without this arm, posed once for the posture the search is
     // on: the candidates of one search differ only in this arm's goal.
-    let based:
-      | { posture: IAutoMovieMotionHumanPosture; pose: IAutoMoviePose }
-      | undefined;
+    let based: IPrepareReadBased | undefined;
     const base = (posture: IAutoMovieMotionHumanPosture): IAutoMoviePose => {
       if (based === undefined || based.posture !== posture) {
         const limbs: IAutoMovieMotionHumanPosture["limbs"] = {
@@ -326,10 +336,7 @@ export namespace AutoMovieMotionHumanDrinkingArm {
    *   the two ends' and the carry's weight, world.
    */
   export function carried(
-    touch: Pick<
-      IAutoMovieMotionHumanTouch.ITouch,
-      "body" | "side" | "rest" | "effector" | "held"
-    >,
+    touch: Pick<IAutoMovieMotionHumanTouch.ITouch, CarriedTouch>,
     tipped: (weight: number) => number,
   ): (
     posture: IAutoMovieMotionHumanPosture,

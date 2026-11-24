@@ -17,6 +17,9 @@ import { HumanHand } from "../posture/HumanHand";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
+/** The alternatives of `INCLINESEntryItem`'s site. */
+type INCLINESEntryItem = "hip" | "midway" | "shoulder";
+
 /**
  * The stance a sled push (`pushSled`) takes its handles from: how far the trunk
  * inclines into the load and how far the body sinks onto bent knees.
@@ -43,9 +46,11 @@ export namespace pushSledStance {
    * D'Souza 2016, motion capture means). The study gives the midway handle no
    * height; it is read as halfway between the hip and the shoulder.
    */
-  export const INCLINES: Readonly<
-    Record<"hip" | "midway" | "shoulder", number>
-  > = { hip: 45.0, midway: 26.9, shoulder: 18.7 };
+  export const INCLINES: Readonly<Record<INCLINESEntryItem, number>> = {
+    hip: 45.0,
+    midway: 26.9,
+    shoulder: 18.7,
+  };
 
   /**
    * The steepest incline a push takes, degrees: the hip-height mean and two of

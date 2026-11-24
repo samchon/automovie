@@ -25,24 +25,13 @@ import { motionHumanFrame } from "./motionHumanFrame";
  * Shared readers for action-law tests: build a trained performance, remember
  * its displayed frames, locate an event, measure adjacent-frame travel and
  * return complaints from a whole audit or a stated condition. A condition can
- * build its label only on failure.
- * Callers gather these complaints into their own assertions.
+ * build its label only on failure. Callers gather these complaints into their
+ * own assertions.
  *
  * Measures of one film share its actual FK frames, checked on first read for
  * nonempty bones, finite world positions and finite unit local and world
- * rotations. The film owns this memory; it does not replace the performance
- * or decide whether an action met its intent.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the shared observations, frame checks and the caller's ownership of assertions.
- * @evidence contracts/development/design.md#principled-representation Public performances and audit readers carry world metres and film seconds; frame admission checks finite coordinates and unit rotations before metrics read them.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Readers shared by solo, touch and hand-to-face specifications; body, FK, performance and audit types remain their package owners'.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No action, body or scene gets a replacement pose or limit; the frame record is the public FK map.
- * Builds and reads the public performance, converts event shares to seconds, measures Euclidean travel and delegates generic checks to their audit owner.
- * Separate construction, frame admission, event lookup, travel, audit formatting and complaint selection.
- * Invalid displayed frames and missing events throw; caller limits and measured values are neither repaired nor relaxed.
- * Local work scales with performer records, event counts, grid intervals and findings; delegated audits also include collider-pair work and continuity refinement, not just a frame scan.
- * Each film shares a successfully validated subject/second frame across its measures; planning and audit computations remain with the public owners.
- * A film retains one map per distinct subject/second read, without a capacity limit, until its reader is released; other helpers retain no process-wide state or external resource.
+ * rotations. The film owns this memory; it does not replace the performance or
+ * decide whether an action met its intent.
  */
 export namespace motionHumanLaw {
   /**
@@ -72,12 +61,13 @@ export namespace motionHumanLaw {
    * A performance of people standing at their places, trained.
    *
    * @param seed The seed.
-   * @param performers Each subject's body, floor point (the origin when absent) and heading (+Z when absent).
+   * @param performers Each subject's body, floor point (the origin when absent)
+   *   and heading (+Z when absent).
    * @param composition What they do.
    * @param props The props, none when absent.
    * @returns The film of the performance.
-   * @throws {Error} When the public performance refuses its input or its film duration is invalid.
-   *
+   * @throws {Error} When the public performance refuses its input or its film
+   *   duration is invalid.
    * @evidence contracts/development/common.md#meaningful-documentation States the seed, cast defaults, trained proficiency, accepted composition forms and returned film.
    * @evidence contracts/development/implementation.md#principled-implementation Supplies the declared bodies and placements to HumanPerformance with trained proficiency, preserving the composition and props.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Map the cast, copy the props, unwrap a chain when given and pass the public performance to film.
@@ -116,13 +106,13 @@ export namespace motionHumanLaw {
   }
 
   /**
-   * A performance as a film whose bones reader validates each actual
-   * displayed frame before returning it and remembers successful reads.
+   * A performance as a film whose bones reader validates each actual displayed
+   * frame before returning it and remembers successful reads.
    *
    * @param performance The performance.
    * @returns The film.
-   * @throws {Error} When duration is nonfinite or negative, a queried second is nonfinite, or the displayed frame fails motionHumanFrame.
-   *
+   * @throws {Error} When duration is nonfinite or negative, a queried second is
+   *   nonfinite, or the displayed frame fails motionHumanFrame.
    * @evidence contracts/development/common.md#meaningful-documentation States the actual frame checks, exact query memory and failures; finite query seconds are forwarded without clamping here.
    * @evidence contracts/development/implementation.md#principled-implementation A metric requires finite world positions and unit orientations, so motionHumanFrame validates each nonempty public FK map before it is remembered; duration must be finite and nonnegative.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Validate duration once, forward segment queries and memoize each successful bones read by subject and second.
@@ -165,7 +155,6 @@ export namespace motionHumanLaw {
    * @param subject The subject.
    * @returns Film seconds.
    * @throws {Error} When no action of the subject has the event.
-   *
    * @evidence contracts/development/common.md#meaningful-documentation States the first matching action, default subject, seconds calculation and missing-event failure.
    * @evidence contracts/development/implementation.md#principled-implementation Converts the published event share using the matched plan's own start and duration, the same timebase the public performance uses.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Scan segments in order and find the named event in each, returning at the first match.
@@ -198,7 +187,6 @@ export namespace motionHumanLaw {
    * @param bone The bone.
    * @param rate Grid samples per second.
    * @returns Metres per grid interval, the start of the interval and the bone.
-   *
    * @evidence contracts/development/common.md#meaningful-documentation States the grid, bone, displacement unit and reported interval; zero and second zero remain when no interval exceeds zero.
    * @evidence contracts/development/implementation.md#principled-implementation Euclidean distance between adjacent displayed joint centres measures displacement per grid interval, rather than speed or a plan's requested path.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Build the public audit grid once, read neighbouring endpoints and keep the first strict maximum.
@@ -244,8 +232,8 @@ export namespace motionHumanLaw {
    * @param subject The subject.
    * @param body Their body.
    * @param options The audit's options.
-   * @returns Empty when clean, otherwise one prefixed summary with at most four deepest pair examples.
-   *
+   * @returns Empty when clean, otherwise one prefixed summary with at most four
+   *   deepest pair examples.
    * @evidence contracts/development/common.md#meaningful-documentation States the subject, body, options and aggregate complaint format, including the four-example bound.
    * @evidence contracts/development/implementation.md#principled-implementation Delegates measurements and caller-selected limits to the public generic audit, then describes its findings without changing their values.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Run one audit, return empty when clean and otherwise format one summary with up to four pair examples.
@@ -287,10 +275,10 @@ export namespace motionHumanLaw {
    * function, so a label that resolves poses or formats numbers only to
    * describe a failure is built only when the condition fails.
    *
-   * @param label What is expected, with its measured numbers, or what builds it.
+   * @param label What is expected, with its measured numbers, or what builds
+   *   it.
    * @param holds Whether it holds.
    * @returns The label when it does not hold; empty when it does.
-   *
    * @evidence contracts/development/common.md#meaningful-documentation States the condition, the lazy label and the complaint returned on each branch.
    * @evidence contracts/development/implementation.md#principled-implementation Projects the caller's boolean into an empty complaint list or the supplied failure label; a label function runs only on the failing branch, so it cannot change the condition the caller computed.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One conditional returning an array of zero or one label.

@@ -36,6 +36,8 @@ import { HumanFormation } from "./HumanFormation";
  * @param starts Where each stands at the word.
  * @param ends Each one's slot in `to`.
  * @param speeds Each one's travel speed, m/s.
+ * @param column `from`, prepared (`HumanFormation.prepare`).
+ * @param line `to`, prepared.
  * @returns Each member's way and station; no stations when nothing turns.
  * @throws {HumanRefusal} When `to` is not `from` turned about the pivot, naming
  *   the member whose slot lies elsewhere and how far.
@@ -46,16 +48,16 @@ export function manoeuvreWheel(
   starts: readonly IAutoMovieVector3[],
   ends: readonly IAutoMovieMotionHumanFormation.ISlot[],
   speeds: readonly number[],
+  column: HumanFormation.IPrepared,
+  line: HumanFormation.IPrepared,
 ): IAutoMovieMotionHumanManoeuvreWheel.IWheel {
   const members: readonly IAutoMovieMotionHumanEnsemble.IMember[] =
     ensemble.members;
   const pivot: IAutoMovieVector3 = pivotOf(manoeuvre, members, starts);
-  const origin: { at: IAutoMovieVector3; heading: number } =
-    HumanFormation.frame(manoeuvre.from, manoeuvre.at);
-  const target: number = HumanFormation.frame(
-    manoeuvre.to,
+  const origin: IAutoMovieMotionHumanFormation.IFrameResult = column.frame(
     manoeuvre.at,
-  ).heading;
+  );
+  const target: number = line.frame(manoeuvre.at).heading;
   const sweep: number =
     ((((target - origin.heading + 180) % 360) + 360) % 360) - 180;
 
@@ -192,6 +194,8 @@ function turn(
     z: pivot.z - dx * Math.sin(radians) + dz * Math.cos(radians),
   };
 }
+/** The alternatives of `PivotOfSide`'s site. */
+type PivotOfSide = "left" | "right" | "centre";
 
 /**
  * The wheel's pivot: the front rank's left or right file, or its centre, where
@@ -224,7 +228,7 @@ function pivotOf(
     )
     .map((e: [number, IAutoMovieMotionHumanFormation.ILocal]): number => e[0]);
   if (front.length === 0) return starts[0] ?? { x: 0, y: 0, z: 0 };
-  const side: "left" | "right" | "centre" = manoeuvre.pivot ?? "left";
+  const side: PivotOfSide = manoeuvre.pivot ?? "left";
   if (side === "centre") {
     const n: number = front.length;
     return {

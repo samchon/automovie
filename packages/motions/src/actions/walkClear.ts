@@ -9,6 +9,12 @@ import type {
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanObstacle } from "../perform/HumanObstacle";
 
+/** The record of `IWalkClearContext`'s site. */
+type IWalkClearContext = {
+  to: IAutoMovieVector3;
+  via?: IAutoMovieVector3[];
+};
+
 /**
  * Refuses a walked way that goes through something solid: a wall with no
  * opening on the way, an opening narrower than the walker's shoulders or one
@@ -26,10 +32,7 @@ import { HumanObstacle } from "../perform/HumanObstacle";
  * @throws {HumanRefusal} A `reach` refusal on `path` when a stretch is blocked.
  */
 export function walkClear(
-  context: IAutoMovieMotionHumanActionContext<{
-    to: IAutoMovieVector3;
-    via?: IAutoMovieVector3[];
-  }>,
+  context: IAutoMovieMotionHumanActionContext<IWalkClearContext>,
 ): void {
   const obstacles: readonly IAutoMovieMotionHumanObstacle[] =
     context.obstacles();

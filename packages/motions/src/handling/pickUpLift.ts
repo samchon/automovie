@@ -19,6 +19,12 @@ import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolutio
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import type { pickUpPosture } from "./pickUpPosture";
 
+/** The record of `IJudgedContext`'s site. */
+type IJudgedContext = {
+  prop: string;
+  handle: string;
+};
+
 /**
  * The body that carries a pick up's lift, and the judgement of the lift.
  *
@@ -245,10 +251,7 @@ export namespace pickUpLift {
    *   the solver's tolerance.
    */
   export function judged(
-    context: IAutoMovieMotionHumanActionContext<{
-      prop: string;
-      handle: string;
-    }>,
+    context: IAutoMovieMotionHumanActionContext<IJudgedContext>,
     side: AutoMovieHumanSide,
     lift: number,
     plan: IAutoMovieMotionHumanActionPlan,

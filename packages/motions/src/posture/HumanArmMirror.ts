@@ -7,6 +7,9 @@ import type {
 
 import type { HumanArmGeometry } from "./HumanArmGeometry";
 
+/** The alternatives of `MirroredOthersResult`'s site. */
+type MirroredOthersResult = "others" | "rests";
+
 /**
  * The mirror image across the world's x = 0 plane of what an arm is read
  * against, so a left arm is solved as the right arm in the mirror image of its
@@ -61,7 +64,7 @@ export namespace HumanArmMirror {
   /** The others reflected, and the rests among them as those same reflections. */
   function mirroredOthers(
     base: HumanArmGeometry.IBase,
-  ): Pick<HumanArmGeometry.IBase, "others" | "rests"> {
+  ): Pick<HumanArmGeometry.IBase, MirroredOthersResult> {
     const images: Map<
       IAutoMovieMotionHumanColliders.IPlaced,
       IAutoMovieMotionHumanColliders.IPlaced

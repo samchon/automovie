@@ -1,5 +1,6 @@
 import { Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieMotionHumanActionName,
   IAutoMovieMotionClock,
   IAutoMovieMotionHumanActionContext,
@@ -29,6 +30,15 @@ import { HumanBound } from "../law/HumanBound";
 import { HumanPhysics } from "../law/HumanPhysics";
 import { HumanFrame } from "../posture/HumanFrame";
 import { exerciseLunge } from "./exerciseLunge";
+
+/** The alternatives of `PlanPlantPart2`'s site. */
+type PlanPlantPart2 = "leftFoot" | "rightFoot";
+
+/** The alternatives of `PlanPlantPart`'s site. */
+type PlanPlantPart = "leftFoot" | "rightFoot";
+
+/** The record of `IDropM`'s site. */
+type IDropM = { thigh: number; shank: number };
 
 /**
  * A standing bodyweight exercise counted in repetitions: the squat, the forward
@@ -109,7 +119,7 @@ export namespace exercise {
    * @returns Metres.
    */
   export function drop(
-    m: { thigh: number; shank: number },
+    m: IDropM,
     depth: IAutoMovieMotionHumanExercise.Depth,
   ): number {
     const alpha: number = (THIGH[depth] * Math.PI) / 180;
@@ -165,7 +175,7 @@ export namespace exercise {
     );
     const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
     const stance: Record<
-      "left" | "right",
+      AutoMovieHumanSide,
       IAutoMovieMotionHumanFoot.IPlacement
     > = {
       left: {
@@ -191,8 +201,8 @@ export namespace exercise {
       y: 0,
       z: 0,
     });
-    const lead: "left" | "right" = p.side ?? "right";
-    const trail: "left" | "right" = lead === "right" ? "left" : "right";
+    const lead: AutoMovieHumanSide = p.side ?? "right";
+    const trail: AutoMovieHumanSide = lead === "right" ? "left" : "right";
     // The share of the way into repetition i's low (or open) position.
     const envelopes: ((seconds: number) => number)[] = Array.from(
       { length: reps },
@@ -221,10 +231,10 @@ export namespace exercise {
     const share: (instant: string) => number = (instant: string): number =>
       clock.at(instant) / clock.duration;
     const plant: (
-      part: "leftFoot" | "rightFoot",
+      part: PlanPlantPart,
       moves: readonly (readonly [number, number])[],
     ) => IAutoMovieMotionHumanContactWindow[] = (
-      part: "leftFoot" | "rightFoot",
+      part: PlanPlantPart2,
       moves: readonly (readonly [number, number])[],
     ): IAutoMovieMotionHumanContactWindow[] => {
       const windows: IAutoMovieMotionHumanContactWindow[] = [];
@@ -323,9 +333,9 @@ export namespace exercise {
       }
       case "highKnees": {
         const raised: (
-          side: "left" | "right",
+          side: AutoMovieHumanSide,
         ) => IAutoMovieMotionHumanFoot.IPlacement = (
-          side: "left" | "right",
+          side: AutoMovieHumanSide,
         ): IAutoMovieMotionHumanFoot.IPlacement => {
           const hip: IAutoMovieVector3 = HumanFrame.point(
             { origin: entry.root, yaw: entry.yaw },
@@ -339,11 +349,11 @@ export namespace exercise {
             rotation: stance[side].rotation,
           };
         };
-        const sideOf: (i: number) => "left" | "right" = (
+        const sideOf: (i: number) => AutoMovieHumanSide = (
           i: number,
-        ): "left" | "right" => (i % 2 === 1 ? lead : trail);
-        const lifted: (side: "left" | "right", s: number) => number = (
-          side: "left" | "right",
+        ): AutoMovieHumanSide => (i % 2 === 1 ? lead : trail);
+        const lifted: (side: AutoMovieHumanSide, s: number) => number = (
+          side: AutoMovieHumanSide,
           s: number,
         ): number => {
           let w: number = 0;

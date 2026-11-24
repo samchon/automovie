@@ -42,6 +42,11 @@ const SUPPORT_SHARE: number = 0.65;
  * fraction of stature.
  */
 const CLEARANCE: number = 0.025;
+/** The record of `IRacketStanceResult`'s site. */
+type IRacketStanceResult = {
+  primitives: IAutoMovieMotionHumanPrimitive[];
+  contacts: IAutoMovieMotionHumanContactWindow[];
+};
 
 /**
  * Prepare the support intervals and knee loading for ready and split-step
@@ -63,10 +68,7 @@ export function racketStance(
   leftward: IAutoMovieVector3,
   split: boolean,
   extent: number,
-): {
-  primitives: IAutoMovieMotionHumanPrimitive[];
-  contacts: IAutoMovieMotionHumanContactWindow[];
-} {
+): IRacketStanceResult {
   const { body, entry }: IAutoMovieMotionHumanActionContext = context;
   const follow: AutoMovieHumanSide = lead === "left" ? "right" : "left";
   const ready: number = clock.at("ready");

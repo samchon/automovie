@@ -9,15 +9,19 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { HumanPosturePreparation } from "../posture/HumanPosturePreparation";
 import { createHumanPostureCurve } from "../posture/createHumanPostureCurve";
+import { humanPostureHeading } from "../posture/humanPostureHeading";
 import { prepareHumanPostureRigCheck } from "../posture/prepareHumanPostureRigCheck";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+
+/** The alternatives of `Heading2`'s site. */
+type Heading2 = "yaw" | "pitch" | "roll";
 
 /**
  * The root orientation that changes while the prepared articulation stays
  * fixed.
  */
-type Heading = Pick<IAutoMovieMotionHumanPosture, "yaw" | "pitch" | "roll">;
+type Heading = Pick<IAutoMovieMotionHumanPosture, Heading2>;
 
 /**
  * Prepare placement of one fixed gymnastic articulation by its centre of mass.
@@ -72,8 +76,8 @@ export function prepareGymnasticsPlacement(
   const prepare: () => IPlacement = (): IPlacement => {
     const captured: createHumanPostureCurve.ICaptured | undefined =
       createHumanPostureCurve.prepared(body, source);
-    const prepared: resolveHumanPosture.IPrepared =
-      captured?.prepared ?? resolveHumanPosture.prepare(body, source(0));
+    const prepared: HumanPosturePreparation.IPrepared =
+      captured?.prepared ?? HumanPosturePreparation.prepare(body, source(0));
     if (requested === undefined) {
       requested = new Set();
       for (const segment of model.segments) requested.add(segment.bone);
@@ -82,7 +86,7 @@ export function prepareGymnasticsPlacement(
       prepared,
       local: resolveAutoMovieCenterOfMass.place(
         model,
-        resolveHumanPosture.preparedBones(prepared, requested),
+        HumanPosturePreparation.bones(prepared, requested),
       ),
       rig: body.poseResolution,
       topology: body.topology,
@@ -94,8 +98,8 @@ export function prepareGymnasticsPlacement(
     heading: Heading,
     centre: IAutoMovieVector3,
   ): IAutoMovieMotionHumanPosture => {
-    const rotation: ReturnType<typeof resolveHumanPosture.heading> =
-      resolveHumanPosture.heading(heading);
+    const rotation: ReturnType<typeof humanPostureHeading> =
+      humanPostureHeading(heading);
     if (
       fixed.rig !== body.poseResolution ||
       fixed.topology !== body.topology ||
@@ -106,7 +110,7 @@ export function prepareGymnasticsPlacement(
       rotation,
       fixed.local,
     );
-    return resolveHumanPosture.rigid(
+    return HumanPosturePreparation.rigid(
       fixed.prepared,
       {
         x: centre.x - offset.x,
@@ -126,7 +130,7 @@ export function prepareGymnasticsPlacement(
  */
 interface IPlacement {
   /** Genuine source capability, kept separate from mutable public pose views. */
-  prepared: resolveHumanPosture.IPrepared;
+  prepared: HumanPosturePreparation.IPrepared;
 
   /** Actual neutral canonical COM, metres in the body's root frame. */
   local: IAutoMovieVector3;

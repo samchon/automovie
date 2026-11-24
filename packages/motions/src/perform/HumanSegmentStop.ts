@@ -1,5 +1,6 @@
 import { preparePoseResolution } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanBody,
@@ -45,7 +46,7 @@ export namespace HumanSegmentStop {
       weapon: IAutoMovieMotionWeaponPath,
       seconds: number,
     ): IAutoMovieHumanLimbGoal => {
-      const side: "left" | "right" = weapon.limb.startsWith("left")
+      const side: AutoMovieHumanSide = weapon.limb.startsWith("left")
         ? "left"
         : "right";
       const arm: boolean = weapon.limb.endsWith("Arm");

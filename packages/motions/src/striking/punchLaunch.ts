@@ -8,6 +8,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { HumanBoneGroups } from "../posture/HumanBoneGroups";
 import { poseBones } from "../posture/poseBones";
 import { StrikingBody } from "./StrikingBody";
 import { StrikingSkill } from "./StrikingSkill";
@@ -64,7 +65,7 @@ export function punchLaunch(
     ).get(`${side}UpperArm` as AutoMovieHumanoidBone)!.worldPosition,
 
     // The arms at the launch, read from the displayed entry pose.
-    bones: poseBones(body, context.entry.pose, undefined, ARM_BONES),
+    bones: poseBones(body, context.entry.pose, undefined, HumanBoneGroups.ARMS),
   };
 }
 
@@ -88,14 +89,3 @@ export namespace punchLaunch {
     bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
   }
 }
-
-/** The six arm joints the punch's stroke and both arm sweeps read. */
-const ARM_BONES: ReadonlySet<AutoMovieHumanoidBone> =
-  new Set<AutoMovieHumanoidBone>([
-    "leftUpperArm",
-    "leftLowerArm",
-    "leftHand",
-    "rightUpperArm",
-    "rightLowerArm",
-    "rightHand",
-  ]);

@@ -21,6 +21,19 @@ import { HumanGrasp } from "./HumanGrasp";
 import { HumanPrehension } from "./HumanPrehension";
 import { handshake } from "./handshake";
 
+/** The record of `IKindProps`'s site. */
+type IKindProps = {
+  giver: AutoMovieHumanSide;
+  receiver: AutoMovieHumanSide;
+  prop: IAutoMovieMotionHumanProp;
+  frame: IAutoMovieRigidTransform;
+  handle: string;
+  exchange: number;
+};
+
+/** The alternatives of `GoalInput`'s site. */
+type GoalInput = "giver" | "receiver" | "prop" | "frame" | "handle";
+
 /**
  * The meeting of a handover (`AutoMovieMotionMeeting`): one record for the
  * giver and the receiver, the single owner of where the object's receiving grip
@@ -63,10 +76,7 @@ export namespace HumanHandoverMeeting {
    * @returns The height and both arms.
    */
   export function goal(
-    input: Pick<
-      IAutoMovieMotionHumanHandover.IInput,
-      "giver" | "receiver" | "prop" | "frame" | "handle"
-    >,
+    input: Pick<IAutoMovieMotionHumanHandover.IInput, GoalInput>,
     exchange: number,
   ): IGoal {
     const atStart: IAutoMovieMotionHumanGrasp.ITarget = HumanGrasp.at(
@@ -111,14 +121,7 @@ export namespace HumanHandoverMeeting {
    * @returns The kind: the contact `meet`, where the receiving grip is handed
    *   over.
    */
-  export function kind(props: {
-    giver: AutoMovieHumanSide;
-    receiver: AutoMovieHumanSide;
-    prop: IAutoMovieMotionHumanProp;
-    frame: IAutoMovieRigidTransform;
-    handle: string;
-    exchange: number;
-  }): IAutoMovieMotionMeetingKind {
+  export function kind(props: IKindProps): IAutoMovieMotionMeetingKind {
     const person: (
       role: IAutoMovieMotionMeetingRole,
     ) => IAutoMovieMotionHumanHandover.IPerson = (

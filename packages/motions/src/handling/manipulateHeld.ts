@@ -55,6 +55,8 @@ interface IKnot {
   /** Clinical angles in the same joint order as the isolated thumb rig. */
   angles: readonly (readonly [number, number, number])[];
 }
+/** The record of `IManipulateHeldResult`'s site. */
+type IManipulateHeldResult = { name: string; share: number };
 
 /**
  * Plan keyed presses by the free thumb of the hand that holds a prop.
@@ -278,7 +280,7 @@ export function manipulateHeld(
   return {
     duration,
     events: pressTimes.map(
-      (time: number, index: number): { name: string; share: number } => ({
+      (time: number, index: number): IManipulateHeldResult => ({
         name: `press${index + 1}`,
         share: time / duration,
       }),

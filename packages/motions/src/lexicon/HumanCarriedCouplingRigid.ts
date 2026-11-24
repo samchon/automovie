@@ -1,5 +1,6 @@
 import { Quaternion, Vector3, fitRigidMeshTransform } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   AutoMovieHumanoidRegion,
   IAutoMovieMotionHumanBody,
@@ -12,7 +13,7 @@ import type {
 } from "@automovie/interface";
 
 import { HumanTrunk } from "../everyday/HumanTrunk";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { humanPostureHeading } from "../posture/humanPostureHeading";
 import { HumanCarriedCouplingPose } from "./HumanCarriedCouplingPose";
 
 /**
@@ -82,7 +83,7 @@ export namespace HumanCarriedCouplingRigid {
     const from: IAutoMovieVector3[] = [];
     const to: IAutoMovieVector3[] = [];
     (["left", "right"] as const).forEach(
-      (side: "left" | "right", index: number): void => {
+      (side: AutoMovieHumanSide, index: number): void => {
         const hold: IAutoMovieMotionHumanCarried.IHold | null =
           row.holds[index] ?? null;
         const region0: AutoMovieHumanoidRegion | null = held[index] ?? null;
@@ -107,7 +108,7 @@ export namespace HumanCarriedCouplingRigid {
 
     // One direction cannot decide the full orientation.
     if (from.length < 2) {
-      const heading: IAutoMovieQuaternion = resolveHumanPosture.heading(keyed);
+      const heading: IAutoMovieQuaternion = humanPostureHeading(keyed);
       for (const axis of [
         { x: arm, y: 0, z: 0 },
         { x: 0, y: 0, z: arm },

@@ -22,8 +22,8 @@ Each posture retains the base/arm work but reads the partner at most once for it
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 
-The explicit posture invocation fixes this plan, partner, seconds and unchanged composition/stop state. Target callbacks share only that invocation's lazily read partner map, while another time or nested invocation gets its own scope. Both wrappers forward current self FK/ROM loans to their same-body composed plan only; foreign partner queries keep their independent actual reader.
+The explicit posture invocation fixes this plan, partner, seconds and unchanged composition/stop state. Target callbacks share only that invocation's lazily read partner map, carried as the evaluation's explicit loan (`IAutoMovieMotionHumanEvaluation.loan`) and honoured only by this plan at its own second, while another time or nested invocation gets its own loan. Both wrappers forward current self FK/ROM loans to their same-body composed plan only; foreign partner queries keep their independent actual reader.
 
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
-A fresh scope holds at most one partner map during each synchronous posture call and restores an enclosing scope in finally on success or failure; returned postures retain only goal vectors and no scope/map.
+Each posture call's loan holds at most one partner map and lives only in that evaluation; no module or closure state carries it, and returned postures retain only goal vectors and no map.

@@ -6,7 +6,7 @@ import type {
 import { AutoMovieMotionHumanStance } from "@automovie/motions";
 import {
   AutoMovieMotionHumanAuditTangle,
-  HumanArmClearance,
+  HumanArmSwing,
   poseBones,
   resolveHumanPosture,
 } from "@automovie/motions/internal";
@@ -29,9 +29,9 @@ const GIVE: number = 0.01;
 
 /**
  * The hanging arm of a posture is let out of the body it hangs beside
- * (`HumanArmClearance.swung`): a posture that moves the thigh under the quiet
- * stance's relaxed arm leaves the hand's digits in the thigh, and the swung arm
- * takes them out, by the tangle audit's own reading.
+ * (`HumanArmSwing.of`): a posture that moves the thigh under the quiet stance's
+ * relaxed arm leaves the hand's digits in the thigh, and the swung arm takes
+ * them out, by the tangle audit's own reading.
  *
  * Scenarios:
  *
@@ -72,11 +72,9 @@ export function test_motion_stance_rest_arm_clearance(): void {
             ),
         );
 
-      const kept: IAutoMovieMotionHumanPosture = HumanArmClearance.swung(
-        body,
-        quiet,
-        ["right"],
-      );
+      const kept: IAutoMovieMotionHumanPosture = HumanArmSwing.of(body, quiet, [
+        "right",
+      ]);
       checks.check(
         `${profile}: in the quiet stance the relaxed arm hangs as it is`,
         kept.joints.rightUpperArm?.[1] === quiet.joints.rightUpperArm?.[1],
@@ -90,7 +88,7 @@ export function test_motion_stance_rest_arm_clearance(): void {
         joints: { ...quiet.joints, rightUpperLeg: [0, SPREAD, 0] },
       };
       const sunk: number = thigh(spread);
-      const swung: IAutoMovieMotionHumanPosture = HumanArmClearance.swung(
+      const swung: IAutoMovieMotionHumanPosture = HumanArmSwing.of(
         body,
         spread,
         ["right"],

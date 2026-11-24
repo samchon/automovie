@@ -1,4 +1,5 @@
 import type {
+  AutoMovieHumanSide,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanCrossing,
   IAutoMovieMotionHumanStepOver,
@@ -27,7 +28,7 @@ import { crossingSurface } from "../terrain/crossingSurface";
 export function stepOverLanding(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanStepOver.IParams>,
   framed: HumanFrame.IPrepared,
-  rest: Record<"left" | "right", number>,
+  rest: Record<AutoMovieHumanSide, number>,
   nearest: number,
   stride: number,
 ): stepOverLanding.ILanding {

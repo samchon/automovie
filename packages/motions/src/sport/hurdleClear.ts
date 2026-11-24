@@ -21,7 +21,7 @@ import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMo
 import { HumanObstacle } from "../everyday/HumanObstacle";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFoot } from "../posture/HumanFoot";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { humanPostureHeading } from "../posture/humanPostureHeading";
 import { AthleticsRunUp } from "./AthleticsRunUp";
 import { AthleticsSwing } from "./AthleticsSwing";
 
@@ -433,10 +433,7 @@ export namespace hurdleClear {
             ...pitched,
             root: Vector3.subtract(
               root(seconds),
-              Quaternion.rotateVector(
-                resolveHumanPosture.heading(pitched),
-                hipsRest,
-              ),
+              Quaternion.rotateVector(humanPostureHeading(pitched), hipsRest),
             ),
           };
         },

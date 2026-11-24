@@ -1,5 +1,6 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   IAutoMovieAffordance,
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanBody,
@@ -16,8 +17,17 @@ import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
 import { hipJoints } from "../posture/hipJoints";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { humanPostureHeading } from "../posture/humanPostureHeading";
 import { HumanMount } from "./HumanMount";
+
+/** The alternatives of `BenchAttitude`'s site. */
+type BenchAttitude = "yaw" | "pitch" | "roll";
+
+/** The alternatives of `AsideAttitude`'s site. */
+type AsideAttitude = "yaw" | "pitch" | "roll";
+
+/** The record of `IBENCHItem`'s site. */
+type IBENCHItem = { pitch: number; spine: number };
 
 /**
  * The key postures of the mounted seat kinds
@@ -48,7 +58,7 @@ export namespace HumanMountedSeats {
    * (provisional: the guideline's figure shows a trunk inclined forward over
    * the handles).
    */
-  export const BENCH: Readonly<{ pitch: number; spine: number }> = {
+  export const BENCH: Readonly<IBENCHItem> = {
     pitch: 45,
     spine: 20,
   };
@@ -197,17 +207,18 @@ export namespace HumanMountedSeats {
     const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
     // Square to the carrier's front: the model-aligned frame's heading on the turn nearest the entered one.
     const facing: number = 360 * Math.round(entry.yaw / 360);
-    const attitude: Pick<
-      IAutoMovieMotionHumanPosture,
-      "yaw" | "pitch" | "roll"
-    > = { yaw: facing, pitch: entry.pitch, roll: 0 };
+    const attitude: Pick<IAutoMovieMotionHumanPosture, AsideAttitude> = {
+      yaw: facing,
+      pitch: entry.pitch,
+      roll: 0,
+    };
     const root: IAutoMovieVector3 = seated.root(
       body,
       seated.socket(body, entry),
       attitude,
     );
-    const turn: IAutoMovieQuaternion = resolveHumanPosture.heading(attitude);
-    const hips: Record<"left" | "right", IAutoMovieVector3> = hipJoints(
+    const turn: IAutoMovieQuaternion = humanPostureHeading(attitude);
+    const hips: Record<AutoMovieHumanSide, IAutoMovieVector3> = hipJoints(
       body,
       root,
       turn,
@@ -352,18 +363,19 @@ export namespace HumanMountedSeats {
     const { body, entry } = context;
     const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
     const facing: number = 360 * Math.round(entry.yaw / 360);
-    const attitude: Pick<
-      IAutoMovieMotionHumanPosture,
-      "yaw" | "pitch" | "roll"
-    > = { yaw: facing, pitch: BENCH.pitch, roll: 0 };
-    const turn: IAutoMovieQuaternion = resolveHumanPosture.heading(attitude);
+    const attitude: Pick<IAutoMovieMotionHumanPosture, BenchAttitude> = {
+      yaw: facing,
+      pitch: BENCH.pitch,
+      roll: 0,
+    };
+    const turn: IAutoMovieQuaternion = humanPostureHeading(attitude);
     const pad: IAutoMovieVector3 = context.point(supports.leftKnee!);
-    const handles: Record<"left" | "right", IAutoMovieVector3> = {
+    const handles: Record<AutoMovieHumanSide, IAutoMovieVector3> = {
       left: context.point(supports.leftHand!),
       right: context.point(supports.rightHand!),
     };
     const kneeY: number = pad.y + m.shankRadius;
-    const rest: Record<"left" | "right", IAutoMovieVector3> = hipJoints(
+    const rest: Record<AutoMovieHumanSide, IAutoMovieVector3> = hipJoints(
       body,
       { x: 0, y: 0, z: 0 },
       turn,
@@ -375,7 +387,7 @@ export namespace HumanMountedSeats {
       { x: 0, y: kneeY + m.thigh, z: ahead - m.thigh },
       middle,
     );
-    const hips: Record<"left" | "right", IAutoMovieVector3> = hipJoints(
+    const hips: Record<AutoMovieHumanSide, IAutoMovieVector3> = hipJoints(
       body,
       root,
       turn,
@@ -436,7 +448,7 @@ export namespace HumanMountedSeats {
     }
 
     // The inclined trunk carries the shoulders forward over the handles; each handle must lie within the arm's reach.
-    const lean: IAutoMovieQuaternion = resolveHumanPosture.heading({
+    const lean: IAutoMovieQuaternion = humanPostureHeading({
       ...attitude,
       pitch: BENCH.pitch + BENCH.spine,
     });

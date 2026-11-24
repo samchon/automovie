@@ -40,6 +40,10 @@ const CLEARANCE: number = 0.035;
 
 /** Provisional tilt toward the outside edge for clearance over coplanar strings. */
 const TILT: number = Math.PI / 15;
+/** The record of `IBowViolin`'s site. */
+type IBowViolin = {
+  name: "bowViolin";
+};
 
 /**
  * One staged open-string violin stroke with a held bow. Register this law with
@@ -56,12 +60,9 @@ const TILT: number = Math.PI / 15;
  * coplanar instrument. The performer moves the right arm and holds the same
  * grip throughout. The violin is staged as a fixed prop. This geometry models
  * contact only, with hair deflection and note acoustics outside the law.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Gives registration, phases, measurements, staging and limits.
  */
-export const bowViolin: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanBowViolinParams> & {
-  name: "bowViolin";
-} = {
+export const bowViolin: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanBowViolinParams> &
+  IBowViolin = {
   name: "bowViolin",
   overlay: true,
   interrupts: {},
@@ -71,6 +72,8 @@ export const bowViolin: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanBowV
 /**
  * Place the bow from its held frame, then pose its hand on the four stroke
  * phases.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Gives registration, phases, measurements, staging and limits.
  */
 function planStroke(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanBowViolinParams>,

@@ -5,13 +5,16 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+/** The alternatives of `HumanPostureHeadingPosture`'s site. */
+type HumanPostureHeadingPosture = "yaw" | "pitch" | "roll";
+
 /**
  * Compose the existing world-Y yaw, local-X pitch and local-Z roll using three
  * private fixed-axis readers. Angle reads and product grouping remain yaw, then
  * pitch, then roll, followed by the original final normalization.
  */
 export function humanPostureHeading(
-  posture: Pick<IAutoMovieMotionHumanPosture, "yaw" | "pitch" | "roll">,
+  posture: Pick<IAutoMovieMotionHumanPosture, HumanPostureHeadingPosture>,
 ): IAutoMovieQuaternion {
   return Quaternion.normalize(
     Quaternion.multiply(
@@ -20,6 +23,8 @@ export function humanPostureHeading(
     ),
   );
 }
+/** The alternatives of `HumanPostureHeadingAnglesResult`'s site. */
+type HumanPostureHeadingAnglesResult = "yaw" | "pitch" | "roll";
 
 /** Original numerical inverse of the shared heading convention. */
 export namespace humanPostureHeading {
@@ -29,7 +34,7 @@ export namespace humanPostureHeading {
    */
   export function angles(
     rotation: IAutoMovieQuaternion,
-  ): Pick<IAutoMovieMotionHumanPosture, "yaw" | "pitch" | "roll"> {
+  ): Pick<IAutoMovieMotionHumanPosture, HumanPostureHeadingAnglesResult> {
     const forward: IAutoMovieVector3 = Quaternion.rotateVector(rotation, {
       x: 0,
       y: 0,

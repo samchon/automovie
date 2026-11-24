@@ -1,5 +1,6 @@
 import { Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   AutoMovieMotionHumanActionName,
   IAutoMovieHumanLimbGoal,
@@ -30,6 +31,7 @@ import { AutoMovieMotionHumanTarget } from "../compose/AutoMovieMotionHumanTarge
 import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
+import { HumanBoneGroups } from "../posture/HumanBoneGroups";
 import { HumanFrame } from "../posture/HumanFrame";
 import { StrikingBody } from "../striking/StrikingBody";
 import { StrikingQuality } from "../striking/StrikingQuality";
@@ -169,8 +171,9 @@ export namespace flinch {
             entry,
             AutoMovieMotionHumanTarget.DEFAULTS.ahead,
           ),
-          StrikingBody.trunk(body, entry, undefined, HEAD).get("head")!
-            .worldPosition,
+          StrikingBody.trunk(body, entry, undefined, HumanBoneGroups.HEAD).get(
+            "head",
+          )!.worldPosition,
           entry.yaw,
         ),
       );
@@ -184,10 +187,10 @@ export namespace flinch {
       StrikingBody.prepareTrunk(body, faceBones);
     const fist: number = StrikingQuality.fist(m.hand);
     const cover: (
-      side: "left" | "right",
+      side: AutoMovieHumanSide,
     ) => Parameters<typeof AutoMovieMotionHumanArm.carried>[0]["goal"] =
       (
-        side: "left" | "right",
+        side: AutoMovieHumanSide,
       ): Parameters<typeof AutoMovieMotionHumanArm.carried>[0]["goal"] =>
       (
         posture: IAutoMovieMotionHumanPosture,
@@ -245,8 +248,8 @@ export namespace flinch {
       };
 
     // Each arm leaves the angles the entry held and comes back to them.
-    const arm: (side: "left" | "right") => IAutoMovieMotionHumanPrimitive = (
-      side: "left" | "right",
+    const arm: (side: AutoMovieHumanSide) => IAutoMovieMotionHumanPrimitive = (
+      side: AutoMovieHumanSide,
     ): IAutoMovieMotionHumanPrimitive =>
       AutoMovieMotionHumanArm.carried({
         body,
@@ -311,8 +314,4 @@ export namespace flinch {
       ],
     });
   }
-
-  /** The lazy entry-direction observation reads only the head's actual ancestry. */
-  const HEAD: ReadonlySet<AutoMovieHumanoidBone> =
-    new Set<AutoMovieHumanoidBone>(["head"]);
 }

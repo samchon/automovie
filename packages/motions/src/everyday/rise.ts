@@ -27,7 +27,8 @@ import { HumanPhysics } from "../law/HumanPhysics";
 import { HumanMountOff } from "../lexicon/HumanMountOff";
 import { HumanFrame } from "../posture/HumanFrame";
 import { hipJoints } from "../posture/hipJoints";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { humanPostureHeading } from "../posture/humanPostureHeading";
+import { lowerHumanPosture } from "../posture/lowerHumanPosture";
 import { HumanTrunk } from "./HumanTrunk";
 import { prepareBearingTrunkBalance } from "./prepareBearingTrunkBalance";
 import { prepareGroundedBalance } from "./prepareGroundedBalance";
@@ -38,6 +39,12 @@ import { riseRested } from "./riseRested";
 import { riseSeatOff } from "./riseSeatOff";
 import { seated } from "./seated";
 import { seatedCourse } from "./seatedCourse";
+
+/** The record of `IPlanSat`'s site. */
+type IPlanSat = { seat?: IAutoMovieMotionHumanSeated.ISeat };
+
+/** The alternatives of `PlanEntryHeading`'s site. */
+type PlanEntryHeading = "yaw" | "pitch" | "roll";
 
 /**
  * Standing up from a seat, in the four phases of sit-to-stand (Schenkman,
@@ -204,10 +211,7 @@ export namespace rise {
         ? context.entry.base.seat?.armrests
         : undefined;
     const pitch0: number = context.entry.posture.pitch;
-    const entryHeading: Pick<
-      IAutoMovieMotionHumanPosture,
-      "yaw" | "pitch" | "roll"
-    > = {
+    const entryHeading: Pick<IAutoMovieMotionHumanPosture, PlanEntryHeading> = {
       yaw,
       pitch: pitch0,
       roll: 0,
@@ -216,7 +220,7 @@ export namespace rise {
       body,
       entryHeading,
     );
-    const feet: Record<"left" | "right", IAutoMovieVector3> = stand.feet(
+    const feet: Record<AutoMovieHumanSide, IAutoMovieVector3> = stand.feet(
       body,
       context.entry,
       yaw,
@@ -242,10 +246,10 @@ export namespace rise {
     const hipJointAt: (socket: IAutoMovieVector3) => number = (
       socket: IAutoMovieVector3,
     ): number => {
-      const hips: Record<"left" | "right", IAutoMovieVector3> = hipJoints(
+      const hips: Record<AutoMovieHumanSide, IAutoMovieVector3> = hipJoints(
         body,
         entryRoot(socket),
-        resolveHumanPosture.heading(entryHeading),
+        humanPostureHeading(entryHeading),
       );
       return (along(hips.left) + along(hips.right)) / 2;
     };
@@ -257,7 +261,7 @@ export namespace rise {
     const from: IAutoMovieMotionHumanEntryState["from"] = context.entry.from;
     const sat: IAutoMovieMotionHumanSeated.ISeat | undefined =
       from !== undefined && from.family === "sit"
-        ? (from.params as { seat?: IAutoMovieMotionHumanSeated.ISeat }).seat
+        ? (from.params as IPlanSat).seat
         : undefined;
     if (sat !== undefined)
       scoot = Math.min(
@@ -287,14 +291,14 @@ export namespace rise {
     const hipBegin: number = hipJointAt(begin);
     const drawAt: (
       angle: number,
-    ) => Record<"left" | "right", IAutoMovieVector3> = (
+    ) => Record<AutoMovieHumanSide, IAutoMovieVector3> = (
       angle: number,
-    ): Record<"left" | "right", IAutoMovieVector3> => {
+    ): Record<AutoMovieHumanSide, IAutoMovieVector3> => {
       const behind: number =
         hipBegin +
         body.measure.thigh -
         body.measure.shank * Math.sin((angle * Math.PI) / 180);
-      const out: Record<"left" | "right", IAutoMovieVector3> = {
+      const out: Record<AutoMovieHumanSide, IAutoMovieVector3> = {
         left: feet.left,
         right: feet.right,
       };
@@ -321,7 +325,7 @@ export namespace rise {
     const peak: number = seatedCourse.flexion(r);
     const off: number = riseSeatOff(rising);
 
-    const swings: Partial<Record<"left" | "right", [number, number]>> = {};
+    const swings: Partial<Record<AutoMovieHumanSide, [number, number]>> = {};
     let clock: number = edging;
     // The foot on the side the feet move to leads, so they never cross.
     for (const side of aside < 0
@@ -458,7 +462,7 @@ export namespace rise {
     const legs: courseHumanLegs.Seeded = courseHumanLegs({
       body,
       posture: (t: number): IAutoMovieMotionHumanPosture =>
-        resolveHumanPosture.lower(body, bodyAt(t)),
+        lowerHumanPosture(body, bodyAt(t)),
       span: { start: 0, end: duration },
       instants: [prepared, seatOff],
       entry: context.entry.pose,

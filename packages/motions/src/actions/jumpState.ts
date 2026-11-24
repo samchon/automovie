@@ -1,4 +1,5 @@
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPosture,
@@ -17,14 +18,14 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 /** Canonical endpoint data shared by the jump's free-flight shape and COM. */
 export namespace jumpState {
   /**
-   * Read a jump phase's achieved canonical endpoint, including its ordinary final
-   * clamp and planted refit, before a free phase inherits that shape. This reads
-   * the law's own posture, not arbitrary composed overlays or cuts.
+   * Read a jump phase's achieved canonical endpoint, including its ordinary
+   * final clamp and planted refit, before a free phase inherits that shape.
+   * This reads the law's own posture, not arbitrary composed overlays or cuts.
    *
    * @param body The actual unchanged body.
    * @param posture The law's already lowered raw endpoint.
-   * @param legs The knee/ankle FK reader `prepareLegs` built for this body by the
-   *   caller.
+   * @param legs The knee/ankle FK reader `prepareLegs` built for this body by
+   *   the caller.
    * @param resolution Optional exact FK source borrowed from this same
    *   synchronous endpoint preparation.
    * @param projection Optional genuine same-body ROM projector borrowed only
@@ -83,8 +84,8 @@ export namespace jumpState {
       { ...pose, root: null },
       read(),
     );
-    const leg: (side: "left" | "right") => jumpState.ILeg = (
-      side: "left" | "right",
+    const leg: (side: AutoMovieHumanSide) => jumpState.ILeg = (
+      side: AutoMovieHumanSide,
     ): jumpState.ILeg => {
       const foot: IAutoMovieResolvedBone = bones.get(`${side}Foot`)!;
       return {
@@ -102,8 +103,8 @@ export namespace jumpState {
   }
 
   /**
-   * Prepare the knee and ankle FK reader `of` reads endpoint legs with, once per
-   * jump plan for its unchanged body.
+   * Prepare the knee and ankle FK reader `of` reads endpoint legs with, once
+   * per jump plan for its unchanged body.
    *
    * @param body The plan's unchanged body.
    * @returns A reader of the four leg bones' frames for a pose.
@@ -144,6 +145,6 @@ export namespace jumpState {
     /** Achieved clinical angles, degrees; neutral nulls read as zero. */
     joints: IAutoMovieMotionHumanPosture["joints"];
     /** Achieved geometry of both legs in the canonical root frame. */
-    legs: Record<"left" | "right", ILeg>;
+    legs: Record<AutoMovieHumanSide, ILeg>;
   }
 }

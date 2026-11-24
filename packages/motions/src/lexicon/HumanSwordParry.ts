@@ -29,6 +29,24 @@ import { StrikingSkill } from "../striking/StrikingSkill";
 import { HumanSword } from "./HumanSword";
 import { HumanSwordTiming } from "./HumanSwordTiming";
 
+/** The record of `IParryFound`'s site. */
+type IParryFound = {
+  share: number;
+  frame: IAutoMovieMotionHumanStrikingHeld.IHandFrame;
+};
+
+/** The record of `IParryChosen`'s site. */
+type IParryChosen = {
+  share: number;
+  frame: IAutoMovieMotionHumanStrikingHeld.IHandFrame;
+};
+
+/** The record of `IParryReceivedResult`'s site. */
+type IParryReceivedResult = {
+  share: number;
+  frame: IAutoMovieMotionHumanStrikingHeld.IHandFrame;
+};
+
 /**
  * The parry of blade work: the strong of the blade brought across an incoming
  * blade where its attack is stopped.
@@ -307,14 +325,6 @@ export namespace HumanSwordParry {
    * attack is stopped, meeting it at `stroke`, or to a line as a drill. A
    * meeting beyond the arm is refused on `target`; an attack without a blade on
    * `against`.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what meets what, the instant and the refusals.
-   * @evidence contracts/development/implementation.md#principled-implementation The attacker's displayed blade at the attack's decisive instant gives the meeting point (`WEAK` of its length back from its point, the strong of the parrying blade on the weak of the attacking one); the parrying blade crosses it, upright for a high line and point down for a low one, offset to the defender's side by `HumanSword.GAP`. The parry waits in its entry hold so that its own travel ends on that instant.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Where the blades meet, the closed pose, the timing, a taken blade's carrying aside, then the shared stroke planner.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The meeting and receiving places are the blades' thirds, the hold is the stopped attack's own stay and every travel one minimum-jerk unit at the cited peak speed; a parry that starts too late for its travel keeps its own time and arrives late, never faster than its skill; a drill's meeting is the guard's hand carried to the trunk's edge and `LEAN` the friction angle of steel on steel.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One read of the attacker's prop frame per plan.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Planned once per instance; nothing is shared between instances.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over its constants and the entry state, released with the plan.
    */
   export const parry: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanSwordParry.IParry> =
     {
@@ -348,12 +358,7 @@ export namespace HumanSwordParry {
             LEAN,
             context.entry.posture,
           );
-        const received = (
-          meeting: IMeet,
-        ): {
-          share: number;
-          frame: IAutoMovieMotionHumanStrikingHeld.IHandFrame;
-        } => {
+        const received = (meeting: IMeet): IParryReceivedResult => {
           for (const share of HumanSword.THIRDS) {
             const frame: IAutoMovieMotionHumanStrikingHeld.IHandFrame = receive(
               meeting,
@@ -384,21 +389,13 @@ export namespace HumanSwordParry {
         // blade across it there: the first meeting the fitted hand holds within
         // `StrikingRoll.MISS`, else the one it holds best.
         let m: IMeet | undefined;
-        let chosen:
-          | {
-              share: number;
-              frame: IAutoMovieMotionHumanStrikingHeld.IHandFrame;
-            }
-          | undefined;
+        let chosen: IParryChosen | undefined;
         let least: number = Infinity;
         for (const weak of context.params.against === undefined
           ? [WEAK]
           : SLIDE) {
           const meeting: IMeet = meet(context, s, weak, held.point);
-          const found: {
-            share: number;
-            frame: IAutoMovieMotionHumanStrikingHeld.IHandFrame;
-          } = received(meeting);
+          const found: IParryFound = received(meeting);
           const missed: number = StrikingRoll.miss(
             context,
             s.tool,

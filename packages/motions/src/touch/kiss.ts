@@ -43,6 +43,9 @@ import { kissPose } from "./kissPose";
 import { kissPresentedHand } from "./kissPresentedHand";
 import { kissProjection } from "./kissProjection";
 
+/** The alternatives of `PlanSurface`'s site. */
+type PlanSurface = "point" | "normal";
+
 /**
  * A kiss while standing: the lips brought to a partner's region (a cheek, the
  * forehead, the crown, the lips, the back of a hand) by leaning the body from
@@ -360,10 +363,7 @@ export namespace kiss {
       p.region.startsWith("cheek") ||
       p.region.startsWith("jaw");
 
-    const surface: Pick<
-      IAutoMovieMotionHumanTarget.IPlace,
-      "point" | "normal"
-    > =
+    const surface: Pick<IAutoMovieMotionHumanTarget.IPlace, PlanSurface> =
       meeting === undefined
         ? context.aim(target, context.start)
         : AutoMovieMotionMeeting.place(meeting, "contact", entry);

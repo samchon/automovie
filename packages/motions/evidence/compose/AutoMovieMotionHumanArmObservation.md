@@ -186,7 +186,7 @@ States world-metre goal seating, end-frame contact offset, optional orientation/
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-resolveHumanPosture.world seats attached goals first; the goal's end rotation then carries its end-local contact offset from wrist to world contact point, with identity when rotation is absent, as in the original site rule.
+HumanLimbFit.world seats attached goals first; the goal's end rotation then carries its end-local contact offset from wrist to world contact point, with identity when rotation is absent, as in the original site rule.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 

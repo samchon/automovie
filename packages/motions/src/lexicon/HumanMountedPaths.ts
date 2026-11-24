@@ -12,7 +12,7 @@ import type {
 } from "@automovie/interface";
 
 import { hipJoints } from "../posture/hipJoints";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { humanPostureHeading } from "../posture/humanPostureHeading";
 import { HumanMount } from "./HumanMount";
 import { HumanMountedFrame } from "./HumanMountedFrame";
 import type { HumanMountedSeats } from "./HumanMountedSeats";
@@ -49,7 +49,7 @@ export namespace HumanMountedPaths {
     const joints: Record<AutoMovieHumanSide, IAutoMovieVector3> = hipJoints(
       body,
       posture.root,
-      resolveHumanPosture.heading(posture),
+      humanPostureHeading(posture),
       posture.joints.hips,
     );
     return Vector3.lerp(joints.left, joints.right, 0.5);
@@ -133,7 +133,7 @@ export namespace HumanMountedPaths {
     const joints: Record<AutoMovieHumanSide, IAutoMovieVector3> = hipJoints(
       body,
       posture.root,
-      resolveHumanPosture.heading(posture),
+      humanPostureHeading(posture),
       posture.joints.hips,
     );
     const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...posture.limbs };

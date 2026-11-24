@@ -1,5 +1,6 @@
 import { Vector3, minimumJerk } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieMotionHumanChannel,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanBody,
@@ -65,7 +66,7 @@ export namespace KickGeometry {
   ): IAutoMovieMotionHumanKickGeometry {
     const body: IAutoMovieMotionHumanBody = context.body;
     const { side }: IAutoMovieMotionHumanKickGeometry.ITiming = timing;
-    const support: "left" | "right" = side === "left" ? "right" : "left";
+    const support: AutoMovieHumanSide = side === "left" ? "right" : "left";
     const { line, offset, props, origin, feint }: KickLaunch.ILaunch = launch;
 
     // What follows the partner as shown: the aim's tracker, and a contact
@@ -339,8 +340,8 @@ export namespace KickGeometry {
    */
   function windows(
     timing: IAutoMovieMotionHumanKickGeometry.ITiming,
-    side: "left" | "right",
-    support: "left" | "right",
+    side: AutoMovieHumanSide,
+    support: AutoMovieHumanSide,
     stepped: boolean,
     recovery?: strikingStepSupport.ISupport,
   ): IAutoMovieMotionHumanContactWindow[] {

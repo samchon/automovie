@@ -12,6 +12,9 @@ import { stand } from "../actions/stand";
 import { HumanFrame } from "../posture/HumanFrame";
 import type { HumanGrasp } from "./HumanGrasp";
 
+/** The alternatives of `StandingBonesEntry`'s site. */
+type StandingBonesEntry = "worldPosition" | "worldRotation";
+
 /**
  * Where another person's arm is predicted from and how a grip turns about its
  * handle: the standing posture a person settles into, and a target turned about
@@ -33,7 +36,7 @@ export namespace HumanGraspReach {
     body: IAutoMovieMotionHumanBody,
     bones: ReadonlyMap<
       AutoMovieHumanoidBone,
-      Pick<IAutoMovieResolvedBone, "worldPosition" | "worldRotation">
+      Pick<IAutoMovieResolvedBone, StandingBonesEntry>
     >,
   ): IAutoMovieMotionHumanPosture {
     const yaw: number = HumanFrame.heading(bones.get("hips")!.worldRotation);

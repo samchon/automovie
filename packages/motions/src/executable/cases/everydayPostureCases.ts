@@ -263,6 +263,12 @@ export function everydayPostureCases(
   }
   return out;
 }
+/** The record of `IObstacleBox`'s site. */
+type IObstacleBox = {
+  at: IAutoMovieVector3;
+  height: number;
+  depth: number;
+};
 
 /**
  * A box to step over as a prop: a kerb's `edge` along its near top and its
@@ -272,19 +278,8 @@ export function everydayPostureCases(
  * @param box The near side's middle on the floor, the height and the depth,
  *   metres.
  * @returns The prop.
- * @evidence contracts/development/common.md#meaningful-documentation States the contacts and the turn.
- * @evidence contracts/development/implementation.md#principled-implementation `createKerb`'s `edge` and `top` at its frames, the kerb half turned about `+Y`.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One prop literal.
- * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts The motions package does not depend on the archetypes, so the case declares the box's contacts itself.
- * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Built once per case.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Plain data.
  */
-function obstacle(box: {
-  at: IAutoMovieVector3;
-  height: number;
-  depth: number;
-}): IAutoMovieMotionHumanProp {
+function obstacle(box: IObstacleBox): IAutoMovieMotionHumanProp {
   const identity: IAutoMovieQuaternion = { x: 0, y: 0, z: 0, w: 1 };
   return {
     subject: "box",

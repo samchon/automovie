@@ -21,6 +21,9 @@ import { AutoMovieMotionHumanHeld } from "../compose/AutoMovieMotionHumanHeld";
 import { HumanHand } from "../posture/HumanHand";
 import { StrikingHeld } from "../striking/StrikingHeld";
 
+/** The alternatives of `GripContext`'s site. */
+type GripContext = "body" | "prop" | "start";
+
 /**
  * A grip judged by what the performer's next action on the prop will do with it
  * (`IHumanActionContext.demands`): the grip a candidate grasp would take, as
@@ -51,10 +54,7 @@ export namespace HumanGraspDemand {
    * @returns The grip.
    */
   export function grip(
-    context: Pick<
-      IAutoMovieMotionHumanActionContext,
-      "body" | "prop" | "start"
-    >,
+    context: Pick<IAutoMovieMotionHumanActionContext, GripContext>,
     prop: string,
     side: AutoMovieHumanSide,
     shown: IAutoMovieMotionHumanHand.IWrist,

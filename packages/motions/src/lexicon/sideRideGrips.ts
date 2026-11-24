@@ -6,7 +6,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { humanPostureHeading } from "../posture/humanPostureHeading";
 
 /**
  * The side of each grip's axis the fingers close over, chosen once where a
@@ -31,7 +31,7 @@ export function sideRideGrips(
   >
 > {
   const forward: IAutoMovieVector3 = Quaternion.rotateVector(
-    resolveHumanPosture.heading(seated),
+    humanPostureHeading(seated),
     { x: 0, y: 0, z: 1 },
   );
   const sides: Partial<

@@ -18,7 +18,7 @@ This performance is not changed; earlier windows stay under the new one.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
-One bake; the copy reads the resolution memo when it still holds the input (`HumanPerformanceState.of`) and resolves it again otherwise.
+One bake; the copy resolves its own input again (`HumanPerformanceState.of`).
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 

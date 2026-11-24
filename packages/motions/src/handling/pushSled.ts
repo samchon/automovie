@@ -27,6 +27,7 @@ import { AutoMovieMotionHumanTrunk } from "../compose/AutoMovieMotionHumanTrunk"
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
+import { HumanBoneGroups } from "../posture/HumanBoneGroups";
 import { HumanFreedomChoice } from "../posture/HumanFreedomChoice";
 import { HumanHand } from "../posture/HumanHand";
 import { placeHumanHandSurface } from "../posture/placeHumanHandSurface";
@@ -191,9 +192,13 @@ export namespace pushSled {
       posture: IAutoMovieMotionHumanPosture,
       resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
     ): IAutoMovieResolvedBone =>
-      HumanTrunk.resolve(body, posture, undefined, resolution, CHEST).get(
-        "chest",
-      )!;
+      HumanTrunk.resolve(
+        body,
+        posture,
+        undefined,
+        resolution,
+        HumanBoneGroups.CHEST,
+      ).get("chest")!;
 
     const taking: IAutoMovieMotionHumanPosture = leaned(
       base.posture(SETTLE),
@@ -499,6 +504,3 @@ export namespace pushSled {
     };
   }
 }
-
-/** The only trunk frame the load carry reads. */
-const CHEST: ReadonlySet<AutoMovieHumanoidBone> = new Set(["chest"]);

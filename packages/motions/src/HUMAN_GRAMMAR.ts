@@ -5,11 +5,6 @@ import type { IAutoMovieMotionHumanGrammar } from "@automovie/interface";
  * operators that join actions, each with the surface that carries it. A page, a
  * test generator and documentation read this, so they name the grammar as the
  * package does.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what the table is and who reads it.
- * @evidence contracts/development/design.md#principled-representation Two closed lists of named entries, each pointing at the export that carries it.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The axes and the operators; the exports named own their behaviour.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Literal data with `as const`, so the names are types too.
  */
 export const HUMAN_GRAMMAR = {
   axes: [

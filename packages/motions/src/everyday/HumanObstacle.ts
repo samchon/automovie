@@ -10,6 +10,9 @@ import type {
 
 import { HumanRefusal } from "../law/HumanRefusal";
 
+/** The alternatives of `OfContext`'s site. */
+type OfContext = "prop" | "start";
+
 /**
  * A low obstacle as a stepping-over act reads it: the middle of its near side
  * on the floor, its height and its depth.
@@ -45,7 +48,7 @@ export namespace HumanObstacle {
    *   a non-positive height or depth.
    */
   export function of(
-    context: Pick<IAutoMovieMotionHumanActionContext, "prop" | "start">,
+    context: Pick<IAutoMovieMotionHumanActionContext, OfContext>,
     subject: string,
     from?: IAutoMovieVector3,
   ): IObstacle {

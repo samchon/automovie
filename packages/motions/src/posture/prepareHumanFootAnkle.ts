@@ -1,5 +1,6 @@
 import { Quaternion } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
@@ -7,6 +8,9 @@ import type {
 
 import { HumanFootRotation } from "./HumanFootRotation";
 import { humanFootOffset } from "./humanFootOffset";
+
+/** The alternatives of `PrepareHumanFootAnklePivot`'s site. */
+type PrepareHumanFootAnklePivot = "heel" | "ball" | "toe" | "sole" | "mtp";
 
 /**
  * Prepare the ankle of a foot pivoting about a sole point fixed in the world,
@@ -25,8 +29,8 @@ import { humanFootOffset } from "./humanFootOffset";
  */
 export function prepareHumanFootAnkle(
   body: IAutoMovieMotionHumanBody,
-  side: "left" | "right",
-  pivot: "heel" | "ball" | "toe" | "sole" | "mtp",
+  side: AutoMovieHumanSide,
+  pivot: PrepareHumanFootAnklePivot,
   at: IAutoMovieVector3,
   heading: number,
 ): (pitch: number) => IAutoMovieVector3 {

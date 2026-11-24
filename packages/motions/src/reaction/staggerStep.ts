@@ -1,5 +1,6 @@
 import { Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   IAutoMovieMotionHumanFoot,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -61,7 +62,7 @@ export namespace staggerStep {
    */
   export function take(
     pendulum: StaggerPendulum,
-    side: "left" | "right",
+    side: AutoMovieHumanSide,
     reaction: number,
     unloaded: boolean,
     admit?: (
@@ -81,7 +82,7 @@ export namespace staggerStep {
     }: typeof staggerBounds = staggerBounds;
     const { centre, forward, across, entered, width, length }: StaggerPendulum =
       pendulum;
-    const stance: "left" | "right" = side === "left" ? "right" : "left";
+    const stance: AutoMovieHumanSide = side === "left" ? "right" : "left";
     if (reaction > 0) pendulum.bear(["left", "right"], reaction);
 
     // The leg a sideways push unloads leaves the floor sooner and swings

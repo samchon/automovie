@@ -1,5 +1,6 @@
 import { Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieMotionHumanActionName,
   IAutoMovieMotionClock,
   IAutoMovieMotionHumanActionContext,
@@ -128,7 +129,7 @@ export namespace martialArt {
       z: 0,
     });
     const stance: Record<
-      "left" | "right",
+      AutoMovieHumanSide,
       IAutoMovieMotionHumanFoot.IPlacement
     > = {
       left: {
@@ -179,11 +180,11 @@ export namespace martialArt {
       }),
     });
     const lead: (
-      side: "left" | "right",
+      side: AutoMovieHumanSide,
       by: IAutoMovieVector3,
       s: number,
     ) => IAutoMovieMotionHumanFoot.IPlacement = (
-      side: "left" | "right",
+      side: AutoMovieHumanSide,
       by: IAutoMovieVector3,
       s: number,
     ): IAutoMovieMotionHumanFoot.IPlacement =>
@@ -199,10 +200,10 @@ export namespace martialArt {
     const bearing: (s: number) => boolean = (s: number): boolean =>
       into(s) <= 0 || into(s) >= 1;
     const stepped: (
-      side: "left" | "right",
+      side: AutoMovieHumanSide,
       by: IAutoMovieVector3,
     ) => IAutoMovieMotionHumanPrimitive = (
-      side: "left" | "right",
+      side: AutoMovieHumanSide,
       by: IAutoMovieVector3,
     ): IAutoMovieMotionHumanPrimitive =>
       AutoMovieMotionHumanLeg.place({
@@ -217,9 +218,9 @@ export namespace martialArt {
         planted: bearing,
       });
     const rest: (
-      side: "left" | "right",
+      side: AutoMovieHumanSide,
     ) => IAutoMovieMotionHumanArmAngles.IAngles = (
-      side: "left" | "right",
+      side: AutoMovieHumanSide,
     ): IAutoMovieMotionHumanArmAngles.IAngles =>
       AutoMovieMotionHumanArm.angles(context.entry.pose, side);
     const primitives: IAutoMovieMotionHumanPrimitive[] = [];
@@ -272,8 +273,8 @@ export namespace martialArt {
         ready + 2 * i * PUNCH * modifiers.tempo;
       const ease: (u: number) => number = (u: number): number =>
         u * u * (3 - 2 * u);
-      const extended: (side: "left" | "right", s: number) => number = (
-        side: "left" | "right",
+      const extended: (side: AutoMovieHumanSide, s: number) => number = (
+        side: AutoMovieHumanSide,
         s: number,
       ): number => {
         const first: number = side === "right" ? 0 : 1;

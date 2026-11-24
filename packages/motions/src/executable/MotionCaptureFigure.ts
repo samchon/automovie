@@ -9,6 +9,9 @@ import {
 } from "@automovie/render";
 import * as THREE from "three";
 
+/** The record of `IMotionCaptureFigureB`'s site. */
+type IMotionCaptureFigureB = { bone: string };
+
 /**
  * The polygon man of one canonical Human body, drawn by the renderer's polygon
  * builder and posed from canonical poses.
@@ -19,13 +22,6 @@ import * as THREE from "three";
  * `AutoMovieHumanCanonicalBody.REFLECTION`, which shows it in the canonical
  * world; three.js reverses winding for that mirrored matrix, so faces keep
  * their orientation. The drawing is the bare polygon body.
- *
- * @evidence contracts/development/implementation.md#principled-implementation Uses Human's own canonical adapter for placements and the renderer's own polygon builder for geometry.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Build once, then `place` applies each pose.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No display correction or added geometry.
- * @evidence contracts/development/implementation.md#efficient-algorithms Building is linear in drawing triangles; placing is linear in joints.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work One drawing serves every frame of a run.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The drawing is disposed by `dispose`.
  */
 export class MotionCaptureFigure {
   /** The figure root, in the canonical world. */
@@ -51,7 +47,7 @@ export class MotionCaptureFigure {
         ? {}
         : {
             partColors: Object.fromEntries(
-              rest.bones.map((b: { bone: string }): [string, number] => [
+              rest.bones.map((b: IMotionCaptureFigureB): [string, number] => [
                 b.bone,
                 color,
               ]),

@@ -16,6 +16,16 @@ type Vector = [number, number, number];
 
 /** Quaternion components in x/y/z/w order. */
 type Rotation = [number, number, number, number];
+/** The record of `IShapeRawLimbsItem`'s site. */
+type IShapeRawLimbsItem = {
+  limb: string;
+  point: Vector;
+  bend: Vector;
+  rotation: Rotation | null;
+  contact: Vector | null;
+  planted: boolean | null;
+  on: string | null;
+};
 
 /** Owned raw-law and final displayed-shape numbers at one requested second. */
 interface IShape {
@@ -29,15 +39,7 @@ interface IShape {
   rawJoints: [string, number, number, number][];
 
   /** Named world goals and their contact/plant branch, with owned tuples. */
-  rawLimbs: {
-    limb: string;
-    point: Vector;
-    bend: Vector;
-    rotation: Rotation | null;
-    contact: Vector | null;
-    planted: boolean | null;
-    on: string | null;
-  }[];
+  rawLimbs: IShapeRawLimbsItem[];
 
   /** Displayed world root position before its removal from shape FK. */
   rootPosition: Vector | null;
@@ -51,6 +53,13 @@ interface IShape {
   /** Final root-frame bone position in metres and quaternion x/y/z/w. */
   bones: [string, Vector, Rotation][];
 }
+/** The record of `IHumanPerformanceFlightFailureBoundaryItem`'s site. */
+type IHumanPerformanceFlightFailureBoundaryItem = {
+  time: number;
+  local: number;
+  shape: IShape | null;
+  error: string | null;
+};
 
 /**
  * Explain a failed flight with the same performance's takeoff boundary shape.
@@ -82,12 +91,7 @@ export function HumanPerformanceFlightFailure(
   unturned: (seconds: number) => IAutoMoviePose,
   resolution?: () => ReturnType<typeof preparePoseResolution>,
 ): Error {
-  const boundary: {
-    time: number;
-    local: number;
-    shape: IShape | null;
-    error: string | null;
-  }[] = [];
+  const boundary: IHumanPerformanceFlightFailureBoundaryItem[] = [];
   const view: DataView = new DataView(new ArrayBuffer(8));
   for (const time of [
     neighbour(takeoff, -1, view),
@@ -172,9 +176,15 @@ function rotation(value: IAutoMovieQuaternion): Rotation {
 function boneNumbers(bone: IAutoMovieResolvedBone): IShape["bones"][number] {
   return [bone.bone, vector(bone.worldPosition), rotation(bone.worldRotation)];
 }
+/** The alternatives of `NeighbourDirection`'s site. */
+type NeighbourDirection = -1 | 1;
 
 /** Adjacent finite-film time by IEEE encoding, without an authored time offset. */
-function neighbour(value: number, direction: -1 | 1, view: DataView): number {
+function neighbour(
+  value: number,
+  direction: NeighbourDirection,
+  view: DataView,
+): number {
   if (value === 0) return direction * Number.MIN_VALUE;
   view.setFloat64(0, value, false);
   const change: bigint = BigInt(value > 0 ? direction : -direction);

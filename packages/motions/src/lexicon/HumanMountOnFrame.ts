@@ -13,6 +13,9 @@ import { HumanTrunk } from "../everyday/HumanTrunk";
 import { seated } from "../everyday/seated";
 import { HumanMount } from "./HumanMount";
 
+/** The alternatives of `Frame2`'s site. */
+type Frame2 = "root" | "yaw" | "pitch" | "roll" | "joints";
+
 /**
  * The pelvis's and the trunk's course in getting onto a high seat
  * (`HumanMountOn`): the seat socket travels up from 10 % of the climb, passes
@@ -28,10 +31,7 @@ export namespace HumanMountOnFrame {
    * Where the pelvis is at an instant of getting on: the root, the heading, the
    * pelvis pitch and the set joints.
    */
-  export type Frame = Pick<
-    IAutoMovieMotionHumanPosture,
-    "root" | "yaw" | "pitch" | "roll" | "joints"
-  >;
+  export type Frame = Pick<IAutoMovieMotionHumanPosture, Frame2>;
 
   /** The climb the course is read over. */
   export interface IClimb {

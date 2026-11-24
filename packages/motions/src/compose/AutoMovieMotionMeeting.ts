@@ -15,6 +15,12 @@ import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFrame } from "../posture/HumanFrame";
 import { AutoMovieMotionHumanTarget } from "./AutoMovieMotionHumanTarget";
 
+/** The alternatives of `PlacePosture`'s site. */
+type PlacePosture = "root" | "yaw";
+
+/** The alternatives of `OfResult`'s site. */
+type OfResult = "name" | "subject";
+
 /**
  * The meeting of an action two or more performers do together: one frame with
  * the place of each shared contact, and the film seconds all arrive at, hold
@@ -202,7 +208,7 @@ export namespace AutoMovieMotionMeeting {
       roles: ordered.map(
         (
           r: IAutoMovieMotionMeetingRole,
-        ): Pick<IAutoMovieMotionMeetingRole, "name" | "subject"> => ({
+        ): Pick<IAutoMovieMotionMeetingRole, OfResult> => ({
           name: r.name,
           subject: r.subject,
         }),
@@ -226,7 +232,7 @@ export namespace AutoMovieMotionMeeting {
   export function place(
     meeting: IAutoMovieMotionMeeting,
     contact: string,
-    posture: Pick<IAutoMovieMotionHumanPosture, "root" | "yaw">,
+    posture: Pick<IAutoMovieMotionHumanPosture, PlacePosture>,
   ): IAutoMovieMotionHumanTarget.IPlace {
     const local: IAutoMovieVector3 | undefined = meeting.contacts[contact];
     if (local === undefined)

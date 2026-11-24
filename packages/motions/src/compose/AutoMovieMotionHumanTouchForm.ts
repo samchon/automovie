@@ -9,6 +9,9 @@ import type {
 
 import { HumanFrame } from "../posture/HumanFrame";
 
+/** The record of `ICurled`'s site. */
+type ICurled = { curl?: number };
+
 /**
  * The kinds of a touch and how each moves in the region's surface frame: the
  * social touch gestures of Jung et al. 2017 (the corpus of social touch)
@@ -87,7 +90,7 @@ export namespace AutoMovieMotionHumanTouchForm {
    * @param kind The kind.
    * @returns The effector with the kind's curl.
    */
-  export function curled<E extends { curl?: number }>(
+  export function curled<E extends ICurled>(
     effector: E,
     kind: IAutoMovieMotionHumanTouchForm.Kind,
   ): E {

@@ -17,6 +17,9 @@ import { FamilyCaseKit } from "./FamilyCaseKit";
 import { TouchVerdicts } from "./TouchVerdicts";
 import { everydayVerdicts } from "./everydayVerdicts";
 
+/** The record of `IBallSportCasesFastest`'s site. */
+type IBallSportCasesFastest = { speed: number; v: IAutoMovieVector3 };
+
 /**
  * Capture cases of the team ball skills from quiet standing, with an implied
  * ball.
@@ -56,6 +59,8 @@ export function ballSportCases(
     ] as const satisfies readonly IAutoMovieMotionHumanBallSport.Kind[]) {
       const name: string = `team-ball-${kind}${suffix}`;
       let performance: IAutoMovieMotionHumanPerformance;
+
+      // Process boundary: a case that throws is reported as that case's refusal, and the remaining cases still run.
       try {
         performance = new HumanPerformance({
           seed: "ball",
@@ -195,7 +200,7 @@ export function ballSportCases(
               passed: at(ready, `${side}Hand`).z < at(ready, "head").z,
               detail: `${((at(ready, `${side}Hand`).z - at(ready, "head").z) * 1000).toFixed(1)} mm ahead`,
             });
-          let fastest: { speed: number; v: IAutoMovieVector3 } = {
+          let fastest: IBallSportCasesFastest = {
             speed: 0,
             v: { x: 0, y: 0, z: 0 },
           };

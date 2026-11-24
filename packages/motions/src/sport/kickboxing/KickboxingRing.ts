@@ -9,6 +9,9 @@ import type {
 
 import { HumanRefusal } from "../../law/HumanRefusal";
 
+/** The alternatives of `OfProp`'s site. */
+type OfProp = "subject" | "frame" | "affordances";
+
 /**
  * A bounded fighting area: a square ring on the floor, centred on a point and
  * turned by a heading, inside its ropes. Footwork and staging read it to keep
@@ -48,7 +51,7 @@ export namespace KickboxingRing {
    *   corner.
    */
   export function of(
-    prop: Pick<IAutoMovieMotionHumanProp, "subject" | "frame" | "affordances">,
+    prop: Pick<IAutoMovieMotionHumanProp, OfProp>,
   ): IAutoMovieMotionHumanKickboxingRing.IRing {
     const affordances: readonly IAutoMovieAffordance[] = prop.affordances ?? [];
     const refuse: (reason: string) => IAutoMovieMotionHumanRefusal = (

@@ -1,5 +1,6 @@
 import { Vector3, simulateSoftBodyWithBoundaries } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   IAutoMovieMotionHumanPerformanceSoft,
   IAutoMovieMotionHumanPerformanceState,
   IAutoMovieMotionHumanProp,
@@ -15,6 +16,12 @@ import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanPerformanceRead } from "./HumanPerformanceRead";
 import { HumanPerformanceSoftBoundary } from "./HumanPerformanceSoftBoundary";
 import { HumanPerformanceSoftBudget } from "./HumanPerformanceSoftBudget";
+
+/** The alternatives of `OfWhole`'s site. */
+type OfWhole = "steps" | "loads";
+
+/** The alternatives of `OfSolveResult`'s site. */
+type OfSolveResult = "steps" | "loads";
 
 /**
  * A performance's soft props: each solved once from the displayed poses of the
@@ -120,7 +127,7 @@ export namespace HumanPerformanceSoft {
     state: IAutoMovieMotionHumanPerformanceState,
     subject: string,
     person: string,
-    side: "left" | "right",
+    side: AutoMovieHumanSide,
     seconds: number,
   ): IAutoMovieVector3 {
     const solved: IAutoMovieMotionHumanPerformanceSoft.ISolved = of(
@@ -266,10 +273,7 @@ export namespace HumanPerformanceSoft {
     const solve = (
       upto: number,
       record: boolean,
-    ): Pick<
-      IAutoMovieMotionHumanPerformanceSoft.ISolved,
-      "steps" | "loads"
-    > => {
+    ): Pick<IAutoMovieMotionHumanPerformanceSoft.ISolved, OfSolveResult> => {
       const gripped: ReadonlySet<number> = new Set(
         grips.map(
           (grip: HumanPerformanceSoftBoundary.IGripAnchor): number =>
@@ -419,10 +423,8 @@ export namespace HumanPerformanceSoft {
         to: window.to,
       });
     }
-    const whole: Pick<
-      IAutoMovieMotionHumanPerformanceSoft.ISolved,
-      "steps" | "loads"
-    > = solve(count, true);
+    const whole: Pick<IAutoMovieMotionHumanPerformanceSoft.ISolved, OfWhole> =
+      solve(count, true);
     const out: IAutoMovieMotionHumanPerformanceSoft.ISolved = {
       dt,
       steps: whole.steps,

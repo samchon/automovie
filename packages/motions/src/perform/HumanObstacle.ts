@@ -12,6 +12,9 @@ import type {
 
 import { HumanObject } from "./HumanObject";
 
+/** The record of `IObjectBounds`'s site. */
+type IObjectBounds = { min: IAutoMovieVector3; max: IAutoMovieVector3 };
+
 /**
  * What stands in a person's way: a wall, a piece of furniture, a door frame,
  * each a solid of the scene with the openings a person may pass through.
@@ -175,8 +178,7 @@ export namespace HumanObstacle {
     let bottom: number = Infinity;
     let top: number = -Infinity;
     for (const shape of shapes) {
-      const bounds: { min: IAutoMovieVector3; max: IAutoMovieVector3 } =
-        physicalShapeBounds(placed, shape);
+      const bounds: IObjectBounds = physicalShapeBounds(placed, shape);
       bottom = Math.min(bottom, bounds.min.y);
       top = Math.max(top, bounds.max.y);
       const centre: IAutoMovieVector3 = Vector3.add(

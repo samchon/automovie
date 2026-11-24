@@ -1,5 +1,8 @@
 import { wrapDegrees } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  AutoMovieHumanSide,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 /**
  * How far a walk's footprint may turn, from the foot's own last footprint and
@@ -114,20 +117,20 @@ export namespace walkHeading {
    */
   export function opening(
     heading: number,
-    lead: "left" | "right",
-    start: Record<"left" | "right", number>,
+    lead: AutoMovieHumanSide,
+    start: Record<AutoMovieHumanSide, number>,
     yaw: number,
     twist: number,
     stepped: boolean = false,
   ): number {
     const limit: number = step(heading - yaw);
-    const last: Record<"left" | "right", number> = {
+    const last: Record<AutoMovieHumanSide, number> = {
       left: yaw + wrapDegrees(start.left - yaw),
       right: yaw + wrapDegrees(start.right - yaw),
     };
     // A foot already within the twist of the way turns no more in place.
-    const far: (s: "left" | "right") => boolean = (
-      s: "left" | "right",
+    const far: (s: AutoMovieHumanSide) => boolean = (
+      s: AutoMovieHumanSide,
     ): boolean => Math.abs(heading - last[s]) > twist;
     if (
       !stepped &&
@@ -135,7 +138,7 @@ export namespace walkHeading {
       Math.abs(heading - last.right) <= limit
     )
       return 0;
-    let side: "left" | "right" = lead;
+    let side: AutoMovieHumanSide = lead;
     let count: number = 0;
     while (far("left") || far("right")) {
       const off: number = heading - last[side];
@@ -161,8 +164,8 @@ export namespace walkHeading {
    */
   export function about(
     towards: readonly number[],
-    lead: "left" | "right",
-    start: Record<"left" | "right", number>,
+    lead: AutoMovieHumanSide,
+    start: Record<AutoMovieHumanSide, number>,
     yaw: number,
     kept: number,
   ): number[] {
@@ -171,12 +174,12 @@ export namespace walkHeading {
       ...towards.map((t: number): number => Math.abs(t - yaw)),
     );
     const limit: number = step(amplitude);
-    const last: Record<"left" | "right", number> = {
+    const last: Record<AutoMovieHumanSide, number> = {
       left: yaw + wrapDegrees(start.left - yaw),
       right: yaw + wrapDegrees(start.right - yaw),
     };
     return towards.map((toward: number, j: number): number => {
-      const side: "left" | "right" =
+      const side: AutoMovieHumanSide =
         j % 2 === 0 ? lead : lead === "left" ? "right" : "left";
       const turned: number =
         j >= towards.length - kept || Math.abs(toward - last[side]) <= limit
@@ -206,17 +209,17 @@ export namespace walkHeading {
    * @returns The lead.
    */
   export function uncrossed(
-    behind: "left" | "right",
-    ankles: Record<"left" | "right", IAutoMovieVector3>,
-    facings: Record<"left" | "right", number>,
+    behind: AutoMovieHumanSide,
+    ankles: Record<AutoMovieHumanSide, IAutoMovieVector3>,
+    facings: Record<AutoMovieHumanSide, number>,
     way: IAutoMovieVector3,
     heading: number,
     lateral: number,
-  ): "left" | "right" {
+  ): AutoMovieHumanSide {
     // A footprint lies `lateral` to its side of the way, along the heading's `+X`.
     const turn: number = (heading * Math.PI) / 180;
-    const landing: (side: "left" | "right") => IAutoMovieVector3 = (
-      side: "left" | "right",
+    const landing: (side: AutoMovieHumanSide) => IAutoMovieVector3 = (
+      side: AutoMovieHumanSide,
     ): IAutoMovieVector3 => {
       const x: number = (side === "left" ? 1 : -1) * lateral;
       return {
@@ -225,10 +228,10 @@ export namespace walkHeading {
         z: way.z - x * Math.sin(turn),
       };
     };
-    const crosses: (side: "left" | "right") => boolean = (
-      side: "left" | "right",
+    const crosses: (side: AutoMovieHumanSide) => boolean = (
+      side: AutoMovieHumanSide,
     ): boolean => {
-      const stance: "left" | "right" = side === "left" ? "right" : "left";
+      const stance: AutoMovieHumanSide = side === "left" ? "right" : "left";
       const yaw: number = (facings[stance] * Math.PI) / 180;
       // The standing foot's right, `+X` turned by its facing's yaw.
       const right: IAutoMovieVector3 = {
@@ -243,7 +246,7 @@ export namespace walkHeading {
         (point.z - ankles[stance].z) * right.z;
       return across(ankles[side]) * across(landing(side)) < 0;
     };
-    const other: "left" | "right" = behind === "left" ? "right" : "left";
+    const other: AutoMovieHumanSide = behind === "left" ? "right" : "left";
     return crosses(behind) && !crosses(other) ? other : behind;
   }
 
@@ -268,7 +271,7 @@ export namespace walkHeading {
     point: IAutoMovieVector3,
     other: ISeparated | undefined,
     toward: number,
-    side: "left" | "right",
+    side: AutoMovieHumanSide,
     lateral: number,
   ): IAutoMovieVector3 {
     if (other === undefined) return point;
@@ -302,7 +305,7 @@ export namespace walkHeading {
   export function around(
     other: ISeparated,
     toward: number,
-    side: "left" | "right",
+    side: AutoMovieHumanSide,
     lateral: number,
     height: number,
   ): IAutoMovieVector3 {

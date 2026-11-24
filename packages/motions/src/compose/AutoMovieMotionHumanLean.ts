@@ -11,7 +11,8 @@ import type {
 import { HumanBalance } from "../everyday/HumanBalance";
 import { HumanPhysics } from "../law/HumanPhysics";
 import { HumanFrame } from "../posture/HumanFrame";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { humanPostureHeading } from "../posture/humanPostureHeading";
+import { lowerHumanPosture } from "../posture/lowerHumanPosture";
 
 /**
  * Trunk lean primitives: the whole body above the feet tipped about the hips,
@@ -73,7 +74,7 @@ export namespace AutoMovieMotionHumanLean {
     const hips: IAutoMovieVector3 = body.rest.get("hips")!;
     const held: IAutoMovieVector3 = Vector3.add(
       posture.root,
-      Quaternion.rotateVector(resolveHumanPosture.heading(posture), hips),
+      Quaternion.rotateVector(humanPostureHeading(posture), hips),
     );
     const tilted: IAutoMovieMotionHumanPosture = {
       ...posture,
@@ -84,7 +85,7 @@ export namespace AutoMovieMotionHumanLean {
       ...tilted,
       root: Vector3.subtract(
         held,
-        Quaternion.rotateVector(resolveHumanPosture.heading(tilted), hips),
+        Quaternion.rotateVector(humanPostureHeading(tilted), hips),
       ),
     };
   }
@@ -107,7 +108,7 @@ export namespace AutoMovieMotionHumanLean {
     more: IAutoMovieMotionHumanLean.IAngles,
   ): IAutoMovieMotionHumanPosture {
     const own: IAutoMovieVector3 = Quaternion.rotateVector(
-      Quaternion.inverse(resolveHumanPosture.heading(posture)),
+      Quaternion.inverse(humanPostureHeading(posture)),
       Vector3.subtract(point, posture.root),
     );
     const tilted: IAutoMovieMotionHumanPosture = {
@@ -119,7 +120,7 @@ export namespace AutoMovieMotionHumanLean {
       ...tilted,
       root: Vector3.subtract(
         point,
-        Quaternion.rotateVector(resolveHumanPosture.heading(tilted), own),
+        Quaternion.rotateVector(humanPostureHeading(tilted), own),
       ),
     };
   }
@@ -145,7 +146,7 @@ export namespace AutoMovieMotionHumanLean {
         posture: IAutoMovieMotionHumanPosture,
         seconds: number,
         _before?: IAutoMovieMotionHumanPrimitive.Reader,
-        resolution?: Parameters<typeof resolveHumanPosture.lower>[3],
+        resolution?: Parameters<typeof lowerHumanPosture>[3],
       ): IAutoMovieMotionHumanPosture => {
         const tilted: IAutoMovieMotionHumanPosture = pivot(
           props.body,
@@ -160,7 +161,7 @@ export namespace AutoMovieMotionHumanLean {
           ...tilted,
           root: Vector3.add(tilted.root, travel),
         };
-        const lowered: IAutoMovieMotionHumanPosture = resolveHumanPosture.lower(
+        const lowered: IAutoMovieMotionHumanPosture = lowerHumanPosture(
           props.body,
           {
             ...moved,
@@ -204,7 +205,7 @@ export namespace AutoMovieMotionHumanLean {
       pitch: posture.pitch + pitch,
     };
     const offset: IAutoMovieVector3 = Quaternion.rotateVector(
-      resolveHumanPosture.heading(tipped),
+      humanPostureHeading(tipped),
       hips,
     );
     return { ...tipped, root: Vector3.subtract(target, offset) };
@@ -239,8 +240,16 @@ export namespace AutoMovieMotionHumanLean {
     const sine = (degrees: number): number =>
       Math.sin((degrees * Math.PI) / 180);
     // Without the balance option the hips stay where they stand: no centre
-    // of mass is read.
-    let lean: number | undefined;
+    // of mass is read. With it, the hips' shift per unit of the pitch's sine
+    // is solved once, at the peak, with the plan.
+    const lean: number =
+      window === null
+        ? 0
+        : HumanBalance.shift(
+            props.body,
+            (back: number): IAutoMovieMotionHumanPosture =>
+              tip(props.body, props.standing, props.peak, back),
+          ) / sine(props.peak);
     return {
       channels: ["root", "trunk"],
       reads: ["root", "trunk"],
@@ -255,12 +264,6 @@ export namespace AutoMovieMotionHumanLean {
         const weight: number = HumanPhysics.weightAt(window, seconds);
         if (weight === 0 || pitch === 0)
           return tip(props.body, posture, pitch, 0);
-        lean ??=
-          HumanBalance.shift(
-            props.body,
-            (back: number): IAutoMovieMotionHumanPosture =>
-              tip(props.body, props.standing, props.peak, back),
-          ) / sine(props.peak);
         return tip(props.body, posture, pitch, lean * sine(pitch) * weight);
       },
     };

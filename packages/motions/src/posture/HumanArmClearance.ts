@@ -1,11 +1,11 @@
 import { preparePoseResolution } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieJointPose,
   IAutoMovieMotionHumanArmClearance,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanColliders,
-  IAutoMovieMotionHumanPosture,
   IAutoMoviePose,
   IAutoMovieResolvedBone,
   IAutoMovieVector3,
@@ -15,12 +15,10 @@ import { AutoMovieMotionHumanAuditTangle } from "../audit/AutoMovieMotionHumanAu
 import { HumanArmClearing } from "./HumanArmClearing";
 import { HumanArmObstacleBones } from "./HumanArmObstacleBones";
 import { HumanArmOvershoot } from "./HumanArmOvershoot";
-import { HumanArmSwing } from "./HumanArmSwing";
 import { HumanColliders } from "./HumanColliders";
 import { poseBones } from "./poseBones";
 import { prepareHumanJointRom } from "./prepareHumanJointRom";
 import { prepareHumanPoseResolution } from "./prepareHumanPoseResolution";
-import { prepareHumanPostureProjection } from "./prepareHumanPostureProjection";
 
 /**
  * The room a forearm needs beside its own trunk and beside the other arm.
@@ -81,7 +79,7 @@ export namespace HumanArmClearance {
   export function obstacles(
     body: IAutoMovieMotionHumanBody,
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
-    arms: readonly ("left" | "right")[] = [],
+    arms: readonly AutoMovieHumanSide[] = [],
     placed?: readonly IAutoMovieMotionHumanColliders.IPlaced[],
   ): IAutoMovieMotionHumanColliders.IPlaced[] {
     const limbs: ReadonlySet<AutoMovieHumanoidBone> =
@@ -120,7 +118,7 @@ export namespace HumanArmClearance {
     shapes: readonly IAutoMovieMotionHumanColliders.IPlaced[],
     elbow: IAutoMovieVector3,
     wrist: IAutoMovieVector3,
-    side: "left" | "right",
+    side: AutoMovieHumanSide,
     others: readonly IAutoMovieMotionHumanColliders.IPlaced[] = [],
     goal: boolean = true,
     rival?: IAutoMovieVector3,
@@ -151,7 +149,7 @@ export namespace HumanArmClearance {
    */
   export function posed(
     pose: IAutoMoviePose,
-    side: "left" | "right",
+    side: AutoMovieHumanSide,
     arm: IAutoMovieMotionHumanArmClearance.IArm,
   ): IAutoMoviePose {
     const written: Partial<
@@ -196,7 +194,7 @@ export namespace HumanArmClearance {
    */
   export function fingered(
     pose: IAutoMoviePose,
-    side: "left" | "right",
+    side: AutoMovieHumanSide,
     fingers: Readonly<
       Partial<Record<AutoMovieHumanoidBone, readonly [number, number, number]>>
     >,
@@ -245,7 +243,7 @@ export namespace HumanArmClearance {
   export function room(
     body: IAutoMovieMotionHumanBody,
     pose: IAutoMoviePose,
-    side: "left" | "right",
+    side: AutoMovieHumanSide,
     arm: IAutoMovieMotionHumanArmClearance.IArm,
     others: readonly IAutoMovieMotionHumanColliders.IPlaced[] = [],
     baseline: IAutoMovieMotionHumanArmClearance.IBaseline = NONE,
@@ -267,7 +265,7 @@ export namespace HumanArmClearance {
   export function baseline(
     body: IAutoMovieMotionHumanBody,
     pose: IAutoMoviePose,
-    side: "left" | "right",
+    side: AutoMovieHumanSide,
     arm: IAutoMovieMotionHumanArmClearance.IArm,
     others: readonly IAutoMovieMotionHumanColliders.IPlaced[] = [],
     prepared?: ReturnType<typeof preparePoseResolution>,
@@ -320,7 +318,7 @@ export namespace HumanArmClearance {
   export function cleared(
     body: IAutoMovieMotionHumanBody,
     pose: IAutoMoviePose,
-    side: "left" | "right",
+    side: AutoMovieHumanSide,
     arm: IAutoMovieMotionHumanArmClearance.IArm,
     allowed: number,
     others: readonly IAutoMovieMotionHumanColliders.IPlaced[] = [],
@@ -359,33 +357,6 @@ export namespace HumanArmClearance {
         outside(`${side}LowerArm`, of.lower),
     });
   }
-
-  /**
-   * A posture whose arms, written by joint angles with no hand goal (a gait's
-   * swing), are kept clear of the body: a swinging arm passing the thigh is let
-   * out at the shoulder, so each named arm takes the least added abduction, up
-   * to `HumanArmSwing.SPAN`, at which each reading of its room is within that
-   * reading in the quiet stance (`IBaseline`), found by bisection; an arm that
-   * swings no deeper than it hangs is left as written.
-   *
-   * @param body The body.
-   * @param posture The posture, the arms' joints set and their goals absent.
-   * @param sides The arms to keep clear.
-   * @param source Optional exact FK source borrowed only for this synchronous
-   *   same-body operation.
-   * @param projection Optional genuine same-body ROM projector; every actual
-   *   joint still projects normally.
-   * @returns The posture with the arms' upper arm joints let out.
-   */
-  export function swung(
-    body: IAutoMovieMotionHumanBody,
-    posture: IAutoMovieMotionHumanPosture,
-    sides: readonly ("left" | "right")[],
-    source?: Parameters<typeof prepareHumanPoseResolution>[0],
-    projection?: ReturnType<typeof prepareHumanPostureProjection>,
-  ): IAutoMovieMotionHumanPosture {
-    return HumanArmSwing.of(body, posture, sides, source, projection);
-  }
 }
 
 /**
@@ -395,7 +366,7 @@ export namespace HumanArmClearance {
 function roomTerms(
   body: IAutoMovieMotionHumanBody,
   pose: IAutoMoviePose,
-  side: "left" | "right",
+  side: AutoMovieHumanSide,
   arm: IAutoMovieMotionHumanArmClearance.IArm,
   others: readonly IAutoMovieMotionHumanColliders.IPlaced[],
   baseline: IAutoMovieMotionHumanArmClearance.IBaseline,

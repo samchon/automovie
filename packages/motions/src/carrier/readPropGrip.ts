@@ -13,6 +13,8 @@ import { HumanRefusal } from "../law/HumanRefusal";
 
 /** The axis a handle is wrapped about: its affordance frame's local +X. */
 const HANDLE: IAutoMovieVector3 = { x: 1, y: 0, z: 0 };
+/** The alternatives of `ReadPropGripContext`'s site. */
+type ReadPropGripContext = "prop" | "aim";
 
 /**
  * A named point of a prop as a hand's grip at a film second: the displayed
@@ -29,7 +31,7 @@ const HANDLE: IAutoMovieVector3 = { x: 1, y: 0, z: 0 };
  * @throws {HumanRefusal} When the prop declares no such point.
  */
 export function readPropGrip(
-  context: Pick<IAutoMovieMotionHumanActionContext, "prop" | "aim">,
+  context: Pick<IAutoMovieMotionHumanActionContext, ReadPropGripContext>,
   on: string,
   id: string,
   seconds: number,

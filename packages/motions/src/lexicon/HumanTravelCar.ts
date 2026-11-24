@@ -21,6 +21,12 @@ import { HumanFrame } from "../posture/HumanFrame";
 import { carryHumanPosture } from "../posture/carryHumanPosture";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 
+/** The record of `IGetInDuckNeed`'s site. */
+type IGetInDuckNeed = { at: number; degrees: number };
+
+/** The record of `IGetInNeedsItem`'s site. */
+type IGetInNeedsItem = { at: number; degrees: number };
+
 /**
  * Getting into a car through its door: the person stands in the doorway with
  * the back to the seat, sits down onto it sideways with the legs still outside,
@@ -222,7 +228,7 @@ export namespace HumanTravelCar {
             (crown.x - through.at.x) * out.x + (crown.z - through.at.z) * out.z;
           return beyond > HEAD ? -Infinity : crown.y - top;
         };
-        const needs: { at: number; degrees: number }[] = [];
+        const needs: IGetInNeedsItem[] = [];
         for (let k: number = 0; k <= SAMPLES; ++k) {
           const t: number = (k / SAMPLES) * duration;
           const resolution: ReturnType<typeof prepareHumanPoseResolution> =
@@ -290,7 +296,7 @@ export namespace HumanTravelCar {
           }
           let most: number = 0;
           for (let i: number = lo; i < needs.length; i++) {
-            const need: { at: number; degrees: number } = needs[i]!;
+            const need: IGetInDuckNeed = needs[i]!;
             if (need.at - t > radius) break;
             most = Math.max(
               most,

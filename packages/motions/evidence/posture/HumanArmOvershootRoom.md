@@ -46,7 +46,7 @@ The chest's own frame gives the median plane's outward axis; every shape is fram
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-One lookup by the three lists and the side, then one build.
+One build from the three lists and the side.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
@@ -54,12 +54,12 @@ Every shape of every list is kept with its role.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
-Built once per lists and side; every candidate of a sweep reads it.
+Built once by the sweep's preparation (`HumanArmOvershoot.prepare`); every candidate of the sweep reads it.
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 
-The lists are the same records across a sweep's candidates, so the room is theirs.
+The lists are the same records across a sweep's candidates, so the prepared room serves them all.
 
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
-Weakly keyed by the lists, released with them.
+Owned by the prepared reader and released with it; nothing is kept between sweeps.

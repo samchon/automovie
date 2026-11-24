@@ -1,4 +1,5 @@
 import type {
+  AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanFoot,
   IAutoMovieMotionHumanFrame,
@@ -57,8 +58,8 @@ export namespace crawlInchwormPose {
     body: IAutoMovieMotionHumanBody,
     chain: crawlChain.IChain,
     frame: IAutoMovieMotionHumanFrame,
-    feet: Record<"left" | "right", number>,
-    wrists: Record<"left" | "right", number>,
+    feet: Record<AutoMovieHumanSide, number>,
+    wrists: Record<AutoMovieHumanSide, number>,
     laid: ReturnType<typeof crawlFrame.prepareLaid> = crawlFrame.prepareLaid(
       body,
       HumanFrame.forward(frame.yaw),
@@ -92,8 +93,8 @@ export namespace crawlInchwormPose {
       HumanFrame.forward(frame.yaw),
     ),
   ): (
-    feet: Record<"left" | "right", number>,
-    wrists: Record<"left" | "right", number>,
+    feet: Record<AutoMovieHumanSide, number>,
+    wrists: Record<AutoMovieHumanSide, number>,
     source?: Parameters<typeof prepareHumanPoseResolution>[0],
     projector?: ReturnType<typeof prepareHumanPostureProjection>,
   ) => IAutoMovieMotionHumanLieDown.IPose {
@@ -104,7 +105,7 @@ export namespace crawlInchwormPose {
       HumanFrame.prepare(frame);
     const knee: number = KNEE * body.measure.shank;
     const pivots: Record<
-      "left" | "right",
+      AutoMovieHumanSide,
       ReturnType<typeof HumanFoot.preparePivot>
     > = {
       left: HumanFoot.preparePivot(
@@ -122,13 +123,13 @@ export namespace crawlInchwormPose {
         yaw,
       ),
     };
-    const contacts: Record<"left" | "right", IAutoMovieVector3> = {
+    const contacts: Record<AutoMovieHumanSide, IAutoMovieVector3> = {
       left: { ...HumanFoot.offset(body, "left", "mtp") },
       right: { ...HumanFoot.offset(body, "right", "mtp") },
     };
     return (
-      feet: Record<"left" | "right", number>,
-      wrists: Record<"left" | "right", number>,
+      feet: Record<AutoMovieHumanSide, number>,
+      wrists: Record<AutoMovieHumanSide, number>,
       source?: Parameters<typeof prepareHumanPoseResolution>[0],
       projector?: ReturnType<typeof prepareHumanPostureProjection>,
     ): IAutoMovieMotionHumanLieDown.IPose => {
@@ -192,7 +193,7 @@ export namespace crawlInchwormPose {
         projector ?? prepareHumanPostureProjection(body);
       const placed: IAutoMovieMotionHumanPosture = laid(
         posture,
-        (side: "left" | "right"): IAutoMovieVector3 =>
+        (side: AutoMovieHumanSide): IAutoMovieVector3 =>
           floor.point({
             x: chain.palms[side],
             y: 0,

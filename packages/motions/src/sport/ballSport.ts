@@ -1,5 +1,6 @@
 import { Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieMotionHumanActionName,
   IAutoMovieMotionClock,
   IAutoMovieMotionHumanActionContext,
@@ -209,9 +210,9 @@ export namespace ballSport {
     ): IAutoMovieVector3 =>
       HumanFrame.point({ origin: { x: 0, y: 0, z: 0 }, yaw: posture.yaw }, v);
     const rest: (
-      side: "left" | "right",
+      side: AutoMovieHumanSide,
     ) => IAutoMovieMotionHumanArmAngles.IAngles = (
-      side: "left" | "right",
+      side: AutoMovieHumanSide,
     ): IAutoMovieMotionHumanArmAngles.IAngles =>
       AutoMovieMotionHumanArm.angles(context.entry.pose, side);
     // Each arm's group: the clock is the law's own, lengthened by a slower
@@ -244,7 +245,7 @@ export namespace ballSport {
     let thrown: ReturnType<typeof throwInRelease> = undefined;
     switch (p.kind) {
       case "dribble": {
-        const side: "left" | "right" = p.hand ?? "right";
+        const side: AutoMovieHumanSide = p.hand ?? "right";
         primitives.push(
           crouch(0.05, 15),
           ...AutoMovieMotionHumanPlaced.arm({

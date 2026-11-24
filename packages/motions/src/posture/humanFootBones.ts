@@ -1,4 +1,5 @@
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBody,
 } from "@automovie/interface";
@@ -16,7 +17,7 @@ import { HumanFoot } from "./HumanFoot";
  */
 export function humanFootBones(
   body: IAutoMovieMotionHumanBody,
-  sides: readonly ("left" | "right")[] = ["left", "right"],
+  sides: readonly AutoMovieHumanSide[] = ["left", "right"],
 ): ReadonlySet<AutoMovieHumanoidBone> {
   const bones: Set<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>();
   for (const side of sides) {

@@ -12,6 +12,13 @@ import type {
 
 import { HumanPerformance } from "./HumanPerformance";
 
+/** The record of `ICompileHumanPerformanceContinuationResult`'s site. */
+type ICompileHumanPerformanceContinuationResult = {
+  source: HumanPerformance;
+  branch: HumanPerformance;
+  branchStart: number;
+};
+
 /**
  * Rebuild an authored take with a replacement after complete action groups. The
  * provider supplies the same immutable input and deterministic registered
@@ -34,7 +41,7 @@ export function compileHumanPerformanceContinuation(
   sourceSeconds: number,
   retainedParts: number,
   suffix: IAutoMovieComposition,
-): { source: HumanPerformance; branch: HumanPerformance; branchStart: number } {
+): ICompileHumanPerformanceContinuationResult {
   if (
     input.composition.kind !== "sequence" ||
     !Number.isInteger(retainedParts) ||

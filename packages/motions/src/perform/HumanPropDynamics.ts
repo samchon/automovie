@@ -18,6 +18,21 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+/** The record of `ISlideP`'s site. */
+type ISlideP = { to: number };
+
+/** The record of `ISlideTimesP`'s site. */
+type ISlideTimesP = {
+  to: number;
+  path: IAutoMovieIntegrateMotionTrajectory.ITrajectory;
+};
+
+/** The record of `ISlidePiecesItem`'s site. */
+type ISlidePiecesItem = {
+  to: number;
+  path: IAutoMovieIntegrateMotionTrajectory.ITrajectory;
+};
+
 /**
  * Props with mass and friction moved by the hands' force: a prop on the floor
  * slides under Newton's second law and Coulomb friction, a hinged prop turns
@@ -279,10 +294,7 @@ export namespace HumanPropDynamics {
         t1: until,
         h: until - from,
       });
-    const pieces: {
-      to: number;
-      path: IAutoMovieIntegrateMotionTrajectory.ITrajectory;
-    }[] = [];
+    const pieces: ISlidePiecesItem[] = [];
     let from: number = props.from;
     let x0: readonly number[] = [0, 0];
     for (;;) {
@@ -326,13 +338,7 @@ export namespace HumanPropDynamics {
       pieces[pieces.length - 1]!.path;
     // Each piece's knots within its own span, after the piece before it.
     const times: number[] = pieces.flatMap(
-      (
-        p: {
-          to: number;
-          path: IAutoMovieIntegrateMotionTrajectory.ITrajectory;
-        },
-        i: number,
-      ): number[] =>
+      (p: ISlideTimesP, i: number): number[] =>
         p.path.times.filter(
           (t: number): boolean =>
             t <= p.to && (i === 0 || t > pieces[i - 1]!.to),
@@ -345,10 +351,9 @@ export namespace HumanPropDynamics {
       knots: times.length,
       times,
       at: (time: number): IAutoMovieIntegrateMotionTrajectory.IState =>
-        (
-          pieces.find((p: { to: number }): boolean => time <= p.to)?.path ??
-          last
-        ).at(time),
+        (pieces.find((p: ISlideP): boolean => time <= p.to)?.path ?? last).at(
+          time,
+        ),
     };
   }
 

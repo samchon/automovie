@@ -19,11 +19,6 @@ import { useTool } from "./useTool";
  * Register the row with `HumanPerformance` and align `contact1` to a cue using
  * the chain's `sync`. The stroke uses the existing provisional tool cycle and
  * keeps the stick held.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the stage, the inherited motion, the timing seam and the grip outcome.
- * @evidence contracts/development/design.md#principled-representation One row over the held-tool law with the drum's named surface as its work.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One opt-in registration record.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No invented head coordinate or duplicate wrist path.
  */
 export const sideDrumStrike: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanSideDrumStrike> =
   {
@@ -41,6 +36,7 @@ export const sideDrumStrike: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHuma
  * @returns The held-tool plan with its `contact1` decisive instant.
  * @throws {HumanRefusal} When the hand, stick or drum is absent, or the drum
  *   head is missing, moving or tilted.
+ * @evidence contracts/development/common.md#meaningful-documentation States the stage, the inherited motion, the timing seam and the grip outcome.
  */
 function plan(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanSideDrumStrike>,

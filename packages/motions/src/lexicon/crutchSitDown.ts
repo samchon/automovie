@@ -22,6 +22,7 @@ import { seated } from "../everyday/seated";
 import { sit } from "../everyday/sit";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanHand } from "../posture/HumanHand";
+import { HumanLimbFit } from "../posture/HumanLimbFit";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { crutchSitKit } from "./crutchSitKit";
 import { crutchSitPath } from "./crutchSitPath";
@@ -114,7 +115,7 @@ export function crutchSitDown(
   const take: number = AutoMovieMotionHumanTiming.transport(
     Math.max(reachOf("left"), reachOf("right")),
   );
-  const lifted: IAutoMovieHumanLimbReference = resolveHumanPosture.reference(
+  const lifted: IAutoMovieHumanLimbReference = HumanLimbFit.reference(
     resolveHumanPosture(body, entry),
     `${injured}Leg`,
   );

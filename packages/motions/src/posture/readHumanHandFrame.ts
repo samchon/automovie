@@ -110,12 +110,11 @@ export namespace readHumanHandFrame {
 
 /** Current rigid world frames read by both complete and point-only hand queries. */
 type Bones = ReadonlyMap<AutoMovieHumanoidBone, WorldBone>;
+/** The alternatives of `WorldBone2`'s site. */
+type WorldBone2 = "worldPosition" | "worldRotation";
 
 /** The two current world transform values used by hand-surface seating. */
-type WorldBone = Pick<
-  IAutoMovieResolvedBone,
-  "worldPosition" | "worldRotation"
->;
+type WorldBone = Pick<IAutoMovieResolvedBone, WorldBone2>;
 
 /**
  * Preserve cold point arithmetic and its position/local-point/rotation argument

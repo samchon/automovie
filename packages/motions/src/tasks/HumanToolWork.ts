@@ -11,6 +11,17 @@ import type {
 
 import { HumanRefusal } from "../law/HumanRefusal";
 
+/** The record of `IOfWork`'s site. */
+type IOfWork = {
+  kind: IAutoMovieMotionHumanToolWork.Kind;
+  on: IAutoMovieMotionTarget;
+  forward: IAutoMovieVector3;
+  length: number;
+};
+
+/** The alternatives of `OfContext`'s site. */
+type OfContext = "aim" | "body" | "prop" | "start";
+
 /**
  * Where a held tool works: the work point a hammer, a saw or a screwdriver is
  * brought to, and for a stir the vessel stirred.
@@ -49,16 +60,8 @@ export namespace HumanToolWork {
    *   reach the stirring depth from above the rim.
    */
   export function of(
-    context: Pick<
-      IAutoMovieMotionHumanActionContext,
-      "aim" | "body" | "prop" | "start"
-    >,
-    work: {
-      kind: IAutoMovieMotionHumanToolWork.Kind;
-      on: IAutoMovieMotionTarget;
-      forward: IAutoMovieVector3;
-      length: number;
-    },
+    context: Pick<IAutoMovieMotionHumanActionContext, OfContext>,
+    work: IOfWork,
   ): IWork {
     if (work.kind !== "stir")
       return { on: context.aim(work.on, context.start).point, radius: 0 };

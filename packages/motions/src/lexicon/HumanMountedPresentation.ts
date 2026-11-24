@@ -10,6 +10,9 @@ import { AutoMovieMotionHumanTrunk } from "../compose/AutoMovieMotionHumanTrunk"
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanWeaponPresent } from "./HumanWeaponPresent";
 
+/** The alternatives of `TwistBone`'s site. */
+type TwistBone = "chest" | "spine";
+
 /**
  * A mounted presentation: a rider seated in the saddle turns the trunk toward a
  * target before the arms present to it, since the seat and the legs keep the
@@ -200,7 +203,7 @@ export namespace HumanMountedPresentation {
   }
 
   /** A trunk joint's axial range from the range-of-motion table. */
-  function twist(bone: "chest" | "spine"): IAutoMovieAngleRange {
+  function twist(bone: TwistBone): IAutoMovieAngleRange {
     const range: IAutoMovieAngleRange | null | undefined =
       DEFAULT_HUMANOID_ROM[bone]?.twist;
     if (range === null || range === undefined)

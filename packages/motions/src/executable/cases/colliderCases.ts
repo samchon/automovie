@@ -22,6 +22,9 @@ import * as THREE from "three";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
 import { MotionBodies } from "../MotionBodies";
 
+/** The alternatives of `ColliderCasesWorstEntry`'s site. */
+type ColliderCasesWorstEntry = "vertex" | "band" | "face" | "digit";
+
 /**
  * Capture cases of the polygon man's colliders against its drawn surface
  * (`colliders-<body>`), one for each body of `MotionBodies.SWEEP`: the body
@@ -93,7 +96,7 @@ export function* colliderCases(
     }
     drawing.dispose();
 
-    const worst: Record<"vertex" | "band" | "face" | "digit", IWorst> = {
+    const worst: Record<ColliderCasesWorstEntry, IWorst> = {
       vertex: { value: 0, where: "none" },
       band: { value: 0, where: "none" },
       face: { value: 0, where: "none" },

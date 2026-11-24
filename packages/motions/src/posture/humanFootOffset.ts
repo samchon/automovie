@@ -1,9 +1,13 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   IAutoMovieHumanoidSurfaces,
   IAutoMovieMotionHumanBody,
   IAutoMovieVector3,
 } from "@automovie/interface";
+
+/** The alternatives of `HumanFootOffsetPoint`'s site. */
+type HumanFootOffsetPoint = "heel" | "ball" | "toe" | "sole" | "mtp";
 
 /**
  * Read a sole point in ankle-local metres with its actual toe articulation.
@@ -18,8 +22,8 @@ import type {
  */
 export function humanFootOffset(
   body: IAutoMovieMotionHumanBody,
-  side: "left" | "right",
-  point: "heel" | "ball" | "toe" | "sole" | "mtp",
+  side: AutoMovieHumanSide,
+  point: HumanFootOffsetPoint,
   toes: number = 0,
 ): IAutoMovieVector3 {
   const foot: IAutoMovieVector3 = body.rest.get(`${side}Foot`)!;
@@ -34,6 +38,8 @@ export function humanFootOffset(
   );
   return articulated(joint, socket.point, toes);
 }
+/** The alternatives of `HumanFootOffsetPreparePoint`'s site. */
+type HumanFootOffsetPreparePoint = "heel" | "ball" | "toe" | "sole" | "mtp";
 
 /** Fixed ankle-local socket preparation for an action's changing toe angles. */
 export namespace humanFootOffset {
@@ -46,8 +52,8 @@ export namespace humanFootOffset {
    */
   export function prepare(
     body: IAutoMovieMotionHumanBody,
-    side: "left" | "right",
-    point: "heel" | "ball" | "toe" | "sole" | "mtp",
+    side: AutoMovieHumanSide,
+    point: HumanFootOffsetPreparePoint,
   ): (toes: number) => IAutoMovieVector3 {
     const foot: IAutoMovieVector3 = body.rest.get(`${side}Foot`)!;
     if (point === "mtp") {

@@ -20,6 +20,18 @@ import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolutio
 import { HumanSupportAim } from "./HumanSupportAim";
 import { HumanSupportFrame } from "./HumanSupportFrame";
 
+/** The alternatives of `LaunchContext`'s site. */
+type LaunchContext = "entry" | "prop" | "performer" | "start";
+
+/** The alternatives of `PlanContext`'s site. */
+type PlanContext = "entry" | "prop" | "performer" | "start";
+
+/** The alternatives of `OnContext`'s site. */
+type OnContext = "prop" | "start";
+
+/** The alternatives of `EntryContext`'s site. */
+type EntryContext = "entry" | "prop" | "performer" | "start";
+
 /**
  * The one owner of goals in a moving support's frame: a posture planned in the
  * world at an action's start, expressed in the support's frame there and
@@ -174,10 +186,7 @@ export namespace HumanSupportCarry {
    * @returns The entry relative to the prop's motion.
    */
   export function entry(
-    context: Pick<
-      IAutoMovieMotionHumanActionContext,
-      "entry" | "prop" | "performer" | "start"
-    >,
+    context: Pick<IAutoMovieMotionHumanActionContext, EntryContext>,
     prop: string,
   ): IAutoMovieMotionHumanEntryState {
     const support: IAutoMovieMotionHumanSupportFrame.IFrame =
@@ -222,7 +231,7 @@ export namespace HumanSupportCarry {
    *   not certify a stationary window in world coordinates.
    */
   export function on(
-    context: Pick<IAutoMovieMotionHumanActionContext, "prop" | "start">,
+    context: Pick<IAutoMovieMotionHumanActionContext, OnContext>,
     plan: IAutoMovieMotionHumanActionPlan,
     prop: string,
   ): IAutoMovieMotionHumanActionPlan {
@@ -273,10 +282,7 @@ export namespace HumanSupportCarry {
    *   their bound (`HumanSupportAim.check`).
    */
   export function plan(
-    context: Pick<
-      IAutoMovieMotionHumanActionContext,
-      "entry" | "prop" | "performer" | "start"
-    >,
+    context: Pick<IAutoMovieMotionHumanActionContext, PlanContext>,
     plan: IAutoMovieMotionHumanActionPlan,
     channels: NonNullable<IAutoMovieMotionHumanActionPlan["channels"]>,
     aim?: IAutoMovieMotionHumanSupportAim.IAim,
@@ -352,10 +358,7 @@ export namespace HumanSupportCarry {
    * turn, the support's own velocity there (which the act already added) kept.
    */
   function launch(
-    context: Pick<
-      IAutoMovieMotionHumanActionContext,
-      "entry" | "prop" | "performer" | "start"
-    >,
+    context: Pick<IAutoMovieMotionHumanActionContext, LaunchContext>,
     frame: (seconds: number) => IAutoMovieRigidTransform,
     l: IAutoMovieMotionPropLaunch,
   ): IAutoMovieMotionPropLaunch {

@@ -14,6 +14,7 @@ import type {
 
 import { HumanPostureRaw as Raw } from "./HumanPostureRaw";
 import { createHumanPostureRotation } from "./createHumanPostureRotation";
+import { humanPostureHeading } from "./humanPostureHeading";
 import { poseBones } from "./poseBones";
 import { prepareHumanPoseResolution } from "./prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "./prepareHumanPostureProjection";
@@ -428,7 +429,7 @@ export namespace HumanPosturePreparation {
     if (posture.rotation === undefined) {
       out.pose.root.translation = { ...posture.root };
       if (Object.keys(source.raw.limbs).length === 0)
-        out.pose.root.rotation = resolveHumanPosture.heading(posture);
+        out.pose.root.rotation = humanPostureHeading(posture);
     } else {
       const turn: IAutoMovieMotionHumanTurnHumanPosture.ITurned =
         turnHumanPosture(posture);

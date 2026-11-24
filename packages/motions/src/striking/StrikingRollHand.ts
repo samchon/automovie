@@ -14,6 +14,21 @@ import { StrikingHeld } from "./StrikingHeld";
 import { StrikingRoll } from "./StrikingRoll";
 import { StrikingStrain } from "./StrikingStrain";
 
+/** The record of `IStrikingRollHandCandidate`'s site. */
+type IStrikingRollHandCandidate = { values: number[] };
+
+/** The record of `IStrikingRollHandB`'s site. */
+type IStrikingRollHandB = { rank: number };
+
+/** The record of `IStrikingRollHandA`'s site. */
+type IStrikingRollHandA = { rank: number };
+
+/** The record of `IStrikingRollHandCandidatesResult`'s site. */
+type IStrikingRollHandCandidatesResult = { values: number[]; rank: number };
+
+/** The record of `IStrikingRollHandCandidatesItem`'s site. */
+type IStrikingRollHandCandidatesItem = { values: number[]; rank: number };
+
 /**
  * Prepare the unchanged tool and world-axis geometry of a roll search. Every
  * placement still ranks the original grid against its actual posture, then
@@ -108,20 +123,22 @@ export function StrikingRollHand(
         throw error;
       }
     };
-    const candidates: { values: number[]; rank: number }[] = grid.map(
-      (values: number[]): { values: number[]; rank: number } => ({
+    const candidates: IStrikingRollHandCandidatesItem[] = grid.map(
+      (values: number[]): IStrikingRollHandCandidatesResult => ({
         values: [...values],
         rank: rank(values) + (0.1 * values[0]! * Math.PI) / 180,
       }),
     );
     candidates.sort(
-      (a: { rank: number }, b: { rank: number }): number => a.rank - b.rank,
+      (a: IStrikingRollHandA, b: IStrikingRollHandB): number => a.rank - b.rank,
     );
     return StrikingRoll.chosen(context, tool, {
       frame,
       tried: candidates
         .slice(0, StrikingRoll.TRIED)
-        .map((candidate: { values: number[] }): number[] => candidate.values),
+        .map(
+          (candidate: IStrikingRollHandCandidate): number[] => candidate.values,
+        ),
       freedoms: [
         { kind: "bounded", step: cone > 0 ? 5 : 0, least: 0, greatest: cone },
         { kind: "wrapped", step: 22.5, period: 360 },

@@ -1,7 +1,6 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
-  AutoMovieHumanoidBone,
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionClock,
   IAutoMovieMotionHumanBalance,
@@ -18,13 +17,18 @@ import { HumanBalance } from "../everyday/HumanBalance";
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanPhysics } from "../law/HumanPhysics";
 import { HumanRefusal } from "../law/HumanRefusal";
+import { HumanBoneGroups } from "../posture/HumanBoneGroups";
 import { HumanFrame } from "../posture/HumanFrame";
+import { humanPostureHeading } from "../posture/humanPostureHeading";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { AutoMovieMotionHumanJoints } from "./AutoMovieMotionHumanJoints";
 import { AutoMovieMotionHumanLeg } from "./AutoMovieMotionHumanLeg";
 import { AutoMovieMotionHumanRoot } from "./AutoMovieMotionHumanRoot";
+
+/** The alternatives of `CrouchResult`'s site. */
+type CrouchResult = "leftLeg" | "rightLeg";
 
 /**
  * Trunk phrases: the trunk turned on the pelvis, the body sunk into its knees,
@@ -79,7 +83,7 @@ export namespace AutoMovieMotionHumanTrunk {
       body,
       resolveHumanPosture.seeded(body, posture, undefined, {}, resolution).pose,
       resolution(),
-      FEET,
+      HumanBoneGroups.FEET,
     );
     const at = (
       side: AutoMovieHumanSide,
@@ -190,7 +194,7 @@ export namespace AutoMovieMotionHumanTrunk {
     const goal: IAutoMovieVector3 = Vector3.add(
       Vector3.add(
         posture.root,
-        Quaternion.rotateVector(resolveHumanPosture.heading(posture), hips),
+        Quaternion.rotateVector(humanPostureHeading(posture), hips),
       ),
       HumanFrame.point(
         { origin: { x: 0, y: 0, z: 0 }, yaw: posture.yaw },
@@ -225,7 +229,7 @@ export namespace AutoMovieMotionHumanTrunk {
       ...tipped,
       root: Vector3.subtract(
         goal,
-        Quaternion.rotateVector(resolveHumanPosture.heading(tipped), hips),
+        Quaternion.rotateVector(humanPostureHeading(tipped), hips),
       ),
     };
   }
@@ -269,9 +273,7 @@ export namespace AutoMovieMotionHumanTrunk {
       channels: [
         "root",
         "trunk",
-        ...legs.map(
-          (side: AutoMovieHumanSide): "leftLeg" | "rightLeg" => `${side}Leg`,
-        ),
+        ...legs.map((side: AutoMovieHumanSide): CrouchResult => `${side}Leg`),
       ],
       from: props.clock.at(props.rise[0]),
       to: props.clock.at(props.fall[1]),
@@ -452,8 +454,3 @@ export namespace AutoMovieMotionHumanTrunk {
     });
   }
 }
-
-/** Both displayed foot frames; their parent closure is owned by canonical FK. */
-const FEET: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>(
-  ["leftFoot", "rightFoot"],
-);

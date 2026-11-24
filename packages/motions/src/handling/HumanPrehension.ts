@@ -18,6 +18,12 @@ import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTimin
 import { HumanSkill } from "../skill/HumanSkill";
 import { prepareHumanShapeBlend } from "./prepareHumanShapeBlend";
 
+/** The alternatives of `ShapesEntryItem`'s site. */
+type ShapesEntryItem = "entry" | "open" | "closed";
+
+/** The record of `IAPPROACHItem`'s site. */
+type IAPPROACHItem = { end: number; start: number };
+
 /**
  * Reach to grasp as two coupled components, the model of prehension since
  * Jeannerod (1981, 1984): the transport carries the hand to the object and the
@@ -88,7 +94,7 @@ export namespace HumanPrehension {
    * the longer one, 0.55 of the transport, as a reach to grasp's deceleration
    * phase is, McIntosh et al. 2018). The hand's turn also finishes by `start`.
    */
-  export const APPROACH: Readonly<{ end: number; start: number }> = {
+  export const APPROACH: Readonly<IAPPROACHItem> = {
     end: 0.75,
     start: 0.45,
   };
@@ -243,7 +249,7 @@ export namespace HumanPrehension {
   export function shape(
     shapes: Readonly<
       Record<
-        "entry" | "open" | "closed",
+        ShapesEntryItem,
         Partial<
           Record<AutoMovieHumanoidBone, readonly [number, number, number]>
         >

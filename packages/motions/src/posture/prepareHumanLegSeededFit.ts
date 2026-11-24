@@ -1,5 +1,6 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanLegChain,
@@ -33,7 +34,7 @@ import { prepareHumanPoseResolution } from "./prepareHumanPoseResolution";
  */
 export function prepareHumanLegSeededFit(
   body: IAutoMovieMotionHumanBody,
-  side: "left" | "right",
+  side: AutoMovieHumanSide,
   pelvis: IAutoMovieQuaternion,
   hip: IAutoMovieVector3,
   readSwivel: (

@@ -9,24 +9,19 @@ import { motionHumanLawSweep } from "./motionHumanLawSweep";
 
 /**
  * The covering design of the universal sweep (`motionHumanLawSweep`): each
- * law's factors read off the coverage ledger, its covering array over them,
- * the bodies and the seeds, the whole array or one part of it, and the
- * mirror relation over the laws that set a side.
+ * law's factors read off the coverage ledger, its covering array over them, the
+ * bodies and the seeds, the whole array or one part of it, and the mirror
+ * relation over the laws that set a side.
  *
- * A sweep is cut into parts by body first, so a part prepares one body and
- * its partner, and then by every k-th cell of that body's, so each part
- * takes a share of every law and the slow laws spread over all the parts.
+ * A sweep is cut into parts by body first, so a part prepares one body and its
+ * partner, and then by every k-th cell of that body's, so each part takes a
+ * share of every law and the slow laws spread over all the parts.
  *
- * Whole and partitioned runs share deterministic law/cell enumeration and
- * pair coverage. Invalid part selections are refused; each valid
- * part prepares its selected body and partner. Scene construction, execution
- * and cell checks stay with motionHumanLawSweep; a left-row film survives
- * only until its right-row mirror comparison finishes.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the design, how a part is cut and why.
- * @evidence contracts/development/design.md#principled-representation Ledger parameter strings, canonical body names and seed identities define covering factors; stages supply actual public scenes and each finding retains law/row/body/seed attribution.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Owns factor extraction, full/partitioned enumeration, cell counts and positional mirrors. Scene construction and physical detector execution stay with motionHumanLawSweep and motionHumanLawSweepCell.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses actual scene/film/body contracts and the one covering owner. Gesture face regions are coupled to touchFace because other gesture kinds do not consume them, rather than supplying a fixture-specific branch.
+ * Whole and partitioned runs share deterministic law/cell enumeration and pair
+ * coverage. Invalid part selections are refused; each valid part prepares its
+ * selected body and partner. Scene construction, execution and cell checks stay
+ * with motionHumanLawSweep; a left-row film survives only until its right-row
+ * mirror comparison finishes.
  */
 export namespace motionHumanLawCovering {
   /**
@@ -56,7 +51,6 @@ export namespace motionHumanLawCovering {
    *
    * @param law The law.
    * @returns Each factor's values.
-   *
    * @evidence contracts/development/common.md#meaningful-documentation Defines omitted-value markers and the gesture kind/region dependency; an unlisted law yields no parameter factors.
    * @evidence contracts/development/implementation.md#principled-implementation Reads the maintained ledger's parameter=value rows and represents the face-region choice only alongside touchFace, the gesture kind that consumes it.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Find the law, collect parameter values and merge the one dependent gesture region factor.
@@ -95,9 +89,8 @@ export namespace motionHumanLawCovering {
    * Sweep every law of a table over a covering array of its parameters, the
    * bodies and the seeds (`motionCoveringArray`): every pair of values of any
    * two factors meets in some cell (`STRENGTH`), at a small share of the
-   * Cartesian product's cells. The
-   * seed's determinism is checked on each law's first cell; the mirror image
-   * of a side is a metamorphic test of its own.
+   * Cartesian product's cells. The seed's determinism is checked on each law's
+   * first cell; the mirror image of a side is a metamorphic test of its own.
    *
    * @param table Each law's stage.
    * @param bodies The bodies; each is `a`, partnered by the next.
@@ -105,7 +98,6 @@ export namespace motionHumanLawCovering {
    * @param report Receives each cell as it finishes.
    * @param only Limits the sweep to laws whose name is in it, when given.
    * @returns Every complaint of every cell.
-   *
    * @evidence contracts/development/common.md#meaningful-documentation States covering strength, canonical body pairing, seed, callback, optional law selection and complete complaint return.
    * @evidence contracts/development/implementation.md#principled-implementation Delegates to the single deterministic covering sweep with every body selected, at pair coverage (`STRENGTH`) for every law.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One delegation supplies the all-bodies predicate and forwards the explicit selection/report inputs.
@@ -125,19 +117,20 @@ export namespace motionHumanLawCovering {
   }
 
   /**
-   * One part of a table's sweep: part `i` of `n`, `n` a multiple of the
-   * bodies' count. The parts are cut by body first (`n / bodies` parts per
-   * body, each preparing that body and its partner only) and then take every
-   * `n / bodies`-th cell of that body's, so together they are the whole
-   * covering array, each cell in exactly one part.
+   * One part of a table's sweep: part `i` of `n`, `n` a multiple of the bodies'
+   * count. The parts are cut by body first (`n / bodies` parts per body, each
+   * preparing that body and its partner only) and then take every `n /
+   * bodies`-th cell of that body's, so together they are the whole covering
+   * array, each cell in exactly one part.
    *
    * @param table Each law's stage.
    * @param at The part, from 0, and the count of parts.
    * @param bodies The bodies; each is `a`, partnered by the next.
    * @param seeds The seeds.
    * @returns Every complaint of the part's cells.
-   * @throws {Error} When the count/index is not a safe integer, the count is not positive, the body set is empty, the count does not divide by the bodies or the part is out of range.
-   *
+   * @throws {Error} When the count/index is not a safe integer, the count is
+   *   not positive, the body set is empty, the count does not divide by the
+   *   bodies or the part is out of range.
    * @evidence contracts/development/common.md#meaningful-documentation Defines zero-based safe-integer part selection, body-first partitioning, modulo cell selection and malformed/range/divisibility refusal.
    * @evidence contracts/development/implementation.md#principled-implementation Admitted integer part inputs make body index floor(i/k) and ordinal modulo k partition each body's deterministic cell order exactly once across all parts; a fractional part must not silently select no cells.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Validate the existing bounds, choose one body and delegate a local ordinal predicate to the common sweep.
@@ -182,7 +175,6 @@ export namespace motionHumanLawCovering {
    * @param bodies The bodies.
    * @param seeds The seeds.
    * @returns The cells by body.
-   *
    * @evidence contracts/development/common.md#meaningful-documentation States that counts size partitions without constructing a scene or performance.
    * @evidence contracts/development/implementation.md#principled-implementation Enumerates the same factor/body/seed rows and strengths as execution, incrementing the actual named body for each row.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Initialize body counts, build each law's rows and count them once.
@@ -210,21 +202,20 @@ export namespace motionHumanLawCovering {
   }
 
   /**
-   * The mirror relation over every law of a table: each ledger row that
-   * sets the performer's own side to `left` (`motionHumanLawSweep.MIRRORED`)
-   * is performed and compared with the mirror image of its `right` row
-   * (`mirror`), on one body and one seed, since the relation holds whatever
-   * the body. A sided law draws its seeded lateral variation in its acting
-   * side's frame, so the relation holds for every seed. Its precondition is
-   * that sideless staging carries no lateral seeded variation in mirror
-   * stages (`MOTION_HUMAN_LAW_STAGES`), since a sideless stand's
-   * side-to-side draw cannot know the coming side.
+   * The mirror relation over every law of a table: each ledger row that sets
+   * the performer's own side to `left` (`motionHumanLawSweep.MIRRORED`) is
+   * performed and compared with the mirror image of its `right` row (`mirror`),
+   * on one body and one seed, since the relation holds whatever the body. A
+   * sided law draws its seeded lateral variation in its acting side's frame, so
+   * the relation holds for every seed. Its precondition is that sideless
+   * staging carries no lateral seeded variation in mirror stages
+   * (`MOTION_HUMAN_LAW_STAGES`), since a sideless stand's side-to-side draw
+   * cannot know the coming side.
    *
    * @param table Each law's stage.
    * @param body The body of `a`; the partner is the small woman.
    * @param seed The seed.
    * @returns Every complaint, a refusal of either row included.
-   *
    * @evidence contracts/development/common.md#meaningful-documentation States the side/seed precondition, actual body pairing, positional mirror ownership and refusal attribution from either row.
    * @evidence contracts/development/implementation.md#principled-implementation For each declared mirrored parameter containing left, stage the actual left scene and compare actual displayed joints with the right scene reflected in x=0 at the existing 10 mm positional bound.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Discover mirrored parameters, perform each left row, delegate its right comparison and append attributed construction/read failures.
@@ -268,7 +259,10 @@ export namespace motionHumanLawCovering {
     return out;
   }
 
-  /** Every cell of every law the selection takes, read and reported, its complaints gathered. */
+  /**
+   * Every cell of every law the selection takes, read and reported, its
+   * complaints gathered.
+   */
   function sweep(
     table: Readonly<Record<string, motionHumanLawSweep.Stage>>,
     bodies: readonly motionHumanBody.Name[],
@@ -325,9 +319,9 @@ export namespace motionHumanLawCovering {
   /**
    * Compare a left row's film with the mirror image of its right row's.
    *
-   * No law states how close the two must be; the 10 mm skin tolerance is
-   * this sweep's reading, and a finding here is first a question of whether
-   * the seeded variation is meant to mirror.
+   * No law states how close the two must be; the 10 mm skin tolerance is this
+   * sweep's reading, and a finding here is first a question of whether the
+   * seeded variation is meant to mirror.
    */
   function mirror(
     law: string,

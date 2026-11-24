@@ -21,6 +21,15 @@ import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanPerformanceObject } from "./HumanPerformanceObject";
 import { HumanPerformanceRead } from "./HumanPerformanceRead";
 
+/** The alternatives of `FramePosture`'s site. */
+type FramePosture = "root" | "yaw";
+
+/** The record of `IAimMoving`'s site. */
+type IAimMoving = { point: IAutoMovieVector3; normal: IAutoMovieVector3 };
+
+/** The record of `IAimResult`'s site. */
+type IAimResult = { point: IAutoMovieVector3; normal: IAutoMovieVector3 };
+
 /**
  * A target's world point and outward normal at a film second: a person's
  * region, the performer's own, a prop's point, a point of the world or of the
@@ -49,7 +58,7 @@ export namespace HumanPerformanceAim {
     seconds: number,
     frame: IAutoMovieMotionHumanPerformanceAim.IFrame,
     meetings?: ReadonlyMap<string, number>,
-  ): { point: IAutoMovieVector3; normal: IAutoMovieVector3 } {
+  ): IAimResult {
     switch (target.kind) {
       case "person": {
         // The aiming performer's own body is its own, as a `self` target's.
@@ -155,9 +164,10 @@ export namespace HumanPerformanceAim {
             fix: `aim at a point the prop declares, or declare ${target.point} in the prop's points`,
           });
         // A part that moves within the prop is where the prop says it is.
-        const moving:
-          | { point: IAutoMovieVector3; normal: IAutoMovieVector3 }
-          | undefined = prop.point?.(target.point, seconds);
+        const moving: IAimMoving | undefined = prop.point?.(
+          target.point,
+          seconds,
+        );
         if (moving !== undefined) return moving;
         // A prop the performer carries is read on the performer's own body,
         // as their own region is (`HumanPerformanceRead.prop`).
@@ -260,7 +270,7 @@ export namespace HumanPerformanceAim {
    */
   export function frame(
     body: IAutoMovieMotionHumanBody,
-    posture: Pick<IAutoMovieMotionHumanPosture, "root" | "yaw">,
+    posture: Pick<IAutoMovieMotionHumanPosture, FramePosture>,
     bones: IAutoMovieMotionHumanPerformanceAim.IFrame["bones"],
     subject?: string,
   ): IAutoMovieMotionHumanPerformanceAim.IFrame {

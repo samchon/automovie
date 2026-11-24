@@ -17,6 +17,13 @@ import type {
 
 import { HumanRefusal } from "../law/HumanRefusal";
 
+/** The record of `IPartLast`'s site. */
+type IPartLast = {
+  progress: number;
+  seconds: number | undefined;
+  place: IAutoMovieMotionHumanOperateDrive.IPlace;
+};
+
 /**
  * The part an operation moves on a prop that articulates, and the drive the
  * operation publishes for it: the hand and the part follow one function of the
@@ -174,13 +181,7 @@ export namespace operateDrive {
 
     // One posed prop per progress read last: a stroke reads the same
     // progress for the hand's point and its turn.
-    let last:
-      | {
-          progress: number;
-          seconds: number | undefined;
-          place: IAutoMovieMotionHumanOperateDrive.IPlace;
-        }
-      | undefined;
+    let last: IPartLast | undefined;
     return {
       prop: at.subject,
       contact: contact.id,

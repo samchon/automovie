@@ -28,6 +28,9 @@ import { HumanClaspClearance } from "./HumanClaspClearance";
 import { HumanGraspSearch } from "./HumanGraspSearch";
 import { HumanGrip } from "./HumanGrip";
 
+/** The record of `IChooseBest`'s site. */
+type IChooseBest = { i: number; j: number; clear: number; cost: number };
+
 /**
  * Two people's hands clasping each other, palm on palm: the open hand each
  * offers, the turn each hand takes in its palm's plane, chosen for both
@@ -47,15 +50,15 @@ import { HumanGrip } from "./HumanGrip";
  * the partner's palm onto the partner's wrist and forearm, where a closing
  * finger meets the forearm instead of wrapping the hand. The pair of turns is
  * therefore chosen as a grasp planner chooses a grasp: a candidate whose open
- * hand already intersects an obstacle is rejected before closing (GraspIt!,
- * Miller and Allen 2004, IEEE Robot. Autom. Mag. 11(4):110), and among the rest
- * the one the arms reach best is taken (Miller et al. 2003, Automatic grasp
- * planning using shape primitives). A turn is a candidate for an arm only when
- * the arm reaches it at the clasp and at the pump's top and bottom (`REACHED`),
- * and of those only the turns in the lowest upper-arm band of the Rapid Upper
- * Limb Assessment the arm attains (`BANDS`), so no clearance is bought with a
- * raised elbow or a wrist the pump takes past its range. Here a pair is clear
- * when no phalanx of either open hand, the capsule the closing curl moves
+ * hand already intersects an obstacle is rejected before closing (Miller and
+ * Allen 2004, IEEE Robot. Autom. Mag. 11(4):110), and among the rest the one
+ * the arms reach best is taken (Miller et al. 2003, Automatic grasp planning
+ * using shape primitives). A turn is a candidate for an arm only when the arm
+ * reaches it at the clasp and at the pump's top and bottom (`REACHED`), and of
+ * those only the turns in the lowest upper-arm band of the Rapid Upper Limb
+ * Assessment the arm attains (`BANDS`), so no clearance is bought with a raised
+ * elbow or a wrist the pump takes past its range. Here a pair is clear when no
+ * phalanx of either open hand, the capsule the closing curl moves
  * (`HumanGrip.chain`), enters the other's forearm collider at the clasp; a
  * pair's error is the worse of the two arms' errors over the clasp and the
  * pump, the hand's miss plus the elbow's turn from its hanging hint
@@ -320,7 +323,7 @@ export namespace HumanClasp {
         ],
       ),
     );
-    let best: { i: number; j: number; clear: number; cost: number } | undefined;
+    let best: IChooseBest | undefined;
     for (const i of aAdmitted)
       for (const j of bAdmitted) {
         const clear: number = Math.min(

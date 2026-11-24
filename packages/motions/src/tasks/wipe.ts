@@ -40,6 +40,11 @@ import { HumanHandTarget } from "../posture/HumanHandTarget";
 import { poseBones } from "../posture/poseBones";
 import { useTool } from "./useTool";
 
+/** The record of `IPlanStroke`'s site. */
+type IPlanStroke = {
+  contact: NonNullable<IAutoMovieMotionHumanArmPhrase.IStrokeProps["contact"]>;
+};
+
 /**
  * Wiping a table, counter or other level surface with the flat palm in circles,
  * standing before it: a household task that the composed laws lacked, the
@@ -290,11 +295,7 @@ export namespace wipe {
                 projection,
               ),
           };
-    const stroke: IAutoMovieMotionHumanArmPhrase.IStrokeProps & {
-      contact: NonNullable<
-        IAutoMovieMotionHumanArmPhrase.IStrokeProps["contact"]
-      >;
-    } = {
+    const stroke: IAutoMovieMotionHumanArmPhrase.IStrokeProps & IPlanStroke = {
       body,
       clock,
       side,

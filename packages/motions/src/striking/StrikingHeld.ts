@@ -19,6 +19,9 @@ import { HumanHand } from "../posture/HumanHand";
 import { StrikingHeldFrame } from "./StrikingHeldFrame";
 import { StrikingHeldGoal } from "./StrikingHeldGoal";
 
+/** The alternatives of `OfContext`'s site. */
+type OfContext = "body" | "entry" | "prop" | "subject";
+
 /**
  * A thing held in the hand as the effector of an action: a blade whose point
  * and edge are aimed, a firearm whose muzzle is aimed.
@@ -70,14 +73,11 @@ export namespace StrikingHeld {
    * @param points The working point, optional working-line origin and edge; a
    *   blade's `point` and `edge` when absent.
    * @returns The tool in the hand's frame.
-   * @throws {HumanRefusal} When a named affordance is absent, listing the
-   *   ones it has, or named working-line endpoints coincide.
+   * @throws {HumanRefusal} When a named affordance is absent, listing the ones
+   *   it has, or named working-line endpoints coincide.
    */
   export function of(
-    context: Pick<
-      IAutoMovieMotionHumanActionContext,
-      "body" | "entry" | "prop" | "subject"
-    >,
+    context: Pick<IAutoMovieMotionHumanActionContext, OfContext>,
     side: AutoMovieHumanSide,
     prop?: string,
     points: IAutoMovieMotionHumanStrikingHeld.IPoints = {

@@ -27,10 +27,30 @@ import { AutoMovieMotionHumanTarget } from "../compose/AutoMovieMotionHumanTarge
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanBound } from "../law/HumanBound";
+import { HumanBoneGroups } from "../posture/HumanBoneGroups";
 import { HumanFrame } from "../posture/HumanFrame";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { StrikingTarget } from "../striking/StrikingTarget";
 import { ReactionSource } from "./ReactionSource";
+
+/** The alternatives of `TurnedSignAxis2`'s site. */
+type TurnedSignAxis2 = 1 | 2;
+
+/** The alternatives of `TurnedSignAxis`'s site. */
+type TurnedSignAxis = 1 | 2;
+
+/** The alternatives of `TurnedSide`'s site. */
+type TurnedSide = 1 | -1;
+
+/** The record of `IReaction3`'s site. */
+type IReaction3 = { part: "trunk"; away: IAutoMovieVector3 };
+
+/** The record of `IReaction2`'s site. */
+type IReaction2 = {
+  part: "head";
+  away: IAutoMovieVector3;
+  angles: IAutoMovieMotionHumanJoints.Angles;
+};
 
 /**
  * Giving way to a contact: the head turned aside by a slap, or the trunk
@@ -125,18 +145,12 @@ export namespace give {
     // forward; reversed for a pull.
     // The head's actual place and, for a head reaction, the neck's sign.
     /** The observation transfers only the actual direction and chosen angles. */
-    type IReaction =
-      | {
-          part: "head";
-          away: IAutoMovieVector3;
-          angles: IAutoMovieMotionHumanJoints.Angles;
-        }
-      | { part: "trunk"; away: IAutoMovieVector3 };
+    type IReaction = IReaction2 | IReaction3;
     const reaction: IReaction = ((): IReaction => {
       const resolution: ReturnType<typeof prepareHumanPoseResolution> =
         prepareHumanPoseResolution();
       const headAt: ReturnType<typeof HumanTrunk.prepareResolve> =
-        HumanTrunk.prepareResolve(body, HEAD);
+        HumanTrunk.prepareResolve(body, HumanBoneGroups.HEAD);
       const trunk: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
         headAt(entry, resolution);
       const head: IAutoMovieVector3 = trunk.get("head")!.worldPosition;
@@ -214,7 +228,7 @@ export namespace give {
   function turned(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanGive.IParams>,
     trunk: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
-    side: 1 | -1,
+    side: TurnedSide,
     intensity: number,
     resolution: ReturnType<typeof prepareHumanPoseResolution>,
     headAt: ReturnType<typeof HumanTrunk.prepareResolve>,
@@ -226,8 +240,8 @@ export namespace give {
     );
 
     // Which sign of a neck angle moves the head's forward, or its up, to the left.
-    const sign: (axis: 1 | 2, probe: IAutoMovieVector3) => number = (
-      axis: 1 | 2,
+    const sign: (axis: TurnedSignAxis, probe: IAutoMovieVector3) => number = (
+      axis: TurnedSignAxis2,
       probe: IAutoMovieVector3,
     ): number => {
       const held: readonly [number, number, number] = entry.joints.neck ?? [
@@ -261,8 +275,4 @@ export namespace give {
       head: [0, tilt.head?.[1] ?? 0, twist.head?.[2] ?? 0],
     };
   }
-
-  /** All reaction observations read only this head and its actual ancestry. */
-  const HEAD: ReadonlySet<AutoMovieHumanoidBone> =
-    new Set<AutoMovieHumanoidBone>(["head"]);
 }

@@ -48,7 +48,7 @@ The hips' place is read with the posture's own pitch and roll, so a posture that
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 
-Reuses `resolveHumanPosture.heading`.
+Reuses `humanPostureHeading`.
 
 ## @evidenceExclude contracts/development/implementation.md#efficient-algorithms
 
@@ -78,7 +78,7 @@ The offset is read from the posture's own root and heading, so a posture that al
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 
-Reuses `resolveHumanPosture.heading`.
+Reuses `humanPostureHeading`.
 
 ## @evidenceExclude contracts/development/implementation.md#efficient-algorithms
 
@@ -100,7 +100,7 @@ The hips are the pivot of a standing lean and a planted leg has a fixed length, 
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-One `pivot`, one floor-frame translation and one `resolveHumanPosture.lower`.
+One `pivot`, one floor-frame translation and one `lowerHumanPosture`.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
@@ -138,7 +138,7 @@ The hips' place is read from the posture's own root and heading before the pitch
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 
-Reuses `HumanFrame.point` and `resolveHumanPosture.heading`.
+Reuses `HumanFrame.point` and `humanPostureHeading`.
 
 ## @evidenceExclude contracts/development/implementation.md#efficient-algorithms
 

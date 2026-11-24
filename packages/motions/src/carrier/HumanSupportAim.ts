@@ -13,6 +13,12 @@ import { AutoMovieMotionHumanTrunk } from "../compose/AutoMovieMotionHumanTrunk"
 import { instance } from "../ensemble/instance";
 import { HumanRefusal } from "../law/HumanRefusal";
 
+/** The alternatives of `TwistBone`'s site. */
+type TwistBone = "chest" | "spine";
+
+/** The alternatives of `TwistedAddBone`'s site. */
+type TwistedAddBone = "chest" | "spine";
+
 /**
  * An aim kept on a world target from a moving support, every second.
  *
@@ -252,7 +258,7 @@ export namespace HumanSupportAim {
   ): IAutoMovieMotionHumanPosture["joints"] {
     if (yaw === 0) return joints;
     const add = (
-      bone: "chest" | "spine",
+      bone: TwistedAddBone,
       share: number,
     ): [number, number, number] => {
       const at: readonly [number, number, number] = joints[bone] ?? [0, 0, 0];
@@ -266,7 +272,7 @@ export namespace HumanSupportAim {
   }
 
   /** A trunk joint's axial range from the range-of-motion table. */
-  function twist(bone: "chest" | "spine"): IAutoMovieAngleRange {
+  function twist(bone: TwistBone): IAutoMovieAngleRange {
     const range: IAutoMovieAngleRange | null | undefined =
       DEFAULT_HUMANOID_ROM[bone]?.twist;
     if (range === null || range === undefined)

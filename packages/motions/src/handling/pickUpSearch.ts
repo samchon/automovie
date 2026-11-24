@@ -232,7 +232,7 @@ export namespace pickUpSearch {
     // A grip whose fingertips, open as the hand arrives, would pass under the
     // floor the feet stand on is no grip of a prop resting there: a grasp
     // planner rejects the grasps that collide with the object's support
-    // (Miller and Allen 2004, GraspIt!, IEEE Robot Autom Mag 11(4):110). A
+    // (Miller and Allen 2004, IEEE Robot Autom Mag 11(4):110). A
     // ball on the floor is taken from above or the side, never under it.
     const floors: readonly number[] = context.entry.supports
       .filter(

@@ -1,5 +1,6 @@
 import { Vector3, wrapDegrees } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanBody,
@@ -25,6 +26,12 @@ import { StrikingSkill } from "./StrikingSkill";
 import { StrikingStance } from "./StrikingStance";
 import { StrikingTarget } from "./StrikingTarget";
 import { strikingStepSupport } from "./strikingStepSupport";
+
+/** The alternatives of `BandResult`'s site. */
+type BandResult = "low" | "middle" | "high";
+
+/** The alternatives of `OfLevel`'s site. */
+type OfLevel = "low" | "middle" | "high";
 
 /**
  * What a kick fixes when it is launched: the point it aims at as the kicker
@@ -131,15 +138,17 @@ export namespace KickLaunch {
     const body: IAutoMovieMotionHumanBody = context.body;
     const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
     const { side, prep, impact } = timing;
-    const support: "left" | "right" = side === "left" ? "right" : "left";
+    const support: AutoMovieHumanSide = side === "left" ? "right" : "left";
     const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
     const up: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
     const round: boolean = p.technique === "round";
     const feint: boolean = p.feint !== undefined;
     const recovery: strikingStepSupport.ISupport | undefined =
       strikingStepSupport(context);
-    const feet: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement> =
-      { ...StrikingTarget.feet(context.entry), ...recovery?.landings };
+    const feet: Record<
+      AutoMovieHumanSide,
+      IAutoMovieMotionHumanFoot.IPlacement
+    > = { ...StrikingTarget.feet(context.entry), ...recovery?.landings };
 
     // Where the target is, and the range a standing target is read at, from
     // the stance centre: how far ahead of it the root stands over the support
@@ -181,7 +190,7 @@ export namespace KickLaunch {
       Vector3.cross(up, line),
       side === "left" ? 1 : -1,
     );
-    const level: "low" | "middle" | "high" = band(body, first);
+    const level: OfLevel = band(body, first);
     const amplitude: number = StrikingSkill.amplitude(context.skill);
 
     // The round kick's pelvis turns until the target lies the band's azimuth
@@ -353,7 +362,7 @@ export namespace KickLaunch {
   function band(
     body: IAutoMovieMotionHumanBody,
     point: IAutoMovieVector3,
-  ): "low" | "middle" | "high" {
+  ): BandResult {
     if (point.y < body.measure.waistHeight * KickForm.BAND.low) return "low";
     if (point.y < body.measure.shoulderHeight * KickForm.BAND.middle)
       return "middle";

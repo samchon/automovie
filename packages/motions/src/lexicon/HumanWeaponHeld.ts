@@ -19,6 +19,15 @@ import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanHand } from "../posture/HumanHand";
 import { StrikingHeld } from "../striking/StrikingHeld";
 
+/** The alternatives of `SetupHands`'s site. */
+type SetupHands = 1 | 2;
+
+/** The alternatives of `SetupContext`'s site. */
+type SetupContext = "params" | "prop" | "body";
+
+/** The alternatives of `HeldContext`'s site. */
+type HeldContext = "body" | "entry" | "prop" | "subject" | "params";
+
 /**
  * How a presented weapon is held, read once per plan: the weapon as the
  * shooting hand holds it, whether it is a long gun (a prop with a `foreEnd`),
@@ -47,7 +56,7 @@ export namespace HumanWeaponHeld {
     (
       context: Pick<
         IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanWeaponPresent.IWield>,
-        "body" | "entry" | "prop" | "subject" | "params"
+        HeldContext
       >,
     ): ((
       points: IAutoMovieMotionHumanStrikingHeld.IPoints,
@@ -77,7 +86,7 @@ export namespace HumanWeaponHeld {
   export const setup = (
     context: Pick<
       IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanWeaponPresent.IWield>,
-      "params" | "prop" | "body"
+      SetupContext
     >,
     read: (
       points: IAutoMovieMotionHumanStrikingHeld.IPoints,
@@ -92,7 +101,7 @@ export namespace HumanWeaponHeld {
             (a: IAutoMovieAffordance): boolean => a.id === id,
           );
     const long: boolean = found("foreEnd") !== undefined;
-    const hands: 1 | 2 = p.hands ?? 2;
+    const hands: SetupHands = p.hands ?? 2;
     // A shouldered long arm is carried in one hand (the 1764 Manual
     // Exercise's Position of a Soldier under Arms); presented, it needs two.
     const shouldered: boolean = "carriage" in p && p.carriage === "shoulder";

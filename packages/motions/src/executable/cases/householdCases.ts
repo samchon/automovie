@@ -14,6 +14,9 @@ import type { IMotionCaptureCase } from "../IMotionCaptureCase";
 import { FamilyCaseKit } from "./FamilyCaseKit";
 import { everydayVerdicts } from "./everydayVerdicts";
 
+/** The record of `IHouseholdCasesHeight`'s site. */
+type IHouseholdCasesHeight = { low: number; high: number };
+
 /**
  * Capture cases of the household family, from quiet standing with the right
  * hand, at a counter 225 mm below the elbow (Li, Chang and Zhang 2024's
@@ -86,7 +89,7 @@ export function householdCases(
           performance.bones("a", t).get(frame.bone)!,
         ).point;
       };
-      let height: { low: number; high: number } = {
+      let height: IHouseholdCasesHeight = {
         low: Infinity,
         high: -Infinity,
       };

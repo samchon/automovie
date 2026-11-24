@@ -17,6 +17,11 @@ import { AutoMovieMotionHumanRange } from "./AutoMovieMotionHumanRange";
 import { AutoMovieMotionHumanTarget } from "./AutoMovieMotionHumanTarget";
 import { AutoMovieMotionHumanTargetGrid } from "./AutoMovieMotionHumanTargetGrid";
 
+/** The alternatives of `BendPreset`'s site. */
+type BendPreset =
+  | IAutoMovieMotionHumanBend.Arm
+  | IAutoMovieMotionHumanBend.IShares;
+
 /**
  * What an authoring spec is on a body: a place in shares and in metres, an
  * elbow preset in shares and in metres, an amount as a share and in degrees,
@@ -94,7 +99,7 @@ export namespace AutoMovieMotionHumanResolve {
    */
   export function bend(
     body: Pick<IAutoMovieMotionHumanBody, "measure">,
-    preset: IAutoMovieMotionHumanBend.Arm | IAutoMovieMotionHumanBend.IShares,
+    preset: BendPreset,
     out: number = 0,
   ): IAutoMovieMotionHumanResolve.IBend {
     const base: IAutoMovieMotionHumanBend.IShares =

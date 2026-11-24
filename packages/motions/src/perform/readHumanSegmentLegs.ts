@@ -21,12 +21,13 @@ import { HumanSegmentOverlay } from "./HumanSegmentOverlay";
  * under the running overlays, named by their ordinals in placement order
  * (`HumanSegmentOverlay.overlaid`), every subset of them since a fading overlay
  * keeps both the leaf with it and the one without. The seeds are the plan's leg
- * chain at the frame at or before the second (`readHumanSegmentLegs.chain`),
- * for a free leg alone (a goal neither planted nor in contact): a leg is only
- * continued from them, never placed at them, and its fit takes the closed-form
- * root nearest the seed (on another branch where the seed's has no legal one).
- * A planted leg keeps its own fit: where its goal asks no turn of the foot, the
- * chain's swivel would turn the foot about the ankle and move its sole.
+ * chain at the frame at or before the second (`segment.legSeeds`, prepared by
+ * `readHumanSegmentLegs.chain` when the action is placed), for a free leg alone
+ * (a goal neither planted nor in contact): a leg is only continued from them,
+ * never placed at them, and its fit takes the closed-form root nearest the seed
+ * (on another branch where the seed's has no legal one). A planted leg keeps
+ * its own fit: where its goal asks no turn of the foot, the chain's swivel
+ * would turn the foot about the ankle and move its sole.
  *
  * @param person The person.
  * @param segment The action.
@@ -46,7 +47,7 @@ export function readHumanSegmentLegs(
   // plan's chain is not read, so none of its frames is fitted for nothing.
   if (!free(limbs.leftLeg) && !free(limbs.rightLeg)) return new Map();
   const chain: ReadonlyMap<AutoMovieHumanLimb, IAutoMovieSwivelSeed> =
-    readHumanSegmentLegs.chain(segment.plan, person.performer.body)(local);
+    segment.legSeeds(local);
   const out: Map<string, IAutoMovieSwivelSeed> = new Map();
   if (chain.size === 0) return out;
   const ordinals: number[] =
@@ -83,10 +84,6 @@ function free(
 
 /** The plan-level leg chain the display's legs continue. */
 export namespace readHumanSegmentLegs {
-  /** Each plan's leg chain on the frame grid, extended on demand. */
-  const CHAINS: WeakMap<IAutoMovieMotionHumanActionPlan, ILegChain> =
-    new WeakMap();
-
   /**
    * A plan's leg chain: the legs' seeds at every frame of the plan's clock
    * (`AutoMovieMotionHumanArmCourse.STEP`), the first frame fitted cold and
@@ -95,20 +92,21 @@ export namespace readHumanSegmentLegs {
    * where that root is illegal (Tolani, Goswami and Badler 2000, section 3.2.4,
    * the feasible swivel nearest the desired one): the temporal coherence a
    * display keeps a knee's side by. A second takes the frame at or before it.
-   * The chain reads the plan's own leg goals alone, and is extended from the
-   * plan's start to a frame the first time a second needs it, so no frame
-   * depends on the order seconds are read in.
+   * The chain reads the plan's own leg goals alone. Its reader is prepared
+   * once, when the action is placed (`IAutoMovieMotionHumanSegment.legSeeds`),
+   * and solves its frames in order from the plan's start up to the latest frame
+   * a second has needed, so no frame depends on the order seconds are read in.
    *
    * @param plan The segment's plan.
    * @param body The performer's body.
    * @returns Each leg's seed at a plan second.
    * @evidence contracts/development/common.md#meaningful-documentation States the grid, the chaining, which frame a second takes and why the order of reads cannot matter.
    * @evidence contracts/development/implementation.md#principled-implementation Warm-starting each frame from the frame before, on the branch it chose, is the temporal coherence of engine two-bone IK; the root nearest the seed is the closed-form feasible swivel nearest the desired one (Tolani §3.2.4).
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One kept list of frames per plan, extended in order.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Preparation returns the reader; the reader's own list of frames grows in order.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Each frame is a full fit of the plan's own leg goals; a display only continues from it, against its own goals.
    * @evidence contracts/development/implementation.md#efficient-algorithms One legs-only fit per frame of the plan, each a closed-form root where it is legal, on a plan posture demanding only the root, trunk and leg channels.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The frames are kept per plan and shared by every read of it.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Held weakly by its plan.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The frames are the solver trajectory of the placed action, kept by its reader and shared by every read of it.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Held by the placed action's reader: at most one frame per step of the plan's duration, released with the action.
    */
   export function chain(
     plan: IAutoMovieMotionHumanActionPlan,
@@ -116,14 +114,12 @@ export namespace readHumanSegmentLegs {
   ): (
     seconds: number,
   ) => ReadonlyMap<AutoMovieHumanLimb, IAutoMovieSwivelSeed> {
-    let found: ILegChain | undefined = CHAINS.get(plan);
-    if (found === undefined) {
-      found = { frames: [] };
-      CHAINS.set(plan, found);
-    }
-    const frames: ReadonlyMap<AutoMovieHumanLimb, IAutoMovieSwivelSeed>[] =
-      found.frames;
     const step: number = AutoMovieMotionHumanArmCourse.STEP;
+
+    // The frames are solved in order from the plan's start, up to the frame a
+    // read first needs: the plan's posture is read only once the performance
+    // can show it, never while the action is being placed.
+    const frames: ReadonlyMap<AutoMovieHumanLimb, IAutoMovieSwivelSeed>[] = [];
     return (
       seconds: number,
     ): ReadonlyMap<AutoMovieHumanLimb, IAutoMovieSwivelSeed> => {
@@ -175,8 +171,7 @@ export namespace readHumanSegmentLegs {
    * The channels a chain frame demands of the plan: a leg fit reads the root,
    * the trunk and the legs' own goals and joints alone (`HumanSegmentLegs`), so
    * a plan that honours the demand evaluates no arm, head or hand writer for a
-   * frame: the required-bones evaluation of engine animation graphs (Unreal
-   * Engine `FBoneContainer`).
+   * frame: the required-bones evaluation of engine animation graphs.
    */
   const LEGGED: readonly AutoMovieMotionHumanChannel[] = [
     "root",
@@ -184,17 +179,4 @@ export namespace readHumanSegmentLegs {
     "leftLeg",
     "rightLeg",
   ];
-
-  /**
-   * A plan's leg chain: its frames so far, from the plan's start.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the member.
-   * @evidence contracts/development/design.md#principled-representation The legs' seeds of each frame, in order.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Written and read only by `chain`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The resolver's own seeds; no pose is kept.
-   */
-  interface ILegChain {
-    /** Each frame's leg seeds, from the plan's start. */
-    frames: ReadonlyMap<AutoMovieHumanLimb, IAutoMovieSwivelSeed>[];
-  }
 }

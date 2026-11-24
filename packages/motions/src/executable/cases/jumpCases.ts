@@ -21,6 +21,30 @@ import type { IMotionCaptureCase } from "../IMotionCaptureCase";
 import { MotionBodies } from "../MotionBodies";
 import { FootSlip } from "./FootSlip";
 
+/** The record of `IFitValueS`'s site. */
+type IFitValueS = { t: number; p: IAutoMovieVector3 };
+
+/** The record of `IJumpCasesSamplesItem`'s site. */
+type IJumpCasesSamplesItem = { t: number; p: IAutoMovieVector3 };
+
+/** The record of `IJumpCasesChannelBest`'s site. */
+type IJumpCasesChannelBest = { key: string; score: number };
+
+/** The record of `IJumpCasesSink`'s site. */
+type IJumpCasesSink = { value: number; where: string };
+
+/** The record of `IJumpCasesFlight`'s site. */
+type IJumpCasesFlight = { value: number; where: string };
+
+/** The record of `IJumpCasesPop`'s site. */
+type IJumpCasesPop = { value: number; where: string };
+
+/** The record of `IJumpCasesJumpRatio`'s site. */
+type IJumpCasesJumpRatio = { value: number; where: string };
+
+/** The record of `IJumpCasesSlip`'s site. */
+type IJumpCasesSlip = { value: number; where: string };
+
 /**
  * Experiment E1 on the polygon man (`jump-e1-<body>` for the smallest, the
  * average and the tallest sweep bodies): the body walks at a normal pace and is
@@ -84,9 +108,9 @@ export function jumpCases(who: string): IMotionCaptureCase[] {
   const s1: number = share("leftHeelStrike3");
   const model = resolveAutoMovieCenterOfMass(body.skeleton, body.profile);
   let illegal: string[] = [];
-  let slip: { value: number; where: string } = { value: 0, where: "none" };
-  let jumpRatio: { value: number; where: string } = { value: 0, where: "none" };
-  let pop: { value: number; where: string } = { value: 0, where: "none" };
+  let slip: IJumpCasesSlip = { value: 0, where: "none" };
+  let jumpRatio: IJumpCasesJumpRatio = { value: 0, where: "none" };
+  let pop: IJumpCasesPop = { value: 0, where: "none" };
   // A displayed pose's channels: the root translation and every clinical angle.
   const channels = (pose: IAutoMoviePose): Map<string, number> => {
     const out: Map<string, number> = new Map();
@@ -101,8 +125,8 @@ export function jumpCases(who: string): IMotionCaptureCase[] {
     }
     return out;
   };
-  let flight: { value: number; where: string } = { value: 0, where: "none" };
-  let sink: { value: number; where: string } = { value: 0, where: "none" };
+  let flight: IJumpCasesFlight = { value: 0, where: "none" };
+  let sink: IJumpCasesSink = { value: 0, where: "none" };
   const tuck: string[] = [];
   let tuckOk: boolean = true;
   let drawn: IAutoMovieMotionHumanPerformance | undefined;
@@ -113,6 +137,8 @@ export function jumpCases(who: string): IMotionCaptureCase[] {
       .bones("a", at)
       .get("hips")!.worldPosition;
     let performance: IAutoMovieMotionHumanPerformance;
+
+    // Process boundary: a jump the law refuses at this k is recorded as illegal with its message, and the scan goes on to the next k.
     try {
       performance = perform(
         HumanChain.subject("a")
@@ -234,7 +260,7 @@ export function jumpCases(who: string): IMotionCaptureCase[] {
       };
       const v0 = rate(cut - 2 * h);
       const v1 = rate(cut + 2 * h);
-      let best: { key: string; score: number } = { key: "", score: -1 };
+      let best: IJumpCasesChannelBest = { key: "", score: -1 };
       for (const [key, x] of v0) {
         // Metres against degrees: 1 m/s weighs as 100 deg/s, a 1 m segment's turn.
         const d: number =
@@ -273,7 +299,7 @@ export function jumpCases(who: string): IMotionCaptureCase[] {
     }
 
     // Flight: least-squares parabola with gravity fixed.
-    const samples: { t: number; p: IAutoMovieVector3 }[] = [];
+    const samples: IJumpCasesSamplesItem[] = [];
     for (
       let t: number = takeoff + 1 / 240;
       t < touchdown - 1 / 240;
@@ -283,9 +309,7 @@ export function jumpCases(who: string): IMotionCaptureCase[] {
         t: t - takeoff,
         p: resolveAutoMovieCenterOfMass.place(model, bones(t)),
       });
-    const fit = (
-      value: (s: { t: number; p: IAutoMovieVector3 }) => number,
-    ): ((t: number) => number) => {
+    const fit = (value: (s: IFitValueS) => number): ((t: number) => number) => {
       const n: number = samples.length;
       const st: number = samples.reduce((a, s) => a + s.t, 0);
       const stt: number = samples.reduce((a, s) => a + s.t * s.t, 0);

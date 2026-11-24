@@ -12,12 +12,16 @@ import type {
 
 import { HumanRefusal } from "../law/HumanRefusal";
 import { hipJoints } from "../posture/hipJoints";
+import { humanPostureHeading } from "../posture/humanPostureHeading";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import type { KnockdownFloor } from "../reaction/KnockdownFloor";
 import { HumanMountedFrame } from "./HumanMountedFrame";
 import { HumanUnseatFlight } from "./HumanUnseatFlight";
 import { heelMountedFoot } from "./heelMountedFoot";
+
+/** The alternatives of `FLEXEntryItem`'s site. */
+type FLEXEntryItem = "spine" | "chest" | "neck";
 
 /**
  * The shapes of a rider leaving a saddle (`HumanUnseat`): the slump over the
@@ -46,7 +50,7 @@ export namespace HumanUnseatPose {
   export const STAND: KnockdownFloor.IFold = { pitch: 0, joints: {} };
 
   /** The slump's trunk and neck flexion, degrees (provisional). */
-  const FLEX: Readonly<Record<"spine" | "chest" | "neck", number>> = {
+  const FLEX: Readonly<Record<FLEXEntryItem, number>> = {
     spine: 35,
     chest: 25,
     neck: 30,
@@ -131,8 +135,8 @@ export namespace HumanUnseatPose {
     };
     // The limbs that held the saddle let go but keep their place on the body: each goal is carried by the root's own motion since the release, unplanted, so nothing jumps.
     const carry: IAutoMovieQuaternion = Quaternion.multiply(
-      resolveHumanPosture.heading(shown),
-      Quaternion.inverse(resolveHumanPosture.heading(from)),
+      humanPostureHeading(shown),
+      Quaternion.inverse(humanPostureHeading(from)),
     );
     const limbs: IAutoMovieMotionHumanPosture["limbs"] = {};
     for (const [limb, goal] of Object.entries(from.limbs) as [
@@ -164,7 +168,7 @@ export namespace HumanUnseatPose {
     const hips: Record<AutoMovieHumanSide, IAutoMovieVector3> = hipJoints(
       body,
       shown.root,
-      resolveHumanPosture.heading(shown),
+      humanPostureHeading(shown),
       shown.joints.hips,
     );
     for (const side of ["left", "right"] as const) {
@@ -195,7 +199,7 @@ export namespace HumanUnseatPose {
   ): IAutoMovieVector3 {
     return Vector3.add(
       posture.root,
-      Quaternion.rotateVector(resolveHumanPosture.heading(posture), {
+      Quaternion.rotateVector(humanPostureHeading(posture), {
         x: (side === "left" ? 1 : -1) * 0.25,
         y: -0.1,
         z: 0,
@@ -220,7 +224,7 @@ export namespace HumanUnseatPose {
     share: number,
   ): IAutoMovieMotionHumanPosture {
     if (share <= 0) return posture;
-    const turn: IAutoMovieQuaternion = resolveHumanPosture.heading(posture);
+    const turn: IAutoMovieQuaternion = humanPostureHeading(posture);
     const sign: number = side === "left" ? 1 : -1;
     // From where the hand is held now, or where it hangs by the hip.
     const hanging: IAutoMovieVector3 =
@@ -260,7 +264,7 @@ export namespace HumanUnseatPose {
     // Out from the falling side's shoulder, not the hip: the hand comes down past the trunk's side, clear of the thigh.
     const sign: number = side === "left" ? 1 : -1;
     const out: IAutoMovieVector3 = Quaternion.rotateVector(
-      resolveHumanPosture.heading({ yaw: posture.yaw, pitch: 0, roll: 0 }),
+      humanPostureHeading({ yaw: posture.yaw, pitch: 0, roll: 0 }),
       { x: sign * 0.5 * body.measure.upperArm, y: 0, z: 0 },
     );
     return {

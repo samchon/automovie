@@ -23,6 +23,12 @@ import { HumanArmTrajectoryPace } from "../posture/HumanArmTrajectoryPace";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
+/** The alternatives of `GirdlesAtBone`'s site. */
+type GirdlesAtBone = "leftShoulder" | "rightShoulder";
+
+/** The alternatives of `GirdlesBoundsEnd`'s site. */
+type GirdlesBoundsEnd = "min" | "max";
+
 /**
  * Shoulder assistance and transport timing for hands holding distinct body
  * sites across each other.
@@ -167,7 +173,7 @@ export namespace touchCrossedSupport {
         bone,
         readHumanBone(body, bone)?.constraint ?? null,
       );
-      const end: "min" | "max" = side === primary ? "min" : "max";
+      const end: GirdlesBoundsEnd = side === primary ? "min" : "max";
       return [range?.flexion?.[end] ?? 0, range?.abduction?.[end] ?? 0, 0];
     };
     const left: Angles = bounds("left");
@@ -176,10 +182,7 @@ export namespace touchCrossedSupport {
       posture: IAutoMovieMotionHumanPosture,
       share: number,
     ): IAutoMovieMotionHumanPosture => {
-      const at = (
-        bone: "leftShoulder" | "rightShoulder",
-        end: Angles,
-      ): Angles => {
+      const at = (bone: GirdlesAtBone, end: Angles): Angles => {
         const was: Angles = posture.joints[bone] ?? [0, 0, 0];
         return [
           was[0] + share * (end[0] - was[0]),

@@ -1,7 +1,6 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
-  AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanFrame,
   IAutoMovieMotionHumanGestureStroke,
@@ -15,14 +14,24 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanTargetGrid } from "../compose/AutoMovieMotionHumanTargetGrid";
+import { HumanBoneGroups } from "../posture/HumanBoneGroups";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { humanPostureHeading } from "../posture/humanPostureHeading";
 import { HumanTrunk } from "./HumanTrunk";
 import { gestureJoints } from "./gestureJoints";
 import { gestureSignal } from "./gestureSignal";
 import { gestureStrokeTables } from "./gestureStrokeTables";
 import { gestureTouch } from "./gestureTouch";
+
+/** The record of `IPRAYER`'s site. */
+type IPRAYER = { out: number; up: number; forward: number };
+
+/** The alternatives of `PutOffsetKey2`'s site. */
+type PutOffsetKey2 = "lateral" | "height" | "range";
+
+/** The alternatives of `PutOffsetKey`'s site. */
+type PutOffsetKey = "lateral" | "height" | "range";
 
 /**
  * The stroke of each gesture: where each hand surface goes, turned which way
@@ -183,9 +192,7 @@ export namespace gestureStroke {
     // the posture the gesture is entered on (`bend`), and carried in the
     // heading frame. Pointing and self-touch already read the posed trunk.
     if (TRUNK_POSED.has(kind)) return goal;
-    const heading: IAutoMovieQuaternion = resolveHumanPosture.heading(
-      input.base,
-    );
+    const heading: IAutoMovieQuaternion = humanPostureHeading(input.base);
     const tilt: IAutoMovieQuaternion = Quaternion.multiply(
       heading,
       Quaternion.inverse(HumanFrame.turn(input.base.yaw)),
@@ -258,14 +265,14 @@ export namespace gestureStroke {
       posture,
       undefined,
       undefined,
-      CHEST,
+      HumanBoneGroups.CHEST,
     ).get("chest")!;
     const straight: IAutoMovieResolvedBone = HumanTrunk.resolve(
       body,
       posture,
       { ...posture.joints, ...STRAIGHT },
       undefined,
-      CHEST,
+      HumanBoneGroups.CHEST,
     ).get("chest")!;
     const turn: IAutoMovieQuaternion = Quaternion.multiply(
       posed.worldRotation,
@@ -277,7 +284,7 @@ export namespace gestureStroke {
     )
       return undefined;
     const inverse: IAutoMovieQuaternion = Quaternion.inverse(
-      resolveHumanPosture.heading(posture),
+      humanPostureHeading(posture),
     );
     const heading: IAutoMovieQuaternion = Quaternion.inverse(inverse);
     return {
@@ -307,10 +314,6 @@ export namespace gestureStroke {
     /** The posed chest. */
     to: IAutoMovieVector3;
   }
-
-  /** The bone a place of the air rides. */
-  const CHEST: ReadonlySet<AutoMovieHumanoidBone> =
-    new Set<AutoMovieHumanoidBone>(["chest"]);
 
   /** The trunk's joints of a body standing straight. */
   const STRAIGHT: IAutoMovieMotionHumanPosture["joints"] = {
@@ -344,25 +347,20 @@ export namespace gestureStroke {
       origin: input.base.root,
       yaw: input.base.yaw,
     };
-    let transform: HumanFrame.IPrepared | undefined;
+    const transform: HumanFrame.IPrepared = HumanFrame.prepare({
+      origin: { x: 0, y: 0, z: 0 },
+      yaw: frame.yaw,
+    });
     const at: (x: number, y: number, z: number) => IAutoMovieVector3 = (
       x: number,
       y: number,
       z: number,
-    ): IAutoMovieVector3 =>
-      (transform ??= HumanFrame.prepare({
-        origin: { x: 0, y: 0, z: 0 },
-        yaw: frame.yaw,
-      })).point({ x, y, z }, frame.origin);
+    ): IAutoMovieVector3 => transform.point({ x, y, z }, frame.origin);
     const dir: (x: number, y: number, z: number) => IAutoMovieVector3 = (
       x: number,
       y: number,
       z: number,
-    ): IAutoMovieVector3 =>
-      (transform ??= HumanFrame.prepare({
-        origin: { x: 0, y: 0, z: 0 },
-        yaw: frame.yaw,
-      })).direction({ x, y, z });
+    ): IAutoMovieVector3 => transform.direction({ x, y, z });
     // A place of the air by its names, in the performer's own frame: the
     // shares times the stature, the half shoulder width and the arm, ahead
     // of the root, which a lowered posture carries down with it. `reach`
@@ -386,8 +384,8 @@ export namespace gestureStroke {
           : AutoMovieMotionHumanTargetGrid.place(body, side, named);
       const varied: IAutoMovieMotionHumanTarget.IDefault | undefined =
         base === undefined ? undefined : input.vary!(base);
-      const offset: (key: "lateral" | "height" | "range") => number = (
-        key: "lateral" | "height" | "range",
+      const offset: (key: PutOffsetKey) => number = (
+        key: PutOffsetKey2,
       ): number =>
         base === undefined || varied === undefined
           ? 0
@@ -564,7 +562,7 @@ export namespace gestureStroke {
    * Where the fingers of two palms held together point: up and forward, 30
    * degrees above the horizontal (provisional).
    */
-  const PRAYER: { out: number; up: number; forward: number } = {
+  const PRAYER: IPRAYER = {
     out: 0,
     up: 0.5,
     forward: 0.866,

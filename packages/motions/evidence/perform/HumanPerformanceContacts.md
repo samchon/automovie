@@ -26,7 +26,7 @@ Reads existing plan hold/contact metadata rather than recomputing grasp geometry
 
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
-Mutates the person's ordered holds and adds one weak takeover reference per closed hold so a cut can undo it. These records are bounded by the placed holds and released with their performance.
+Mutates the person's ordered holds and marks each closed hold with the schedule index of the action that took it over (`takenBy`), so a cut can undo it. The marks are fields of the placed holds and go with them.
 
 # src/perform/HumanPerformanceContacts.ts#HumanPerformanceContacts.cutHolds
 
@@ -52,11 +52,11 @@ For H holds, one O(H) in-place compaction with at most one weak lookup per live 
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 
-Uses the existing ordered hold records and the scheduler's cut boundary. Takeover ownership is tracked on the original hold identity.
+Uses the existing ordered hold records and the scheduler's cut boundary. Takeover ownership is the hold's own `takenBy` field.
 
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
-Removes any reopened takeover link and retains no new record. Existing links have weak hold keys and release when the hold is no longer reachable.
+Deletes the reopened hold's `takenBy` field and retains no new record.
 
 # src/perform/HumanPerformanceContacts.ts#HumanPerformanceContacts.contacts
 

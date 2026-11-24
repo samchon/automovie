@@ -35,6 +35,10 @@ const SOURCES: WeakMap<
   () => ReturnType<typeof preparePoseResolution>,
   IReading
 > = new WeakMap();
+/** The alternatives of `PrepareHumanPoseResolutionSource`'s site. */
+type PrepareHumanPoseResolutionSource =
+  | ReturnType<typeof preparePoseResolution>
+  | (() => ReturnType<typeof preparePoseResolution>);
 
 /**
  * Own a lazy exact-FK reader for one synchronous person evaluation, or borrow
@@ -43,9 +47,7 @@ const SOURCES: WeakMap<
  * must not enter a retained plan, body fit entry or public result closure.
  */
 export function prepareHumanPoseResolution(
-  source?:
-    | ReturnType<typeof preparePoseResolution>
-    | (() => ReturnType<typeof preparePoseResolution>),
+  source?: PrepareHumanPoseResolutionSource,
 ): () => ReturnType<typeof preparePoseResolution> {
   // A getter of this factory's own is already the lazy reader of its
   // source: a wrapper of it would return its reader on every call and share

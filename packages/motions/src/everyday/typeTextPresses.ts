@@ -7,6 +7,12 @@ import type {
 
 import { HumanFrame } from "../posture/HumanFrame";
 
+/** The record of `ITypeTextPressesKeysItem`'s site. */
+type ITypeTextPressesKeysItem = {
+  at: IAutoMovieVector3;
+  side: AutoMovieHumanSide;
+};
+
 /**
  * Prepare each typing hand's ordered key presses and evaluate the first
  * unfinished press by binary search. A press reaches its key over the `REACH`
@@ -26,7 +32,7 @@ import { HumanFrame } from "../posture/HumanFrame";
  * @returns A pure world-space fingertip reader for either hand at any second.
  */
 export function typeTextPresses(
-  keys: readonly { at: IAutoMovieVector3; side: AutoMovieHumanSide }[],
+  keys: readonly ITypeTextPressesKeysItem[],
   times: readonly number[],
   interval: number,
   home: Record<AutoMovieHumanSide, IAutoMovieVector3>,

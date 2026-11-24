@@ -82,13 +82,8 @@ export function prepareRigidFlightMass(
         ),
       });
     }
-    let composite: IAutoMovieCombinePhysicalMassProperties.IPart;
-    try {
-      composite = combinePhysicalMassProperties(parts);
-    } catch {
-      // The original ungrouped mass owner retains its own admission and error.
-      return undefined;
-    }
+    const composite: IAutoMovieCombinePhysicalMassProperties.IPart =
+      combinePhysicalMassProperties(parts);
     segments.push({
       bone,
       mass: composite.mass,

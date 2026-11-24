@@ -12,6 +12,31 @@ import { MotionBodies } from "../MotionBodies";
 import type { humanPolygonMan } from "../humanPolygonMan";
 import { locomotionCase } from "./locomotionCase";
 
+/** The record of `ILocomotionCasesAllItem`'s site. */
+type ILocomotionCasesAllItem = {
+  law: AllLawItem;
+  pace: string;
+  froude: number;
+  label: string;
+  to: IAutoMovieVector3;
+  extra: Omit<IAutoMovieMotionHumanWalkParams, AllExtraItem>;
+};
+
+/** The alternatives of `AllExtraItem`'s site. */
+type AllExtraItem = "to" | "pace";
+
+/** The alternatives of `AllLawItem`'s site. */
+type AllLawItem = "walk" | "run";
+
+/** The record of `ILocomotionCasesPrepared`'s site. */
+type ILocomotionCasesPrepared = {
+  men: humanPolygonMan.IPolygonMan[];
+  bodies: IAutoMovieMotionHumanBody[];
+};
+
+/** The alternatives of `LocomotionCasesKind`'s site. */
+type LocomotionCasesKind = "walk" | "run";
+
 /**
  * Capture cases of the walk law on the polygon man (E0): every body of
  * `MotionBodies.SWEEP` walks 4 m ahead alone, one case per body and pace
@@ -52,18 +77,13 @@ import { locomotionCase } from "./locomotionCase";
  * @returns The cases, each built as it is read.
  */
 export function* locomotionCases(
-  kind: "walk" | "run",
+  kind: LocomotionCasesKind,
   only?: (name: string) => boolean,
 ): Iterable<IMotionCaptureCase> {
   for (const who of MotionBodies.SWEEP) {
     const names = [who] as const;
     // The bodies are prepared on the first case the filter keeps.
-    let prepared:
-      | {
-          men: humanPolygonMan.IPolygonMan[];
-          bodies: IAutoMovieMotionHumanBody[];
-        }
-      | undefined;
+    let prepared: ILocomotionCasesPrepared | undefined;
     const prepare = (): NonNullable<typeof prepared> => {
       if (prepared === undefined) {
         const men: humanPolygonMan.IPolygonMan[] = names.map((name) =>
@@ -78,14 +98,7 @@ export function* locomotionCases(
       }
       return prepared;
     };
-    const all: {
-      law: "walk" | "run";
-      pace: string;
-      froude: number;
-      label: string;
-      to: IAutoMovieVector3;
-      extra: Omit<IAutoMovieMotionHumanWalkParams, "to" | "pace">;
-    }[] = [
+    const all: ILocomotionCasesAllItem[] = [
       ...(["slow", "normal", "fast"] as const).map((pace) => ({
         law: "walk" as const,
         pace,

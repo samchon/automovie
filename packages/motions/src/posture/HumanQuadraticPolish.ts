@@ -5,6 +5,23 @@ import { HumanQuadraticRow } from "./HumanQuadraticRow";
 import { HumanQuadraticSubstitute } from "./HumanQuadraticSubstitute";
 import { HumanQuadraticWorkspace as Work } from "./HumanQuadraticWorkspace";
 
+/** The record of `IHumanQuadraticPolishSelection`'s site. */
+type IHumanQuadraticPolishSelection = { rows: number[]; bounds: number[] };
+
+/** The record of `IHumanQuadraticPolishResult`'s site. */
+type IHumanQuadraticPolishResult = {
+  x: Float64Array;
+  z: Float64Array;
+  y: Float64Array;
+  products: Pick<Work.IWork, HumanQuadraticPolishProductsResult>;
+};
+
+/** The alternatives of `HumanQuadraticPolishProductsResult`'s site. */
+type HumanQuadraticPolishProductsResult =
+  | "rows"
+  | "transpose"
+  | "productFiniteX";
+
 /**
  * The solution polished on its active set (section 4): the rows held on a bound
  * (a hard row whose value and multiplier say so, a soft row resting on its
@@ -29,13 +46,8 @@ export function HumanQuadraticPolish(
   delta: number,
   refine: number,
   work: Work.IWork,
-): {
-  x: Float64Array;
-  z: Float64Array;
-  y: Float64Array;
-  products: Pick<Work.IWork, "rows" | "transpose" | "productFiniteX">;
-} {
-  const selection: { rows: number[]; bounds: number[] } = (work.active ??= {
+): IHumanQuadraticPolishResult {
+  const selection: IHumanQuadraticPolishSelection = (work.active ??= {
     rows: [],
     bounds: [],
   });
