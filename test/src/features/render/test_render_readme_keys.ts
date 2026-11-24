@@ -15,17 +15,26 @@ import path from "node:path";
 
 import { repositoryRoot } from "../internal/repositoryRoot";
 
-/** The render package's README, whose "Request keys" table maps every key to the requirement it serves. */
+/**
+ * The render package's README, whose "Request keys" table maps every key to the
+ * requirement it serves.
+ */
 const README: string = path.join(repositoryRoot(), "packages/render/README.md");
 
-/** One row of the table: its key names, what they ask for and the requirement they serve. */
+/**
+ * One row of the table: its key names, what they ask for and the requirement
+ * they serve.
+ */
 interface IRow {
   keys: string[];
   asks: string;
   serves: string;
 }
 
-/** The rows of a Markdown section's table whose first cell names keys in backticks. */
+/**
+ * The rows of a Markdown section's table whose first cell names keys in
+ * backticks.
+ */
 function rows(markdown: string, heading: string): IRow[] {
   const start: number = markdown.indexOf(`\n## ${heading}\n`);
   if (start === -1) return [];
@@ -50,15 +59,28 @@ function rows(markdown: string, heading: string): IRow[] {
 }
 
 /**
- * The render README's one table of request keys and `automovie capture` options matches what the readers accept, in both directions, so the table a reader trusts cannot drift from the grammar.
+ * The render README's one table of request keys and `automovie capture` options
+ * matches what the readers accept, in both directions, so the table a reader
+ * trusts cannot drift from the grammar.
  *
  * Scenarios:
  *
- * 1. The table's request keys, every key not written with dashes, are exactly `AUTO_MOVIE_CAPTURE_PLAN_KEYS`, which holds the capture's keys and the inspection keys, each listed once.
- * 2. Every request key of the table, given with a value through the command's host reader, is passed on to the request untouched, and the request reader accepts the whole set without refusing a key.
- * 3. The options of the table written with dashes are exactly the union of the options `automovie capture`, `inspect`, `render` and `review` take, `AUTOMOVIE_CAPTURE_OPTIONS`, `AUTOMOVIE_INSPECT_OPTIONS`, `AUTOMOVIE_RENDER_OPTIONS` and `AUTOMOVIE_REVIEW_OPTIONS`, in both directions; every capture option is taken by the capture's host reader for itself and never reaches the request, and no option is a request key.
+ * 1. The table's request keys, every key not written with dashes, are exactly
+ *    `AUTO_MOVIE_CAPTURE_PLAN_KEYS`, which holds the capture's keys and the
+ *    inspection keys, each listed once.
+ * 2. Every request key of the table, given with a value through the command's host
+ *    reader, is passed on to the request untouched, and the request reader
+ *    accepts the whole set without refusing a key.
+ * 3. The options of the table written with dashes are exactly the union of the
+ *    options `automovie capture`, `inspect`, `render` and `review` take,
+ *    `AUTOMOVIE_CAPTURE_OPTIONS`, `AUTOMOVIE_INSPECT_OPTIONS`,
+ *    `AUTOMOVIE_RENDER_OPTIONS` and `AUTOMOVIE_REVIEW_OPTIONS`, in both
+ *    directions; every capture option is taken by the capture's host reader for
+ *    itself and never reaches the request, and no capture host option is a
+ *    request key. File review can reuse time names under its own command.
  * 4. Every row states what its keys ask for and the requirement they serve.
- * 5. The parser finds no table in a section that does not exist, so a renamed heading fails scenario 1 instead of passing on an empty list.
+ * 5. The parser finds no table in a section that does not exist, so a renamed
+ *    heading fails scenario 1 instead of passing on an empty list.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Runs the exported key list, the request reader and the command's host-option reader against the README's table; a key or a command option added to a reader without a row, a row for a key or option no reader takes, or a host option documented as a request key fails. It reads a document, which the checklist counts as repository arrangement; issue #3302 requires the README table and a test that keeps it equal to the readers, and the user's instruction outranks the checklist.
  * @evidence contracts/development/testing.md#independent-expectations The expected sets are the readers' own exported lists, from the readers that refuse what they do not list, and their observed behaviour, not a copy of the table; the table is written by hand for people, so the two are independent sources that must agree.
@@ -130,12 +152,11 @@ export function test_render_readme_keys(): void {
       ]),
     ]),
   );
-  for (const option of hostOptions)
+  for (const option of AUTOMOVIE_CAPTURE_OPTIONS) {
     TestValidator.predicate(
-      `--${option} is not a request key`,
+      `--${option} is not a capture request key`,
       !AUTO_MOVIE_CAPTURE_PLAN_KEYS.includes(option),
     );
-  for (const option of AUTOMOVIE_CAPTURE_OPTIONS) {
     const values: Map<string, string> = new Map(
       option === "file" ? [] : [["module", "subjects.ts"]],
     );

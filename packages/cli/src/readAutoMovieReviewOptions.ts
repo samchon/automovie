@@ -1,31 +1,46 @@
 import { AUTOMOVIE_REVIEW_OPTIONS } from "./AUTOMOVIE_REVIEW_OPTIONS";
+import type { IAutoMovieReviewObservation } from "./IAutoMovieReviewObservation";
 
-/** Longest observation in seconds: one day, beyond any film's playback a person reviews. */
+/** The longest Inspector recording in wall-clock seconds, one day. */
 const LONGEST: number = 86_400;
 
+/** An Inspector recording with its existing address, duration and output. */
+interface IAutoMovieInspectorReviewOptions {
+  url: string;
+  seconds: number;
+  out: string | null;
+}
+
 /**
- * Read the options of `automovie review`, `AUTOMOVIE_REVIEW_OPTIONS`.
+ * One file mark or replay, with the selected range and any explicit reviewer
+ * decision.
+ */
+interface IAutoMovieFileReviewOptions {
+  file: string | null;
+  mark: string | null;
+  requested: IAutoMovieReviewObservation["requested"] | null;
+  note: string | null;
+  reviewer: IAutoMovieReviewObservation["reviewer"];
+  decision: IAutoMovieReviewObservation["decision"];
+  viewed: IAutoMovieReviewObservation["viewed"];
+  out: string | null;
+}
+
+/**
+ * Admit one `automovie review` operation.
  *
- * | Option | Meaning | Absent |
- * | --- | --- | --- |
- * | `--url <address>` | The running inspector page, with the request it opens on | Required |
- * | `--seconds <s>` | Wall-clock seconds of playback recorded, positive, at most a day | Required |
- * | `--out <folder>` | Where the recording and `playback.json` go | `media/automovie/review` |
- *
- * It throws naming the option for an option outside the list, an empty value, a missing `--url` or `--seconds`, an address that is not HTTP on this machine, and seconds out of range.
+ * Inspector mode takes the loopback HTTP `--url`, wall-clock `--seconds` and
+ * optional `--out`. File mode takes a published `--file` with `--at`, or with
+ * `--from` and exclusive `--to`, in film seconds. New marks need `--note`.
+ * `--mark` opens an existing receipt or, beside a file and selected time,
+ * explicitly rebinds it. A rebind can reuse the note text. `--reviewer`,
+ * `--decision` and `--viewed` belong together on a mark or rebind. A still can
+ * name a point, while playback and listening require an interval. `--out`
+ * selects the output folder.
  */
 export function readAutoMovieReviewOptions(
   values: ReadonlyMap<string, string>,
-): {
-  /** The page's address. */
-  url: string;
-
-  /** Seconds of playback recorded. */
-  seconds: number;
-
-  /** The output folder, or null for the default. */
-  out: string | null;
-} {
+): IAutoMovieInspectorReviewOptions | IAutoMovieFileReviewOptions {
   for (const [key, value] of values) {
     if (!AUTOMOVIE_REVIEW_OPTIONS.includes(key))
       throw new Error(
@@ -34,10 +49,24 @@ export function readAutoMovieReviewOptions(
     if (value.trim() === "")
       throw new Error(`Review option --${key} needs a value`);
   }
+  return values.has("file") || values.has("mark")
+    ? fileOptions(values)
+    : inspectorOptions(values);
+}
+
+/** Record only a loopback HTTP Inspector for a finite wall-clock duration. */
+function inspectorOptions(
+  values: ReadonlyMap<string, string>,
+): IAutoMovieInspectorReviewOptions {
   const url: string | undefined = values.get("url");
   const text: string | undefined = values.get("seconds");
   if (url === undefined || text === undefined)
-    throw new Error("Review needs --url <inspector address> and --seconds <s>");
+    throw new Error(
+      "Review needs --url <inspector address> and --seconds <s>, or --file / --mark",
+    );
+  for (const key of values.keys())
+    if (key !== "url" && key !== "seconds" && key !== "out")
+      throw new Error(`Review option --${key} needs --file or --mark`);
   let address: URL;
   try {
     address = new URL(url);
@@ -59,4 +88,86 @@ export function readAutoMovieReviewOptions(
       `Review --seconds "${text}" is not a number of seconds above 0 and at most ${LONGEST}`,
     );
   return { url: address.href, seconds, out: values.get("out") ?? null };
+}
+
+/** Admits a new mark, an explicit rebind, or replay of an existing mark. */
+function fileOptions(
+  values: ReadonlyMap<string, string>,
+): IAutoMovieFileReviewOptions {
+  if (values.has("url") || values.has("seconds"))
+    throw new Error(
+      "Review --url and --seconds apply only to Inspector recording",
+    );
+  const file: string | null = values.get("file") ?? null;
+  const mark: string | null = values.get("mark") ?? null;
+  const note: string | null = values.get("note") ?? null;
+  const at: number | null = second(values, "at");
+  const from: number | null = second(values, "from");
+  const to: number | null = second(values, "to");
+  if (at !== null && (from !== null || to !== null))
+    throw new Error("Review --at excludes --from and --to");
+  if ((from === null) !== (to === null) || (from !== null && to! <= from))
+    throw new Error("Review needs both --from and --to with --from below --to");
+  const requested: IAutoMovieFileReviewOptions["requested"] =
+    at !== null ? { from: at, to: null } : from !== null ? { from, to } : null;
+  if (requested !== null && file === null)
+    throw new Error("Review a new position with --file");
+  if (mark === null && (requested === null || note === null))
+    throw new Error(
+      "A new review mark needs --at or --from and --to, and --note",
+    );
+
+  const reviewer: string | null = values.get("reviewer") ?? null;
+  const decision: string | null = values.get("decision") ?? null;
+  const viewed: string | null = values.get("viewed") ?? null;
+  if (
+    decision !== null &&
+    decision !== "accepted" &&
+    decision !== "needs-repair"
+  )
+    throw new Error("Review --decision takes accepted or needs-repair");
+  if (
+    viewed !== null &&
+    viewed !== "still" &&
+    viewed !== "playback" &&
+    viewed !== "listening"
+  )
+    throw new Error("Review --viewed takes still, playback or listening");
+  if (
+    (reviewer === null) !== (decision === null) ||
+    (decision === null) !== (viewed === null)
+  )
+    throw new Error("Give --reviewer, --decision and --viewed together");
+  if (requested === null && (note !== null || reviewer !== null))
+    throw new Error(
+      "Add a note or decision at an explicit position with --file",
+    );
+  if (
+    (requested === null || requested.to === null) &&
+    (viewed === "playback" || viewed === "listening")
+  )
+    throw new Error("Playback and listening review need --from and --to");
+  return {
+    file,
+    mark,
+    requested,
+    note,
+    reviewer,
+    decision,
+    viewed,
+    out: values.get("out") ?? null,
+  };
+}
+
+/** Reads a finite nonnegative film second, or null when absent. */
+function second(
+  values: ReadonlyMap<string, string>,
+  key: string,
+): number | null {
+  const text: string | undefined = values.get(key);
+  if (text === undefined) return null;
+  const value: number = Number(text);
+  if (!Number.isFinite(value) || value < 0)
+    throw new Error(`Review --${key} needs a finite nonnegative second`);
+  return value;
 }
