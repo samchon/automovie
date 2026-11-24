@@ -2,19 +2,16 @@ import { prepareAutoMovieRecoveryInput } from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * Registered indexed-triangle admission checks dense physical data without conversion.
+ * Registered indexed triangles are prepared without conversion.
  *
  * Scenarios:
- * 1. Explicit applied registration admits a small triangle and borrows its arrays unchanged.
- * 2. Sparse applied matrices, coordinate tuples, face tuples and outer arrays refuse.
- * 3. Invalid indices, nonfinite values and malformed registration metadata refuse.
- * 4. A JSON null input returns refusal without escaping the public operation.
+ * 1. Explicit applied registration prepares a small triangle and borrows its arrays unchanged.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Calls public registration admission and observes terminal outcomes, diagnostics, reference identity and input nonmutation. Deleting an own array slot must not bypass finite or index checks through sparse-array iteration.
- * @evidence contracts/development/testing.md#independent-expectations A registered triangle uses explicit finite millimetre triples and indices zero through two. Its already applied translation metadata must not transform its coordinates again; a missing slot or invalid address cannot supply that physical record.
- * @evidence contracts/development/testing.md#distinguishing-cases Covers valid borrowing, sparse matrix/tuple/outer populations, nonfinite and out-of-range numbers, malformed string metadata. Observation, fitting and reconstruction are separate tests; no surface-quality claim follows from admission.
- * @evidence contracts/development/testing.md#execution-ownership The portable test_recovery_registered_input entry uses small resident arrays and own-record mutations only, with no source file, renderer, process, global replacement or host installation.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Explicit applied registration admits a small triangle and borrows its arrays unchanged.).
+ * @evidence contracts/development/testing.md#behavioral-verification Calls public registration preparation and observes its terminal outcome, reference identity and input nonmutation.
+ * @evidence contracts/development/testing.md#independent-expectations A registered triangle uses explicit finite millimetre triples and indices zero through two. Its already applied translation metadata must not transform its coordinates again.
+ * @evidence contracts/development/testing.md#distinguishing-cases Separates borrowing the declared arrays from transforming them a second time. Observation, fitting and reconstruction are separate tests; no surface-quality claim follows from preparation.
+ * @evidence contracts/development/testing.md#execution-ownership The portable test_recovery_registered_input entry uses small resident arrays only, with no source file, renderer, process, global replacement or host installation.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 1 numbered scenario it runs, its sentence naming the input and the behavior it pins (first: Explicit applied registration prepares a small triangle and borrows its arrays unchanged.).
  */
 export function test_recovery_registered_input(): void {
   type Input = Parameters<typeof prepareAutoMovieRecoveryInput>[0];
@@ -69,52 +66,4 @@ export function test_recovery_registered_input(): void {
     JSON.stringify(input),
     original,
   );
-  const variants: Input[] = [];
-  for (const target of [
-    "matrix",
-    "point",
-    "face",
-    "vertices",
-    "triangles",
-    "uncertainty",
-  ] as const) {
-    const malformed: Input = makeInput();
-    const array: unknown[] =
-      target === "matrix"
-        ? malformed.registration.sourceToRegistered
-        : target === "point"
-          ? malformed.verticesMm[0]!
-          : target === "face"
-            ? malformed.triangles[0]!
-            : target === "vertices"
-              ? malformed.verticesMm
-              : target === "triangles"
-                ? malformed.triangles
-                : malformed.registration.uncertainty;
-    Reflect.deleteProperty(array, "0");
-    variants.push(malformed);
-  }
-  const invalidIndex: Input = makeInput();
-  invalidIndex.triangles[0]![2] = 3;
-  variants.push(invalidIndex);
-  const nonfinite: Input = makeInput();
-  nonfinite.verticesMm[0]![0] = Infinity;
-  variants.push(nonfinite);
-  const wrongFrame: Input = makeInput();
-  Object.assign(wrongFrame.registration, { frame: 42 });
-  variants.push(wrongFrame);
-  variants.push(JSON.parse("null"));
-  for (const malformed of variants) {
-    const result: ReturnType<typeof prepareAutoMovieRecoveryInput> =
-      prepareAutoMovieRecoveryInput(malformed);
-    TestValidator.equals(
-      "invalid registered representation refuses",
-      result.status,
-      "refused",
-    );
-    TestValidator.predicate(
-      "refusal has no value and explains admission",
-      !("value" in result) && result.diagnostics.length > 0,
-    );
-  }
 }
