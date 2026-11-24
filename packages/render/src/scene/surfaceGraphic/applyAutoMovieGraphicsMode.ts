@@ -63,7 +63,9 @@ export function applyAutoMovieGraphicsMode(
  * depth-free material that multiplies the colour and alpha beneath it by one
  * minus that opacity; for any other, a depth-only material.
  */
-const holdOut = (original: THREE.Material): THREE.MeshBasicMaterial =>
+const holdOut: (original: THREE.Material) => THREE.MeshBasicMaterial = (
+  original: THREE.Material,
+): THREE.MeshBasicMaterial =>
   original.transparent &&
   original.blending === THREE.NormalBlending &&
   original.opacity < 1

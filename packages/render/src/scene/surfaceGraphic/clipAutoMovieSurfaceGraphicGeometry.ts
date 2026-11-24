@@ -36,7 +36,11 @@ export function clipAutoMovieSurfaceGraphicGeometry(
         c: THREE.Vector2;
       } => {
         // Each clip triangle counter-clockwise in XZ, so inside is the left.
-        const [a, b, c] = [contour[i!]!, contour[j!]!, contour[k!]!];
+        const [a, b, c]: [THREE.Vector2, THREE.Vector2, THREE.Vector2] = [
+          contour[i!]!,
+          contour[j!]!,
+          contour[k!]!,
+        ];
         return cross(a, b, c) >= 0 ? { a, b, c } : { a, b: c, c: b };
       },
     );
@@ -47,11 +51,11 @@ export function clipAutoMovieSurfaceGraphicGeometry(
   const position: number = names.indexOf("position");
   const offset: number = sizes
     .slice(0, position)
-    .reduce((sum: number, n: number) => sum + n, 0);
+    .reduce((sum: number, n: number): number => sum + n, 0);
 
   // One vertex is all its attributes in a row, position's x and z found at
   // their offsets.
-  const vertex = (index: number): number[] =>
+  const vertex: (index: number) => number[] = (index: number): number[] =>
     names.flatMap((name: string): number[] => {
       const attribute:
         | THREE.BufferAttribute
@@ -61,10 +65,10 @@ export function clipAutoMovieSurfaceGraphicGeometry(
         (_: unknown, k: number): number => attribute.getComponent(index, k),
       );
     });
-  const x = (v: number[]): number => v[offset]!;
-  const z = (v: number[]): number => v[offset + 2]!;
+  const x: (v: number[]) => number = (v: number[]): number => v[offset]!;
+  const z: (v: number[]) => number = (v: number[]): number => v[offset + 2]!;
   const out: number[][] = names.map((): number[] => []);
-  const emit = (v: number[]): void => {
+  const emit: (v: number[]) => void = (v: number[]): void => {
     let at: number = 0;
     sizes.forEach((size: number, slot: number): void => {
       for (let k: number = 0; k < size; ++k) out[slot]!.push(v[at + k]!);
@@ -88,7 +92,7 @@ export function clipAutoMovieSurfaceGraphicGeometry(
       ] as const) {
         if (polygon.length === 0) break;
         // Signed distance to the left of the clip edge pq.
-        const side = (v: number[]): number =>
+        const side: (v: number[]) => number = (v: number[]): number =>
           (q.x - p.x) * (z(v) - p.y) - (q.y - p.y) * (x(v) - p.x);
         const next: number[][] = [];
         polygon.forEach((current: number[], i: number): void => {

@@ -18,11 +18,22 @@ import { createAutoMovieSurfaceGraphicText } from "./createAutoMovieSurfaceGraph
  * as the region the mask paints whatever the layers hold. Each layer follows as
  * its own mesh in order. Render order rises with draw order from
  * {@link GRAPHIC_ORDER}, the face at it and layer `i` at one more than `i` past
- * it, and no material writes depth, so the layers stack by order rather than by
+ * it, and no layer writes depth, so the layers stack by order rather than by
  * depth offsets. That order lies below every other blended mesh, a flame's `-1`
- * and the default `0` included, because a graphic lies on an opaque face that
- * already hides whatever is behind it: drawn first, the graphic is covered by a
- * flame or a glass in front of it instead of being painted over them.
+ * and the default `0` included, so a flame or a glass in front of a graphic
+ * draws over it instead of being painted over.
+ *
+ * After the layers, every mesh that writes colour is drawn once more as a seal
+ * that writes its depth and no colour, at one order past the last layer, with
+ * the layer's own texture and opacity discarding where it covers nothing. So
+ * any blended mesh drawn later behind the graphic, the graphic's own host face
+ * included when that face is a blended pane of glass or a pool's water, is
+ * hidden where the graphic covers: the lettering is neither dimmed in beauty
+ * nor held out of the plate by the surface it lies on, and the host draws as
+ * itself everywhere else. A feed's seal takes no texture, because a feed is
+ * drawn into while the scene renders, and covers its whole quad. Under a
+ * translucent layer on a blended host the host's own colour is left out, as the
+ * only order one sorted pass offers is the seal's.
  *
  * Image layers take the texture `image` returns for their asset. A `contain`
  * fit shrinks the quad to the image's aspect inside its box, centred; a `cover`
@@ -73,6 +84,7 @@ export function buildAutoMovieSurfaceGraphicKey(props: {
 }): THREE.Group {
   const { graphic, width, depth, owned }: typeof props = props;
   const group: THREE.Group = new THREE.Group();
+  const fed: Set<THREE.Mesh> = new Set();
 
   const face: THREE.Mesh = mesh(
     createAutoMovieSurfaceGraphicQuad(width, depth, FULL),
@@ -135,15 +147,19 @@ export function buildAutoMovieSurfaceGraphicKey(props: {
                   owned,
                 )
               : imageMesh(layer, props);
-      if (layer.kind === "feed") props.feeds?.push(drawn);
+      if (layer.kind === "feed") {
+        props.feeds?.push(drawn);
+        fed.add(drawn);
+      }
       drawn.renderOrder = GRAPHIC_ORDER + 1 + index;
       group.add(drawn);
     },
   );
 
   // Nothing paints past the surface's outline, in any pass.
+  const drawn: THREE.Mesh[] = [...(group.children as THREE.Mesh[])];
   if (props.outline !== undefined)
-    for (const child of group.children as THREE.Mesh[]) {
+    for (const child of drawn) {
       const clipped: THREE.BufferGeometry = clipAutoMovieSurfaceGraphicGeometry(
         child.geometry,
         props.outline,
@@ -151,8 +167,38 @@ export function buildAutoMovieSurfaceGraphicKey(props: {
       owned.push(clipped);
       child.geometry = clipped;
     }
+
+  // The seals, on the clipped geometry, after every layer.
+  for (const child of drawn) {
+    const material: THREE.MeshBasicMaterial | THREE.MeshLambertMaterial =
+      child.material as THREE.MeshBasicMaterial | THREE.MeshLambertMaterial;
+    if (!material.colorWrite) continue;
+    const seal: THREE.Mesh = new THREE.Mesh(
+      child.geometry,
+      new THREE.MeshBasicMaterial({
+        colorWrite: false,
+        depthWrite: true,
+        transparent: true,
+        map: fed.has(child) ? null : material.map,
+        opacity: material.opacity,
+        alphaTest: SEAL_ALPHA,
+        side: material.side,
+      }),
+    );
+    owned.push(seal.material as THREE.Material);
+    seal.castShadow = false;
+    seal.receiveShadow = false;
+    seal.renderOrder = GRAPHIC_ORDER + 1 + graphic.layers.length;
+    group.add(seal);
+  }
   return group;
 }
+
+/**
+ * The coverage below which a seal discards a fragment: half an 8-bit step, so a
+ * texel or a colour with any stored coverage seals.
+ */
+const SEAL_ALPHA: number = 1 / 510;
 
 /**
  * The render order of a graphic's face; its layers follow it one by one. Far
