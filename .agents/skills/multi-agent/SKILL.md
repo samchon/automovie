@@ -13,11 +13,13 @@ Do not add roles, gates, phases or schedules the user did not order.
 
 ## Supervision
 
-The main session audits the subagents' finished work every 10 minutes, or at the interval the user sets. It checks for violations of:
+The main session audits the subagents' work for violations of:
 
 - the user's orders;
 - the user's decisions;
 - the skills' rules.
+
+It audits every 10 minutes unless the user sets another interval.
 
 On a violation, it warns the subagent and orders a fix. It adds no approval step. Approvals the rules require go to the user.
 
