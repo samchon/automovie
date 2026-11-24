@@ -26,13 +26,15 @@ import { HumanSequentialConvex as SCO } from "./HumanSequentialConvex";
  * not. The penalty is steered (Byrd, Nocedal and Waltz 2008,
  * `HumanSequentialConvex.IOptions.steer`): each round it grows tenfold until
  * the step keeps its share of what the linearised constraints allow, from the
- * first of `PENALTIES` to the last at most, so an iterate is not carried off
- * the constraints by the objective at a penalty too low and brought back at the
- * next (measured: a sit's reach feasible at round 2, infeasible again by round
- * 11, feasible at round 18 under a fixed ladder). A problem still infeasible at
- * the last penalty is left to the caller to refuse. A solve continued from
- * another's result on refined waypoints starts at that result's penalty, the
- * continuation of a penalty method, in place of the first.
+ * first of `PENALTIES` to the last at most, TrajOpt's own schedule, and the
+ * solve stops raising it once every constraint is met to TrajOpt's constraint
+ * tolerance (`CONSTRAINT`), so an iterate is not carried off the constraints by
+ * the objective at a penalty too low and brought back at the next (measured: a
+ * sit's reach feasible at round 2, infeasible again by round 11, feasible at
+ * round 18 under a fixed ladder). A problem still infeasible at the last
+ * penalty is left to the caller to refuse. A solve continued from another's
+ * result on refined waypoints starts at that result's penalty, the continuation
+ * of a penalty method, in place of the first.
  */
 export namespace HumanArmOptimiser {
   /**
@@ -127,8 +129,12 @@ export namespace HumanArmOptimiser {
           fixed = { reading: evaluation, laid: changing };
         return evaluation;
       },
+      // The solve stops raising the penalty where every constraint is met to
+      // sco's constraint tolerance (`CONSTRAINT`), not at the admission's
+      // millimetre: a course stopped at the millimetre's edge reads a hair
+      // past it on its own grid.
       feasible: (evaluation: M.IEvaluation): boolean =>
-        evaluation.worst.value <= M.TOLERANCE,
+        evaluation.worst.value <= CONSTRAINT,
       convexify: (
         x: number[][][],
         evaluation: M.IEvaluation,
@@ -313,9 +319,9 @@ export namespace HumanArmOptimiser {
         steer: true,
         ceiling: PENALTIES[PENALTIES.length - 1]!,
 
-        // A reduction of the violation under the millimetre the plan accepts
-        // as feasible is one the plan cannot tell (`IOptions.stationary`).
-        stationary: M.TOLERANCE,
+        // A reduction of the violation under the constraint tolerance is one
+        // the solve cannot tell (`IOptions.stationary`).
+        stationary: CONSTRAINT,
         ...(from === undefined ? {} : { from }),
       },
     );
@@ -328,13 +334,47 @@ export namespace HumanArmOptimiser {
 }
 
 /**
- * The penalty a solve starts at, the first, TrajOpt's own (sco's
- * merit_error_coeff), and the greatest the steering may raise it to, the last:
- * the top of the ladder this planner climbed before it steered (this planner's
- * value, unsourced). A problem still infeasible there is the caller's to
- * refuse, not the penalty's to force.
+ * TrajOpt's merit schedule, its sco defaults (`BasicTrustRegionSQP::
+ * initParameters`, trajopt's src/sco/optimizers.cpp): the penalty starts at
+ * `merit_error_coeff_` 10 and is raised by `merit_coeff_increase_ratio_` 10 at
+ * most `max_merit_coeff_increases_` 5 times, its outer loop solving at each
+ * coefficient in turn, so the coefficients solved at are 10 to 10^5 by tens. A
+ * problem still infeasible at the last is the caller's to refuse, not the
+ * penalty's to force.
  */
-const PENALTIES: readonly number[] = [10, 100, 1000, 10000];
+const MERIT: Readonly<IMerit> = {
+  first: 10,
+  ratio: 10,
+  increases: 5,
+};
+
+/** A merit schedule: the first penalty, its growth and how often it grows. */
+interface IMerit {
+  /** The penalty the solve starts at. */
+  first: number;
+
+  /** The factor each raise multiplies it by. */
+  ratio: number;
+
+  /** How many coefficients the outer loop solves at. */
+  increases: number;
+}
+
+/** The penalties the solve may steer through, the first to the last. */
+const PENALTIES: readonly number[] = Array.from(
+  { length: MERIT.increases },
+  (_: unknown, k: number): number => MERIT.first * MERIT.ratio ** k,
+);
+
+/**
+ * A constraint met, millimetres: sco's `cnt_tolerance_` (1e-4,
+ * `BasicTrustRegionSQP::initParameters` in trajopt's src/sco/optimizers.cpp),
+ * below which its outer loop stops raising the penalty, read in sco's units,
+ * metres, and converted to this model's rows, millimetres: 1e-4 m times 1000.
+ * The solve stops there; the admission still accepts a course within the
+ * model's own `TOLERANCE`.
+ */
+const CONSTRAINT: number = 1e-4 * 1000;
 
 /**
  * Convexifications a solve may take: the benchmark setting of Schulman et al.
