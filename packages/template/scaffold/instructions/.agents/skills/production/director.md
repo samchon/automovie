@@ -8,7 +8,7 @@ The main agent directs every commission, including a single image, motion or sou
 
 After [intake](project-context.md#intake), give new narrative and revisions to a writer subagent, including [direct writing](../story/workflow/routes.md#direct-writing). Supply the instructions, source material and expected deliverable.
 
-Run and supervise every subagent under [multi-agent](../multi-agent/SKILL.md).
+When the user orders other roles, another number or no subagents, follow the user's order. Keep a subagent that stops for context working under [multi-agent](../multi-agent/SKILL.md).
 
 At a narrative pass's Evidence step, start a separate [Evidence answerer](../story/answers.md) subagent. Return manuscript gaps to the writer. At review, start an [independent reviewer](../review/independent-reading.md) subagent with the annotation-free manuscript. The reviewer owns the verdict. The writer accepts or declines findings under [findings and decisions](../review/narrative-rounds.md#findings-and-decisions).
 

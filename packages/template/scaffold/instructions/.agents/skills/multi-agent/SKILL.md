@@ -1,15 +1,9 @@
 ---
 name: multi-agent
-description: Sets how the director follows the user's orders on subagents and keeps them working.
+description: Keeps a Claude Code subagent working when it stops for context.
 ---
 
 # Multi-agent
-
-## Assignments
-
-The [director](../production/director.md#assignments) assigns a writer, an Evidence answerer and an independent reviewer. When the user orders other roles, another number or no subagents, follow the user's order.
-
-Start a new subagent only where its role needs independence, as the reviewer and the Evidence answerer do.
 
 ## Continuing
 

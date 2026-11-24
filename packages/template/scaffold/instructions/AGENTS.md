@@ -62,7 +62,7 @@ Use the [production workflow](.agents/skills/production/workflow.md#commissioned
 | [evidence](.agents/skills/evidence/SKILL.md) | Adopting a requirement, configuring checks or recording answers |
 | [image](.agents/skills/image/SKILL.md) | Making appearance references, shot frames or views for generation |
 | [motion](.agents/skills/motion/SKILL.md) | Composing, extending or verifying motion, staging, camera and channels |
-| [multi-agent](.agents/skills/multi-agent/SKILL.md) | Starting, directing or supervising subagents |
+| [multi-agent](.agents/skills/multi-agent/SKILL.md) | Keeping a subagent working when it stops for context |
 | [production](.agents/skills/production/SKILL.md) | Choosing a commissioned route or managing scope, caches, assembly or handoff |
 | [prompting](.agents/skills/prompting/SKILL.md) | Changing `AGENTS.md`, `CLAUDE.md` or a skill |
 | [review](.agents/skills/review/SKILL.md) | Reviewing work, accepting deliveries or estimating requested quality |
