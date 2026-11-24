@@ -22,8 +22,8 @@ export namespace HumanArmTrajectorySweepBound {
    * The bound on a probe's course over an interval, prepared once
    * (`AutoMovieMotionBound.prepare`): its chord lengths per frame step over the
    * steps' seconds from the interval's first waypoint, the chords being the
-   * course `HumanArmTrajectorySweep.of` reads. None where two frames share an
-   * instant or the course has no step.
+   * course `HumanArmTrajectorySweep.of` reads. None where the course has no
+   * step.
    *
    * @param c The context, whose waypoint seconds time the steps.
    * @param k The interval's first waypoint.
@@ -42,11 +42,11 @@ export namespace HumanArmTrajectorySweepBound {
       Math.abs(c.times[g]! - c.times[k]!),
     );
     const speeds: number[] = [];
-    for (let i: number = 0; i + 1 < along.length; ++i) {
-      const h: number = along[i + 1]! - along[i]!;
-      if (!(h > 0)) return undefined;
-      speeds.push(Vector3.distance(course[i]!, course[i + 1]!) / h);
-    }
+    for (let i: number = 0; i + 1 < along.length; ++i)
+      speeds.push(
+        Vector3.distance(course[i]!, course[i + 1]!) /
+          (along[i + 1]! - along[i]!),
+      );
     return speeds.length === 0
       ? undefined
       : AutoMovieMotionBound.prepare(along, speeds);
@@ -58,9 +58,7 @@ export namespace HumanArmTrajectorySweepBound {
    * its solids moves between the step's two frames, carried into the shape's
    * frame at the interval's first waypoint as the casts carry them
    * (`HumanArmTrajectoryLinks.cast`), over the steps' seconds from that
-   * waypoint. None where two frames share an instant, or where the part's
-   * solids differ in number, points or radius between frames, so no point
-   * corresponds.
+   * waypoint. None where the interval has no step.
    *
    * @param c The context, whose waypoint seconds time the steps.
    * @param a The arm.
@@ -92,22 +90,6 @@ export namespace HumanArmTrajectorySweepBound {
           ),
       );
 
-    // Whether a frame's solids match the first frame's in number, points and
-    // radius, so each point corresponds to the first frame's.
-    const first: readonly physicalShapeGjk.ISolid[] =
-      steps[0]!.solids.get(part) ?? [];
-    const matches = (step: HumanArmTrajectoryLinks.IStep): boolean => {
-      const solids: readonly physicalShapeGjk.ISolid[] =
-        step.solids.get(part) ?? [];
-      return (
-        solids.length === first.length &&
-        solids.every(
-          (solid: physicalShapeGjk.ISolid, i: number): boolean =>
-            solid.points.length === first[i]!.points.length &&
-            solid.radius === first[i]!.radius,
-        )
-      );
-    };
     const along: number[] = steps.map(
       (step: HumanArmTrajectoryLinks.IStep): number =>
         Math.abs(c.times[step.at]! - c.times[k]!),
@@ -116,7 +98,6 @@ export namespace HumanArmTrajectorySweepBound {
     const speeds: number[] = [];
     for (let i: number = 0; i + 1 < steps.length; ++i) {
       const h: number = along[i + 1]! - along[i]!;
-      if (!(h > 0) || !matches(steps[i + 1]!)) return undefined;
       const after: IAutoMovieVector3[] = carried(steps[i + 1]!);
       let most: number = 0;
       for (let m: number = 0; m < after.length; ++m)

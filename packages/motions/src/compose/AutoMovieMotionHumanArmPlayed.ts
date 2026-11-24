@@ -1,4 +1,5 @@
 import type {
+  AutoMovieHumanDigit,
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieHumanDigitGoal,
@@ -11,7 +12,6 @@ import type {
 } from "@automovie/interface";
 
 import { HumanDigitFit } from "../posture/HumanDigitFit";
-import { HumanPosture } from "../posture/HumanPosture";
 
 /**
  * A planned arm's hand fingers as the plan carries them: one finger state, in
@@ -89,11 +89,9 @@ export namespace AutoMovieMotionHumanArmPlayed {
       const a: Fingers = states[lo]!;
       const b: Fingers = states[hi]!;
       const out: Fingers = {};
-      for (const bone of new Set<AutoMovieHumanoidBone>([
-        ...(Object.keys(a) as AutoMovieHumanoidBone[]),
-        ...(Object.keys(b) as AutoMovieHumanoidBone[]),
-      ])) {
-        const from: Angles = (a[bone] ?? b[bone])!;
+      for (const bone of DIGIT_BONES) {
+        const from: Angles | undefined = a[bone] ?? b[bone];
+        if (from === undefined) continue;
         const to: Angles = b[bone] ?? from;
         out[bone] = [
           from[0] + (to[0] - from[0]) * s,
@@ -132,12 +130,19 @@ export namespace AutoMovieMotionHumanArmPlayed {
     const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...posture.limbs };
     delete limbs[`${side}Arm`];
     const out: IAutoMovieMotionHumanPosture = { ...posture, joints, limbs };
-    if (own(posture.digits, side) === undefined) return out;
-    const goals: Goals = { ...posture.digits };
-    for (const digit of HumanPosture.DIGITS)
-      if (digit.startsWith(side)) delete goals[digit];
-    if (Object.keys(goals).length === 0) delete out.digits;
-    else out.digits = goals;
+
+    // The other hand's digit goals are kept; this hand's are dropped.
+    const goals: Goals = {};
+    let kept: boolean = false;
+    for (const digit of HAND_DIGITS[side === "left" ? "right" : "left"]) {
+      const goal: IAutoMovieHumanDigitGoal | undefined =
+        posture.digits?.[digit];
+      if (goal === undefined) continue;
+      goals[digit] = goal;
+      kept = true;
+    }
+    if (kept) out.digits = goals;
+    else delete out.digits;
     return out;
   }
 }
@@ -151,6 +156,9 @@ type Goals = NonNullable<IAutoMovieMotionHumanPosture["digits"]>;
 /** A joint's clinical flexion, abduction and twist, degrees. */
 type Angles = readonly [number, number, number];
 
+/** The two hands. */
+const SIDES: readonly AutoMovieHumanSide[] = ["left", "right"];
+
 /** The fingers of a hand. */
 const FINGERS: readonly string[] = [
   "Thumb",
@@ -160,6 +168,28 @@ const FINGERS: readonly string[] = [
   "Little",
 ];
 
+/** Each hand's digits, thumb first, as the posture names their goals. */
+const HAND_DIGITS: Readonly<
+  Record<AutoMovieHumanSide, readonly AutoMovieHumanDigit[]>
+> = {
+  left: ["leftThumb", "leftIndex", "leftMiddle", "leftRing", "leftLittle"],
+  right: [
+    "rightThumb",
+    "rightIndex",
+    "rightMiddle",
+    "rightRing",
+    "rightLittle",
+  ],
+};
+
+/** Both hands' digit bones, each finger's chain in order. */
+const DIGIT_BONES: readonly AutoMovieHumanoidBone[] = SIDES.flatMap(
+  (side: AutoMovieHumanSide): AutoMovieHumanoidBone[] =>
+    FINGERS.flatMap((name: string): AutoMovieHumanoidBone[] =>
+      HumanDigitFit.bones(side, name),
+    ),
+);
+
 /** A hand's own digit goals among a posture's, or none where it has none. */
 function own(
   digits: IAutoMovieMotionHumanPosture["digits"],
@@ -167,11 +197,14 @@ function own(
 ): Goals | undefined {
   if (digits === undefined) return undefined;
   const out: Goals = {};
-  for (const digit of HumanPosture.DIGITS) {
+  let found: boolean = false;
+  for (const digit of HAND_DIGITS[side]) {
     const goal: IAutoMovieHumanDigitGoal | undefined = digits[digit];
-    if (goal !== undefined && digit.startsWith(side)) out[digit] = goal;
+    if (goal === undefined) continue;
+    out[digit] = goal;
+    found = true;
   }
-  return Object.keys(out).length === 0 ? undefined : out;
+  return found ? out : undefined;
 }
 
 /**

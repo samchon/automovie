@@ -2,11 +2,11 @@
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States the borrowed knot times in seconds, the travel bound in the speeds' length unit with its clamping, and the advance's refusal and Infinity results.
+States the borrowed knot times in seconds, the travel bound in the speeds' length unit with its clamping, and the advance's results, a gap that certifies nothing and Infinity.
 
 ## @evidence contracts/development/design.md#principled-representation
 
-A speed bound integrated over strictly increasing knot times; its two readers are the travel between two times and Mirtich 1996's earliest closing time, so no consumer re-integrates it. Increasing knots and finite non-negative speeds are checked by prepare at runtime.
+A speed bound integrated over strictly increasing knot times; its two readers are the travel between two times and Mirtich 1996's earliest closing time, so no consumer re-integrates it. Increasing knots and finite non-negative speeds are the callers' stated contract; nothing is checked at runtime.
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
@@ -20,7 +20,7 @@ No optional members and no casts; the two readers are the two uses of a conserva
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States the control-point input, the positive duration in seconds and the bound in coordinate units per second, with its refusal.
+States the control-point input, the positive duration in seconds and the bound in coordinate units per second.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
@@ -122,7 +122,7 @@ One sum; the rate bounds come from the curve bounds above and the levers from th
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
-No constant or tolerance; mismatched inputs throw.
+No constant or tolerance; one lever per rate is the callers' stated contract.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 

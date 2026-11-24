@@ -2,7 +2,7 @@
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States the course it bounds, the carried frame, the seconds it is timed by and when no bound is given.
+States the course it bounds, the carried frame, the seconds it is timed by and that a course with no step has no bound.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
@@ -14,7 +14,7 @@ Turns the course into per-step speeds and hands the integral to the engine's mot
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
-No tolerance and no sampling: the speeds are the chords' own lengths; a course whose frames share an instant gets no bound and is read as before.
+No tolerance and no sampling: the speeds are the chords' own lengths.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
@@ -32,11 +32,11 @@ The returned bound holds the per-step seconds and a prefix of n + 1 numbers, rel
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States which points it bounds, the frame they are carried into, the seconds it is timed by and when no bound is given.
+States which points it bounds, the frame they are carried into, the seconds it is timed by and that an interval with no step has no bound.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-The motion bound of conservative advancement (Mirtich 1996, PhD thesis, ch. 3) for the part's casts: a step's cast is the hull of the part's solids' points at its two frames, carried as `HumanArmTrajectoryLinks.cast` carries them, so the farthest any of those points moves per frame step, integrated (`AutoMovieMotionBound.prepare`), bounds how far a later cast's points lie from an earlier one's. Solids that change in number, points or radius between frames have no point correspondence and get no bound.
+The motion bound of conservative advancement (Mirtich 1996, PhD thesis, ch. 3) for the part's casts: a step's cast is the hull of the part's solids' points at its two frames, carried as `HumanArmTrajectoryLinks.cast` carries them, so the farthest any of those points moves per frame step, integrated (`AutoMovieMotionBound.prepare`), bounds how far a later cast's points lie from an earlier one's.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 

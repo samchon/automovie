@@ -83,10 +83,6 @@ export namespace AutoMovieMotionBound {
     points: readonly (readonly number[])[],
     duration: number,
   ): number {
-    if (points.length < 2 || !(duration > 0))
-      throw new RangeError(
-        "A Bezier speed bound needs two control points and a positive duration.",
-      );
     const degree: number = points.length - 1;
     let most: number = 0;
     for (let i: number = 0; i < degree; ++i) {
@@ -184,10 +180,6 @@ export namespace AutoMovieMotionBound {
     rates: readonly number[],
     levers: readonly number[],
   ): number {
-    if (rates.length !== levers.length)
-      throw new RangeError(
-        "A chain speed bound needs one lever per joint rate.",
-      );
     let speed: number = root;
     for (let j: number = 0; j < rates.length; ++j)
       speed += rates[j]! * levers[j]!;
@@ -210,22 +202,12 @@ export namespace AutoMovieMotionBound {
     times: readonly number[],
     speeds: readonly number[],
   ): IPrepared {
-    if (times.length < 2 || speeds.length !== times.length - 1)
-      throw new RangeError(
-        "A motion bound needs two knots and one speed per interval.",
-      );
     const n: number = speeds.length;
 
     // The bound integrated to each knot, summed once.
     const prefix: Float64Array = new Float64Array(n + 1);
     for (let k: number = 0; k < n; ++k) {
-      const h: number = times[k + 1]! - times[k]!;
-      const v: number = speeds[k]!;
-      if (!(h > 0) || !(v >= 0) || !Number.isFinite(v))
-        throw new RangeError(
-          "A motion bound needs increasing knots and finite non-negative speeds.",
-        );
-      prefix[k + 1] = prefix[k]! + v * h;
+      prefix[k + 1] = prefix[k]! + speeds[k]! * (times[k + 1]! - times[k]!);
     }
 
     // The interval holding a time, by bisection over the knots.
@@ -327,10 +309,6 @@ export namespace AutoMovieMotionBound {
     to: number,
     resolution: number,
   ): number {
-    if (!(to > from) || !(resolution > 0))
-      throw new RangeError(
-        "A time of impact needs a forward span and a positive resolution.",
-      );
     let t: number = from;
     for (;;) {
       const d: number = separation(t);
