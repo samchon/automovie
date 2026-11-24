@@ -9,8 +9,8 @@ import type { physicalBalanceSense } from "./physicalBalanceSense";
 import { physicalSupportPoint } from "./physicalSupportPoint";
 
 /**
- * The authored capture point and its rate, the command the plan phases follow
- * where IHMC follows its planner's (`physicalBipedPlan`, `physicalQuadPlan`):
+ * The authored capture point and its rate, the command the plan phase follows
+ * where IHMC follows its planner's (`physicalBalancePlan`):
  * xi_a = c_a + c_a' / omega, rate c_a' + c_a'' / omega, from the authored centre
  * of mass (`physicalAuthoredCapture.center`), its velocity and acceleration
  * (`trackPhysicalWorld`); without them, as in a recording made before they were

@@ -13,9 +13,8 @@ import { physicalStanceBalance } from "./physicalStanceBalance";
  * Linear-inverted-pendulum capture-point balance over an arbitrary support
  * polygon (Pratt et al., 2006). It predicts horizontal recovery only; solved
  * contacts and the subsequent simulation decide whether a step actually lands.
- * The four-support controller plans with it; a two-support body runs IHMC's
- * walking controller's push recovery instead (`physicalBipedPlan`), as IHMC
- * keeps its biped and quadruped controllers apart.
+ * Every body's plan assesses with it on the hull of its planted contacts
+ * (`physicalBalancePlan`), whatever their number.
  */
 export namespace AutoMoviePhysicalBalance {
   /**

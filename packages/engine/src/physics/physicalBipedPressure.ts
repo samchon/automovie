@@ -13,9 +13,9 @@ import { physicalPlanarPolygon as Polygon } from "./physicalPlanarPolygon";
  * contact, their planted outlines joined; the plain capture point xi = c + v /
  * omega, the angular capture point being off by default
  * (`WalkingControllerParameters.useAngularCapturePointForFeedback`); and the
- * plan's capture point and rate, which the biped's plan phase writes
- * (`physicalBipedPlan`): the recovery plan's while one runs, else the authored
- * motion's, the authored motion playing the planner's role. A demand given no
+ * plan's capture point and rate, which the plan phase writes
+ * (`physicalBalancePlan`): the authored motion's, the authored motion playing
+ * the planner's role. A demand given no
  * plan, as a recording made before the plan existed, takes the authored centre
  * of mass's capture point at rest. Its pivot sets the linear momentum and its
  * centre of pressure the support's moment about it; the trunk's servo is left

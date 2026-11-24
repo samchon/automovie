@@ -15,7 +15,7 @@ import { samplePhysicalRecoveryGoal } from "./samplePhysicalRecoveryGoal";
 /**
  * The balance controller's swing phase (`advancePhysicalBalance`): each lifted
  * limb's path sampled and its drive's feed-forward asked for. The landing is
- * placed by the plan phases (`physicalBipedPlan`, `physicalQuadPlan`).
+ * placed by the prepared span (`preparePhysicalDisturbanceSpan`).
  *
  * A biped's recovery swing's clearance is lowered to what the stance can carry
  * at its peak in the swing's time (`physicalStanceBalance.clearance`); a

@@ -6,7 +6,7 @@ States which steps are under way and in which order.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-A biped's swing and a quadruped's swings, up to two legs at once in IHMC 201903's xGait (`physicalQuadPlan`), in the order they lifted.
+The steps under way of any number of limbs, in the order they lifted.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
@@ -66,7 +66,7 @@ States which limbs it returns and in which order.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-A step under way is lifted once its seat is given up, as its step begins (`physicalBipedPlan`, `physicalQuadPlan`).
+A step under way is lifted once its seat is given up, as its step begins.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 

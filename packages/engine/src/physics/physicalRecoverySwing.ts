@@ -4,9 +4,8 @@ import type {
 } from "@automovie/interface";
 
 /**
- * The steps a recovery has under way (`advancePhysicalBalance`): a two-support
- * body's swing, and a four-support body's swings, up to two legs at once in
- * its gait (`physicalQuadPlan`). Each lifts as its step begins.
+ * The steps a recovery has under way (`advancePhysicalBalance`), any limbs at
+ * once. Each lifts as its step begins.
  *
  * @param state The recovery's state, if any.
  * @returns The swing, then the swings in the order they lifted; empty with

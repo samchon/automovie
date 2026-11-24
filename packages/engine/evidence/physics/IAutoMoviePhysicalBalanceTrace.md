@@ -46,7 +46,7 @@ The capture point and the first step, as the plan decides it.
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
-Recorded by physicalBipedPlan and physicalQuadPlan.
+Stepping is the prepared span's (preparePhysicalDisturbanceSpan); no dynamic phase records it.
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 
@@ -64,7 +64,7 @@ The seat's two readings as the step lifted it.
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
-Recorded by physicalBipedPlan and physicalQuadPlan.
+Stepping is the prepared span's (preparePhysicalDisturbanceSpan); no dynamic phase records it.
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 
@@ -82,7 +82,7 @@ The landed endpoint in world metres.
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
-Recorded by physicalBalanceTouchdown.land.
+Stepping is the prepared span's (preparePhysicalDisturbanceSpan); no dynamic phase records it.
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 
@@ -100,7 +100,7 @@ One shape for both endings, told apart by kind, with the limbs whose steps ended
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
-Recorded by physicalBalanceTouchdown and physicalBalanceHandoff.
+Recorded by physicalBalanceHandoff.
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 
@@ -118,7 +118,7 @@ The capture point, its excursions, the decision's inputs and the chosen step, as
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
-Recorded by physicalBipedPlan and physicalQuadPlan each substep a trace is passed.
+Recorded by physicalBalancePlan each substep a trace is passed.
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 

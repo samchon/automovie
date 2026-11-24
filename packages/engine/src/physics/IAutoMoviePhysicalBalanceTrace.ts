@@ -30,7 +30,7 @@ export namespace IAutoMoviePhysicalBalanceTrace {
     z: number;
   }
 
-  /** A recovery triggered (`physicalBipedPlan`, `physicalQuadPlan`). */
+  /** A recovery triggered; stepping is the prepared span's (`preparePhysicalDisturbanceSpan`). */
   export interface ITrigger {
     /** The kind. */
     kind: "trigger";
@@ -56,7 +56,7 @@ export namespace IAutoMoviePhysicalBalanceTrace {
     pressure?: IPoint;
   }
 
-  /** A step's limb lifted as its step began (`physicalBipedPlan`, `physicalQuadPlan`). */
+  /** A step's limb lifted as its step began, in the prepared span. */
   export interface ILift {
     /** The kind. */
     kind: "lift";
@@ -70,7 +70,7 @@ export namespace IAutoMoviePhysicalBalanceTrace {
     bearing: number;
   }
 
-  /** A swinging limb landed (`physicalBalanceTouchdown.land`). */
+  /** A swinging limb landed, in the prepared span. */
   export interface ILanded {
     /** The kind. */
     kind: "landed";
@@ -85,8 +85,8 @@ export namespace IAutoMoviePhysicalBalanceTrace {
   }
 
   /**
-   * Steps under way ended without a landing: the landing timed out
-   * (`physicalBalanceTouchdown`), or authored motion took an endpoint back
+   * Steps under way ended without a landing: the landing timed out, or
+   * authored motion took an endpoint back
    * (`physicalBalanceHandoff`).
    */
   export interface IEnded {
@@ -98,7 +98,7 @@ export namespace IAutoMoviePhysicalBalanceTrace {
     bones: string[];
   }
 
-  /** The plan's assessment at a substep (`physicalBipedPlan`, `physicalQuadPlan`). */
+  /** The plan's assessment at a substep (`physicalBalancePlan`). */
   export interface IAssess {
     /** The kind. */
     kind: "assess";

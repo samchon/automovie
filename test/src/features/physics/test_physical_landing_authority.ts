@@ -19,9 +19,7 @@ const ALLOWED: number = 1e-5;
 
 /**
  * Touching constraints remain available for allocation, and only actual
- * positive load marks a support loaded, the reading the controllers' foot
- * switches land a swing on (`physicalFootSwitch`,
- * `physicalQuadrupedWrenchFootSwitch`).
+ * positive load marks a support loaded, the reading a landing is judged on.
  *
  * Scenarios:
  *
