@@ -4,15 +4,11 @@ import {
   combinePhysicalMassProperties,
 } from "@automovie/engine";
 import type {
-  IAutoMovieBone,
   IAutoMovieCombinePhysicalMassProperties,
-  IAutoMovieJointPose,
-  IAutoMovieMotionHumanBody,
   IAutoMoviePhysicalJoint,
   IAutoMoviePhysicalProfile,
   IAutoMoviePhysicalSegment,
   IAutoMoviePhysicalShape,
-  IAutoMoviePose,
   IAutoMovieQuaternion,
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
@@ -32,8 +28,8 @@ import type {
  * welded segment's colliders and mass are moved into its carrier's frame at the
  * pose the window starts in, and the combined mass, centre and inertia are the
  * parallel-axis sum (`combinePhysicalMassProperties`). The displayed welded
- * bones keep their articulation at the window's start over the solved carrier
- * (`readHumanSimulatedPose`), the kinematic drive.
+ * bones keep the kinematic pose's articulation over the solved carrier
+ * (`readHumanSimulatedPose`).
  *
  * @param profile The performer's profile.
  * @param displayed The displayed world segment frames at the window's start,
@@ -229,44 +225,6 @@ export namespace weldHumanSimulationProfile {
   export function rider(shape: string): string | null {
     const dot: number = shape.indexOf(".");
     return dot < 0 ? null : shape.slice(0, dot);
-  }
-
-  /**
-   * Each carrier's welded joints in a pose: the joints of the body's segments
-   * the solved profile folds into a carrier, by that carrier. A window holds
-   * the displayed welded bones at these, the articulation they were welded in.
-   *
-   * @param body The performer's body.
-   * @param profile The welded profile.
-   * @param pose The pose at the window's start.
-   * @returns The welded joints by carrier bone.
-   */
-  export function held(
-    body: IAutoMovieMotionHumanBody,
-    profile: IAutoMoviePhysicalProfile,
-    pose: IAutoMoviePose,
-  ): Map<string, IAutoMovieJointPose[]> {
-    const solved: ReadonlySet<string> = new Set(
-      profile.segments.map(
-        (segment: IAutoMoviePhysicalSegment): string => segment.bone,
-      ),
-    );
-    const out: Map<string, IAutoMovieJointPose[]> = new Map();
-    for (const joint of pose.joints) {
-      if (
-        solved.has(joint.bone) ||
-        !body.profile.segments.some(
-          (segment: IAutoMoviePhysicalSegment): boolean =>
-            segment.bone === joint.bone,
-        )
-      )
-        continue;
-      let at: IAutoMovieBone = body.bones.get(joint.bone)!;
-      while (!solved.has(at.bone) && at.parent !== null)
-        at = body.bones.get(at.parent)!;
-      out.set(at.bone, [...(out.get(at.bone) ?? []), joint]);
-    }
-    return out;
   }
 }
 

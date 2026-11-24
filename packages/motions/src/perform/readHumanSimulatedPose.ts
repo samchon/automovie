@@ -51,13 +51,20 @@ import type {
  * differ from the clinical ranges they are read from). Children are read
  * against the displayed parent, so no difference passes down the chain. An
  * owned root keeps its own articulation and moves the pose's root transform
- * instead. A segment the solver owns holds the bones welded into it at their
- * articulation at the window's start (`held`), the shape the solver gave the
- * welded carrier. Positions follow the rotations through the rig's rest
- * translations; the solver's joint drift, within its contact tolerance, is not
- * displayed, so a displayed distal end may lie off its solved collider by the
- * drift the reduced readout drops. A pose with no owned bone is returned as
- * given.
+ * instead. A bone welded into a solved carrier has no segment of its own, so it
+ * keeps the kinematic pose's articulation laid on the displayed carrier, as
+ * Godot's physical bone simulator leaves every bone without a physical bone to
+ * the skeleton's own pose under its simulated parent (godotengine/godot
+ * `scene/3d/physics/physical_bone_simulator_3d.cpp`, `_process_modification`,
+ * lines 365-372 at eabb9a63d4bc70cd87e50d6af152f841ea549972, MIT, "Copyright
+ * (c) 2014-present Godot Engine contributors"): the welded bones meet the
+ * kinematic pose at both ends of the window with no step, and inside it they
+ * may differ from the colliders the solver welded at the window's first pose by
+ * the articulation the plan gives them since. Positions follow the rotations
+ * through the rig's rest translations; the solver's joint drift, within its
+ * contact tolerance, is not displayed, so a displayed distal end may lie off
+ * its solved collider by the drift the reduced readout drops. A pose with no
+ * owned bone is returned as given.
  *
  * @param body The performer's body, the rig the pose articulates.
  * @param codec The rig's joint codec, built with the body's joint axes and the
@@ -66,7 +73,6 @@ import type {
  * @param kinematic The pose the window replaces, at the same instant.
  * @param frame The solver's world states of this performer's segments, by bone.
  * @param owned The bones the solver owns at the instant.
- * @param held Each carrier's welded joints at the window's start.
  * @returns The displayed pose.
  */
 export function readHumanSimulatedPose(
@@ -76,7 +82,6 @@ export function readHumanSimulatedPose(
   kinematic: IAutoMoviePose,
   frame: IAutoMoviePhysicalFrame["bodies"][string],
   owned: ReadonlySet<string>,
-  held: ReadonlyMap<string, readonly IAutoMovieJointPose[]>,
 ): IAutoMoviePose {
   if (owned.size === 0) return kinematic;
   const joints: Map<AutoMovieHumanoidBone, IAutoMovieJointPose> = new Map(
@@ -87,9 +92,6 @@ export function readHumanSimulatedPose(
     ),
   );
   const replaced: Map<AutoMovieHumanoidBone, IAutoMovieJointPose> = new Map();
-  for (const carrier of owned)
-    for (const welded of held.get(carrier) ?? [])
-      replaced.set(welded.bone, welded);
   const world: Map<AutoMovieHumanoidBone, IAutoMovieQuaternion> = new Map();
   let root: IAutoMovieTransform | null = kinematic.root;
 

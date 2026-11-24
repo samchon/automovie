@@ -36,7 +36,10 @@ type IPose = IAutoMoviePhysicalFrame["bodies"][string][string];
 /** Cache intervals per second the window issue fixes (#3434). */
 const RATE: number = 120;
 
-/** The checks a solved window hands from the declared plants to the solver's contacts. */
+/**
+ * The checks a solved window hands from the declared plants to the solver's
+ * contacts.
+ */
 const SUPERSEDED: readonly string[] = [
   "slip",
   "lift",
@@ -47,7 +50,10 @@ const SUPERSEDED: readonly string[] = [
   "unloaded",
 ];
 
-/** The fall's push: the impulse that changes the whole body's speed by this, m/s. */
+/**
+ * The fall's push: the impulse that changes the whole body's speed by this,
+ * m/s.
+ */
 const PUSH: number = 3;
 
 /** A desk-height table top, metres. */
@@ -57,10 +63,10 @@ const DESK: number = 0.75;
 const DEPTH: number = 0.2;
 
 /**
- * A table where the push carries the body: centred where the body's centre
- * of mass, leaving its standing height at the push's speed, falls to the
- * table top, `d = v sqrt(2 (h - top) / g)`, the drag-free projectile of a
- * body whose feet no longer hold it.
+ * A table where the push carries the body: centred where the body's centre of
+ * mass, leaving its standing height at the push's speed, falls to the table
+ * top, `d = v sqrt(2 (h - top) / g)`, the drag-free projectile of a body whose
+ * feet no longer hold it.
  */
 function table(body: IAutoMovieMotionHumanBody): IAutoMovieMotionHumanProp {
   const drop: number = Math.max(0, body.profile.centerOfMass.y - DESK);
@@ -89,17 +95,36 @@ function table(body: IAutoMovieMotionHumanBody): IAutoMovieMotionHumanProp {
   };
 }
 /**
- * A window of a performance baked through the engine's solver (#3434), on
- * the average man and the smallest woman.
+ * A window of a performance baked through the engine's solver (#3434), on the
+ * average man and the smallest woman.
  *
  * Scenarios:
- * 1. Mode contract: a shove's window in kinematic mode shows the performance's own poses bit for bit.
- * 2. Determinism: two simulated bakes of the shove give the same input identity and the same solved frames.
- * 3. Response and hand-back: the solved head turns away from the kinematic one inside the window, and at the window's end every joint centre is back on the kinematic motion, with no step in position and none in velocity beyond what gravity gives in one interval.
- * 4. A fall-sized push from behind ends with the released body lying on the floor: its lowest collider touching it, none below it beyond the solver's documented resting error, and its hips and head lower than its knees stand.
- * 5. The same push with a table placed where it carries the body (the centre of mass's drag-free fall from standing height to the desk top at the push's speed): the falling body never enters the table deeper than skin gives and comes to rest touching it within the same resting error.
- * 6. Verdicts in a solved window: the released fall's report holds none of the plant, balance and unloaded checks the solver's contacts supersede, while every check of the displayed bones still reads it.
- * 7. Joint residuals: every hand-back's post-stabilization and every fewer-axis joint's distance from its own limit box stay within the 0.01 degree guard, the engine's ROM_TOLERANCE (`simulationResiduals`), so a solver that fails to hold a joint fails the spec.
+ *
+ * 1. Mode contract: a shove's window in kinematic mode shows the performance's own
+ *    poses bit for bit.
+ * 2. Determinism: two simulated bakes of the shove give the same input identity
+ *    and the same solved frames.
+ * 3. Response and hand-back: the solved head turns away from the kinematic one
+ *    inside the window, and at the window's end every joint centre is back on
+ *    the kinematic motion, with no step in position and none in velocity beyond
+ *    what gravity gives in one interval.
+ * 4. A fall-sized push from behind ends with the released body lying on the floor:
+ *    its lowest collider touching it, none below it beyond the solver's
+ *    documented resting error, and its displayed hips and head lower than its
+ *    knees stand (the head is welded into the chest's segment, as MuJoCo's
+ *    humanoid carries it, so it is read where the display lays it, not as a
+ *    solved body).
+ * 5. The same push with a table placed where it carries the body (the centre of
+ *    mass's drag-free fall from standing height to the desk top at the push's
+ *    speed): the falling body never enters the table deeper than skin gives and
+ *    comes to rest touching it within the same resting error.
+ * 6. Verdicts in a solved window: the released fall's report holds none of the
+ *    plant, balance and unloaded checks the solver's contacts supersede, while
+ *    every check of the displayed bones still reads it.
+ * 7. Joint residuals: every hand-back's post-stabilization and every fewer-axis
+ *    joint's distance from its own limit box stay within the 0.01 degree guard,
+ *    the engine's ROM_TOLERANCE (`simulationResiduals`), so a solver that fails
+ *    to hold a joint fails the spec.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Bakes windows through `HumanPerformance.simulate` and reads the displayed poses and bones, the engine's solved frames and the shipped verdict report; catches a kinematic mode that departs from the authored motion, a bake that differs between runs, a window with no response, a hand-back with a step, a fall that floats or sinks, a body that passes through a scene solid, and a report that still judges a solved body by its kinematic plan.
  * @evidence contracts/development/testing.md#independent-expectations Equality for the mode contract and determinism. Resting contact is bounded by the engine's compliant contact (`solveXpbdContacts`; Macklin, Mueller and Chentanez 2016) under its configured parameters: depth within the allowed error (the engine's `contactTolerance`) is left uncorrected, and the excess is held by a contact of compliance `w / ω²` on the pair's inverse mass `w` with `ω = 2π f` at the engine's `contactFrequency`, so a segment bearing a load of `n` times its weight rests up to `tolerance + n g / ω²` deep; `n` is at most the body's mass over the segment's. Lying is measured against the body's own rest knee height; the response must exceed the range tolerance displayed poses are held to; the velocity bound is gravity's change over one cache interval; a body may enter a solid only as deep as the verdicts' skin (`HumanVerdicts.SKIN`).
@@ -130,7 +155,10 @@ export async function test_motion_mechanism_simulated_window(): Promise<void> {
   all.assert("simulated windows");
 }
 
-/** Run one scenario, recording a throw as a failure so later scenarios still run. */
+/**
+ * Run one scenario, recording a throw as a failure so later scenarios still
+ * run.
+ */
 async function guarded(
   all: motionComplaints.IGatherer,
   title: string,
@@ -146,7 +174,10 @@ async function guarded(
   }
 }
 
-/** Scenarios 1 to 3: a shove on the head the body absorbs, kinematic and simulated. */
+/**
+ * Scenarios 1 to 3: a shove on the head the body absorbs, kinematic and
+ * simulated.
+ */
 async function shove(
   all: motionComplaints.IGatherer,
   name: string,
@@ -257,7 +288,10 @@ async function shove(
   verdicts(all, `${name}: simulated shove`, solved);
 }
 
-/** Scenarios 4 to 6: a push from behind the body cannot catch, onto the floor or onto a table. */
+/**
+ * Scenarios 4 to 6: a push from behind the body cannot catch, onto the floor or
+ * onto a table.
+ */
 async function fall(
   all: motionComplaints.IGatherer,
   name: string,
@@ -276,8 +310,9 @@ async function fall(
   // The window runs to the film's end, so the fallen body hands back to
   // nothing and its last solved frame is where the fall came to rest.
   const from: number = simulatedShoveTake.STRUCK;
+  const to: number = from + Math.floor((take.duration - from) * RATE) / RATE;
   const solved: HumanPerformance = await take.simulate(
-    { from, to: from + Math.floor((take.duration - from) * RATE) / RATE },
+    { from, to },
     { kind: "simulated" },
   );
   const record: IAutoMovieMotionHumanSimulation = solved.simulations()[0]!;
@@ -391,10 +426,12 @@ async function fall(
       lowest <= tolerance,
     );
     const knee: number = body.rest.get("leftLowerLeg")!.y;
+    const lying: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
+      solved.bones("a", to);
     for (const bone of ["hips", "head"] as const)
       all.check(
-        `${label}: the ${bone} lies at ${last.bodies.a![bone]!.position.y} m, below the standing knee at ${knee} m`,
-        last.bodies.a![bone]!.position.y < knee,
+        `${label}: the ${bone} lies at ${lying.get(bone)!.worldPosition.y} m, below the standing knee at ${knee} m`,
+        lying.get(bone)!.worldPosition.y < knee,
       );
   }
 
