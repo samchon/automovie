@@ -64,9 +64,9 @@ export interface IAutoMovieDrawResult {
   semanticMask?: IAutoMovieSemanticMask | null;
 
   /**
-   * The dialogue mouths the subject read while it was placed at the call's
-   * second, one per actor in the order first read; absent when the subject took
-   * no dialogue mouths.
+   * The dialogue mouths the actors' bound figures showed once the call's second
+   * was placed, one per actor in the order first shown; absent when the page
+   * took no dialogue mouths.
    */
   mouths?: IAutoMovieDrawnMouth[];
 }

@@ -156,9 +156,9 @@ const THRESHOLDS: IAutoMovieDeliveryContentAudit.IThresholds = {
  * production render's BS.1770-5 meter, must meet the targets the sound-list mix
  * applied or, for a supplied soundtrack, the declared loudness intent, and a
  * phoneme-driven line whose lip-sync lag, measured against the mouth the
- * subject read on each drawn frame, fails the report's verdict blocks. The
- * encoded file must also carry its declared picture profile and, with a
- * soundtrack, the AAC profile, or no audio track without one
+ * actor's figures showed on each drawn frame, fails the report's verdict
+ * blocks. The encoded file must also carry its declared picture profile and,
+ * with a soundtrack, the AAC profile, or no audio track without one
  * (`auditAutoMovieDeliveryProfile`); a mismatch blocks like a blocking audit
  * finding and the report's `profile` records each field with its expected and
  * observed values. A blocked attempt replaces the report and preserves the

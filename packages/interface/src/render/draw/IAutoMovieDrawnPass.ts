@@ -25,8 +25,8 @@ export interface IAutoMovieDrawnPass {
   semanticMask?: IAutoMovieSemanticMask | null;
 
   /**
-   * The dialogue mouths the subject read for this picture's second, one per
-   * actor; absent when the subject took no dialogue mouths.
+   * The dialogue mouths the actors' bound figures showed for this picture's
+   * second, one per actor; absent when the page took no dialogue mouths.
    */
   mouths?: IAutoMovieDrawnMouth[];
 }
