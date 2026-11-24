@@ -13,7 +13,7 @@ import type { AutoMovieVector3Tuple as V3, IAutoMovieSolidSurface } from "@autom
  * @evidence contracts/development/common.md#meaningful-documentation Names the analytic 2-jet, phase shear and retained material boundary that the continuation reads.
  * @evidence contracts/development/testing.md#behavioral-verification The reflected chart samples the kept side and matches all six native vectors between columns. The shared fork retains both end jets and smooths the interior clock crease.
  * @evidence contracts/development/testing.md#independent-expectations The analytic cylinder and its station graph give the expected continuation by the chain rule. At the fork, centered differences of positions and first derivatives independently check the reported derivatives.
- * @evidence contracts/development/testing.md#distinguishing-cases The continuation exercises nonzero phase shear and detects a read outside the retained angular range. The fork checks both end jets, its center, the interior and the limit of its support.
+ * @evidence contracts/development/testing.md#distinguishing-cases The continuation exercises nonzero phase shear and detects a read outside the retained angular range. The fork checks both end jets, its center, the interior, the limit of its support and directed original-side clock addresses on both half-spans.
  * @evidence contracts/development/testing.md#execution-ownership This synchronous unit test runs its own in-memory analytic surfaces from the exported scenario.
  */
 export function test_construction_split_continuation(): void {
@@ -92,12 +92,25 @@ function forkClock(): void {
   };
   const radius: number = 0.45;
   const read = Fork.prepare(base, 1, [{ clock: 0, radius }]);
+  const addresses: number[] = [];
   const bounded = Fork.prepare((u, c) => {
     if (Math.abs(c) > radius * (1 + Number.EPSILON))
       throw new Error("The fork read crossed the shared material reach");
+    addresses.push(c);
     return base(u, c);
   }, 1, [{ clock: 0, radius }]);
-  for (let i: number = -25; i <= 25; ++i) bounded(0.5, (radius * i) / 25);
+  for (const u of [0.1, 0.25, 0.5, 0.75, 0.9])
+    for (const span of [[-24, 0, 0], [0, 24, 1]] as const) {
+      let previous: number = -Infinity;
+      for (let i: number = span[0]; i <= span[1]; ++i) {
+        addresses.length = 0;
+        bounded(u, (radius * i) / 25);
+        const owned: number = addresses[span[2]]!;
+        if (addresses.length !== 2 || !(owned > previous))
+          throw new Error(`The fork's original side reverses at (${u}, ${i / 25})`);
+        previous = owned;
+      }
+    }
   const fields = ["p", "u", "v", "uu", "uv", "vv"] as const;
   for (const u of [0, 1])
     for (const c of [-radius / 2, 0, radius / 2])

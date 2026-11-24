@@ -29,15 +29,15 @@ export namespace AutoMovieConstructionSplitFork {
 
   /**
    * Continue the agreeing fork through a single regular angular chart.
-   * For signed angular distance `x` and compact relaxation `q`, the two
-   * addresses are `±hypot(x,q)` and their affine weights have difference
-   * `x/hypot(x,q)`. At q=0 the chart is exactly the original one. Cubic
-   * vanishing in station preserves both source boundary 2-jets. Only reads
-   * inside each incident sector are shared across the corner.
-   * The product `4 V (1-V)` uses the existing quintic zero-jet step `V`; its
-   * maximum is one, so its full width is the measured mutual fork reach.
-   * The factor `1 - x²` guarantees `hypot(x,q) <= 1`: both remaining
-   * weights are in [0,1] and `x² + (1-x²)² <= 1` inside the window.
+   * For signed angular distance `x`, the addresses are `±d`, with
+   * `d² = x² + b² (1-x²)³ / 3`. The two affine weights have difference `x/d`.
+   * Their weighted clock therefore equals the original clock. The cubic
+   * angular factor matches the original two-jet at the edge of the window.
+   * The station relaxation `b = 4 V (1-V)` is in [0,1] and has two flat
+   * ends. The signed angular rate `d_x = x(1-b²(1-x²)²)/d` has the sign of
+   * `x` away from the center. The factor 1/3 is the largest coefficient of
+   * the cubic angular factor that preserves this order when b reaches one.
+   * Both original side reads remain inside the shared angular reach `d<=1`.
    *
    * @see https://bura.brunel.ac.uk/handle/2438/1959 Shared boundary data in Gregory's compatible patch construction.
    */
@@ -50,27 +50,24 @@ export namespace AutoMovieConstructionSplitFork {
         const angle: number = c - clock;
         const x: number = (angle - turn * Math.round(angle / turn)) / radius;
         if (Math.abs(x) >= 1) continue;
-        const [ease, ease1, ease2]: [number, number, number] = weight(x);
         const room: number = 1 - x * x;
-        const w: number = room * ease;
-        const w1: number = room * ease1 - 2 * x * ease;
-        const w2: number = room * ease2 - 4 * x * ease1 - 2 * ease;
+        const square: number = room * room;
+        const cube: number = square * room;
         const V: number = s ** 3 * (10 - 15 * s + 6 * s * s);
         const V1: number = 30 * s * s * (1 - s) ** 2 / length;
         const V2: number = 60 * s * (1 - s) * (1 - 2 * s) / (length * length);
         const b: number = 4 * V * (1 - V);
         const b1: number = 4 * V1 * (1 - 2 * V);
         const b2: number = 4 * (V2 * (1 - 2 * V) - 2 * V1 * V1);
+        const gain: number = b * b;
         const inv: number = 1 / radius;
-        const q: number = b * w;
-        const qu: number = b1 * w, qv: number = b * w1 * inv;
-        const quu: number = b2 * w, quv: number = b1 * w1 * inv, qvv: number = b * w2 * inv * inv;
-        const d: number = Math.hypot(x, q);
+        const d: number = Math.sqrt(x * x + gain * cube / 3);
         if (!(d * radius > turn * Number.EPSILON)) return read(u, c);
-        const du: number = q * qu / d, dv: number = (x * inv + q * qv) / d;
-        const duu: number = (qu * qu + q * quu - du * du) / d;
-        const duv: number = (qu * qv + q * quv - du * dv) / d;
-        const dvv: number = (inv * inv + qv * qv + q * qvv - dv * dv) / d;
+        const rate: number = 1 - gain * square;
+        const du: number = b * b1 * cube / (3 * d), dv: number = x * inv * rate / d;
+        const duu: number = ((b1 * b1 + b * b2) * cube / 3 - du * du) / d;
+        const duv: number = (-2 * b * b1 * x * inv * square - du * dv) / d;
+        const dvv: number = ((rate + 4 * gain * x * x * room) * inv * inv - dv * dv) / d;
         const r: number = x / d;
         const ru: number = -r * du / d, rv: number = (inv - r * dv) / d;
         const a: number = (1 + r) / 2;
