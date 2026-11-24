@@ -535,26 +535,13 @@ export namespace PhysicalBalanceReplay {
       ...(input.center ? { center: clone(input.center) } : {}),
       ...(input.landed !== undefined ? { landed: input.landed } : {}),
       ...(integral ? { integral } : {}),
-      // A two-support body runs IHMC's capture-point controller and a
-      // four-support body its DCM controller, as the world gives them
-      // (`trackPhysicalWorld`); a recording without the former's state starts
-      // it new.
-      ...((
-        fixture.body.supportTracking?.pattern ?? fixture.body.balance?.pattern
-      )?.limbs.length === 2
-        ? {
-            icp: clone(input.icp) ?? {
-              ...physicalIcpController.create(),
-              key: "",
-            },
-            ...(input.phase !== undefined ? { phase: input.phase } : {}),
-          }
-        : {}),
-      ...(integral &&
-      (fixture.body.supportTracking?.pattern ?? fixture.body.balance?.pattern)
-        ?.limbs.length === 4
-        ? { dcm: true }
-        : {}),
+      // Every balancing body, whatever its contacts, runs IHMC's capture-point
+      // controller on their hull, as the world gives it (`trackPhysicalWorld`);
+      // a recording without its state starts it new.
+      icp: clone(input.icp) ?? {
+        ...physicalIcpController.create(),
+        key: "",
+      },
       ...(input.desired ? { desired: clone(input.desired) } : {}),
       ...(input.omega !== undefined ? { omega: input.omega } : {}),
       ...(input.pushed !== undefined ? { pushed: input.pushed } : {}),

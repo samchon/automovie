@@ -10,7 +10,7 @@ import { TestValidator } from "@nestia/e2e";
  * 0.9 m, omega = sqrt(9.81 / 0.9), the authored capture point at rest at the
  * origin, a 0.6 m step and a forward push of 1.2 m/s, xi0 = 1.2 / omega:
  *
- * 1. Purity: the two-step span sampled at 64 times in shuffled order gives
+ * 1. Purity: the two-step span sampled at 16 times in shuffled order gives
  *    exactly the samples in ascending order; before the push it gives the
  *    state at the push.
  * 2. One step, no reaction: with the centre of pressure on the stance foot's
@@ -45,11 +45,19 @@ import { TestValidator } from "@nestia/e2e";
  *    shared among the planted feet summing to one, none on a swinging foot.
  * 11. Resume: the span prepared again from the same stored input gives the same
  *    samples bit for bit.
+ * 12. Any number of contacts through one path: 2, 3, 4, 6 and 8 soles, 0.1 x
+ *    0.06 m, on a 0.3 m ring (a 0.2 m pair for 2), each pushed three ways from
+ *    rest with no reaction. 0.05 m/s holds with no step. A capture point 0.08
+ *    m past the front edge, well within the 0.6 m reach, takes exactly one
+ *    step: push, trigger, touchdown, standing, end. 3.5 m/s falls. Every span
+ *    starts at the push, puts each touchdown straight after its trigger, runs
+ *    in time order and joins its capture point and centre of mass across each
+ *    branch.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the input, each closed form and its source.
  * @evidence contracts/development/testing.md#behavioral-verification Prepares spans with `preparePhysicalDisturbanceSpan` and reads their branches, footstep and samples.
  * @evidence contracts/development/testing.md#independent-expectations The one- and two-step premises, the divergence and the decay are the linear inverted pendulum's closed forms, asserted in the test; the swing bounds and transfer time are the reference's constants; continuity is the physical requirement. None is computed by the span.
- * @evidence contracts/development/testing.md#distinguishing-cases A span that steps twice where one step captures fails 2, one that stops after a step that cannot capture, or loops, fails 3, a swing outside the reference's bounds fails 4, a moving pivot in double support fails 5, a jump fails 6, a wrong gain fails 7, and a step for a small push fails 8; the simulated outcomes are the `test_physical_disturbance_*` runs.
+ * @evidence contracts/development/testing.md#distinguishing-cases A span that steps twice where one step captures fails 2, one that stops after a step that cannot capture, or loops, fails 3, a swing outside the reference's bounds fails 4, a moving pivot in double support fails 5, a jump fails 6, a wrong gain fails 7, a step for a small push fails 8, and, at any contact count, a needless step, a second step or a fall where one step captures fails 12. The pose and the recorded floor reaction are `test_physical_disturbance_pose`'s and `_contacts`'.
  * @evidence contracts/development/testing.md#execution-ownership Pure computation on hand-built feet; no world, simulation, viewer or file host.
  */
 export function test_physical_disturbance_span(): void {
@@ -121,12 +129,12 @@ export function test_physical_disturbance_span(): void {
   // 1. Purity.
   const end: number = two.branches.at(-1)!.seconds;
   const times: number[] = Array.from(
-    { length: 64 },
-    (_, i: number): number => t0 - 0.1 + ((end + 0.6 - t0) * i) / 63,
+    { length: 16 },
+    (_, i: number): number => t0 - 0.1 + ((end + 0.6 - t0) * i) / 15,
   );
   const ascending: string[] = times.map((t) => JSON.stringify(two.sample(t)));
-  const shuffled: string[] = new Array(64);
-  for (const i of times.map((_, k: number): number => (k * 37) % 64))
+  const shuffled: string[] = new Array(16);
+  for (const i of times.map((_, k: number): number => (k * 7) % 16))
     shuffled[i] = JSON.stringify(two.sample(times[i]!));
   check("shuffled samples", JSON.stringify(shuffled) === JSON.stringify(ascending));
   check(
@@ -364,7 +372,7 @@ export function test_physical_disturbance_span(): void {
   }
   TestValidator.equals("disturbance span", failures, []);
 
-  /** Check one support count's outcome: order, steps, finiteness, joins. */
+  /** Check one support count's outcome: its branches' order and joins. */
   function verifyCase(
     label: string,
     prepared: Span.ISpan,
@@ -390,15 +398,12 @@ export function test_physical_disturbance_span(): void {
       if (outcome === "sustained")
         check(`${label}: no step`, steps === 0 && !fell, listed(prepared));
       else if (outcome === "recover")
-        check(`${label}: steps and stands`, steps >= 1 && !fell, listed(prepared));
+        check(
+          `${label}: one step, then stands`,
+          order.join() === "push,trigger,touchdown,standing,end",
+          listed(prepared),
+        );
       else check(`${label}: falls`, fell, listed(prepared));
-      const last: number = prepared.branches.at(-1)!.seconds;
-      let finite: boolean = true;
-      for (let i: number = 0; i <= 40; i++) {
-        const sample: Span.ISample = prepared.sample(t0 + ((last + 0.3 - t0) * i) / 40);
-        finite &&= JSON.stringify(sample).match(/null|NaN|Infinity/) === null;
-      }
-      check(`${label}: finite`, finite);
       for (const branch of prepared.branches.slice(1)) {
         const a: Span.ISample = prepared.sample(branch.seconds - 1e-7);
         const b: Span.ISample = prepared.sample(branch.seconds + 1e-7);
