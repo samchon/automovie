@@ -134,6 +134,8 @@ export namespace physicalSupportSpanContacts {
    * @param contacts The planted contacts.
    * @param pivot The pivot, world x and z.
    * @returns Each contact's share, in input order.
+   * @throws {Error} When the solver fails on the feasible program, with the
+   *   inputs.
    */
   export function loads(
     contacts: readonly IContact[],
@@ -225,5 +227,13 @@ function split(
       })),
     ],
   });
-  return solved ?? points.map(() => 1 / n);
+  // The pivot lies in the points' hull, so the program is feasible: a failure
+  // is a bug, never a split to guess.
+  if (solved === null)
+    throw new Error(
+      `physicalSupportSpanContacts.loads: no split of ${JSON.stringify(
+        points,
+      )} at ${JSON.stringify(pivot)}.`,
+    );
+  return solved;
 }
