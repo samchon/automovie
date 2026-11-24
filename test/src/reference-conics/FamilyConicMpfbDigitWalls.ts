@@ -1,4 +1,8 @@
 import {
+  AutoMovieNaturalSpline,
+  AutoMovieViewHermite,
+} from "@automovie/engine";
+import {
   AutoMovieHumanConicSection as Conic,
   AutoMovieHumanCourseRuns as CourseRuns,
   AutoMovieHumanConicLoft as Loft,
@@ -6,6 +10,7 @@ import {
 } from "@automovie/human";
 import type {
   IAutoMovieHumanConicLoft,
+  IAutoMovieViewHermite,
   AutoMovieVector2Tuple as P2,
 } from "@automovie/interface";
 import { mkdir, writeFile } from "node:fs/promises";
@@ -27,6 +32,16 @@ export namespace FamilyConicMpfbDigitWalls {
     values: number[];
   }
 
+  /** One source-share flattening before the fitted material is protected. */
+  interface IShareCorrection {
+    /** Ordinate in the bare conic layout. */
+    field: number;
+    /** Fraction of the canonical quarter ellipse mixed into the source. */
+    blend: number;
+    /** Continuous bounds of the measured scalar before flattening. */
+    raw: [number, number];
+  }
+
   /** One provisional unjoined wall and the evidence supporting its extent. */
   export interface IWall {
     /** Anatomical side of this wall. */
@@ -46,6 +61,126 @@ export namespace FamilyConicMpfbDigitWalls {
     family: IAutoMovieHumanConicLoft.IFamily | null;
     /** Existing loft admission verdict for the provisional wall. */
     refusal: string | null;
+    /** Shape-preserving corrections that preceded the protected wall. */
+    correctedShares?: IShareCorrection[];
+  }
+
+  /**
+   * Include every measured shoulder extremum the natural interpolation would
+   * otherwise move beyond its conic domain. A cubic is fixed by the original
+   * values and its natural knot jets. The Hermite form reproduces that cubic
+   * and exposes its interior zero-slope parameters.
+   */
+  function refineShares(
+    observed: IRow[],
+    read: (station: number) => IRow,
+  ): { rows: IRow[]; corrections: IShareCorrection[] } | string {
+    let rows: IRow[] = observed;
+    const corrections: IShareCorrection[] = [];
+    const minimum: number = 0.25;
+    for (;;) {
+      const stations: number[] = rows.map(({ station }): number => station);
+      const extra: number[] = [];
+      const flatten: {
+        field: number;
+        bounds: [number, number];
+        values: number[];
+      }[] = [];
+      for (const field of [8, 9, 10, 11]) {
+        const values: number[] = rows.map(
+          ({ values }): number => values[field]!,
+        );
+        if (values.some((value): boolean => !(value > 0 && value < 1)))
+          return "An observed quarter shoulder is outside (0, 1)";
+        const spline = AutoMovieNaturalSpline.create(stations, values);
+        const curve: IAutoMovieViewHermite.ICurve | string =
+          AutoMovieViewHermite.create(
+            spline,
+            stations.map((station, i) => ({
+              station,
+              value: values[i]!,
+              site: "digit shoulder " + i,
+            })),
+            undefined,
+          );
+        if (typeof curve === "string") return curve;
+        const critical = AutoMovieViewHermite.critical(curve).map(
+          (station): { station: number; value: number } => ({
+            station,
+            value: AutoMovieNaturalSpline.evaluate(spline, station),
+          }),
+        );
+        const violations = critical.filter(
+          ({ value }): boolean => !(value > 0 && value < 1),
+        );
+        if (violations.length === 0) continue;
+        if (
+          violations.some(({ station }): boolean =>
+            stations.some((s): boolean => Math.abs(s - station) < minimum),
+          )
+        ) {
+          const all: number[] = [
+            ...values,
+            ...critical.map(({ value }): number => value),
+          ];
+          flatten.push({
+            field,
+            bounds: [Math.min(...all), Math.max(...all)],
+            values,
+          });
+        } else {
+          extra.push(...violations.map(({ station }): number => station));
+        }
+      }
+      if (extra.length === 0 && flatten.length === 0)
+        return { rows, corrections };
+
+      // Match the original loft's 0.25 mm physical refinement floor.
+      // Finer facet slices have no new independent curvature information.
+      const incoming: IRow[] = [];
+      for (const station of [...new Set(extra)].sort((a, b): number => a - b)) {
+        if (
+          incoming.some(
+            (row): boolean => Math.abs(row.station - station) < minimum,
+          )
+        )
+          continue;
+        try {
+          incoming.push(read(station));
+        } catch (error: unknown) {
+          return (
+            "A shoulder extremum has no independent source cut at " +
+            station +
+            " mm: " +
+            (error instanceof Error ? error.message : String(error))
+          );
+        }
+      }
+      if (incoming.length > 0) {
+        rows = [...rows, ...incoming].sort(
+          (a, b): number => a.station - b.station,
+        );
+        continue;
+      }
+      // The natural spline is linear in its ordinates. Blend only an
+      // underresolved share toward the quarter ellipse, just far enough
+      // to leave half the nearest measured margin at the continuous extrema.
+      rows = rows.map((row): IRow => ({ ...row, values: [...row.values] }));
+      const quarter: number = Math.SQRT2 - 1;
+      for (const { field, bounds, values } of flatten) {
+        const [lo, hi]: [number, number] = bounds;
+        const margin: number =
+          Math.min(Math.min(...values), 1 - Math.max(...values)) / 2;
+        const blend: number = Math.max(
+          lo < margin ? (margin - lo) / (quarter - lo) : 0,
+          hi > 1 - margin ? (hi - (1 - margin)) / (hi - quarter) : 0,
+        );
+        for (const row of rows)
+          row.values[field] =
+            (1 - blend) * row.values[field]! + blend * quarter;
+        corrections.push({ field, blend, raw: bounds });
+      }
+    }
   }
 
   /**
@@ -74,17 +209,20 @@ export namespace FamilyConicMpfbDigitWalls {
     const intervals: number = Math.ceil(limit / step);
     const refused: IWall["refused"] = [];
     const runs: IRow[][] = [[]];
+    const read = (station: number): IRow => {
+      const { origin, points } = Families.centred(
+        cut(axis.at(station), foreign),
+        false,
+      );
+      const values: number[] = Families.fields(points, false);
+      if (!values.every(Number.isFinite))
+        throw new Error("No finite conic guides in the observed section");
+      return { station, origin, values };
+    };
     for (let i: number = 0; i <= intervals; ++i) {
       const station: number = (limit * i) / intervals;
       try {
-        const { origin, points } = Families.centred(
-          cut(axis.at(station), foreign),
-          false,
-        );
-        const values: number[] = Families.fields(points, false);
-        if (!values.every(Number.isFinite))
-          throw new Error("No finite conic guides in the observed section");
-        runs.at(-1)!.push({ station, origin, values });
+        runs.at(-1)!.push(read(station));
       } catch (error: unknown) {
         refused.push({
           station,
@@ -95,17 +233,26 @@ export namespace FamilyConicMpfbDigitWalls {
     }
     // A short isolated proximal loop can precede a shared web. Use the longest
     // contiguous sampled run, preferring the distal one at equal length.
-    const rows: IRow[] = runs.reduce((best, run): IRow[] =>
+    const coarse: IRow[] = runs.reduce((best, run): IRow[] =>
       run.length >= best.length ? run : best,
     );
-    const stations: number[] = rows.map(({ station }): number => station);
-    if (rows.length < 2)
+    if (coarse.length < 2)
       return {
-        stations,
+        stations: coarse.map(({ station }): number => station),
         refused,
         family: null,
         refusal: "Fewer than two consecutive independent section controls",
       };
+    const refined = refineShares(coarse, read);
+    if (typeof refined === "string")
+      return {
+        stations: coarse.map(({ station }): number => station),
+        refused,
+        family: null,
+        refusal: refined,
+      };
+    const { rows, corrections } = refined;
+    const stations: number[] = rows.map(({ station }): number => station);
     const family: IAutoMovieHumanConicLoft.IFamily = {
       name,
       ...course,
@@ -126,7 +273,13 @@ export namespace FamilyConicMpfbDigitWalls {
         check.chain === null || check.diagnostics.length > 0
           ? JSON.stringify(check.diagnostics)
           : null;
-      return { stations, refused, family, refusal };
+      return {
+        stations,
+        refused,
+        family,
+        refusal,
+        correctedShares: corrections,
+      };
     } catch (error: unknown) {
       return {
         stations,
@@ -149,9 +302,10 @@ export namespace FamilyConicMpfbDigitWalls {
     reads: readonly Digits.IRead[],
   ): IWall[] {
     const cut: Families.Cut = Families.prepareCut(source);
-    return reads.flatMap(({ side, kind, digits }): IWall[] => {
+    return reads.flatMap(({ side, kind, host, digits }): IWall[] => {
       const bones: Families.Segment[][] = digits.map(
-        ({ joints }): Families.Segment[] => Families.segments(source, joints),
+        ({ joints }): Families.Segment[] =>
+          Digits.supportedSegments(source, joints, host.sections[0]!.frame),
       );
       return digits.flatMap(({ name, course }, index): IWall[] => {
         if (name === "finger.thumb") return [];

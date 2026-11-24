@@ -390,7 +390,7 @@ export namespace FamilyConicMpfbFamilies {
   }
 
   /** Read nested medians and subarc shoulders on the actually observed limb contour. */
-  function refinedFields(
+  export function refinedFields(
     points: Point2[],
     layout: ReturnType<typeof Conic.limb>,
   ): number[] {

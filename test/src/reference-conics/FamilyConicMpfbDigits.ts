@@ -335,6 +335,31 @@ export namespace FamilyConicMpfbDigits {
   }
 
   /**
+   * Carry the finite proximal ray to the already measured parent start. A
+   * slanted root cut can cross its neighbour's territory before reaching that
+   * neighbour's first phalanx, so actual bone segments alone miss the shared
+   * forefoot on a lateral toe.
+   */
+  export function supportedSegments(
+    source: Mpfb.IGeometry,
+    joints: readonly string[],
+    parent: IAutoMovieLoftSectionFrame,
+  ): Families.Segment[] {
+    const segments: Families.Segment[] = Families.segments(source, joints);
+    const first: Families.Segment | undefined = segments[0];
+    if (first === undefined) return segments;
+    const [a, b]: Families.Segment = first;
+    const tangent: P3 = Vec.sub(b, a);
+    const normal: P3 = Vec.cross(parent.v, parent.u);
+    const advance: number = Vec.dot(tangent, normal);
+    if (!(advance > 0)) return segments;
+    const along: number = Vec.dot(Vec.sub(parent.origin, a), normal) / advance;
+    return along < 0
+      ? [[Vec.add(a, Vec.scale(tangent, along)), a], ...segments]
+      : segments;
+  }
+
+  /**
    * Prepare the public mesh once. Each digit cut must close around its own axis
    * without a neighbouring digit's bone crossing it. The report keeps every
    * source-plane refusal, including fused webs and uncovered tips.
@@ -344,10 +369,16 @@ export namespace FamilyConicMpfbDigits {
    * @see https://github.com/makehumancommunity/mpfb2/blob/650c5c53bd6989a8ac264f31fa1d11d4a0c7bd8a/src/mpfb/data/rigs/standard/rig.default.json
    */
   export function measure(source: Mpfb.IGeometry): IRead[] {
+    const read = prepare(source);
+    return (["l", "r"] as const).flatMap((side): IRead[] =>
+      (["hand", "foot"] as const).map((kind): IRead => read(side, kind)),
+    );
+  }
+
+  /** Prepare the public skin's section operator and then read one requested anatomical region. */
+  export function prepare(source: Mpfb.IGeometry): (side: Side, kind: Kind) => IRead {
     const cut: Families.Cut = Families.prepareCut(source);
-    const reports: IRead[] = [];
-    for (const side of ["l", "r"] as const)
-      for (const kind of ["hand", "foot"] as const) {
+    return (side, kind): IRead => {
         const names: readonly string[] = kind === "hand" ? FINGERS : TOES;
         const marker: string = kind === "hand" ? "finger" : "toe";
         const chains: string[][] = names.map((_, i): string[] =>
@@ -357,15 +388,16 @@ export namespace FamilyConicMpfbDigits {
             (_, j): string => `joint-${side}-${marker}-${i + 1}-${j + 1}`,
           ),
         );
-        const segments: Families.Segment[][] = chains.map(
-          (chain): Families.Segment[] => Families.segments(source, chain),
-        );
         const { up, ...observed } = host(
           source,
           side,
           kind,
           chains.map((chain): string => chain[0]!),
           cut,
+        );
+        const segments: Families.Segment[][] = chains.map(
+          (chain): Families.Segment[] =>
+            supportedSegments(source, chain, observed.sections[0]!.frame),
         );
         const digits: IDigit[] = names.map((name, i): IDigit => {
           const joints: string[] = chains[i]!;
@@ -380,9 +412,8 @@ export namespace FamilyConicMpfbDigits {
             (frame): P2[] => cut(frame, foreign),
           );
         });
-        reports.push({ side, kind, host: observed, digits });
-      }
-    return reports;
+        return { side, kind, host: observed, digits };
+    };
   }
 
   /** Produce a self-identifying receipt and list all refused planes by digit. */
