@@ -8,7 +8,7 @@ description: Implements and tests production source.
 | Read | To |
 | --- | --- |
 | [Repair](repair.md) | Change existing behavior or fix a defect |
-| [Entity work](entities.md) | Build or change a subject |
+| [Entity work](entities.md) | Build or change a subject, or a prop's flames, screens and lettering |
 | [Testing](testing.md) | Choose behavioral checks |
 | [Source layout](source-layout.md#source) | Place a subject, practice, scene, source file or test |
 | [Runtime setup](source-layout.md#execution-and-runtime-setup) | Adopt a host or integration |

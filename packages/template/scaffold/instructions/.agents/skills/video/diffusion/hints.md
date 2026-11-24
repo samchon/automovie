@@ -18,7 +18,7 @@ Use control adapters for precise placements and contacts. Set strength and suppo
 
 ### Geometry and material channels
 
-For a photographed look on built detail, give a neural renderer geometry channels and the `albedo` pass, the installed [material channel](../../motion/control-channels.md#channels-to-render), and supply lighting separately. The renderer keeps geometry, base colours and camera.
+For a photographed look on built detail, give a neural renderer geometry channels and the installed [material channel](../../motion/control-channels.md#channels-to-render), the `albedo` pass, and supply lighting separately. The renderer keeps geometry, base colors and camera.
 
 ## Still frames
 

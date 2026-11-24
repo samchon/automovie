@@ -4,7 +4,7 @@ Apply visual debugging to form with the checks below.
 
 ## Measures
 
-Write the form's expectation before measuring it: an `IAutoMovieFormExpectation` with the size ranges, pieces, genera, solid and empty points and part relations the form must have. Check the form with `checkAutoMovieFormExpectation` from `@automovie/engine`. The check also runs the shape fields on the form's box and convex hull, which a useful expectation rejects. When it reports a mutant as loose, add the empty point or genus that tells the form from it, or list the mutant in `matches` when the form is meant to equal it.
+Write the form's `IAutoMovieFormExpectation` before measuring it, and check the form against it with `checkAutoMovieFormExpectation` from `@automovie/engine`. The check also tries the form's box and convex hull, which a useful expectation rejects. When it reports either as loose, add the empty point or genus that tells the form from it, or list it in `matches` when the form is meant to equal it.
 
 Settle these by measurement before looking:
 
