@@ -124,7 +124,8 @@ async function inspector({ page, url, decodePng }) {
 /** Copy the production's formatted capture request through the actual button. */
 async function copiedCommand(page, url) {
   await page
-    .getByText("Request : address and capture command", { exact: true })
+    .locator("summary")
+    .filter({ hasText: /^Request\s*:/u })
     .click();
   const shell = page.getByRole("combobox", { name: "Command shell" });
   const input = page.getByRole("textbox", { name: "Capture command" });
