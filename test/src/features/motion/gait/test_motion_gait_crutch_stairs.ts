@@ -28,29 +28,50 @@ import { checkTakeClean } from "../../internal/checkTakeClean";
 import { motionComplaints } from "../../internal/motionComplaints";
 import { motionHumanBody } from "../../internal/motionHumanBody";
 
-/** A crutch's length as a share of its user's stature: the clinical fitting the crutch walk's spec stages. */
+/**
+ * A crutch's length as a share of its user's stature: the clinical fitting the
+ * crutch walk's spec stages.
+ */
 const FIT: number = 0.77;
 
-/** How far beside each foot a crutch tip stands, metres: the tripod position (Physiopedia, Crutches). */
+/**
+ * How far beside each foot a crutch tip stands, metres: the tripod position
+ * (Physiopedia, Crutches).
+ */
 const TRIPOD: number = 0.15;
 
-/** How still a planted crutch tip or foot stays, metres: the campaign's ground-contact bound. */
+/**
+ * How still a planted crutch tip or foot stays, metres: the campaign's
+ * ground-contact bound.
+ */
 const STILL: number = 0.002;
 
-/** How far a sole or tip may lie from its tread, metres: the campaign's support bound. */
+/**
+ * How far a sole or tip may lie from its tread, metres: the campaign's support
+ * bound.
+ */
 const SUPPORT: number = 0.01;
 
-/** How far a bearing hand may lie from its handgrip, metres: the touch contract's bound, as the crutch walk's spec reads it. */
+/**
+ * How far a bearing hand may lie from its handgrip, metres: the touch
+ * contract's bound, as the crutch walk's spec reads it.
+ */
 const GRIP: number = 0.01;
 
 /** Steps climbed. */
 const COUNT: number = 2;
 
-/** A domestic riser and going, metres: within the UK Approved Document K private-stair limits (rise at most 220 mm, going at least 220 mm). */
+/**
+ * A domestic riser and going, metres: within the UK Approved Document K
+ * private-stair limits (rise at most 220 mm, going at least 220 mm).
+ */
 const RISER: number = 0.17;
 const TREAD: number = 0.28;
 
-/** The first nosing's distance ahead of the toes, metres: the stair climb's default, which the crutch climb keeps when none is given. */
+/**
+ * The first nosing's distance ahead of the toes, metres: the stair climb's
+ * default, which the crutch climb keeps when none is given.
+ */
 const START: number = 0.05;
 
 /** The injured side staged. */
@@ -62,17 +83,20 @@ const INJURED: AutoMovieHumanSide = "left";
  *
  * Scenarios, on the average man and the small woman, up two steps from the
  * floor and down two steps from their top landing, each take clean:
- * 1. Going up, each step sets the sound foot on the next tread while both
- *    crutch tips stay planted, then moves both crutches onto that tread
- *    while the sound foot stays planted; going down, the crutches go down
- *    first, then the sound foot.
- * 2. At each crutch arrival both tips stand on their tread, at its height
- *    and within its going; at each foot arrival the sound sole stands on its
+ *
+ * 1. Going up, each step sets the sound foot on the next tread while both crutch
+ *    tips stay planted, then moves both crutches onto that tread while the
+ *    sound foot stays planted; going down, the crutches go down first, then the
+ *    sound foot.
+ * 2. At each crutch arrival both tips stand on their tread, at its height and
+ *    within its going; at each foot arrival the sound sole stands on its
  *    tread.
  * 3. The hands bear on the handgrips at every arrival.
  * 4. The injured foot stays above the sound foot's tread from its lift on.
- * 5. A riser above 0.35 of the hip height, too high for a single-leg
- *    step-up, is refused on `riser`.
+ * 5. A riser above 0.35 of the hip height, too high for a single-leg step-up, is
+ *    refused on `riser`, and one just under it, 0.34, is not, so the limit
+ *    itself is read: a refusal of every high riser would pass the 0.36 case
+ *    alone.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the cases and their bounds.
  * @evidence contracts/development/testing.md#behavioral-verification Reads the plan's events, the crutches' displayed frames, the displayed soles and hands; a crutch moving with the foot, a foot moving with the crutches, a tip or sole off its tread, a hand off its grip, a bearing injured foot or an admitted high riser fails.
@@ -108,6 +132,16 @@ export function test_motion_gait_crutch_stairs(): void {
         return error instanceof HumanRefusal && error.axis === "riser";
       }
     })(),
+  );
+  let under: unknown;
+  try {
+    climb(body, { riser: 0.34 * body.measure.hipHeight }).film.bones("a", 1);
+  } catch (error: unknown) {
+    under = error;
+  }
+  checks.check(
+    `a riser just under 0.35 of the hip height is not refused (${under === undefined ? "admitted" : under instanceof Error ? under.message : String(under)})`,
+    under === undefined,
   );
   checks.assert("the crutch stair climbs meet their acceptance");
 }
@@ -268,7 +302,10 @@ type Flight = Partial<
   Pick<IAutoMovieMotionHumanCrutchStairs, "direction" | "riser">
 >;
 
-/** Performer `a` at the origin facing +Z, its crutches beside the feet level with the toes, climbing `COUNT` steps. */
+/**
+ * Performer `a` at the origin facing +Z, its crutches beside the feet level
+ * with the toes, climbing `COUNT` steps.
+ */
 function climb(body: IAutoMovieMotionHumanBody, flight: Flight): IClimb {
   const length: number = Math.min(
     createAxillaryCrutch.BANDS.length.maximum,
@@ -347,7 +384,10 @@ function climb(body: IAutoMovieMotionHumanBody, flight: Flight): IClimb {
   };
 }
 
-/** The height of the landing a climb starts on, metres: the floor going up, the top of the `COUNT` steps going down. */
+/**
+ * The height of the landing a climb starts on, metres: the floor going up, the
+ * top of the `COUNT` steps going down.
+ */
 function landing(direction: Direction): number {
   return direction === "down" ? COUNT * RISER : 0;
 }

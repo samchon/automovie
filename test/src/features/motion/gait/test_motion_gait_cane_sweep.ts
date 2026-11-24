@@ -25,25 +25,44 @@ import { checkTakeClean } from "../../internal/checkTakeClean";
 import { motionComplaints } from "../../internal/motionComplaints";
 import { motionHumanBody } from "../../internal/motionHumanBody";
 
-/** Where the cane stands before it is taken up, beside the right foot, world metres. */
+/**
+ * Where the cane stands before it is taken up, beside the right foot, world
+ * metres.
+ */
 const STAND: IAutoMovieVector3 = { x: -0.3, y: 0, z: 0.3 };
 
 /** How far the walk goes along the corridor, metres. */
 const CORRIDOR: number = 4;
 
-/** How long the cane is swept over the walk, seconds: within the corridor walk's time, long enough for several steps. */
+/**
+ * How long the cane is swept over the walk, seconds: within the corridor walk's
+ * time, long enough for several steps.
+ */
 const SWEEP: number = 2.8;
 
-/** How close a touching tip lies to the floor, metres: the campaign's ground-contact bound. */
+/**
+ * How close a touching tip lies to the floor, metres: the campaign's
+ * ground-contact bound.
+ */
 const FLOOR: number = 0.002;
 
-/** The most the tip rises between two touches, metres: no more than an inch (APH, Orientation and mobility, the two-point touch). */
+/**
+ * The most the tip rises between two touches, metres: no more than an inch
+ * (APH, Orientation and mobility, the two-point touch).
+ */
 const LIFT: number = 0.0254;
 
-/** How far beyond the body's widest part the arc may reach, metres: about an inch beyond it (Kim, Wall Emerson and Naghshineh 2017), with an inch of tolerance. */
+/**
+ * How far beyond the body's widest part the arc may reach, metres: about an
+ * inch beyond it (Kim, Wall Emerson and Naghshineh 2017), with an inch of
+ * tolerance.
+ */
 const BEYOND: number = 0.0508;
 
-/** How far off the midline the cane hand may lie, metres: the touch contract's 10 mm disc on each side of it, doubled for the pelvis's own sway. */
+/**
+ * How far off the midline the cane hand may lie, metres: the touch contract's
+ * 10 mm disc on each side of it, doubled for the pelvis's own sway.
+ */
 const MIDLINE: number = 0.02;
 
 /**
@@ -52,15 +71,20 @@ const MIDLINE: number = 0.02;
  * Scenarios, on the average man and the small woman, the cane fitted to the
  * sternum and taken up from where it stands, for the two-point touch and
  * constant contact, each take clean:
- * 1. At every touch the tip is on the floor on the side opposite the foot
- *    that lands.
- * 2. Each touch lies between the shoulder's half width and an inch beyond
- *    the body's widest part, so the arc spans the shoulder-width band.
- * 3. Between touches the two-point tip rises off the floor no more than an
- *    inch, while the constant-contact tip stays on it.
+ *
+ * 1. At every touch the tip is on the floor on the side opposite the foot that
+ *    lands.
+ * 2. Each touch lies between the shoulder's half width and an inch beyond the
+ *    body's widest part, so the arc spans the shoulder-width band.
+ * 3. Between touches the two-point tip rises off the floor no more than an inch,
+ *    while the constant-contact tip stays on it.
  * 4. The cane hand stays at the body's midline through the sweep.
- * 5. The shortest cane, too short to reach the floor beside the body from
- *    the waist, is refused on `prop`.
+ * 5. The shortest cane, too short to reach the floor beside the body from the
+ *    waist, is refused on `prop`, and the refusal names the floor it cannot
+ *    reach (the caneSweep contract: "a cane too short to reach the floor ahead
+ *    … is refused"). A fitted cane refused on `prop` for its attitude does not
+ *    pass it; the fitted canes of scenarios 1 to 4 are its adjacent valid
+ *    cases.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the take, the cases and their bounds.
  * @evidence contracts/development/testing.md#behavioral-verification Reads the overlay's touch events, the cane's displayed tip, the displayed feet, hips and grip socket; a touch in the air or on the stepping foot's side, an arc too narrow or wide, a two-point tip dragging or flying, a constant tip leaving the floor, a hand off the midline or an admitted short cane fails.
@@ -93,7 +117,11 @@ export function test_motion_gait_cane_sweep(): void {
         ).bones("a", 3);
         return false;
       } catch (error: unknown) {
-        return error instanceof HumanRefusal && error.axis === "prop";
+        return (
+          error instanceof HumanRefusal &&
+          error.axis === "prop" &&
+          /reach the floor/.test(error.message)
+        );
       }
     })(),
   );
@@ -202,7 +230,10 @@ function sternum(body: IAutoMovieMotionHumanBody): number {
   return body.rest.get(frame.bone)!.y + frame.point.y;
 }
 
-/** Performer `a` at the origin facing +Z takes the standing cane up in the right hand and walks the corridor sweeping it. */
+/**
+ * Performer `a` at the origin facing +Z takes the standing cane up in the right
+ * hand and walks the corridor sweeping it.
+ */
 function sweep(
   body: IAutoMovieMotionHumanBody,
   cane: ReturnType<typeof createLongCane>,
