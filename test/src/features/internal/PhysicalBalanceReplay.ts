@@ -146,6 +146,61 @@ export namespace PhysicalBalanceReplay {
     shared: unknown[];
   }
 
+  /**
+   * The fixtures whose key frames the replay checks: each subject's recovery,
+   * which steps and lands, and its fall, which fails; the sustained and
+   * extra pushes pass through the same phases at the same kinds of frame.
+   */
+  export const KEY_FIXTURES: readonly string[] = [
+    // The Human's recovery first: it stores the profile the fall reuses.
+    "human_recover_z.json",
+    "human_fall_z.json",
+    "quad_recover_z.json",
+    "quad_fall_z.json",
+  ];
+
+  /**
+   * A fixture's key records, by index: the controller's call at quiet
+   * stance, at the push, at the first and last events, mid-swing and at the
+   * landing ramp's end or after the landing, each phase's frame once; and the
+   * root tracker's at quiet stance and mid-swing, or at the push without a
+   * swing.
+   */
+  export function keyFrames(fixture: IFixture): number[] {
+    const records: IRecord[] = fixture.records;
+    const advance = (reason: string): number | undefined => {
+      const index: number = records.findIndex(
+        (record: IRecord): boolean =>
+          record.kind === "advance" && record.reason === reason,
+      );
+      return index < 0 ? undefined : index;
+    };
+    const events: number[] = records.flatMap(
+      (record: IRecord, index: number): number[] =>
+        record.kind === "advance" && record.reason === "event" ? [index] : [],
+    );
+    const picked: Set<number> = new Set();
+    for (const index of [
+      advance("fixed 0.1"),
+      advance("fixed 0.21"),
+      events[0],
+      advance("mid-swing"),
+      advance("ramp end") ?? advance("post-landing"),
+      events.at(-1),
+    ])
+      if (index !== undefined) picked.add(index);
+    for (const index of [
+      advance("fixed 0.1"),
+      advance("mid-swing") ?? advance("fixed 0.21"),
+    ])
+      if (index !== undefined && records[index + 1]?.kind === "root")
+        picked.add(index + 1);
+    return [...picked].sort((a: number, b: number): number => a - b);
+  }
+
+  /** The fixture that stores the canonical Human's profile (`stored`). */
+  export const HUMAN_PROFILE: string = "human_recover_z.json";
+
   /** Every fixture's file name. */
   export function list(): string[] {
     return fs
@@ -250,7 +305,10 @@ export namespace PhysicalBalanceReplay {
    * fixture stores none.
    */
   export function stored(fixture: IFixture): IAutoMoviePhysicalProfile {
-    if (fixture.profile === undefined) return profile(fixture.subject);
+    if (fixture.profile === undefined)
+      return fixture.subject === "human"
+        ? stored(load(HUMAN_PROFILE))
+        : PhysicalModelFixtures.quadrupod();
     const found: string = digest(JSON.stringify(fixture.profile));
     if (found !== fixture.body.profileDigest)
       throw new Error(

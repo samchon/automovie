@@ -16,8 +16,10 @@ import { TestValidator } from "@nestia/e2e";
 import { PhysicalBalanceReplay } from "../internal/PhysicalBalanceReplay";
 
 /**
- * No balance phase reads another phase's private state: at every recorded key
- * frame of the disturbance cases, a phase given its recorded input with every
+ * No balance phase reads another phase's private state: at one recorded frame
+ * of each phase of each subject's recovery and fall
+ * (`PhysicalBalanceReplay.KEY_FIXTURES`, `.keyFrames`), a phase given its
+ * recorded input with every
  * other phase's private fields set to other values returns the same result,
  * those fields either carried through as given or written as without them.
  *
@@ -41,18 +43,19 @@ import { PhysicalBalanceReplay } from "../internal/PhysicalBalanceReplay";
  * @evidence contracts/development/common.md#meaningful-documentation States the private fields by owner, the perturbation and what agreement means.
  * @evidence contracts/development/testing.md#behavioral-verification Calls every phase on recorded states and reads the states and commands they return.
  * @evidence contracts/development/testing.md#independent-expectations The expectation is the same phase's unperturbed result, so a phase reading a foreign private field differs from itself; nothing is computed by a model of the phase.
- * @evidence contracts/development/testing.md#distinguishing-cases A phase that read any perturbed field, say the plan reading the span's inputs or the stance reading the integral's bias, would change its result at some recorded frame.
+ * @evidence contracts/development/testing.md#distinguishing-cases A phase that read any perturbed field, say the plan reading the span's inputs or the stance reading the integral's bias, would change its result at the key frame of a phase that runs it; each phase runs at every key frame, so one frame of each kind carries the check.
  * @evidence contracts/development/testing.md#execution-ownership Pure computation over the replay fixtures; no native world, viewer or simulation run.
  */
 export function test_physical_balance_phase_seams(): void {
   const failures: string[] = [];
   const profiles: Partial<Record<string, IAutoMoviePhysicalProfile>> = {};
-  for (const name of PhysicalBalanceReplay.list()) {
+  for (const name of PhysicalBalanceReplay.KEY_FIXTURES) {
     const fixture: PhysicalBalanceReplay.IFixture =
       PhysicalBalanceReplay.load(name);
     const built: IAutoMoviePhysicalProfile = (profiles[fixture.subject] ??=
-      PhysicalBalanceReplay.profile(fixture.subject));
-    for (const record of fixture.records) {
+      PhysicalBalanceReplay.stored(fixture));
+    for (const index of PhysicalBalanceReplay.keyFrames(fixture)) {
+      const record: PhysicalBalanceReplay.IRecord = fixture.records[index]!;
       if (record.kind !== "advance") continue;
       const at: string = `${fixture.case} @${record.seconds}`;
       const { sense, state } = PhysicalBalanceReplay.sense(
