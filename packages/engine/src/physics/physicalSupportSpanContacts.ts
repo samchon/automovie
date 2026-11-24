@@ -88,8 +88,8 @@ export namespace physicalSupportSpanContacts {
    * takes any convex support polygon) cut by every reach disc in place of the
    * biped's side fan (l.220-231), as the quadruped's step adjustment bounds an
    * adjusted step about its nominal one
-   * (`QuadrupedStepAdjustmentController.computeStepAdjustment` l.143-150,
-   * `physicalQuadrupedStepAdjustment`). Each disc is the polygon of its
+   * (IHMC 201903 `QuadrupedStepAdjustmentController.computeStepAdjustment`
+   * l.143-150). Each disc is the polygon of its
    * circle's `MAX_CAPTURE_REGION_POLYGON_POINTS - 1` points, as the reference
    * samples its reachable fan (l.102-123). With the capture point inside the
    * support the region is the discs' intersection alone.
