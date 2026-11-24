@@ -468,7 +468,10 @@ export async function test_capture_finding_diff(): Promise<void> {
   TestValidator.equals(
     "a slower capture cannot classify a finding at a frame it missed",
     [carriedAcrossGrids, fixedAcrossGrids, newAcrossGrids].map(states),
-    Array.from({ length: 3 }, () => ["same", ["a:unmatched:not-sampled"]]),
+    Array.from({ length: 3 }, (): [string, string[]] => [
+      "same",
+      ["a:unmatched:not-sampled"],
+    ]),
   );
   TestValidator.equals(
     "the same cadence covers an interior finding sample",
