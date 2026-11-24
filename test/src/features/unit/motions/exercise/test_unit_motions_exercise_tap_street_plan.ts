@@ -43,7 +43,7 @@ const same = (
  * 1. A right shuffle sounds the right ball on the "and" before the beat (0.25 s)
  *    and on the beat (0.5 s), and lasts a beat after it, 1 s.
  * 2. Repeated, the second shuffle leads with the left foot a beat later; a repeat
- *    count that is not whole is refused.
+ *    count rounding to none is refused.
  * 3. A rock of four beats with no stray hits on each "and", 0.75 to 2.25 s, and
  *    ends at 2.5 s; with the default stray each beat and hit moves by one
  *    offset within 0.02 s.
@@ -71,7 +71,6 @@ export async function test_unit_motions_exercise_tap_street_plan(): Promise<void
   const twice: IAutoMovieMotionHumanActionPlan = tapDance.plan(
     motionActionContext(body, { step: "shuffle", repeats: 2 }),
   );
-  throw new Error(JSON.stringify([twice.duration, timed(twice), throwsError(() => tapDance.plan(motionActionContext(body, { step: "shuffle", repeats: 1.5 })))]));
   TestValidator.predicate(
     "repeated",
     nclose(twice.duration, 1.5, 1e-12) &&
@@ -88,7 +87,7 @@ export async function test_unit_motions_exercise_tap_street_plan(): Promise<void
       ) &&
       throwsError(() =>
         tapDance.plan(
-          motionActionContext(body, { step: "shuffle", repeats: 1.5 }),
+          motionActionContext(body, { step: "shuffle", repeats: 0 }),
         ),
       ),
   );

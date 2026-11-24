@@ -16,7 +16,7 @@ import { AutoMovieLoftSection } from "./AutoMovieLoftSection";
 import { AutoMovieSplineCurve } from "./AutoMovieSplineCurve";
 import { AutoMovieStationHermite } from "./AutoMovieStationHermite";
 
-/** Value-only loft station samplers and the existing bounded lazy point cache. */
+/** Value-only loft station samplers and the lazy single point reader. */
 export namespace AutoMovieLoftPoint {
   /**
    * World point of the chain at station s as a function of phase.
@@ -73,11 +73,8 @@ export namespace AutoMovieLoftPoint {
   }
 
   /**
-   * One world point of the chain at station s and phase t. Readers of single
-   * points (a strip's columns, a trim loop's rim, a difference across a loop)
-   * meet the same few stations again and again, so the samplers of the last
-   * {@link RECENT} stations read per chain are kept; a chain is never changed
-   * once built, so a kept sampler stays its station's.
+   * One world point of the chain at station s and phase t, read directly: a
+   * reader of many phases at one station takes {@link sampler} instead.
    *
    * @param chain Chain to evaluate.
    * @param s Station within the chain.
@@ -88,18 +85,11 @@ export namespace AutoMovieLoftPoint {
     s: number,
     t: number,
   ): [number, number, number] {
-    let kept:
-      | { s: number; at: (t: number) => [number, number, number] }[]
-      | undefined = SAMPLERS.get(chain);
-    if (kept === undefined) SAMPLERS.set(chain, (kept = []));
-    for (const entry of kept) if (entry.s === s) return entry.at(t);
-    const at: (t: number) => [number, number, number] =
+    return (
       chain.basis === "spline" && !AutoMovieLoftSection.present(chain)
         ? lazy(chain, s)
-        : sampler(chain, s);
-    kept.unshift({ s, at });
-    if (kept.length > RECENT) kept.pop();
-    return at(t);
+        : sampler(chain, s)
+    )(t);
   }
 
   /** Actual world value and phase tangent without physical station2 admission. */
@@ -265,15 +255,6 @@ export namespace AutoMovieLoftPoint {
       return q;
     };
   }
-
-  /** Stations whose samplers {@link point} keeps per chain. */
-  const RECENT: number = 8;
-
-  /** The kept samplers, by chain. */
-  const SAMPLERS: WeakMap<
-    IAutoMovieLoftChain,
-    { s: number; at: (t: number) => [number, number, number] }[]
-  > = new WeakMap();
 
   /** One coefficient in the unchanged left-associated Hermite combination order. */
   function scalar(

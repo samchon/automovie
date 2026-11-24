@@ -10,8 +10,8 @@ import { TestValidator } from "@nestia/e2e";
  *
  * 1. No parameter over [0, 10]: { 0, 10, 1 }.
  * 2. "?start=2&end=4&speed=0.5": { 2, 4, 0.5 }.
- * 3. An empty start, a start of "abc", an overflowing end, an end past 10, a
- *    start at the end and speed 2 refuse.
+ * 3. An empty start, a start of "abc", an overflowing end, an end past 10, a start
+ *    at the end and speed 2 refuse.
  */
 export function test_unit_viewer_transport_read_review_interval(): void {
   const read: (query: string) => {

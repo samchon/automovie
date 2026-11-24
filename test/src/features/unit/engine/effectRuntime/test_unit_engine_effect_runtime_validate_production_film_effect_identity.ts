@@ -18,12 +18,16 @@ const DIGEST: string = `sha256:${"a".repeat(64)}`;
  */
 export function test_unit_engine_effect_runtime_validate_production_film_effect_identity(): void {
   validateProductionFilmEffectIdentity({
+    production: "production",
+    film: "film",
     compileFingerprint: DIGEST,
     editFingerprint: DIGEST,
   });
   let code: string | null = null;
   try {
     validateProductionFilmEffectIdentity({
+      production: "production",
+      film: "film",
       compileFingerprint: DIGEST,
       editFingerprint: `sha256:${"a".repeat(63)}`,
     });

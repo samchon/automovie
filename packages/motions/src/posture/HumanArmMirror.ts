@@ -225,15 +225,16 @@ export namespace HumanArmMirror {
 
   /** A segment's shape list reflected, a fresh list. */
   function reflectShapes(shapes: IShapes): IShapes {
-    return shapes.map((shape: IShapes[number]): IShapes[number] => ({
-      ...shape,
-      transform: {
+    return shapes.map((shape: IShapes[number]): IShapes[number] => {
+      const transform: IShapes[number]["transform"] = {
         ...shape.transform,
         position: flip(shape.transform.position),
         rotation: turn(shape.transform.rotation),
-      },
-      ...(shape.kind === "hull" ? reflectedHull(shape) : {}),
-    })) as IShapes;
+      };
+      return shape.kind === "hull"
+        ? { ...shape, transform, ...reflectedHull(shape) }
+        : { ...shape, transform };
+    });
   }
 
   /** A hull shape's points mirrored with its hull, which is mirrored too. */

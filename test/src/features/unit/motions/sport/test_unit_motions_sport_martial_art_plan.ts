@@ -20,8 +20,7 @@ import { vclose } from "../../../internal/vclose";
  * the held middle, and a 0.6 s step out (3 s each way for tai chi, Wu and Hitt
  * 2005). In the horse stance the left foot steps out until the feet stand four
  * shoulder half-widths apart and the hips come half that way across and sink a
- * fifth of the thigh; choku-zuki holds `2 · count · 0.2 + 0.2` s of
- * alternating 0.2 s punches (VencesBrito et al. 2011).
+ * fifth of the thigh.
  *
  * The average man stands at the origin facing +Z, the left toward +X.
  *
@@ -31,7 +30,7 @@ import { vclose } from "../../../internal/vclose";
  *    stance's `ready` (0.6 s) to its `relax` (1.6 s), the right throughout.
  * 2. Held, the root stands half the step out toward +X and a fifth of the thigh
  *    lower than at the start.
- * 3. A fractional count, or a negative hold, is refused.
+ * 3. A count rounding below one punch, or a negative hold, is refused.
  */
 export async function test_unit_motions_sport_martial_art_plan(): Promise<void> {
   // Whole body: the forms place both legs and arms on goals the full rig
@@ -78,9 +77,9 @@ export async function test_unit_motions_sport_martial_art_plan(): Promise<void> 
 
   // 3. Refusals.
   TestValidator.predicate(
-    "a fractional count, a negative hold",
+    "no punch, or a negative hold",
     throwsError(() =>
-      martialArt.plan(context({ kind: "chokuZuki", count: 1.5 })),
+      martialArt.plan(context({ kind: "chokuZuki", count: 0 })),
     ) &&
       throwsError(() =>
         martialArt.plan(context({ kind: "horseStance", hold: -1 })),

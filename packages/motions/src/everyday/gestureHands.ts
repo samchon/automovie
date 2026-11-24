@@ -39,6 +39,9 @@ type IPrepareTarget = {
   emit: ReturnType<typeof AutoMovieMotionHumanArmTarget.prepareSidedTarget>;
 };
 
+/** The stroke fields a gesture hand is prepared on. */
+type PrepareStroke = "surface" | "shape";
+
 /** The alternatives of `PrepareP`'s site. */
 type PrepareP = "turn" | "shape" | "aim";
 
@@ -76,6 +79,7 @@ export namespace gestureHands {
    *   aimed.
    * @param elbow The Effort's elbow modifier, a share of the upper arm added to
    *   the goal's outward elbow hint.
+   * @param stroke The stroke's hand surface and shape, which its kind fixes.
    * @returns The hand and finger readers; an optional caller-owned joint record
    *   receives the fingers and is returned.
    */
@@ -85,6 +89,7 @@ export namespace gestureHands {
     p: Pick<IAutoMovieMotionHumanGesture.IParams, PrepareP>,
     digit: IAutoMovieVector3 | undefined,
     elbow: number,
+    stroke: Pick<IAutoMovieMotionHumanGestureStroke.IHand, PrepareStroke>,
   ): IPrepared {
     const turn: IAutoMovieQuaternion | undefined =
       p.turn === undefined
@@ -99,28 +104,41 @@ export namespace gestureHands {
     );
     const emblem: ReturnType<typeof HumanHand.shape> | undefined =
       p.shape === undefined ? undefined : HumanHandShape.emblem(side, p.shape);
-    const shapes: Map<IAutoMovieMotionHumanHand.Shape, readonly IFinger[]> =
-      new Map();
-    let target: IPrepareTarget | undefined;
+    // The finger table of a goal's shape: the emblem's when one is given.
+    const table = (
+      shape: IAutoMovieMotionHumanHand.Shape,
+    ): readonly IFinger[] => {
+      const angles: ReturnType<typeof HumanHand.shape> =
+        emblem ?? HumanHand.shape(side, shape);
+      return (Object.keys(angles) as AutoMovieHumanoidBone[]).map(
+        (bone: AutoMovieHumanoidBone): IFinger => ({
+          bone,
+          at: angles[bone]!,
+          relaxed: relaxed[bone]!,
+          curls: !bone.includes("Thumb") && emblem === undefined,
+        }),
+      );
+    };
+    // The stroke's own shape and surface, fixed by its kind, prepared here;
+    // any other goal is read as it comes.
+    const strokeFingers: readonly IFinger[] = table(stroke.shape);
+    const target: IPrepareTarget = {
+      surface: stroke.surface,
+      shape: stroke.shape,
+      emit: AutoMovieMotionHumanArmTarget.prepareSidedTarget(
+        body,
+        side,
+        stroke.surface,
+        stroke.shape,
+      ),
+    };
     const fingers: IPrepared["fingers"] = (
       goal: Pick<IAutoMovieMotionHumanGestureStroke.IHand, PrepareFingersGoal>,
       envelope: number,
       output?: IAutoMovieMotionHumanPosture["joints"],
     ): IAutoMovieMotionHumanPosture["joints"] => {
-      let entries: readonly IFinger[] | undefined = shapes.get(goal.shape);
-      if (entries === undefined) {
-        const shape: ReturnType<typeof HumanHand.shape> =
-          emblem ?? HumanHand.shape(side, goal.shape);
-        entries = (Object.keys(shape) as AutoMovieHumanoidBone[]).map(
-          (bone: AutoMovieHumanoidBone): IFinger => ({
-            bone,
-            at: shape[bone]!,
-            relaxed: relaxed[bone]!,
-            curls: !bone.includes("Thumb") && emblem === undefined,
-          }),
-        );
-        shapes.set(goal.shape, entries);
-      }
+      const entries: readonly IFinger[] =
+        goal.shape === stroke.shape ? strokeFingers : table(goal.shape);
       const joints: IAutoMovieMotionHumanPosture["joints"] = output ?? {};
       const askedCurl: number = emblem === undefined ? (goal.curl ?? 0) : 0;
 
@@ -178,23 +196,17 @@ export namespace gestureHands {
                 goal.elbow,
                 goal.out + elbow,
               );
-        if (
-          target === undefined ||
-          target.surface !== surface ||
-          target.shape !== shape
-        )
-          target = {
-            surface,
-            shape,
-            emit: AutoMovieMotionHumanArmTarget.prepareSidedTarget(
-              body,
-              side,
-              surface,
-              shape,
-            ),
-          };
+        const emit: IPrepareTarget["emit"] =
+          target.surface === surface && target.shape === shape
+            ? target.emit
+            : AutoMovieMotionHumanArmTarget.prepareSidedTarget(
+                body,
+                side,
+                surface,
+                shape,
+              );
         return {
-          request: target.emit({ point, rotation, bend }),
+          request: emit({ point, rotation, bend }),
           fingers: fingers(goal, envelope, output),
         };
       },

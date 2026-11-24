@@ -5,3 +5,4 @@ export * from "./AutoMovieRecoveryConicApproximation";
 export * from "./approximateAutoMovieRecoveryCompactCurves";
 export * from "./approximateAutoMovieRecoveryConicsAhn";
 export * from "./approximateAutoMovieRecoveryConicsGhosh";
+export * from "./findAutoMovieRecoveryCubicCriticalParameters";

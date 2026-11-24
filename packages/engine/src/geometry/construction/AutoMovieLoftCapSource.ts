@@ -39,23 +39,10 @@ export namespace AutoMovieLoftCapSource {
         },
       };
     }
-    bounds(copy);
-    // The full check has passed on these very objects; later reads may rely on
-    // their identity.
+    // The one full check: every reader after this trusts the retained source.
     for (const key of ["pole", "opposite"] as const) {
       const pole: Pole | undefined = copy[key];
-      if (pole?.source === undefined) continue;
-      const index: number = pole.end === "bottom" ? 0 : chain.layers.length - 1;
-      copy[key] = {
-        ...pole,
-        source: {
-          ...pole.source,
-          prepared: {
-            layer: chain.layers[index]!,
-            data: chain.nativeSource.data,
-          },
-        },
-      };
+      if (pole?.source !== undefined) check(copy, pole);
     }
     return copy;
   }
@@ -68,7 +55,6 @@ export namespace AutoMovieLoftCapSource {
     ];
     for (const pole of [chain.pole, chain.opposite]) {
       if (pole?.source === undefined) continue;
-      validate(chain, pole);
       out[pole.end === "bottom" ? 0 : 1] = pole.source.station;
     }
     return out;
@@ -84,7 +70,6 @@ export namespace AutoMovieLoftCapSource {
     if (station >= first && station <= last) return null;
     for (const pole of [chain.pole, chain.opposite]) {
       if (pole?.source === undefined) continue;
-      validate(chain, pole);
       const source: IAutoMovieLoftCapSource.ISource = pole.source;
       if (
         station < Math.min(source.station, source.adjacent) ||
@@ -117,11 +102,6 @@ function binding(layer: IAutoMovieLoftChain.ILayer): string {
   ]);
 }
 
-/** Reject stale ownership before any actual geometry callback is evaluated. */
-function validate(chain: IAutoMovieLoftChain, pole: Pole): void {
-  check(chain, pole);
-}
-
 /** The full check of a cap source against its chain's end. */
 function check(chain: IAutoMovieLoftChain, pole: Pole): void {
   const source: IAutoMovieLoftCapSource.ISource = pole.source!;
@@ -134,11 +114,6 @@ function check(chain: IAutoMovieLoftChain, pole: Pole): void {
   const native: IAutoMovieLoftSectionSource.ISource | null =
     AutoMovieLoftSectionSource.validate(chain, index, index);
   AutoMovieLoftFrameSource.validate(layer);
-  const prepared: boolean =
-    source.prepared !== undefined &&
-    source.prepared.layer === layer &&
-    native !== null &&
-    source.prepared.data === native.data;
   if (
     native === null ||
     source.station !== native.data.domain[pole.end === "bottom" ? 0 : 1] ||
@@ -147,8 +122,8 @@ function check(chain: IAutoMovieLoftChain, pole: Pole): void {
       ? source.station < layer.y
       : source.station > layer.y) ||
     typeof source.axis?.at !== "function" ||
-    (!prepared && binding(layer) !== source.boundary) ||
-    (!prepared && JSON.stringify(native.data) !== source.scalar) ||
+    binding(layer) !== source.boundary ||
+    JSON.stringify(native.data) !== source.scalar ||
     pole.point.some((x: number, k: number): boolean => x !== source.point[k]) ||
     layer.lift !== undefined
   )

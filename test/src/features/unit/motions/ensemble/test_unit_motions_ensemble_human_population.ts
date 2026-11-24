@@ -73,7 +73,11 @@ export async function test_unit_motions_ensemble_human_population(): Promise<voi
     asked.push(seconds);
     return {
       skeleton: body.skeleton.id,
-      root: { translation: { x: seconds, y: 0.9, z: 0 }, rotation: east },
+      root: {
+        translation: { x: seconds, y: 0.9, z: 0 },
+        rotation: east,
+        scale: { x: 1, y: 1, z: 1 },
+      },
       joints: [],
     };
   };

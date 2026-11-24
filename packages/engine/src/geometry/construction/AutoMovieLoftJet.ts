@@ -73,8 +73,7 @@ export namespace AutoMovieLoftJet {
     t: number,
   ): IAutoMovieLoftSurfaceJet {
     // The station's part (its section coefficients and plane with their two
-    // station derivatives) is the same for every phase, so the last stations
-    // read per chain are kept; a chain is never changed once built.
+    // station derivatives) is the same for every phase of one jet.
     const station: IStation = stationOf(chain, s);
     const { f }: IStation = station;
 
@@ -135,30 +134,14 @@ export namespace AutoMovieLoftJet {
     directions: AutoMovieVector3Tuple[];
   }
 
-  /** Stations kept per chain. */
-  const RECENT: number = 8;
-
-  /** The kept stations, by chain. */
-  const STATIONS: WeakMap<
-    IAutoMovieLoftChain,
-    { s: number; station: IStation }[]
-  > = new WeakMap();
-
-  /** A station's part of a jet, kept for the chain's last stations. */
+  /** A station's part of a jet: its section, plane and lift controls. */
   function stationOf(chain: IAutoMovieLoftChain, s: number): IStation {
-    let kept: { s: number; station: IStation }[] | undefined =
-      STATIONS.get(chain);
-    if (kept === undefined) STATIONS.set(chain, (kept = []));
-    for (const entry of kept) if (entry.s === s) return entry.station;
     const cap: IAutoMovieLoftCapRead.IJetResult = AutoMovieLoftCapRead.jet(
       chain,
       s,
     );
     if (cap !== null) {
-      const station: IStation = { controls: null, ...cap };
-      kept.unshift({ s, station });
-      if (kept.length > RECENT) kept.pop();
-      return station;
+      return { controls: null, ...cap };
     }
     const [lo, hi]: [number, number] = AutoMovieLoftChain.bracket(chain, s);
     const a: IAutoMovieLoftChain.ILayer = chain.layers[lo]!;
@@ -284,8 +267,6 @@ export namespace AutoMovieLoftJet {
         ],
       };
     }
-    kept.unshift({ s, station });
-    if (kept.length > RECENT) kept.pop();
     return station;
   }
 

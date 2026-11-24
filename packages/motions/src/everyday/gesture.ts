@@ -282,12 +282,16 @@ export namespace gesture {
           HumanHandShape.emblem(side, p.shape),
           p.aim.digit === "thumb" ? "Thumb" : "Index",
         );
+      const stroke: IAutoMovieMotionHumanGestureStroke.IHand =
+        gestureStroke.hand(p.kind, side, 0, cycles, input(at0, 0, side));
+      shapes[side] = stroke.shape;
       hands[side] = gestureHands.prepare(
         body,
         side,
         p,
         digits[side],
         mods.elbow,
+        stroke,
       );
       geometry[side] = gestureTouch.prepare(
         body,
@@ -301,14 +305,8 @@ export namespace gesture {
       prepareGestureTransport(body, context.entry.pose, sides);
     const span: () => number = (): number =>
       measure(
-        (
-          side: AutoMovieHumanSide,
-        ): IAutoMovieMotionHumanGestureStroke.IHand => {
-          const goal: IAutoMovieMotionHumanGestureStroke.IHand =
-            gestureStroke.hand(p.kind, side, 0, cycles, input(at0, 0, side));
-          shapes[side] = goal.shape;
-          return goal;
-        },
+        (side: AutoMovieHumanSide): IAutoMovieMotionHumanGestureStroke.IHand =>
+          gestureStroke.hand(p.kind, side, 0, cycles, input(at0, 0, side)),
       );
 
     // The Effort's tempo, slowed by the action's own time scale where it is
