@@ -6,7 +6,7 @@ import type { AutoMovieVector3Tuple, IAutoMovieHumanSkinCutLoop } from "@automov
  *
  * The surface is a signed measure of a point, negative on the part's side and zero on the surface, fixed in a frame of the skeleton
  * (a plane, a cylinder about an axis, a wedge about a line), so the loop follows the person and the pose and is never a table read off
- * one figure (`.agents/skills/human/construction.md`, Ports). The loop it gives is star-shaped about the centre by construction: one
+ * one figure (see Human construction, Connections). The loop it gives is star-shaped about the centre by construction: one
  * crossing a ray, the first from the centre.
  */
 export namespace AutoMovieHumanSkinCutLoop {
