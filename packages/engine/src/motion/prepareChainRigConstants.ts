@@ -86,6 +86,29 @@ export function prepareChainRigConstants(
   let restInverse: IAutoMovieQuaternion | undefined;
   let distal: ReturnType<typeof solveDistalTwist.prepare> | undefined;
   let range: { min: number; max: number } | null | undefined;
+
+  // The upper joint's frame under its swing-twist gate, with its swing region
+  // built here, once for every solve of this chain.
+  const upperConstraint: IAutoMovieJointRotationDomain["constraint"] =
+    fixed !== null
+      ? fixed.upperDomain.constraint
+      : getConstraint(
+          props.chain.upper,
+          props.skeleton.bones.find(
+            (candidate: IAutoMovieBone): boolean =>
+              candidate.bone === props.chain.upper,
+          )?.constraint ?? null,
+        );
+  const upperFrame: IAutoMovieJointRotationFrame | undefined =
+    upperConstraint === null ||
+    upperConstraint.swingTwist === undefined ||
+    upperConstraint.swingTwist === null
+      ? undefined
+      : swingTwistRange.of(props.chain.upper);
+  const upperRange: IAutoMovieJointRotationFrame | undefined =
+    upperFrame === undefined || upperConstraint === null
+      ? undefined
+      : swingTwistRange.prepare(upperFrame, upperConstraint);
   let clampAxes:
     | Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>
     | undefined;
@@ -273,6 +296,7 @@ export function prepareChainRigConstants(
       if (range === undefined) range = read();
       return range;
     },
+    upperRange,
   };
   return rig;
 }

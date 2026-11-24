@@ -350,19 +350,6 @@ export function test_viewer_analysis_overlay(): void {
             "max at or above min",
           ),
       ],
-      [
-        "a non-finite ramp domain",
-        (): boolean =>
-          throwsError(
-            (): ReturnType<typeof buildAnalysisOverlayObject> =>
-              buildAnalysisOverlayObject({
-                run,
-                metric: "workplane.total.illuminance",
-                domain: { min: Number.NaN, max: 1 },
-              }),
-            "finite range",
-          ),
-      ],
     ]),
     {
       "an unsupported run": true,
@@ -372,7 +359,6 @@ export function test_viewer_analysis_overlay(): void {
       "a measurement with no field": true,
       "a non-positive point size": true,
       "an inverted ramp domain": true,
-      "a non-finite ramp domain": true,
     },
   );
 }

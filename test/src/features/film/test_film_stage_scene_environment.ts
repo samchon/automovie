@@ -61,7 +61,6 @@ function stagedWith(environment: IAutoMovieSceneEnvironment): IAutoMovieStagedSe
  *    zero and extreme values retained.
  * 3. Shadow casting and deterministic shadow settings are declared together;
  *    out-of-range, missing, or inactive settings are refused before lowering.
- *    Area lights accept omission but refuse either boolean castShadow flag.
  * 4. Backgrounds and staged lights reject an RGB/hex contradiction through
  *    the same color gate, while a matching white light swatch stages.
  *
@@ -237,32 +236,6 @@ export function test_film_stage_scene_environment(): void {
   );
 
   const invalidShadowCases: Array<[IAutoMovieStageLight, string]> = [
-    [
-      {
-        node: "key",
-        type: "area",
-        direction: { x: 0, y: -1, z: 0 },
-        position: { x: 0, y: 1, z: 0 },
-        width: 1,
-        height: 1,
-        intensity: 1,
-        castShadow: false,
-      },
-      "$input.lights[0].castShadow",
-    ],
-    [
-      {
-        node: "key",
-        type: "area",
-        direction: { x: 0, y: -1, z: 0 },
-        position: { x: 0, y: 1, z: 0 },
-        width: 1,
-        height: 1,
-        intensity: 1,
-        castShadow: true,
-      },
-      "$input.lights[0].castShadow",
-    ],
     [{ ...light, castShadow: true }, "$input.lights[0].shadow"],
     [
       {

@@ -138,7 +138,8 @@ import { solveDistalTwist } from "./solveDistalTwist";
  * @param axes The mid bone's axes; its flexion is the hinge.
  * @param rotation A requested effector rotation, ranked before the hint's side
  *   when given.
- * @param rig Optional lazy rig of the same unchanged source workspace;
+ * @param rig The rig of the same unchanged source workspace, carrying the upper
+ *   joint's prepared swing region;
  *   source-only basis, reference, hinge range and posed swing may be shared,
  *   while every candidate score and callback remains target-local.
  * @returns The candidate, or null for a degenerate chain.
@@ -147,8 +148,8 @@ export function fitHingedChainCandidate(
   props: IAutoMovieFitChainToTargetProps,
   prepared: NonNullable<IAutoMoviePreparedChainPlant | null>,
   axes: IAutoMovieJointAxes,
-  rotation?: IAutoMovieQuaternion,
-  rig?: prepareChainFit.IRig,
+  rotation: IAutoMovieQuaternion | undefined,
+  rig: prepareChainFit.IRig,
 ): IAutoMovieSolvedChainPlant | null {
   const turn:
     | ((
@@ -318,9 +319,7 @@ export function fitHingedChainCandidate(
       ? undefined
       : swingTwistRange.of(props.chain.upper);
   const upperPrepared: IAutoMovieJointRotationFrame | undefined =
-    upperRange === undefined || upperConstraint === null
-      ? upperRange
-      : swingTwistRange.prepare(upperRange, upperConstraint);
+    rig.upperRange;
   const upperRotated: boolean =
     upperRange !== undefined &&
     readsSwingTwistFrame(

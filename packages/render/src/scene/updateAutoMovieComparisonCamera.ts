@@ -63,7 +63,16 @@ export function updateAutoMovieComparisonCamera(input: {
   comparison.quaternion.copy(source.quaternion);
   comparison.updateMatrixWorld(true);
   comparison.updateProjectionMatrix();
-  if (comparison.projectionMatrix.determinant() === 0)
+  // An overflowing projection or its inverse names no finite chart.
+  if (
+    [
+      ...comparison.projectionMatrix.elements,
+      ...comparison.projectionMatrixInverse.elements,
+    ].some(
+      (value: number): boolean => value === Infinity || value === -Infinity,
+    ) ||
+    comparison.projectionMatrix.determinant() === 0
+  )
     throw new Error("Comparison projection exceeds native finite chart limits");
   input.offset
     .setFromMatrixColumn(source.matrixWorld, 0)

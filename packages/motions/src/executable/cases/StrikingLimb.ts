@@ -177,7 +177,7 @@ export namespace StrikingLimb {
    * @returns The length.
    */
   export function length(
-    body: IAutoMovieMotionHumanBody,
+    body: Pick<IAutoMovieMotionHumanBody, "measure">,
     limb: End,
     knee: boolean,
   ): number {

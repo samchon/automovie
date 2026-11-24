@@ -4,6 +4,7 @@ import type { AutoMovieClinicalAxis } from "../pose/AutoMovieClinicalAxis";
 import type { IAutoMovieHingedArmSwivel } from "../pose/IAutoMovieHingedArmSwivel";
 import type { IAutoMovieJointPose } from "../pose/IAutoMovieJointPose";
 import type { IAutoMovieJointRotationDomain } from "../pose/IAutoMovieJointRotationDomain";
+import type { IAutoMovieJointRotationFrame } from "../pose/IAutoMovieJointRotationFrame";
 import type { IAutoMovieRestFrame } from "../pose/IAutoMovieRestFrame";
 import type { AutoMovieHumanoidBone } from "../skeleton/AutoMovieHumanoidBone";
 import type { IAutoMovieBone } from "../skeleton/IAutoMovieBone";
@@ -130,6 +131,12 @@ export namespace IAutoMoviePrepareChainFit {
     hingeRange(
       read: () => { min: number; max: number } | null,
     ): { min: number; max: number } | null;
+
+    /**
+     * The chain's upper joint frame under its swing-twist gate, with its swing
+     * region prepared once with the rig; undefined for an ungated joint.
+     */
+    readonly upperRange: IAutoMovieJointRotationFrame | undefined;
 
     /**
      * Original no-hint source-hinge displacement, read only at that branch's

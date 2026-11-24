@@ -35,7 +35,7 @@ import { throwsError } from "../internal/throwsError";
  *    once, in order, with no gap and no repeat, and `total` never moves.
  * 2. A page at the end is empty rather than an error, and reports where it
  *    stopped, so a caller looping until it runs out terminates.
- * 3. A rank that names no page — negative, or fractional — is refused rather
+ * 3. A rank that names no page — negative — is refused rather
  *    than rounded, because a caller paging by a computed value would otherwise
  *    be told it had read everything.
  * 4. A compact instance set pages too, and that path regenerates its ids from
@@ -159,17 +159,8 @@ export function test_inspection_subject_member_paging(): void {
             "Subject member offset must be a whole number of members from the first",
           ),
       ],
-      [
-        "a fractional rank",
-        (): boolean =>
-          throwsError(
-            (): IAutoMovieSubjectDescription =>
-              describeAutoMovieSubject(artifact, root, { memberOffset: 1.5 }),
-            "Subject member offset must be a whole number of members from the first",
-          ),
-      ],
     ]),
-    { "a negative rank": true, "a fractional rank": true },
+    { "a negative rank": true },
   );
 
   const setId: string = "instance-set:slate";

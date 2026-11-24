@@ -60,20 +60,6 @@ export function test_film_production_sound_pcm_ingress(): void {
     durationFrames: 3,
   });
 
-  const dialoguePlan: IAutoMovieProductionSoundPlan = {
-    ...plan({}),
-    cues: [],
-    dialogue: [
-      {
-        id: "line",
-        text: "line",
-        language: "en",
-        startFrame: 0,
-        endFrame: 1,
-      },
-    ],
-  };
-
   TestValidator.equals(
     "only referenced supplied PCM must be finite before mixing",
     namedFacts([

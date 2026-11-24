@@ -24,6 +24,7 @@ export namespace IAutoMoviePrepareChainRigConstants {
     | "effectorRestInverse"
     | "distalTwist"
     | "hingeRange"
+    | "upperRange"
   > {
     /**
      * The hinge's span coefficients, read at the first branch query and shared

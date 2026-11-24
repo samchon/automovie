@@ -10,7 +10,10 @@ import { nclose } from "../../../internal/nclose";
 /** Rounding of a quintic's evaluation, metres and degrees. */
 const ROUNDING: number = 1e-9;
 
-/** A balance correction's requirement: half a millimetre, a hundredth of a degree, a frame. */
+/**
+ * A balance correction's requirement: half a millimetre, a hundredth of a
+ * degree, a frame.
+ */
 const REQUIREMENT: prepareHumanPostureCorrection.IRequirement = {
   root: 5e-4,
   angle: 0.01,
@@ -18,25 +21,25 @@ const REQUIREMENT: prepareHumanPostureCorrection.IRequirement = {
 };
 
 /**
- * `prepareHumanPostureCorrection` solves a balance correction only at the
- * knots AutoKnots places to the caller's requirement and courses what it
- * changes: `marks`, the window's ramps' ends, its phase's bounds and each
- * event inside it, are forced knots; a read adds the course's change to the
- * posture it is given inside the window and leaves it outside.
+ * `prepareHumanPostureCorrection` solves a balance correction only at the knots
+ * AutoKnots places to the caller's requirement and courses what it changes:
+ * `marks`, the window's ramps' ends, its phase's bounds and each event inside
+ * it, are forced knots; a read adds the course's change to the posture it is
+ * given inside the window and leaves it outside.
  *
  * Scenarios, a window from 1 to 3 s with 0.5 s ramps and an event at 2.2 s, on
  * an upstream posture standing still:
  *
  * 1. The forced knots are 1.5, 2.2 and 2.5; the event at 0.5 s, outside the
  *    window, is not one, nor are the window's own ends.
- * 2. A correction moving the root 0.1 m along +X and bending the spine 5
- *    degrees throughout is read exactly at every second inside the window.
+ * 2. A correction moving the root 0.1 m along +X and bending the spine 5 degrees
+ *    throughout is read exactly at every second inside the window.
  * 3. Before 1 s and after 3 s the posture is left as given.
  * 4. A joint the correction leaves as it was is not written.
- * 5. A correction moving the root `0.1 sin²(π (t − 1) / 2)` metres, at rest at
- *    the window's ends, is exact at the forced knots and within the
- *    requirement's half millimetre on a 1/120 s grid; it is solved at fewer
- *    seconds than that grid has.
+ * 5. A correction moving the root `0.1 sin²(π (t − 1) / 2)` metres, at rest at the
+ *    window's ends, is exact at the forced knots and within the requirement's
+ *    half millimetre on a 1/120 s grid; it is solved at fewer seconds than that
+ *    grid has.
  */
 export function test_unit_motions_compose_prepare_human_posture_correction(): void {
   const window: IAutoMovieMotionHumanBalance.IWindow = {

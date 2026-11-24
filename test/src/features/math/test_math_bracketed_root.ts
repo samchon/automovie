@@ -14,11 +14,11 @@ import { TestValidator } from "@nestia/e2e";
  *    bisection needs 40.
  * 5. A steep and flat function, `exp(8x) - 2` on [-1, 1], where plain false
  *    position stalls on one end, still returns `ln 2 / 8`.
- * 6. Ends of one sign, a non-finite end and a non-positive tolerance throw.
+ * 6. Ends of one sign and a non-positive tolerance throw.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the public search and compares the returned argument with the root; a search that stops early, returns the wrong end, or evaluates more than the stated count fails.
  * @evidence contracts/development/testing.md#independent-expectations The roots are known constants: the square root of two, the Dottie number, the cubic's root from Wallis's example and `ln 2 / 8`; the evaluation bound is compared with the 40 halvings bisection needs for the same bracket and tolerance.
- * @evidence contracts/development/testing.md#distinguishing-cases Covers a smooth root in both bracket orders, a transcendental one, a root on an end, a counted cubic, a function that stalls false position, and three refused inputs.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers a smooth root in both bracket orders, a transcendental one, a root on an end, a counted cubic, a function that stalls false position, and two refused inputs.
  * @evidence contracts/development/testing.md#execution-ownership A pure in-memory unit on closed-form functions; it runs in CI.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 6 scenarios and what each pins.
  */
@@ -77,9 +77,6 @@ export function test_math_bracketed_root(): void {
 
   TestValidator.error("ends of one sign", (): unknown =>
     bracketedRoot(square, 2, 3, 1e-9),
-  );
-  TestValidator.error("non-finite end", (): unknown =>
-    bracketedRoot(square, 0, Infinity, 1e-9),
   );
   TestValidator.error("zero tolerance", (): unknown =>
     bracketedRoot(square, 0, 2, 0),

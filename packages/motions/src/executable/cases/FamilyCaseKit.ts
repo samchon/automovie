@@ -154,7 +154,7 @@ export namespace FamilyCaseKit {
    * @returns The instants.
    */
   export function times(
-    performance: IAutoMovieMotionHumanPerformance,
+    performance: Pick<IAutoMovieMotionHumanPerformance, "duration">,
     step: number,
     named: [number, string][],
   ): IMotionCaptureCase.ITime[] {

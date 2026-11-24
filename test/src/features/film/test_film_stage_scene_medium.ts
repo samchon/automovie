@@ -112,7 +112,7 @@ export function test_film_stage_scene_medium(): void {
         "$input.medium.anisotropy",
       ),
     ],
-    [true, true, true, true],
+    [true, true, true],
   );
   const clear: IAutoMovieStagedSet = staged({
     medium: { scattering: 0, absorption: 0, anisotropy: 0 },

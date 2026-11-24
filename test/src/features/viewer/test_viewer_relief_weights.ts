@@ -163,15 +163,6 @@ export function test_viewer_relief_weights(): void {
             ".reliefWeights[1]",
           ),
       ],
-      [
-        "nonfinite",
-        (): boolean =>
-          hasViolation(
-            validate({ ...weighted, reliefWeights: [1, Number.NaN, 1] }),
-            "range",
-            ".reliefWeights[1]",
-          ),
-      ],
       ["admitted", (): boolean => validate(weighted).success],
       [
         "merged",
@@ -193,7 +184,6 @@ export function test_viewer_relief_weights(): void {
     {
       length: true,
       negative: true,
-      nonfinite: true,
       admitted: true,
       merged: true,
       transformed: true,

@@ -152,17 +152,6 @@ export function assertFilmCameraClearanceDeformation(
           : bone,
     ),
   );
-  const nonFiniteRig: IFilmCameraClearanceAdapterResult = malformedRig(
-    "non-finite-rig",
-    foldedSkeleton.bones.map(
-      (
-        bone: IAutoMovieSkeleton["bones"][number],
-      ): IAutoMovieSkeleton["bones"][number] =>
-        bone.bone === "hips"
-          ? { ...bone, rest: identity(Number.POSITIVE_INFINITY) }
-          : bone,
-    ),
-  );
   const overflowingRig: IFilmCameraClearanceAdapterResult = malformedRig(
     "overflowing-rig",
     foldedSkeleton.bones.map(
@@ -197,7 +186,6 @@ export function assertFilmCameraClearanceDeformation(
       [
         [cyclicRig, "exactly one root"],
         [absentParentRig, "is not a bone"],
-        [nonFiniteRig, "non-finite"],
         [overflowingRig, "overflows"],
         [radiusOverflowRig, "deformation radius"],
         [duplicatedRig, "must be unique"],

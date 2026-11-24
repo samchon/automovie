@@ -1,0 +1,97 @@
+import { Quaternion } from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanAuditMotion,
+  IAutoMovieMotionHumanAuditSpin,
+  IAutoMovieResolvedBone,
+} from "@automovie/interface";
+import { AutoMovieMotionHumanAuditSpin } from "@automovie/motions/internal";
+import { TestValidator } from "@nestia/e2e";
+
+import { nclose } from "../../../internal/nclose";
+
+/** Rounding of a few quaternion products, degrees and degrees per second. */
+const ROUNDING: number = 1e-6;
+
+/** The head's steady turn, degrees per second. */
+const RATE: number = 90;
+
+/** The snap, degrees. */
+const SNAP: number = 20;
+
+/**
+ * What the steady turn adds over the finest interval, degrees: 90 deg/s over `1
+ * / (24 * 2^10)` s, rounded up.
+ */
+const FINEST: number = 0.005;
+
+/**
+ * `AutoMovieMotionHumanAuditSpin.measure` reads how bones turn: `spin`, the
+ * fastest turn over a grid interval, degrees per second; `turn`, the turn still
+ * there once an interval that turns more than its neighbours by the limit is
+ * halved ten times, which a snap keeps and a smooth turn does not.
+ *
+ * Scenarios, the head turning about the vertical at 90 deg/s for 2 s, read at
+ * 24 Hz:
+ *
+ * 1. The steady turn spins at 90 deg/s and leaves no turn.
+ * 2. A 20 degree snap at 1.01 s turns 20 degrees, plus at most the steady turn
+ *    over the last interval, from within the grid interval that holds it; its
+ *    spin is that interval's turn over its length, `90 + 20 * 24`.
+ * 3. A spin that speeds up smoothly, `30 t^2` degrees, leaves no turn.
+ */
+export function test_unit_motions_audit_auto_movie_motion_human_audit_spin_measure(): void {
+  const motion = (
+    angle: (t: number) => number,
+  ): IAutoMovieMotionHumanAuditMotion => ({
+    duration: 2,
+    segments: () => [],
+    bones: (_subject: string, t: number) => {
+      const turn = Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, angle(t));
+      return new Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>([
+        [
+          "head",
+          {
+            bone: "head",
+            localRotation: turn,
+            worldPosition: { x: 0, y: 1.6, z: 0 },
+            worldRotation: turn,
+          },
+        ],
+      ]);
+    },
+  });
+  const steady: IAutoMovieMotionHumanAuditSpin.IResult =
+    AutoMovieMotionHumanAuditSpin.measure(
+      motion((t: number): number => RATE * t),
+      "a",
+    );
+  TestValidator.predicate(
+    "a steady turn",
+    nclose(steady.spin.value, RATE, ROUNDING) &&
+      steady.spin.where === "head" &&
+      steady.turn.value === 0,
+  );
+  const snapped: IAutoMovieMotionHumanAuditSpin.IResult =
+    AutoMovieMotionHumanAuditSpin.measure(
+      motion((t: number): number => RATE * t + (t >= 1.01 ? SNAP : 0)),
+      "a",
+    );
+  TestValidator.predicate(
+    "a snap",
+    snapped.turn.value >= SNAP &&
+      snapped.turn.value <= SNAP + FINEST &&
+      snapped.turn.where === "head" &&
+      snapped.turn.seconds >= 1 &&
+      snapped.turn.seconds <= 1.01 &&
+      nclose(snapped.spin.value, RATE + SNAP * 24, ROUNDING),
+  );
+  TestValidator.equals(
+    "a smooth speed-up",
+    AutoMovieMotionHumanAuditSpin.measure(
+      motion((t: number): number => 30 * t * t),
+      "a",
+    ).turn.value,
+    0,
+  );
+}

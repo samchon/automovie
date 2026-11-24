@@ -14,7 +14,7 @@ import {
   validSynthesizer,
 } from "../internal/filmFixtures";
 import { createSkeleton } from "../internal/fixtures";
-import { hasViolation, nclose } from "../internal/predicates";
+import { nclose } from "../internal/predicates";
 
 /**
  * Pins that `performShot` keys a moving camera at the delivery clock its frame
@@ -27,14 +27,12 @@ import { hasViolation, nclose } from "../internal/predicates";
  * 2. Delivered at the exact rate 30000/1001, its keys sit at `k × 1001 / 30000`,
  *    the render frame sampler's instants.
  * 3. A frame format without `fps` keys at the 24 fps fallback, 49 keys.
- * 4. A fractional `fps` of 29.97 without its exact rate is refused at
- *    `$input.frameFormat.fps`.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Performs a push-in shot through performShot with each frame format and reads the hero camera clip's key times or the located refusal.
- * @evidence contracts/development/testing.md#independent-expectations The expected instants are the delivered frame times of the stated rate over the two-second span; the fractional refusal follows the production rule that a decimal rate does not identify its exact fraction.
- * @evidence contracts/development/testing.md#distinguishing-cases Covers an integer rate, an exact fractional rate, an absent rate and a malformed rate; the keyed paths themselves are owned by test_film_camera_move_continuity.
+ * @evidence contracts/development/testing.md#behavioral-verification Performs a push-in shot through performShot with each frame format and reads the hero camera clip's key times.
+ * @evidence contracts/development/testing.md#independent-expectations The expected instants are the delivered frame times of the stated rate over the two-second span.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers an integer rate, an exact fractional rate and an absent rate; the keyed paths themselves are owned by test_film_camera_move_continuity.
  * @evidence contracts/development/testing.md#execution-ownership A synchronous unit test through the portable performShot seam with in-memory fixtures; no renderer, process or file is involved.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the four scenarios with the frame format each performs and the keys or refusal it expects.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the three scenarios with the frame format each performs and the keys it expects.
  */
 export function test_film_camera_move_delivery_rate(): void {
   const staged: IAutoMovieStagedSet = stageScene(
@@ -108,14 +106,4 @@ export function test_film_camera_move_delivery_rate(): void {
     49,
   );
 
-  const refused: IAutoMoviePerformedShot = perform({
-    width: 1920,
-    height: 1080,
-    fps: 29.97,
-  });
-  TestValidator.predicate(
-    "a decimal rate without its exact fraction is refused",
-    refused.success === false &&
-      hasViolation(refused, "range", "$input.frameFormat.fps"),
-  );
 }

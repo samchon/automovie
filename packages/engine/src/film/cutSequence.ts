@@ -8,6 +8,7 @@ import type {
   IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
+import { overflowsBinary64 } from "../math/overflowsBinary64";
 import { ViolationCollector } from "../validation/ViolationCollector";
 import { checkCutPropContinuity } from "./checkCutPropContinuity";
 import { sequenceEventTimeline } from "./sequenceEventTimeline";
@@ -269,7 +270,7 @@ export function cutSequence(
         const start: number = runtime - (entry.transition?.duration ?? 0);
         played /= playbackRate;
         const end: number = start + played;
-        if (!(played > 0)) {
+        if (!(played > 0) || overflowsBinary64(played)) {
           validPlayedSpan = false;
           out.push(
             "range",

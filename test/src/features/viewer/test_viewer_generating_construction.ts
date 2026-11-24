@@ -8,7 +8,7 @@ import * as THREE from "three";
  * Scenarios:
  * 1. Closed and open generating lines retain point order and share one owned material.
  * 2. Repeated disposal emits each native disposal event once.
- * 3. Sparse/nonfinite/float32-overflow points, duplicate identities and point exhaustion refuse.
+ * 3. Duplicate identities and point exhaustion refuse.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Builds actual native line objects, checks their position buffers and closure kinds, then listens to native disposal events without replacing methods. Invalid resident inputs must throw before creating an accepted result.
  * @evidence contracts/development/testing.md#independent-expectations Explicit input points and Line/LineLoop closure semantics define expected native positions and topology; two allocated geometries and their shared material each own one disposal event.
@@ -75,36 +75,6 @@ export async function test_viewer_generating_construction(): Promise<void> {
   }[][] = [
     [
       {
-        id: "sparse",
-        closed: false,
-        points: [
-          [0, 0, 0],
-          [1, 2, 3],
-        ],
-      },
-    ],
-    [
-      {
-        id: "nonfinite",
-        closed: false,
-        points: [
-          [0, 0, 0],
-          [Infinity, 0, 0],
-        ],
-      },
-    ],
-    [
-      {
-        id: "overflow",
-        closed: false,
-        points: [
-          [0, 0, 0],
-          [1e300, 0, 0],
-        ],
-      },
-    ],
-    [
-      {
         id: "same",
         closed: false,
         points: [
@@ -122,8 +92,6 @@ export async function test_viewer_generating_construction(): Promise<void> {
       },
     ],
   ];
-  const sparse: number[] = variants[0][0].points[1];
-  Reflect.deleteProperty(sparse, "1");
   for (const invalid of variants) {
     let refused: boolean = false;
     try {

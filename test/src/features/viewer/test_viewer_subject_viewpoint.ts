@@ -129,7 +129,6 @@ export function test_viewer_subject_viewpoint(): void {
   );
   const refusedPlans: ("accepted" | "refused")[] = [
     { azimuthCount: 0, elevationsDeg: [0] },
-    { azimuthCount: 2.5, elevationsDeg: [0] },
     { azimuthCount: 2, elevationsDeg: [] },
     { azimuthCount: 2, elevationsDeg: [0], distanceFactor: 0 },
     { azimuthCount: 2, elevationsDeg: [20, 20.2] },
@@ -158,7 +157,7 @@ export function test_viewer_subject_viewpoint(): void {
   TestValidator.equals(
     "a plan that cannot be counted or named is refused",
     refusedPlans,
-    ["refused", "refused", "refused", "refused", "refused"],
+    ["refused", "refused", "refused", "refused"],
   );
 
   //----

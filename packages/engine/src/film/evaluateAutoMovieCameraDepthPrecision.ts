@@ -3,6 +3,8 @@ import {
   type IAutoMovieEvaluateCameraDepthPrecision,
 } from "@automovie/interface";
 
+import { overflowsBinary64 } from "../math/overflowsBinary64";
+
 /**
  * Measure the largest gap between adjacent representable depths that a camera's
  * standard perspective depth buffer leaves inside one required camera-space
@@ -59,17 +61,21 @@ export function evaluateAutoMovieCameraDepthPrecision(
   }
   const levels: number = 2 ** props.constraint.minimumDepthBits - 1;
   if (
-    props.time < 0 ||
-    props.near <= 0 ||
-    props.far <= props.near ||
-    props.requiredNear > props.requiredFar ||
-    props.constraint.minimumDepthBits <= 0 ||
-    props.constraint.maximumStepMeters <= 0
+    // Negated comparisons: an unresolved camera is reported as NaN operands.
+    !(props.time >= 0) ||
+    !(props.near > 0) ||
+    !(props.far > props.near) ||
+    !(props.requiredNear <= props.requiredFar) ||
+    !(props.constraint.minimumDepthBits > 0) ||
+    !(props.constraint.maximumStepMeters > 0) ||
+    levels > Number.MAX_SAFE_INTEGER
   )
     return unmeasured("invalid");
   if (props.requiredNear < props.near || props.requiredFar > props.far)
     return unmeasured("outside-clipping-range");
   const reciprocalNear: number = 1 / props.near;
+  // A near plane this close to zero has a reciprocal past the largest double.
+  if (overflowsBinary64(reciprocalNear)) return unmeasured("invalid");
   const reciprocalSpan: number = reciprocalNear - 1 / props.far;
   const normalized: number =
     (reciprocalNear - 1 / props.requiredFar) / reciprocalSpan;
@@ -82,7 +88,8 @@ export function evaluateAutoMovieCameraDepthPrecision(
   }
   const measuredStepMeters: number =
     depthAtCode(upperCode) - depthAtCode(lowerCode);
-  if (measuredStepMeters < 0) return unmeasured("invalid");
+  if (!(measuredStepMeters >= 0) || overflowsBinary64(measuredStepMeters))
+    return unmeasured("invalid");
   const passed: boolean =
     measuredStepMeters <= props.constraint.maximumStepMeters;
   return {

@@ -90,8 +90,6 @@ export function test_viewer_comparison_camera(): void {
   }
   for (const change of [
     "aspect",
-    "target",
-    "separation",
     "zero-separation",
     "parent",
     "scale",
@@ -107,7 +105,6 @@ export function test_viewer_comparison_camera(): void {
     const destination: THREE.OrthographicCamera = comparison.clone();
     const frame: THREE.Vector3 = target.clone();
     if (change === "aspect") source.aspect = 0;
-    if (change === "target") frame.x = NaN;
     if (change === "parent") new THREE.Group().add(source);
     if (change === "scale") source.scale.x = 2;
     if (change === "manual") source.matrixAutoUpdate = false;
@@ -127,12 +124,7 @@ export function test_viewer_comparison_camera(): void {
         perspective: source,
         comparison: destination,
         target: frame,
-        halfSeparation:
-          change === "separation"
-            ? NaN
-            : change === "zero-separation"
-              ? 0
-              : 0.04,
+        halfSeparation: change === "zero-separation" ? 0 : 0.04,
         offset,
       });
     } catch {

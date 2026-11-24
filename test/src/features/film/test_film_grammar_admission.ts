@@ -2,8 +2,6 @@ import { classifyGrammarShotSize } from "@automovie/engine";
 import type {
   IAutoMovieGrammarDiagnostic,
   IAutoMovieGrammarShotObservation,
-  IAutoMovieQuaternion,
-  IAutoMovieVector3,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 

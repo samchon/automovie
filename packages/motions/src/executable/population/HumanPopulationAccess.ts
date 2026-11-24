@@ -99,8 +99,9 @@ export namespace HumanPopulationAccess {
   }
 
   /**
-   * Ramanujan's approximation of the perimeter of an ellipse, as the head
-   * circumference's ratio to it is surveyed.
+   * Ramanujan's first approximation of the perimeter of an ellipse, `pi (3 (a +
+   * b) - sqrt((3a + b)(a + 3b)))`, as the head circumference's ratio to it is
+   * surveyed.
    *
    * @param a Semi-axis, mm.
    * @param b Other semi-axis, mm.
@@ -108,8 +109,7 @@ export namespace HumanPopulationAccess {
    */
   export function ellipse(a: number, b: number): number {
     return (
-      Math.PI *
-      ((3 * (a + b)) / 2 - Math.sqrt(((3 * a + b) / 2) * ((a + 3 * b) / 2)))
+      Math.PI * (3 * (a + b) - Math.sqrt((3 * a + b) * (a + 3 * b)))
     );
   }
 }

@@ -5,6 +5,7 @@ import {
   IAutoMovieStorySyncPoint,
 } from "@automovie/interface";
 
+import { overflowsBinary64 } from "../math/overflowsBinary64";
 import { autoMovieStoryTime } from "./autoMovieStoryTime";
 
 /** One addressed event's measurement, with why it has no story time. */
@@ -47,7 +48,9 @@ export function evaluateAutoMovieStorySync(
         localSeconds === null || pin === null
           ? null
           : autoMovieStoryTime(pin, localSeconds);
-      const storySeconds: number | null = mapped;
+      // The pin's product and sum are the operations that can overflow.
+      const storySeconds: number | null =
+        mapped !== null && overflowsBinary64(mapped) ? null : mapped;
       return {
         point: {
           shot: entry.shot,

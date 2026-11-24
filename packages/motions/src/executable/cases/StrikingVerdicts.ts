@@ -81,6 +81,15 @@ export namespace StrikingVerdicts {
   /** What part of a body a strike met. */
   export type Class = "guard" | "head" | "trunk" | "leg";
 
+  /** The part of a segment its event seconds and peak are read from. */
+  export type ITimed = Pick<IAutoMovieMotionHumanSegment, "start" | "end"> & {
+    /** The plan's events, duration and planned contact. */
+    plan: Pick<
+      IAutoMovieMotionHumanSegment["plan"],
+      "events" | "duration" | "contact"
+    >;
+  };
+
   /**
    * The declared outcome a strike's parameters carry: a feint share, or the
    * declared accuracy.
@@ -149,7 +158,7 @@ export namespace StrikingVerdicts {
    * @returns The second, or undefined when the plan has no such event.
    */
   export function at(
-    segment: IAutoMovieMotionHumanSegment,
+    segment: ITimed,
     event: string,
   ): number | undefined {
     const share: number | undefined = segment.plan.events.find(
@@ -168,7 +177,7 @@ export namespace StrikingVerdicts {
    * @param segment The strike's segment.
    * @returns The second.
    */
-  export function peak(segment: IAutoMovieMotionHumanSegment): number {
+  export function peak(segment: ITimed): number {
     return Math.min(
       segment.end,
       segment.plan.contact !== undefined

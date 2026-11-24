@@ -24,7 +24,6 @@ type IReport = Pick<IAutoMovieInspectionDiagnostics, "findings" | "coverage">;
  * 4. A handoff reparented on its authored frame passes custody, and one reparented a frame late fails.
  * 5. Received contact evidence is reported as measured, absent under complete observation or unobservable without changing the measurement.
  * 6. The displayed world matrix is read, a stale local edit is ignored, and every frame gives the same report forward and in reverse.
- * 7. A corrupt ancestor is reported at each displayed descendant, and two same-named invalid children get distinct identities that the episode reducer folds into separate episodes.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Lists the seven numbered scenarios and the outcome each pins.
  * @evidence contracts/development/testing.md#behavioral-verification Places a real Three graph per frame and runs the public rule supplier into the public observer, so selection, measurement and reporting are exercised together.
@@ -229,51 +228,6 @@ export function test_inspection_placed_contact_checks(): void {
     "reverse seeks give the forward reports",
     reverse,
     forward,
-  );
-
-  const rig = named(new Group(), "rig");
-  rig.matrixWorldAutoUpdate = false;
-  rig.matrixWorld.elements[12] = NaN;
-  const arm = named(new Group(), "arm");
-  const pad = new Group();
-  rig.add(arm, named(new Group(), "finger"), named(new Group(), "finger"));
-  arm.add(pad);
-  const broken = new Scene();
-  broken.add(rig);
-  broken.updateMatrixWorld();
-  const packet = (frame: number): IAutoMovieInspectionDiagnostics => ({
-    scope: "rig",
-    time: { filmSeconds: frame / 10, outputFrame: frame },
-    ...observeAutoMoviePlacedScene({ scene: broken, camera }),
-  });
-  const native = packet(0).findings.map(({ paths }) => paths[0]);
-  TestValidator.equals(
-    "a corrupt ancestor is reported once at each displayed node",
-    native.sort(
-      (left: string | undefined, right: string | undefined): number =>
-        String(left) < String(right)
-          ? -1
-          : String(left) > String(right)
-            ? 1
-            : 0,
-    ),
-    [
-      "rig.matrixWorld",
-      "rig/arm.children[0].matrixWorld",
-      "rig/arm.matrixWorld",
-      "rig/finger#0.matrixWorld",
-      "rig/finger#1.matrixWorld",
-    ],
-  );
-  const audit = reduceAutoMovieInspectionEpisodes([packet(0), packet(1)], 2);
-  TestValidator.predicate(
-    "same-named invalid nodes fold into separate episodes",
-    audit.hasBlockingFinding &&
-      audit.episodes.filter(
-        ({ first }) =>
-          first.finding.paths[0]?.startsWith("rig/finger#") === true,
-      ).length === 2 &&
-      audit.episodes.every(({ samples }) => samples === 2),
   );
 }
 

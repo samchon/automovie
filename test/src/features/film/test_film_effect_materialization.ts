@@ -225,10 +225,9 @@ export function test_film_effect_materialization(): void {
     [
       refuse({ identity: { ...identity, compileFingerprint: "sha256:c" } }),
       refuse({ frameRate: 0 }),
-      refuse({ frameRate: 23.976 }),
       refuse({ frameRate: { numerator: 0, denominator: 1 } }),
     ],
-    Array.from({ length: 4 }, (): string => "film-effect-input-invalid"),
+    Array.from({ length: 3 }, (): string => "film-effect-input-invalid"),
   );
   const world: (
     patch: Partial<

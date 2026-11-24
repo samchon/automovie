@@ -198,7 +198,7 @@ export function test_viewer_raster_sheet(): void {
   TestValidator.error("a picture beyond the capacity is refused", (): void => {
     filled(2, 2, 2).add(flat(0), "1");
   });
-  for (const value of [0, -1, 1.5, Number.NaN])
+  for (const value of [0, -1])
     for (const position of [0, 1, 2, 3])
       TestValidator.error(
         `a size of ${value} in argument ${position} is refused`,

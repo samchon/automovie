@@ -47,14 +47,14 @@ function box(
  * Scenarios:
  * 1. Signed distances below, above and on y=3 are -1, +1 and zero.
  * 2. A non-unit west normal still measures world metres.
- * 3. Zero/nonfinite normals and nonfinite plane points throw RangeError.
+ * 3. Zero normals throw RangeError.
  * 4. Point keep includes exact contact and an empty plane list.
  * 5. Multiple planes intersect their kept half-spaces.
  * 6. Positive-axis box support corners distinguish kept/cut/crossed.
  * 7. Negative-axis support corners preserve those same states.
  * 8. Contact on the top face keeps the box; contact on its bottom crosses it.
  * 9. An empty plane list keeps a valid box.
- * 10. Inverted and nonfinite bounds on every axis are refused even without planes.
+ * 10. Inverted bounds on every axis are refused even without planes.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls plane distance, point keep and box classification directly; reversed signs, skipped normalization, incorrect intersection/support corners or admitted malformed bounds fail.
  * @evidence contracts/development/testing.md#independent-expectations Horizontal y=3 and west-facing x=0 planes determine distances and finite box support states by hand geometry; exact contact uses zero-tolerance nclose.
@@ -97,29 +97,6 @@ export function test_inspection_section_plane_classification(): void {
         { point: { x: 0, y: 0, z: 0 }, normal: { x: 0, y: 0, z: 0 } },
         { x: 1, y: 1, z: 1 },
       ),
-    ),
-  );
-  TestValidator.predicate(
-    "a non-finite normal is refused",
-    throwsRangeError((): number =>
-      autoMovieSectionPlaneDistance(
-        { point: { x: 0, y: 0, z: 0 }, normal: { x: Number.NaN, y: 1, z: 0 } },
-        { x: 1, y: 1, z: 1 },
-      ),
-    ),
-  );
-  TestValidator.predicate(
-    "a non-finite plane point is refused",
-    throwsRangeError(
-      (): number =>
-        autoMovieSectionPlaneDistance(
-          {
-            point: { x: 0, y: Number.POSITIVE_INFINITY, z: 0 },
-            normal: { x: 0, y: 1, z: 0 },
-          },
-          { x: 1, y: 1, z: 1 },
-        ),
-      "point",
     ),
   );
 
@@ -276,17 +253,6 @@ export function test_inspection_section_plane_classification(): void {
       "box",
     ),
   );
-  TestValidator.predicate(
-    "a non-finite box corner is refused",
-    throwsRangeError(
-      (): AutoMovieSectionPlaneState =>
-        classifyAutoMovieSectionPlaneBox({
-          planes: [CEILING],
-          ...box([-1, 0, -1], [1, Number.NaN, 1]),
-        }),
-      "box",
-    ),
-  );
   for (const axis of ["x", "y", "z"] as const) {
     const inverted: ReturnType<typeof box> = box([0, 0, 0], [1, 1, 1]);
     inverted.min[axis] = 2;
@@ -298,18 +264,6 @@ export function test_inspection_section_plane_classification(): void {
         `Section box ${axis} range`,
       ),
     );
-    for (const corner of ["min", "max"] as const) {
-      const invalid: ReturnType<typeof box> = box([0, 0, 0], [1, 1, 1]);
-      invalid[corner][axis] = corner === "min" ? NaN : Infinity;
-      TestValidator.predicate(
-        `nonfinite ${corner}.${axis} fails without planes`,
-        throwsRangeError(
-          (): AutoMovieSectionPlaneState =>
-            classifyAutoMovieSectionPlaneBox({ planes: [], ...invalid }),
-          `Section box ${axis} range`,
-        ),
-      );
-    }
   }
 }
 

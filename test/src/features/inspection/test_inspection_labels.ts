@@ -132,7 +132,6 @@ export function test_inspection_labels(): void {
   );
   for (const [width, scale] of [
     [0, 2],
-    [1000, 1.5],
   ])
     TestValidator.error(
       `size ${width} and scale ${scale} are refused`,

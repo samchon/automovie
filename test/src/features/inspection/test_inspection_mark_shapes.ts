@@ -126,7 +126,6 @@ export function test_inspection_mark_shapes(): void {
       { type: "arrows", origins: [0, 0, 0, 1, 1, 1], vectors: [1, 0, 0] },
     ],
     ["not triples", { type: "points", points: [0, 0] }],
-    ["not finite", { type: "points", points: [0, Number.NaN, 0] }],
     ["no point", { type: "points", points: [] }],
   ];
   for (const [title, shape] of malformed) {

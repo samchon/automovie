@@ -32,6 +32,9 @@ import { swingTwistReachBound } from "./swingTwistReachBound";
 export namespace swingTwistRegion {
   /** A constraint's region on a joint's frame, built once. */
   export interface IRegion {
+    /** The constraint this region was built for. */
+    readonly constraint: IAutoMovieJointConstraint;
+
     /** The radius on each of `swingTwistBasis.RAYS` great circles, degrees. */
     readonly table: Float64Array;
 
@@ -60,7 +63,7 @@ export namespace swingTwistRegion {
     joint: IAutoMovieJointRotationFrame,
   ): IRegion {
     const table: Float64Array = build(constraint, joint);
-    return { table, greatest: Math.max(...table) };
+    return { constraint, table, greatest: Math.max(...table) };
   }
 
   /**
@@ -75,7 +78,9 @@ export namespace swingTwistRegion {
     constraint: IAutoMovieJointConstraint,
     joint: IAutoMovieJointRotationFrame & IRegional,
   ): IRegion {
-    return joint.region ?? prepare(constraint, joint);
+    return joint.region?.constraint === constraint
+      ? joint.region
+      : prepare(constraint, joint);
   }
 }
 

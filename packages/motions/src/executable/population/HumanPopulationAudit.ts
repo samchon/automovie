@@ -71,7 +71,9 @@ export namespace HumanPopulationAudit {
    * Du 2008's ratio of means and the SD of its parts taken as uncorrelated:
    * women 150.5 / 176.7 = 85.17, SD 85.17 * hypot(7.1 / 150.5, 7.5 / 176.7) =
    * 5.40; men 157.2 / 185.7 = 84.65, SD 84.65 * hypot(5.3 / 157.2, 5.8 / 185.7)
-   * = 3.89.
+   * = 3.89. The head circumference is surveyed over the half perimeter of the
+   * ellipse of head length and breadth (women 2.0881, SD 0.0238; men 2.0633, SD
+   * 0.0207), so over the whole perimeter its mean and SD are half those.
    *
    * Face width over head breadth (ANSUR 1988 0.909 and 0.926, SD 0.028 and
    * 0.029) is not checked: three of the four reference people read 0.78 to
@@ -245,8 +247,8 @@ export namespace HumanPopulationAudit {
             (p.head.length * p.head.cephalicIndex) / 200,
           ),
       ],
-      [2.0881, 0.0238],
-      [2.0633, 0.0207],
+      [1.04405, 0.0119],
+      [1.03165, 0.01035],
     ),
     survey(
       "ear length / head length",

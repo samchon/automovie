@@ -94,6 +94,7 @@ export function prepareChainFitRig(
     effectorRestInverse: constant.effectorRestInverse,
     distalTwist: constant.distalTwist,
     hingeRange: constant.hingeRange,
+    upperRange: constant.upperRange,
     held: (): IAutoMovieJointPose => heldJoint,
     heldRotation: (): IAutoMovieQuaternion => heldRotation,
     heldRotationInverse: (): IAutoMovieQuaternion => heldInverse,

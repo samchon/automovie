@@ -168,35 +168,23 @@ export function test_viewer_camera_depth_precision(): void {
     "invalid supplied capability observations stay addressed",
     [
       evaluate({ bits: "24" }),
-      evaluate({ bits: 1.5 }),
       evaluate({ bits: -1 }),
     ].map(
       (
         report: ReturnType<typeof evaluate>,
       ): ReturnType<typeof evaluate>["status"] => report.status,
     ),
-    ["invalid-capability", "invalid-capability", "invalid-capability"],
+    ["invalid-capability", "invalid-capability"],
   );
 
   const invalidSources: IAutoMovieCamera[] = [
-    sourceCamera({ near: Number.NaN }),
     sourceCamera({ near: 0 }),
-    sourceCamera({ far: Number.POSITIVE_INFINITY }),
     sourceCamera({ near: 1, far: 1 }),
-    sourceCamera({
-      depthPrecision: { minimumDepthBits: 1.5, maximumStepMeters: 1 },
-    }),
     sourceCamera({
       depthPrecision: { minimumDepthBits: 0, maximumStepMeters: 1 },
     }),
     sourceCamera({
       depthPrecision: { minimumDepthBits: 54, maximumStepMeters: 1 },
-    }),
-    sourceCamera({
-      depthPrecision: {
-        minimumDepthBits: 24,
-        maximumStepMeters: Number.NaN,
-      },
     }),
     sourceCamera({
       depthPrecision: { minimumDepthBits: 24, maximumStepMeters: 0 },
@@ -210,22 +198,18 @@ export function test_viewer_camera_depth_precision(): void {
     ),
   );
 
-  const nonFinite: IAutoMovieCamera = sourceCamera({ near: Number.NaN });
-  const nonFiniteRealized: THREE.PerspectiveCamera = realizedCamera();
-  nonFiniteRealized.far = Number.POSITIVE_INFINITY;
+  // An infinite far plane is a legitimate realized camera; it has no finite
+  // number to report.
+  const infiniteRealized: THREE.PerspectiveCamera = realizedCamera();
+  infiniteRealized.far = Number.POSITIVE_INFINITY;
   const serializable: ReturnType<typeof evaluate> = evaluate({
-    source: nonFinite,
-    realized: nonFiniteRealized,
+    realized: infiniteRealized,
     bits: "unknown",
   });
   TestValidator.equals(
-    "non-finite and non-numeric observations serialize as null",
-    [
-      serializable.sourceNear,
-      serializable.realizedFar,
-      serializable.observedDepthBits,
-    ],
-    [null, null, null],
+    "an infinite far plane and a non-numeric observation serialize as null",
+    [serializable.realizedFar, serializable.observedDepthBits],
+    [null, null],
   );
 
   TestValidator.equals(

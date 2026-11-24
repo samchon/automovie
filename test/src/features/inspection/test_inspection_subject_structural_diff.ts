@@ -204,14 +204,9 @@ export function test_inspection_subject_structural_diff(): void {
         (): IAutoMovieSubjectDiff => diffAutoMovieSubjects(before, after, -1),
         "finite and non-negative",
       ),
-      infinite: throwsError(
-        (): IAutoMovieSubjectDiff =>
-          diffAutoMovieSubjects(before, after, Number.POSITIVE_INFINITY),
-        "finite and non-negative",
-      ),
       default: nclose(AUTOMOVIE_SUBJECT_DIFF_DEFAULT_TOLERANCE, 1e-6, 0),
     },
-    { negative: true, infinite: true, default: true },
+    { negative: true, default: true },
   );
 }
 

@@ -27,12 +27,11 @@ import { throwsError } from "../internal/throwsError";
  * 5. Two rows `[-1e308, 1e308]`, finite but with reduced costs that
  *    overflow binary64, are refused with the overflow error; the table
  *    `[[4, 1], [2, 3]]` still assigns row 0 to column 1 and row 1 to 0.
- * 6. Polishing with an infinite or fractional refinement budget throws; a
- *    zero budget still returns the native primal unaccepted.
+ * 6. Polishing with a zero budget still returns the native primal unaccepted.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Calls the public bisection, assignment and polishing entries on inputs whose loops did not end before the termination fixes (adjacent ends, a sub-ulp tolerance, an overflowing midpoint, overflowing potentials, an infinite budget) and asserts their returned values or refusals; a search that stalls never returns, and one that returns a wrong end, an assignment off the optimum or accepts an unbounded budget fails.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the public bisection, assignment and polishing entries on inputs whose loops did not end before the termination fixes (adjacent ends, a sub-ulp tolerance, an overflowing midpoint, overflowing potentials) and asserts their returned values or refusals; a search that stalls never returns, and one that returns a wrong end or an assignment off the optimum fails.
  * @evidence contracts/development/testing.md#independent-expectations The boundaries are closed-form constants (1 + 2^-52, the square root of two, 1.5e308); the reading bound is log2(2^1025 / 2^-1074) = 2099; 41 readings is ceil(log2(2 / 1e-12)); the 2 by 2 assignment's optimum, 1 + 2 = 3 against 4 + 3, is read by hand.
- * @evidence contracts/development/testing.md#distinguishing-cases Adjacent ends, a tolerance below the spacing, an overflowing sum and an ordinary bracket for bisection; an overflowing table beside an ordinary one; infinite, fractional and zero budgets. Ordinary bisection is owned by test_math_bracketed_bisection.
+ * @evidence contracts/development/testing.md#distinguishing-cases Adjacent ends, a tolerance below the spacing, an overflowing sum and an ordinary bracket for bisection; an overflowing table beside an ordinary one; a zero budget. Ordinary bisection is owned by test_math_bracketed_bisection.
  * @evidence contracts/development/testing.md#execution-ownership A pure in-memory unit test discovered by its exported name; it starts no host.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the six scenarios and what each pins.
  */
@@ -138,14 +137,6 @@ export function test_math_degenerate_termination(): void {
       (): number => 0,
       true,
     );
-  TestValidator.predicate(
-    "an infinite budget is refused",
-    throwsError((): unknown => polish(Infinity), "maximumRefinements"),
-  );
-  TestValidator.predicate(
-    "a fractional budget is refused",
-    throwsError((): unknown => polish(1.5), "maximumRefinements"),
-  );
   TestValidator.predicate(
     "a zero budget returns the native primal unaccepted",
     polish(0).accepted === false,

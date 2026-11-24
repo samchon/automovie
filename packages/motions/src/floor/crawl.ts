@@ -1,4 +1,4 @@
-import { ROM_TOLERANCE, Vector3 } from "@automovie/engine";
+import { Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -21,18 +21,16 @@ import type {
 import { stand } from "../actions/stand";
 import { supportBalance } from "../actions/supportBalance";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
-import { AutoMovieMotionHumanArmCourse } from "../compose/AutoMovieMotionHumanArmCourse";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
-import { prepareHumanPostureCorrection } from "../compose/prepareHumanPostureCorrection";
-import { HumanBalance } from "../everyday/HumanBalance";
 import { prepareBearingTrunkBalance } from "../everyday/prepareBearingTrunkBalance";
 import { HumanBound } from "../law/HumanBound";
 import { HumanPhysics } from "../law/HumanPhysics";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
 import { crawlContacts } from "./crawlContacts";
+import { crawlCorrected } from "./crawlCorrected";
 import { crawlCourse } from "./crawlCourse";
 import { crawlCrawling } from "./crawlCrawling";
 import { crawlDown } from "./crawlDown";
@@ -449,56 +447,11 @@ export namespace crawl {
         primitives: [
           window?.by !== "trunk"
             ? whole
-            : corrected(window, whole, adjust, standing),
+            : crawlCorrected(window, whole, adjust, standing),
         ],
       }),
       ...HumanPhysics.declared(context.params, window),
       base: { kind: bear ? "crouched" : "kneeling" },
     };
   }
-}
-
-/**
- * The crawl's whole primitive with its trunk correction solved at its knots on
- * the crawl over its standing base and read from their course
- * (`prepareHumanPostureCorrection`).
- *
- * @param window The trunk's balance window.
- * @param whole The crawl's primitive over every channel.
- * @param adjust The exact trunk correction.
- * @param standing The standing posture the crawl's base holds.
- * @returns The primitive with the correction read from its course.
- */
-function corrected(
-  window: NonNullable<HumanPhysics.Window>,
-  whole: IAutoMovieMotionHumanPrimitive,
-  adjust: ReturnType<typeof prepareBearingTrunkBalance>,
-  standing: IAutoMovieMotionHumanPosture,
-): IAutoMovieMotionHumanPrimitive {
-  // The base the crawl is written over holds its standing posture, so the
-  // crawl at a second is its primitive over that posture.
-  const course: ReturnType<typeof prepareHumanPostureCorrection> =
-    prepareHumanPostureCorrection(
-      (seconds: number): IAutoMovieMotionHumanPosture =>
-        whole.write(standing, seconds),
-      window,
-      [],
-      (
-        posture: IAutoMovieMotionHumanPosture,
-        seconds: number,
-      ): IAutoMovieMotionHumanPosture => adjust(posture, seconds),
-      {
-        root: HumanBalance.TOLERANCE,
-        angle: ROM_TOLERANCE,
-        step: AutoMovieMotionHumanArmCourse.STEP,
-      },
-    );
-  return {
-    ...whole,
-    write: (posture, seconds, before, resolution, projection) =>
-      course(
-        whole.write(posture, seconds, before, resolution, projection),
-        seconds,
-      ),
-  };
 }
