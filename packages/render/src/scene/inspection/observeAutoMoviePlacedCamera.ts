@@ -415,8 +415,11 @@ function reportPixels(
  *
  * A cut confirmed on an opaque drawn surface is `confirmed`; one seen only on a
  * transparent surface, or inferred from bounds the surface could not check, is
- * a `candidate`. A budget stop leaves the row `deferred` and an unreadable
- * surface leaves it `unsupported`, each with its candidate.
+ * a `candidate`. A side the bounds cross only before the near plane is listed
+ * as crossed with no extent, and a finding whose sides all lack one is a
+ * candidate with no rank, its row `checked`. A budget stop leaves the row
+ * `deferred` and an unreadable surface leaves it `unsupported`, each with its
+ * candidate.
  */
 function reportFrameEdge(
   findings: IAutoMovieInspectionDiagnostics.IFinding[],
@@ -425,7 +428,7 @@ function reportFrameEdge(
 ): IAutoMovieInspectionDiagnostics.ICoverage {
   if (result.status === "unmeasured")
     return { ...row, status: "unsupported", reason: result.reason };
-  if (result.status === "inside" || result.surface.status === "clear")
+  if (result.status === "inside" || result.surface?.status === "clear")
     return { ...row, status: "checked" };
   const { crossings, surface } = result;
   const extents: number[] = crossings.flatMap(
@@ -438,7 +441,7 @@ function reportFrameEdge(
         crossing.side,
     )
     .join(" ");
-  const confirmed: boolean = surface.status === "cut" && surface.opaque;
+  const confirmed: boolean = surface?.status === "cut" && surface.opaque;
   findings.push({
     check: row.check,
     key: row.key,
@@ -448,7 +451,7 @@ function reportFrameEdge(
     confidence: confirmed ? "confirmed" : "candidate",
     message: `Required subject ${row.key} ${confirmed ? "is" : "may be"} cut by the ${sides.replaceAll(" ", " and ")} ${crossings.length > 1 ? "edges" : "edge"} of the delivery frame.`,
     witness: {
-      rank: Math.max(...extents),
+      ...(extents.length === 0 ? {} : { rank: Math.max(...extents) }),
       measurements: [
         { name: "crossed-sides", value: sides, unit: "sides" },
         ...crossings.flatMap(
@@ -465,7 +468,7 @@ function reportFrameEdge(
                   },
                 ],
         ),
-        ...(surface.status === "cut"
+        ...(surface?.status === "cut"
           ? [
               {
                 name: "frame-edge-triangles",
@@ -486,7 +489,7 @@ function reportFrameEdge(
       ],
     },
   });
-  return surface.status === "cut"
+  return surface === null || surface.status === "cut"
     ? { ...row, status: "checked" }
     : {
         ...row,

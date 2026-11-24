@@ -50,12 +50,14 @@ const SIDES: readonly measureAutoMovieCameraFrameEdge.Side[] = [
  * units: the frame spans -1 to 1 on each axis, crop and aspect included. It is
  * read at the vertices of the box clipped by the near plane, because a
  * perspective projection of a convex solid reaches its extremes at vertices. A
- * side crossed only on the camera side of the near plane has no extent: that
- * part is never drawn, so it cannot be cut.
+ * side crossed only on the camera side of the near plane is still crossed, and
+ * has no extent, because no part of the crossing lies where anything is drawn.
  *
  * When some side has an extent and the meshes are readable,
  * measureAutoMovieCameraFrameEdgeSurface confirms or clears the cut on the
- * drawn surface and measures the visible fraction.
+ * drawn surface and measures the visible fraction. When no crossed side has an
+ * extent there is no drawn part past an edge to examine, so the surface outcome
+ * is null and the crossing stays a candidate of the bounds.
  *
  * @param props Delivery camera, subject bounds and meshes, and the triangle
  *   budget.
@@ -124,18 +126,15 @@ export function measureAutoMovieCameraFrameEdge(
         : { side: SIDES[i]! },
   );
 
-  // A box whose drawn part stays inside every edge leaves nothing for an edge to cut.
+  // A box whose drawn part stays inside every edge leaves no drawn surface
+  // past an edge to examine; the crossing is reported from the bounds alone.
   if (
     crossings.every(
       (crossing: measureAutoMovieCameraFrameEdge.ICrossing): boolean =>
         crossing.extent === undefined,
     )
   )
-    return {
-      status: "crossed",
-      crossings,
-      surface: { status: "clear", triangles: 0 },
-    };
+    return { status: "crossed", crossings, surface: null };
   return {
     status: "crossed",
     crossings,
@@ -188,10 +187,10 @@ export namespace measureAutoMovieCameraFrameEdge {
         crossings: ICrossing[];
 
         /**
-         * The surface check of the cut; `clear` with no triangle when no
-         * crossing has an extent.
+         * The surface check of the cut; null when no crossing has an extent, so
+         * no drawn part lies past an edge.
          */
-        surface: measureAutoMovieCameraFrameEdgeSurface.IResult;
+        surface: measureAutoMovieCameraFrameEdgeSurface.IResult | null;
       }
     | {
         /** The bounds or projection cannot be read. */
