@@ -147,12 +147,13 @@ export namespace HumanContactWindow {
    * where it is shown, a contact that ends or an animated toe farther than
    * `UNLOCK` from the lock lets it go, and each change blends out by a
    * critically damped offset of half-life `HALFLIFE`. The source projects the
-   * locked point onto its flat ground at the foot's height; the plan's toe
-   * stands on its own support when its contact begins, so the lock keeps the
-   * shown toe's height there. The lock's offset from the animated toe at each
-   * sample is what `locked` lays on the plan's leg goals, read linearly between
-   * samples. Where the plan gives a floor (`IPath.floor`), the shown contact is
-   * held at least at it, as the source clamps its IK target above its ground.
+   * locked point onto its ground at the foot's height (`contact_point.y =
+   * foot_height`); the lock is projected onto the plan's floor beneath it
+   * (`IPath.floor`) the same way, and keeps the shown toe's height where the
+   * plan gives no floor. The lock's offset from the animated toe at each sample
+   * is what `locked` lays on the plan's leg goals, read linearly between
+   * samples. Where the plan gives a floor, the shown contact is also held at
+   * least at it, as the source clamps its IK target above its ground.
    *
    * @param props The declared windows, the plan's length and its toe path.
    * @returns The windows, the feet's timed by their path, and the locks'
@@ -442,7 +443,11 @@ export namespace HumanContactWindow {
       const unlock: boolean = lock && Vector3.distance(point, input) > UNLOCK;
       if (!state && inputState) {
         lock = true;
-        point = { ...position, y: input.y };
+        // contact_point.y = foot_height: the floor beneath the lock.
+        point = {
+          ...position,
+          y: floor === undefined ? input.y : floor(position),
+        };
         offsetX = Vector3.subtract(Vector3.add(input, offsetX), point);
         offsetV = Vector3.add(inputVelocity, offsetV);
       } else if ((lock && state && !inputState) || unlock) {
