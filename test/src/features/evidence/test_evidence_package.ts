@@ -24,13 +24,13 @@ import { repositoryRoot } from "../internal/repositoryRoot";
  * 5. An omitted outline stage follows activated settings and rejects an unanswered outline principle.
  * 6. Settings closed and returned to disabled while treatments runs keeps its discovery claim active, so its recorded findings in the shared discovery record still resolve and the graph passes.
  * 7. Enabled research and behavior stages require each study's detached answers and each law's answers: a law missing one behaviors answer fails, and the complete law passes with its study named in prose and no study tag.
- * 8. An enabled composition stage over a film folder of scene files requires every section and beat realized and every scene file ordered: a scene citing one of two beats fails, citing its whole scene file covers both, and a film ordering one of two scene files fails until it orders both.
+ * 8. An enabled composition stage over a film folder of scene files requires every section and beat realized and every scene file ordered: a scene citing one of two beats fails, citing its whole scene file covers both, a film ordering one of two scene files fails until it orders both, and a film answering the composition checklist instead of the films checklist fails.
  * 9. Narrative mode none adds no instruction relation without instructions or without composition, and otherwise requires every instruction section realized: one realized section of two fails, excluding the other fails, and a film realizing it passes.
  * 10. Film composition reports all three missing catalog inputs together. A catalog case cannot supply a beat missing from the production scene.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Evaluates the public configuration's real source/test and narrative claims through native Evidence, preserving engineering selection, additional claim coverage, outline stage inheritance, discovery after a closed layer turns disabled and the scene-file composition relations.
- * @evidence contracts/development/testing.md#independent-expectations Explicitly authored answers satisfy the shipped common, design, implementation and testing checklists for one interface, one function and one test; an unrelated unfinished story creates no engineering obligation. Established one-scene fixtures supply reviewed content; removing the outline principle answer must fail when its omitted stage inherits active settings, just as an added unanswered work question must block a ready short pass. The route contract supplies the closed-layer expectation: a layer the user disabled after it closed must not break the layers still running, so its findings in the shared discovery record must still resolve. The layout contract supplies the composition expectations: each scene file maps to one scene composition and the film orders every scene file of its folder.
- * @evidence contracts/development/testing.md#distinguishing-cases Contrasts missing and complete engineering answers, a type answering the design checklist against one answering the implementation checklist, coding and explicit narrative, additional native requirements, inherited outline stages, a closed disabled settings layer against a running treatments layer, relative location rejection, independent default objects, a law missing one behaviors answer against the complete law that names its study in prose, a scene citing one beat against one citing its whole scene file, a film ordering one scene file against both, and mode none without instructions or composition against with both, then one instruction section realized, the other excluded, and both realized.
+ * @evidence contracts/development/testing.md#independent-expectations Explicitly authored answers satisfy the shipped common, design, implementation and testing checklists for one interface, one function and one test; an unrelated unfinished story creates no engineering obligation. Established one-scene fixtures supply reviewed content; removing the outline principle answer must fail when its omitted stage inherits active settings, just as an added unanswered work question must block a ready short pass. The route contract supplies the closed-layer expectation: a layer the user disabled after it closed must not break the layers still running, so its findings in the shared discovery record must still resolve. The layout contract supplies the composition expectations: each scene file maps to one scene composition and the film orders every scene file of its folder, answering the films checklist the contracts router assigns to screenplay films.
+ * @evidence contracts/development/testing.md#distinguishing-cases Contrasts missing and complete engineering answers, a type answering the design checklist against one answering the implementation checklist, coding and explicit narrative, additional native requirements, inherited outline stages, a closed disabled settings layer against a running treatments layer, relative location rejection, independent default objects, a law missing one behaviors answer against the complete law that names its study in prose, a scene citing one beat against one citing its whole scene file, a film ordering one scene file against both, a film answering the composition checklist against one answering the films checklist, and mode none without instructions or composition against with both, then one instruction section realized, the other excluded, and both realized.
  * @evidence contracts/development/testing.md#execution-ownership Runs in-process through workspace source exports with temporary files beneath the existing monorepo cache so normal ancestor dependency resolution finds already linked compiler packages. It installs no consumer, starts no process/browser/GPU, and removes its owned fixtures in finally.
  * @evidence contracts/development/common.md#meaningful-documentation The comment states the behavior under test and lists each scenario with the property it pins.
  */
@@ -330,6 +330,7 @@ export async function test_evidence_package(): Promise<void> {
     for (const file of [
       "development/behaviors.md",
       "development/composition.md",
+      "development/films.md",
       "story/principles/research.md",
     ])
       ProductionWorkflowFixture.write(
@@ -463,6 +464,21 @@ export async function test_evidence_package(): Promise<void> {
         " */",
         `export function ${name}(): string { return "${name}"; }`,
       ].join("\n");
+    // A screenplay film answers the films checklist, not composition.
+    const play = (citation: string): string =>
+      [
+        "/** Plays the bout.",
+        ...implementation,
+        " * @evidence contracts/development/films.md#scene-order The film plays its cited scene files in screenplay order.",
+        " * @evidence contracts/development/films.md#delivery-profile The film takes the profile's raster, frame rate and running time.",
+        " * @evidenceExclude contracts/development/films.md#camera-response The film is a motion hint without optics.",
+        " * @evidenceExclude contracts/development/films.md#sound-list The film declares no sound list.",
+        " * @evidence contracts/development/films.md#realization-comments The comment ties each value to the screenplay or profile entry it takes.",
+        " * @evidence contracts/development/films.md#composition-only The film only orders its scenes.",
+        citation,
+        " */",
+        'export function bout(): string { return "bout"; }',
+      ].join("\n");
     const film: string[] = [
       " * @evidence docs/body/screenplay/bout/001-ring.md The film opens on the ring.",
       " * @evidence docs/body/screenplay/bout/002-count.md The film ends on the count.",
@@ -470,7 +486,7 @@ export async function test_evidence_package(): Promise<void> {
     ProductionWorkflowFixture.write(
       production,
       "src/composition/films/bout.ts",
-      compose("bout", film.join("\n")),
+      play(film.join("\n")),
     );
     ProductionWorkflowFixture.write(
       production,
@@ -541,7 +557,7 @@ export async function test_evidence_package(): Promise<void> {
     ProductionWorkflowFixture.write(
       production,
       "src/composition/films/bout.ts",
-      compose("bout", film[0]),
+      play(film[0]),
     );
     const unordered: IEvidenceCheckAnalysis = await EvidenceChecker.evaluate(
       createEvidenceConfigPlan(composed, stagedFile),
@@ -551,6 +567,16 @@ export async function test_evidence_package(): Promise<void> {
       production,
       "src/composition/films/bout.ts",
       compose("bout", film.join("\n")),
+    );
+    const sceneChecklist: IEvidenceCheckAnalysis =
+      await EvidenceChecker.evaluate(
+        createEvidenceConfigPlan(composed, stagedFile),
+      );
+    assert.equal(sceneChecklist.report.success, false);
+    ProductionWorkflowFixture.write(
+      production,
+      "src/composition/films/bout.ts",
+      play(film.join("\n")),
     );
     const whole: IEvidenceCheckAnalysis = await EvidenceChecker.evaluate(
       createEvidenceConfigPlan(composed, stagedFile),
@@ -610,8 +636,7 @@ export async function test_evidence_package(): Promise<void> {
     ProductionWorkflowFixture.write(
       production,
       "src/composition/films/bout.ts",
-      compose(
-        "bout",
+      play(
         [
           ...film,
           " * @evidenceExclude docs/instructions/commission.md#one-round The film skips the round limit.",
@@ -625,8 +650,7 @@ export async function test_evidence_package(): Promise<void> {
     ProductionWorkflowFixture.write(
       production,
       "src/composition/films/bout.ts",
-      compose(
-        "bout",
+      play(
         [
           ...film,
           " * @evidence docs/instructions/commission.md#one-round The film runs one round.",

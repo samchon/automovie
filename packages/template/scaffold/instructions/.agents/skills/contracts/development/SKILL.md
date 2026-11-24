@@ -15,6 +15,7 @@ Every respondent here is an exported declaration that answers in its own doc com
 | [Testing](testing.md) | Each test function |
 | [Entities](entities.md) | Each declaration under `src/entities/` |
 | [Behaviors](behaviors.md) | Each function and method under `src/laws/`, `src/interactions/` and `src/consequences/` |
-| [Composition](composition.md) | Each function and method under `src/composition/` |
+| [Composition](composition.md) | Each function and method under `src/composition/scenes/` and in the catalog film |
+| [Films](films.md) | Each function and method of a screenplay film in `src/composition/films/` |
 
 Use `@evidence` for selected contract items, subject records, screenplay sections or instructions. Cite other documents by path and anchor in the answer text.

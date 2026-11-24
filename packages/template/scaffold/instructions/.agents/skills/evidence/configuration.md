@@ -4,7 +4,7 @@ Make `evidence.config.ts` select the work the commission has. The installed evid
 
 ## Engineering
 
-Keep the default engineering claims: every source declaration and test answers the shared engineering checklists of the [development contracts](../contracts/development/SKILL.md), except that compositions document their realization under the composition contract instead of common.
+Keep the default engineering claims: every source declaration and test answers the shared engineering checklists of the [development contracts](../contracts/development/SKILL.md), except that scenes, films and catalog cases document their realization under the composition and films contracts instead of common.
 
 Enable entities, behaviors and composition when their folders get the first declaration unless the route opens them later.
 

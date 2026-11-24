@@ -8,7 +8,7 @@ Write a generated score's request under [music prompts](diffusion/prompts.md#mus
 
 ## Sound list
 
-Declare a direct 3D film's adopted lines, cues, speaker-to-actor bindings and any score ducking as its production's `sound` member, an `IAutoMovieFilmSound` whose JSDoc defines each field. The README render command mixes it into the soundtrack it encodes. Adopt each line's file and receipt under [take adoption](acquisition.md#take-adoption). Leave `delivery.audio.path` unset, because the render refuses a film that declares both. The film's [screenplay realization](../contracts/development/composition.md#screenplay-realization) item checks the list against the screenplay and the loudness record below against the profile.
+Declare a direct 3D film's adopted lines, cues, speaker-to-actor bindings and any score ducking as its production's `sound` member, an `IAutoMovieFilmSound` whose JSDoc defines each field. The README render command mixes it into the soundtrack it encodes. Adopt each line's file and receipt under [take adoption](acquisition.md#take-adoption). Leave `delivery.audio.path` unset, because the render refuses a film that declares both. The film's [sound list](../contracts/development/films.md#sound-list) item checks the list against the screenplay, and its [delivery profile](../contracts/development/films.md#delivery-profile) item checks the loudness record below against the profile.
 
 Give a dialogue scene without an ambience recording seeded `roomTone` beds. A bed at −50 dBFS or louder keeps the pauses between lines out of the delivery's silence check, and beds that meet on one frame crossfade.
 

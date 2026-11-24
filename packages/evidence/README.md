@@ -21,7 +21,7 @@ export default createEvidenceConfig({ location: import.meta.dirname });
 | Exported test functions under `test/**/test_*.ts` | `contracts/development/testing.md` |
 | All of the above, except under `src/composition/` | `contracts/development/common.md` |
 
-Scenes, films and catalog cases under `src/composition/` realize a screenplay rather than serve callers, so they document that realization under `contracts/development/composition.md` instead of `common.md`.
+Scenes, films and catalog cases under `src/composition/` realize a screenplay rather than serve callers, so they document that realization under their own checklists instead of `common.md`: screenplay films under `contracts/development/films.md`, and scenes and the catalog under `contracts/development/composition.md`.
 
 A declaration answers a checklist in its doc comment, with one `@evidence <checklist>#<item>` tag per item followed by the answer.
 
@@ -89,7 +89,7 @@ export default createEvidenceConfig({
 | `research` | Each study in `docs/research/` | `contracts/story/principles/research.md` |
 | `development.entities` | Exports under `src/entities/` | `contracts/development/entities.md` |
 | `development.behaviors` | Exports under `src/laws/`, `src/interactions/` and `src/consequences/` | `contracts/development/behaviors.md` |
-| `development.composition` | Exports under `src/composition/` | `contracts/development/composition.md`, citing the screenplay scene files, sections and beats they realize |
+| `development.composition` | Exports under `src/composition/` | `contracts/development/composition.md`, or `films.md` for films, citing the screenplay scene files, sections and beats they realize |
 
 When entities or composition are submitted, entity types cite the subject files in `cast/`, `crowds/`, `props/` and `sets/` under a short's `docs/body/brief/` or a long work's `docs/body/settings/`. For example, `@evidence docs/body/brief/props/ball.md The ball uses the brief's red panels.`
 

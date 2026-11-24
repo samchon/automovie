@@ -4,7 +4,7 @@ Assemble the delivered video to the scope in [project context](project-context.m
 
 ## Film assembly
 
-Build one film per screenplay folder. Check the [compositions](../contracts/development/composition.md#screenplay-realization) for missing or unintended repeated beats. Preserve scene order, cuts, pauses, transitions and titles. Use [frame evaluation](../motion/frame-evaluation.md) for scheduling and cut boundaries. Preserve the meaning of each [control channel](../motion/control-channels.md).
+Build one film per screenplay folder. Check the [scenes](../contracts/development/composition.md#screenplay-realization) and the film's [scene order](../contracts/development/films.md#scene-order) for missing or unintended repeated beats. Preserve scene order, cuts, pauses, transitions and titles. Use [frame evaluation](../motion/frame-evaluation.md) for scheduling and cut boundaries. Preserve the meaning of each [control channel](../motion/control-channels.md).
 
 The render, captures and the inspector draw the transitions of the film's `playback` sequence: a `crossDissolve` mixes the two shots across its overlap, and a `fade` dips through black. A film with a transition needs the `seekShot` member [modules](../development/modules.md#shots-and-films) sets.
 

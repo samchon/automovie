@@ -30,7 +30,7 @@ An entity realizes its settings or brief record's facts and the research its mea
 
 ### Scenes and films
 
-A scene realizes its screenplay file, sections and beats. A film owns scene order, transitions, titles, subtitles and grade. A direct 3D film also owns its camera response, sound list and loudness record. A film's delivered render implements the [delivery profile](../production/project-context.md#the-delivery-profile), and a channel render takes a video model's rate and size as [requests](../video/requests.md#inputs) sets. Apply the [composition contract](../contracts/development/composition.md) to both and to catalog cases.
+A scene realizes its screenplay file, sections and beats. A film owns scene order, transitions, titles, subtitles and grade. A direct 3D film also owns its camera response, sound list and loudness record. A film's delivered render implements the [delivery profile](../production/project-context.md#the-delivery-profile), and a channel render takes a video model's rate and size as [requests](../video/requests.md#inputs) sets. Apply the [composition contract](../contracts/development/composition.md) to scenes and the catalog, and the [films contract](../contracts/development/films.md) to the screenplay's films.
 
 A catalog case takes the parameters of the behavior or entity state it exhibits. The catalog film gives the case its interval.
 
