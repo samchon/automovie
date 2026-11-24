@@ -233,7 +233,7 @@ export namespace HumanSegmentCarry {
     prepared?: prepareHumanSegmentPose.IPrepared,
   ): IAutoMovieMotionHumanSegment.ICarry {
     const at: number = Math.max(held.from, held.source.end);
-    const pose: IAutoMoviePose = HumanSegmentPose(
+    const pose: IAutoMoviePose = HumanSegmentPose.of(
       person,
       held.source,
       at,
