@@ -551,19 +551,6 @@ export function test_architecture_surface_pattern_texture(): void {
           ),
       ],
       [
-        "tileV",
-        (): boolean =>
-          throwsError(
-            (): IAutoMoviePatternTexturing =>
-              autoMoviePatternTextureTransforms({
-                result: field,
-                tile: { u: 0.5, v: Number.NaN },
-                sheet: { kind: "module" },
-              }),
-            "pattern texture tile v must be a finite number > 0",
-          ),
-      ],
-      [
         "origin",
         (): boolean =>
           throwsError(

@@ -21,6 +21,7 @@ import type {
 import { stand } from "../actions/stand";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanArmCarryCourse } from "../compose/AutoMovieMotionHumanArmCarryCourse";
+import { AutoMovieMotionHumanArmJointCourse } from "../compose/AutoMovieMotionHumanArmJointCourse";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanChannel as HumanChannels } from "../compose/AutoMovieMotionHumanChannel";
 import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
@@ -337,6 +338,11 @@ export namespace rest {
     const planned: IAutoMovieMotionHumanPosture | undefined =
       arrived === undefined ? undefined : { ...arrived, ...holding(arrived) };
 
+    // The carry, solved at knots from the plan's own posture once the
+    // performance is prepared.
+    const carrier: AutoMovieMotionHumanArmJointCourse.ICarrier =
+      AutoMovieMotionHumanArmJointCourse.carrier(body);
+
     /** Write the live base and finger envelope before the selected arm course. */
     const write = (
       seconds: number,
@@ -387,12 +393,15 @@ export namespace rest {
       };
       if (s >= 1) return placed;
       if (prepared !== undefined && s > 0) return prepared(placed, s);
-      return AutoMovieMotionHumanArm.carry(
-        body,
-        placed,
-        from,
-        s,
-        planned,
+      return carrier.carry(
+        t,
+        {
+          posture: placed,
+          sides,
+          held: (): typeof from => from,
+          share: s,
+          ...(planned === undefined ? {} : { planned }),
+        },
         read,
         projection ?? (s > 0 ? prepareHumanPostureProjection(body) : undefined),
       );
@@ -421,6 +430,12 @@ export namespace rest {
         resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
         projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3],
       ): IAutoMovieMotionHumanPosture => write(seconds, resolution, projection),
+      prepare: (): void => {
+        base.prepare?.();
+        carrier.prepare(arrive, (seconds: number): unknown =>
+          write(seconds, undefined, undefined),
+        );
+      },
     };
 
     // The native stand base writes no goal for either carried arm after

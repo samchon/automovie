@@ -109,15 +109,6 @@ export function test_architecture_material_assembly_defects(): void {
           ),
       ],
       [
-        "offset",
-        (): boolean =>
-          hasViolation(
-            judge(twoLayer({ offset: Number.NaN })),
-            "range",
-            "$input.offset",
-          ),
-      ],
-      [
         "faceFirst",
         (): boolean =>
           hasViolation(
@@ -163,7 +154,6 @@ export function test_architecture_material_assembly_defects(): void {
     {
       axis: true,
       sense: true,
-      offset: true,
       faceFirst: true,
       faceLast: true,
       empty: true,

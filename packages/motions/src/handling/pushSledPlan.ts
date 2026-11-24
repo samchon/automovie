@@ -5,6 +5,7 @@ import type {
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanArmAngles,
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanFreedomChoice,
   IAutoMovieMotionHumanHand,
@@ -16,6 +17,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { prepareHumanSampledCourse } from "../actions/prepareHumanSampledCourse";
 import { stand } from "../actions/stand";
 import { walk } from "../actions/walk";
 import { walkDelayed } from "../actions/walkDelayed";
@@ -367,6 +369,29 @@ export function pushSledPlan(
   // The arms carried on the leaning walk from the entry's arms to the
   // handles by `SETTLE`, then held on them as the load is carried, the
   // fists closed from the grip on.
+  // The walking arms the grips take over from during the settle, solved at
+  // the settle's ends and middle and read from their course
+  // (`prepareHumanSampledCourse`), so a read resolves no posture.
+  const settling: (seconds: number) => number[] = prepareHumanSampledCourse(
+    prepareHumanSampledCourse.window(0, pushSled.SETTLE),
+    (t: number): number[] => {
+      const walked: ReturnType<typeof resolveHumanPosture> =
+        resolveHumanPosture.seeded(
+          body,
+          leaned(
+            base.posture(t),
+            minimumJerk.share(Math.min(1, t / pushSled.SETTLE)),
+          ),
+        ).pose;
+      const out: number[] = [];
+      for (const side of ["left", "right"] as const) {
+        const angles: IAutoMovieMotionHumanArmAngles.IAngles =
+          AutoMovieMotionHumanArm.angles(walked, side);
+        out.push(...angles.upper, ...angles.lower, ...angles.hand);
+      }
+      return out;
+    },
+  );
   return {
     duration,
     events: [
@@ -418,23 +443,16 @@ export function pushSledPlan(
         limbs,
       };
       if (share >= 1) return carrying;
-      const walked: ReturnType<typeof resolveHumanPosture> =
-        resolveHumanPosture.seeded(
-          body,
-          posture,
-          undefined,
-          undefined,
-          resolution,
-          undefined,
-          projection,
-        ).pose;
+      const a: number[] = settling(t);
+      const angles = (k: number): IAutoMovieMotionHumanArmAngles.IAngles => ({
+        upper: [a[k]!, a[k + 1]!, a[k + 2]!],
+        lower: [a[k + 3]!, a[k + 4]!, a[k + 5]!],
+        hand: [a[k + 6]!, a[k + 7]!, a[k + 8]!],
+      });
       return AutoMovieMotionHumanArm.carry(
         body,
         carrying,
-        {
-          left: AutoMovieMotionHumanArm.angles(walked, "left"),
-          right: AutoMovieMotionHumanArm.angles(walked, "right"),
-        },
+        { left: angles(0), right: angles(9) },
         share,
         undefined,
         resolution,

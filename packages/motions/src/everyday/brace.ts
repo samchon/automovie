@@ -343,6 +343,7 @@ export namespace brace {
       footAt,
       legsAt,
       adjust,
+      window,
       swing,
       back,
       SET,

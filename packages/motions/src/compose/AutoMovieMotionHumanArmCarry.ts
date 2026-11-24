@@ -200,7 +200,10 @@ export namespace AutoMovieMotionHumanArmCarry {
       );
       return {
         posture: chain !== undefined && weight > 0 ? chain(t, aimed) : aimed,
-        from: { [props.side]: props.rest },
+        sides: [props.side],
+        held: (): Partial<
+          Record<AutoMovieHumanSide, IAutoMovieMotionHumanArmAngles.IAngles>
+        > => ({ [props.side]: props.rest }),
         share: weight,
       };
     };
@@ -311,7 +314,7 @@ export namespace AutoMovieMotionHumanArmCarry {
               ? carry(
                   props.body,
                   carried.posture,
-                  carried.from,
+                  carried.held(),
                   carried.share,
                   undefined,
                   source,

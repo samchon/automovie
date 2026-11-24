@@ -39,7 +39,7 @@ export interface IAutoMovieLightChannelProperty {
    * Optional whole-vector fault text, or null when valid. Rotation uses this
    * for unit norm; scalar/color axes need only component bounds.
    */
-  valueFault?: (value: readonly unknown[]) => string | null;
+  valueFault?: (value: readonly number[]) => string | null;
 
   /**
    * Write an admitted, correctly sized numeric sample into the sparse override.

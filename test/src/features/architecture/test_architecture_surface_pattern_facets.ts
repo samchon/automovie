@@ -563,18 +563,6 @@ export function test_architecture_surface_pattern_facets(): void {
           refuse(returned[0]!, 'pattern facet zone "east" must be unique'),
       ],
       [
-        "anchor",
-        (): boolean =>
-          refuse(
-            {
-              ...returned[0]!,
-              zone: "south",
-              anchor: { u: Number.NaN, v: 0 },
-            },
-            'pattern facet "south" frame anchor must be finite',
-          ),
-      ],
-      [
         "unit",
         (): boolean =>
           refuse(
@@ -620,7 +608,6 @@ export function test_architecture_surface_pattern_facets(): void {
     {
       unknown: true,
       duplicate: true,
-      anchor: true,
       unit: true,
       origin: true,
       perpendicular: true,

@@ -22,6 +22,7 @@ import type {
 
 import { stand } from "../actions/stand";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
+import { AutoMovieMotionHumanArmJointCourse } from "../compose/AutoMovieMotionHumanArmJointCourse";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanChannel as HumanChannels } from "../compose/AutoMovieMotionHumanChannel";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
@@ -236,6 +237,8 @@ export namespace climbLadder {
       left: AutoMovieMotionHumanArm.angles(context.entry.pose, "left"),
       right: AutoMovieMotionHumanArm.angles(context.entry.pose, "right"),
     };
+    const carrier: AutoMovieMotionHumanArmJointCourse.ICarrier =
+      AutoMovieMotionHumanArmJointCourse.carrier(body);
 
     // The schedule: hands on, then four beats a rung (climbLadderBeats).
     const beats: climbLadderBeats.IBeats = climbLadderBeats.prepare(
@@ -401,12 +404,14 @@ export namespace climbLadder {
         },
       };
       if (reachShare >= 1) return gripped;
-      return AutoMovieMotionHumanArm.carry(
-        body,
-        gripped,
-        entryArms,
-        reachShare,
-        undefined,
+      return carrier.carry(
+        seconds,
+        {
+          posture: gripped,
+          sides: ["left", "right"],
+          held: (): typeof entryArms => entryArms,
+          share: reachShare,
+        },
         resolution,
         projection,
       );
@@ -452,6 +457,14 @@ export namespace climbLadder {
       ladder,
     };
     const exact: IAutoMovieMotionHumanActionPlan["posture"] = planned.posture;
+
+    // The first reach's joint-space carry, solved at knots from the plan's
+    // own posture once the performance is prepared.
+    const composed: IAutoMovieMotionHumanActionPlan["prepare"] = planned.prepare;
+    planned.prepare = (): void => {
+      composed?.call(planned);
+      carrier.prepare(duration, exact);
+    };
     const mergeLegs: ReturnType<typeof HumanChannels.prepareMerge> =
       HumanChannels.prepareMerge(climb.channels);
     const mergeArms: ReturnType<typeof HumanChannels.prepareMerge> =

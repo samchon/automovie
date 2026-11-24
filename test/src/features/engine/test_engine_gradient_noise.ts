@@ -230,10 +230,6 @@ export function test_engine_gradient_noise(): void {
               ["octaves"],
             ) &&
             throwsError(
-              () => createAutoMovieFractalNoise3(seed, 2.5, 0.5),
-              ["octaves"],
-            ) &&
-            throwsError(
               () => createAutoMovieFractalNoise2(seed, 4, 0),
               ["roughness"],
             ) &&

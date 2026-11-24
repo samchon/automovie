@@ -18,6 +18,7 @@ import type {
 
 import { HumanSignature } from "../audit/HumanSignature";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
+import { AutoMovieMotionHumanArmJointCourse } from "../compose/AutoMovieMotionHumanArmJointCourse";
 import { AutoMovieMotionHumanArmTarget } from "../compose/AutoMovieMotionHumanArmTarget";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { HumanRefusal } from "../law/HumanRefusal";
@@ -133,6 +134,10 @@ export function climbStairsRail(
   const duration: number = stairs.duration;
   const transit: number = Math.min(TRANSIT, duration * TRANSIT_SHARE);
   const release: number = duration - transit;
+  // The carry, solved at knots from the plan's own posture once the
+  // performance is prepared.
+  const carrier: AutoMovieMotionHumanArmJointCourse.ICarrier =
+    AutoMovieMotionHumanArmJointCourse.carrier(body);
   const posture: IAutoMovieMotionHumanActionPlan["posture"] = (
     seconds,
     channels,
@@ -172,12 +177,15 @@ export function climbStairsRail(
         [arm]: weight === 1 ? { ...goal, planted: true } : goal,
       },
     };
-    return AutoMovieMotionHumanArm.carry(
-      body,
-      gripped,
-      entry,
-      minimumJerk.share(weight),
-      bodyPose,
+    return carrier.carry(
+      seconds,
+      {
+        posture: gripped,
+        sides: [side],
+        held: (): typeof entry => entry,
+        share: minimumJerk.share(weight),
+        planned: bodyPose,
+      },
       resolution,
       projection,
     );
@@ -227,6 +235,10 @@ export function climbStairsRail(
   return {
     ...stairs,
     posture,
+    prepare: (): void => {
+      stairs.prepare?.();
+      carrier.prepare(duration, posture);
+    },
     yields: stairs.yields?.filter(
       (channel) => channel !== arm && channel !== side + "Hand",
     ) ?? [

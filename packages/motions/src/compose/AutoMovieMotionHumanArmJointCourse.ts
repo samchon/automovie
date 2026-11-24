@@ -54,11 +54,12 @@ export function AutoMovieMotionHumanArmJointCourse(
     input: AutoMovieMotionHumanArmJointCourse.IInput,
   ): IAutoMovieMotionHumanPosture => {
     const share: number = Math.min(1, Math.max(0, input.share));
-    if (share <= 0 || share >= 1)
+    if (share >= 1) return input.posture;
+    if (share <= 0)
       return AutoMovieMotionHumanArmJointCarry(
         body,
         input.posture,
-        input.from,
+        input.held(),
         share,
       );
     const t: number = Math.min(duration, Math.max(0, seconds));
@@ -77,7 +78,7 @@ export function AutoMovieMotionHumanArmJointCourse(
       ...input.posture.limbs,
     };
     for (const side of SIDES) {
-      if (input.from[side] === undefined) continue;
+      if (!input.sides.includes(side)) continue;
       const a: IAutoMovieMotionHumanArmAngles.IAngles | undefined =
         before[side] ?? after[side];
       const b: IAutoMovieMotionHumanArmAngles.IAngles | undefined =
@@ -100,15 +101,129 @@ export function AutoMovieMotionHumanArmJointCourse(
   };
 }
 
-/** Companion types of {@link AutoMovieMotionHumanArmJointCourse}. */
+/** Companion types and the plan-side carrier of {@link AutoMovieMotionHumanArmJointCourse}. */
 export namespace AutoMovieMotionHumanArmJointCourse {
+  /**
+   * A plan's joint-space carrier: a plan that carries its arms by
+   * `AutoMovieMotionHumanArm.carry` inside its posture carries them through
+   * this instead, and its `prepare` solves the knot course from the plan's own
+   * posture: each knot second of the span is read once through the posture,
+   * whose carry there gives the knot its inputs. Before that every carry is
+   * the joint-space carry of its second; after it, the knot course.
+   *
+   * @param body The body.
+   * @returns The carrier.
+   */
+  export function carrier(body: IAutoMovieMotionHumanBody): ICarrier {
+    let course: Course | undefined;
+    let recorded: Map<number, IInput> | undefined;
+    return {
+      carry: (
+        seconds: number,
+        input: IInput,
+        resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
+        projection?: Parameters<typeof resolveHumanPosture.seeded>[6],
+      ): IAutoMovieMotionHumanPosture => {
+        if (recorded !== undefined) {
+          recorded.set(seconds, input);
+          return input.posture;
+        }
+        return course === undefined
+          ? AutoMovieMotionHumanArmJointCarry(
+              body,
+              input.posture,
+              input.held(),
+              input.share,
+              input.planned,
+              resolution,
+              projection,
+            )
+          : course(seconds, input);
+      },
+      prepare: (
+        duration: number,
+        posture: (seconds: number) => unknown,
+      ): void => {
+        // The knots' inputs, read through the plan's own posture at each
+        // knot second; a knot the posture does not carry at keeps the
+        // nearest carried one's.
+        recorded = new Map();
+        const at: (seconds: number) => IInput | undefined = (
+          seconds: number,
+        ): IInput | undefined => {
+          recorded!.clear();
+          posture(seconds);
+          return recorded!.get(seconds) ?? [...recorded!.values()][0];
+        };
+        const fallback: IInput = {
+          posture: { root: { x: 0, y: 0, z: 0 }, yaw: 0, pitch: 0, roll: 0, joints: {}, limbs: {} },
+          sides: [],
+          held: (): Partial<Record<AutoMovieHumanSide, IAutoMovieMotionHumanArmAngles.IAngles>> => ({}),
+          share: 1,
+        };
+        try {
+          const inputs: Map<number, IInput> = new Map();
+          const step: number = AutoMovieMotionHumanArmCourse.STEP;
+          for (let k: number = 0; k * step < duration - 1e-9; ++k)
+            inputs.set(k * step, at(k * step) ?? fallback);
+          inputs.set(duration, at(duration) ?? fallback);
+          recorded = undefined;
+          course = AutoMovieMotionHumanArmJointCourse(
+            body,
+            duration,
+            (seconds: number): IInput => inputs.get(seconds) ?? fallback,
+          );
+        } finally {
+          recorded = undefined;
+        }
+      },
+    };
+  }
+
+  /** A plan's joint-space carrier (`carrier`). */
+  export interface ICarrier {
+    /**
+     * The carried posture at a second: the knot course once prepared, the
+     * joint-space carry of the second before.
+     *
+     * @param seconds The plan's second.
+     * @param input The carry's inputs there.
+     * @param resolution Optional same-body FK source.
+     * @param projection Optional same-body ROM projector.
+     * @returns The posture.
+     */
+    carry(
+      seconds: number,
+      input: IInput,
+      resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
+      projection?: Parameters<typeof resolveHumanPosture.seeded>[6],
+    ): IAutoMovieMotionHumanPosture;
+
+    /**
+     * Solve the knot course from the plan's own posture over its span.
+     *
+     * @param duration The span's last second, from 0.
+     * @param posture The plan's posture, read at each knot second.
+     */
+    prepare(duration: number, posture: (seconds: number) => unknown): void;
+  }
+
   /** The carry's inputs at one second. */
   export interface IInput {
     /** The posture, with the goals of the arms to carry. */
     posture: IAutoMovieMotionHumanPosture;
 
-    /** The held angles of each arm to carry. */
-    from: Partial<
+    /** The arms to carry. */
+    sides: readonly AutoMovieHumanSide[];
+
+    /**
+     * The held angles of each arm to carry, read where the carry leaves
+     * them: before the course is prepared, at its knots and where the share
+     * is 0.
+     *
+     * @returns The angles by arm.
+     */
+    held(): Partial<
       Record<AutoMovieHumanSide, IAutoMovieMotionHumanArmAngles.IAngles>
     >;
 
@@ -148,13 +263,16 @@ function knot(
 ): IKnot {
   const share: number = Math.min(1, Math.max(0, input.share));
   const out: IKnot = {};
+  const held: Partial<
+    Record<AutoMovieHumanSide, IAutoMovieMotionHumanArmAngles.IAngles>
+  > = share >= 1 ? {} : input.held();
   const shown: IAutoMovieMotionHumanPosture | undefined =
     share >= 1
       ? undefined
       : AutoMovieMotionHumanArmJointCarry(
           body,
           input.posture,
-          input.from,
+          held,
           share,
           input.planned,
           resolution,
@@ -170,16 +288,17 @@ function knot(
         ).pose
       : undefined;
   for (const side of SIDES) {
-    if (input.from[side] === undefined) continue;
-    out[side] =
-      arrived !== undefined
-        ? AutoMovieMotionHumanArmAngles.angles(arrived, side)
-        : {
-            ...input.from[side]!,
-            upper: shown!.joints[`${side}UpperArm`] ?? input.from[side]!.upper,
-            lower: shown!.joints[`${side}LowerArm`] ?? input.from[side]!.lower,
-            hand: shown!.joints[`${side}Hand`] ?? input.from[side]!.hand,
-          };
+    if (!input.sides.includes(side)) continue;
+    const from: IAutoMovieMotionHumanArmAngles.IAngles | undefined = held[side];
+    if (arrived !== undefined)
+      out[side] = AutoMovieMotionHumanArmAngles.angles(arrived, side);
+    else if (from !== undefined)
+      out[side] = {
+        ...from,
+        upper: shown!.joints[`${side}UpperArm`] ?? from.upper,
+        lower: shown!.joints[`${side}LowerArm`] ?? from.lower,
+        hand: shown!.joints[`${side}Hand`] ?? from.hand,
+      };
   }
   return out;
 }

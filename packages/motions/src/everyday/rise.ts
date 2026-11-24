@@ -450,8 +450,9 @@ export namespace rise {
       seconds: number,
     ) => IAutoMovieMotionHumanPosture =
       window === null
-        ? (posture: IAutoMovieMotionHumanPosture): IAutoMovieMotionHumanPosture =>
-            posture
+        ? (
+            posture: IAutoMovieMotionHumanPosture,
+          ): IAutoMovieMotionHumanPosture => posture
         : prepareHumanPostureCorrection(
             rose,
             window,

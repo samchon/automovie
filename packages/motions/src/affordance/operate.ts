@@ -20,7 +20,6 @@ import type {
   IAutoMovieMotionHumanStrikingHeld,
   IAutoMovieMotionManner,
   IAutoMovieMotionTarget,
-  IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
@@ -33,14 +32,12 @@ import { AutoMovieMotionHumanReach } from "../compose/AutoMovieMotionHumanReach"
 import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
-import { HumanBalance } from "../everyday/HumanBalance";
-import { prepareHumanTrunkBalance } from "../everyday/prepareHumanTrunkBalance";
 import { HumanPhysics } from "../law/HumanPhysics";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanPreparedPlayback } from "../perform/HumanPreparedPlayback";
-import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
 import { poseBones } from "../posture/poseBones";
+import { operateCorrection } from "./operateCorrection";
 import { operateDrive } from "./operateDrive";
 import { operateHand } from "./operateHand";
 import { operateInsert } from "./operateInsert";
@@ -362,54 +359,10 @@ export namespace operate {
     const reachLean: IAutoMovieMotionHumanPrimitive | undefined = grounded
       ? lean.primitive(clock)
       : undefined;
-    const corrections: IAutoMovieMotionHumanPrimitive[] = [];
-    if (window !== null) {
-      const trunk: ReturnType<typeof prepareHumanTrunkBalance> | undefined =
-        window.by === "trunk" ? prepareHumanTrunkBalance(body) : undefined;
-      corrections.push({
-        ...reachLean,
-        channels: reachLean?.channels ?? [
-          window.by === "trunk" ? "trunk" : "root",
-        ],
-        from: reachLean?.from ?? Math.max(0, window.from),
-        to: reachLean?.to ?? Math.min(duration, window.to),
-        write: (
-          posture: IAutoMovieMotionHumanPosture,
-          seconds: number,
-          _before?: IAutoMovieMotionHumanPrimitive.Reader,
-          resolution?: Parameters<IAutoMovieMotionHumanPrimitive["write"]>[3],
-          projection?: Parameters<IAutoMovieMotionHumanPrimitive["write"]>[4],
-        ): IAutoMovieMotionHumanPosture => {
-          posture =
-            reachLean?.write(
-              posture,
-              seconds,
-              _before,
-              resolution,
-              projection,
-            ) ?? posture;
-          const weight: number = HumanPhysics.weightAt(window, seconds);
-          if (weight === 0) return posture;
-          if (trunk !== undefined)
-            return trunk(posture, weight, resolution, projection);
-          const direction: IAutoMovieVector3 = HumanFrame.forward(posture.yaw);
-          const shift: HumanPhysics.SupportOffset = HumanPhysics.supportOffset(
-            HumanBalance.support(body, posture, resolution, projection),
-            direction,
-          );
-          return shift === null || shift === 0
-            ? posture
-            : {
-                ...posture,
-                root: Vector3.addScaled(
-                  posture.root,
-                  direction,
-                  shift * weight,
-                ),
-              };
-        },
-      });
-    }
+    const corrections: IAutoMovieMotionHumanPrimitive[] =
+      window === null
+        ? []
+        : [operateCorrection(body, window, base, clock, duration, reachLean)];
     const stroke: IAutoMovieMotionHumanArmPhrase.IStrokeProps & IPlanStroke = {
       body,
       clock,

@@ -18,9 +18,9 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { prepareHumanPostureCorrection } from "../actions/prepareHumanPostureCorrection";
 import { stand } from "../actions/stand";
 import { supportBalance } from "../actions/supportBalance";
-import { prepareHumanPostureCorrection } from "../actions/prepareHumanPostureCorrection";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
@@ -489,6 +489,9 @@ function corrected(
   return {
     ...whole,
     write: (posture, seconds, before, resolution, projection) =>
-      course(whole.write(posture, seconds, before, resolution, projection), seconds),
+      course(
+        whole.write(posture, seconds, before, resolution, projection),
+        seconds,
+      ),
   };
 }

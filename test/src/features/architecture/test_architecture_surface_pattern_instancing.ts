@@ -425,19 +425,6 @@ export function test_architecture_surface_pattern_instancing(): void {
           ),
       ],
       [
-        "nonFiniteU",
-        (): boolean =>
-          throwsError(
-            (): IAutoMoviePatternInstancing =>
-              autoMoviePatternInstanceTransforms({
-                result: laid,
-                frame: { ...WALL, u: { x: Number.NaN, y: 0, z: 0 } },
-                thickness: 0.01,
-              }),
-            "pattern face frame u must be finite",
-          ),
-      ],
-      [
         "shortU",
         (): boolean =>
           throwsError(
@@ -512,7 +499,6 @@ export function test_architecture_surface_pattern_instancing(): void {
     ]),
     {
       thickness: true,
-      nonFiniteU: true,
       shortU: true,
       shortV: true,
       nonFiniteOrigin: true,

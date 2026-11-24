@@ -338,8 +338,9 @@ export namespace legTouch {
       seconds: number,
     ) => IAutoMovieMotionHumanPosture =
       window === null
-        ? (posture: IAutoMovieMotionHumanPosture): IAutoMovieMotionHumanPosture =>
-            posture
+        ? (
+            posture: IAutoMovieMotionHumanPosture,
+          ): IAutoMovieMotionHumanPosture => posture
         : prepareHumanPostureCorrection(
             (t: number): IAutoMovieMotionHumanPosture => rawAt(t),
             window,

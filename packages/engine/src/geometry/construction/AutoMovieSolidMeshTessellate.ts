@@ -18,12 +18,7 @@ function point(
   u: number,
   v: number,
 ): AutoMovieVector3Tuple {
-  const value: AutoMovieVector3Tuple = surface.jet(u, v).p;
-  if (!Array.isArray(value) || value.length !== 3)
-    throw new Error(
-      "A seam source must supply a complete finite original position.",
-    );
-  return value;
+  return surface.jet(u, v).p;
 }
 
 /** Existing orientation arithmetic. */

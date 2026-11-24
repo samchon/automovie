@@ -52,24 +52,21 @@ export class ViolationCollector {
   }
 
   /**
-   * Finite range check `[min, max]`; pushes a `range` violation unless `value`
-   * is a finite number inside it. `value` is `unknown` so a field read off an
-   * untyped payload is narrowed here rather than cast to `number` first. Failed
-   * string conversion changes only the diagnostic representation to `an
-   * uninspectable value`; the finding retains the original value.
+   * Range check `[min, max]`; pushes a `range` violation unless `value` lies
+   * inside it.
    */
   public range(
     path: string,
-    value: unknown,
+    value: number,
     min: number,
     max: number,
     label: string = "value",
   ): void {
-    if (typeof value !== "number" || value < min || value > max)
+    if (!(value >= min && value <= max))
       this.push(
         "range",
         path,
-        `${label} must be a finite number within [${min}, ${max}], but was ${describeInvalidValue(value)}`,
+        `${label} must be within [${min}, ${max}], but was ${describeInvalidValue(value)}`,
         value,
       );
   }

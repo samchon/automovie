@@ -5,10 +5,10 @@ import type {
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPosture,
-  IAutoMovieMotionHumanPrimitive,
   IAutoMovieMotionHumanTouchStance,
 } from "@automovie/interface";
 
+import { prepareHumanPostureCorrection } from "../actions/prepareHumanPostureCorrection";
 import { AutoMovieMotionHumanRoot } from "../compose/AutoMovieMotionHumanRoot";
 import { HumanBalance } from "../everyday/HumanBalance";
 import { prepareHumanTrunkBalance } from "../everyday/prepareHumanTrunkBalance";
@@ -62,30 +62,41 @@ export function touchBalance(
       yaw: 0,
     });
   if (window.by === "trunk") {
+    // The lumbar correction, solved at the knots on the stance as written
+    // there and read from their course (`prepareHumanPostureCorrection`).
     const trunk: ReturnType<typeof prepareHumanTrunkBalance> =
       prepareHumanTrunkBalance(body);
+    const stance: IAutoMovieMotionHumanActionPlan = written();
+    const course: ReturnType<typeof prepareHumanPostureCorrection> =
+      prepareHumanPostureCorrection(
+        (seconds: number): IAutoMovieMotionHumanPosture =>
+          stance.posture(seconds),
+        window,
+        clock.instants.map(
+          (instant: IAutoMovieMotionClock["instants"][number]): number =>
+            instant.seconds,
+        ),
+        (
+          posture: IAutoMovieMotionHumanPosture,
+          seconds: number,
+        ): IAutoMovieMotionHumanPosture => {
+          const weight: number = HumanPhysics.weightAt(window, seconds);
+          return weight === 0
+            ? posture
+            : {
+                ...posture,
+                joints: trunk(weighed(posture), weight).joints,
+              };
+        },
+      );
     return {
       channel: "trunk",
       write: (
         posture: IAutoMovieMotionHumanPosture,
         seconds: number,
-        _before?: IAutoMovieMotionHumanPrimitive.Reader,
-        resolution?: Parameters<IAutoMovieMotionHumanPrimitive["write"]>[3],
-        projection?: Parameters<IAutoMovieMotionHumanPrimitive["write"]>[4],
-      ): IAutoMovieMotionHumanPosture => {
-        const weight: number = HumanPhysics.weightAt(window, seconds);
-        if (weight === 0) return posture;
-        const settled: IAutoMovieMotionHumanPosture = trunk(
-          weighed(posture),
-          weight,
-          resolution,
-          projection,
-        );
-        return { ...posture, joints: settled.joints };
-      },
+      ): IAutoMovieMotionHumanPosture => course(posture, seconds),
     };
   }
-
   // The hip shift at the knots, on the stance as written there.
   const stance: IAutoMovieMotionHumanActionPlan = written();
   const times: number[] = knots(window, clock);

@@ -19,8 +19,8 @@ import { walkReach } from "./walkReach";
 import { walkSwing } from "./walkSwing";
 
 /**
- * The shares of a swing its lift is solved at: its two ends, the middle and
- * the edges of the reach ranges' fades in and out (`walkReach.FADE`) with the
+ * The shares of a swing its lift is solved at: its two ends, the middle and the
+ * edges of the reach ranges' fades in and out (`walkReach.FADE`) with the
  * middle of each fade, where the foot leaves and nears the floor.
  */
 const LIFT_KNOTS: readonly number[] = [

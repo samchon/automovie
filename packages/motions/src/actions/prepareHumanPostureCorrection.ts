@@ -80,8 +80,7 @@ export function prepareHumanPostureCorrection(
         for (const bone of bones) {
           const a: readonly [number, number, number] =
             before.joints[bone] ?? ZERO;
-          const b: readonly [number, number, number] =
-            after.joints[bone] ?? a;
+          const b: readonly [number, number, number] = after.joints[bone] ?? a;
           position.push(b[0] - a[0], b[1] - a[1], b[2] - a[2]);
         }
         return { position, dwell: 0 };
@@ -145,11 +144,7 @@ export namespace prepareHumanPostureCorrection {
         : [window.phase.from, window.phase.to]),
       ...events,
     ];
-    const sorted: number[] = [
-      window.from,
-      ...marks.filter(inside),
-      window.to,
-    ]
+    const sorted: number[] = [window.from, ...marks.filter(inside), window.to]
       .sort((a: number, b: number): number => a - b)
       .filter((t: number, i: number, all: number[]): boolean =>
         i === 0 ? true : t > all[i - 1]!,

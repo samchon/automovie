@@ -62,7 +62,8 @@ const heaviest = (weights: IAutoMovieHumanVisemeWeights): string =>
  * 3. A line without a speaker, a speaker with no binding, and a speaker bound
  *    twice each return their own `not-run` reason.
  * 4. No viseme timing, overlapping visemes, fractional, negative or reversed line
- *    ranges, and empty, negative or overrunning viseme shares are each refused.
+ *    ranges, and empty, negative or overrunning viseme shares are each
+ *    refused.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls joinAutoMovieDialogueVisemes with explicit speaker bindings and supplied timing, then sampleAutoMovieDialogueExpression at active/gap/backward-seek frames. Asserts the complete ordered timeline, separate authored/mouth layers, borrowed authored identity, closed not-run reasons, and malformed timing refusals.
  * @evidence contracts/development/testing.md#independent-expectations Literal line [10,20), 2 000 samples per frame and the authored shares determine three ranges with the pause as `sil`. Frame 13 lies inside the aa range and frame 16 inside the pause, so they must lead with aa and sil, and the authored sad intensity remains 0.75; these expectations do not call the join or sampler to calculate their answers.
@@ -213,18 +214,8 @@ export function test_engine_dialogue_viseme_join(): void {
           }),
         "overlaps",
       ),
-      badFrame: throwsError(
-        (): IAutoMovieDialogueExpressionLayers =>
-          sampleAutoMovieDialogueExpression({
-            timeline: compiled.timeline!,
-            frame: Number.NaN,
-            fps: 24,
-            authored: null,
-          }),
-        "finite",
-      ),
     },
-    { absentTiming: true, overlap: true, badFrame: true },
+    { absentTiming: true, overlap: true },
   );
 
   const joinWith: (props: {

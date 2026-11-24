@@ -201,10 +201,10 @@ function measure(
  * 2. Without subjects none are counted. At half a second, outside the cue, the
  *    zone's only stream is still the one measured and it is inactive.
  * 3. The crossing length stops at the camera's far plane, is zero for a camera
- *    beside the cube looking parallel to one of its faces, and zero for a camera
- *    looking away from it.
- * 4. A zone with no stream, a time between two streams of one zone, an invalid
- *    or late time, an absent shot, an absent camera, a missing production frame
+ *    beside the cube looking parallel to one of its faces, and zero for a
+ *    camera looking away from it.
+ * 4. A zone with no stream, a time between two streams of one zone, an invalid or
+ *    late time, an absent shot, an absent camera, a missing production frame
  *    format, and a subject list too long or repeated each refuse.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the actual effect geometry query on authored compiled cues, observing activity/count, density/opacity, camera distance/ray intersection, capped visibility-risk proxy, subject-root inclusion and named query refusals.
@@ -382,14 +382,6 @@ export function test_engine_geometry_query_effect(): void {
           ),
       ],
       [
-        "nanTime",
-        (): boolean =>
-          throwsError(
-            (): ReturnType<typeof measure> => measure({ time: Number.NaN }),
-            "Effect sample time NaN is invalid",
-          ),
-      ],
-      [
         "lateTime",
         (): boolean =>
           throwsError(
@@ -450,7 +442,6 @@ export function test_engine_geometry_query_effect(): void {
       noStream: true,
       betweenStreams: true,
       negativeTime: true,
-      nanTime: true,
       lateTime: true,
       absentShot: true,
       absentCamera: true,

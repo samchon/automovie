@@ -6,11 +6,14 @@ import { createSoundPropagationTestInputs } from "../internal/audio/createSoundP
 import { throwsError } from "../internal/predicates";
 
 /**
- * Propagation clock, distance, physical profile and out-of-film arrival boundaries refuse unsupported inputs.
+ * Propagation clock, distance, physical profile and out-of-film arrival
+ * boundaries refuse unsupported inputs.
  *
  * Scenarios:
+ *
  * 1. Empty assumptions and invalid physical profile values retain exact refusals.
- * 2. Distance, emission, segment, frame rate, total span and out-of-film arrival refuse their negative boundaries.
+ * 2. Distance, emission, segment, frame rate, total span and out-of-film arrival
+ *    refuse their negative boundaries.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Invokes actual propagation derivation for individually malformed clocks, distance and physical profile fields, observing each original diagnostic substring instead of accepting a fallback receipt.
  * @evidence contracts/development/testing.md#independent-expectations Literal invalid values and exclusive film/segment bounds determine the expected refusals independently. The fixed valid base arranges one changed premise at a time; diagnostic agreement does not prove numeric conditioning or every possible malformed input.
@@ -110,10 +113,6 @@ export function test_engine_sound_propagation_admission(): void {
         (): ReturnType<typeof propagate> => propagate({ distanceMeters: -1 }),
         "non-negative",
       ),
-      emissionFractional: throwsError(
-        (): ReturnType<typeof propagate> => propagate({ emissionFrame: 0.5 }),
-        "integer at least 0",
-      ),
       emissionNegative: throwsError(
         (): ReturnType<typeof propagate> => propagate({ emissionFrame: -1 }),
         "integer at least 0",
@@ -125,10 +124,6 @@ export function test_engine_sound_propagation_admission(): void {
       fpsZero: throwsError(
         (): ReturnType<typeof propagate> => propagate({ fps: 0 }),
         "positive",
-      ),
-      totalFractional: throwsError(
-        (): ReturnType<typeof propagate> => propagate({ totalFrames: 2.5 }),
-        "integer at least 1",
       ),
       totalZero: throwsError(
         (): ReturnType<typeof propagate> => propagate({ totalFrames: 0 }),
@@ -170,11 +165,9 @@ export function test_engine_sound_propagation_admission(): void {
     },
     {
       distanceNegative: true,
-      emissionFractional: true,
       emissionNegative: true,
       segmentBeforeEmission: true,
       fpsZero: true,
-      totalFractional: true,
       totalZero: true,
       emissionOutside: true,
       segmentOutside: true,

@@ -41,7 +41,7 @@ export interface IAutoMovieViolationCollector {
    */
   range(
     path: string,
-    value: unknown,
+    value: number,
     min: number,
     max: number,
     label?: string,

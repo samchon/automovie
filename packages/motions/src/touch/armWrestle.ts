@@ -14,6 +14,7 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
+import { AutoMovieMotionHumanArmJointCourse } from "../compose/AutoMovieMotionHumanArmJointCourse";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanLean } from "../compose/AutoMovieMotionHumanLean";
 import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
@@ -398,7 +399,11 @@ export namespace armWrestle {
             2 ** -24,
           )
         : resisted;
-    return {
+    // The carry, solved at knots from the plan's own posture once the
+    // performance is prepared.
+    const carrier: AutoMovieMotionHumanArmJointCourse.ICarrier =
+      AutoMovieMotionHumanArmJointCourse.carrier(body);
+    const plan: IAutoMovieMotionHumanActionPlan = {
       duration,
       events: [
         { name: "set", share: arrive / duration },
@@ -442,15 +447,23 @@ export namespace armWrestle {
           degrees,
           envelope,
         );
-        return AutoMovieMotionHumanArm.carry(
-          body,
-          bend > 0
-            ? HumanTrunkTurn.turned(body, posed, bend * pinned * envelope, side)
-            : posed,
-          { right: begin },
-          envelope,
-        );
+        return carrier.carry(t, {
+          posture:
+            bend > 0
+              ? HumanTrunkTurn.turned(body, posed, bend * pinned * envelope, side)
+              : posed,
+          sides: ["right"],
+          held: (): Parameters<typeof AutoMovieMotionHumanArm.carry>[2] => ({
+            right: begin,
+          }),
+          share: envelope,
+        });
       },
     };
+    plan.prepare = (): void => {
+      base.prepare?.();
+      carrier.prepare(duration, plan.posture);
+    };
+    return plan;
   }
 }

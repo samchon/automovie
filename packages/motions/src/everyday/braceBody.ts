@@ -6,10 +6,12 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { prepareHumanPostureCorrection } from "../actions/prepareHumanPostureCorrection";
 import { rangeSteppingFoot } from "../actions/rangeSteppingFoot";
 import type { stand } from "../actions/stand";
 import { walkLeg } from "../actions/walkLeg";
 import { AutoMovieMotionHumanHand } from "../compose/AutoMovieMotionHumanHand";
+import type { HumanPhysics } from "../law/HumanPhysics";
 import { lowerHumanPosture } from "../posture/lowerHumanPosture";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { HumanTrunk } from "./HumanTrunk";
@@ -38,6 +40,7 @@ export function braceBody(scope: braceBody.IScope): braceBody.BodyAt {
     footAt,
     legsAt,
     adjust,
+    window,
     swing,
     back,
     SET,
@@ -46,14 +49,12 @@ export function braceBody(scope: braceBody.IScope): braceBody.BodyAt {
   // the set curve, and the hands opened flat once the brace begins.
   const lower: ReturnType<typeof lowerHumanPosture.prepare> =
     lowerHumanPosture.prepare(body);
-  const bodyAt: (
-    seconds: number,
-    resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
-  ) => IAutoMovieMotionHumanPosture = (
-    seconds: number,
+
+  // The posture on the set curve before the grounded balance.
+  const rawAt = (
+    t: number,
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
   ): IAutoMovieMotionHumanPosture => {
-    const t: number = Math.min(duration, Math.max(0, seconds));
     const s: number = minimumJerk.share(t / SET);
     const root: IAutoMovieVector3 = Vector3.lerp(start, goal, s);
     const tilt: ReturnType<typeof HumanTrunk.incline> = HumanTrunk.incline(
@@ -71,7 +72,7 @@ export function braceBody(scope: braceBody.IScope): braceBody.BodyAt {
       if (!(side === "left" ? leftFoot : rightFoot).planted)
         legs[limb] = { ...legs[limb]!, planted: false };
     }
-    const raw: IAutoMovieMotionHumanPosture = lower(
+    return lower(
       {
         root,
         yaw,
@@ -82,11 +83,39 @@ export function braceBody(scope: braceBody.IScope): braceBody.BodyAt {
       },
       resolution,
     );
-    let posture: IAutoMovieMotionHumanPosture = adjust(
-      raw,
+  };
+
+  // The grounded balance, solved at its knots on that posture and read from
+  // their course (`prepareHumanPostureCorrection`): the step's lift and
+  // landing and the set's end change its support.
+  const corrected: (
+    posture: IAutoMovieMotionHumanPosture,
+    seconds: number,
+  ) => IAutoMovieMotionHumanPosture =
+    window === null
+      ? (posture: IAutoMovieMotionHumanPosture): IAutoMovieMotionHumanPosture =>
+          posture
+      : prepareHumanPostureCorrection(
+          (t: number): IAutoMovieMotionHumanPosture => rawAt(t),
+          window,
+          [swing[0], swing[1], SET],
+          (
+            posture: IAutoMovieMotionHumanPosture,
+            t: number,
+          ): IAutoMovieMotionHumanPosture => adjust(posture, t),
+        );
+  const bodyAt: (
+    seconds: number,
+    resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
+  ) => IAutoMovieMotionHumanPosture = (
+    seconds: number,
+    resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
+  ): IAutoMovieMotionHumanPosture => {
+    const t: number = Math.min(duration, Math.max(0, seconds));
+    const s: number = minimumJerk.share(t / SET);
+    let posture: IAutoMovieMotionHumanPosture = corrected(
+      rawAt(t, resolution),
       t,
-      undefined,
-      resolution,
     );
     // The rear foot unloads over the preparatory shift and accepts weight
     // over the same transfer time on landing. Its forefoot keeps the
@@ -164,6 +193,9 @@ export namespace braceBody {
 
     /** The grounded balance's adjustment. */
     adjust: ReturnType<typeof prepareGroundedBalance>;
+
+    /** The grounded balance's window. */
+    window: HumanPhysics.Window;
 
     /** When the stepping foot leaves and lands, seconds. */
     swing: readonly [number, number];

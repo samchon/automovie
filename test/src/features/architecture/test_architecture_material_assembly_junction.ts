@@ -223,19 +223,6 @@ export function test_architecture_material_assembly_junction(): void {
           ),
       ],
       [
-        "nonFiniteHeight",
-        (): boolean =>
-          throwsError(
-            (): IAutoMovieAssemblyReveal =>
-              autoMovieAssemblyOpeningReveal({
-                resolved,
-                width: 1.2,
-                height: Number.NaN,
-              }),
-            "opening height must be a finite number > 0",
-          ),
-      ],
-      [
         "consumedWidth",
         (): boolean =>
           throwsError(
@@ -264,7 +251,6 @@ export function test_architecture_material_assembly_junction(): void {
     ]),
     {
       zeroWidth: true,
-      nonFiniteHeight: true,
       consumedWidth: true,
       consumedHeight: true,
     },

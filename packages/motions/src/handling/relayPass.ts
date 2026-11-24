@@ -19,6 +19,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { prepareHumanSampledCourse } from "../actions/prepareHumanSampledCourse";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { HumanTrunk } from "../everyday/HumanTrunk";
@@ -28,12 +29,6 @@ import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
-
-/** The record of `IPlanPalmReader`'s site. */
-type IPlanPalmReader = {
-  body: IAutoMovieMotionHumanActionContext["body"];
-  read: ReturnType<typeof HumanHand.preparePoint>;
-};
 
 /** The record of `IBACKItem`'s site. */
 type IBACKItem = { down: number; back: number };
@@ -176,8 +171,27 @@ export namespace relayPass {
             ? 1
             : 1 - minimumJerk.share(Math.min(1, (t - relax) / REACH));
 
+    // The run's own arm over each blend, solved at the blend's ends and its
+    // middle and read from their course (`prepareHumanSampledCourse`), so a
+    // read resolves no posture.
+    const runArm = (t: number): number[] => {
+      const angles: IAutoMovieMotionHumanArmAngles.IAngles =
+        AutoMovieMotionHumanArm.angles(
+          resolveHumanPosture.seeded(body, base.posture(t)).pose,
+          side,
+        );
+      return [...angles.upper, ...angles.lower, ...angles.hand];
+    };
+    const into: (t: number) => number[] = prepareHumanSampledCourse(
+      prepareHumanSampledCourse.window(Math.max(0, at - REACH), at),
+      runArm,
+    );
+    const out: (t: number) => number[] = prepareHumanSampledCourse(
+      prepareHumanSampledCourse.window(relax, duration),
+      runArm,
+    );
+
     // The hand's goal at a second, on the run's posture there.
-    let palmReader: IPlanPalmReader | undefined;
     const goal: (
       posture: IAutoMovieMotionHumanPosture,
       t: number,
@@ -236,14 +250,12 @@ export namespace relayPass {
       const partner: IAutoMovieMotionHumanPerformerReader = context.performer(
         p.partner,
       );
-      if (palmReader === undefined || palmReader.body !== partner.body)
-        palmReader = {
-          body: partner.body,
-          read: HumanHand.preparePoint(partner.body, side, "palm", "flat"),
-        };
-      const palm: IAutoMovieVector3 = palmReader.read(
-        partner.bones(context.start + t, palmBones),
-      );
+      const palm: IAutoMovieVector3 = HumanHand.preparePoint(
+        partner.body,
+        side,
+        "palm",
+        "flat",
+      )(partner.bones(context.start + t, palmBones));
       const rotation: IAutoMovieQuaternion = HumanHand.rotation(side, {
         fingers: dir(0, 0, 1),
         palm: dir(-sign, 0, 0),
@@ -312,19 +324,12 @@ export namespace relayPass {
           [goal(posture, t, resolution)],
         );
         if (w >= 1) return reaching;
-        const run: IAutoMovieMotionHumanArmAngles.IAngles =
-          AutoMovieMotionHumanArm.angles(
-            resolveHumanPosture.seeded(
-              body,
-              posture,
-              undefined,
-              undefined,
-              resolution,
-              undefined,
-              projection,
-            ).pose,
-            side,
-          );
+        const a: number[] = (t < at ? into : out)(t);
+        const run: IAutoMovieMotionHumanArmAngles.IAngles = {
+          upper: [a[0]!, a[1]!, a[2]!],
+          lower: [a[3]!, a[4]!, a[5]!],
+          hand: [a[6]!, a[7]!, a[8]!],
+        };
         return AutoMovieMotionHumanArm.carry(
           body,
           reaching,

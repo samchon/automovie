@@ -20,6 +20,7 @@ import type {
 
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
+import { AutoMovieMotionHumanArmJointCourse } from "../compose/AutoMovieMotionHumanArmJointCourse";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanBound } from "../law/HumanBound";
@@ -119,6 +120,96 @@ export namespace carryHang {
     }
     const arm: number = body.measure.upperArm + body.measure.forearm;
     const entryYaw: number = context.entry.posture.yaw;
+    // The carry's inputs at a second, which the knot course is solved from
+    // once the performance is prepared (`AutoMovieMotionHumanArmJointCourse`).
+    let course: AutoMovieMotionHumanArmJointCourse.Course | undefined;
+    const inputs = (
+      t: number,
+      resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
+      projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3],
+    ): AutoMovieMotionHumanArmJointCourse.IInput => {
+      const posture: IAutoMovieMotionHumanPosture = base.posture(
+        t,
+        undefined,
+        resolution,
+        projection,
+      );
+      if (sides.length === 0)
+        return { posture, sides: [], held: (): Held => ({}), share: 1 };
+      const share: number = minimumJerk.share(Math.min(1, t / SETTLE));
+      const trunk: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
+        HumanTrunk.resolve(body, posture, undefined, resolution, shoulders);
+      const heading: HumanFrame.IPrepared = HumanFrame.prepare({
+        origin: { x: 0, y: 0, z: 0 },
+        yaw: posture.yaw,
+      });
+
+      // The hand keeps the turn it held the prop at relative to the body,
+      // so a walk that turns carries it round with the trunk.
+      const turned: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+        UP,
+        posture.yaw - entryYaw,
+      );
+      const limbs: IAutoMovieMotionHumanPosture["limbs"] = {
+        ...posture.limbs,
+      };
+      const joints: IAutoMovieMotionHumanPosture["joints"] = {
+        ...posture.joints,
+      };
+      for (const side of sides) {
+        const shoulder: IAutoMovieVector3 = trunk.get(
+          `${side}UpperArm`,
+        )!.worldPosition;
+        const sign: number = side === "left" ? 1 : -1;
+        limbs[`${side}Arm`] = {
+          point: {
+            ...heading.point(
+              { x: sign * OUT * body.measure.shoulderHalfWidth, y: 0, z: 0 },
+              shoulder,
+            ),
+            y: shoulder.y - HANG * arm,
+          },
+          rotation: Quaternion.normalize(
+            Quaternion.multiply(turned, turns[side]!),
+          ),
+
+          // The hanging arm's elbow: down, a little out and behind.
+          bend: AutoMovieMotionHumanBend.hang(body, posture, side),
+        };
+        Object.assign(joints, fingers[side]);
+      }
+      const carrying: IAutoMovieMotionHumanPosture = {
+        ...posture,
+        joints,
+        limbs,
+      };
+      if (share >= 1)
+        return { posture: carrying, sides, held: (): Held => ({}), share: 1 };
+      // The arms as the walk swings them, read where the carry leaves them.
+      const held = (): Held => {
+        const walked: ReturnType<typeof resolveHumanPosture> =
+          resolveHumanPosture.seeded(
+            body,
+            posture,
+            undefined,
+            undefined,
+            resolution,
+            undefined,
+            projection,
+          ).pose;
+        return Object.fromEntries(
+          sides.map(
+            (
+              side: AutoMovieHumanSide,
+            ): [AutoMovieHumanSide, IAutoMovieMotionHumanArmAngles.IAngles] => [
+              side,
+              AutoMovieMotionHumanArm.angles(walked, side),
+            ],
+          ),
+        );
+      };
+      return { posture: carrying, sides, held, share };
+    };
     return {
       duration,
       events: [{ name: "settled", share: Math.min(1, SETTLE / duration) }],
@@ -163,96 +254,39 @@ export namespace carryHang {
         projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3],
       ): IAutoMovieMotionHumanPosture => {
         const t: number = Math.min(duration, Math.max(0, seconds));
-        const posture: IAutoMovieMotionHumanPosture = base.posture(
+        const input: AutoMovieMotionHumanArmJointCourse.IInput = inputs(
           t,
-          undefined,
           resolution,
           projection,
         );
-        if (sides.length === 0) return posture;
-        const share: number = minimumJerk.share(Math.min(1, t / SETTLE));
-        const trunk: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
-          HumanTrunk.resolve(body, posture, undefined, resolution, shoulders);
-        const heading: HumanFrame.IPrepared = HumanFrame.prepare({
-          origin: { x: 0, y: 0, z: 0 },
-          yaw: posture.yaw,
-        });
-
-        // The hand keeps the turn it held the prop at relative to the body,
-        // so a walk that turns carries it round with the trunk.
-        const turned: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
-          UP,
-          posture.yaw - entryYaw,
-        );
-        const limbs: IAutoMovieMotionHumanPosture["limbs"] = {
-          ...posture.limbs,
-        };
-        const joints: IAutoMovieMotionHumanPosture["joints"] = {
-          ...posture.joints,
-        };
-        for (const side of sides) {
-          const shoulder: IAutoMovieVector3 = trunk.get(
-            `${side}UpperArm`,
-          )!.worldPosition;
-          const sign: number = side === "left" ? 1 : -1;
-          limbs[`${side}Arm`] = {
-            point: {
-              ...heading.point(
-                { x: sign * OUT * body.measure.shoulderHalfWidth, y: 0, z: 0 },
-                shoulder,
-              ),
-              y: shoulder.y - HANG * arm,
-            },
-            rotation: Quaternion.normalize(
-              Quaternion.multiply(turned, turns[side]!),
-            ),
-
-            // The hanging arm's elbow: down, a little out and behind.
-            bend: AutoMovieMotionHumanBend.hang(body, posture, side),
-          };
-          Object.assign(joints, fingers[side]);
-        }
-        const carrying: IAutoMovieMotionHumanPosture = {
-          ...posture,
-          joints,
-          limbs,
-        };
-        if (share >= 1) return carrying;
-        const walked: ReturnType<typeof resolveHumanPosture> =
-          resolveHumanPosture.seeded(
-            body,
-            posture,
-            undefined,
-            undefined,
-            resolution,
-            undefined,
-            projection,
-          ).pose;
-        const run: Partial<
-          Record<AutoMovieHumanSide, IAutoMovieMotionHumanArmAngles.IAngles>
-        > = Object.fromEntries(
-          sides.map(
-            (
-              side: AutoMovieHumanSide,
-            ): [AutoMovieHumanSide, IAutoMovieMotionHumanArmAngles.IAngles] => [
-              side,
-              AutoMovieMotionHumanArm.angles(walked, side),
-            ],
-          ),
-        );
-        return AutoMovieMotionHumanArm.carry(
+        return course === undefined
+          ? AutoMovieMotionHumanArm.carry(
+              body,
+              input.posture,
+              input.held(),
+              input.share,
+              undefined,
+              resolution,
+              projection,
+            )
+          : course(t, input);
+      },
+      prepare: (): void => {
+        base.prepare?.();
+        course = AutoMovieMotionHumanArmJointCourse(
           body,
-          carrying,
-          run,
-          share,
-          undefined,
-          resolution,
-          projection,
+          Math.min(duration, SETTLE),
+          (t: number): AutoMovieMotionHumanArmJointCourse.IInput => inputs(t),
         );
       },
     };
   }
 }
+
+/** Each carried arm's held angles. */
+type Held = Partial<
+  Record<AutoMovieHumanSide, IAutoMovieMotionHumanArmAngles.IAngles>
+>;
 
 /** The world's up, the axis a heading turns about. */
 const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };

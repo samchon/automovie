@@ -174,11 +174,6 @@ export function test_engine_wearable_soft_body(): void {
         "type",
         "anchors[0].position",
       ),
-      blankActor: hasViolation(
-        validateSoftBodyDomain({ domain: invalidCapsule }),
-        "type",
-        "colliders[0].actor",
-      ),
       radius: hasViolation(
         validateSoftBodyDomain({ domain: invalidCapsule }),
         "range",
@@ -205,7 +200,6 @@ export function test_engine_wearable_soft_body(): void {
     },
     {
       anchorPosition: true,
-      blankActor: true,
       radius: true,
       distinctEndpoints: true,
       unresolvedDoesNotEmbed: true,

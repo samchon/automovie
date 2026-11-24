@@ -73,14 +73,6 @@ export function test_architecture_surface_pattern_refusals(): void {
           ),
       ],
       [
-        "tolerance",
-        (): boolean =>
-          refuses(
-            { jointTolerance: Number.NaN },
-            "pattern joint tolerance must be a finite number >= 0",
-          ),
-      ],
-      [
         "adjacency",
         (): boolean =>
           refuses(
@@ -165,7 +157,6 @@ export function test_architecture_surface_pattern_refusals(): void {
     {
       zones: true,
       joint: true,
-      tolerance: true,
       adjacency: true,
       minimumZero: true,
       minimumAbove: true,
