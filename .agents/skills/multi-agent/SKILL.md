@@ -13,7 +13,7 @@ Add no role, gate, phase or schedule the user did not order.
 
 ## Supervision
 
-Every 10 minutes, the main session audits the subagents' finished work for violations of:
+Every 10 minutes unless the user sets another interval, the main session audits the subagents' finished work for violations of:
 
 - the user's orders;
 - the user's decisions;
