@@ -49,11 +49,14 @@ import { TestValidator } from "@nestia/e2e";
  *    point, or with its lever points unloaded, holds none and so gets no
  *    torsional row, whose cone would be the single point zero (TSID
  *    `contact-6d.cpp`: moments only from the points' levers).
+ * 7. A bound's room never goes below nothing: an impact the contact passes
+ *    already gave past the bound is the floor's, not taken back through the
+ *    other supports (Herzog et al. 2016, Section 5.3; unilateral contact).
  *
  * @evidence contracts/development/common.md#meaningful-documentation States each program, its bound and its expected solution in closed form.
  * @evidence contracts/development/testing.md#behavioral-verification Solves `solveXpbdSupportCascade` over rows built with `AutoMovieXpbdSupportRows.impulse` and `along`, and integrates `AutoMoviePhysicalTracking.torque` on `physicalStanceBalance.saturate`.
  * @evidence contracts/development/testing.md#independent-expectations The bound mu sum |r . t| N, the cancelled and free spins, the entry bound and the servo's monotone return are evaluated by hand from the soles' numbers.
- * @evidence contracts/development/testing.md#distinguishing-cases A torsional hold makes scenario 1's equalities rank-deficient and stops scenario 2's spin; an unbounded row cancels scenario 3's moment; an unbounded entering foot exceeds scenario 4's share; an underdamped or unsaturated servo fails scenario 5.
+ * @evidence contracts/development/testing.md#distinguishing-cases A torsional hold makes scenario 1's equalities rank-deficient and stops scenario 2's spin; an unbounded row cancels scenario 3's moment; an unbounded entering foot exceeds scenario 4's share; an underdamped or unsaturated servo fails scenario 5; a negative room fails scenario 7.
  * @evidence contracts/development/testing.md#execution-ownership Pure arithmetic in memory; no native world, viewer or file host.
  */
 export function test_physical_support_torsion(): void {
@@ -212,6 +215,27 @@ export function test_physical_support_torsion(): void {
     findings.push("a patch pressed at one point has torsional capacity");
   if (AutoMovieXpbdSupportRows.capacity(corners, t, [0, 0, 0, 0]) !== 0)
     findings.push("a patch with its lever points unloaded has torsional capacity");
+
+  // 7. A bound's room: a foot entering at a zero share whose landing impact
+  // the contact passes already gave, 2849 N over the substep, has no room
+  // left and none taken back; a 700 N bound with 0.5 N s given leaves 700 h
+  // - 0.5.
+  const substep: number = 1 / 480;
+  if (
+    solveXpbdArticulationContacts.room({
+      force: 0,
+      h: substep,
+      given: 2849 * substep,
+    }) !== 0
+  )
+    findings.push("a landing impact past its bound is taken back");
+  const left: number = solveXpbdArticulationContacts.room({
+    force: 700,
+    h: substep,
+    given: 0.5,
+  });
+  if (!(Math.abs(left - (700 * substep - 0.5)) < 1e-12))
+    findings.push(`a 700 N bound with 0.5 N s given leaves ${left}`);
 
   TestValidator.equals("support torsion", findings, []);
 }

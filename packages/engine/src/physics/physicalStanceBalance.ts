@@ -160,6 +160,12 @@ export namespace physicalStanceBalance {
            * pose.
            */
           edge?: readonly IAutoMovieVector3[];
+          /**
+           * Its low-passed measured floor load, newtons, the force its leg's
+           * joints carry now (`hipRoom`); absent takes its bearing share of
+           * the lift.
+           */
+          load?: number;
         }
       >
     >;
@@ -359,6 +365,30 @@ export namespace physicalStanceBalance {
         };
       }),
     );
+    // Each bearing foot's present load at its bearing points' middle: its
+    // measured floor load, or its bearing share of the lift without one.
+    const shares: number = bearing.reduce(
+      (sum: number, { limb }): number => sum + input.feet[limb.bone]!.bearing,
+      0,
+    );
+    const carried: { limb: Limb; point: IAutoMovieVector3; force: number }[] =
+      bearing.map(({ limb, points }) => ({
+        limb,
+        point: {
+          ...Vector3.scale(
+            points.reduce(
+              (sum: IAutoMovieVector3, p: IAutoMovieVector3): IAutoMovieVector3 =>
+                Vector3.add(sum, p),
+              { x: 0, y: 0, z: 0 },
+            ),
+            1 / Math.max(1, points.length),
+          ),
+          y: floor,
+        },
+        force:
+          input.feet[limb.bone]!.load ??
+          (lift * input.feet[limb.bone]!.bearing) / Math.max(1e-9, shares),
+      }));
     const capped = (
       outline: readonly IAutoMovieVector3[],
     ): readonly IAutoMovieVector3[] => {
@@ -377,6 +407,17 @@ export namespace physicalStanceBalance {
         offset: { x: input.torque.z / lift, y: 0, z: -input.torque.x / lift },
         shrunken: capped(polygon),
         support: capped(bearable.hull),
+        // The bearing feet's hips deliver the ground's moment on the body
+        // with the room their feet's forces leave them (`hipRoom`): the
+        // pivot's offset along d turns the body about the axis across it,
+        // (d_z, 0, -d_x).
+        bound: (direction: IAutoMovieVector3): number =>
+          hipRoom({
+            profile: body.profile,
+            segments,
+            stance: carried,
+            axis: { x: direction.z, y: 0, z: -direction.x },
+          }) / lift,
         ...(input.intended
           ? {
               hip: (direction: IAutoMovieVector3): number | undefined => {
@@ -1100,9 +1141,16 @@ export namespace physicalStanceBalance {
    *    where capture is at risk, convergence comes before the trunk, linear
    *    momentum kept before angular as Lee and Goswami order them: u = u_law,
    *    and p, nearest u_law + delta on the support, takes the trunk's offset
-   *    only as far as the room allows, the term that is trimmed. The pivot
-   *    then may leave the support, which turns the trunk instead of letting
-   *    the trunk's servo hold the pivot inside the capture point.
+   *    only as far as the room allows, the term that is trimmed. A pivot past
+   *    p turns the trunk, so it goes past p toward the excess only as far as
+   *    the stance's hip strategy reaches (`hip`); a stance without one keeps
+   *    the order of rule 2.
+   *
+   * In every branch the pivot lies within the stance hips' hold of the centre
+   * of pressure, |u - p| F_y no more than the room their caps leave about the
+   * axis across the offset once their feet's forces are carried (`hipRoom`;
+   * design-4017-edge, E1, rule 2): the moment the ground puts on the body
+   * reaches the trunk through them.
    *
    * Past the support's edge, p sits at the edge nearest xi_eff. A body with a
    * hip strategy toward it (`hip`) sets the pivot's offset past p instead of
@@ -1112,8 +1160,10 @@ export namespace physicalStanceBalance {
    *
    * @param input The capture point with spin, its reference and the law's
    *   command, world metres; the trunk's offset delta, metres; the shrunken
-   *   polygon and the support, world metres; and the hip strategy's signed
-   *   pivot offset along an outward direction, metres, or undefined for none.
+   *   polygon and the support, world metres; the hip strategy's signed pivot
+   *   offset along an outward direction, metres, or undefined for none; and
+   *   the farthest the pivot may lie from the centre of pressure along a
+   *   horizontal direction, metres, absent for no bound.
    * @returns The centre of pressure, the pivot, and whether the command was
    *   trimmed.
    */
@@ -1125,20 +1175,40 @@ export namespace physicalStanceBalance {
     shrunken: readonly IAutoMovieVector3[];
     support: readonly IAutoMovieVector3[];
     hip?: (direction: IAutoMovieVector3) => number | undefined;
+    bound?: (direction: IAutoMovieVector3) => number;
   }): {
     pressure: IAutoMovieVector3;
     pivot: IAutoMovieVector3;
     clamped: boolean;
   } {
     const { capture, command, offset } = input;
+    // Every branch keeps the pivot within the stance hips' hold of the centre
+    // of pressure along the pivot's own direction from it (rule 2).
     const result = (
       pressure: IAutoMovieVector3,
-      pivot: IAutoMovieVector3,
-    ): { pressure: IAutoMovieVector3; pivot: IAutoMovieVector3; clamped: boolean } => ({
-      pressure,
-      pivot,
-      clamped: Math.hypot(pivot.x - command.x, pivot.z - command.z) > 1e-9,
-    });
+      wanted: IAutoMovieVector3,
+    ): { pressure: IAutoMovieVector3; pivot: IAutoMovieVector3; clamped: boolean } => {
+      const dx: number = wanted.x - pressure.x;
+      const dz: number = wanted.z - pressure.z;
+      const length: number = Math.hypot(dx, dz);
+      const most: number =
+        input.bound && length > 1e-12
+          ? Math.max(0, input.bound({ x: dx / length, y: 0, z: dz / length }))
+          : Infinity;
+      const pivot: IAutoMovieVector3 =
+        length > most
+          ? {
+              x: pressure.x + (dx * most) / length,
+              y: wanted.y,
+              z: pressure.z + (dz * most) / length,
+            }
+          : wanted;
+      return {
+        pressure,
+        pivot,
+        clamped: Math.hypot(pivot.x - command.x, pivot.z - command.z) > 1e-9,
+      };
+    };
     const edge: IAutoMovieVector3 = AutoMoviePhysicalBalance.nearest(
       input.support,
       capture,
@@ -1182,8 +1252,34 @@ export namespace physicalStanceBalance {
     );
     // In the band, past the shrunken edge and inside the support, capture is
     // at risk: convergence goes before the trunk, the pivot keeping the law's
-    // command and the trunk's offset trimmed to the room left (rule 2b).
-    if (!sheltered) return result(pressure, command);
+    // command and the trunk's offset trimmed to the room left, as far past
+    // the centre of pressure as the hip strategy toward the excess reaches; a
+    // stance without one keeps the order inside (rule 2b).
+    const out: number = Math.hypot(capture.x - inner.x, capture.z - inner.z);
+    const outward: IAutoMovieVector3 | undefined =
+      !sheltered && out > 1e-9
+        ? {
+            x: (capture.x - inner.x) / out,
+            y: 0,
+            z: (capture.z - inner.z) / out,
+          }
+        : undefined;
+    const strategy: number | undefined = outward
+      ? input.hip?.(outward)
+      : undefined;
+    if (outward && strategy !== undefined) {
+      const excess: number =
+        (command.x - pressure.x) * outward.x +
+        (command.z - pressure.z) * outward.z;
+      const allowed: number =
+        strategy >= 0 ? Math.min(strategy, excess) : strategy;
+      return result(
+        pressure,
+        excess > allowed
+          ? Vector3.subtract(command, Vector3.scale(outward, excess - allowed))
+          : command,
+      );
+    }
     return result(pressure, Vector3.subtract(pressure, offset));
   }
 
@@ -1236,35 +1332,9 @@ export namespace physicalStanceBalance {
     const axis: IAutoMovieVector3 = { x: n.z, y: 0, z: -n.x };
     const hips: { pivot: IAutoMovieVector3; torque: number }[] = [];
     for (const limb of input.stance) {
-      const joint = input.profile.joints.find(
-        (candidate): boolean => candidate.child === limb.chain[0],
-      );
-      const parent: AutoMovieXpbdBody | undefined = joint
-        ? input.segments.get(joint.parent)
-        : undefined;
-      if (!joint || !parent) return undefined;
-      const frame: IAutoMovieQuaternion = Quaternion.multiply(
-        parent.rotation(),
-        joint.parentFrame.rotation,
-      );
-      hips.push({
-        pivot: Vector3.add(
-          parent.translation(),
-          Quaternion.rotateVector(parent.rotation(), joint.parentFrame.position),
-        ),
-        torque: joint.axes.reduce((sum: number, entry): number => {
-          const e: IAutoMovieVector3 = Quaternion.rotateVector(frame, {
-            x: entry.axis === "x" ? 1 : 0,
-            y: entry.axis === "y" ? 1 : 0,
-            z: entry.axis === "z" ? 1 : 0,
-          });
-          return (
-            sum +
-            Math.min(entry.maximumTorque, entry.reverseTorque ?? entry.maximumTorque) *
-              Math.abs(Vector3.dot(e, axis))
-          );
-        }, 0),
-      });
+      const held = stanceHip(input.profile, input.segments, limb, axis);
+      if (!held) return undefined;
+      hips.push(held);
     }
     const along: number[] = hips.map((h) => Vector3.dot(h.pivot, n));
     if (Math.max(...along) - Math.min(...along) > LIFT / HIP_RANGE)
@@ -1319,6 +1389,39 @@ export namespace physicalStanceBalance {
       angle: HIP_RANGE - lean,
       rate: Vector3.dot(root.angvel(), axis),
     };
+  }
+
+  /**
+   * The moment the stance hips can still deliver about a horizontal axis, N m:
+   * each stance limb's first joint, its axes counted by their alignment with
+   * the axis, each with its cap on the side its foot's force already turns it
+   * less the torque that force takes, sum (tau_dir - |tau_support|) |e_i . a|,
+   * tau_support = J^T f (`physicalLegCapacity`), since the joint's limit holds
+   * on its whole torque (Herzog et al. 2016, Section 2.1). The ground's moment
+   * about the body reaches the trunk through these joints, so the pivot lies
+   * at most this over the vertical force from the centre of pressure
+   * (design-4017-edge, E1, rule 2).
+   *
+   * @param input The profile, its segments, each stance limb with the point
+   *   and normal force its foot carries, world metres and newtons, and the
+   *   axis, world, unit length.
+   * @returns The moment, N m; zero without a stance hip.
+   */
+  export function hipRoom(input: {
+    profile: IAutoMoviePhysicalProfile;
+    segments: ReadonlyMap<string, AutoMovieXpbdBody>;
+    stance: readonly { limb: Limb; point: IAutoMovieVector3; force: number }[];
+    axis: IAutoMovieVector3;
+  }): number {
+    return input.stance.reduce(
+      (sum: number, foot): number =>
+        sum +
+        (stanceHip(input.profile, input.segments, foot.limb, input.axis, {
+          point: foot.point,
+          force: foot.force,
+        })?.torque ?? 0),
+      0,
+    );
   }
 
   /**
@@ -1498,6 +1601,65 @@ export namespace physicalStanceBalance {
     );
     return inside && hull.length >= 3 ? hull : [{ ...mean }];
   }
+}
+
+/**
+ * A stance limb's hip: its first joint's centre, world metres, and the moment
+ * its axes hold about a horizontal axis, N m: sum min(tau+, tau-) |e_i . a|,
+ * or, for a foot carrying a force, each axis's cap on the side it already
+ * turns less the torque that force takes, tau_i = -f e_i . ((p - o) x n)
+ * (tau = J^T f, as `physicalLegCapacity` reads it), the room left. Undefined
+ * without the joint or its parent.
+ */
+function stanceHip(
+  profile: IAutoMoviePhysicalProfile,
+  segments: ReadonlyMap<string, AutoMovieXpbdBody>,
+  limb: Limb,
+  axis: IAutoMovieVector3,
+  carried?: { point: IAutoMovieVector3; force: number },
+): { pivot: IAutoMovieVector3; torque: number } | undefined {
+  const joint = profile.joints.find(
+    (candidate): boolean => candidate.child === limb.chain[0],
+  );
+  const parent: AutoMovieXpbdBody | undefined = joint
+    ? segments.get(joint.parent)
+    : undefined;
+  if (!joint || !parent) return undefined;
+  const frame: IAutoMovieQuaternion = Quaternion.multiply(
+    parent.rotation(),
+    joint.parentFrame.rotation,
+  );
+  const pivot: IAutoMovieVector3 = Vector3.add(
+    parent.translation(),
+    Quaternion.rotateVector(parent.rotation(), joint.parentFrame.position),
+  );
+  const moment: IAutoMovieVector3 | undefined = carried
+    ? Vector3.cross(Vector3.subtract(carried.point, pivot), {
+        x: 0,
+        y: 1,
+        z: 0,
+      })
+    : undefined;
+  return {
+    pivot,
+    torque: joint.axes.reduce((sum: number, entry): number => {
+      const e: IAutoMovieVector3 = Quaternion.rotateVector(frame, {
+        x: entry.axis === "x" ? 1 : 0,
+        y: entry.axis === "y" ? 1 : 0,
+        z: entry.axis === "z" ? 1 : 0,
+      });
+      const reverse: number = entry.reverseTorque ?? entry.maximumTorque;
+      let room: number = Math.min(entry.maximumTorque, reverse);
+      if (carried && moment) {
+        const taken: number = -carried.force * Vector3.dot(e, moment);
+        room = Math.max(
+          0,
+          (taken > 0 ? entry.maximumTorque : reverse) - Math.abs(taken),
+        );
+      }
+      return sum + room * Math.abs(Vector3.dot(e, axis));
+    }, 0),
+  };
 }
 
 /**

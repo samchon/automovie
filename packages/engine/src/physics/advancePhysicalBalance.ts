@@ -557,11 +557,20 @@ export function advancePhysicalBalance(input: {
     return { x: forward.x, y: 0, z: forward.z };
   })();
   // The step's timing from the leg: its unloading ramp and the quickest
-  // swing its hip allows. The clearance is lowered to fit the transfer's
-  // time (`physicalStanceBalance.clearance`), so the transfer sets it.
-  const timing: { ramp: number; acceleration: number; height: number } | undefined =
+  // swing its hip allows, and the landed foot's ramp-in after it, the same
+  // fade, before the new foot bears (Herzog et al. 2016, Section 5.3). The
+  // clearance is lowered to fit the transfer's time
+  // (`physicalStanceBalance.clearance`), so the transfer sets it.
+  const timing:
+    | { ramp: number; acceleration: number; height: number; landing: number }
+    | undefined =
     peak > 0
-      ? { ramp: physicalStanceBalance.FADE, acceleration: peak, height: 0 }
+      ? {
+          ramp: physicalStanceBalance.FADE,
+          acceleration: peak,
+          height: 0,
+          landing: physicalStanceBalance.FADE,
+        }
       : undefined;
   const command: { x: number; z: number } | undefined = state.pressure?.command;
   const ask = (

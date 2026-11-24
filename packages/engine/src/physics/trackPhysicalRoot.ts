@@ -192,16 +192,19 @@ export function trackPhysicalRoot(input: trackPhysicalRoot.IInput): void {
         flat: number;
         ankle: IAutoMovieVector3;
         edge?: IAutoMovieVector3[];
+        load?: number;
       }
     > = Object.fromEntries(
       limbs.map((limb: (typeof limbs)[number]) => {
         const flat: number = seating?.[limb.bone]?.flat ?? 1;
+        const load: number | undefined = seating?.[limb.bone]?.load;
         return [
           limb.bone,
           {
             bearing: seating?.[limb.bone]?.bearing ?? 1,
             flat,
             ankle: ankleOf(limb),
+            ...(load !== undefined ? { load } : {}),
             ...(flat > 0
               ? {}
               : {

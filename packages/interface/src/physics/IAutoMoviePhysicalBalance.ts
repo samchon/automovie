@@ -143,13 +143,18 @@ export namespace IAutoMoviePhysicalBalance {
      * + sqrt(max(5.77 d, CLEARANCE h) / acceleration) - elapsed, the earliest a
      * minimum-jerk transfer and a clearance at rest at both ends can, and the
      * target is where the capture point will be then (Khadiv et al. 2017,
-     * Section III-B). Takes the place of `swingSeconds` when given.
+     * Section III-B). Takes the place of `swingSeconds` when given. The landed
+     * foot's ramp-in, seconds, is how long after touchdown its share takes to
+     * bear, the centre of pressure kept on the remaining supports meanwhile
+     * (Herzog et al. 2016, Section 5.3), so the target is where the capture
+     * point will be once the foot bears; absent counts none.
      */
     swing?: {
       ramp: number;
       acceleration: number;
       height: number;
       elapsed?: number;
+      landing?: number;
     };
 
     /**

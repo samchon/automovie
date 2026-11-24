@@ -31,6 +31,23 @@ import { solveXpbdSupportComplementarity } from "./solveXpbdSupportComplementari
  */
 export namespace solveXpbdArticulationContacts {
   /**
+   * The normal impulse a bounded support group's rows may still add over a
+   * substep, newton seconds: its force bound over the substep less what the
+   * contact passes already gave its patches, and never less than nothing. The
+   * bound ramps the force the controller asks of a contact (Herzog et al.
+   * 2016, Section 5.3); what the floor's contact gave, as a landing foot's
+   * impact, is the floor's, and the controller cannot take it back through
+   * the other supports (unilateral contact).
+   *
+   * @param input The bound, newtons; the substep, seconds; and the impulse
+   *   the contact passes gave the group, newton seconds.
+   * @returns The impulse left, newton seconds.
+   */
+  export function room(input: { force: number; h: number; given: number }): number {
+    return Math.max(0, Math.max(0, input.force) * input.h - input.given);
+  }
+
+  /**
    * The motors' response with the tree held at its pressed supports.
    *
    * @param tree The tree.
@@ -241,8 +258,8 @@ export namespace solveXpbdArticulationContacts {
       (task.torque.y * h) / length,
       (task.torque.z * h) / length,
     ].map((value: number, m: number): number => value - prior[m]!);
-    // A bounded group's normal rows add at most its bound over the substep
-    // less what the contact passes already gave its patches.
+    // A bounded group's normal rows add at most the room its bound leaves
+    // (`room`).
     const bounds: solveXpbdSupportCascade.IBound[] = (task.bounds ?? []).map(
       (bound: AutoMovieXpbdWorld.IBound): solveXpbdSupportCascade.IBound => {
         const patches: IPatch[] = set.patches.filter((patch: IPatch): boolean =>
@@ -252,12 +269,14 @@ export namespace solveXpbdArticulationContacts {
         );
         return {
           rows: patches.flatMap((patch: IPatch): number[] => patch.normals),
-          impulse:
-            Math.max(0, bound.force) * h -
-            patches.reduce(
+          impulse: solveXpbdArticulationContacts.room({
+            force: bound.force,
+            h,
+            given: patches.reduce(
               (sum: number, patch: IPatch): number => sum + patch.normal,
               0,
             ),
+          }),
         };
       },
     );

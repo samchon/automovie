@@ -26,13 +26,19 @@ const INSET: number = 0.02;
 const MARGIN: number = 0.01;
 
 /**
- * The swing's unloading ramp, seconds, peak acceleration, m/s^2, and clearance,
- * metres.
+ * The swing's unloading ramp, seconds, peak acceleration, m/s^2, clearance,
+ * metres, and the landed foot's ramp-in, seconds.
  */
-const SWING: { ramp: number; acceleration: number; height: number } = {
+const SWING: {
+  ramp: number;
+  acceleration: number;
+  height: number;
+  landing: number;
+} = {
   ramp: 0.05,
   acceleration: 30,
   height: 0.05,
+  landing: 0.05,
 };
 
 /** The longest step, metres. */
@@ -49,8 +55,10 @@ const REACH: number = 0.5;
  *    where the capture point will be when the leg can land, xi_T = u0
  *
  *    - (xi - u0) e^(omega T), u0 the remaining foot's shrunken outline's point
- *         nearest xi, T = ramp + sqrt(max(5.77 d, 24 h) / a) for the step's
- *         distance d: within reach the foot's middle lands on it, inside the
+ *         nearest xi, T = ramp + sqrt(max(5.77 d, 24 h) / a) + the landed
+ *         foot's ramp-in for the step's distance d, the time until the new
+ *         foot bears (Herzog et al. 2016, Section 5.3): within reach the foot's
+ *         middle lands on it, inside the
  *         new support shrunk by the inset (Koolen et al., Section II-G; Pratt
  *         et al., M2V2, Section VII-E1); the foot keeps its own side, at least
  *         as wide as it stands, and never crosses toward the other (Section
@@ -157,7 +165,7 @@ export function test_physical_balance_step_choice(): void {
     );
 
   // 2. Place and time together for a forward capture point.
-  const capture: IAutoMovieVector3 = { x: 0.02, y: 0, z: 0.3 };
+  const capture: IAutoMovieVector3 = { x: 0.02, y: 0, z: 0.27 };
   const result: IAutoMoviePhysicalBalance.IResult = assess(biped, capture);
   const step = result.step;
   if (!step) failures.push("a forward capture point chose no step");
@@ -179,7 +187,11 @@ export function test_physical_balance_step_choice(): void {
       step.target.x - moving.position.x,
       step.target.z - moving.position.z,
     );
-    const growth: number = Math.exp(omega * (SWING.ramp + swing(d)));
+    // The capture point diverges through the unloading ramp, the swing and
+    // the landed foot's ramp-in.
+    const growth: number = Math.exp(
+      omega * (SWING.ramp + swing(d) + SWING.landing),
+    );
     const landing: IAutoMovieVector3 = {
       x: u0.x + (capture.x - u0.x) * growth,
       y: 0,
@@ -475,7 +487,7 @@ export function test_physical_balance_step_choice(): void {
     extra?: Partial<IAutoMoviePhysicalBalance.IAssessInput>,
   ): IAutoMoviePhysicalBalance.IResult["step"] =>
     AutoMoviePhysicalBalance.assess({
-      center: { x: 0.02, y: HEIGHT, z: 0.45 },
+      center: { x: 0.02, y: HEIGHT, z: 0.42 },
       velocity: { x: 0, y: 0, z: 0 },
       gravity: G,
       floor: 0,

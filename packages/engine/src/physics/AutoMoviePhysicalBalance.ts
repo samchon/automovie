@@ -145,7 +145,8 @@ export namespace AutoMoviePhysicalBalance {
       input.swing.acceleration > 0 &&
       Number.isFinite(input.swing.acceleration) &&
       input.swing.ramp >= 0 &&
-      input.swing.height >= 0
+      input.swing.height >= 0 &&
+      (input.swing.landing === undefined || input.swing.landing >= 0)
         ? input.swing
         : undefined;
     const swing = (distance: number): number =>
@@ -158,6 +159,15 @@ export namespace AutoMoviePhysicalBalance {
         : (input.swingSeconds ?? 0);
     // A swing under way lands its elapsed time sooner than a fresh one.
     const spent: number = Math.max(0, timing?.elapsed ?? 0);
+    // The capture point diverges through the unloading ramp, the swing and
+    // the landed foot's ramp-in, less what a swing under way has spent: the
+    // target is where it will be once the new foot bears (Khadiv et al. 2017,
+    // Section III-B; Herzog et al. 2016, Section 5.3).
+    const until = (distance: number): number =>
+      Math.max(
+        0,
+        (timing?.ramp ?? 0) + swing(distance) + (timing?.landing ?? 0) - spent,
+      );
     // A diagonal pair, both feet moved by one displacement while the other
     // diagonal holds the centre of pressure on its hull (Chen et al. 2022,
     // Section 2.1, Example 1; MIT Cheetah-Software, trotting): its place and
@@ -236,7 +246,7 @@ export namespace AutoMoviePhysicalBalance {
         landing = AutoMoviePhysicalBalance.diverge(
           capturePoint,
           holding,
-          omega * Math.max(0, (timing?.ramp ?? 0) + swing(distance) - spent),
+          omega * until(distance),
         );
         travel = place(landing);
         distance = Math.hypot(travel.x, travel.z);
@@ -476,7 +486,7 @@ export namespace AutoMoviePhysicalBalance {
           landing = AutoMoviePhysicalBalance.diverge(
             capturePoint,
             holding,
-            omega * Math.max(0, (timing?.ramp ?? 0) + swing(distance) - spent),
+            omega * until(distance),
           );
           const placed: IAutoMovieVector3 = place(landing);
           const travel: IAutoMovieVector3 = {
