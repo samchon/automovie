@@ -168,7 +168,8 @@ export namespace physicalSpanPose {
    * @param body The body.
    * @param state Its recovery state, if any.
    * @param seconds The substep's time, local seconds.
-   * @returns The response's sample while it plays, else undefined.
+   * @returns The response's sample while it plays, from the first substep its
+   *   body may be handed to authored poses (`admissible`), else undefined.
    */
   export function play(
     bound: Bound,
@@ -186,9 +187,67 @@ export namespace physicalSpanPose {
       };
       bound.spans.set(body.id, held);
     }
-    return seconds < held.span.until ? held.span.sample(seconds) : undefined;
+    if (!(seconds < held.span.until)) return undefined;
+    if (!held.started) {
+      if (!handable(bound, body)) return undefined;
+      held.started = true;
+    }
+    return held.span.sample(seconds);
   }
 
+  /**
+   * Whether a body's actual poses may be handed to authored ones: every joint's
+   * two anchors within the handoff's linear error of each other, the envelope
+   * an ownership return starts inside (`assertPhysicalReturnPath`). A joint
+   * with a missing pose is not judged.
+   *
+   * @param input The joints, the poses by bone, world, and the linear error,
+   *   metres.
+   * @returns Whether every judged joint is inside the envelope.
+   */
+  export function admissible(input: {
+    joints: readonly IAutoMoviePhysicalJoint[];
+    poses: Readonly<Record<string, IAutoMovieRigidTransform>>;
+    limit: number;
+  }): boolean {
+    return input.joints.every((joint: IAutoMoviePhysicalJoint): boolean => {
+      const parent: IAutoMovieRigidTransform | undefined =
+        input.poses[joint.parent];
+      const child: IAutoMovieRigidTransform | undefined =
+        input.poses[joint.child];
+      if (!parent || !child) return true;
+      return (
+        Vector3.length(
+          Vector3.subtract(
+            physicalSupportPoint(parent, joint.parentFrame.position),
+            physicalSupportPoint(child, joint.childFrame.position),
+          ),
+        ) <= input.limit
+      );
+    });
+  }
+
+  /** The body's actual poses judged by `admissible`. */
+  function handable(
+    bound: Bound,
+    body: IAutoMoviePhysicalSimulationInput.IBody,
+  ): boolean {
+    const segments = bound.segments?.get(body.id);
+    const limit: number | undefined = body.handoffLimits?.maximumLinearError;
+    if (!segments || limit === undefined) return true;
+    return admissible({
+      joints: body.profile.joints,
+      poses: Object.fromEntries(
+        [...segments].map(
+          ([bone, rigid]): [string, IAutoMovieRigidTransform] => [
+            bone,
+            { position: rigid.translation(), rotation: rigid.rotation() },
+          ],
+        ),
+      ),
+      limit,
+    });
+  }
   /**
    * The body's disturbance response handed back on the first substep after it
    * settles: the recovery state adopts where the response left the body, its

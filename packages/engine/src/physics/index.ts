@@ -191,6 +191,7 @@ export * from "./readPhysicalScene";
 export * from "./readXpbdManifolds";
 export * from "./rebasePhysicalTargets";
 export * from "./recordPhysicalContact";
+export * from "./recordPhysicalSpanContacts";
 export * from "./releasePhysicalTracking";
 export * from "./rerootPhysicalProfile";
 export * from "./resolveImpact";
