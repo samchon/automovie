@@ -2,6 +2,12 @@
 
 Campaign [#3151](https://github.com/samchon/automovie/issues/3151) builds joint surfaces from the figure's own sections, courses and anatomical landmarks. Examine each junction in matched-camera clay, construction curves over clay and close views. Naturalness determines shape acceptance. Section and mesh measurements diagnose causes and verify structural requirements.
 
+## Fair source curves
+
+Start each region with the fewest conic guides that carry its measured outline, section dimensions and anatomical folds. Align section origins and directions so each guide follows the same anatomical feature across sections. Fair source observations over the feature's physical width before constructing the loft. Keep an extra guide when it carries an independently observed feature or a change in topology. [Open CASCADE wire compatibility](https://occt3d.com/dev/doc/refman/html/class_b_rep_fill___compatible_wires.html), [Moreton and Séquin 1992](https://people.eecs.berkeley.edu/~sequin/PAPERS/SIGGR92_MVC_MVS.pdf).
+
+Compose the parent loop once and use it for both sides. Check the shared positions, compatible cross-boundary tangents and indexed edge incidence alongside the clay views. A sharp turn on an otherwise shared edge calls for inspection of the original guides and section correspondence.
+
 ## Ownership of a junction
 
 A side joint has a single boundary curve on the parent surface. The parent supplies the point and tangent plane at each address. The child starts there and carries those conditions into its own regular sections. An end joint starts from the host's end curve. The first child cuts divide the host's ray domains and carry their own distal sections. Preserve these distal sections and their jets at the protected mark.
