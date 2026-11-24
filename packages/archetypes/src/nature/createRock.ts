@@ -42,14 +42,8 @@ const GRANITE: string =
  *   the irregular form; absent, each dimension takes the middle of its band and
  *   the form is seed 0's.
  * @returns The stone.
- * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
- * @evidence contracts/development/common.md#meaningful-documentation States both forms, how the stone rests, how its mass follows its size and its contacts.
- * @evidence contracts/development/implementation.md#principled-implementation The irregular form is one convex cell whose X extent is the size class's drawn diameter; its mass is the cell's volume times granite's measured specific gravity and water's density. The ball form keeps the sphere's volume, pi d cubed over six. The form's noise is drawn on its own stream keyed by the seed, the producer and "form", as the draw session keys a dimension, so it moves no dimension's draw.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, one part of the chosen form, its mass, the kind's contacts read from that part.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The irregular hull loses concavities; no facet a hand or a foot uses is lost by it. Its displacement and base cut are named construction details no act reads.
- * @evidence contracts/development/implementation.md#efficient-algorithms One part; the irregular form's 64 corners cost a quadratic plan-pair search and one hull.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+ * @throws {AutoMovieArchetypeRefusal} For a kind or form it does not make, or a
+ *   fixed dimension outside its band.
  */
 export function createRock(
   params: createRock.IParams,

@@ -52,13 +52,6 @@ const ROUGHNESS: number = 0.5;
  *   +Z ray at half height through the centroid leaves the hull.
  * @throws {Error} When the half-height ray from the centroid's plan position
  *   starts outside the hull, which a convex stone on its base cannot do.
- * @evidence contracts/development/common.md#meaningful-documentation States the construction step by step with its citation, the named construction constants, the frame and size the result keeps, the loss of concavities and the one defect refusal.
- * @evidence contracts/development/implementation.md#principled-implementation A Fibonacci lattice spreads the corner directions evenly (González 2010) and the engine's fractal noise displaces them smoothly, so neighbouring corners move together; the plan-diameter pair turned onto X makes the X extent equal the largest horizontal extent, because no pair's X difference exceeds its distance; uniform scaling keeps the shape and the base at y = 0. The hull's corners alone form the cell because a collider admits no interior point.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One pass per step: cast, cut, turn, centre and scale, then hull and read the contacts from the same hull the cell admits.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts DISPLACEMENT and BASE_CUT are named construction details no act reads; the diameter comes from the drawn band and the mass stays with the caller. Nothing is keyed on a seed or kind.
- * @evidence contracts/development/implementation.md#efficient-algorithms 64 corners: 64 three-octave noise samples, an O(N^2) plan-pair search of 2,016 pairs and one hull.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent form from its seed.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing beyond the returned cell and points.
  */
 export function irregularRockForm(
   seed: string,
