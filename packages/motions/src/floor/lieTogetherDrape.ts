@@ -14,11 +14,10 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanArmTarget } from "../compose/AutoMovieMotionHumanArmTarget";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { courseArmGoal } from "../compose/courseArmGoal";
-import { HumanArmObstacleBones } from "../posture/HumanArmObstacleBones";
+import { HumanAuditModel } from "../posture/HumanAuditModel";
 import { HumanColliders } from "../posture/HumanColliders";
 import { HumanHand } from "../posture/HumanHand";
 import { StrikingBody } from "../striking/StrikingBody";
@@ -31,23 +30,6 @@ import { touchHoldRests } from "../touch/touchHoldRests";
 const REST: number = 0.005;
 
 /**
- * The partner's bones whose colliders the draping arm is laid among: the trunk,
- * the thighs and the arms, as an embrace's (`embraceFromBehind`'s `AROUND`).
- */
-const AMONG: ReadonlySet<AutoMovieHumanoidBone> =
-  new Set<AutoMovieHumanoidBone>([
-    ...HumanArmObstacleBones.TRUNK,
-    "leftUpperLeg",
-    "rightUpperLeg",
-    "leftUpperArm",
-    "rightUpperArm",
-    "leftLowerArm",
-    "rightLowerArm",
-    "leftHand",
-    "rightHand",
-  ]);
-
-/**
  * The spooning body's free arm draped over its partner. The arm a spooning body
  * does not lie on otherwise hangs from its upper shoulder into the partner it
  * lies behind (its fingers met the partner's forearm 22 mm deep); here it is
@@ -55,11 +37,11 @@ const AMONG: ReadonlySet<AutoMovieHumanoidBone> =
  * palm flat on the partner's upper arm on the side away from the floor, found
  * on the partner's own colliders by a ray in along the region's normal, the
  * fingers toward the partner's front, over the flank. The goal carries the
- * partner's trunk, thighs and arms, the upper arm's segment and its reachable
- * neighbours as the ones the palm lies on (`touchHoldRests`), the rest as ones
- * the arm keeps clear of, and the arm is planned as one admitted course from
- * its entry angles onto the rest (`courseArmGoal`), never fitted afresh each
- * second.
+ * partner's every segment the audit reads (`HumanAuditModel.segments`), the
+ * upper arm's segment and its reachable neighbours as the ones the palm lies on
+ * (`touchHoldRests`), the rest as ones the arm keeps clear of, and the arm is
+ * planned as one admitted course from its entry angles onto the rest
+ * (`courseArmGoal`), never fitted afresh each second.
  */
 export namespace lieTogetherDrape {
   /** The free arm's rest on the partner. */
@@ -168,7 +150,10 @@ export namespace lieTogetherDrape {
       Vector3.addScaled(front, normal, -Vector3.dot(front, normal)),
     );
     const placed: IAutoMovieMotionHumanColliders.IPlaced[] =
-      HumanColliders.preparePlaced(partner, AMONG)(bones);
+      HumanColliders.preparePlaced(
+        partner,
+        HumanAuditModel.segments(partner),
+      )(bones);
     const lies: (segment: IAutoMovieMotionHumanColliders.IPlaced) => boolean =
       touchHoldRests(partner, top, body.measure.hand)(bones);
     const goal: IAutoMovieHumanLimbGoal = AutoMovieMotionHumanArmTarget.goal(
@@ -208,17 +193,17 @@ export namespace lieTogetherDrape {
 
   /** The course's members beside the plan. */
   export interface ICourse {
-    /** The spooning body. */
-    body: IAutoMovieMotionHumanBody;
+    /**
+     * The spooning body and the pose it lies down from, whose arm the course
+     * leaves from (courseArmGoal.IContext).
+     */
+    context: courseArmGoal.IContext;
 
     /** The lying plan, whose posture writes the rest's goal throughout. */
     plan: IAutoMovieMotionHumanActionPlan;
 
     /** The rest. */
     drape: IDrape;
-
-    /** The arm's angles at the plan's start. */
-    rest: ReturnType<typeof AutoMovieMotionHumanArm.angles>;
 
     /** When the body has settled, seconds: the arm is on the partner by then. */
     settle: number;
@@ -237,10 +222,9 @@ export namespace lieTogetherDrape {
   export function course(props: ICourse): IAutoMovieMotionHumanActionPlan {
     const duration: number = props.plan.duration;
     const coursed: IAutoMovieMotionHumanActionPlan = courseArmGoal({
-      body: props.body,
+      context: props.context,
       plan: props.plan,
       side: props.drape.side,
-      rest: props.rest,
       span: {
         start: 0,
         ready: props.settle,

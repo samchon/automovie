@@ -32,7 +32,7 @@ import { seated } from "../everyday/seated";
 import { sitPlace } from "../everyday/sitPlace";
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
-import { HumanArmObstacleBones } from "../posture/HumanArmObstacleBones";
+import { HumanAuditModel } from "../posture/HumanAuditModel";
 import { HumanColliders } from "../posture/HumanColliders";
 import { mixHumanPosture } from "../posture/mixHumanPosture";
 import { poseBones } from "../posture/poseBones";
@@ -65,17 +65,6 @@ const SETTLE: number = 0.3;
  * (provisional).
  */
 const GRASP: number = 0.15;
-
-/**
- * A partner's bones a hand resting on the partner keeps clear of: the trunk and
- * the thighs.
- */
-const PARTNER: ReadonlySet<AutoMovieHumanoidBone> =
-  new Set<AutoMovieHumanoidBone>([
-    ...HumanArmObstacleBones.TRUNK,
-    "leftUpperLeg",
-    "rightUpperLeg",
-  ]);
 
 /**
  * The share of the flight a held hand keeps its hold for: to the landing, so
@@ -404,8 +393,13 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
                   ReturnType<typeof HumanColliders.preparePlaced>
                 > = HumanColliders.preparePlaced(
                   other.body,
-                  PARTNER,
-                )(other.bones(context.start + t, PARTNER));
+                  HumanAuditModel.segments(other.body),
+                )(
+                  other.bones(
+                    context.start + t,
+                    HumanAuditModel.segments(other.body),
+                  ),
+                );
                 return AutoMovieMotionHumanArmPlanned.stands(
                   context.body,
                   {
@@ -542,18 +536,21 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
             planted: false,
           },
         };
-      // A hand on a partner rests on the partner's body: its trunk and thighs, placed as displayed, are the colliders the arm keeps clear of up to the wrist.
+      // A hand on a partner rests on the partner's body: every segment the audit reads, placed as displayed, is a collider the arm keeps clear of up to the wrist.
       if (hand.partner === undefined) return reached;
       const partner: IAutoMovieMotionHumanPerformerReader = context.performer(
         hand.partner,
       );
+      // Every segment of the partner the audit reads (`HumanAuditModel.segments`).
+      const segments: ReadonlySet<AutoMovieHumanoidBone> =
+        HumanAuditModel.segments(partner.body);
       const rests = (
         until: number,
       ): ReturnType<ReturnType<typeof HumanColliders.preparePlaced>> =>
         HumanColliders.preparePlaced(
           partner.body,
-          PARTNER,
-        )(partner.bones(context.start + Math.min(t, until), PARTNER));
+          segments,
+        )(partner.bones(context.start + Math.min(t, until), segments));
       if (!released)
         reached.limbs = {
           ...reached.limbs,
@@ -619,7 +616,7 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
     context.start,
     (local: IAutoMovieMotionHumanActionPlan) =>
       courseArmGoal({
-        body: context.body,
+        context,
         // The grip holds from the instant the hand reaches its hold.
         plan: {
           ...local,
@@ -633,7 +630,6 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
           ),
         },
         side: hand.side,
-        rest: AutoMovieMotionHumanArm.angles(context.entry.pose, hand.side),
         span,
         // The other hand's course, solved with the first as one problem
         // over its own instants: from its rest to the hand-over, its hold to

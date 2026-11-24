@@ -100,6 +100,29 @@ export namespace HumanAuditModel {
   }
 
   /**
+   * The bones of a body whose colliders the audit reads, every segment of its
+   * model: what a limb keeps clear of on another body, short of the parts a law
+   * declares it rests on. The audits read every pair of segments of two bodies,
+   * as trajopt and tesseract read every link pair
+   * (`trajopt/src/collision_terms.cpp`, `tesseract/collision/bullet/src/
+   * bullet_utils.cpp`), and an allowed contact is excluded by name, as MoveIt's
+   * allowed-collision matrix lists the pairs allowed to touch; no subset of the
+   * body is chosen by hand.
+   *
+   * @param body The body.
+   * @returns Every bone carrying a collider, in the model's part order.
+   */
+  export function segments(
+    body: IAutoMovieMotionHumanBody,
+  ): ReadonlySet<AutoMovieHumanoidBone> {
+    return new Set<AutoMovieHumanoidBone>(
+      M.model(body).parts.map(
+        (part: M.IPart): AutoMovieHumanoidBone => part.bone,
+      ),
+    );
+  }
+
+  /**
    * A lower bound on the signed distance from every probe of a segment to a
    * convex shape, the link pair's certificate (`HumanLinkCertificate.certify`),
    * read before any probe.
