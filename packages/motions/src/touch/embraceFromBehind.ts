@@ -28,6 +28,7 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanAuditSkin } from "../audit/AutoMovieMotionHumanAuditSkin";
+import { AutoMovieMotionHumanAuditTangleModel } from "../audit/AutoMovieMotionHumanAuditTangleModel";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArmPhrase } from "../compose/AutoMovieMotionHumanArmPhrase";
 import { AutoMovieMotionHumanArmTarget } from "../compose/AutoMovieMotionHumanArmTarget";
@@ -50,6 +51,7 @@ import { HumanSequentialConvex } from "../posture/HumanSequentialConvex";
 import { HumanSequentialConvexFunctions } from "../posture/HumanSequentialConvexFunctions";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
+import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { StrikingBody } from "../striking/StrikingBody";
 import { embraceTrunkClear } from "./embraceTrunkClear";
 import { kiss } from "./kiss";
@@ -143,7 +145,7 @@ interface ISolved {
 /** A solved embrace with the partner's bone its chest bears on. */
 interface IPlaced extends ISolved {
   /**
-   * The partner's torso bone whose collider lies nearest the sternum: the
+   * The partner's torso bone whose collider lies nearest the chest's: the
    * chest's computed contact.
    */
   chest: AutoMovieHumanoidBone;
@@ -151,28 +153,29 @@ interface IPlaced extends ISolved {
 
 /**
  * Embrace a partner from behind. The stance and the head are one problem,
- * solved once (`solve`): the chin on the top of the partner's shoulder (the
- * shoulder's region), the sternum on the partner's back, the torso's colliders,
- * so the chest's contact is the shared target both bodies' reach computes
- * (contacts.md, "Contact between performers"); the stance by inverse
- * reachability (Vahrenkamp, Asfour and Dillmann 2013, §III.A), the root's
- * advance and shift on the planted feet (the kiss's lean model, `kissBody`),
- * with the knees' sink (up to `SINK`), the lean's pitch and roll (the kiss's),
- * the heels' raise (the kiss's `RAISE`) and the neck's flexion, side bend, turn
- * and protraction (the neck's and head's ranges), by sco's trust-region SQP
- * (`HumanSequentialConvex`). A chin left farther than `NEAR` from the shoulder,
- * a sternum farther than `NEAR` from the back, or bodies deeper in each other
- * than the skin through the hold (`embraceTrunkClear`) is refused with the
- * measure. The hands meet on the partner's abdomen, one placement for both:
- * each palm on the partner's own surface on its side of the midline (a ray onto
- * the colliders), the fingers toward the midline, the palm's middle as far from
- * it as the fingertips reach and a skin contact more, so the fingertips meet
- * there without crossing. Both arms are laid as one course (`courseArmGoal`)
- * around every segment of the partner the audit reads, the palms lying on the
- * abdomen's. The places are read where the partner stands at the start, the
- * partner's segments the arms keep clear of at every second the course is
- * planned on. Loaded windows: the chest on the partner's torso bone it bears on
- * (`LEAN`), the chin on the shoulder, the palms on the abdomen.
+ * solved once (`solve`): the chin on the partner's shoulder, toward the
+ * shoulder's region, and the chest on the partner's back, each contact collider
+ * on collider as the audit reads two bodies (Mordatch, Todorov and Popović
+ * 2012's contact violation), the bodies kept within the skin by trajopt's
+ * collision term; the stance by inverse reachability (Vahrenkamp, Asfour and
+ * Dillmann 2013, §III.A), the root's advance and shift on the planted feet (the
+ * kiss's lean model, `kissBody`), with the knees' sink (up to `SINK`), the
+ * lean's pitch and roll (the kiss's), the heels' raise (the kiss's `RAISE`) and
+ * the neck's flexion, side bend, turn and protraction (the neck's and head's
+ * ranges), by sco's trust-region SQP (`HumanSequentialConvex`). A chin left
+ * farther than `NEAR` from the shoulder, a chest farther than `NEAR` from the
+ * back, or bodies deeper in each other than the skin through the hold
+ * (`embraceTrunkClear`) is refused with the measure. The hands meet on the
+ * partner's abdomen, one placement for both: each palm on the partner's own
+ * surface on its side of the midline (a ray onto the colliders), the fingers
+ * toward the midline, the palm's middle as far from it as the fingertips reach
+ * and a skin contact more, so the fingertips meet there without crossing. Both
+ * arms are laid as one course (`courseArmGoal`) around every segment of the
+ * partner the audit reads, the palms lying on the abdomen's. The places are
+ * read where the partner stands at the start, the partner's segments the arms
+ * keep clear of at every second the course is planned on. Loaded windows: the
+ * chest on the partner's torso bone it bears on (`LEAN`), the chin on the
+ * shoulder, the palms on the abdomen.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the one solve, its source, the refusals, the hands, the course and the windows.
  */
@@ -217,6 +220,17 @@ function planEmbraceFromBehind(
     bones,
     shoulder,
   ).point;
+  // The shoulder the head rests on: the colliders of the region's bone.
+  const carrying: AutoMovieHumanoidBone =
+    partner.body.surfaces.regions[shoulder].bone;
+  const top = (
+    point: IAutoMovieVector3,
+  ): IAutoMovieMotionHumanColliders.IDistance =>
+    HumanColliders.distance(
+      partner.body,
+      new Map([[carrying, bones.get(carrying)!]]),
+      point,
+    );
   const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
   const stance: IAutoMovieMotionHumanRise.Stance = {
     left: {
@@ -336,12 +350,11 @@ function planEmbraceFromBehind(
     body,
     entry,
     stance,
-    back,
-    rest,
+    { back, top, rest },
     p.partner,
     embraceTrunkClear(body, partner, held),
   );
-  const pose: ReturnType<typeof poseBones> = poseBones(
+  const pose: ReturnType<typeof poseBones.of> = poseBones.of(
     body,
     context.entry.pose,
   );
@@ -484,7 +497,7 @@ function planEmbraceFromBehind(
       return { ...shown, limbs };
     },
   };
-  const coursed: IAutoMovieMotionHumanActionPlan = courseArmGoal({
+  const coursed: IAutoMovieMotionHumanActionPlan = courseArmGoal.of({
     context,
     plan: encircled,
     side: "left",
@@ -547,28 +560,29 @@ function planEmbraceFromBehind(
 
 /**
  * Embrace a partner from behind. The stance and the head are one problem,
- * solved once (`solve`): the chin on the top of the partner's shoulder (the
- * shoulder's region), the sternum on the partner's back, the torso's colliders,
- * so the chest's contact is the shared target both bodies' reach computes
- * (contacts.md, "Contact between performers"); the stance by inverse
- * reachability (Vahrenkamp, Asfour and Dillmann 2013, §III.A), the root's
- * advance and shift on the planted feet (the kiss's lean model, `kissBody`),
- * with the knees' sink (up to `SINK`), the lean's pitch and roll (the kiss's),
- * the heels' raise (the kiss's `RAISE`) and the neck's flexion, side bend, turn
- * and protraction (the neck's and head's ranges), by sco's trust-region SQP
- * (`HumanSequentialConvex`). A chin left farther than `NEAR` from the shoulder,
- * a sternum farther than `NEAR` from the back, or bodies deeper in each other
- * than the skin through the hold (`embraceTrunkClear`) is refused with the
- * measure. The hands meet on the partner's abdomen, one placement for both:
- * each palm on the partner's own surface on its side of the midline (a ray onto
- * the colliders), the fingers toward the midline, the palm's middle as far from
- * it as the fingertips reach and a skin contact more, so the fingertips meet
- * there without crossing. Both arms are laid as one course (`courseArmGoal`)
- * around every segment of the partner the audit reads, the palms lying on the
- * abdomen's. The places are read where the partner stands at the start, the
- * partner's segments the arms keep clear of at every second the course is
- * planned on. Loaded windows: the chest on the partner's torso bone it bears on
- * (`LEAN`), the chin on the shoulder, the palms on the abdomen.
+ * solved once (`solve`): the chin on the partner's shoulder, toward the
+ * shoulder's region, and the chest on the partner's back, each contact collider
+ * on collider as the audit reads two bodies (Mordatch, Todorov and Popović
+ * 2012's contact violation), the bodies kept within the skin by trajopt's
+ * collision term; the stance by inverse reachability (Vahrenkamp, Asfour and
+ * Dillmann 2013, §III.A), the root's advance and shift on the planted feet (the
+ * kiss's lean model, `kissBody`), with the knees' sink (up to `SINK`), the
+ * lean's pitch and roll (the kiss's), the heels' raise (the kiss's `RAISE`) and
+ * the neck's flexion, side bend, turn and protraction (the neck's and head's
+ * ranges), by sco's trust-region SQP (`HumanSequentialConvex`). A chin left
+ * farther than `NEAR` from the shoulder, a chest farther than `NEAR` from the
+ * back, or bodies deeper in each other than the skin through the hold
+ * (`embraceTrunkClear`) is refused with the measure. The hands meet on the
+ * partner's abdomen, one placement for both: each palm on the partner's own
+ * surface on its side of the midline (a ray onto the colliders), the fingers
+ * toward the midline, the palm's middle as far from it as the fingertips reach
+ * and a skin contact more, so the fingertips meet there without crossing. Both
+ * arms are laid as one course (`courseArmGoal`) around every segment of the
+ * partner the audit reads, the palms lying on the abdomen's. The places are
+ * read where the partner stands at the start, the partner's segments the arms
+ * keep clear of at every second the course is planned on. Loaded windows: the
+ * chest on the partner's torso bone it bears on (`LEAN`), the chin on the
+ * shoulder, the palms on the abdomen.
  */
 export const embraceFromBehind: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanEmbraceFromBehind> =
   {
@@ -611,9 +625,25 @@ function neck(
 }
 
 /**
+ * The partner's surfaces the embrace bears on: the torso's colliders (the back
+ * the chest lies on), the shoulder region's bone's colliders (the shoulder the
+ * head rests on) and the region's point on them (where the chin goes).
+ */
+interface ISurfaces {
+  /** The signed distance to the partner's torso colliders. */
+  back: (point: IAutoMovieVector3) => IAutoMovieMotionHumanColliders.IDistance;
+
+  /** The signed distance to the colliders of the shoulder region's bone. */
+  top: (point: IAutoMovieVector3) => IAutoMovieMotionHumanColliders.IDistance;
+
+  /** The shoulder region's point, world metres. */
+  rest: IAutoMovieVector3;
+}
+
+/**
  * The embrace's stance and head, solved once at preparation as one constrained
- * problem: the chin on the partner's shoulder, the sternum on the partner's
- * back, or the refusal.
+ * problem: the head on the partner's shoulder, the chest on the partner's back,
+ * the two bodies clear of each other, or the refusal.
  *
  * The stance is chosen by inverse reachability (Vahrenkamp, Asfour and Dillmann
  * 2013, §III.A: the base placed by the target composed with the inverse of the
@@ -621,30 +651,42 @@ function neck(
  * (the kiss's own supported root, `kissBody`) are variables of the solve, with
  * the knees' sink, the lean's pitch and roll, the heels' raise and the neck's
  * flexion, side bend, turn and protraction. The solve is sco's
- * `BasicTrustRegionSQP` (`HumanSequentialConvex`, the trajopt port): the cost
- * is the squared distance from the chin to the shoulder's region point, as
- * trajopt states a distance target; the equality is the sternum's signed
- * distance to the partner's back, the torso's colliders
- * (`HumanColliders.distance` on the spine, chest and upper chest), so the
- * chest's contact is the shared target both bodies' reach computes
- * (contacts.md, "Contact between performers"); the bounds are each freedom's
- * range. Variables are metres and radians, the units sco's parameters hold. The
- * solved embrace is then checked as Algorithm 1 checks a base: the chin within
- * `NEAR` of the shoulder, the sternum within `NEAR` of the back, and the two
- * bodies within the skin of each other through the hold (`embraceTrunkClear`);
- * a check that fails refuses with its measure.
+ * `BasicTrustRegionSQP` (`HumanSequentialConvex`, the trajopt port), its
+ * variables in metres and radians, the units sco's parameters hold:
+ *
+ * - The cost is the squared distance from the chin to the shoulder's region,
+ *   convexified with its full Hessian (trajopt's `CostFromFunc` with
+ *   `full_hessian`).
+ * - The two contacts are equalities on their contact violation, the distance from
+ *   the contacting part to the nearest point of the surface it bears on
+ *   (Mordatch, Todorov and Popović 2012, "Discovery of complex behaviors
+ *   through contact-invariant optimization", §4.2), read against the colliders
+ *   the audit reads two bodies by (`AutoMovieMotionHumanAuditPartner`: a
+ *   declared contact is "a statement that the skins meet"): the chin's signed
+ *   distance to the shoulder's colliders, the chin the contact's end effector,
+ *   and the least signed distance from the audit's probes of the torso to the
+ *   partner's back (`contact`).
+ * - The two bodies are kept apart by trajopt's collision term, the hinge on the
+ *   signed distance of every pair against its safety margin
+ *   (`trajopt/src/collision_terms.cpp`), the margin the skin the audit allows
+ *   (`AutoMovieMotionHumanAuditSkin.BUILT`): the deepest probe of either body
+ *   in the other through the hold (`embraceTrunkClear`) at most that deep.
+ * - The bounds are each freedom's range.
+ *
+ * The solved embrace is then checked as Algorithm 1 checks a base: each contact
+ * within `NEAR` of its surface and the bodies within the skin; a check that
+ * fails refuses with its measure.
  */
 function solve(
   body: IAutoMovieMotionHumanBody,
   entry: IAutoMovieMotionHumanPosture,
   stance: IAutoMovieMotionHumanRise.Stance,
-  back: (point: IAutoMovieVector3) => IAutoMovieMotionHumanColliders.IDistance,
-  rest: IAutoMovieVector3,
+  surfaces: ISurfaces,
   partner: string,
   depth: (posture: IAutoMovieMotionHumanPosture, head: boolean) => number,
 ): IPlaced {
-  const resolution: ReturnType<typeof prepareHumanPoseResolution> =
-    prepareHumanPoseResolution();
+  const resolution: ReturnType<typeof prepareHumanPoseResolution.of> =
+    prepareHumanPoseResolution.of();
   const leaned: ReturnType<typeof kissPose> = kissPose(
     body,
     entry,
@@ -652,8 +694,6 @@ function solve(
     0,
     false,
   );
-  const sternum: ReturnType<typeof HumanTrunk.preparePoint> =
-    HumanTrunk.preparePoint(body, "sternum");
   const chin: ReturnType<typeof HumanTrunk.preparePoint> =
     HumanTrunk.preparePoint(body, "chin");
   const posed = (s: ISolved): IAutoMovieMotionHumanPosture =>
@@ -717,21 +757,33 @@ function solve(
           f: (x: HumanSequentialConvexFunctions.Vector): number => {
             const d: IAutoMovieVector3 = Vector3.subtract(
               chin(posed(solved(x)), resolution),
-              rest,
+              surfaces.rest,
             );
             return Vector3.dot(d, d);
           },
-          full: false,
+          full: true,
         },
       ],
       constraints: [
         {
           g: (
             x: HumanSequentialConvexFunctions.Vector,
-          ): HumanSequentialConvexFunctions.Vector => [
-            back(sternum(posed(solved(x)), resolution)).distance,
-          ],
+          ): HumanSequentialConvexFunctions.Vector => {
+            const posture: IAutoMovieMotionHumanPosture = posed(solved(x));
+            return [
+              surfaces.top(chin(posture, resolution)).distance,
+              contact(body, posture, TORSO, surfaces.back).distance,
+            ];
+          },
           equality: true,
+        },
+        {
+          g: (
+            x: HumanSequentialConvexFunctions.Vector,
+          ): HumanSequentialConvexFunctions.Vector => [
+            depth(posed(solved(x)), true) - AutoMovieMotionHumanAuditSkin.BUILT,
+          ],
+          equality: false,
         },
       ],
       low: bounds.map((b: IRange): number => b.low),
@@ -742,40 +794,71 @@ function solve(
   );
   const best: ISolved = solved(result.x);
   const posture: IAutoMovieMotionHumanPosture = posed(best);
-  const at: IAutoMovieVector3 = chin(posture, resolution);
-  const miss: number = Vector3.distance(at, rest);
-  const contact: IAutoMovieMotionHumanColliders.IDistance = back(
-    sternum(posture, resolution),
+  const miss: number = Vector3.distance(
+    chin(posture, resolution),
+    surfaces.rest,
   );
-  const gap: number = contact.distance;
+  const head: IAutoMovieMotionHumanColliders.IDistance = surfaces.top(
+    chin(posture, resolution),
+  );
+
+  const chest: IAutoMovieMotionHumanColliders.IDistance = contact(
+    body,
+    posture,
+    TORSO,
+    surfaces.back,
+  );
   const into: number = depth(posture, true);
-  if (miss > NEAR) {
-    // Where the shoulder lies from the chin, in the performer's frame.
-    const off: IAutoMovieVector3 = Vector3.subtract(rest, at);
-    const r: number = (entry.yaw * Math.PI) / 180;
-    const left: number = off.x * Math.cos(r) - off.z * Math.sin(r);
-    const ahead: number = off.x * Math.sin(r) + off.z * Math.cos(r);
+  if (Math.abs(head.distance) > NEAR)
     throw refusal(
       partner,
-      `the chin stays ${(miss * 1000).toFixed(0)} mm from the partner's shoulder with the chest on the back (the shoulder ${(left * 1000).toFixed(0)} mm to the left, ${(off.y * 1000).toFixed(0)} mm up and ${(ahead * 1000).toFixed(0)} mm ahead of it), leaning ${best.roll.toFixed(0)} degrees aside, sinking ${(best.sink * 1000).toFixed(0)} mm, the head turned ${best.twist.toFixed(0)}, flexed ${best.flexion.toFixed(0)} and bent ${best.tilt.toFixed(0)}, the heels raised ${best.raise.toFixed(0)}`,
+      `the chin stays ${(head.distance * 1000).toFixed(0)} mm from the partner's shoulder with the chest on the back, ${(miss * 1000).toFixed(0)} mm from the shoulder's top, leaning ${best.roll.toFixed(0)} degrees aside, sinking ${(best.sink * 1000).toFixed(0)} mm, the head turned ${best.twist.toFixed(0)}, flexed ${best.flexion.toFixed(0)} and bent ${best.tilt.toFixed(0)}, the heels raised ${best.raise.toFixed(0)}`,
       "stand behind the shoulder the chin rests on, or embrace a partner whose shoulder is near the chin's height",
     );
-  }
-  if (Math.abs(gap) > NEAR)
+  if (Math.abs(chest.distance) > NEAR)
     throw refusal(
       partner,
-      `the chest lies ${(gap * 1000).toFixed(0)} mm ${gap > 0 ? "off" : "into"} the partner's back with the chin on the shoulder`,
+      `the chest lies ${(chest.distance * 1000).toFixed(0)} mm ${chest.distance > 0 ? "off" : "into"} the partner's back with the head on the shoulder`,
       "stand behind the partner, nearer or farther by that much",
     );
   if (into > AutoMovieMotionHumanAuditSkin.BUILT)
     throw refusal(
       partner,
-      `the bodies lie ${(into * 1000).toFixed(1)} mm into each other with the chin on the shoulder and the chest on the back`,
+      `the bodies lie ${(into * 1000).toFixed(1)} mm into each other with the head on the shoulder and the chest on the back`,
       "stand behind the shoulder the chin rests on",
     );
-  return { ...best, miss, chest: contact.bone as AutoMovieHumanoidBone };
+  return { ...best, miss, chest: chest.bone as AutoMovieHumanoidBone };
 }
 
+/**
+ * A contact's violation: the least signed distance from the audit's probes of a
+ * body's parts (`HumanAuditModel.frame`) to the surface they bear on, with the
+ * surface's nearest bone.
+ */
+function contact(
+  body: IAutoMovieMotionHumanBody,
+  posture: IAutoMovieMotionHumanPosture,
+  parts: ReadonlySet<AutoMovieHumanoidBone>,
+  surface: (
+    point: IAutoMovieVector3,
+  ) => IAutoMovieMotionHumanColliders.IDistance,
+): IAutoMovieMotionHumanColliders.IDistance {
+  const frame: HumanAuditModel.IFrame = HumanAuditModel.frame(
+    body,
+    poseBones.of(body, resolveHumanPosture.of(body, posture)),
+  );
+  let least: IAutoMovieMotionHumanColliders.IDistance | undefined;
+  frame.model.parts.forEach(
+    (part: AutoMovieMotionHumanAuditTangleModel.IPart, i: number): void => {
+      if (!parts.has(part.bone)) return;
+      for (const probe of frame.probes[i]!) {
+        const near: IAutoMovieMotionHumanColliders.IDistance = surface(probe);
+        if (least === undefined || near.distance < least.distance) least = near;
+      }
+    },
+  );
+  return least!;
+}
 /** Degrees of an angle in radians. */
 function degrees(radians: number): number {
   return radians / RADIAN;
