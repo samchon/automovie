@@ -22,6 +22,21 @@ import { createDrawPageDouble } from "../draw/createDrawPageDouble";
 import { createDialogueReceiptFixture } from "../internal/createDialogueReceiptFixture";
 import { rejectsError } from "../internal/predicates";
 
+/** One render's result with what the doubles recorded. */
+interface IRendered {
+  /** The drawn video's result. */
+  result: IAutoMovieDrawnVideoResult;
+
+  /** The files the render wrote, by path. */
+  written: Map<string, Uint8Array>;
+
+  /** The encoder's arguments. */
+  args: readonly string[];
+
+  /** How many frames the page double drew. */
+  draws: number;
+}
+
 /**
  * A drawn subject's sound list travels to the render, is read through the host,
  * admitted, mixed and encoded as the film's soundtrack.
@@ -46,24 +61,34 @@ import { rejectsError } from "../internal/predicates";
  */
 export async function test_film_production_sound_route(): Promise<void> {
   const files: Map<string, Uint8Array> = new Map();
-  const tone = (length: number, rate: number, hz: number): Float32Array =>
+  const tone: (length: number, rate: number, hz: number) => Float32Array = (
+    length: number,
+    rate: number,
+    hz: number,
+  ): Float32Array =>
     Float32Array.from(
       { length },
       (_: unknown, index: number): number =>
         0.25 * Math.sin((2 * Math.PI * hz * index) / rate),
     );
-  const line = (
+  const line: (
+    id: string,
+    text: string,
+    samples: Float32Array,
+    rate: number,
+  ) => void = (
     id: string,
     text: string,
     samples: Float32Array,
     rate: number,
   ): void => {
-    const fixture = createDialogueReceiptFixture({
-      line: id,
-      text,
-      samples,
-      sampleRate: rate,
-    });
+    const fixture: ReturnType<typeof createDialogueReceiptFixture> =
+      createDialogueReceiptFixture({
+        line: id,
+        text,
+        samples,
+        sampleRate: rate,
+      });
     files.set(`lines/${id}.wav`, fixture.pcm);
     files.set(`lines/${id}.json`, fixture.receiptBytes);
   };
@@ -120,7 +145,9 @@ export async function test_film_production_sound_route(): Promise<void> {
     ],
     scoreDucking: { gain: 0.5, attackFrames: 1, releaseFrames: 2 },
   };
-  const subject = (
+  const subject: (
+    extra: Partial<IAutoMovieCaptureSubject>,
+  ) => IAutoMovieCaptureSubject = (
     extra: Partial<IAutoMovieCaptureSubject>,
   ): IAutoMovieCaptureSubject => ({
     name: "film",
@@ -141,15 +168,13 @@ export async function test_film_production_sound_route(): Promise<void> {
     pixelFormat: "yuv420p",
     crf: 18,
   };
-  const render = async (
+  const render: (
+    described: IAutoMovieCaptureSubject,
+    audio?: string | null,
+  ) => Promise<IRendered> = async (
     described: IAutoMovieCaptureSubject,
     audio: string | null = null,
-  ): Promise<{
-    result: IAutoMovieDrawnVideoResult;
-    written: Map<string, Uint8Array>;
-    args: readonly string[];
-    draws: number;
-  }> => {
+  ): Promise<IRendered> => {
     const double: createDrawPageDouble.IDouble = createDrawPageDouble({
       subject: described,
       renderer: "test",
@@ -193,8 +218,8 @@ export async function test_film_production_sound_route(): Promise<void> {
     return { result, written, args, draws };
   };
 
-  const first = await render(subject({}));
-  const second = await render(subject({}));
+  const first: IRendered = await render(subject({}));
+  const second: IRendered = await render(subject({}));
   const wav: Uint8Array = first.written.get("frames/soundtrack.wav")!;
   const inputs: string[] = first.args.flatMap(
     (value: string, index: number): string[] =>
@@ -208,16 +233,17 @@ export async function test_film_production_sound_route(): Promise<void> {
   );
 
   // The expected master: the same lines admitted and placed by the span rule.
-  const admitted = sound.lines.map((entry) =>
-    admitProductionTtsReceipt({
-      line: entry,
-      pcmPath: entry.pcm,
-      pcm: files.get(entry.pcm)!,
-      receiptPath: entry.receipt,
-      receipt: files.get(entry.receipt)!,
-      sampleRate: 48_000,
-    }),
-  );
+  const admitted: ReturnType<typeof admitProductionTtsReceipt>[] =
+    sound.lines.map((entry: IAutoMovieFilmSound.ILine) =>
+      admitProductionTtsReceipt({
+        line: entry,
+        pcmPath: entry.pcm,
+        pcm: files.get(entry.pcm)!,
+        receiptPath: entry.receipt,
+        receipt: files.get(entry.receipt)!,
+        sampleRate: 48_000,
+      }),
+    );
   const plan: IAutoMovieProductionSoundPlan = {
     version: 1,
     inputFingerprint: "expected",

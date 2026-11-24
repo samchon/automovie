@@ -18,7 +18,7 @@ import type { Box3, Plane } from "three";
  * @returns `true` when part of the box lies outside the plane.
  */
 export function crossesAutoMovieFrustumPlane(box: Box3, plane: Plane): boolean {
-  const { x, y, z } = plane.normal;
+  const { x, y, z }: Plane["normal"] = plane.normal;
   const xx: number = x * (x >= 0 ? box.min.x : box.max.x);
   const yy: number = y * (y >= 0 ? box.min.y : box.max.y);
   const zz: number = z * (z >= 0 ? box.min.z : box.max.z);

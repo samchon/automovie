@@ -30,7 +30,7 @@ export function resolveAutoMovieInspectorCamera(props: {
   /** The placed second. */
   seconds: number;
 }): THREE.Camera {
-  const { instance, text } = props;
+  const { instance, text }: typeof props = props;
   const aspect: number = instance.width / instance.height;
   if (instance.camera.aspect !== aspect) {
     instance.camera.aspect = aspect;

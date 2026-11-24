@@ -51,23 +51,43 @@ interface IDeliveryHost {
  * directory.
  */
 interface IDeliveryReport {
+  /** The rendered subject's name. */
   subject: string;
+
+  /** The production's source revision, as `readAutoMovieRevision` reads it. */
   revision: ReturnType<typeof readAutoMovieRevision>;
+
+  /** The draw session's backend. */
   backend: string;
+
+  /**
+   * `published` when the film beside the report is this attempt's, `blocked`
+   * when an audit refused it, `failed` when a phase threw.
+   */
   status: "published" | "blocked" | "failed";
+
+  /** The file this attempt published beside the report; null unless published. */
   video: "film.mp4" | "film.mov" | null;
+
   /**
    * Present for a transparent render: its `film.mov` is a layer with straight
    * alpha and writes no audio track, because the film it is composited into
    * keeps the soundtrack.
    */
   layer?: { background: "transparent"; audio: "none" };
+
+  /** The FFmpeg arguments of the encode; empty until drawing finished. */
   args: readonly string[];
+
+  /** Each drawn frame's index, film second and pixel hash. */
   frames: Pick<
     IAutoMovieDrawnVideoResult["frames"][number],
     "index" | "seconds" | "hash"
   >[];
+
+  /** The scene inspection over every drawn frame; null until drawing finished. */
   diagnostics: IAutoMovieDrawnVideoResult["diagnostics"] | null;
+
   /**
    * The soundtrack mixed from the subject's sound list: its digest, each line's
    * PCM digest and the master's measurements.
@@ -80,13 +100,23 @@ interface IDeliveryReport {
    * `source.sha256` is that file's digest.
    */
   cut?: IAutoMovieDrawnVideoResult["cut"];
+
+  /**
+   * The content audit of the decoded file against the drawn frames and the
+   * encoded soundtrack; null until the audit ran.
+   */
   delivery: DeliveryAudit | null;
+
   /**
    * How the encoded file differs from its video and audio profiles; empty when
    * it conforms, null when not checked.
    */
   profile: IAutoMovieDeliveryProfileFinding[] | null;
+
+  /** The staged encoded file and its SHA-256; null until the audit ran. */
   source: IAutoMovieDeliveryContentAudit.ISource | null;
+
+  /** The phase that blocked or failed and its message; absent when published. */
   failure?: { phase: string; message: string };
 }
 

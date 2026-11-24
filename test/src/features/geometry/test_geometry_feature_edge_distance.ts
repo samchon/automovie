@@ -40,7 +40,7 @@ import { throwsError } from "../internal/throwsError";
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each naming the input and the behavior it pins.
  */
 export function test_geometry_feature_edge_distance(): void {
-  const { positions, indices } = extrudeL();
+  const { positions, indices }: ReturnType<typeof extrudeL> = extrudeL();
   const measured: IAutoMovieMeasureFeatureEdges.IResult =
     measureAutoMovieFeatureEdges({ positions, indices, reach: 0.05 });
 
@@ -58,7 +58,11 @@ export function test_geometry_feature_edge_distance(): void {
   );
 
   // 2 and 3. Distances.
-  const at = (point: IAutoMovieVector3) =>
+  const at: (
+    point: IAutoMovieVector3,
+  ) => ReturnType<typeof autoMovieFeatureEdgeDistance> = (
+    point: IAutoMovieVector3,
+  ): ReturnType<typeof autoMovieFeatureEdgeDistance> =>
     autoMovieFeatureEdgeDistance({
       edges: measured,
       triangle: surfaceTriangleOf(positions, indices, point),
@@ -68,7 +72,11 @@ export function test_geometry_feature_edge_distance(): void {
     "0.01 m from the crease on the inner face",
     nclose(at({ x: 1, y: 1.01, z: 0.5 }).concave, 0.01, 1e-9),
   );
-  const outer = at({ x: 2, y: 0.5, z: 0.98 });
+  const outer: ReturnType<typeof autoMovieFeatureEdgeDistance> = at({
+    x: 2,
+    y: 0.5,
+    z: 0.98,
+  });
   TestValidator.predicate(
     "0.02 m below the outer face's rim, no crease within reach",
     nclose(outer.convex, 0.02, 1e-9) && outer.concave === 0.05,
@@ -101,13 +109,18 @@ function extrudeL(): { positions: number[]; indices: number[] } {
   ];
   const positions: number[] = [];
   const indices: number[] = [];
-  const quad = (a: number[], b: number[], c: number[], d: number[]): void => {
+  const quad: (a: number[], b: number[], c: number[], d: number[]) => void = (
+    a: number[],
+    b: number[],
+    c: number[],
+    d: number[],
+  ): void => {
     const base: number = positions.length / 3;
     positions.push(...a, ...b, ...c, ...d);
     indices.push(base, base + 1, base + 2, base, base + 2, base + 3);
   };
   profile.forEach(([x0, y0]: [number, number], i: number): void => {
-    const [x1, y1] = profile[(i + 1) % profile.length]!;
+    const [x1, y1]: [number, number] = profile[(i + 1) % profile.length]!;
     quad([x0, y0, 0], [x1, y1, 0], [x1, y1, 1], [x0, y0, 1]);
   });
   for (const [x, y] of [

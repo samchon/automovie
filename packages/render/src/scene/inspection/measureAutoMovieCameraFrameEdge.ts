@@ -66,7 +66,7 @@ const SIDES: readonly measureAutoMovieCameraFrameEdge.Side[] = [
 export function measureAutoMovieCameraFrameEdge(
   props: IProps,
 ): measureAutoMovieCameraFrameEdge.IResult {
-  const { camera, meshes, triangleBudget } = props;
+  const { camera, meshes, triangleBudget }: IProps = props;
   const projection: Matrix4 = new Matrix4().multiplyMatrices(
     camera.projectionMatrix,
     camera.matrixWorldInverse,

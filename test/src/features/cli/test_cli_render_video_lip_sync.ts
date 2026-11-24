@@ -28,9 +28,13 @@ import { CliRenderDeliveryFixture } from "../internal/CliRenderDeliveryFixture";
  * @evidence contracts/development/testing.md#execution-ownership Owns its isolated temporary directory and calls no FFmpeg, browser or device.
  */
 export async function test_cli_render_video_lip_sync(): Promise<void> {
-  const root = await fs.mkdtemp(path.join(os.tmpdir(), "automovie-lip-sync-"));
+  const root: string = await fs.mkdtemp(
+    path.join(os.tmpdir(), "automovie-lip-sync-"),
+  );
   const delivery: CliRenderDeliveryFixture = new CliRenderDeliveryFixture(root);
-  const lipSyncFixture = (
+  const lipSyncFixture: (
+    lipSync: IAutoMovieDialogueLipSync[],
+  ) => Parameters<typeof renderAutoMovieVideo>[0] = (
     lipSync: IAutoMovieDialogueLipSync[],
   ): Parameters<typeof renderAutoMovieVideo>[0] => ({
     ...delivery.input,
@@ -50,7 +54,10 @@ export async function test_cli_render_video_lip_sync(): Promise<void> {
       },
     },
   });
-  const measured = (
+  const measured: (
+    verdict: "pass" | "fail" | "inconclusive",
+    lagFrames: number,
+  ) => IAutoMovieDialogueLipSync = (
     verdict: "pass" | "fail" | "inconclusive",
     lagFrames: number,
   ): IAutoMovieDialogueLipSync => ({
@@ -73,7 +80,7 @@ export async function test_cli_render_video_lip_sync(): Promise<void> {
     } catch (error) {
       lateMessage = error instanceof Error ? error.message : String(error);
     }
-    const late = await delivery.readReport();
+    const late: any = await delivery.readReport();
     const unmeasured: IAutoMovieDialogueLipSync = {
       line: "hum",
       actor: "ann",
@@ -84,7 +91,7 @@ export async function test_cli_render_video_lip_sync(): Promise<void> {
       lipSyncFixture([measured("inconclusive", 0), unmeasured]),
       delivery.run,
     );
-    const listed = await delivery.readReport();
+    const listed: any = await delivery.readReport();
     TestValidator.equals(
       "a failed lip-sync line blocks; inconclusive and unmeasured lines publish",
       [

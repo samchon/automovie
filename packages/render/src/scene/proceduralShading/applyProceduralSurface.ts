@@ -41,7 +41,7 @@ export const applyProceduralSurface: (
 ): void => {
   const frame: ReturnType<typeof autoMovieProceduralFrame> | null =
     surface.axis === undefined ? null : autoMovieProceduralFrame(surface.axis);
-  const [low, high] = surface.colors;
+  const [low, high]: IAutoMovieProceduralSurface["colors"] = surface.colors;
   const uniforms: Record<string, THREE.IUniform> = {
     uProceduralSeed: { value: surface.seed },
     uProceduralScale: { value: surface.scale },
@@ -63,7 +63,11 @@ export const applyProceduralSurface: (
   };
   const piece: IAutoMovieProceduralSurface.IPiece | undefined = surface.piece;
   if (piece !== undefined) {
-    const { offset, scale, rotationDeg } = piece.transform;
+    const {
+      offset,
+      scale,
+      rotationDeg,
+    }: IAutoMovieProceduralSurface.IPiece["transform"] = piece.transform;
     uniforms.uProceduralUvTransform = {
       value: new THREE.Matrix3().setUvTransform(
         offset.x,

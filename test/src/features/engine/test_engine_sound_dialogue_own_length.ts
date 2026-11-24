@@ -47,7 +47,9 @@ import { nclose, throwsError } from "../internal/predicates";
  * @evidence contracts/development/testing.md#execution-ownership Portable in-memory unit test entered through `test_engine_sound_dialogue_own_length`; it starts no process.
  */
 export function test_engine_sound_dialogue_own_length(): void {
-  const decode = (samples: Float32Array): Float32Array =>
+  const decode: (samples: Float32Array) => Float32Array = (
+    samples: Float32Array,
+  ): Float32Array =>
     decodeProductionAudioAsset({
       path: "line.wav",
       bytes: createDialogueReceiptFixture({
@@ -58,7 +60,10 @@ export function test_engine_sound_dialogue_own_length(): void {
       }).pcm,
       sampleRate: 48_000,
     }).samples;
-  const plan = (
+  const plan: (
+    dialogueEnd: number,
+    extra?: Partial<IAutoMovieProductionSoundPlan>,
+  ) => IAutoMovieProductionSoundPlan = (
     dialogueEnd: number,
     extra: Partial<IAutoMovieProductionSoundPlan> = {},
   ): IAutoMovieProductionSoundPlan => ({
@@ -107,7 +112,7 @@ export function test_engine_sound_dialogue_own_length(): void {
     dialogue: new Map([["line", worked]]),
   }).pcm;
   const gain: number = master[48_000 * 2]! / worked[48_000]!;
-  const envelope = (index: number): number =>
+  const envelope: (index: number) => number = (index: number): number =>
     Math.min(1, index / 240, (96_000 - index) / 240);
   TestValidator.predicate(
     "the line plays at unit rate from its start tick",
@@ -146,7 +151,9 @@ export function test_engine_sound_dialogue_own_length(): void {
   );
 
   // The timeline path.
-  const timeline = (
+  const timeline: (
+    captions: IAutoMovieFilmTimeline["tracks"]["captions"],
+  ) => IAutoMovieFilmTimeline = (
     captions: IAutoMovieFilmTimeline["tracks"]["captions"],
   ): IAutoMovieFilmTimeline => ({
     version: 1,
@@ -160,7 +167,9 @@ export function test_engine_sound_dialogue_own_length(): void {
     omissions: [],
     tracks: { audio: [], captions, effects: [] },
   });
-  const derive = (
+  const derive: (
+    captions: IAutoMovieFilmTimeline["tracks"]["captions"],
+  ) => IAutoMovieProductionSoundPlan = (
     captions: IAutoMovieFilmTimeline["tracks"]["captions"],
   ): IAutoMovieProductionSoundPlan =>
     deriveProductionSoundPlan({
@@ -169,7 +178,10 @@ export function test_engine_sound_dialogue_own_length(): void {
       compiled: new Map(),
       speechSamples: new Map([["line", 96_000]]),
     });
-  const caption = (
+  const caption: (
+    id: string,
+    endFrame: number,
+  ) => IAutoMovieFilmTimeline["tracks"]["captions"][number] = (
     id: string,
     endFrame: number,
   ): IAutoMovieFilmTimeline["tracks"]["captions"][number] => ({

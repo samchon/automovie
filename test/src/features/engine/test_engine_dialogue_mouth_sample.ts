@@ -68,15 +68,22 @@ export function test_engine_dialogue_mouth_sample(): void {
       },
     ],
   };
-  const at = (actor: string, frame: number): IAutoMovieDialogueMouth =>
+  const at: (actor: string, frame: number) => IAutoMovieDialogueMouth = (
+    actor: string,
+    frame: number,
+  ): IAutoMovieDialogueMouth =>
     sampleAutoMovieDialogueMouth({ track, actor, seconds: frame / 24 });
-  const heaviest = (weights: IAutoMovieHumanVisemeWeights): string =>
+  const heaviest: (weights: IAutoMovieHumanVisemeWeights) => string = (
+    weights: IAutoMovieHumanVisemeWeights,
+  ): string =>
     Object.entries(weights).reduce(
       (best: [string, number], entry: [string, number | undefined]) =>
         (entry[1] ?? 0) > best[1] ? [entry[0], entry[1] ?? 0] : best,
       ["", -1],
     )[0];
-  const silent = (mouth: IAutoMovieDialogueMouth): boolean =>
+  const silent: (mouth: IAutoMovieDialogueMouth) => boolean = (
+    mouth: IAutoMovieDialogueMouth,
+  ): boolean =>
     mouth.jaw === 0 &&
     JSON.stringify(mouth.visemes) === JSON.stringify({ sil: 1 });
 

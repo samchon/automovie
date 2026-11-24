@@ -75,23 +75,35 @@ const ROLES: Readonly<Record<string, readonly string[]>> = {
  * @evidence contracts/development/common.md#meaningful-documentation Lists its six scenarios with the input and expected behavior of each.
  */
 export function test_environment_room_kits(): void {
-  const build = (
+  const build: (
+    use: IAutoMovieEnvironmentModule,
+    seed?: number,
+  ) => IAutoMovieEnvironment = (
     use: IAutoMovieEnvironmentModule,
     seed: number = 3,
   ): IAutoMovieEnvironment =>
     createEnvironment({ id: "flat", seed, items: { room: { use } } });
-  const modelOf = (
+  const modelOf: (
+    environment: IAutoMovieEnvironment,
+    role: string,
+  ) => IAutoMovieModel = (
     environment: IAutoMovieEnvironment,
     role: string,
   ): IAutoMovieModel =>
     environment.runtime.models.find(
       (model: IAutoMovieModel): boolean => model.id === `flat/room/${role}`,
     )!;
-  const restOf = (
+  const restOf: (
+    environment: IAutoMovieEnvironment,
+    role: string,
+  ) => IAutoMoviePropBox = (
     environment: IAutoMovieEnvironment,
     role: string,
   ): IAutoMoviePropBox => computeModelRestExtent(modelOf(environment, role))!;
-  const box = (environment: IAutoMovieEnvironment, role: string): IBox => {
+  const box: (environment: IAutoMovieEnvironment, role: string) => IBox = (
+    environment: IAutoMovieEnvironment,
+    role: string,
+  ): IBox => {
     const frame: IAutoMovieTransform = environment.anchors[`room/${role}`]!;
     const rest: IAutoMoviePropBox = restOf(environment, role);
     const corners: IAutoMovieVector3[] = [];
@@ -108,7 +120,10 @@ export function test_environment_room_kits(): void {
             z: frame.translation.z + turned.z,
           });
         }
-    const pick = (
+    const pick: (
+      axis: "x" | "y" | "z",
+      reduce: (...values: number[]) => number,
+    ) => number = (
       axis: "x" | "y" | "z",
       reduce: (...values: number[]) => number,
     ): number =>
@@ -126,7 +141,11 @@ export function test_environment_room_kits(): void {
       },
     };
   };
-  const fits = (
+  const fits: (
+    environment: IAutoMovieEnvironment,
+    kit: string,
+    [width, depth]: readonly [number, number],
+  ) => boolean = (
     environment: IAutoMovieEnvironment,
     kit: string,
     [width, depth]: readonly [number, number],

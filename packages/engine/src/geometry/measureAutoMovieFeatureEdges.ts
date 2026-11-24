@@ -52,7 +52,8 @@ const LIST_LIMIT: number = 16;
 export function measureAutoMovieFeatureEdges(
   props: IAutoMovieMeasureFeatureEdges.IProps,
 ): IAutoMovieMeasureFeatureEdges.IResult {
-  const { positions, indices, reach } = props;
+  const { positions, indices, reach }: IAutoMovieMeasureFeatureEdges.IProps =
+    props;
   if (!Number.isFinite(reach) || reach <= 0)
     throw new Error("feature edge reach must be finite and above zero");
   const vertexCount: number = Math.floor(positions.length / 3);
@@ -70,7 +71,9 @@ export function measureAutoMovieFeatureEdges(
     }
     welded[v] = id;
   }
-  const point = (v: number): IAutoMovieVector3 => ({
+  const point: (v: number) => IAutoMovieVector3 = (
+    v: number,
+  ): IAutoMovieVector3 => ({
     x: positions[3 * v]!,
     y: positions[3 * v + 1]!,
     z: positions[3 * v + 2]!,
@@ -85,11 +88,12 @@ export function measureAutoMovieFeatureEdges(
     ];
     if (vs.some((v: number): boolean => !(v >= 0 && v < vertexCount)))
       throw new Error(`feature edge triangle ${t} has an index out of range`);
-    const [a, b, c] = vs.map(point) as [
-      IAutoMovieVector3,
-      IAutoMovieVector3,
-      IAutoMovieVector3,
-    ];
+    const [a, b, c]: [IAutoMovieVector3, IAutoMovieVector3, IAutoMovieVector3] =
+      vs.map(point) as [
+        IAutoMovieVector3,
+        IAutoMovieVector3,
+        IAutoMovieVector3,
+      ];
     corners.push([a, b, c]);
     const n: IAutoMovieVector3 = cross(sub(b, a), sub(c, a));
     const length: number = Math.hypot(n.x, n.y, n.z);
@@ -108,7 +112,8 @@ export function measureAutoMovieFeatureEdges(
       const wv: number = welded[v]!;
       if (wu === wv) continue;
       const key: string = wu < wv ? `${wu}:${wv}` : `${wv}:${wu}`;
-      const side = sides.get(key);
+      const side: { a: number; b: number; triangles: number[] } | undefined =
+        sides.get(key);
       if (side === undefined) sides.set(key, { a: u, b: v, triangles: [t] });
       else side.triangles.push(t);
     }
@@ -116,11 +121,14 @@ export function measureAutoMovieFeatureEdges(
   const edges: IAutoMovieMeasureFeatureEdges.IEdge[] = [];
   for (const side of sides.values()) {
     if (side.triangles.length !== 2) continue;
-    const [first, second] = side.triangles as [number, number];
+    const [first, second]: [number, number] = side.triangles as [
+      number,
+      number,
+    ];
     const n1: IAutoMovieVector3 = normals[first]!;
     const n2: IAutoMovieVector3 = normals[second]!;
     if (dot(n1, n2) >= FEATURE_COSINE) continue;
-    const [p, q, r] = corners[second]!;
+    const [p, q, r]: IAutoMovieVector3[] = corners[second]!;
     const centroid: IAutoMovieVector3 = scale(add(add(p!, q!), r!), 1 / 3);
     edges.push({
       a: point(side.a),
@@ -159,11 +167,8 @@ function segmentTriangleDistance(
   b: IAutoMovieVector3,
   triangle: IAutoMovieVector3[],
 ): number {
-  const [p, q, r] = triangle as [
-    IAutoMovieVector3,
-    IAutoMovieVector3,
-    IAutoMovieVector3,
-  ];
+  const [p, q, r]: [IAutoMovieVector3, IAutoMovieVector3, IAutoMovieVector3] =
+    triangle as [IAutoMovieVector3, IAutoMovieVector3, IAutoMovieVector3];
   const n: IAutoMovieVector3 = cross(sub(q, p), sub(r, p));
   const da: number = dot(sub(a, p), n);
   const db: number = dot(sub(b, p), n);

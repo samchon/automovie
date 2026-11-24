@@ -103,7 +103,7 @@ export function test_material_procedural_statistics(): void {
 
   // 4. Fabric over and under; axis Y, so along = y and across = normalize(Y × Z) = X.
   const fabric: IAutoMovieProceduralSurface = make("fabric", 0.01);
-  const at = (b: number, a: number): number =>
+  const at: (b: number, a: number) => number = (b: number, a: number): number =>
     sampleAutoMovieProceduralSurface({
       surface: fabric,
       point: { x: b * 0.01, y: a * 0.01, z: 0 },
@@ -129,7 +129,9 @@ function make(
   kind: IAutoMovieProceduralSurface["kind"],
   scale: number,
 ): IAutoMovieProceduralSurface {
-  const color = (value: number): IAutoMovieColor => ({
+  const color: (value: number) => IAutoMovieColor = (
+    value: number,
+  ): IAutoMovieColor => ({
     r: value,
     g: value,
     b: value,

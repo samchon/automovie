@@ -142,7 +142,7 @@ export async function test_cli_render_alpha_delivery(): Promise<void> {
     return "";
   };
   const folder: string = path.join(root, "media", "automovie", "test");
-  const sha256 = (bytes: Buffer): string =>
+  const sha256: (bytes: Buffer) => string = (bytes: Buffer): string =>
     createHash("sha256").update(bytes).digest("hex");
 
   try {
@@ -157,7 +157,7 @@ export async function test_cli_render_alpha_delivery(): Promise<void> {
     const written: Awaited<ReturnType<typeof renderAutoMovieVideo>> =
       await renderAutoMovieVideo(fixture, run);
     const layer: string = path.join(folder, "transparent");
-    const report = JSON.parse(
+    const report: any = JSON.parse(
       await fs.readFile(path.join(layer, "render-report.json"), "utf8"),
     );
     const film: Buffer = await fs.readFile(path.join(layer, "film.mov"));
@@ -205,7 +205,7 @@ export async function test_cli_render_alpha_delivery(): Promise<void> {
       .catch((): boolean => false);
     if (published)
       throw new Error("A layer with a foreign sample was published");
-    const blocked = JSON.parse(
+    const blocked: any = JSON.parse(
       await fs.readFile(path.join(layer, "render-report.json"), "utf8"),
     );
     TestValidator.equals(
@@ -250,7 +250,7 @@ function words(...values: number[]): Buffer {
  * to back in one chunk after the movie box.
  */
 function writeMov(frames: Buffer[]): Buffer {
-  const movie = (offset: number): Buffer =>
+  const movie: (offset: number) => Buffer = (offset: number): Buffer =>
     box(
       "moov",
       box(

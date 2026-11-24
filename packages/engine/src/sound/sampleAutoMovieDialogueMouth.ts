@@ -33,7 +33,7 @@ export function sampleAutoMovieDialogueMouth(
     throw new Error(
       `dialogue mouth second ${props.seconds} of actor "${props.actor}" is not finite`,
     );
-  const { fps } = props.track;
+  const { fps }: IAutoMovieDialogueMouthTrack = props.track;
   const frame: number = props.seconds * fps;
 
   // A frame within the tolerance of a boundary counts as that boundary, so

@@ -220,7 +220,9 @@ export namespace AutoMovieHumanEmptyProbes {
       a.family.knots.at(-1)!,
     ];
     const derivation: string = `between ${label(a)} and ${label(b)}, walking ${label(a)}'s course from its first station ${round(first)} mm`;
-    const enough = (
+    const enough: (
+      station: number,
+    ) => AutoMovieHumanEmptyProbeWalls.IGap | null = (
       station: number,
     ): AutoMovieHumanEmptyProbeWalls.IGap | null => {
       const gap: AutoMovieHumanEmptyProbeWalls.IGap =

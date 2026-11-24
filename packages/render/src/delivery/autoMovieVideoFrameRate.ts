@@ -1,8 +1,16 @@
 import type { IAutoMoviePlanVideoEncodingResult } from "@automovie/interface";
 
-/** Bounds used by FFmpeg's video-rate parser and its AVRational fallback. */
-const MAXIMUM_VIDEO_RATE_TERM = 1_001_000n;
-const MAXIMUM_AVRATIONAL_TERM = 2_147_483_647n;
+/**
+ * The term bound FFmpeg's `av_parse_video_rate` passes to its rational
+ * approximation: the largest numerator or denominator a parsed rate keeps.
+ */
+const MAXIMUM_VIDEO_RATE_TERM: bigint = 1_001_000n;
+
+/**
+ * The largest AVRational term, `INT_MAX`, with which FFmpeg's `av_d2q` retries
+ * when the first bound reduces a rate's numerator or denominator to zero.
+ */
+const MAXIMUM_AVRATIONAL_TERM: bigint = 2_147_483_647n;
 
 /**
  * Select the rational presentation rate FFmpeg uses for a numeric frame rate:
@@ -23,11 +31,15 @@ export function autoMovieVideoFrameRate(
 ): IAutoMoviePlanVideoEncodingResult["frameRate"] {
   if (fps > Number(MAXIMUM_AVRATIONAL_TERM) + 3)
     throw new Error("A video's frame rate exceeds FFmpeg's range");
-  const exponent = Math.max(0, Math.floor(Math.log2(fps)));
-  const scale = 2 ** (61 - exponent);
-  const numerator = BigInt(Math.floor(fps * scale + 0.5));
-  const denominator = BigInt(scale);
-  let rate = boundedRate(numerator, denominator, MAXIMUM_VIDEO_RATE_TERM);
+  const exponent: number = Math.max(0, Math.floor(Math.log2(fps)));
+  const scale: number = 2 ** (61 - exponent);
+  const numerator: bigint = BigInt(Math.floor(fps * scale + 0.5));
+  const denominator: bigint = BigInt(scale);
+  let rate: IAutoMoviePlanVideoEncodingResult["frameRate"] = boundedRate(
+    numerator,
+    denominator,
+    MAXIMUM_VIDEO_RATE_TERM,
+  );
   if (rate[0] === 0 || rate[1] === 0)
     rate = boundedRate(numerator, denominator, MAXIMUM_AVRATIONAL_TERM);
   if (rate[0] === 0 || rate[1] === 0)
@@ -46,21 +58,23 @@ function boundedRate(
   denominator: bigint,
   limit: bigint,
 ): IAutoMoviePlanVideoEncodingResult["frameRate"] {
-  let previousNumerator = 0n;
-  let previousDenominator = 1n;
-  let currentNumerator = 1n;
-  let currentDenominator = 0n;
+  let previousNumerator: bigint = 0n;
+  let previousDenominator: bigint = 1n;
+  let currentNumerator: bigint = 1n;
+  let currentDenominator: bigint = 0n;
   while (denominator !== 0n) {
-    const quotient = numerator / denominator;
-    const nextNumerator = quotient * currentNumerator + previousNumerator;
-    const nextDenominator = quotient * currentDenominator + previousDenominator;
+    const quotient: bigint = numerator / denominator;
+    const nextNumerator: bigint =
+      quotient * currentNumerator + previousNumerator;
+    const nextDenominator: bigint =
+      quotient * currentDenominator + previousDenominator;
     if (nextNumerator > limit || nextDenominator > limit) {
-      let size =
+      let size: bigint =
         currentNumerator === 0n
           ? quotient
           : (limit - previousNumerator) / currentNumerator;
       if (currentDenominator !== 0n) {
-        const sizeByDenominator =
+        const sizeByDenominator: bigint =
           (limit - previousDenominator) / currentDenominator;
         if (sizeByDenominator < size) size = sizeByDenominator;
       }

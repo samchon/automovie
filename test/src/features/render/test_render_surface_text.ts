@@ -49,7 +49,9 @@ export async function test_render_surface_text(): Promise<void> {
     (entry: IAutoMovieAffordance): boolean => entry.id === "face",
   )!;
   const bytes: Uint8Array = syntheticTrueTypeFont();
-  const source = (data: Uint8Array): IAutoMovieFontSource => ({
+  const source: (data: Uint8Array) => IAutoMovieFontSource = (
+    data: Uint8Array,
+  ): IAutoMovieFontSource => ({
     kind: "embedded",
     id: "block",
     data: Buffer.from(data).toString("base64"),
@@ -95,7 +97,12 @@ export async function test_render_surface_text(): Promise<void> {
       ],
     },
   ];
-  const prepare = async (
+  const prepare: (
+    fonts: IAutoMovieFontSource[],
+  ) => Promise<{
+    graphics: IAutoMovieSurfaceGraphicsObject;
+    mounted: ReturnType<typeof buildScene>;
+  }> = async (
     fonts: IAutoMovieFontSource[],
   ): Promise<{
     graphics: IAutoMovieSurfaceGraphicsObject;
@@ -117,7 +124,9 @@ export async function test_render_surface_text(): Promise<void> {
     mounted.scene.updateMatrixWorld(true);
     return { graphics, mounted };
   };
-  const glyphs = (mounted: ReturnType<typeof buildScene>): THREE.Mesh =>
+  const glyphs: (mounted: ReturnType<typeof buildScene>) => THREE.Mesh = (
+    mounted: ReturnType<typeof buildScene>,
+  ): THREE.Mesh =>
     mounted.scene.getObjectByName("surface-graphic:stop-sign/face")!
       .children[0]!.children[0]!.children[1] as THREE.Mesh;
 
@@ -144,14 +153,13 @@ export async function test_render_surface_text(): Promise<void> {
   const oh: { u: number; y: number }[] = points.filter(
     (point: { u: number; y: number }): boolean => point.u >= 550,
   );
-  const span = (values: number[]): [number, number] => [
-    Math.min(...values),
-    Math.max(...values),
-  ];
-  const [ellLeft, ellRight] = span(
+  const span: (values: number[]) => [number, number] = (
+    values: number[],
+  ): [number, number] => [Math.min(...values), Math.max(...values)];
+  const [ellLeft, ellRight]: [number, number] = span(
     ell.map((point: { u: number; y: number }): number => point.u),
   );
-  const [ohLeft] = span(
+  const [ohLeft]: [number, number] = span(
     oh.map((point: { u: number; y: number }): number => point.u),
   );
   TestValidator.predicate(

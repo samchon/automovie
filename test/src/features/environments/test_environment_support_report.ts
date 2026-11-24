@@ -73,11 +73,15 @@ import { namedFacts, nclose } from "../internal/predicates";
 export function test_environment_support_report(): void {
   const crate: IAutoMovieModel = createMoldedCrate({}, "crate");
   const crateRest: IAutoMoviePropBox = computeModelRestExtent(crate)!;
-  const level = (): IAutoMovieEnvironmentItem => ({
-    at: { x: -10, y: 0, z: -10 },
-    use: createTerrain({ size: [20, 20] }),
-  });
-  const cup = (
+  const level: () => IAutoMovieEnvironmentItem =
+    (): IAutoMovieEnvironmentItem => ({
+      at: { x: -10, y: 0, z: -10 },
+      use: createTerrain({ size: [20, 20] }),
+    });
+  const cup: (
+    declared: boolean,
+    table: "table-1" | "table-2",
+  ) => IAutoMovieEnvironmentItem = (
     declared: boolean,
     table: "table-1" | "table-2",
   ): IAutoMovieEnvironmentItem => ({
@@ -151,7 +155,10 @@ export function test_environment_support_report(): void {
       },
     },
   });
-  const finding = (
+  const finding: (
+    environment: IAutoMovieEnvironment,
+    node: string,
+  ) => IAutoMovieSetPieceSupport | undefined = (
     environment: IAutoMovieEnvironment,
     node: string,
   ): IAutoMovieSetPieceSupport | undefined =>

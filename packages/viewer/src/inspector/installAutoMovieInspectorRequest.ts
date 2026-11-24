@@ -24,7 +24,7 @@ export function installAutoMovieInspectorRequest(props: {
   /** Told the refusal's error when the request is refused. */
   refused: (error: unknown) => void;
 }): boolean {
-  const { now } = props;
+  const { now }: typeof props = props;
   const base: Omit<
     Parameters<typeof inspectAutoMovieInspectorRequest>[0],
     "request"

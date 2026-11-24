@@ -68,7 +68,10 @@ export function test_material_procedural_pattern_sheet(): void {
   const boards: IAutoMoviePatternPlacement[] = field.placements.filter(
     (placement: IAutoMoviePatternPlacement): boolean => face.has(placement.id),
   );
-  const at = (u: number, v: number): IAutoMoviePatternPlacement =>
+  const at: (u: number, v: number) => IAutoMoviePatternPlacement = (
+    u: number,
+    v: number,
+  ): IAutoMoviePatternPlacement =>
     boards.find(
       (board: IAutoMoviePatternPlacement): boolean =>
         Math.abs(board.center.u - u) < 1e-9 &&
@@ -208,7 +211,9 @@ function finish(
   sheet: "face" | "module",
   transform: IAutoMoviePatternTextureTransform,
 ): IAutoMovieProceduralSurface {
-  const color = (value: number): IAutoMovieColor => ({
+  const color: (value: number) => IAutoMovieColor = (
+    value: number,
+  ): IAutoMovieColor => ({
     r: value,
     g: value * 0.7,
     b: value * 0.4,

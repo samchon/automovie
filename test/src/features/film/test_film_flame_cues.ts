@@ -117,7 +117,10 @@ export function test_film_flame_cues(): void {
     }),
   );
   if (!staged.success) throw new Error(JSON.stringify(staged.violations));
-  const props = (
+  const props: (
+    on: [number, number] | undefined,
+    flames: IAutoMovieFlameCue[],
+  ) => IAutoMoviePerformShotProps = (
     on: [number, number] | undefined,
     flames: IAutoMovieFlameCue[],
   ): IAutoMoviePerformShotProps => ({
@@ -138,14 +141,18 @@ export function test_film_flame_cues(): void {
     ],
     flames,
   });
-  const cue = (on?: [number, number]): IAutoMovieFlameCue => ({
+  const cue: (on?: [number, number]) => IAutoMovieFlameCue = (
+    on?: [number, number],
+  ): IAutoMovieFlameCue => ({
     ...small,
     node: "table-candle",
     emitter: "light",
     light: "candle-glow",
     ...(on === undefined ? {} : { on }),
   });
-  const intensity = (shot: IAutoMoviePerformedShot): IAutoMovieTrack[] => {
+  const intensity: (shot: IAutoMoviePerformedShot) => IAutoMovieTrack[] = (
+    shot: IAutoMoviePerformedShot,
+  ): IAutoMovieTrack[] => {
     if (!shot.success) throw new Error(JSON.stringify(shot.violations));
     return (shot.shot.lightMotions ?? [])
       .flatMap((clip: IAutoMovieClip): IAutoMovieTrack[] => clip.tracks)
@@ -208,7 +215,9 @@ export function test_film_flame_cues(): void {
   );
 
   // 4. Refusals, each at its own path.
-  const unbound = (patch: Partial<IAutoMovieFlameCue>): IAutoMovieFlameCue => ({
+  const unbound: (patch: Partial<IAutoMovieFlameCue>) => IAutoMovieFlameCue = (
+    patch: Partial<IAutoMovieFlameCue>,
+  ): IAutoMovieFlameCue => ({
     ...cue(),
     light: undefined,
     emission: { luminance: 5000, color: blackbodyAutoMovieColor(1900) },
@@ -273,7 +282,8 @@ export function test_film_flame_cues(): void {
   }
 
   // 5. A warm blackbody.
-  const warm = blackbodyAutoMovieColor(1900);
+  const warm: ReturnType<typeof blackbodyAutoMovieColor> =
+    blackbodyAutoMovieColor(1900);
   TestValidator.predicate(
     "1900 K is red-dominant",
     warm.r === 1 && warm.r > warm.g && warm.g > warm.b,
@@ -284,7 +294,9 @@ export function test_film_flame_cues(): void {
     props([0.5, 2], [cue([0.5, 2])]),
   );
   if (!performed.success) throw new Error(JSON.stringify(performed.violations));
-  const artifact = (flames: unknown[]): IAutoMovieConstraintViolation[] => {
+  const artifact: (flames: unknown[]) => IAutoMovieConstraintViolation[] = (
+    flames: unknown[],
+  ): IAutoMovieConstraintViolation[] => {
     const checked: IAutoMovieValidation = validateShotArtifact(
       { ...performed.shot, flames: flames as IAutoMovieFlameCue[] },
       staged.scene,

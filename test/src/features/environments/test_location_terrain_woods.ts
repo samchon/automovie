@@ -69,7 +69,11 @@ const PATH: IAutoMovieTerrainRecipe.IPath = {
  * @evidence contracts/development/common.md#meaningful-documentation Lists its seven scenarios with the input and expected behavior of each.
  */
 export function test_location_terrain_woods(): void {
-  const build = (
+  const build: (
+    seed: string,
+    woods?: Partial<IAutoMovieTerrainRecipe.IWoods>,
+    path?: boolean,
+  ) => IAutoMovieEnvironment = (
     seed: string,
     woods: Partial<IAutoMovieTerrainRecipe.IWoods> = {},
     path: boolean = true,
@@ -89,14 +93,18 @@ export function test_location_terrain_woods(): void {
         },
       },
     });
-  const woodsOf = (
+  const woodsOf: (
+    environment: IAutoMovieEnvironment,
+  ) => IAutoMovieInstanceSetDesign = (
     environment: IAutoMovieEnvironment,
   ): IAutoMovieInstanceSetDesign =>
     environment.runtime.world.instanceSets!.find(
       (set: IAutoMovieInstanceSetDesign): boolean =>
         set.id === "forest/land/woods/stand",
     )!;
-  const transformsOf = (
+  const transformsOf: (
+    environment: IAutoMovieEnvironment,
+  ) => readonly IAutoMovieExplicitInstanceTransform[] = (
     environment: IAutoMovieEnvironment,
   ): readonly IAutoMovieExplicitInstanceTransform[] => {
     const layout: IAutoMovieInstanceSetDesign["layout"] =
@@ -105,7 +113,9 @@ export function test_location_terrain_woods(): void {
   };
 
   // The largest drawn trunk radius among a set's prototype models.
-  const trunkOf = (environment: IAutoMovieEnvironment): number =>
+  const trunkOf: (environment: IAutoMovieEnvironment) => number = (
+    environment: IAutoMovieEnvironment,
+  ): number =>
     Math.max(
       ...woodsOf(environment).prototypes!.map(
         (prototype: IAutoMovieInstancePrototypeDesign): number => {

@@ -46,7 +46,12 @@ export function createAutoMovieGradientNoise2(
 
   // The dot product of corner (i, j)'s unit gradient with the offset (u, v)
   // from that corner; the gradient's angle is the corner's first 32-bit word.
-  const corner = (i: number, j: number, u: number, v: number): number => {
+  const corner: (i: number, j: number, u: number, v: number) => number = (
+    i: number,
+    j: number,
+    u: number,
+    v: number,
+  ): number => {
     const angle: number =
       (random.uint32((i + bound) * radix + (j + bound)) / 4294967296) *
       2 *

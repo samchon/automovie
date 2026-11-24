@@ -19,7 +19,7 @@ import { admitAutoMovieFilmDialogue } from "./admitAutoMovieFilmDialogue.js";
 import { encodeAutoMovieWavPcm16 } from "./encodeAutoMovieWavPcm16.js";
 
 /** The mixer's fixed rate; every adopted file is decoded to it. */
-const SAMPLE_RATE = 48_000 as const;
+const SAMPLE_RATE: IAutoMovieProductionSoundPlan["sampleRate"] = 48_000;
 
 /**
  * Mix a film's sound list into the soundtrack its delivery encodes.
@@ -48,7 +48,7 @@ const SAMPLE_RATE = 48_000 as const;
 export async function mixAutoMovieFilmSound(
   props: IAutoMovieMixFilmSound.IProps,
 ): Promise<IAutoMovieMixFilmSound.IResult> {
-  const { sound } = props;
+  const { sound }: IAutoMovieMixFilmSound.IProps = props;
   assertUnique(
     "cue",
     sound.cues.map((cue: IAutoMovieFilmSound.ICue): string => cue.id),

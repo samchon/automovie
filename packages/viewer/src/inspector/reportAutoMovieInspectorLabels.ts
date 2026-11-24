@@ -26,7 +26,7 @@ export function reportAutoMovieInspectorLabels(props: {
   /** Whether the playhead is playing. */
   playing: boolean;
 }): void {
-  const { now, report } = props;
+  const { now, report }: typeof props = props;
   if (!props.playing) {
     report.legend([...now.inspection.legend, ...props.diagnosticLegend]);
     report.labels(

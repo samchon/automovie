@@ -97,7 +97,11 @@ export function test_material_procedural_sample(): void {
 
   // 4. Stone feature points and the midpoint between two of them.
   const seed: number = 5;
-  const feature = (
+  const feature: (
+    i: number,
+    j: number,
+    k: number,
+  ) => [number, number, number] = (
     i: number,
     j: number,
     k: number,
@@ -148,7 +152,7 @@ export function test_material_procedural_sample(): void {
       if (crowded || half > 1) continue;
       ++midpoints;
       pair ??= [p, q];
-      const [f1, f2] = autoMovieProceduralCells(seed, ...m);
+      const [f1, f2]: [number, number] = autoMovieProceduralCells(seed, ...m);
       zeroAtMidpoints &&= nclose(f2 - f1, 0, 1e-9);
     }
   TestValidator.predicate("F1 is zero at every feature point", zeroAtFeatures);
@@ -159,7 +163,7 @@ export function test_material_procedural_sample(): void {
   // At scale 0.1 the stone reads the same cells at p / 0.1: a midpoint between
   // two feature points is a joint, whose cellular term is zero.
   const stone: IAutoMovieProceduralSurface = make("stone", 0.1, seed);
-  const [a, b] = pair!;
+  const [a, b]: [[number, number, number], [number, number, number]] = pair!;
   const joint: number = sampleAutoMovieProceduralSurface({
     surface: stone,
     point: {
@@ -177,7 +181,7 @@ export function test_material_procedural_sample(): void {
   const clay: IAutoMovieProceduralSurface = make("clay", 0.2, 9);
   const sample: IAutoMovieSampleProceduralSurface.IResult =
     sampleAutoMovieProceduralSurface({ surface: clay, point: points[7]! });
-  const [c0, c1] = clay.colors;
+  const [c0, c1]: [IAutoMovieColor, IAutoMovieColor] = clay.colors;
   TestValidator.predicate(
     "colour, roughness and height follow the value",
     nclose(sample.color.r, c0.r + sample.value * (c1.r - c0.r), 1e-12) &&
@@ -203,7 +207,11 @@ function make(
   scale: number,
   seed: number,
 ): IAutoMovieProceduralSurface {
-  const color = (r: number, g: number, b: number): IAutoMovieColor => ({
+  const color: (r: number, g: number, b: number) => IAutoMovieColor = (
+    r: number,
+    g: number,
+    b: number,
+  ): IAutoMovieColor => ({
     r,
     g,
     b,

@@ -40,7 +40,7 @@ export function limitAutoMovieTruePeak(props: {
   /** Release time constant, in seconds. */
   releaseSeconds: number;
 }): number {
-  const { pcm } = props;
+  const { pcm }: typeof props = props;
   if (
     Number.isFinite(props.ceilingDbtp) === false ||
     Number.isFinite(props.lookAheadSeconds) === false ||

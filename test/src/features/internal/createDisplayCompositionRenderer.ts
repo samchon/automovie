@@ -7,7 +7,10 @@ interface IDisplayCompositionRecord {
   mip: number;
   alpha: number;
   fade: boolean;
+
+  /** Whether a fade ends on transparent black rather than opaque black. */
   fadeTransparent: boolean;
+
   backing: boolean;
   srgb: boolean;
   viewport: number[];

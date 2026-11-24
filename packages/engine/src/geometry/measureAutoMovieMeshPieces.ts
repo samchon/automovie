@@ -130,15 +130,25 @@ export const measureAutoMovieMeshPieces: (
  * from low to high.
  */
 interface IEdge {
+  /** The lower welded vertex identity. */
   low: number;
+
+  /** The higher welded vertex identity. */
   high: number;
+
+  /** The triangles using the edge, in ordinal order. */
   uses: number[];
+
+  /** Per use, whether that triangle traverses the edge from low to high. */
   forward: boolean[];
 }
 
 /** One vertex of a piece: its piece-local number and the fan of its first slot. */
 interface IVertexTally {
+  /** The vertex's number within its piece, in first-use order. */
   local: number;
+
+  /** The fan root of the corner slot that first used the vertex. */
   fan: number;
 }
 
@@ -148,10 +158,19 @@ interface IVertexTally {
  * carries more than one fan.
  */
 interface IPieceTally {
+  /** The piece's lowest triangle ordinal. */
   firstTriangle: number;
+
+  /** The piece's triangles, in ordinal order. */
   triangles: number[];
+
+  /** The piece's vertices, by welded identity. */
   vertices: Map<number, IVertexTally>;
+
+  /** The piece's undirected edges. */
   edges: IEdge[];
+
+  /** Whether some vertex's triangles in the piece form more than one fan. */
   fanless: boolean;
 }
 
@@ -244,7 +263,10 @@ const orientableOf: (tally: IPieceTally) => boolean = (
  * the same way.
  */
 interface INeighbour {
+  /** The neighbouring triangle's ordinal. */
   other: number;
+
+  /** Whether both triangles traverse the shared edge the same way. */
   alike: boolean;
 }
 

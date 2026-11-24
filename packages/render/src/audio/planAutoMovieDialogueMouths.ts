@@ -15,7 +15,7 @@ import type {
 } from "@automovie/interface";
 
 /** The rate `admitAutoMovieFilmDialogue` decodes every line at. */
-const SAMPLE_RATE = 48_000 as const;
+const SAMPLE_RATE: IAutoMovieProductionSoundPlan["sampleRate"] = 48_000;
 
 /**
  * Plan a film's dialogue mouths from its admitted lines: what each line gives

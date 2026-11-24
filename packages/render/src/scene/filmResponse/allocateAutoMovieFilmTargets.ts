@@ -48,14 +48,14 @@ export function allocateAutoMovieFilmTargets(
     height,
     linear: target(width, height, true),
     pyramid: Array.from({ length: deepest }, (_: unknown, index: number) => {
-      const [w, h] = size(index + 1);
+      const [w, h]: [number, number] = size(index + 1);
       return target(w, h, false);
     }),
     kernels: plans.map(
       (
         plan: planAutoMovieFilmGlare.IKernel,
       ): allocateAutoMovieFilmTargets.IKernelTargets => {
-        const [w, h] = size(plan.level);
+        const [w, h]: [number, number] = size(plan.level);
         return {
           plan,
           across: target(w, h, false),

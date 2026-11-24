@@ -34,7 +34,7 @@ export function planAutoMovieDeliveredCut(props: {
   /** The drawn frames' instants in output seconds, increasing. */
   times: readonly number[];
 }): IAutoMovieDeliveredCutEntry[] {
-  const { entries } = props.timeline;
+  const { entries }: IAutoMoviePlaybackTimeline = props.timeline;
   if (entries.length === 0)
     throw new Error("A cut needs at least one timeline entry");
 

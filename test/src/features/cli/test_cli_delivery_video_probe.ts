@@ -11,6 +11,12 @@ import * as path from "node:path";
 
 import { writeDeliveryMp4Header } from "../internal/writeDeliveryMp4Header";
 
+/** The video track facts the header writer takes. */
+type Video = NonNullable<Parameters<typeof writeDeliveryMp4Header>[0]["video"]>;
+
+/** What the delivery probe reads from one file. */
+type Probed = Awaited<ReturnType<typeof readAutoMovieDeliveryProbe>>;
+
 /**
  * The delivery probe reads every picture and sound fact the delivery profiles
  * check from an MP4 file's own boxes.
@@ -40,8 +46,13 @@ export async function test_cli_delivery_video_probe(): Promise<void> {
   const root: string = await fs.mkdtemp(
     path.join(os.tmpdir(), "automovie-probe-"),
   );
-  const colour = { primaries: 1, transfer: 13, matrix: 1, fullRange: true };
-  const video = {
+  const colour: NonNullable<Video["colour"]> = {
+    primaries: 1,
+    transfer: 13,
+    matrix: 1,
+    fullRange: true,
+  };
+  const video: Video = {
     timescale: 24,
     frames: 241,
     delta: 1,
@@ -50,23 +61,29 @@ export async function test_cli_delivery_video_probe(): Promise<void> {
     height: 48,
     colour,
   };
-  const write = async (name: string, bytes: Buffer): Promise<string> => {
+  const write: (name: string, bytes: Buffer) => Promise<string> = async (
+    name: string,
+    bytes: Buffer,
+  ): Promise<string> => {
     const file: string = path.join(root, name);
     await fs.writeFile(file, bytes);
     return file;
   };
-  const probe = async (bytes: Buffer) =>
+  const probe: (bytes: Buffer) => Promise<Probed> = async (
+    bytes: Buffer,
+  ): Promise<Probed> =>
     readAutoMovieDeliveryProbe(
       await write("probe.mp4", bytes),
       AUTOMOVIE_MP4_SRGB_COLOUR,
     );
-  const profile = resolveProductionVideoProfile({
-    width: 64,
-    height: 48,
-    frameRate: { numerator: 24, denominator: 1 },
-  });
-  const refusal = (
-    actual: Awaited<ReturnType<typeof probe>>["video"],
+  const profile: ReturnType<typeof resolveProductionVideoProfile> =
+    resolveProductionVideoProfile({
+      width: 64,
+      height: 48,
+      frameRate: { numerator: 24, denominator: 1 },
+    });
+  const refusal: (actual: Probed["video"]) => string = (
+    actual: Probed["video"],
   ): string => {
     try {
       assertProductionVideoProfile({ expected: profile, actual });
@@ -78,7 +95,7 @@ export async function test_cli_delivery_video_probe(): Promise<void> {
 
   try {
     // 1. A conforming file.
-    const conforming = await probe(
+    const conforming: Probed = await probe(
       writeDeliveryMp4Header({ movieTimescale: 24, video }),
     );
     TestValidator.equals("conforming video probe", conforming.video, {
@@ -121,7 +138,7 @@ export async function test_cli_delivery_video_probe(): Promise<void> {
     TestValidator.equals("conforming passes", refusal(conforming.video), "");
 
     // 2. One changed field each.
-    const absent = await probe(
+    const absent: Probed = await probe(
       writeDeliveryMp4Header({
         movieTimescale: 24,
         video: { ...video, colour: undefined },
@@ -138,7 +155,7 @@ export async function test_cli_delivery_video_probe(): Promise<void> {
     const rotation: number[] = [
       0, 65_536, 0, -65_536, 0, 0, 0, 0, 1_073_741_824,
     ];
-    const rotated = await probe(
+    const rotated: Probed = await probe(
       writeDeliveryMp4Header({
         movieTimescale: 24,
         video: { ...video, matrix: rotation },
@@ -149,7 +166,7 @@ export async function test_cli_delivery_video_probe(): Promise<void> {
       [[...rotated.video.trackMatrix], refusal(rotated.video)],
       [rotation, "unsupported-video-profile.trackMatrix"],
     );
-    const edited = await probe(
+    const edited: Probed = await probe(
       writeDeliveryMp4Header({
         movieTimescale: 24,
         video: { ...video, edit: { segment: 241, mediaTime: 1024 } },
@@ -172,7 +189,7 @@ export async function test_cli_delivery_video_probe(): Promise<void> {
     );
 
     // 3. Composition offsets and pixel aspect.
-    const delayed = await probe(
+    const delayed: Probed = await probe(
       writeDeliveryMp4Header({
         movieTimescale: 24,
         video: {
@@ -199,7 +216,7 @@ export async function test_cli_delivery_video_probe(): Promise<void> {
     );
 
     // 4. Audio.
-    const sound = await probe(
+    const sound: Probed = await probe(
       writeDeliveryMp4Header({
         movieTimescale: 24,
         video,

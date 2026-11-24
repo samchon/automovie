@@ -125,7 +125,9 @@ export const applyMaterialWear: (
     uniforms[`${prefix}Width`] = { value: layer.width };
     uniforms[`${prefix}Amount`] = { value: layer.amount };
   }
-  const weight = (name: "edge" | "grime"): string => {
+  const weight: (name: "edge" | "grime") => string = (
+    name: "edge" | "grime",
+  ): string => {
     const prefix: string = name === "edge" ? "uWearEdge" : "uWearGrime";
     const distance: string = name === "edge" ? "d.x" : "d.y";
     return wear[name] === undefined

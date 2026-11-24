@@ -30,7 +30,7 @@ import type { measureRenderTextures } from "./measureRenderTextures";
 export function measureRenderPasses(
   props: measureRenderPasses.IProps,
 ): measureRenderPasses.IResult {
-  const { subject, casters, add } = props;
+  const { subject, casters, add }: measureRenderPasses.IProps = props;
   let drawCalls: number = props.drawCalls;
   let triangles: number = props.triangles;
   for (const light of subject.scene.lights)

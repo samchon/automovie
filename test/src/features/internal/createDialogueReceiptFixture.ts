@@ -60,7 +60,10 @@ export function createDialogueReceiptFixture(props: {
   header.writeUInt32LE(data.length, 40);
   const pcm: Uint8Array = new Uint8Array(Buffer.concat([header, data]));
 
-  const request = {
+  const request: Pick<
+    IAutoMovieProductionTtsReceipt,
+    "text" | "model" | "modelRevision" | "conditioning" | "inferenceArguments"
+  > = {
     text: props.text,
     model: "fixture/speech-model",
     modelRevision: "0123456789abcdef0123456789abcdef01234567",

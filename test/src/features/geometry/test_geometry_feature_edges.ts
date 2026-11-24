@@ -77,7 +77,9 @@ export function test_geometry_feature_edges(): void {
   // 2. Distances on the +Y face.
   const centre: IAutoMovieVector3 = { x: 0, y: 0.5, z: 0 };
   const near: IAutoMovieVector3 = { x: 0.495, y: 0.5, z: 0 };
-  const at = (point: IAutoMovieVector3): number =>
+  const at: (point: IAutoMovieVector3) => number = (
+    point: IAutoMovieVector3,
+  ): number =>
     autoMovieFeatureEdgeDistance({
       edges: measured,
       triangle: surfaceTriangleOf(box.positions, box.indices, point),

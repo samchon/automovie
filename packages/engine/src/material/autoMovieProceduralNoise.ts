@@ -38,7 +38,11 @@ export function autoMovieProceduralNoise(
   // One corner's gradient dotted with the offset from it (Perlin 2002, `grad`);
   // the key is hashed once for the eight corners.
   const key: [number, number, number] = autoMoviePcg3d(seed, salt, 0x9e3779b9);
-  const corner = (di: number, dj: number, dk: number): number => {
+  const corner: (di: number, dj: number, dk: number) => number = (
+    di: number,
+    dj: number,
+    dk: number,
+  ): number => {
     const h: number =
       autoMoviePcg3d(
         ((i + di) ^ key[0]) >>> 0,

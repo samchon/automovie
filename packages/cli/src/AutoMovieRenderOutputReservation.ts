@@ -18,24 +18,26 @@ export class AutoMovieRenderOutputReservation {
     reservation: string,
     out: string,
   ): Promise<string> {
-    const pending = path.join(staging, "reservation");
-    const ticket = "owner-" + process.pid + "-" + path.basename(staging);
+    const pending: string = path.join(staging, "reservation");
+    const ticket: string =
+      "owner-" + process.pid + "-" + path.basename(staging);
     await fs.mkdir(pending);
     await fs.writeFile(path.join(pending, ticket), "");
     // Bound the number of races with another failed or completing reservation.
-    for (let pass = 0; pass < 4; pass++) {
+    for (let pass: number = 0; pass < 4; pass++) {
       try {
         await fs.rename(pending, reservation);
         return ticket;
       } catch (cause) {
-        const entries = await fs
+        const entries: string[] = await fs
           .readdir(reservation)
           .catch((error: unknown): string[] => {
             if (readAutoMovieErrorCode(error) !== "ENOENT") throw cause;
             return [];
           });
-        const owner = entries.length === 1 ? entries[0] : undefined;
-        const pid = Number(
+        const owner: string | undefined =
+          entries.length === 1 ? entries[0] : undefined;
+        const pid: number = Number(
           /^owner-(\d+)-\.render-[a-z0-9]+$/iu.exec(owner ?? "")?.[1],
         );
         if (

@@ -71,7 +71,7 @@ export function buildAutoMovieSurfaceGraphicKey(props: {
   /** Receives every geometry and material made. */
   owned: { dispose(): void }[];
 }): THREE.Group {
-  const { graphic, width, depth, owned } = props;
+  const { graphic, width, depth, owned }: typeof props = props;
   const group: THREE.Group = new THREE.Group();
 
   const face: THREE.Mesh = mesh(

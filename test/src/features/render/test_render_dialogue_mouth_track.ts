@@ -38,22 +38,30 @@ import { nclose, rejectsError } from "../internal/predicates";
  */
 export async function test_render_dialogue_mouth_track(): Promise<void> {
   const files: Map<string, Uint8Array> = new Map();
-  const square = (amplitude: number, length: number): number[] =>
+  const square: (amplitude: number, length: number) => number[] = (
+    amplitude: number,
+    length: number,
+  ): number[] =>
     Array.from({ length }, (_: unknown, index: number): number =>
       index % 2 === 0 ? amplitude : -amplitude,
     );
-  const line = (
+  const line: (
+    id: string,
+    samples: number[],
+    phonemeChunks?: IAutoMovieProductionPhonemeChunk[],
+  ) => void = (
     id: string,
     samples: number[],
     phonemeChunks?: IAutoMovieProductionPhonemeChunk[],
   ): void => {
-    const fixture = createDialogueReceiptFixture({
-      line: id,
-      text: id,
-      samples: Float32Array.from(samples),
-      sampleRate: 48_000,
-      ...(phonemeChunks === undefined ? {} : { phonemeChunks }),
-    });
+    const fixture: ReturnType<typeof createDialogueReceiptFixture> =
+      createDialogueReceiptFixture({
+        line: id,
+        text: id,
+        samples: Float32Array.from(samples),
+        sampleRate: 48_000,
+        ...(phonemeChunks === undefined ? {} : { phonemeChunks }),
+      });
     files.set(`lines/${id}.wav`, fixture.pcm);
     files.set(`lines/${id}.json`, fixture.receiptBytes);
   };
@@ -72,7 +80,11 @@ export async function test_render_dialogue_mouth_track(): Promise<void> {
   line("nar-1", square(0.1, 2000));
   line("off-1", square(0.1, 2000));
 
-  const entry = (
+  const entry: (
+    id: string,
+    startFrame: number,
+    speaker?: string,
+  ) => IAutoMovieFilmSound.ILine = (
     id: string,
     startFrame: number,
     speaker?: string,
@@ -98,26 +110,32 @@ export async function test_render_dialogue_mouth_track(): Promise<void> {
       { speaker: "ben", actor: "actor-ben" },
     ],
   };
-  const read = async (path: string): Promise<Uint8Array> => {
+  const read: (path: string) => Promise<Uint8Array> = async (
+    path: string,
+  ): Promise<Uint8Array> => {
     const bytes: Uint8Array | undefined = files.get(path);
     if (bytes === undefined) throw new Error(`ENOENT ${path}`);
     return bytes;
   };
-  const frameRate = { numerator: 24, denominator: 1 };
-  const plan = async (): Promise<IAutoMovieDialogueMouthTrack> => {
-    const lines: IAutoMovieMixFilmSound.ILine[] =
-      await admitAutoMovieFilmDialogue({
-        sound,
-        frameRate,
-        totalFrames: 24,
-        read,
-      });
-    return planAutoMovieDialogueMouths({
-      lines,
-      speakers: sound.speakers,
-      frameRate,
-    });
+  const frameRate: { numerator: number; denominator: number } = {
+    numerator: 24,
+    denominator: 1,
   };
+  const plan: () => Promise<IAutoMovieDialogueMouthTrack> =
+    async (): Promise<IAutoMovieDialogueMouthTrack> => {
+      const lines: IAutoMovieMixFilmSound.ILine[] =
+        await admitAutoMovieFilmDialogue({
+          sound,
+          frameRate,
+          totalFrames: 24,
+          read,
+        });
+      return planAutoMovieDialogueMouths({
+        lines,
+        speakers: sound.speakers,
+        frameRate,
+      });
+    };
 
   const track: IAutoMovieDialogueMouthTrack = await plan();
   TestValidator.equals(
@@ -131,7 +149,7 @@ export async function test_render_dialogue_mouth_track(): Promise<void> {
     ],
     [24, ["ana-1:actor-ana:2-6", "ben-1:actor-ben:8-9"]],
   );
-  const [ana, ben] = track.lines;
+  const [ana, ben]: IAutoMovieDialogueMouthTrack.ILine[] = track.lines;
   const expected: number[] = [0, 12, 6, 0];
   TestValidator.predicate(
     "the jaw follows each frame's own level",

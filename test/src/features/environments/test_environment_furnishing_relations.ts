@@ -77,7 +77,13 @@ interface IBox {
  * @evidence contracts/development/common.md#meaningful-documentation Lists its seven scenarios with the input and expected behavior of each.
  */
 export function test_environment_furnishing_relations(): void {
-  const build = (
+  const build: (
+    room: readonly [number, number],
+    pieces: Readonly<Record<string, IAutoMovieFurnishingPiece>>,
+    keepClear?: Readonly<
+      Record<string, readonly [number, number, number, number]>
+    >,
+  ) => IAutoMovieEnvironment = (
     room: readonly [number, number],
     pieces: Readonly<Record<string, IAutoMovieFurnishingPiece>>,
     keepClear?: Readonly<
@@ -99,7 +105,11 @@ export function test_environment_furnishing_relations(): void {
     });
 
   // A role's world box from its staged frame and its model's rest box.
-  const box = (
+  const box: (
+    environment: IAutoMovieEnvironment,
+    role: string,
+    model: IAutoMovieModel,
+  ) => IBox = (
     environment: IAutoMovieEnvironment,
     role: string,
     model: IAutoMovieModel,
@@ -120,7 +130,10 @@ export function test_environment_furnishing_relations(): void {
             z: frame.translation.z + turned.z,
           });
         }
-    const pick = (
+    const pick: (
+      axis: "x" | "y" | "z",
+      reduce: (...values: number[]) => number,
+    ) => number = (
       axis: "x" | "y" | "z",
       reduce: (...values: number[]) => number,
     ): number =>
@@ -138,7 +151,10 @@ export function test_environment_furnishing_relations(): void {
       },
     };
   };
-  const forward = (
+  const forward: (
+    environment: IAutoMovieEnvironment,
+    role: string,
+  ) => IAutoMovieVector3 = (
     environment: IAutoMovieEnvironment,
     role: string,
   ): IAutoMovieVector3 =>
@@ -151,7 +167,9 @@ export function test_environment_furnishing_relations(): void {
   // Scenarios 1 and 2: a sofa, a chest after it and a coffee table facing it.
   const chest: IAutoMovieModel = createDrawerUnit({ kind: "chest" }, "chest");
   const coffee: IAutoMovieModel = createTable({ kind: "coffee" }, "coffee");
-  const lounge = (sofa: IAutoMovieModel): IAutoMovieEnvironment =>
+  const lounge: (sofa: IAutoMovieModel) => IAutoMovieEnvironment = (
+    sofa: IAutoMovieModel,
+  ): IAutoMovieEnvironment =>
     build([4.0, 3.2], {
       sofa: { model: sofa, place: { kind: "wall", wall: "-z", offset: 0.4 } },
       chest: {
@@ -168,7 +186,9 @@ export function test_environment_furnishing_relations(): void {
     { kind: "sofa", places: 3 },
     "sofa-b",
   );
-  const widthOf = (model: IAutoMovieModel): number => {
+  const widthOf: (model: IAutoMovieModel) => number = (
+    model: IAutoMovieModel,
+  ): number => {
     const rest: IAutoMoviePropBox = computeModelRestExtent(model)!;
     return rest.max.x - rest.min.x;
   };
@@ -240,7 +260,9 @@ export function test_environment_furnishing_relations(): void {
 
   // Scenario 5: a single bed with both long sides clear and a chest after it.
   const bed: IAutoMovieModel = createPlatformBed({ kind: "single" }, "bed");
-  const bedroom = (gap: number): IAutoMovieEnvironment =>
+  const bedroom: (gap: number) => IAutoMovieEnvironment = (
+    gap: number,
+  ): IAutoMovieEnvironment =>
     build([4.0, 3.2], {
       bed: {
         model: bed,
@@ -341,7 +363,9 @@ export function test_environment_furnishing_relations(): void {
       (): boolean => {
         const mounts: readonly IAutoMovieWallMount[] =
           contribution.mounts ?? [];
-        const of = (node: string): IAutoMovieWallMount | undefined =>
+        const of: (node: string) => IAutoMovieWallMount | undefined = (
+          node: string,
+        ): IAutoMovieWallMount | undefined =>
           mounts.find((m: IAutoMovieWallMount): boolean => m.node === node);
         const mirrorMount: IAutoMovieWallMount | undefined =
           of("home/room/mirror");

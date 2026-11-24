@@ -62,7 +62,7 @@ export function bakeAutoMovieFilmProbes(props: {
   /** The admitted probes request. */
   probes: IAutoMovieFilmShading.IProbes;
 }): IAutoMovieIrradianceVolume {
-  const { renderer, scene, probes } = props;
+  const { renderer, scene, probes }: typeof props = props;
   if (
     renderer.readRenderTargetPixels === undefined ||
     renderer.clear === undefined ||

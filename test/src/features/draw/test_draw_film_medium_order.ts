@@ -110,7 +110,12 @@ export function test_draw_film_medium_order(): void {
   // 1. The order of one draw.
   place(5, -2);
   const first: createFilmResponseRendererDouble.IRender[] = drawOnce();
-  const [linear, marched, copied, response] = first;
+  const [
+    linear,
+    marched,
+    copied,
+    response,
+  ]: createFilmResponseRendererDouble.IRender[] = first;
   const program: Record<string, unknown> | null = marched?.program ?? null;
   TestValidator.predicate(
     "scene, march, copy over the linear target, then the response",

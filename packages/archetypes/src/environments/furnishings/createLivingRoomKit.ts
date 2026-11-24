@@ -61,7 +61,7 @@ export function createLivingRoomKit(
     const coffeeBox: IAutoMoviePropBox = furnishRoom.measure(coffee);
     const armchairBox: IAutoMoviePropBox = furnishRoom.measure(armchair);
     const bookcaseBox: IAutoMoviePropBox = furnishRoom.measure(bookcase);
-    const [width, depth] = params.room;
+    const [width, depth]: readonly [width: number, depth: number] = params.room;
 
     // The armchairs' front faces stand past the table's far face, and their
     // boxes sit side by side with `gap` between them.

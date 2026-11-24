@@ -133,10 +133,10 @@ export class CliRenderDeliveryFixture {
     async (_binary, args, _accept, output) => {
       if (!args.includes("-xerror")) {
         if (this.refuseEncode) throw new Error("Fixture encoder refused input");
-        const audioInput = args.indexOf("-i", args.indexOf("-i") + 1);
+        const audioInput: number = args.indexOf("-i", args.indexOf("-i") + 1);
         this.encoderSoundtrack =
           audioInput === -1 ? undefined : args[audioInput + 1];
-        const candidate = args.at(-1);
+        const candidate: string | undefined = args.at(-1);
         if (candidate === undefined) throw new Error("Missing fixture output");
         TestValidator.equals(
           "candidate is separate from the published film",
@@ -151,8 +151,8 @@ export class CliRenderDeliveryFixture {
 
       // One 72,000-sample codec frame, of which the container presents 48,000;
       // a quarter second of sound, then silence.
-      const pcm = Buffer.alloc(72_000 * 4);
-      for (let sample = 0; sample < 12_000; sample++)
+      const pcm: Buffer = Buffer.alloc(72_000 * 4);
+      for (let sample: number = 0; sample < 12_000; sample++)
         pcm.writeFloatLE(0.5, sample * 4);
       output?.stderr?.(
         "[Parsed_ashowinfo_1 @ abc] n:0 pts:0 pts_time:0 fmt:flt channels:1 chlayout:mono rate:48000 nb_samples:72000 checksum:00\n",

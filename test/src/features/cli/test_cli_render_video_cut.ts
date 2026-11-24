@@ -106,7 +106,7 @@ export async function test_cli_render_video_cut(): Promise<void> {
   };
   const video: string = path.join(root, "out", "film.mp4");
   const report: string = path.join(root, "out", "render-report.json");
-  const header = (fullRange: boolean): Buffer =>
+  const header: (fullRange: boolean) => Buffer = (fullRange: boolean): Buffer =>
     writeDeliveryMp4Header({
       movieTimescale: 4,
       video: {
@@ -119,7 +119,7 @@ export async function test_cli_render_video_cut(): Promise<void> {
         colour: { primaries: 1, transfer: 13, matrix: 1, fullRange },
       },
     });
-  const sha256 = (bytes: Buffer): string =>
+  const sha256: (bytes: Buffer) => string = (bytes: Buffer): string =>
     createHash("sha256").update(bytes).digest("hex");
   let encoded: Buffer = header(true);
   const run: NonNullable<Parameters<typeof renderAutoMovieVideo>[1]> = async (
@@ -136,7 +136,7 @@ export async function test_cli_render_video_cut(): Promise<void> {
   try {
     // 1. A published cut beside the audited digest.
     await renderAutoMovieVideo(fixture, run);
-    const published = JSON.parse(await fs.readFile(report, "utf8"));
+    const published: any = JSON.parse(await fs.readFile(report, "utf8"));
     TestValidator.equals(
       "the published report keeps the cut and the film's digest",
       [
@@ -185,7 +185,7 @@ export async function test_cli_render_video_cut(): Promise<void> {
       .then((): boolean => true)
       .catch((): boolean => false);
     if (leaked) throw new Error("A limited-range file was published");
-    const blocked = JSON.parse(await fs.readFile(report, "utf8"));
+    const blocked: any = JSON.parse(await fs.readFile(report, "utf8"));
     TestValidator.equals(
       "a blocked report no longer matches the kept film",
       [

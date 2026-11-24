@@ -68,7 +68,9 @@ export function test_engine_dialogue_viseme_mpeg4_map(): void {
     ["ʊ", "U"],
     ["w", "U"],
   ];
-  const map = (phonemes: string): IAutoMovieProductionViseme[] =>
+  const map: (phonemes: string) => IAutoMovieProductionViseme[] = (
+    phonemes: string,
+  ): IAutoMovieProductionViseme[] =>
     productionPhonemesToVisemes({
       chunks: [{ phonemes, startSample: 0, endSample: 1200 }],
     });

@@ -2,7 +2,10 @@ import type { IAutoMovieDeliveryContentAudit } from "@automovie/interface";
 import { auditAutoMovieDeliveryContent } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
+/** The audit's input. */
 type Audit = IAutoMovieDeliveryContentAudit.IProps;
+
+/** One finding of the audit. */
 type Finding = IAutoMovieDeliveryContentAudit.Finding;
 
 /**
@@ -33,7 +36,12 @@ export function test_render_delivery_loudness_audit(): void {
     toleranceLu: 0.5,
     maximumTruePeakDbtp: -1,
   };
-  const props = (
+  const props: (
+    loudness:
+      | { integratedLufs: number | null; truePeakDbtp: number | null }
+      | undefined,
+    expected?: Audit["expected"]["loudness"] | null,
+  ) => Audit = (
     loudness:
       | { integratedLufs: number | null; truePeakDbtp: number | null }
       | undefined,
@@ -83,12 +91,14 @@ export function test_render_delivery_loudness_audit(): void {
       },
     },
   });
-  const kinds = (findings: readonly Finding[]): string[] =>
-    findings.map((finding: Finding): string => finding.kind);
+  const kinds: (findings: readonly Finding[]) => string[] = (
+    findings: readonly Finding[],
+  ): string[] => findings.map((finding: Finding): string => finding.kind);
 
-  const quiet = auditAutoMovieDeliveryContent(
-    props({ integratedLufs: -24.2, truePeakDbtp: -3 }),
-  );
+  const quiet: IAutoMovieDeliveryContentAudit.IResult =
+    auditAutoMovieDeliveryContent(
+      props({ integratedLufs: -24.2, truePeakDbtp: -3 }),
+    );
   const miss: Finding | undefined = quiet.findings[0];
   TestValidator.predicate(
     "−24.2 LUFS misses −23 by 1.2 LU and blocks",
@@ -102,18 +112,20 @@ export function test_render_delivery_loudness_audit(): void {
       miss.reason.includes("1.20 LU"),
   );
 
-  const near = auditAutoMovieDeliveryContent(
-    props({ integratedLufs: -23.2, truePeakDbtp: -3 }),
-  );
+  const near: IAutoMovieDeliveryContentAudit.IResult =
+    auditAutoMovieDeliveryContent(
+      props({ integratedLufs: -23.2, truePeakDbtp: -3 }),
+    );
   TestValidator.equals(
     "−23.2 LUFS passes",
     [near.passed, kinds(near.findings)],
     [true, []],
   );
 
-  const hot = auditAutoMovieDeliveryContent(
-    props({ integratedLufs: -23, truePeakDbtp: -0.3 }),
-  );
+  const hot: IAutoMovieDeliveryContentAudit.IResult =
+    auditAutoMovieDeliveryContent(
+      props({ integratedLufs: -23, truePeakDbtp: -0.3 }),
+    );
   const over: Finding | undefined = hot.findings[0];
   TestValidator.predicate(
     "−0.3 dBTP exceeds −1 dBTP and blocks",
@@ -124,8 +136,10 @@ export function test_render_delivery_loudness_audit(): void {
       over.maximumDbtp === -1,
   );
 
-  const unmeasured = auditAutoMovieDeliveryContent(props(undefined));
-  const unchecked = auditAutoMovieDeliveryContent(props(undefined, null));
+  const unmeasured: IAutoMovieDeliveryContentAudit.IResult =
+    auditAutoMovieDeliveryContent(props(undefined));
+  const unchecked: IAutoMovieDeliveryContentAudit.IResult =
+    auditAutoMovieDeliveryContent(props(undefined, null));
   TestValidator.equals(
     "an unmeasured stream blocks only when targets apply",
     [

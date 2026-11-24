@@ -51,7 +51,7 @@ interface IProps {
 export function measureAutoMovieCameraFrameEdgeSurface(
   props: IProps,
 ): measureAutoMovieCameraFrameEdgeSurface.IResult {
-  const { meshes, sides, near, projection, triangleBudget } = props;
+  const { meshes, sides, near, projection, triangleBudget }: IProps = props;
   if (!Number.isSafeInteger(triangleBudget) || triangleBudget < 0)
     return {
       status: "unmeasured",
@@ -212,7 +212,7 @@ export namespace measureAutoMovieCameraFrameEdgeSurface {
 
 /** Signed distance from the plane to the box corner furthest inside it. */
 function innermost(box: Box3, plane: Plane): number {
-  const { x, y, z } = plane.normal;
+  const { x, y, z }: Vector3 = plane.normal;
   return (
     x * (x >= 0 ? box.max.x : box.min.x) +
     y * (y >= 0 ? box.max.y : box.min.y) +

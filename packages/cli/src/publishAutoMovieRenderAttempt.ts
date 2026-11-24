@@ -41,7 +41,10 @@ export async function publishAutoMovieRenderAttempt(paths: {
     previous: string;
   };
 }): Promise<void> {
-  const keep = (from: string, to: string): Promise<boolean> =>
+  const keep: (from: string, to: string) => Promise<boolean> = (
+    from: string,
+    to: string,
+  ): Promise<boolean> =>
     fs
       .rename(from, to)
       .then(() => true)
@@ -49,9 +52,9 @@ export async function publishAutoMovieRenderAttempt(paths: {
         if (readAutoMovieErrorCode(error) !== "ENOENT") throw error;
         return false;
       });
-  const kept = await keep(paths.video, paths.previous);
-  let keptControls = false;
-  let installedControls = false;
+  const kept: boolean = await keep(paths.video, paths.previous);
+  let keptControls: boolean = false;
+  let installedControls: boolean = false;
   try {
     if (paths.controls !== undefined)
       keptControls = await keep(

@@ -213,7 +213,7 @@ export class AutoMovieFilmResponseStage {
      */
     alpha?: AutoMovieFilmAlpha;
   }): void {
-    const { renderer, scene, camera, optics } = props;
+    const { renderer, scene, camera, optics }: typeof props = props;
     if (optics === undefined) {
       if (readAutoMovieSceneMedium(scene) !== null)
         throw new Error(

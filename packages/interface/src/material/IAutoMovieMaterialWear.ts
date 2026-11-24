@@ -29,6 +29,8 @@ export interface IAutoMovieMaterialWear {
   /** Grime in concave feature creases. */
   grime?: IAutoMovieMaterialWear.ILayer;
 }
+
+/** The layer both wear kinds state. */
 export namespace IAutoMovieMaterialWear {
   /** One wear layer's look and extent. */
   export interface ILayer {

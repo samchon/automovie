@@ -14,8 +14,11 @@ import { AUTOMOVIE_DIALOGUE_ENVELOPE_JAW } from "./AUTOMOVIE_DIALOGUE_ENVELOPE_J
  */
 export function autoMovieDialogueEnvelopeJaw(level: number): number {
   if (!(level > 0)) return 0;
-  const { floorDbfs, fullDbfs, maximumOpeningMm } =
-    AUTOMOVIE_DIALOGUE_ENVELOPE_JAW;
+  const {
+    floorDbfs,
+    fullDbfs,
+    maximumOpeningMm,
+  }: typeof AUTOMOVIE_DIALOGUE_ENVELOPE_JAW = AUTOMOVIE_DIALOGUE_ENVELOPE_JAW;
   const dbfs: number = 20 * Math.log10(level);
   return (
     maximumOpeningMm *

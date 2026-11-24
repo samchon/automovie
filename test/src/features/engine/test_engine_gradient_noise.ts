@@ -62,9 +62,14 @@ export function test_engine_gradient_noise(): void {
     ],
   };
   const rng: () => number = makeRng(4058);
-  const point = (dimension: number, half: number): number[] =>
+  const point: (dimension: number, half: number) => number[] = (
+    dimension: number,
+    half: number,
+  ): number[] =>
     Array.from({ length: dimension }, (): number => (rng() * 2 - 1) * half);
-  const everySampler = (
+  const everySampler: (
+    test: (sample: Sampler, dimension: number) => boolean,
+  ) => boolean = (
     test: (sample: Sampler, dimension: number) => boolean,
   ): boolean =>
     Object.values(samplers).every(([sample, dimension]: [Sampler, number]) =>
@@ -73,7 +78,11 @@ export function test_engine_gradient_noise(): void {
 
   // 4 and 6. A 1e-6 step in a seeded direction from each point, or across
   // the zero plane of every axis, changes the value by under 1e-4.
-  const continuous = (
+  const continuous: (
+    sample: Sampler,
+    dimension: number,
+    from: () => number[],
+  ) => boolean = (
     sample: Sampler,
     dimension: number,
     from: () => number[],
@@ -88,7 +97,8 @@ export function test_engine_gradient_noise(): void {
       );
       return Math.abs(sample(q) - sample(p)) < 1e-4;
     });
-  const inRange = (value: number): boolean => value >= -1 && value <= 1;
+  const inRange: (value: number) => boolean = (value: number): boolean =>
+    value >= -1 && value <= 1;
 
   TestValidator.equals(
     "gradient noise is a bounded, smooth, aperiodic function of its seed",

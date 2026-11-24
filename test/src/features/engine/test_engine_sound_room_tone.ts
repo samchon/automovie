@@ -32,7 +32,9 @@ import { throwsError } from "../internal/predicates";
  */
 export function test_engine_sound_room_tone(): void {
   const rate: IAutoMovieProductionSoundPlan["sampleRate"] = 48_000;
-  const plan = (
+  const plan: (
+    roomTone: IAutoMovieProductionRoomTone[],
+  ) => IAutoMovieProductionSoundPlan = (
     roomTone: IAutoMovieProductionRoomTone[],
   ): IAutoMovieProductionSoundPlan => ({
     version: 1,
@@ -46,7 +48,14 @@ export function test_engine_sound_room_tone(): void {
     dialogue: [],
     roomTone,
   });
-  const bed = (
+  const bed: (
+    id: string,
+    startFrame: number,
+    endFrame: number,
+    levelDbfs: number,
+    tiltDbPerOctave: number,
+    seed: number,
+  ) => IAutoMovieProductionRoomTone = (
     id: string,
     startFrame: number,
     endFrame: number,
@@ -61,7 +70,9 @@ export function test_engine_sound_room_tone(): void {
     tiltDbPerOctave,
     seed,
   });
-  const left = (pcm: Float32Array): Float64Array =>
+  const left: (pcm: Float32Array) => Float64Array = (
+    pcm: Float32Array,
+  ): Float64Array =>
     Float64Array.from(
       { length: pcm.length / 2 },
       (_: unknown, index: number) => pcm[index * 2]!,
@@ -94,7 +105,7 @@ export function test_engine_sound_room_tone(): void {
   );
 
   // 3. Tilt.
-  const slope = (tilt: number): number => {
+  const slope: (tilt: number) => number = (tilt: number): number => {
     const samples: Float64Array = left(
       renderProductionSound({
         plan: plan([bed("tilt", 0, 288, -40, tilt, 3)]),
@@ -127,7 +138,10 @@ export function test_engine_sound_room_tone(): void {
 
   // 4. The crossfade at frame 144 (6 s).
   const signal: Float64Array = left(first);
-  const largestStep = (from: number, to: number): number => {
+  const largestStep: (from: number, to: number) => number = (
+    from: number,
+    to: number,
+  ): number => {
     let largest: number = 0;
     for (let index: number = from + 1; index < to; ++index)
       largest = Math.max(
@@ -181,7 +195,11 @@ export function test_engine_sound_room_tone(): void {
  * Average Hann-windowed 8192-point periodograms and sum their power in each
  * base-two octave band from f/√2 to f√2.
  */
-const octaveEnergies = (
+const octaveEnergies: (
+  samples: Float64Array,
+  rate: number,
+  centres: readonly number[],
+) => number[] = (
   samples: Float64Array,
   rate: number,
   centres: readonly number[],
@@ -210,7 +228,10 @@ const octaveEnergies = (
 };
 
 /** In-place iterative radix-2 Cooley–Tukey FFT. */
-const fft = (re: Float64Array, im: Float64Array): void => {
+const fft: (re: Float64Array, im: Float64Array) => void = (
+  re: Float64Array,
+  im: Float64Array,
+): void => {
   const n: number = re.length;
   for (let i: number = 1, j: number = 0; i < n; ++i) {
     let bit: number = n >> 1;

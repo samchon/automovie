@@ -36,14 +36,19 @@ import { nclose, throwsError } from "../internal/predicates";
  */
 export function test_engine_sound_dialogue_levelling(): void {
   const rate: IAutoMovieProductionSoundPlan["sampleRate"] = 48_000;
-  const tone = (seconds: number, lufsAsPlaced: number): Float32Array =>
+  const tone: (seconds: number, lufsAsPlaced: number) => Float32Array = (
+    seconds: number,
+    lufsAsPlaced: number,
+  ): Float32Array =>
     Float32Array.from(
       { length: Math.round(seconds * rate) },
       (_: unknown, index: number): number =>
         10 ** (lufsAsPlaced / 20) *
         Math.sin((2 * Math.PI * 1000 * index) / rate),
     );
-  const plan = (samples: number): IAutoMovieProductionSoundPlan => ({
+  const plan: (samples: number) => IAutoMovieProductionSoundPlan = (
+    samples: number,
+  ): IAutoMovieProductionSoundPlan => ({
     version: 1,
     inputFingerprint: "test_engine_sound_dialogue_levelling",
     fps: 24,
@@ -62,7 +67,10 @@ export function test_engine_sound_dialogue_levelling(): void {
       },
     ],
   });
-  const mix = (
+  const mix: (
+    line: Float32Array,
+    loudness?: Parameters<typeof renderProductionSound>[0]["loudness"],
+  ) => IAutoMovieRenderedProductionSound = (
     line: Float32Array,
     loudness?: Parameters<typeof renderProductionSound>[0]["loudness"],
   ): IAutoMovieRenderedProductionSound =>
@@ -71,7 +79,9 @@ export function test_engine_sound_dialogue_levelling(): void {
       dialogue: new Map([["line", line]]),
       ...(loudness === undefined ? {} : { loudness }),
     });
-  const placedLoudness = (pcm: Float32Array): number | null => {
+  const placedLoudness: (pcm: Float32Array) => number | null = (
+    pcm: Float32Array,
+  ): number | null => {
     const meter: IAutoMovieLoudnessMeter = createAutoMovieLoudnessMeter(2);
     meter.push(pcm);
     return meter.measure().integratedLufs;

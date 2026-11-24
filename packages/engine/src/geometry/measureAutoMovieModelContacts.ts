@@ -122,14 +122,31 @@ export const measureAutoMovieModelContacts: (
  * pairs.
  */
 interface IPlacedPart {
+  /** The part's id. */
   id: string;
+
+  /** The part's mesh in the model frame. */
   mesh: IAutoMovieMesh;
+
+  /** The least corner of the part's box, metres in the model frame. */
   low: number[];
+
+  /** The greatest corner of the part's box, metres in the model frame. */
   high: number[];
+
+  /** Each triangle's centroid, in triangle order. */
   centroids: number[][];
+
+  /** Each triangle's area, square metres, in triangle order. */
   areas: number[];
+
+  /** The sum of `areas`, summed in triangle order. */
   area: number;
+
+  /** The surface prepared for `measureAutoMovieMeshGap`. */
   surface: measureAutoMovieMeshGap.ISurface;
+
+  /** The part's winding query, built on its first call and then reused. */
   winding: (point: readonly number[]) => IAutoMovieMeshWinding;
 }
 

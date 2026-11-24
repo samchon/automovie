@@ -16,7 +16,9 @@ export function surfaceTriangleOf(
   indices: ArrayLike<number>,
   point: IAutoMovieVector3,
 ): number {
-  const p = (v: number): [number, number, number] => [
+  const p: (v: number) => [number, number, number] = (
+    v: number,
+  ): [number, number, number] => [
     positions[3 * v]!,
     positions[3 * v + 1]!,
     positions[3 * v + 2]!,
@@ -38,7 +40,10 @@ export function surfaceTriangleOf(
     const off: number =
       (ap[0]! * n[0]! + ap[1]! * n[1]! + ap[2]! * n[2]!) / Math.sqrt(nn);
     if (Math.abs(off) > 1e-12) continue;
-    const area = (u: number[], v: number[]): number =>
+    const area: (u: number[], v: number[]) => number = (
+      u: number[],
+      v: number[],
+    ): number =>
       ((u[1]! * v[2]! - u[2]! * v[1]!) * n[0]! +
         (u[2]! * v[0]! - u[0]! * v[2]!) * n[1]! +
         (u[0]! * v[1]! - u[1]! * v[0]!) * n[2]!) /

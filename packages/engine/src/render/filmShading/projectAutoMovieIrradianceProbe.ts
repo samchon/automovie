@@ -47,7 +47,7 @@ const LOBE: readonly number[] = [
 export function projectAutoMovieIrradianceProbe(
   props: IAutoMovieProjectIrradianceProbe.IProps,
 ): IAutoMovieIrradianceProbe {
-  const { size, faces } = props;
+  const { size, faces }: IAutoMovieProjectIrradianceProbe.IProps = props;
   if (!Number.isSafeInteger(size) || size < 1)
     throw new Error("irradiance probe size must be a positive safe integer");
   if (faces.length !== 6)

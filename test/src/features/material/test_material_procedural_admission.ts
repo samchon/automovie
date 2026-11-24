@@ -35,7 +35,10 @@ import { hasViolation } from "../internal/hasViolation";
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each naming the input and the behavior it pins.
  */
 export function test_material_procedural_admission(): void {
-  const check = (
+  const check: (
+    procedural: unknown,
+    extra?: Partial<IAutoMovieMaterial>,
+  ) => IAutoMovieValidation = (
     procedural: unknown,
     extra: Partial<IAutoMovieMaterial> = {},
   ): IAutoMovieValidation =>

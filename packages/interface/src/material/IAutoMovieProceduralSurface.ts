@@ -84,6 +84,8 @@ export interface IAutoMovieProceduralSurface {
    */
   piece?: IAutoMovieProceduralSurface.IPiece;
 }
+
+/** A laid piece's place on the surface's sheet. */
 export namespace IAutoMovieProceduralSurface {
   /**
    * One laid piece's place on the material's sheet.

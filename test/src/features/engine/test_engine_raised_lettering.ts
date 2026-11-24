@@ -46,7 +46,7 @@ export function test_engine_raised_lettering(): void {
   const p: number[] = mesh.positions;
   const indices: number[] = mesh.indices!;
   for (let at: number = 0; at < indices.length; at += 3) {
-    const [a, b, c] = [
+    const [a, b, c]: [number, number, number] = [
       indices[at]! * 3,
       indices[at + 1]! * 3,
       indices[at + 2]! * 3,

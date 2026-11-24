@@ -99,7 +99,15 @@ export async function test_render_surface_graphics(): Promise<void> {
     scene,
     (): ReturnType<typeof buildModel> | undefined => pending.shift(),
   );
-  const color = (r: number, g: number, b: number) => ({
+  const color: (
+    r: number,
+    g: number,
+    b: number,
+  ) => { r: number; g: number; b: number; a: null; hex: null } = (
+    r: number,
+    g: number,
+    b: number,
+  ) => ({
     r,
     g,
     b,
@@ -174,7 +182,11 @@ export async function test_render_surface_graphics(): Promise<void> {
   mounted.scene.updateMatrixWorld(true);
 
   // The face frame in world space for a node, composed independently.
-  const faceFrame = (node: string) => {
+  const faceFrame: (node: string) => {
+    centre: THREE.Vector3;
+    right: THREE.Vector3;
+    top: THREE.Vector3;
+  } = (node: string) => {
     const nodeObject: THREE.Object3D = mounted.scene.getObjectByName(node)!;
     const frame: THREE.Matrix4 = new THREE.Matrix4().compose(
       new THREE.Vector3(
@@ -204,7 +216,9 @@ export async function test_render_surface_graphics(): Promise<void> {
         `surface-graphic:${node}/screen`,
       ) as THREE.Group,
   );
-  const visibleKey = (index: number): THREE.Group =>
+  const visibleKey: (index: number) => THREE.Group = (
+    index: number,
+  ): THREE.Group =>
     (roots[index]!.children[0]!.children as THREE.Group[]).find(
       (group: THREE.Group): boolean => group.visible,
     )!;

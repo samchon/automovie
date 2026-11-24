@@ -22,7 +22,8 @@ import { autoMovieIrradianceOf } from "./autoMovieIrradianceOf";
 export function sampleAutoMovieIrradianceVolume(
   props: IAutoMovieSampleIrradianceVolume.IProps,
 ): [number, number, number] {
-  const { volume, point, normal } = props;
+  const { volume, point, normal }: IAutoMovieSampleIrradianceVolume.IProps =
+    props;
   const axis: (
     value: number,
     origin: number,
@@ -39,9 +40,21 @@ export function sampleAutoMovieIrradianceVolume(
     const low: number = Math.min(Math.floor(g), Math.max(count - 2, 0));
     return [low, Math.min(low + 1, count - 1), g - low];
   };
-  const [x0, x1, fx] = axis(point.x, volume.min.x, volume.counts.x);
-  const [y0, y1, fy] = axis(point.y, volume.min.y, volume.counts.y);
-  const [z0, z1, fz] = axis(point.z, volume.min.z, volume.counts.z);
+  const [x0, x1, fx]: [number, number, number] = axis(
+    point.x,
+    volume.min.x,
+    volume.counts.x,
+  );
+  const [y0, y1, fy]: [number, number, number] = axis(
+    point.y,
+    volume.min.y,
+    volume.counts.y,
+  );
+  const [z0, z1, fz]: [number, number, number] = axis(
+    point.z,
+    volume.min.z,
+    volume.counts.z,
+  );
   const sum: [number, number, number] = [0, 0, 0];
   let total: number = 0;
   for (const [i, wx] of [

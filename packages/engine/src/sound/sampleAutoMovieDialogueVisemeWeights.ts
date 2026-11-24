@@ -34,7 +34,7 @@ export function sampleAutoMovieDialogueVisemeWeights(
     throw new Error(
       "dialogue viseme frame and rate must be finite and positive",
     );
-  const { ranges } = props.timeline;
+  const { ranges }: typeof props.timeline = props.timeline;
 
   // Time constants in frames, so distances in frames divide them directly.
   const tau: (viseme: AutoMovieViseme) => number = (

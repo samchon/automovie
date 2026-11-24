@@ -46,7 +46,7 @@ export function autoMovieProceduralPattern(
 ): number {
   const s: number = surface.scale;
   const seed: number = surface.seed;
-  const [x, y, z] = point;
+  const [x, y, z]: readonly [number, number, number] = point;
   const noise: (qx: number, qy: number, qz: number) => number = (
     qx: number,
     qy: number,
@@ -67,13 +67,18 @@ export function autoMovieProceduralPattern(
     case "clay":
       return clamp01(noise(x / s, y / s, z / s));
     case "stone": {
-      const [f1, f2] = autoMovieProceduralCells(seed, x / s, y / s, z / s);
+      const [f1, f2]: [number, number] = autoMovieProceduralCells(
+        seed,
+        x / s,
+        y / s,
+        z / s,
+      );
       return clamp01(
         0.75 * clamp01(f2 - f1) + 0.25 * noise(x / s, y / s, z / s),
       );
     }
     case "wood": {
-      const [, across, normal] = axes();
+      const [, across, normal]: [number, number, number] = axes();
       const radius: number =
         Math.hypot(across, normal) +
         0.3 *
@@ -87,7 +92,7 @@ export function autoMovieProceduralPattern(
       return clamp01(0.5 - 0.5 * Math.cos((2 * Math.PI * radius) / s));
     }
     case "fabric": {
-      const [along, across] = axes();
+      const [along, across]: [number, number, number] = axes();
       const a: number = along / s;
       const b: number = across / s;
       const i: number = Math.floor(b);
@@ -107,7 +112,7 @@ export function autoMovieProceduralPattern(
       return clamp01(Math.max(warp, weft));
     }
     case "brushedMetal": {
-      const [along, across, normal] = axes();
+      const [along, across, normal]: [number, number, number] = axes();
       return clamp01(noise(along / s, (100 * across) / s, (100 * normal) / s));
     }
   }

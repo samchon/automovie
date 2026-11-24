@@ -54,7 +54,11 @@ export function test_human_empty_probes(): void {
   const values: number[][] = [R, 0, 0, R, -R, 0, 0, -R, rho, rho, rho, rho].map(
     (x: number): number[] => knots.map((): number => x),
   );
-  const made = (
+  const made: (
+    name: string,
+    z: number,
+    x?: number,
+  ) => IAutoMovieHumanConicLoft.IFamily = (
     name: string,
     z: number,
     x: number = 0,
@@ -70,7 +74,11 @@ export function test_human_empty_probes(): void {
     knots,
     values,
   });
-  const at = (
+  const at: (
+    what: string,
+    probe: P.IProbe,
+    want: AutoMovieVector3Tuple,
+  ) => void = (
     what: string,
     probe: P.IProbe,
     want: AutoMovieVector3Tuple,

@@ -1,9 +1,21 @@
 import type { TrueTypeByteReader } from "./TrueTypeByteReader";
 
-/** `kern` subtable coverage bits (ISO/IEC 14496-22, section 5.7.4). */
+/**
+ * `kern` subtable coverage bit 0 (ISO/IEC 14496-22, section 5.7.4): set when
+ * the subtable holds horizontal data, clear for vertical.
+ */
 const HORIZONTAL: number = 0x01;
+
+/** Coverage bit 1: set when the subtable holds minimum values, not kerning. */
 const MINIMUM: number = 0x02;
+
+/** Coverage bit 2: set when the kerning is perpendicular to the text flow. */
 const CROSS_STREAM: number = 0x04;
+
+/**
+ * Coverage bit 3: set when the subtable's value replaces the value accumulated
+ * so far rather than adding to it.
+ */
 const OVERRIDE: number = 0x08;
 
 /**

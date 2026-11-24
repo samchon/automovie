@@ -12,16 +12,30 @@ import type { TrueTypeByteReader } from "./TrueTypeByteReader";
 const MAX_COMPONENT_DEPTH: number = 16;
 
 /**
- * Composite flag bits (ISO/IEC 14496-22, section 5.3.4, the `glyf` composite
- * glyph description).
+ * Composite glyph flag (ISO/IEC 14496-22, section 5.3.4, the `glyf` composite
+ * glyph description): the component's two arguments are 16-bit, else 8-bit.
  */
 const ARG_1_AND_2_ARE_WORDS: number = 0x0001;
+
+/** Composite flag: the arguments are signed x/y offsets, else point numbers. */
 const ARGS_ARE_XY_VALUES: number = 0x0002;
+
+/** Composite flag: one scale applies to both axes of the component. */
 const WE_HAVE_A_SCALE: number = 0x0008;
+
+/** Composite flag: another component follows this one. */
 const MORE_COMPONENTS: number = 0x0020;
+
+/** Composite flag: the component has separate x and y scales. */
 const WE_HAVE_AN_X_AND_Y_SCALE: number = 0x0040;
+
+/** Composite flag: a 2 × 2 matrix transforms the component. */
 const WE_HAVE_A_TWO_BY_TWO: number = 0x0080;
+
+/** Composite flag: the component's offset is scaled by its transform. */
 const SCALED_COMPONENT_OFFSET: number = 0x0800;
+
+/** Composite flag: the component's offset is not scaled by its transform. */
 const UNSCALED_COMPONENT_OFFSET: number = 0x1000;
 
 /**

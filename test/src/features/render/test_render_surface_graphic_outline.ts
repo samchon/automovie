@@ -56,7 +56,13 @@ export async function test_render_surface_graphic_outline(): Promise<void> {
     cameras: [],
     lights: [],
   };
-  const white = { r: 1, g: 1, b: 1, a: null, hex: null };
+  const white: { r: number; g: number; b: number; a: null; hex: null } = {
+    r: 1,
+    g: 1,
+    b: 1,
+    a: null,
+    hex: null,
+  };
   const tracks: IAutoMovieSurfaceGraphicTrack[] = [
     {
       node: "stop",
@@ -104,7 +110,9 @@ export async function test_render_surface_graphic_outline(): Promise<void> {
   )!;
 
   // The XZ triangles, in the face frame, of every graphic mesh a pass draws.
-  const triangles = (mesh: THREE.Mesh): [number, number][][] => {
+  const triangles: (mesh: THREE.Mesh) => [number, number][][] = (
+    mesh: THREE.Mesh,
+  ): [number, number][][] => {
     const position: THREE.BufferAttribute = mesh.geometry.getAttribute(
       "position",
     ) as THREE.BufferAttribute;
@@ -121,7 +129,7 @@ export async function test_render_surface_graphic_outline(): Promise<void> {
       );
     return out;
   };
-  const drawn = (): THREE.Mesh[] => {
+  const drawn: () => THREE.Mesh[] = (): THREE.Mesh[] => {
     const meshes: THREE.Mesh[] = [];
     root.traverseVisible((entry: THREE.Object3D): void => {
       if ((entry as THREE.Mesh).isMesh === true)
@@ -129,15 +137,20 @@ export async function test_render_surface_graphic_outline(): Promise<void> {
     });
     return meshes;
   };
-  const covers = (point: [number, number]): boolean =>
+  const covers: (point: [number, number]) => boolean = (
+    point: [number, number],
+  ): boolean =>
     drawn().some((mesh: THREE.Mesh): boolean =>
       triangles(mesh).some((triangle: [number, number][]): boolean => {
-        const [p, q, r] = triangle as [
+        const [p, q, r]: [
           [number, number],
           [number, number],
           [number, number],
-        ];
-        const side = (u: [number, number], v: [number, number]): number =>
+        ] = triangle as [[number, number], [number, number], [number, number]];
+        const side: (u: [number, number], v: [number, number]) => number = (
+          u: [number, number],
+          v: [number, number],
+        ): number =>
           (v[0] - u[0]) * (point[1] - u[1]) - (v[1] - u[1]) * (point[0] - u[0]);
         const s: number[] = [side(p, q), side(q, r), side(r, p)];
         return s.every((v: number): boolean => v >= 0) ||
@@ -165,10 +178,9 @@ export async function test_render_surface_graphic_outline(): Promise<void> {
   );
 
   // 2 and 3. Points across a cut corner's diagonal flat, per pass.
-  const along = (distance: number): [number, number] => [
-    distance / Math.SQRT2,
-    -distance / Math.SQRT2,
-  ];
+  const along: (distance: number) => [number, number] = (
+    distance: number,
+  ): [number, number] => [distance / Math.SQRT2, -distance / Math.SQRT2];
   const outside: [number, number] = along(a + 0.002);
   const inside: [number, number] = along(a - 0.002);
   for (const pass of [

@@ -61,7 +61,7 @@ interface IRun {
 export function resolveFurnishingPieces(
   props: resolveFurnishingPieces.IProps,
 ): resolveFurnishingPieces.IResult {
-  const { id, room, aisle, blocked } = props;
+  const { id, room, aisle, blocked }: resolveFurnishingPieces.IProps = props;
   const width: number = room.maxX - room.minX;
   const depth: number = room.maxZ - room.minZ;
   const roles: string[] = Object.keys(props.pieces);
@@ -72,7 +72,11 @@ export function resolveFurnishingPieces(
   const clearances: Set<string> = new Set();
 
   // Name why a relation's reference to another role cannot be read yet.
-  const earlier = (
+  const earlier: (
+    role: string,
+    field: string,
+    name: string,
+  ) => FurnishingRect.IPlacement = (
     role: string,
     field: string,
     name: string,
@@ -187,7 +191,10 @@ export function resolveFurnishingPieces(
           `${id} ${role} place.gap applies only with place.after; use place.offset`,
         );
       heading = frame.heading;
-      const [x, z] = frame.at(start - piece.bounds.min.x, -piece.bounds.min.z);
+      const [x, z]: readonly [x: number, z: number] = frame.at(
+        start - piece.bounds.min.x,
+        -piece.bounds.min.z,
+      );
       placement = {
         ...FurnishingRect.locate(piece.model, piece.bounds, x, z, heading),
         y: elevation - lowest,
@@ -240,7 +247,7 @@ function reserve(
   blocked: Map<string, FurnishingRect.IRect>,
   clearances: Set<string>,
 ): void {
-  const { min, max } = piece.bounds;
+  const { min, max }: IAutoMoviePropBox = piece.bounds;
   const names: Set<string> = new Set();
   for (const clear of piece.clear ?? []) {
     const side: "front" | "left" | "right" = clear.side ?? "front";

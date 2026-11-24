@@ -84,7 +84,11 @@ export function test_geometry_feature_edges_tessellation(): void {
   );
 
   // 2. Equal distances at 1000 surface points.
-  const query = (
+  const query: (
+    mesh: { positions: ArrayLike<number>; indices: ArrayLike<number> },
+    edges: IAutoMovieMeasureFeatureEdges.IResult,
+    point: IAutoMovieVector3,
+  ) => number = (
     mesh: { positions: ArrayLike<number>; indices: ArrayLike<number> },
     edges: IAutoMovieMeasureFeatureEdges.IResult,
     point: IAutoMovieVector3,

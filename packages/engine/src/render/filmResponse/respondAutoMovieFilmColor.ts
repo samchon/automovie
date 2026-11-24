@@ -34,7 +34,7 @@ export function respondAutoMovieFilmColor(props: {
   optics: IAutoMovieFilmOptics;
 }): [number, number, number] {
   const m: number[] = autoMovieFilmResponseMatrix(props.optics);
-  const [r, g, b] = props.color;
+  const [r, g, b]: readonly [number, number, number] = props.color;
   let c: [number, number, number] = [
     m[0]! * r + m[1]! * g + m[2]! * b,
     m[3]! * r + m[4]! * g + m[5]! * b,

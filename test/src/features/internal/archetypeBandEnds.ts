@@ -78,7 +78,10 @@ export function archetypeBandEnds(
   for (const [dimension, band] of bands) {
     if (band === undefined || !(band.minimum < band.maximum)) continue;
     for (const end of ["minimum", "maximum"] as const) {
-      const report = (kind: archetypeBandEnds.Kind, detail: string): void => {
+      const report: (kind: archetypeBandEnds.Kind, detail: string) => void = (
+        kind: archetypeBandEnds.Kind,
+        detail: string,
+      ): void => {
         findings.push({ row: row.name, dimension, end, kind, detail });
       };
       const value: number = band[end];
@@ -188,7 +191,10 @@ export namespace archetypeBandEnds {
  * at the end: apart there, and with its two parts in different groups of the
  * parts the end's still joined pairs connect.
  */
-const detached = (
+const detached: (
+  built: AutoMovieArchetype,
+  joined: readonly IAutoMovieModelContact[],
+) => [IAutoMovieModelContact, number][] = (
   built: AutoMovieArchetype,
   joined: readonly IAutoMovieModelContact[],
 ): [IAutoMovieModelContact, number][] => {
@@ -203,7 +209,7 @@ const detached = (
 
   // Union-find over part ids: each id points at another of its group, a root at itself or nothing.
   const group: Map<string, string> = new Map();
-  const root = (id: string): string => {
+  const root: (id: string) => string = (id: string): string => {
     let at: string = id;
     while (group.has(at) && group.get(at) !== at) at = group.get(at)!;
     return at;
@@ -241,7 +247,9 @@ const GEOMETRIC: ReadonlySet<string> = new Set(["m", "degrees", ""]);
  * crossings and contacts place it: through the part's column-major matrix from
  * `autoMovieModelPartMatrices`, or in its own coordinates when it has none.
  */
-const placedMeshes = (
+const placedMeshes: (
+  model: AutoMovieArchetype,
+) => Map<string, IAutoMovieMesh> = (
   model: AutoMovieArchetype,
 ): Map<string, IAutoMovieMesh> => {
   const matrices: Map<IAutoMovieModelPart, number[] | null> =
@@ -273,7 +281,9 @@ const placedMeshes = (
  * Whether a placed mesh has at least one triangle of positive area; a mesh
  * without indices is read as consecutive triangles.
  */
-const hasArea = (mesh: IAutoMovieMesh): boolean => {
+const hasArea: (mesh: IAutoMovieMesh) => boolean = (
+  mesh: IAutoMovieMesh,
+): boolean => {
   const p: number[] = mesh.positions;
   const indices: number[] =
     mesh.indices ??
@@ -312,7 +322,10 @@ const hasArea = (mesh: IAutoMovieMesh): boolean => {
  * counts, and every vertex within {@link archetypeBandEnds.INERT} of its
  * counterpart.
  */
-const same = (
+const same: (
+  rest: ReadonlyMap<string, IAutoMovieMesh>,
+  end: ReadonlyMap<string, IAutoMovieMesh>,
+) => boolean = (
   rest: ReadonlyMap<string, IAutoMovieMesh>,
   end: ReadonlyMap<string, IAutoMovieMesh>,
 ): boolean => {

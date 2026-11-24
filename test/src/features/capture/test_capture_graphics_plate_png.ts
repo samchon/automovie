@@ -103,7 +103,7 @@ export async function test_capture_graphics_plate_png(): Promise<void> {
     revision: "r",
     match: "cell",
   });
-  const still = (pass: string): Uint8Array =>
+  const still: (pass: string) => Uint8Array = (pass: string): Uint8Array =>
     [...memory.files].find(([path]: [string, Uint8Array]): boolean =>
       path.endsWith(`-${pass}.png`),
     )![1];

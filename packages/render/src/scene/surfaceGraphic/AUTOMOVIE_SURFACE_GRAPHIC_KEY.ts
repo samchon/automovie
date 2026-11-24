@@ -6,4 +6,4 @@
  * that leave them out, so both address the same mark without a second registry
  * outside the scene.
  */
-export const AUTOMOVIE_SURFACE_GRAPHIC_KEY = "automovieSurfaceGraphic";
+export const AUTOMOVIE_SURFACE_GRAPHIC_KEY: string = "automovieSurfaceGraphic";

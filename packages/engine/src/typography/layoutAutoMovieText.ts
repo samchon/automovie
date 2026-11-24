@@ -40,7 +40,7 @@ const FIT: number = 1e-9;
 export function layoutAutoMovieText(
   props: IAutoMovieLayoutText.IProps,
 ): IAutoMovieLayoutText.IResult {
-  const { font, box } = props;
+  const { font, box }: IAutoMovieLayoutText.IProps = props;
   const lineHeight: number = props.lineHeight ?? 1;
   const align: "start" | "center" | "end" = props.align ?? "start";
   for (const [label, value] of [

@@ -59,7 +59,9 @@ export function test_engine_sound_true_peak_limiter(): void {
     ],
     dialogue: [],
   };
-  const bed = (transient: boolean): Float32Array =>
+  const bed: (transient: boolean) => Float32Array = (
+    transient: boolean,
+  ): Float32Array =>
     Float32Array.from(
       { length: 10 * rate },
       (_: unknown, index: number): number => {
@@ -73,7 +75,9 @@ export function test_engine_sound_true_peak_limiter(): void {
           : level;
       },
     );
-  const mix = (transient: boolean): IAutoMovieRenderedProductionSound =>
+  const mix: (transient: boolean) => IAutoMovieRenderedProductionSound = (
+    transient: boolean,
+  ): IAutoMovieRenderedProductionSound =>
     renderProductionSound({ plan, assets: new Map([["bed", bed(transient)]]) });
 
   const loud: IAutoMovieRenderedProductionSound = mix(true);

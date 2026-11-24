@@ -45,7 +45,14 @@ export function createAutoMovieGradientNoise3(
   // The dot product of corner (i, j, k)'s unit gradient with the offset
   // (u, v, w) from it; the block's first word gives the gradient's height and
   // its second the azimuth.
-  const corner = (
+  const corner: (
+    i: number,
+    j: number,
+    k: number,
+    u: number,
+    v: number,
+    w: number,
+  ) => number = (
     i: number,
     j: number,
     k: number,
@@ -78,7 +85,10 @@ export function createAutoMovieGradientNoise3(
     const sw: number = fadeAutoMovieGradientNoise(w);
 
     // Blend along x on each of the four edges, then along y, then along z.
-    const edge = (dj: number, dk: number): number => {
+    const edge: (dj: number, dk: number) => number = (
+      dj: number,
+      dk: number,
+    ): number => {
       const a: number = corner(i, j + dj, k + dk, u, v - dj, w - dk);
       const b: number = corner(i + 1, j + dj, k + dk, u - 1, v - dj, w - dk);
       return a + su * (b - a);

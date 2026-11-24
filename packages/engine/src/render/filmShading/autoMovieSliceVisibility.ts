@@ -32,7 +32,7 @@ export function autoMovieSliceVisibility(
   const n: number = normal;
   const h0: number = n + Math.max(low - n, -Math.PI / 2);
   const h1: number = n + Math.min(high - n, Math.PI / 2);
-  const arc = (h: number): number =>
+  const arc: (h: number) => number = (h: number): number =>
     (Math.cos(n) + 2 * h * Math.sin(n) - Math.cos(2 * h - n)) / 4;
   return length * (arc(h0) + arc(h1));
 }

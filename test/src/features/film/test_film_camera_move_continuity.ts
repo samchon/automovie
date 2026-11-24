@@ -15,6 +15,10 @@ import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../internal/predicates";
 
+/**
+ * The moving camera: a 90-degree lens 5 m in front of the subject, level with
+ * its aim point.
+ */
 const CAMERA: IAutoMovieCamera = {
   id: "cam",
   transform: {
@@ -41,8 +45,10 @@ const D: number = 0.62;
 /** The aim point of {@link SUBJECT} at `medium`. */
 const AIM: IAutoMovieVector3 = { x: 0, y: 1.44, z: 0 };
 
+/** The delivery rate the moves are keyed at, 30 fps. */
 const RATE: IAutoMovieProductionFrameRate = { numerator: 30, denominator: 1 };
 
+/** A `frame` action of the camera on the origin with the given move and timing. */
 const frame: (
   move: IAutoMovieCameraAction["move"],
   start: number,

@@ -31,6 +31,8 @@ export interface IAutoMovieFilmShading {
    */
   probes?: IAutoMovieFilmShading.IProbes;
 }
+
+/** The occlusion and probe requests the shading states. */
 export namespace IAutoMovieFilmShading {
   /**
    * Occlusion of indirect light by geometry near each visible point (Jimenez,

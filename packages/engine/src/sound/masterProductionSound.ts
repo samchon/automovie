@@ -37,7 +37,7 @@ import { limitAutoMovieTruePeak } from "./limitAutoMovieTruePeak";
 export function masterProductionSound(
   props: IAutoMovieMasterProductionSound.IProps,
 ): IAutoMovieRenderedProductionSound {
-  const { loudness } = props.rendered;
+  const { loudness }: IAutoMovieRenderedProductionSound = props.rendered;
   const mix: Float32Array = props.rendered.pcm;
   const mixLufs: number | null = integrated(mix);
   const pcm: Float32Array = mix.slice();

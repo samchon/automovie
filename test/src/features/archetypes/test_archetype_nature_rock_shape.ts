@@ -53,7 +53,11 @@ interface IStone {
  */
 export function test_archetype_nature_rock_shape(): void {
   const findings: string[] = [];
-  const measure = (
+  const measure: (
+    kind: createRock.Kind,
+    seed: number,
+    form?: createRock.Form,
+  ) => IStone = (
     kind: createRock.Kind,
     seed: number,
     form?: createRock.Form,
@@ -153,7 +157,9 @@ export function test_archetype_nature_rock_shape(): void {
     }
 
   // 5. Seeded identity.
-  const bytes = (stone: ReturnType<typeof createRock>): string =>
+  const bytes: (stone: ReturnType<typeof createRock>) => string = (
+    stone: ReturnType<typeof createRock>,
+  ): string =>
     JSON.stringify({
       parts: stone.parts,
       body: stone.body,
@@ -178,8 +184,10 @@ export function test_archetype_nature_rock_shape(): void {
       const d: number = stone.dimensions.diameter!;
       const r: number = d / 2;
       const shape: IAutoMoviePhysicalShape = stone.shapes()[0]!;
-      const near = (p: IAutoMovieVector3, q: IAutoMovieVector3): boolean =>
-        Math.hypot(p.x - q.x, p.y - q.y, p.z - q.z) < 1e-12;
+      const near: (p: IAutoMovieVector3, q: IAutoMovieVector3) => boolean = (
+        p: IAutoMovieVector3,
+        q: IAutoMovieVector3,
+      ): boolean => Math.hypot(p.x - q.x, p.y - q.y, p.z - q.z) < 1e-12;
       const contacts: boolean =
         kind === "cobble"
           ? near(stone.affordance("grip").frame.translation, {

@@ -29,7 +29,12 @@ import { nclose } from "../internal/predicates";
  */
 export function test_engine_sound_loudness_meter(): void {
   const rate: number = 48_000;
-  const sine = (
+  const sine: (
+    frames: number,
+    hz: number,
+    amplitude: number,
+    phase: number,
+  ) => Float32Array = (
     frames: number,
     hz: number,
     amplitude: number,
@@ -40,7 +45,9 @@ export function test_engine_sound_loudness_meter(): void {
       (_: unknown, index: number): number =>
         amplitude * Math.sin((2 * Math.PI * hz * index) / rate + phase),
     );
-  const stereo = (mono: Float32Array): Float32Array => {
+  const stereo: (mono: Float32Array) => Float32Array = (
+    mono: Float32Array,
+  ): Float32Array => {
     const out: Float32Array = new Float32Array(mono.length * 2);
     mono.forEach((x: number, index: number): void => {
       out[index * 2] = x;
@@ -48,7 +55,10 @@ export function test_engine_sound_loudness_meter(): void {
     });
     return out;
   };
-  const measure = (
+  const measure: (
+    channels: 1 | 2,
+    chunks: readonly Float32Array[],
+  ) => IAutoMovieLoudnessMeter.IMeasurement = (
     channels: 1 | 2,
     chunks: readonly Float32Array[],
   ): IAutoMovieLoudnessMeter.IMeasurement => {

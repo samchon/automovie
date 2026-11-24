@@ -33,7 +33,11 @@ export function test_ingest_sound_receipt_admission(): void {
     (_: unknown, index: number): number =>
       0.3 * Math.sin((2 * Math.PI * 220 * index) / 24_000),
   );
-  const admit = (
+  const admit: (
+    edit?: (receipt: IAutoMovieProductionTtsReceipt) => void,
+    overrides?: Partial<IAutoMovieAdmitProductionTtsReceipt.IProps>,
+    chunks?: IAutoMovieProductionTtsReceipt["phonemeChunks"],
+  ) => IAutoMovieAdmitProductionTtsReceipt.IResult = (
     edit?: (receipt: IAutoMovieProductionTtsReceipt) => void,
     overrides: Partial<IAutoMovieAdmitProductionTtsReceipt.IProps> = {},
     chunks: IAutoMovieProductionTtsReceipt["phonemeChunks"] = [
@@ -41,14 +45,15 @@ export function test_ingest_sound_receipt_admission(): void {
       { phonemes: "wɜːld", startSample: 1200, endSample: 2400 },
     ],
   ): IAutoMovieAdmitProductionTtsReceipt.IResult => {
-    const fixture = createDialogueReceiptFixture({
-      line: "hello",
-      text: "Hello world.",
-      samples,
-      sampleRate: 24_000,
-      phonemeChunks: chunks,
-      ...(edit === undefined ? {} : { edit }),
-    });
+    const fixture: ReturnType<typeof createDialogueReceiptFixture> =
+      createDialogueReceiptFixture({
+        line: "hello",
+        text: "Hello world.",
+        samples,
+        sampleRate: 24_000,
+        phonemeChunks: chunks,
+        ...(edit === undefined ? {} : { edit }),
+      });
     return admitProductionTtsReceipt({
       line: { id: "hello", text: "Hello world." },
       pcmPath: "lines/hello.wav",
@@ -124,12 +129,13 @@ export function test_ingest_sound_receipt_admission(): void {
     [
       "stereo",
       () => {
-        const stereo = createDialogueReceiptFixture({
-          line: "hello",
-          text: "Hello world.",
-          samples,
-          sampleRate: 24_000,
-        });
+        const stereo: ReturnType<typeof createDialogueReceiptFixture> =
+          createDialogueReceiptFixture({
+            line: "hello",
+            text: "Hello world.",
+            samples,
+            sampleRate: 24_000,
+          });
         const bytes: Uint8Array = stereo.pcm.slice();
         const view: DataView = new DataView(bytes.buffer);
         view.setUint16(22, 2, true);

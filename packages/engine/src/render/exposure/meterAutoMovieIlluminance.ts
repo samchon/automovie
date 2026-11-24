@@ -63,7 +63,7 @@ export const meterAutoMovieIlluminance: (
 ) => IAutoMovieMeterIlluminance.IResult = (
   props: IAutoMovieMeterIlluminance.IProps,
 ): IAutoMovieMeterIlluminance.IResult => {
-  const { point } = props;
+  const { point }: IAutoMovieMeterIlluminance.IProps = props;
   const length: number = Vector3.length(props.normal);
   if (![point.x, point.y, point.z].every(Number.isFinite))
     throw new Error("meterAutoMovieIlluminance: point must be finite.");

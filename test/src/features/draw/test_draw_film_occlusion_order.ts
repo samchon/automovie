@@ -113,7 +113,8 @@ export function test_draw_film_occlusion_order(): void {
 
   // 1. The order of one draw.
   const first: IDrawn = draw(a, 0.5, 64);
-  const [prepass, search, blur] = first.renders;
+  const [prepass, search, blur]: createFilmResponseRendererDouble.IRender[] =
+    first.renders;
   TestValidator.predicate(
     "prepass, search and blur at the raster, then the beauty pass restored",
     first.renders.length === 3 &&

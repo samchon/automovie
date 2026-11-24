@@ -18,6 +18,10 @@ export type IAutoMovieFurnishingRelation =
   | IAutoMovieFurnishingRelation.IFacing
   | IAutoMovieFurnishingRelation.IAt;
 
+/**
+ * The relations: against a wall, facing an earlier piece, or at an absolute
+ * room position.
+ */
 export namespace IAutoMovieFurnishingRelation {
   /**
    * The piece's back box face on the inner face of a wall, its front facing

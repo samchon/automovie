@@ -31,7 +31,7 @@ export function mixAutoMovieStraightAlpha(
 
   // Associated colour, mixed with alpha at one weight.
   const alpha: number = (1 - weight) * outgoing[3] + weight * second[3];
-  const channel = (index: 0 | 1 | 2): number => {
+  const channel: (index: 0 | 1 | 2) => number = (index: 0 | 1 | 2): number => {
     if (alpha === 0) return 0;
     const associated: number =
       ((1 - weight) * outgoing[index] * outgoing[3] +

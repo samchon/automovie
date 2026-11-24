@@ -38,7 +38,14 @@ import { sumAutoMovieRenderTextureAllocations } from "./sumAutoMovieRenderTextur
 export function measureRenderTextures(
   props: measureRenderTextures.IProps,
 ): measureRenderTextures.IResult {
-  const { subject, materials, byId, drawnModels, add, gaps } = props;
+  const {
+    subject,
+    materials,
+    byId,
+    drawnModels,
+    add,
+    gaps,
+  }: measureRenderTextures.IProps = props;
   const shadowProfile:
     | {
         success: false;

@@ -120,7 +120,7 @@ export function test_render_procedural_shader(): void {
   // 3. Frame and the interpolated pairs.
   const frame: ReturnType<typeof autoMovieProceduralFrame> =
     autoMovieProceduralFrame(piece.axis!);
-  const vector = (name: string): number[] =>
+  const vector: (name: string) => number[] = (name: string): number[] =>
     (uniforms[name]!.value as THREE.Vector3).toArray();
   TestValidator.predicate(
     "frame, colours, roughness and relief uniforms",
@@ -142,8 +142,9 @@ export function test_render_procedural_shader(): void {
   );
 
   // 4. Program keys.
-  const key = (one: IAutoMovieProceduralSurface): string =>
-    buildMaterial(record(one)).customProgramCacheKey();
+  const key: (one: IAutoMovieProceduralSurface) => string = (
+    one: IAutoMovieProceduralSurface,
+  ): string => buildMaterial(record(one)).customProgramCacheKey();
   TestValidator.predicate(
     "kinds and sheet sampling separate programs, seeds do not",
     key(surface("stone", 1)) === key(surface("stone", 2)) &&
@@ -173,7 +174,9 @@ function surface(
   kind: IAutoMovieProceduralSurface["kind"],
   seed: number,
 ): IAutoMovieProceduralSurface {
-  const color = (value: number): IAutoMovieColor => ({
+  const color: (value: number) => IAutoMovieColor = (
+    value: number,
+  ): IAutoMovieColor => ({
     r: value,
     g: value * 0.7,
     b: value * 0.4,

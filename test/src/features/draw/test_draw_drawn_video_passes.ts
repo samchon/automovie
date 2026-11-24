@@ -94,7 +94,10 @@ function sha256(bytes: Uint8Array | string): string {
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each naming the input and the behavior it pins.
  */
 export async function test_draw_drawn_video_passes(): Promise<void> {
-  const open = async (): Promise<{
+  const open: () => Promise<{
+    session: AutoMovieDrawSession;
+    double: createDrawPageDouble.IDouble;
+  }> = async (): Promise<{
     session: AutoMovieDrawSession;
     double: createDrawPageDouble.IDouble;
   }> => {
@@ -114,7 +117,7 @@ export async function test_draw_drawn_video_passes(): Promise<void> {
       }),
     };
   };
-  const { session, double } = await open();
+  const { session, double }: Awaited<ReturnType<typeof open>> = await open();
   const files: Map<string, Uint8Array> = new Map();
   const result: IAutoMovieDrawnVideoResult = await renderAutoMovieDrawnVideo({
     session,

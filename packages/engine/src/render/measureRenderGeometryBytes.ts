@@ -41,7 +41,7 @@ export function measureRenderGeometryBytes(props: {
   /** Appends one owner row. */
   add: IAutoMovieMeasureRenderSimulation.IProps["add"];
 }): number {
-  const { byId, costs, add } = props;
+  const { byId, costs, add }: typeof props = props;
   let geometryBytes: number = props.base;
   for (const id of [...props.drawnModels].sort(compareAutoMovieRenderIds)) {
     const cost: IAutoMovieRenderModelCost = costs.get(id)!;

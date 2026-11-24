@@ -71,7 +71,7 @@ export function diffAutoMovieCaptureFindings(props: {
   /** This round's audit, absent when no drawn cell supplied diagnostics. */
   current: IAutoMovieInspectionDiagnostics.IAudit | undefined;
 }): IAutoMovieCaptureFindingDiff {
-  const { earlier, current } = props;
+  const { earlier, current }: typeof props = props;
   if (earlier === undefined || current === undefined)
     return {
       state: "omitted",
@@ -141,7 +141,8 @@ function summarize(
 ): Map<string, ISummary> {
   const output: Map<string, ISummary> = new Map();
   for (const episode of audit.episodes) {
-    const { finding } = episode.worst;
+    const { finding }: IAutoMovieInspectionDiagnostics.IObservation =
+      episode.worst;
     const identity: ISummary["identity"] = {
       scope: episode.scope,
       check: finding.check,

@@ -74,7 +74,10 @@ export function test_film_surface_graphics(): void {
     skeleton: (): null => null,
     models: [phone, book],
   };
-  const graphic = (
+  const graphic: (
+    layers?: IAutoMovieSurfaceGraphic["layers"],
+    luminance?: number,
+  ) => IAutoMovieSurfaceGraphic = (
     layers: IAutoMovieSurfaceGraphic["layers"] = [],
     luminance: number = 200,
   ): IAutoMovieSurfaceGraphic => ({

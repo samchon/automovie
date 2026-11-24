@@ -145,7 +145,7 @@ export async function prepareAutoMovieSurfaceGraphics(
       const root: THREE.Group = new THREE.Group();
       root.name = label;
       root.userData[AUTOMOVIE_SURFACE_GRAPHIC_KEY] = true;
-      const { translation, rotation } = surface.frame;
+      const { translation, rotation }: typeof surface.frame = surface.frame;
       root.position.set(translation.x, translation.y, translation.z);
       root.quaternion.set(rotation.x, rotation.y, rotation.z, rotation.w);
       const lifted: THREE.Group = new THREE.Group();

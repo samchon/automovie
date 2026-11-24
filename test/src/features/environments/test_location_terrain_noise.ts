@@ -56,7 +56,10 @@ const NOISE: IAutoMovieTerrainRecipe.Relief = {
  * @evidence contracts/development/common.md#meaningful-documentation Lists its seven scenarios with the input and expected behavior of each.
  */
 export function test_location_terrain_noise(): void {
-  const build = (
+  const build: (
+    seed: string,
+    recipe?: Partial<IAutoMovieTerrainRecipe>,
+  ) => IAutoMovieEnvironment = (
     seed: string,
     recipe: Partial<IAutoMovieTerrainRecipe> = {},
   ): IAutoMovieEnvironment =>
@@ -70,26 +73,37 @@ export function test_location_terrain_noise(): void {
         },
       },
     });
-  const groundOf = (environment: IAutoMovieEnvironment): IAutoMovieHeightRule =>
-    environment.stage.space!.surfaces[0]!.height!;
+  const groundOf: (
+    environment: IAutoMovieEnvironment,
+  ) => IAutoMovieHeightRule = (
+    environment: IAutoMovieEnvironment,
+  ): IAutoMovieHeightRule => environment.stage.space!.surfaces[0]!.height!;
   const environment: IAutoMovieEnvironment = build("first");
   const rule: IAutoMovieHeightRule = groundOf(environment);
   const samples: readonly number[] =
     rule.kind === "heightfield" ? rule.samples : [];
-  const height = (r: IAutoMovieHeightRule, x: number, z: number): number =>
-    surfaceHeightAt({ height: r }, x, z);
+  const height: (r: IAutoMovieHeightRule, x: number, z: number) => number = (
+    r: IAutoMovieHeightRule,
+    x: number,
+    z: number,
+  ): number => surfaceHeightAt({ height: r }, x, z);
 
   // 4. Pads 0.5 m square centred 20 m apart at heights 0 and 1, joined by a
   // path between their centres. Each pad's level apron ends 0.75 m from its
   // centre, inside the path's 1 m landing, so the pads add no grade of their
   // own to the path's 1 / 18.
-  const square = (cx: number, cz: number): IAutoMovieTerrainRecipe.Point[] => [
+  const square: (cx: number, cz: number) => IAutoMovieTerrainRecipe.Point[] = (
+    cx: number,
+    cz: number,
+  ): IAutoMovieTerrainRecipe.Point[] => [
     [cx - 0.25, cz - 0.25],
     [cx + 0.25, cz - 0.25],
     [cx + 0.25, cz + 0.25],
     [cx - 0.25, cz + 0.25],
   ];
-  const graded = (maxSlope: number): IAutoMovieEnvironment =>
+  const graded: (maxSlope: number) => IAutoMovieEnvironment = (
+    maxSlope: number,
+  ): IAutoMovieEnvironment =>
     build("first", {
       pads: {
         low: { outline: square(15, 20), height: 0 },
@@ -110,7 +124,9 @@ export function test_location_terrain_noise(): void {
   const padded: IAutoMovieEnvironment = graded(0.1);
 
   // 5. Height differences one first-octave wavelength apart along X.
-  const shift = (r: IAutoMovieHeightRule): number => {
+  const shift: (r: IAutoMovieHeightRule) => number = (
+    r: IAutoMovieHeightRule,
+  ): number => {
     let total: number = 0;
     for (let k: number = 0; k < 64; ++k) {
       const x: number = 0.3 + 0.3 * k;
@@ -128,12 +144,12 @@ export function test_location_terrain_noise(): void {
   const space: IAutoMovieSpace = environment.stage.space!;
   const mesh: IAutoMovieTessellation = tessellateSurface(space.surfaces[0]!)!;
   const prepared: ReturnType<typeof prepareSpace> = prepareSpace(space);
-  const meshAgrees = (): boolean => {
+  const meshAgrees: () => boolean = (): boolean => {
     for (let face: number = 0; face < mesh.indices.length; face += 3) {
       const corners: number[] = [0, 1, 2].map(
         (k: number): number => mesh.indices[face + k]! * 3,
       );
-      const mean = (axis: number): number =>
+      const mean: (axis: number) => number = (axis: number): number =>
         corners.reduce(
           (sum: number, c: number): number => sum + mesh.positions[c + axis]!,
           0,

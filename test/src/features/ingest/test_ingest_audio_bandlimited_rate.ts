@@ -26,13 +26,14 @@ export function test_ingest_audio_bandlimited_rate(): void {
     (_: unknown, index: number): number =>
       0.5 * Math.sin((2 * Math.PI * 10_000 * index) / 24_000),
   );
-  const { pcm } = createDialogueReceiptFixture({
-    line: "tone",
-    text: "tone",
-    samples: tone,
-    sampleRate: 24_000,
-  });
-  const decode = (): Float32Array =>
+  const { pcm }: ReturnType<typeof createDialogueReceiptFixture> =
+    createDialogueReceiptFixture({
+      line: "tone",
+      text: "tone",
+      samples: tone,
+      sampleRate: 24_000,
+    });
+  const decode: () => Float32Array = (): Float32Array =>
     decodeProductionAudioAsset({
       path: "tone.wav",
       bytes: pcm,
@@ -57,7 +58,9 @@ export function test_ingest_audio_bandlimited_rate(): void {
       );
     },
   );
-  const magnitude = (frequency: number): number => {
+  const magnitude: (frequency: number) => number = (
+    frequency: number,
+  ): number => {
     let re: number = 0;
     let im: number = 0;
     for (let n: number = 0; n < size; ++n) {

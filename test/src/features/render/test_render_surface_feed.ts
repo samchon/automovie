@@ -79,7 +79,10 @@ export async function test_render_surface_feed(): Promise<void> {
     ],
     lights: [],
   } as IAutoMovieScene;
-  const feed = (
+  const feed: (
+    camera: string,
+    pixels: number,
+  ) => IAutoMovieSurfaceGraphicTrack = (
     camera: string,
     pixels: number,
   ): IAutoMovieSurfaceGraphicTrack => ({
@@ -128,9 +131,10 @@ export async function test_render_surface_feed(): Promise<void> {
 
   // 1. The target's size.
   const width: number = Math.round((120 * screen.width!) / screen.depth!);
-  const targetOf = (
-    texture: THREE.Texture,
-  ): { width: number; height: number } =>
+  const targetOf: (texture: THREE.Texture) => {
+    width: number;
+    height: number;
+  } = (texture: THREE.Texture): { width: number; height: number } =>
     texture.image as { width: number; height: number };
   TestValidator.equals(
     "feed target size",
@@ -144,7 +148,7 @@ export async function test_render_surface_feed(): Promise<void> {
   let bound: unknown = previous;
   const draws: { target: unknown; camera: THREE.Camera; material: unknown }[] =
     [];
-  const renderer = {
+  const renderer: THREE.WebGLRenderer = {
     getRenderTarget: (): unknown => bound,
     setRenderTarget: (target: unknown): void => {
       bound = target;
@@ -178,7 +182,9 @@ export async function test_render_surface_feed(): Promise<void> {
   );
 
   // 4. Refusals at the structural gate.
-  const shot = (track: IAutoMovieSurfaceGraphicTrack): IAutoMovieShot => ({
+  const shot: (track: IAutoMovieSurfaceGraphicTrack) => IAutoMovieShot = (
+    track: IAutoMovieSurfaceGraphicTrack,
+  ): IAutoMovieShot => ({
     id: "call",
     name: null,
     scene: scene.id,
@@ -216,7 +222,7 @@ export async function test_render_surface_feed(): Promise<void> {
 
   // 5. Under the film's optics the feed is drawn through a response stage and
   // its material decodes the display picture; without them it reads linear.
-  const encodedFlag = (): unknown => {
+  const encodedFlag: () => unknown = (): unknown => {
     const shader: {
       uniforms: Record<string, { value: unknown }>;
       fragmentShader: string;

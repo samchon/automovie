@@ -68,7 +68,7 @@ export async function test_cli_render_control_channels(): Promise<void> {
   const root: string = await fs.mkdtemp(
     path.join(os.tmpdir(), "automovie-controls-"),
   );
-  const header = (fullRange: boolean): Buffer =>
+  const header: (fullRange: boolean) => Buffer = (fullRange: boolean): Buffer =>
     writeDeliveryMp4Header({
       movieTimescale: 4,
       video: {
@@ -82,7 +82,9 @@ export async function test_cli_render_control_channels(): Promise<void> {
       },
     });
   let encoded: Buffer = header(true);
-  const fixture = (
+  const fixture: (
+    out?: string,
+  ) => Parameters<typeof renderAutoMovieVideo>[0] = (
     out?: string,
   ): Parameters<typeof renderAutoMovieVideo>[0] => ({
     host: {
@@ -147,9 +149,11 @@ export async function test_cli_render_control_channels(): Promise<void> {
     }
     return videoLog();
   };
-  const sha256 = (bytes: Buffer): string =>
+  const sha256: (bytes: Buffer) => string = (bytes: Buffer): string =>
     createHash("sha256").update(bytes).digest("hex");
-  const readFolder = async (folder: string): Promise<Map<string, Buffer>> =>
+  const readFolder: (folder: string) => Promise<Map<string, Buffer>> = async (
+    folder: string,
+  ): Promise<Map<string, Buffer>> =>
     new Map(
       await Promise.all(
         (await fs.readdir(folder)).map(
@@ -166,7 +170,7 @@ export async function test_cli_render_control_channels(): Promise<void> {
     const out: string = path.join(root, "out");
     const written: Awaited<ReturnType<typeof renderAutoMovieVideo>> =
       await renderAutoMovieVideo(fixture("out"), run);
-    const report = JSON.parse(
+    const report: any = JSON.parse(
       await fs.readFile(path.join(out, "render-report.json"), "utf8"),
     );
     const controls: Map<string, Buffer> = await readFolder(
@@ -236,7 +240,7 @@ export async function test_cli_render_control_channels(): Promise<void> {
       .then((): boolean => true)
       .catch((): boolean => false);
     if (published) throw new Error("A limited-range file was published");
-    const blocked = JSON.parse(
+    const blocked: any = JSON.parse(
       await fs.readFile(path.join(out, "render-report.json"), "utf8"),
     );
     const after: Map<string, Buffer> = await readFolder(

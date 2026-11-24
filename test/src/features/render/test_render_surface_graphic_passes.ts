@@ -32,8 +32,9 @@ import { renderFixtureNode } from "../internal/renderFixtureNode";
  *    `surface-graphic:phone-a/screen`, kind `surface-graphic`, owned by
  *    `node:phone-a`, joined by the graphic root's name.
  * 2. In the mask pass every mesh of the graphic, the face included although its
- *    background is transparent, takes that entry's colour, and the phone's case
- *    keeps the node's colour.
+ *    background is transparent and the rect's depth seal on the rect's own
+ *    geometry, takes that entry's colour, and the phone's case keeps the node's
+ *    colour.
  * 3. In the depth, normal, outline, pose and albedo passes the graphic root is
  *    hidden, so the drawn meshes are exactly those of the scene without the
  *    track; restoring the pass shows it again.
@@ -58,7 +59,7 @@ export async function test_render_surface_graphic_passes(): Promise<void> {
     scene,
     (): ReturnType<typeof buildModel> => object,
   );
-  const drawn = (): THREE.Mesh[] => {
+  const drawn: () => THREE.Mesh[] = (): THREE.Mesh[] => {
     const meshes: THREE.Mesh[] = [];
     mounted.scene.traverseVisible((entry: THREE.Object3D): void => {
       if ((entry as THREE.Mesh).isMesh === true)
@@ -138,14 +139,14 @@ export async function test_render_surface_graphic_passes(): Promise<void> {
     mounted.scene,
     "mask",
   );
-  const colourOf = (mesh: THREE.Mesh): string =>
+  const colourOf: (mesh: THREE.Mesh) => string = (mesh: THREE.Mesh): string =>
     `#${(mesh.material as THREE.MeshBasicMaterial).color.getHexString().toUpperCase()}`;
   const graphicMeshes: THREE.Mesh[] = drawn().filter(
     (mesh: THREE.Mesh): boolean => !before.has(mesh),
   );
   TestValidator.predicate(
     "every graphic mesh, the face included, takes the entry's colour",
-    graphicMeshes.length === 2 &&
+    graphicMeshes.length === 3 &&
       graphicMeshes.every(
         (mesh: THREE.Mesh): boolean => colourOf(mesh) === entry?.color,
       ),

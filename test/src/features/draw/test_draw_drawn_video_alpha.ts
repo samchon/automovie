@@ -68,7 +68,10 @@ function answer(call: IAutoMovieDrawCall): IAutoMovieDrawResult {
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each naming the input and the behavior it pins.
  */
 export async function test_draw_drawn_video_alpha(): Promise<void> {
-  const open = async (): Promise<{
+  const open: () => Promise<{
+    session: AutoMovieDrawSession;
+    double: createDrawPageDouble.IDouble;
+  }> = async (): Promise<{
     session: AutoMovieDrawSession;
     double: createDrawPageDouble.IDouble;
   }> => {
@@ -88,7 +91,7 @@ export async function test_draw_drawn_video_alpha(): Promise<void> {
       }),
     };
   };
-  const { session, double } = await open();
+  const { session, double }: Awaited<ReturnType<typeof open>> = await open();
   const files: Map<string, Uint8Array> = new Map();
   let encoded: readonly string[] = [];
   await renderAutoMovieDrawnVideo({

@@ -33,7 +33,7 @@ export function sampleAutoMovieProceduralSurface(
   if (!point.every(Number.isFinite))
     throw new Error("procedural surface sample must be finite");
   const value: number = autoMovieProceduralPattern(surface, point);
-  const [low, high] = surface.colors;
+  const [low, high]: [IAutoMovieColor, IAutoMovieColor] = surface.colors;
   const color: IAutoMovieColor = {
     r: low.r + value * (high.r - low.r),
     g: low.g + value * (high.g - low.g),
@@ -68,7 +68,11 @@ function samplePoint(
     throw new Error(
       "a procedural surface without a piece samples an object-space point, not a UV",
     );
-  const { offset, scale, rotationDeg } = piece.transform;
+  const {
+    offset,
+    scale,
+    rotationDeg,
+  }: IAutoMovieProceduralSurface.IPiece["transform"] = piece.transform;
   const angle: number = (-rotationDeg * Math.PI) / 180;
   const cosine: number = Math.cos(angle);
   const sine: number = Math.sin(angle);

@@ -90,6 +90,8 @@ export interface IAutoMovieFilmOptics {
    */
   lens?: IAutoMovieFilmOptics.ILens;
 }
+
+/** The shutter, lens, glare and grade the optics state. */
 export namespace IAutoMovieFilmOptics {
   /** The shutter that blurs motion within a frame. */
   export interface IShutter {

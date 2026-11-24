@@ -1,6 +1,7 @@
 import type {
   IAutoMovieDeliveryContentAudit,
   IAutoMovieDrawnVideoResult,
+  IAutoMovieInspectionDiagnostics,
 } from "@automovie/interface";
 
 /**
@@ -17,11 +18,14 @@ export function listAutoMovieReleaseFindings(
 ): string[] {
   const details: string[] = [];
   if (diagnostics?.hasBlockingFinding) {
-    const blocking = diagnostics.episodes.find(
-      ({ worst: { finding } }) =>
-        finding.category === "error" && finding.confidence === "confirmed",
-    );
-    const first =
+    const blocking: IAutoMovieInspectionDiagnostics.IEpisode | undefined =
+      diagnostics.episodes.find(
+        ({
+          worst: { finding },
+        }: IAutoMovieInspectionDiagnostics.IEpisode): boolean =>
+          finding.category === "error" && finding.confidence === "confirmed",
+      );
+    const first: IAutoMovieInspectionDiagnostics.IObservation | undefined =
       blocking?.first.finding.category === "error" &&
       blocking.first.finding.confidence === "confirmed"
         ? blocking.first
@@ -34,8 +38,10 @@ export function listAutoMovieReleaseFindings(
     );
   }
   if (diagnostics?.unresolvedRequiredCoverage) {
-    const unresolved = diagnostics.coverage.find(
-      ({ coverage }) =>
+    const unresolved:
+      | IAutoMovieInspectionDiagnostics.ICoverageRange
+      | undefined = diagnostics.coverage.find(
+      ({ coverage }: IAutoMovieInspectionDiagnostics.ICoverageRange): boolean =>
         coverage.required &&
         (coverage.status === "deferred" || coverage.status === "unsupported"),
     );
@@ -59,7 +65,7 @@ export function listAutoMovieReleaseFindings(
     const {
       ticks,
       timeBase: [numerator, denominator],
-    } = finding.start;
+    }: IAutoMovieDeliveryContentAudit.ITimestamp = finding.start;
     details.push(
       finding.outcome +
         " " +

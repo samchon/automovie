@@ -24,7 +24,10 @@ import { nclose } from "../internal/predicates";
  * @evidence contracts/development/testing.md#execution-ownership Portable in-memory unit test entered through `test_render_expression_viseme_presets`; it builds a plain three.js group and starts no renderer.
  */
 export function test_render_expression_viseme_presets(): void {
-  const apply = (
+  const apply: (
+    expression: Parameters<typeof applyExpression>[1],
+    visemes: Parameters<typeof applyExpression>[2],
+  ) => Map<string, number> = (
     expression: Parameters<typeof applyExpression>[1],
     visemes: Parameters<typeof applyExpression>[2],
   ): Map<string, number> => {

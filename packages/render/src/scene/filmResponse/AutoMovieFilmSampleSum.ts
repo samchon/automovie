@@ -96,7 +96,7 @@ export class AutoMovieFilmSampleSum {
      */
     march?: () => void;
   }): void {
-    const { renderer, linear } = props;
+    const { renderer, linear }: typeof props = props;
     const sums: [THREE.WebGLRenderTarget, THREE.WebGLRenderTarget] =
       this.prepare(linear.width, linear.height);
     const prior: {

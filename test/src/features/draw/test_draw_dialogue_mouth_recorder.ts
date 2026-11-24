@@ -63,7 +63,9 @@ export function test_draw_dialogue_mouth_recorder(): void {
   recorder.mouths.jaw("ann", 12 / 24);
   weights.aa = 1;
   const drawn: IAutoMovieDrawnMouth[] = recorder.drawn();
-  const half = (mouth: IAutoMovieDrawnMouth | undefined): boolean =>
+  const half: (mouth: IAutoMovieDrawnMouth | undefined) => boolean = (
+    mouth: IAutoMovieDrawnMouth | undefined,
+  ): boolean =>
     mouth !== undefined &&
     mouth.actor === "bob" &&
     mouth.jaw === undefined &&

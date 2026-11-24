@@ -178,7 +178,7 @@ function triangleAreas(mesh: IAutoMovieTessellation): number[] {
   const areas: number[] = [];
   const p: number[] = mesh.positions;
   for (let at: number = 0; at < mesh.indices.length; at += 3) {
-    const [a, b, c] = [
+    const [a, b, c]: [number, number, number] = [
       mesh.indices[at]! * 3,
       mesh.indices[at + 1]! * 3,
       mesh.indices[at + 2]! * 3,

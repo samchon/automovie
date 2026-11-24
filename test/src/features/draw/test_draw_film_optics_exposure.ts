@@ -79,7 +79,8 @@ export function test_draw_film_optics_exposure(): void {
     width: 64,
     height: 36,
   });
-  const [linear, final] = double.renders;
+  const [linear, final]: createFilmResponseRendererDouble.IRender[] =
+    double.renders;
   TestValidator.predicate(
     "the scene draws into a half-float target at the raster, then the response into the canvas",
     double.renders.length === 2 &&

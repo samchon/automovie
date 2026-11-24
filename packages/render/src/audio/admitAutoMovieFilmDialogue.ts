@@ -8,7 +8,7 @@ import type {
 } from "@automovie/interface";
 
 /** The mixer's fixed rate; every adopted line is decoded to it. */
-const SAMPLE_RATE = 48_000 as const;
+const SAMPLE_RATE: IAutoMovieProductionSoundPlan["sampleRate"] = 48_000;
 
 /**
  * Admit a film's adopted lines and place each over its speech span on the film

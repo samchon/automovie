@@ -121,16 +121,8 @@ export function test_viewer_render_mode_albedo(): void {
         ? mesh.material
         : [mesh.material]) as THREE.MeshBasicMaterial[],
   );
-  const [
-    redOverride,
-    greyOverride,
-    texturedOverride,
-    cutoutOverride,
-    clearOverride,
-    glassOverride,
-    groupRed,
-    groupShader,
-  ] = overrides as [
+  /** The eight overrides, in mesh order. */
+  type Overrides = [
     THREE.MeshBasicMaterial,
     THREE.MeshBasicMaterial,
     THREE.MeshBasicMaterial,
@@ -140,6 +132,16 @@ export function test_viewer_render_mode_albedo(): void {
     THREE.MeshBasicMaterial,
     THREE.MeshBasicMaterial,
   ];
+  const [
+    redOverride,
+    greyOverride,
+    texturedOverride,
+    cutoutOverride,
+    clearOverride,
+    glassOverride,
+    groupRed,
+    groupShader,
+  ]: Overrides = overrides as Overrides;
   const colors: string[] = overrides.map(
     (override: THREE.MeshBasicMaterial): string =>
       override.color.getHexString(THREE.SRGBColorSpace),

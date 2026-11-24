@@ -1,7 +1,15 @@
 import { AutoMovieMp4Boxes } from "./AutoMovieMp4Boxes";
 import type { IAutoMovieDeliveryAudioTrack } from "./IAutoMovieDeliveryAudioTrack";
 
-const { children, clock, edits, field, handler, only } = AutoMovieMp4Boxes;
+/** The box readers the reader walks the movie box with. */
+const {
+  children,
+  clock,
+  edits,
+  field,
+  handler,
+  only,
+}: typeof AutoMovieMp4Boxes = AutoMovieMp4Boxes;
 
 /**
  * Reads how much of an audio track an MP4 file presents, from the container's

@@ -51,7 +51,8 @@ export class AutoMovieInspectorBeauty {
     /** Drawn raster height in device pixels. */
     height: number;
   }): void {
-    const { renderer, instance, camera, seconds, width, height } = props;
+    const { renderer, instance, camera, seconds, width, height }: typeof props =
+      props;
     const optics:
       | ReturnType<NonNullable<IAutoMovieDrawScene["optics"]>>
       | undefined = instance.optics?.(seconds);

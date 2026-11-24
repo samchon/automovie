@@ -95,7 +95,7 @@ export class AutoMovieFilmMediumPass {
       props.scene,
     );
     if (medium === null) return;
-    const { renderer, linear, camera } = props;
+    const { renderer, linear, camera }: typeof props = props;
     const lights: collectAutoMovieMediumLights.ILight[] =
       collectAutoMovieMediumLights(
         props.scene,

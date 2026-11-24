@@ -256,7 +256,10 @@ const splitFaces: (box: IAutoMovieMesh) => IAutoMovieMesh = (
   const positions: number[] = [];
   const indices: number[] = [];
   for (let face: number = 0; face < 6; ++face) {
-    const [a, b, c, , , d] = box.indices!.slice(face * 6, face * 6 + 6);
+    const [a, b, c, , , d]: number[] = box.indices!.slice(
+      face * 6,
+      face * 6 + 6,
+    );
     const base: number = positions.length / 3;
     for (const corner of [a!, b!, c!, d!])
       positions.push(...box.positions.slice(corner * 3, corner * 3 + 3));

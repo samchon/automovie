@@ -66,7 +66,11 @@ export function test_render_flame_passes(): void {
       },
     },
   ];
-  const prepare = (): {
+  const prepare: () => {
+    flames: IAutoMovieFlamesObject;
+    mounted: ReturnType<typeof buildScene>;
+    object: ReturnType<typeof buildModel>;
+  } = (): {
     flames: IAutoMovieFlamesObject;
     mounted: ReturnType<typeof buildScene>;
     object: ReturnType<typeof buildModel>;
@@ -87,7 +91,11 @@ export function test_render_flame_passes(): void {
       object,
     };
   };
-  const { flames: built, mounted, object } = prepare();
+  const {
+    flames: built,
+    mounted,
+    object,
+  }: ReturnType<typeof prepare> = prepare();
   const mesh: THREE.Mesh = object.object.getObjectByName(
     "flame:candle-1/wick",
   ) as THREE.Mesh;

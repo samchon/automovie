@@ -86,7 +86,7 @@ export function test_draw_alpha_dissolve_blend(): void {
     );
 
   // 6. Supersample reduction; rows come bottom-up, so one block is the whole target.
-  const decode = (text: string): number[] =>
+  const decode: (text: string) => number[] = (text: string): number[] =>
     Array.from(atob(text), (character: string): number =>
       character.charCodeAt(0),
     );

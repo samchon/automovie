@@ -103,7 +103,7 @@ async function render(subject: IAutoMovieCaptureSubject): Promise<{
  */
 export async function test_draw_drawn_video_cut(): Promise<void> {
   // 1 to 4. A cut with a repeated shot and a closing dissolve.
-  const { result, encoded } = await render({
+  const { result, encoded }: Awaited<ReturnType<typeof render>> = await render({
     ...SUBJECT,
     cut: {
       runtime: 2,

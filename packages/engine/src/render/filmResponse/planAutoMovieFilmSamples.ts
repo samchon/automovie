@@ -81,7 +81,10 @@ export const planAutoMovieFilmSamples: (
         props.optics.shutter === undefined
           ? k
           : (stride * k + Math.floor(count / 2)) % count;
-      const [x, y] = concentricDisk(point / count, radicalInverse(point));
+      const [x, y]: [number, number] = concentricDisk(
+        point / count,
+        radicalInverse(point),
+      );
       return { seconds, point, eye: { x: x * radius, y: y * radius } };
     },
   );
@@ -112,7 +115,7 @@ const concentricDisk: (u: number, v: number) => [number, number] = (
   const a: number = 2 * u - 1;
   const b: number = 2 * v - 1;
   if (a === 0 && b === 0) return [0, 0];
-  const [r, phi] =
+  const [r, phi]: [number, number] =
     Math.abs(a) > Math.abs(b)
       ? [a, (Math.PI / 4) * (b / a)]
       : [b, Math.PI / 2 - (Math.PI / 4) * (a / b)];

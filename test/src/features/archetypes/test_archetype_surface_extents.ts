@@ -63,7 +63,9 @@ interface IListed {
 const SEEDS: readonly number[] = [1, 2, 3];
 
 /** Build a producer at each seed. */
-const seeded = (
+const seeded: (
+  produce: (seed: number) => AutoMovieArchetype,
+) => AutoMovieArchetype[] = (
   produce: (seed: number) => AutoMovieArchetype,
 ): AutoMovieArchetype[] => SEEDS.map(produce);
 

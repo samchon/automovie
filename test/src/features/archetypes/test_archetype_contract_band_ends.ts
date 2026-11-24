@@ -98,7 +98,10 @@ export function test_archetype_contract_band_ends(): void {
     (row: archetypeCatalog.IRow): archetypeBandEnds.IFinding[] =>
       archetypeBandEnds(row),
   );
-  const excused = (
+  const excused: (
+    list: readonly IAllowed[],
+    finding: archetypeBandEnds.IFinding,
+  ) => boolean = (
     list: readonly IAllowed[],
     finding: archetypeBandEnds.IFinding,
   ): boolean =>
@@ -120,7 +123,10 @@ export function test_archetype_contract_band_ends(): void {
       ),
     [],
   );
-  const stale = (
+  const stale: (
+    list: readonly IAllowed[],
+    kind: archetypeBandEnds.Kind,
+  ) => string[] = (
     list: readonly IAllowed[],
     kind: archetypeBandEnds.Kind,
   ): string[] =>
@@ -155,8 +161,13 @@ type Dimensions = archetypeCatalog.Dimensions;
  * finding is accepted.
  */
 interface IAllowed {
+  /** The rows the entry covers. */
   rows: RegExp;
+
+  /** The dimension whose finding is accepted. */
   dimension: string;
+
+  /** Why the finding is accepted. */
   reason: string;
 }
 

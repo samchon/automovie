@@ -73,13 +73,14 @@ export async function test_draw_drawn_video_mouths(): Promise<void> {
   const files: Map<string, Uint8Array> = new Map();
   const speakers: string[] = ["ana", "ben", "cal"];
   for (const speaker of speakers) {
-    const fixture = createDialogueReceiptFixture({
-      line: `${speaker}-1`,
-      text: "A ma ma.",
-      samples,
-      sampleRate: 48_000,
-      phonemeChunks: chunks,
-    });
+    const fixture: ReturnType<typeof createDialogueReceiptFixture> =
+      createDialogueReceiptFixture({
+        line: `${speaker}-1`,
+        text: "A ma ma.",
+        samples,
+        sampleRate: 48_000,
+        phonemeChunks: chunks,
+      });
     files.set(`lines/${speaker}-1.wav`, fixture.pcm);
     files.set(`lines/${speaker}-1.json`, fixture.receiptBytes);
   }
@@ -115,7 +116,13 @@ export async function test_draw_drawn_video_mouths(): Promise<void> {
 
   // The subject's seek: ana's visemes `late` frames behind the drawn second,
   // ben's jaw, and nothing for cal.
-  const render = async (
+  const render: (
+    late: number,
+    transparent?: boolean,
+  ) => Promise<{
+    result: IAutoMovieDrawnVideoResult;
+    calls: createDrawPageDouble.ICall[];
+  }> = async (
     late: number,
     transparent: boolean = false,
   ): Promise<{
@@ -164,7 +171,11 @@ export async function test_draw_drawn_video_mouths(): Promise<void> {
     });
     return { result, calls: double.calls };
   };
-  const entries = (result: IAutoMovieDrawnVideoResult): (string | number)[][] =>
+  const entries: (
+    result: IAutoMovieDrawnVideoResult,
+  ) => (string | number)[][] = (
+    result: IAutoMovieDrawnVideoResult,
+  ): (string | number)[][] =>
     (result.sound?.lipSync ?? []).map(
       (entry: IAutoMovieDialogueLipSync): (string | number)[] =>
         entry.status === "measured"
@@ -172,7 +183,7 @@ export async function test_draw_drawn_video_mouths(): Promise<void> {
           : [entry.line, entry.reason],
     );
 
-  const onTime = await render(0);
+  const onTime: Awaited<ReturnType<typeof render>> = await render(0);
   const evaluated: unknown[] = onTime.calls
     .filter(
       (call: createDrawPageDouble.ICall): boolean => call.method === "evaluate",
@@ -198,7 +209,7 @@ export async function test_draw_drawn_video_mouths(): Promise<void> {
     ["ana-1", "fail", -3],
   );
 
-  const layer = await render(0, true);
+  const layer: Awaited<ReturnType<typeof render>> = await render(0, true);
   TestValidator.predicate(
     "a transparent layer reports no sound but still hands the same track",
     layer.result.sound === undefined &&

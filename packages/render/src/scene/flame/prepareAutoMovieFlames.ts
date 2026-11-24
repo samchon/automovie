@@ -64,7 +64,7 @@ export function prepareAutoMovieFlames(
   );
   const meshes: THREE.Mesh[] = [];
   const emissions: { color: IAutoMovieColor; luminance: number }[] = [];
-  const release = (): void => {
+  const release: () => void = (): void => {
     for (const mesh of meshes) {
       mesh.removeFromParent();
       mesh.geometry.dispose();
@@ -103,7 +103,7 @@ export function prepareAutoMovieFlames(
       mesh.castShadow = false;
       mesh.receiveShadow = false;
       mesh.renderOrder = -1;
-      const { translation, rotation } = emitter.frame;
+      const { translation, rotation }: typeof emitter.frame = emitter.frame;
       mesh.position.set(translation.x, translation.y, translation.z);
       mesh.quaternion.set(rotation.x, rotation.y, rotation.z, rotation.w);
       object.object.add(mesh);
@@ -139,7 +139,8 @@ export function prepareAutoMovieFlames(
 
         // An ember's glow factor is its area over the bare disc's.
         if (cue.size.kind === "ember") {
-          const { color, luminance } = emissions[index]!;
+          const { color, luminance }: (typeof emissions)[number] =
+            emissions[index]!;
           const scale: number =
             (luminance * sample.area) /
             (Math.PI * cue.size.radius * cue.size.radius);

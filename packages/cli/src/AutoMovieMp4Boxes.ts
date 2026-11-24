@@ -1,3 +1,4 @@
+import type { Stats } from "node:fs";
 import * as fs from "node:fs/promises";
 
 /**
@@ -48,7 +49,7 @@ export namespace AutoMovieMp4Boxes {
   export async function read(path: string): Promise<IFile> {
     const handle: fs.FileHandle = await fs.open(path, "r");
     try {
-      const { size } = await handle.stat();
+      const { size }: Stats = await handle.stat();
       const header: Buffer = Buffer.alloc(16);
       const found: IFile = { fileType: undefined, movie: undefined };
       for (let offset: number = 0; offset + 8 <= size; ) {
@@ -117,8 +118,8 @@ export namespace AutoMovieMp4Boxes {
   }
 
   /**
-   * Select the one child of a type, refusing repetition, and absence unless
-   * optional.
+   * Select the one optional child of a type, refusing repetition; `undefined`
+   * when it is absent.
    */
   export function only(
     buffer: Buffer,
@@ -126,7 +127,14 @@ export namespace AutoMovieMp4Boxes {
     type: string,
     optional: true,
   ): IBox | undefined;
+
+  /** Select the one required child of a type, refusing absence and repetition. */
   export function only(buffer: Buffer, parent: IBox, type: string): IBox;
+
+  /**
+   * Select the one child of a type, refusing repetition, and absence unless
+   * optional.
+   */
   export function only(
     buffer: Buffer,
     parent: IBox,
@@ -242,7 +250,7 @@ export namespace AutoMovieMp4Boxes {
     position: number,
   ): Promise<void> {
     for (let filled: number = 0; filled < length; ) {
-      const { bytesRead } = await handle.read(
+      const { bytesRead }: fs.FileReadResult<Buffer> = await handle.read(
         buffer,
         filled,
         length - filled,

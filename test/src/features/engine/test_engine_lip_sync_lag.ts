@@ -44,9 +44,11 @@ export function test_engine_lip_sync_lag(): void {
       ? 1 + 0.1 * (t % 3)
       : 0,
   );
-  const shifted = (shift: number): number[] =>
+  const shifted: (shift: number) => number[] = (shift: number): number[] =>
     mouth.map((_: number, t: number): number => mouth[t - shift] ?? 0);
-  const measure = (shift: number): IAutoMovieMeasureLipSyncLag.IResult =>
+  const measure: (shift: number) => IAutoMovieMeasureLipSyncLag.IResult = (
+    shift: number,
+  ): IAutoMovieMeasureLipSyncLag.IResult =>
     measureAutoMovieLipSyncLag({ mouth, level: shifted(shift), fps: 24 });
 
   const results: IAutoMovieMeasureLipSyncLag.IResult[] = [0, -1, -2, 5].map(

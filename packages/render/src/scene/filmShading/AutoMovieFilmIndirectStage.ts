@@ -46,8 +46,20 @@ import { bakeAutoMovieFilmProbes } from "./bakeAutoMovieFilmProbes.js";
  * by `dispose`; the stage keeps the last probe bake only.
  */
 export class AutoMovieFilmIndirectStage {
+  /**
+   * The prepass, raw and blurred visibility targets at the last occlusion
+   * raster; null until a draw asks for occlusion.
+   */
   private targets_: ITargets | null = null;
+
+  /** The last probe bake and its texture; null until a draw asks for probes. */
   private probes_: IBake | null = null;
+
+  /**
+   * The uniforms the patched materials read: the visibility texture and its
+   * raster, the probe texture with the grid's minimum corner, spacing and
+   * counts, and the two switches, which are 1 only during `beauty`.
+   */
   private readonly uniforms_: Record<string, THREE.IUniform> = {
     uFilmOcclusion: { value: null },
     uFilmOcclusionOn: { value: 0 },
@@ -58,15 +70,27 @@ export class AutoMovieFilmIndirectStage {
     uFilmProbeSpacing: { value: 1 },
     uFilmProbeCounts: { value: new THREE.Vector3(1, 1, 1) },
   };
+
+  /** The double-sided view-space normal material of the occlusion prepass. */
   private readonly normal_: THREE.MeshNormalMaterial =
     new THREE.MeshNormalMaterial({ side: THREE.DoubleSide });
+
+  /** The horizon search program. */
   private readonly occlusion_: THREE.RawShaderMaterial;
+
+  /** The 4 × 4 blur program over the horizon search's visibility. */
   private readonly blur_: THREE.RawShaderMaterial;
+
+  /** The full-frame quad each pass draws with its program. */
   private readonly quad_: THREE.Mesh<
     THREE.PlaneGeometry,
     THREE.RawShaderMaterial
   >;
+
+  /** The scene holding only the quad. */
   private readonly frame_: THREE.Scene = new THREE.Scene();
+
+  /** A camera the quad's clip-space vertices ignore; `render` needs one. */
   private readonly camera_: THREE.OrthographicCamera =
     new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
 
@@ -158,7 +182,7 @@ export class AutoMovieFilmIndirectStage {
     },
     beauty: () => void,
   ): void {
-    const { shading } = props;
+    const { shading }: typeof props = props;
     if (shading === undefined) {
       beauty();
       return;
@@ -175,7 +199,7 @@ export class AutoMovieFilmIndirectStage {
         if (entry instanceof THREE.Material)
           applyFilmIndirectPatch(entry, this.uniforms_);
     });
-    const { renderer, scene, camera } = props;
+    const { renderer, scene, camera }: typeof props = props;
     const prior: {
       target: THREE.WebGLRenderTarget | null;
       autoClear: boolean;
@@ -275,7 +299,7 @@ export class AutoMovieFilmIndirectStage {
       this.probes_?.texture.dispose();
       this.probes_ = { key, volume, texture };
     }
-    const { volume, texture } = this.probes_!;
+    const { volume, texture }: IBake = this.probes_!;
     this.uniforms_.uFilmProbes!.value = texture;
     (this.uniforms_.uFilmProbeMin!.value as THREE.Vector3).set(
       volume.min.x,

@@ -73,7 +73,11 @@ export function test_render_budget_feed_targets(): void {
     ],
     lights: [],
   } as IAutoMovieScene;
-  const layer = (
+  const layer: (
+    x: number,
+    width: number,
+    pixels: number,
+  ) => IAutoMovieSurfaceGraphicLayer.IFeed = (
     x: number,
     width: number,
     pixels: number,
@@ -120,8 +124,10 @@ export function test_render_budget_feed_targets(): void {
 
   // 1. The feed measure.
   const aspect: number = screen.width! / screen.depth!;
-  const width = (box: number, pixels: number): number =>
-    Math.max(1, Math.round(pixels * box * aspect));
+  const width: (box: number, pixels: number) => number = (
+    box: number,
+    pixels: number,
+  ): number => Math.max(1, Math.round(pixels * box * aspect));
   const bytes: number = (width(1, 120) * 120 + 2 * width(0.5, 64) * 64) * 8;
   const feeds: measureAutoMovieRenderFeeds.IResult =
     measureAutoMovieRenderFeeds(withFeeds);
@@ -132,7 +138,9 @@ export function test_render_budget_feed_targets(): void {
   );
 
   // 2. The inventory totals.
-  const measure = (
+  const measure: (
+    subject: IAutoMovieRenderSubject,
+  ) => IAutoMovieRenderInventory = (
     subject: IAutoMovieRenderSubject,
   ): IAutoMovieRenderInventory =>
     measureAutoMovieRenderInventory({
@@ -190,11 +198,14 @@ export function test_render_budget_feed_targets(): void {
   // pyramid level per halving down to the deepest kernel's level
   // max(0, floor(log2(sigma * height / 2))), and two half-float blur targets
   // per kernel at its level, each side rounded up.
-  const stageAt = (
+  const stageAt: (
+    stageWidth: number,
+    stageHeight: number,
+  ) => { targets: number; bytes: number } = (
     stageWidth: number,
     stageHeight: number,
   ): { targets: number; bytes: number } => {
-    const at = (level: number): number =>
+    const at: (level: number) => number = (level: number): number =>
       Math.ceil(stageWidth / 2 ** level) * Math.ceil(stageHeight / 2 ** level);
     const levels: number[] = AUTOMOVIE_FILM_GLARE_KERNELS.map(
       (kernel: { sigma: number }): number =>

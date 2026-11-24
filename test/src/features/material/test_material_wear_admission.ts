@@ -29,7 +29,9 @@ import { hasViolation } from "../internal/hasViolation";
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each naming the input and the behavior it pins.
  */
 export function test_material_wear_admission(): void {
-  const check = (wear: unknown): IAutoMovieValidation =>
+  const check: (wear: unknown) => IAutoMovieValidation = (
+    wear: unknown,
+  ): IAutoMovieValidation =>
     validateModel({
       model: boxModel({
         id: "chair",

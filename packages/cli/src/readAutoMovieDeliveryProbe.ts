@@ -7,7 +7,15 @@ import type {
 
 import { AutoMovieMp4Boxes } from "./AutoMovieMp4Boxes";
 
-const { children, clock, edits, field, handler, only } = AutoMovieMp4Boxes;
+/** The box readers the probe walks the movie box with. */
+const {
+  children,
+  clock,
+  edits,
+  field,
+  handler,
+  only,
+}: typeof AutoMovieMp4Boxes = AutoMovieMp4Boxes;
 
 /**
  * MPEG-4 audio sampling-frequency table, by `samplingFrequencyIndex` (ISO/IEC
@@ -55,7 +63,8 @@ export async function readAutoMovieDeliveryProbe(
   video: IAutoMovieProductionVideoProbe;
   audio: IAutoMovieProductionAudioProbe | null;
 }> {
-  const { fileType, movie } = await AutoMovieMp4Boxes.read(path);
+  const { fileType, movie }: AutoMovieMp4Boxes.IFile =
+    await AutoMovieMp4Boxes.read(path);
   if (movie === undefined) throw new Error("the file has no moov box");
   const root: AutoMovieMp4Boxes.IBox = {
     type: "moov",

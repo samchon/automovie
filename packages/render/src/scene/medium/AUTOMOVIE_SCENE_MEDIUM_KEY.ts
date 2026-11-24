@@ -7,4 +7,4 @@
  * the scene the way the film's other scene-wide facts do, where every host that
  * draws the scene can find it.
  */
-export const AUTOMOVIE_SCENE_MEDIUM_KEY = "automovieMedium" as const;
+export const AUTOMOVIE_SCENE_MEDIUM_KEY: string = "automovieMedium";

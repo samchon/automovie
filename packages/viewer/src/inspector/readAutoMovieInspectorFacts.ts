@@ -24,7 +24,7 @@ export function readAutoMovieInspectorFacts(props: {
   /** The placed second. */
   seconds: number;
 }): IAutoMovieInspectorScene.IFacts {
-  const { instance } = props;
+  const { instance }: typeof props = props;
   const marks: NonNullable<IApplyAutoMovieInspectionProps["marks"]> =
     instance.marks?.(props.seconds) ?? [];
   return {

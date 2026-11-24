@@ -43,31 +43,37 @@ import { TestValidator } from "@nestia/e2e";
  * @evidence contracts/development/testing.md#execution-ownership Portable in-memory unit test entered through `test_engine_dialogue_viseme_coarticulation`; it starts no process.
  */
 export function test_engine_dialogue_viseme_coarticulation(): void {
-  const timeline = (
+  const timeline: (
+    chunks: IAutoMovieProductionPhonemeChunk[],
+    samples: number,
+  ) => IAutoMovieDialogueVisemeTimeline = (
     chunks: IAutoMovieProductionPhonemeChunk[],
     samples: number,
   ): IAutoMovieDialogueVisemeTimeline => {
     const visemes: IAutoMovieProductionViseme[] = productionPhonemesToVisemes({
       chunks,
     });
-    const joined = joinAutoMovieDialogueVisemes({
-      line: {
-        id: "line",
-        text: "line",
-        language: "en",
-        speaker: "ann",
-        startFrame: 0,
-        endFrame: Math.ceil((samples * 24) / 48_000),
-      },
-      bindings: [{ speaker: "ann", actor: "ann-node" }],
-      visemes,
-      sourceSampleRate: 48_000,
-      fps: 24,
-    });
+    const joined: ReturnType<typeof joinAutoMovieDialogueVisemes> =
+      joinAutoMovieDialogueVisemes({
+        line: {
+          id: "line",
+          text: "line",
+          language: "en",
+          speaker: "ann",
+          startFrame: 0,
+          endFrame: Math.ceil((samples * 24) / 48_000),
+        },
+        bindings: [{ speaker: "ann", actor: "ann-node" }],
+        visemes,
+        sourceSampleRate: 48_000,
+        fps: 24,
+      });
     if (joined.timeline === null) throw new Error("the join did not run");
     return joined.timeline;
   };
-  const heaviest = (weights: IAutoMovieHumanVisemeWeights): string =>
+  const heaviest: (weights: IAutoMovieHumanVisemeWeights) => string = (
+    weights: IAutoMovieHumanVisemeWeights,
+  ): string =>
     Object.entries(weights).reduce(
       (best: [string, number], entry: [string, number | undefined]) =>
         (entry[1] ?? 0) > best[1] ? [entry[0], entry[1] ?? 0] : best,
@@ -80,7 +86,9 @@ export function test_engine_dialogue_viseme_coarticulation(): void {
   const stressed: IAutoMovieProductionViseme[] = productionPhonemesToVisemes({
     chunks: [{ phonemes: "ˈama", startSample: 0, endSample: 24_000 }],
   });
-  const shares = (visemes: IAutoMovieProductionViseme[]): number[][] =>
+  const shares: (visemes: IAutoMovieProductionViseme[]) => number[][] = (
+    visemes: IAutoMovieProductionViseme[],
+  ): number[][] =>
     visemes.map((v: IAutoMovieProductionViseme): number[] => [
       v.startSample,
       v.endSample,
@@ -106,7 +114,9 @@ export function test_engine_dialogue_viseme_coarticulation(): void {
     [{ phonemes: "ama", startSample: 0, endSample: 24_000 }],
     24_000,
   );
-  const sample = (frame: number): IAutoMovieHumanVisemeWeights =>
+  const sample: (frame: number) => IAutoMovieHumanVisemeWeights = (
+    frame: number,
+  ): IAutoMovieHumanVisemeWeights =>
     sampleAutoMovieDialogueVisemeWeights({ timeline: ama, frame, fps: 24 });
   const onM: IAutoMovieHumanVisemeWeights = sample(6);
   const onA: IAutoMovieHumanVisemeWeights = sample(2);
