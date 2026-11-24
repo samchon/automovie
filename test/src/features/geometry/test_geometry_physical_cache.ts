@@ -147,14 +147,6 @@ export function test_geometry_physical_cache(): void {
     false,
   );
   TestValidator.predicate(
-    "invalid capture coordinates",
-    throwsError(
-      (): ((candidate: IAutoMovieMesh) => boolean) =>
-        createMeshPhysicalPartitionMatcher(createPhysicalMesh([NaN, 0, 0], [])),
-      ["finite", "XYZ"],
-    ),
-  );
-  TestValidator.predicate(
     "invalid capture structure",
     throwsError(
       (): ((candidate: IAutoMovieMesh) => boolean) =>

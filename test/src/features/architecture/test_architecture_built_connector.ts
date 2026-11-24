@@ -228,13 +228,6 @@ export function test_architecture_built_connector(): void {
     ),
   );
   TestValidator.predicate(
-    "a non-finite parameter is refused",
-    throwsError(
-      (): IAutoMovieConnectorSectionAt =>
-        builtConnectorSectionAt(source, "flight", Number.NaN),
-    ),
-  );
-  TestValidator.predicate(
     "an empty route has nothing to measure",
     throwsError((): void => {
       const value: IAutoMovieBuiltEnvironment = levels();

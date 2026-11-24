@@ -23,6 +23,10 @@ import { motionActionContext } from "../../../internal/motionActionContext";
  * there, every arm and digit clear of the trunk and the other hand by the
  * skin's give (`HumanVerdicts.SKIN`) as the posture resolves.
  *
+ * The law reads most of the body record: its rig, pose resolution, chains,
+ * projection, rest joints, measure, surfaces and profile, so the test builds
+ * the stored body (humanFixtureBody).
+ *
  * Scenarios:
  *
  * 1. For both stored bodies and the pocket, hip, crossed-arms, clasped-behind

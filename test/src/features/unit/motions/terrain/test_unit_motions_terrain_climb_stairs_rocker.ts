@@ -18,6 +18,10 @@ const ROUNDING: number = 1e-9;
  * rises about the ball's fixed point, the toes extending by the change of
  * pitch, and otherwise the foot stays flat on its print.
  *
+ * It reads the rest joints, the measure and the sole sockets through
+ * HumanFoot, whose sole points take the whole body record, so the test
+ * builds the stored body (humanFixtureBody).
+ *
  * Scenarios, on the average man's left foot on a print at (0.1, 0.18, 0.3):
  *
  * 1. With the hip over the ankle the foot stays on its print, its toes

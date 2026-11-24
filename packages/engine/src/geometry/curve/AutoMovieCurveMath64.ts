@@ -150,17 +150,33 @@ export namespace AutoMovieCurveMath64 {
     endpoint: 0 | 1,
     dy: number,
   ): AutoMovieVector3Tuple {
-    const ordinary: AutoMovieVector3Tuple = derivative(span, endpoint, dy);
+    // The ordinary formula weights every control by up to 24 / dy in total;
+    // past that bound an inactive term can overflow, so the endpoint
+    // difference is read directly instead.
+    const largest: number = Math.max(
+      ...span.map((control: AutoMovieVector3Tuple): number =>
+        Math.max(...control.map(Math.abs)),
+      ),
+    );
+    const ordinary: AutoMovieVector3Tuple | null =
+      largest < (Number.MAX_VALUE / 24) * dy
+        ? derivative(span, endpoint, dy)
+        : null;
     const a: AutoMovieVector3Tuple = span[endpoint === 0 ? 0 : 2]!,
       b: AutoMovieVector3Tuple = span[endpoint === 0 ? 1 : 3]!;
     return [0, 1, 2].map((axis: number): number => {
       const delta: number = b[axis]! - a[axis]!;
-      let value: number = ordinary[axis]!;
-      if (value === 0 && a[axis] !== b[axis]) value = (3 * delta) / dy;
-      if (value === 0 && a[axis] !== b[axis]) value = 3 * (delta / dy);
-      if (value === 0 && a[axis] !== b[axis])
-        value = 3 * (b[axis]! / dy - a[axis]! / dy);
-      if (value === 0 && a[axis] !== b[axis])
+      // An intermediate difference or quotient can overflow to Infinity, or
+      // a tiny width underflow a nonzero difference to zero; each later form
+      // reorders the same arithmetic to avoid that rounding.
+      const unresolved = (candidate: number): boolean =>
+        Math.abs(candidate) === Infinity ||
+        (candidate === 0 && a[axis] !== b[axis]);
+      let value: number = ordinary === null ? (3 * delta) / dy : ordinary[axis]!;
+      if (unresolved(value)) value = (3 * delta) / dy;
+      if (unresolved(value)) value = 3 * (delta / dy);
+      if (unresolved(value)) value = 3 * (b[axis]! / dy - a[axis]! / dy);
+      if (unresolved(value))
         throw new Error("Cubic endpoint derivative is unresolved in binary64");
       return value;
     }) as AutoMovieVector3Tuple;

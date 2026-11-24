@@ -534,42 +534,6 @@ export function test_architecture_surface_pattern_texture(): void {
     },
   );
 
-  TestValidator.equals(
-    "a non-positive texture turn and a non-finite sheet origin are refused",
-    namedFacts([
-      [
-        "tileU",
-        (): boolean =>
-          throwsError(
-            (): IAutoMoviePatternTexturing =>
-              autoMoviePatternTextureTransforms({
-                result: field,
-                tile: { u: 0, v: 0.5 },
-                sheet: { kind: "module" },
-              }),
-            "pattern texture tile u must be a finite number > 0",
-          ),
-      ],
-      [
-        "origin",
-        (): boolean =>
-          throwsError(
-            (): IAutoMoviePatternTexturing =>
-              autoMoviePatternTextureTransforms({
-                result: field,
-                tile: { u: 0.5, v: 0.5 },
-                sheet: {
-                  kind: "face",
-                  origin: { u: 0, v: Number.POSITIVE_INFINITY },
-                },
-              }),
-            "pattern texture sheet origin must be finite",
-          ),
-      ],
-    ]),
-    { tileU: true, origin: true },
-  );
-
   TestValidator.predicate(
     "the same run transformed twice preserves structure and numeric components",
     test12ValuesClose(

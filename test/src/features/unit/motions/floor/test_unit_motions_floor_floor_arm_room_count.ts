@@ -1,11 +1,9 @@
-import type {
-  IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanPosture,
-} from "@automovie/interface";
+import type { IAutoMovieMotionHumanPosture } from "@automovie/interface";
 import { floorArmRoom } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
-import { humanFixtureBody } from "../../../internal/fixtures/humanFixtureBody";
+import type { IHumanFixture } from "../../../internal/fixtures/IHumanFixture";
+import { humanFixture } from "../../../internal/fixtures/humanFixture";
 
 /** The fewest intervals a blend's scan reads (`floorArmRoom`'s `SCAN`). */
 const SCAN: number = 16;
@@ -14,7 +12,8 @@ const SCAN: number = 16;
  * `floorArmRoom.count` is the number of evenly spaced intervals that keep any
  * arm within the audit's self-penetration allowance between two readings of a
  * blend: the joints' turns times their reaches, summed, over twice the
- * allowance, and never fewer than `SCAN`.
+ * allowance, and never fewer than `SCAN`. It reads only the body's physical
+ * profile, the stored one here.
  *
  * Scenarios:
  *
@@ -24,7 +23,10 @@ const SCAN: number = 16;
  * 4. A larger turn needs no fewer intervals.
  */
 export async function test_unit_motions_floor_floor_arm_room_count(): Promise<void> {
-  const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");
+  const stored: IHumanFixture = await humanFixture("m-average");
+  const body: Parameters<typeof floorArmRoom.count>[0] = {
+    profile: stored.profile,
+  };
   const posture = (shoulder: number): IAutoMovieMotionHumanPosture => ({
     root: { x: 0, y: 0, z: 0 },
     yaw: 0,

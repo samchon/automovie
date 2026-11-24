@@ -21,6 +21,7 @@ const ROUNDING: number = 1e-12;
  * 3. At Fr = 0.25, `1.2 * 0.25^0.25 = 0.849` exceeds the longest step, which caps
  *    it.
  * 4. The swing share, the lift, the arms and the lean are the constants.
+ * 5. Sixteen times a short step's Froude number doubles it.
  */
 export function test_unit_motions_actions_walk_walking(): void {
   const gait: IAutoMovieMotionHumanWalkGait = walk.walking(0.25);
@@ -48,4 +49,11 @@ export function test_unit_motions_actions_walk_walking(): void {
     [0.8, { shoulder: 15, elbow: 22.5, swing: 7.5 }, 3],
   );
   TestValidator.predicate("the lift", nclose(gait.lift, walk.LIFT, ROUNDING));
+
+  // 5. Sixteen times the Froude number doubles a short step.
+  const slow: number = 1 / 256;
+  TestValidator.predicate(
+    "the fourth-root scaling",
+    nclose(gait.step(16 * slow), 2 * gait.step(slow), ROUNDING),
+  );
 }

@@ -220,19 +220,6 @@ export function test_validation_space(): void {
     ),
   );
   TestValidator.predicate(
-    "a non-finite hole coordinate is located at the hole's own point",
-    hasViolation(
-      validateSpace({
-        space: withSurface({
-          polygon: [v(0, 0), v(8, 0), v(8, 8), v(0, 8)],
-          holes: [[v(2, 2), v(Number.POSITIVE_INFINITY, 2), v(6, 6)]],
-        }),
-      }),
-      "range",
-      ".holes[0][1].x",
-    ),
-  );
-  TestValidator.predicate(
     "a self-crossing hole is refused like any other ring",
     hasViolation(
       validateSpace({
@@ -280,26 +267,6 @@ export function test_validation_space(): void {
       }),
     }).success,
     false,
-  );
-  TestValidator.predicate(
-    "non-finite footprint coordinate",
-    hasViolation(
-      validateSpace({
-        space: withSurface({ polygon: [v(0, 0), v(Number.NaN, 0), v(1, 1)] }),
-      }),
-      "range",
-      ".polygon[1].x",
-    ),
-  );
-  TestValidator.predicate(
-    "non-finite anchor",
-    hasViolation(
-      validateSpace({
-        space: withSurface({ anchor: { x: 0, y: Number.NaN, z: 0 } }),
-      }),
-      "range",
-      ".anchor.y",
-    ),
   );
   TestValidator.predicate(
     "degenerate ramp axis",

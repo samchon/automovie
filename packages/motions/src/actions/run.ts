@@ -1,10 +1,10 @@
 import { AutoMovieGravity } from "@automovie/engine";
 import type {
   AutoMovieMotionHumanActionName,
+  IAutoMovieBodyMeasure,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanActionPlan,
-  IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanRun,
   IAutoMovieMotionHumanWalkGait,
 } from "@automovie/interface";
@@ -160,12 +160,12 @@ export namespace run {
    * plans the pace's strides at before any manner, fatigue or facing scales
    * it.
    *
-   * @param body The body.
+   * @param body The body's hip height.
    * @param pace The pace; `run` when absent, as the plan defaults.
    * @returns The speed, m/s.
    */
   export function speed(
-    body: IAutoMovieMotionHumanBody,
+    body: IBody,
     pace: IAutoMovieMotionHumanRun.IParams["pace"] = "run",
   ): number {
     return Math.sqrt(
@@ -173,6 +173,12 @@ export namespace run {
         AutoMovieGravity.STANDARD *
         body.measure.hipHeight,
     );
+  }
+
+  /** What a pace's speed reads of a body. */
+  export interface IBody {
+    /** The hip height, metres. */
+    measure: Pick<IAutoMovieBodyMeasure, "hipHeight">;
   }
 
   /**

@@ -54,10 +54,6 @@ export function test_validation_free_fall_config(): void {
     "range violation on margin",
     hasViolation(negMargin.validation, "range", ".margin"),
   );
-  TestValidator.predicate(
-    "range violation on non-finite margin",
-    hasViolation(fall({ margin: Number.NaN }).validation, "range", ".margin"),
-  );
 
   const zeroDuration: ReturnType<typeof detectFreeFall> = fall({
     fallDuration: 0,

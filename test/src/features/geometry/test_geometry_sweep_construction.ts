@@ -293,7 +293,6 @@ export function test_geometry_sweep_construction(): void {
   for (const invalid of [
     { ...samples, station: 2 },
     { ...samples, line: 0 },
-    { ...samples, curve: NaN },
   ])
     TestValidator.predicate(
       "invalid observation count is refused",

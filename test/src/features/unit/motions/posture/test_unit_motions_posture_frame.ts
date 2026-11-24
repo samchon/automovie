@@ -23,7 +23,9 @@ const ROUNDING: number = 1e-12;
  *    `local` takes it back.
  * 2. `forward` is (sin yaw, 0, cos yaw): at 90, +X.
  * 3. `heading` reads a turn's yaw back: `turn(30)` reads 30.
- * 4. A prepared frame converts as `point` does.
+ * 4. A prepared frame converts as `point` does, and about another origin when`n *
+ *    given one: local (0, 0, 2) about (0, 0, 1) at a quarter turn is (2, 0,
+ *    1).
  */
 export function test_unit_motions_posture_frame(): void {
   const frame: IAutoMovieMotionHumanFrame = {
@@ -55,6 +57,14 @@ export function test_unit_motions_posture_frame(): void {
   // 4. Prepared.
   TestValidator.predicate(
     "a prepared frame converts the same",
-    vclose(HumanFrame.prepare(frame).point(local), world, ROUNDING),
+    vclose(HumanFrame.prepare(frame).point(local), world, ROUNDING) &&
+      vclose(
+        HumanFrame.prepare(frame).point(
+          { x: 0, y: 0, z: 2 },
+          { x: 0, y: 0, z: 1 },
+        ),
+        { x: 2, y: 0, z: 1 },
+        ROUNDING,
+      ),
   );
 }

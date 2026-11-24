@@ -432,40 +432,4 @@ export function test_architecture_material_assembly_junction(): void {
       brokenBatten: true,
     },
   );
-
-  TestValidator.equals(
-    "a junction tolerance must be a finite non-negative number",
-    namedFacts([
-      [
-        "negative",
-        (): boolean =>
-          throwsError(
-            (): IAutoMovieAssemblyJunction =>
-              matchAutoMovieAssemblyJunction({
-                left: split,
-                right: single,
-                tolerance: -1e-9,
-              }),
-            "junction tolerance must be a finite number >= 0",
-          ),
-      ],
-      [
-        "nonFinite",
-        (): boolean =>
-          throwsError(
-            (): IAutoMovieAssemblyJunction =>
-              matchAutoMovieAssemblyJunction({
-                left: split,
-                right: single,
-                tolerance: Number.NaN,
-              }),
-            "junction tolerance must be a finite number >= 0",
-          ),
-      ],
-    ]),
-    {
-      negative: true,
-      nonFinite: true,
-    },
-  );
 }

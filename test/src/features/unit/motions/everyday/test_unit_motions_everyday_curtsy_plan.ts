@@ -33,6 +33,10 @@ const RETURN: number = 0.01;
  * `curtsy`'s plan crosses the rear foot behind the lead foot, dips on both
  * planted feet and returns to the entry stance.
  *
+ * The law reads most of the body record: its rig, pose resolution, chains,
+ * projection, rest joints, measure, surfaces and profile, so the test builds
+ * the stored body (humanFixtureBody).
+ *
  * Scenarios:
  *
  * 1. At `crossed` the rear ankle stands across the lead ankle, on the lead's

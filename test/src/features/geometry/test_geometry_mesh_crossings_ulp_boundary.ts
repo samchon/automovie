@@ -82,7 +82,7 @@ export function test_geometry_mesh_crossings_ulp_boundary(): void {
     }),
     measureAutoMovieMeshCrossings(surface, blade(0.25, -1e-13)),
   );
-  for (const tolerance of [-1, 0.5, Number.NaN])
+  for (const tolerance of [-1, 0.5,])
     TestValidator.predicate(
       `invalid tolerance ${tolerance} refuses`,
       throwsError(

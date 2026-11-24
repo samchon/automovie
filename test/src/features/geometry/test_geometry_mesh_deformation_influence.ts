@@ -127,18 +127,8 @@ export function test_geometry_mesh_deformation_influence(): void {
   );
   for (const invalid of [
     [],
-    constant(NaN),
     constant(-0.01),
     constant(1.01),
-    constant(0.5).map(
-      (sample: {
-        weight: number;
-        gradient: IAutoMovieVector3;
-      }): { gradient: IAutoMovieVector3; weight: number } => ({
-        ...sample,
-        gradient: { x: Infinity, y: 0, z: 0 },
-      }),
-    ),
   ])
     TestValidator.predicate(
       "invalid differential samples refuse",

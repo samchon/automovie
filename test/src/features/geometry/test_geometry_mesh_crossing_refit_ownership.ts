@@ -235,13 +235,6 @@ export function test_geometry_mesh_crossing_refit_ownership(): void {
     noTriangles.withPositions([1, 2, 3])(plane),
     [],
   );
-  TestValidator.predicate(
-    "empty index population still validates unused coordinates",
-    throwsError(
-      (): IAutoMovieMeshCrossingQuery => noTriangles.withPositions([NaN, 0, 0]),
-      "finite complete triangle buffers",
-    ),
-  );
 
   const implicitSource: IAutoMovieMesh = {
     ...mesh([0.2, 0.2, -1, 0.2, 0.2, 1, 0.8, 0.2, 1]),

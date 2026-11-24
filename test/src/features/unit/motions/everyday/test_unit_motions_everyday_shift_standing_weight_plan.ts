@@ -29,6 +29,10 @@ const ROUNDING: number = 1e-9;
  * At a 37-degree heading from (1, 0, -1): a 20 mm shift to the left that is
  * held, and one to the right that returns.
  *
+ * The law reads most of the body record: its rig, pose resolution, chains,
+ * projection, rest joints, measure, surfaces and profile, so the test builds
+ * the stored body (humanFixtureBody).
+ *
  * Scenarios:
  *
  * 1. Half way through the transfer the root has moved part of the way.

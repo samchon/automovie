@@ -45,6 +45,11 @@ const SHIFT: IAutoMovieVector3 = { x: 0, y: 0.15, z: 0.2 };
  * 3. The arm posed at that seed lands on the goal within a millimetre.
  * 4. The mirrored goal negates the point's and the bend's x.
  * 5. `resolveHumanPosture` with the goal in the posture fits the same hand.
+ *
+ * The body is built whole (`humanFixtureBody`): the fit reads the body's
+ * prepared limb chains and limb reads, and the resolve its pose rig, topology,
+ * ROM projection and settled bones, records only `createHumanBody` derives from
+ * the stored rig and profile.
  */
 export async function test_unit_motions_posture_limb_fit(): Promise<void> {
   const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");

@@ -58,6 +58,10 @@ const CONTACTS: readonly IAutoMovieMotionHumanHand.Surface[] = [
  * handle's grasped width (`motionGraspUnit.width`) and 10 mm of the handle's
  * point, and by `lifted` the wrist has risen the asked lift within 10 mm.
  *
+ * The law reads most of the body record: its rig, pose resolution, chains,
+ * projection, rest joints, measure, surfaces and profile, so the test builds
+ * the stored body (humanFixtureBody).
+ *
  * Scenarios, on both stored bodies:
  *
  * 1. A long cane fitted to the body, standing beside the right foot, by its grip

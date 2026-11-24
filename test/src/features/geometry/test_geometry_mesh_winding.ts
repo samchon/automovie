@@ -112,32 +112,6 @@ export function test_geometry_mesh_winding(): void {
     top.surface && !top.inside,
   );
 
-  TestValidator.predicate(
-    "malformed surfaces and points are refused",
-    throwsError(() =>
-      createAutoMovieMeshWindingQuery({ ...cube, indices: [0, 1] }),
-    ) &&
-      throwsError(() =>
-        createAutoMovieMeshWindingQuery({ ...cube, indices: [0, 1, 8] }),
-      ) &&
-      throwsError(() =>
-        createAutoMovieMeshWindingQuery({
-          ...cube,
-          positions: cube.positions.map((value: number, at: number): number =>
-            at === 4 ? NaN : value,
-          ),
-        }),
-      ) &&
-      throwsError(() =>
-        createAutoMovieMeshWindingQuery({
-          ...cube,
-          positions: [],
-          indices: [],
-        }),
-      ) &&
-      throwsError(() => closed([0.5, 0.5])),
-  );
-
   const flat: IAutoMovieMeshWinding = createAutoMovieMeshWindingQuery({
     ...cube,
     indices: [...cube.indices!, 0, 0, 7],

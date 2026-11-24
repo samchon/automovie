@@ -44,14 +44,18 @@ const ABDUCTION: number = 15;
  * action is prepared (`ready`).
  *
  * The average man stands still for 2 s, his right arm hanging abducted 15
- * degrees; his right hand reaches from where it hangs to 0.25 m up and 0.25 m forward over 0.2 to 0.8 s, holds there to 1.4 s
- * and returns by 1.8 s.
+ * degrees; his right hand reaches from where it hangs to 0.25 m up and 0.25 m
+ * forward over 0.2 to 0.8 s, holds there to 1.4 s and returns by 1.8 s.
  *
  * Scenarios:
  *
  * 1. Over the hold the hand lies on its goal.
  * 2. Before the reach the arm keeps its rest angles' shoulder.
  * 3. Once the action is prepared the hold shows the same hand.
+ *
+ * The body is built whole (`humanFixtureBody`): the arm's plan reads the body's
+ * pose rig, limb chains, ROM projection, collider bones and tangle model, and
+ * the hand is read by resolving the whole posture.
  */
 export async function test_unit_motions_compose_arm_carried(): Promise<void> {
   const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");

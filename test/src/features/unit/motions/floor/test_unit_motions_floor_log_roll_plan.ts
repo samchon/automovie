@@ -26,6 +26,10 @@ const SUPINE: number = 0.8;
  * half turn carries the pelvis half the chest's perimeter, Ramanujan's ellipse
  * of its breadth and depth, as a rolling log advances.
  *
+ * The law reads most of the body record: its rig, pose resolution, chains,
+ * projection, rest joints, measure, surfaces and profile, so the test builds
+ * the stored body (humanFixtureBody).
+ *
  * Scenarios:
  *
  * 1. Four half turns toward the left advance the pelvis by twice the chest's

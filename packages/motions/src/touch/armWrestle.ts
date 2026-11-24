@@ -467,7 +467,14 @@ export namespace armWrestle {
       base.prepare?.();
       // The envelope's branch points: each ramp's ends and centre.
       carrier.prepare(
-        [0, arrive / 2, arrive, relax, relax + arrive / 2, Math.min(duration, relax + arrive)],
+        [
+          0,
+          arrive / 2,
+          arrive,
+          relax,
+          relax + arrive / 2,
+          Math.min(duration, relax + arrive),
+        ],
         plan.posture,
       );
     };

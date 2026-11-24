@@ -7,6 +7,7 @@ import type {
 import { Vector3 } from "../math/Vector3";
 import { adjacentAutoMovieFloat64 as outward } from "../math/adjacentAutoMovieFloat64";
 import { measureAutoMovieProjectionIntervals } from "./measureAutoMovieProjectionIntervals";
+import { overflowsBinary64 } from "../math/overflowsBinary64";
 
 /**
  * Bound how far from its root any contact of an anchored fan with one support
@@ -64,6 +65,9 @@ export function boundAutoMovieTriangleAttachmentContact(
     Math.abs(v.y),
     Math.abs(v.z),
   );
+  // A support difference of finite corners can overflow binary64.
+  if (overflowsBinary64(scale))
+    throw new Error("Attachment support differences must remain finite.");
   if (scale === 0)
     return { proved: false, cap: 0, cornerGap: 0, rootDeficit: 0 };
   const direction: IAutoMovieVector3 = Vector3.cross(

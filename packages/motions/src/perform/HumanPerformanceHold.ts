@@ -178,15 +178,7 @@ export namespace HumanPerformanceHold {
     if (window === undefined) return prop.frame;
     const at: number = Math.min(seconds, window.to);
     const { carrier, moved }: HumanPerformanceHoldKit.IKit =
-      HumanPerformanceHoldKit(
-        self,
-        subject,
-        seconds,
-        own,
-        path,
-        grips,
-        reader,
-      );
+      HumanPerformanceHoldKit(self, subject, seconds, own, path, grips, reader);
     // Carried by the performer reading it: their own body as the read gives it.
     const hold = (
       w: IAutoMovieMotionHumanPerformanceState.IGrip,
@@ -278,5 +270,4 @@ export namespace HumanPerformanceHold {
       grips,
     ).seat(w);
   }
-
 }

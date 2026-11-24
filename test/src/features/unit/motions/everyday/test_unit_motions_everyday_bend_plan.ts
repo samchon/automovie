@@ -34,6 +34,10 @@ const ROUNDING: number = 1e-6;
  * trunk with the knees nearly straight, a squat bends the knees with the trunk
  * upright, and a semi-squat lies between.
  *
+ * The law reads most of the body record: its rig, pose resolution, chains,
+ * projection, rest joints, measure, surfaces and profile, so the test builds
+ * the stored body (humanFixtureBody).
+ *
  * Scenarios:
  *
  * 1. Each strategy starts upright.

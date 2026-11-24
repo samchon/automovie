@@ -7,6 +7,7 @@ import type {
 
 import { Vector3 } from "../math/Vector3";
 import { normalizeAutoMovieSurfaceFrame } from "./normalizeAutoMovieSurfaceFrame";
+import { overflowsBinary64 } from "../math/overflowsBinary64";
 
 /**
  * Prepare exactly three finite, noncollinear metre points for rigid placement.
@@ -26,6 +27,13 @@ export function prepareAutoMovieSurfaceFrame(
 
   const first: IAutoMovieVector3 = Vector3.subtract(points[1], points[0]);
   const second: IAutoMovieVector3 = Vector3.subtract(points[2], points[0]);
+  // Differences of finite points can overflow binary64.
+  if (
+    [first.x, first.y, first.z, second.x, second.y, second.z].some(
+      overflowsBinary64,
+    )
+  )
+    throw new Error("Surface point differences exceed finite coordinates.");
 
   let normal: IAutoMovieVector3 = Vector3.cross(
     Vector3.normalize(first),
@@ -63,6 +71,8 @@ export function prepareAutoMovieSurfaceFrame(
         y: Vector3.dot(delta, basis.y),
         z: Vector3.dot(delta, basis.normal),
       };
+      if ([offset.x, offset.y, offset.z].some(overflowsBinary64))
+        throw new Error("Surface offsets exceed finite coordinates.");
       return Object.freeze(offset);
     },
   );

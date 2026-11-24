@@ -13,12 +13,12 @@ import type {
  * the bone list at every lookup. The record returned is the rig's own object,
  * so a caller reads its current constraint, axes and rest.
  *
- * @param body The body.
+ * @param body The body's index of its bones.
  * @param bone The bone's name.
  * @returns The record, or undefined when the rig has no bone of that name.
  */
 export function readHumanBone(
-  body: IAutoMovieMotionHumanBody,
+  body: Pick<IAutoMovieMotionHumanBody, "bones">,
   bone: AutoMovieHumanoidBone,
 ): IAutoMovieBone | undefined {
   return body.bones.get(bone);

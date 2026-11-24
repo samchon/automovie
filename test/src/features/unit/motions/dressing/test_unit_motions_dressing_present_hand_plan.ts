@@ -24,6 +24,10 @@ const HELD: number = 24;
  * arm hanging and the forearm level ahead, inward of the shoulder's half
  * width, from `ready` to `relax`.
  *
+ * The law reads most of the body record: its rig, pose resolution, chains,
+ * projection, rest joints, measure, surfaces and profile, so the test builds
+ * the stored body (humanFixtureBody).
+ *
  * Scenarios, the small woman's left hand and the average man's right, facing
  * -Z (yaw 180), read on the displayed arm at `ready`:
  *

@@ -33,6 +33,10 @@ const RATE: number = 30;
  * either pattern, from the front by the rotation, and from the hands and knees
  * past them; a body already standing is refused.
  *
+ * The law reads most of the body record: its rig, pose resolution, chains,
+ * projection, rest joints, measure, surfaces and profile, so the test builds
+ * the stored body (humanFixtureBody).
+ *
  * Scenarios:
  *
  * 1. From supine (symmetric and rotation), prone and the hands and knees the

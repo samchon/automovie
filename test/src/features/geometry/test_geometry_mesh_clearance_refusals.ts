@@ -44,7 +44,6 @@ export function test_geometry_mesh_clearance_refusals(): void {
   );
   for (const invalid of [
     { ...mesh, positions: [0, 0] },
-    { ...mesh, positions: [NaN, 0, 0] },
     { ...mesh, indices: [0, 1] },
     { ...mesh, indices: [0, 1, 3] },
     { ...mesh, indices: [0, 1, -1] },

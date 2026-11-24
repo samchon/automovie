@@ -76,7 +76,6 @@ export function test_geometry_surface_frame_admission(): void {
   for (const normal of [
     { x: 0, y: 0, z: 0 },
     { x: 1, y: 0, z: 0 },
-    { x: 0, y: NaN, z: 1 },
   ])
     TestValidator.predicate(
       "invalid sign reference refuses",

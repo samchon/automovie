@@ -32,17 +32,21 @@ const BRANCHES: readonly number[] = [0, 0.5, 1];
  * `prepare` reads the branch points through the plan's own posture.
  *
  * The average man's left hand is carried from where it hangs toward 0.2 m up
- * and forward, its share rising linearly over 1 s, with branch points at 0,
- * 0.5 and 1 s.
+ * and forward, its share rising linearly over 1 s, with branch points at 0, 0.5
+ * and 1 s.
  *
  * Scenarios:
  *
- * 1. At a branch point the course shows the carry of that second, the arm's
- *    goal dropped.
- * 2. At share 1 the posture is returned as it is, the goal for the display; at
- *    0 the course is at the held angles.
- * 3. A carrier carries by the joint-space carry before its preparation and by
- *    the course after it.
+ * 1. At a branch point the course shows the carry of that second, the arm's goal
+ *    dropped.
+ * 2. At share 1 the posture is returned as it is, the goal for the display; at 0
+ *    the course is at the held angles.
+ * 3. A carrier carries by the joint-space carry before its preparation and by the
+ *    course after it.
+ *
+ * The body is built whole (`humanFixtureBody`): the carry resolves the whole
+ * posture and clears the arm against the body's colliders, reading its pose
+ * rig, limb chains, ROM projection and collider bones.
  */
 export async function test_unit_motions_compose_arm_joint_course(): Promise<void> {
   const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");
@@ -118,11 +122,7 @@ export async function test_unit_motions_compose_arm_joint_course(): Promise<void
     "the ends hold the angles and return the goal",
     course(1, reaching, 1) === reaching &&
       [0, 1, 2].every((i: number): boolean =>
-        nclose(
-          start.joints.leftUpperArm![i]!,
-          held.left!.upper[i]!,
-          ROUNDING,
-        ),
+        nclose(start.joints.leftUpperArm![i]!, held.left!.upper[i]!, ROUNDING),
       ),
   );
 

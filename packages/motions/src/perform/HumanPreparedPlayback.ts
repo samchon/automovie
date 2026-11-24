@@ -23,7 +23,8 @@ type Where = IAutoMovieMotionHumanRefusal.IWhere;
  * boundaries and owns the mathematics and validity of each evaluator. Display
  * resolves any result that contains authoring alone through its usual stages.
  * An already resolved result can be transferred once to the same leaf. The
- * binding is the plan's own record (`IAutoMovieMotionHumanActionPlan.playback`).
+ * binding is the plan's own record
+ * (`IAutoMovieMotionHumanActionPlan.playback`).
  */
 export namespace HumanPreparedPlayback {
   /** The native source follows the common interface contract. */
@@ -35,20 +36,19 @@ export namespace HumanPreparedPlayback {
   /** Human posture data returned from the same leaf evaluation. */
   export type ISample = IAutoMovieMotionHumanPlayback.ISample;
 
+  /** What a binding reads of a body: its rig, whose identity names the body. */
+  export type IBody = Pick<IAutoMovieMotionHumanBody, "skeleton">;
+
   /**
    * Bind a copy of the phase records to their native plan.
    *
    * @param plan The plan the phases stand for.
-   * @param body The body they were authored for.
+   * @param body The body they were authored for: its rig alone.
    * @param source The phases.
    */
-  export function attach(
-    plan: Plan,
-    body: IAutoMovieMotionHumanBody,
-    source: ISource,
-  ): void {
+  export function attach(plan: Plan, body: IBody, source: ISource): void {
     plan.playback = {
-      body,
+      body: { skeleton: body.skeleton },
       original: plan.posture,
       source: {
         ...source,
@@ -118,7 +118,8 @@ export namespace HumanPreparedPlayback {
    * Evaluate the active native phase at its actual local second.
    *
    * @param plan The plan.
-   * @param body The body read.
+   * @param body The body read: its rig alone, which tells whether the phases
+   *   were authored for it.
    * @param reader The plan's reader the leaf would call.
    * @param bare Whether the leaf is bare of layers, overlays, holds and stops.
    * @param full Whether the leaf reads the whole pose without a continuation.
@@ -127,7 +128,7 @@ export namespace HumanPreparedPlayback {
    */
   export function read(
     plan: Plan,
-    body: IAutoMovieMotionHumanBody,
+    body: IBody,
     reader: Reader,
     bare: boolean,
     full: boolean,
@@ -135,7 +136,11 @@ export namespace HumanPreparedPlayback {
   ): ISample | undefined {
     const binding: IAutoMovieMotionHumanPlayback.IBinding | undefined =
       plan.playback;
-    if (binding === undefined || !binding.ready || binding.body !== body)
+    if (
+      binding === undefined ||
+      !binding.ready ||
+      binding.body.skeleton !== body.skeleton
+    )
       return undefined;
     const placed: boolean = reader === binding.located;
     if (binding.source.mode === "fitted") {

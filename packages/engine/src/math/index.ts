@@ -36,6 +36,7 @@ export * from "./interpolateAutoMovieTrianglePoint";
 export * from "./linearColorToSrgbHex";
 export * from "./measureAutoMovieQuadraticState";
 export * from "./midpoint";
+export * from "./overflowsBinary64";
 export * from "./minimizeAutoMovieSimplexQuadratic";
 export * from "./mixSeed";
 export * from "./nearestAngleAlias";

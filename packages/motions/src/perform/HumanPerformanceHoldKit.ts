@@ -19,8 +19,8 @@ import { HumanPerformanceRead } from "./HumanPerformanceRead";
 type ISocketMount = { prop: string; point: string };
 
 /**
- * The readers one prop read shares: the carrier of a span, the offset it
- * seats the prop at and that offset moved within the hand.
+ * The readers one prop read shares: the carrier of a span, the offset it seats
+ * the prop at and that offset moved within the hand.
  */
 export function HumanPerformanceHoldKit(
   self: IAutoMovieMotionHumanPerformanceState,
@@ -69,7 +69,8 @@ export function HumanPerformanceHoldKit(
             fix: "build the goal from the law's own carrying hand, not from the held prop's displayed frame",
           });
         return (
-          w.closure ?? HumanPerformanceRead.hand(self, w.subject, w.side, w.from)
+          w.closure ??
+          HumanPerformanceRead.hand(self, w.subject, w.side, w.from)
         );
       }
       return HumanPerformanceRead.hand(self, w.subject, w.side, at);
@@ -209,9 +210,9 @@ export function HumanPerformanceHoldKit(
 
 /**
  * A prop's socket in the world at a film second: the prop's own frame and the
- * socket as the prop's articulations pose it then (a bow's nocking point
- * drawn back with its string). The performer's supplied bones stay the source
- * of every worn or held ancestor's frame, as for a direct hold.
+ * socket as the prop's articulations pose it then (a bow's nocking point drawn
+ * back with its string). The performer's supplied bones stay the source of
+ * every worn or held ancestor's frame, as for a direct hold.
  */
 function socket(
   self: IAutoMovieMotionHumanPerformanceState,
@@ -273,8 +274,8 @@ export namespace HumanPerformanceHoldKit {
   /** A read's carrier, offset and in-hand readers. */
   export interface IKit {
     /**
-     * A span's carrier frame at a film second: the hand's grip socket, the
-     * bone it is worn on or the other prop's socket it is mounted on.
+     * A span's carrier frame at a film second: the hand's grip socket, the bone
+     * it is worn on or the other prop's socket it is mounted on.
      */
     carrier(
       w: IAutoMovieMotionHumanPerformanceState.IGrip,
@@ -283,7 +284,9 @@ export namespace HumanPerformanceHoldKit {
     ): IAutoMovieRigidTransform;
 
     /** The offset a span keeps its prop at from its carrier. */
-    seat(w: IAutoMovieMotionHumanPerformanceState.IGrip): IAutoMovieRigidTransform;
+    seat(
+      w: IAutoMovieMotionHumanPerformanceState.IGrip,
+    ): IAutoMovieRigidTransform;
 
     /** The span's offset at a film second, its in-hand motion composed. */
     moved(

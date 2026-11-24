@@ -20,8 +20,8 @@ import { readHumanSegmentLegs } from "./readHumanSegmentLegs";
  * legs' fit over a legs-still window from the leaf at its start; the anchor
  * course, for an action that a hold or an overlay rides; the transition's
  * inertialization offset; and the stopped weapons' goals. The record is set on
- * the action as each member is solved, so a later member reads the earlier
- * ones as the display will.
+ * the action as each member is solved, so a later member reads the earlier ones
+ * as the display will.
  *
  * @param person The person, with the committed stops installed.
  * @param segment The action.
@@ -93,8 +93,10 @@ export namespace prepareHumanSegment {
   }
 
   /** A hold's span and the action that took it. */
-  export interface IRider
-    extends Pick<IAutoMovieMotionHumanSegment.IHeld, "from" | "until"> {
+  export interface IRider extends Pick<
+    IAutoMovieMotionHumanSegment.IHeld,
+    "from" | "until"
+  > {
     /** The action that took the hold. */
     source: ISpan;
   }
@@ -104,17 +106,14 @@ export namespace prepareHumanSegment {
 
   /**
    * Whether a hold or an overlay rides an action anywhere in its span, its fade
-   * included, so its display places arm fits the plan's own swivel course
-   * does not. A hold its own action took does not ride that action.
+   * included, so its display places arm fits the plan's own swivel course does
+   * not. A hold its own action took does not ride that action.
    *
    * @param person The person's holds and overlays.
    * @param segment The action's span.
    * @returns Whether a rider overlaps it.
    */
-  export function ridden(
-    person: IRiders,
-    segment: ISpan,
-  ): boolean {
+  export function ridden(person: IRiders, segment: ISpan): boolean {
     return (
       person.holds.some(
         (held: IRider): boolean =>

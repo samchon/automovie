@@ -6,6 +6,7 @@ import type {
 } from "@automovie/interface";
 
 import { triangleIndicesOf } from "./triangleIndicesOf";
+import { overflowsBinary64 } from "../math/overflowsBinary64";
 
 /**
  * Index a resident mesh for repeated ray queries.
@@ -94,7 +95,7 @@ export function createAutoMovieMeshRayCaster(
     let dx: number = direction[0]! / length;
     let dy: number = direction[1]! / length;
     let dz: number = direction[2]! / length;
-    if (length < 2 ** -1022) {
+    if (overflowsBinary64(length) || length < 2 ** -1022) {
       // Binary64's smallest normal marks a representation regime, not an
       // admitted direction range: scale so one component has magnitude one.
       const scale: number = Math.max(

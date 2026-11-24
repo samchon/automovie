@@ -117,13 +117,14 @@ export namespace floorArmRoom {
    * every arm within the audit's self-penetration allowance between
    * (`samples`): never fewer than `SCAN`.
    *
-   * @param body The body.
+   * @param body The body's physical profile, whose rest segments and joints
+   *   give each joint's reach.
    * @param from The blend's first posture.
    * @param to Its last.
    * @returns The count of intervals.
    */
   export function count(
-    body: IAutoMovieMotionHumanBody,
+    body: Pick<IAutoMovieMotionHumanBody, "profile">,
     from: IAutoMovieMotionHumanPosture,
     to: IAutoMovieMotionHumanPosture,
   ): number {
@@ -201,7 +202,9 @@ type IReachesItemResult = { bone: AutoMovieHumanoidBone; reach: number };
  * carries some but not all of the read colliders, the longest chain length from
  * it to a read collider's farthest bound, metres.
  */
-function reaches(body: IAutoMovieMotionHumanBody): IReachesItemResult[] {
+function reaches(
+  body: Pick<IAutoMovieMotionHumanBody, "profile">,
+): IReachesItemResult[] {
   const profile: IAutoMovieMotionHumanBody["profile"] = body.profile;
   const pose = (bone: string): IAutoMovieRigidTransform =>
     profile.segments.find((segment): boolean => segment.bone === bone)!.neutral;

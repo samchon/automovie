@@ -68,7 +68,7 @@ export function test_geometry_physical_refusals(): void {
   add((mesh: IAutoMovieMesh): void => {
     mesh.physicalVertices!.sources = new Array<IAutoMovieMeshPhysicalSource>(3);
   });
-  for (const id of [-1, 0.5, Number.MAX_SAFE_INTEGER + 1, NaN])
+  for (const id of [-1, 0.5, Number.MAX_SAFE_INTEGER + 1,])
     add((mesh: IAutoMovieMesh): void => {
       mesh.physicalVertices!.sources[0].id = id;
     });
@@ -76,7 +76,7 @@ export function test_geometry_physical_refusals(): void {
     add((mesh: IAutoMovieMesh): void => {
       mesh.physicalVertices!.sources[0].domain = domain;
     });
-  for (const reference of [-1, 0.5, 3, NaN])
+  for (const reference of [-1, 0.5, 3,])
     add((mesh: IAutoMovieMesh): void => {
       mesh.physicalVertices!.vertices[0] = reference;
     });

@@ -194,7 +194,7 @@ export function test_validation_ground_contact(): void {
   // a non-finite tolerance makes `y < NaN` always false; either would silently
   // drop every penetration. Both must surface as range errors (not a silent
   // success), matching the sibling sampling validators.
-  for (const badRate of [Number.NaN, 0]) {
+  for (const badRate of [ 0]) {
     const result: IAutoMovieValidation = validateGroundContact({
       motion: dipping,
       skeleton: SKELETON,

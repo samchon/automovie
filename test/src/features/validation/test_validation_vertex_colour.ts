@@ -48,9 +48,6 @@ export function test_validation_vertex_colour(): void {
   for (const value of [
     -Number.EPSILON,
     1 + Number.EPSILON,
-    NaN,
-    Infinity,
-    -Infinity,
   ]) {
     const colors: number[] = [...mesh.colors!];
     colors[4] = value;

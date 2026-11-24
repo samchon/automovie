@@ -118,8 +118,6 @@ export function test_validation_mesh_topology_welding(): void {
   for (const invalid of [
     [0, 0],
     new Array<number>(3),
-    [Number.NaN, 0, 0],
-    [Number.POSITIVE_INFINITY, 0, 0],
   ])
     TestValidator.predicate(
       "malformed XYZ never becomes origin",

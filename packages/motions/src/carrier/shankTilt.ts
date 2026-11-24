@@ -1,6 +1,6 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
-  IAutoMovieMotionHumanBody,
+  IAutoMovieBodyMeasure,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -11,7 +11,7 @@ import type {
  * change of this lean, so the ankle keeps its angle and a foot that bears
  * nothing never dorsiflexes past what it held.
  *
- * @param body The body, whose thigh and shank lengths are read.
+ * @param body The leg's lengths.
  * @param hip The hip joint, world metres.
  * @param ankle The ankle, world metres.
  * @param facing The unit horizontal facing.
@@ -19,7 +19,7 @@ import type {
  *   angle either way, positive with the knee ahead of the ankle.
  */
 export function shankTilt(
-  body: IAutoMovieMotionHumanBody,
+  body: shankTilt.ILeg,
   hip: IAutoMovieVector3,
   ankle: IAutoMovieVector3,
   facing: IAutoMovieVector3,
@@ -52,4 +52,13 @@ export function shankTilt(
     Math.atan2(kneeForward - forward, Math.abs(kneeDown - down)) /
     Quaternion.DEG2RAD
   );
+}
+
+/** Companion types of {@link shankTilt}. */
+export namespace shankTilt {
+  /** What the lean reads of a body: its leg's two lengths. */
+  export interface ILeg {
+    /** The thigh and shank lengths, metres. */
+    measure: Pick<IAutoMovieBodyMeasure, "thigh" | "shank">;
+  }
 }

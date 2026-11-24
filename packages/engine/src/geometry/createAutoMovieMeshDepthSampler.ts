@@ -4,6 +4,7 @@ import type {
 } from "@automovie/interface";
 
 import { triangleIndicesOf } from "./triangleIndicesOf";
+import { overflowsBinary64 } from "../math/overflowsBinary64";
 
 /**
  * Index a resident mesh for repeated axis-aligned depth queries.
@@ -52,8 +53,16 @@ export function createAutoMovieMeshDepthSampler(
       b.push(mesh.positions[3 * indices[i + 1]! + component]!);
       c.push(mesh.positions[3 * indices[i + 2]! + component]!);
     }
-    const area: number =
-      (b[0]! - a[0]!) * (c[1]! - a[1]!) - (b[1]! - a[1]!) * (c[0]! - a[0]!);
+    // Differences and products of finite corners can overflow binary64.
+    const first: number = (b[0]! - a[0]!) * (c[1]! - a[1]!);
+    const second: number = (b[1]! - a[1]!) * (c[0]! - a[0]!);
+    const area: number = first - second;
+    if (
+      overflowsBinary64(first) ||
+      overflowsBinary64(second) ||
+      overflowsBinary64(area)
+    )
+      throw new Error("Projected triangle arithmetic must remain finite.");
     if (area === 0) continue;
     triangles.push({ a, b, c, area });
     minU = Math.min(minU, a[0]!, b[0]!, c[0]!);
@@ -61,6 +70,11 @@ export function createAutoMovieMeshDepthSampler(
     minV = Math.min(minV, a[1]!, b[1]!, c[1]!);
     maxV = Math.max(maxV, a[1]!, b[1]!, c[1]!);
   }
+  if (
+    triangles.length !== 0 &&
+    (overflowsBinary64(maxU - minU) || overflowsBinary64(maxV - minV))
+  )
+    throw new Error("Projected mesh extent must remain finite.");
   const resolution: number = 32;
   const cellU = (u: number): number =>
     Math.min(
@@ -106,8 +120,14 @@ export function createAutoMovieMeshDepthSampler(
       const gamma: number =
         ((b[0]! - a[0]!) * (v - a[1]!) - (b[1]! - a[1]!) * (u - a[0]!)) / area;
       if (beta < -1e-10 || gamma < -1e-10 || beta + gamma > 1 + 1e-10) continue;
-      const depth: number =
-        a[2]! * (1 - beta - gamma) + b[2]! * beta + c[2]! * gamma;
+      const terms: readonly number[] = [
+        a[2]! * (1 - beta - gamma),
+        b[2]! * beta,
+        c[2]! * gamma,
+      ];
+      const depth: number = terms[0]! + terms[1]! + terms[2]!;
+      if (terms.some(overflowsBinary64) || overflowsBinary64(depth))
+        throw new Error("Interpolated surface depth must remain finite.");
       minimum = Math.min(minimum, depth);
       maximum = Math.max(maximum, depth);
     }

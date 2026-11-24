@@ -1,38 +1,46 @@
 import type {
+  AutoMovieHumanoidBone,
   IAutoMovieBone,
   IAutoMovieMotionHumanBody,
 } from "@automovie/interface";
 import { readHumanBone } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
-import { humanFixtureBody } from "../../../internal/fixtures/humanFixtureBody";
+import type { IHumanFixture } from "../../../internal/fixtures/IHumanFixture";
+import { humanFixture } from "../../../internal/fixtures/humanFixture";
 
 /**
- * `readHumanBone` reads a bone's record from the body's index of its rig, built
- * when the body is made: the rig's own record, the first of that name in the
- * bone list.
+ * `readHumanBone` reads a bone's record from the body's index of its rig: the
+ * indexed object itself, or undefined for a bone the rig lacks.
  *
- * Scenarios:
+ * Scenarios, on an index of the stored rig's hips and left hand:
  *
- * 1. The hips' record is the rig's own object, the first named `hips`.
- * 2. Every bone of the rig is read as the first record of its name.
+ * 1. The hips' record is the indexed object.
+ * 2. The left hand's record is the indexed object.
+ * 3. A bone left out of the index reads undefined.
  */
 export async function test_unit_motions_body_read_human_bone(): Promise<void> {
-  const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");
-  const first = (name: string): IAutoMovieBone | undefined =>
-    body.skeleton.bones.find(
+  const stored: IHumanFixture = await humanFixture("m-average");
+  const record = (name: AutoMovieHumanoidBone): IAutoMovieBone =>
+    stored.skeleton.bones.find(
       (bone: IAutoMovieBone): boolean => bone.bone === name,
-    );
+    )!;
+  const hips: IAutoMovieBone = record("hips");
+  const hand: IAutoMovieBone = record("leftHand");
+  const body: Pick<IAutoMovieMotionHumanBody, "bones"> = {
+    bones: new Map<AutoMovieHumanoidBone, IAutoMovieBone>([
+      ["hips", hips],
+      ["leftHand", hand],
+    ]),
+  };
+  TestValidator.predicate("the hips", readHumanBone(body, "hips") === hips);
   TestValidator.predicate(
-    "the hips' own record",
-    readHumanBone(body, "hips") === first("hips") &&
-      readHumanBone(body, "hips") !== undefined,
+    "the left hand",
+    readHumanBone(body, "leftHand") === hand,
   );
-  TestValidator.predicate(
-    "every bone",
-    body.skeleton.bones.every(
-      (bone: IAutoMovieBone): boolean =>
-        readHumanBone(body, bone.bone) === first(bone.bone),
-    ),
+  TestValidator.equals(
+    "a bone left out",
+    readHumanBone(body, "rightHand"),
+    undefined,
   );
 }

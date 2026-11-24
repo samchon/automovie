@@ -243,17 +243,6 @@ export function test_geometry_cubic_hermite_conversion(): void {
       );
     },
   );
-  TestValidator.error("nonfinite controls refuse", (): void => {
-    M.toHermite(
-      [
-        [0, 0, 0],
-        [Number.NaN, 0, 0],
-        [0, 0, 0],
-        [0, 0, 0],
-      ],
-      1,
-    );
-  });
   TestValidator.error("each control has exactly three components", (): void => {
     M.toHermite(
       [

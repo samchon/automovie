@@ -107,7 +107,7 @@ export function motionActionContext<P extends object>(
       velocity: {
         joints: new Map(),
         spins: new Map(),
-        linear: rest,
+        linear: options.velocity ?? rest,
         angular: rest,
       },
       acceleration: rest,
@@ -237,6 +237,9 @@ export namespace motionActionContext {
 
     /** The other performers, each by its subject, body and plan. */
     partners?: readonly IPartner[];
+
+    /** The root's velocity at entry, m/s; at rest when absent. */
+    velocity?: IAutoMovieVector3;
 
     /** The chain seed; `"unit"` when absent. */
     seed?: string;

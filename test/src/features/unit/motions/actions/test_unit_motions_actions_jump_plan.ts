@@ -31,6 +31,10 @@ const TICK: number = 1e-6;
  * `jump`'s plan carries a fractional twist through its flight with its whole
  * winding and lands on the floor stance the twist turns to.
  *
+ * The law reads most of the body record: its rig, pose resolution, chains,
+ * projection, rest joints, measure, surfaces and profile, so the test builds
+ * the stored body (humanFixtureBody).
+ *
  * Scenarios:
  *
  * 1. The average man twists +2¼ at the origin and at (3, 0, -2) heading 37

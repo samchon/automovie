@@ -21,6 +21,10 @@ const ROUNDING: number = 1e-12;
  * Both postures here face +Z with the same legs; the root moves a metre along
  * +X and the left elbow bends from 0 to 40 degrees.
  *
+ * The law reads most of the body record: its rig, pose resolution, chains,
+ * projection, rest joints, measure, surfaces and profile, so the test builds
+ * the stored body (humanFixtureBody).
+ *
  * Scenarios:
  *
  * 1. Weight 0 and less is the first posture, 1 and more the second.

@@ -17,19 +17,18 @@ import { AutoMovieMotionHumanArmJointCarry } from "./AutoMovieMotionHumanArmJoin
  * The knot course of a joint-space carry (`AutoMovieMotionHumanArmJointCarry`):
  * the carry solved once, when the action is prepared, at its branch points
  * alone (the ends of each of the carry's ramps, the ramp's centre, and every
- * instant its law names where the carried goal changes), and each carried
- * arm's nine joint angles joined through those knots by the minimum-jerk path
- * at the knots' own seconds (Flash and Hogan 1985, `prepareHumanKnotCourse`
- * with a fixed timing), so no read solves the arm's goal or its clearing
- * course.
+ * instant its law names where the carried goal changes), and each carried arm's
+ * nine joint angles joined through those knots by the minimum-jerk path at the
+ * knots' own seconds (Flash and Hogan 1985, `prepareHumanKnotCourse` with a
+ * fixed timing), so no read solves the arm's goal or its clearing course.
  *
  * A knot's arm is the held angles where the carry has not left them (share 0),
  * the goal's own solution where it has arrived (share 1), and the carry's
- * blended, cleared arm between. Each angle is unwrapped against the knot
- * before it, so a twist through ±180 degrees takes the short way. A second
- * whose share is 1 returns its posture as it is, the goal for the display to
- * fit; any other second writes the course's angles over the posture it is given
- * and drops the carried arms' goals.
+ * blended, cleared arm between. Each angle is unwrapped against the knot before
+ * it, so a twist through ±180 degrees takes the short way. A second whose share
+ * is 1 returns its posture as it is, the goal for the display to fit; any other
+ * second writes the course's angles over the posture it is given and drops the
+ * carried arms' goals.
  *
  * @param body The body.
  * @param knots The carry's branch points: each second with its inputs there,
@@ -121,7 +120,10 @@ export function AutoMovieMotionHumanArmJointCourse(
   };
 }
 
-/** Companion types and the plan-side carrier of {@link AutoMovieMotionHumanArmJointCourse}. */
+/**
+ * Companion types and the plan-side carrier of
+ * {@link AutoMovieMotionHumanArmJointCourse}.
+ */
 export namespace AutoMovieMotionHumanArmJointCourse {
   /** The carry's inputs at one second. */
   export interface IInput {

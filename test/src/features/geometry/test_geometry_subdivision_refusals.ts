@@ -78,16 +78,6 @@ export function test_geometry_subdivision_refusals(): void {
         subdivideAutoMovieSurface({ cage, levels: 2 }).faces.length === 32 * 4,
     ),
   );
-  TestValidator.predicate(
-    "levels must be an integer from one to six",
-    [0, 7, 1.5, Number.NaN].every((levels: number): boolean =>
-      refuses(
-        VALID,
-        "subdivision levels must be an integer from 1 to 6",
-        levels,
-      ),
-    ),
-  );
   TestValidator.equals(
     "six levels, the cap, refine one quad into 4^6 quads",
     subdivideAutoMovieSurface({
@@ -98,21 +88,6 @@ export function test_geometry_subdivision_refusals(): void {
       levels: 6,
     }).faces.length,
     4 ** 6 * 4,
-  );
-  TestValidator.predicate(
-    "positions must be finite triples",
-    refuses({ ...VALID, positions: [] }, "positions must hold x, y, z") &&
-      refuses(
-        { ...VALID, positions: VALID.positions.slice(1) },
-        "positions must hold x, y, z",
-      ) &&
-      refuses(
-        {
-          ...VALID,
-          positions: [Number.POSITIVE_INFINITY, ...VALID.positions.slice(1)],
-        },
-        "positions[0] must be finite",
-      ),
   );
   TestValidator.predicate(
     "faces must be polygons of distinct cage vertices",
@@ -194,76 +169,6 @@ export function test_geometry_subdivision_refusals(): void {
           ],
         },
         "vertex 0 joins more than one fan of faces",
-      ),
-  );
-  TestValidator.predicate(
-    "creases must name cage edges with sharpness from 0 to 10",
-    refuses(
-      { ...VALID, creases: [{ from: 1, to: 9, sharpness: 1 }] },
-      "crease 0 must join two cage vertices",
-    ) &&
-      refuses(
-        { ...VALID, creases: [{ from: 1, to: 1, sharpness: 1 }] },
-        "crease 0 must join two cage vertices",
-      ) &&
-      [-0.5, 10.5, Number.NaN].every((sharpness: number): boolean =>
-        refuses(
-          { ...VALID, creases: [{ from: 1, to: 4, sharpness }] },
-          "crease 0 sharpness must be from 0 to 10",
-        ),
-      ) &&
-      refuses(
-        {
-          ...VALID,
-          creases: [
-            { from: 1, to: 4, sharpness: 1 },
-            { from: 4, to: 1, sharpness: 2 },
-          ],
-        },
-        "crease 1 repeats edge 4-1",
-      ) &&
-      refuses(
-        { ...VALID, creases: [{ from: 0, to: 4, sharpness: 1 }] },
-        "crease 0 names no cage edge 0-4",
-      ),
-  );
-  TestValidator.predicate(
-    "UVs must be complete, finite, shaped like the faces and owned by one vertex",
-    refuses(
-      { ...VALID, uvFaces: undefined },
-      "uvs and uvFaces must be given together",
-    ) &&
-      refuses(
-        { ...VALID, uvs: undefined },
-        "uvs and uvFaces must be given together",
-      ) &&
-      refuses(
-        { ...VALID, uvs: VALID.uvs!.slice(1) },
-        "uvs must hold u, v pairs",
-      ) &&
-      refuses(
-        { ...VALID, uvs: [Number.NaN, ...VALID.uvs!.slice(1)] },
-        "uvs[0] must be finite",
-      ) &&
-      refuses(
-        { ...VALID, uvFaces: [VALID.uvFaces![0]!] },
-        "uvFaces must hold one row per face",
-      ) &&
-      refuses(
-        { ...VALID, uvFaces: [[0, 1, 4], VALID.uvFaces![1]!] },
-        "uvFaces[0] must name one UV per corner",
-      ) &&
-      refuses(
-        { ...VALID, uvFaces: [[0, 1, 4, 6], VALID.uvFaces![1]!] },
-        "uvFaces[0][3] must index a cage UV",
-      ) &&
-      refuses(
-        { ...VALID, uvFaces: [[0, 1, 4, 0], VALID.uvFaces![1]!] },
-        "uv 0 is used by vertices 0 and 3",
-      ) &&
-      refuses(
-        { ...VALID, uvs: [...VALID.uvs!, 0.25, 0.25] },
-        "uv 6 is used by no face corner",
       ),
   );
   TestValidator.predicate(

@@ -134,8 +134,7 @@ export namespace carryHang {
         resolution,
         projection,
       );
-      if (sides.length === 0)
-        return { posture, sides: [], held: {}, share: 1 };
+      if (sides.length === 0) return { posture, sides: [], held: {}, share: 1 };
       const share: number = minimumJerk.share(Math.min(1, t / SETTLE));
       const trunk: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
         HumanTrunk.resolve(body, posture, undefined, resolution, shoulders);
@@ -183,11 +182,11 @@ export namespace carryHang {
         joints,
         limbs,
       };
-      if (share >= 1)
-        return { posture: carrying, sides, held: {}, share: 1 };
+      if (share >= 1) return { posture: carrying, sides, held: {}, share: 1 };
       // The arms as the walk swings them, read where the carry leaves them:
       // at the course's knots, and at every second before it is solved.
-      if (course !== undefined) return { posture: carrying, sides, held: {}, share };
+      if (course !== undefined)
+        return { posture: carrying, sides, held: {}, share };
       const swung = (): Held => {
         const walked: ReturnType<typeof resolveHumanPosture> =
           resolveHumanPosture.seeded(

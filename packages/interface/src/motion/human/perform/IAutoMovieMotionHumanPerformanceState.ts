@@ -317,8 +317,8 @@ export namespace IAutoMovieMotionHumanPerformanceState {
 
     /**
      * A hand span's grip socket frame where the grip closed, solved when the
-     * performance is prepared: what the holder's own posture reads the prop
-     * on, so the read never re-enters the hand it is placing.
+     * performance is prepared: what the holder's own posture reads the prop on,
+     * so the read never re-enters the hand it is placing.
      */
     closure?: IAutoMovieRigidTransform;
 

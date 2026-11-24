@@ -38,6 +38,11 @@ const LENGTH: number = 1e-6;
  *    strains no less.
  * 3. A turned place stays as far from the shoulder.
  * 4. A wrist beyond reach is refused, and with a fallback gives a hint.
+ *
+ * The body is built whole (`humanFixtureBody`): the solve reads the body's pose
+ * rig, topology, rest and hanging arms, and the shoulder it is checked against
+ * is read by forward kinematics on the whole body, records only
+ * `createHumanBody` derives from the stored rig and profile.
  */
 export async function test_unit_motions_compose_bend(): Promise<void> {
   const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");

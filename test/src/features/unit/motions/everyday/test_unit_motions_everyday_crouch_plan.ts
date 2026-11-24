@@ -34,6 +34,10 @@ const HELD: number = 5;
  * `crouch`'s plan lowers the hips onto bent knees and holds them, the heels
  * flat or raised, then returns standing.
  *
+ * The law reads most of the body record: its rig, pose resolution, chains,
+ * projection, rest joints, measure, surfaces and profile, so the test builds
+ * the stored body (humanFixtureBody).
+ *
  * Scenarios:
  *
  * 1. The default and an explicit partial crouch hold 40 to 110 degrees of knee

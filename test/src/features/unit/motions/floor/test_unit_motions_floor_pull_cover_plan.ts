@@ -33,6 +33,10 @@ const REACH: number = 0.01 + 0.04;
  * with both hands, or pushes it back down: each hand runs its own side's way
  * from the thigh's front to the chest, `OVER` out along the surface.
  *
+ * The law reads most of the body record: its rig, pose resolution, chains,
+ * projection, rest joints, measure, surfaces and profile, so the test builds
+ * the stored body (humanFixtureBody).
+ *
  * Scenarios, on both stored bodies lying on the back:
  *
  * 1. Pulling, each grip is at its thigh site at `ready` and at its chest site at

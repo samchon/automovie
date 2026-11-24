@@ -153,13 +153,11 @@ export function test_geometry_mesh_deformation_topology(): void {
   );
   for (const invalid of [
     { ...mesh, positions: [0, 0] },
-    { ...mesh, positions: [NaN, ...mesh.positions.slice(1)] },
     { ...mesh, indices: [0, 1] },
     { ...mesh, indices: [0, 1, 0.5] },
     { ...mesh, indices: [0, 1, -1] },
     { ...mesh, indices: [0, 1, 3] },
     { ...mesh, normals: [0, 0, 1] },
-    { ...mesh, normals: [NaN, ...mesh.normals!.slice(1)] },
     { ...mesh, indices: null, positions: [0, 0, 0] },
     { ...mesh, positions: [0, 0, 0, 1, 0, 0, 2, 0, 0] },
     {

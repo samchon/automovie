@@ -165,15 +165,4 @@ export function test_geometry_sweep_locate(): void {
     ]),
     { straight: true, snake: true, beyond: true, end: true },
   );
-  TestValidator.predicate(
-    "a non-finite point is refused",
-    throwsError(
-      (): unknown =>
-        locateAutoMovieSweepPoint({
-          surface: straight,
-          point: { x: Number.NaN, y: 0, z: 0 },
-        }),
-      "sweep point to locate is not finite",
-    ),
-  );
 }

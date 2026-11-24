@@ -47,6 +47,10 @@ const BEARING: readonly AutoMovieHumanoidBone[] = [
  * `lieOnSurface` lies a body seated on a bed's edge down on the mattress and
  * sits it up again, and `turnOver` turns it between lying positions there.
  *
+ * The law reads most of the body record: its rig, pose resolution, chains,
+ * projection, rest joints, measure, surfaces and profile, so the test builds
+ * the stored body (humanFixtureBody).
+ *
  * Scenarios:
  *
  * 1. Seated on the double bed's left edge, the body lies down onto its side and

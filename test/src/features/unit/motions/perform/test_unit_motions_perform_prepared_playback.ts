@@ -1,13 +1,12 @@
 import type {
   IAutoMovieMotionHumanActionPlan,
-  IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPlayback,
   IAutoMovieMotionHumanPosture,
 } from "@automovie/interface";
 import { HumanPreparedPlayback } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
-import { humanFixtureBody } from "../../../internal/fixtures/humanFixtureBody";
+import { humanFixture } from "../../../internal/fixtures/humanFixture";
 import { syntheticHumanPlan } from "../../../internal/synthetic/syntheticHumanPlan";
 
 /**
@@ -26,10 +25,17 @@ import { syntheticHumanPlan } from "../../../internal/synthetic/syntheticHumanPl
  * 3. Once located and prepared, the setup runs once and the phase covering the
  *    second is read; a second outside every phase reads nothing.
  * 4. Another body reads nothing.
+ *
+ * The bodies are the stored average man's and smallest woman's rigs: the
+ * binding reads a body's rig alone.
  */
 export async function test_unit_motions_perform_prepared_playback(): Promise<void> {
-  const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");
-  const other: IAutoMovieMotionHumanBody = await humanFixtureBody("f-small");
+  const body: HumanPreparedPlayback.IBody = {
+    skeleton: (await humanFixture("m-average")).skeleton,
+  };
+  const other: HumanPreparedPlayback.IBody = {
+    skeleton: (await humanFixture("f-small")).skeleton,
+  };
   const plan: IAutoMovieMotionHumanActionPlan = syntheticHumanPlan({
     duration: 2,
   });

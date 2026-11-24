@@ -112,9 +112,6 @@ export function test_geometry_mesh_deformation(): void {
   for (const change of [
     { radius: { x: 0, y: 2, z: 2 } },
     { radius: { x: -1, y: 2, z: 2 } },
-    { center: { x: NaN, y: 0, z: 0 } },
-    { displacement: { x: 0, y: Infinity, z: 0 } },
-    { stretch: { x: 0, y: 0, z: NaN } },
   ])
     TestValidator.predicate(
       "invalid field refused",

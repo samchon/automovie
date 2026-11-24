@@ -50,6 +50,10 @@ interface IWay {
  * partner: the chest onto the partner's back (spooning), or the cheek onto the
  * partner's chest.
  *
+ * The law reads most of the body record: its rig, pose resolution, chains,
+ * projection, rest joints, measure, surfaces and profile, so the test builds
+ * the stored body (humanFixtureBody).
+ *
  * Scenarios, the average man with the small woman for each way:
  *
  * 1. Through the hold the resting region stays on the partner's region (or,

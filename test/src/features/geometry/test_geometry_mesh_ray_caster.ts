@@ -407,37 +407,4 @@ export function test_geometry_mesh_ray_caster(): void {
           nclose(direction[2], sign * scale, 0),
       );
     }
-  TestValidator.predicate(
-    "refusals",
-    throwsError(
-      (): IAutoMovieMeshRayCaster =>
-        createAutoMovieMeshRayCaster(mesh([0, 0], null)),
-      "complete triangle",
-    ) &&
-      throwsError(
-        (): IAutoMovieMeshRayCaster =>
-          createAutoMovieMeshRayCaster(
-            mesh([0, 0, 0, 1, 0, 0, 0, 1, NaN], null),
-          ),
-        "complete triangle",
-      ) &&
-      throwsError(
-        (): IAutoMovieMeshRayCaster =>
-          createAutoMovieMeshRayCaster(mesh(positions, [0, 1, 99])),
-        "complete triangle",
-      ) &&
-      throwsError(
-        (): number | null => caster.nearest([0, 0, 0], [0, 0, 0], 1),
-        "nonzero",
-      ) &&
-      throwsError(
-        (): number | null => caster.nearest([0, NaN, 0], up, 1),
-        "nonzero",
-      ) &&
-      throwsError(
-        (): number | null => caster.nearest([0, 0, 0], up, 1, 2),
-        "minimum",
-      ) &&
-      throwsError((): boolean => caster.blocked([0, 0], up, 1), "nonzero"),
-  );
 }

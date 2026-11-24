@@ -19,10 +19,10 @@ const BEFORE: prepareHumanSegment.ISpan = { entryTime: 0, end: 2 };
  * 1. Nothing rides an action without holds or overlays.
  * 2. A hold the action took itself does not ride it; one taken before and held
  *    into it does.
- * 3. A hold released just inside the fade before the action rides it; one
- *    released just past it does not.
- * 4. An overlay opening inside the action rides it; one opening after its end
- *    does not.
+ * 3. A hold released just inside the fade before the action rides it; one released
+ *    just past it does not.
+ * 4. An overlay opening inside the action rides it; one opening after its end does
+ *    not.
  */
 export function test_unit_motions_perform_segment_ridden(): void {
   // 1. Nothing.

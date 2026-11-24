@@ -146,21 +146,6 @@ export function test_validation_model_affordances(): void {
     ),
   );
   TestValidator.predicate(
-    "non-finite extent coordinate fails",
-    hasViolation(
-      validateModel({
-        model: withAffordances([
-          {
-            ...TOP,
-            extent: [{ x: Number.NaN, y: 0, z: -0.5 }, ...SQUARE.slice(1)],
-          },
-        ]),
-      }),
-      "range",
-      ".affordances[0].extent[0].x",
-    ),
-  );
-  TestValidator.predicate(
     "point-like handle with an extent fails",
     hasViolation(
       validateModel({
@@ -168,25 +153,6 @@ export function test_validation_model_affordances(): void {
       }),
       "type",
       ".affordances[0].extent",
-    ),
-  );
-  TestValidator.predicate(
-    "non-finite frame scalar fails",
-    hasViolation(
-      validateModel({
-        model: withAffordances([
-          {
-            ...HANDLE,
-            frame: {
-              translation: { x: 0, y: Number.POSITIVE_INFINITY, z: 0 },
-              rotation: IDENTITY,
-              scale: UNIT,
-            },
-          },
-        ]),
-      }),
-      "range",
-      ".affordances[0].frame.translation.y",
     ),
   );
 

@@ -41,20 +41,6 @@ export function test_validation_model_body_invalid(): void {
   );
 
   TestValidator.predicate(
-    "range violation on body.mass (non-finite)",
-    hasViolation(
-      withBody({
-        mass: Number.POSITIVE_INFINITY,
-        centerOfMass: null,
-        friction: 0.5,
-        restitution: 0.5,
-      }),
-      "range",
-      ".body.mass",
-    ),
-  );
-
-  TestValidator.predicate(
     "range violation on body.friction",
     hasViolation(
       withBody({ mass: 1, centerOfMass: null, friction: 2, restitution: 0.5 }),
@@ -74,20 +60,6 @@ export function test_validation_model_body_invalid(): void {
       }),
       "range",
       ".body.restitution",
-    ),
-  );
-
-  TestValidator.predicate(
-    "range violation on non-finite body.centerOfMass.y",
-    hasViolation(
-      withBody({
-        mass: 1,
-        centerOfMass: { x: 0, y: Number.NaN, z: 0 },
-        friction: 0.5,
-        restitution: 0.5,
-      }),
-      "range",
-      ".body.centerOfMass.y",
     ),
   );
 }

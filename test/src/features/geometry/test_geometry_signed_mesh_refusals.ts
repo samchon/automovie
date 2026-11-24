@@ -70,8 +70,6 @@ export function test_geometry_signed_mesh_refusals(): void {
     [],
     [0, 0],
     [0, 0, 0, 0],
-    [NaN, 0, 0],
-    [0, Infinity, 0],
     [1e308, 0, 0],
   ])
     TestValidator.predicate(

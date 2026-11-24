@@ -37,8 +37,11 @@ export namespace IAutoMovieMotionHumanPlayback {
    * event-dependent setup has run.
    */
   export interface IBinding {
-    /** The body every phase was authored for. */
-    readonly body: IAutoMovieMotionHumanBody;
+    /**
+     * The rig of the body every phase was authored for: a read by another
+     * body's rig reads none of them.
+     */
+    readonly body: Pick<IAutoMovieMotionHumanBody, "skeleton">;
 
     /** The phases, copied when attached. */
     readonly source: IAutoMovieMotionHumanPlayback;
