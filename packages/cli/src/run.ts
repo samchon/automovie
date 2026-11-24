@@ -267,10 +267,16 @@ function completeCatalogs(file: string): void {
  * level up in both.
  */
 function packageVersion(): string {
-  const manifest: { version: string } = require(
+  const manifest: IAutoMovieCliManifest = require(
     path.join(__dirname, "..", "package.json"),
-  ) as { version: string };
+  );
   return manifest.version;
+}
+
+/** The field of this package's `package.json` the command reads. */
+interface IAutoMovieCliManifest {
+  /** The package's version, as `npm` publishes it. */
+  version: string;
 }
 
 /**
