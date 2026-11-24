@@ -1,4 +1,11 @@
-import type { IAutoMovieSolidCycle } from "@automovie/interface";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieSolidCycle,
+  IAutoMovieSolidSurface,
+} from "@automovie/interface";
+
+import { AutoMovieLoftAdmissionError } from "./AutoMovieLoftAdmissionError";
+import { AutoMovieSolidVector as Vec } from "./AutoMovieSolidVector";
 
 /**
  * A trim cycle of a face in its own chart: the closed boundary of the face's
@@ -123,9 +130,126 @@ export namespace AutoMovieSolidCycle {
         }),
       ),
       ...(c.along === undefined ? {} : { along: c.along }),
+      ...(c.partition === undefined ? {} : { partition: c.partition }),
       ...(c.exact === undefined ? {} : { exact: c.exact }),
       ...(c.segments === undefined ? {} : { segments: c.segments.slice() }),
     };
+  }
+
+  /**
+   * Carry a marked planar split boundary's angular partition through its
+   * retained source rows. Use the original row's count to partition the
+   * accumulated world chord length and normal rotation. Each boundary span
+   * takes the largest measured length and turn over the retained stations. The
+   * maximum of the two normalized increments allocates space to both
+   * requirements without comparing millimetres to radians. Sampling still uses
+   * exact split addresses, and every finer boundary vertex remains.
+   *
+   * @see https://doi.org/10.1002/nme.1620070405 Structured curvilinear grid lines follow a shared boundary parameter.
+   * @see https://www.sciencedirect.com/science/article/pii/S0010448518302331 Curvature-adaptive surface sampling distributes work in the normal map.
+   */
+  export function partition(
+    cycle: IAutoMovieSolidCycle.ICycle,
+    authored: readonly number[],
+    station: number,
+    stations: readonly number[],
+    surface: IAutoMovieSolidSurface,
+  ): number[] | undefined {
+    const chart: [number, number][] = cycle.chart;
+    const period: number | undefined = surface.period;
+    if (
+      cycle.partition !== true ||
+      authored.length < 3 ||
+      chart.length < authored.length ||
+      chart.length !== cycle.vertices.length ||
+      period === undefined ||
+      !(Number.isFinite(period) && period > 0) ||
+      authored.some(
+        (v, k): boolean =>
+          !Number.isFinite(v) || (k > 0 && !(v > authored[k - 1]!)),
+      ) ||
+      !(authored.at(-1)! - authored[0]! < period) ||
+      cycle.along !== undefined ||
+      cycle.segments !== undefined ||
+      chart.some(
+        ([u, v], k): boolean =>
+          u !== station ||
+          !Number.isFinite(v) ||
+          (k > 0 && !(v > chart[k - 1]![1])),
+      ) ||
+      !(chart.at(-1)![1] - chart[0]![1] < period)
+    )
+      return undefined;
+    const fine: number[] = chart.map(([, v]): number => v);
+    const bend: number[] = fine.map((): number => 0);
+    const chord: number[] = fine.map((): number => 0);
+    try {
+      for (const u of stations) {
+        const read =
+          surface.jetAt?.(u) ??
+          ((v: number): IAutoMovieSolidSurface.IJet => surface.jet(u, v));
+        const row = fine.map((v) => {
+          const jet = read(v);
+          const point: AutoMovieVector3Tuple = [...jet.p];
+          return { point, normal: Vec.unit(Vec.cross(jet.u, jet.v)) };
+        });
+        for (const [i, { point, normal }] of row.entries()) {
+          const next = row[(i + 1) % fine.length]!;
+          if (normal === null || next.normal === null) return undefined;
+          const angle: number = Math.atan2(
+            Vec.norm(Vec.cross(normal, next.normal)),
+            Vec.dot(normal, next.normal),
+          );
+          bend[i] = Math.max(bend[i]!, angle);
+          chord[i] = Math.max(chord[i]!, Vec.norm(Vec.sub(next.point, point)));
+        }
+      }
+    } catch (error: unknown) {
+      if (error instanceof AutoMovieLoftAdmissionError) return undefined;
+      throw error;
+    }
+    const distance: number = chord.reduce(
+      (sum, value): number => sum + value,
+      0,
+    );
+    const rotation: number = bend.reduce(
+      (sum, value): number => sum + value,
+      0,
+    );
+    if (
+      !(distance > 0 && Number.isFinite(distance)) ||
+      !Number.isFinite(rotation)
+    )
+      return undefined;
+    const measures: number[] = [0];
+    for (const [i, length] of chord.entries())
+      measures.push(
+        measures.at(-1)! +
+          Math.max(length / distance, rotation > 0 ? bend[i]! / rotation : 0),
+      );
+    const length: number = measures.at(-1)!;
+    if (!(length > 0 && Number.isFinite(length))) return undefined;
+    let index: number = -1;
+    const selected: number[] = authored.map((_, k): number => {
+      const target: number = (k * length) / authored.length;
+      const last: number = fine.length - authored.length + k;
+      ++index;
+      while (
+        index < last &&
+        Math.abs(measures[index + 1]! - target) <
+          Math.abs(measures[index]! - target)
+      )
+        ++index;
+      return index;
+    });
+    const regular: boolean = selected.every((v, i): boolean => {
+      const next: number | undefined = selected[i + 1];
+      const gap: number =
+        (next === undefined ? fine[selected[0]!]! + period : fine[next]!) -
+        fine[v]!;
+      return gap > 0 && gap < period / 2;
+    });
+    return regular ? selected : undefined;
   }
 
   /**

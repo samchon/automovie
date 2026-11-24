@@ -5,6 +5,7 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieSolidBodyMerge } from "./AutoMovieSolidBodyMerge";
+import { AutoMovieSolidCycle } from "./AutoMovieSolidCycle";
 import { AutoMovieSolidMesh } from "./AutoMovieSolidMesh";
 import { faceAutoMovieSolidMesh } from "./faceAutoMovieSolidMesh";
 
@@ -102,8 +103,8 @@ export namespace AutoMovieSolidBody {
     const append: ReturnType<typeof faceAutoMovieSolidMesh.prepare> =
       faceAutoMovieSolidMesh.prepare(body.mesh);
     return body.faces.map(
-      (f: IAutoMovieSolidBody.IFace): IAutoMovieSolidMesh.IOpen[] =>
-        append({
+      (f: IAutoMovieSolidBody.IFace): IAutoMovieSolidMesh.IOpen[] => {
+        const input: IAutoMovieSolidMesh.IFace = {
           surface: f.surface,
           stations: f.stations,
           phases: f.phases,
@@ -120,8 +121,116 @@ export namespace AutoMovieSolidBody {
             onFailure === undefined
               ? undefined
               : (detail: string): void => onFailure(f.surface.name, detail),
-        }),
+        };
+        return drawSplitParent(body.mesh, input, f.cycles, append);
+      },
     );
+  }
+
+  /**
+   * Retain one otherwise unconstrained planar split parent on shared native
+   * spokes.
+   */
+  function drawSplitParent(
+    mesh: IAutoMovieSolidMesh.IMesh,
+    input: IAutoMovieSolidMesh.IFace,
+    cycles: readonly IAutoMovieSolidCycle.ICycle[],
+    append: (input: IAutoMovieSolidMesh.IFace) => IAutoMovieSolidMesh.IOpen[],
+  ): IAutoMovieSolidMesh.IOpen[] {
+    const { phases, stations, surface } = input;
+    const cycle: IAutoMovieSolidCycle.ICycle | undefined = cycles[0];
+    if (
+      cycles.length !== 1 ||
+      cycle?.partition !== true ||
+      stations.length < 3 ||
+      (input.domainLoops?.length ?? 0) !== 0 ||
+      (cycle.kind !== "start" && cycle.kind !== "end") ||
+      surface.period === undefined
+    )
+      return append(input);
+    const bottom: boolean = cycle.kind === "start";
+    const station: number = stations[bottom ? 0 : stations.length - 1]!;
+    const selected: number[] | undefined = AutoMovieSolidCycle.partition(
+      cycle,
+      phases,
+      station,
+      stations,
+      surface,
+    );
+    if (selected === undefined) return append(input);
+    const matched: number[] = selected.map((i): number => cycle.chart[i]![1]);
+    const before: [number, number, number, number] = [
+      mesh.positions.length,
+      mesh.coordinates.length,
+      mesh.indices.length,
+      mesh.owners.length,
+    ];
+    let failure: boolean = false;
+    const opened = append({
+      ...input,
+      phases: matched,
+      stations: bottom ? stations.slice(1) : stations.slice(0, -1),
+      loops: [],
+      onFailure: (): void => {
+        failure = true;
+      },
+    });
+    const rim = opened.find(
+      ({ end }): boolean => end === (bottom ? "bottom" : "top"),
+    );
+    const coarse: number[] | undefined = rim?.vertices
+      .slice()
+      .sort(
+        (a, b): number =>
+          mesh.coordinates[3 * a + 2]! - mesh.coordinates[3 * b + 2]!,
+      );
+    if (
+      failure ||
+      coarse === undefined ||
+      coarse.length !== matched.length ||
+      coarse.some((i, k): boolean => mesh.coordinates[3 * i + 2] !== matched[k])
+    ) {
+      [
+        mesh.positions.length,
+        mesh.coordinates.length,
+        mesh.indices.length,
+        mesh.owners.length,
+      ] = before;
+      return append(input);
+    }
+    const site = (j: number): number =>
+      cycle.vertices[j % cycle.vertices.length]!;
+    const phase = (j: number): number =>
+      cycle.chart[j % cycle.vertices.length]![1] +
+      (j >= cycle.vertices.length ? surface.period! : 0);
+    const triangles: [number, number, number][] = [];
+    for (const [k, a] of coarse.entries()) {
+      const next: number = (k + 1) % coarse.length;
+      const b: number = coarse[next]!;
+      const first: number = selected[k]!;
+      const last: number =
+        selected[next]! + (next === 0 ? cycle.vertices.length : 0);
+      // The nearer coarse phase spans each fine edge. The remaining triangle
+      // connects the coarse edge to the separating fine vertex. Both exact
+      // endpoint spokes stay edges of this sector's triangulation.
+      const midpoint: number = (phase(first) + phase(last)) / 2;
+      let pivot: number = first;
+      for (let j: number = first; j < last; ++j) {
+        const left: boolean = (phase(j) + phase(j + 1)) / 2 <= midpoint;
+        if (left) pivot = j + 1;
+        triangles.push([left ? a : b, site(j + 1), site(j)]);
+      }
+      triangles.push([a, b, site(pivot)]);
+    }
+    AutoMovieSolidMesh.close(
+      mesh,
+      bottom
+        ? triangles.map(([a, b, c]): [number, number, number] => [a, c, b])
+        : triangles,
+      surface,
+      input.inverted === true,
+    );
+    return opened.filter((boundary): boolean => boundary !== rim);
   }
 
   /**

@@ -19,6 +19,9 @@ export namespace IAutoMovieSolidCycle {
     /** Per segment `k` (vertex `k` to `k + 1`, the last closing the cycle): the neighbour face across it. */
     neighbours: IAutoMovieSolidCycle.INeighbour[];
 
+    /** Sample the otherwise untrimmed parent rows on this split end's angular partition. */
+    partition?: true;
+
     /**
      * For a winding cycle sampled from an exact curve `u = along(v)` of this chart: the curve's station at a phase. A segment whose two
      * stored vertices both lie on it (`along(v) === u` at each, as the builder evaluated them) is read along the curve between them, not

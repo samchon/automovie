@@ -900,6 +900,9 @@ function fan(
           children[c]!.band.phases[k]!,
         ],
       ),
+      ...(valley === undefined || nativeRails === undefined || parentCut !== undefined
+        ? {}
+        : { partition: true as const }),
       ...(parentCut === undefined ? {} : { along: hostAt }),
       neighbours: ordered.map(
         ({
