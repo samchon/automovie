@@ -9,7 +9,6 @@ import {
   AutoMovieArchetypeFrame,
   AutoMovieArchetypeRide,
 } from "../core";
-import { ArchetypeRideWitness } from "../core/ArchetypeRideWitness";
 import { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
 import { AutoMovieArchetypeQuadrupedFooting } from "./AutoMovieArchetypeQuadrupedFooting";
 import { AutoMovieArchetypeQuadrupedGait } from "./AutoMovieArchetypeQuadrupedGait";
@@ -39,10 +38,6 @@ import { createQuadruped } from "./createQuadruped";
 import { planEquineFlight } from "./planEquineFlight";
 import { refuseQuadrupedReach } from "./refuseQuadrupedReach";
 import { trialEquineFlight } from "./trialEquineFlight";
-
-/** An altered public course producer retains its original opaque route. */
-const NATIVE_PLAN: typeof AutoMovieArchetypeCourse.plan =
-  AutoMovieArchetypeCourse.plan;
 
 /**
  * A quadruped going along a course: its root on the path, its trunk rising and
@@ -141,11 +136,10 @@ export function rideQuadruped<Affordance extends string, D extends string>(
 > {
   /** Keep the source dimensions and the solver's quadruped size. */
   type Dimension = D | AutoMovieArchetypeQuadrupedBody.Dimension;
-  /** The pose function the ride and the witness read. */
+  /** The pose function the ride reads. */
   type Posed = (
     state: AutoMovieArchetypeCourse.IState,
     seconds: number,
-    witness?: ArchetypeRideWitness.Witness,
   ) => AutoMovieArchetypeRide.IPose<Affordance, Dimension>;
   /** One assembled stride plan, its clock, instants and pose function. */
   interface IAssembly {
@@ -174,9 +168,6 @@ export function rideQuadruped<Affordance extends string, D extends string>(
   const withers: number = dimensions.withersHeight!;
   const rig: ReturnType<typeof AutoMovieArchetypeQuadrupedJoints.read> =
     AutoMovieArchetypeQuadrupedJoints.read(animal.parts);
-  const nativeCourse: boolean =
-    Object.getOwnPropertyDescriptor(AutoMovieArchetypeCourse, "plan")?.value ===
-    NATIVE_PLAN;
   const { plan, course, holds }: QuadrupedTimedRoute.IRoute =
     QuadrupedTimedRoute.of(species, route, withers, gait);
   const departure: AutoMovieArchetypeCourse.IState | undefined =
@@ -249,7 +240,7 @@ export function rideQuadruped<Affordance extends string, D extends string>(
       rig.limbs,
     );
   const pose: QuadrupedRidePose.IPrepared<Affordance, Dimension> =
-    QuadrupedRidePose.prepare(animal, species, rig, nativeCourse);
+    QuadrupedRidePose.prepare(animal, species, rig);
   const tucks: EquineTuck.IFores = EquineTuck.fores(rig.limbs, withers);
 
   /**
@@ -389,7 +380,6 @@ export function rideQuadruped<Affordance extends string, D extends string>(
     const posed: Posed = (
       state: AutoMovieArchetypeCourse.IState,
       seconds: number,
-      witness?: ArchetypeRideWitness.Witness,
     ): AutoMovieArchetypeRide.IPose<Affordance, Dimension> => {
       const phase: number = strides.phaseAt(seconds);
       const now: AutoMovieArchetypeQuadrupedGait.Gait = strides.strideOf(
@@ -521,7 +511,7 @@ export function rideQuadruped<Affordance extends string, D extends string>(
         get archetype(): AutoMovieArchetype<Affordance, Dimension> {
           let archetype: AutoMovieArchetype<Affordance, Dimension>;
           try {
-            archetype = pose.sample(aims, nod, -sink, witness);
+            archetype = pose.sample(aims, nod, -sink);
           } catch (error) {
             throw refuseQuadrupedReach(species.archetype, seconds, error);
           }
@@ -564,17 +554,12 @@ export function rideQuadruped<Affordance extends string, D extends string>(
     );
     assembly = assemble(flight.moved, flight);
   }
-  const posed: Posed = assembly.posed;
-  if (nativeCourse)
-    ArchetypeRideWitness.authorize(
-      posed,
-      plan,
-      (seconds: number, witness: ArchetypeRideWitness.Witness) => {
-        const state: AutoMovieArchetypeCourse.IState = plan.at(seconds);
-        return { ...posed(state, seconds, witness), course: state };
-      },
-    );
-  return AutoMovieArchetypeRide.along(animal, plan, posed, assembly.instants);
+  return AutoMovieArchetypeRide.along(
+    animal,
+    plan,
+    assembly.posed,
+    assembly.instants,
+  );
 }
 
 /** Companion types and constants of {@link rideQuadruped}. */

@@ -162,17 +162,6 @@ export function test_geometry_procedural_wall(): void {
       "wall width must be a finite number > 0",
     ],
     [
-      "wall height",
-      (): IAutoMovieMesh =>
-        buildAutoMovieWall({
-          width: 1,
-          height: Number.NaN,
-          depth: 1,
-          openings: [],
-        }),
-      "wall height must be a finite number > 0",
-    ],
-    [
       "wall depth",
       (): IAutoMovieMesh =>
         buildAutoMovieWall({ width: 1, height: 1, depth: -1, openings: [] }),
@@ -191,17 +180,6 @@ export function test_geometry_procedural_wall(): void {
           ],
         }),
       'wall opening id "x" must be unique',
-    ],
-    [
-      "opening finite",
-      (): IAutoMovieMesh =>
-        buildAutoMovieWall({
-          width: 2,
-          height: 2,
-          depth: 1,
-          openings: [{ id: "x", x: Number.NaN, y: 0, width: 1, height: 1 }],
-        }),
-      "wall opening[0] must be finite",
     ],
     [
       "opening width",

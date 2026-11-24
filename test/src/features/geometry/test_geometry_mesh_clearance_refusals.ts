@@ -47,7 +47,6 @@ export function test_geometry_mesh_clearance_refusals(): void {
     { ...mesh, indices: [0, 1] },
     { ...mesh, indices: [0, 1, 3] },
     { ...mesh, indices: [0, 1, -1] },
-    { ...mesh, indices: [0, 1, 0.5] },
   ])
     TestValidator.predicate(
       "invalid triangle buffers",

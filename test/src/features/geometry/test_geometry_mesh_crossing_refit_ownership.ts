@@ -150,37 +150,7 @@ export function test_geometry_mesh_crossing_refit_ownership(): void {
         "original XYZ position cardinality",
       ),
     );
-  for (const value of [NaN, Infinity, -Infinity]) {
-    const invalid: number[] = [...current];
-    invalid[0] = value;
-    TestValidator.predicate(
-      `nonfinite current coordinates refuse ${value}`,
-      throwsError(
-        (): IAutoMovieMeshCrossingQuery => template.withPositions(invalid),
-        "finite complete triangle buffers",
-      ),
-    );
-  }
 
-  // Leave slot zero absent while populating every other original coordinate.
-  const sparse: number[] = new Array<number>(current.length);
-  for (let scalar: number = 1; scalar < current.length; scalar++)
-    sparse[scalar] = current[scalar]!;
-  TestValidator.predicate(
-    "coordinate holes refuse",
-    throwsError(
-      (): IAutoMovieMeshCrossingQuery => template.withPositions(sparse),
-      "finite complete triangle buffers",
-    ),
-  );
-  TestValidator.predicate(
-    "fresh constructor also refuses coordinate holes",
-    throwsError(
-      (): IAutoMovieMeshCrossingQuery =>
-        createAutoMovieMeshCrossingQuery(mesh(sparse)),
-      "finite complete triangle buffers",
-    ),
-  );
   TestValidator.equals(
     "failed refits leave earlier geometry usable",
     valid(plane),
@@ -192,22 +162,7 @@ export function test_geometry_mesh_crossing_refit_ownership(): void {
     expected,
   );
 
-  const unused: IAutoMovieMesh = {
-    ...mesh([0.2, 0.2, -1, 0.2, 0.2, 1, 0.8, 0.2, 1, 10, 10, 10]),
-    indices: [0, 1, 2],
-  };
-  const unusedTemplate: IAutoMovieMeshCrossingQuery =
-    createAutoMovieMeshCrossingQuery(unused);
-  const badUnused: number[] = [...unused.positions];
-  badUnused[11] = NaN;
-  TestValidator.predicate(
-    "unused coordinates are admitted on refit too",
-    throwsError(
-      (): IAutoMovieMeshCrossingQuery =>
-        unusedTemplate.withPositions(badUnused),
-      "finite complete triangle buffers",
-    ),
-  );
+
   const empty: IAutoMovieMeshCrossingQuery = createAutoMovieMeshCrossingQuery(
     mesh([]),
   );

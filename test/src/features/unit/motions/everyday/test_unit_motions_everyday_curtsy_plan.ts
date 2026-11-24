@@ -39,8 +39,8 @@ const RETURN: number = 0.01;
  *
  * Scenarios:
  *
- * 1. At `crossed` the rear ankle stands across the lead ankle, on the lead's
- *    side of it, and behind it.
+ * 1. At `crossed` the rear ankle stands across the lead ankle, on the lead's side
+ *    of it, and behind it.
  * 2. Both ankle goals hold from `crossed` through `uncrossOff`.
  * 3. The root lowers from `crossed` to `dip` and rises again by `uncrossOff`.
  * 4. Half way to `crossed` the rear foot is lifted off its entry height.
@@ -53,8 +53,9 @@ export async function test_unit_motions_everyday_curtsy_plan(): Promise<void> {
   for (const rear of ["left", "right"] as const) {
     const lead: AutoMovieHumanSide = rear === "left" ? "right" : "left";
     const yaw: number = rear === "left" ? 0 : 35;
-    const context: ReturnType<typeof motionActionContext<IAutoMovieMotionHumanCurtsy>> =
-      motionActionContext<IAutoMovieMotionHumanCurtsy>(
+    const context: ReturnType<
+      typeof motionActionContext<IAutoMovieMotionHumanCurtsy>
+    > = motionActionContext<IAutoMovieMotionHumanCurtsy>(
       body,
       { side: rear },
       { yaw },
@@ -66,8 +67,7 @@ export async function test_unit_motions_everyday_curtsy_plan(): Promise<void> {
     const goal = (
       side: AutoMovieHumanSide,
       t: number,
-    ): IAutoMovieHumanLimbGoal =>
-      plan.posture(t).limbs[`${side}Leg`]!;
+    ): IAutoMovieHumanLimbGoal => plan.posture(t).limbs[`${side}Leg`]!;
     const local = (point: IAutoMovieVector3): IAutoMovieVector3 =>
       HumanFrame.local({ origin: context.entry.posture.root, yaw }, point);
 

@@ -16,8 +16,8 @@ const HIP: number = 0.9;
  *
  * Scenarios, for a 0.9 m hip height:
  *
- * 1. The run (Fr 1.3) goes `sqrt(1.3 * 9.80665 * 0.9)`, and is the pace when
- *    none is given.
+ * 1. The run (Fr 1.3) goes `sqrt(1.3 * 9.80665 * 0.9)`, and is the pace when none
+ *    is given.
  * 2. The jog (Fr 0.6) and the sprint (Fr 5) go by their own numbers.
  */
 export function test_unit_motions_actions_run_speed(): void {

@@ -109,37 +109,23 @@ export namespace defendGoals {
     const fist: number = StrikingQuality.fist(m.hand);
     const bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
       props.bones ?? StrikingBody.trunk(body, props.posture);
-    let centre: IAutoMovieVector3 | undefined;
-    const regionPoint: () => IAutoMovieVector3 = (): IAutoMovieVector3 => {
-      if (centre !== undefined) return centre;
-      if (props.frame === undefined) {
-        const frame: IAutoMovieHumanoidSurfaces.IFrame = StrikingBody.frame(
-          body,
-          props.region,
-          props.aimed,
-        );
-        centre = resolveAutoMovieHumanoidSurfaces.point(
-          frame,
-          bones.get(frame.bone)!,
-        );
-      } else
-        centre = resolveAutoMovieHumanoidSurfaces.point(
-          props.frame,
-          bones.get(props.frame.bone)!,
-        );
-      return centre;
+    // The attacked region's centre and its placed frame on the posed bones,
+    // each a closed form of the bones read where a goal needs it.
+    const regionPoint = (): IAutoMovieVector3 => {
+      const frame: IAutoMovieHumanoidSurfaces.IFrame =
+        props.frame ?? StrikingBody.frame(body, props.region, props.aimed);
+      return resolveAutoMovieHumanoidSurfaces.point(
+        frame,
+        bones.get(frame.bone)!,
+      );
     };
-    let placed: ReturnType<typeof StrikingBody.region> | undefined;
-    const region: () => ReturnType<typeof StrikingBody.region> = (): ReturnType<
-      typeof StrikingBody.region
-    > =>
-      (placed ??=
-        props.frame === undefined
-          ? StrikingBody.region(body, bones, props.region, props.aimed)
-          : resolveAutoMovieHumanoidSurfaces.place(
-              props.frame,
-              bones.get(props.frame.bone)!,
-            ));
+    const region = (): ReturnType<typeof StrikingBody.region> =>
+      props.frame === undefined
+        ? StrikingBody.region(body, bones, props.region, props.aimed)
+        : resolveAutoMovieHumanoidSurfaces.place(
+            props.frame,
+            bones.get(props.frame.bone)!,
+          );
     const glove = (
       side: AutoMovieHumanSide,
       at: IAutoMovieVector3,

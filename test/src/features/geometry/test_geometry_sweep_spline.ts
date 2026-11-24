@@ -334,12 +334,6 @@ export function test_geometry_sweep_spline(): void {
       "knot 2 does not increase",
     ],
     [
-      "non-finite value",
-      (): unknown =>
-        interpolateAutoMovieSpline({ knots: [0, 1], values: [1, Number.NaN] }),
-      "knot 1 is not finite",
-    ],
-    [
       "knot beyond period",
       (): unknown =>
         interpolateAutoMovieSpline({

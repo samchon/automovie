@@ -12,9 +12,8 @@ import { motionActionContext } from "../../../internal/motionActionContext";
 import { motionPlanReading as R } from "../../../internal/motionPlanReading";
 
 /**
- * How close a roll's advance keeps to half the chest's perimeter per half
- * turn, as a share (provisional: the chest's cross-section is no exact
- * ellipse).
+ * How close a roll's advance keeps to half the chest's perimeter per half turn,
+ * as a share (provisional: the chest's cross-section is no exact ellipse).
  */
 const ROLLING: number = 0.15;
 
@@ -45,10 +44,12 @@ export async function test_unit_motions_floor_log_roll_plan(): Promise<void> {
     const roll: IAutoMovieMotionHumanActionPlan = logRoll.plan(
       motionActionContext.after(body, lying, { toward: "left", halfTurns: 4 }),
     );
-    const a: IAutoMovieVector3 = R.bones(body, roll, 0).get("hips")!
-      .worldPosition;
-    const b: IAutoMovieVector3 = R.bones(body, roll, roll.duration).get("hips")!
-      .worldPosition;
+    const a: IAutoMovieVector3 = R.bones(body, roll, 0).get(
+      "hips",
+    )!.worldPosition;
+    const b: IAutoMovieVector3 = R.bones(body, roll, roll.duration).get(
+      "hips",
+    )!.worldPosition;
     const half: number = body.measure.chestBreadth / 2;
     const deep: number = body.measure.chestDepth / 2;
     const perimeter: number =

@@ -265,9 +265,7 @@ export namespace AquaticRescue {
     // frame's chest; from the hold on, in the hold's. The upper arm of the
     // side-lying rescuer drapes over the victim's shoulder, the elbow back
     // toward the rescuer.
-    let world: IHoldWorld | undefined;
     const holdWorld = (): IHoldWorld => {
-      if (world !== undefined) return world;
       const sternum: IAutoMovieHumanoidSurfaces.IFrame =
         victim.body.surfaces.regions.sternum;
       const placed: ReturnType<typeof resolveAutoMovieHumanoidSurfaces.place> =
@@ -292,7 +290,7 @@ export namespace AquaticRescue {
         normal: Vector3.scale(placed.normal, -1),
         forward: across,
       });
-      world = {
+      return {
         wrist: Vector3.subtract(
           chest,
           Quaternion.rotateVector(rotation, palm.point),
@@ -312,11 +310,10 @@ export namespace AquaticRescue {
           },
         ),
       };
-      return world;
     };
+    const w: IHoldWorld = holdWorld();
     // The hold in the rescuer's chest frame `own`.
     const inFrame = (own: IAutoMovieResolvedBone): IAutoMovieHumanLimbGoal => {
-      const w: IHoldWorld = holdWorld();
       const inverse: IAutoMovieQuaternion = Quaternion.inverse(
         own.worldRotation,
       );

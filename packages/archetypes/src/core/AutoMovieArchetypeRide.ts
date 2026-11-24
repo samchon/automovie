@@ -7,7 +7,6 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { ArchetypeRideWitness } from "./ArchetypeRideWitness";
 import type { ArchetypeTowedGeometry } from "./ArchetypeTowedGeometry";
 import { ArchetypeTowing } from "./ArchetypeTowing";
 import type { AutoMovieArchetype } from "./AutoMovieArchetype";
@@ -222,7 +221,6 @@ export namespace AutoMovieArchetypeRide {
         );
       },
     };
-    if (pose !== undefined) ArchetypeRideWitness.constructed(ride, pose);
     return ride;
   }
 
@@ -387,15 +385,7 @@ export namespace AutoMovieArchetypeRide {
     const read = (
       seconds: number,
     ): ITowedSample<Id> & { full(): ISample<Id, Dimension> } => {
-      const native:
-        | ArchetypeRideWitness.Reader<LeaderId, LeaderDimension>
-        | undefined = ArchetypeRideWitness.of(leader);
-      const witness: ArchetypeRideWitness.Witness | undefined =
-        native === undefined ? undefined : new ArchetypeRideWitness.Witness();
-      const sample: ISample<LeaderId, LeaderDimension> =
-        native === undefined || witness === undefined
-          ? leader.at(seconds)
-          : native(seconds, witness);
+      const sample: ISample<LeaderId, LeaderDimension> = leader.at(seconds);
       const state: readonly number[] = heading.at(seconds).x;
       const theta: number = state[0]!;
       const phi: number = front === null ? theta : state[1]!;

@@ -1,16 +1,9 @@
-import {
-  Vector3,
-  bracketedBisection,
-  minimumJerk,
-  superposeMinimumJerk,
-} from "@automovie/engine";
+import { Vector3, minimumJerk, superposeMinimumJerk } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanStrikingStroke,
   IAutoMovieSuperposeMinimumJerk,
   IAutoMovieVector3,
 } from "@automovie/interface";
-
-import { StrikingContact } from "./StrikingContact";
 
 /**
  * One strike's end-joint path (the wrist or the ankle), from its launch through
@@ -118,7 +111,7 @@ export namespace StrikingStroke {
    * corrections and the struck body only at or before that second.
    *
    * @param input The stroke.
-   * @returns The evaluator, memoising its scan.
+   * @returns The evaluator.
    */
   export function create(
     input: IAutoMovieMotionHumanStrikingStroke.IInput,
@@ -178,75 +171,12 @@ export namespace StrikingStroke {
       return superposeMinimumJerk.position(input.origin, units, seconds);
     };
 
-    // The scan advances on a fixed grid and remembers how far it has found no
-    // contact, so the found second is the same whatever order seconds are
-    // evaluated in.
-    //
-    // While a scan reads the struck body, that body may read this weapon back
-    // at the same instants (two strikes thrown at once, an arm crossing an
-    // arm). Such a nested read sees the weapon on its free path, which is its
-    // real path up to the contact the scan is still looking for; resolving
-    // both contacts simultaneously would need a joint solve, which this
-    // kinematic law does not attempt.
-    let clear: number = input.scan.from;
-    let armed: boolean = false;
-    let found: number | undefined;
-    let scanning: boolean = false;
-    const stop = (seconds: number): number | undefined => {
-      if (input.fixed !== undefined)
-        return input.fixed !== null && input.fixed <= seconds
-          ? input.fixed
-          : undefined;
-      if (found !== undefined) return found <= seconds ? found : undefined;
-      const gap = input.gap;
-      if (gap === undefined || scanning) return undefined;
-      scanning = true;
-      try {
-        // A weapon already touching at the scan's start has met that surface
-        // at once (a kick jammed against a leg before its chamber).
-        if (!armed) {
-          armed = true;
-          if (gap(free(clear), clear) <= 0) {
-            found = clear;
-            return found <= seconds ? found : undefined;
-          }
-        }
-        const until: number = Math.min(seconds, input.scan.to);
-        while (clear < until - 1e-12) {
-          const next: number = Math.min(input.scan.to, clear + input.scan.step);
-
-          // The struck body is never read beyond the second asked about: a
-          // grid point past it is decided by reading at that second instead,
-          // and the bisection takes any midpoint past it as already in
-          // contact, so the found second is the grid's whenever the weapon
-          // stays in contact once it touches.
-          if (next > until + 1e-12) {
-            if (gap(free(until), until) > 0) return undefined;
-            found = bracketedBisection(
-              (mid: number): boolean => mid < until && gap(free(mid), mid) > 0,
-              clear,
-              next,
-              (next - clear) / 2 ** 24,
-            );
-            return found <= seconds ? found : undefined;
-          }
-          const g: number = gap(free(next), next);
-          if (g <= 0) {
-            found = StrikingContact.first(
-              (t: number): number => gap(free(t), t),
-              clear,
-              next,
-              next - clear,
-            );
-            return found !== undefined && found <= seconds ? found : undefined;
-          }
-          clear = next;
-        }
-        return undefined;
-      } finally {
-        scanning = false;
-      }
-    };
+    // The stop is the contact the performance resolved jointly with every
+    // other weapon (`fixed`); the stroke scans nothing itself.
+    const stop = (seconds: number): number | undefined =>
+      input.fixed !== undefined && input.fixed !== null && input.fixed <= seconds
+        ? input.fixed
+        : undefined;
     return {
       stop,
       free,

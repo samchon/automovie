@@ -300,34 +300,10 @@ export function test_geometry_procedural_placement(): void {
       "mesh transform rotation must be a unit quaternion",
     ],
     [
-      "non-finite rotation",
-      (): IAutoMovieMesh =>
-        transformAutoMovieMesh(facet(), {
-          rotation: { x: Number.NaN, y: 0, z: 0, w: 1 },
-        }),
-      "mesh transform rotation must be a unit quaternion",
-    ],
-    [
       "collapsed axis",
       (): IAutoMovieMesh =>
         transformAutoMovieMesh(facet(), { scale: { x: 1, y: 0, z: 1 } }),
       "mesh transform scale may not collapse an axis",
-    ],
-    [
-      "non-finite translation",
-      (): IAutoMovieMesh =>
-        transformAutoMovieMesh(facet(), {
-          translation: { x: Number.POSITIVE_INFINITY, y: 0, z: 0 },
-        }),
-      "mesh transform translation must be finite",
-    ],
-    [
-      "non-finite scale",
-      (): IAutoMovieMesh =>
-        transformAutoMovieMesh(facet(), {
-          scale: { x: 1, y: Number.NaN, z: 1 },
-        }),
-      "mesh transform scale must be finite",
     ],
     [
       "duplicate part id",

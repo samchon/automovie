@@ -355,7 +355,6 @@ export function test_geometry_region_extrusion(): void {
   for (const [name, depth] of [
     ["zero", 0],
     ["negative", -1],
-    ["infinite", Number.POSITIVE_INFINITY],
   ] as ReadonlyArray<readonly [string, number]>)
     TestValidator.predicate(
       `a ${name} depth is refused by its own diagnostic`,

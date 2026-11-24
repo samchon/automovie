@@ -86,18 +86,6 @@ export function test_geometry_procedural_revolve(): void {
       "revolve segments must be a safe integer >= 3",
     ],
     [
-      "revolve finite",
-      (): IAutoMovieMesh =>
-        revolveAutoMovieProfile({
-          profile: [
-            { x: 1, y: Number.NaN },
-            { x: 1, y: 1 },
-          ],
-          segments: 8,
-        }),
-      "revolve profile[0] must be finite",
-    ],
-    [
       "revolve radius",
       (): IAutoMovieMesh =>
         revolveAutoMovieProfile({

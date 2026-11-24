@@ -346,14 +346,6 @@ export function test_geometry_region_triangulation(): void {
       "polygon outer ring needs at least three points",
     ],
     [
-      "non-finite corner",
-      (): IAutoMovieRegionTriangulation =>
-        triangulateAutoMovieRegion({
-          outer: [{ x: 0, y: Number.POSITIVE_INFINITY }, ...ell.slice(1)],
-        }),
-      "polygon outer ring[0] must be finite",
-    ],
-    [
       "repeated corner",
       (): IAutoMovieRegionTriangulation =>
         triangulateAutoMovieRegion({

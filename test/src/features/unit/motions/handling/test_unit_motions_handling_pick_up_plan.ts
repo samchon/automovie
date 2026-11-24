@@ -20,8 +20,8 @@ import { TestValidator } from "@nestia/e2e";
 
 import { caneSweepScene } from "../../../internal/caneSweepScene";
 import { everydayTake } from "../../../internal/everydayTake";
-import { humanFixtureBody } from "../../../internal/fixtures/humanFixtureBody";
 import { humanFixture } from "../../../internal/fixtures/humanFixture";
+import { humanFixtureBody } from "../../../internal/fixtures/humanFixtureBody";
 import { motionActionContext } from "../../../internal/motionActionContext";
 import { motionGraspUnit } from "../../../internal/motionGraspUnit";
 import { motionPlanReading as R } from "../../../internal/motionPlanReading";
@@ -157,7 +157,10 @@ export async function test_unit_motions_handling_pick_up_plan(): Promise<void> {
       const bones: ReturnType<typeof R.bones> = R.bones(body, plan, closed);
       const off: number = Math.min(
         ...CONTACTS.map((surface: IAutoMovieMotionHumanHand.Surface): number =>
-          Vector3.distance(HumanHand.frame(body, bones, c.side, surface).point, at),
+          Vector3.distance(
+            HumanHand.frame(body, bones, c.side, surface).point,
+            at,
+          ),
         ),
       );
       const half: number = motionGraspUnit.width(c.model, c.handle) / 2;

@@ -25,8 +25,6 @@ export function convertAutoMovieRecoveryCurves<
   T,
   Format extends AutoMovieRecoveryCurveFormat,
 >(input: T, format: Format): AutoMovieRecoveryCurveData<T, Format> {
-  if (format !== "bezier" && format !== "hermite")
-    throw new Error("Curve format must be bezier or hermite");
   const visit: (value: unknown) => unknown = (value: unknown): unknown => {
     if (Array.isArray(value)) return value.map(visit);
     if (value === null || typeof value !== "object") return value;
@@ -87,6 +85,6 @@ export function convertAutoMovieRecoveryCurves<
   const result: AutoMovieRecoveryCurveData<T, Format> = visit(
     input,
   ) as AutoMovieRecoveryCurveData<T, Format>;
-  rebindRecoveryCurveAuthorities(input, result, format);
+  rebindRecoveryCurveAuthorities(input, result);
   return result;
 }

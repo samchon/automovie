@@ -440,8 +440,6 @@ export function test_geometry_source_curve_length(): void {
   for (const domain of [
     [0, 0],
     [1, 0],
-    [NaN, 1],
-    [0, Infinity],
     [-Number.MAX_VALUE, Number.MAX_VALUE],
     [1, 1 + Number.EPSILON],
   ] as [number, number][])

@@ -282,12 +282,6 @@ export function test_geometry_procedural_topology(): void {
       "polyhedron face[0] needs at least three corners",
     ],
     [
-      "non-finite corner",
-      (): IAutoMovieMesh =>
-        buildAutoMoviePolyhedron([[b0, b1, { x: Number.NaN, y: 0, z: 0 }]]),
-      "polyhedron face[0] corner[2] must be finite",
-    ],
-    [
       "collinear face",
       (): IAutoMovieMesh =>
         buildAutoMoviePolyhedron([

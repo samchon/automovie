@@ -20,15 +20,14 @@ import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanHeld } from "../compose/AutoMovieMotionHumanHeld";
 import { AutoMovieMotionHumanTrunk } from "../compose/AutoMovieMotionHumanTrunk";
-import { courseArmGoal } from "../compose/courseArmGoal";
 import { HumanTrunk } from "../everyday/HumanTrunk";
-import { precisionStrokePeak } from "../lexicon/precisionStrokePeak";
 import { HumanHand } from "../posture/HumanHand";
 import { HumanLimbFit } from "../posture/HumanLimbFit";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { StrikingAdvance } from "./StrikingAdvance";
+import { StrikingBladeCoursed } from "./StrikingBladeCoursed";
 import { StrikingBladeOnPath } from "./StrikingBladeOnPath";
 import { StrikingHeld } from "./StrikingHeld";
 import { StrikingSupport } from "./StrikingSupport";
@@ -38,6 +37,18 @@ type TurnedAddBone = "chest" | "spine";
 
 /** The alternatives of `ShoulderContext`'s site. */
 type ShoulderContext = "body" | "entry";
+
+/**
+ * The holding arm's anchor at a stroke's decisive pose: the arm's solution
+ * there, and its elbow's hint carried on the chest from the shoulder.
+ */
+interface IBladeAnchor {
+  /** The arm's solution at the decisive pose. */
+  reference: IAutoMovieHumanLimbReference;
+
+  /** The elbow's hint from the shoulder in the chest's frame, metres. */
+  hint: IAutoMovieVector3;
+}
 
 /**
  * The stroke of a held tool, shared by every blade and firearm action: the tool
@@ -270,19 +281,19 @@ export namespace StrikingBlade {
 
     // The holding arm's own solution at the decisive pose, the reference of
     // every goal of the stroke, so the fit stays on one side of its choices
-    // from the entry hold to the return. Built on first use, since the body
-    // an advance leaves is read from the plan's own base.
+    // from the entry hold to the return. Solved when the plan is prepared,
+    // on the plan's own base and the target as the placed performance shows
+    // it; each read before that solves it cold.
     // The elbow's hint is anchored there too: solved once at the decisive
     // pose and carried on the chest from the shoulder, since a hint solved
     // anew at each instant jumped by 0.24 m inside one 1/48 s step and
     // swapped the arm's configuration by itself.
-    let anchored: IAutoMovieHumanLimbReference | undefined;
-    let hint: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
+    let prepared: IBladeAnchor | undefined;
     const carried = (
       posture: IAutoMovieMotionHumanPosture,
+      hint: IAutoMovieVector3,
       read?: () => ReturnType<typeof HumanTrunk.resolve>,
     ): IAutoMovieVector3 => {
-      reference();
       const bones: ReturnType<typeof HumanTrunk.resolve> =
         read?.() ?? trunkAt(posture);
       return Vector3.add(
@@ -290,9 +301,7 @@ export namespace StrikingBlade {
         Quaternion.rotateVector(bones.get("chest")!.worldRotation, hint),
       );
     };
-    const reference = (): IAutoMovieHumanLimbReference => {
-      if (anchored !== undefined) return anchored;
-
+    const anchor = (): IBladeAnchor => {
       // A stroke that starts from the pose the previous action holds keeps
       // that arm: its elbow's hint, carried on the chest as it stood, and
       // its reference, so the same pose is the same arm at the boundary.
@@ -304,15 +313,16 @@ export namespace StrikingBlade {
         const at: ReturnType<typeof HumanTrunk.resolve> = trunkAt(
           context.entry.posture,
         );
-        hint = Quaternion.rotateVector(
-          Quaternion.inverse(at.get("chest")!.worldRotation),
-          Vector3.subtract(
-            entered.bend,
-            at.get(`${tool.side}UpperArm`)!.worldPosition,
+        return {
+          reference: entered.reference,
+          hint: Quaternion.rotateVector(
+            Quaternion.inverse(at.get("chest")!.worldRotation),
+            Vector3.subtract(
+              entered.bend,
+              at.get(`${tool.side}UpperArm`)!.worldPosition,
+            ),
           ),
-        );
-        anchored = entered.reference;
-        return anchored;
+        };
       }
       const decisive: IAutoMovieMotionHumanStrikingHeld.IHandFrame =
         stroke.path(stroke.stop, clock.at("stroke"));
@@ -355,15 +365,16 @@ export namespace StrikingBlade {
         stood,
         resolution,
       );
-      hint = Quaternion.rotateVector(
-        Quaternion.inverse(bones.get("chest")!.worldRotation),
-        Vector3.subtract(
-          elbow,
-          bones.get(`${tool.side}UpperArm`)!.worldPosition,
+      return {
+        reference: HumanLimbFit.reference(posed, `${tool.side}Arm`),
+        hint: Quaternion.rotateVector(
+          Quaternion.inverse(bones.get("chest")!.worldRotation),
+          Vector3.subtract(
+            elbow,
+            bones.get(`${tool.side}UpperArm`)!.worldPosition,
+          ),
         ),
-      );
-      anchored = HumanLimbFit.reference(posed, `${tool.side}Arm`);
-      return anchored;
+      };
     };
     return {
       duration,
@@ -384,6 +395,11 @@ export namespace StrikingBlade {
       ],
       ...(tool.wields === undefined ? {} : { wields: tool.wields }),
       hands: stroke.support === null ? [tool.side] : [tool.side, other],
+      prepare: (): void => {
+        base.prepare?.();
+        prepared = undefined;
+        prepared = anchor();
+      },
       posture: (
         seconds: number,
         _channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1],
@@ -407,12 +423,13 @@ export namespace StrikingBlade {
           read,
         );
         const first: IAutoMovieHumanLimbGoal = goalFor(at);
+        const arm: IBladeAnchor = prepared ?? anchor();
         const limbs: IAutoMovieMotionHumanPosture["limbs"] = {
           ...posture.limbs,
           [`${tool.side}Arm`]: {
             ...first,
-            bend: carried(posture, read),
-            reference: { ...reference(), weight: present(t) },
+            bend: carried(posture, arm.hint, read),
+            reference: { ...arm.reference, weight: present(t) },
           },
         };
         if (stroke.support !== null) {
@@ -438,22 +455,13 @@ export namespace StrikingBlade {
   }
 
   /**
-   * Plan a one-handed stroke whose path stays in one basin of the arm (a thrust
-   * drawn back from its landing, recovered to its guard) with the arm laid as
-   * one admitted course (`courseArmGoal`) instead of a fit per sample: the
-   * reach from the entry hold to the guard, the path's start, free, as the
-   * planner lays it; from there the attack, its follow-through and the recovery
-   * to the guard held to the end, instant by instant on the branch and swivel
-   * the instant before chose. The course is admitted against the stroke's own
-   * speed (`precisionStrokePeak`) and the reach's minimum-jerk peak, 15/8 of
-   * its mean speed over the arm's own travel to the guard. A supported stroke
-   * is the fitted plan unchanged.
+   * Plan a one-handed stroke with the arm laid as one admitted course
+   * (`StrikingBladeCoursed`).
    *
    * @param context The action's context.
    * @param stroke The stroke.
    * @param travel The arm's own travel from the entry hold to the guard,
-   *   metres: the greater of the hand's and the elbow's, which the caller
-   *   measured on the two fitted arms.
+   *   metres.
    * @returns The plan, whose decisive instant is `stroke`, its arm coursed.
    * @throws {HumanRefusal} When no arm course meets the trajectory's
    *   constraints, as the plan is composed.
@@ -463,26 +471,6 @@ export namespace StrikingBlade {
     stroke: IAutoMovieMotionHumanStrikingBlade.IStroke,
     travel: number,
   ): IAutoMovieMotionHumanActionPlan {
-    if (stroke.support !== null) return plan(context, stroke);
-    const goals: IAutoMovieMotionHumanActionPlan = plan(
-      context,
-      stroke,
-      !stroke.stay,
-    );
-    const { tool, clock }: IAutoMovieMotionHumanStrikingBlade.IStroke = stroke;
-    const duration: number = clock.duration;
-    const ready: number = clock.at("strokeStart");
-    const reach: number = ready > 0 ? ((15 / 8) * travel) / ready : 0;
-    const fastest: number = Math.max(
-      precisionStrokePeak(goals.posture, `${tool.side}Arm`, duration),
-      reach,
-    );
-    return courseArmGoal({
-      context,
-      side: tool.side,
-      plan: goals,
-      span: { start: 0, ready, relax: duration, end: duration },
-      pace: (): number => fastest,
-    });
+    return StrikingBladeCoursed(plan, context, stroke, travel);
   }
 }

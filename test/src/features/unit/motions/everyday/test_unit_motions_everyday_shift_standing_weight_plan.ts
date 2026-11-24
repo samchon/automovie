@@ -22,9 +22,9 @@ const ROUNDING: number = 1e-9;
 
 /**
  * `shiftStandingWeight`'s plan moves the pelvis sideways by the authored
- * distance in the entry's frame with both feet held on their entry goals,
- * eased over `duration`, held over `hold` and, given `returnSeconds`, brought
- * back over it.
+ * distance in the entry's frame with both feet held on their entry goals, eased
+ * over `duration`, held over `hold` and, given `returnSeconds`, brought back
+ * over it.
  *
  * At a 37-degree heading from (1, 0, -1): a 20 mm shift to the left that is
  * held, and one to the right that returns.
@@ -36,9 +36,8 @@ const ROUNDING: number = 1e-9;
  * Scenarios:
  *
  * 1. Half way through the transfer the root has moved part of the way.
- * 2. Through the hold it is shifted by exactly the request, in the entry's
- *    frame; at the end it is back for a returning shift and still shifted
- *    otherwise.
+ * 2. Through the hold it is shifted by exactly the request, in the entry's frame;
+ *    at the end it is back for a returning shift and still shifted otherwise.
  * 3. Both feet keep their entry goals throughout.
  * 4. The events stand at `duration`, then `duration + hold` and the end.
  * 5. A one-metre request is refused on the `by` axis.
@@ -92,7 +91,11 @@ export async function test_unit_motions_everyday_shift_standing_weight_plan(): P
       TestValidator.predicate(
         `${by}: the ${leg} keeps its goal`,
         [0.19, 0.73, 0.95, shifted.duration].every((t: number): boolean =>
-          vclose(entry(t).limbs[leg]!.point, entry(0).limbs[leg]!.point, ROUNDING),
+          vclose(
+            entry(t).limbs[leg]!.point,
+            entry(0).limbs[leg]!.point,
+            ROUNDING,
+          ),
         ),
       );
 

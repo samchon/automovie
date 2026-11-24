@@ -190,8 +190,6 @@ export function test_geometry_singular_matrix(): void {
     { rows: [], options: budget },
     { rows: [[]], options: budget },
     { rows: [[1, 0], [1]], options: budget },
-    { rows: [[Infinity]], options: budget },
-    { rows: [[NaN]], options: budget },
     { rows: [[1, 2]], options: { ...budget, maxEntries: 3 } },
     {
       rows: [

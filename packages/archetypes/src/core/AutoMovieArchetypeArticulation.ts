@@ -12,7 +12,6 @@ import type {
 } from "@automovie/interface";
 
 import { ArchetypeArticulationState } from "./ArchetypeArticulationState";
-import { ArchetypePartOwnership } from "./ArchetypePartOwnership";
 import { AutoMovieArchetypeFrame } from "./AutoMovieArchetypeFrame";
 import { AutoMovieArchetypeRefusal } from "./AutoMovieArchetypeRefusal";
 
@@ -155,10 +154,7 @@ export namespace AutoMovieArchetypeArticulation {
         return { ...a, frame: AutoMovieArchetypeFrame.move(by, a.frame) };
       },
     );
-    const original: IPosed["parts"] = rest.parts;
-    const ownership: object | undefined =
-      ArchetypePartOwnership.beforeMap(original);
-    const parts: IAutoMovieModelPart[] = original.map(
+    const parts: IAutoMovieModelPart[] = rest.parts.map(
       (part: IAutoMovieModelPart): IAutoMovieModelPart => {
         const by: AutoMovieArchetypeFrame.IMotion | undefined = moved.get(
           part.id,
@@ -175,7 +171,6 @@ export namespace AutoMovieArchetypeArticulation {
             };
       },
     );
-    ArchetypePartOwnership.afterMap(ownership, parts);
     return { parts, affordances, travels: selected.travels };
   }
 

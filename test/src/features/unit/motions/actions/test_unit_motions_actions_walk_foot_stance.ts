@@ -28,9 +28,9 @@ const METRES: number = 1e-12;
  * toes-down: the heel rocker ends at 1.12 s and the forefoot rocker starts at
  * 1.5 s.
  *
- * It reads the rest joints, the measure and the sole sockets through
- * HumanFoot, whose sole points take the whole body record, so the test
- * builds the stored body (humanFixtureBody).
+ * It reads the rest joints, the measure and the sole sockets through HumanFoot,
+ * whose sole points take the whole body record, so the test builds the stored
+ * body (humanFixtureBody).
  *
  * Scenarios:
  *

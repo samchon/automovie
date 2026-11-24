@@ -14,19 +14,19 @@ const ROUNDING: number = 1e-9;
  * minimum-jerk course lifted on a half sine and stands over the second; and
  * `contacts` plants each end between its swings.
  *
- * Scenarios, over 1.2 m for a 1.75 m stature (`1.2 / 0.315 = 3.81`, so 4
- * cycles of 0.3 m, 4.4 s in all):
+ * Scenarios, over 1.2 m for a 1.75 m stature (`1.2 / 0.315 = 3.81`, so 4 cycles
+ * of 0.3 m, 4.4 s in all):
  *
  * 1. Four cycles of 0.3 m over 4.4 s.
  * 2. The progress is 0 at the settle, 2 half way through the travel (2.6 s, the
  *    course's symmetry) and 4 at the end; `at(2)` is 2.6 s.
- * 3. An end of phase 0 stands at the start, is half way through its first swing
- *    at the top of its lift at u = 0.25, stands one stride on at u = 0.75, and
+ * 3. An end of phase 0 stands at the start, is half way through its first swing at
+ *    the top of its lift at u = 0.25, stands one stride on at u = 0.75, and
  *    rests at the last stride past the end; an end of phase 0.5 has not left at
  *    u = 0.25.
- * 4. With the right hand at phase 0 and the left at 0.5, the right hand does
- *    not bear while it swings at `at(0.25)` and the left does, the other way
- *    round at `at(0.75)`, and each bears from its last landing to the end.
+ * 4. With the right hand at phase 0 and the left at 0.5, the right hand does not
+ *    bear while it swings at `at(0.25)` and the left does, the other way round
+ *    at `at(0.75)`, and each bears from its last landing to the end.
  */
 export function test_unit_motions_floor_crab_walk_clock(): void {
   const clock: crabWalkClock.IClock = crabWalkClock(1.2, 1.75);

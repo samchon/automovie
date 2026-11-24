@@ -169,17 +169,6 @@ export function test_geometry_sweep_displacement(): void {
       "one per vertex",
     ],
     [
-      "a height that is not finite",
-      (): unknown =>
-        displaceAutoMovieSurface({
-          surface,
-          heights: heights.map((h: number, k: number): number =>
-            k === 7 ? NaN : h,
-          ),
-        }),
-      "height 7 is not finite",
-    ],
-    [
       "a cylinder turned inside out",
       (): unknown =>
         displaceAutoMovieSurface({

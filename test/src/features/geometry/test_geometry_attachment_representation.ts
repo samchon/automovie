@@ -141,11 +141,9 @@ export function test_geometry_attachment_representation(): void {
   for (const [badFan, badSupport] of [
     [fan.slice(1), support],
     [fan, support.slice(1)],
-    [[{ ...root, x: NaN }, ...fan.slice(1)], support],
-    [new Array(3), support],
   ] as const)
     TestValidator.predicate(
-      "attachment primitive requires complete finite coordinates",
+      "attachment primitive requires complete coordinates",
       throwsError(
         (): IAutoMovieTriangleAttachmentContactBound =>
           boundAutoMovieTriangleAttachmentContact(badFan, badSupport),

@@ -176,12 +176,11 @@ export namespace closeStrike {
             minimumJerk.share(Math.max(0, seconds - take) / (shown - take))
           : share(seconds);
 
-    // The geometry reads the target, which may only be read from settled
-    // postures: it is built on first use and dropped when the performance
-    // settles, as the punch's is.
+    // The geometry reads the target as the placed performance shows it: the
+    // plan solves it when it is prepared, as the punch's is, and each read
+    // before that builds it cold on the performance as placed so far.
     let built: IAutoMovieMotionHumanActionPlan | undefined;
-    const build = (): IAutoMovieMotionHumanActionPlan => {
-      if (built !== undefined) return built;
+    const make = (): IAutoMovieMotionHumanActionPlan => {
       // The target, the line and the effector's travel at contact.
       const target: IAutoMovieVector3 = StrikingTarget.aim(
         context,
@@ -466,14 +465,13 @@ export namespace closeStrike {
         primitives.push(...held.primitives);
         contacts.push(...held.contacts);
       }
-      built = composeAutoMovieMotionHumanAction({
+      return composeAutoMovieMotionHumanAction({
         base: AutoMovieMotionHumanBase.still(duration, entry, contacts),
         clock,
         primitives,
       });
-
-      return built;
     };
+    const build = (): IAutoMovieMotionHumanActionPlan => built ?? make();
     const events: IAutoMovieMotionHumanActionPlan["events"] = clock.events();
     return {
       duration,
@@ -487,7 +485,9 @@ export namespace closeStrike {
       ): IAutoMovieMotionHumanPosture => build().posture(...args),
       prepare: (): void => {
         built = undefined;
-        build().prepare?.();
+        const made: IAutoMovieMotionHumanActionPlan = make();
+        built = made;
+        made.prepare?.();
       },
     };
   }

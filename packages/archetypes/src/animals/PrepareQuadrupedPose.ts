@@ -19,17 +19,12 @@ import {
   AutoMovieArchetypeFrame,
   AutoMovieArchetypeSpan,
 } from "../core";
-import { ApplyQuadrupedCarrierPose } from "./ApplyQuadrupedCarrierPose";
 import { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
 import { AutoMovieArchetypeQuadrupedSkeleton } from "./AutoMovieArchetypeQuadrupedSkeleton";
 import { QuadrupedPoseAngles } from "./QuadrupedPoseAngles";
 import type { QuadrupedPosePlan } from "./QuadrupedPosePlan";
 import { QuadrupedRestFloor } from "./QuadrupedRestFloor";
 import { QuadrupedRigDelta } from "./QuadrupedRigDelta";
-
-/** Only the current public skeleton emitter authorizes private copying. */
-const NATIVE_APPLY: typeof AutoMovieArchetypeQuadrupedSkeleton.apply =
-  AutoMovieArchetypeQuadrupedSkeleton.apply;
 
 /** A private part and its already admitted explicit carrier. */
 interface IBinding {
@@ -53,13 +48,13 @@ function prepare<Id extends string, Dimension extends string>(
   animal: AutoMovieArchetype<Id, Dimension>,
   parts: Readonly<Record<string, AutoMovieArchetypeQuadrupedBody.Bone>>,
   contacts: Readonly<Record<string, AutoMovieArchetypeQuadrupedBody.Bone>>,
-  nativeCourse: boolean,
+  ride: true,
 ): PrepareQuadrupedPose.IPrepared<Id, Dimension>;
 function prepare<Id extends string, Dimension extends string>(
   animal: AutoMovieArchetype<Id, Dimension>,
   parts: Readonly<Record<string, AutoMovieArchetypeQuadrupedBody.Bone>>,
   contacts: Readonly<Record<string, AutoMovieArchetypeQuadrupedBody.Bone>>,
-  nativeCourse?: boolean,
+  ride?: true,
 ):
   | QuadrupedPosePlan.IPrepared<Id, Dimension>
   | PrepareQuadrupedPose.IPrepared<Id, Dimension> {
@@ -97,28 +92,14 @@ function prepare<Id extends string, Dimension extends string>(
 
   // Neutral emission admits all carrier bindings and makes a private
   // source geometry/frame snapshot before any caller-owned data can change.
-  let nativeSource: boolean = false;
   const source: AutoMovieArchetype<Id, Dimension> =
-    nativeCourse === true && originalEmitter()
-      ? ApplyQuadrupedCarrierPose.emit(
-          animal,
-          neutral,
-          neutral,
-          partCarriers,
-          contactCarriers,
-          undefined,
-          (owned: boolean): void => {
-            nativeSource = owned;
-          },
-        )
-      : AutoMovieArchetypeQuadrupedSkeleton.apply(
-          animal,
-          neutral,
-          neutral,
-          partCarriers,
-          contactCarriers,
-        );
-  let primitiveCopy: ApplyQuadrupedCarrierPose.CopyPart | null | undefined;
+    AutoMovieArchetypeQuadrupedSkeleton.apply(
+      animal,
+      neutral,
+      neutral,
+      partCarriers,
+      contactCarriers,
+    );
   const sourceParts: Map<string, IAutoMovieModelPart> = new Map(
     source.parts.map(
       (part: IAutoMovieModelPart): [string, IAutoMovieModelPart] => [
@@ -195,7 +176,7 @@ function prepare<Id extends string, Dimension extends string>(
     }
   }
   const lower: QuadrupedPosePlan.Lowering = QuadrupedPoseAngles(rig, reader);
-  if (nativeCourse === undefined) return { read, bodyFloor, sample };
+  if (ride === undefined) return { read, bodyFloor, sample };
   return { read, bodyFloor, sample, position };
 
   /**
@@ -238,7 +219,6 @@ function prepare<Id extends string, Dimension extends string>(
       }),
     );
     if (spans.length !== 0) {
-      if (nativeSource) retire();
       const affordances: IAutoMovieAffordance[] = source.affordances.map(
         (contact: IAutoMovieAffordance): IAutoMovieAffordance => ({
           ...contact,
@@ -340,67 +320,16 @@ function prepare<Id extends string, Dimension extends string>(
     }
     return {
       ...state,
-      emit: (ode?: boolean): AutoMovieArchetype<Id, Dimension> =>
-        emit(state.frames, ode),
+      emit: (): AutoMovieArchetype<Id, Dimension> =>
+        AutoMovieArchetypeQuadrupedSkeleton.apply(
+          source,
+          neutral,
+          state.frames,
+          partCarriers,
+          contactCarriers,
+        ),
     };
   }
-
-  /** Emit via the original public override or the exact native owner. */
-  function emit(
-    frames: ReadonlyMap<
-      AutoMovieArchetypeQuadrupedBody.Bone,
-      IAutoMovieTransform
-    >,
-    ode?: boolean,
-  ): AutoMovieArchetype<Id, Dimension> {
-    if (
-      nativeSource &&
-      (!originalEmitter() ||
-        !ApplyQuadrupedCarrierPose.nativeRepose() ||
-        !ApplyQuadrupedCarrierPose.nativeClone())
-    )
-      retire();
-    if (!nativeSource)
-      return AutoMovieArchetypeQuadrupedSkeleton.apply(
-        source,
-        neutral,
-        frames,
-        partCarriers,
-        contactCarriers,
-      );
-    if (ode === true && primitiveCopy === undefined)
-      primitiveCopy =
-        ApplyQuadrupedCarrierPose.primitiveCopy(source.parts) ?? null;
-    return ApplyQuadrupedCarrierPose.emit(
-      source,
-      neutral,
-      frames,
-      partCarriers,
-      contactCarriers,
-      ode === true ? (primitiveCopy ?? undefined) : undefined,
-      undefined,
-      retire,
-    );
-  }
-
-  /** A source passed to an alternate observer is no longer exclusively owned. */
-  function retire(): void {
-    nativeSource = false;
-    primitiveCopy = null;
-  }
-}
-
-/**
- * Read no changed method or accessor while deciding whether to use the native
- * owner.
- */
-function originalEmitter(): boolean {
-  return (
-    Object.getOwnPropertyDescriptor(
-      AutoMovieArchetypeQuadrupedSkeleton,
-      "apply",
-    )?.value === NATIVE_APPLY
-  );
 }
 
 /** A bone frame sits at its upper joint and its bar runs along local +Y. */
@@ -450,9 +379,8 @@ export namespace PrepareQuadrupedPose {
     animal: AutoMovieArchetype<Id, D>,
     parts: Readonly<Record<string, AutoMovieArchetypeQuadrupedBody.Bone>>,
     contacts: Readonly<Record<string, AutoMovieArchetypeQuadrupedBody.Bone>>,
-    nativeCourse: boolean,
   ): IPrepared<Id, D> {
-    return prepare(animal, parts, contacts, nativeCourse);
+    return prepare(animal, parts, contacts, true);
   }
 
   /**
@@ -481,6 +409,6 @@ export namespace PrepareQuadrupedPose {
   export interface IPosition<Id extends string, Dimension extends string>
     extends QuadrupedPosePlan.IState {
     /** Apply admitted frames to parts and contacts in a fresh model. */
-    emit(ode?: boolean): AutoMovieArchetype<Id, Dimension>;
+    emit(): AutoMovieArchetype<Id, Dimension>;
   }
 }

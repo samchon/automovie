@@ -68,7 +68,11 @@ export async function test_unit_motions_floor_pull_cover_plan(): Promise<void> {
         ),
       );
     };
-    const lain: ReturnType<typeof R.bones> = R.bones(body, lying, lying.duration);
+    const lain: ReturnType<typeof R.bones> = R.bones(
+      body,
+      lying,
+      lying.duration,
+    );
     for (const off of [false, true]) {
       const plan: IAutoMovieMotionHumanActionPlan = pullCover.plan(
         motionActionContext.after(body, lying, { prop: "cover", off }),

@@ -57,7 +57,11 @@ export function test_unit_motions_carrier_shank_tilt(): void {
   const ankle: IAutoMovieVector3 = { x: 0, y: 1 - D, z: 0 };
   TestValidator.predicate(
     "the law of cosines' lean",
-    nclose(shankTilt(leg, hip, ankle, { x: 0, y: 0, z: 1 }), expected, ROUNDING),
+    nclose(
+      shankTilt(leg, hip, ankle, { x: 0, y: 0, z: 1 }),
+      expected,
+      ROUNDING,
+    ),
   );
 
   // 3. Facing back.

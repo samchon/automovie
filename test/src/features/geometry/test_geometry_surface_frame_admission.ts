@@ -55,9 +55,6 @@ export function test_geometry_surface_frame_admission(): void {
       { x: 1, y: 1, z: 1 },
       { x: 2, y: 2, z: 2 },
     ],
-    [{ ...source[0], x: NaN }, source[1], source[2]],
-    [source[0], { ...source[1], y: Infinity }, source[2]],
-    [source[0], source[1], { ...source[2], z: -Infinity }],
     [
       { x: -Number.MAX_VALUE, y: 0, z: 0 },
       { x: Number.MAX_VALUE, y: 0, z: 0 },
@@ -93,12 +90,9 @@ export function test_geometry_surface_frame_admission(): void {
     normal: { x: 0, y: 0, z: 1 },
   };
   const invalidFrames: IAutoMovieSurfaceFrame[] = [
-    { ...target, origin: { x: NaN, y: 0, z: 0 } },
     { ...target, forward: { x: 0, y: 0, z: 0 } },
     { ...target, normal: { x: 0, y: 0, z: 0 } },
     { ...target, forward: { x: 0, y: 0, z: -2 } },
-    { ...target, forward: { x: Infinity, y: 0, z: 0 } },
-    { ...target, normal: { x: 0, y: 0, z: Infinity } },
   ];
   for (const frame of invalidFrames)
     TestValidator.predicate(

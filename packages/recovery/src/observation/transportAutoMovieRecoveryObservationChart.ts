@@ -132,7 +132,7 @@ export function transportAutoMovieRecoveryObservationChart(
   ): Map<string, number> => {
     const map: Map<string, number> = new Map();
     ids.forEach((id: string | null, i: number): void => {
-      if (typeof id === "string") map.set(id, map.has(id) ? -1 : i);
+      if (id !== null) map.set(id, map.has(id) ? -1 : i);
     });
     return map;
   };

@@ -21,12 +21,31 @@ const ROUNDING: number = 1e-12;
  * 5. A point 0.4 m above its middle lies 0.4 m away.
  */
 export function test_unit_motions_actions_walk_leg_capsules_prepare_apart(): void {
-  const p = (x: number, y: number, z: number): IAutoMovieVector3 => ({ x, y, z });
+  const p = (x: number, y: number, z: number): IAutoMovieVector3 => ({
+    x,
+    y,
+    z,
+  });
   const apart: (from: IAutoMovieVector3, to: IAutoMovieVector3) => number =
     walkLegCapsules.prepareApart(p(-1, 0, 0), p(1, 0, 0));
-  TestValidator.predicate("parallel", nclose(apart(p(-1, 0.3, 0), p(1, 0.3, 0)), 0.3, ROUNDING));
-  TestValidator.predicate("crossing", nclose(apart(p(0, -1, 0), p(0, 1, 0)), 0, ROUNDING));
-  TestValidator.predicate("skew", nclose(apart(p(0, -1, 0.2), p(0, 1, 0.2)), 0.2, ROUNDING));
-  TestValidator.predicate("collinear", nclose(apart(p(2, 0, 0), p(3, 0, 0)), 1, ROUNDING));
-  TestValidator.predicate("a point", nclose(apart(p(0, 0.4, 0), p(0, 0.4, 0)), 0.4, ROUNDING));
+  TestValidator.predicate(
+    "parallel",
+    nclose(apart(p(-1, 0.3, 0), p(1, 0.3, 0)), 0.3, ROUNDING),
+  );
+  TestValidator.predicate(
+    "crossing",
+    nclose(apart(p(0, -1, 0), p(0, 1, 0)), 0, ROUNDING),
+  );
+  TestValidator.predicate(
+    "skew",
+    nclose(apart(p(0, -1, 0.2), p(0, 1, 0.2)), 0.2, ROUNDING),
+  );
+  TestValidator.predicate(
+    "collinear",
+    nclose(apart(p(2, 0, 0), p(3, 0, 0)), 1, ROUNDING),
+  );
+  TestValidator.predicate(
+    "a point",
+    nclose(apart(p(0, 0.4, 0), p(0, 0.4, 0)), 0.4, ROUNDING),
+  );
 }

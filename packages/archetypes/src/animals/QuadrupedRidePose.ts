@@ -12,7 +12,6 @@ import {
   AutoMovieArchetypeFrame,
   type AutoMovieArchetypeSpan,
 } from "../core";
-import type { ArchetypeRideWitness } from "../core/ArchetypeRideWitness";
 import { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
 import type { AutoMovieArchetypeQuadrupedFooting } from "./AutoMovieArchetypeQuadrupedFooting";
 import type { AutoMovieArchetypeQuadrupedJoints } from "./AutoMovieArchetypeQuadrupedJoints";
@@ -130,7 +129,6 @@ export namespace QuadrupedRidePose {
       goals: Readonly<Record<AutoMovieArchetypeQuadrupedBody.Limb, IGoal>>,
       nod: number,
       preferredRoot: number,
-      witness?: ArchetypeRideWitness.Witness,
     ) => AutoMovieArchetype<Id, Dimension>;
 
     /**
@@ -162,17 +160,11 @@ export namespace QuadrupedRidePose {
     animal: AutoMovieArchetype<Id, Dimension>,
     species: createQuadruped.ISpecies,
     source: ReturnType<typeof AutoMovieArchetypeQuadrupedJoints.read>,
-    nativeCourse: boolean,
   ): IPrepared<Id, Dimension> {
     const bindings: ReturnType<typeof QuadrupedCarriage.of> =
       QuadrupedCarriage.of(animal, species);
     const pose: PrepareQuadrupedPose.IPrepared<Id, Dimension> =
-      PrepareQuadrupedPose.ride(
-        animal,
-        bindings.parts,
-        bindings.contacts,
-        nativeCourse,
-      );
+      PrepareQuadrupedPose.ride(animal, bindings.parts, bindings.contacts);
     const neutral: QuadrupedPosePlan.IState = pose.read();
     const parts: Map<string, IAutoMovieModelPart> = new Map(
       animal.parts.map(
@@ -221,11 +213,6 @@ export namespace QuadrupedRidePose {
         ],
       ),
     );
-    /**
-     * Identity of the private chain workspaces and admitted rig in this
-     * prepared source.
-     */
-    const geometryOwner: object = {};
 
     // The contacts a body bone carries, which the root, the pelvis and the
     // axial goals place alone: not one a limb or a shoulder blade carries,
@@ -459,7 +446,6 @@ export namespace QuadrupedRidePose {
       goals: Readonly<Record<AutoMovieArchetypeQuadrupedBody.Limb, IGoal>>,
       nod: number,
       preferredRoot: number,
-      witness?: ArchetypeRideWitness.Witness,
     ): AutoMovieArchetype<Id, Dimension> {
       const {
         axial,
@@ -545,43 +531,10 @@ export namespace QuadrupedRidePose {
           z: target.endpoint.z + (forward - dz),
         };
       }
-      const prepared: ReturnType<typeof geometry> =
-        witness === undefined
-          ? geometry()
-          : witness.geometry(
-              geometryOwner,
-              [
-                nod,
-                preferredRoot,
-                floor,
-                coordinateScale,
-                ...AutoMovieArchetypeQuadrupedBody.LIMBS.flatMap(
-                  (limb: AutoMovieArchetypeQuadrupedBody.Limb): number[] => [
-                    goals[limb].orientation === undefined &&
-                    goals[limb].x === undefined
-                      ? 0
-                      : 1,
-                    targets.get(limb)!.endpoint.x,
-                    goals[limb].z,
-                    goals[limb].surface === undefined
-                      ? goals[limb].lift
-                      : targets.get(limb)!.endpoint.y,
-                    goals[limb].fold,
-                    goals[limb].load ?? 1,
-                    goals[limb].orientation?.x ?? 0,
-                    goals[limb].orientation?.y ?? 0,
-                    goals[limb].orientation?.z ?? 0,
-                    goals[limb].orientation?.w ?? 1,
-                  ],
-                ),
-              ],
-              geometry,
-            );
+      const prepared: ReturnType<typeof geometry> = geometry();
       // Current metadata, model/carrier emission and the final solid floor
       // check always execute, even when the admitted numerical geometry matches.
-      const result: AutoMovieArchetype<Id, Dimension> = prepared.emit(
-        witness?.ode,
-      );
+      const result: AutoMovieArchetype<Id, Dimension> = prepared.emit();
 
       // Terminal support alone cannot admit an elbow or folded lower bar
       // below the same floor. Verify those solids after exact FK.

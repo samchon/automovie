@@ -31,19 +31,22 @@ const SPEED: number = 1e-4;
  *    `FIRST` (0.25 s), the last heel strike `0.25 + 0.8 + 4 = 5.05` s, and the
  *    cruise `4 / (5.05 - (1.1 + 1) / 2) = 1` m/s, the ramp up `2 (0.25 + 0.8 -
  *    0.5) = 1.1` s.
- * 2. The pelvis is at 0 at the start and the whole 4 m at and after the last
- *    heel strike, and starts from rest.
+ * 2. The pelvis is at 0 at the start and the whole 4 m at and after the last heel
+ *    strike, and starts from rest.
  * 3. Entered at 1.5 m/s it leaves at 1.5 m/s, the cruise lowered to `(4 - 1.5 *
  *    1.1 / 2) / 4 = 0.79375` m/s so it still ends at 4 m.
- * 4. With a swing of 0.999 periods `front` is still half a step; with a flight,
- *    a swing of 1.2 periods and the pressure's middle 0.1 m ahead of the ankle,
+ * 4. With a swing of 0.999 periods `front` is still half a step; with a flight, a
+ *    swing of 1.2 periods and the pressure's middle 0.1 m ahead of the ankle,
  *    it is `1 - 0.6 - 0.1 / 1 = 0.3` steps.
  */
 export function test_unit_motions_actions_walk_pace_progress(): void {
   const props = (
     share: number,
     more: Partial<IAutoMovieMotionHumanWalkPace.IProps> = {},
-  ): IAutoMovieMotionHumanWalkPace.IProps & { steps: number; longest: number } => ({
+  ): IAutoMovieMotionHumanWalkPace.IProps & {
+    steps: number;
+    longest: number;
+  } => ({
     distance: 4,
     speed: 1,
     share,

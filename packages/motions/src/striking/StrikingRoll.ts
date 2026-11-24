@@ -33,12 +33,11 @@ type IHandA = { rank: number };
 /** The record of `IHandCandidatesItem`'s site. */
 type IHandCandidatesItem = { values: number[]; rank: number };
 
-/** The alternatives of `HandPosture`'s site. */
-type HandPosture =
-  | IAutoMovieMotionHumanPosture
-  | ((
-      frame: IAutoMovieMotionHumanStrikingHeld.IHandFrame,
-    ) => IAutoMovieMotionHumanPosture);
+/**
+ * The body at the decisive instant, or its reader per candidate frame: the
+ * union the interface declares (`IAutoMovieMotionHumanStrikingRoll.IChoice`).
+ */
+type HandPosture = IAutoMovieMotionHumanStrikingRoll.IChoice["posture"];
 
 /**
  * Whether the arm can hold a held tool in a pose, and the turn of the tool

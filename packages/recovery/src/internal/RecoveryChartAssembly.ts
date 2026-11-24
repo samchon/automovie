@@ -165,7 +165,7 @@ export function RecoveryChartAssembly(
             throw new Error(
               "A canonical boundary interval crosses an unregistered coefficient knot",
             );
-          const raw: AutoMovieCubicBezierControls3 = S.restrict(
+          const restricted: AutoMovieVector3Tuple[] = S.restrict(
             binding.canonicalCurve.spans[which]!.map(
               (
                 point: Readonly<AutoMovieVector3Tuple>,
@@ -173,7 +173,15 @@ export function RecoveryChartAssembly(
             ),
             (a - start) / (end - start),
             (b - start) / (end - start),
-          ) as unknown as AutoMovieCubicBezierControls3;
+          );
+
+          // Restricting a cubic span keeps its four controls.
+          const raw: AutoMovieCubicBezierControls3 = [
+            restricted[0]!,
+            restricted[1]!,
+            restricted[2]!,
+            restricted[3]!,
+          ];
           const net: AutoMovieCubicBezierControls3 = [
             endpoint(a),
             raw[1],

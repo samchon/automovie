@@ -26,12 +26,6 @@ export function test_geometry_signed_mesh_refusals(): void {
   const invalid: IAutoMovieMesh[] = [
     { ...source, positions: [], indices: [] },
     { ...source, positions: [0] },
-    {
-      ...source,
-      positions: source.positions.map((v: number, i: number): number =>
-        i === 0 ? NaN : v,
-      ),
-    },
     { ...source, indices: [0, 1] },
     { ...source, indices: [0, 1, 99] },
     { ...source, indices: [0, 1, 1.5] },

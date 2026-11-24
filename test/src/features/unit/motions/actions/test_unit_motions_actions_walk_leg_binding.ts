@@ -1,7 +1,7 @@
 import type {
   IAutoMovieMotionHumanColliders,
-  IAutoMovieQuaternion,
   IAutoMoviePhysicalShape,
+  IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import { walkLegBinding } from "@automovie/motions/internal";
@@ -22,18 +22,20 @@ const ROUNDING: number = 1e-12;
  *
  * Scenarios:
  *
- * 1. From a segment at (1, 0, 0) unturned into one at the origin turned a
- *    quarter turn about +Y: its origin reads (0, 0, 1) and its +Y point (0, 1,
- *    1).
+ * 1. From a segment at (1, 0, 0) unturned into one at the origin turned a quarter
+ *    turn about +Y: its origin reads (0, 0, 1) and its +Y point (0, 1, 1).
  * 2. A 0.2 m cube hull placed at (1, 0, 0): its centre lies 0.1 m deep, a point
  *    0.05 m off the centre along X 0.05 m deep, and a point 0.2 m off it
  *    outside.
- * 3. A 0.1 m sphere: its centre 0.1 m deep, 0.04 m off it 0.06 m deep, outside
- *    0.
+ * 3. A 0.1 m sphere: its centre 0.1 m deep, 0.04 m off it 0.06 m deep, outside 0.
  */
 export function test_unit_motions_actions_walk_leg_binding(): void {
   const identity: IAutoMovieQuaternion = { x: 0, y: 0, z: 0, w: 1 };
-  const p = (x: number, y: number, z: number): IAutoMovieVector3 => ({ x, y, z });
+  const p = (x: number, y: number, z: number): IAutoMovieVector3 => ({
+    x,
+    y,
+    z,
+  });
 
   // 1. Relative frames.
   const a: Pick<IAutoMovieMotionHumanColliders.IPlaced, "pose"> = {
@@ -56,8 +58,11 @@ export function test_unit_motions_actions_walk_leg_binding(): void {
   // 2. A hull.
   const corners: IAutoMovieVector3[] = [];
   for (const x of [-0.1, 0.1])
-    for (const y of [-0.1, 0.1]) for (const z of [-0.1, 0.1]) corners.push(p(x, y, z));
+    for (const y of [-0.1, 0.1])
+      for (const z of [-0.1, 0.1]) corners.push(p(x, y, z));
   const hull: IAutoMoviePhysicalShape = {
+    id: "hull",
+    material: "flesh",
     kind: "hull",
     transform: { position: p(1, 0, 0), rotation: identity },
     points: corners,
@@ -73,6 +78,8 @@ export function test_unit_motions_actions_walk_leg_binding(): void {
 
   // 3. A sphere.
   const sphere: IAutoMoviePhysicalShape = {
+    id: "sphere",
+    material: "flesh",
     kind: "sphere",
     transform: { position: p(0, 0, 0), rotation: identity },
     radius: 0.1,

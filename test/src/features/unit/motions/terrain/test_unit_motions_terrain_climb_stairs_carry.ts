@@ -20,8 +20,8 @@ const CENTRE: IAutoMovieVector3 = { x: 0, y: 0, z: 2 };
 const ROUNDING: number = 1e-9;
 
 /**
- * `climbStairsCarry` carries a climb planned in the world onto a moving prop:
- * a foot planted on the floor stays where it stands in the world, and a foot
+ * `climbStairsCarry` carries a climb planned in the world onto a moving prop: a
+ * foot planted on the floor stays where it stands in the world, and a foot
  * planted on the prop is carried by it from its touchdown, so it stays put in
  * the prop's frame.
  *
@@ -30,14 +30,18 @@ const ROUNDING: number = 1e-9;
  * the disc over the second, the planned goals fixed:
  *
  * 1. The left foot's goal stays at its planned point through its plant.
- * 2. The right foot's goal is its planned point at its touchdown, 1 s, turned
- *    with the disc from the start to then.
+ * 2. The right foot's goal is its planned point at its touchdown, 1 s, turned with
+ *    the disc from the start to then.
  * 3. From then to the end it stays put in the disc's frame.
  * 4. `boarded` is whether both entry ankles stand above the world floor by more
  *    than the ankle's own height and a 2 cm give.
  */
 export function test_unit_motions_terrain_climb_stairs_carry(): void {
-  const p = (x: number, y: number, z: number): IAutoMovieVector3 => ({ x, y, z });
+  const p = (x: number, y: number, z: number): IAutoMovieVector3 => ({
+    x,
+    y,
+    z,
+  });
   const spin = (seconds: number): IAutoMovieQuaternion => {
     const half: number = (RATE * seconds * Math.PI) / 360;
     return { x: 0, y: Math.sin(half), z: 0, w: Math.cos(half) };
@@ -75,7 +79,13 @@ export function test_unit_motions_terrain_climb_stairs_carry(): void {
     duration: 2,
     events: [],
     contacts: [
-      { part: "leftFoot", kind: "plant", from: 0, to: 0.5, support: { kind: "ground" } },
+      {
+        part: "leftFoot",
+        kind: "plant",
+        from: 0,
+        to: 0.5,
+        support: { kind: "ground" },
+      },
       {
         part: "rightFoot",
         kind: "plant",
@@ -91,13 +101,17 @@ export function test_unit_motions_terrain_climb_stairs_carry(): void {
     plan,
     "disc",
   );
-  const goal = (limb: "leftLeg" | "rightLeg", seconds: number): IAutoMovieVector3 =>
-    carried.posture(seconds).limbs[limb]!.point;
+  const goal = (
+    limb: "leftLeg" | "rightLeg",
+    seconds: number,
+  ): IAutoMovieVector3 => carried.posture(seconds).limbs[limb]!.point;
 
   // 1. On the floor.
   TestValidator.predicate(
     "the floor foot stays",
-    [0, 0.5, 1].every((t: number): boolean => vclose(goal("leftLeg", t), left, ROUNDING)),
+    [0, 0.5, 1].every((t: number): boolean =>
+      vclose(goal("leftLeg", t), left, ROUNDING),
+    ),
   );
 
   // 2. At the touchdown.
@@ -117,12 +131,17 @@ export function test_unit_motions_terrain_climb_stairs_carry(): void {
 
   // 4. Boarded.
   const boarding = (y: number): climbStairsCarry.IBoarding => ({
-    entry: { feet: { left: { ankle: p(0.1, y, 0) }, right: { ankle: p(-0.1, y, 0) } } },
+    entry: {
+      feet: { left: { ankle: p(0.1, y, 0) }, right: { ankle: p(-0.1, y, 0) } },
+    },
     body: { measure: { ankleHeight: 0.08 } },
   });
   TestValidator.equals(
     "boarded",
-    [climbStairsCarry.boarded(boarding(0.08)), climbStairsCarry.boarded(boarding(0.3))],
+    [
+      climbStairsCarry.boarded(boarding(0.08)),
+      climbStairsCarry.boarded(boarding(0.3)),
+    ],
     [false, true],
   );
 }

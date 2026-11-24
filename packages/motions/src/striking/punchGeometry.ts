@@ -33,7 +33,6 @@ import { StrikingRoom } from "./StrikingRoom";
 import { StrikingSkill } from "./StrikingSkill";
 import { StrikingStance } from "./StrikingStance";
 import { StrikingStroke } from "./StrikingStroke";
-import { StrikingWeapon } from "./StrikingWeapon";
 import { punchAnchored } from "./punchAnchored";
 import { punchCompose } from "./punchCompose";
 import { punchContact } from "./punchContact";
@@ -291,7 +290,6 @@ export namespace punchGeometry {
         contact: t0 + shown,
         back: (): IAutoMovieVector3 => guardEnd().point,
         recoil,
-        scan: { from: t0, to: t0 + shown + StrikingWeapon.TAIL, step: 1 / 96 },
         ...(fixed === undefined ? {} : { fixed }),
       });
 

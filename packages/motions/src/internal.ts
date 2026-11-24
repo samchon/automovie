@@ -242,3 +242,4 @@ export * from "./actions/walkLegCapsules";
 export * from "./actions/walkLegBinding";
 export * from "./terrain/climbStairsRailLine";
 export * from "./terrain/climbStairsCarry";
+export * from "./dressing/presentHandPlace";

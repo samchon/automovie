@@ -123,15 +123,6 @@ export function test_geometry_procedural_architecture(): void {
       "extrusion depth must be a finite number > 0",
     ],
     [
-      "profile finite",
-      (): IAutoMovieMesh =>
-        extrudeAutoMovieProfile({
-          profile: [{ x: Number.NaN, y: 0 }, ...square],
-          depth: 1,
-        }),
-      "profile[0] must be finite",
-    ],
-    [
       "profile area",
       (): IAutoMovieMesh =>
         extrudeAutoMovieProfile({

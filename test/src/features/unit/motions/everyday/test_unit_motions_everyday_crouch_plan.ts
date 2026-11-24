@@ -42,11 +42,11 @@ const HELD: number = 5;
  *
  * 1. The default and an explicit partial crouch hold 40 to 110 degrees of knee
  *    flexion, a full crouch at least 120.
- * 2. Flat heels stay within 2 cm of the floor throughout; raised heels, and a
- *    full crouch's, stand at least 3 cm up through the hold.
+ * 2. Flat heels stay within 2 cm of the floor throughout; raised heels, and a full
+ *    crouch's, stand at least 3 cm up through the hold.
  * 3. Every crouch ends standing.
- * 4. A full crouch with flat heels is refused on depth, naming the hip's and
- *    the ankle's open range in degrees.
+ * 4. A full crouch with flat heels is refused on depth, naming the hip's and the
+ *    ankle's open range in degrees.
  */
 export async function test_unit_motions_everyday_crouch_plan(): Promise<void> {
   const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");
@@ -78,21 +78,20 @@ export async function test_unit_motions_everyday_crouch_plan(): Promise<void> {
         `${row}: held ${side} knee ${knee}`,
         full ? knee >= FULL : knee >= PARTIAL[0] && knee <= PARTIAL[1],
       );
-      const heels: number[] = (raised
-        ? held
-        : Array.from(
-            { length: 9 },
-            (_: unknown, i: number): number => (plan.duration * i) / 8,
-          )
+      const heels: number[] = (
+        raised
+          ? held
+          : Array.from(
+              { length: 9 },
+              (_: unknown, i: number): number => (plan.duration * i) / 8,
+            )
       ).map(
         (t: number): number =>
           HumanFoot.sockets(body, R.bones(body, plan, t), side)[0]!.point.y,
       );
       TestValidator.predicate(
         `${row}: the ${side} heel`,
-        raised
-          ? Math.min(...heels) >= RAISED
-          : Math.max(...heels) <= FLAT,
+        raised ? Math.min(...heels) >= RAISED : Math.max(...heels) <= FLAT,
       );
     }
     TestValidator.equals(`${row}: ends standing`, plan.base?.kind, "standing");

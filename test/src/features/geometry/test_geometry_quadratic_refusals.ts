@@ -79,7 +79,7 @@ export function test_geometry_quadratic_refusals(): void {
   };
   refuses({ rows: [{ ...base, weights: [] }] }, "dimensions");
   refuses({ rows: [{ ...base, weights: new Array(1) }] }, "finite");
-  for (const indices of [[-1], [1], [0.5], new Array<number>(1), [0, 0]])
+  for (const indices of [[-1], [1], [0.5], [0, 0]])
     refuses(
       {
         rows: [

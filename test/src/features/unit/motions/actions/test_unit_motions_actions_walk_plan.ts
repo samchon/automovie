@@ -5,7 +5,11 @@ import type {
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { AutoMovieMotionManner, HumanFoot, walk } from "@automovie/motions/internal";
+import {
+  AutoMovieMotionManner,
+  HumanFoot,
+  walk,
+} from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { humanFixtureBody } from "../../../internal/fixtures/humanFixtureBody";
@@ -32,8 +36,8 @@ const SWING: number = 0.01;
 
 /**
  * `walk`'s plan walks to a floor point in whole steps: its heel strikes and
- * toe-offs bound each foot's plant windows, the seed varies only their
- * timing, a planted sole stays put and a swinging one lifts.
+ * toe-offs bound each foot's plant windows, the seed varies only their timing,
+ * a planted sole stays put and a swinging one lifts.
  *
  * The law reads most of the body record: its rig, pose resolution, chains,
  * projection, rest joints, measure, surfaces and profile, so the test builds
@@ -41,18 +45,18 @@ const SWING: number = 0.01;
  *
  * Scenarios, on the average man walking 6 m along +Z:
  *
- * 1. The same seed repeats every heel strike; another seed moves their times
- *    by more than a millisecond but places every footfall within 2 mm and ends
- *    the walk within 1 mm of the same place.
+ * 1. The same seed repeats every heel strike; another seed moves their times by
+ *    more than a millisecond but places every footfall within 2 mm and ends the
+ *    walk within 1 mm of the same place.
  * 2. `leftToeOff1` comes before `leftHeelStrike1`, which comes no later than
  *    `lastFootfall`, which comes no later than `arrive`; the left foot's plant
  *    window closes at the toe-off and opens again at the heel strike.
- * 3. Half way through the left foot's second stance its sole sockets bear on
- *    the floor and slip no more than 5 mm over 1/120 s; half way through its
- *    first swing its lowest socket is clear of the floor.
- * 4. Walking backwards takes 1.1 to 1.4 times as long as forwards; a fixed
- *    heading backwards and sideways, and a point faced on a bend, keep the
- *    hips within 15 degrees of it, and each walk arrives within 0.1 m.
+ * 3. Half way through the left foot's second stance its sole sockets bear on the
+ *    floor and slip no more than 5 mm over 1/120 s; half way through its first
+ *    swing its lowest socket is clear of the floor.
+ * 4. Walking backwards takes 1.1 to 1.4 times as long as forwards; a fixed heading
+ *    backwards and sideways, and a point faced on a bend, keep the hips within
+ *    15 degrees of it, and each walk arrives within 0.1 m.
  * 5. A walk turned 30 or 60 degrees left or 60 or 90 right off a walk ahead
  *    arrives within 5 cm.
  * 6. The steady walk goes 1.27 to 1.46 m/s, and the weary walk slower.
@@ -60,11 +64,20 @@ const SWING: number = 0.01;
 export async function test_unit_motions_actions_walk_plan(): Promise<void> {
   const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");
   const plan = (seed: string): IAutoMovieMotionHumanActionPlan =>
-    walk.plan(motionActionContext(body, { to: { x: 0, y: 0, z: 6 } }, { seed }));
-  const strikes = (p: IAutoMovieMotionHumanActionPlan): { name: string; time: number }[] =>
+    walk.plan(
+      motionActionContext(body, { to: { x: 0, y: 0, z: 6 } }, { seed }),
+    );
+  const strikes = (
+    p: IAutoMovieMotionHumanActionPlan,
+  ): { name: string; time: number }[] =>
     p.events
-      .filter((e: IAutoMovieMotionEvent): boolean => /^(left|right)HeelStrike\d+$/.test(e.name))
-      .map((e: IAutoMovieMotionEvent) => ({ name: e.name, time: e.share * p.duration }))
+      .filter((e: IAutoMovieMotionEvent): boolean =>
+        /^(left|right)HeelStrike\d+$/.test(e.name),
+      )
+      .map((e: IAutoMovieMotionEvent) => ({
+        name: e.name,
+        time: e.share * p.duration,
+      }))
       .sort((a, b): number => a.time - b.time);
 
   // 1. The seed's share.
@@ -72,17 +85,29 @@ export async function test_unit_motions_actions_walk_plan(): Promise<void> {
   const other: IAutoMovieMotionHumanActionPlan = plan("timing-2");
   const a = strikes(first);
   const b = strikes(other);
-  TestValidator.equals("the same seed repeats", strikes(plan("recompose-travel")), a);
+  TestValidator.equals(
+    "the same seed repeats",
+    strikes(plan("recompose-travel")),
+    a,
+  );
   TestValidator.predicate(
     "another seed moves the strikes",
     a.length >= 4 &&
       a.length === b.length &&
-      Math.max(...a.map((v, i: number): number => Math.abs(v.time - b[i]!.time))) > TIMING,
+      Math.max(
+        ...a.map((v, i: number): number => Math.abs(v.time - b[i]!.time)),
+      ) > TIMING,
   );
   for (const [i, one] of a.entries()) {
-    const part: "leftFoot" | "rightFoot" = one.name.startsWith("left") ? "leftFoot" : "rightFoot";
-    const x: IAutoMovieVector3 = R.bones(body, first, one.time + 1 / 24).get(part)!.worldPosition;
-    const y: IAutoMovieVector3 = R.bones(body, other, b[i]!.time + 1 / 24).get(part)!.worldPosition;
+    const part: "leftFoot" | "rightFoot" = one.name.startsWith("left")
+      ? "leftFoot"
+      : "rightFoot";
+    const x: IAutoMovieVector3 = R.bones(body, first, one.time + 1 / 24).get(
+      part,
+    )!.worldPosition;
+    const y: IAutoMovieVector3 = R.bones(body, other, b[i]!.time + 1 / 24).get(
+      part,
+    )!.worldPosition;
     TestValidator.predicate(
       `${one.name} placed alike`,
       Math.hypot(x.x - y.x, x.z - y.z) <= PLACEMENT,
@@ -132,7 +157,8 @@ export async function test_unit_motions_actions_walk_plan(): Promise<void> {
   // 3. Planted and swinging soles.
   const sockets = (t: number): IAutoMovieVector3[] =>
     HumanFoot.sockets(body, R.bones(body, first, t), "left").map(
-      (s: ReturnType<typeof HumanFoot.sockets>[number]): IAutoMovieVector3 => s.point,
+      (s: ReturnType<typeof HumanFoot.sockets>[number]): IAutoMovieVector3 =>
+        s.point,
     );
   const stance: number = (heel + next) / 2;
   const before: IAutoMovieVector3[] = sockets(stance - 1 / 240);
@@ -148,16 +174,26 @@ export async function test_unit_motions_actions_walk_plan(): Promise<void> {
   );
   TestValidator.predicate(
     "the swinging sole lifts",
-    Math.min(...sockets((toe + heel) / 2).map((p: IAutoMovieVector3): number => p.y)) > SWING,
+    Math.min(
+      ...sockets((toe + heel) / 2).map((p: IAutoMovieVector3): number => p.y),
+    ) > SWING,
   );
 
   // 4. A fixed heading backwards and sideways, and a facing point on a bend.
   const point = (x: number, z: number): IAutoMovieVector3 => ({ x, y: 0, z });
-  const walked = (params: Parameters<typeof walk.plan>[0]["params"]): IAutoMovieMotionHumanActionPlan =>
+  const walked = (
+    params: Parameters<typeof walk.plan>[0]["params"],
+  ): IAutoMovieMotionHumanActionPlan =>
     walk.plan(motionActionContext(body, params, { seed: "facing" }));
   const forward: IAutoMovieMotionHumanActionPlan = walked({ to: point(0, 2) });
-  const back: IAutoMovieMotionHumanActionPlan = walked({ to: point(0, -2), facing: { yaw: 0 } });
-  const side: IAutoMovieMotionHumanActionPlan = walked({ to: point(1.2, 0), facing: { yaw: 0 } });
+  const back: IAutoMovieMotionHumanActionPlan = walked({
+    to: point(0, -2),
+    facing: { yaw: 0 },
+  });
+  const side: IAutoMovieMotionHumanActionPlan = walked({
+    to: point(1.2, 0),
+    facing: { yaw: 0 },
+  });
   const centre: IAutoMovieVector3 = point(0, 1.5);
   const arc: IAutoMovieMotionHumanActionPlan = walked({
     to: point(1.5, 1.5),
@@ -185,8 +221,11 @@ export async function test_unit_motions_actions_walk_plan(): Promise<void> {
     const az: number = l.z - r.z;
     const wx: number = toward === undefined ? 0 : toward.x - pelvis.x;
     const wz: number = toward === undefined ? 1 : toward.z - pelvis.z;
-    const facing: number = (-az * wx + ax * wz) / (Math.hypot(ax, az) * Math.hypot(wx, wz));
-    const arrival: IAutoMovieVector3 = R.bones(body, p, p.duration).get("hips")!.worldPosition;
+    const facing: number =
+      (-az * wx + ax * wz) / (Math.hypot(ax, az) * Math.hypot(wx, wz));
+    const arrival: IAutoMovieVector3 = R.bones(body, p, p.duration).get(
+      "hips",
+    )!.worldPosition;
     TestValidator.predicate(
       "the hips face the authored heading",
       facing >= Math.cos((FACING * Math.PI) / 180),
@@ -203,7 +242,10 @@ export async function test_unit_motions_actions_walk_plan(): Promise<void> {
   );
   for (const degrees of [30, 60, -60, -90]) {
     const radians: number = (degrees * Math.PI) / 180;
-    const to: IAutoMovieVector3 = point(1.2 * Math.sin(radians), 1.5 + 1.2 * Math.cos(radians));
+    const to: IAutoMovieVector3 = point(
+      1.2 * Math.sin(radians),
+      1.5 + 1.2 * Math.cos(radians),
+    );
     const turned: IAutoMovieMotionHumanActionPlan = walk.plan(
       motionActionContext.after(body, ahead, { to }, { seed: "walk-turn" }),
     );
@@ -233,12 +275,18 @@ export async function test_unit_motions_actions_walk_plan(): Promise<void> {
     walk.plan(
       motionActionContext(
         body,
-        { to: { x: 0, y: 0, z: 6 }, manner: AutoMovieMotionManner.PRESETS.weary },
+        {
+          to: { x: 0, y: 0, z: 6 },
+          manner: AutoMovieMotionManner.PRESETS.weary,
+        },
         { seed: "recompose-travel" },
       ),
     ),
   );
-  TestValidator.predicate(`the weary walk is slower (${weary} m/s)`, weary < steady);
+  TestValidator.predicate(
+    `the weary walk is slower (${weary} m/s)`,
+    weary < steady,
+  );
 }
 
 /** The backwards walk's time over the forward walk's, as a band. */

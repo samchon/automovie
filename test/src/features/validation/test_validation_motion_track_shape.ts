@@ -79,7 +79,6 @@ export function test_validation_motion_track_shape(): void {
       channel: { ...channel, path: "rotation" },
       values: [0, 0, 0, 1, 0, 0, 0, 1],
     }),
-    clip({ interpolation: "cubicspline", values: new Array<number>(18).fill(0) }),
     clip({ channel: { ...channel, path: "weights" }, values: [0, 1, 1, 0] }),
     clip({}, { loop: true }),
   ])

@@ -9,8 +9,8 @@ import type {
 import { HumanRefusal } from "../law/HumanRefusal";
 
 /**
- * What the crab walk's body can hold: the pelvis heights its bent arms and
- * legs reach, and the trunk extension its spine and chest allow.
+ * What the crab walk's body can hold: the pelvis heights its bent arms and legs
+ * reach, and the trunk extension its spine and chest allow.
  */
 export namespace crabWalkBounds {
   /** The trunk's bones that arch, from the pelvis up. */
@@ -29,7 +29,10 @@ export namespace crabWalkBounds {
   /** What the arch reads of a body: its trunk bones' constraints. */
   export interface IBones {
     /** The rig's bones by name. */
-    bones: ReadonlyMap<AutoMovieHumanoidBone, Pick<IAutoMovieBone, "constraint">>;
+    bones: ReadonlyMap<
+      AutoMovieHumanoidBone,
+      Pick<IAutoMovieBone, "constraint">
+    >;
   }
 
   /**

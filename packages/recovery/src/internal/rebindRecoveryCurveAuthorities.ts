@@ -1,7 +1,6 @@
 import { AutoMovieCurveMath64 as M } from "@automovie/engine";
 import type {
   AutoMovieCubicBezierControls3,
-  AutoMovieRecoveryCurveFormat,
   AutoMovieVector3Tuple,
   IAutoMovieRecoveryAuthorityRecord,
   IAutoMovieRecoveryHermiteCurve,
@@ -21,17 +20,16 @@ import type {
 export function rebindRecoveryCurveAuthorities(
   source: unknown,
   copy: unknown,
-  format: AutoMovieRecoveryCurveFormat,
 ): void {
-  if (format !== "bezier" && format !== "hermite")
-    throw new Error("Curve authority conversion requires a declared basis");
-  const visited: WeakSet<object> = new WeakSet();
+  // This one call's walk: the records already visited, so a shared record is
+  // walked once, and each curve record's Bernstein spans, worked once.
+  const visited: Set<object> = new Set();
   const pending: Map<
     IAutoMovieRecoveryAuthorityRecord,
     Map<number, Readonly<AutoMovieVector3Tuple>>
   > = new Map();
-  const curveCache: WeakMap<object, readonly AutoMovieCubicBezierControls3[]> =
-    new WeakMap();
+  const curveCache: Map<object, readonly AutoMovieCubicBezierControls3[]> =
+    new Map();
   const record: (
     value: unknown,
   ) => IAutoMovieRecoveryAuthorityRecord | undefined = (

@@ -1,3 +1,8 @@
+import {
+  Quaternion,
+  Vector3,
+  resolveAutoMovieHumanoidSurfaces,
+} from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieHumanoidSurfaces,
@@ -6,9 +11,10 @@ import type {
   IAutoMovieMotionHumanBase,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanEntryState,
+  IAutoMovieMotionHumanPerformerReader,
+  IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanProp,
   IAutoMovieMotionHumanPropReader,
-  IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanSkill,
   IAutoMovieMotionTarget,
   IAutoMoviePose,
@@ -17,11 +23,6 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
-  Quaternion,
-  Vector3,
-  resolveAutoMovieHumanoidSurfaces,
-} from "@automovie/engine";
-import {
   HumanSkill,
   poseBones,
   resolveHumanPosture,
@@ -29,13 +30,13 @@ import {
 } from "@automovie/motions/internal";
 
 /**
- * A typed synthetic action context for a unit test of one law's plan: a
- * trained performer standing at rest at a floor point and heading, both feet
- * planted on the ground, holding nothing, at the take's start. Draws come from
- * the performer's own keyed streams (`HumanSkill.stream`), so a seed fixes
- * them. A world point is aimed at as itself; any other target, another
- * performer, a prop, a meeting or a placed action is refused, since a unit
- * reads its law alone.
+ * A typed synthetic action context for a unit test of one law's plan: a trained
+ * performer standing at rest at a floor point and heading, both feet planted on
+ * the ground, holding nothing, at the take's start. Draws come from the
+ * performer's own keyed streams (`HumanSkill.stream`), so a seed fixes them. A
+ * world point is aimed at as itself; any other target, another performer, a
+ * prop, a meeting or a placed action is refused, since a unit reads its law
+ * alone.
  *
  * @param body The performer's body.
  * @param params The law's parameters.
@@ -61,7 +62,9 @@ export function motionActionContext<P extends object>(
   const pose: IAutoMoviePose = resolveHumanPosture(body, posture);
   const bones: ReturnType<typeof poseBones> = poseBones(body, pose);
   const rest: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
-  const foot = (side: AutoMovieHumanSide): IAutoMovieMotionHumanEntryState.IFoot => {
+  const foot = (
+    side: AutoMovieHumanSide,
+  ): IAutoMovieMotionHumanEntryState.IFoot => {
     const bone: IAutoMovieResolvedBone = bones.get(`${side}Foot`)!;
     return {
       ankle: bone.worldPosition,
@@ -114,7 +117,9 @@ export function motionActionContext<P extends object>(
       posture,
       feet: { left: foot("left"), right: foot("right") },
       supports: (["leftFoot", "rightFoot"] as const).map(
-        (part: "leftFoot" | "rightFoot"): IAutoMovieMotionHumanEntryState.ISupport => ({
+        (
+          part: "leftFoot" | "rightFoot",
+        ): IAutoMovieMotionHumanEntryState.ISupport => ({
           part,
           kind: "plant",
           support: { kind: "ground" },
@@ -180,8 +185,8 @@ export function motionActionContext<P extends object>(
 /** The options of {@link motionActionContext}. */
 export namespace motionActionContext {
   /**
-   * The context of an action entered where a plan ends: its last posture,
-   * on the base it declares (standing when it declares none).
+   * The context of an action entered where a plan ends: its last posture, on
+   * the base it declares (standing when it declares none).
    *
    * @param body The performer's body.
    * @param before The plan the action follows.

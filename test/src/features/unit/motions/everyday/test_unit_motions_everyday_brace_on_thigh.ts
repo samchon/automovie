@@ -24,7 +24,6 @@ import { motionContactArmFixture as fixture } from "../../../internal/motionCont
  * 1. Prepare a forward-leaning body and observe the outer hand against the actual
  *    thigh capsule in the held phase.
  * 2. Compare the released wrist to its independent starting frame.
- *
  */
 export function test_unit_motions_everyday_brace_on_thigh(): void {
   const f: fixture.IInputs = fixture();
@@ -35,15 +34,14 @@ export function test_unit_motions_everyday_brace_on_thigh(): void {
   );
   const entry: IAutoMoviePose = resolveHumanPosture(f.body, rest);
   const original: ReturnType<typeof poseBones> = poseBones(f.body, entry);
-  const arm: IAutoMovieMotionHumanPrimitive =
-    braceOnThigh(
-      f.body,
-      "right",
-      AutoMovieMotionHumanArm.angles(entry, "right"),
-      2,
-      (s: number): number => (s <= 1 ? s : 2 - s),
-      { start: 0, ready: 1, relax: 1, end: 2 },
-    );
+  const arm: IAutoMovieMotionHumanPrimitive = braceOnThigh(
+    f.body,
+    "right",
+    AutoMovieMotionHumanArm.angles(entry, "right"),
+    2,
+    (s: number): number => (s <= 1 ? s : 2 - s),
+    { start: 0, ready: 1, relax: 1, end: 2 },
+  );
   const before = (): IAutoMovieMotionHumanPosture => rest;
   arm.prepare!(before);
   const held: ReturnType<typeof poseBones> = poseBones(

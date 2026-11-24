@@ -228,6 +228,13 @@ export function RecoveryAtlasObservationPublish(
         "controlsMm" | "patches"
       >
     | { diagnostics: string[]; failed: true };
+  // The successful assembly alone, absent when assembly failed.
+  let assembled:
+    | Omit<
+        ReturnType<IAutoMovieRecoveryChartAssembly.Operation>,
+        "controlsMm" | "patches"
+      >
+    | undefined;
   let boundaryAuthorities: IAutoMovieBicubicAtlasGeometry["boundaryAuthorities"],
     boundaryBindings: IAutoMovieBicubicAtlasGeometry["boundaryBindings"];
   try {
@@ -244,13 +251,14 @@ export function RecoveryAtlasObservationPublish(
         z: point[2] * 0.001,
       });
     for (const patch of merged.patches) patches.push(patch);
-    assembly = {
+    assembled = {
       diagnostics: merged.diagnostics,
       maximumCanonicalRestrictionDifferenceMm:
         merged.maximumCanonicalRestrictionDifferenceMm,
       sharedBoundarySpans: merged.sharedBoundarySpans,
       unmatchedBoundarySpans: merged.unmatchedBoundarySpans,
     };
+    assembly = assembled;
   } catch (failure: unknown) {
     assembly = {
       failed: true,
@@ -273,9 +281,11 @@ export function RecoveryAtlasObservationPublish(
     joint: { maximumMm: number; diagnostics: string[] };
   }[];
   const assemblyDifferenceMm: number =
-    "failed" in assembly ? 0 : assembly.maximumCanonicalRestrictionDifferenceMm;
+    assembled === undefined
+      ? 0
+      : assembled.maximumCanonicalRestrictionDifferenceMm;
   const assemblyQualified: boolean =
-    !("failed" in assembly) && assembly.unmatchedBoundarySpans === 0;
+    assembled !== undefined && assembled.unmatchedBoundarySpans === 0;
   const sourceAreaMm2: number = sourceNormals.reduce(
     (sum: number, normal: number[]): number => sum + Math.hypot(...normal) / 2,
     0,

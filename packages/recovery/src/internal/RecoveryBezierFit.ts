@@ -196,7 +196,8 @@ export namespace RecoveryBezierFit {
       }
       if (errors.bound <= input.toleranceMm || p.length === 2) {
         observeCorrespondence?.(spans.length, job.first, job.last, u.slice());
-        spans.push(controls as unknown as AutoMovieCubicBezierControls3);
+        // A cubic fit carries exactly four Bernstein controls.
+        spans.push([controls[0]!, controls[1]!, controls[2]!, controls[3]!]);
         widths.push(cumulative[job.last]! - cumulative[job.first]!);
         sampleMaximumMm = Math.max(sampleMaximumMm, errors.sample);
         polylineUpperEstimateMm = Math.max(

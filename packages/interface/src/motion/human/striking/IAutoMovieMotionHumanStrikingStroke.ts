@@ -101,26 +101,10 @@ export namespace IAutoMovieMotionHumanStrikingStroke {
     rechamber?: IAutoMovieVector3;
 
     /**
-     * The weapon's signed gap to the struck body at a second, given the end
-     * joint's position then; positive while apart. Absent when nothing can be
-     * met (a strike at the air).
-     */
-    gap?: (end: IAutoMovieVector3, seconds: number) => number;
-
-    /** The contact scan's span and step, film seconds. */
-    scan: {
-      /** Beginning of the contact scan in film seconds. */
-      from: number;
-      /** End of the contact scan in film seconds. */
-      to: number;
-      /** Positive sample spacing of the contact scan, seconds. */
-      step: number;
-    };
-
-    /**
      * The contact second the performance resolved jointly with every other
      * weapon (`resolveAutoMovieContactEvents`), or null when it resolved that
-     * the weapon meets nothing; the stroke's own scan runs only when absent.
+     * the weapon meets nothing; absent, as for a weapon the performance does
+     * not resolve, the stroke meets nothing.
      */
     fixed?: number | null;
   }

@@ -7,14 +7,14 @@ import type {
 } from "@automovie/interface";
 
 /**
- * A stair rail's line in the world, as a hand slides along it: the bar's centre,
- * its axis and its up, and how far along the axis either way the hand can
- * hold, the bar's half length less half its aperture.
+ * A stair rail's line in the world, as a hand slides along it: the bar's
+ * centre, its axis and its up, and how far along the axis either way the hand
+ * can hold, the bar's half length less half its aperture.
  *
  * @param model The stair prop's world frame.
  * @param bar The rail's bar affordance, with its length.
- * @returns The line, or null for a bar that does not run along the flight,
- *   its axis within 60 degrees of the vertical.
+ * @returns The line, or null for a bar that does not run along the flight, its
+ *   axis within 60 degrees of the vertical.
  */
 export function climbStairsRailLine(
   model: IAutoMovieRigidTransform,

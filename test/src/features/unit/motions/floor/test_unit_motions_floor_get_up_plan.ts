@@ -39,11 +39,11 @@ const RATE: number = 30;
  *
  * Scenarios:
  *
- * 1. From supine (symmetric and rotation), prone and the hands and knees the
- *    plan ends standing, its hips within 20 mm of the quiet stance's.
+ * 1. From supine (symmetric and rotation), prone and the hands and knees the plan
+ *    ends standing, its hips within 20 mm of the quiet stance's.
  * 2. No collider passes 5 mm under the floor at any sample of the rise.
- * 3. A standing entry is refused on its base, naming lying, kneeling and
- *    crouched as the floor bases it rises from.
+ * 3. A standing entry is refused on its base, naming lying, kneeling and crouched
+ *    as the floor bases it rises from.
  */
 export async function test_unit_motions_floor_get_up_plan(): Promise<void> {
   const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");
@@ -61,22 +61,33 @@ export async function test_unit_motions_floor_get_up_plan(): Promise<void> {
   const ended = (
     plan: IAutoMovieMotionHumanActionPlan,
   ): IAutoMovieMotionHumanPosture => plan.posture(plan.duration);
-  const entries: [string, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanBase, "symmetric" | "rotation" | undefined][] = [
+  const entries: [
+    string,
+    IAutoMovieMotionHumanPosture,
+    IAutoMovieMotionHumanBase,
+    "symmetric" | "rotation" | undefined,
+  ][] = [
     [
       "supine symmetric",
-      ended(lieDown.plan(motionActionContext(body, { kind: "supine", hold: 0.3 }))),
+      ended(
+        lieDown.plan(motionActionContext(body, { kind: "supine", hold: 0.3 })),
+      ),
       { kind: "lying" },
       "symmetric",
     ],
     [
       "supine rotation",
-      ended(lieDown.plan(motionActionContext(body, { kind: "supine", hold: 0.3 }))),
+      ended(
+        lieDown.plan(motionActionContext(body, { kind: "supine", hold: 0.3 })),
+      ),
       { kind: "lying" },
       "rotation",
     ],
     [
       "prone",
-      ended(lieDown.plan(motionActionContext(body, { kind: "prone", hold: 0.3 }))),
+      ended(
+        lieDown.plan(motionActionContext(body, { kind: "prone", hold: 0.3 })),
+      ),
       { kind: "lying" },
       undefined,
     ],
@@ -89,13 +100,16 @@ export async function test_unit_motions_floor_get_up_plan(): Promise<void> {
   ];
   for (const [label, posture, base, pattern] of entries) {
     const plan: IAutoMovieMotionHumanActionPlan = getUp.plan(
-      motionActionContext(
-        body,
-        pattern === undefined ? {} : { pattern },
-        { posture, base },
-      ),
+      motionActionContext(body, pattern === undefined ? {} : { pattern }, {
+        posture,
+        base,
+      }),
     );
-    TestValidator.equals(`${label}: ends standing`, plan.base?.kind, "standing");
+    TestValidator.equals(
+      `${label}: ends standing`,
+      plan.base?.kind,
+      "standing",
+    );
     const hips: number = R.bones(body, plan, plan.duration).get("hips")!
       .worldPosition.y;
     TestValidator.predicate(

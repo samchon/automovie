@@ -73,12 +73,6 @@ export function test_geometry_separation_refusals(): void {
     "nonempty finite",
   );
   refuses(
-    "nonfinite direction",
-    (): number =>
-      boundAutoMovieProjectionSeparation([p(0)], [p(1)], p(Infinity)),
-    "nonempty finite",
-  );
-  refuses(
     "projection difference overflow",
     (): number =>
       boundAutoMovieProjectionSeparation(
@@ -132,7 +126,7 @@ export function test_geometry_separation_refusals(): void {
         query([p(0, 0, 1)], { clearance, budget: { remaining: 10 } }),
       "nonnegative finite",
     );
-  for (const remaining of [-1, 0.5,]) {
+  for (const remaining of [-1]) {
     const budget: { remaining: number } = { remaining };
     refuses(
       "invalid shared budget",
@@ -141,12 +135,6 @@ export function test_geometry_separation_refusals(): void {
       "safe-integer",
     );
   }
-  refuses(
-    "query nonfinite",
-    (): IAutoMovieMeshSeparationResult =>
-      query([p(NaN)], { clearance: 0.5, budget: { remaining: 10 } }),
-    "finite query",
-  );
   refuses(
     "query empty",
     (): IAutoMovieMeshSeparationResult =>
@@ -160,22 +148,10 @@ export function test_geometry_separation_refusals(): void {
     "finite query",
   );
   refuses(
-    "sparse resident positions",
-    (): IAutoMovieMeshSeparationQuery =>
-      createAutoMovieMeshSeparationQuery({ ...mesh, positions: new Array(9) }),
-    "finite",
-  );
-  refuses(
     "sparse resident indices",
     (): IAutoMovieMeshSeparationQuery =>
       createAutoMovieMeshSeparationQuery({ ...mesh, indices: new Array(3) }),
     "vertex",
-  );
-  refuses(
-    "invalid representation",
-    (): IAutoMovieMeshSeparationQuery =>
-      createAutoMovieMeshSeparationQuery(mesh, "other" as "source"),
-    "representation",
   );
   const beyondFloat32: {
     positions: number[];

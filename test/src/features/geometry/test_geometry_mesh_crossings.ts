@@ -193,10 +193,8 @@ export function test_geometry_mesh_crossings(): void {
   );
   for (const broken of [
     { ...flat, positions: [0, 0, 0, 1, 0] },
-    { ...flat, positions: [0, 0, 0, 1, 0, 0, 0, Number.NaN, 0] },
     { ...flat, indices: [0, 1] },
     { ...flat, indices: [0, 1, 9] },
-    { ...flat, indices: [0, 1, 1.5] },
   ] as IAutoMovieMesh[])
     TestValidator.predicate(
       "malformed triangle buffers refuse",

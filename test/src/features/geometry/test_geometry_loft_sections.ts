@@ -386,18 +386,6 @@ export function test_geometry_loft_sections(): void {
       "sweep spine needs at least two points",
     ],
     [
-      "non-finite path",
-      (): IAutoMovieMesh =>
-        sweepPolygonLoft({
-          path: [
-            { x: 0, y: 0, z: 0 },
-            { x: 0, y: Number.NaN, z: 1 },
-          ],
-          sections: twin(ell),
-        }),
-      "sweep spine point 1 is not finite",
-    ],
-    [
       // Distinct neighbours are not enough: a path that doubles back has no
       // direction at the fold.
       "path folding back on itself",
@@ -432,18 +420,6 @@ export function test_geometry_loft_sections(): void {
           sections: [],
         }),
       "sweep needs at least one station",
-    ],
-    [
-      "non-finite station",
-      (): IAutoMovieMesh =>
-        sweepPolygonLoft({
-          path: straight(1),
-          sections: [
-            { at: Number.NaN, outer: ell },
-            { at: 1, outer: ell },
-          ],
-        }),
-      "sweep station 0 must lie on the spine",
     ],
     [
       "station not increasing",

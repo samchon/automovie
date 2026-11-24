@@ -25,8 +25,8 @@ const ROUNDING: number = 1e-12;
  *    refused on `height`.
  * 2. A 70 degree arch is 28, 23.33 and 18.67 degrees of extension.
  * 3. An 80 degree arch is refused on `backbend`.
- * 4. A trunk with no constraint has no room: any arch is refused, and none
- *    arches nothing.
+ * 4. A trunk with no constraint has no room: any arch is refused, and none arches
+ *    nothing.
  */
 export function test_unit_motions_floor_crab_walk_bounds(): void {
   const measure: Pick<IAutoMovieBodyMeasure, "stature" | "hipHeight"> = {

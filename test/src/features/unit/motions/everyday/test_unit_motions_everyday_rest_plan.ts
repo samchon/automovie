@@ -5,23 +5,23 @@ import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanRest,
 } from "@automovie/interface";
+import { HumanVerdicts } from "@automovie/motions";
 import {
   AutoMovieMotionHumanAuditTangle,
   poseBones,
   resolveHumanPosture,
   rest,
 } from "@automovie/motions/internal";
-import { HumanVerdicts } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
-import { humanFixtureBody } from "../../../internal/fixtures/humanFixtureBody";
 import { humanFixture } from "../../../internal/fixtures/humanFixture";
+import { humanFixtureBody } from "../../../internal/fixtures/humanFixtureBody";
 import { motionActionContext } from "../../../internal/motionActionContext";
 
 /**
- * `rest`'s plan carries both hands onto their named place and holds them
- * there, every arm and digit clear of the trunk and the other hand by the
- * skin's give (`HumanVerdicts.SKIN`) as the posture resolves.
+ * `rest`'s plan carries both hands onto their named place and holds them there,
+ * every arm and digit clear of the trunk and the other hand by the skin's give
+ * (`HumanVerdicts.SKIN`) as the posture resolves.
  *
  * The law reads most of the body record: its rig, pose resolution, chains,
  * projection, rest joints, measure, surfaces and profile, so the test builds
@@ -29,11 +29,11 @@ import { motionActionContext } from "../../../internal/motionActionContext";
  *
  * Scenarios:
  *
- * 1. For both stored bodies and the pocket, hip, crossed-arms, clasped-behind
- *    and behind-head places, the plan arrives at its `placed` event.
- * 2. At a third of the way, two thirds and the arrival, the pair the place
- *    brings nearest (a hand and the hips, the forearms, a finger and the hips
- *    or the other hand) overlaps by no more than the skin's give.
+ * 1. For both stored bodies and the pocket, hip, crossed-arms, clasped-behind and
+ *    behind-head places, the plan arrives at its `placed` event.
+ * 2. At a third of the way, two thirds and the arrival, the pair the place brings
+ *    nearest (a hand and the hips, the forearms, a finger and the hips or the
+ *    other hand) overlaps by no more than the skin's give.
  */
 export async function test_unit_motions_everyday_rest_plan(): Promise<void> {
   const pairs: readonly [
@@ -56,7 +56,10 @@ export async function test_unit_motions_everyday_rest_plan(): Promise<void> {
       const placed: IAutoMovieMotionEvent | undefined = plan.events.find(
         (e: IAutoMovieMotionEvent): boolean => e.name === "placed",
       );
-      TestValidator.predicate(`${name} ${place}: arrives`, placed !== undefined);
+      TestValidator.predicate(
+        `${name} ${place}: arrives`,
+        placed !== undefined,
+      );
       const arrival: number = placed!.share * plan.duration;
       for (const t of [arrival / 3, (2 * arrival) / 3, arrival]) {
         const pair:
@@ -67,8 +70,7 @@ export async function test_unit_motions_everyday_rest_plan(): Promise<void> {
         ).find(
           (
             c: ReturnType<typeof AutoMovieMotionHumanAuditTangle.pose>[number],
-          ): boolean =>
-            (c.a === a && c.b === b) || (c.a === b && c.b === a),
+          ): boolean => (c.a === a && c.b === b) || (c.a === b && c.b === a),
         );
         TestValidator.predicate(
           `${name} ${place}: ${a} and ${b} clear at ${t} s (${pair?.depth ?? 0} m)`,

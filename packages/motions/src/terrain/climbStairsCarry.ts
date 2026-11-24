@@ -228,7 +228,10 @@ export namespace climbStairsCarry {
    */
   const FLOOR: number = 0.02;
 
-  /** What the carry reads of an action's context: its start and its props' frames. */
+  /**
+   * What the carry reads of an action's context: its start and its props'
+   * frames.
+   */
   export interface IContext {
     /** The action's film start, seconds. */
     start: number;
@@ -242,7 +245,10 @@ export namespace climbStairsCarry {
     /** The entry's feet. */
     entry: {
       /** Each foot's ankle. */
-      feet: Record<AutoMovieHumanSide, Pick<IAutoMovieMotionHumanEntryState.IFoot, "ankle">>;
+      feet: Record<
+        AutoMovieHumanSide,
+        Pick<IAutoMovieMotionHumanEntryState.IFoot, "ankle">
+      >;
     };
 
     /** The body's ankle height. */
@@ -265,9 +271,7 @@ export namespace climbStairsCarry {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of the entry.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function boarded(
-    context: IBoarding,
-  ): boolean {
+  export function boarded(context: IBoarding): boolean {
     return (["left", "right"] as const).every(
       (side: AutoMovieHumanSide): boolean =>
         context.entry.feet[side].ankle.y >

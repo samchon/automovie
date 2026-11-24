@@ -41,10 +41,10 @@ const ROUNDING: number = 1e-6;
  * Scenarios:
  *
  * 1. Each strategy starts upright.
- * 2. At its deepest a stoop bends the knees at most 30 degrees, inclines the
- *    trunk at least 45 and moves the hips back.
- * 3. A squat bends the knees at least a right angle with a more upright trunk;
- *    a semi-squat's knees bend between the two.
+ * 2. At its deepest a stoop bends the knees at most 30 degrees, inclines the trunk
+ *    at least 45 and moves the hips back.
+ * 3. A squat bends the knees at least a right angle with a more upright trunk; a
+ *    semi-squat's knees bend between the two.
  * 4. Both feet bear at the deepest point of every strategy, either hand.
  */
 export async function test_unit_motions_everyday_bend_plan(): Promise<void> {

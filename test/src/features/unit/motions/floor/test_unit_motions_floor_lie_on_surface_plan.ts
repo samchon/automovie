@@ -54,7 +54,8 @@ const BEARING: readonly AutoMovieHumanoidBone[] = [
  * Scenarios:
  *
  * 1. Seated on the double bed's left edge, the body lies down onto its side and
- *    back: from its `lateral` event on no bearing bone sinks under the surface.
+ *    back: from its `lateral` event on no bearing bone sinks under the
+ *    surface.
  * 2. It turns onto its left side, face down and back onto its back: the chest
  *    faces sideways after the first turn and down after the second.
  * 3. It sits up onto the edge and rises to standing.
@@ -66,14 +67,22 @@ export async function test_unit_motions_floor_lie_on_surface_plan(): Promise<voi
     bed: ReturnType<typeof createBed>,
   ): IAutoMovieMotionHumanActionPlan[] => {
     const props: IAutoMovieMotionHumanProp[] = [
-      HumanObject.prop("bed", bed, { at: { x: 0, y: 0, z: 0 }, yaw: 0, fixed: true }),
+      HumanObject.prop("bed", bed, {
+        at: { x: 0, y: 0, z: 0 },
+        yaw: 0,
+        fixed: true,
+      }),
     ];
     const half: number = (bed.affordance("surface").width ?? 1.35) / 2;
     const seated: IAutoMovieMotionHumanActionPlan = sit.plan(
       motionActionContext(
         body,
         {
-          seat: HumanObject.seat(bed, { at: { x: 0, y: 0, z: 0 }, yaw: 0 }, "leftSide"),
+          seat: HumanObject.seat(
+            bed,
+            { at: { x: 0, y: 0, z: 0 }, yaw: 0 },
+            "leftSide",
+          ),
           hold: 0.5,
         },
         { at: { x: half + 0.2, y: 0, z: 0 }, yaw: 90, props },
@@ -85,7 +94,9 @@ export async function test_unit_motions_floor_lie_on_surface_plan(): Promise<voi
       hold: 0.5,
     };
     const out: IAutoMovieMotionHumanActionPlan[] = [
-      lieOnSurface.plan(motionActionContext.after(body, seated, lie, { props })),
+      lieOnSurface.plan(
+        motionActionContext.after(body, seated, lie, { props }),
+      ),
     ];
     const turns: IAutoMovieMotionHumanTurnOver[] = [
       { to: "lateralLeft", on: { prop: "bed" }, hold: 0.5 },
@@ -94,25 +105,34 @@ export async function test_unit_motions_floor_lie_on_surface_plan(): Promise<voi
     ];
     for (const turn of turns)
       out.push(
-        turnOver.plan(motionActionContext.after(body, out.at(-1)!, turn, { props })),
+        turnOver.plan(
+          motionActionContext.after(body, out.at(-1)!, turn, { props }),
+        ),
       );
     out.push(
       lieOnSurface.plan(
-        motionActionContext.after(body, out.at(-1)!, { ...lie, rise: true }, { props }),
+        motionActionContext.after(
+          body,
+          out.at(-1)!,
+          { ...lie, rise: true },
+          { props },
+        ),
       ),
     );
-    out.push(rise.plan(motionActionContext.after(body, out.at(-1)!, {}, { props })));
+    out.push(
+      rise.plan(motionActionContext.after(body, out.at(-1)!, {}, { props })),
+    );
     return out;
   };
-  const chest = (
-    plan: IAutoMovieMotionHumanActionPlan,
-    t: number,
-  ): number =>
-    Quaternion.rotateVector(R.bones(body, plan, t).get("chest")!.worldRotation, {
-      x: 0,
-      y: 0,
-      z: 1,
-    }).y;
+  const chest = (plan: IAutoMovieMotionHumanActionPlan, t: number): number =>
+    Quaternion.rotateVector(
+      R.bones(body, plan, t).get("chest")!.worldRotation,
+      {
+        x: 0,
+        y: 0,
+        z: 1,
+      },
+    ).y;
 
   const [lying, side, down, , , risen] = plans(
     createBed({ kind: "double", height: HEIGHT }),
@@ -129,7 +149,11 @@ export async function test_unit_motions_floor_lie_on_surface_plan(): Promise<voi
   const from: number = R.event(lying, "lateral")!;
   let worst: number = Infinity;
   for (let k: number = 0; k <= 12; k++) {
-    const bones: ReturnType<typeof R.bones> = R.bones(body, lying, from + ((lying.duration - from) * k) / 12);
+    const bones: ReturnType<typeof R.bones> = R.bones(
+      body,
+      lying,
+      from + ((lying.duration - from) * k) / 12,
+    );
     for (const bone of BEARING)
       worst = Math.min(worst, bones.get(bone)!.worldPosition.y - HEIGHT);
   }

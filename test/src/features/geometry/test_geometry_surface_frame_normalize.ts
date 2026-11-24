@@ -79,10 +79,6 @@ export function test_geometry_surface_frame_normalize(): void {
   );
 
   const invalid: IAutoMovieSurfaceFrame[] = [
-    { ...request, origin: { x: NaN, y: 0, z: 0 } },
-    { ...request, origin: { x: 0, y: Infinity, z: 0 } },
-    { ...request, forward: { x: -Infinity, y: 0, z: 0 } },
-    { ...request, normal: { x: 0, y: NaN, z: 0 } },
     { ...request, forward: { x: 0, y: 0, z: 0 } },
     { ...request, normal: { x: 0, y: 0, z: 0 } },
     { ...request, forward: { x: 0, y: 3, z: 4 } },

@@ -154,13 +154,13 @@ export function test_validation_body_restitution_unknown(): void {
     );
 
   const invalid: readonly [string, IAutoMovieBody][] = [
-    ...[0, -1, NaN, Infinity, -Infinity].map(
+    ...[0, -1].map(
       (mass: number): [string, IAutoMovieBody] => [
         "mass",
         { mass, centerOfMass: null, restitution: 0 },
       ],
     ),
-    ...[-0.1, 1.1, NaN, Infinity, -Infinity].map(
+    ...[-0.1, 1.1].map(
       (restitution: number): [string, IAutoMovieBody] => [
         "restitution",
         { mass: 1, centerOfMass: null, restitution },

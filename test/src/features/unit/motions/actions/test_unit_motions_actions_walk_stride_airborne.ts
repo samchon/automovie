@@ -16,12 +16,18 @@ export function test_unit_motions_actions_walk_stride_airborne(): void {
   });
   TestValidator.equals(
     "both or neither",
-    [walkStride.airborne(entry(true, true)), walkStride.airborne(entry(false, false))],
+    [
+      walkStride.airborne(entry(true, true)),
+      walkStride.airborne(entry(false, false)),
+    ],
     [undefined, undefined],
   );
   TestValidator.equals(
     "one in the air",
-    [walkStride.airborne(entry(true, false)), walkStride.airborne(entry(false, true))],
+    [
+      walkStride.airborne(entry(true, false)),
+      walkStride.airborne(entry(false, true)),
+    ],
     ["right", "left"],
   );
 }

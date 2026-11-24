@@ -14,8 +14,8 @@ const ROUNDING: number = 1e-12;
 /**
  * `climbStairsRailLine` places a stair rail in the world for a sliding grip:
  * the bar's centre through the prop's frame, its axis and up, the hold kept
- * within half its length less half its aperture, and a root read along the
- * axis to where the hand holds.
+ * within half its length less half its aperture, and a root read along the axis
+ * to where the hand holds.
  *
  * Scenarios, a 2 m bar of 0.1 m aperture 0.9 m up, on a prop at (1, 0, 0):
  *
@@ -27,8 +27,15 @@ const ROUNDING: number = 1e-12;
  */
 export function test_unit_motions_terrain_climb_stairs_rail_line(): void {
   const identity: IAutoMovieQuaternion = { x: 0, y: 0, z: 0, w: 1 };
-  const p = (x: number, y: number, z: number): IAutoMovieVector3 => ({ x, y, z });
-  const model: IAutoMovieRigidTransform = { position: p(1, 0, 0), rotation: identity };
+  const p = (x: number, y: number, z: number): IAutoMovieVector3 => ({
+    x,
+    y,
+    z,
+  });
+  const model: IAutoMovieRigidTransform = {
+    position: p(1, 0, 0),
+    rotation: identity,
+  };
   const bar = (
     rotation: IAutoMovieQuaternion,
   ): Parameters<typeof climbStairsRailLine>[1] => ({
@@ -38,7 +45,10 @@ export function test_unit_motions_terrain_climb_stairs_rail_line(): void {
   });
 
   // 1. Unturned.
-  const line: climbStairsRailLine.ILine = climbStairsRailLine(model, bar(identity))!;
+  const line: climbStairsRailLine.ILine = climbStairsRailLine(
+    model,
+    bar(identity),
+  )!;
   TestValidator.predicate(
     "the line",
     vclose(line.center, p(1, 0.9, 0), ROUNDING) &&
@@ -56,15 +66,24 @@ export function test_unit_motions_terrain_climb_stairs_rail_line(): void {
 
   // 3. Turned by the prop.
   const turned: climbStairsRailLine.ILine = climbStairsRailLine(
-    { position: p(1, 0, 0), rotation: { x: 0, y: Math.SQRT1_2, z: 0, w: Math.SQRT1_2 } },
+    {
+      position: p(1, 0, 0),
+      rotation: { x: 0, y: Math.SQRT1_2, z: 0, w: Math.SQRT1_2 },
+    },
     bar(identity),
   )!;
-  TestValidator.predicate("turned", vclose(turned.along, p(0, 0, -1), ROUNDING));
+  TestValidator.predicate(
+    "turned",
+    vclose(turned.along, p(0, 0, -1), ROUNDING),
+  );
 
   // 4. A post.
   TestValidator.equals(
     "a post",
-    climbStairsRailLine(model, bar({ x: 0, y: 0, z: Math.SQRT1_2, w: Math.SQRT1_2 })),
+    climbStairsRailLine(
+      model,
+      bar({ x: 0, y: 0, z: Math.SQRT1_2, w: Math.SQRT1_2 }),
+    ),
     null,
   );
 }

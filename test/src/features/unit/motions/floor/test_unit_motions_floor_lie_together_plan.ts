@@ -56,8 +56,8 @@ interface IWay {
  *
  * Scenarios, the average man with the small woman for each way:
  *
- * 1. Through the hold the resting region stays on the partner's region (or,
- *    on the chest, its surface) within 15 mm.
+ * 1. Through the hold the resting region stays on the partner's region (or, on the
+ *    chest, its surface) within 15 mm.
  * 2. No bone of the performer passes under the floor.
  * 3. A window rests the region on the partner.
  * 4. A performer lying out of reach is refused on `partner`.
@@ -87,27 +87,65 @@ export async function test_unit_motions_floor_lie_together_plan(): Promise<void>
   const scene = (
     w: IWay,
     apart: number,
-  ): [IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanActionPlan, number] => {
-    const partner: IAutoMovieMotionHumanActionPlan = lying(b, w.partner, {}, HOLD + 30);
-    const theirs: ReturnType<typeof place> = place(b, partner, w.theirs, partner.duration);
+  ): [
+    IAutoMovieMotionHumanActionPlan,
+    IAutoMovieMotionHumanActionPlan,
+    number,
+  ] => {
+    const partner: IAutoMovieMotionHumanActionPlan = lying(
+      b,
+      w.partner,
+      {},
+      HOLD + 30,
+    );
+    const theirs: ReturnType<typeof place> = place(
+      b,
+      partner,
+      w.theirs,
+      partner.duration,
+    );
     const out: IAutoMovieVector3 =
       w.way === "chest"
         ? ((): IAutoMovieVector3 => {
-            const left: IAutoMovieVector3 = place(b, partner, "shoulderLeft", partner.duration).point;
-            const right: IAutoMovieVector3 = place(b, partner, "shoulderRight", partner.duration).point;
-            const leftward: IAutoMovieVector3 = flatten(Vector3.subtract(left, right));
-            return w.theirs === "chestLeft" ? leftward : Vector3.scale(leftward, -1);
+            const left: IAutoMovieVector3 = place(
+              b,
+              partner,
+              "shoulderLeft",
+              partner.duration,
+            ).point;
+            const right: IAutoMovieVector3 = place(
+              b,
+              partner,
+              "shoulderRight",
+              partner.duration,
+            ).point;
+            const leftward: IAutoMovieVector3 = flatten(
+              Vector3.subtract(left, right),
+            );
+            return w.theirs === "chestLeft"
+              ? leftward
+              : Vector3.scale(leftward, -1);
           })()
         : flatten(theirs.normal);
-    const yaw: number = w.way === "chest" ? (Math.atan2(out.x, out.z) * 180) / Math.PI : 0;
+    const yaw: number =
+      w.way === "chest" ? (Math.atan2(out.x, out.z) * 180) / Math.PI : 0;
     const alone: IAutoMovieMotionHumanActionPlan = lying(a, w.own, { yaw });
-    const mine: IAutoMovieVector3 = place(a, alone, w.mine, alone.duration).point;
+    const mine: IAutoMovieVector3 = place(
+      a,
+      alone,
+      w.mine,
+      alone.duration,
+    ).point;
     const at: IAutoMovieVector3 = {
       x: theirs.point.x + out.x * apart - mine.x,
       y: 0,
       z: theirs.point.z + out.z * apart - mine.z,
     };
-    const down: IAutoMovieMotionHumanActionPlan = lying(a, w.own, { at, yaw, start: 3 });
+    const down: IAutoMovieMotionHumanActionPlan = lying(a, w.own, {
+      at,
+      yaw,
+      start: 3,
+    });
     const start: number = 3 + down.duration;
     const together: IAutoMovieMotionHumanActionPlan = lieTogether.plan(
       motionActionContext.after(
@@ -120,8 +158,20 @@ export async function test_unit_motions_floor_lie_together_plan(): Promise<void>
     return [together, partner, start];
   };
   const ways: readonly IWay[] = [
-    { way: "spoon", partner: "lateralLeft", own: "lateralLeft", mine: "sternum", theirs: "upperBack" },
-    { way: "chest", partner: "supine", own: "lateralRight", mine: "cheekRight", theirs: "chestLeft" },
+    {
+      way: "spoon",
+      partner: "lateralLeft",
+      own: "lateralLeft",
+      mine: "sternum",
+      theirs: "upperBack",
+    },
+    {
+      way: "chest",
+      partner: "supine",
+      own: "lateralRight",
+      mine: "cheekRight",
+      theirs: "chestLeft",
+    },
   ];
   for (const w of ways) {
     const [plan, partner, start] = scene(w, NEARBY);
@@ -129,16 +179,23 @@ export async function test_unit_motions_floor_lie_together_plan(): Promise<void>
     const raised: number =
       w.way === "spoon"
         ? place(a, lying(a, w.own), w.mine, lying(a, w.own).duration).point.y -
-          place(b, lying(b, w.partner), w.theirs, lying(b, w.partner).duration).point.y
+          place(b, lying(b, w.partner), w.theirs, lying(b, w.partner).duration)
+            .point.y
         : 0;
     const misses: number[] = [0, 0.5, 1].map((k: number): number => {
       const t: number = from + k * (plan.duration - from);
       const mine: IAutoMovieVector3 = place(a, plan, w.mine, t).point;
       if (w.way === "chest")
         return Math.abs(
-          HumanColliders.distance(b, R.bones(b, partner, start + t), mine).distance,
+          HumanColliders.distance(b, R.bones(b, partner, start + t), mine)
+            .distance,
         );
-      const theirs: IAutoMovieVector3 = place(b, partner, w.theirs, start + t).point;
+      const theirs: IAutoMovieVector3 = place(
+        b,
+        partner,
+        w.theirs,
+        start + t,
+      ).point;
       return Vector3.distance(mine, { ...theirs, y: theirs.y + raised });
     });
     TestValidator.predicate(
@@ -149,7 +206,8 @@ export async function test_unit_motions_floor_lie_together_plan(): Promise<void>
       `${w.way}: on the floor`,
       [from, plan.duration].every((t: number): boolean =>
         [...R.bones(a, plan, t).values()].every(
-          (bone: IAutoMovieResolvedBone): boolean => bone.worldPosition.y >= -FLOOR,
+          (bone: IAutoMovieResolvedBone): boolean =>
+            bone.worldPosition.y >= -FLOOR,
         ),
       ),
     );

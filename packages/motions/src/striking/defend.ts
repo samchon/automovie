@@ -219,19 +219,20 @@ export namespace defend {
     // Before the read the defender only holds the guard, and nothing reads
     // the attacker: every read of another performer then looks back in time,
     // so two performers reading each other never recurse at one instant.
+    // The geometry the plan solved when it was prepared; before that, each
+    // read builds it cold on the performance as placed so far.
     let built: defendGeometry.IGeometry | undefined;
     let building: boolean = false;
-    const geometry = (): defendGeometry.IGeometry => {
-      if (built !== undefined) return built;
+    const build = (): defendGeometry.IGeometry => {
       if (building) throw strikingReadBack("defend", context.subject);
       building = true;
       try {
-        built = defendGeometry.build(context, timing, support);
+        return defendGeometry.build(context, timing, support);
       } finally {
         building = false;
       }
-      return built;
     };
+    const geometry = (): defendGeometry.IGeometry => built ?? build();
     const contacts: IAutoMovieMotionHumanContactWindow[] =
       defendGeometry.windows(checking, timing, support);
     const waiting: IAutoMovieMotionHumanActionPlan["posture"] = idle(
@@ -256,7 +257,7 @@ export namespace defend {
       },
       prepare: (): void => {
         built = undefined;
-        geometry();
+        built = build();
       },
     };
     return out;

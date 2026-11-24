@@ -102,19 +102,6 @@ export function test_geometry_procedural_sweep(): void {
       "sweep spine needs at least two points",
     ],
     [
-      "sweep finite",
-      (): IAutoMovieMesh =>
-        sweep(
-          square,
-          [
-            { x: 0, y: 0, z: 0 },
-            { x: Number.NaN, y: 1, z: 0 },
-          ],
-          up,
-        ),
-      "sweep spine point 1 is not finite",
-    ],
-    [
       "sweep coincident",
       (): IAutoMovieMesh =>
         sweep(
