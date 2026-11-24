@@ -29,6 +29,12 @@ import { wardrobeFilm } from "../../features/internal/wardrobeFilm";
  * heel and toe in the opening.
  */
 export namespace wardrobeFootwearScene {
+  /**
+   * How far the wrist rises after taking the footwear up, metres: the
+   * original's.
+   */
+  export const LIFT: number = 0.04;
+
   /** A footwear model. */
   export type Footwear = AutoMovieArchetype<
     createStageFootwear.Affordance,
@@ -148,7 +154,7 @@ export namespace wardrobeFootwearScene {
       prop: "footwear",
       handle: "hold",
       hand: s.hand,
-      lift: 0.04,
+      lift: LIFT,
     });
   }
 
