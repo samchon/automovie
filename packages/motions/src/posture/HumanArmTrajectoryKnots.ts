@@ -7,10 +7,10 @@ import { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
  * An arms' trajectory optimised on few knots and constrained on the whole frame
  * grid: the change of variables between the two.
  *
- * The trajectory played back is the knots' quintic Hermite interpolant
+ * The trajectory played back is the knots' minimum-jerk interpolant
  * (`HumanArmRefine.hermite`), which is linear in the knots' coordinates: each
- * grid instant's coordinates are a weighted sum of at most five knots' (`x_g =
- * sum_j W[g][j] x_j`). So the model is evaluated and linearised at every grid
+ * grid instant's coordinates are a weighted sum of the knots' (`x_g = sum_j
+ * W[g][j] x_j`). So the model is evaluated and linearised at every grid
  * instant, as a frame-grid trajectory's is, and the resulting subproblem in the
  * grid's steps is carried onto the knots' by that linear map: `P_k = W' P W`,
  * `q_k = W' q`, and each row's coefficients times `W`. The optimiser then moves
@@ -32,20 +32,14 @@ export namespace HumanArmTrajectoryKnots {
     knots: readonly number[],
     grid: readonly number[],
   ): number[][] {
-    return windows(knots, grid).map((window: IWindow): number[] => {
-      const row: number[] = new Array<number>(knots.length).fill(0);
-      for (let j: number = 0; j < window.times.length; ++j) {
-        const unit: number[][] = window.times.map(
-          (_: number, i: number): number[] => [i === j ? 1 : 0],
-        );
-        row[window.first + j] = HumanArmRefine.hermite(
-          window.times,
-          unit,
-          window.at,
-        )[0]!;
-      }
-      return row;
-    });
+    // The interpolant is linear in the knots: its value for the identity's
+    // rows, one coordinate per knot, is every knot's weight at once.
+    const unit: number[][] = knots.map((_: number, i: number): number[] =>
+      knots.map((__: number, j: number): number => (i === j ? 1 : 0)),
+    );
+    const curve: ReturnType<typeof HumanArmRefine.prepareHermite> =
+      HumanArmRefine.prepareHermite(knots, unit);
+    return grid.map((at: number): number[] => curve(at).coordinates);
   }
 
   /**
@@ -61,18 +55,12 @@ export namespace HumanArmTrajectoryKnots {
     grid: readonly number[],
     x: readonly (readonly (readonly number[])[])[],
   ): number[][][] {
-    const spans: IWindow[] = windows(knots, grid);
-    return x.map((arm: readonly (readonly number[])[]): number[][] =>
-      spans.map((span: IWindow): number[] =>
-        HumanArmRefine.hermite(
-          span.times,
-          arm.slice(span.first, span.first + span.times.length),
-          span.at,
-        ),
-      ),
-    );
+    return x.map((arm: readonly (readonly number[])[]): number[][] => {
+      const curve: ReturnType<typeof HumanArmRefine.prepareHermite> =
+        HumanArmRefine.prepareHermite(knots, arm);
+      return grid.map((at: number): number[] => curve(at).coordinates);
+    });
   }
-
   /**
    * Sample a local repair against the original clock. An interior end inherits
    * the original curve's central tangent. A true end keeps its rest tangent.
@@ -249,27 +237,4 @@ export namespace HumanArmTrajectoryKnots {
     );
     return { n: vars, band, p, q, rows };
   }
-}
-
-/**
- * Five consecutive knots suffice for the two endpoint values, both centred
- * tangents and both accelerations, the later read on the segment after.
- */
-interface IWindow {
-  /** Offset into the full knot coordinate array. */
-  first: number;
-  /** The source times of this interval and its tangent neighbours. */
-  times: readonly number[];
-  /** The requested grid second. */
-  at: number;
-}
-
-/** Locate the Hermite support in one forward traversal of the two sorted clocks. */
-function windows(knots: readonly number[], grid: readonly number[]): IWindow[] {
-  let bracket: number = 0;
-  return grid.map((at: number): IWindow => {
-    while (bracket + 2 < knots.length && knots[bracket + 1]! <= at) ++bracket;
-    const first: number = Math.max(0, bracket - 1);
-    return { first, times: knots.slice(first, bracket + 4), at };
-  });
 }

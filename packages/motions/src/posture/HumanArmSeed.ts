@@ -75,6 +75,9 @@ export namespace HumanArmSeed {
    * @param hold The arms' configuration at the hold's first waypoint of this
    *   context, already solved for this problem (`held`); solved here when
    *   absent.
+   * @param fine The context at the frame grid's instants over the same span,
+   *   where the sampling planner reads a state's validity; the waypoints' when
+   *   absent.
    * @returns The seed.
    * @throws {HumanRefusal} When no start gives a feasible hold.
    */
@@ -82,6 +85,7 @@ export namespace HumanArmSeed {
     problem: IProblem,
     context: M.IContext,
     hold?: readonly (readonly number[])[],
+    fine?: M.IContext,
   ): number[][][] {
     const n: number = context.n;
     const times: readonly number[] = context.times;
@@ -96,10 +100,12 @@ export namespace HumanArmSeed {
     const space: Space.ISpace = Space.sampler(context);
     // A path from an end of the action to the hold, through the waypoints
     // `passes` from that end's to the hold's: each configuration carries its
-    // share of the reach (0 at rest, 1 on the hold) as its last coordinate,
-    // and is valid where that share puts it, at the waypoint whose share is
-    // nearest, so the rest arm is read where it rests and the hold where it
-    // holds (time-indexed RRT-Connect, `HumanArmConnect`). The hold's task
+    // time as its last coordinate, 0 at that end's waypoint and 1 at the
+    // hold's, and is valid in the scene at that time, as EXOTica's
+    // time-indexed problem updates its scene to a state's own time
+    // (`TimeIndexedSamplingProblem::Update`), read at the frame nearest it,
+    // the scene's finest instants (time-indexed RRT-Connect,
+    // `HumanArmConnect`). The hold's task
     // points bind the hold itself alone, at share 1: an approach read at the
     // hold's waypoint keeps its contact allowances, as a pick's approach is
     // allowed its grasp's contact (MoveIt's pick approach), but not the hold's
@@ -114,20 +120,17 @@ export namespace HumanArmSeed {
       to: number[][],
       passes: readonly number[],
     ): number[][] => {
-      const shares: number[] = passes.map((j: number, i: number): number =>
-        i === 0
-          ? 0
-          : i === passes.length - 1
-            ? 1
-            : Math.min(1, Math.max(0, problem.share(times[j]!))),
-      );
+      const begin: number = times[passes[0]!]!;
+      const end: number = times[passes[passes.length - 1]!]!;
+      const scene: M.IContext = fine ?? context;
       const dims: number = from.length * G.DIMENSIONS;
       const where: (s: number) => number = (s: number): number => {
+        const at: number = begin + s * (end - begin);
         let best: number = 0;
-        shares.forEach((v: number, i: number): void => {
-          if (Math.abs(v - s) < Math.abs(shares[best]! - s)) best = i;
+        scene.times.forEach((v: number, g: number): void => {
+          if (Math.abs(v - at) < Math.abs(scene.times[best]! - at)) best = g;
         });
-        return passes[best]!;
+        return best;
       };
       const start: number[] = [...from.flat(), 0];
       const goal: number[] = [...to.flat(), 1];
@@ -138,16 +141,14 @@ export namespace HumanArmSeed {
         high: space.high,
         valid: (q: readonly number[]): boolean =>
           M.invalid(
-            context,
+            scene,
             where(q[dims]!),
             Space.split(q.slice(0, dims)),
             false,
             q[dims]! >= 1,
           ).value <= M.TOLERANCE,
         // The time coordinate runs from 0 to 1 over the passes' seconds.
-        seconds: Math.abs(
-          times[passes[passes.length - 1]!]! - times[passes[0]!]!,
-        ),
+        seconds: Math.abs(end - begin),
         // The arms' joint velocity limits, the published human rates.
         velocities: from.flatMap((): readonly number[] => RATES),
       });
@@ -196,9 +197,12 @@ export namespace HumanArmSeed {
           if (k === 0) return [...context.rest[a]!];
           if (!M.inner(context, k)) return [...context.back[a]!];
           if (k >= first && k <= last) return [...held[k - first]![a]!];
+          // The path read at the waypoint's own time on it.
           const along: number[] = Space.at(
             k < first ? reach : back,
-            Math.min(1, Math.max(0, problem.share(t))),
+            k < first
+              ? (t - times[0]!) / (times[first]! - times[0]!)
+              : (t - times[n - 1]!) / (times[last]! - times[n - 1]!),
           );
           return along.slice(a * G.DIMENSIONS, (a + 1) * G.DIMENSIONS);
         }),

@@ -36,11 +36,11 @@ States the problem, the context, the hold and the refusal.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-MoveIt's optimiser adapter (chomp_optimizer_adapter.cpp lines 177-209 at 811328b1ba70, BSD-3-Clause): the sampling planner's path seeds every optimisation and its failure ends the plan. The goal is the hold's configuration by inverse kinematics once from the caller's seed (MoveIt's zero-timeout single attempt, kdl_kinematics_plugin.cpp line 280 at fdb79acafb24, BSD-3-Clause; no attempt count, MIGRATION.md #1288); the reach and the return are the time-indexed RRT-Connect's paths (HumanArmConnect) over OMPL's box bounds of the coordinates, the shoulder chart's disc left to the validity reading.
+MoveIt's optimiser adapter (chomp_optimizer_adapter.cpp lines 177-209 at 811328b1ba70, BSD-3-Clause): the sampling planner's path seeds every optimisation and its failure ends the plan. The goal is the hold's configuration by inverse kinematics once from the caller's seed (MoveIt's zero-timeout single attempt, kdl_kinematics_plugin.cpp line 280 at fdb79acafb24, BSD-3-Clause; no attempt count, MIGRATION.md #1288); the reach and the return are the time-indexed RRT-Connect's paths (HumanArmConnect) over OMPL's box bounds of the coordinates, the shoulder chart's disc left to the validity reading; a state's time coordinate is its own time, normalised over the span, and its validity is read in the scene at the frame nearest that time, as EXOTica's TimeIndexedSamplingProblem updates its scene to the state's time.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-The hold, then the two paths, then the waypoints read off them by their shares.
+The hold, then the two paths, then the waypoints read off them at their own times.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 

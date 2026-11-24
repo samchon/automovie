@@ -10,7 +10,7 @@ sco's DblVec of variable values.
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
-Runtime boundary references: compose/AutoMovieMotionHumanArmReach.ts (track B's attitude choice); test/src/features/geometry/test_geometry_sequential_sco_problems.ts.
+Runtime boundary references: compose/AutoMovieMotionHumanArmReach.ts (track B's attitude choice); lexicon/crutchHeldLeg.ts (the held leg's course); test/src/features/geometry/test_geometry_sequential_sco_problems.ts.
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 
@@ -20,15 +20,15 @@ No unit is attached; the problem states its own.
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-f: the cost's value at a point. full: whether it is convexified with its full Hessian.
+f: the cost's value at a point. full: whether it is convexified with its full Hessian. variables: the variables it reads.
 
 ## @evidence contracts/development/design.md#principled-representation
 
-trajopt's CostFromFunc: a scalar function and its full_hessian flag (modeling_utils.cpp line 37).
+trajopt's CostFromFunc: a scalar function of its own variables (ars_) and its full_hessian flag (modeling_utils.cpp line 37); its derivatives are taken in those variables alone.
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
-Runtime boundary references: compose/AutoMovieMotionHumanArmReach.ts (track B's attitude choice); test/src/features/geometry/test_geometry_sequential_sco_problems.ts.
+Runtime boundary references: compose/AutoMovieMotionHumanArmReach.ts (track B's attitude choice); lexicon/crutchHeldLeg.ts (the held leg's course); test/src/features/geometry/test_geometry_sequential_sco_problems.ts.
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 
@@ -42,11 +42,11 @@ g: the constraint's values. equality: whether they are equalities, inequalities 
 
 ## @evidence contracts/development/design.md#principled-representation
 
-trajopt's ConstraintFromFunc with its ConstraintType EQ or INEQ (modeling_utils.cpp line 140).
+trajopt's ConstraintFromFunc: a vector function of its own variables (`vars_`) and its type, EQ or INEQ (modeling_utils.cpp lines 152-166); its Jacobian is taken in those variables alone.
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
-Runtime boundary references: compose/AutoMovieMotionHumanArmReach.ts (track B's attitude choice); test/src/features/geometry/test_geometry_sequential_sco_problems.ts.
+Runtime boundary references: compose/AutoMovieMotionHumanArmReach.ts (track B's attitude choice); lexicon/crutchHeldLeg.ts (the held leg's course); test/src/features/geometry/test_geometry_sequential_sco_problems.ts.
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 
@@ -64,7 +64,7 @@ An OptProb's costs, constraints and variable bounds (modeling.cpp createVariable
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
-Runtime boundary references: compose/AutoMovieMotionHumanArmReach.ts (track B's attitude choice); test/src/features/geometry/test_geometry_sequential_sco_problems.ts.
+Runtime boundary references: compose/AutoMovieMotionHumanArmReach.ts (track B's attitude choice); lexicon/crutchHeldLeg.ts (the held leg's course); test/src/features/geometry/test_geometry_sequential_sco_problems.ts.
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 
@@ -82,7 +82,7 @@ What calcGradAndDiagHess and calcGradHess return, after CostFromFunc's convexifi
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
-Runtime boundary references: compose/AutoMovieMotionHumanArmReach.ts (track B's attitude choice); test/src/features/geometry/test_geometry_sequential_sco_problems.ts.
+Runtime boundary references: compose/AutoMovieMotionHumanArmReach.ts (track B's attitude choice); lexicon/crutchHeldLeg.ts (the held leg's course); test/src/features/geometry/test_geometry_sequential_sco_problems.ts.
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 

@@ -2,6 +2,7 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import type { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
 import { HumanArmTrajectoryTerms } from "./HumanArmTrajectoryTerms";
+import { HumanMinimumJerkSpline } from "./HumanMinimumJerkSpline";
 
 /** The record of `IPrepareHermiteResult2`'s site. */
 type IPrepareHermiteResult2 = {
@@ -19,11 +20,11 @@ type IPrepareHermiteResult = {
  * A trajectory's interpolant between its waypoints, and where the waypoints are
  * too far apart for the path their sites must follow.
  *
- * The arms are played back, and read between waypoints, on one C² quintic
- * Hermite through the waypoints (`hermite`). On the hold, the site's path
- * interpolated through the waypoints' sites by that same Hermite must stay
- * within `TOLERANCE` of the act's own site at every instant of the frame grid,
- * so no stroke is cut short between samples: the waypoints' sites are all the
+ * The arms are played back, and read between waypoints, on one minimum-jerk
+ * path through the waypoints (`hermite`). On the hold, the site's path
+ * interpolated through the waypoints' sites by that same path must stay within
+ * `TOLERANCE` of the act's own site at every instant of the frame grid, so no
+ * stroke is cut short between samples: the waypoints' sites are all the
  * optimiser knows of the act between them. An interval whose site strays is
  * split at the grid instant in its middle (`split`), and an interval that holds
  * no grid instant is never split, so the waypoints are never finer than the
@@ -85,20 +86,11 @@ export namespace HumanArmRefine {
   }
 
   /**
-   * The trajectory's interpolant: through waypoints at their seconds, a quintic
-   * Hermite on each interval, the via-point form of Flash and Hogan's
-   * minimum-jerk trajectory (Flash and Hogan 1985, "The coordination of arm
-   * movements", J. Neurosci. 5(7):1688), whose segments meet in position,
-   * velocity and acceleration at each via point, so the curve is C². Each
-   * waypoint's velocity is the central difference in time; its acceleration is
-   * read as TOPP-RA's `ConstAccel` reads q̈ = q'' ṡ² + q' u at a gridpoint
-   * (github.com/hungpham2511/toppra cpp/src/toppra/parametrizer/const_accel.cpp
-   * `evalParams` and `eval_impl` at commit
-   * 8a2a9252e42089f1082d8d5d69b9852f32d0b338, MIT), from the segment that
-   * starts there, on the waypoints' cubic Hermite path with ṡ = 1 and u = 0;
-   * the first and the last waypoint are at rest in velocity and acceleration,
-   * Flash and Hogan's boundary conditions, so the arm leaves and joins its held
-   * poses C².
+   * The trajectory's interpolant: Flash and Hogan's minimum-jerk path through
+   * the waypoints at their seconds (`HumanMinimumJerkSpline`, Flash and Hogan
+   * 1985), a quintic on each interval, continuous through its snap at every
+   * interior waypoint and at rest in velocity and acceleration at the first and
+   * the last.
    *
    * @param times Ordered waypoint seconds paired with the coordinate rows.
    * @param x Coordinates at every waypoint, with a consistent dimension.
@@ -110,29 +102,15 @@ export namespace HumanArmRefine {
     x: readonly (readonly number[])[],
     seconds: number,
   ): number[] {
-    const n: number = times.length;
-    if (seconds <= times[0]!) return [...x[0]!];
-    if (seconds >= times[n - 1]!) return [...x[n - 1]!];
-    const k: number = Math.min(knot(times, seconds), n - 2);
-    const h: number = times[k + 1]! - times[k]!;
-    return interpolate(
-      x[k]!,
-      x[k + 1]!,
-      tangent(times, x, k),
-      tangent(times, x, k + 1),
-      acceleration(times, x, k),
-      acceleration(times, x, k + 1),
-      h,
-      (seconds - times[k]!) / h,
-    );
+    return prepareHermite(times, x)(seconds).coordinates;
   }
 
   /**
-   * Bind a solved course's unchanged waypoint seconds and coordinate rows. The
-   * exact original central differences and interval lengths are computed once.
-   * A sample receives fresh coordinates and the preceding knot index, which
-   * also identifies the shoulder chart used by playback. Endpoint rows stay
-   * held outside the span. Read-only inputs remain unchanged until the prepared
+   * Bind a solved course's waypoint seconds and coordinate rows: the waypoints'
+   * velocities and accelerations on the minimum-jerk path are solved once. A
+   * sample receives fresh coordinates and the preceding knot index, which also
+   * identifies the shoulder chart used by playback. Endpoint rows stay held
+   * outside the span. Read-only inputs remain unchanged until the prepared
    * reader is released.
    */
   export function prepareHermite(
@@ -140,30 +118,23 @@ export namespace HumanArmRefine {
     x: readonly (readonly number[])[],
   ): (seconds: number) => IPrepareHermiteResult {
     const n: number = times.length;
-    const slopes: number[][] = times.map((_t: number, i: number): number[] =>
-      tangent(times, x, i),
-    );
-    const accelerations: number[][] = times.map(
-      (_t: number, i: number): number[] => acceleration(times, x, i),
-    );
-    const spans: number[] = times
-      .slice(1)
-      .map((t: number, i: number): number => t - times[i]!);
+    const solved: HumanMinimumJerkSpline.IDerivatives =
+      HumanMinimumJerkSpline.derivatives(times, x);
     return (seconds: number): IPrepareHermiteResult2 => {
       if (seconds <= times[0]!) return { knot: 0, coordinates: [...x[0]!] };
       if (seconds >= times[n - 1]!)
         return { knot: n - 1, coordinates: [...x[n - 1]!] };
       const i: number = knot(times, seconds);
-      const h: number = spans[i]!;
+      const h: number = times[i + 1]! - times[i]!;
       return {
         knot: i,
-        coordinates: interpolate(
+        coordinates: HumanMinimumJerkSpline.quintic(
           x[i]!,
           x[i + 1]!,
-          slopes[i]!,
-          slopes[i + 1]!,
-          accelerations[i]!,
-          accelerations[i + 1]!,
+          solved.velocities[i]!,
+          solved.velocities[i + 1]!,
+          solved.accelerations[i]!,
+          solved.accelerations[i + 1]!,
           h,
           (seconds - times[i]!) / h,
         ),
@@ -171,7 +142,6 @@ export namespace HumanArmRefine {
     };
   }
 }
-
 /** The last knot at or before this second, starting at zero before the span. */
 function knot(times: readonly number[], seconds: number): number {
   let low: number = 0;
@@ -182,74 +152,6 @@ function knot(times: readonly number[], seconds: number): number {
     else high = middle - 1;
   }
   return low;
-}
-
-/** Central differences over actual waypoint seconds, at rest at both ends. */
-function tangent(
-  times: readonly number[],
-  x: readonly (readonly number[])[],
-  i: number,
-): number[] {
-  if (i === 0 || i === times.length - 1) return new Array(x[0]!.length).fill(0);
-  const span: number = times[i + 1]! - times[i - 1]!;
-  return x[i + 1]!.map(
-    (v: number, d: number): number => (v - x[i - 1]![d]!) / span,
-  );
-}
-
-/**
- * A waypoint's acceleration: the second derivative of the cubic Hermite segment
- * that starts there, at its start, `(6 (p1 - p0) - h (4 m0 + 2 m1)) / h²`; zero
- * at the first and the last waypoint (Flash and Hogan's rest).
- */
-function acceleration(
-  times: readonly number[],
-  x: readonly (readonly number[])[],
-  i: number,
-): number[] {
-  if (i === 0 || i === times.length - 1) return new Array(x[0]!.length).fill(0);
-  const h: number = times[i + 1]! - times[i]!;
-  const m0: number[] = tangent(times, x, i);
-  const m1: number[] = tangent(times, x, i + 1);
-  return x[i]!.map(
-    (v: number, d: number): number =>
-      (6 * (x[i + 1]![d]! - v) - h * (4 * m0[d]! + 2 * m1[d]!)) / (h * h),
-  );
-}
-
-/**
- * The quintic Hermite between two waypoints from their positions, velocities
- * and accelerations, at a share `u` of the interval `h`.
- */
-function interpolate(
-  left: readonly number[],
-  right: readonly number[],
-  m0: readonly number[],
-  m1: readonly number[],
-  a0: readonly number[],
-  a1: readonly number[],
-  h: number,
-  u: number,
-): number[] {
-  const u2: number = u * u;
-  const u3: number = u2 * u;
-  const u4: number = u3 * u;
-  const u5: number = u4 * u;
-  const p0: number = 1 - 10 * u3 + 15 * u4 - 6 * u5;
-  const v0: number = u - 6 * u3 + 8 * u4 - 3 * u5;
-  const c0: number = 0.5 * u2 - 1.5 * u3 + 1.5 * u4 - 0.5 * u5;
-  const c1: number = 0.5 * u3 - u4 + 0.5 * u5;
-  const v1: number = -4 * u3 + 7 * u4 - 3 * u5;
-  const p1: number = 10 * u3 - 15 * u4 + 6 * u5;
-  return left.map(
-    (v: number, d: number): number =>
-      p0 * v +
-      v0 * h * m0[d]! +
-      c0 * h * h * a0[d]! +
-      c1 * h * h * a1[d]! +
-      v1 * h * m1[d]! +
-      p1 * right[d]!,
-  );
 }
 
 /** Private storage reused only while one unbounded call reads held intervals. */

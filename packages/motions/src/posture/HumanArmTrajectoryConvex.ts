@@ -13,6 +13,7 @@ import { HumanArmTrajectoryLimits as L } from "./HumanArmTrajectoryLimits";
 import { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
 import { HumanArmTrajectoryPairs as P } from "./HumanArmTrajectoryPairs";
 import { HumanArmTrajectoryRanges } from "./HumanArmTrajectoryRanges";
+import { HumanArmTrajectorySiteError as E } from "./HumanArmTrajectorySiteError";
 import { HumanArmTrajectorySmooth } from "./HumanArmTrajectorySmooth";
 import type { HumanArmTrajectorySweep } from "./HumanArmTrajectorySweep";
 import { HumanArmTrajectoryTerms as T } from "./HumanArmTrajectoryTerms";
@@ -246,10 +247,6 @@ export namespace HumanArmTrajectoryConvex {
         if (site !== undefined) {
           const at: P.ILocated = P.located(c, at0.placed, a, k, site);
           const contact0: IAutoMovieVector3 = P.pad(placedK, site.contact);
-          const off: IAutoMovieVector3 = Vector3.scale(
-            Vector3.subtract(contact0, at.point),
-            1000,
-          );
           const n: IAutoMovieVector3 | undefined = at.normal;
           // The contact's motion, less the riding segment's motion at it: the
           // relative contact; a site that rides nothing has none.
@@ -272,50 +269,24 @@ export namespace HumanArmTrajectoryConvex {
             );
             return join(own, along(b, k, carried, dir, -1));
           };
-          if (n === undefined) {
-            // A grip held to its point on every axis: the merit's terms
-            // linearised, the squared distance's Gauss-Newton model and the
-            // excess past the region's disc along the offset's direction, so
-            // the model's violation at the zero step is the merit's.
-            for (const e of P.AXES) {
-              const v: ILinear = relative(e);
-              square(T.SITE, Vector3.dot(off, e), v.idx, v.coef);
-            }
-            const length: number = Vector3.length(off);
-            if (length > 1e-6) {
-              const v: ILinear = relative(Vector3.scale(off, 1 / length));
-              rows.push({
-                key: `d|${a}|${k}`,
-                index: v.idx,
-                coef: v.coef,
-                l: -Infinity,
-                u: 1000 * site.disc - length,
-                weight: mu,
-              });
-            }
-          } else {
-            // The contact anywhere on the region's disc about the site,
-            // pulled toward the site itself.
-            const slide: IAutoMovieVector3 = Vector3.subtract(
-              off,
-              Vector3.scale(n, Vector3.dot(off, n)),
-            );
-            for (const e of P.tangents(n)) {
-              const v: ILinear = relative(e);
-              square(T.SITE, Vector3.dot(off, e), v.idx, v.coef);
-            }
-            const length: number = Vector3.length(slide);
-            if (length > 1e-6) {
-              const v: ILinear = relative(Vector3.scale(slide, 1 / length));
-              rows.push({
-                key: `d|${a}|${k}`,
-                index: v.idx,
-                coef: v.coef,
-                l: -Infinity,
-                u: 1000 * site.disc - length,
-                weight: mu,
-              });
-            }
+          // The site's error as the evaluation reads it, convexified as
+          // sco convexifies an error function (`HumanArmTrajectorySiteError`):
+          // the offsets' squares (`CostFromErrFunc`, squared) and the slide's
+          // excess past the region's disc (`ConstraintFromErrFunc`), each by
+          // its forward-difference Jacobian.
+          const error: E.IReading = E.read(c, at0.placed, x, a, k, site, index);
+          error.offsets.forEach((o: number, i: number): void => {
+            square(T.SITE, o, error.index, error.offsetRows[i]!);
+          });
+          rows.push({
+            key: `d|${a}|${k}`,
+            index: error.index,
+            coef: error.excessRow,
+            l: -Infinity,
+            u: -error.excess,
+            weight: mu,
+          });
+          if (n !== undefined) {
             // The contact's height above the touched collider no lower than
             // the site's own, and the least above it that clears.
             const v: ILinear = relative(at.normalAt(contact0));

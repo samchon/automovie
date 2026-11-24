@@ -37,6 +37,12 @@ export namespace HumanSequentialConvexFunctions {
      * diagonal otherwise.
      */
     full: boolean;
+
+    /**
+     * The variables it reads (`vars_`); every variable when absent. Its
+     * derivatives are taken in these alone.
+     */
+    variables?: readonly number[];
   }
 
   /** A constraint function (`ConstraintFromFunc`). */
@@ -49,6 +55,12 @@ export namespace HumanSequentialConvexFunctions {
      * otherwise.
      */
     equality: boolean;
+
+    /**
+     * The variables it reads (`vars_`); every variable when absent. Its
+     * Jacobian is taken in these alone.
+     */
+    variables?: readonly number[];
   }
 
   /** A problem in functions. */
@@ -108,19 +120,20 @@ export namespace HumanSequentialConvexFunctions {
   export function diagonalHessian(
     f: (x: Vector) => number,
     x: Vector,
+    variables: readonly number[] = every(x),
   ): IDerivatives {
     const y: number = f(x);
     const n: number = x.length;
-    const gradient: number[] = [];
+    const gradient: number[] = new Array<number>(n).fill(0);
     const hessian: number[][] = square(n);
-    for (let i: number = 0; i < n; ++i) {
+    for (const i of variables) {
       const plus: number[] = [...x];
       const minus: number[] = [...x];
       plus[i] = x[i]! + EPSILON / 2;
       minus[i] = x[i]! - EPSILON / 2;
       const yplus: number = f(plus);
       const yminus: number = f(minus);
-      gradient.push((yplus - yminus) / EPSILON);
+      gradient[i] = (yplus - yminus) / EPSILON;
       hessian[i]![i] = Math.max(
         0,
         (yplus + yminus - 2 * y) / ((EPSILON * EPSILON) / 4),
@@ -141,16 +154,32 @@ export namespace HumanSequentialConvexFunctions {
   export function fullHessian(
     f: (x: Vector) => number,
     x: Vector,
+    variables: readonly number[] = every(x),
   ): IDerivatives {
-    const grad: (at: Vector) => Vector = (at: Vector): Vector =>
-      forwardGradient(f, at);
-    const gradient: number[] = [...grad(x)];
-    const jacobian: number[][] = forwardJacobian(grad, x);
-    const symmetric: number[][] = jacobian.map(
-      (row: number[], i: number): number[] =>
-        row.map((v: number, j: number): number => (v + jacobian[j]![i]!) / 2),
+    // The gradient and its Jacobian in the function's own variables.
+    const grad: (at: Vector) => Vector = (at: Vector): Vector => {
+      const g: Vector = forwardGradient(f, at, variables);
+      return variables.map((i: number): number => g[i]!);
+    };
+    const own: Vector = grad(x);
+    const jacobian: number[][] = forwardJacobian(grad, x, variables);
+    const block: number[][] = positivePart(
+      jacobian.map((row: number[], a: number): number[] =>
+        variables.map(
+          (_: number, b: number): number =>
+            (row[variables[b]!]! + jacobian[b]![variables[a]!]!) / 2,
+        ),
+      ),
     );
-    return { gradient, hessian: positivePart(symmetric) };
+    const gradient: number[] = new Array<number>(x.length).fill(0);
+    const hessian: number[][] = square(x.length);
+    variables.forEach((i: number, a: number): void => {
+      gradient[i] = own[a]!;
+      variables.forEach((j: number, b: number): void => {
+        hessian[i]![j] = block[a]![b]!;
+      });
+    });
+    return { gradient, hessian };
   }
 
   /**
@@ -160,13 +189,19 @@ export namespace HumanSequentialConvexFunctions {
    * @param x The point.
    * @returns The gradient.
    */
-  export function forwardGradient(f: (x: Vector) => number, x: Vector): Vector {
+  export function forwardGradient(
+    f: (x: Vector) => number,
+    x: Vector,
+    variables: readonly number[] = every(x),
+  ): Vector {
     const y: number = f(x);
-    return x.map((v: number, i: number): number => {
+    const out: number[] = new Array<number>(x.length).fill(0);
+    for (const i of variables) {
       const pert: number[] = [...x];
-      pert[i] = v + EPSILON;
-      return (f(pert) - y) / EPSILON;
-    });
+      pert[i] = x[i]! + EPSILON;
+      out[i] = (f(pert) - y) / EPSILON;
+    }
+    return out;
   }
 
   /**
@@ -180,16 +215,18 @@ export namespace HumanSequentialConvexFunctions {
   export function forwardJacobian(
     f: (x: Vector) => Vector,
     x: Vector,
+    variables: readonly number[] = every(x),
   ): number[][] {
     const y: Vector = f(x);
-    const columns: number[][] = x.map((v: number, i: number): number[] => {
+    const columns: number[][] = x.map((): number[] => y.map((): number => 0));
+    for (const i of variables) {
       const pert: number[] = [...x];
-      pert[i] = v + EPSILON;
+      pert[i] = x[i]! + EPSILON;
       const ypert: Vector = f(pert);
-      return y.map(
+      columns[i] = y.map(
         (yk: number, k: number): number => (ypert[k]! - yk) / EPSILON,
       );
-    });
+    }
     return y.map((_: number, k: number): number[] =>
       columns.map((column: number[]): number => column[k]!),
     );
@@ -242,8 +279,8 @@ export namespace HumanSequentialConvexFunctions {
     const hessian: number[][] = square(n);
     for (const cost of functions.costs) {
       const d: IDerivatives = cost.full
-        ? fullHessian(cost.f, x)
-        : diagonalHessian(cost.f, x);
+        ? fullHessian(cost.f, x, cost.variables)
+        : diagonalHessian(cost.f, x, cost.variables);
       for (let i: number = 0; i < n; ++i) {
         gradient[i]! += d.gradient[i]!;
         for (let j: number = 0; j < n; ++j)
@@ -257,12 +294,13 @@ export namespace HumanSequentialConvexFunctions {
     const rows: IAutoMovieMotionHumanQuadraticProgram.IRow[] = [];
     functions.constraints.forEach((c: IConstraint, ci: number): void => {
       const value: Vector = c.g(x);
-      const jacobian: number[][] = forwardJacobian(c.g, x);
+      const own: readonly number[] = c.variables ?? all;
+      const jacobian: number[][] = forwardJacobian(c.g, x, own);
       value.forEach((v: number, k: number): void => {
         rows.push({
           key: `g|${ci}|${k}`,
-          index: all,
-          coef: jacobian[k]!,
+          index: [...own],
+          coef: own.map((i: number): number => jacobian[k]![i]!),
           l: c.equality ? -v : -Infinity,
           u: -v,
           weight: coefficient,
@@ -373,6 +411,11 @@ export namespace HumanSequentialConvexFunctions {
         return s;
       }),
     );
+  }
+
+  /** Every variable's index of a point. */
+  function every(x: Vector): number[] {
+    return x.map((_: number, i: number): number => i);
   }
 
   /** An n-by-n matrix of zeros. */

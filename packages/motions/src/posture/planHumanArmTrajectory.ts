@@ -17,6 +17,7 @@ import { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
 import { HumanArmTrajectoryPace as Pace } from "./HumanArmTrajectoryPace";
 import { HumanArmTrajectoryPairs as P } from "./HumanArmTrajectoryPairs";
 import { HumanArmTrajectoryPlayback } from "./HumanArmTrajectoryPlayback";
+import { HumanArmTrajectoryRetime as Retime } from "./HumanArmTrajectoryRetime";
 import { HumanArmTrajectoryStretch as Stretch } from "./HumanArmTrajectoryStretch";
 import { HumanArmTrajectoryTerms as T } from "./HumanArmTrajectoryTerms";
 import { nameArmTrajectoryPair } from "./nameArmTrajectoryPair";
@@ -97,43 +98,55 @@ export function planHumanArmTrajectory(
   const inside: HumanRefusal | undefined = restInside(fine, problem);
   if (inside !== undefined) throw inside;
 
-  // A laid course whose worst term is its speed is met by the same course
-  // over a longer span: scaling time by a factor divides every speed by it
-  // (Hollerbach 1984), so the span the course needs is its own times its
-  // fastest probe's speed over the bound. Where the span is the law's own,
-  // which a replan at a slower tempo lengthens (`stretches`), no
-  // trajectory is optimised at this span for it: the caller is handed that
-  // span at once, as the optimiser's refusal hands it below. A span an end
-  // of which a meeting fixes is not lengthened by the tempo, so its course
-  // goes to the optimiser, which may find a shorter path within it.
+  // A laid course whose worst term is its speed is retimed along its own path
+  // (TOPP-RA, `HumanArmTrajectoryRetime`): its least duration within every
+  // joint's velocity limit and the law's own pace, its time map slowed to the
+  // span where the span holds it, and the retimed course read again in full,
+  // which admits it or hands it on. Where the least exceeds a span the law's
+  // own tempo sets (`stretches`), the caller is handed that least at once; a
+  // span an end of which a meeting fixes goes to the optimiser.
   if (
-    stretches &&
     course !== undefined &&
     warm === undefined &&
     course.refused === "speed"
   ) {
     const span: number = fine.times[fine.n - 1]! - fine.times[0]!;
-    const factor: number = Pace.slower(
-      fine,
-      course.read.x,
-      course.read.evaluation?.placed,
-    );
-    if (factor > 1)
+    const timing: Retime.ITiming = Retime.timing(fine, course.read.x);
+    const least: number = timing.timed.times[timing.timed.times.length - 1]!;
+    if (timing.status === "ok" && least <= span) {
+      const x: number[][][] = Retime.retimed(
+        fine,
+        course.read.x,
+        timing.timed,
+        span,
+      );
+      const evaluation: M.IEvaluation = M.evaluate(fine, x);
+      if (evaluation.worst.value <= M.TOLERANCE)
+        return {
+          trajectories: problem.arms.map(
+            (
+              _: HumanArmTrajectory.IArm,
+              a: number,
+            ): IAutoMovieMotionHumanArmTrajectory.Trajectory =>
+              HumanArmTrajectoryPlayback(fine.setups, fine.times, x, a),
+          ),
+          state: { times: [...fine.times], x, penalty: 0 },
+        };
+    } else if (stretches)
       throw new HumanRefusal({
         kind: "reach",
         axis: "duration",
         value: span,
         feasible: {
           kind: "range",
-          minimum: Pace.duration(span * factor),
+          minimum: Pace.duration(timing.status === "ok" ? least : Infinity),
           maximum: null,
           unit: "s",
         },
         reason: `the laid course of the ${problem.arms.map((a: HumanArmTrajectory.IArm): string => a.side).join(" and ")} arm over the action moves faster than the law's own pace`,
         fix: "give the action more time",
       });
-  }
-  // A hold whose law prescribes the hand's pose at every instant (its site
+  } // A hold whose law prescribes the hand's pose at every instant (its site
   // and its asked attitude) leaves the arm one freedom an instant, the
   // elbow's swivel about the shoulder-wrist axis (Tolani, Goswami and
   // Badler 2000, section 3.2), so it is tracked, not optimised: the
@@ -283,6 +296,7 @@ export function planHumanArmTrajectory(
                   initial.context,
                   Pace.coursed(initial.context, course.trajectories),
                 ),
+            fine,
           ),
         ); // The path a refusal for time was reached at is the replan's start
   // (`Stretch.refused` tells it): over the span the refusal names, the same

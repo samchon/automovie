@@ -66,11 +66,11 @@ Defines the ordered time/coordinate pairing, endpoint behavior, the waypoints' v
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-The via-point quintic Hermite of Flash and Hogan 1985 (J. Neurosci. 5(7):1688): segments meeting in position, velocity and acceleration, at rest in both at the first and last waypoint (their boundary conditions). Each waypoint's velocity is the central difference over its actual neighbouring spans. Its acceleration is the second derivative of the cubic Hermite segment starting there, as TOPP-RA's ConstAccel reads q̈ = q'' ṡ² + q' u at a gridpoint from the segment that starts there (toppra const_accel.cpp evalParams and eval_impl at 8a2a9252e42089f1082d8d5d69b9852f32d0b338, MIT), with ṡ = 1 and u = 0.
+Flash and Hogan's minimum-jerk path through the waypoints (`HumanMinimumJerkSpline`, Flash and Hogan 1985): a quintic per interval, continuous through its snap at each interior waypoint, at rest in velocity and acceleration at the first and the last.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-Endpoint copies precede an interval search, two tangents, two accelerations and the componentwise six-term quintic.
+The prepared reader of the same waypoints, read once.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
@@ -78,11 +78,11 @@ Keeps interval ties, endpoint copies and each actual coordinate calculation; no 
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
-Bisects N knot seconds and computes two D-component tangents, two accelerations and D results, costing O(log N + D) work and O(D) temporary/output space.
+Solves the waypoints' derivatives in O(N D), then bisects N knot seconds for one O(D) quintic.
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 
-Reuses the selected interval's time span and six scalar basis values across coordinates; all callers use this same interpolant.
+All callers use this same interpolant; a caller reading many instants prepares it once (`prepareHermite`).
 
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
@@ -96,11 +96,11 @@ States time units, fixed inputs, held endpoints and fresh coordinate/index owner
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-Prepares each waypoint's central difference, acceleration and span once. The quintic and the interval search are shared with the one-shot interpolant.
+Solves each waypoint's velocity and acceleration on the minimum-jerk path once (`HumanMinimumJerkSpline.derivatives`). The quintic and the interval search are shared with the one-shot interpolant.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-One index lookup reports the interval and the shoulder chart's preceding knot. The three immutable coefficient arrays serve both actual admission and display reads.
+One index lookup reports the interval and the shoulder chart's preceding knot. The solved derivatives serve both actual admission and display reads.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
