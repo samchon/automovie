@@ -1,4 +1,5 @@
 import type { IAutoMovieMotionHumanArmClearance } from "./IAutoMovieMotionHumanArmClearance";
+import type { IAutoMovieMotionHumanPosture } from "./IAutoMovieMotionHumanPosture";
 
 /**
  * A performer's arms over one action as one trajectory optimisation, in
@@ -23,6 +24,27 @@ export namespace IAutoMovieMotionHumanArmTrajectory {
   export type Trajectory = (
     seconds: number,
   ) => IAutoMovieMotionHumanArmClearance.IArm;
+
+  /**
+   * A planned arm at a second as its plan plays it: the arm's joints and its
+   * hand's finger state in joint space, the state the planner read the hand by.
+   * The display writes both unchanged and fits no digit after the plan, as
+   * MoveIt's grasp carries its finger state (`moveit_msgs/Grasp`,
+   * `grasp_posture`) for execution to play.
+   */
+  export interface IPlayed extends IAutoMovieMotionHumanArmClearance.IArm {
+    /**
+     * The hand's digit joints, clinical flexion, abduction and twist in
+     * degrees, by bone; a digit the plan carries no state for is absent.
+     */
+    digits: IAutoMovieMotionHumanPosture["joints"];
+  }
+
+  /**
+   * A planned arm and its hand's finger state at any second of the span, as its
+   * plan plays them (`IPlayed`).
+   */
+  export type Played = (seconds: number) => IPlayed;
 
   /**
    * A solved trajectory as plan data: what a later solve of the same action (a

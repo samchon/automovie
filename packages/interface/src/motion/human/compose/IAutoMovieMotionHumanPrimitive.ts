@@ -21,6 +21,18 @@ export interface IAutoMovieMotionHumanPrimitive {
   channels: readonly AutoMovieMotionHumanChannel[];
 
   /**
+   * Hand channels whose fingers it plays over its window after the hands' own
+   * primitives: a planned arm's finger state, which its plan carries in joint
+   * space and the composition plays unchanged, as MoveIt's grasp carries its
+   * `grasp_posture` for execution (`moveit_msgs/Grasp`). The composition takes
+   * these channels from what `write` returns as well as the claimed ones, so a
+   * write that leaves a played hand as it found it keeps the hand's own
+   * primitive. They do not conflict with a primitive that claims them. Absent,
+   * it plays none.
+   */
+  plays?: readonly AutoMovieMotionHumanChannel[];
+
+  /**
    * Channels whose values determine the claimed output at the written second,
    * including a claimed channel when its previous values are added or
    * preserved. Omission means every channel. A pure time-local callback may

@@ -531,7 +531,7 @@ export namespace gesture {
     // The arms planned over the whole gesture as one trajectory, when the
     // gesture is planned, so no posture read plans them.
     const arms:
-      | Map<AutoMovieHumanSide, IAutoMovieMotionHumanArmTrajectory.Trajectory>
+      | Map<AutoMovieHumanSide, IAutoMovieMotionHumanArmTrajectory.Played>
       | undefined =
       sides.length === 0
         ? undefined

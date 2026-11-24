@@ -17,6 +17,7 @@ import type {
 } from "@automovie/interface";
 
 import { HumanRefusal } from "../law/HumanRefusal";
+import { HumanArmClearance } from "../posture/HumanArmClearance";
 import { HumanArmGeometry } from "../posture/HumanArmGeometry";
 import { HumanArmSeed } from "../posture/HumanArmSeed";
 import { HumanArmTrajectory } from "../posture/HumanArmTrajectory";
@@ -30,6 +31,7 @@ import { AutoMovieMotionHumanArmAimed } from "./AutoMovieMotionHumanArmAimed";
 import { AutoMovieMotionHumanArmAngles } from "./AutoMovieMotionHumanArmAngles";
 import { AutoMovieMotionHumanArmCourse } from "./AutoMovieMotionHumanArmCourse";
 import { AutoMovieMotionHumanArmObservation } from "./AutoMovieMotionHumanArmObservation";
+import { AutoMovieMotionHumanArmPlayed } from "./AutoMovieMotionHumanArmPlayed";
 import { AutoMovieMotionHumanArmRetimed } from "./AutoMovieMotionHumanArmRetimed";
 import { AutoMovieMotionHumanArmRide } from "./AutoMovieMotionHumanArmRide";
 import { AutoMovieMotionHumanArmStated } from "./AutoMovieMotionHumanArmStated";
@@ -313,7 +315,7 @@ export namespace AutoMovieMotionHumanArmPlanned {
     plan?: Pick<IAutoMovieMotionHumanArmPlanned.ITogether, PlannedPlan>,
     inheritedPace?: (seconds: number) => number,
     still?: boolean,
-  ): Map<AutoMovieHumanSide, IAutoMovieMotionHumanArmTrajectory.Trajectory> {
+  ): Map<AutoMovieHumanSide, IAutoMovieMotionHumanArmTrajectory.Played> {
     const resolution: ReturnType<typeof prepareHumanPoseResolution> =
       prepareHumanPoseResolution();
     const projection: ReturnType<typeof prepareHumanPostureProjection> =
@@ -560,6 +562,11 @@ export namespace AutoMovieMotionHumanArmPlanned {
     // so the frames built on it are built once (`HumanArmFrame.of`).
     const bases: Map<number, HumanArmTrajectory.IProblem["bases"][number]> =
       new Map();
+    // Each instant's finger state of each planned hand, set as its base is
+    // built: the hand is read by it there and shown with it
+    // (`AutoMovieMotionHumanArmPlayed`).
+    const fingers: Map<number, IAutoMovieMotionHumanPosture["joints"][]> =
+      new Map();
     const base = (t: number): HumanArmTrajectory.IProblem["bases"][number] => {
       let found: HumanArmTrajectory.IProblem["bases"][number] | undefined =
         bases.get(t);
@@ -570,11 +577,33 @@ export namespace AutoMovieMotionHumanArmPlanned {
             a: number,
           ): IAutoMovieHumanLimbGoal => aimed(a, t),
         );
+        const states: IAutoMovieMotionHumanPosture["joints"][] = carries.map(
+          (
+            c: IAutoMovieMotionHumanArmPlanned.IPlanned,
+            a: number,
+          ): IAutoMovieMotionHumanPosture["joints"] =>
+            AutoMovieMotionHumanArmPlayed.grasp(
+              body,
+              at(t).pose,
+              at(t).posture,
+              c.side,
+              (): IAutoMovieMotionHumanArmAngles.IAngles => fitted(a, t),
+            ),
+        );
+        fingers.set(t, states);
         // On the hold the hand lies on what its goal lays it on: those
         // segments are its contact there, and obstacles on the way. What no
         // human body carries (a prop, an animal) is kept clear of too.
         found = AutoMovieMotionHumanArmObservation.based(
-          at(t).pose,
+          carries.reduce(
+            (
+              pose: IAutoMoviePose,
+              c: IAutoMovieMotionHumanArmPlanned.IPlanned,
+              a: number,
+            ): IAutoMoviePose =>
+              HumanArmClearance.fingered(pose, c.side, states[a]!),
+            at(t).pose,
+          ),
           goals,
           carries.map((c: IAutoMovieMotionHumanArmPlanned.IPlanned): boolean =>
             holding(c, t),
@@ -821,15 +850,36 @@ export namespace AutoMovieMotionHumanArmPlanned {
         solved = result.trajectories;
       }
     }
+    // Each hand plays the finger state its bases carried, between the
+    // instants the plan read (`AutoMovieMotionHumanArmPlayed.prepare`).
+    const instants: number[] = [...fingers.keys()].sort(
+      (x: number, y: number): number => x - y,
+    );
     return new Map(
       carries.map(
         (
           c: IAutoMovieMotionHumanArmPlanned.IPlanned,
           a: number,
-        ): [
-          AutoMovieHumanSide,
-          IAutoMovieMotionHumanArmTrajectory.Trajectory,
-        ] => [c.side, solved[a]!],
+        ): [AutoMovieHumanSide, IAutoMovieMotionHumanArmTrajectory.Played] => {
+          const played: (
+            seconds: number,
+          ) => IAutoMovieMotionHumanPosture["joints"] =
+            AutoMovieMotionHumanArmPlayed.prepare(
+              instants,
+              instants.map(
+                (t: number): IAutoMovieMotionHumanPosture["joints"] =>
+                  fingers.get(t)![a]!,
+              ),
+            );
+          const arm: IAutoMovieMotionHumanArmTrajectory.Trajectory = solved[a]!;
+          return [
+            c.side,
+            (seconds: number): IAutoMovieMotionHumanArmTrajectory.IPlayed => ({
+              ...arm(seconds),
+              digits: played(seconds),
+            }),
+          ];
+        },
       ),
     );
 

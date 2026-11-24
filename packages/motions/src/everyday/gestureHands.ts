@@ -20,6 +20,7 @@ import type {
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanArmObservation } from "../compose/AutoMovieMotionHumanArmObservation";
 import { AutoMovieMotionHumanArmPlanned } from "../compose/AutoMovieMotionHumanArmPlanned";
+import { AutoMovieMotionHumanArmPlayed } from "../compose/AutoMovieMotionHumanArmPlayed";
 import { AutoMovieMotionHumanArmTarget } from "../compose/AutoMovieMotionHumanArmTarget";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { HumanHand } from "../posture/HumanHand";
@@ -312,7 +313,7 @@ export namespace gestureHands {
     ) => IPrior,
     envelope: (seconds: number) => number,
     plan?: Parameters<typeof AutoMovieMotionHumanArmPlanned.planned>[4],
-  ): Map<AutoMovieHumanSide, IAutoMovieMotionHumanArmTrajectory.Trajectory> {
+  ): Map<AutoMovieHumanSide, IAutoMovieMotionHumanArmTrajectory.Played> {
     // The planner passes the exact posture returned by before to each arm.
     // Keep that posture's hand requests with it, rather than evaluating the
     // complete two-hand gesture again for every goal and scalar weight.
@@ -368,23 +369,19 @@ export namespace gestureHands {
     posture: IAutoMovieMotionHumanPosture,
     arms: ReadonlyMap<
       AutoMovieHumanSide,
-      IAutoMovieMotionHumanArmTrajectory.Trajectory
+      IAutoMovieMotionHumanArmTrajectory.Played
     >,
     seconds: number,
   ): IAutoMovieMotionHumanPosture {
-    const joints: IAutoMovieMotionHumanPosture["joints"] = {
-      ...posture.joints,
-    };
-    const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...posture.limbs };
+    // Each planned arm, its hand's fingers as the plan plays them
+    // (`AutoMovieMotionHumanArmPlayed.written`).
+    let out: IAutoMovieMotionHumanPosture = posture;
     for (const [side, trajectory] of arms) {
-      const arm: ReturnType<IAutoMovieMotionHumanArmTrajectory.Trajectory> =
+      const arm: IAutoMovieMotionHumanArmTrajectory.IPlayed =
         trajectory(seconds);
-      joints[`${side}UpperArm`] = arm.upper;
-      joints[`${side}LowerArm`] = arm.lower;
-      joints[`${side}Hand`] = arm.hand;
-      delete limbs[`${side}Arm`];
+      out = AutoMovieMotionHumanArmPlayed.written(out, side, arm, arm.digits);
     }
-    return { ...posture, joints, limbs };
+    return out;
   }
 
   /**

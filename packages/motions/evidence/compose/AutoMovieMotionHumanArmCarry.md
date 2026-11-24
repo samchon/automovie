@@ -44,7 +44,7 @@ The group joined once; per second the planned arm or one `carry`, whose goal an 
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
-The group is solved once, when its first member is prepared on the posture before it, and a member asked while it is being solved throws instead of solving twice, and a solve that refuses keeps its refusal (`ITogether.refused`), which every later read of a member throws again instead of solving again; the hand's fingers are not claimed, so a row that shapes them composes with this one.
+The group is solved once, when its first member is prepared on the posture before it, and a member asked while it is being solved throws instead of solving twice, and a solve that refuses keeps its refusal (`ITogether.refused`), which every later read of a member throws again instead of solving again; the hand's fingers are not claimed, so a row that shapes them composes with this one; on its plan the arm plays its hand (`plays`): the fingers its plan carries in joint space, from the bases the planner read the hand by (`AutoMovieMotionHumanArmPlayed.written`), with the hand's digit goals removed so no digit is fitted after the plan, MoveIt's grasp convention (moveit_msgs/Grasp, BSD-3-Clause). Off its plan it returns the hand as it found it, which its reads there keep evaluated.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 

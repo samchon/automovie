@@ -183,12 +183,19 @@ export function composeAutoMovieMotionHumanAction(
   // without reading it; only its declared prerequisites propagate backward.
   const width: number = 1 << HumanChannels.ORDER.length;
   const all: number = width - 1;
+  // A primitive writes its claimed channels and the hands it plays
+  // (`IAutoMovieMotionHumanPrimitive.plays`), taken from its write as the
+  // claimed ones are.
+  const written = (
+    p: IAutoMovieMotionHumanPrimitive,
+  ): readonly AutoMovieMotionHumanChannel[] =>
+    p.plays === undefined ? p.channels : [...p.channels, ...p.plays];
   const masks: number[] = primitives.map(
-    (p: IAutoMovieMotionHumanPrimitive): number => mask(p.channels),
+    (p: IAutoMovieMotionHumanPrimitive): number => mask(written(p)),
   );
   const mergers: Merger[] = primitives.map(
     (p: IAutoMovieMotionHumanPrimitive): Merger =>
-      HumanChannels.prepareMerge(p.channels),
+      HumanChannels.prepareMerge(written(p)),
   );
   const dependencies: ComposeAutoMovieMotionHumanActionDependenciesItem[] =
     primitives.map(
@@ -287,7 +294,7 @@ export function composeAutoMovieMotionHumanAction(
     channels: HumanChannels.ORDER.filter(
       (c: AutoMovieMotionHumanChannel): boolean =>
         primitives.some((p: IAutoMovieMotionHumanPrimitive): boolean =>
-          p.channels.includes(c),
+          written(p).includes(c),
         ),
     ),
     ...(props.contact === undefined

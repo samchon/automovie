@@ -10,11 +10,11 @@ A part's movement is a function from the posture so far and the time to a postur
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
-The claim, optional input dependencies, span, writer and optional planning, contacts and weapons serve the composer; omitted dependencies preserve complete input reads. The writer's trailing evaluation is the composed plan's own explicit context, so no writer has a hidden contextual counterpart.
+The claim, the hands it plays, optional input dependencies, span, writer and optional planning, contacts and weapons serve the composer; `plays` serves a planned arm (`AutoMovieMotionHumanArmCarry.carried`), whose plan carries its hand's finger state in joint space for the composition to play over the hand's own primitive, MoveIt's grasp convention (moveit_msgs/Grasp, BSD-3-Clause, grasp_posture); omitted dependencies preserve complete input reads. The writer's trailing evaluation is the composed plan's own explicit context, so no writer has a hidden contextual counterpart.
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 
-Reuses the plan's contact-window and weapon types; the two optional members are absent for a primitive that makes neither.
+Reuses the plan's contact-window and weapon types; the optional members are absent for a primitive that makes none of them, and a played hand is a channel of the same vocabulary, not a second claim, so it never refuses beside the hand's own primitive.
 
 # src/motion/human/compose/IAutoMovieMotionHumanPrimitive.ts#IAutoMovieMotionHumanPrimitive.Reader
 

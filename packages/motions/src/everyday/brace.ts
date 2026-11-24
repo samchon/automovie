@@ -525,7 +525,7 @@ export namespace brace {
       minimumJerk.share(Math.min(1, Math.max(0, at) / SET));
     const arms: Map<
       AutoMovieHumanSide,
-      IAutoMovieMotionHumanArmTrajectory.Trajectory
+      IAutoMovieMotionHumanArmTrajectory.Played
     > = gestureHands.planned(
       body,
       { start: 0, ready: SET, relax: duration, end: duration },

@@ -28,7 +28,7 @@ Two arms whose paths are coupled are one problem (Erdmann and Lozano-Pérez 1987
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
-The members, the solution and the guard against re-entry.
+The members, the solution (each arm's trajectory with its hand's finger state, `IAutoMovieMotionHumanArmTrajectory.Played`) and the guard against re-entry.
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 

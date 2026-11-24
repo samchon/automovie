@@ -210,7 +210,7 @@ States what is written and from what.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-Each planned arm's upper arm, forearm and hand angles at the second replace the posture's, and the arm's limb goal is dropped, since the joints now hold the arm.
+Each planned arm is written by `AutoMovieMotionHumanArmPlayed.written`: its upper arm, forearm and hand angles at the second and its hand's finger state as the plan plays it replace the posture's, and the arm's limb goal and the hand's digit goals are dropped, so no fit after the plan moves either (MoveIt's grasp convention, moveit_msgs/Grasp, BSD-3-Clause).
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
@@ -222,7 +222,7 @@ No fit or correction: the trajectory is the planner's.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
-One trajectory read and three joint writes per arm.
+One trajectory read and the arm's and the hand's joint writes per arm.
 
 ## @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work
 

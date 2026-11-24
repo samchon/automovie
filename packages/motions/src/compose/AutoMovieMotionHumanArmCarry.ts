@@ -25,6 +25,7 @@ import { AutoMovieMotionHumanArmCarryCourse } from "./AutoMovieMotionHumanArmCar
 import { AutoMovieMotionHumanArmChain } from "./AutoMovieMotionHumanArmChain";
 import { AutoMovieMotionHumanArmFollow } from "./AutoMovieMotionHumanArmFollow";
 import { AutoMovieMotionHumanArmPlanned } from "./AutoMovieMotionHumanArmPlanned";
+import { AutoMovieMotionHumanArmPlayed } from "./AutoMovieMotionHumanArmPlayed";
 import { AutoMovieMotionHumanChannel as HumanChannels } from "./AutoMovieMotionHumanChannel";
 
 /** The alternatives of `CarriedLimb`'s site. */
@@ -175,6 +176,7 @@ export namespace AutoMovieMotionHumanArmCarry {
     props: IAutoMovieMotionHumanArmCarry.ICarry,
   ): IAutoMovieMotionHumanPrimitive {
     const limb: CarriedLimb = `${props.side}Arm`;
+    const fingers: AutoMovieMotionHumanChannel = `${props.side}Hand`;
     const span: IAutoMovieMotionHumanArmPlanned.ISpan | undefined = props.span;
 
     // The arm's whole action, solved once over its span, with the other
@@ -194,10 +196,7 @@ export namespace AutoMovieMotionHumanArmCarry {
     // lets it hang there (`hung`), the arm its writes hold off the plan.
     const solve = (
       before: (seconds: number) => IAutoMovieMotionHumanPosture,
-    ): Map<
-      AutoMovieHumanSide,
-      IAutoMovieMotionHumanArmTrajectory.Trajectory
-    > =>
+    ): Map<AutoMovieHumanSide, IAutoMovieMotionHumanArmTrajectory.Played> =>
       props.beside === undefined
         ? AutoMovieMotionHumanArmPlanned.planned(
             props.body,
@@ -219,7 +218,7 @@ export namespace AutoMovieMotionHumanArmCarry {
                 member: IAutoMovieMotionHumanArmCarry.ICarry,
               ): [
                 AutoMovieHumanSide,
-                IAutoMovieMotionHumanArmTrajectory.Trajectory,
+                IAutoMovieMotionHumanArmTrajectory.Played,
               ][] => [
                 ...AutoMovieMotionHumanArmPlanned.planned(
                   member.body,
@@ -240,7 +239,7 @@ export namespace AutoMovieMotionHumanArmCarry {
           );
     const planned = (
       before: (seconds: number) => IAutoMovieMotionHumanPosture,
-    ): IAutoMovieMotionHumanArmTrajectory.Trajectory => {
+    ): IAutoMovieMotionHumanArmTrajectory.Played => {
       if (group.solved === undefined) {
         // A refusal is the solve's outcome as a solution is: read again, it
         // is thrown again, not solved again.
@@ -274,6 +273,9 @@ export namespace AutoMovieMotionHumanArmCarry {
     let handed: HumanArmSwing.Entered | undefined;
     return {
       channels: [limb],
+      // A planned arm plays its hand's fingers as its plan carries them
+      // (`AutoMovieMotionHumanArmPlayed`), over the hand's own primitive.
+      ...(span === undefined ? {} : { plays: [fingers] }),
       // An arm that follows a person reads that person live (`follower`).
       ...(span !== undefined && props.tracked === true
         ? { follows: true }
@@ -322,21 +324,15 @@ export namespace AutoMovieMotionHumanArmCarry {
                 so,
               ))(at, source, projection)
             : planned(so)(at);
-        const placed = (
-          on: IAutoMovieMotionHumanArmClearance.IArm,
-        ): IAutoMovieMotionHumanPosture => {
-          const joints: IAutoMovieMotionHumanPosture["joints"] = {
-            ...posture.joints,
-          };
-          const limbs: IAutoMovieMotionHumanPosture["limbs"] = {
-            ...posture.limbs,
-          };
-          joints[`${props.side}UpperArm`] = on.upper;
-          joints[`${props.side}LowerArm`] = on.lower;
-          joints[`${props.side}Hand`] = on.hand;
-          delete limbs[limb];
-          return { ...posture, joints, limbs };
-        };
+        // The planned arm at an instant, its hand's fingers as the plan
+        // plays them there (`AutoMovieMotionHumanArmPlayed.written`).
+        const placed = (at: number): IAutoMovieMotionHumanPosture =>
+          AutoMovieMotionHumanArmPlayed.written(
+            posture,
+            props.side,
+            arm(at),
+            planned(so)(at).digits,
+          );
         // The planned course holds through its span's last instant: a return
         // ends on its `back` there, and the rest-to-goal blend outside the
         // span, whose weight has fallen to none at that instant, would show
@@ -360,7 +356,7 @@ export namespace AutoMovieMotionHumanArmCarry {
             [limb]: props.goal(at, t, resolution, projector),
           },
         });
-        if (onPlan) out = placed(arm(seconds));
+        if (onPlan) out = placed(seconds);
         else
           out = carry(
             props.body,
@@ -424,7 +420,7 @@ export namespace AutoMovieMotionHumanArmCarry {
             requested,
           ).get(`${props.side}Hand`)!.worldRotation;
         const ended: IAutoMovieMotionHumanPosture = onPlan
-          ? placed(arm(seconds <= span!.ready ? span!.ready : span!.relax))
+          ? placed(seconds <= span!.ready ? span!.ready : span!.relax)
           : {
               ...posture,
               limbs: {

@@ -50,11 +50,11 @@ export namespace IAutoMovieMotionHumanArmPlanned {
     /** The carries of the group, in the order they joined. */
     carries: IAutoMovieMotionHumanArmCarry.ICarry[];
 
-    /** Each arm's trajectory, once solved. */
-    solved?: Map<
-      AutoMovieHumanSide,
-      IAutoMovieMotionHumanArmTrajectory.Trajectory
-    >;
+    /**
+     * Each arm's trajectory, once solved, with its hand's finger state as the
+     * plan plays it.
+     */
+    solved?: Map<AutoMovieHumanSide, IAutoMovieMotionHumanArmTrajectory.Played>;
 
     /**
      * Whether the group is being solved, so a member asked during the solve is

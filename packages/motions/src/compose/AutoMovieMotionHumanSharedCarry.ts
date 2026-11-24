@@ -4,7 +4,6 @@ import type {
   IAutoMovieHumanEffectorPointLimit,
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanArmAngles,
-  IAutoMovieMotionHumanArmClearance,
   IAutoMovieMotionHumanArmPlanned,
   IAutoMovieMotionHumanArmTrajectory,
   IAutoMovieMotionHumanPosture,
@@ -23,6 +22,7 @@ import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { AutoMovieMotionHumanArmAngles } from "./AutoMovieMotionHumanArmAngles";
 import { AutoMovieMotionHumanArmPlanned } from "./AutoMovieMotionHumanArmPlanned";
+import { AutoMovieMotionHumanArmPlayed } from "./AutoMovieMotionHumanArmPlayed";
 
 /**
  * Prepare the steady shared carry in CORE4D (Liu et al. 2024, §3.4 and appendix
@@ -216,7 +216,7 @@ function prepareCarrier(
       );
   }
 
-  const arm: IAutoMovieMotionHumanArmTrajectory.Trajectory =
+  const arm: IAutoMovieMotionHumanArmTrajectory.Played =
     AutoMovieMotionHumanArmPlanned.planned(
       body,
       bounds,
@@ -238,20 +238,15 @@ function prepareCarrier(
       throw new RangeError(
         `Shared carry posture is only available from ${from} to ${to} s.`,
       );
-    const base: IAutoMovieMotionHumanPosture = posture(seconds);
-    const on: IAutoMovieMotionHumanArmClearance.IArm = arm(seconds - from);
-    const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...base.limbs };
-    delete limbs[`${side}Arm`];
-    return {
-      ...base,
-      limbs,
-      joints: {
-        ...base.joints,
-        [`${side}UpperArm`]: on.upper,
-        [`${side}LowerArm`]: on.lower,
-        [`${side}Hand`]: on.hand,
-      },
-    };
+    // The planned arm, its hand's fingers as the plan plays them
+    // (`AutoMovieMotionHumanArmPlayed.written`).
+    const on: IAutoMovieMotionHumanArmTrajectory.IPlayed = arm(seconds - from);
+    return AutoMovieMotionHumanArmPlayed.written(
+      posture(seconds),
+      side,
+      on,
+      on.digits,
+    );
   };
 }
 
