@@ -80,8 +80,8 @@ import { AutoMovieHumanCanonicalSolids as Solids } from "./AutoMovieHumanCanonic
  * cross the midline by 12 to 17 mm. Neither overlap leaves within a natural arm
  * or leg abduction, and left live, the solver ejects those limbs on the first
  * substep and splays the planted feet. Disabling collision for pairs that
- * overlap in the reference pose is the standard practice (Unreal Engine's
- * Physics Asset collision-disable table; MuJoCo's `<contact> <exclude>` pairs).
+ * overlap in the reference pose is the standard practice (MuJoCo's `<contact>
+ * <exclude>` pairs).
  * The known limitation: an upper arm passes through the abdomen and a thigh
  * through the other thigh, as in crossed legs or a clinch, while every other
  * pair, such as the shins with each other and the forearms with the abdomen,

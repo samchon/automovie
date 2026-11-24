@@ -17,11 +17,9 @@ Each note records one external source: its citation, what was read, what it prov
 ## Rigging and deformation
 
 - [Abdrashitov et al. 2023, robust skin weight transfer](abdrashitov-2023-skin-weight-transfer.md)
-- [Blender, Surface Deform and Shrinkwrap modifiers](blender-surface-deform-shrinkwrap.md)
 - [Kavan et al. 2008, dual quaternion skinning](kavan-2008-dual-quaternion-skinning.md)
 - [Loper et al. 2015, SMPL](loper-2015-smpl.md)
 - [Ma et al. 2020, CAPE clothing displacements](ma-2020-cape.md)
-- [Maya, wrap deformer node](maya-wrap-deformer.md)
 - [Meta (Oculus) Lipsync viseme reference](meta-ovrlipsync-visemes.md)
 
 ## Hair and surface appearance
@@ -45,7 +43,6 @@ Each note records one external source: its citation, what was read, what it prov
 - [Scheuermann 2004, practical real-time hair rendering](scheuermann-2004-hair.md)
 - [Skin-feature distribution sources](skin-feature-distribution.md)
 - [three.js r186, subsurface and physical material](threejs-r186-subsurface.md)
-- [Unreal Engine, hair card generator](unreal-hair-card-generator.md)
 - [Weyrich et al. 2006, measured facial reflectance](weyrich-2006-skin-reflectance.md)
 - [Zhang 2026, ideal anterior hairline in Chinese women](zhang-2026-female-hairline.md)
 
