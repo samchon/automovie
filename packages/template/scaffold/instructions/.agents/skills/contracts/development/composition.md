@@ -21,13 +21,13 @@ Does each scene realize every cited beat as written, and does the film play ever
 
 ### Scene
 
-Open the scene comment with its screenplay citation, action and relevant staging choices. Bind staged instances to the subjects in the standing state. Follow the same instances through movement, handovers, cuts and time out of view. Realize changes in camera and sound. For commissioned generation, carry reactions beyond the representation in the prompt.
+Open the scene comment with its screenplay citation, action and relevant staging choices. Bind staged instances to the subjects in the standing state. Follow the same instances through movement, handovers, cuts and time out of view. Realize changes in camera. Where the film declares a sound list, carry each line and cue the beat sounds into it. For commissioned generation, carry reactions beyond the representation in the prompt.
 
 If staging a passage requires inventing an exchange, response or pause, return that decision to its [written owner](../../story/correction/repair.md#concretization). Changes to a fixed screenplay go to the user.
 
 ### Film and catalog
 
-Play the numbered scenes with their transitions, titles and subtitles. Use the [delivery profile](../../production/project-context.md) for raster, frame rate and running time. Take grade and control channels from the screenplay and profile.
+Play the numbered scenes with their transitions, titles and subtitles. Use the [delivery profile](../../production/project-context.md) for raster, frame rate and running time. Take the grade from the screenplay and profile.
 
 For a catalog case, name the fact it exhibits and use the case parameters. For skilled practice, cite the observed exchange it reproduces. The catalog film lists every case used by the screenplay.
 
