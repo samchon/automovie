@@ -22,6 +22,12 @@ import { HumanArmTrajectorySweepBound } from "./HumanArmTrajectorySweepBound";
 import { HumanArmTrajectoryTerms as T } from "./HumanArmTrajectoryTerms";
 import { HumanAuditModel } from "./HumanAuditModel";
 
+/** The record of `IOfMoved`'s site. */
+type IOfMoved = {
+  point: IAutoMovieVector3;
+  turn: IAutoMovieQuaternion;
+};
+
 /**
  * The arm's probes swept between two read waypoints of its trajectory
  * (`HumanArmTrajectoryModel`): each probe's course from one to the next is read
@@ -145,10 +151,7 @@ export namespace HumanArmTrajectorySweep {
         const course: IAutoMovieVector3[] = [pa];
         const turns: IAutoMovieQuaternion[] = [Quaternion.identity()];
         for (const step of near.path) {
-          const moved: {
-            point: IAutoMovieVector3;
-            turn: IAutoMovieQuaternion;
-          } = HumanArmTrajectoryHalfStep.carry(
+          const moved: IOfMoved = HumanArmTrajectoryHalfStep.carry(
             c,
             a,
             k,
