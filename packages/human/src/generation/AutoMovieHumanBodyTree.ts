@@ -18,20 +18,20 @@ import { AutoMovieHumanConstructionView } from "./limb/AutoMovieHumanConstructio
 import { AutoMovieHumanMassSource } from "./limb/AutoMovieHumanMassSource";
 
 /**
- * The body's construction tree (#3044, construction step 2; #3047 to #3051)
- * and its realization by the engine (`realizeAutoMovieConstruction`): every
- * part a view node, every fold a merge join whose trace starts at a search
- * seed and whose blend is a rolling fold of the caller's radius, the host
- * always the whole subtree built so far, so a part merges onto the faces its
- * hosts already share. The engine traces, blends and trims; this module
- * requests its operator/boundary records without an unused final skin.
- * Human's surface consumer draws the published body with its own attributes.
+ * The body's construction tree (#3044, construction step 2; #3047 to #3051) and
+ * its realization by the engine (`realizeAutoMovieConstruction`): every part a
+ * view node, every fold a merge join whose trace starts at a search seed and
+ * whose blend is a rolling fold of the caller's radius, the host always the
+ * whole subtree built so far, so a part merges onto the faces its hosts already
+ * share. The engine traces, blends and trims; this module requests its
+ * operator/boundary records without an unused final skin. Human's surface
+ * consumer draws the published body with its own attributes.
  *
  * Publication: the realized body of trimmed faces as the engine published it
  * (`IAutoMovieHumanBodyCalibration.bodies`), its faces the parts' chains and
  * the joins' blend chains, every shared boundary one set of points. A join's
- * curve may cross from the face its seed named onto a neighbouring host face
- * (a leg's fold onto a gluteal mass's blend); the body keeps those crossings,
+ * curve may cross from the face its seed named onto a neighbouring host face (a
+ * leg's fold onto a gluteal mass's blend); the body keeps those crossings,
  * which a per-join merge record on one host face cannot.
  */
 export namespace AutoMovieHumanBodyTree {
@@ -90,6 +90,7 @@ export namespace AutoMovieHumanBodyTree {
 
   /**
    * Resolve a declared mass fold only when assembling its actual tree.
+   *
    * @evidence contracts/common.md#principled-implementation Reads the same final original and consumed parent, and passes its actual exit charts to the existing point-seed join.
    * @evidence contracts/common.md#clear-and-simple-design Original/tape preparation stays independent of an explicitly requested assembly seed.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts A failed seed is a named fold diagnostic without search fallback, source displacement or fake kept-face success.
@@ -139,8 +140,8 @@ export namespace AutoMovieHumanBodyTree {
 
   /**
    * Bind every original leaf to its identical invocation-owned millimetre
-   * source. Unchanged source subtrees retain identity, including the head.
-   * A missing original is a named premise failure, never a sampled fallback.
+   * source. Unchanged source subtrees retain identity, including the head. A
+   * missing original is a named premise failure, never a sampled fallback.
    */
   export function sources(
     root: IAutoMovieConstructionNode | null,
@@ -161,7 +162,10 @@ export namespace AutoMovieHumanBodyTree {
     }
   }
 
-  /** Retain only each builder's last actual original, including failed replacements. */
+  /**
+   * Retain only each builder's last actual original, including failed
+   * replacements.
+   */
   export function context(
     head: ReadonlyMap<string, IAutoMovieViewPart> | undefined,
     records: IAutoMovieHumanBodyTree.ContextRecords,
@@ -173,7 +177,10 @@ export namespace AutoMovieHumanBodyTree {
     return parts;
   }
 
-  /** Resolve the original leaves without changing unchanged operator or head subtree identities. */
+  /**
+   * Resolve the original leaves without changing unchanged operator or head
+   * subtree identities.
+   */
   function sourceNode(
     root: IAutoMovieConstructionNode,
     parts: ReadonlyMap<string, IAutoMovieViewPart>,
@@ -196,15 +203,25 @@ export namespace AutoMovieHumanBodyTree {
     const host: IAutoMovieConstructionNode = sourceNode(root.host, parts);
     if (root.type === "trim")
       return host === root.host ? root : { ...root, host };
-    // A split's two children resolve like a join's part, each keeping its identity when unchanged.
+    // Every child keeps its declared order and its identity when unchanged.
     if (root.type === "split") {
+      const resolve = (
+        child: IAutoMovieConstructionSplit.IChild,
+      ): IAutoMovieConstructionSplit.IChild => {
+        const part: IAutoMovieConstructionNode = sourceNode(child.part, parts);
+        return part === child.part ? child : { ...child, part };
+      };
+      const [first, second, ...rest]: IAutoMovieConstructionSplit["children"] =
+        root.children;
       const children: IAutoMovieConstructionSplit["children"] = [
-        { ...root.children[0], part: sourceNode(root.children[0].part, parts) },
-        { ...root.children[1], part: sourceNode(root.children[1].part, parts) },
+        resolve(first),
+        resolve(second),
+        ...rest.map(resolve),
       ];
       return host === root.host &&
-        children[0].part === root.children[0].part &&
-        children[1].part === root.children[1].part
+        children.every(
+          (child, index): boolean => child === root.children[index],
+        )
         ? root
         : { ...root, host, children };
     }
@@ -215,8 +232,14 @@ export namespace AutoMovieHumanBodyTree {
   }
 
   /**
-   * Realize a subtree's operators and publish its shared boundaries without drawing an unused engine skin.
+   * Realize a subtree's operators and publish its shared boundaries without
+   * drawing an unused engine skin.
    *
+   * @param name The construction's name.
+   * @param root The subtree.
+   * @param limits The trace limits and the skin's chord.
+   * @param diagnostics Where every premise the tree could not keep is recorded.
+   * @returns The chains and the realized body.
    * @evidence contracts/common.md#principled-implementation Uses the same engine construction walk and retained blend chains/body boundaries; only the unused final engine skin is not requested.
    * @evidence contracts/common.md#clear-and-simple-design One literal skin:false call supplies the existing chains/body output, with no second construction owner or new cache.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts Preserves every operator diagnostic and its existing producer/level mapping; null engine skin is not a completed-skin or valid-figure certificate.
@@ -224,12 +247,6 @@ export namespace AutoMovieHumanBodyTree {
    * @evidence contracts/performance.md#efficient-algorithms Keeps the original loft/join/trim work and boundary copying while avoiding the discarded engine face/fan mesh and metre copies; the Human skin is still generated by its existing consumer, and no measured saving is claimed.
    * @evidence contracts/performance.md#reuse-equivalent-work Returns the same realized view/blend chain records and published boundary points that Human's final surface reads, rather than reconstructing them from an unused skin.
    * @evidence contracts/performance.md#bound-retention-and-release-resources The returned calibration owns chains and boundary data; the temporary realization and unused surface/join-list wrappers release after this call, with no added mesh population, cache or task handle.
-   *
-   * @param name The construction's name.
-   * @param root The subtree.
-   * @param limits The trace limits and the skin's chord.
-   * @param diagnostics Where every premise the tree could not keep is recorded.
-   * @returns The chains and the realized body.
    */
   export function realize(
     name: string,
