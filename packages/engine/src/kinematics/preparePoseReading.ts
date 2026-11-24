@@ -33,21 +33,18 @@ export function preparePoseReading(
   indices: ReadonlyMap<AutoMovieHumanoidBone, number>,
   admitted: preparePoseReading.IAdmitted,
 ): preparePoseReading.IReading {
-  let composed: composePoseFrames.IFrames | undefined;
+  const composed: composePoseFrames.IFrames = composePoseFrames.frames(
+    tables.count,
+  );
+  composePoseFrames(
+    tables,
+    admitted.articulations,
+    admitted.rootRotation,
+    admitted.rootTranslation,
+    composed,
+  );
   const frames: () => composePoseFrames.IFrames =
-    (): composePoseFrames.IFrames => {
-      if (composed === undefined) {
-        composed = composePoseFrames.frames(tables.count);
-        composePoseFrames(
-          tables,
-          admitted.articulations,
-          admitted.rootRotation,
-          admitted.rootTranslation,
-          composed,
-        );
-      }
-      return composed;
-    };
+    (): composePoseFrames.IFrames => composed;
   const read: (
     requested?: ReadonlySet<AutoMovieHumanoidBone>,
     demand?: readonly number[],

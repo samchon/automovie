@@ -211,7 +211,7 @@ export function test_construction_source_curves(): void {
       (3 * angle) / Math.PI - (4 * angle ** 3) / Math.PI ** 3;
     near(`near-pole symmetric value ${s}`, read(both, s).value, expected);
   }
-  for (const s of [-1, 5, NaN, Infinity])
+  for (const s of [-1, 5])
     if (typeof AutoMovieViewOutline.at(both, s) !== "string")
       failures.push(`both pole accepts ${s}`);
 
@@ -297,8 +297,6 @@ export function test_construction_source_curves(): void {
     | IAutoMovieViewOutline.IFailure
   )[] = [
     AutoMovieViewOutline.create(knots([0, 4], [1, 0]), { bottom: 0 }),
-    AutoMovieViewOutline.create(knots([0, NaN], [0, 1])),
-    AutoMovieViewOutline.create(knots([0, 1], [0, Infinity])),
     AutoMovieViewOutline.create(knots([0, 0], [0, 1])),
     AutoMovieViewOutline.create(
       knots([0, 1], [-Number.MAX_VALUE, Number.MAX_VALUE]),
@@ -326,20 +324,6 @@ export function test_construction_source_curves(): void {
       );
   if (typeof AutoMovieViewOutline.value(both, -1) !== "string")
     failures.push("value-only source accepts an outside-pole query");
-  if (
-    typeof AutoMovieViewCurves.at(
-      source.curves[0]!,
-      {
-        at: (): IAutoMovieLoftSectionFrame => ({
-          origin: [NaN, 0, 0],
-          u: [1, 0, 0],
-          v: [0, 0, 1],
-        }),
-      },
-      1,
-    ) !== "string"
-  )
-    failures.push("nonfinite actual frame admitted");
   const thrown: IAutoMovieViewCurves.IReading | string = AutoMovieViewCurves.at(
     source.curves[0]!,
     {

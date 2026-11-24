@@ -184,13 +184,8 @@ export namespace composePoseFrames {
     rotation: IAutoMovieQuaternion;
   }
 
-  /**
-   * A rig's tables, built from its parent-first nodes on first use and kept
-   * with the node list.
-   */
+  /** A rig's tables, built from its parent-first nodes. */
   export function tables(nodes: readonly INode[]): ITables {
-    const known: ITables | undefined = TABLES.get(nodes);
-    if (known !== undefined) return known;
     const count: number = nodes.length;
     const built: ITables = {
       count,
@@ -210,7 +205,6 @@ export namespace composePoseFrames {
       built.offsets[3 * index + 1] = node.translation.y;
       built.offsets[3 * index + 2] = node.translation.z;
     }
-    TABLES.set(nodes, built);
     return built;
   }
 
@@ -263,9 +257,3 @@ export namespace composePoseFrames {
     };
   }
 }
-
-/** Each rig's tables by its node list. */
-const TABLES: WeakMap<
-  readonly composePoseFrames.INode[],
-  composePoseFrames.ITables
-> = new WeakMap();

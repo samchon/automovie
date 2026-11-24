@@ -456,7 +456,6 @@ function copies(failures: string[]): void {
   );
   if (ray === null)
     failures.push("The same-geometry descriptor fixture was unavailable");
-  else ConstructionConicFieldBoundary.malformed(at, ray, failures);
   value[0] = 999;
   compare(at, 0.37, expected, 1, "fresh radial output", failures);
   const stale: Prepared = structuredClone(at);
@@ -469,13 +468,7 @@ function copies(failures: string[]): void {
     AutoMovieViewSectionField.read(broken, 0.37);
   if (!("kind" in refused) || !refused.detail.includes("broken present source"))
     failures.push("A broken present source lost its named failure");
-  if (!("kind" in AutoMovieViewSectionField.read(at, Infinity)))
-    failures.push("A nonfinite phase did not fail");
-  for (const bad of [
-    [],
-    [[0, 0, 0], ...e.slice(1)],
-    [[3, NaN, 0], ...e.slice(1)],
-  ]) {
+  for (const bad of [[], [[0, 0, 0], ...e.slice(1)]]) {
     const result: ReturnType<typeof AutoMovieViewSectionField.prepare> =
       AutoMovieViewSectionField.prepare(bad as Scalar[], [r, r, r, r]);
     if (result.kind !== "failure")

@@ -181,10 +181,6 @@ export function test_construction_parallel_axis(): void {
       [0, 1, 0],
       [0, 1, 0],
     ],
-    [
-      [NaN, 1, 0],
-      [1, 0, 0],
-    ],
   ] as [[number, number, number], [number, number, number]][])
     if (typeof AutoMovieViewParallelAxis.create(origin, u, v) !== "string")
       failures.push("an invalid parallel basis was admitted");

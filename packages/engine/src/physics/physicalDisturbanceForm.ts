@@ -11,6 +11,7 @@ import type { preparePhysicalDisturbanceSpan } from "./preparePhysicalDisturbanc
  * values and the centre of mass's response to them, and the floor frame.
  */
 export namespace physicalDisturbanceForm {
+  /** One planted foot of a disturbance span, as the span prepares it. */
   export type Foot = preparePhysicalDisturbanceSpan.IFoot;
 
   /**

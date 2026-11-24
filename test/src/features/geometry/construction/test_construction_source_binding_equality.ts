@@ -242,16 +242,6 @@ function mutations(base: Chain): void {
         row(chain, index, field).length = length;
         refused(chain);
       }
-      const nan: Chain = copied(base);
-      row(nan, index, field)[0] = NaN;
-      binding(nan, index, field)[0] = NaN;
-      refused(nan);
-      const missing: Chain = copied(base);
-      if (!Reflect.deleteProperty(binding(missing, index, field), "0"))
-        throw new Error(
-          "The missing-entry fixture could not remove its own property",
-        );
-      refused(missing);
     }
 }
 

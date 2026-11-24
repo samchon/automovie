@@ -1,9 +1,3 @@
-/** Native observers lend only their private numeric state to a history. */
-const OBSERVERS: WeakMap<
-  AirborneShapeStatistics.IObserver,
-  AirborneShapeStatistics.IStatistics
-> = new WeakMap();
-
 /**
  * Observe one physical-planning operation without inserting hot-path callbacks.
  *
@@ -23,11 +17,10 @@ export function AirborneShapeStatistics(): AirborneShapeStatistics.IObserver {
     analyticAccepted: 0,
     analyticFallbacks: 0,
   };
-  const observer: AirborneShapeStatistics.IObserver = {
+  return {
+    counters: statistics,
     read: (): AirborneShapeStatistics.IStatistics => ({ ...statistics }),
   };
-  OBSERVERS.set(observer, statistics);
-  return observer;
 }
 
 /** Native physical-work populations and the handle that observes them. */
@@ -83,6 +76,9 @@ export namespace AirborneShapeStatistics {
 
   /** A native operation's counter handle with an independently owned snapshot. */
   export interface IObserver {
+    /** The live counters the histories supplied this observer advance. */
+    readonly counters: IStatistics;
+
     /**
      * Return fresh cumulative scalar totals; called only by the explicit
      * reporter.
@@ -92,10 +88,6 @@ export namespace AirborneShapeStatistics {
 
   /** Borrow native counter storage once when a history is constructed. */
   export function borrow(observer?: IObserver): IStatistics | undefined {
-    if (observer === undefined) return undefined;
-    const statistics: IStatistics | undefined = OBSERVERS.get(observer);
-    if (statistics === undefined)
-      throw new Error("Airborne statistics needs a native observer handle");
-    return statistics;
+    return observer?.counters;
   }
 }

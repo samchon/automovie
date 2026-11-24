@@ -26,34 +26,6 @@ import { readHingeRange } from "./readHingeRange";
 import { resolvePreparedChainFrames } from "./resolvePreparedChainFrames";
 
 /**
- * Actual root-return identity and guards over its original own-data output
- * slots.
- */
-const ROOT_RETURNS: WeakMap<
-  IAutoMovieSeededChainFit,
-  {
-    proof: continueHingedOrientation.IRoot;
-    guards: readonly IOutputGuard[];
-  }
-> = new WeakMap();
-
-/**
- * One original own-data member; descriptor reads never invoke a replaced
- * getter.
- */
-interface IOutputGuard {
-  /** Actual producer/result node, never a later replacement. */
-  owner: object;
-  /** Maintained member or ordered joint-array slot. */
-  key: string;
-  /**
-   * Original reference or scalar, compared with Object.is to retain signed
-   * zero.
-   */
-  value: unknown;
-}
-
-/**
  * Continue an explicit constrained curve through orientation-exact swivel
  * roots. The ordinary public cold scorer is unchanged. This policy requires a
  * hinged lower joint without distal twist, a native two-axis box effector, an
@@ -167,7 +139,8 @@ export function continueHingedOrientation(
   const wanted: IAutoMovieQuaternion = Quaternion.normalize(
     props.effectorRotation,
   );
-  let best: IAutoMovieSeededChainFit | null = null;
+  let best: (IAutoMovieSeededChainFit & continueHingedOrientation.IRooted) | null =
+    null;
   let distance: number = Infinity;
   let selected: number | undefined;
   let trials: number = 0;
@@ -262,18 +235,13 @@ export function continueHingedOrientation(
     proposed !== "all" &&
     accepted === 1
   ) {
-    const guards: readonly IOutputGuard[] | undefined = outputGuards(best);
-    if (guards !== undefined)
-      ROOT_RETURNS.set(best, {
-        proof: {
-          branch: best.seed.branch,
-          swivel: best.seed.swivel,
-          proposals: proposed.length,
-          trials,
-          accepted,
-        },
-        guards,
-      });
+    best.rooted = {
+      branch: best.seed.branch,
+      swivel: best.seed.swivel,
+      proposals: proposed.length,
+      trials,
+      accepted,
+    };
   }
   if (best !== null) observe?.("orientationRootAccepted");
   return best;
@@ -299,80 +267,17 @@ export namespace continueHingedOrientation {
    * Return copied facts only for this actual result with unchanged pose and
    * seed.
    */
-  export function root(result: IAutoMovieSeededChainFit): IRoot | undefined {
-    const stored: ReturnType<typeof ROOT_RETURNS.get> =
-      ROOT_RETURNS.get(result);
-    if (stored === undefined) return undefined;
-    try {
-      for (const guard of stored.guards) {
-        const field: PropertyDescriptor | undefined =
-          Object.getOwnPropertyDescriptor(guard.owner, guard.key);
-        if (
-          field === undefined ||
-          !("value" in field) ||
-          !Object.is(field.value, guard.value)
-        )
-          return undefined;
-      }
-    } catch {
-      return undefined;
-    }
-    return { ...stored.proof };
+  export function root(
+    result: IAutoMovieSeededChainFit & IRooted,
+  ): IRoot | undefined {
+    return result.rooted === undefined ? undefined : { ...result.rooted };
   }
-}
 
-/** Guard all FK-relevant own data and the exact original output graph. */
-function outputGuards(
-  result: IAutoMovieSeededChainFit,
-): readonly IOutputGuard[] | undefined {
-  const guards: IOutputGuard[] = [];
-  try {
-    if (!guardFields(result, ["pose", "seed"], guards)) return undefined;
-    const pose: IAutoMoviePose = result.pose;
-    if (
-      result.seed === null ||
-      !guardFields(result.seed, ["branch", "swivel"], guards) ||
-      !guardFields(pose, ["skeleton", "root", "joints"], guards) ||
-      !guardFields(pose.joints, ["length"], guards)
-    )
-      return undefined;
-    if (
-      pose.root !== null &&
-      (!guardFields(pose.root, ["translation", "rotation", "scale"], guards) ||
-        !guardFields(pose.root.translation, ["x", "y", "z"], guards) ||
-        !guardFields(pose.root.rotation, ["x", "y", "z", "w"], guards) ||
-        !guardFields(pose.root.scale, ["x", "y", "z"], guards))
-    )
-      return undefined;
-    for (let index: number = 0; index < pose.joints.length; index++)
-      if (
-        !guardFields(pose.joints, [String(index)], guards) ||
-        !guardFields(
-          pose.joints[index]!,
-          ["bone", "flexion", "abduction", "twist"],
-          guards,
-        )
-      )
-        return undefined;
-  } catch {
-    return undefined;
+  /** A uniquely admitted root return carries its facts. */
+  export interface IRooted {
+    /** Set by the continuation on the one result it admits. */
+    rooted?: IRoot;
   }
-  return guards;
-}
-
-/** Record current own data only; an accessor/missing member grants no proof. */
-function guardFields(
-  owner: object,
-  keys: readonly string[],
-  guards: IOutputGuard[],
-): boolean {
-  for (const key of keys) {
-    const field: PropertyDescriptor | undefined =
-      Object.getOwnPropertyDescriptor(owner, key);
-    if (field === undefined || !("value" in field)) return false;
-    guards.push({ owner, key, value: field.value });
-  }
-  return true;
 }
 
 /** Conjugation stays linear in the known homogeneous half-angle coefficients. */

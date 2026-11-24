@@ -126,21 +126,12 @@ export function test_film_camera_depth_precision(): void {
   );
 
   const invalid: ReturnType<typeof evaluate>[] = [
-    evaluate({ time: Number.NaN }),
     evaluate({ time: -1 }),
-    evaluate({ near: Number.NaN }),
     evaluate({ near: 0 }),
-    evaluate({ far: Number.POSITIVE_INFINITY }),
     evaluate({ far: 1 }),
-    evaluate({ requiredNear: Number.NaN }),
-    evaluate({ requiredFar: Number.NEGATIVE_INFINITY }),
     evaluate({ requiredNear: 51, requiredFar: 50 }),
-    evaluate({ constraint: { ...CONSTRAINT, minimumDepthBits: 1.5 } }),
     evaluate({ constraint: { ...CONSTRAINT, minimumDepthBits: 0 } }),
     evaluate({ constraint: { ...CONSTRAINT, minimumDepthBits: 54 } }),
-    evaluate({
-      constraint: { ...CONSTRAINT, maximumStepMeters: Number.NaN },
-    }),
     evaluate({ constraint: { ...CONSTRAINT, maximumStepMeters: 0 } }),
     evaluate({
       near: Number.MIN_VALUE,

@@ -19,29 +19,6 @@ import { AirborneShapeInertia } from "./AirborneShapeInertia";
 import { AirborneShapeStatistics } from "./AirborneShapeStatistics";
 import type { integrateAirborneRotation } from "./integrateAirborneRotation";
 
-/** The native reader owns only copied numeric physical input after construction. */
-interface IConstant {
-  /** One fixed root-frame tensor, never exposed or consumed by Jacobi. */
-  matrix: number[][];
-  /** Covered physical seconds, absent for a constant defined for all real time. */
-  span?: { from: number; to: number };
-  /** Clear permanently ends the closed-form capability of this epoch. */
-  active: boolean;
-  /** Fixed-size native event counters only, without a caller callback. */
-  statistics?: AirborneShapeStatistics.IStatistics;
-  /**
-   * Lazy positive-definite operator; null preserves ordinary invalid-inertia
-   * admission.
-   */
-  factor?: physicalInertiaFactor.IPrepared | null;
-}
-
-/** Only the numerical factory below can register constant-history construction. */
-const CONSTANTS: WeakMap<
-  IAutoMovieIntegrateAirborneRotation.IHistory,
-  IConstant
-> = new WeakMap();
-
 /**
  * Construct a genuinely fixed root-frame shape from copied rig/bone values.
  *
@@ -127,11 +104,13 @@ function numericHistory(
   span: { from: number; to: number } | undefined,
   statistics: AirborneShapeStatistics.IStatistics | undefined,
 ): integrateAirborneRotation.ICachedHistory {
-  const state: IConstant = {
+  if (statistics !== undefined) statistics.factorizations++;
+  const state: AirborneConstantShapeHistory.IConstant = {
     matrix,
     span: span === undefined ? undefined : { ...span },
     active: true,
     statistics,
+    factor: physicalInertiaFactor(matrix),
   };
   const issued: Set<IAutoMovieIntegrateAirborneRotation.IInstant> = new Set();
   const query: IAutoMovieIntegrateAirborneRotation.IHistory = (
@@ -143,8 +122,9 @@ function numericHistory(
     issued.add(instant);
     return instant;
   };
-  CONSTANTS.set(query, state);
   return Object.assign(query, {
+    native: true as const,
+    constantState: state,
     clear: (): void => {
       for (const instant of issued) AirborneShapeInertia.release(instant);
       issued.clear();
@@ -157,14 +137,38 @@ function numericHistory(
 
 /** Private construction proof for fixed numeric physical histories. */
 export namespace AirborneConstantShapeHistory {
+  /** The native reader owns only copied numeric physical input. */
+  export interface IConstant {
+    /** One fixed root-frame tensor, never exposed or consumed by Jacobi. */
+    matrix: number[][];
+    /** Covered physical seconds, absent for a constant defined for all time. */
+    span?: { from: number; to: number };
+    /** Clear permanently ends the closed-form capability of this epoch. */
+    active: boolean;
+    /** Fixed-size native event counters only, without a caller callback. */
+    statistics?: AirborneShapeStatistics.IStatistics;
+    /**
+     * Positive-definite operator made with the history; null preserves
+     * ordinary invalid-inertia admission.
+     */
+    factor: physicalInertiaFactor.IPrepared | null | undefined;
+  }
+
+  /** A constant history carries its fixed tensor state. */
+  export interface IConstantHistory {
+    /** Set by the factory; absent on any other reader. */
+    readonly constantState?: IConstant;
+  }
+
   /**
    * Native construction alone proves purity, without granting an invariant
    * after clear.
    */
   export function owned(
-    history: IAutoMovieIntegrateAirborneRotation.IHistory,
+    history: IAutoMovieIntegrateAirborneRotation.IHistory &
+      IConstantHistory,
   ): boolean {
-    return CONSTANTS.has(history);
+    return history.constantState !== undefined;
   }
 
   /**
@@ -172,11 +176,11 @@ export namespace AirborneConstantShapeHistory {
    * epoch.
    */
   export function constant(
-    history: IAutoMovieIntegrateAirborneRotation.IHistory,
+    history: IAutoMovieIntegrateAirborneRotation.IHistory & IConstantHistory,
     from: number,
     to: number,
   ): physicalInertiaFactor.IPrepared | undefined {
-    const state: IConstant | undefined = CONSTANTS.get(history);
+    const state: IConstant | undefined = history.constantState;
     if (
       state === undefined ||
       !state.active ||
@@ -185,10 +189,6 @@ export namespace AirborneConstantShapeHistory {
         (from < state.span.from || to > state.span.to))
     )
       return undefined;
-    if (state.factor === undefined) {
-      if (state.statistics !== undefined) state.statistics.factorizations++;
-      state.factor = physicalInertiaFactor(state.matrix);
-    }
     return state.factor ?? undefined;
   }
 }

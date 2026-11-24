@@ -46,43 +46,6 @@ interface INode extends resolveAutoMovieMomentum.IPosed {
   };
 }
 
-/** Only actual numeric instants issued by this factory have prepared ownership. */
-const PRINCIPAL: WeakMap<IInstant, IPrincipalOwner | IPrincipalInverse> =
-  new WeakMap();
-
-/**
- * Only native readers issued by this pure-history owner may opt into stage
- * reuse.
- */
-const HISTORIES: WeakSet<IHistory> = new WeakSet();
-
-/** One shape epoch can share an unchanged adjacent principal rotation. */
-interface IPrincipalOwner {
-  /** An uncomputed instant initially points at its existing history owner. */
-  kind: "owner";
-
-  /** Last numeric inverse, with no body, shape callback or pose retained. */
-  previous?: IPrincipalInverse;
-}
-
-/**
- * A copied scalar dependency key prevents caller edits from certifying stale
- * work.
- */
-interface IPrincipalInverse {
-  /** Distinguishes an actual computed inverse from its lazy owner. */
-  kind: "inverse";
-
-  /** Fixed-size reuse state for the same shape epoch. */
-  owner: IPrincipalOwner;
-
-  /** Exact principal-to-root coordinates that produced back. */
-  rotation: IAutoMovieQuaternion;
-
-  /** Root-to-principal rotation from the existing inverse owner. */
-  back: IAutoMovieQuaternion;
-}
-
 /**
  * Reduce pure root-frame shapes to exact-time inertia and relative momentum.
  *
@@ -118,7 +81,6 @@ export function AirborneShapeHistory(
   const poses: Map<number, INode> = new Map();
   const intrinsicMoments: (IAutoMovieVector3 | undefined)[] = [];
   const principalRotations: (IAutoMovieQuaternion | undefined)[] = [];
-  const principal: IPrincipalOwner = { kind: "owner" };
   const limits: typeof span =
     span === undefined ? undefined : { to: span.to, from: span.from };
   const delta: number =
@@ -305,23 +267,19 @@ export function AirborneShapeHistory(
       return known;
     }
     const instant: IInstant = evaluate(seconds);
-    PRINCIPAL.set(instant, principal);
     instants.set(seconds, instant);
     return instant;
   };
-  HISTORIES.add(query);
   return Object.assign(query, {
+    native: true as const,
     clear: (): void => {
-      for (const instant of instants.values()) {
-        PRINCIPAL.delete(instant);
+      for (const instant of instants.values())
         AirborneShapeInertia.release(instant);
-      }
       instants.clear();
       poses.clear();
       intrinsicMoments.length = 0;
       principalRotations.length = 0;
       boundaries.clear();
-      principal.previous = undefined;
     },
   });
 }
@@ -348,18 +306,24 @@ export namespace AirborneShapeHistory {
    * non-SPD instants. Returned operators expose no mutable numerical storage.
    */
   export function factor(
-    instant: IInstant,
+    instant: IInstant & AirborneShapeInertia.IOwned,
   ): physicalInertiaFactor.IPrepared | undefined {
     return AirborneShapeInertia.factor(instant);
+  }
+
+  /** A native pure-history reader carries this mark. */
+  export interface INative {
+    /** Set by the factories of the pure histories. */
+    readonly native?: true;
   }
 
   /**
    * Recognize this factory's native pure-history reader for operation-local
    * stage sharing. It proves construction, not smoothness or constant shape.
    */
-  export function owned(history: IHistory): boolean {
+  export function owned(history: IHistory & INative): boolean {
     return (
-      HISTORIES.has(history) ||
+      history.native === true ||
       AirborneConstantShapeHistory.owned(history) ||
       AirborneTabulatedShapeHistory.owned(history)
     );
@@ -370,7 +334,7 @@ export namespace AirborneShapeHistory {
    * requested live span; ordinary sampled histories return undefined.
    */
   export function constant(
-    history: IHistory,
+    history: IHistory & AirborneConstantShapeHistory.IConstantHistory,
     from: number,
     to: number,
   ): physicalInertiaFactor.IPrepared | undefined {
@@ -405,39 +369,7 @@ export namespace AirborneShapeHistory {
    * history is retained by this numeric registry.
    */
   export function inverse(instant: IInstant): IAutoMovieQuaternion | undefined {
-    const current: IPrincipalOwner | IPrincipalInverse | undefined =
-      PRINCIPAL.get(instant);
-    if (current === undefined) return undefined;
-    const rotation: IAutoMovieQuaternion = instant.inertia.rotation;
-    if (
-      current.kind === "inverse" &&
-      sameRotation(current.rotation, rotation)
-    ) {
-      current.owner.previous = current;
-      return current.back;
-    }
-    const owner: IPrincipalOwner =
-      current.kind === "owner" ? current : current.owner;
-    const previous: IPrincipalInverse | undefined = owner.previous;
-    if (previous !== undefined && sameRotation(previous.rotation, rotation)) {
-      PRINCIPAL.set(instant, previous);
-      return previous.back;
-    }
-    const copied: IAutoMovieQuaternion = {
-      x: rotation.x,
-      y: rotation.y,
-      z: rotation.z,
-      w: rotation.w,
-    };
-    const value: IPrincipalInverse = {
-      kind: "inverse",
-      owner,
-      rotation: copied,
-      back: Quaternion.inverse(copied),
-    };
-    PRINCIPAL.set(instant, value);
-    owner.previous = value;
-    return value.back;
+    return Quaternion.inverse(instant.inertia.rotation);
   }
 }
 

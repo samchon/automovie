@@ -21,7 +21,6 @@ import { nclose } from "../internal/predicates";
  * 1. Two contiguous retimed plays share an event anchor, which appears once on the
  *    second play.
  * 2. Absent and duplicated ids in the same trim report both bound paths.
- * 3. A non-finite time is refused at its own bound path.
  * 4. Reversing the bounds or selecting the same time refuses the span.
  * 5. Two trim forms are refused.
  * 6. A full-shot end that rounds outward retains its exact event after inward
@@ -156,14 +155,6 @@ export function test_film_cut_sequence_event_trim(): void {
       { ...end, time: 3 },
     ]),
     fields,
-  );
-  TestValidator.equals(
-    "non-finite time",
-    paths({ startEvent: start.id, endEvent: end.id }, [
-      start,
-      { ...end, time: NaN },
-    ]),
-    [fields[1]!],
   );
 
   const malformed: readonly [

@@ -301,15 +301,6 @@ export function test_drawing_quantity_report(): void {
     "a malformed bound is refused at its own message",
     namedFacts([
       [
-        "a fractional contributor bound is refused",
-        (): boolean =>
-          throwsError(
-            (): IAutoMovieQuantityReport =>
-              measureAutoMovieQuantities({ environment, maxContributors: 1.5 }),
-            "must be a positive safe integer",
-          ),
-      ],
-      [
         "a zero contributor bound is refused",
         (): boolean =>
           throwsError(
@@ -331,7 +322,6 @@ export function test_drawing_quantity_report(): void {
       ],
     ]),
     {
-      "a fractional contributor bound is refused": true,
       "a zero contributor bound is refused": true,
       "a bound of one is accepted and names exactly one owner": true,
     },

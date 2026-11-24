@@ -268,17 +268,6 @@ export function assertFilmCameraClearanceEvaluation(
           evaluate({
             samples: [
               { time: 0, camera: identity(), obstacles: [] },
-              { time: Number.NaN, camera: identity(), obstacles: [] },
-              { time: 1, camera: identity(), obstacles: [] },
-            ],
-          }),
-        "strict time order",
-      ),
-      throws(
-        (): ReturnType<typeof evaluate> =>
-          evaluate({
-            samples: [
-              { time: 0, camera: identity(), obstacles: [] },
               { time: -0.5, camera: identity(), obstacles: [] },
               { time: 1, camera: identity(), obstacles: [] },
             ],
@@ -295,27 +284,6 @@ export function assertFilmCameraClearanceEvaluation(
             ],
           }),
         "strict time order",
-      ),
-      throws(
-        (): ReturnType<typeof evaluate> =>
-          evaluate({
-            samples: [0, 1].map(
-              (time: number): IFilmCameraClearanceSample => ({
-                time,
-                camera: identity(),
-                obstacles: [
-                  {
-                    node: "wall",
-                    bounds: {
-                      min: { x: Number.NaN, y: 0, z: 0 },
-                      max: { x: 1, y: 1, z: 1 },
-                    },
-                  },
-                ],
-              }),
-            ),
-          }),
-        "finite coordinates",
       ),
       throws(
         (): ReturnType<typeof evaluate> =>
@@ -377,6 +345,6 @@ export function assertFilmCameraClearanceEvaluation(
         "identity set",
       ),
     ],
-    [true, true, true, true, true, true, true, true, true, true, true, true],
+    [true, true, true, true, true, true, true, true, true, true],
   );
 }

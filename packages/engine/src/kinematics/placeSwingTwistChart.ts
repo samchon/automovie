@@ -18,19 +18,19 @@ type IPlace = ReturnType<typeof swingTwistRange.chart>;
 /** Existing region-radius owner, passed without constructing a per-read closure. */
 type IRadius = typeof swingTwistRange.radius;
 
-/** One fixed chart inversion's successful, lazily prepared scalar metadata. */
+/** One fixed chart inversion's prepared scalar metadata. */
 interface IState {
-  /** Admitted swing frame first read at the original placed entry site. */
-  basis?: IAutoMovieSwingTwistBasis.IBasis;
+  /** Admitted swing frame. */
+  basis: IAutoMovieSwingTwistBasis.IBasis;
 
-  /** Source normalization first reached after the actual direction calculation. */
-  aim?: ReturnType<typeof rotationBetween.prepare>;
+  /** Source normalization of the swing axis. */
+  aim: ReturnType<typeof rotationBetween.prepare>;
 
-  /** Fixed twist axis, first read after the original rig-angle conversion. */
-  turn?: ReturnType<typeof Quaternion.prepareAxisAngle>;
+  /** Fixed twist axis. */
+  turn: ReturnType<typeof Quaternion.prepareAxisAngle>;
 
-  /** Fixed affine operands admitted by the actual first twist conversion. */
-  rig?: ReturnType<typeof toRigAngle.prepare>;
+  /** Fixed affine operands of the twist conversion. */
+  rig: ReturnType<typeof toRigAngle.prepare>;
 }
 
 /**
@@ -48,7 +48,6 @@ export function placeSwingTwistChart(
 ): IAutoMovieQuaternion {
   const basis: IAutoMovieSwingTwistBasis.IBasis =
     state?.basis ?? swingTwistBasis.of(joint.axes);
-  if (state !== undefined) state.basis = basis;
   const k: number = Math.hypot(place.x, place.y);
   const azimuth: number =
     k > 1e-12 ? Math.atan2(place.y, place.x) * swingTwistBasis.DEG : 0;
@@ -60,27 +59,35 @@ export function placeSwingTwistChart(
   const aimed: IAutoMovieQuaternion =
     state === undefined
       ? rotationBetween(basis.u, direction)
-      : (state.aim ??= rotationBetween.prepare(basis.u))(direction);
+      : state.aim(direction);
   const angle: number =
     state === undefined
       ? toRigAngle(place.twist, joint.frame?.twist)!
-      : (state.rig ??= toRigAngle.prepare())(place.twist, joint.frame?.twist)!;
+      : state.rig(place.twist, joint.frame?.twist)!;
   const turned: IAutoMovieQuaternion =
     state === undefined
       ? Quaternion.fromAxisAngle(basis.u, angle)
-      : (state.turn ??= Quaternion.prepareAxisAngle(basis.u))(angle);
+      : state.turn(angle);
   return Quaternion.normalize(Quaternion.multiply(aimed, turned));
 }
 
 /** Private numerical preparation for the actual fixed-endpoint chart blender. */
 export namespace placeSwingTwistChart {
-  /** Release this lazy reader with its fixed endpoint pair and unchanged rig. */
+  /** Release this reader with its fixed endpoint pair and unchanged rig. */
   export function prepare(
     constraint: IAutoMovieJointConstraint,
     joint: IAutoMovieJointRotationFrame,
     radius: IRadius,
   ): (place: IPlace) => IAutoMovieQuaternion {
-    const state: IState = {};
+    const basis: IAutoMovieSwingTwistBasis.IBasis = swingTwistBasis.of(
+      joint.axes,
+    );
+    const state: IState = {
+      basis,
+      aim: rotationBetween.prepare(basis.u),
+      turn: Quaternion.prepareAxisAngle(basis.u),
+      rig: toRigAngle.prepare(),
+    };
     return (place: IPlace): IAutoMovieQuaternion =>
       placeSwingTwistChart(place, constraint, joint, radius, state);
   }

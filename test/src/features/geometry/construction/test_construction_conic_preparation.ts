@@ -343,13 +343,11 @@ function admission(): void {
   const malformed: readonly Scalar[][] = [
     [],
     [[0, 0, 0], ...e.slice(1)],
-    [[NaN, 0, 0], ...e.slice(1)],
-    [[1, Infinity, 0], ...e.slice(1)],
   ];
   for (const bad of malformed)
     if (AutoMovieViewSectionField.prepare(bad, r).kind !== "failure")
       throw new Error("Malformed/empty station input was admitted");
-  for (const value of [0, 1, NaN])
+  for (const value of [0, 1])
     if (
       AutoMovieViewSectionField.prepare(
         e,

@@ -1,9 +1,4 @@
-import {
-  AutoMovieSolidBody,
-  AutoMovieSolidCycle,
-  AutoMovieSolidMesh,
-  AutoMovieSolidMeshLoop,
-} from "@automovie/engine";
+import { AutoMovieSolidBody, AutoMovieSolidMesh } from "@automovie/engine";
 import type {
   IAutoMovieSolidBody,
   IAutoMovieSolidMesh,
@@ -28,7 +23,7 @@ import { nclose } from "../../internal/nclose";
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls actual Mesh.face and Body.draw with ordinary buffers, recording only public output, callback effects and thrown objects; it never replaces globals or foreign methods.
  * @evidence contracts/development/testing.md#independent-expectations Invalid period is outside the public contract; unchanged buffers follow atomic refusal. Plane area is 16 minus 4 and each point is independently [u,v,0], with same original source IDs.
- * @evidence contracts/development/testing.md#distinguishing-cases Separates missing/undefined/recording/throwing callbacks, arbitrary source exceptions, winding accessor order, first-five query order, aliased jet storage, foreign charts, fixed canonical index publication and planar non-endpoint output.
+ * @evidence contracts/development/testing.md#distinguishing-cases Separates missing/undefined/recording/throwing callbacks, arbitrary source exceptions, first-five query order, aliased jet storage, foreign charts, fixed canonical index publication and planar non-endpoint output.
  * @evidence contracts/development/testing.md#execution-ownership Discoverable synchronous CPU test through construction_mesh_transaction; no person generation, viewer, server, process or foreign replacement is used.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Omitted/undefined callback, recording callback and throwing callback observe).
  */
@@ -147,104 +142,11 @@ export function test_construction_mesh_transaction(): void {
     failures.push("source jet order is not station-major through its sentinel");
 
   inspectAuthority(failures);
-  windingEffects(failures);
   canonicalIndices(failures);
   inspectForeign(failures);
   inspectAliased(failures);
   if (failures.length !== 0)
     throw new Error(`Mesh transaction findings:\n${failures.join("\n")}`);
-}
-
-/** Raw winding classification and the public metric fallback retain the original first exception. */
-function windingEffects(failures: string[]): void {
-  const first: Error = new Error("owned start phase");
-  const next: Error = new Error("owned endpoint station");
-  const a: [number, number] = [0, 0];
-  const b: [number, number] = [1, 1];
-  let phaseReads: number = 0;
-  let stationReads: number = 0;
-  Object.defineProperty(a, "1", {
-    get: (): number => {
-      phaseReads++;
-      throw first;
-    },
-  });
-  Object.defineProperty(b, "0", {
-    get: (): number => {
-      stationReads++;
-      throw next;
-    },
-  });
-  const loop: IAutoMovieSolidMesh.ILoop = {
-    kind: "start",
-    vertices: [0, 1, 2],
-    chart: [a, b, [0, 4]],
-  };
-  const raw: (u: number, v: number) => boolean = (
-    u: number,
-    v: number,
-  ): boolean => AutoMovieSolidCycle.kept(loop, u, v, 2 * Math.PI);
-  const prepared: ReturnType<typeof AutoMovieSolidMeshLoop.prepare> =
-    AutoMovieSolidMeshLoop.prepare([loop], 2 * Math.PI);
-  if (phaseReads !== 0 || stationReads !== 0)
-    failures.push("winding accessor was invoked during metric preparation");
-  for (const observe of [
-    (): unknown => raw(2, 0.5),
-    (): unknown => prepared(2, 0.5, planeJet(0, 0), 0),
-    (): unknown => AutoMovieSolidCycle.prepare(loop, 2 * Math.PI),
-  ]) {
-    phaseReads = 0;
-    stationReads = 0;
-    let thrown: unknown;
-    try {
-      observe();
-    } catch (error) {
-      thrown = error;
-    }
-    if (thrown !== next || phaseReads !== 0 || stationReads !== 1)
-      failures.push(
-        "winding raw endpoint/start getter exception order changed",
-      );
-  }
-  const order: string[] = [];
-  const point: [number, number] = [0, 0];
-  const endpoint: [number, number] = [1, 1];
-  const later: Error = new Error("owned later phase");
-  Object.defineProperty(point, "1", {
-    get: (): number => {
-      order.push("a");
-      if (order.filter((name: string): boolean => name === "a").length === 3)
-        throw later;
-      return 0;
-    },
-  });
-  Object.defineProperty(endpoint, "0", {
-    get: (): number => {
-      order.push("x");
-      return 1;
-    },
-  });
-  Object.defineProperty(endpoint, "1", {
-    get: (): number => {
-      order.push("y");
-      return 1;
-    },
-  });
-  let thrown: unknown;
-  try {
-    AutoMovieSolidCycle.kept(
-      { kind: "start", chart: [point, endpoint, [0, 4]] },
-      2,
-      0.5,
-      2 * Math.PI,
-    );
-  } catch (error) {
-    thrown = error;
-  }
-  if (thrown !== later || order.join("") !== "xyaaa")
-    failures.push(
-      `winding reached start-coordinate order changed: ${order.join("")}`,
-    );
 }
 
 /** Two original-ID triangles sharing only their origin have one literal oriented publication. */

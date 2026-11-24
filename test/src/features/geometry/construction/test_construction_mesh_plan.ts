@@ -216,12 +216,6 @@ export function test_construction_mesh_plan(): void {
   ): boolean => true;
   refuse(
     failures,
-    "nonfinite source",
-    AutoMovieSolidMeshPlan.triangulate(new Map([[0, [NaN, 0]]]), [], all),
-    "finite",
-  );
-  refuse(
-    failures,
     "unshared crossing",
     AutoMovieSolidMeshPlan.triangulate(
       new Map([

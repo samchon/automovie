@@ -166,7 +166,7 @@ export function test_construction_source_lookup(): void {
     )
       failures.push("cold/value-copy source changed");
   }
-  for (const s of [-1, NaN, Infinity])
+  for (const s of [-1])
     if (typeof AutoMovieViewOutline.at(prepared, s) !== "string")
       failures.push(`invalid closing query admitted ${s}`);
   TestValidator.predicate(

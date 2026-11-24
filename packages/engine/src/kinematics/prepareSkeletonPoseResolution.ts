@@ -19,6 +19,7 @@ import { DEFAULT_JOINT_AXES } from "./constants/DEFAULT_JOINT_AXES";
 import { SKELETON_ROOT_PARENT } from "./constants/SKELETON_ROOT_PARENT";
 import { indexSkeletonTopology } from "./indexSkeletonTopology";
 import { preparePoseBoneDemand } from "./preparePoseBoneDemand";
+import { preparePoseJointResolution } from "./preparePoseJointResolution";
 import type { preparePoseReading } from "./preparePoseReading";
 import { preparePoseResolution } from "./preparePoseResolution";
 import { preparePoseResolutionState } from "./preparePoseResolutionState";
@@ -48,43 +49,6 @@ interface ISnapshot {
   /** Public frozen raw-axis snapshot used by same-rig IK. */
   axes: Readonly<Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>>;
 }
-
-/**
- * Genuine rig provenance lends only private-node rest production, never public
- * methods.
- */
-const REST_READERS: WeakMap<
-  prepareSkeletonPoseResolution.IRig,
-  () => IAutoMovieResolvedBone[]
-> = new WeakMap();
-
-/**
- * Genuine original map callables prove this factory's complete-before-demand
- * admission.
- */
-const SOURCE_READERS: WeakMap<
-  prepareSkeletonPoseResolution.IRig,
-  prepareSkeletonPoseResolution.IRig["resolveMap"]
-> = new WeakMap();
-
-/**
- * A reading's rig and its private reader, which also takes the rig's bound
- * indices.
- */
-interface IOwnReading {
-  /** The rig that admitted the pose. */
-  rig: prepareSkeletonPoseResolution.IRig;
-
-  /** The admission's bones by names or by bound indices. */
-  read: preparePoseReading.IReading;
-}
-
-/**
- * Each issued reading's private reader; a structural copy of a reading has
- * none.
- */
-const READINGS: WeakMap<prepareSkeletonPoseResolution.IReading, IOwnReading> =
-  new WeakMap();
 
 /**
  * Snapshot a rig's static FK prerequisites once, then resolve changing poses
@@ -133,20 +97,28 @@ function snapshotRig(
   const conventions: Map<string, IConvention> = new Map();
   const axes: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>> =
     skeletonJointAxes(skeleton, jointAxes);
-  const fallback: IConvention = {
-    axes: PoseResolutionSnapshot.axes(DEFAULT_JOINT_AXES),
-  };
+  const fallbackAxes: IAutoMovieJointAxes = PoseResolutionSnapshot.axes(
+    DEFAULT_JOINT_AXES,
+  );
+  const fallback: IConvention =
+    preparePoseJointResolution.convention(fallbackAxes);
+  const copiedAxes: Map<string, IAutoMovieJointAxes> = new Map();
   for (const [name, basis] of PoseResolutionSnapshot.entries(axes))
-    conventions.set(name, {
-      axes: PoseResolutionSnapshot.axes(basis),
-    });
-  for (const [name, frame] of PoseResolutionSnapshot.entries(restFrames)) {
-    const convention: IConvention | undefined = conventions.get(name);
-    conventions.set(name, {
-      axes: convention === undefined ? fallback.axes : convention.axes,
-      frame: PoseResolutionSnapshot.frame(frame),
-    });
-  }
+    copiedAxes.set(name, PoseResolutionSnapshot.axes(basis));
+  const copiedFrames: Map<string, IAutoMovieRestFrame> = new Map();
+  for (const [name, frame] of PoseResolutionSnapshot.entries(restFrames))
+    copiedFrames.set(name, PoseResolutionSnapshot.frame(frame));
+  for (const [name, basis] of copiedAxes)
+    conventions.set(
+      name,
+      preparePoseJointResolution.convention(basis, copiedFrames.get(name)),
+    );
+  for (const [name, frame] of copiedFrames)
+    if (!copiedAxes.has(name))
+      conventions.set(
+        name,
+        preparePoseJointResolution.convention(fallbackAxes, frame),
+      );
   const nodes: INode[] = [];
   const indices: Map<AutoMovieHumanoidBone, number> = new Map();
   const append: (bone: IAutoMovieBone, parent: number) => void = (
@@ -193,7 +165,12 @@ function bindSnapshot(snapshot: ISnapshot): prepareSkeletonPoseResolution.IRig {
   const { nodes, indices, conventions, fallback } = snapshot;
 
   // The state every read shares, and whether a read holds it.
-  let shared: preparePoseResolutionState.IReader | undefined;
+  const shared: preparePoseResolutionState.IReader = preparePoseResolutionState(
+    nodes,
+    indices,
+    conventions,
+    fallback,
+  );
   let lent: boolean = false;
   const rig: prepareSkeletonPoseResolution.IRig = {
     jointAxes: snapshot.axes,
@@ -255,6 +232,7 @@ function bindSnapshot(snapshot: ISnapshot): prepareSkeletonPoseResolution.IRig {
         nodes.length,
         requested,
       );
+      const names: ReadonlySet<AutoMovieHumanoidBone> = new Set(requested);
       return {
         resolve: (
           pose: IAutoMoviePose,
@@ -280,14 +258,8 @@ function bindSnapshot(snapshot: ISnapshot): prepareSkeletonPoseResolution.IRig {
           ),
         read: (
           reading: prepareSkeletonPoseResolution.IReading,
-        ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> => {
-          const own: IOwnReading | undefined = READINGS.get(reading);
-          if (own === undefined || own.rig !== rig)
-            throw new Error(
-              "A bone demand reads only a pose reading of its own rig",
-            );
-          return own.read(undefined, demand);
-        },
+        ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =>
+          reading.map(names),
       };
     },
     read: (
@@ -340,7 +312,6 @@ function bindSnapshot(snapshot: ISnapshot): prepareSkeletonPoseResolution.IRig {
         bone: (index: number): IAutoMovieResolvedBone =>
           composePoseFrames.bone(read.names, read.frames(), row(index)),
       };
-      READINGS.set(reading, { rig, read });
       return reading;
     },
     resolveMap: (
@@ -368,10 +339,6 @@ function bindSnapshot(snapshot: ISnapshot): prepareSkeletonPoseResolution.IRig {
       );
     },
   };
-  REST_READERS.set(rig, (): IAutoMovieResolvedBone[] =>
-    preparePoseResolutionState.rest(nodes),
-  );
-  SOURCE_READERS.set(rig, rig.resolveMap);
   return rig;
 
   /**
@@ -395,14 +362,7 @@ function bindSnapshot(snapshot: ISnapshot): prepareSkeletonPoseResolution.IRig {
       );
     lent = true;
     try {
-      return run(
-        (shared ??= preparePoseResolutionState(
-          nodes,
-          indices,
-          conventions,
-          fallback,
-        )),
-      );
+      return run(shared);
     } finally {
       lent = false;
     }
@@ -465,17 +425,7 @@ export namespace prepareSkeletonPoseResolution {
     pose: IAutoMoviePose,
     operation?: ReturnType<typeof preparePoseResolution>,
   ): boolean {
-    const read: IRig["resolveMap"] | undefined = SOURCE_READERS.get(rig);
-    if (read === undefined) return false;
-    const descriptor: PropertyDescriptor | undefined =
-      Object.getOwnPropertyDescriptor(rig, "resolveMap");
-    if (
-      descriptor === undefined ||
-      !("value" in descriptor) ||
-      descriptor.value !== read
-    )
-      return false;
-    read(pose, operation, new Set<AutoMovieHumanoidBone>());
+    rig.resolveMap(pose, operation, new Set<AutoMovieHumanoidBone>());
     return true;
   }
 
@@ -500,13 +450,7 @@ export namespace prepareSkeletonPoseResolution {
    * registry.
    */
   export function rest(rig: IRig): IAutoMovieResolvedBone[] {
-    const read: (() => IAutoMovieResolvedBone[]) | undefined =
-      REST_READERS.get(rig);
-    if (read === undefined)
-      throw new Error(
-        "Rest FK requires a rig produced by prepareSkeletonPoseResolution",
-      );
-    return read();
+    return rig.resolve({ skeleton: "", root: null, joints: [] });
   }
 
   /**

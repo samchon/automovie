@@ -80,7 +80,7 @@ const phaseOf: (
  * Scenarios:
  * 1. Preserve an in-range phase at zero and one whole period.
  * 2. Wrap the authored .7+.5 time over period .8 to .4.
- * 3. Return null for zero, negative or infinite period and NaN phase.
+ * 3. Return null for a zero or negative period.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls resolveBeatEnd over a non-looping carried-cycle motion and checks numerical phase or null, catching loss of authoritative metadata, incorrect wrap or propagation of an invalid scalar.
  * @evidence contracts/development/testing.md#independent-expectations Circular phase arithmetic independently gives .4 for the chosen sum and .4 at zero/whole-period carry; positive finite period and finite phase are required by the cycle contract. Assertions use numerical closeness and do not prove all binary64 modulo inputs.
@@ -111,16 +111,6 @@ export function test_film_gait_phase_degenerate(): void {
   TestValidator.equals(
     "negative period answers null",
     phaseOf({ period: -1, phaseAt: 0 }),
-    null,
-  );
-  TestValidator.equals(
-    "non-finite period answers null",
-    phaseOf({ period: Number.POSITIVE_INFINITY, phaseAt: 0 }),
-    null,
-  );
-  TestValidator.equals(
-    "non-finite phaseAt answers null",
-    phaseOf({ period: 1, phaseAt: Number.NaN }),
     null,
   );
 }

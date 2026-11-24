@@ -8,31 +8,6 @@ import { physicalInertiaFactor } from "../physics/physicalInertiaFactor";
 import { physicalPrincipalAxes } from "../physics/physicalPrincipalAxes";
 import type { AirborneShapeStatistics } from "./AirborneShapeStatistics";
 
-/** Only this owner can issue an unobserved numeric tensor capability. */
-const OWNERS: WeakMap<IAutoMovieIntegrateAirborneRotation.IInstant, IState> =
-  new WeakMap();
-
-/** One private tensor, its original accessor and an optional lazy factor. */
-interface IState {
-  /** Owned rows, never exposed or passed to the mutating eigensolver. */
-  matrix: number[][];
-
-  /** The original own-property reader, compared before lending numeric work. */
-  get: (() => IAutoMoviePrincipalTensorFrame) | undefined;
-
-  /** Original assignment behavior; replacing it ends numeric eligibility. */
-  set: ((value: IAutoMoviePrincipalTensorFrame) => void) | undefined;
-
-  /** Public access may expose mutable principal coordinates, so ends reuse. */
-  observed: boolean;
-
-  /** Undefined before the first demand, null after a refused SPD admission. */
-  factor?: physicalInertiaFactor.IPrepared | null;
-
-  /** Optional native numeric counters, discarded when this history epoch ends. */
-  statistics?: AirborneShapeStatistics.IStatistics;
-}
-
 /**
  * Issue one physical instant with privately owned tensor sufficient statistics.
  *
@@ -48,16 +23,20 @@ export function AirborneShapeInertia(
   statistics?: AirborneShapeStatistics.IStatistics,
   factor?: physicalInertiaFactor.IPrepared | null,
 ): IAutoMovieIntegrateAirborneRotation.IInstant {
-  const state: IState = {
+  if (factor === undefined && statistics !== undefined)
+    statistics.factorizations++;
+  const state: AirborneShapeInertia.IState = {
     matrix,
     get: undefined,
     set: undefined,
     observed: false,
+    factor: factor === undefined ? physicalInertiaFactor(matrix) : factor,
     statistics,
   };
-  if (factor !== undefined) state.factor = factor;
   let principal: IAutoMoviePrincipalTensorFrame | undefined;
-  const instant: IAutoMovieIntegrateAirborneRotation.IInstant = {
+  const instant: IAutoMovieIntegrateAirborneRotation.IInstant &
+    AirborneShapeInertia.IOwned = {
+    shape: state,
     get inertia(): IAutoMoviePrincipalTensorFrame {
       state.observed = true;
       state.factor = undefined;
@@ -82,20 +61,46 @@ export function AirborneShapeInertia(
   )!;
   state.get = descriptor.get;
   state.set = descriptor.set;
-  OWNERS.set(instant, state);
   return instant;
 }
 
 /** Numerical access belongs only to unchanged, unobserved issued instants. */
 export namespace AirborneShapeInertia {
+  /** One private tensor, its original accessor and its factor. */
+  export interface IState {
+    /** Owned rows, never exposed or passed to the mutating eigensolver. */
+    matrix: number[][];
+
+    /** The original own-property reader, compared before lending numeric work. */
+    get: (() => IAutoMoviePrincipalTensorFrame) | undefined;
+
+    /** Original assignment behavior; replacing it ends numeric eligibility. */
+    set: ((value: IAutoMoviePrincipalTensorFrame) => void) | undefined;
+
+    /** Public access may expose mutable principal coordinates, so ends reuse. */
+    observed: boolean;
+
+    /** Made with the instant; null after a refused SPD admission. */
+    factor: physicalInertiaFactor.IPrepared | null | undefined;
+
+    /** Optional native numeric counters, discarded when this history epoch ends. */
+    statistics?: AirborneShapeStatistics.IStatistics;
+  }
+
+  /** An issued instant carries the private tensor state it was made with. */
+  export interface IOwned {
+    /** The private state; absent on an instant this owner did not issue. */
+    readonly shape?: IState;
+  }
+
   /**
    * Borrow the immutable factor only while the tensor is privately
    * authoritative.
    */
   export function factor(
-    instant: IAutoMovieIntegrateAirborneRotation.IInstant,
+    instant: IAutoMovieIntegrateAirborneRotation.IInstant & IOwned,
   ): physicalInertiaFactor.IPrepared | undefined {
-    const state: IState | undefined = OWNERS.get(instant);
+    const state: IState | undefined = instant.shape;
     if (state === undefined || state.observed) return undefined;
     const descriptor: PropertyDescriptor | undefined =
       Object.getOwnPropertyDescriptor(instant, "inertia");
@@ -104,24 +109,20 @@ export namespace AirborneShapeInertia {
       state.factor = undefined;
       return undefined;
     }
-    if (state.factor === undefined) {
-      if (state.statistics !== undefined) state.statistics.factorizations++;
-      state.factor = physicalInertiaFactor(state.matrix);
-    }
     return state.factor ?? undefined;
   }
 
   /** End numeric eligibility while leaving an issued public instant readable. */
   export function release(
-    instant: IAutoMovieIntegrateAirborneRotation.IInstant,
+    instant: IAutoMovieIntegrateAirborneRotation.IInstant & IOwned,
   ): void {
-    const state: IState | undefined = OWNERS.get(instant);
+    const state: IState | undefined = instant.shape;
     if (state !== undefined) {
       state.factor = undefined;
       state.get = undefined;
       state.set = undefined;
       state.statistics = undefined;
+      state.observed = true;
     }
-    OWNERS.delete(instant);
   }
 }

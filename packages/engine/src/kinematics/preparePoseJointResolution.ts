@@ -173,8 +173,7 @@ export function preparePoseJointResolution(
       }
       const convention: preparePoseJointResolution.IConvention =
         known?.convention ?? conventions.get(joint.bone) ?? fallback;
-      const basis: IAutoMovieJointAxes = (convention.basis ??=
-        normalizeJointAxes(convention.axes, "jointToQuaternion axes"));
+      const basis: IAutoMovieJointAxes = convention.basis;
       const flexion: number | null = clinical(
         joint,
         "flexion",
@@ -223,8 +222,7 @@ export function preparePoseJointResolution(
       const known: IReading | undefined = joints.get(bone);
       const convention: preparePoseJointResolution.IConvention =
         known?.convention ?? conventions.get(bone) ?? fallback;
-      const basis: IAutoMovieJointAxes = (convention.basis ??=
-        normalizeJointAxes(convention.axes, "jointToQuaternion axes"));
+      const basis: IAutoMovieJointAxes = convention.basis;
       const flexion: number | null = clinicalValue(
         f,
         "flexion",
@@ -267,10 +265,6 @@ export function preparePoseJointResolution(
       const known: IReading | undefined = joints.get(bone);
       const convention: preparePoseJointResolution.IConvention =
         known?.convention ?? conventions.get(bone) ?? fallback;
-      convention.basis ??= normalizeJointAxes(
-        convention.axes,
-        "jointToQuaternion axes",
-      );
       clinicalValue(
         f,
         "flexion",
@@ -387,11 +381,7 @@ export function preparePoseJointResolution(
     }
     const compose: IComposer =
       known?.compose ??
-      (convention.queries ??= jointToQuaternionOnBasis.prepareScalarQueries(
-        basis,
-        convention.frame,
-        REST_ANGLES,
-      ))();
+      convention.queries();
     tuple.flexion = flexion;
     tuple.abduction = abduction;
     tuple.twist = twist;
@@ -454,16 +444,13 @@ export function preparePoseJointResolution(
 
 /** Internal immutable conventions and actual-admission operation reader. */
 export namespace preparePoseJointResolution {
-  /**
-   * Actual immutable clinical inputs and bounded lazy preparation from
-   * successful use.
-   */
+  /** Actual immutable clinical inputs and their preparation. */
   export interface IConvention {
-    /** Own-data raw axes; first authored use normalizes them. */
+    /** Own-data raw axes. */
     axes: IAutoMovieJointAxes;
 
-    /** Actual successfully normalized basis. */
-    basis?: IAutoMovieJointAxes;
+    /** The normalized basis of those axes. */
+    basis: IAutoMovieJointAxes;
 
     /** Own-data optional affine frames; null coordinates bypass unused maps. */
     frame?: IAutoMovieRestFrame;
@@ -472,18 +459,39 @@ export namespace preparePoseJointResolution {
      * Fixed scalar/affine preparation; each produced composer has independent
      * dynamic factors.
      */
-    queries?: ReturnType<typeof jointToQuaternionOnBasis.prepareScalarQueries>;
+    queries: ReturnType<typeof jointToQuaternionOnBasis.prepareScalarQueries>;
 
-    /**
-     * Original-order lazy prechecks, populated only for an actual used nonnull
-     * map.
-     */
-    prechecks?: Partial<
-      Record<
-        "flexion" | "abduction" | "twist",
-        ReturnType<typeof toRigAngle.prepare>
-      >
+    /** The affine prechecks, one reader per axis. */
+    prechecks: Record<
+      "flexion" | "abduction" | "twist",
+      ReturnType<typeof toRigAngle.prepare>
     >;
+  }
+
+  /** Prepare one bone's convention from its axes and optional affine frames. */
+  export function convention(
+    axes: IAutoMovieJointAxes,
+    frame?: IAutoMovieRestFrame,
+  ): IConvention {
+    const basis: IAutoMovieJointAxes = normalizeJointAxes(
+      axes,
+      "jointToQuaternion axes",
+    );
+    return {
+      axes,
+      basis,
+      frame,
+      queries: jointToQuaternionOnBasis.prepareScalarQueries(
+        basis,
+        frame,
+        REST_ANGLES,
+      ),
+      prechecks: {
+        flexion: toRigAngle.prepare(),
+        abduction: toRigAngle.prepare(),
+        twist: toRigAngle.prepare(),
+      },
+    };
   }
 
   /**
@@ -569,12 +577,7 @@ function clinicalValue(
     value !== null &&
     frame !== undefined
   ) {
-    const readers: NonNullable<
-      preparePoseJointResolution.IConvention["prechecks"]
-    > = (convention.prechecks ??= {});
-    const read: ReturnType<typeof toRigAngle.prepare> = (readers[axis] ??=
-      toRigAngle.prepare());
-    read(value, frame);
+    convention.prechecks[axis](value, frame);
   }
   return value;
 }

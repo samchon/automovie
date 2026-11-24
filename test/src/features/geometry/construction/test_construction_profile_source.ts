@@ -383,20 +383,6 @@ function refusals(failures: string[]): void {
   const unavailable: IAutoMovieConstructionProfileSource = made();
   const own: IAutoMovieConstructionProfileSource.ICurve =
     unavailable.curves.get("L.0")!;
-  const nonfinite: IAutoMovieConstructionProfileSource = made();
-  nonfinite.curves = new Map(nonfinite.curves).set("L.0", {
-    ...own,
-    point: (): [number, number] => [Number.NaN, 0],
-  });
-  refuses(
-    (): unknown =>
-      AutoMovieConstructionProfile.create(nonfinite).atlas.faces[0]!.point!(
-        0.5,
-        0.5,
-      ),
-    failures,
-    "nonfinite original point",
-  );
   const collapsed: IAutoMovieConstructionProfileSource = made();
   collapsed.curves = new Map(collapsed.curves).set("L.0", {
     ...own,

@@ -46,7 +46,7 @@ export namespace RigidCarrierSample {
   }
 
   /** Borrowed dispatch pair, keyed by the root reader's actual identity. */
-  interface ISample {
+  export interface ISample {
     readonly model: object;
     readonly point: Point;
     readonly holds: readonly IHold[];
@@ -54,16 +54,24 @@ export namespace RigidCarrierSample {
   }
 
   /** An adapter's actual readers, rather than the wrappers' declared types. */
-  interface IAdapted {
+  export interface IAdapted {
     readonly motion: IAutoMovieMotionHumanProp["motion"];
     readonly point: IAutoMovieMotionHumanProp["point"];
     readonly holds: readonly IHold[];
     readonly playback?: IAutoMovieMotionPlayback<IRead>;
   }
 
-  /** Weak metadata is released with the reader returned by its author. */
-  const authored: WeakMap<object, ISample> = new WeakMap();
-  const adapted: WeakMap<IAutoMovieMotionHumanProp, IAdapted> = new WeakMap();
+  /** A root reader carries the metadata its author published with it. */
+  export interface ICarrier {
+    /** The producer's clock pair and domains, set by {@link bind}. */
+    sample?: ISample;
+  }
+
+  /** A prop carries the metadata its adapter transferred to it. */
+  export interface IAdaptable {
+    /** The adapted readers and domains, set by {@link adapt}. */
+    adapted?: IAdapted;
+  }
 
   /**
    * Publish the producer's actual clock pair, its constant domains and any
@@ -71,17 +79,17 @@ export namespace RigidCarrierSample {
    */
   export function bind(
     model: object,
-    motion: Motion,
+    motion: Motion & ICarrier,
     point: Point,
     holds: readonly IHold[],
     playback?: IAutoMovieMotionPlayback<IRead>,
   ): IBinding {
-    authored.set(motion, {
+    motion.sample = {
       model,
       point,
       playback,
       holds: holds.map((hold: IHold): IHold => ({ ...hold })),
-    });
+    };
     return { motion, point };
   }
 
@@ -90,20 +98,19 @@ export namespace RigidCarrierSample {
    * the same model.
    */
   export function adapt(
-    prop: IAutoMovieMotionHumanProp,
+    prop: IAutoMovieMotionHumanProp & IAdaptable,
     model: object,
-    motion?: object,
+    motion?: ((seconds: number) => unknown) & ICarrier,
     point?: Point,
   ): void {
-    const sample: ISample | undefined =
-      motion === undefined ? undefined : authored.get(motion);
+    const sample: ISample | undefined = motion?.sample;
     if (sample?.model === model && sample.point === point)
-      adapted.set(prop, {
+      prop.adapted = {
         motion: prop.motion,
         point: prop.point,
         holds: sample.holds,
         playback: sample.playback,
-      });
+      };
   }
 
   /**
@@ -111,7 +118,7 @@ export namespace RigidCarrierSample {
    * readers.
    */
   export function holds(
-    prop: IAutoMovieMotionHumanProp,
+    prop: IAutoMovieMotionHumanProp & IAdaptable,
   ): readonly IHold[] | undefined {
     return current(prop)?.holds;
   }
@@ -121,7 +128,7 @@ export namespace RigidCarrierSample {
    * its exact root and point reader pair. The caller chooses the second.
    */
   export function playback(
-    prop: IAutoMovieMotionHumanProp,
+    prop: IAutoMovieMotionHumanProp & IAdaptable,
   ): IAutoMovieMotionPlayback<IRead> | undefined {
     return current(prop)?.playback;
   }
@@ -130,8 +137,10 @@ export namespace RigidCarrierSample {
    * The prop's still-current own callback pair, checked without calling
    * getters.
    */
-  function current(prop: IAutoMovieMotionHumanProp): IAdapted | undefined {
-    const binding: IAdapted | undefined = adapted.get(prop);
+  function current(
+    prop: IAutoMovieMotionHumanProp & IAdaptable,
+  ): IAdapted | undefined {
+    const binding: IAdapted | undefined = prop.adapted;
     return binding !== undefined &&
       Object.getOwnPropertyDescriptor(prop, "motion")?.value ===
         binding.motion &&

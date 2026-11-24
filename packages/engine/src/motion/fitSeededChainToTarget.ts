@@ -87,7 +87,7 @@ export namespace fitSeededChainToTarget {
    * only its scalar result and retains no query, callback or handle.
    */
   export function orientationRoot(
-    result: IAutoMovieSeededChainFit,
+    result: IAutoMovieSeededChainFit & continueHingedOrientation.IRooted,
   ): continueHingedOrientation.IRoot | undefined {
     return continueHingedOrientation.root(result);
   }

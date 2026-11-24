@@ -412,7 +412,7 @@ export function tessellateAutoMovieCurveGrid64(
   const normals: number[] = new Array<number>(positions.length);
   let unresolvedVertexNormals: number = 0;
   let isolatedVertices: number = 0;
-  let nonfiniteNormalSums: number = 0;
+  const nonfiniteNormalSums: number = 0;
   for (let i: number = 0; i < vertexCount; i++) {
     const n: AutoMovieVector3Tuple = V.clone(
       normalSums.slice(i * 3, i * 3 + 3),

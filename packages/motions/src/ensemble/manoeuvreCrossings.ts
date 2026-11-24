@@ -14,13 +14,12 @@ import { HumanFormation } from "./HumanFormation";
  * travel's speed from its delay, every 1/24 s, against every other.
  */
 export function manoeuvreCrossings(
-  ensemble: IAutoMovieMotionHumanEnsemble.IEnsemble,
+  ensemble: manoeuvreCrossings.IEnsemble,
   parts: readonly IAutoMovieMotionHumanManoeuvre.IPart[],
   speeds: readonly number[],
   at: number,
 ): void {
-  const members: readonly IAutoMovieMotionHumanEnsemble.IMember[] =
-    ensemble.members;
+  const members: readonly manoeuvreCrossings.IMember[] = ensemble.members;
   const lengths: number[][] = parts.map(
     (p: IAutoMovieMotionHumanManoeuvre.IPart): number[] => {
       const out: number[] = [0];
@@ -115,5 +114,22 @@ export function manoeuvreCrossings(
             fix: "step off in another order, or let the crowd's steering take the crossing (path: steered)",
           });
       }
+  }
+}
+
+/** Companion types of {@link manoeuvreCrossings}. */
+export namespace manoeuvreCrossings {
+  /** What the check reads of a member: its name and its shoulders' breadth. */
+  export interface IMember
+    extends Pick<IAutoMovieMotionHumanEnsemble.IMember, "subject">,
+      HumanCrowd.IHalfMember {}
+
+  /** What the check reads of the ensemble: its id and its members. */
+  export interface IEnsemble {
+    /** The ensemble's input, for its id. */
+    input: Pick<IAutoMovieMotionHumanEnsemble.IEnsemble["input"], "id">;
+
+    /** The members, by index. */
+    members: readonly IMember[];
   }
 }

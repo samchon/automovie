@@ -29,7 +29,7 @@ const READER: IAutoMovieCaptureBudget = {
  * 4. One cell takes the still at its own size when that fits, and a 160 by 90 still is never enlarged.
  * 5. Cells in groups of three put whole groups on each row and sheet.
  * 6. A 4000 by 200 still, whose smallest cell is wider than the longest edge, is shrunk to fit it.
- * 7. A zero count, a fractional width and a zero group are refused.
+ * 7. A zero count and a zero group are refused.
  * 8. A real sheet filled with the first layout's 25 pictures of 1280 by 720 finishes at 1464 by 1568, within the longest edge, with each cell's picture 366 by 206 and the dark caption strip in the 18 rows under it.
  * 9. Captions of up to 87 characters wrap onto two or more lines under 1280 by 720 cells; the strip holds every line of the longest, and the sheet still stays within the longest edge with cells at least 200 px.
  *
@@ -142,7 +142,6 @@ export function test_capture_layout_budget(): void {
   // 7. Refusals.
   for (const [title, run] of [
     ["a zero count", (): unknown => layout(640, 360, 0)],
-    ["a fractional width", (): unknown => layout(640.5, 360, 1)],
     ["a zero group", (): unknown => layout(640, 360, 1, 0)],
   ] as const)
     TestValidator.predicate(

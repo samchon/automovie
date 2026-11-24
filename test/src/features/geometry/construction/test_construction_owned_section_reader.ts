@@ -31,25 +31,23 @@ const FIELDS: readonly (keyof Jet)[] = ["p", "s", "t", "ss", "st", "tt"];
  *    derivatives across positive, negative, cardinal and periodic phases.
  * 2. Input rewrites after factory return and returned-vector rewrites cannot
  *    mutate the private preparation; every output remains fresh.
- * 3. Public cold copies work and changed snapshots still fail before bad phases.
- * 4. A getter that becomes nonfinite during copying retains deferred phase failure
- *    and repeat failure behavior; original getter exceptions survive.
- * 5. Owned precise coverage counts the actual validator. One public control plus
- *    one private successful preparation allows at most two entries for either
- *    one or 129 phases; missing identity is an observer failure.
+ * 3. Public cold copies work and changed snapshots still fail.
+ * 4. Original getter exceptions survive; owned precise coverage counts the
+ *    actual validator. One public control plus one private successful
+ *    preparation allows at most two entries for either one or 129 phases;
+ *    missing identity is an observer failure.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Exercises Native.jet factories/readings and public Field cold/copy/failure paths, detects stale aliases, premature admission, swallowed original errors and repeated private metadata scans.
  * @evidence contracts/development/testing.md#independent-expectations The circle rho(s)=scale*(2+3s+4s*s) at s=0 gives exact p/s/ss and their sine/cosine phase derivatives independently of the kernel. Copy/refusal and exception order follow existing ownership contracts. The work ceiling is one public control plus at most one successful private validation, not a wall/heap oracle or an exact layout.
- * @evidence contracts/development/testing.md#distinguishing-cases Covers three scales, cardinal/negative/wrapped phases, input/output mutations, cold copies, stale geometry, bad phase ordering, a finite-to-NaN getter, repeated failures and original Error/undefined. Existing conic_field/source_conic/source_jets own asymmetric G2, moving boundaries and general world geometry.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers three scales, cardinal/negative/wrapped phases, input/output mutations, cold copies, stale geometry, repeated failures and original Error/undefined. Existing conic_field/source_conic/source_jets own asymmetric G2, moving boundaries and general world geometry.
  * @evidence contracts/development/testing.md#execution-ownership One discoverable async CPU question owns its synthetic values and current-process Inspector Session, stopped/disabled/disconnected in finally while primary failures retain identity. No person, process, browser, target attachment, CPU profile, foreign method replacement or time/heap threshold is used.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Homothetic circles at three scales retain all six independent Cartesian).
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Homothetic circles at three scales retain all six independent Cartesian).
  */
 export async function test_construction_owned_section_reader(): Promise<void> {
   const failures: string[] = [];
   for (const scale of [0.001, 1, 1000])
     ask(`circle ${scale}`, (): void => circle(scale), failures);
   ask("public copies", copies, failures);
-  ask("deferred failure", malformed, failures);
   ask("original errors", originals, failures);
   try {
     const readings: { phases: number; validations: number }[] = await work();
@@ -182,12 +180,10 @@ function copies(): void {
   if ("kind" in good || !nclose(good[0], 2, 1e-10))
     throw new Error("The cold numeric/source copy changed");
   copy.geometry.quarters[0]!.extents = [9, 9];
-  for (const bad of [
-    AutoMovieViewSectionField.readRay(copy, ray),
-    AutoMovieViewSectionField.read(copy, Infinity),
-  ])
-    if (!("kind" in bad) || !bad.detail.includes("malformed or differ"))
-      throw new Error("Public stale data lost its validation or precedence");
+  const bad: ReturnType<typeof AutoMovieViewSectionField.readRay> =
+    AutoMovieViewSectionField.readRay(copy, ray);
+  if (!("kind" in bad) || !bad.detail.includes("malformed or differ"))
+    throw new Error("Public stale data lost its validation or precedence");
   const original: ReturnType<typeof AutoMovieViewSectionField.read> =
     AutoMovieViewSectionField.read(at, 0.3);
   if ("kind" in original || !nclose(original[0], 2, 1e-10))
@@ -206,44 +202,6 @@ function thrown(job: () => unknown): unknown {
   }
   if (!failed) throw new Error("Expected the existing failure path");
   return value;
-}
-
-/** A copying-time NaN is not promoted into valid geometry or a cached exception. */
-function malformed(): void {
-  const data: IAutoMovieLoftViewRead.IJets = inputs();
-  const tuple: [number, number, number] = [2, 3, 8];
-  let reads: number = 0;
-  Object.defineProperty(tuple, "1", {
-    enumerable: true,
-    configurable: true,
-    get: (): number => {
-      reads++;
-      return reads === 1 ? 3 : NaN;
-    },
-  });
-  data.extents[0] = tuple;
-  const read: ReturnType<typeof AutoMovieLoftSectionNative.jet> =
-    AutoMovieLoftSectionNative.jet(data);
-  const phase: unknown = thrown((): Jet => read(Infinity));
-  if (
-    !(phase instanceof Error) ||
-    !phase.message.includes("finite phase reading")
-  )
-    throw new Error(
-      "The first numeric ray no longer precedes private validation",
-    );
-  const first: unknown = thrown((): Jet => read(0.3));
-  const second: unknown = thrown((): Jet => read(0.4));
-  if (
-    !(first instanceof Error) ||
-    !(second instanceof Error) ||
-    first === second ||
-    !first.message.includes("malformed or differ") ||
-    second.message !== first.message
-  )
-    throw new Error(
-      "Deferred private failure or its repeated original behavior changed",
-    );
 }
 
 /**

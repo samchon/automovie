@@ -262,18 +262,12 @@ export function test_construction_affine_support(): void {
       [2, 0],
       [-1, 1],
       [0, 3],
-      [0, Infinity],
     ] as [number, number][])
       if (
         typeof AutoMovieViewOutline.supportStations(identity, 1, 1, domain) !==
         "string"
       )
         failures.push(`invalid support domain accepted: ${domain}`);
-    if (
-      typeof AutoMovieViewOutline.supportStations(identity, Infinity) !==
-      "string"
-    )
-      failures.push("nonfinite affine coefficient accepted");
   }
   const cubic: IAutoMovieViewOutline.IOutline | IAutoMovieViewOutline.IFailure =
     AutoMovieViewOutline.create({

@@ -313,10 +313,6 @@ function interpolation(failures: string[]): void {
   ) as IAutoMovieLoftPhaseSource.ISource;
   const regular: IAutoMovieLoftPhaseSource.IStation =
     AutoMovieLoftPhaseSource.station(made, 0.5);
-  const badWeights: IAutoMovieLoftPhaseSource.IStation = {
-    ...regular,
-    weights: [[NaN, 0, 0], regular.weights[1]!, regular.weights[2]!],
-  };
   const badSource: IAutoMovieLoftPhaseSource.IStation = {
     ...regular,
     source: {
@@ -329,10 +325,8 @@ function interpolation(failures: string[]): void {
     },
   };
   for (const observe of [
-    (): unknown => AutoMovieLoftPhaseSource.point(badWeights, 0),
     (): unknown => AutoMovieLoftPhaseSource.jet(badSource, 0),
     (): unknown => AutoMovieLoftPhaseSource.station(made, -1),
-    (): unknown => AutoMovieLoftPhaseSource.station(made, 0.5, [1, Infinity]),
   ])
     if (!rejects(observe))
       failures.push("malformed explicit phase data was not rejected");

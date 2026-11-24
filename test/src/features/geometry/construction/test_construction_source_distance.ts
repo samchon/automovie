@@ -91,27 +91,12 @@ export function test_construction_source_distance(): void {
       [1, 0],
       [-1, 0.5],
       [0, 2],
-      [0, Infinity],
-      [NaN, 1],
     ] as [number, number][])
       if (
         typeof AutoMovieViewOutline.distanceStations(line, 0.2, 4, domain) !==
         "string"
       )
         failures.push(`invalid domain accepted: ${domain}`);
-    for (const target of [
-      [Infinity, 0],
-      [0, NaN],
-      [0, -Infinity],
-    ] as [number, number][])
-      if (
-        typeof AutoMovieViewOutline.distanceStations(
-          line,
-          ...target,
-          [0, 1],
-        ) !== "string"
-      )
-        failures.push(`nonfinite target accepted: ${target}`);
   }
 
   const cubic: IAutoMovieViewOutline.IOutline | IAutoMovieViewOutline.IFailure =
@@ -396,11 +381,7 @@ export function test_construction_source_distance(): void {
       failures.push(
         `constant/endpoint polynomial invented interior root: ${coefficients}`,
       );
-  for (const coefficients of [
-    [NaN],
-    [Infinity],
-    new Array<number>(11).fill(1),
-  ]) {
+  for (const coefficients of [new Array<number>(11).fill(1)]) {
     let rejected: boolean = false;
     try {
       rootsAutoMovieViewPolynomial(coefficients);

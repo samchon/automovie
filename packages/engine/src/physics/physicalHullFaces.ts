@@ -68,14 +68,15 @@ export function physicalHullFaces(
       ? null
       : physicalHullPlanes(points, extent, tolerance, shifted, true);
   const planes: physicalHullPlanes.IResult =
-    carried ??
-    physicalHullPlanes(
-      points,
-      extent,
-      tolerance,
-      physicalHullTriangles(points, tolerance),
-      false,
-    )!;
+    carried !== null
+      ? carried
+      : physicalHullPlanes(
+          points,
+          extent,
+          tolerance,
+          physicalHullTriangles(points, tolerance),
+          false,
+        )!;
   const used: boolean[] = points.map((): boolean => false);
   const faces: IAutoMoviePhysicalHullFaces.IFace[] = planes.faces.map(
     (face: physicalHullPlanes.IFace): IAutoMoviePhysicalHullFaces.IFace => {

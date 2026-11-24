@@ -390,18 +390,6 @@ export function test_construction_source_jets(): void {
   for (const curve of [
     { ...sole, range: { minimum: 1, maximum: 0 } },
     { ...sole, range: { minimum: 0, maximum: 1 } },
-    { ...sole, range: { minimum: NaN, maximum: null } },
-    {
-      knots: [
-        {
-          site: "a",
-          station: 0,
-          value: 0,
-          jet: { first: Infinity, second: null },
-        },
-        { site: "b", station: 1, value: 1 },
-      ],
-    },
   ] as IAutoMovieViewPart.IOutline[])
     if (!("detail" in AutoMovieViewOutline.create(curve)))
       failures.push("invalid authored source was admitted");

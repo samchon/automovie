@@ -143,20 +143,20 @@ interface ISource {
   /** Original normalized fore-segment direction. */
   restForeDir: IAutoMovieVector3;
 
-  /** Exact normalized inverse, admitted only after the first upper aim. */
-  upperInverse?: IAutoMovieQuaternion;
+  /** Exact inverse of the source upper world rotation. */
+  upperInverse: IAutoMovieQuaternion;
 
-  /** Exact normalized inverse, admitted at the first lower evaluation. */
-  lowerInverse?: IAutoMovieQuaternion;
+  /** Exact inverse of the source lower world rotation. */
+  lowerInverse: IAutoMovieQuaternion;
 
-  /** Fixed fore direction lowered through that same completed inverse. */
-  localFore?: IAutoMovieVector3;
+  /** Fixed fore direction lowered through that same inverse. */
+  localFore: IAutoMovieVector3;
 
-  /** Lazy actual aim from the unchanged source upper direction. */
-  aimUpper?: ReturnType<typeof aimRotation.prepare>;
+  /** Actual aim from the unchanged source upper direction. */
+  aimUpper: ReturnType<typeof aimRotation.prepare>;
 
-  /** Lazy actual aim from the unchanged lowered fore direction. */
-  aimLower?: ReturnType<typeof aimRotation.prepare>;
+  /** Actual aim from the unchanged lowered fore direction. */
+  aimLower: ReturnType<typeof aimRotation.prepare>;
 }
 
 /** One fixed target's triangle data, before selecting any bend normal. */
@@ -193,6 +193,13 @@ function readSource(
   const restForeDir: IAutoMovieVector3 = Vector3.normalize(
     Vector3.subtract(props.end, mid),
   );
+  const lowerInverse: IAutoMovieQuaternion = Quaternion.inverse(
+    props.lower.worldRotation,
+  );
+  const localFore: IAutoMovieVector3 = Quaternion.rotateVector(
+    lowerInverse,
+    restForeDir,
+  );
   return {
     frames: props,
     root,
@@ -200,6 +207,11 @@ function readSource(
     l2,
     restUpperDir,
     restForeDir,
+    upperInverse: Quaternion.inverse(props.upper.worldRotation),
+    lowerInverse,
+    localFore,
+    aimUpper: aimRotation.prepare(restUpperDir),
+    aimLower: aimRotation.prepare(localFore),
   };
 }
 
@@ -256,9 +268,8 @@ function evaluate(
   // into the bone-local articulation (restWorld⁻¹ · Δ · restWorld).
   const rsu: IAutoMovieQuaternion = source.frames.upper.worldRotation;
   const du: IAutoMovieQuaternion = shareAims
-    ? (source.aimUpper ??= aimRotation.prepare(source.restUpperDir))(upperDir)
+    ? source.aimUpper(upperDir)
     : aimRotation(source.restUpperDir, upperDir);
-  source.upperInverse ??= Quaternion.inverse(rsu);
   const upper: IAutoMovieQuaternion = Quaternion.multiply(
     source.upperInverse,
     Quaternion.multiply(du, rsu),
@@ -266,16 +277,13 @@ function evaluate(
 
   // Mid joint: worldRot(L) = du · Rsl · articL, so the fore segment's local
   // axis (Rsl⁻¹ · restForeDir) must rotate onto (Rsl⁻¹ · du⁻¹ · foreDir).
-  const rsl: IAutoMovieQuaternion = source.frames.lower.worldRotation;
-  source.lowerInverse ??= Quaternion.inverse(rsl);
   const rslInv: IAutoMovieQuaternion = source.lowerInverse;
-  source.localFore ??= Quaternion.rotateVector(rslInv, source.restForeDir);
   const localGoal: IAutoMovieVector3 = Quaternion.rotateVector(
     rslInv,
     Quaternion.rotateVector(Quaternion.inverse(du), foreDir),
   );
   const lower: IAutoMovieQuaternion = shareAims
-    ? (source.aimLower ??= aimRotation.prepare(source.localFore))(localGoal)
+    ? source.aimLower(localGoal)
     : aimRotation(source.localFore, localGoal);
 
   return { upper, lower };

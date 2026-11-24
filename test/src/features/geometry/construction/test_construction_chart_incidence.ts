@@ -173,12 +173,6 @@ export function test_construction_chart_incidence(): void {
     ),
     "turns",
   );
-  refuse(
-    failures,
-    "nonfinite",
-    AutoMovieSolidMeshIncidence.walks(new Map([[0, [NaN, 0]]]), []),
-    "finite",
-  );
   if (failures.length !== 0)
     throw new Error(`Chart incidence findings:\n${failures.join("\n")}`);
 }

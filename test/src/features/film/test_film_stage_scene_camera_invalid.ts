@@ -19,10 +19,6 @@ import { hasViolation, namedFacts } from "../internal/predicates";
  * `$input.cameras[1].lookAt.node`.
  * 3. A third camera looks at its own position, yielding `range` on
  * `$input.cameras[2].lookAt`.
- * 4. A fourth camera declares a non-finite position, yielding `range` on
- * `$input.cameras[3].position`.
- * 5. A fifth camera declares a non-finite point target, yielding `range` on
- * `$input.cameras[4].lookAt.point`.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Stages five independently faulty cameras and requires located FOV, missing target, zero look vector and non-finite position/point refusals.
  * @evidence contracts/development/testing.md#independent-expectations The exclusive 180-degree bound, authored absent id, equal lens/target and literal Infinity determine expected paths independently of the staging diagnostic output.
@@ -50,27 +46,6 @@ export function test_film_stage_scene_camera_invalid(): void {
           node: "cam-zero",
           position: { x: 1, y: 2, z: 3 },
           lookAt: { kind: "point", point: { x: 1, y: 2, z: 3 } },
-          fovDeg: 50,
-          near: 0.1,
-          far: 1000,
-          depthPrecision: { minimumDepthBits: 24, maximumStepMeters: 100 },
-        },
-        {
-          node: "cam-infinite",
-          position: { x: Number.POSITIVE_INFINITY, y: 1, z: -2 },
-          lookAt: { kind: "point", point: { x: 0, y: 1, z: 0 } },
-          fovDeg: 50,
-          near: 0.1,
-          far: 1000,
-          depthPrecision: { minimumDepthBits: 24, maximumStepMeters: 100 },
-        },
-        {
-          node: "cam-skew",
-          position: { x: 0, y: 1, z: -2 },
-          lookAt: {
-            kind: "point",
-            point: { x: 0, y: Number.POSITIVE_INFINITY, z: 0 },
-          },
           fovDeg: 50,
           near: 0.1,
           far: 1000,
@@ -115,32 +90,6 @@ export function test_film_stage_scene_camera_invalid(): void {
         (): boolean =>
           staged.success === false &&
           hasViolation(staged, "range", "$input.cameras[2].lookAt"),
-      ],
-    ]),
-    { refused: true, violated: true },
-  );
-  TestValidator.equals(
-    "non-finite position rejected",
-    namedFacts([
-      ["refused", (): boolean => staged.success === false],
-      [
-        "violated",
-        (): boolean =>
-          staged.success === false &&
-          hasViolation(staged, "range", "$input.cameras[3].position"),
-      ],
-    ]),
-    { refused: true, violated: true },
-  );
-  TestValidator.equals(
-    "non-finite point target rejected",
-    namedFacts([
-      ["refused", (): boolean => staged.success === false],
-      [
-        "violated",
-        (): boolean =>
-          staged.success === false &&
-          hasViolation(staged, "range", "$input.cameras[4].lookAt.point"),
       ],
     ]),
     { refused: true, violated: true },

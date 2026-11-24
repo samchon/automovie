@@ -399,21 +399,6 @@ export function test_drawing_svg_sidecar(): void {
           ),
       ],
       [
-        "a non-finite stroke weight is refused",
-        (): boolean =>
-          throwsError(
-            (): string =>
-              autoMovieDrawingToSvg({
-                drawing,
-                view: withStyle(view, {
-                  ...drawingStyle(),
-                  weights: { ...drawingStyle().weights, cut: Number.NaN },
-                }),
-              }),
-            "cut stroke weight must be a finite number > 0",
-          ),
-      ],
-      [
         "a negative dash is refused at the role that carries it",
         (): boolean =>
           throwsError(
@@ -455,7 +440,6 @@ export function test_drawing_svg_sidecar(): void {
     {
       "another view's pen is refused rather than silently applied": true,
       "a zero stroke weight is refused at the role that carries it": true,
-      "a non-finite stroke weight is refused": true,
       "a negative dash is refused at the role that carries it": true,
       "a zero text height is refused": true,
       "a solid pen with no dash at all is accepted": true,

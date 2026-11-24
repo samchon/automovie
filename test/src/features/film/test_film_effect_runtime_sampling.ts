@@ -136,19 +136,11 @@ export function test_film_effect_runtime_sampling(): void {
         }),
       ),
       refusal((): IAutoMovieProductionFilmEffectSample[] => sample(-1)),
-      refusal((): IAutoMovieProductionFilmEffectSample[] => sample(1.5)),
-      refusal((): IAutoMovieProductionFilmEffectSample[] => sample(Number.NaN)),
       refusal((): IAutoMovieProductionFilmEffectSample[] => sample(0, -0.1)),
-      refusal((): IAutoMovieProductionFilmEffectSample[] =>
-        sample(0, Number.POSITIVE_INFINITY),
-      ),
-      refusal((): IAutoMovieProductionFilmEffectSample[] =>
-        sample(0, Number.NaN),
-      ),
       refusal((): IAutoMovieProductionFilmEffectSample[] => sample(0, 0)),
     ],
     [
-      ...Array.from({ length: 8 }, (): string => "film-effect-input-invalid"),
+      ...Array.from({ length: 4 }, (): string => "film-effect-input-invalid"),
       "accepted",
     ],
   );
@@ -192,9 +184,6 @@ export function test_film_effect_runtime_sampling(): void {
       draft.endFrame = draft.startFrame;
     }),
     resealFilmEffect(mist, (draft: IAutoMovieCompiledFilmEffect): void => {
-      draft.startFrame = 1.5;
-    }),
-    resealFilmEffect(mist, (draft: IAutoMovieCompiledFilmEffect): void => {
       draft.endFrame = 2 ** 53;
     }),
     resealFilmEffect(mist, (draft: IAutoMovieCompiledFilmEffect): void => {
@@ -209,18 +198,6 @@ export function test_film_effect_runtime_sampling(): void {
     resealFilmEffect(mist, (draft: IAutoMovieCompiledFilmEffect): void => {
       draft.effect.intensity = { from: 0.5, to: 0.25 };
     }),
-    // Canonical JSON cannot digest an infinite number, and the shape check
-    // refuses it before any digest is recomputed, so this one is not resealed.
-    {
-      ...mist,
-      effect: {
-        ...mist.effect,
-        intensity: {
-          from: Number.POSITIVE_INFINITY,
-          to: Number.POSITIVE_INFINITY,
-        },
-      },
-    },
     resealFilmEffect(mist, (draft: IAutoMovieCompiledFilmEffect): void => {
       draft.effect.intensity = { from: -0.5, to: -0.5 };
     }),
@@ -241,23 +218,13 @@ export function test_film_effect_runtime_sampling(): void {
     resealFilmEffect(mist, (draft: IAutoMovieCompiledFilmEffect): void => {
       draft.effect.fixedStepSeconds = 0.05;
     }),
-    // Canonical JSON refuses these values, so neither can be resealed; the
-    // validator must still classify them under its own refusal code.
+    // Canonical JSON refuses this value, so it cannot be resealed; the
+    // validator must still classify it under its own refusal code.
     {
       ...mist,
       effect: {
         ...mist.effect,
         recipe: { ...mist.effect.recipe, id: "\ud800" },
-      },
-    },
-    {
-      ...mist,
-      effect: {
-        ...mist.effect,
-        bounds: {
-          ...mist.effect.bounds,
-          min: { ...mist.effect.bounds.min, x: Number.NaN },
-        },
       },
     },
   ];

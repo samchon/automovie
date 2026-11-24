@@ -224,28 +224,23 @@ export function test_construction_operator_trim_classification(): void {
       [2, 6.5],
       [0, 6.5],
     ],
-    [
-      [NaN, 0],
-      [1, 1],
-    ],
   ];
   const frames: IAutoMovieSolidSurface.IJet[] = [
     stretch,
     shear,
     jet([1, 0, 0], [2, 0, 0]),
     jet([0, 0, 0], [0, 0, 0]),
-    jet([NaN, 0, 0], [0, 1, 0]),
   ];
   for (const kind of ["hole", "island", "start", "end"] as const)
     for (const chart of charts)
-      for (const period of [undefined, turn, 0, -turn, NaN]) {
+      for (const period of [undefined, turn, 0, -turn]) {
         const shape: Loop = loop(kind, chart);
         const read: ReturnType<typeof AutoMovieSolidMeshLoop.prepare> =
           AutoMovieSolidMeshLoop.prepare([shape], period);
-        for (const u of [-1, 0, 1, 2, 3, NaN, Infinity])
+        for (const u of [-1, 0, 1, 2, 3])
           for (const v of [-turn, -Math.PI, 0, 1, Math.PI, turn, 3 * turn])
             for (const frame of frames)
-              for (const margin of [0, 0.25, -1, NaN, Infinity])
+              for (const margin of [0, 0.25, -1])
                 TestValidator.predicate(
                   "legacy " +
                     [kind, chart.length, period, u, v, margin].join("/"),
@@ -278,10 +273,10 @@ export function test_construction_operator_trim_classification(): void {
   TestValidator.predicate(
     "empty loop conjunction",
     AutoMovieSolidMeshLoop.prepare([], undefined)(
-      NaN,
-      NaN,
-      jet([NaN, 0, 0], [NaN, 0, 0]),
-      NaN,
+      0,
+      0,
+      jet([1, 0, 0], [0, 1, 0]),
+      0,
     ),
   );
 

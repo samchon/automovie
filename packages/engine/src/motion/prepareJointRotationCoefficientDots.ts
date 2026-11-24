@@ -67,7 +67,7 @@ interface IFixed {
    */
   bit: number;
   /** Lazy actual rig-zero factor; never an incoming target or scored result. */
-  rest?: IAutoMovieQuaternion;
+  rest: IAutoMovieQuaternion;
 }
 
 /** One source-fixed coefficient basis and its structured Gram cross term. */
@@ -106,7 +106,12 @@ export function prepareJointRotationCoefficientDots(
       const mayRest: boolean = props.immobile.includes(axis);
       const bit: number =
         mayRest && !Object.is(angle, 0) ? 1 << nullable.length : 0;
-      const row: IFixed = { axis, factor, bit };
+      const row: IFixed = {
+        axis,
+        factor,
+        bit,
+        rest: Quaternion.fromAxisAngle(props.basis[axis], 0),
+      };
       fixed[axis] = row;
       if (bit !== 0) nullable.push(row);
       props.fixedRigAngles[axis] = bit === 0 ? [angle] : [angle, 0];
@@ -130,7 +135,7 @@ export function prepareJointRotationCoefficientDots(
             index < 0
               ? (mode & row!.bit) === 0
                 ? row!.factor
-                : (row!.rest ??= Quaternion.fromAxisAngle(props.basis[axis], 0))
+                : row!.rest
               : (mask & (1 << index)) === 0
                 ? Quaternion.identity()
                 : { ...props.basis[axis], w: 0 };
@@ -142,8 +147,9 @@ export function prepareJointRotationCoefficientDots(
     const dots: readonly IDot[] = coefficients.map(prepareFiniteQuaternionDot);
     return { dots, cross: dots[1]!(coefficients[2]!) };
   };
-  const canonical: IVariant = build(0);
-  variants[0] = canonical;
+  for (let mode: number = 0; mode < 1 << nullable.length; ++mode)
+    variants[mode] = build(mode);
+  const canonical: IVariant = variants[0]!;
   const read: (reference: IAutoMovieJointPose) => IVariant = (
     reference: IAutoMovieJointPose,
   ): IVariant => {
@@ -151,8 +157,7 @@ export function prepareJointRotationCoefficientDots(
     let mode: number = 0;
     for (const row of nullable)
       if (reference[row.axis] === null) mode |= row.bit;
-    const variant: IVariant = (variants[mode] ??= build(mode));
-    return variant;
+    return variants[mode]!;
   };
   return Object.assign(
     (reference: IAutoMovieJointPose): readonly IDot[] => read(reference).dots,

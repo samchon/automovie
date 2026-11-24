@@ -46,10 +46,32 @@ export function prepareChainFitRig(
   const constant: prepareChainRigConstants.IRig =
     prepared?.rig ?? prepareChainRigConstants(props, prepared);
   let held: IAutoMovieJointPose | undefined;
+  for (const joint of props.pose.joints)
+    if (joint.bone === props.chain.effector) held = joint;
+  held ??= {
+    bone: props.chain.effector,
+    flexion: null,
+    abduction: null,
+    twist: null,
+  };
+  const heldJoint: IAutoMovieJointPose = held;
   let heldRotation: IAutoMovieQuaternion | undefined;
   let heldInverse: IAutoMovieQuaternion | undefined;
   let swing: IAutoMovieVector3 | undefined;
-  let hingeGeometry: hingedArmSwivel.IPrepared | undefined;
+  const hingeGeometry: hingedArmSwivel.IPrepared | null =
+    prepared === null
+      ? null
+      : hingedArmSwivel.prepare(
+          {
+            upper: prepared.upper,
+            midOffset: prepared.lowerOffset,
+            midRest: prepared.lowerRotation,
+            endOffset: prepared.effectorOffset,
+            hinge: (props.jointAxes?.[props.chain.lower] ?? DEFAULT_JOINT_AXES)
+              .flexion,
+          },
+          constant.span,
+        );
   const rig: prepareChainFit.IRig = {
     bone: constant.bone,
     domain: constant.domain,
@@ -63,19 +85,7 @@ export function prepareChainFitRig(
     effectorRestInverse: constant.effectorRestInverse,
     distalTwist: constant.distalTwist,
     hingeRange: constant.hingeRange,
-    held: (): IAutoMovieJointPose => {
-      if (held === undefined) {
-        for (const joint of props.pose.joints)
-          if (joint.bone === props.chain.effector) held = joint;
-        held ??= {
-          bone: props.chain.effector,
-          flexion: null,
-          abduction: null,
-          twist: null,
-        };
-      }
-      return held;
-    },
+    held: (): IAutoMovieJointPose => heldJoint,
     heldRotation: (): IAutoMovieQuaternion => {
       if (heldRotation === undefined)
         heldRotation = Quaternion.multiply(
@@ -101,21 +111,7 @@ export function prepareChainFitRig(
       if (swing === undefined) swing = read();
       return swing;
     },
-    hingedGeometry: (): hingedArmSwivel.IPrepared | null => {
-      if (prepared === null) return null;
-      hingeGeometry ??= hingedArmSwivel.prepare(
-        {
-          upper: prepared.upper,
-          midOffset: prepared.lowerOffset,
-          midRest: prepared.lowerRotation,
-          endOffset: prepared.effectorOffset,
-          hinge: (props.jointAxes?.[props.chain.lower] ?? DEFAULT_JOINT_AXES)
-            .flexion,
-        },
-        constant.span,
-      );
-      return hingeGeometry;
-    },
+    hingedGeometry: (): hingedArmSwivel.IPrepared | null => hingeGeometry,
   };
   return rig;
 }

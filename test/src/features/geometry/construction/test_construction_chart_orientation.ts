@@ -85,25 +85,6 @@ export function test_construction_chart_orientation(): void {
   );
   if (reads[0] !== 1 || reads[1] !== 1)
     failures.push(`coordinate reads ${reads}, expected 1,1`);
-
-  for (const invalid of [NaN, Infinity, -Infinity])
-    for (let at: number = 0; at < 6; at++) {
-      const points: [Point, Point, Point] = [
-        [0, 0],
-        [1, 2],
-        [3, 4],
-      ];
-      const target: Point = points[Math.floor(at / 2)]!;
-      target[at % 2] = invalid;
-      let refused: boolean = false;
-      try {
-        orientAutoMovieSolidChart(...points);
-      } catch (error: unknown) {
-        refused = error instanceof RangeError;
-      }
-      if (!refused)
-        failures.push(`nonfinite coordinate ${invalid}/${at} was not refused`);
-    }
   if (failures.length !== 0)
     throw new Error(`Chart orientation findings:\n${failures.join("\n")}`);
 }

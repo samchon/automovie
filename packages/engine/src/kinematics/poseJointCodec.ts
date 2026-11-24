@@ -119,22 +119,18 @@ function entry(
 /** Companion types of {@link poseJointCodec}. */
 export namespace poseJointCodec {
   /**
-   * Lazily own one actual codec across related velocity reads and offset
-   * capture. Keep the rig unchanged through those construction stages. First
-   * demand runs the constructor at its caller's original admission stage; a
-   * failure is not retained. Release the getter after capture; an offset may
-   * retain the concrete codec for its existing lifetime. No pose, quaternion or
-   * angle result is cached.
+   * Own one actual codec across related velocity reads and offset capture. Keep
+   * the rig unchanged through those construction stages. The codec is made at
+   * preparation. No pose, quaternion or angle result is cached.
    *
    * @param rig The same rig both sampled states and the offset use.
-   * @returns A lazy one-codec getter, without any eager rig read.
+   * @returns A one-codec getter.
    */
   export function prepare(
     rig?: IAutoMoviePoseRig,
   ): () => IAutoMoviePoseJointCodec.ICodec {
-    let codec: IAutoMoviePoseJointCodec.ICodec | undefined;
-    return (): IAutoMoviePoseJointCodec.ICodec =>
-      (codec ??= poseJointCodec(rig));
+    const codec: IAutoMoviePoseJointCodec.ICodec = poseJointCodec(rig);
+    return (): IAutoMoviePoseJointCodec.ICodec => codec;
   }
 
   /**

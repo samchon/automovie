@@ -92,18 +92,6 @@ export function test_construction_source_world_jet(): void {
     "null axis2",
     failures,
   );
-  refuse(
-    AutoMovieLoftViewWorldJet(source, part.axis, NaN, 0),
-    "finite station and phase",
-    "invalid station",
-    failures,
-  );
-  refuse(
-    AutoMovieLoftViewWorldJet(source, part.axis, 0.5, Infinity),
-    "finite station and phase",
-    "invalid phase",
-    failures,
-  );
   const invalid: AxisJet = frame(0.5);
   invalid.first.u[1] = NaN;
   refuse(

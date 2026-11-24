@@ -47,12 +47,6 @@ type IEvaluation =
   | IAutoMovieJointPose
   | prepareJointRotationProjection.IProjection;
 
-/** A private bound belongs only to the exact paired callback that owns it. */
-const WRIST_CHORDS: WeakMap<
-  prepareJointRotationProjection.IProjector["withQuaternion"],
-  NonNullable<ReturnType<typeof prepareCardinalWristChord>>
-> = new WeakMap();
-
 /** Exact composition key; null and signed zero remain different coordinates. */
 function sameJoint(a: IAutoMovieJointPose, b: IAutoMovieJointPose): boolean {
   return (
@@ -197,22 +191,23 @@ export function prepareJointRotationProjection(props: {
   const readJointRotation: ReturnType<
     ReturnType<typeof decomposeJointRotationOnBasis.prepareQueries>
   > = decomposeJointRotationOnBasis.prepareQueries(props.basis, props.frame)();
-  let clinicalReaders:
-    | Partial<Record<ClinicalAxis, ReturnType<typeof toClinicalAngle.prepare>>>
-    | undefined;
+  const clinicalReaders: Record<
+    ClinicalAxis,
+    ReturnType<typeof toClinicalAngle.prepare>
+  > = {
+    flexion: toClinicalAngle.prepare(),
+    abduction: toClinicalAngle.prepare(),
+    twist: toClinicalAngle.prepare(),
+  };
 
-  /** Prepare only actual used nonnull affine frames, never candidate answers. */
+  /** Read the used nonnull affine frames, never candidate answers. */
   const clinical: (axis: ClinicalAxis, angle: number) => number = (
     axis: ClinicalAxis,
     angle: number,
   ): number => {
     const frame: IAutoMovieRestFrame[ClinicalAxis] = props.frame?.[axis];
     if (frame === undefined) return angle;
-    const readers: NonNullable<typeof clinicalReaders> = (clinicalReaders ??=
-      {});
-    const read: ReturnType<typeof toClinicalAngle.prepare> = (readers[axis] ??=
-      toClinicalAngle.prepare());
-    return read(angle, frame)!;
+    return clinicalReaders[axis](angle, frame)!;
   };
 
   /** Compose only if the caller needs a quaternion not already evaluated. */
@@ -518,25 +513,26 @@ export function prepareJointRotationProjection(props: {
     return scoreBox!(local, reference, pairs, clamp, requested);
   };
   /** The original paired projection and its independently admitted bound. */
-  const withQuaternion: prepareJointRotationProjection.IProjector["withQuaternion"] =
+  const withQuaternion: prepareJointRotationProjection.IProjector["withQuaternion"] &
+    prepareJointRotationProjection.IChorded = Object.assign(
     (
       rotation: IAutoMovieQuaternion,
     ): prepareJointRotationProjection.IProjection =>
-      evaluate(rotation, true) as prepareJointRotationProjection.IProjection;
-  if (
-    box &&
-    constraint !== null &&
-    constraint.twist === null &&
-    mobile.length === 2 &&
-    mobile[0] === "flexion" &&
-    mobile[1] === "abduction" &&
-    (props.frame?.twist?.neutral ?? 0) === 0 &&
-    clampJointToSkeleton.ownsConstraint(props.clamp, constraint)
-  ) {
-    const chord: ReturnType<typeof prepareCardinalWristChord> =
-      prepareCardinalWristChord(props.basis, ranges[0]!, ranges[1]!);
-    if (chord !== undefined) WRIST_CHORDS.set(withQuaternion, chord);
-  }
+      evaluate(rotation, true) as prepareJointRotationProjection.IProjection,
+    {
+      chord:
+        box &&
+        constraint !== null &&
+        constraint.twist === null &&
+        mobile.length === 2 &&
+        mobile[0] === "flexion" &&
+        mobile[1] === "abduction" &&
+        (props.frame?.twist?.neutral ?? 0) === 0 &&
+        clampJointToSkeleton.ownsConstraint(props.clamp, constraint)
+          ? prepareCardinalWristChord(props.basis, ranges[0]!, ranges[1]!)
+          : undefined,
+    },
+  );
   return Object.assign(
     (rotation: IAutoMovieQuaternion): IAutoMovieJointPose =>
       evaluate(rotation, false) as IAutoMovieJointPose,
@@ -586,8 +582,14 @@ export namespace prepareJointRotationProjection {
    * invoking the callback. The fixed arc metadata releases with that callback.
    */
   export function wristChord(
-    projector: IProjector["withQuaternion"] | undefined,
+    projector: (IProjector["withQuaternion"] & IChorded) | undefined,
   ): ReturnType<typeof prepareCardinalWristChord> {
-    return projector === undefined ? undefined : WRIST_CHORDS.get(projector);
+    return projector?.chord;
+  }
+
+  /** A paired projection carries its wrist chord bound. */
+  export interface IChorded {
+    /** The cardinal wrist bound, made with the projection; absent when none. */
+    readonly chord?: ReturnType<typeof prepareCardinalWristChord>;
   }
 }

@@ -346,36 +346,7 @@ export namespace preparePoseResolutionState {
     };
   }
 
-  /**
-   * Read genuine geometric rest from this producer's immutable rooted nodes. No
-   * articulation or clinical frame is admitted: this is exactly root-null FK
-   * with no authored joints, composed once per rig and copied as B fresh
-   * records a read; no operation, source pose or output array is retained.
-   */
-  export function rest(nodes: readonly INode[]): IAutoMovieResolvedBone[] {
-    const tables: composePoseFrames.ITables = composePoseFrames.tables(nodes);
-    let frames: composePoseFrames.IFrames | undefined = RESTS.get(tables);
-    if (frames === undefined) {
-      frames = composePoseFrames.frames(tables.count);
-      composePoseFrames(
-        tables,
-        composePoseFrames.identities(tables.count),
-        IDENTITY,
-        ORIGIN,
-        frames,
-      );
-      RESTS.set(tables, frames);
-    }
-    const result: IAutoMovieResolvedBone[] = [];
-    for (let index: number = 0; index < tables.count; ++index)
-      result.push(composePoseFrames.bone(tables.names, frames, index));
-    return result;
-  }
 }
-
-/** Each rig's rest frames by its tables. */
-const RESTS: WeakMap<composePoseFrames.ITables, composePoseFrames.IFrames> =
-  new WeakMap();
 
 /** Allocate one operation's rows, without retaining any authored input. */
 function createState(

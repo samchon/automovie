@@ -47,23 +47,8 @@ export namespace AutoMovieHumanoidSurfaceRays {
     /** Actual origin/direction intersection through the collider. */
     exit: Exit;
 
-    /**
-     * Acquired only when this collider first wins a ray whose normal is
-     * demanded.
-     */
-    normal?: ReturnType<typeof physicalShapeNormal.prepare>;
-  }
-
-  /**
-   * Reader-local copied turn keys protect inverse reuse even after an at-result
-   * edit.
-   */
-  interface IRestTurn {
-    /** Last observed world quaternion coordinates, copied without normalization. */
-    key: IAutoMovieQuaternion;
-
-    /** Private inverse for those exact coordinates; no caller receives it. */
-    inverse: IAutoMovieQuaternion;
+    /** The collider's surface normal reader. */
+    normal: ReturnType<typeof physicalShapeNormal.prepare>;
   }
 
   /** The six actual rest observations consumed by anatomical surface owners. */
@@ -262,7 +247,19 @@ export namespace AutoMovieHumanoidSurfaceRays {
       ReturnType<typeof physicalShapeBounds>
     > = new Map();
     const exits: Map<IAutoMoviePhysicalSegment, IShapeReading[]> = new Map();
-    const unturned: Map<AutoMovieHumanoidBone, IRestTurn> = new Map();
+    for (const s of segments.values()) {
+      extents.set(s, AutoMovieHumanoidNeutralBounds.read(profile, s, neutral));
+      exits.set(
+        s,
+        s.shapes.map(
+          (shape: IAutoMoviePhysicalShape): IShapeReading => ({
+            shape,
+            exit: prepareExit(s.neutral, shape),
+            normal: physicalShapeNormal.prepare(s.neutral, shape),
+          }),
+        ),
+      );
+    }
     const rest: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = new Map();
     for (const resolved of resolvePose(
       { skeleton: skeleton.id, root: null, joints: [] },
@@ -289,12 +286,7 @@ export namespace AutoMovieHumanoidSurfaceRays {
       bone: AutoMovieHumanoidBone,
     ): { min: IAutoMovieVector3; max: IAutoMovieVector3 } => {
       const s: IAutoMoviePhysicalSegment = segment(bone);
-      let known: ReturnType<typeof physicalShapeBounds> | undefined =
-        extents.get(s);
-      if (known === undefined) {
-        known = AutoMovieHumanoidNeutralBounds.read(profile, s, neutral);
-        extents.set(s, known);
-      }
+      const known: ReturnType<typeof physicalShapeBounds> = extents.get(s)!;
       return { min: { ...known.min }, max: { ...known.max } };
     };
     const local = (
@@ -304,24 +296,7 @@ export namespace AutoMovieHumanoidSurfaceRays {
       forward?: IAutoMovieVector3,
     ): IAutoMovieHumanoidSurfaces.IFrame => {
       const r: IAutoMovieResolvedBone = at(bone);
-      const rotation: IAutoMovieQuaternion = r.worldRotation;
-      const qx: number = rotation.x;
-      const qy: number = rotation.y;
-      const qz: number = rotation.z;
-      const qw: number = rotation.w;
-      let turn: IRestTurn | undefined = unturned.get(bone);
-      if (
-        turn === undefined ||
-        !Object.is(turn.key.x, qx) ||
-        !Object.is(turn.key.y, qy) ||
-        !Object.is(turn.key.z, qz) ||
-        !Object.is(turn.key.w, qw)
-      ) {
-        const key: IAutoMovieQuaternion = { x: qx, y: qy, z: qz, w: qw };
-        turn = { key, inverse: Quaternion.inverse(key) };
-        unturned.set(bone, turn);
-      }
-      const inverse: IAutoMovieQuaternion = turn.inverse;
+      const inverse: IAutoMovieQuaternion = Quaternion.inverse(r.worldRotation);
       return {
         bone,
         point: Quaternion.rotateVector(
@@ -342,22 +317,18 @@ export namespace AutoMovieHumanoidSurfaceRays {
     // The body's stature, the top of its colliders at rest above the floor
     // at zero, as `measureAutoMovieHumanoidBody` reads it; read by the first
     // station placed by a level.
-    let stature: number | undefined;
+    let stature: number = -Infinity;
+    for (const part of profile.segments)
+      stature = Math.max(
+        stature,
+        AutoMovieHumanoidNeutralBounds.read(profile, part, neutral).max.y,
+      );
     const station = (
       s:
         | IAutoMovieHumanoidSurfaceRegions.IStation
         | AutoMovieHumanoidSurfaceRegions.ILevel,
     ): IAutoMovieVector3 => {
       if ("level" in s) {
-        if (stature === undefined) {
-          let top: number = -Infinity;
-          for (const part of profile.segments)
-            top = Math.max(
-              top,
-              AutoMovieHumanoidNeutralBounds.read(profile, part, neutral).max.y,
-            );
-          stature = top;
-        }
         const from: IAutoMovieVector3 = at(s.bone).worldPosition;
         const to: IAutoMovieVector3 = at(s.toward).worldPosition;
         const share: number = (s.level * stature - from.y) / (to.y - from.y);
@@ -405,16 +376,7 @@ export namespace AutoMovieHumanoidSurfaceRays {
     ): IAutoMovieVector3 | IAutoMovieHumanoidSurfaceRays.ISurfacePoint {
       const d: IAutoMovieVector3 = Vector3.normalize(direction);
       const s: IAutoMoviePhysicalSegment = segment(bone);
-      let readings: IShapeReading[] | undefined = exits.get(s);
-      if (readings === undefined) {
-        readings = s.shapes.map(
-          (shape: IAutoMoviePhysicalShape): IShapeReading => ({
-            shape,
-            exit: prepareExit(s.neutral, shape),
-          }),
-        );
-        exits.set(s, readings);
-      }
+      const readings: IShapeReading[] = exits.get(s)!;
       let far: number = -Infinity;
       let left: IShapeReading | undefined;
       for (let i: number = 0; i < s.shapes.length; i++) {
@@ -431,9 +393,7 @@ export namespace AutoMovieHumanoidSurfaceRays {
       point.y = origin.y + point.y;
       point.z = origin.z + point.z;
       if (!readNormal) return point;
-      const normal: ReturnType<typeof physicalShapeNormal.prepare> =
-        (left.normal ??= physicalShapeNormal.prepare(s.neutral, left.shape));
-      return { point, normal: normal(point, d) };
+      return { point, normal: left.normal(point, d) };
     }
     const surface = (
       bone: AutoMovieHumanoidBone,

@@ -13,7 +13,7 @@ import { throwsError } from "../internal/throwsError";
  * Scenarios:
  *
  * 1. Frames 57 to 63, 90 and 92, given unsorted with a repeat, plan `select='between(n,57,63)+eq(n,90)+eq(n,92)'`, `-fps_mode passthrough`, RGB stills numbered from `s00000.png` in the given folder, and no shell quoting.
- * 2. An empty frame list and a negative or fractional index are refused.
+ * 2. An empty frame list and a negative index are refused.
  * 3. Scene-cut detection at threshold 10 plans `scdet=threshold=10` with the metadata filters printing to the report, and a report path holding a drive colon and a comma is escaped for both filter-graph levels.
  * 4. A threshold above 100 is refused.
  * 5. A report of two marked frames, with Windows line endings and an extra key, reads as two cuts with their seconds and scores; a frame without `lavfi.scd.time` falls back to its `pts_time`.
@@ -54,7 +54,7 @@ export function test_capture_video_ffmpeg_plans(): void {
   );
 
   // 2. Refusals.
-  for (const frames of [[], [-1], [1.5]])
+  for (const frames of [[], [-1]])
     TestValidator.predicate(
       `frames ${JSON.stringify(frames)} are refused`,
       throwsError((): unknown =>

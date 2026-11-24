@@ -15,16 +15,6 @@ import { resolveAutoMovieCenterOfMass } from "./resolveAutoMovieCenterOfMass";
 import { resolveAutoMovieMomentum } from "./resolveAutoMovieMomentum";
 import { resolveAutoMovieMomentumRates } from "./resolveAutoMovieMomentumRates";
 
-/** Private nominal identity prevents constructing a prepared model externally. */
-const BRAND: unique symbol = Symbol("prepared mass model");
-
-/**
- * The live state of each explicit model owner, never keyed by mutable body
- * identity.
- */
-const STATES: WeakMap<prepareAutoMovieMassModel.IPrepared, IState> =
-  new WeakMap();
-
 /**
  * Snapshot one mass model for a synchronous physical planning operation.
  *
@@ -79,14 +69,12 @@ export function prepareAutoMovieMassModel(
     throw new Error(
       "The prepared mass model needs its finite positive segment mass sum",
     );
-  const token: prepareAutoMovieMassModel.IPrepared = { [BRAND]: true };
-  STATES.set(token, {
+  return {
     model: { mass, segments },
-    frames: [],
-    rotationScratch: { x: 0, y: 0, z: 0, w: 1 },
     active: false,
-  });
-  return token;
+    tensor: physicalInertiaTensor.prepare(),
+    interval: resolveAutoMovieMomentum.prepareIntervals(),
+  };
 }
 
 /** Readers of an explicitly owned mass-model snapshot. */
@@ -103,8 +91,22 @@ export namespace prepareAutoMovieMassModel {
    * released token at runtime.
    */
   export interface IPrepared {
-    /** Nominal model identity; only the factory supplies it. */
-    readonly [BRAND]: true;
+    /** Immutable copied bone-local SI inputs and their exact total mass. */
+    readonly model: IAutoMovieResolveCenterOfMass.IModel;
+
+    /**
+     * Nested foreign reads use plain formulas instead of borrowing the shared
+     * workspaces.
+     */
+    active: boolean;
+
+    /** Exact intrinsic workspace, made with the model. */
+    readonly tensor: ReturnType<typeof physicalInertiaTensor.prepare>;
+
+    /** Exact endpoint workspace, made with the model. */
+    readonly interval: ReturnType<
+      typeof resolveAutoMovieMomentum.prepareIntervals
+    >;
   }
 
   /**
@@ -126,9 +128,8 @@ export namespace prepareAutoMovieMassModel {
   export function bones(
     prepared: IPrepared,
   ): ReadonlySet<AutoMovieHumanoidBone> {
-    const current: IState = state(prepared);
     const names: Set<AutoMovieHumanoidBone> = new Set();
-    for (const segment of current.model.segments) names.add(segment.bone);
+    for (const segment of prepared.model.segments) names.add(segment.bone);
     return names;
   }
 
@@ -156,38 +157,27 @@ export namespace prepareAutoMovieMassModel {
     prepared: IPrepared,
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
   ): resolveAutoMovieMomentum.IPosed {
-    const current: IState = state(prepared);
-    if (current.active) {
-      const posed: resolveAutoMovieMomentum.IPosed =
-        resolveAutoMovieMomentum.pose(current.model, bones);
-      for (const part of posed.parts) part.inertia = copyVector(part.inertia);
-      return posed;
-    }
-    current.active = true;
-    try {
-      const parts: IAutoMovieCombinePhysicalMassProperties.IPart[] = [];
-      const centre: IAutoMovieVector3 = resolveAutoMovieCenterOfMass.mean(
-        current.model,
-        (
-          segment: IAutoMovieResolveCenterOfMass.ISegment,
-          i: number,
-        ): IAutoMovieVector3 => {
-          const frame: IFrame = readFrame(current, segment, i, bones);
-          const principal: IAutoMovieQuaternion = (frame.principal ??=
-            Quaternion.multiply(frame.rotation, segment.axes));
-          parts.push({
-            mass: segment.mass,
-            centerOfMass: copyVector(frame.point),
-            inertia: copyVector(segment.inertia),
-            inertiaRotation: copyQuaternion(principal),
-          });
-          return frame.point;
-        },
-      );
-      return { parts, centre };
-    } finally {
-      current.active = false;
-    }
+    const parts: IAutoMovieCombinePhysicalMassProperties.IPart[] = [];
+    const centre: IAutoMovieVector3 = resolveAutoMovieCenterOfMass.mean(
+      prepared.model,
+      (
+        segment: IAutoMovieResolveCenterOfMass.ISegment,
+      ): IAutoMovieVector3 => {
+        const bone: IAutoMovieResolvedBone = posedBone(bones, segment);
+        const point: IAutoMovieVector3 = placePoint(bone, segment);
+        parts.push({
+          mass: segment.mass,
+          centerOfMass: copyVector(point),
+          inertia: copyVector(segment.inertia),
+          inertiaRotation: Quaternion.multiply(
+            bone.worldRotation,
+            segment.axes,
+          ),
+        });
+        return point;
+      },
+    );
+    return { parts, centre };
   }
 
   /**
@@ -209,21 +199,11 @@ export namespace prepareAutoMovieMassModel {
     prepared: IPrepared,
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
   ): IAutoMovieVector3 {
-    const current: IState = state(prepared);
-    if (current.active)
-      return resolveAutoMovieCenterOfMass.place(current.model, bones);
-    current.active = true;
-    try {
-      return resolveAutoMovieCenterOfMass.mean(
-        current.model,
-        (
-          segment: IAutoMovieResolveCenterOfMass.ISegment,
-          i: number,
-        ): IAutoMovieVector3 => readFrame(current, segment, i, bones).point,
-      );
-    } finally {
-      current.active = false;
-    }
+    return resolveAutoMovieCenterOfMass.mean(
+      prepared.model,
+      (segment: IAutoMovieResolveCenterOfMass.ISegment): IAutoMovieVector3 =>
+        placePoint(posedBone(bones, segment), segment),
+    );
   }
 
   /**
@@ -250,15 +230,12 @@ export namespace prepareAutoMovieMassModel {
     prepared: IPrepared,
     posed: resolveAutoMovieMomentum.IPosed,
   ): number[][] {
-    const current: IState = state(prepared);
-    if (current.active) return physicalInertiaTensor(posed.parts, posed.centre);
-    current.active = true;
+    if (prepared.active) return physicalInertiaTensor(posed.parts, posed.centre);
+    prepared.active = true;
     try {
-      const tensor: ReturnType<typeof physicalInertiaTensor.prepare> =
-        (current.tensor ??= physicalInertiaTensor.prepare());
-      return tensor(posed.parts, posed.centre);
+      return prepared.tensor(posed.parts, posed.centre);
     } finally {
-      current.active = false;
+      prepared.active = false;
     }
   }
 
@@ -285,22 +262,18 @@ export namespace prepareAutoMovieMassModel {
     after: resolveAutoMovieMomentum.IPosed,
     seconds: number,
   ): IAutoMovieBodyMomentum {
-    const current: IState = state(prepared);
-    if (current.active)
+    if (prepared.active)
       return resolveAutoMovieMomentum.between(
-        current.model,
+        prepared.model,
         before,
         after,
         seconds,
       );
-    current.active = true;
+    prepared.active = true;
     try {
-      const interval: ReturnType<
-        typeof resolveAutoMovieMomentum.prepareIntervals
-      > = (current.interval ??= resolveAutoMovieMomentum.prepareIntervals());
-      return interval(current.model, before, after, seconds);
+      return prepared.interval(prepared.model, before, after, seconds);
     } finally {
-      current.active = false;
+      prepared.active = false;
     }
   }
 
@@ -314,12 +287,7 @@ export namespace prepareAutoMovieMassModel {
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
     rates: ReadonlyMap<AutoMovieHumanoidBone, resolveAutoMovieBoneRates.IRate>,
   ): IAutoMovieBodyMomentum {
-    return resolveAutoMovieMomentumRates(
-      state(prepared).model,
-      posed,
-      bones,
-      rates,
-    );
+    return resolveAutoMovieMomentumRates(prepared.model, posed, bones, rates);
   }
 
   /**
@@ -336,140 +304,36 @@ export namespace prepareAutoMovieMassModel {
    * numeric state root on success or failure; independently returned numeric
    * records remain valid.
    */
-  export function release(prepared: IPrepared): void {
-    STATES.delete(prepared);
+  export function release(_prepared: IPrepared): void {
+    // The model state lives and dies with its handle; nothing is registered.
   }
 }
 
-/** One copied model and at most one copied frame per ordered mass segment. */
-interface IState {
-  /** Immutable copied bone-local SI inputs and their exact total mass. */
-  model: IAutoMovieResolveCenterOfMass.IModel;
-
-  /** At most one last common-frame numeric dependency row per segment. */
-  frames: (IFrame | undefined)[];
-
-  /**
-   * One private quaternion scratch consumes exactly the captured current
-   * coordinates.
-   */
-  rotationScratch: IAutoMovieQuaternion;
-
-  /**
-   * Nested foreign reads use uncached formulas instead of borrowing live
-   * scratch.
-   */
-  active: boolean;
-
-  /** Exact intrinsic workspace, acquired only at its first actual tensor read. */
-  tensor?: ReturnType<typeof physicalInertiaTensor.prepare>;
-
-  /** Exact endpoint workspace, acquired only at its first actual interval read. */
-  interval?: ReturnType<typeof resolveAutoMovieMomentum.prepareIntervals>;
-}
-
-/** Last actual bone inputs and their derived numeric mass-point transform. */
-interface IFrame {
-  /** Last actual bone position, copied in the bones' common frame. */
-  position: IAutoMovieVector3;
-
-  /** Last actual bone-to-common rotation, copied as four numeric coordinates. */
-  rotation: IAutoMovieQuaternion;
-
-  /** Rotated local mass offset, independent of bone translation. */
-  offset: IAutoMovieVector3;
-
-  /** Common-frame segment centre, metres. */
-  point: IAutoMovieVector3;
-
-  /** Bone rotation times fixed local principal axes; absent until requested. */
-  principal?: IAutoMovieQuaternion;
-}
-
-/** A released or foreign handle cannot reach stale planning state. */
-function state(prepared: prepareAutoMovieMassModel.IPrepared): IState {
-  const current: IState | undefined = STATES.get(prepared);
-  if (current === undefined)
-    throw new Error("The prepared mass model has been released or is foreign");
-  return current;
-}
-
-/**
- * Read each current scalar before deciding whether the numeric transform is
- * equivalent.
- */
-function readFrame(
-  current: IState,
-  segment: IAutoMovieResolveCenterOfMass.ISegment,
-  i: number,
+/** The posed bone a segment rides on; a missing bone throws. */
+function posedBone(
   bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
-): IFrame {
+  segment: IAutoMovieResolveCenterOfMass.ISegment,
+): IAutoMovieResolvedBone {
   const bone: IAutoMovieResolvedBone | undefined = bones.get(segment.bone);
   if (bone === undefined)
     throw new Error(`The momentum needs the posed bone ${segment.bone}`);
-  const rotation: IAutoMovieQuaternion = bone.worldRotation;
-  const position: IAutoMovieVector3 = bone.worldPosition;
-  const qx: number = rotation.x;
-  const qy: number = rotation.y;
-  const qz: number = rotation.z;
-  const qw: number = rotation.w;
-  const px: number = position.x;
-  const py: number = position.y;
-  const pz: number = position.z;
-  const known: IFrame | undefined = current.frames[i];
-  const sameRotation: boolean =
-    known !== undefined &&
-    Object.is(known.rotation.x, qx) &&
-    Object.is(known.rotation.y, qy) &&
-    Object.is(known.rotation.z, qz) &&
-    Object.is(known.rotation.w, qw);
-  if (
-    known !== undefined &&
-    sameRotation &&
-    Object.is(known.position.x, px) &&
-    Object.is(known.position.y, py) &&
-    Object.is(known.position.z, pz)
-  )
-    return known;
-  if (!sameRotation) {
-    current.rotationScratch.x = qx;
-    current.rotationScratch.y = qy;
-    current.rotationScratch.z = qz;
-    current.rotationScratch.w = qw;
-  }
-  const offset: IAutoMovieVector3 = sameRotation
-    ? known!.offset
-    : Quaternion.rotateVector(current.rotationScratch, segment.point);
-  const x: number = px + offset.x;
-  const y: number = py + offset.y;
-  const z: number = pz + offset.z;
-  if (known !== undefined) {
-    // Returned posed parts copy these fields, so changing the private last
-    // frame cannot move an earlier stencil endpoint or caller-owned result.
-    known.position.x = px;
-    known.position.y = py;
-    known.position.z = pz;
-    if (!sameRotation) {
-      known.rotation.x = qx;
-      known.rotation.y = qy;
-      known.rotation.z = qz;
-      known.rotation.w = qw;
-      known.offset = offset;
-      known.principal = undefined;
-    }
-    known.point.x = x;
-    known.point.y = y;
-    known.point.z = z;
-    return known;
-  }
-  const frame: IFrame = {
-    position: { x: px, y: py, z: pz },
-    rotation: { x: qx, y: qy, z: qz, w: qw },
-    offset,
-    point: { x, y, z },
+  return bone;
+}
+
+/** The segment's centre in the bones' common frame, metres. */
+function placePoint(
+  bone: IAutoMovieResolvedBone,
+  segment: IAutoMovieResolveCenterOfMass.ISegment,
+): IAutoMovieVector3 {
+  const offset: IAutoMovieVector3 = Quaternion.rotateVector(
+    bone.worldRotation,
+    segment.point,
+  );
+  return {
+    x: bone.worldPosition.x + offset.x,
+    y: bone.worldPosition.y + offset.y,
+    z: bone.worldPosition.z + offset.z,
   };
-  current.frames[i] = frame;
-  return frame;
 }
 
 /** A fresh three-scalar record crosses the private-state boundary. */

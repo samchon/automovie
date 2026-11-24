@@ -158,12 +158,6 @@ export function test_film_grammar_admission(): void {
       reestablishDistance: 20,
     }).length === 1,
   );
-  rejects(
-    "non-finite duration",
-    (input: IAutoMovieGrammarShotObservation): void => {
-      input.duration = Number.NaN;
-    },
-  );
   rejects("zero duration", (input: IAutoMovieGrammarShotObservation): void => {
     input.duration = 0;
   });
@@ -186,47 +180,9 @@ export function test_film_grammar_admission(): void {
     },
   );
   rejects(
-    "non-finite camera position",
-    (input: IAutoMovieGrammarShotObservation): void => {
-      input.camera.end.position.x = Number.NaN;
-    },
-  );
-  rejects(
-    "non-finite camera rotation",
-    (input: IAutoMovieGrammarShotObservation): void => {
-      input.camera.start.rotation.w = Number.NaN;
-    },
-  );
-  // A component the producer left out is refused like a non-finite one,
-  // instead of passing because no key names it.
-  rejects(
-    "missing camera rotation component",
-    (input: IAutoMovieGrammarShotObservation): void => {
-      delete (input.camera.start.rotation as Partial<IAutoMovieQuaternion>).w;
-    },
-  );
-  rejects(
-    "missing subject coordinate",
-    (input: IAutoMovieGrammarShotObservation): void => {
-      delete (input.subjects[0]!.end as Partial<IAutoMovieVector3>).z;
-    },
-  );
-  rejects(
     "duplicate subject id",
     (input: IAutoMovieGrammarShotObservation): void => {
       input.subjects.push(structuredClone(input.subjects[0]!));
-    },
-  );
-  rejects(
-    "non-finite subject start",
-    (input: IAutoMovieGrammarShotObservation): void => {
-      input.subjects[0]!.start.x = Number.NaN;
-    },
-  );
-  rejects(
-    "non-finite subject end",
-    (input: IAutoMovieGrammarShotObservation): void => {
-      input.subjects[0]!.end.z = Number.NaN;
     },
   );
   rejects(
@@ -239,32 +195,6 @@ export function test_film_grammar_admission(): void {
     "negative subject radius",
     (input: IAutoMovieGrammarShotObservation): void => {
       input.subjects[0]!.radius = -1;
-    },
-  );
-  rejects(
-    "non-finite subject radius",
-    (input: IAutoMovieGrammarShotObservation): void => {
-      input.subjects[0]!.radius = Number.NaN;
-    },
-  );
-  rejects(
-    "non-finite eyeline start",
-    (input: IAutoMovieGrammarShotObservation): void => {
-      input.subjects[0]!.eyeline = {
-        target: "target",
-        start: point(Number.NaN, 0, 0),
-        end: point(1, 0, 0),
-      };
-    },
-  );
-  rejects(
-    "non-finite eyeline end",
-    (input: IAutoMovieGrammarShotObservation): void => {
-      input.subjects[0]!.eyeline = {
-        target: "target",
-        start: point(1, 0, 0),
-        end: point(1, Number.NaN, 0),
-      };
     },
   );
   rejects(

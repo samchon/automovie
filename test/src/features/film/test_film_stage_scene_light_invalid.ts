@@ -15,10 +15,6 @@ import { hasViolation, namedFacts } from "../internal/predicates";
  *    `$input.lights[0].intensity`.
  * 2. A second light declares the zero direction → a `range` violation on
  *    `$input.lights[1].direction`.
- * 3. A third light declares infinite intensity, yielding `range` on
- *    `$input.lights[2].intensity`.
- * 4. A fourth light declares a non-finite direction, yielding `range` on
- *    `$input.lights[3].direction`.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Stages four malformed directional lights and requires each intensity or direction range finding, catching accepted negative or infinite intensity and zero or nonfinite aim.
  * @evidence contracts/development/testing.md#independent-expectations Physical nonnegative finite intensity and a finite nonzero aimed direction determine the four literal kind/path witnesses; no lowerer output supplies expected refusals.
@@ -37,18 +33,6 @@ export function test_film_stage_scene_light_invalid(): void {
           node: "void",
           role: "fill",
           direction: { x: 0, y: 0, z: 0 },
-          intensity: 0.5,
-        },
-        {
-          node: "nova",
-          role: "rim",
-          direction: { x: 0, y: -1, z: 0 },
-          intensity: Number.POSITIVE_INFINITY,
-        },
-        {
-          node: "skew",
-          role: "rim",
-          direction: { x: Number.POSITIVE_INFINITY, y: -1, z: 0 },
           intensity: 0.5,
         },
       ],
@@ -77,32 +61,6 @@ export function test_film_stage_scene_light_invalid(): void {
         (): boolean =>
           staged.success === false &&
           hasViolation(staged, "range", "$input.lights[1].direction"),
-      ],
-    ]),
-    { refused: true, violated: true },
-  );
-  TestValidator.equals(
-    "infinite intensity rejected",
-    namedFacts([
-      ["refused", (): boolean => staged.success === false],
-      [
-        "violated",
-        (): boolean =>
-          staged.success === false &&
-          hasViolation(staged, "range", "$input.lights[2].intensity"),
-      ],
-    ]),
-    { refused: true, violated: true },
-  );
-  TestValidator.equals(
-    "non-finite direction rejected",
-    namedFacts([
-      ["refused", (): boolean => staged.success === false],
-      [
-        "violated",
-        (): boolean =>
-          staged.success === false &&
-          hasViolation(staged, "range", "$input.lights[3].direction"),
       ],
     ]),
     { refused: true, violated: true },

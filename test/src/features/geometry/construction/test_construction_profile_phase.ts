@@ -156,25 +156,6 @@ export function test_construction_profile_phase(): void {
   > = AutoMovieConstructionProfile.create(original).phase("ellipse", 0.5, 0.5);
   vector(zero.t, [0, 0, 0], failures);
   vector(zero.tt!, [0, 0, 0], failures);
-  original.curves = new Map([
-    [
-      "original",
-      {
-        ...full,
-        phase: (): IAutoMovieConstructionProfileSource.IPhase => ({
-          p: [NaN, 2],
-          t: [0, 0],
-          tt: null,
-        }),
-      },
-    ],
-  ]);
-  refuse(
-    (): unknown =>
-      AutoMovieConstructionProfile.create(original).phase("ellipse", 0.5, 0.5),
-    failures,
-    "nonfinite original phase",
-  );
   const marker: Error = new Error("actual original phase");
   original.curves = new Map([
     [

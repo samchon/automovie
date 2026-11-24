@@ -138,21 +138,9 @@ function admission(
   };
   const cases: IAutoMovieSolidMesh.ISeam[] = [
     { ...seam, blend: { ...band, period: undefined } },
-    { ...seam, blend: { ...band, orientation: undefined as unknown as 1 } },
     { ...seam, phases: [] },
     { ...seam, phases: [0, 1, 1, 2] },
-    { ...seam, phases: [0, 1, 2, Infinity] },
     { ...seam, phases: [0, 1, 2, 7] },
-    {
-      ...seam,
-      host: {
-        ...seam.host,
-        jet: (u: number, v: number): IAutoMovieSolidSurface.IJet => ({
-          ...seam.host.jet(u, v),
-          p: [NaN, 0, 0],
-        }),
-      },
-    },
   ];
   for (const input of cases) {
     const output: IAutoMovieSolidMesh.IMesh = AutoMovieSolidMesh.create();

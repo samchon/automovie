@@ -36,9 +36,6 @@ const WIDTH: number = 9;
 /** Maximum knot count within the portable 32-bit packed array length. */
 const MAX_KNOTS: number = Math.floor(0xffff_ffff / WIDTH);
 
-/** Only readers issued by this producer are recognised as native. */
-const HISTORIES: WeakSet<IHistory> = new WeakSet();
-
 /**
  * A shape history tabulated once on uniform knots and interpolated: the
  * composite inertia and the relative angular momentum of a flight's shape,
@@ -123,7 +120,6 @@ export function AirborneTabulatedShapeHistory(
   if (!(turn > 0))
     throw new Error("A tabulated shape history needs a positive turn bound");
   const instants: Map<number, IInstant> = new Map();
-  let table: ITable | undefined;
 
   const build = (): ITable => {
     const { times, knots }: ReturnType<typeof tabulateAirborneShapeKnots> =
@@ -232,11 +228,11 @@ export function AirborneTabulatedShapeHistory(
     }
     return { values, slopes, times };
   };
+  const built: ITable = build();
 
   const numbers = (
     seconds: number,
   ): { matrix: number[][]; relative: IAutoMovieVector3 } => {
-    const built: ITable = (table ??= build());
     const held: number = Math.min(to, Math.max(from, seconds));
 
     let index: number = 0;
@@ -341,17 +337,14 @@ export function AirborneTabulatedShapeHistory(
     numerics.set(seconds, made);
     return made;
   };
-  HISTORIES.add(query);
-  // The history's own numeric reader, a non-enumerable member under a
-  // private key, so the history's enumerable surface stays `clear`.
-  Object.defineProperty(query, READING, { value: numeric });
   return Object.assign(query, {
+    native: true as const,
+    numericReading: numeric,
     clear: (): void => {
       for (const instant of instants.values())
         AirborneShapeInertia.release(instant);
       instants.clear();
       numerics.clear();
-      table = undefined;
     },
   });
 }
@@ -363,14 +356,6 @@ export function AirborneTabulatedShapeHistory(
 interface INumeric extends AirborneTabulatedShapeHistory.IReading {
   /** The interpolated root-frame tensor rows. */
   matrix: number[][];
-}
-
-/** The private key of an issued history's numeric reader. */
-const READING: unique symbol = Symbol("AirborneTabulatedShapeHistory.reading");
-
-/** An issued history, carrying its numeric reader. */
-interface IReadable {
-  [READING]?: (seconds: number) => INumeric | IInstant;
 }
 
 /**
@@ -545,8 +530,17 @@ export namespace AirborneTabulatedShapeHistory {
    * instants may be shared between an operation's stages. It proves
    * construction, not a constant shape.
    */
-  export function owned(history: IHistory): boolean {
-    return HISTORIES.has(history);
+  export function owned(history: IHistory & IReadable): boolean {
+    return history.native === true;
+  }
+
+  /** An issued history, carrying its numeric reader. */
+  export interface IReadable {
+    /** Set by the factory. */
+    readonly native?: true;
+
+    /** The history's numeric reader; absent on any other reader. */
+    readonly numericReading?: (seconds: number) => IReading | IInstant;
   }
 
   /**
@@ -570,8 +564,8 @@ export namespace AirborneTabulatedShapeHistory {
    * instant would make. Undefined for a reader this producer did not issue.
    */
   export function reading(
-    history: IHistory,
+    history: IHistory & IReadable,
   ): ((seconds: number) => IReading | IInstant) | undefined {
-    return (history as IHistory & IReadable)[READING];
+    return history.numericReading;
   }
 }

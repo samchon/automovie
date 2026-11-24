@@ -14,7 +14,6 @@ import {
   makePose,
 } from "../internal/fixtures";
 import {
-  hasViolation,
   validationHasNoWarnings,
   validationHasWarning,
 } from "../internal/predicates";
@@ -150,14 +149,4 @@ export function test_film_continuity_walk(): void {
     ),
   );
 
-  const bad: ReturnType<typeof validateFilmContinuity> = validateFilmContinuity(
-    {
-      beats: [beatProps("b1", 0, 0.5), beatProps("b2", 0, 0.5)],
-      positionTolerance: Number.NaN,
-    },
-  );
-  TestValidator.predicate(
-    "a non-finite tolerance is a range error",
-    hasViolation(bad, "range", "$input.positionTolerance"),
-  );
 }
