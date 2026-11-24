@@ -141,6 +141,7 @@ export namespace AutoMovieHumanTrunkBuild {
     }
     return {
       sections: original.sections,
+      legs: original.legs,
       trunk: failed.has(AutoMovieHumanTrunkViewPart.NAME)
         ? null
         : original.trunk,
@@ -275,7 +276,7 @@ export namespace AutoMovieHumanTrunkBuild {
         cap: m.cap,
       }),
     );
-    return out(base.view, folds);
+    return { ...out(base.view, folds), legs: input.legs };
   }
 
   /** A built mass. */

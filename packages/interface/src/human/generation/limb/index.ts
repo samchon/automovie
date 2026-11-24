@@ -7,7 +7,6 @@ export type { IAutoMovieHumanSectionSource } from "./IAutoMovieHumanSectionSourc
 export type { IAutoMovieHumanSiteConstraints } from "./IAutoMovieHumanSiteConstraints";
 export type { IAutoMovieHumanSiteControls } from "./IAutoMovieHumanSiteControls";
 export type { IAutoMovieHumanSiteRegionControls } from "./IAutoMovieHumanSiteRegionControls";
-export type { IAutoMovieHumanSiteViewPart } from "./IAutoMovieHumanSiteViewPart";
 export type { IAutoMovieHumanSourceDefinition } from "./IAutoMovieHumanSourceDefinition";
 export type { IAutoMovieHumanSourceRealization } from "./IAutoMovieHumanSourceRealization";
 export type { IAutoMovieHumanWalkPart } from "./IAutoMovieHumanWalkPart";

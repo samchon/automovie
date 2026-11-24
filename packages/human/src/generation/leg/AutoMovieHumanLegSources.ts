@@ -2,13 +2,11 @@ import type {
   IAutoMovieHumanBodyLane,
   IAutoMovieHumanBodyMeasures,
   IAutoMovieHumanFootInterim,
-  IAutoMovieHumanFootSource,
   IAutoMovieHumanFootToeSources,
   IAutoMovieHumanLegSourceFamily,
   IAutoMovieHumanLegSources,
   IAutoMovieHumanLegWalk,
   IAutoMovieHumanLimbRest,
-  IAutoMovieHumanSiteControls,
   IAutoMovieHumanSourceDefinition,
   IAutoMovieLoftContract,
 } from "@automovie/interface";
@@ -17,11 +15,13 @@ import { AutoMovieHumanLegSites } from "../AutoMovieHumanLegSites";
 import { AutoMovieHumanTrunkRows } from "../AutoMovieHumanTrunkRows";
 import { AutoMovieHumanFootInterim } from "../foot/AutoMovieHumanFootInterim";
 import { AutoMovieHumanToePart } from "../foot/AutoMovieHumanToePart";
-import { AutoMovieHumanSiteViewPart } from "../limb/AutoMovieHumanSiteViewPart";
 import { AutoMovieHumanLegLaws } from "./AutoMovieHumanLegLaws";
 import { AutoMovieHumanLegSourceFamily } from "./AutoMovieHumanLegSourceFamily";
 
-/** Local leg, foot and toe original factories, before trunk or whole-skeleton assembly. */
+/**
+ * Local leg, foot and toe original factories, before trunk or whole-skeleton
+ * assembly.
+ */
 export namespace AutoMovieHumanLegSources {
   /** Prepare this side without an arm, head, trunk source or complete skeleton. */
   export function create(
@@ -49,8 +49,20 @@ export namespace AutoMovieHumanLegSources {
         complete: input.completeLeg,
       });
 
-    const foot: () => IAutoMovieHumanFootInterim.IPrepared = lazy(
-      (): IAutoMovieHumanFootInterim.IPrepared => {
+    /** Author one toe from the prepared whole foot support plan. */
+    const toe = (
+      source: IAutoMovieHumanFootToeSources.ICandidate,
+    ): IAutoMovieHumanBodyLane.IToe => ({
+      toe: source.part,
+      definition: AutoMovieHumanToePart.define(source.part),
+      fold: {
+        search: { phi: 0, from: 0, to: 0.5 },
+        radius: source.part.law("base").breadth / 2,
+      },
+    });
+
+    const prepareFoot: IAutoMovieHumanLegSources.IOutput["prepareFoot"] =
+      () => {
         const prepared: IAutoMovieHumanFootInterim.IPrepared =
           AutoMovieHumanFootInterim.prepare(
             side,
@@ -61,40 +73,34 @@ export namespace AutoMovieHumanLegSources {
             input.scale,
           );
         diagnostics.push(...prepared.diagnostics);
-        return prepared;
-      },
-      (): IAutoMovieHumanFootSource.IRegion | undefined =>
-        legSource.ankle().source.region,
-    );
-
-    const toes: () => IAutoMovieHumanBodyLane.IToe[] = lazy(
-      (): IAutoMovieHumanBodyLane.IToe[] =>
-        foot().toes.map(
-          (
-            source: IAutoMovieHumanFootToeSources.ICandidate,
-          ): IAutoMovieHumanBodyLane.IToe => ({
-            toe: source.part,
-            definition: AutoMovieHumanToePart.define(source.part),
-            fold: {
-              search: { phi: 0, from: 0, to: 0.5 },
-              radius: source.part.law("base").breadth / 2,
-            },
-          }),
-        ),
-      (): IAutoMovieHumanSiteControls.IOutput => foot().controls,
-    );
+        return {
+          foot: () => prepared.foot,
+          definition: prepared.definition,
+          toe(name: string): IAutoMovieHumanBodyLane.IToe | undefined {
+            const candidate:
+              | IAutoMovieHumanFootToeSources.ICandidate
+              | undefined = prepared.toes.find(
+              (source): boolean => source.part.name === name,
+            );
+            return candidate === undefined ? undefined : toe(candidate);
+          },
+          toes: (): IAutoMovieHumanBodyLane.IToe[] => prepared.toes.map(toe),
+        };
+      };
 
     return {
       leg: legSource,
       bones: { hip, knee, ankle },
       law: legLaw,
-      foot: (): IAutoMovieHumanBodyLane.ISide["foot"] => foot().foot,
-      definition: (): IAutoMovieHumanSourceDefinition => foot().definition(),
-      toes,
+      prepareFoot,
+      foot: (): IAutoMovieHumanBodyLane.ISide["foot"] => prepareFoot().foot(),
+      definition: (): IAutoMovieHumanSourceDefinition =>
+        prepareFoot().definition(),
+      toe: (name: string): IAutoMovieHumanBodyLane.IToe | undefined =>
+        AutoMovieHumanFootInterim.names(side).includes(name)
+          ? prepareFoot().toe(name)
+          : undefined,
+      toes: (): IAutoMovieHumanBodyLane.IToe[] => prepareFoot().toes(),
     };
   }
 }
-
-/** Existing bounded source memoization; no original curve is reconstructed. */
-const { lazy }: Pick<typeof AutoMovieHumanSiteViewPart, "lazy"> =
-  AutoMovieHumanSiteViewPart;

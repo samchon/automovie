@@ -535,7 +535,6 @@ function checkPublicOriginals(): void {
     original.milliseconds.neckBoundary !== null &&
       original.milliseconds.trunkConstraints !== null &&
       original.milliseconds.headSource === null &&
-      original.milliseconds.neckRaw === null &&
-      original.production === undefined,
+      original.milliseconds.neckRaw === null,
   );
 }

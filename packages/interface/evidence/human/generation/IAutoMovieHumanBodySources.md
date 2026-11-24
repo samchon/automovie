@@ -28,7 +28,9 @@ Common direct boundary and explicit source factories, before tree assembly or an
 
 Returned by AutoMovieHumanBodySources.create. Also types AutoMovieHumanBodySources.milliseconds, AutoMovieHumanBodySources.common.
 
-## @evidence contracts/development/design.md#prohibited-design-shortcuts `production`: Explicitly completed production metadata, retained in this same invocation without copying its source memo fields. `body`: Source factories and their selected completed results, owned by this same invocation. `trunk`: Original tape-pass result; no raw result is implied. `preparingTrunk`: An unfinished coupled source is not publishable as a parent. `rawSources`: Only explicitly requested raw results.
+## @evidence contracts/development/design.md#prohibited-design-shortcuts
+
+Prepared common inputs, receiver boundary, trunk constraints and rest can be passed directly to the operation that needs them. A completed production result belongs to its own scope. The independent source request has no mutable product or latest parent field.
 
 # src/human/generation/IAutoMovieHumanBodySources.ts#IAutoMovieHumanBodySources.IInput
 
@@ -54,7 +56,7 @@ Actual common neck definitions, requested before either adjoining part consumes 
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
-Also types AutoMovieHumanBodySources.shared, AutoMovieHumanBodySources.upperSupport.
+Returned by the common preparation and consumed by head, trunk and body-only placement.
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 

@@ -55,10 +55,8 @@ export namespace AutoMovieHumanBindingInputs {
       (chain: IAutoMovieHumanChainRings): boolean =>
         AutoMovieHumanNeutral.LEVEL.test(chain.chain),
     );
-    const neutral: IAutoMovieHumanNeutral.IOutput = AutoMovieHumanNeutral.derive(
-      neutralRings,
-      joints,
-    );
+    const neutral: IAutoMovieHumanNeutral.IOutput =
+      AutoMovieHumanNeutral.derive(neutralRings, joints);
     return {
       scale,
       stature: calibration.stature,

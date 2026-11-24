@@ -6,6 +6,7 @@ import type {
   IAutoMovieHumanBodyPreparation,
   IAutoMovieHumanBodySources,
   IAutoMovieHumanHeadLane,
+  IAutoMovieHumanLimbRest,
   IAutoMovieHumanNamedSource,
   IAutoMovieHumanParameters,
   IAutoMovieHumanSkeletonLaw,
@@ -15,12 +16,14 @@ import type {
   IAutoMovieHumanTrunkInputs,
   IAutoMovieHumanTrunkSolution,
   IAutoMovieLoftContract,
+  IAutoMovieViewPart,
 } from "@automovie/interface";
 
 import { AutoMovieHumanSex } from "../typings/AutoMovieHumanSex";
 import { AutoMovieHumanBodyAnatomy } from "./AutoMovieHumanBodyAnatomy";
 import { AutoMovieHumanBodyLaneInterim } from "./AutoMovieHumanBodyLaneInterim";
 import { AutoMovieHumanBodySources } from "./AutoMovieHumanBodySources";
+import { AutoMovieHumanLimbSources } from "./AutoMovieHumanLimbSources";
 import { AutoMovieHumanSkeletonLaw } from "./AutoMovieHumanSkeletonLaw";
 import { AutoMovieHumanSiteViewPart } from "./limb/AutoMovieHumanSiteViewPart";
 import { AutoMovieHumanTrunkBuild } from "./trunk/AutoMovieHumanTrunkBuild";
@@ -42,7 +45,8 @@ export namespace AutoMovieHumanBodyPreparation {
     const original: IAutoMovieHumanBodySources.IOriginal =
       AutoMovieHumanBodySources.create({
         ...input,
-        completeLeg: (): void => completeLeg(original),
+        completeLeg: (side: "left" | "right"): IAutoMovieViewPart =>
+          completeLeg(original, side),
       });
     return original;
   }
@@ -64,68 +68,92 @@ export namespace AutoMovieHumanBodyPreparation {
   export function complete(
     original: IAutoMovieHumanBodySources.IOriginal,
   ): IAutoMovieHumanBodyPreparation.IOutput {
-    if (original.production === undefined) {
-      const head: IAutoMovieHumanHeadLane.IPrepared = original.headSource();
-      const solution: IAutoMovieHumanTrunkSolution = original.trunkSolution();
-      const standing: IAutoMovieHumanBodyCalibration = {
-        stature: original.stature,
-        chains: [],
-        events: [],
-        poles: [],
-        apertures: [],
-        eyes: head.eyes,
-        head: head.landmarks,
-        trunk: solution.landmarks,
-        diagnostics: original.diagnostics,
-      };
-      const anatomy: IAutoMovieHumanSkeletonLaw.IOutput =
-        AutoMovieHumanSkeletonLaw.complete(
-          original.bodyAnatomy(),
-          head,
-          original.stature,
-        );
-      original.production = {
-        head,
-        standing,
-        anatomy,
-        trunkPlacement: { solution, calibration: standing },
-      };
-    }
-
-    // Promote this same invocation object. Copying its absent lazy memo fields
-    // would let a later original/full request construct a second source family.
+    const common: IAutoMovieHumanBodySources.ICommon = original.common();
     const boundary: ReturnType<
       IAutoMovieHumanBodySources.IOriginal["neckBoundary"]
-    > = original.neckBoundary();
-    return Object.assign(
-      original,
-      original.common(),
-      { neckConnection: boundary.connection, seat: boundary.seat },
-      original.production,
+    > = original.neckBoundary(common);
+    const head: IAutoMovieHumanHeadLane.IPrepared = original.headSource(common);
+    const neckRaw: IAutoMovieHumanBodySources.IOriginal["neckRaw"] = () =>
+      original.neckRaw(common, head);
+    const solution: IAutoMovieHumanTrunkSolution = original.trunkSolution(
+      boundary,
+      neckRaw,
     );
+    const limbRest: IAutoMovieHumanLimbRest.IOutput =
+      original.limbRest(boundary);
+    const arms: Record<"left" | "right", IAutoMovieHumanLimbRest.IArm> = {
+      left: limbRest.arm("left"),
+      right: limbRest.arm("right"),
+    };
+    const legs: Record<"left" | "right", IAutoMovieHumanLimbRest.ILeg> = {
+      left: limbRest.leg("left"),
+      right: limbRest.leg("right"),
+    };
+    const rest: IAutoMovieHumanLimbRest.IOutput = {
+      arm: (side: "left" | "right"): IAutoMovieHumanLimbRest.IArm => arms[side],
+      leg: (side: "left" | "right"): IAutoMovieHumanLimbRest.ILeg => legs[side],
+    };
+    const body: IAutoMovieHumanSkeletonLaw.IOutput = original.bodyAnatomy(
+      common,
+      boundary,
+      solution,
+      rest,
+    );
+    const standing: IAutoMovieHumanBodyCalibration = {
+      stature: original.stature,
+      chains: [],
+      events: [],
+      poles: [],
+      apertures: [],
+      eyes: head.eyes,
+      head: head.landmarks,
+      trunk: solution.landmarks,
+      diagnostics: original.diagnostics,
+    };
+    return {
+      ...original,
+      ...common,
+      common: () => common,
+      neckBoundary: () => boundary,
+      headSource: () => head,
+      trunkSolution: () => solution,
+      limbRest: () => rest,
+      limbSources: () => original.limbSources(rest),
+      bodyAnatomy: () => body,
+      neckRaw,
+      neckConnection: boundary.connection,
+      seat: boundary.seat,
+      head,
+      standing,
+      trunkPlacement: { solution, calibration: standing },
+      anatomy: AutoMovieHumanSkeletonLaw.complete(body, head, original.stature),
+    };
   }
 
   /**
-   * Prepare the same lazy original factories, without evaluating unrelated
-   * siblings.
+   * Prepare the trunk and its leg binding scope. Arm and foot assembly remain
+   * explicit operations on the returned input.
    */
   export function bodyInput(
     context: IAutoMovieHumanBodySources.IOriginal,
+    common: IAutoMovieHumanBodySources.ICommon = context.common(),
   ): IAutoMovieHumanBodyLane.IInput {
-    if (context.body !== undefined) return context.body;
-    const solution: IAutoMovieHumanTrunkSolution = context.trunkSolution();
-    context.body = AutoMovieHumanBodyLaneInterim.of({
+    const boundary: ReturnType<
+      IAutoMovieHumanBodySources.IOriginal["neckBoundary"]
+    > = context.neckBoundary(common);
+    const solution: IAutoMovieHumanTrunkSolution =
+      context.trunkSolution(boundary);
+    return AutoMovieHumanBodyLaneInterim.of({
       params: context.params,
       solution,
       scale: context.limbs.legs.scale,
       stature: context.stature,
       crotch: context.limbs.crotch,
       trunk: context.trunkInputs,
-      neckConnection: context.neckBoundary().connection,
-      sources: context.limbSources(),
+      neckConnection: boundary.connection,
+      sources: context.limbSources(context.limbRest(boundary)),
       frame: context.frame,
     });
-    return context.body;
   }
 
   /**
@@ -134,30 +162,20 @@ export namespace AutoMovieHumanBodyPreparation {
    */
   export function trunkSource(
     context: IAutoMovieHumanBodySources.IOriginal,
+    input?: IAutoMovieHumanBodyLane.IInput,
   ): IAutoMovieHumanTrunkBuild.IOutput {
-    if (context.trunk !== undefined) return context.trunk;
-    if (context.preparingTrunk === true)
-      throw new Error(
-        "The actual trunk parent preparation was reentered before publication",
+    const common: IAutoMovieHumanBodySources.ICommon = context.common();
+    const diagnostics: IAutoMovieLoftContract.IDiagnostic[] = [];
+    const trunk: IAutoMovieHumanTrunkBuild.IInput =
+      AutoMovieHumanTrunkBuild.withHead(
+        (input ?? bodyInput(context, common)).trunk,
+        common.upperSupport,
+        diagnostics,
       );
-    context.preparingTrunk = true;
-    try {
-      const input: IAutoMovieHumanBodyLane.IInput = bodyInput(context);
-      const diagnostics: IAutoMovieLoftContract.IDiagnostic[] = [];
-      const original: IAutoMovieHumanTrunkBuild.IInput =
-        AutoMovieHumanTrunkBuild.withHead(
-          input.trunk,
-          context.common().upperSupport,
-          diagnostics,
-        );
-      const result: IAutoMovieHumanTrunkBuild.IOutput =
-        AutoMovieHumanTrunkBuild.define(original);
-      result.diagnostics.unshift(...diagnostics);
-      context.trunk = result;
-      return result;
-    } finally {
-      context.preparingTrunk = false;
-    }
+    const result: IAutoMovieHumanTrunkBuild.IOutput =
+      AutoMovieHumanTrunkBuild.define(trunk);
+    result.diagnostics.unshift(...diagnostics);
+    return result;
   }
 
   /**
@@ -181,6 +199,7 @@ export namespace AutoMovieHumanBodyPreparation {
           )
           .at(-1)?.result ?? null
       );
+    if (!AutoMovieHumanLimbSources.names().includes(name)) return null;
     const sources: ReturnType<
       IAutoMovieHumanBodySources.IOriginal["limbSources"]
     > = context.limbSources();
@@ -191,15 +210,7 @@ export namespace AutoMovieHumanBodyPreparation {
       if (name === "leg." + side) return sources.leg(side).leg.current();
       if (name === "foot." + side) return sources.leg(side).definition();
       if (name.startsWith("toe." + side + "."))
-        return (
-          sources
-            .leg(side)
-            .toes()
-            .find(
-              (toe: IAutoMovieHumanBodyLane.IToe): boolean =>
-                toe.toe.name === name,
-            )?.definition ?? null
-        );
+        return sources.leg(side).toe(name)?.definition ?? null;
     }
     return null;
   }
@@ -208,17 +219,21 @@ export namespace AutoMovieHumanBodyPreparation {
    * A completed trial is not a final parent when the actual trunk source failed
    * publication.
    */
-  function completeLeg(context: IAutoMovieHumanBodySources.IOriginal): void {
+  function completeLeg(
+    context: IAutoMovieHumanBodySources.IOriginal,
+    side: "left" | "right",
+  ): IAutoMovieViewPart {
     const actual: IAutoMovieHumanTrunkBuild.IOutput = trunkSource(context);
-    if (actual.trunk === null)
+    const leg: IAutoMovieHumanSourceDefinition | undefined =
+      actual.legs?.[side];
+    if (actual.trunk === null || leg?.part == null)
       throw new Error(
-        `The actual coupled trunk parent is unavailable: ${JSON.stringify(actual.diagnostics)}`,
+        `The actual coupled ${side} leg parent is unavailable: ${JSON.stringify([...actual.diagnostics, ...(leg?.diagnostics ?? [])])}`,
       );
+    return leg.part;
   }
 
-  /**
-   * Loft the requested original and return its diagnostics to this observation.
-   */
+  /** Loft the requested original and return its diagnostics to this observation. */
   export function loft(
     context: IAutoMovieHumanBodySources.IOriginal,
     name: string,

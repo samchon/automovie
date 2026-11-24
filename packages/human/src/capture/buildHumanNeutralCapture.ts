@@ -21,6 +21,7 @@ import type {
   IAutoMovieMesh,
   IAutoMovieMeshPiece,
   IAutoMovieMeshTopology,
+  IAutoMovieSolidBody,
   IAutoMovieSolidSurface,
 } from "@automovie/interface";
 
@@ -159,6 +160,21 @@ export namespace buildHumanNeutralCapture {
   ): ReturnType<typeof evaluate> {
     return evaluate(parameters);
   }
+
+  /** Dispatch the separately invoked neutral diagnostic command. */
+  export function command(args: readonly string[]): void {
+    if (args.includes("--sources")) inspectNeutralSources();
+    else if (args.includes("--head-skin")) inspectNeutralHead(true);
+    else if (args.includes("--head")) inspectNeutralHead(false);
+    else if (args.includes("--topology")) {
+      const topology: ReturnType<typeof inspectHumanNeutralTopology> =
+        inspectHumanNeutralTopology(
+          AutoMovieHumanBodyLaw.define(AutoMovieHumanNeutralParameters),
+        );
+      console.log(JSON.stringify(topology));
+      if (topology.diagnostics.length !== 0) process.exitCode = 1;
+    } else inspectNeutralBody();
+  }
 }
 
 /**
@@ -295,6 +311,7 @@ function inspectNeutralHead(skin: boolean): void {
         ? {
             vertices: mesh.positions.length / 3,
             triangles: mesh.indices.length / 3,
+            failedFaceCycles: inspectFailedFaceCycles(result),
           }
         : {}),
       diagnostics: result.diagnostics,
@@ -304,20 +321,52 @@ function inspectNeutralHead(skin: boolean): void {
     process.exitCode = 1;
 }
 
-if (
-  typeof require !== "undefined" &&
-  typeof module !== "undefined" &&
-  require.main === module
-) {
-  if (process.argv.includes("--sources")) inspectNeutralSources();
-  else if (process.argv.includes("--head-skin")) inspectNeutralHead(true);
-  else if (process.argv.includes("--head")) inspectNeutralHead(false);
-  else if (process.argv.includes("--topology")) {
-    const topology: ReturnType<typeof inspectHumanNeutralTopology> =
-      inspectHumanNeutralTopology(
-        AutoMovieHumanBodyLaw.define(AutoMovieHumanNeutralParameters),
-      );
-    console.log(JSON.stringify(topology));
-    if (topology.diagnostics.length !== 0) process.exitCode = 1;
-  } else inspectNeutralBody();
+/** Read failed cycles with their exact shared-edge incident faces. */
+function inspectFailedFaceCycles(
+  result:
+    | IAutoMovieConstructionRealization.IRealization
+    | IAutoMovieConstructionRealization.IWithoutSkin,
+): {
+  chain: string;
+  cycles: {
+    kind: IAutoMovieSolidBody.IPublished["faces"][number]["cycles"][number]["kind"];
+    chart: [number, number][];
+    incident: string[][];
+  }[];
+}[] {
+  const failed: Set<string> = new Set(
+    result.diagnostics
+      .filter(({ contract }): boolean => contract === "face triangulation")
+      .map(({ node }): string => node),
+  );
+  if (failed.size === 0) return [];
+
+  /** An undirected edge's key is its two immutable published IDs. */
+  const edge = (a: number, b: number): string =>
+    a < b ? `${a}:${b}` : `${b}:${a}`;
+  const incidence: Map<string, string[]> = new Map();
+  for (const face of result.body.faces)
+    for (const cycle of face.cycles)
+      for (const [i, a] of cycle.points.entries()) {
+        const key: string = edge(
+          a,
+          cycle.points[(i + 1) % cycle.points.length]!,
+        );
+        const owners: string[] | undefined = incidence.get(key);
+        if (owners === undefined) incidence.set(key, [face.chain]);
+        else owners.push(face.chain);
+      }
+  return result.body.faces
+    .filter(({ chain }): boolean => failed.has(chain))
+    .map(({ chain, cycles }) => ({
+      chain,
+      cycles: cycles.map(({ kind, chart, points }) => ({
+        kind,
+        chart,
+        incident: points.map(
+          (point: number, i: number): string[] =>
+            incidence.get(edge(point, points[(i + 1) % points.length]!))!,
+        ),
+      })),
+    }));
 }

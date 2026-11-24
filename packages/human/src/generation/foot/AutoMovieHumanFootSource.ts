@@ -24,9 +24,9 @@ import type {
  */
 export namespace AutoMovieHumanFootSource {
   /**
-   * Consume original local scalars and their anatomical frame directly.
-   * The shared coefficients, phase functions and physical2 availability are
-   * the same definition the foot later publishes; no full parent is needed.
+   * Consume original local scalars and their anatomical frame directly. The
+   * shared coefficients, phase functions and physical2 availability are the
+   * same definition the foot later publishes; no full parent is needed.
    */
   export function fromControls(
     prepared: IAutoMovieHumanSiteControls.IOutput,
@@ -47,7 +47,8 @@ export namespace AutoMovieHumanFootSource {
   }
 
   /**
-   * Prepare the actual direct source once; generic girth and failed sources remain failures.
+   * Prepare the actual direct source once; generic girth and failed sources
+   * remain failures.
    *
    * @evidence contracts/common.md#principled-implementation Admits the identical production part through ViewSource.create and retains its explicit failure.
    * @evidence contracts/common.md#clear-and-simple-design One owner record pairs the original part and native preparation.
@@ -70,7 +71,8 @@ export namespace AutoMovieHumanFootSource {
   }
 
   /**
-   * Read the complete native field without building a temporary loft or substituting missing jets.
+   * Read the complete native field without building a temporary loft or
+   * substituting missing jets.
    *
    * @evidence contracts/common.md#principled-implementation Separately requests values and actual physical2, then uses the public same-source native phase factories.
    * @evidence contracts/common.md#clear-and-simple-design A phase closure and optional jet closure expose only available capabilities.
@@ -101,34 +103,27 @@ export namespace AutoMovieHumanFootSource {
   }
 
   /**
-   * Borrow a retained interval while keeping explicit full-parent demand truthful.
+   * Borrow a retained interval while keeping explicit full-parent demand
+   * truthful.
    *
    * @evidence contracts/common.md#principled-implementation Regional reads use the identical generating authority; complete explicitly resolves and admits the actual final parent instead of returning the uncoupled base.
    * @evidence contracts/common.md#clear-and-simple-design Name/frame metadata and bounded station capability are separate from the explicit full-source method.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts A failed full resolver propagates and cannot select earlier geometry or a different source.
    * @evidence contracts/common.md#meaningful-documentation Regional availability is not complete-parent or proximal-contact success.
    * @evidence contracts/performance.md#efficient-algorithms Regional demand performs only its unchanged native reading; full admission occurs only on explicit full demand.
-   * @evidence contracts/performance.md#reuse-equivalent-work One latest full-part identity retains its preparation; proximal-only changes retain the same regional authority.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns one regional reference and at most one latest full preparation; replacement drops the old full record.
+   * @evidence contracts/performance.md#reuse-equivalent-work Each complete request prepares the actual full parent once for its caller.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Regional ownership is independent of any completed parent result.
    */
   export function fromRegion(
     region: IAutoMovieHumanFootSource.IRegion,
     resolve: IAutoMovieHumanFootSource.FromRegionResolve,
   ): IAutoMovieHumanFootSource.IRegional {
-    let retained: IAutoMovieHumanFootSource.IComplete | undefined;
-    const full: () => IAutoMovieHumanFootSource.IComplete =
-      (): IAutoMovieHumanFootSource.IComplete => {
-        const part: IAutoMovieViewPart = resolve();
-        if (retained === undefined || retained.part !== part)
-          retained = prepare(part);
-        return retained;
-      };
     const owner: IAutoMovieHumanFootSource.IRegional = {
       name: region.name,
       axis: region.axis,
       region,
       part: { name: region.name, axis: region.axis },
-      complete: full,
+      complete: () => prepare(resolve()),
     };
     return owner;
   }

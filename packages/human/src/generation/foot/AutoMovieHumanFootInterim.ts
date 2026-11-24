@@ -27,38 +27,43 @@ import { AutoMovieHumanFootSource } from "./AutoMovieHumanFootSource";
 import { AutoMovieHumanFootToeSources } from "./AutoMovieHumanFootToeSources";
 
 /**
- * Independent foot and toe originals. The person's heel-to-ball length
- * places the first metatarsal head. The Maestro cascade places the others,
- * and public breadth closes against the combined horizontal supports.
- * The shared foot host supplies the original outlines on those stations.
+ * Independent foot and toe originals. The person's heel-to-ball length places
+ * the first metatarsal head. The Maestro cascade places the others, and public
+ * breadth closes against the combined horizontal supports. The shared foot host
+ * supplies the original outlines on those stations.
  *
  * The actual leg contact and the standing arch measurement drive the dorsal
  * curve. Each toe begins on the parent's native field with its position and
- * vertical derivatives. Distal length uses the phalanx pattern and ends at
- * the person's foot-length constraint. The nominal transverse partition
- * infers proximal breadth and distal depth from the neighbouring toe axes.
+ * vertical derivatives. Distal length uses the phalanx pattern and ends at the
+ * person's foot-length constraint. The nominal transverse partition infers
+ * proximal breadth and distal depth from the neighbouring toe axes.
  */
 export namespace AutoMovieHumanFootInterim {
-  /** Actual production names; enumeration performs no geometry or full-parent request. */
+  /**
+   * Actual production names; enumeration performs no geometry or full-parent
+   * request.
+   */
   export function names(side: "left" | "right"): readonly string[] {
     return AutoMovieHumanFootToeSources.names(side);
   }
 
   /**
-   * Define the foot and its toe attachments in one shared source frame.
-   * Head-u is transferred from its retained global forefoot support fraction,
-   * not interpreted as a fraction of each root's local cut. This is a
-   * normalized placement convention, not recovery of an old rigid frame.
-   * One positive transverse scale closes the entire host-plus-toe source
-   * region, because the retained FOOT envelope already includes toe loops.
-   * The leg's independent tape and sagittal contacts are never scaled by it.
-   * Local chord heights may change when the native across field changes;
-   * only the original horizontal guides are an across-homogeneous family.
-   * Root-u first transfers into the retained host supports; after the common
-   * scale it is not a newly measured fraction of the group's final extrema.
+   * Define the foot and its toe attachments in one shared source frame. Head-u
+   * is transferred from its retained global forefoot support fraction, not
+   * interpreted as a fraction of each root's local cut. This is a normalized
+   * placement convention, not recovery of an old rigid frame. One positive
+   * transverse scale closes the entire host-plus-toe source region, because the
+   * retained FOOT envelope already includes toe loops. The leg's independent
+   * tape and sagittal contacts are never scaled by it. Local chord heights may
+   * change when the native across field changes; only the original horizontal
+   * guides are an across-homogeneous family. Root-u first transfers into the
+   * retained host supports; after the common scale it is not a newly measured
+   * fraction of the group's final extrema.
    *
-   * @throws {Error} If a required source, affine/chart premise or positive finite group breadth is unavailable. This is a construction failure, not proof that a supplied anatomical measurement is invalid; no normalized definition or substituted shape is returned.
-   *
+   * @throws {Error} If a required source, affine/chart premise or positive
+   *   finite group breadth is unavailable. This is a construction failure, not
+   *   proof that a supplied anatomical measurement is invalid; no normalized
+   *   definition or substituted shape is returned.
    * @evidence contracts/common.md#principled-implementation Builds the actual foot input once, then derives each skin root and distal proxy in that input's heel/axis/support datum.
    * @evidence contracts/common.md#clear-and-simple-design A single result supplies the production foot and five digit builders with the same source objects.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts Adds no measured joint claim, person correction, old-frame registration, skin readback or root clamp.
@@ -166,20 +171,20 @@ export namespace AutoMovieHumanFootInterim {
       scale,
     );
     const diagnostics: IAutoMovieLoftContract.IDiagnostic[] = [];
-    let retained: IAutoMovieHumanSourceDefinition | undefined;
     return {
       foot,
       controls,
       toes: AutoMovieHumanFootToeSources.create(foot, controls),
       diagnostics,
-      definition(): IAutoMovieHumanSourceDefinition {
-        retained ??= AutoMovieHumanSiteViewPart.fromControls(controls);
-        return retained;
-      },
+      definition: (): IAutoMovieHumanSourceDefinition =>
+        AutoMovieHumanSiteViewPart.fromControls(controls),
     };
   }
 
-  /** Explicit original-parent publication preserves the previous public definition contract. */
+  /**
+   * Explicit original-parent publication preserves the previous public
+   * definition contract.
+   */
   export function define(
     ...args: IAutoMovieHumanFootInterim.DefineArgs
   ): IAutoMovieHumanFootInterim.IDefinition {
@@ -238,7 +243,10 @@ export namespace AutoMovieHumanFootInterim {
     );
   }
 
-  /** Author only the replacement dorsal scalar from the actual ankle contact; the foot and toes share these original coefficients. */
+  /**
+   * Author only the replacement dorsal scalar from the actual ankle contact;
+   * the foot and toes share these original coefficients.
+   */
   function roof(
     foot: IAutoMovieHumanFootPart.IInput,
     connection: IAutoMovieHumanFootConnection.IAnkle,

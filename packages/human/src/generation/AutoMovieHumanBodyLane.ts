@@ -18,40 +18,40 @@ import { AutoMovieHumanBodyTree } from "./AutoMovieHumanBodyTree";
 import { AutoMovieHumanTrunkBuild } from "./trunk/AutoMovieHumanTrunkBuild";
 
 /**
- * The body lane's subtree (#3047 to #3051) as one construction tree realized
- * by the engine (`AutoMovieHumanBodyTree`): every part a view node built from
- * its views, every join a merge node with a search seed and fold widths,
- * published as chains and the realized body for the calibration, from the laws
- * the caller binds.
+ * The body lane's subtree (#3047 to #3051) as one construction tree realized by
+ * the engine (`AutoMovieHumanBodyTree`): every part a view node built from its
+ * views, every join a merge node with a search seed and fold widths, published
+ * as chains and the realized body for the calibration, from the laws the caller
+ * binds.
  *
  * Parts: the trunk with its breasts and gluteal masses
  * (`AutoMovieHumanTrunkBuild`), each leg as one walk over femur and tibia
  * (`AutoMovieHumanLegWalk`), each arm with its palm as one walk
- * (`AutoMovieHumanArmWalk`), each foot (`AutoMovieHumanFootPart`), each
- * finger and thumb as a joint-normal walk (`AutoMovieHumanDigitWalk`), and
- * each toe in its fixed foot-axis observation planes (`AutoMovieHumanToePart`).
+ * (`AutoMovieHumanArmWalk`), each foot (`AutoMovieHumanFootPart`), each finger
+ * and thumb as a joint-normal walk (`AutoMovieHumanDigitWalk`), and each toe in
+ * its fixed foot-axis observation planes (`AutoMovieHumanToePart`).
  *
- * Joins, the part being the solid whose station lines leave the host across
- * the fold, the host the whole subtree built before it: masses after their
- * trunk and same-leg parents; each toe onto its foot, the leg onto that foot (seeded at the
- * ankle's front), and the leg with its foot onto the trunk (seeded at the
- * inguinal fold, R the caller's operational join softness, capped at half the gap between
- * the two hip centres so the two legs' rails never cross at the perineum);
- * each digit onto its arm's palm, and the arm with its hand onto the trunk
- * (seeded at the axilla vault). A digit's or a toe's web is capped at half
- * the gap to its nearest neighbour's base, so neighbouring webs' rails never
- * cross.
+ * Joins, the part being the solid whose station lines leave the host across the
+ * fold, the host the whole subtree built before it: masses after their trunk
+ * and same-leg parents; each toe onto its foot, the leg onto that foot (seeded
+ * at the ankle's front), and the leg with its foot onto the trunk (seeded at
+ * the inguinal fold, R the caller's operational join softness, capped at half
+ * the gap between the two hip centres so the two legs' rails never cross at the
+ * perineum); each digit onto its arm's palm, and the arm with its hand onto the
+ * trunk (seeded at the axilla vault). A digit's or a toe's web is capped at
+ * half the gap to its nearest neighbour's base, so neighbouring webs' rails
+ * never cross.
  *
- * Failed original definitions keep their diagnostics. Admitted originals
- * remain attempt leaves: the engine performs their lofts and names failed
- * leaves/joins and its rollback. A source tree is not a completed skin.
+ * Failed original definitions keep their diagnostics. Admitted originals remain
+ * attempt leaves: the engine performs their lofts and names failed leaves/joins
+ * and its rollback. A source tree is not a completed skin.
  */
 export namespace AutoMovieHumanBodyLane {
   /**
    * The joins' trace limits: 64 traced points and blend columns per fold; a
-   * curve gap far under the sections' own representation error (about
-   * 0.01 mm); and the least angle between the two skins, asin(0.01), under
-   * which that error `e` moves the curve by `e / sin(alpha)` past 1 mm.
+   * curve gap far under the sections' own representation error (about 0.01 mm);
+   * and the least angle between the two skins, asin(0.01), under which that
+   * error `e` moves the curve by `e / sin(alpha)` past 1 mm.
    */
   const LIMITS: Omit<IAutoMovieHumanBodyTree.ILimits, "gap"> = {
     count: 64,
@@ -106,7 +106,8 @@ export namespace AutoMovieHumanBodyLane {
   }
 
   /**
-   * Build the production source parts and tree, without realizing joins or final skin.
+   * Build the production source parts and tree, without realizing joins or
+   * final skin.
    *
    * @evidence contracts/common.md#principled-implementation Runs the same anatomical source builders and fold declarations that create fully realizes.
    * @evidence contracts/common.md#clear-and-simple-design Returns one explicit production definition rather than a partial calibration.
@@ -277,15 +278,22 @@ export namespace AutoMovieHumanBodyLane {
       };
 
       // The leg on its foot and toes, then onto the trunk.
+      const lowerSources: Pick<
+        IAutoMovieHumanBodyLane.ISide,
+        "foot" | "footDefinition" | "toes"
+      > = side.prepareFoot?.() ?? side;
       const leg: IAutoMovieConstructionView | null = original(
         `leg.${name}`,
-        side.leg.definition,
+        trunk.legs?.[name] ?? side.leg.definition,
       );
       const foot: IAutoMovieConstructionView | null = original(
-        side.foot.name,
-        side.footDefinition,
+        lowerSources.foot.name,
+        lowerSources.footDefinition,
       );
-      const toes: IAutoMovieConstructionNode | null = branches(foot, side.toes);
+      const toes: IAutoMovieConstructionNode | null = branches(
+        foot,
+        lowerSources.toes,
+      );
       if (leg !== null && root !== null && trunk.trunk !== null) {
         const lower: IAutoMovieConstructionNode =
           foot === null || toes === null
@@ -309,13 +317,17 @@ export namespace AutoMovieHumanBodyLane {
       }
 
       // The arm with its hand onto the trunk.
+      const upperSources: Pick<
+        IAutoMovieHumanBodyLane.ISide,
+        "arm" | "fingers"
+      > = side.prepareArm?.() ?? side;
       const arm: IAutoMovieConstructionView | null = original(
         `arm.${name}`,
-        side.arm.definition,
+        upperSources.arm.definition,
       );
       const fingers: IAutoMovieConstructionNode | null = branches(
         arm,
-        side.fingers,
+        upperSources.fingers,
       );
       if (
         arm !== null &&
@@ -329,7 +341,7 @@ export namespace AutoMovieHumanBodyLane {
             fingers,
             arm.name,
             trunk.trunk.name,
-            side.arm.trunk,
+            upperSources.arm.trunk,
             side.arm.trunk.radius,
           ),
           limits,

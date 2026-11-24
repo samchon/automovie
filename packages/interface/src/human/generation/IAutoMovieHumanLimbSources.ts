@@ -1,4 +1,5 @@
 import type { IAutoMovieLoftContract } from "../../construction/IAutoMovieLoftContract";
+import type { IAutoMovieViewPart } from "../../construction/IAutoMovieViewPart";
 import type { AutoMovieHumanSide } from "../AutoMovieHumanSide";
 import type { IAutoMovieHumanArmConstruction } from "./IAutoMovieHumanArmConstruction";
 import type { IAutoMovieHumanBodyMeasures } from "./IAutoMovieHumanBodyMeasures";
@@ -8,27 +9,23 @@ import type { IAutoMovieHumanArmSources } from "./arm/IAutoMovieHumanArmSources"
 import type { IAutoMovieHumanLegSources } from "./leg/IAutoMovieHumanLegSources";
 
 /**
- * Side-specific arm and leg source requests over shared resolved measures and direct rest definitions.
+ * Side-specific arm and leg source requests over shared resolved measures and
+ * direct rest definitions.
  *
- * The interface package owns these declarations; AutoMovieHumanLimbSources in Human supplies their runtime values.
+ * The interface package owns these declarations; AutoMovieHumanLimbSources in
+ * Human supplies their runtime values.
  */
 export namespace IAutoMovieHumanLimbSources {
-  /** Source requests, with no implicit opposite-side or parent preparation.
-   */
+  /** Source requests, with no implicit opposite-side or parent preparation. */
   export interface IOutput {
-    /**
-     * Prepare just this arm/hand source owner.
-     */
+    /** Prepare just this arm/hand source owner. */
     arm(side: AutoMovieHumanSide): IAutoMovieHumanArmSources.IOutput;
 
-    /**
-     * Prepare just this leg/distal source owner.
-     */
+    /** Prepare just this leg/distal source owner. */
     leg(side: AutoMovieHumanSide): IAutoMovieHumanLegSources.IOutput;
   }
 
-  /** Same public dimensions and direct rest definitions as production.
-   */
+  /** Same public dimensions and direct rest definitions as production. */
   export interface IInput {
     /** Actual direct numerical rest owner, without whole bind publication. */
     rest: IAutoMovieHumanLimbRest.IOutput;
@@ -38,7 +35,10 @@ export namespace IAutoMovieHumanLimbSources {
 
     /** Public arm and hand dimensions. */
     arms: IAutoMovieHumanArmConstruction.IInputs & {
-      /** Requested full shoulder breadth across both deltoids, calibration millimetres. */
+      /**
+       * Requested full shoulder breadth across both deltoids, calibration
+       * millimetres.
+       */
       bideltoid: number;
     };
 
@@ -54,9 +54,7 @@ export namespace IAutoMovieHumanLimbSources {
     /** Invocation-owned findings. */
     diagnostics: IAutoMovieLoftContract.IDiagnostic[];
 
-    /**
-     * Complete the genuine coupled parent only at its explicit full demand.
-     */
-    completeLeg?: () => void;
+    /** Complete the genuine coupled parent only at its explicit full demand. */
+    completeLeg?: (side: AutoMovieHumanSide) => IAutoMovieViewPart;
   }
 }

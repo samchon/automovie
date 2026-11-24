@@ -9,6 +9,7 @@ import {
 import type {
   IAutoMovieHumanBodyCalibration,
   IAutoMovieHumanBodyFrame,
+  IAutoMovieHumanBodyLane,
   IAutoMovieHumanBodyMeasures,
   IAutoMovieHumanFootConstruction,
   IAutoMovieHumanFootFrame,
@@ -90,17 +91,26 @@ export function test_human_independent_lower_limb(): void {
       nclose(Math.PI * (front - back), measures.calfCircumference),
   );
 
-  const foot = source.foot();
+  const regional: ReturnType<typeof source.prepareFoot> = source.prepareFoot();
+  const foot: ReturnType<typeof regional.foot> = regional.foot();
   const span: readonly number[] = foot.metatarsal!.span;
-  const tips: number[] = source
-    .toes()
-    .map(({ toe }): number =>
-      toe.apex.reduce(
-        (sum: number, coordinate: number, i: number): number =>
-          sum + (coordinate - foot.heel[i]!) * foot.along[i]!,
-        0,
-      ),
-    );
+  const toes: IAutoMovieHumanBodyLane.IToe[] = regional.toes();
+  const selected: IAutoMovieHumanBodyLane.IToe | undefined = regional.toe(
+    toes[0]!.toe.name,
+  );
+  TestValidator.predicate(
+    "a selected toe uses the same prepared source input as the assembled foot",
+    selected?.toe === toes[0]!.toe &&
+      selected.definition.part?.name === toes[0]!.definition.part?.name &&
+      regional.toe("unknown toe") === undefined,
+  );
+  const tips: number[] = toes.map(({ toe }): number =>
+    toe.apex.reduce(
+      (sum: number, coordinate: number, i: number): number =>
+        sum + (coordinate - foot.heel[i]!) * foot.along[i]!,
+      0,
+    ),
+  );
   TestValidator.predicate(
     "the Brannock site and five toe reaches are independently supported",
     span[0]! < span[1]! &&

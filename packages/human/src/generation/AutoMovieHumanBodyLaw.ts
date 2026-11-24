@@ -131,10 +131,14 @@ export namespace AutoMovieHumanBodyLaw {
         context.neckSource,
         context.head,
       );
+    const input: IAutoMovieHumanBodyLane.IInput = bodyInput(context);
     const lane: IAutoMovieHumanBodyLane.IDefinition =
       AutoMovieHumanBodyLane.define({
-        ...bodyInput(context),
-        preparedTrunk: trunkSource(context),
+        ...input,
+        preparedTrunk: AutoMovieHumanBodyPreparation.trunkSource(
+          context,
+          input,
+        ),
         head: headLane,
       });
     return {
@@ -154,8 +158,8 @@ export namespace AutoMovieHumanBodyLaw {
   }
 
   /**
-   * The same call-owned lazy body input consumed by full production and
-   * selected original-source readers.
+   * The same prepared body input consumed by full production and selected
+   * original-source readers.
    */
   export function bodyInput(
     context: IAutoMovieHumanBodySources.IOriginal,
@@ -174,9 +178,7 @@ export namespace AutoMovieHumanBodyLaw {
     return AutoMovieHumanBodyPreparation.trunkSource(context);
   }
 
-  /**
-   * Loft the selected original in its explicit observation scope.
-   */
+  /** Loft the selected original in its explicit observation scope. */
   export function trunkLoft(
     context: IAutoMovieHumanBodySources.IOriginal,
     name: string,
@@ -380,7 +382,12 @@ function tapes(
     furrow: measures.glutealFurrowHeight * scale,
     ...(requested === undefined
       ? {}
-      : { lengths: { left: lengthScale(requested.left), right: lengthScale(requested.right) } }),
+      : {
+          lengths: {
+            left: lengthScale(requested.left),
+            right: lengthScale(requested.right),
+          },
+        }),
   };
 }
 

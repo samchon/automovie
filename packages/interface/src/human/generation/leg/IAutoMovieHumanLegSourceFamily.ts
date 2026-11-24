@@ -5,42 +5,49 @@ import type { IAutoMovieHumanLegBones } from "./IAutoMovieHumanLegBones";
 import type { IAutoMovieHumanLegWalk } from "./IAutoMovieHumanLegWalk";
 
 /**
- * Type contracts exchanged by AutoMovieHumanLegSourceFamily; runtime evaluation remains in Human.
+ * Type contracts exchanged by AutoMovieHumanLegSourceFamily; runtime evaluation
+ * remains in Human.
  */
 export namespace IAutoMovieHumanLegSourceFamily {
-  /** Regional and full demands of the same production family.
-   */
+  /** Regional and full demands of the same production family. */
   export interface IOutput {
-    /**
-     * Latest actual coupled definition, or the base before explicit assembly.
-     */
+    /** Independent base before explicit attachment to the trunk. */
     current(): IAutoMovieHumanLegWalk.IDefinition;
 
     /**
-     * Same bounded calf-to-cap authority without forcing the full leg or upper-parent completion.
+     * Same bounded calf-to-cap authority without forcing the full leg or
+     * upper-parent completion.
      */
     ankle(): IAnkle;
 
     /**
-     * Replace the current coupled definition with a trial or final proximal prefix against this parent at station in calibration millimetres; binding alone does not complete the parent.
+     * Author a proximal prefix against this parent at station in calibration
+     * millimetres.
      */
     bind(
       parent: IAutoMovieHumanSourceDefinition,
       station: number,
     ): IAutoMovieHumanLegWalk.IDefinition;
+
+    /** Prepare the independent base once for an explicit parent fitting scope. */
+    prepareBinding(): IOutput["bind"];
   }
 
-  /** Exact retained region with the actual explicit full-resolver capability.
-   */
+  /** Exact retained region with the actual explicit full-resolver capability. */
   export type IAnkle = Omit<
     IAutoMovieHumanFootInterim.IAnkleSource,
     "source"
   > & {
-    /** Only complete requests the real full original; name/frame/property reads remain local metadata. */
+    /**
+     * Only complete requests the real full original; name/frame/property reads
+     * remain local metadata.
+     */
     source: IAutoMovieHumanFootSource.IRegional;
   };
 
-  /** Invocation-owned production inputs and its optional full-parent completion seam.
+  /**
+   * Invocation-owned production inputs and its optional full-parent completion
+   * seam.
    */
   export interface IInput {
     /** Existing side-qualified production name. */
@@ -55,8 +62,9 @@ export namespace IAutoMovieHumanLegSourceFamily {
     gap: number;
 
     /**
-     * Successfully complete the owning trunk before full demand, or throw its failure; binding a trial alone is not completion.
+     * Return the final leg from its owning trunk on explicit full demand, or
+     * throw its failure.
      */
-    complete?: () => void;
+    complete?: IAutoMovieHumanFootSource.FromRegionResolve;
   }
 }

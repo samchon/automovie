@@ -91,9 +91,11 @@ export namespace AutoMovieHumanBodyLaneInterim {
         glutealSetback,
       );
 
-    const side: (name: "left" | "right") => IAutoMovieHumanBodyLane.ISide = (
-      name: "left" | "right",
-    ): IAutoMovieHumanBodyLane.ISide => {
+    const side = (name: "left" | "right"): IAutoMovieHumanBodyLane.ISide => {
+      const own: ReturnType<IAutoMovieHumanLimbSources.IOutput["leg"]> =
+        input.sources.leg(name);
+      const bind: IAutoMovieHumanBodyLane.ISide["leg"]["bind"] =
+        own.leg.prepareBinding();
       const fold: (
         from: number,
         to: number,
@@ -106,15 +108,13 @@ export namespace AutoMovieHumanBodyLaneInterim {
       });
       return {
         get leg(): IAutoMovieHumanBodyLane.ISide["leg"] {
-          const own: ReturnType<IAutoMovieHumanLimbSources.IOutput["leg"]> =
-            input.sources.leg(name);
           return {
             bones: own.bones,
             law: own.law,
             get definition(): IAutoMovieHumanLegWalk.IDefinition {
               return own.leg.current();
             },
-            bind: own.leg.bind,
+            bind,
             trunk: fold(0, 0.5),
             foot: fold(1, 0.85),
           };
@@ -123,10 +123,10 @@ export namespace AutoMovieHumanBodyLaneInterim {
           return { ...input.sources.arm(name).arm(), trunk: fold(0, 0.4) };
         },
         get foot(): IAutoMovieHumanBodyLane.ISide["foot"] {
-          return input.sources.leg(name).foot();
+          return own.foot();
         },
         get footDefinition(): IAutoMovieHumanSourceDefinition {
-          return input.sources.leg(name).definition();
+          return own.definition();
         },
         get fingers(): IAutoMovieHumanBodyLane.IDigit[] {
           return input.sources.arm(name).fingers();
@@ -139,7 +139,26 @@ export namespace AutoMovieHumanBodyLaneInterim {
           return input.sources.arm(name).digit(key);
         },
         get toes(): IAutoMovieHumanBodyLane.IToe[] {
-          return input.sources.leg(name).toes();
+          return own.toes();
+        },
+        prepareArm(): Pick<IAutoMovieHumanBodyLane.ISide, "arm" | "fingers"> {
+          const source: ReturnType<IAutoMovieHumanLimbSources.IOutput["arm"]> =
+            input.sources.arm(name);
+          return {
+            arm: { ...source.arm(), trunk: fold(0, 0.4) },
+            fingers: source.fingers(),
+          };
+        },
+        prepareFoot(): Pick<
+          IAutoMovieHumanBodyLane.ISide,
+          "foot" | "footDefinition" | "toes"
+        > {
+          const source: ReturnType<typeof own.prepareFoot> = own.prepareFoot();
+          return {
+            foot: source.foot(),
+            footDefinition: source.definition(),
+            toes: source.toes(),
+          };
         },
         toeNames: AutoMovieHumanFootInterim.names(name),
       };
@@ -152,14 +171,6 @@ export namespace AutoMovieHumanBodyLaneInterim {
     return {
       diagnostics,
       trunk: {
-        get legs(): NonNullable<
-          IAutoMovieHumanBodyLane.IInput["trunk"]["legs"]
-        > {
-          return {
-            left: sides.left.leg.definition,
-            right: sides.right.leg.definition,
-          };
-        },
         bindLeg(
           side: "left" | "right",
           parent: IAutoMovieHumanSourceDefinition,

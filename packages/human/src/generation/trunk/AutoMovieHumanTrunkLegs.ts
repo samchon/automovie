@@ -10,9 +10,15 @@ import { AutoMovieHumanGlutealParent } from "./AutoMovieHumanGlutealParent";
 import { AutoMovieHumanTrunkTape } from "./AutoMovieHumanTrunkTape";
 import { AutoMovieHumanTrunkViewPart } from "./AutoMovieHumanTrunkViewPart";
 
-/** Couple the unmeasured proximal legs to each actual trial/final trunk original before reading their common-plane tape cuts. */
+/**
+ * Couple the unmeasured proximal legs to each actual trial/final trunk original
+ * before reading their common-plane tape cuts.
+ */
 export namespace AutoMovieHumanTrunkLegs {
-  /** Bind both legs to the actual parent object; the regional factory owns retention and the unchanged measured distal spans. */
+  /**
+   * Bind both legs to the actual parent object, preserving the prepared distal
+   * spans in each returned original.
+   */
   export function pair(
     input: IAutoMovieHumanTrunkLegs.IInput,
     parent: IAutoMovieHumanSourceDefinition,
@@ -32,7 +38,11 @@ export namespace AutoMovieHumanTrunkLegs {
     };
   }
 
-  /** One shoulder trial prepares its actual whole trunk source and the legs that consume it. No raw loft, public-width clamp or alternate hip section supplies the cuts. */
+  /**
+   * One shoulder trial prepares its actual whole trunk source and the legs that
+   * consume it. No raw loft, public-width clamp or alternate hip section
+   * supplies the cuts.
+   */
   export function trial(
     input: IAutoMovieHumanTrunkLegs.IInput,
     site: IAutoMovieHumanTrunkViews.ISite,
