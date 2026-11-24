@@ -46,20 +46,48 @@ const UNLABELLED: IAutoMovieInspectorScene.ILabels = {
 };
 
 /**
- * The inspection page as a React component: one canvas showing a subject through one request, and the panels that edit that request.
+ * The inspection page as a React component: one canvas showing a subject
+ * through one request, and the panels that edit that request.
  *
- * The request is the component's only state that changes the picture. Every panel dispatches an edit to `reduceAutoMovieInspectorState`, the canvas is a plain three.js scene from `@automovie/render` mounted by `mountAutoMovieInspectorScene` in an effect, and every change of the request reaches `onRequestChange` as address text, so the page keeps its address equal to the request. The playhead is an `AutoMovieInspectorPlayhead` outside React that the render loop advances, so a playing frame re-renders only the time readout, and starting or stopping also the play button.
+ * The request is the component's only state that changes the picture. Every
+ * panel dispatches an edit to `reduceAutoMovieInspectorState`, the canvas is a
+ * plain three.js scene from `@automovie/render` mounted by
+ * `mountAutoMovieInspectorScene` in an effect, and every change of the request
+ * reaches `onRequestChange` as address text, so the page keeps its address
+ * equal to the request. The playhead is an `AutoMovieInspectorPlayhead` outside
+ * React that the render loop advances, so a playing frame re-renders only the
+ * time readout, and starting or stopping also the play button.
  *
- * The canvas has the transport directly under it. Beside it, or under the transport when the inspector is narrower than 900 pixels, a column holds one collapsible section per panel, each heading saying what is active: View and Shade start open, Marks, Selection and Request start closed, so a first look shows the picture and how it is drawn, and Diagnostics opens once the mount reports a confirmed error. Diagnostics keeps the newest incidents the mount reports, which the console also receives, and moves the picture to a chosen witness through an ordinary request edit; hiding its witnesses hides the cubes and the status line, not the checks. While focus is inside the inspector, the playback keys of `handleAutoMovieInspectorKey` drive the playhead, except a key held with Ctrl, Meta or Alt and a key that goes to a control answering it itself.
+ * The canvas has the transport directly under it. Beside it, or under the
+ * transport when the inspector is narrower than 900 pixels, a column holds one
+ * collapsible section per panel, each heading saying what is active: View and
+ * Shade start open, Marks, Selection and Request start closed, so a first look
+ * shows the picture and how it is drawn, and Diagnostics opens once the mount
+ * reports a confirmed error. Diagnostics keeps the newest incidents the mount
+ * reports, which the console also receives, and moves the picture to a chosen
+ * witness through an ordinary request edit; hiding its witnesses hides the
+ * cubes and the status line, not the checks. While focus is inside the
+ * inspector, the playback keys of `handleAutoMovieInspectorKey` drive the
+ * playhead, except a key held with Ctrl, Meta or Alt and a key that goes to a
+ * control answering it itself.
  *
- * The mount effect depends on the chosen subject object only, which selectAutoMovieDrawSubject picks by the request's subject key, so each subject must keep its identity across renders; the request reaches a mounted scene through its `apply`, and a request the scene refuses is set back to the one it still draws, with the reason shown. Under StrictMode the mount effect runs, cleans up and runs again on the same canvas, which the mount supports with one renderer alive at the end.
+ * The mount effect depends on the chosen subject object only, which
+ * selectAutoMovieDrawSubject picks by the request's subject key, so each
+ * subject must keep its identity across renders; the request reaches a mounted
+ * scene through its `apply`, and a request the scene refuses is set back to the
+ * one it still draws, with the reason shown. Under StrictMode the mount effect
+ * runs, cleans up and runs again on the same canvas, which the mount supports
+ * with one renderer alive at the end.
  *
  * ```tsx
  * createRoot(element).render(
  *   <AutoMovieInspector
  *     subjects={subjects}
  *     initialText={location.search}
- *     onRequestChange={createAutoMovieInspectorAddressWriter({ location, history })}
+ *     onRequestChange={createAutoMovieInspectorAddressWriter({
+ *       location,
+ *       history,
+ *     })}
  *   />,
  * );
  * ```
@@ -279,8 +307,8 @@ export function AutoMovieInspector(
           dispatch={dispatch}
         />
         {[unnamed, failure, state.error]
-          .filter(
-            (message: string | null): message is string => message !== null,
+          .flatMap((message: string | null): string[] =>
+            message === null ? [] : [message],
           )
           .map(
             (message: string): JSX.Element => (
@@ -400,10 +428,16 @@ export function AutoMovieInspector(
 /** Below this width, in pixels, the sections move under the transport. */
 const NARROW: number = 900;
 
-/** Most recent incidents the Diagnostics section keeps; the console keeps every one. */
+/**
+ * Most recent incidents the Diagnostics section keeps; the console keeps every
+ * one.
+ */
 const INCIDENT_LIMIT: number = 50;
 
-/** One collapsible section of the column: a heading that says what is active, over its panel. */
+/**
+ * One collapsible section of the column: a heading that says what is active,
+ * over its panel.
+ */
 function Section(props: {
   title: string;
   note?: string;
@@ -428,7 +462,10 @@ function Section(props: {
   );
 }
 
-/** Describe a sample's clock to the millisecond without inventing an output frame; the logged object keeps the exact seconds. */
+/**
+ * Describe a sample's clock to the millisecond without inventing an output
+ * frame; the logged object keeps the exact seconds.
+ */
 function describeTime(time: IAutoMovieInspectionDiagnostics.ITime): string {
   const seconds: string = `${Number(time.filmSeconds.toFixed(3))} s`;
   return time.outputFrame === undefined
@@ -453,7 +490,10 @@ function describeFinding(
   ].join(" · ");
 }
 
-/** Show the strongest current finding and any limits on what this sample could check. */
+/**
+ * Show the strongest current finding and any limits on what this sample could
+ * check.
+ */
 function describeDiagnostics(
   packet: IAutoMovieInspectionDiagnostics,
 ): string | null {
