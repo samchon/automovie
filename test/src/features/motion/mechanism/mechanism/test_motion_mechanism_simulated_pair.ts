@@ -42,7 +42,7 @@ const RATE: number = 120;
  * 1. Kinematic mode shows the coupled handshake's own poses of both people bit for bit.
  * 2. Simulated, the gripping arms are the solver's and every grip stays within the solver's contact tolerance at every tracked step; two bakes give the same identity and solved frames.
  * 3. Both people released in the air together: the pair's total linear momentum changes by gravity's impulse only, within the float64 rounding the substeps run can leave, bounded in the standard model of floating-point arithmetic (Higham 2002) from each segment's position and velocity updates.
- * 4. Joint residuals in both windows: every hand-back's post-stabilization and every fewer-axis joint's distance from its limit box stay within the 0.1 degree provisional guard (`simulationResiduals`).
+ * 4. Joint residuals in both windows: every hand-back's post-stabilization and every fewer-axis joint's distance from its limit box stay within the 0.01 degree guard, the engine's ROM_TOLERANCE (`simulationResiduals`).
  *
  * @evidence contracts/development/testing.md#behavioral-verification Bakes two-body windows through `HumanPerformance.simulate` and reads the displayed poses and the engine's solved frames; catches a kinematic mode that departs from the coupled output, a grip the solver lets slip or pass in, a bake that differs between runs, and a coupling that creates momentum.
  * @evidence contracts/development/testing.md#independent-expectations Equality for the mode contract and determinism; bindings measured as the convex distance of the bound colliders against the admitted contact tolerance; momentum against Newton's second law with gravity alone, read from segment masses and solved velocities.
