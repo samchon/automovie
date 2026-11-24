@@ -75,10 +75,12 @@ export interface IAutoMovieScene {
    * The scene's physical haze ({@link IAutoMovieMedium}), which dims what lies
    * behind it and scatters the scene's lights toward the camera. Absent or
    * `null` means none. A scene carries a fog or a medium, never both; staging
-   * refuses both. `applySceneMedium` attaches it to a built scene, and a
-   * directly rendered film draws it in its linear beauty target, so a draw
-   * scene with a medium must supply `optics`, and `renderAutoMovieScenePass`,
-   * which has no linear target, refuses it.
+   * refuses both on a stage, and `validateSceneMedium`, which `buildScene`
+   * runs, refuses both, and a medium outside its ranges, on a scene authored
+   * directly. `applySceneMedium` attaches it to a built scene, and a directly
+   * rendered film draws it in its linear beauty target, so a draw scene with a
+   * medium must supply `optics`, and `renderAutoMovieScenePass`, which has no
+   * linear target, refuses it.
    */
   medium?: IAutoMovieMedium | null;
 }

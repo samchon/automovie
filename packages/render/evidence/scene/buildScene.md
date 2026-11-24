@@ -2,7 +2,7 @@
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-Preserves authored node order under placement groups, admits the shadow profile, builds native lights/cameras, optional semantic support, fog, medium and environment; each resolver call must supply a distinct mutable model object and valid admitted TRS. Static pose/props/compiled populations are not lowered here and current production pages assemble their own graph rather than calling this producer.
+Preserves authored node order under placement groups, admits the shadow profile and, through validateSceneMedium, the medium's ranges and its exclusion of a fog, builds native lights/cameras, optional semantic support, fog, medium and environment; each resolver call must supply a distinct mutable model object and valid admitted TRS. Static pose/props/compiled populations are not lowered here and current production pages assemble their own graph rather than calling this producer.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
@@ -14,7 +14,7 @@ Refuses unresolved models rather than dropping an authored child and shifting ma
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States resolver uniqueness, authored node order, placement/root composition, semantic-ground beauty exclusion, static-pose caller duty and explicit refusal/admission ownership boundary.
+States resolver uniqueness, authored node order, placement/root composition, semantic-ground beauty exclusion, the fog and medium admission, static-pose caller duty and explicit refusal/admission ownership boundary.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 

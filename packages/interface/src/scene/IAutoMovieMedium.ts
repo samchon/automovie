@@ -12,7 +12,9 @@
  *
  * A scene declares either a medium or the depth `fog`, never both: the fog is a
  * renderer convention that fades toward one colour and reads no light. Staging
- * admits the ranges below; structural passes ignore the medium.
+ * admits the ranges below and the exclusion on a stage, and `engine`'s
+ * `validateSceneMedium`, which `buildScene` runs, on a scene authored directly;
+ * structural passes ignore the medium.
  */
 export interface IAutoMovieMedium {
   /**

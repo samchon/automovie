@@ -1,9 +1,13 @@
-import { resolveAutoMovieShadowProfile } from "@automovie/engine";
+import {
+  resolveAutoMovieShadowProfile,
+  validateSceneMedium,
+} from "@automovie/engine";
 import type {
   IAutoMovieCamera,
   IAutoMovieRenderSoftPropFrame,
   IAutoMovieScene,
   IAutoMovieSpace,
+  IAutoMovieValidation,
 } from "@automovie/interface";
 import * as THREE from "three";
 
@@ -53,10 +57,15 @@ import { restoreAutoMovieRenderModeState } from "./restoreAutoMovieRenderModeSta
  * returned handle updates plain surfaces at later times and releases the
  * meshes. Pass an empty frame to opt in before the first prop appears.
  *
- * The cited refusal contribution covers the supplied shadow profile and
- * unresolved node model. Complete hierarchy, material and numeric admission,
- * lowering receipts and structured safe-retry policy remain with their
- * corresponding owners.
+ * The scene's `fog` and `medium` are attached by `applySceneFog` and
+ * `applySceneMedium` after `validateSceneMedium` admits them: a medium beside a
+ * fog, or one whose coefficients or anisotropy lie outside their ranges, is
+ * refused, as staging refuses it on a stage.
+ *
+ * The cited refusal contribution covers the supplied shadow profile, the
+ * scene's medium and unresolved node model. Complete hierarchy, material and
+ * numeric admission, lowering receipts and structured safe-retry policy remain
+ * with their corresponding owners.
  */
 export const buildScene: (
   scene: IAutoMovieScene,
@@ -77,6 +86,15 @@ export const buildScene: (
   if (!shadowProfile.success)
     throw new Error(
       "Unsupported shadow profile: " + JSON.stringify(shadowProfile.violations),
+    );
+
+  // A scene authored directly arrives without staging, which refuses a medium
+  // beside a fog or outside its ranges; the scene admission refuses the same
+  // before either atmosphere is attached.
+  const medium: IAutoMovieValidation = validateSceneMedium(scene);
+  if (!medium.success)
+    throw new Error(
+      "Unsupported scene medium: " + JSON.stringify(medium.violations),
     );
   const root: THREE.Scene<THREE.Object3DEventMap> = new THREE.Scene();
 
