@@ -231,12 +231,14 @@ export function hoseBackup(
     });
   return {
     ...composed,
+    // The line's frames first, so the arms' courses are solved on the line
+    // as the display reads it.
     prepare: (): void => {
-      composed.prepare?.();
       frames = Array.from(
         { length: Math.floor(clock.duration * FRAME) + 2 },
         (_: unknown, k: number): IAutoMovieRigidTransform => solve(k),
       );
+      composed.prepare?.();
     },
     hands: ["left", "right"],
     contacts: [

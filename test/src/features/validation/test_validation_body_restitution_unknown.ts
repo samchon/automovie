@@ -11,22 +11,24 @@ import { hasViolation } from "../internal/hasViolation";
 import { staticActor } from "../internal/staticActor";
 
 /**
- * Unknown restitution permits construction and observation, then refuses a requested collision response.
+ * Unknown restitution permits construction and observation, then refuses a
+ * requested collision response.
  *
  * Scenarios:
+ *
  * 1. A positive-mass body with no restitution remains a valid model.
  * 2. Two overlapping declared bodies without coefficients produce both
  *    missing-coefficient errors, two observed contacts and no response.
- * 3. The same unknown bodies with physicsIntent retain their contacts and
- *    succeed without a response; separated unknown bodies also succeed.
- * 4. Null bodies on either or both sides refuse response generation at the
- *    missing body paths while retaining contacts; intent and non-contact
- *    observations need no fabricated body, mass or coefficient.
- * 5. Invalid masses and coefficients on either side produce located range
- *    findings and no response; simultaneous faults are all reported. A
- *    missing mass from an untyped payload is also refused.
- * 6. Explicit restitution endpoints zero and one on both overlapping bodies
- *    permit the physical response and preserve both geometric observations.
+ * 3. The same unknown bodies with physicsIntent retain their contacts and succeed
+ *    without a response; separated unknown bodies also succeed.
+ * 4. Null bodies on either or both sides refuse response generation at the missing
+ *    body paths while retaining contacts; intent and non-contact observations
+ *    need no fabricated body, mass or coefficient.
+ * 5. Invalid masses and coefficients on either side produce located range findings
+ *    and no response; simultaneous faults are all reported. A missing mass from
+ *    an untyped payload is also refused.
+ * 6. Explicit restitution endpoints zero and one on both overlapping bodies permit
+ *    the physical response and preserve both geometric observations.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls actual model admission and capsule collision detection, requiring body/mass/coefficient errors only when an unsuppressed overlap needs response data. It catches silent 70 kg or 0.2/zero substitution, invalid quantities reaching response arithmetic, first-fault-only reporting, refusal during kinematic construction and loss of observable contacts.
  * @evidence contracts/development/testing.md#independent-expectations Unit-length parallel capsules separated by 0.1 m overlap at summed radius 0.4 m; 1 Hz endpoint-inclusive sampling of a one-second static motion gives exactly two contacts. A 2 m separation exceeds 0.4 m. Explicit zero is a valid authored inelastic coefficient.
@@ -46,7 +48,10 @@ export function test_validation_body_restitution_unknown(): void {
   )
     findings.push("unknown restitution blocked kinematic construction");
 
-  /** The physical declaration varies independently of identical capsule geometry. */
+  /**
+   * The physical declaration varies independently of identical capsule
+   * geometry.
+   */
   const actor: (
     node: string,
     y: number,
@@ -154,21 +159,14 @@ export function test_validation_body_restitution_unknown(): void {
     );
 
   const invalid: readonly [string, IAutoMovieBody][] = [
-    ...[0, -1].map(
-      (mass: number): [string, IAutoMovieBody] => [
-        "mass",
-        { mass, centerOfMass: null, restitution: 0 },
-      ],
-    ),
-    ...[-0.1, 1.1].map(
-      (restitution: number): [string, IAutoMovieBody] => [
-        "restitution",
-        { mass: 1, centerOfMass: null, restitution },
-      ],
-    ),
-
-    // An untyped payload can omit the required mass; it must not receive 70 kg.
-    ["mass", { centerOfMass: null, restitution: 0 } as IAutoMovieBody],
+    ...[0, -1].map((mass: number): [string, IAutoMovieBody] => [
+      "mass",
+      { mass, centerOfMass: null, restitution: 0 },
+    ]),
+    ...[-0.1, 1.1].map((restitution: number): [string, IAutoMovieBody] => [
+      "restitution",
+      { mass: 1, centerOfMass: null, restitution },
+    ]),
   ];
   for (const side of ["a", "b"] as const)
     for (const [field, body] of invalid) {

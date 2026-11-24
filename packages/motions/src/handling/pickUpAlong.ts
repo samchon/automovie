@@ -47,9 +47,14 @@ export namespace pickUpAlong {
   /** The asked share along, the prop and handle, and the props' records. */
   export interface IContext {
     /** The pick-up's prop, handle and share along it. */
-    params: Pick<IAutoMovieMotionHumanPickUp.IParams, "along" | "prop" | "handle">;
+    params: Pick<
+      IAutoMovieMotionHumanPickUp.IParams,
+      "along" | "prop" | "handle"
+    >;
 
     /** A prop's affordances by subject. */
-    prop: (subject: string) => { prop: Pick<IAutoMovieMotionHumanProp, "affordances"> };
+    prop: (subject: string) => {
+      prop: Pick<IAutoMovieMotionHumanProp, "affordances">;
+    };
   }
 }

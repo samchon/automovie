@@ -23,9 +23,9 @@ export namespace restForearm {
   }
 
   /**
-   * The unit direction of a forearm, from the elbow to the wrist: the elbow lies
-   * on the circle the arm's two segments allow about the line from the shoulder
-   * to the wrist (the law of cosines), on the side of the bend hint.
+   * The unit direction of a forearm, from the elbow to the wrist: the elbow
+   * lies on the circle the arm's two segments allow about the line from the
+   * shoulder to the wrist (the law of cosines), on the side of the bend hint.
    *
    * @param upper The upper arm's length, metres.
    * @param lower The forearm's length, metres.

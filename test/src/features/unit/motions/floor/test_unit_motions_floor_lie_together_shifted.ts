@@ -29,7 +29,10 @@ export function test_unit_motions_floor_lie_together_shifted(): void {
     roll: 0,
     joints: {},
     limbs: {
-      leftLeg: { point: { x: 0.1, y: 0.1, z: 0.8 }, bend: { x: 0.1, y: 0.3, z: 0.4 } },
+      leftLeg: {
+        point: { x: 0.1, y: 0.1, z: 0.8 },
+        bend: { x: 0.1, y: 0.3, z: 0.4 },
+      },
       rightArm: {
         point: { x: -0.3, y: 0.2, z: 0 },
         bend: { x: -0.2, y: 0.4, z: 0 },
@@ -41,8 +44,16 @@ export function test_unit_motions_floor_lie_together_shifted(): void {
   TestValidator.predicate(
     "moved",
     vclose(shifted.root, { x: 0.1, y: 0.15, z: 0.2 }, ROUNDING) &&
-      vclose(shifted.limbs.leftLeg!.point, { x: 0.2, y: 0.05, z: 1 }, ROUNDING) &&
-      vclose(shifted.limbs.leftLeg!.bend, { x: 0.2, y: 0.25, z: 0.6 }, ROUNDING),
+      vclose(
+        shifted.limbs.leftLeg!.point,
+        { x: 0.2, y: 0.05, z: 1 },
+        ROUNDING,
+      ) &&
+      vclose(
+        shifted.limbs.leftLeg!.bend,
+        { x: 0.2, y: 0.25, z: 0.6 },
+        ROUNDING,
+      ),
   );
   TestValidator.predicate(
     "held where attached",

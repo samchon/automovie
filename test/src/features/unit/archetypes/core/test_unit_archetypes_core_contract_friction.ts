@@ -124,7 +124,10 @@ export function test_unit_archetypes_core_contract_friction(): void {
   )
     .box("body", Vector3.create(1, 1, 1), Vector3.create(0, 0.5, 0))
     .build(1);
-  if ("friction" in plain.body || "kineticFriction" in plain.body)
+  if (
+    plain.body.friction !== undefined ||
+    plain.body.kineticFriction !== undefined
+  )
     findings.push(
       `an unread rest carries friction ${plain.body.friction} and ${plain.body.kineticFriction}`,
     );

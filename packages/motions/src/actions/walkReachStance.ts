@@ -197,13 +197,12 @@ export namespace walkReachStance {
             held = ball.contact;
           } else placement = at(pitch);
         }
-      } else
-      // The heel rises about the ball once the shank leans past the ankle's
-      // dorsal limit: the forefoot rocker begins where the ankle can bend no
-      // further (Perry and Burnfield), so the ball never slides. A heel
-      // strike's toes come down about the heel the same way, to the fixed
-      // point where the lowered toes leave the shank at that limit.
-      if (bears) {
+      } else if (bears) {
+        // The heel rises about the ball once the shank leans past the ankle's
+        // dorsal limit: the forefoot rocker begins where the ankle can bend no
+        // further (Perry and Burnfield), so the ball never slides. A heel
+        // strike's toes come down about the heel the same way, to the fixed
+        // point where the lowered toes leave the shank at that limit.
         if (about === "heel") {
           let first: number | undefined;
           for (let k: number = 0; k < TOES_DOWN; k++) {

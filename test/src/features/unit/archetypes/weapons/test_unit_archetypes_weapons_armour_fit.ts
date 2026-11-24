@@ -5,7 +5,7 @@ import { TestValidator } from "@nestia/e2e";
 
 import { ARMOUR_RECORDS } from "../../../internal/ARMOUR_RECORDS";
 import { armourActual } from "../../../internal/armourActual";
-import { motionHumanBody } from "../../../internal/motionHumanBody";
+import { syntheticBodyMeasure } from "../../../internal/synthetic/syntheticBodyMeasure";
 
 /**
  * Actual armour walls retain every canonical body fit and literal museum record.
@@ -27,8 +27,13 @@ export function test_unit_archetypes_weapons_armour_fit(): void {
   const findings: string[] = [];
   const PLATE: readonly [number, number] = [0.0015, 0.003];
   const EPSILON: number = 1e-9;
-  for (const name of motionHumanBody.SWEEP) {
-    const m: IAutoMovieBodyMeasure = motionHumanBody(name).measure;
+  for (const [stature, mass] of [
+    [1.55, 52],
+    [1.75, 75],
+    [1.95, 98],
+  ] as const) {
+    const name: string = `stature ${stature} m`;
+    const m: IAutoMovieBodyMeasure = syntheticBodyMeasure(stature, mass);
     for (const kind of createArmour.KINDS) {
       const piece: ReturnType<typeof createArmour> = createArmour({
         kind,

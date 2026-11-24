@@ -2,7 +2,7 @@ import { AutoMovieFilmIndirectStage } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
-import { createFilmResponseRendererDouble } from "./createFilmResponseRendererDouble";
+import { createFilmResponseRendererDouble } from "../unit/render/draw/createFilmResponseRendererDouble";
 
 /**
  * Occlusion changes only indirect light: the patched lit materials multiply

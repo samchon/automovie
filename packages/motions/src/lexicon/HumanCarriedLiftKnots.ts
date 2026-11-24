@@ -35,7 +35,8 @@ import { turnHumanPosture } from "../posture/turnHumanPosture";
  * (`HumanCarriedLift`), so to first order the blended pose departs from the
  * per-second blend by no more than the knot posture departs from the second's
  * own fit: the millimetre the split admits at the judged middles. The knots are
- * fitted on first demand and kept by the course.
+ * fitted when the plan is prepared (`prepare`); a read before that judges the
+ * intervals on its way afresh and keeps none.
  */
 export namespace HumanCarriedLiftKnots {
   /**
@@ -85,7 +86,7 @@ export namespace HumanCarriedLiftKnots {
     /** The knot at its end. */
     b: IKnot;
 
-    /** Its halves, where it was split; undefined until judged, null for a leaf. */
+    /** Its halves, null for a leaf; absent on an interval a cold read judges. */
     halves?: Halves;
   }
 
@@ -97,7 +98,7 @@ export namespace HumanCarriedLiftKnots {
     /** Its last. */
     to: number;
 
-    /** Its whole interval, once its two ends are fitted. */
+    /** Its whole interval, every split judged, once the plan is prepared. */
     whole?: IInterval;
   }
 
@@ -109,16 +110,45 @@ export namespace HumanCarriedLiftKnots {
    *
    * @param from The phase's first plan second.
    * @param to Its last.
-   * @returns The course, fitted on first read.
+   * @returns The course, fitted when prepared.
    */
   export function course(from: number, to: number): ICourse {
     return { from, to };
   }
 
   /**
+   * Fit a phase's knots: its two ends and every middle its judgement splits
+   * at, down to the frame grid.
+   *
+   * @param course The phase's course, its whole interval set here.
+   * @param body The carried body.
+   * @param frozen The carry's frozen posture at a plan second, fitted for a
+   *   knot.
+   */
+  export function prepare(
+    course: ICourse,
+    body: IAutoMovieMotionHumanBody,
+    frozen: Frozen,
+  ): void {
+    const knot = (t: number): IKnot => ({
+      seconds: t,
+      reading: own(frozen(t)),
+    });
+    const refine = (piece: IInterval): IInterval => {
+      const halves: Halves = judged(body, piece, knot);
+      return {
+        ...piece,
+        halves: halves === null ? null : [refine(halves[0]), refine(halves[1])],
+      };
+    };
+    course.whole = refine({ a: knot(course.from), b: knot(course.to) });
+  }
+
+  /**
    * The frozen posture at a plan second of the phase: a knot's own fit where
    * the course keeps a knot there, else interpolated between the two knots
-   * around it, the course refined on the way where its judgement needs.
+   * around it. Before the course is prepared, the intervals on the way are
+   * judged afresh and kept by no one.
    *
    * @param course The phase's course.
    * @param body The carried body.
@@ -134,21 +164,21 @@ export namespace HumanCarriedLiftKnots {
     frozen: Frozen,
   ): IReading {
     const at: number = Math.min(Math.max(seconds, course.from), course.to);
-    const knot: (t: number) => HumanCarriedLiftKnots.IKnot = (
-      t: number,
-    ): IKnot => ({
+    const knot = (t: number): IKnot => ({
       seconds: t,
       reading: own(frozen(t)),
     });
-    course.whole ??= { a: knot(course.from), b: knot(course.to) };
-    let piece: IInterval = course.whole;
+    let piece: IInterval = course.whole ?? {
+      a: knot(course.from),
+      b: knot(course.to),
+    };
     for (;;) {
       if (at === piece.a.seconds) return piece.a.reading;
       if (at === piece.b.seconds) return piece.b.reading;
-      if (piece.halves === undefined) piece.halves = judged(body, piece, knot);
-      if (piece.halves === null) break;
-      piece =
-        at < piece.halves[0].b.seconds ? piece.halves[0] : piece.halves[1];
+      const halves: Halves =
+        piece.halves !== undefined ? piece.halves : judged(body, piece, knot);
+      if (halves === null) break;
+      piece = at < halves[0].b.seconds ? halves[0] : halves[1];
     }
     const { a, b }: IInterval = piece;
     return between(
@@ -157,7 +187,6 @@ export namespace HumanCarriedLiftKnots {
       (at - a.seconds) / (b.seconds - a.seconds),
     );
   }
-
   /** A frozen posture's own reading. */
   function own(posture: IAutoMovieMotionHumanPosture): IReading {
     return {

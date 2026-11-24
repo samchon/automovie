@@ -17,8 +17,7 @@ type PrepareHumanFootPointPoint = "heel" | "ball" | "toe" | "sole" | "mtp";
  * @param side The foot.
  * @param point The socket to place.
  * @param toes Fixed toe flexion, degrees; zero when absent.
- * @returns A reader of foot placement yielding the same world point as
- *   `point`.
+ * @returns A reader of foot placement yielding the same world point as `point`.
  */
 export function prepareHumanFootPoint(
   body: humanFootOffset.IBody,
@@ -36,8 +35,5 @@ function pointAt(
   local: IAutoMovieVector3,
   foot: IAutoMovieMotionHumanFoot.IPlacement,
 ): IAutoMovieVector3 {
-  return Vector3.add(
-    foot.ankle,
-    Quaternion.rotateVector(foot.rotation, local),
-  );
+  return Vector3.add(foot.ankle, Quaternion.rotateVector(foot.rotation, local));
 }

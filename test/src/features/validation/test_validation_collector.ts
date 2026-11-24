@@ -1,6 +1,5 @@
 import { ViolationCollector } from "@automovie/engine";
 import {
-  IAutoMovieConstraintViolation,
   IAutoMovieValidation,
   type IAutoMovieViolationCollector,
 } from "@automovie/interface";
@@ -10,7 +9,8 @@ import { TestValidator } from "@nestia/e2e";
  * `ViolationCollector` is the shared sink every validator pushes into, and the
  * bridge to the harness: its `range` helper records a violation only when a
  * value is outside its finite bound. Empty and range-error collectors expose
- * clean success and failure respectively; warning-only folding is outside these cases.
+ * clean success and failure respectively; warning-only folding is outside these
+ * cases.
  *
  * Scenarios:
  *

@@ -8,7 +8,7 @@ import { TestValidator } from "@nestia/e2e";
 
 import { ARMOUR_RECORDS } from "../../../internal/ARMOUR_RECORDS";
 import { armourActual } from "../../../internal/armourActual";
-import { motionHumanBody } from "../../../internal/motionHumanBody";
+import { syntheticBodyMeasure } from "../../../internal/synthetic/syntheticBodyMeasure";
 
 /**
  * Actual armour walls retain every original band, whole-record draw and contact.
@@ -36,9 +36,7 @@ export function test_unit_archetypes_weapons_armour_bands(): void {
   const PAD: number = 0.75 * 0.0254;
   const STEP: number = 1e-6;
   const EPSILON: number = 1e-12;
-  const m: IAutoMovieBodyMeasure = motionHumanBody(
-    motionHumanBody.SWEEP[0]!,
-  ).measure;
+  const m: IAutoMovieBodyMeasure = syntheticBodyMeasure();
   for (const kind of createArmour.KINDS) {
     if (kind === "mail") continue;
     for (const thickness of PLATE) {

@@ -12,6 +12,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { AutoMovieMotionPrepared } from "../compose/AutoMovieMotionPrepared";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { StrikingBlade } from "../striking/StrikingBlade";
@@ -86,16 +87,19 @@ export namespace HumanSwordTaken {
         // The parrying blade's frame at the start and where the parry lets
         // go, solved once the performance is placed (`prepare`); a read
         // before reads them there.
-        let ends: readonly [IAutoMovieVector3, IAutoMovieVector3] | undefined;
-        const solve = (): readonly [IAutoMovieVector3, IAutoMovieVector3] => [
-          reader.frame(context.start).position,
-          reader.frame(left).position,
-        ];
+        const ends: AutoMovieMotionPrepared.IValue<
+          readonly [IAutoMovieVector3, IAutoMovieVector3]
+        > = AutoMovieMotionPrepared(
+          (): readonly [IAutoMovieVector3, IAutoMovieVector3] => [
+            reader.frame(context.start).position,
+            reader.frame(left).position,
+          ],
+        );
         const carried = (seconds: number): IAutoMovieVector3 => {
           const [origin, release]: readonly [
             IAutoMovieVector3,
             IAutoMovieVector3,
-          ] = ends ?? solve();
+          ] = ends.read();
           const at: number = context.start + seconds;
           return Vector3.subtract(
             at < left ? reader.frame(at).position : release,
@@ -134,7 +138,7 @@ export namespace HumanSwordTaken {
           planned.prepare;
         planned.prepare = (): void => {
           prepared?.call(planned);
-          ends = solve();
+          ends.prepare();
         };
         return planned;
       },

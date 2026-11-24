@@ -316,15 +316,13 @@ function planHumanSabre(context: Context): IAutoMovieMotionHumanActionPlan {
   };
 
   // The arm's own solution at the decisive station, the engage when a charge comes and the slope otherwise: the reference every goal keeps from the arrival on, as the sword strokes keep theirs (`StrikingBlade`).
-  let anchored: IAutoMovieHumanLimbReference | undefined;
-  const decisive = (): IAutoMovieHumanLimbReference => {
-    if (anchored !== undefined) return anchored;
+  const anchored: IAutoMovieHumanLimbReference = ((): IAutoMovieHumanLimbReference => {
     const at: IStation = from === undefined ? stations.slope : stations.engage;
     const stood: IAutoMovieMotionHumanPosture = StrikingBlade.turned(
       local,
       from === undefined ? 0 : engaged.turn,
     );
-    anchored = HumanLimbFit.reference(
+    return HumanLimbFit.reference(
       resolveHumanPosture.seeded(context.body, {
         ...stood,
         limbs: {
@@ -340,8 +338,7 @@ function planHumanSabre(context: Context): IAutoMovieMotionHumanActionPlan {
       }).pose,
       "rightArm",
     );
-    return anchored;
-  };
+  })();
   const windows: IAutoMovieMotionHumanContactWindow[] = [
     ...StrikingHeld.grips(tool).map(
       (
@@ -422,7 +419,7 @@ function planHumanSabre(context: Context): IAutoMovieMotionHumanActionPlan {
           ),
           bend: AutoMovieMotionHumanBend.hang(context.body, shown, "right"),
           reference: {
-            ...decisive(),
+            ...anchored,
             weight: Math.min(1, t / Math.min(HumanSabreForm.REACH, duration)),
           },
         },

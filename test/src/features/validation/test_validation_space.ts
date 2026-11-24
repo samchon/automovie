@@ -1,9 +1,8 @@
 import { validateSpace } from "@automovie/engine";
-import { IAutoMovieValidation } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { assertValidationSpaceHeights } from "../internal/assertValidationSpaceHeights";
-import { hasViolation, namedFacts } from "../internal/predicates";
+import { hasViolation } from "../internal/predicates";
 import { validationSpaceFixtures } from "../internal/validationSpaceFixtures";
 
 /**
@@ -35,9 +34,9 @@ import { validationSpaceFixtures } from "../internal/validationSpaceFixtures";
  * 6. A non-finite height anchor is a `range` violation.
  * 7. A ramp whose `rampTo` sits at the anchor's XZ has a degenerate axis.
  * 8. A non-finite `rampTo` is caught by the anchor check (and safely skips the
- *     degeneracy math).
+ *    degeneracy math).
  * 9. A walkable id that resolves to no surface (or is duplicated) is a `type`
- *     violation.
+ *    violation.
  * 10. A surface states its ground exactly once: carrying a height rule beside the
  *     anchors is refused, and carrying neither is refused. Two statements are
  *     two answers waiting to be edited apart; none is no ground at all.
@@ -65,7 +64,6 @@ export function test_validation_space(): void {
     validateSpace({ space: valid }).success,
     true,
   );
-
 
   TestValidator.predicate(
     "duplicate surface id",

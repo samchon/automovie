@@ -140,11 +140,13 @@ export const stageCatch: IAutoMovieMotionHumanCatchObject.IStageLaw = {
       });
 
     const placedAt: number = context.start + contact;
-    approach ??= reader.flightApproach?.(placedAt, placedAt);
+    const approached:
+      | IAutoMovieMotionHumanPropReader.IFlightApproach
+      | undefined = approach ?? reader.flightApproach?.(placedAt, placedAt);
     if (
-      (approach === undefined
+      (approached === undefined
         ? reader.launchAt?.(placedAt)
-        : approach.launch) !== launch
+        : approached.launch) !== launch
     )
       throw new HumanRefusal({
         kind: "reach",
@@ -173,7 +175,7 @@ export const stageCatch: IAutoMovieMotionHumanCatchObject.IStageLaw = {
         Vector3.length(Vector3.subtract(centre(frame), expected)) <=
         flightParity,
     };
-    if (!capture.matches(approach?.frame ?? reader.frame(placedAt)))
+    if (!capture.matches(approached?.frame ?? reader.frame(placedAt)))
       throw new HumanRefusal({
         kind: "reach",
         axis: "ball",

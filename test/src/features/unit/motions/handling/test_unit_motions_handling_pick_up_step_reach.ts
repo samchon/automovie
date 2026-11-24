@@ -16,8 +16,8 @@ const ROUNDING: number = 1e-12;
  *
  * Scenarios, stepping along +Z from the origin:
  *
- * 1. A place 1 m ahead within 0.5 m is met from 0.5 m on: a 1 m step, the
- *    longest 2 m.
+ * 1. A place 1 m ahead within 0.5 m is met from 0.5 m on: a 1 m step, the longest
+ *    2 m.
  * 2. With the longest step 0.8 m its half, 0.4 m, falls short: none.
  * 3. A place 0.6 m to the side within 0.5 m is never met: none.
  * 4. A place already within reach asks no step.

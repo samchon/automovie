@@ -25,8 +25,8 @@ type PrepareHumanFootPivotPivot = "heel" | "ball" | "toe" | "sole" | "mtp";
  * @param toes The fixed toe flexion, degrees; zero when absent.
  * @param roll The fixed foot roll, degrees; zero when absent.
  * @returns A reader of pitch in degrees, positive toes up, with pivot's
- *   placement; an explicit world contact replaces only the default at under
- *   the same fixed rotation/socket preparation.
+ *   placement; an explicit world contact replaces only the default at under the
+ *   same fixed rotation/socket preparation.
  */
 export function prepareHumanFootPivot(
   body: humanFootOffset.IBody,

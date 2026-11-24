@@ -11,8 +11,8 @@ const ROUNDING: number = 1e-12;
  * `restForearm` lays a resting arm's forearm by the two-link closed form:
  * `across` is a vector's unit component across a normal, and `direction` puts
  * the elbow on the circle the upper arm `u` and forearm `l` allow about the
- * shoulder-to-wrist line `d`, `(u^2 - l^2 + d^2) / 2d` along it and the rest
- * of `u` across it toward the bend hint, and points from it to the wrist.
+ * shoulder-to-wrist line `d`, `(u^2 - l^2 + d^2) / 2d` along it and the rest of
+ * `u` across it toward the bend hint, and points from it to the wrist.
  *
  * Scenarios, a 0.3 m upper arm and a 0.25 m forearm from a shoulder at the
  * origin:

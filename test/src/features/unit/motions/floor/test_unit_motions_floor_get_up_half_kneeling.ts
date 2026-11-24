@@ -7,8 +7,8 @@ import { TestValidator } from "@nestia/e2e";
 
 /**
  * `getUp.halfKneeling` is the half-kneeling key with a leading foot: the key
- * itself leading with the right, and its left and right sides exchanged
- * leading with the left.
+ * itself leading with the right, and its left and right sides exchanged leading
+ * with the left.
  *
  * Scenarios:
  *
@@ -19,10 +19,7 @@ import { TestValidator } from "@nestia/e2e";
 export function test_unit_motions_floor_get_up_half_kneeling(): void {
   const right: IAutoMovieMotionHumanLieDown.IPose = getUp.halfKneeling("right");
   const left: IAutoMovieMotionHumanLieDown.IPose = getUp.halfKneeling("left");
-  TestValidator.predicate(
-    "the key",
-    right === getUp.POSES.halfKneel,
-  );
+  TestValidator.predicate("the key", right === getUp.POSES.halfKneel);
   const swapped = (bone: string): AutoMovieHumanoidBone =>
     (bone.startsWith("left")
       ? bone.replace(/^left/, "right")

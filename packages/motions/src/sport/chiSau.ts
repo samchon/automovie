@@ -121,8 +121,8 @@ export namespace chiSau {
     ]);
     const first: boolean = context.subject < p.partner;
 
-    // The roll reads the partner's placed root, so it is built on first use
-    // and dropped when placement settles.
+    // The roll reads the partner's placed root, so it is solved when the plan
+    // is prepared; a read before builds it afresh and keeps nothing.
     // Each partner reads the other's root, whose posture reads this one's:
     // while this roll is being built, a read of it gives the arms as they
     // are, which leaves the root it was asked for unchanged.
@@ -133,7 +133,7 @@ export namespace chiSau {
       if (building) return null;
       building = true;
       try {
-        return (roll = lay());
+        return lay();
       } finally {
         building = false;
       }
@@ -313,7 +313,8 @@ export namespace chiSau {
       ...composed,
       prepare: (): void => {
         roll = undefined;
-        build();
+        roll = build() ?? undefined;
+        composed.prepare?.();
       },
     };
   }

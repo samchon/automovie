@@ -144,9 +144,7 @@ export function jumpPushRocker(
   const pitchAt: (
     phase: jumpPush.IPhase,
     resolution?: ReturnType<typeof prepareHumanPoseResolution>,
-  ) => number = (
-    phase: jumpPush.IPhase,
-  ): number => {
+  ) => number = (phase: jumpPush.IPhase): number => {
     const t: number = phase.seconds;
     return t < lowered
       ? supportPitch * (1 - minimumJerk.share(t / lowered)) +
@@ -233,7 +231,6 @@ export namespace jumpPushRocker {
 }
 /** The finite-difference step of the heel rule's slope, seconds. */
 const STEP: number = 1e-3;
-
 
 /** The record of `IOfEdgeResult`'s site. */
 type IOfEdgeResult = {

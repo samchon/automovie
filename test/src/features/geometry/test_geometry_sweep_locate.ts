@@ -10,7 +10,7 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { namedFacts, nclose, throwsError } from "../internal/predicates";
+import { namedFacts, nclose } from "../internal/predicates";
 
 /** A level plane: first axis `+Z`, second `+X`, normal `+Y`. */
 const LEVEL: {
@@ -80,7 +80,10 @@ const SNAKE: IAutoMovieSweep = {
     }),
   ),
 };
-/** Whether locating `surface.point(u, v)` moved `along` metres outward returns `u`, `v` and that offset. */
+/**
+ * Whether locating `surface.point(u, v)` moved `along` metres outward returns
+ * `u`, `v` and that offset.
+ */
 function recovers(
   surface: IAutoMovieSweepSurface,
   u: number,
@@ -105,12 +108,18 @@ function recovers(
   );
 }
 /**
- * Locating a point on a sweep returns the spine parameter of the plane holding it, its turn in that plane and its distance outside the surface, the inverse of the sweep's own point query.
+ * Locating a point on a sweep returns the spine parameter of the plane holding
+ * it, its turn in that plane and its distance outside the surface, the inverse
+ * of the sweep's own point query.
  *
  * Scenarios:
- * 1. Points of a straight elliptic sweep, on the surface and 10 mm outside or inside, at several parameters and turns, are recovered exactly.
- * 2. Points of an S-bent sweep with level stations under the fixed orientation are recovered exactly, the planes being level although the spine bends.
- * 3. A point above the spine's end takes the end's plane; a point at the end itself takes `u` 1.
+ *
+ * 1. Points of a straight elliptic sweep, on the surface and 10 mm outside or
+ *    inside, at several parameters and turns, are recovered exactly.
+ * 2. Points of an S-bent sweep with level stations under the fixed orientation are
+ *    recovered exactly, the planes being level although the spine bends.
+ * 3. A point above the spine's end takes the end's plane; a point at the end
+ *    itself takes `u` 1.
  * 4. A non-finite point is refused.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Runs `locateAutoMovieSweepPoint` on compiled sweeps and compares with the parameters the points were made from by `point`; a wrong plane, turn or sign of offset fails scenarios 1 and 2, a wrong end rule scenario 3.

@@ -5,7 +5,6 @@ import {
 import {
   type IAutoMovieConstraintViolation,
   type IAutoMovieMesh,
-  type IAutoMovieMeshPhysicalSource,
   type IAutoMovieValidation,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
@@ -15,6 +14,7 @@ import { createPhysicalMesh } from "../internal/createPhysicalMesh";
 /**
  * Invalid source correspondence is an explicit refusal, never legacy fallback.
  * Scenarios:
+ *
  * 1. Dense cardinality, source shape/domain/ID and resident references are armed.
  * 2. Nonfinite or incomplete coordinates and separated source aliases refuse.
  * 3. The adjacent valid triangle passes every corresponding input boundary.

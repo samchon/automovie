@@ -92,8 +92,8 @@ export function rangeSteppingFoot(
 export namespace rangeSteppingFoot {
   /**
    * The pitch the stepping foot's heel rises to under its hip on a posture
-   * (`walkLeg.heelRise`, a search): what a course solved at knots keeps, so
-   * a read passes it to `rangeSteppingFoot` and searches nothing.
+   * (`walkLeg.heelRise`, a search): what a course solved at knots keeps, so a
+   * read passes it to `rangeSteppingFoot` and searches nothing.
    *
    * @param body The body.
    * @param posture The posture whose leg goal is the stepping foot.

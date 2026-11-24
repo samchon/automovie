@@ -155,8 +155,17 @@ export namespace HumanCarriedLift {
     );
     const lowering: HumanCarriedLiftKnots.ICourse =
       HumanCarriedLiftKnots.course(plan.duration - setDown, plan.duration);
+    // The frozen posture the knots are fitted on, read on the plan as it is
+    // prepared.
+    const frozen = (seconds: number): IAutoMovieMotionHumanPosture =>
+      GymnasticsFlight.frozen(body, plan.posture(seconds));
     return {
       ...plan,
+      prepare: (): void => {
+        plan.prepare?.();
+        if (lift > 0) HumanCarriedLiftKnots.prepare(rising, body, frozen);
+        if (setDown > 0) HumanCarriedLiftKnots.prepare(lowering, body, frozen);
+      },
       events: [
         ...plan.events,
         { name: "lifted", share: lift / plan.duration },

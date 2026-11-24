@@ -31,8 +31,8 @@ import { prepareHumanPostureProjection } from "../posture/prepareHumanPosturePro
 import { prepareHumanShapeBlend } from "../posture/prepareHumanShapeBlend";
 import { knockdown } from "../reaction/knockdown";
 import { lieDownPoses } from "./lieDownPoses";
-import { lieOnSurfaceSeat } from "./lieOnSurfaceSeat";
 import { lieOnSurfaceFits } from "./lieOnSurfaceFits";
+import { lieOnSurfaceSeat } from "./lieOnSurfaceSeat";
 import { lieOnSurfaceSite } from "./lieOnSurfaceSite";
 
 /** Seconds of each phase (provisional: `lieDown`'s phase). */

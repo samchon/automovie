@@ -15,8 +15,8 @@ import {
 } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
-import { answerDrawCall } from "./answerDrawCall";
-import { createDrawPageDouble } from "./createDrawPageDouble";
+import { answerDrawCall } from "../unit/render/draw/answerDrawCall";
+import { createDrawPageDouble } from "../unit/render/draw/createDrawPageDouble";
 
 /** A subject of four seconds at 10 fps, drawn 48 by 30, offering the named viewpoint `front`. */
 const SUBJECT: IAutoMovieCaptureSubject = {

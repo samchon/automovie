@@ -22,13 +22,13 @@ const ROUNDING: number = 1e-9;
  * Scenarios, a flight from 0.4 s to 1 s of a 1.6 s plan settling at 1.3 s:
  *
  * 1. A jump that turns neither way declares no flight.
- * 2. 2¼ twists declare the flight over its shares, 0.25 to 0.625, as turns:
- *    no somersault and the 2¼ twists.
- * 3. A backward somersault declares its turns negative; a sideways one turns
- *    its frame a quarter about the vertical.
- * 4. Handed a flight that ends turned 30 degrees about the vertical, the
- *    landing starts from that turn just after touchdown and has settled it
- *    away by 1.3 s.
+ * 2. 2¼ twists declare the flight over its shares, 0.25 to 0.625, as turns: no
+ *    somersault and the 2¼ twists.
+ * 3. A backward somersault declares its turns negative; a sideways one turns its
+ *    frame a quarter about the vertical.
+ * 4. Handed a flight that ends turned 30 degrees about the vertical, the landing
+ *    starts from that turn just after touchdown and has settled it away by 1.3
+ *    s.
  */
 export function test_unit_motions_actions_jump_airborne_turning(): void {
   // 1. No turn.

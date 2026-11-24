@@ -1,6 +1,5 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
-  AutoMovieHumanSide,
   IAutoMovieAffordance,
   IAutoMovieMotionClock,
   IAutoMovieMotionHumanActionContext,
@@ -220,7 +219,6 @@ export const turnOver: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanTurnO
     },
     plan: planTurnOver,
   };
-
 
 /** The support's height: the named prop surface's, or the floor's. */
 function height(

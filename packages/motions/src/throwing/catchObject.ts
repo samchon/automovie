@@ -255,7 +255,8 @@ export namespace catchObject {
       meet,
       Vector3.scale(along, GIVE),
     );
-    let sternumAt: ReturnType<typeof HumanTrunk.prepareRegion> | undefined;
+    const sternumAt: ReturnType<typeof HumanTrunk.prepareRegion> =
+      HumanTrunk.prepareRegion(body, "sternum");
     const object: (
       seconds: number,
       posture: IAutoMovieMotionHumanPosture,
@@ -273,7 +274,6 @@ export namespace catchObject {
           given,
           clock.progress("contact", "secured", seconds),
         );
-      sternumAt ??= HumanTrunk.prepareRegion(body, "sternum");
       const sternum: ReturnType<typeof HumanTrunk.region> = sternumAt(
         posture,
         resolution,
@@ -353,9 +353,18 @@ export namespace catchObject {
         // of the moving target never sweeps the elbow afresh.
         bend: "hang",
       });
-      let corrected:
+      // The palm target a pocketed catch is corrected through.
+      const corrected:
         | ReturnType<typeof AutoMovieMotionHumanArmTarget.prepareTarget>
-        | undefined;
+        | undefined =
+        pocket === undefined
+          ? undefined
+          : AutoMovieMotionHumanArmTarget.prepareTarget(
+              body,
+              side,
+              "palm",
+              "relaxed",
+            );
       // The hand is taken from where the reach begins: before it a carrier's
       // arm and fingers stay its own.
       return AutoMovieMotionHumanArm.move({
@@ -393,13 +402,7 @@ export namespace catchObject {
             posture,
             back,
           );
-          if (pocket === undefined) return target;
-          corrected ??= AutoMovieMotionHumanArmTarget.prepareTarget(
-            body,
-            side,
-            "palm",
-            "relaxed",
-          );
+          if (corrected === undefined) return target;
           return corrected({
             ...target,
             point: pocketPoint(back, target.rotation),

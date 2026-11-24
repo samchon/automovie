@@ -318,15 +318,14 @@ export namespace throwObject {
       };
     };
     const prop: string | undefined = context.params.prop;
-    let gripOffset: IAutoMovieVector3 | undefined;
+    const gripOffset: IAutoMovieVector3 = {
+      ...HumanHand.offset(body, side, "grip", "relaxed").point,
+    };
     function wristAt(
       posture: IAutoMovieMotionHumanPosture,
       seconds: number,
     ): IAutoMovieMotionHumanHand.IWrist {
       const g: GripFrame = grip(posture, seconds);
-      gripOffset ??= {
-        ...HumanHand.offset(body, side, "grip", "relaxed").point,
-      };
       return placeHumanHandSurface(gripOffset, g.point, g.rotation);
     }
     const elbow: AutoMovieMotionHumanBendTrack.ITrack =

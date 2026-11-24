@@ -4,8 +4,8 @@ import { prepareHumanSampledCourse } from "./prepareHumanSampledCourse";
  * Prepare a sampled course split at given seconds: between two neighbouring
  * marks the value is its own knot course (`prepareHumanSampledCourse`) through
  * the knots inside that interval and its two ends, so a quantity whose rule
- * changes at a mark (a foot's pivot at its toe-off or its heel strike) is
- * never joined across it. A read takes the interval its second lies in.
+ * changes at a mark (a foot's pivot at its toe-off or its heel strike) is never
+ * joined across it. A read takes the interval its second lies in.
  *
  * @param duration The course's last second; the first is 0.
  * @param marks The seconds the course is split at.
@@ -40,7 +40,9 @@ export function prepareHumanSplitCourse(
       course: prepareHumanSampledCourse(
         [
           from,
-          ...knots.filter((t: number): boolean => t > from + gap && t < to - gap),
+          ...knots.filter(
+            (t: number): boolean => t > from + gap && t < to - gap,
+          ),
           to,
         ],
         sample,

@@ -15,8 +15,8 @@ import { TestValidator } from "@nestia/e2e";
  * named prop bearing on that prop.
  *
  * Scenarios, a 2 s climb (toe-off 0.2 s, tread contact 1 s) whose right foot
- * steps from the floor to level 1 of a flight of 0.17 m risers rising from
- * 0.05 m, the left foot staying on the floor:
+ * steps from the floor to level 1 of a flight of 0.17 m risers rising from 0.05
+ * m, the left foot staying on the floor:
  *
  * 1. The left foot bears on the floor over the whole climb.
  * 2. The right foot bears on the floor until 0.1 of the climb, then from 0.5 on

@@ -15,8 +15,8 @@ import { HumanRefusal } from "../law/HumanRefusal";
  * @param body The body's stature, upper arm radius and rest shoulders.
  * @param surface The lying surface, its depth the length and its width.
  * @param margin The room kept at the head, the feet and either side, metres.
- * @throws {HumanRefusal} On `length` for a surface too short, on `width`
- *   for one too narrow.
+ * @throws {HumanRefusal} On `length` for a surface too short, on `width` for
+ *   one too narrow.
  */
 export function lieOnSurfaceFits(
   body: lieOnSurfaceFits.IBody,

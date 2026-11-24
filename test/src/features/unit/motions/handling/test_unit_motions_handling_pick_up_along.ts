@@ -39,18 +39,33 @@ export function test_unit_motions_handling_pick_up_along(): void {
   const context: (along?: number) => pickUpAlong.IContext = (
     along?: number,
   ): pickUpAlong.IContext => ({
-    params: { prop: "cane", handle: "grip", ...(along === undefined ? {} : { along }) },
+    params: {
+      prop: "cane",
+      handle: "grip",
+      ...(along === undefined ? {} : { along }),
+    },
     prop: () => ({ prop: { affordances: [grip] } }),
   });
-  const target: Target = { point: { x: 0, y: 1, z: 0.3 }, axis: { x: 1, y: 0, z: 0 } };
+  const target: Target = {
+    point: { x: 0, y: 1, z: 0.3 },
+    axis: { x: 1, y: 0, z: 0 },
+  };
   TestValidator.predicate(
     "no share",
     pickUpAlong(context(), target) === target,
   );
   TestValidator.predicate(
     "along the band",
-    vclose(pickUpAlong(context(0.75), target).point, { x: 0.1, y: 1, z: 0.3 }, ROUNDING) &&
-      vclose(pickUpAlong(context(0), target).point, { x: -0.2, y: 1, z: 0.3 }, ROUNDING),
+    vclose(
+      pickUpAlong(context(0.75), target).point,
+      { x: 0.1, y: 1, z: 0.3 },
+      ROUNDING,
+    ) &&
+      vclose(
+        pickUpAlong(context(0), target).point,
+        { x: -0.2, y: 1, z: 0.3 },
+        ROUNDING,
+      ),
   );
   let refused: boolean = false;
   try {

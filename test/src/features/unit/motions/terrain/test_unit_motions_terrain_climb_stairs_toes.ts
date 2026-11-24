@@ -28,7 +28,8 @@ const ROUNDING: number = 1e-9;
  * Scenarios:
  *
  * 1. `place` with no extension keeps the scheduled foot; with 25 degrees it
- *    pitches the foot 25 degrees heel-up about its ball, which keeps its place.
+ *    pitches the foot 25 degrees heel-up about its ball, which keeps its
+ *    place.
  * 2. A one-step climb of 2 s (toe-off 0.2 s, tread contact 1 s), the right foot
  *    stepping, with a rocker whose extension is the hip's height in degrees and
  *    a frame whose hips stand at `10 t` for the right foot and `5 t` for the
@@ -78,7 +79,9 @@ export async function test_unit_motions_terrain_climb_stairs_toes(): Promise<voi
     joints: {},
     limbs: {},
   };
-  const at: (y: number) => IAutoMovieVector3 = (y: number): IAutoMovieVector3 => ({ x: 0, y, z: 0 });
+  const at: (y: number) => IAutoMovieVector3 = (
+    y: number,
+  ): IAutoMovieVector3 => ({ x: 0, y, z: 0 });
   const toes: ReturnType<typeof climbStairsToes> = climbStairsToes({
     duration: 2,
     clock: AutoMovieMotionClock(2, [

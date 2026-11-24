@@ -6,7 +6,7 @@ import type {
 import { TestValidator } from "@nestia/e2e";
 
 import { outwardBoxMesh } from "../internal/outwardBoxMesh";
-import { nclose, throwsError } from "../internal/predicates";
+import { nclose } from "../internal/predicates";
 
 /**
  * A winding query tells solid from empty space on closed, nearly closed,

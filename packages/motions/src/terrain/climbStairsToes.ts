@@ -1,6 +1,7 @@
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionClock,
+  IAutoMovieMotionEvent,
   IAutoMovieMotionHumanFoot,
   IAutoMovieMotionHumanPosture,
   IAutoMovieVector3,
@@ -20,9 +21,8 @@ import type { climbStairsRocker } from "./climbStairsRocker";
  * landed foot accepts weight. The rocker's heel-rise search runs only here, at
  * every toe-off and tread contact, the climb's two ends and the middle of each
  * interval between them, on the standing posture the climb writes over; each
- * foot's extension is read between them from a course split at its own
- * toe-offs and tread contacts (`prepareHumanSplitCourse`), so a read searches
- * nothing.
+ * foot's extension is read between them from a course split at its own toe-offs
+ * and tread contacts (`prepareHumanSplitCourse`), so a read searches nothing.
  *
  * @param scope The climb's clock, steps, frames, load and rocker.
  * @returns Each foot's toe extension at a second, degrees.
@@ -30,12 +30,21 @@ import type { climbStairsRocker } from "./climbStairsRocker";
 export function climbStairsToes(
   scope: climbStairsToes.IScope,
 ): Record<AutoMovieHumanSide, (seconds: number) => number[]> {
-  const { duration, clock, steps, frameAt, rightLoad, rock, standing }: climbStairsToes.IScope =
-    scope;
+  const {
+    duration,
+    clock,
+    steps,
+    frameAt,
+    rightLoad,
+    rock,
+    standing,
+  }: climbStairsToes.IScope = scope;
   const events: number[] = [
     0,
     duration,
-    ...clock.events().map((e: { seconds: number }): number => e.seconds),
+    ...clock
+      .events()
+      .map((e: IAutoMovieMotionEvent): number => e.share * duration),
   ]
     .filter((s: number): boolean => s >= 0 && s <= duration)
     .sort((a: number, b: number): number => a - b);
@@ -62,10 +71,11 @@ export function climbStairsToes(
   ): ((s: number) => number[]) =>
     prepareHumanSplitCourse(
       duration,
-      steps.flatMap((step: { side: AutoMovieHumanSide }, j: number): number[] =>
-        step.side === side
-          ? [clock.at(`toeOff${j + 1}`), clock.at(`treadContact${j + 1}`)]
-          : [],
+      steps.flatMap(
+        (step: { side: AutoMovieHumanSide }, j: number): number[] =>
+          step.side === side
+            ? [clock.at(`toeOff${j + 1}`), clock.at(`treadContact${j + 1}`)]
+            : [],
       ),
       knots,
       (s: number): number[] => [flexion(side, s)],

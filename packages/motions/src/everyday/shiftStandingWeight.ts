@@ -24,7 +24,6 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanBalance } from "./HumanBalance";
 import { shiftStandingWeightSteps } from "./shiftStandingWeightSteps";
 
-
 /**
  * An intentional lateral pelvis shift with both feet planted on the ground.
  * Time to shift, time to hold, and optional time to return are authored
@@ -124,7 +123,10 @@ function plan(
     );
     if (
       HumanBalance.margin(context.body, posture) >= 0 &&
-      shiftStandingWeightSteps.plants(bones.get("leftFoot")!, entry.feet.left) &&
+      shiftStandingWeightSteps.plants(
+        bones.get("leftFoot")!,
+        entry.feet.left,
+      ) &&
       shiftStandingWeightSteps.plants(bones.get("rightFoot")!, entry.feet.right)
     )
       continue;

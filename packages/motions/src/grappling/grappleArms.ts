@@ -17,6 +17,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { AutoMovieMotionPrepared } from "../compose/AutoMovieMotionPrepared";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanArmTarget } from "../compose/AutoMovieMotionHumanArmTarget";
@@ -285,11 +286,9 @@ export function grappleArms(
   // states the least seconds the action needs at its pace, and the return,
   // the one phase no partner's beat fixes, is stretched by that ratio within
   // the scene.
-  let coursed: IAutoMovieMotionHumanActionPlan | undefined;
-  const course = (): IAutoMovieMotionHumanActionPlan => {
-    if (coursed !== undefined) return coursed;
+  const laid = (): IAutoMovieMotionHumanActionPlan => {
     try {
-      coursed = lay(rest);
+      return lay(rest);
     } catch (error: unknown) {
       const end: number | undefined = grappleArms.stretched(
         error,
@@ -298,20 +297,24 @@ export function grappleArms(
         rest,
       );
       if (end === undefined) throw error;
-      coursed = lay(end);
+      return lay(end);
     }
-    return coursed;
   };
+  // The course is laid when the plan is prepared; a read before lays it
+  // afresh and keeps nothing.
+  const coursed: AutoMovieMotionPrepared.IValue<IAutoMovieMotionHumanActionPlan> =
+    AutoMovieMotionPrepared(laid);
   const plan: IAutoMovieMotionHumanActionPlan = {
     ...floor,
     posture: (
       ...args: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>
     ): IAutoMovieMotionHumanPosture =>
-      sides.length === 0 ? base.posture(...args) : course().posture(...args),
+      sides.length === 0
+        ? base.posture(...args)
+        : coursed.read().posture(...args),
     prepare: (): void => {
       floor.prepare?.();
-      coursed = undefined;
-      if (sides.length !== 0) course().prepare?.();
+      if (sides.length !== 0) coursed.prepare().prepare?.();
     },
     goals,
   };

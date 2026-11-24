@@ -2,11 +2,7 @@ import { validateAutoMovieMaterialSubstance } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 import { substance } from "../internal/materialFixtures";
-import {
-  hasViolation,
-  namedFacts,
-  violationCount,
-} from "../internal/predicates";
+import { hasViolation, namedFacts } from "../internal/predicates";
 
 const judge: (
   overrides: Parameters<typeof substance>[1],
@@ -20,7 +16,10 @@ const judge: (
 /**
  * A substance record is the production's to fill and the engine's to bound.
  *
- * The fixture authors classification, optional measured properties and surface identity. Null means unmeasured; finite physical bounds distinguish missing information from values a later thermal or acoustic calculation cannot consume.
+ * The fixture authors classification, optional measured properties and surface
+ * identity. Null means unmeasured; finite physical bounds distinguish missing
+ * information from values a later thermal or acoustic calculation cannot
+ * consume.
  *
  * Scenarios:
  *
@@ -36,7 +35,8 @@ const judge: (
  *    zero and above one, vapour resistance below still air, and a service life
  *    of zero. Closed bounds accept their endpoints; the populated record
  *    supplies positive specific-heat and service-life examples.
- * 5. Infinite density and NaN conductivity, absorption and specific heat are refused; the isolated specific-heat case produces one finding.
+ * 5. Infinite density and NaN conductivity, absorption and specific heat are
+ *    refused; the isolated specific-heat case produces one finding.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the real substance validator and observes success or the located type/range violation, catching lost bounds, blank identity admission and incorrect rejection of null measurements.
  * @evidence contracts/development/testing.md#independent-expectations Expected domains are positive density, specific heat and service life, nonnegative conductivity, absorption within [0, 1] and resistance relative to still air at least one. The hand-authored quantities are conventional test inputs rather than measurements or a material catalogue.

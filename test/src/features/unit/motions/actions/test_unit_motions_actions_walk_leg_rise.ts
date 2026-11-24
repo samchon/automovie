@@ -14,10 +14,11 @@ const WIDTH: number = 10;
  * runs out: the asked pitch is kept while its room is `width` or more, and
  * otherwise the pitch keeping the smooth maximum of that room and none
  * (`-smoothMinimum(-room, 0, width)`, the polynomial smooth minimum `min(a, b)
- * - h^2 w / 4` with `h = max(w - |a - b|, 0) / w`) is bracketed; a rule that
- * may fold eases onto it by the minimum-jerk share of `(width - room) /
- * width`; an asked pitch the leg cannot stand on is first raised to the least
- * standable one.
+ *
+ * - H^2 w / 4`with`h = max(w - |a - b|, 0) / w`) is bracketed; a rule that may
+ *   fold eases onto it by the minimum-jerk share of `(width - room) / width`;
+ *   an asked pitch the leg cannot stand on is first raised to the least
+ *   standable one.
  *
  * Scenarios, a room that grows one degree for each degree the heel rises
  * (`room(d) = r - d` from an asked pitch of 0), width 10:
@@ -35,7 +36,11 @@ export function test_unit_motions_actions_walk_leg_rise(): void {
     (r: number): ((d: number) => number) =>
     (d: number): number =>
       r - d;
-  TestValidator.equals("room enough", walkLegRise(room(12), 0, WIDTH, false), 0);
+  TestValidator.equals(
+    "room enough",
+    walkLegRise(room(12), 0, WIDTH, false),
+    0,
+  );
   TestValidator.predicate(
     "a short room",
     nclose(walkLegRise(room(4), 0, WIDTH, false), -0.9, BRACKET),

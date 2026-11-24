@@ -3,17 +3,17 @@ import { HumanRefusal, jumpLandingHeading } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `jumpLandingHeading` turns a jump's two-foot landing by its twist's
- * fraction: whole twists land facing the flight's heading, a fractional twist
- * lands turned by that fraction of a turn on the level floor, a fractional
- * somersault cannot land upright, and a fractional twist onto a raised point
- * or a prop has no room for both turned footprints.
+ * `jumpLandingHeading` turns a jump's two-foot landing by its twist's fraction:
+ * whole twists land facing the flight's heading, a fractional twist lands
+ * turned by that fraction of a turn on the level floor, a fractional somersault
+ * cannot land upright, and a fractional twist onto a raised point or a prop has
+ * no room for both turned footprints.
  *
  * Scenarios, the flight heading 37 degrees toward a floor point:
  *
  * 1. Two whole twists land at 37 degrees.
- * 2. 2¼ twists land at 37 + 90 = 127 degrees; one somersault with half a twist
- *    at 37 + 180 = 217.
+ * 2. 2¼ twists land at 37 + 90 = 127 degrees; one somersault with half a twist at
+ *    37 + 180 = 217.
  * 3. Half a somersault is refused on `turns`.
  * 4. A ¼ twist onto a point 0.3 m up is refused on `to`, onto a named prop on
  *    `on`.

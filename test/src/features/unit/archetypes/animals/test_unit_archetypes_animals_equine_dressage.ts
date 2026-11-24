@@ -74,22 +74,24 @@ export function test_unit_archetypes_animals_equine_dressage(): void {
   const issues: string[] = [];
 
   // 1. Lateral figures, mirrored.
-  const figures: readonly Technique[] = (["left", "right"] as const).flatMap(
-    (toward: Side): Technique[] => [
-      { kind: "leg-yield", toward, angle: 30, blend: 0.8 },
-      { kind: "half-pass", toward, angle: 30, blend: 0.8 },
-      { kind: "shoulder-in", toward, blend: 0.8 },
-    ],
-  );
-  for (const figure of figures) {
+  // Each figure with the side and the angle it was built with; shoulder-in
+  // states no angle, so its own held offset is the expectation.
+  const figures: readonly {
+    figure: Technique;
+    toward: Side;
+    angle: number | null;
+  }[] = (["left", "right"] as const).flatMap((toward: Side) => [
+    { figure: { kind: "leg-yield", toward, angle: 30, blend: 0.8 }, toward, angle: 30 },
+    { figure: { kind: "half-pass", toward, angle: 30, blend: 0.8 }, toward, angle: 30 },
+    { figure: { kind: "shoulder-in", toward, blend: 0.8 }, toward, angle: null },
+  ]);
+  for (const { figure, toward, angle } of figures) {
     const take: IFigureTake = lateral(horse, figure);
-    const toward: Side = "toward" in figure ? figure.toward : "left";
     const label: string = `${figure.kind} toward ${toward}`;
     const offsets: number[] = [];
     for (let at: number = take.from; at <= take.to; at += 0.1)
       offsets.push(heading(take.ride, at));
-    const expected: number =
-      "angle" in figure ? figure.angle : Math.abs(offsets[0]!);
+    const expected: number = angle ?? Math.abs(offsets[0]!);
     const sign: number = toward === "left" ? -1 : 1;
     if (
       offsets.some(

@@ -1,20 +1,20 @@
-import { validateBuiltEnvironment } from "@automovie/engine";
 import type {
   IAutoMovieBuiltEnvironment,
   IAutoMovieBuiltPopulation,
-  IAutoMovieConstraintViolation,
   IAutoMovieInstanceSetDesign,
-  IAutoMovieValidation,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { hasViolation, namedFacts } from "./predicates";
+import { namedFacts } from "./predicates";
 
-/** Execute the next ordered assertions of test_architecture_built_population_refusals.
+/**
+ * Execute the next ordered assertions of
+ * test_architecture_built_population_refusals.
  *
  * Scenarios:
- * 1. a grid's own lattice is checked, capacity included.
- * 2. a lattice's extra axis is checked with the rest.
+ *
+ * 1. A grid's own lattice is checked, capacity included.
+ * 2. A lattice's extra axis is checked with the rest.
  *
  * @evidence contracts/development/testing.md#behavioral-verification This ordered part owns "a grid's own lattice is checked, capacity included"; "a lattice's extra axis is checked with the rest". It executes the existing product assertions or supplies their authored inputs and returns only values needed by the next part; the discoverable parent entry owns completion of the whole scenario.
  * @evidence contracts/development/testing.md#independent-expectations Literal mutations require their authored field paths: rows zero, X spacing zero, Z spacing NaN and insufficient grid capacity; columns NaN must not add the whole-layout capacity path. Lattice capacity 2*2*2 is smaller than count 9 independently of expanded slots or returned bounds.

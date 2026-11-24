@@ -78,7 +78,7 @@ export function test_unit_archetypes_animals_animal_equine_ears(): void {
       const params: createQuadruped.IParams = { ...row.params, tack };
       const beforeParams: string = JSON.stringify(params);
       for (let seed: number = 0; seed < 200; seed++) {
-        const label: string = `${params.kind}/${"sex" in params ? params.sex : "reference"}/${tack}/${seed}`;
+        const label: string = `${JSON.stringify(row.params)}/${tack}/${seed}`;
         try {
           const model: Ear.Model = createQuadruped(params, seed);
           const before: string = JSON.stringify(model);

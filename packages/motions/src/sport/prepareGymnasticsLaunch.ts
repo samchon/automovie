@@ -32,7 +32,19 @@ export function prepareGymnasticsLaunch(
   body: IAutoMovieMotionHumanBody,
   model: IAutoMovieResolveCenterOfMass.IModel,
 ): (plan: IAutoMovieMotionHumanActionPlan, seconds: number) => ILaunch {
-  let readBones: ReturnType<typeof poseBones.prepare> | undefined;
+  // The bones the centre of mass reads: the colliders' for the body's own
+  // mass model, else every segment's.
+  const readBones: ReturnType<typeof poseBones.prepare> = poseBones.prepare(
+    body,
+    model === body.massModel
+      ? HumanColliders.bones(body)
+      : new Set<AutoMovieHumanoidBone>(
+          model.segments.map(
+            (segment: IAutoMovieResolveCenterOfMass.IModel["segments"][number]): AutoMovieHumanoidBone =>
+              segment.bone,
+          ),
+        ),
+  );
   return (plan: IAutoMovieMotionHumanActionPlan, seconds: number): ILaunch => {
     const delta: number = 1e-3;
     const resolution: ReturnType<typeof prepareHumanPoseResolution> =
@@ -48,15 +60,6 @@ export function prepareGymnasticsLaunch(
         resolution,
         projection,
       );
-      let requested: ReadonlySet<AutoMovieHumanoidBone> | undefined;
-      if (readBones === undefined) {
-        if (model === body.massModel) requested = HumanColliders.bones(body);
-        else {
-          const massBones: Set<AutoMovieHumanoidBone> = new Set();
-          for (const segment of model.segments) massBones.add(segment.bone);
-          requested = massBones;
-        }
-      }
       const pose: IAutoMoviePose = resolveHumanPosture.seeded(
         body,
         raw,
@@ -66,8 +69,6 @@ export function prepareGymnasticsLaunch(
         undefined,
         projection,
       ).pose;
-      if (readBones === undefined)
-        readBones = poseBones.prepare(body, requested!);
       return resolveAutoMovieCenterOfMass.place(
         model,
         readBones(pose, resolution()),

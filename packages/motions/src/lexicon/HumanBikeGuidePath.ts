@@ -68,7 +68,7 @@ export namespace HumanBikeGuidePath {
         )
           ends.push(path.distances[still]!);
         still = undefined;
-      } else still ??= i - 1;
+      } else if (still === undefined) still = i - 1;
     }
     ends.push(path.distances.at(-1)!);
     return ends;

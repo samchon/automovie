@@ -18,6 +18,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { AutoMovieMotionPrepared } from "../compose/AutoMovieMotionPrepared";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanLeg } from "../compose/AutoMovieMotionHumanLeg";
 import { courseArmGoal } from "../compose/courseArmGoal";
@@ -263,11 +264,10 @@ function planHumanBikeGuide(
   // The near hand's hold rides the athlete's own pelvis: the grip on
   // the bicycle is read once, where the hand takes it, and kept in the
   // pelvis frame, so the hand goes with the walk without reading the
-  // bicycle at a later second.
-  let taken: IAutoMovieHumanLimbGoal | undefined;
-  const holding: () => IAutoMovieHumanLimbGoal =
-    (): IAutoMovieHumanLimbGoal => {
-      if (taken !== undefined) return taken;
+  // bicycle at a later second. It is solved when the plan is prepared, on
+  // the bicycle as the placed performance shows it.
+  const taken: AutoMovieMotionPrepared.IValue<IAutoMovieHumanLimbGoal> =
+    AutoMovieMotionPrepared((): IAutoMovieHumanLimbGoal => {
       const at: IAutoMovieMotionHumanPosture = bodyAt(REACH);
       const world: IAutoMovieHumanLimbGoal = AquaticProp.hold(
         body,
@@ -286,15 +286,14 @@ function planHumanBikeGuide(
           inverse,
           Vector3.subtract(point, pelvis.worldPosition),
         );
-      taken = {
+      return {
         ...world,
         on: "hips",
         point: local(world.point),
         bend: local(world.bend!),
         rotation: Quaternion.multiply(inverse, world.rotation!),
       };
-      return taken;
-    };
+    });
   // The body at a second, without the near arm's goal.
   const bodyAt: (seconds: number) => IAutoMovieMotionHumanPosture = (
     seconds: number,
@@ -359,9 +358,10 @@ function planHumanBikeGuide(
     contacts,
     posture: (seconds: number): IAutoMovieMotionHumanPosture => {
       const posture: IAutoMovieMotionHumanPosture = bodyAt(seconds);
-      posture.limbs[`${side}Arm`] = holding();
+      posture.limbs[`${side}Arm`] = taken.read();
       return posture;
     },
+    prepare: (): void => void taken.prepare(),
   };
   const pelvisAt: (
     posture: IAutoMovieMotionHumanPosture,

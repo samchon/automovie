@@ -10,8 +10,8 @@ const ROUNDING: number = 1e-12;
 /**
  * `walk.FROUDE` is each pace's Froude number, the speed `sqrt(Fr g l)` at the
  * reference hip `l` (`walkRoot.REFERENCE_HIP`): the slow and fast outdoor paces
- * of healthy adults, 0.82 and 1.72 m/s (Murtagh et al. 2021), and the
- * metabolic optimum 0.25 for the normal pace (PMID 21653821).
+ * of healthy adults, 0.82 and 1.72 m/s (Murtagh et al. 2021), and the metabolic
+ * optimum 0.25 for the normal pace (PMID 21653821).
  *
  * Scenarios:
  *
@@ -22,8 +22,14 @@ const ROUNDING: number = 1e-12;
 export function test_unit_motions_actions_walk_froude(): void {
   const speed: (froude: number) => number = (froude: number): number =>
     Math.sqrt(froude * AutoMovieGravity.STANDARD * walkRoot.REFERENCE_HIP);
-  TestValidator.predicate("slow", nclose(speed(walk.FROUDE.slow), 0.82, ROUNDING));
-  TestValidator.predicate("fast", nclose(speed(walk.FROUDE.fast), 1.72, ROUNDING));
+  TestValidator.predicate(
+    "slow",
+    nclose(speed(walk.FROUDE.slow), 0.82, ROUNDING),
+  );
+  TestValidator.predicate(
+    "fast",
+    nclose(speed(walk.FROUDE.fast), 1.72, ROUNDING),
+  );
   TestValidator.predicate(
     "normal",
     walk.FROUDE.normal === 0.25 &&

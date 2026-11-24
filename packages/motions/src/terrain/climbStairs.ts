@@ -40,13 +40,13 @@ import { climbStairsCarry } from "./climbStairsCarry";
 import { climbStairsFeet } from "./climbStairsFeet";
 import { climbStairsFlight } from "./climbStairsFlight";
 import { climbStairsPelvis } from "./climbStairsPelvis";
+import { climbStairsPlants } from "./climbStairsPlants";
 import { climbStairsPrints } from "./climbStairsPrints";
 import { climbStairsProfile } from "./climbStairsProfile";
 import { climbStairsRail } from "./climbStairsRail";
-import { climbStairsPlants } from "./climbStairsPlants";
 import { climbStairsRocker } from "./climbStairsRocker";
-import { climbStairsToes } from "./climbStairsToes";
 import { climbStairsSwing } from "./climbStairsSwing";
+import { climbStairsToes } from "./climbStairsToes";
 import { climbStairsWeight } from "./climbStairsWeight";
 
 /**
@@ -392,7 +392,15 @@ export namespace climbStairs {
       return { placed, feet, root, hips };
     };
     const flexions: Record<AutoMovieHumanSide, (seconds: number) => number[]> =
-      climbStairsToes({ duration, clock, steps, frameAt, rightLoad, rock, standing });
+      climbStairsToes({
+        duration,
+        clock,
+        steps,
+        frameAt,
+        rightLoad,
+        rock,
+        standing,
+      });
     const climb: IAutoMovieMotionHumanPrimitive = {
       channels: ["root", "trunk", "leftLeg", "rightLeg"],
       reads: ["root", "trunk", "leftLeg", "rightLeg"],

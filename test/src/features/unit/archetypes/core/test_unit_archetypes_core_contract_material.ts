@@ -104,7 +104,7 @@ export function test_unit_archetypes_core_contract_material(): void {
     const body: AutoMovieArchetype = build(material);
     if (
       body.physicalMaterial !== material ||
-      "restitution" in body.body ||
+      body.body.restitution !== undefined ||
       !validateModel({ model: body }).success
     )
       findings.push(

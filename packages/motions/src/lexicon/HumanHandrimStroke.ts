@@ -45,9 +45,9 @@ interface IHand {
   side: AutoMovieHumanSide;
   /** Read the rim's material point at an action second. */
   gripAt: (at: number, frame: IAutoMovieRigidTransform) => Grip;
-  /** Cached catch grip in the chair's catch placement. */
+  /** The catch grip in the chair's catch placement, solved with the plan. */
   caught: Grip;
-  /** Cached release grip in the chair's release placement. */
+  /** The release grip in the chair's release placement, solved with the plan. */
   released: Grip;
   /** The radius of the declared rim in metres. */
   radius: number;

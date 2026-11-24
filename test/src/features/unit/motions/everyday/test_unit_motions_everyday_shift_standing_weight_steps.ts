@@ -14,11 +14,11 @@ import { TestValidator } from "@nestia/e2e";
  *
  * Scenarios, an entry ankle at (0.1, 0.08, 0) facing +Z:
  *
- * 1. The foot as entered keeps its plant; 2 mm off it still does, 4 mm off it
- *    does not.
+ * 1. The foot as entered keeps its plant; 2 mm off it still does, 4 mm off it does
+ *    not.
  * 2. Turned 0.4 degrees it keeps its plant; turned 0.6 it does not.
- * 3. A held shift of 0.8 s is `shifted` at 0.8 s; one that holds 0.5 s and
- *    returns over 0.6 s releases at 1.3 s and returns at 1.9 s.
+ * 3. A held shift of 0.8 s is `shifted` at 0.8 s; one that holds 0.5 s and returns
+ *    over 0.6 s releases at 1.3 s and returns at 1.9 s.
  */
 export function test_unit_motions_everyday_shift_standing_weight_steps(): void {
   const ankle: IAutoMovieVector3 = { x: 0.1, y: 0.08, z: 0 };
@@ -62,7 +62,7 @@ export function test_unit_motions_everyday_shift_standing_weight_steps(): void {
       [
         { name: "shifted", seconds: 0.8 },
         { name: "release", seconds: 1.3 },
-        { name: "returned", seconds: 1.9000000000000001 },
+        { name: "returned", seconds: 0.8 + 0.5 + 0.6 },
       ],
     ],
   );

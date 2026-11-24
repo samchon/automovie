@@ -3,7 +3,6 @@ import {
   buildAutoMovieWall,
   extrudeAutoMovieProfile,
   inspectAutoMovieMeshTopology,
-  mergeAutoMovieMeshParts,
   transformAutoMovieMesh,
 } from "@automovie/engine";
 import {

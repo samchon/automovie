@@ -13,16 +13,19 @@ import { TestValidator } from "@nestia/e2e";
  *    refused on `surface`.
  */
 export function test_unit_motions_floor_lie_on_surface_site(): void {
-  const site = (id: string, kind: "seat" | "surface"): IAutoMovieAffordance => ({
-      id,
-      kind,
-      frame: {
-        translation: { x: 0, y: 0.5, z: 0 },
-        rotation: { x: 0, y: 0, z: 0, w: 1 },
-        scale: { x: 1, y: 1, z: 1 },
-      },
-      extent: null,
-    });
+  const site = (
+    id: string,
+    kind: "seat" | "surface",
+  ): IAutoMovieAffordance => ({
+    id,
+    kind,
+    frame: {
+      translation: { x: 0, y: 0.5, z: 0 },
+      rotation: { x: 0, y: 0, z: 0, w: 1 },
+      scale: { x: 1, y: 1, z: 1 },
+    },
+    extent: null,
+  });
   const seat: IAutoMovieAffordance = site("leftSide", "seat");
   const surface: IAutoMovieAffordance = site("mattress", "surface");
   const reader: Parameters<typeof lieOnSurfaceSite>[0] = {
@@ -33,7 +36,10 @@ export function test_unit_motions_floor_lie_on_surface_site(): void {
     lieOnSurfaceSite(reader, "leftSide", "seat") === seat &&
       lieOnSurfaceSite(reader, "mattress", "surface") === surface,
   );
-  const refused = (id: string, kind: "seat" | "surface"): string | undefined => {
+  const refused = (
+    id: string,
+    kind: "seat" | "surface",
+  ): string | undefined => {
     try {
       lieOnSurfaceSite(reader, id, kind);
     } catch (error: unknown) {

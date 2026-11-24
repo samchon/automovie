@@ -1,19 +1,24 @@
 import { validateBuiltEnvironment } from "@automovie/engine";
-import type {
-  IAutoMovieSpaceShell,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import type { IAutoMovieSpaceShell } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { builtSpaceShellTestBoxShell as boxShell } from "./builtSpaceShellTestBoxShell";
 import { builtSpaceShellTestWork as work } from "./builtSpaceShellTestWork";
 import { hasViolation, namedFacts } from "./predicates";
 
-/** Validate the existing whole, malformed and inward box shell cases.
+/**
+ * Validate the existing whole, malformed and inward box shell cases.
  *
- * Run the actual built-environment validator on the existing whole, malformed and inward shell cases. Its assertions must complete through the existing parent entry.
- * A watertight outward cube is valid; schema index ranges, nondegenerate facets, paired edges and signed outward orientation independently determine located type/range failures. The helper requires the shell path but permits other validation findings.
- * Whole cube contrasts with simultaneous spellings, too few vertices/faces, ragged/fractional/unknown indices, repeated/degenerate facets, unmatched edges, inward winding and a nonfinite vertex. The parent owns point containment, volume and drawing behavior.
+ * Run the actual built-environment validator on the existing whole, malformed
+ * and inward shell cases. Its assertions must complete through the existing
+ * parent entry. A watertight outward cube is valid; schema index ranges,
+ * nondegenerate facets, paired edges and signed outward orientation
+ * independently determine located type/range failures. The helper requires the
+ * shell path but permits other validation findings. Whole cube contrasts with
+ * simultaneous spellings, too few vertices/faces, ragged/fractional/unknown
+ * indices, repeated/degenerate facets, unmatched edges, inward winding and a
+ * nonfinite vertex. The parent owns point containment, volume and drawing
+ * behavior.
  */
 export const assertBuiltSpaceShellTestRefusals: (
   cube: IAutoMovieSpaceShell,

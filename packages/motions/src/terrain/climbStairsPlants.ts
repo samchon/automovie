@@ -13,8 +13,8 @@ import type {
  * @param prints Each foot's prints in order, with the step that brings it.
  * @param clock The climb's clock.
  * @param duration The climb's length, seconds.
- * @param flight The flight's floor height, its riser, its direction's sign
- *   and the prop it belongs to.
+ * @param flight The flight's floor height, its riser, its direction's sign and
+ *   the prop it belongs to.
  * @returns The plant windows, as shares of the climb.
  */
 export function climbStairsPlants(

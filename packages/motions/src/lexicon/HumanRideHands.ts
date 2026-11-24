@@ -1,5 +1,4 @@
 import {
-  AutoMovieHumanoidSurfaceRays,
   Quaternion,
   type RigidCarrierSample,
   Vector3,
@@ -105,6 +104,10 @@ export function HumanRideHands(
   const holding: AutoMovieHumanSide[] = (["left", "right"] as const).filter(
     (side: AutoMovieHumanSide): boolean => handles[side] !== undefined,
   );
+
+  // Each round riding handle's palm depth on a fixed seat, measured once.
+  measureRidePalmDepth.handles(context.body, handles, holding, fixedSeat);
+
   const reach: (
     points: Partial<Record<AutoMovieHumanSide, IAutoMovieVector3>>,
   ) => number = HumanMountReach.reach(
@@ -127,9 +130,6 @@ export function HumanRideHands(
       : fixedSeatGripReach(context.body, seated, seat, origin);
 
   // What a hand holds, where the support has it at a film second: the point and its normal, and the axis a handle is wrapped about, its frame's +X, carried with the support.
-  let surfaces:
-    | ReturnType<typeof AutoMovieHumanoidSurfaceRays.tools>
-    | undefined;
   const gripAt = (
     held: HumanRideHands.IHandle,
     film: number,
@@ -162,15 +162,6 @@ export function HumanRideHands(
       affordance.rides !== undefined &&
       affordance.symmetry === "round" &&
       affordance.aperture !== undefined;
-    if (material && held.palmDepth === undefined) {
-      // Measure the same longitudinal station the holding law authors, at the
-      // skin of this hand. The shape stays in its rest frame throughout a ride.
-      surfaces ??= AutoMovieHumanoidSurfaceRays.tools(
-        context.body.skeleton,
-        context.body.profile,
-      );
-      held.palmDepth = measureRidePalmDepth(context.body, held.side, surfaces);
-    }
     return {
       ...(material ? { palmDepth: held.palmDepth } : {}),
       ...(held.reinPalm === undefined ? {} : { reinPalm: held.reinPalm }),
@@ -306,15 +297,27 @@ export function HumanRideHands(
     if (across[side] !== undefined)
       begun[side] = { ...begun[side]!, across: across[side] };
   // The angle each rein crosses its palm at, chosen once where the hold begins (`crossRideReinGrip`), kept by its handle for every second after.
-  let reaching: IAutoMovieMotionHumanPosture | undefined;
+  // The lean the reins are crossed on, read where the hold begins.
+  const reaching: IAutoMovieMotionHumanPosture | undefined = holding.some(
+    (side: AutoMovieHumanSide): boolean =>
+      handles[side]!.reinPalm !== undefined &&
+      begun[side]?.axis !== undefined,
+  )
+    ? bow(lean(begun, origin))
+    : undefined;
   for (const side of holding) {
     const handle: HumanRideHands.IHandle = handles[side]!;
     const grip: HumanRideHands.IMaterialGrip | undefined = begun[side];
-    if (handle.reinPalm === undefined || grip?.axis === undefined) continue;
+    if (
+      handle.reinPalm === undefined ||
+      grip?.axis === undefined ||
+      reaching === undefined
+    )
+      continue;
     handle.cross = crossRideReinGrip(
       context.body,
       side,
-      (reaching ??= bow(lean(begun, origin))),
+      reaching,
       grip,
       handle.reinPalm,
       shown?.holding.has(side) === true ? shown : undefined,

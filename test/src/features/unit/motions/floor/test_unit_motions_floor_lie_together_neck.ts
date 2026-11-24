@@ -16,8 +16,8 @@ const ROUNDING: number = 1e-12;
  * degrees of flexion:
  *
  * 1. At weight 0 the joints keep what they held.
- * 2. At weight 0.5 the neck and head together add 10 degrees of flexion and 5
- *    of tilt.
+ * 2. At weight 0.5 the neck and head together add 10 degrees of flexion and 5 of
+ *    tilt.
  */
 export function test_unit_motions_floor_lie_together_neck(): void {
   const posture: IAutoMovieMotionHumanPosture = {

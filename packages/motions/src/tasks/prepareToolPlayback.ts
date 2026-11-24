@@ -49,13 +49,6 @@ export function prepareToolPlayback(props: IPrepareToolPlaybackProps): void {
     Object.is(posture.yaw, frame.yaw) &&
     Object.is(posture.pitch, frame.pitch) &&
     Object.is(posture.roll, frame.roll);
-  const profile: typeof body.profile = body.profile;
-  const upperArm: number = body.measure.upperArm;
-  const shoulder: IAutoMovieVector3 | undefined = body.rest.get(
-    `${side}UpperArm`,
-  );
-  if (shoulder === undefined) return;
-  const rest: IAutoMovieVector3 = { ...shoulder };
 
   let bends: ReturnType<typeof AutoMovieMotionHumanBend.prepare> | undefined;
   let fixed: IAutoMovieMotionHumanArmTarget.ITarget | undefined;
@@ -73,23 +66,11 @@ export function prepareToolPlayback(props: IPrepareToolPlaybackProps): void {
     },
   );
   /** The public writer reads all authored channels before retaining digits. */
-  const sample: IAutoMovieMotionHumanPlayback.IPhase["sample"] = (...args) => {
-    const current: IAutoMovieVector3 | undefined = body.rest.get(
-      `${side}UpperArm`,
-    );
-    if (
-      body.profile !== profile ||
-      !Object.is(body.measure.upperArm, upperArm) ||
-      current === undefined ||
-      !Object.is(current.x, rest.x) ||
-      !Object.is(current.y, rest.y) ||
-      !Object.is(current.z, rest.z)
-    )
-      return undefined;
-    return {
-      posture: finish(prepared.posture(args[0], undefined, args[2], args[3])),
-    };
-  };
+  const sample: IAutoMovieMotionHumanPlayback.IPhase["sample"] = (
+    ...args: Parameters<IAutoMovieMotionHumanPlayback.IPhase["sample"]>
+  ): IAutoMovieMotionHumanPlayback.ISample => ({
+    posture: finish(prepared.posture(args[0], undefined, args[2], args[3])),
+  });
   HumanPreparedPlayback.attach(plan, body, {
     mode: "posture",
     prepare: (): void => {

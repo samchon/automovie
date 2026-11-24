@@ -29,8 +29,8 @@ import { HumanRefusal } from "../law/HumanRefusal";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { HumanTrunk } from "./HumanTrunk";
 import { bendLower } from "./bendLower";
-import { crouchAngles } from "./crouchAngles";
 import { braceOnThigh } from "./braceOnThigh";
+import { crouchAngles } from "./crouchAngles";
 import { crouchLegs } from "./crouchLegs";
 import { prepareHumanTrunkBalance } from "./prepareHumanTrunkBalance";
 
