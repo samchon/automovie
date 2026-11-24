@@ -8,22 +8,24 @@ import {
 import { TestValidator } from "@nestia/e2e";
 
 import { makeRng } from "../internal/makeRng";
-import { namedFacts, throwsError } from "../internal/predicates";
+import { namedFacts, nclose, throwsError } from "../internal/predicates";
 
 /** One noise sampler, either dimension, taking a point as an array. */
 type Sampler = (point: readonly number[]) => number;
 
 /**
  * Seeded gradient noise in two and three dimensions, and its fractal sum, is
- * deterministic, bounded, zero on the lattice, continuous, aperiodic over 256
- * cells, defined for negative coordinates, and refuses inputs by name.
+ * deterministic, bounded, scaled to its bound, normalized, zero on the lattice,
+ * continuous, aperiodic over 256 cells, defined for negative coordinates, and
+ * refuses inputs by name.
  *
  * Scenarios:
  *
  * 1. The same seed and point repeat the value; a second seed differs at every
  *    point of a 16 by 16 off-lattice grid.
  * 2. Over 10,000 seeded points in [-1000, 1000], single-octave and 4-octave
- *    fractal values lie in [-1, 1].
+ *    fractal values lie strictly inside (-1, 1), so the clamp that absorbs
+ *    rounding never engages.
  * 3. Single-octave values at 1,000 integer lattice points are exactly zero.
  * 4. At 1,000 seeded points, a 1e-6 step in a seeded direction changes
  *    single-octave and fractal values by under 1e-4.
@@ -34,12 +36,17 @@ type Sampler = (point: readonly number[]) => number;
  * 7. A non-finite coordinate, a coordinate one cell past the bound, octaves 0 or
  *    2.5, and roughness 0 or 1 throw naming the parameter; a coordinate on the
  *    bound is accepted.
+ * 8. At 100 seeded integer lattice points, the single-octave value's slope, read
+ *    by a central difference of 1e-5 cells, is sqrt(2) in two dimensions and 2
+ *    / sqrt(3) in three, within 1e-6.
+ * 9. At 1,000 seeded points on the half-cell lattice, the 4-octave fractal value
+ *    times 1 + 0.5 + 0.25 + 0.125 equals the single-octave value within 1e-12.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Calls the public engine noise samplers and observes their values: repetition, seed sensitivity, range, lattice zeros, step continuity, the 256-cell difference and the named refusals catch a table-driven period, a missing normalization, a non-interpolating blend, a signed-index failure and silent acceptance of bad parameters.
- * @evidence contracts/development/testing.md#independent-expectations The range [-1, 1], zeros on the lattice, the octave and roughness domains and the domain bounds 2^25 and 2^16 are the documented contract; 1e-4 per 1e-6 step allows a slope of 100 lattice units, far above any quintic-blended unit-gradient octave sum of four; 0.1 mean difference over 64 off-lattice points separates an aperiodic lattice from a 256-periodic table, which gives zero.
- * @evidence contracts/development/testing.md#distinguishing-cases Covers both dimensions, single and fractal forms, positive and negative coordinates, points on and across the zero planes, a lattice point, the bound and one cell past it, and each refused parameter; terrain and rock consumers own their own shapes.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the public engine noise samplers and observes their values: repetition, seed sensitivity, the strict range, lattice zeros, step continuity, the 256-cell difference, the named refusals, the lattice slope and the half-cell fractal sum. The lattice slope catches a missing or wrong sqrt(2) or 2 / sqrt(3) output scale and the half-cell sum a missing or wrong amplitude normalization; the range alone catches neither, because every sampler clamps to [-1, 1] and an unnormalized three-dimensional sum of these octaves stays inside it. The others catch a table-driven period, a non-interpolating blend, a signed-index failure and silent acceptance of bad parameters.
+ * @evidence contracts/development/testing.md#independent-expectations The range [-1, 1], zeros on the lattice, the octave and roughness domains and the domain bounds 2^25 and 2^16 are the documented contract; 1e-4 per 1e-6 step allows a slope of 100 lattice units, far above any quintic-blended unit-gradient octave sum of four; 0.1 mean difference over 64 off-lattice points separates an aperiodic lattice from a 256-periodic table, which gives zero. Every fade weight has zero slope at a lattice corner, so the slope there is the corner's unit gradient times the output scale, the reciprocal of the documented bounds sqrt(2) / 2 and sqrt(3) / 2; the 1e-6 tolerance lies far above the difference's truncation, about 10 (1e-5)^2 per axis. On the half-cell lattice every octave after the first samples its own lattice, where it is zero, so the documented sum is the first octave, the seed's own noise, over the amplitudes 1 + 0.5 + 0.25 + 0.125; 1e-12 bounds rounding only.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers both dimensions, single and fractal forms, positive and negative coordinates, points on and across the zero planes, lattice corners and half-cell points, the bound and one cell past it, and each refused parameter; terrain and rock consumers own their own shapes.
  * @evidence contracts/development/testing.md#execution-ownership A synchronous unit over in-memory numbers; it starts no host, file or renderer.
- * @evidence contracts/development/common.md#meaningful-documentation Lists its seven scenarios with the input and expected behavior of each.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists its nine scenarios with the input and expected behavior of each.
  */
 export function test_engine_gradient_noise(): void {
   const seed: string = deriveAutoMovieSeed("noise", "a");
@@ -149,9 +156,11 @@ export function test_engine_gradient_noise(): void {
       [
         "bounded",
         (): boolean =>
+          // The clamp to [-1, 1] only absorbs rounding, so no sample may
+          // reach it; an unnormalized fractal sum would.
           everySampler((sample: Sampler, dimension: number): boolean =>
-            Array.from({ length: 10_000 }).every((): boolean =>
-              inRange(sample(point(dimension, 1_000))),
+            Array.from({ length: 10_000 }).every(
+              (): boolean => Math.abs(sample(point(dimension, 1_000))) < 1,
             ),
           ),
       ],
@@ -244,6 +253,70 @@ export function test_engine_gradient_noise(): void {
           );
         },
       ],
+      [
+        "scaled",
+        (): boolean =>
+          (
+            [
+              [samplers.noise2![0], 2, Math.SQRT2],
+              [samplers.noise3![0], 3, 2 / Math.sqrt(3)],
+            ] as const
+          ).every(
+            ([sample, dimension, scale]: readonly [
+              Sampler,
+              number,
+              number,
+            ]): boolean =>
+              Array.from({ length: 100 }).every((): boolean => {
+                // At a lattice corner every fade weight's slope vanishes, so
+                // the value's slope is the corner's unit gradient times the
+                // output scale; a central difference of 1e-5 cells reads it
+                // within about 10 * (1e-5)^2 per axis.
+                const corner: number[] = point(dimension, 1_000).map(
+                  Math.round,
+                );
+                const slope: number[] = corner.map(
+                  (_: number, axis: number): number => {
+                    const step: (sign: number) => number[] = (
+                      sign: number,
+                    ): number[] =>
+                      corner.map(
+                        (value: number, at: number): number =>
+                          value + (at === axis ? sign * 1e-5 : 0),
+                      );
+                    return (sample(step(1)) - sample(step(-1))) / 2e-5;
+                  },
+                );
+                return Math.abs(Math.hypot(...slope) - scale) < 1e-6;
+              }),
+          ),
+      ],
+      [
+        "normalized",
+        (): boolean =>
+          (
+            [
+              [samplers.fractal2![0], samplers.noise2![0], 2],
+              [samplers.fractal3![0], samplers.noise3![0], 3],
+            ] as const
+          ).every(
+            ([fractal, single, dimension]: readonly [
+              Sampler,
+              Sampler,
+              number,
+            ]): boolean =>
+              Array.from({ length: 1_000 }).every((): boolean => {
+                // On the half-cell lattice every octave from the second on
+                // samples its own lattice, where it is zero, so the sum is
+                // the first octave, the seed's own noise, over the summed
+                // amplitudes 1 + 0.5 + 0.25 + 0.125.
+                const p: number[] = point(dimension, 1_000).map(
+                  (value: number): number => Math.round(2 * value) / 2,
+                );
+                return nclose(fractal(p) * 1.875, single(p), 1e-12);
+              }),
+          ),
+      ],
     ]),
     {
       repeats: true,
@@ -254,6 +327,8 @@ export function test_engine_gradient_noise(): void {
       aperiodic: true,
       negative: true,
       refusals: true,
+      scaled: true,
+      normalized: true,
     },
   );
 }
