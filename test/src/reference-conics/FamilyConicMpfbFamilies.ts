@@ -389,6 +389,54 @@ export namespace FamilyConicMpfbFamilies {
     return values;
   }
 
+  /** Read nested medians and subarc shoulders on the actually observed limb contour. */
+  function refinedFields(
+    points: Point2[],
+    layout: ReturnType<typeof Conic.limb>,
+  ): number[] {
+    const basic: number[] = fields(points, false);
+    const values: number[] = Array.from(
+      { length: Conic.units(layout).length },
+      (): number => 0,
+    );
+    const { at, shoulders } = Conic.offsets(layout);
+    const anchors: (Point2 | null)[] = layout.anchors.map(() => null);
+    const tangents: Point2[] = [];
+    layout.anchors.forEach(({ kind, pick }, index): void => {
+      if (kind !== "u" && kind !== "v") return;
+      const q: number = (kind === "v" ? 1 : 0) + (pick === "min" ? 2 : 0);
+      const anchor: Point2 = [basic[2 * q]!, basic[2 * q + 1]!];
+      anchors[index] = anchor;
+      tangents[index] = q % 2 === 0
+        ? [0, q === 0 ? 1 : -1]
+        : [q === 1 ? -1 : 1, 0];
+      values[at[index]!] = anchor[0];
+      values[at[index]! + 1] = anchor[1];
+    });
+    const read = (i: number, j: number, fallback: number) => {
+      const a: Point2 = anchors[i]!, b: Point2 = anchors[j]!;
+      const corner: Point2 = Conic.meet(a, tangents[i]!, b, tangents[j]!);
+      const mid: Point2 = [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2];
+      const d: Point2 = [corner[0] - mid[0], corner[1] - mid[1]];
+      const share: number = Conic.clamp(
+        intersections(points, mid, d).find((x): boolean => x < 1) ?? fallback,
+      );
+      return { share, a, b, mid, d };
+    };
+    for (const index of Conic.dependents(layout)) {
+      const [i, j] = Conic.neighbours(index, anchors);
+      const { share, a, b, mid, d } = read(i, j, 0.5);
+      anchors[index] = [mid[0] + share * d[0], mid[1] + share * d[1]];
+      tangents[index] = [b[0] - a[0], b[1] - a[1]];
+      values[at[index]!] = share;
+    }
+    for (let i: number = 0; i < anchors.length; ++i) {
+      const { share } = read(i, (i + 1) % anchors.length, Math.SQRT2 - 1);
+      values[shoulders + i] = Conic.shoulder(share, layout, i);
+    }
+    return values;
+  }
+
   /**
    * Build the segment set from genuine source joint pairs and leave absent
    * pairs unobserved.
@@ -411,7 +459,10 @@ export namespace FamilyConicMpfbFamilies {
   export function extract(
     source: Mpfb.IGeometry,
     names: readonly Name[] = ["arm", "leg", "trunk"],
+    armDepth: number = 0,
   ): ICandidate[] {
+    if (!Number.isInteger(armDepth) || armDepth < 0 || armDepth > 2)
+      throw new Error("The supported arm observations use four, eight or sixteen conics");
     const contours: Contours = prepareContours(source);
     const cut: Cut = selectCut(contours);
     const pelvis: IPelvis | undefined = names.some(
@@ -433,7 +484,8 @@ export namespace FamilyConicMpfbFamilies {
       const courseLength = CourseRuns.joints(course.centres, course.halves).at(
         -1,
       )!;
-      const layout = name === "trunk" ? Conic.bilateral(0) : Conic.limb(0);
+      const refine: boolean = name === "arm" && armDepth > 0;
+      const layout = name === "trunk" ? Conic.bilateral(0) : Conic.limb(refine ? armDepth : 0);
       const right = (joints: readonly string[]): string[] =>
         joints.map((joint): string => joint.replace("-l-", "-r-"));
       const foreign: Segment[] =
@@ -482,7 +534,12 @@ export namespace FamilyConicMpfbFamilies {
       excluded.sort((a, b): number => a.station - b.station);
       const training = rows
         .filter((_, i): boolean => i % 2 === 0 || i === rows.length - 1)
-        .map((row) => ({ ...row, values: fields(row.points, layout.mirror) }));
+        .map((row) => ({
+          ...row,
+          values: refine
+            ? refinedFields(row.points, layout)
+            : fields(row.points, layout.mirror),
+        }));
       const family: IAutoMovieHumanConicLoft.IFamily = {
         name,
         ...course,

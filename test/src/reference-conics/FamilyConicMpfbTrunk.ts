@@ -3,6 +3,7 @@ import {
   AutoMovieMeshExtract,
   AutoMovieSolidBlend,
   AutoMovieSolidVector as V,
+  createAutoMovieMeshRayCaster,
   measureAutoMovieMeshCrossings,
 } from "@automovie/engine";
 import {
@@ -41,9 +42,12 @@ function outerRail(
     "phase" | "support" | "readSupport"
   >,
   count: number,
+  source?: Mpfb.IGeometry,
 ) {
   const axis = Loft.axis(parent.support);
   const base: number = parent.support.centres[0]![1];
+  const cut = source === undefined ? undefined : Families.prepareCut(source);
+  const height = source === undefined ? undefined : topHeight(source.body);
   const rows = Array.from({ length: count }, (_, i) => {
     const phase: number = (2 * Math.PI * i) / count;
     const rail: Jet = parent.phase(phase)(1);
@@ -54,6 +58,10 @@ function outerRail(
     const parentJet: Jet = parent.readSupport(station, clock);
     const a: Point = V.unit(V.cross(rail.v, rail.u))!;
     const b: Point = V.unit(V.cross(parentJet.u, parentJet.v))!;
+    const measured = cut === undefined
+      ? undefined
+      : observedRadii(cut, axis.at(station), clock, V.norm(offset));
+    const upper: number | null | undefined = height?.(rail.p[0], rail.p[2]);
     return {
       phase,
       station,
@@ -62,6 +70,10 @@ function outerRail(
       target: parentJet.p,
       gap: V.norm(V.sub(rail.p, parentJet.p)),
       normalTurn: Math.atan2(V.norm(V.cross(a, b)), V.dot(a, b)),
+      measured,
+      vertical: upper === undefined || upper === null
+        ? upper
+        : { gap: Math.abs(upper - rail.p[1]), normalUp: a[1] },
     };
   });
   const area = (
@@ -100,6 +112,60 @@ function outerRail(
     gap: extent((row): number => row.gap),
     normalTurn: extent((row): number => row.normalTurn),
   };
+}
+
+/** Topmost actual surface at a horizontal chart coordinate, in mm. */
+function topHeight(body: IAutoMovieMillimeterMesh): (x: number, z: number) => number | null {
+  const positions: number[] = Array.from(body.positions, (value): number => value / 1_000);
+  let high: number = -Infinity;
+  for (let i: number = 1; i < positions.length; i += 3)
+    high = Math.max(high, positions[i]!);
+  // The top box separates the ray origin from the complete mesh.
+  const y: number = high + Number.EPSILON * Math.max(1, Math.abs(high));
+  const caster = createAutoMovieMeshRayCaster({
+    positions,
+    indices: Array.from(body.indices),
+    normals: null,
+    skin: null,
+    uvs: null,
+  });
+  return (x: number, z: number): number | null => {
+    const travel: number | null = caster.nearest(
+      [x / 1_000, y, z / 1_000],
+      [0, -1, 0],
+      Infinity,
+    );
+    return travel === null ? null : (y - travel) * 1_000;
+  };
+}
+
+/** Count distinct world-line intersections on the same homogeneous transverse cut. */
+function observedRadii(
+  cut: ReturnType<typeof Families.prepareCut>,
+  frame: ReturnType<ReturnType<typeof Loft.axis>["at"]>,
+  clock: number,
+  own: number,
+): { radii: number[]; gap: number } | { failure: string } {
+  try {
+    const points: P[] = cut(frame);
+    const e: P = [Math.cos(clock), Math.sin(clock)];
+    const along = ([x, y]: P): number => e[0] * x + e[1] * y;
+    const across = ([x, y]: P): number => e[0] * y - e[1] * x;
+    const radii: number[] = [];
+    for (let i: number = 0; i < points.length; ++i) {
+      const a: P = points[i]!, b: P = points[(i + 1) % points.length]!;
+      const x: number = across(a), y: number = across(b);
+      if ((x > 0) === (y > 0)) continue;
+      const r: number = (x * along(b) - y * along(a)) / (x - y);
+      if (r > 0) radii.push(r);
+    }
+    return {
+      radii: radii.sort((a, b): number => a - b),
+      gap: Math.min(...radii.map((r): number => Math.abs(r - own))),
+    };
+  } catch (error: unknown) {
+    return { failure: error instanceof Error ? error.message : String(error) };
+  }
 }
 
 /** A tessellation-independent normal-curvature census on the input phase grid. */
@@ -254,13 +320,18 @@ function joined(
     indices.push(index[child.indices[i]!]!);
 
   const mesh = { positions, indices };
-  return { mesh, topology: topology(mesh, joint), rimRoundoff };
+  const wrist: number[] = Array.from(
+    { length: columns },
+    (_, i): number => index[(i + 1) * childStride - 1]!,
+  );
+  return { mesh, topology: topology(mesh, joint, wrist), rimRoundoff, wrist };
 }
 
 /** Count connected components, Euler number and actual edge ownership. */
 function topology(
   { positions, indices }: { positions: number[]; indices: number[] },
   joint: readonly number[] = [],
+  wrist: readonly number[] = [],
 ) {
   const vertices: number = positions.length / 3;
   const leaders = Int32Array.from({ length: vertices }, (_, i): number => i);
@@ -285,12 +356,18 @@ function topology(
       edges.set(key, edge);
       leaders[find(a)] = find(b);
     }
+  const boundaryEdges: number = Array.from(edges.values()).filter(
+    ({ uses }): boolean => uses === 1,
+  ).length;
+  const wristBoundaryEdges: number = wrist.filter(
+    (a, i): boolean => edges.get(address(a, wrist[(i + 1) % wrist.length]!))?.uses === 1,
+  ).length;
   return {
     components: new Set(Array.from(leaders, (_, i): number => find(i))).size,
     euler: vertices - edges.size + indices.length / 3,
-    boundaryEdges: Array.from(edges.values()).filter(
-      ({ uses }): boolean => uses === 1,
-    ).length,
+    boundaryEdges,
+    wristBoundaryEdges,
+    otherBoundaryEdges: boundaryEdges - wristBoundaryEdges,
     badInteriorEdges: Array.from(edges.values()).filter(
       ({ uses, direction }): boolean =>
         uses > 2 || (uses === 2 && direction !== 0),
@@ -359,10 +436,7 @@ export namespace FamilyConicMpfbTrunk {
     observation?: Pick<Transition.IChart, "rawSeam" | "fairAngle">,
     fairLines: boolean = false,
     endpointQuintic: boolean = false,
-    reach: number = geometry.foldDepth,
   ): ITrunk {
-    if (!(reach > 0 && Number.isFinite(reach)))
-      throw new Error("The observed parent meridian needs a finite reach");
     const side: Side = Armscye.divider(geometry).side;
     const hostSide: Side = ([x, y, z]): number => side([x, y, Math.abs(z)]);
     const axis = Loft.axis(lower);
@@ -372,7 +446,6 @@ export namespace FamilyConicMpfbTrunk {
       guide.points.length,
       side,
       observation?.rawSeam ?? seam,
-      reach,
     );
     const floor: number = Math.min(
       ...lines.flatMap(({ points }): number[] =>
@@ -481,7 +554,7 @@ export namespace FamilyConicMpfbTrunk {
       );
     };
     // ESTIMATE: four intervals in one measured fold depth read the actual turn.
-    const intervals: number = Math.ceil(reach / (geometry.foldDepth / 4));
+    const intervals: number = 4;
     const measured = Transition.measuredChart(
       lines,
       intervals,
@@ -492,7 +565,7 @@ export namespace FamilyConicMpfbTrunk {
         curve: [p, a, aa],
         cross,
       } = seam(phi);
-      const [b, ab, aab] = scaleDeparture(cross, -reach);
+      const [b, ab, aab] = scaleDeparture(cross, -geometry.foldDepth);
       const path = measured(phi);
       const start = path(0);
       const p0: Point = V.sub(p, start.jet.p);
@@ -670,7 +743,6 @@ function meridians(
   count: number,
   side: Side,
   seam: Transition.IChart["seam"],
-  reach: number,
 ): Line[] {
   const read = AutoMovieMeshExtract.prepareOutline(source.body);
   const { origin, normal: shaft } = Armscye.divider(geometry);
@@ -731,7 +803,7 @@ function meridians(
             const length: number = cumulative.at(-1)!;
             const travel: number = Math.min(
               distance,
-              reach - length,
+              geometry.foldDepth - length,
             );
             const land: Point = V.add(from, V.scale(span, travel / distance));
             if (
@@ -743,11 +815,11 @@ function meridians(
             points.push(land);
             cumulative.push(length + travel);
             longest = Math.max(longest, length + travel);
-            if (travel === reach - length) {
+            if (travel === geometry.foldDepth - length) {
               candidates.push({
                 points,
                 cumulative,
-                length: reach,
+                length: geometry.foldDepth,
                 gap,
               });
               break;
@@ -833,8 +905,6 @@ async function main(): Promise<void> {
     return;
   }
   const fairLines: boolean = process.argv.includes("--fair-lines");
-  const parentReach: number =
-    geometry.foldDepth * Number(arg("parent-reaches") ?? 1);
   const storedPath: string | undefined = arg("arm-receipt");
   const stored =
     storedPath === undefined
@@ -843,6 +913,7 @@ async function main(): Promise<void> {
           source: Mpfb.ISource["source"];
           subdivisionDepth: number;
           arm?: IAutoMovieHumanConicLoft.IFamily;
+          sampling?: { speedMatched?: boolean; aligned?: boolean };
           mark: number;
           crossingWitnesses: number;
           candidate: {
@@ -857,6 +928,8 @@ async function main(): Promise<void> {
     stored?.arm ?? arm!.family,
     process.argv.includes("--fair"),
     fairLines,
+    stored?.sampling?.speedMatched,
+    stored?.sampling?.aligned,
   );
   const parent = FamilyConicMpfbTrunk.prepare(
     source,
@@ -867,7 +940,6 @@ async function main(): Promise<void> {
     child,
     fairLines,
     process.argv.includes("--endpoint-quintic"),
-    parentReach,
   );
   const support = Loft.create(parent.support, parent.support.knots);
   const lower = AutoMovieLoftViewFullSource.create(Loft.source(parent.lower));
@@ -876,12 +948,12 @@ async function main(): Promise<void> {
   const density: number = Number(arg("density") ?? 1);
   if (!(Number.isFinite(density) && density > 0))
     throw new Error("The preview density must be finite and positive");
-  const rows: number = Math.ceil(parentReach * density);
+  const rows: number = Math.ceil(geometry.foldDepth * density);
   if (
     stored !== undefined &&
     (stored.source.sha256 !== source.source.sha256 ||
       stored.subdivisionDepth !== depth ||
-      stored.mark !== arm!.family.rootSectionMark)
+      stored.mark !== child.mark)
   )
     throw new Error(
       "The stored arm does not match this source, subdivision and protected conic mark",
@@ -1077,7 +1149,7 @@ async function main(): Promise<void> {
             crossings: measureAutoMovieMeshCrossings(analytic, publicContext, {
               allPairs: true,
             }).length,
-            topology: topology(context.mesh),
+            topology: topology(context.mesh, [], combined.wrist),
           };
         })();
   const baseline = {
@@ -1132,13 +1204,13 @@ async function main(): Promise<void> {
     source: source.source,
     subdivision,
     guide: observedGuide,
-    tessellation: { rows, columns, density, parentReach },
+    tessellation: { rows, columns, density },
     curvature: {
       actual: curvature(parent.phase, guide.points.length),
       observed: curvature(parent.measured, guide.points.length),
       source: guideFacets(guide),
     },
-    stockRail: outerRail(parent, columns),
+    stockRail: outerRail(parent, columns, source),
     independentUpper: {
       ...upper,
       diagnostics: admittedUpper?.diagnostics,

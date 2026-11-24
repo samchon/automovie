@@ -145,6 +145,7 @@ export namespace FamilyConicSideRoot {
             args.includes("--match-outlet-speed"),
             args.includes("--limit-stock"),
             Number(option("stock-depth") ?? 0),
+            args.includes("--align-outlet"),
           );
     await fs.mkdir(out, { recursive: true });
     if (args.includes("--measure-only")) {
@@ -169,6 +170,8 @@ export namespace FamilyConicSideRoot {
       stopped: fit.stopped,
       crossingWitnesses: candidate?.crossingWitnesses,
       distalGap: candidate?.distalGap,
+      distalNormalGap: candidate?.distalNormalGap,
+      distalCurvatureGap: candidate?.distalCurvatureGap,
       elapsedMs: performance.now() - started,
     };
     await write(path.join(out, "refit.json"), receipt);
@@ -240,6 +243,7 @@ export namespace FamilyConicSideRoot {
     matchOutletSpeed: boolean = false,
     limitStock: boolean = false,
     stockDepth: number = 0,
+    alignOutlet: boolean = false,
   ): Promise<Prepared> {
     const asset = await Mpfb.load(file);
     const smoothed = limit ? Subdivision.sample(asset.body, 2) : undefined;
@@ -259,9 +263,7 @@ export namespace FamilyConicSideRoot {
       !limit,
       false,
       matchOutletSpeed,
-    );
-    const stock = AutoMovieLoftViewFullSource.create(
-      AutoMovieHumanConicLoft.source(arm),
+      alignOutlet,
     );
     const knots: number[] = arm.knots.filter(
       (station): boolean => station >= chart.mark,
@@ -313,6 +315,7 @@ export namespace FamilyConicSideRoot {
           distalFirstPitch: distal[1]! - distal[0]!,
           graded: gradeOutlet,
           speedMatched: matchOutletSpeed,
+          aligned: alignOutlet,
         },
         stock: limitStock ? "subdivision-limit" : "authored-cage",
         stockDepth,
@@ -324,7 +327,7 @@ export namespace FamilyConicSideRoot {
       preview: [guide.points.length, rootIntervals],
       distal: {
         stations: distal,
-        phase: (phi) => (station) => stock.jet(station, phi),
+        phase: chart.distal,
       },
     };
   }

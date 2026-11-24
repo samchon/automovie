@@ -241,12 +241,16 @@ export namespace FamilyConicPublicSideRoot {
     mesh: IAutoMovieMesh;
     crossingWitnesses: number;
     distalGap: number;
+    distalNormalGap: number;
+    distalCurvatureGap: [number, number, number];
     verticesPerColumn: number;
   } {
     const positions: number[] = [];
     const indices: number[] = [];
     const normals: number[] = [];
     let distalGap: number = 0;
+    let distalNormalGap: number = 0;
+    const distalCurvatureGap: [number, number, number] = [0, 0, 0];
     const distalRows: number =
       distal === undefined ? 0 : distal.stations.length - 1;
     if (distalRows < 0)
@@ -257,11 +261,25 @@ export namespace FamilyConicPublicSideRoot {
       const phi: number = (2 * Math.PI * i) / columns;
       const read = phase(phi);
       const retained = distal?.phase(phi);
-      if (distal !== undefined && retained !== undefined)
+      if (distal !== undefined && retained !== undefined) {
+        const root: Jet = read(1);
+        const stock: Jet = retained(distal.stations[0]!);
         distalGap = Math.max(
           distalGap,
-          V.norm(V.sub(read(1).p, retained(distal.stations[0]!).p)),
+          V.norm(V.sub(root.p, stock.p)),
         );
+        const a = curvature(root);
+        const b = curvature(stock);
+        distalNormalGap = Math.max(
+          distalNormalGap,
+          Math.atan2(V.norm(V.cross(a.normal, b.normal)), V.dot(a.normal, b.normal)),
+        );
+        for (const k of [0, 1, 2] as const)
+          distalCurvatureGap[k] = Math.max(
+            distalCurvatureGap[k],
+            Math.abs(a.rates[k] - b.rates[k]),
+          );
+      }
       for (let j: number = 0; j <= rows; ++j) {
         const jet: Jet =
           j <= intervals
@@ -291,9 +309,26 @@ export namespace FamilyConicPublicSideRoot {
         allPairs: true,
       }).length,
       distalGap,
+      distalNormalGap,
+      distalCurvatureGap,
       verticesPerColumn: stride,
     };
   }
+}
+
+/** Surface normal and (longitudinal, mixed, angular) curvature in inverse mm. */
+function curvature(jet: Jet): { normal: Point; rates: Point } {
+  const normal: Point | null = V.unit(V.cross(jet.u, jet.v));
+  if (normal === null) throw new Error("A protected outlet's curvature is singular");
+  const u: number = V.norm(jet.u), v: number = V.norm(jet.v);
+  return {
+    normal,
+    rates: [
+      V.dot(normal, jet.uu) / (u * u),
+      V.dot(normal, jet.uv) / (u * v),
+      V.dot(normal, jet.vv) / (v * v),
+    ],
+  };
 }
 
 /**

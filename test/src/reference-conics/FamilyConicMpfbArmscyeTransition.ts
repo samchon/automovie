@@ -18,6 +18,7 @@ import type {
 import { writeFile } from "node:fs/promises";
 import { basename } from "node:path";
 
+import { FamilyConicDistalGauge } from "./FamilyConicDistalGauge";
 import { FamilyConicMpfbArmscye as Armscye } from "./FamilyConicMpfbArmscye";
 import { FamilyConicMpfbFamilies as Families } from "./FamilyConicMpfbFamilies";
 import { FamilyConicMpfbMeridianFair as Meridians } from "./FamilyConicMpfbMeridianFair";
@@ -91,6 +92,8 @@ export namespace FamilyConicMpfbArmscyeTransition {
     };
     /** World two-jet of the retained conic on its protected section. */
     outlet: (phase: number) => Jet;
+    /** Continue the same meridian phase on the retained conic stock. */
+    distal: (phase: number) => (station: number) => Jet;
   }
 
   /**
@@ -201,6 +204,7 @@ export namespace FamilyConicMpfbArmscyeTransition {
     fair: boolean = false,
     fairLines: boolean = false,
     matchOutletSpeed: boolean = false,
+    alignOutlet: boolean = false,
   ): IChart {
     const mark: number | undefined = arm.rootSectionMark;
     if (mark === undefined)
@@ -220,6 +224,14 @@ export namespace FamilyConicMpfbArmscyeTransition {
       throw new Error("The public seam and protected conic section overlap");
 
     const outline = angular(geometry, guide);
+    const shaftAxis = AutoMovieHumanConicLoft.axis({
+      centres: [geometry.shoulder, geometry.elbow],
+      halves: [],
+      up: [1, 0, 0],
+    });
+    const distal = alignOutlet
+      ? FamilyConicDistalGauge.align(shaftAxis.at(mark), known, mark)
+      : (phi: number) => (station: number): Jet => known.jet(station, phi);
     const rawCurve = periodic(outline.map(({ point }): Point => point));
     const normal = periodic(outline.map(({ normal }): Point => normal));
     const lines = observedLines(
@@ -227,7 +239,7 @@ export namespace FamilyConicMpfbArmscyeTransition {
       geometry,
       outline,
       mark,
-      known.pointAt(mark),
+      alignOutlet ? (phi): Point => distal(phi)(mark).p : known.pointAt(mark),
     );
     const departures: Point[] = outline.map((_, i): Point => {
       const phi: number = (2 * Math.PI * i) / outline.length;
@@ -279,7 +291,7 @@ export namespace FamilyConicMpfbArmscyeTransition {
       ? AutoMovieConstructionPortField.periodic(
           lines.read.map(({ length }, i): number => {
             const phi: number = (2 * Math.PI * i) / lines.read.length;
-            const speed: number = V.norm(known.jet(mark, phi).u);
+            const speed: number = V.norm(distal(phi)(mark).u);
             return length / speed;
           }),
         )
@@ -296,7 +308,8 @@ export namespace FamilyConicMpfbArmscyeTransition {
         curve: [p, a, aa],
         cross: [b, ab, aab],
       } = boundary(phi);
-      const end: Jet = known.jet(mark, phi);
+      const conic = distal(phi);
+      const end: Jet = conic(mark);
       const path = longitudinal(phi);
       const zero = path(0);
       const last = path(1);
@@ -311,7 +324,7 @@ export namespace FamilyConicMpfbArmscyeTransition {
         const step: number = 1 - along;
         const take = (multiple: number): Jet =>
           longitudinalJet(
-            known.jet(mark + multiple * step * rate, phi),
+            conic(mark + multiple * step * rate),
             -multiple * rate,
             multiple * step * angularRate,
             -multiple * angularRate,
@@ -413,7 +426,8 @@ export namespace FamilyConicMpfbArmscyeTransition {
         outletGap: lines.outletGap,
         startGap: lines.startGap,
       },
-      outlet: (phi: number): Jet => known.jet(mark, phi),
+      outlet: (phi: number): Jet => distal(phi)(mark),
+      distal,
       surface: {
         name: "hm08.upper-arm.root",
         period: 2 * Math.PI,
@@ -550,6 +564,7 @@ export namespace FamilyConicMpfbArmscyeTransition {
           process.argv.includes("--fair"),
           process.argv.includes("--fair-lines"),
           process.argv.includes("--match-outlet-speed"),
+          process.argv.includes("--align-outlet"),
         )
       : undefined;
     const result =
