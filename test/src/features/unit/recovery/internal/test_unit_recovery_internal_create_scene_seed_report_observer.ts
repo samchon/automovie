@@ -85,12 +85,12 @@ export function test_unit_recovery_internal_create_scene_seed_report_observer():
     createRecoverySceneSeedReportObserver(target, work, budget);
   TestValidator.predicate(
     "setup precedes any report or paired observation",
-    work.linearWork === 32 && !Object.hasOwn(target, "refusedSeedJoint"),
+    work.linearWork === 32 && target.refusedSeedJoint === undefined,
   );
   observer(24, 48, null);
   TestValidator.predicate(
     "before-fit prepayment cannot fabricate a completed report",
-    work.linearWork === 96 && !Object.hasOwn(target, "refusedSeedJoint"),
+    work.linearWork === 96 && target.refusedSeedJoint === undefined,
   );
   observer(24, 48, first);
   TestValidator.predicate(
@@ -155,7 +155,7 @@ export function test_unit_recovery_internal_create_scene_seed_report_observer():
     caught instanceof Error &&
       caught.name === "RecoverySceneBudget" &&
       setupWork.linearWork === 0 &&
-      !Object.hasOwn(setupTarget, "refusedSeedJoint"),
+      setupTarget.refusedSeedJoint === undefined,
   );
   const pairTarget: Pick<
     IAutoMovieRecoveryCameraSceneEstimate,
@@ -178,6 +178,6 @@ export function test_unit_recovery_internal_create_scene_seed_report_observer():
     caught instanceof Error &&
       caught.name === "RecoverySceneBudget" &&
       pairWork.linearWork === 32 &&
-      !Object.hasOwn(pairTarget, "refusedSeedJoint"),
+      pairTarget.refusedSeedJoint === undefined,
   );
 }

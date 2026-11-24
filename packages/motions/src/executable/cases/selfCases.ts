@@ -108,11 +108,10 @@ export function selfCases(
     const suffix: string = bodies.length === 1 ? "" : `-${id}`;
     for (const [label, params] of rows) {
       const name: string = `self-${label}${suffix}`;
-      const performance: IAutoMovieMotionHumanPerformance | null = attempt(
-        out,
-        name,
-        () => perform(body, HumanChain.subject("a").act("touch", params)),
-      );
+      const performance: IAutoMovieMotionHumanPerformance | null =
+        FamilyCaseKit.attempt(out, name, () =>
+          perform(body, HumanChain.subject("a").act("touch", params)),
+        );
       if (performance === null) continue;
       const kind: IAutoMovieMotionHumanTouchForm.Kind = params.kind ?? "pat";
       const form: IAutoMovieMotionHumanTouchForm.IForm =
@@ -248,12 +247,10 @@ export function selfCases(
       "shoulderRoll",
     ] satisfies IAutoMovieMotionHumanSelfAction.Kind[]) {
       const name: string = `self-${kind}${suffix}`;
-      const performance: IAutoMovieMotionHumanPerformance | null = attempt(
-        out,
-        name,
-        () =>
+      const performance: IAutoMovieMotionHumanPerformance | null =
+        FamilyCaseKit.attempt(out, name, () =>
           perform(body, HumanChain.subject("a").act("selfAction", { kind })),
-      );
+        );
       if (performance === null) continue;
       const stroke: number = TouchVerdicts.event(performance, "a", "stroke");
       const verdicts: IMotionCaptureCase.IVerdict[] = [
@@ -304,21 +301,6 @@ export function selfCases(
     }
   }
   return out;
-}
-
-/** A performance or, when planning throws, a failing case pushed in its place. */
-function attempt(
-  out: IMotionCaptureCase[],
-  name: string,
-  run: () => IAutoMovieMotionHumanPerformance,
-): IAutoMovieMotionHumanPerformance | null {
-  // Process boundary: a case that throws is reported as that case's refusal, and the remaining cases still run.
-  try {
-    return run();
-  } catch (error) {
-    out.push(FamilyCaseKit.refused(name, error));
-    return null;
-  }
 }
 
 /** A performance of one polygon man standing at the origin heading +Z. */

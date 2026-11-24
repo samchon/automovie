@@ -2,15 +2,14 @@ import { Transform } from "@automovie/engine";
 import { AutoMovieHumanCanonicalBody } from "@automovie/human";
 import type {
   AutoMovieHumanoidBone,
-  IAutoMovieBone,
   IAutoMovieHumanCanonicalBody,
-  IAutoMovieJointPose,
   IAutoMoviePose,
 } from "@automovie/interface";
 
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
 import { MotionBodies } from "../MotionBodies";
 import { galleryCaseFist } from "./galleryCaseFist";
+import { galleryCaseZero } from "./galleryCaseZero";
 
 /** The record of `IGalleryCasesGalleryP`'s site. */
 type IGalleryCasesGalleryP = { label: string };
@@ -67,7 +66,7 @@ export function galleryCases(): IMotionCaptureCase[] {
   const at = (index: number): IAutoMoviePose =>
     index === poses.length - 1
       ? { skeleton: body.skeleton.id, root: null, joints: [] }
-      : zero(body, poses[index]!.joints);
+      : galleryCaseZero(body, poses[index]!.joints);
   const hand = joint(body, at(1), "leftHand");
   const knee = joint(body, at(5), "rightLowerLeg");
   const gallery: IMotionCaptureCase = {
@@ -116,23 +115,6 @@ export function galleryCases(): IMotionCaptureCase[] {
     ),
   };
   return [gallery, bodies];
-}
-
-/** Every rig bone at clinical zero, with some bones' angles set. */
-function zero(
-  body: IAutoMovieHumanCanonicalBody.IBody,
-  set: Partial<Record<AutoMovieHumanoidBone, [number, number, number]>>,
-): IAutoMoviePose {
-  return {
-    skeleton: body.skeleton.id,
-    root: null,
-    joints: body.skeleton.bones.map(
-      (b: IAutoMovieBone): IAutoMovieJointPose => {
-        const a: [number, number, number] = set[b.bone] ?? [0, 0, 0];
-        return { bone: b.bone, flexion: a[0], abduction: a[1], twist: a[2] };
-      },
-    ),
-  };
 }
 
 /** The record of `IJointResult`'s site. */

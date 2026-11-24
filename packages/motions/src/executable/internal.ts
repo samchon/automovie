@@ -17,6 +17,7 @@ export * from "./cases/everydayVerdicts";
 export * from "./cases/FamilyCaseKit";
 export * from "./cases/floorCaseSpan";
 export * from "./cases/galleryCaseFist";
+export * from "./cases/galleryCaseZero";
 export * from "./cases/locomotionCaseInstants";
 export * from "./cases/motionCaseSocket";
 export * from "./cases/stairsCaseBoxes";

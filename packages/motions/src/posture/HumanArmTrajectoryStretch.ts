@@ -72,6 +72,9 @@ export namespace HumanArmTrajectoryStretch {
     /** Each arm's coordinates at each knot. */
     x: number[][][];
 
+    /** Each arm's velocity and acceleration at each knot, the optimiser's. */
+    rates?: Knots.IRates;
+
     /** The optimiser's last evaluation. */
     evaluation: M.IEvaluation;
 
@@ -181,11 +184,28 @@ export namespace HumanArmTrajectoryStretch {
       });
       if (affected.size === 0) break;
       const next: IKnots = on(grid, HumanArmRefine.split(knots, [...affected]));
-      const carried: number[][][] = solved.x.map(
-        (arm: number[][]): number[][] =>
-          next.knots.map((g: number): number[] =>
-            HumanArmRefine.hermite(at.context.times, arm, grid.grid[g]!),
-          ),
+      // The solution carried onto the new knots: each new knot's position,
+      // velocity and acceleration read on the old knots' quintics, so the
+      // course the solve continues from is the one it ended on.
+      const before: readonly number[] = at.context.times;
+      const rates: Knots.IRates | undefined = solved.rates;
+      const read = (arm: number[][], a: number, g: number): number[][] =>
+        rates === undefined
+          ? [HumanArmRefine.hermite(before, arm, grid.grid[g]!)]
+          : Knots.at(
+              before,
+              arm,
+              rates.velocities[a]!,
+              rates.accelerations[a]!,
+              grid.grid[g]!,
+            );
+      const values: number[][][][] = solved.x.map(
+        (arm: number[][], a: number): number[][][] =>
+          next.knots.map((g: number): number[][] => read(arm, a, g)),
+      );
+      const carried: number[][][] = values.map(
+        (arm: number[][][]): number[][] =>
+          arm.map((v: number[][]): number[] => v[0]!),
       );
       at = next;
       solved = HumanArmOptimiser.optimise(
@@ -193,12 +213,27 @@ export namespace HumanArmTrajectoryStretch {
         carried,
         solved.penalty,
         grid.fine,
+        rates === undefined
+          ? undefined
+          : {
+              velocities: values.map((arm: number[][][]): number[][] =>
+                arm.map((v: number[][]): number[] => v[1]!),
+              ),
+              accelerations: values.map((arm: number[][][]): number[][] =>
+                arm.map((v: number[][]): number[] => v[2]!),
+              ),
+            },
       );
     }
     const played: Admission.IReading = {
       x:
         !at.context.still && grid.fine.n > at.context.n
-          ? Knots.read(at.context.times, grid.fine.times, solved.x)
+          ? Knots.read(
+              at.context.times,
+              grid.fine.times,
+              solved.x,
+              solved.rates,
+            )
           : solved.x,
       evaluation: solved.evaluation,
     };
@@ -294,6 +329,7 @@ export namespace HumanArmTrajectoryStretch {
             solved.context.times,
             solved.x,
             a,
+            solved.rates,
           ),
       ),
       state: {

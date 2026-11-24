@@ -26,3 +26,5 @@ export * from "./selfAction";
 export * from "./kiss";
 export * from "./highFive";
 export * from "./lungeGrab";
+export * from "./legTouch";
+export * from "./armWrestle";

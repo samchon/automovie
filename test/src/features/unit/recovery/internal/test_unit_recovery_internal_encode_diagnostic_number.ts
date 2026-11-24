@@ -9,7 +9,7 @@ import { TestValidator } from "@nestia/e2e";
  *
  * Scenarios:
  *
- * 1. 3.5 and −0.25 are kept.
+ * 1. 3.5 and −0.25 are kept, and so are ±Number.MAX_VALUE and −0.
  * 2. An overflowed product, 1e308 × 10, reads "+Infinity", and its negation
  *    "-Infinity".
  */
@@ -21,6 +21,12 @@ export function test_unit_recovery_internal_encode_diagnostic_number(): void {
       encodeRecoveryDiagnosticNumber(-0.25),
     ],
     [3.5, -0.25],
+  );
+  TestValidator.predicate(
+    "finite extremes and signed zero are kept",
+    encodeRecoveryDiagnosticNumber(Number.MAX_VALUE) === Number.MAX_VALUE &&
+      encodeRecoveryDiagnosticNumber(-Number.MAX_VALUE) === -Number.MAX_VALUE &&
+      Object.is(encodeRecoveryDiagnosticNumber(-0), -0),
   );
   const overflow: number = 1e308 * 10;
   TestValidator.equals(

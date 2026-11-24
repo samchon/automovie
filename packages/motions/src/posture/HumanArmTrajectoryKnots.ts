@@ -2,64 +2,182 @@ import type { IAutoMovieMotionHumanQuadraticProgram } from "@automovie/interface
 
 import { HumanArmRefine } from "./HumanArmRefine";
 import { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
+import { HumanMinimumJerkSpline } from "./HumanMinimumJerkSpline";
 
 /**
  * An arms' trajectory optimised on few knots and constrained on the whole frame
  * grid: the change of variables between the two.
  *
- * The trajectory played back is the knots' minimum-jerk interpolant
- * (`HumanArmRefine.hermite`), which is linear in the knots' coordinates: each
- * grid instant's coordinates are a weighted sum of the knots' (`x_g = sum_j
- * W[g][j] x_j`). So the model is evaluated and linearised at every grid
- * instant, as a frame-grid trajectory's is, and the resulting subproblem in the
- * grid's steps is carried onto the knots' by that linear map: `P_k = W' P W`,
- * `q_k = W' q`, and each row's coefficients times `W`. The optimiser then moves
- * the knots alone (TrajOpt plans an arm on eleven timesteps, Schulman et al.
- * 2013, section VI), while every constraint the film can show is a row of its
- * subproblem, so what it returns as feasible is feasible on the grid and
- * nothing is refined or solved again.
+ * Each knot carries its own position, velocity and acceleration, and two
+ * neighbouring knots are joined by the minimum-jerk quintic that meets both
+ * knots' three (Flash and Hogan 1985; `basis`), so the course is C2 at every
+ * knot by construction and linear in the knots' values: each grid instant's
+ * coordinates are a weighted sum of its segment's two knots' six values (`x_g =
+ * sum W[g][j, b] x_(j, b)`), and the subproblem on the knots stays banded. So
+ * the model is evaluated and linearised at every grid instant, as a frame-grid
+ * trajectory's is, and the resulting subproblem in the grid's steps is carried
+ * onto the knots' by that linear map: `P_k = W' P W`, `q_k = W' q`, and each
+ * row's coefficients times `W`. The optimiser then moves the knots alone
+ * (TrajOpt plans an arm on eleven timesteps, Schulman et al. 2013, section VI),
+ * while every constraint the film can show is a row of its subproblem, so what
+ * it returns as feasible is feasible on the grid and nothing is refined or
+ * solved again.
  */
 export namespace HumanArmTrajectoryKnots {
   /**
    * The interpolant's weights: each grid instant's coordinates as a sum over
-   * the knots.
+   * the two knots of its segment, each knot's position, velocity and
+   * acceleration (`IWeight.block` 0, 1 and 2), the quintic that meets both
+   * knots' position, velocity and acceleration (`basis`), so a grid instant
+   * reads six of the knots' values and the subproblem on the knots stays
+   * banded.
    *
    * @param knots The knots' seconds, ascending.
    * @param grid The grid instants' seconds over the same span.
-   * @returns For each grid instant, the weight of each knot.
+   * @returns For each grid instant, the weight of each knot value it reads.
    */
   export function weights(
     knots: readonly number[],
     grid: readonly number[],
-  ): number[][] {
-    // The interpolant is linear in the knots: its value for the identity's
-    // rows, one coordinate per knot, is every knot's weight at once.
-    const unit: number[][] = knots.map((_: number, i: number): number[] =>
-      knots.map((__: number, j: number): number => (i === j ? 1 : 0)),
-    );
-    const curve: ReturnType<typeof HumanArmRefine.prepareHermite> =
-      HumanArmRefine.prepareHermite(knots, unit);
-    return grid.map((at: number): number[] => curve(at).coordinates);
+  ): IWeight[][] {
+    return grid.map((at: number): IWeight[] => {
+      const i: number = segment(knots, at);
+      const h: number = knots[i + 1]! - knots[i]!;
+      const u: number = Math.min(1, Math.max(0, (at - knots[i]!) / h));
+      const [h0, h1, h2, h3, h4, h5]: number[] = basis(u, 0);
+      return [
+        { knot: i, block: 0, weight: h0! },
+        { knot: i, block: 1, weight: h * h1! },
+        { knot: i, block: 2, weight: h * h * h2! },
+        { knot: i + 1, block: 0, weight: h3! },
+        { knot: i + 1, block: 1, weight: h * h4! },
+        { knot: i + 1, block: 2, weight: h * h * h5! },
+      ].filter((w: IWeight): boolean => w.weight !== 0);
+    });
+  }
+
+  /** One knot value's weight in a grid instant's coordinates. */
+  export interface IWeight {
+    /** The knot. */
+    knot: number;
+    /** Its position (0), velocity (1) or acceleration (2). */
+    block: number;
+    /** The weight. */
+    weight: number;
+  }
+
+  /** Each arm's velocities and accelerations at each knot, per second. */
+  export interface IRates {
+    /** Each arm's velocity at each knot, coordinate units a second. */
+    velocities: number[][][];
+    /** Each arm's acceleration at each knot, coordinate units a second². */
+    accelerations: number[][][];
   }
 
   /**
-   * Every arm's coordinates at the grid instants, the knots' interpolant.
+   * The rates a course of positions starts from: the minimum-jerk spline's
+   * through them (`HumanMinimumJerkSpline.derivatives`), at rest at its ends,
+   * the seed of the knots' own velocities and accelerations, which the
+   * optimiser then moves.
+   *
+   * @param knots The knots' seconds.
+   * @param x Each arm's coordinates at each knot.
+   * @returns Their rates.
+   */
+  export function rates(
+    knots: readonly number[],
+    x: readonly (readonly (readonly number[])[])[],
+  ): IRates {
+    const solved: HumanMinimumJerkSpline.IDerivatives[] = x.map(
+      (
+        arm: readonly (readonly number[])[],
+      ): HumanMinimumJerkSpline.IDerivatives =>
+        HumanMinimumJerkSpline.derivatives(knots, arm),
+    );
+    return {
+      velocities: solved.map(
+        (s: HumanMinimumJerkSpline.IDerivatives): number[][] =>
+          s.velocities.map((v: readonly number[]): number[] => [...v]),
+      ),
+      accelerations: solved.map(
+        (s: HumanMinimumJerkSpline.IDerivatives): number[][] =>
+          s.accelerations.map((v: readonly number[]): number[] => [...v]),
+      ),
+    };
+  }
+
+  /**
+   * An arm's position, velocity and acceleration at a second on its knots'
+   * quintics: the knots' own rates carried onto other knots exactly.
+   *
+   * @param knots The knots' seconds.
+   * @param x The arm's coordinates at each knot.
+   * @param velocities Its velocity at each knot.
+   * @param accelerations Its acceleration at each knot.
+   * @param seconds The second.
+   * @returns Its position, velocity and acceleration there.
+   */
+  export function at(
+    knots: readonly number[],
+    x: readonly (readonly number[])[],
+    velocities: readonly (readonly number[])[],
+    accelerations: readonly (readonly number[])[],
+    seconds: number,
+  ): [number[], number[], number[]] {
+    const i: number = segment(knots, seconds);
+    const h: number = knots[i + 1]! - knots[i]!;
+    const u: number = Math.min(1, Math.max(0, (seconds - knots[i]!) / h));
+    const out: number[][] = [0, 1, 2].map((order: number): number[] => {
+      const w: number[] = basis(u, order);
+      const scale: number = h ** -order;
+      return x[i]!.map(
+        (_: number, d: number): number =>
+          scale *
+          (w[0]! * x[i]![d]! +
+            w[1]! * h * velocities[i]![d]! +
+            w[2]! * h * h * accelerations[i]![d]! +
+            w[3]! * x[i + 1]![d]! +
+            w[4]! * h * velocities[i + 1]![d]! +
+            w[5]! * h * h * accelerations[i + 1]![d]!),
+      );
+    });
+    return [out[0]!, out[1]!, out[2]!];
+  }
+  /**
+   * Every arm's coordinates at the grid instants: on the knots' own quintics
+   * where their rates are given, else on the minimum-jerk spline through the
+   * positions.
    *
    * @param knots The knots' seconds.
    * @param grid The grid instants' seconds.
    * @param x Each arm's coordinates at each knot.
+   * @param rates Each arm's velocities and accelerations at each knot.
    * @returns Each arm's coordinates at each grid instant.
    */
   export function read(
     knots: readonly number[],
     grid: readonly number[],
     x: readonly (readonly (readonly number[])[])[],
+    rates?: IRates,
   ): number[][][] {
-    return x.map((arm: readonly (readonly number[])[]): number[][] => {
-      const curve: ReturnType<typeof HumanArmRefine.prepareHermite> =
-        HumanArmRefine.prepareHermite(knots, arm);
-      return grid.map((at: number): number[] => curve(at).coordinates);
-    });
+    return x.map(
+      (arm: readonly (readonly number[])[], a: number): number[][] => {
+        if (rates !== undefined)
+          return grid.map(
+            (t: number): number[] =>
+              at(
+                knots,
+                arm,
+                rates.velocities[a]!,
+                rates.accelerations[a]!,
+                t,
+              )[0],
+          );
+        const curve: ReturnType<typeof HumanArmRefine.prepareHermite> =
+          HumanArmRefine.prepareHermite(knots, arm);
+        return grid.map((t: number): number[] => curve(t).coordinates);
+      },
+    );
   }
   /**
    * Sample a local repair against the original clock. An interior end inherits
@@ -117,11 +235,12 @@ export namespace HumanArmTrajectoryKnots {
    * @param c The knots' context; the grid's has the same arms and coordinates.
    * @param w The interpolant's weights (`weights`).
    * @param model The subproblem in the grid's steps.
-   * @returns The same subproblem in the knots' steps.
+   * @returns The same subproblem in the knots' steps: each moving knot's
+   *   position, velocity and acceleration steps, `3 width` of them a knot.
    */
   export function reduce(
     c: M.IContext,
-    w: readonly (readonly number[])[],
+    w: readonly (readonly IWeight[])[],
     model: IAutoMovieMotionHumanQuadraticProgram.IProblem,
   ): IAutoMovieMotionHumanQuadraticProgram.IProblem {
     const width: number = c.width;
@@ -157,8 +276,7 @@ export namespace HumanArmTrajectoryKnots {
           least = Math.min(least, i);
           most = Math.max(most, i);
         }
-        if (most >= least)
-          wide = Math.max(wide, (most - least + 1) * width - 1);
+        if (most >= least) wide = Math.max(wide, most - least + width - 1);
       }
     }
     wide = Math.min(wide, Math.max(0, vars - 1));
@@ -175,8 +293,7 @@ export namespace HumanArmTrajectoryKnots {
       const from: [number, number][] = spread[Math.floor(r / width) + 1]!;
       const slot: number = r % width;
       for (const [j, weight] of from)
-        q[(j - 1) * width + slot] =
-          q[(j - 1) * width + slot]! + weight * model.q[r]!;
+        q[j + slot] = q[j + slot]! + weight * model.q[r]!;
       const row: Float64Array = model.p[r]!;
       for (let off: number = 0; off < row.length && r + off < model.n; ++off) {
         const value: number = row[off]!;
@@ -186,8 +303,8 @@ export namespace HumanArmTrajectoryKnots {
         const other: number = (r + off) % width;
         for (const [j, wj] of from)
           for (const [i, wi] of to) {
-            const a: number = (j - 1) * width + slot;
-            const b: number = (i - 1) * width + other;
+            const a: number = j + slot;
+            const b: number = i + other;
             if (b >= a) upper[a]![b - a] = upper[a]![b - a]! + value * wj * wi;
             if (off !== 0 && a >= b)
               upper[b]![a - b] = upper[b]![a - b]! + value * wj * wi;
@@ -200,7 +317,7 @@ export namespace HumanArmTrajectoryKnots {
       row.index.forEach((r: number, at: number): void => {
         const slot: number = r % width;
         for (const [j, weight] of spread[Math.floor(r / width) + 1]!) {
-          const a: number = (j - 1) * width + slot;
+          const a: number = j + slot;
           sum.set(a, (sum.get(a) ?? 0) + weight * row.coef[at]!);
         }
       });
@@ -237,4 +354,59 @@ export namespace HumanArmTrajectoryKnots {
     );
     return { n: vars, band, p, q, rows };
   }
+}
+
+/**
+ * The segment a second lies in: the last knot at or before it, short of the
+ * last.
+ */
+function segment(knots: readonly number[], seconds: number): number {
+  let low: number = 0;
+  let high: number = knots.length - 2;
+  while (low < high) {
+    const middle: number = (low + high + 1) >> 1;
+    if (knots[middle]! <= seconds) low = middle;
+    else high = middle - 1;
+  }
+  return low;
+}
+
+/**
+ * The quintic Hermite basis of a minimum-jerk segment (Flash and Hogan 1985, J.
+ * Neurosci. 5(7):1688): the quintic that meets both ends' position, velocity
+ * and acceleration, `p0 H0 + h v0 H1 + h² a0 H2 + p1 H3 + h v1 H4 + h² a1 H5`
+ * over a segment of `h` seconds at its share `u`, or its first or second
+ * derivative in `u`.
+ */
+function basis(u: number, order: number): number[] {
+  const u2: number = u * u;
+  const u3: number = u2 * u;
+  const u4: number = u3 * u;
+  const u5: number = u4 * u;
+  if (order === 0)
+    return [
+      1 - 10 * u3 + 15 * u4 - 6 * u5,
+      u - 6 * u3 + 8 * u4 - 3 * u5,
+      0.5 * u2 - 1.5 * u3 + 1.5 * u4 - 0.5 * u5,
+      10 * u3 - 15 * u4 + 6 * u5,
+      -4 * u3 + 7 * u4 - 3 * u5,
+      0.5 * u3 - u4 + 0.5 * u5,
+    ];
+  if (order === 1)
+    return [
+      -30 * u2 + 60 * u3 - 30 * u4,
+      1 - 18 * u2 + 32 * u3 - 15 * u4,
+      u - 4.5 * u2 + 6 * u3 - 2.5 * u4,
+      30 * u2 - 60 * u3 + 30 * u4,
+      -12 * u2 + 28 * u3 - 15 * u4,
+      1.5 * u2 - 4 * u3 + 2.5 * u4,
+    ];
+  return [
+    -60 * u + 180 * u2 - 120 * u3,
+    -36 * u + 96 * u2 - 60 * u3,
+    1 - 9 * u + 18 * u2 - 10 * u3,
+    60 * u - 180 * u2 + 120 * u3,
+    -24 * u + 84 * u2 - 60 * u3,
+    3 * u - 12 * u2 + 10 * u3,
+  ];
 }

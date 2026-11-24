@@ -9,7 +9,6 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
-  HumanRefusal,
   lungeGrab,
   poseBones,
   resolveHumanPosture,
@@ -20,12 +19,6 @@ import { TestValidator } from "@nestia/e2e";
 import { humanFixtureBody } from "../../../internal/fixtures/humanFixtureBody";
 import { motionActionContext } from "../../../internal/motionActionContext";
 
-/**
- * How near a touching part comes to the touched skin, metres: a hand's length
- * from the wrist joint to the palm, or 20 mm of skin and tolerance for a
- * surface on a surface (`HumanSignature.CONTACT`).
- */
-const CONTACT: number = 0.02;
 /**
  * `lungeGrab.plan` lunges toward a partner and grabs a region of theirs: the
  * front foot strides in and the hand closes on the region at `ready`.

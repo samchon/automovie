@@ -244,6 +244,29 @@ export namespace FamilyCaseKit {
   }
 
   /**
+   * A performance, or when its laws refuse it, its refused case pushed in its
+   * place so the remaining cases still run.
+   *
+   * @param out The cases so far; a refusal is appended.
+   * @param name The case's name.
+   * @param run Builds the performance.
+   * @returns The performance, or null when it was refused.
+   */
+  export function attempt<Performance>(
+    out: IMotionCaptureCase[],
+    name: string,
+    run: () => Performance,
+  ): Performance | null {
+    // Process boundary: a case that throws is reported as that case's
+    // refusal, and the remaining cases still run.
+    try {
+      return run();
+    } catch (error) {
+      out.push(refused(name, error));
+      return null;
+    }
+  }
+  /**
    * The lowest point of the colliders of the bones a test selects, at a film
    * second.
    *

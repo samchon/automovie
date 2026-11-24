@@ -6,23 +6,23 @@ import {
 } from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
-import { createRecoveryMapNumericalFixture } from "../internal/createRecoveryMapNumericalFixture";
-import { nclose } from "../internal/nclose";
+import { createRecoveryMapNumericalFixture } from "../../../internal/createRecoveryMapNumericalFixture";
+import { nclose } from "../../../internal/nclose";
 
 /**
- * Noisy resection describes the same physical camera in translated world charts.
+ * Noisy resection describes the same physical camera in translated world
+ * charts.
  *
  * Scenarios:
- * 1. Fixed nonplanar anisotropic/skew pinhole observations with deterministic subpixel noise produce a qualified nonrigid projective block.
- * 2. Translation, scale alone, scale plus translation, and a rotated/scaled/translated world preserve the proper rotation, unknown-scale translation and physical pixel predictions under their coordinate transformation.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Calls the actual calibrated initializer in five world charts and checks returned coefficients and every projected physical point, exposing origin-dependent rigid projection rather than checking implementation arrangement.
- * @evidence contracts/development/testing.md#independent-expectations A prescribed rigid world change Xnew=a*Q*X+o requires Rnew=R*Qtranspose and tnew=a*t-Rnew*o for the same pixels, regardless of measurement noise. These algebraic expectations are independent of DLT implementation and make no photographic-accuracy claim.
- * @evidence contracts/development/testing.md#distinguishing-cases Fixed 0.05-pixel trigonometric perturbations distinguish a genuinely nonrigid DLT block from the exact-pinhole case that hid the defect. Scale-only is an adjacent case the old method could preserve; translated and rotated-origin cases require the same projected rotation in centroid reversal. Existing tests own robust outliers, degeneracy, observer isolation and convergence.
- * @evidence contracts/development/testing.md#execution-ownership The portable test_recovery_camera_resection_gauge entry owns only finite arrays and CPU calls; it creates no filesystem, process, native artifact, installed consumer, host or viewer and replaces no foreign method.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 2 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Fixed nonplanar anisotropic/skew pinhole observations with deterministic subpixel noise produce a qualified nonrigid projective block.).
+ * 1. Fixed nonplanar anisotropic/skew pinhole observations with deterministic
+ *    subpixel noise produce a qualified nonrigid projective block.
+ * 2. Translation, scale alone, scale plus translation, and a
+ *    rotated/scaled/translated world preserve the proper rotation,
+ *    unknown-scale translation and physical pixel predictions under their
+ *    coordinate transformation.
  */
-export function test_recovery_camera_resection_gauge(): void {
+export function test_unit_recovery_internal_fit_resection_design_gauge(): void {
   const fixture: ReturnType<typeof createRecoveryMapNumericalFixture> =
     createRecoveryMapNumericalFixture();
   const chart: ReturnType<typeof createRecoveryCameraChart> =
@@ -72,17 +72,15 @@ export function test_recovery_camera_resection_gauge(): void {
   ];
   for (const [scale, worldRotation, offset] of transforms) {
     const points: [number, number, number][] = fixture.points.map(
-      (point: [number, number, number]): [number, number, number] =>
-        [0, 1, 2].map(
-          (row: number): number =>
-            scale *
-              point.reduce(
-                (sum: number, value: number, col: number): number =>
-                  sum + worldRotation[3 * row + col]! * value,
-                0,
-              ) +
-            offset[row]!,
-        ) as [number, number, number],
+      (point: [number, number, number]): [number, number, number] => {
+        const moved: (row: number) => number = (row: number): number =>
+          scale *
+            (worldRotation[3 * row]! * point[0] +
+              worldRotation[3 * row + 1]! * point[1] +
+              worldRotation[3 * row + 2]! * point[2]) +
+          offset[row]!;
+        return [moved(0), moved(1), moved(2)];
+      },
     );
     const actual: IAutoMovieRecoveryMapPose = fitRecoveryResectionDesign(
       points,

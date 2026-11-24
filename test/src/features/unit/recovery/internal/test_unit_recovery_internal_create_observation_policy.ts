@@ -9,7 +9,7 @@ import { TestValidator } from "@nestia/e2e";
  * Scenarios:
  *
  * 1. An input with a critical policy keeps every setting and that policy.
- * 2. Without one, the policy has no `criticalPolicy` key.
+ * 2. Without one, the policy is the same settings without a critical policy.
  */
 export function test_unit_recovery_internal_create_observation_policy(): void {
   const input: IAutoMovieRecoveryInput = {
@@ -39,11 +39,13 @@ export function test_unit_recovery_internal_create_observation_policy(): void {
   );
   const { criticalPolicy: _critical, ...plain }: IAutoMovieRecoveryInput =
     input;
+  const {
+    criticalPolicy: _policy,
+    ...plainPolicy
+  }: ReturnType<typeof createRecoveryObservationPolicy> = policy;
   TestValidator.equals(
     "without one",
-    Object.keys(createRecoveryObservationPolicy(plain)).includes(
-      "criticalPolicy",
-    ),
-    false,
+    createRecoveryObservationPolicy(plain),
+    plainPolicy,
   );
 }

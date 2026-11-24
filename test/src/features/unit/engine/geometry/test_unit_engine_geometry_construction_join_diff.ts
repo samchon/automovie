@@ -9,7 +9,6 @@ import type {
 import { TestValidator } from "@nestia/e2e";
 
 import { ConstructionChecks } from "../../../internal/construction/ConstructionChecks";
-import { ConstructionRead } from "../../../internal/construction/ConstructionRead";
 import { ConstructionShapes } from "../../../internal/construction/ConstructionShapes";
 
 /**
@@ -18,8 +17,10 @@ import { ConstructionShapes } from "../../../internal/construction/ConstructionS
  *
  * Construction: a sphere of radius 0.015 m centred on the equator of a sphere
  * of radius 0.04 m at distance 0.04 m, cut from it under the angle parameter
- * about the host's outward normal; the seam is the circle in the plane x = (R^2
- * - r^2 + d^2) / 2d.
+ * about the host's outward normal; the seam is the circle in the plane x =
+ * (R^2
+ *
+ * - R^2 + d^2) / 2d.
  *
  * Scenarios:
  *

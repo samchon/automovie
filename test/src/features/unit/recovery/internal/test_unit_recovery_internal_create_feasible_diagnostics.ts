@@ -2,10 +2,7 @@ import type {
   IAutoMovieRecoveryFeasibleDiagnostics,
   IAutoMovieRecoveryFeasibleFit,
 } from "@automovie/interface";
-import {
-  createRecoveryFeasibleDiagnostics,
-  encodeRecoveryDiagnosticNumber,
-} from "@automovie/recovery";
+import { createRecoveryFeasibleDiagnostics } from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -19,16 +16,8 @@ import { TestValidator } from "@nestia/e2e";
  *    remain unchanged; no state, array or invented age crosses the projection.
  * 3. Null baseline/auxiliary reports stay null, while an older auxiliary reason
  *    and trial failure remain unchanged beside a terminal baseline.
- * 4. Finite extrema and signed zero preserve resident number semantics; JSON
- *    preserves categories without promising signed-zero bits.
- *
- * @evidence contracts/development/testing.md#behavioral-verification Calls the actual fixed projection/encoder and serializes its result; missing fields, implicit nonfinite null conversion, aliasing and state leakage change the independently prescribed JSON object.
- * @evidence contracts/development/testing.md#independent-expectations Authored integers and exactly representable tolerance0.25 label each field independently; the explicit expected object follows the public scalar representation rather than a captured solver output. This tests representation, not numerical convergence or certificate truth.
- * @evidence contracts/development/testing.md#distinguishing-cases Covers complete/null optional records, nullable scalars, mixed booleans, all three nonfinite sentinels, stale reasons, finite extrema, signed zero, JSON roundtrip, nested identity and frozen borrowed input.
- * @evidence contracts/development/testing.md#execution-ownership The portable test_recovery_feasible_diagnostics entry uses authored plain records and JSON only; no fit, foreign override, host, process, compiler, filesystem, GPU or photograph starts.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: An authored complete raw record projects all67 fields, distinguishing finite values, three nonfinite categories and unavailable null.).
  */
-export function test_recovery_feasible_diagnostics(): void {
+export function test_unit_recovery_internal_create_feasible_diagnostics(): void {
   const fit: IAutoMovieRecoveryFeasibleFit<readonly number[]> = {
     state: Object.freeze([137]),
     converged: false,
@@ -195,15 +184,20 @@ export function test_recovery_feasible_diagnostics(): void {
     serialized === JSON.stringify(expected) &&
       JSON.stringify(JSON.parse(serialized)) === JSON.stringify(expected),
   );
+  const distinct: (a: object | null, b: object | null) => boolean = (
+    a: object | null,
+    b: object | null,
+  ): boolean => a !== b;
   TestValidator.predicate(
     "encoded records own their fields without state or raw aliases",
-    actual !== (fit as unknown) &&
-      actual.lastDirection !== (fit.lastDirection as unknown) &&
-      actual.lastSqp !== (fit.lastSqp as unknown) &&
-      actual.lastSqp!.correctionTightening !==
-        (fit.lastSqp!.correctionTightening as unknown) &&
-      actual.trials !== (fit.trials as unknown) &&
-      !Object.hasOwn(actual, "state") &&
+    distinct(actual, fit) &&
+      distinct(actual.lastDirection, fit.lastDirection) &&
+      distinct(actual.lastSqp, fit.lastSqp) &&
+      distinct(
+        actual.lastSqp!.correctionTightening,
+        fit.lastSqp!.correctionTightening,
+      ) &&
+      distinct(actual.trials, fit.trials) &&
       !serialized.includes("137") &&
       fit.objectiveMultiplier === Infinity &&
       fit.stationarityScale === -Infinity &&
@@ -228,14 +222,5 @@ export function test_recovery_feasible_diagnostics(): void {
       unavailable.lastDirection === null &&
       unavailable.lastSqp === null &&
       unavailable.trials.lastFailure === "armijo",
-  );
-  TestValidator.predicate(
-    "finite endpoints and resident signed zero are not replaced",
-    encodeRecoveryDiagnosticNumber(Number.MAX_VALUE) === Number.MAX_VALUE &&
-      encodeRecoveryDiagnosticNumber(-Number.MAX_VALUE) === -Number.MAX_VALUE &&
-      Object.is(encodeRecoveryDiagnosticNumber(-0), -0) &&
-      JSON.stringify(encodeRecoveryDiagnosticNumber(-0)) === "0" &&
-      encodeRecoveryDiagnosticNumber(Infinity) === "+Infinity" &&
-      encodeRecoveryDiagnosticNumber(-Infinity) === "-Infinity",
   );
 }

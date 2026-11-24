@@ -107,11 +107,8 @@ export function affectionCases(
           HumanChain.subject("a").act("touch", params),
           HumanChain.subject("b").stand({ hold: 8 }),
         );
-      const performance: IAutoMovieMotionHumanPerformance | null = attempt(
-        out,
-        name,
-        run,
-      );
+      const performance: IAutoMovieMotionHumanPerformance | null =
+        FamilyCaseKit.attempt(out, name, run);
       if (performance === null) continue;
       const kind: IAutoMovieMotionHumanTouchForm.Kind = params.kind ?? "pat";
       const effector: IAutoMovieMotionHumanTouchEffector.IEffector =
@@ -235,18 +232,19 @@ export function affectionCases(
 
     for (const region of ["cheekLeft", "forehead"] as const) {
       const name: string = `affection-kiss-${region === "cheekLeft" ? "cheek" : "forehead"}${suffix}`;
-      const performance: IAutoMovieMotionHumanPerformance | null = attempt(
-        out,
-        name,
-        (): IAutoMovieMotionHumanPerformance =>
-          pair(
-            body,
-            true,
-            HumanChain.subject("a").act("kiss", { partner: "b", region }),
-            HumanChain.subject("b").stand({ hold: 6 }),
-            0.45,
-          ),
-      );
+      const performance: IAutoMovieMotionHumanPerformance | null =
+        FamilyCaseKit.attempt(
+          out,
+          name,
+          (): IAutoMovieMotionHumanPerformance =>
+            pair(
+              body,
+              true,
+              HumanChain.subject("a").act("kiss", { partner: "b", region }),
+              HumanChain.subject("b").stand({ hold: 6 }),
+              0.45,
+            ),
+        );
       if (performance === null) continue;
       const contact: number = TouchVerdicts.event(performance, "a", "contact");
       const lips = TouchVerdicts.place(
@@ -286,22 +284,25 @@ export function affectionCases(
 
     {
       const name: string = `affection-high-five${suffix}`;
-      const performance: IAutoMovieMotionHumanPerformance | null = attempt(
-        out,
-        name,
-        (): IAutoMovieMotionHumanPerformance =>
-          new HumanPerformance({
-            seed: "affection",
-            performers: performers(body, true, 0.7),
-            composition: new AutoMovieChain({
-              kind: "parallel",
-              parts: [
-                HumanChain.subject("a").act("highFive", { partner: "b" }).node,
-                HumanChain.subject("b").act("highFive", { partner: "a" }).node,
-              ],
-            }).node,
-          }),
-      );
+      const performance: IAutoMovieMotionHumanPerformance | null =
+        FamilyCaseKit.attempt(
+          out,
+          name,
+          (): IAutoMovieMotionHumanPerformance =>
+            new HumanPerformance({
+              seed: "affection",
+              performers: performers(body, true, 0.7),
+              composition: new AutoMovieChain({
+                kind: "parallel",
+                parts: [
+                  HumanChain.subject("a").act("highFive", { partner: "b" })
+                    .node,
+                  HumanChain.subject("b").act("highFive", { partner: "a" })
+                    .node,
+                ],
+              }).node,
+            }),
+        );
       if (performance !== null) {
         const meet: number = TouchVerdicts.event(performance, "a", "meet");
         const palm: IAutoMovieMotionHumanTouchEffector.IEffector = {
@@ -347,21 +348,6 @@ export function affectionCases(
     }
   }
   return out;
-}
-
-/** A performance or, when planning throws, a failing case pushed in its place. */
-function attempt(
-  out: IMotionCaptureCase[],
-  name: string,
-  run: () => IAutoMovieMotionHumanPerformance,
-): IAutoMovieMotionHumanPerformance | null {
-  // Process boundary: a case that throws is reported as that case's refusal, and the remaining cases still run.
-  try {
-    return run();
-  } catch (error) {
-    out.push(FamilyCaseKit.refused(name, error));
-    return null;
-  }
 }
 
 /**

@@ -5,25 +5,28 @@ import {
 } from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
-import { createRecoverySceneNumericalFixture } from "../internal/createRecoverySceneNumericalFixture";
-import { nclose } from "../internal/nclose";
+import { createRecoverySceneNumericalFixture } from "../../../internal/createRecoverySceneNumericalFixture";
+import { nclose } from "../../../internal/nclose";
 
 /**
  * Explicit internal routing preserves complete scene checkpoints and defaults.
  *
  * Scenarios:
- * 1. Original five-view visibility data routes the method and coherent normal/QP reports through seed and candidate fits under its unchanged250000 resident ceiling; a larger valid population refuses without discarding the accepted component.
- * 2. A90000 fit cap admits the prescribed seed but refuses the next complete candidate; all proposed geometry rolls back while the consumed ledger survives.
- * 3. Callback mutation of caller options and scene budget cannot change the owned requested method or reported original ceiling.
- * 4. Seed capacity refusal has no accepted geometry, aggregate exhaustion remains budget-exhausted, and numerical-looking callback errors escape with original identity.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Executes actual coordinator, seed, resection, checkpoint and feasible fit owners. Observes method reports, complete rollback, ordered attempts, work and borrowed input preservation.
- * @evidence contracts/development/testing.md#independent-expectations Prescribed poses/points and feature identities define geometry. Seed C5/L24/E48 base43344 with adaptive agreement fits90000; candidate C11/L48/E120 base131776 does not. Original full five-view adaptive base330528 exceeds250000, so the explicit route must not bypass the original ceiling. Omitted ordinary all-five behavior is owned by the unchanged pipeline test.
- * @evidence contracts/development/testing.md#distinguishing-cases Covers seed/candidate request propagation, bounded partial coverage, initial normal reports, mutating callbacks, tiny fit capacity, aggregate work exhaustion and callback error identity. No initial-KKT report proves actual curvature use; fixed photo evidence and independent local-factor tests remain separate.
- * @evidence contracts/development/testing.md#execution-ownership The portable test_recovery_scene_feasible_routing entry uses analytic resident arrays; no photograph, host, process, filesystem, compiler, installation, browser or GPU starts.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Original five-view visibility data routes the method and coherent normal/QP reports through seed and candidate fits under its...).
+ * 1. Original five-view visibility data routes the method and coherent normal/QP
+ *    reports through seed and candidate fits under its unchanged250000 resident
+ *    ceiling; a larger valid population refuses without discarding the accepted
+ *    component.
+ * 2. A90000 fit cap admits the prescribed seed but refuses the next complete
+ *    candidate; all proposed geometry rolls back while the consumed ledger
+ *    survives.
+ * 3. Callback mutation of caller options and scene budget cannot change the owned
+ *    requested method or reported original ceiling.
+ * 4. Seed capacity refusal has no accepted geometry, aggregate exhaustion remains
+ *    budget-exhausted, and numerical-looking callback errors escape with
+ *    original identity.
  */
-export function test_recovery_scene_feasible_routing(): void {
+export function test_unit_recovery_internal_create_camera_scene_feasible_routing(): void {
   const fixture: ReturnType<typeof createRecoverySceneNumericalFixture> =
     createRecoverySceneNumericalFixture();
   const charts: ReturnType<typeof admitRecoveryCameraScene> =

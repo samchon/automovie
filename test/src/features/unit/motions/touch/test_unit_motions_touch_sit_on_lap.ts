@@ -1,31 +1,10 @@
-import { Vector3, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
-import type {
-  AutoMovieHumanoidBone,
-  AutoMovieHumanoidRegion,
-  IAutoMovieMotionEvent,
-  IAutoMovieMotionHumanActionPlan,
-  IAutoMovieMotionHumanBody,
-  IAutoMovieResolvedBone,
-  IAutoMovieVector3,
-} from "@automovie/interface";
-import {
-  HumanRefusal,
-  poseBones,
-  resolveHumanPosture,
-  sitOnLap,
-  stand,
-} from "@automovie/motions/internal";
+import type { IAutoMovieMotionHumanBody } from "@automovie/interface";
+import { HumanRefusal, sitOnLap, stand } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { humanFixtureBody } from "../../../internal/fixtures/humanFixtureBody";
 import { motionActionContext } from "../../../internal/motionActionContext";
 
-/**
- * How near a touching part comes to the touched skin, metres: a hand's length
- * from the wrist joint to the palm, or 20 mm of skin and tolerance for a
- * surface on a surface (`HumanSignature.CONTACT`).
- */
-const CONTACT: number = 0.02;
 /**
  * `sitOnLap.plan` sits on a seated partner's lap; a partner whose knees lie
  * well below the hips, standing, has no lap and is refused on `partner`, as is
@@ -39,23 +18,6 @@ const CONTACT: number = 0.02;
  */ export async function test_unit_motions_touch_sit_on_lap(): Promise<void> {
   // Plans the reach on the whole body and reads the partner's displayed surfaces.
   const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");
-  const read = (
-    plan: IAutoMovieMotionHumanActionPlan,
-    seconds: number,
-  ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =>
-    poseBones(body, resolveHumanPosture(body, plan.posture(seconds)));
-  const ready = (plan: IAutoMovieMotionHumanActionPlan): number =>
-    plan.duration *
-    plan.events.find((e: IAutoMovieMotionEvent): boolean => e.name === "ready")!
-      .share;
-  const surface = (
-    bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
-    region: AutoMovieHumanoidRegion,
-  ): IAutoMovieVector3 => {
-    const frame = body.surfaces.regions[region];
-    return resolveAutoMovieHumanoidSurfaces.place(frame, bones.get(frame.bone)!)
-      .point;
-  };
   const partner = (z: number): motionActionContext.IPartner => ({
     subject: "b",
     body,

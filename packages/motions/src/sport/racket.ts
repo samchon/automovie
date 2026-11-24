@@ -28,6 +28,7 @@ import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMo
 import { HumanBound } from "../law/HumanBound";
 import { HumanFrame } from "../posture/HumanFrame";
 import { courtStroke } from "./courtStroke";
+import { racketClock } from "./racketClock";
 import { racketStance } from "./racketStance";
 
 /** The alternatives of `PlanGripBend2`'s site. */
@@ -109,19 +110,7 @@ export namespace racket {
     );
     const side: AutoMovieHumanSide = p.hand ?? "right";
     const other: AutoMovieHumanSide = side === "right" ? "left" : "right";
-    const clock: IAutoMovieMotionClock = AutoMovieMotionManner.time(
-      AutoMovieMotionClock.phrase({
-        prepare: 0.6,
-        attack: p.kind === "golfAddress" ? 1.2 : 0.3,
-        hold,
-        retract: 0.6,
-      }),
-      modifiers,
-      {
-        holds: ["strokeEnd"],
-        fixed: p.kind === "splitStep" ? ["strokeStart"] : [],
-      },
-    );
+    const clock: IAutoMovieMotionClock = racketClock(p.kind, hold, modifiers);
     const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
     const into: (s: number) => number = (s: number): number =>
       clock.envelope(["start", "ready"], ["relax", "end"], s);

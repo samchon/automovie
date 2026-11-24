@@ -3,6 +3,7 @@ import type {
   IAutoMovieMotionHumanSequentialConvex,
 } from "@automovie/interface";
 
+import { HUMAN_ARM_COORDINATE_RATES as RATES } from "./HUMAN_ARM_COORDINATE_RATES";
 import { HumanArmTrajectoryConvex } from "./HumanArmTrajectoryConvex";
 import { HumanArmTrajectoryKnots as Knots } from "./HumanArmTrajectoryKnots";
 import { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
@@ -33,6 +34,12 @@ export namespace HumanArmOptimiser {
     /** Each arm's coordinates at each waypoint. */
     x: number[][][];
 
+    /**
+     * Each arm's velocity and acceleration at each knot, where the waypoints
+     * are knots on a finer frame grid; absent where they are read themselves.
+     */
+    rates?: Knots.IRates;
+
     /** Their reading, which admits or refuses the path played. */
     evaluation: M.IEvaluation;
 
@@ -55,6 +62,8 @@ export namespace HumanArmOptimiser {
    *   every evaluation and linearisation is the grid's, on the knots'
    *   interpolant, and the steps are the knots' (`HumanArmTrajectoryKnots`);
    *   absent, or for a still configuration, the waypoints are read themselves.
+   * @param rates The knots' velocities and accelerations to start from; the
+   *   minimum-jerk spline's through `start` when absent (`Knots.rates`).
    * @returns The last iterate at the waypoints, its evaluation and the merit
    *   coefficient it was reached at.
    */
@@ -63,6 +72,7 @@ export namespace HumanArmOptimiser {
     start: readonly (readonly (readonly number[])[])[],
     from?: number,
     fine?: M.IContext,
+    rates?: Knots.IRates,
   ): IOptimised {
     // With a frame grid finer than the waypoints, the waypoints are knots:
     // the model is read and linearised at every grid instant on their
@@ -72,10 +82,12 @@ export namespace HumanArmOptimiser {
         ? fine
         : undefined;
     const read: M.IContext = grid ?? context;
-    const weights: number[][] | undefined =
+    const weights: Knots.IWeight[][] | undefined =
       grid === undefined ? undefined : Knots.weights(context.times, grid.times);
-    const spread = (x: number[][][]): number[][][] =>
-      grid === undefined ? x : Knots.read(context.times, grid.times, x);
+    const spread = (it: IIterate): number[][][] =>
+      grid === undefined
+        ? it.x
+        : Knots.read(context.times, grid.times, it.x, it.rates);
 
     // The clearance is read at the knots' own instants and over the
     // intervals between them, every motion term on every frame
@@ -107,11 +119,16 @@ export namespace HumanArmOptimiser {
     const kept: IKept = { fixed: undefined };
 
     const problem: IAutoMovieMotionHumanSequentialConvex.IProblem<
-      number[][][],
+      IIterate,
       IReading
     > = {
-      closest: (x: number[][][]): number[][][] => closest(context, x),
-      evaluate: (x: number[][][]): IReading => {
+      closest: (it: IIterate): IIterate => ({
+        x: closest(context, it.x),
+        ...(it.rates === undefined
+          ? {}
+          : { rates: limited(context, it.rates) }),
+      }),
+      evaluate: (x: IIterate): IReading => {
         const evaluation: M.IEvaluation = M.evaluate(
           read,
           spread(x),
@@ -123,10 +140,10 @@ export namespace HumanArmOptimiser {
         return { ...evaluation, greatest: evaluation.worst.value };
       },
       convexify: (
-        x: number[][][],
+        x: IIterate,
         evaluation: IReading,
         coefficient: number,
-      ): IAutoMovieMotionHumanSequentialConvex.IModel<number[][][]> => {
+      ): IAutoMovieMotionHumanSequentialConvex.IModel<IIterate> => {
         // A new linearisation has other rows: no earlier point starts it.
         session.point = undefined;
 
@@ -152,13 +169,18 @@ export namespace HumanArmOptimiser {
     // One linearisation at one coefficient as the loop's model.
     const shell = (
       model: IAutoMovieMotionHumanQuadraticProgram.IProblem,
-      x: number[][][],
+      x: IIterate,
       evaluation: IReading,
       coefficient: number,
-    ): IAutoMovieMotionHumanSequentialConvex.IModel<number[][][]> => {
+    ): IAutoMovieMotionHumanSequentialConvex.IModel<IIterate> => {
       // The box's rows, one per variable, built once for the model: a
       // smaller box changes only their two ends (`setTrustBoxConstraints`).
-      const ranges: IRange[] = rangesOf(context, x, model.n);
+      const ranges: IRange[] = rangesOf(
+        context,
+        x,
+        model.n,
+        grid !== undefined,
+      );
       const trust: IAutoMovieMotionHumanQuadraticProgram.IRow[] = ranges.map(
         (
           _range: IRange,
@@ -178,11 +200,11 @@ export namespace HumanArmOptimiser {
       return {
         solve: (
           box: number,
-        ): IAutoMovieMotionHumanSequentialConvex.IStep<number[][][]> => {
+        ): IAutoMovieMotionHumanSequentialConvex.IStep<IIterate> => {
           // lbtrust = fmax(x - box, lb), ubtrust = fmin(x + box, ub), as steps.
           ranges.forEach((range: IRange, i: number): void => {
-            trust[i]!.l = Math.max(-box, range.low);
-            trust[i]!.u = Math.min(box, range.high);
+            trust[i]!.l = Math.max(-box * range.scale, range.low);
+            trust[i]!.u = Math.min(box * range.scale, range.high);
           });
           if (scaled.at !== coefficient) {
             session.scaling = undefined;
@@ -200,7 +222,7 @@ export namespace HumanArmOptimiser {
           // constraints at the solution. The model omits the costs' value at
           // the iterate, its constant, which the iterate's exact objective is.
           return {
-            trial: M.stepped(context, x, solved),
+            trial: stepped(context, x, solved, grid !== undefined),
             merit: evaluation.objective + QP.value(model, solved),
             failed: false,
           };
@@ -208,14 +230,21 @@ export namespace HumanArmOptimiser {
       };
     };
 
+    const first: number[][][] = start.map(
+      (arm: readonly (readonly number[])[]): number[][] =>
+        arm.map((v: readonly number[]): number[] => [...v]),
+    );
     const solved: IAutoMovieMotionHumanSequentialConvex.IResult<
-      number[][][],
+      IIterate,
       IReading
     > = SCO.minimise(
       problem,
-      start.map((arm: readonly (readonly number[])[]): number[][] =>
-        arm.map((v: readonly number[]): number[] => [...v]),
-      ),
+      {
+        x: first,
+        ...(grid === undefined
+          ? {}
+          : { rates: rates ?? Knots.rates(context.times, first) }),
+      },
       {
         ...SCO.DEFAULTS,
         ...TRAJECTORY,
@@ -223,12 +252,36 @@ export namespace HumanArmOptimiser {
       },
     );
     return {
-      x: solved.x,
+      x: solved.x.x,
+      ...(solved.x.rates === undefined ? {} : { rates: solved.x.rates }),
       evaluation: solved.evaluation,
       penalty: solved.coefficient,
     };
   }
 
+  /**
+   * The knots' rates nearest an iterate's within the coordinates' velocity
+   * limits (`HUMAN_ARM_COORDINATE_RATES`), the moving knots' clamped and the
+   * others kept, as the waypoints are projected into their ranges (`closest`),
+   * so every trust box holds the step of no change.
+   */
+  function limited(c: M.IContext, rates: Knots.IRates): Knots.IRates {
+    return {
+      velocities: rates.velocities.map((arm: number[][]): number[][] =>
+        arm.map((v: number[], k: number): number[] =>
+          M.inner(c, k)
+            ? v.map((value: number, d: number): number => {
+                const rate: number = RATES[d] ?? Infinity;
+                return Math.min(rate, Math.max(-rate, value));
+              })
+            : [...v],
+        ),
+      ),
+      accelerations: rates.accelerations.map((arm: number[][]): number[][] =>
+        arm.map((v: number[]): number[] => [...v]),
+      ),
+    };
+  }
   /**
    * The waypoints nearest an iterate inside the coordinates' hard ranges
    * (`OptProb::getClosestFeasiblePoint`): each inner waypoint projected by
@@ -248,26 +301,113 @@ export namespace HumanArmOptimiser {
    * bounds less its value, the chart's two unbounded (its disc is met by the
    * projection after the step).
    */
-  function rangesOf(c: M.IContext, x: number[][][], n: number): IRange[] {
+  function rangesOf(
+    c: M.IContext,
+    it: IIterate,
+    n: number,
+    knotted: boolean,
+  ): IRange[] {
     const out: IRange[] = Array.from(
       { length: n },
-      (): IRange => ({ low: -Infinity, high: Infinity }),
+      (): IRange => ({ low: -Infinity, high: Infinity, scale: 1 }),
     );
+    const stride: number = knotted ? 3 * c.width : c.width;
     for (let k: number = 1; k < c.n; ++k) {
       if (!M.inner(c, k)) continue;
+      // A knot's velocity and acceleration take the trust box in their own
+      // units: over the mean of its neighbouring segments, once and twice.
+      const span: number =
+        (c.times[Math.min(c.n - 1, k + 1)]! - c.times[k - 1]!) /
+        (k + 1 < c.n ? 2 : 1);
       c.free.forEach((free: readonly number[], a: number): void =>
         free.forEach((d: number, f: number): void => {
+          const base: number = (k - 1) * stride + c.offset[a]! + f;
           const b: Bound = c.bounds[a]![d] ?? null;
-          if (b === null) return;
-          const i: number = (k - 1) * c.width + c.offset[a]! + f;
-          const value: number = x[a]![k]![d]!;
-          out[i] = { low: b[0] - value, high: b[1] - value };
+          if (b !== null) {
+            const value: number = it.x[a]![k]![d]!;
+            out[base] = { low: b[0] - value, high: b[1] - value, scale: 1 };
+          }
+          if (!knotted || it.rates === undefined) return;
+          // The velocity within the coordinate's own rate, the limit the
+          // retiming holds it to (`HUMAN_ARM_COORDINATE_RATES`, TOPP-RA's
+          // first-order constraint); the acceleration, which the retiming
+          // leaves unbounded, only within the trust box.
+          const rate: number = RATES[d] ?? Infinity;
+          const v: number = it.rates.velocities[a]![k]![d]!;
+          // An iterate the solver's own tolerance left just past the limit keeps
+          // the step of no change in its range.
+          out[base + c.width] = {
+            low: Math.min(0, -rate - v),
+            high: Math.max(0, rate - v),
+            scale: 1 / span,
+          };
+          out[base + 2 * c.width] = {
+            low: -Infinity,
+            high: Infinity,
+            scale: 1 / (span * span),
+          };
         }),
       );
     }
     return out;
   }
 
+  /**
+   * An iterate moved by a subproblem's solution: the positions by
+   * `HumanArmTrajectoryModel.stepped`, the knots' velocities and accelerations
+   * by their own steps.
+   */
+  function stepped(
+    c: M.IContext,
+    it: IIterate,
+    solved: Float64Array,
+    knotted: boolean,
+  ): IIterate {
+    if (!knotted || it.rates === undefined)
+      return { x: M.stepped(c, it.x, solved) };
+    const width: number = c.width;
+    const inner: number = solved.length / (3 * width);
+    const positions: Float64Array = new Float64Array(inner * width);
+    for (let k: number = 0; k < inner; ++k)
+      for (let o: number = 0; o < width; ++o)
+        positions[k * width + o] = solved[k * 3 * width + o]!;
+    const velocities: number[][][] = it.rates.velocities.map(
+      (arm: number[][]): number[][] =>
+        arm.map((v: number[]): number[] => [...v]),
+    );
+    const accelerations: number[][][] = it.rates.accelerations.map(
+      (arm: number[][]): number[][] =>
+        arm.map((v: number[]): number[] => [...v]),
+    );
+    for (let k: number = 1; k < c.n; ++k) {
+      if (!M.inner(c, k)) continue;
+      c.free.forEach((free: readonly number[], a: number): void =>
+        free.forEach((d: number, f: number): void => {
+          const base: number = (k - 1) * 3 * width + c.offset[a]! + f;
+          velocities[a]![k]![d] =
+            velocities[a]![k]![d]! + solved[base + width]!;
+          accelerations[a]![k]![d] =
+            accelerations[a]![k]![d]! + solved[base + 2 * width]!;
+        }),
+      );
+    }
+    return {
+      x: M.stepped(c, it.x, positions),
+      rates: { velocities, accelerations },
+    };
+  }
+
+  /**
+   * The solve's iterate: each arm's coordinates at each waypoint, and where the
+   * waypoints are knots on a finer grid, each knot's velocity and
+   * acceleration.
+   */
+  interface IIterate {
+    /** Each arm's coordinates at each waypoint. */
+    x: number[][][];
+    /** The knots' rates; absent where the waypoints are read themselves. */
+    rates?: Knots.IRates;
+  }
   /**
    * An iterate's reading for the loop: the model's, with its greatest
    * violation.
@@ -284,6 +424,9 @@ export namespace HumanArmOptimiser {
 
     /** The greatest step. */
     high: number;
+
+    /** The trust box's scale in the variable's own units. */
+    scale: number;
   }
 
   /** The coefficient the session's scales were taken at. */
