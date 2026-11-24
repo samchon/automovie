@@ -24,7 +24,7 @@ States what is read, through which frames, what is left out and the order.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-A sphere's course through every frame of the interval, each step a capsule, read relative to the shape's own motion as continuous collision detection against a moving obstacle is; each step within the active set is its own sweep with its own signed distance less the radius (`physicalShapeNearest`), as trajopt subdivides a long interval into several casts, each its own contact, so the convex model moves every step of a miss at once.
+A sphere's course through every frame of the interval, each step a capsule, read relative to the shape's own motion as continuous collision detection against a moving obstacle is; each step within the active set is its own sweep with its own signed distance less the radius (`physicalShapeNearest`), as trajopt subdivides a long interval into several casts, each its own contact, so the convex model moves every step of a miss at once. A step a previous exact reading of the same course still keeps clear is certified by conservative advancement (Mirtich 1996, PhD thesis, ch. 3): each end of its chord lies within the course's chord travel since that reading of the reading's chord ends, prepared once per course by `AutoMovieMotionBound.prepare` and read by its `travel`, and a segment's signed distance to a convex shape changes no more than its ends move.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
@@ -32,11 +32,11 @@ One loop over the eight spheres and the shapes near each, one pass over the inte
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
-The reach, the allowances at each step's frames and the radius are the model's own; a step is left out only where it moves less than the sphere's radius relative to the shape, so it can pass through nothing its places do not touch, or where the shape's declared bounding sphere or the step's exact distance shows it clear of its allowance by more than `T.CHECK`, past both the merit and the convex rows.
+The reach, the allowances at each step's frames and the radius are the model's own; a step is left out only where it moves less than the sphere's radius relative to the shape, so it can pass through nothing its places do not touch, or where the shape's declared bounding sphere, the conservative-advancement certificate from the last exact reading or the step's exact distance shows it clear of its allowance by more than `T.CHECK`, past both the merit and the convex rows; the certificate's travel is a rounded prefix-sum difference, its precision limit.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
-Eight sphere screens over the waypoint's reachable shapes, a closed-form step-to-centre bound per frame step (TrajOpt's d_check, Schulman et al. 2014, section IV), and one exact nearest-point query only where that bound falls within the check distance; once per read interval, not per frame.
+Eight sphere screens over the waypoint's reachable shapes, a closed-form step-to-centre bound per frame step (TrajOpt's d_check, Schulman et al. 2014, section IV), one O(log n) certificate per step from the last exact reading, and one exact nearest-point query only where both fall within the check distance; the course's chord bound is prepared once per sphere and shape in O(n) for n frame steps.
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 

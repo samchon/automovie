@@ -1,4 +1,5 @@
 import {
+  AutoMovieMotionBound,
   Quaternion,
   Vector3,
   physicalShapeGjk,
@@ -104,7 +105,11 @@ export namespace HumanArmTrajectorySweep {
    * several steps is moved by all of them at once. A step shorter than the
    * sphere's radius relative to a shape sweeps nothing against it and is left
    * out, as is a step the shape's bounding sphere shows clear of its allowance
-   * by more than `T.CHECK`, which no reader uses.
+   * by more than `T.CHECK`, which no reader uses, and a step the last exact
+   * reading of the same course still keeps that clear by conservative
+   * advancement (Mirtich 1996): the course's chord travel since that reading
+   * (`AutoMovieMotionBound`) is less than its distance's excess over the
+   * check.
    *
    * @param c The context.
    * @param a The arm.
@@ -155,6 +160,16 @@ export namespace HumanArmTrajectorySweep {
           turns.push(moved.turn);
         }
         const s: IAutoMovieMotionHumanArmGeometry.IShape = frame.shapes[shape]!;
+        const bound: AutoMovieMotionBound.IPrepared | undefined = chords(
+          c,
+          k,
+          frames,
+          course,
+        );
+
+        // The last exact reading of this course: its step and its distance.
+        let read: number = -1;
+        let gap: number = 0;
         for (let i: number = 0; i + 1 < course.length; ++i) {
           // A step shorter than the sphere's radius relative to the shape
           // passes through nothing its two places do not already touch: the
@@ -166,6 +181,25 @@ export namespace HumanArmTrajectorySweep {
             c.allowed(a, frames[i]!, probe, shape),
             c.allowed(a, frames[i + 1]!, probe, shape),
           );
+
+          // Conservative advancement (Mirtich 1996, ch. 3): each end of this
+          // step's chord lies within the course's travel since the last
+          // exact reading of that reading's chord ends, and a segment's
+          // distance to a convex shape changes no more than its ends move, so
+          // a step that reading still keeps past the check distance has no
+          // reader and its shape is not read.
+          if (
+            bound !== undefined &&
+            read >= 0 &&
+            1000 *
+              (gap -
+                bound.travel(bound.times[read]!, bound.times[i + 1]!) -
+                r -
+                lower) >
+              T.CHECK
+          )
+            continue;
+
           // A step its shape's bounding sphere shows clear of its allowance
           // by more than the active set's check distance has no reader: the
           // merit counts only a sweep past its allowance and the convex model
@@ -185,6 +219,8 @@ export namespace HumanArmTrajectorySweep {
             continue;
           const reading: IAutoMoviePhysicalShapeNearest.IResult =
             physicalShapeNearest(s.pose, s.shape, course[i]!, course[i + 1]!);
+          read = i;
+          gap = reading.distance;
           if (1000 * (reading.distance - r - lower) > T.CHECK) continue;
           out.push({
             probe,
@@ -359,6 +395,33 @@ export namespace HumanArmTrajectorySweep {
     }
     return out;
   }
+}
+
+/**
+ * The bound on a probe's course over an interval, prepared once
+ * (`AutoMovieMotionBound.prepare`): its chord lengths per frame step over the
+ * steps' seconds from the interval's first waypoint, the chords being the
+ * course `HumanArmTrajectorySweep.of` reads. None where two frames share an
+ * instant or the course has no step.
+ */
+function chords(
+  c: M.IContext,
+  k: number,
+  frames: readonly number[],
+  course: readonly IAutoMovieVector3[],
+): AutoMovieMotionBound.IPrepared | undefined {
+  const along: number[] = frames.map((g: number): number =>
+    Math.abs(c.times[g]! - c.times[k]!),
+  );
+  const speeds: number[] = [];
+  for (let i: number = 0; i + 1 < along.length; ++i) {
+    const h: number = along[i + 1]! - along[i]!;
+    if (!(h > 0)) return undefined;
+    speeds.push(Vector3.distance(course[i]!, course[i + 1]!) / h);
+  }
+  return speeds.length === 0
+    ? undefined
+    : AutoMovieMotionBound.prepare(along, speeds);
 }
 
 /**
