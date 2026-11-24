@@ -9,8 +9,8 @@ import { TestValidator } from "@nestia/e2e";
  *
  * Scenarios:
  *
- * 1. A three-key route held 2 s has `getDown`, the first two arrivals at
- *    `PHASE` each, the last arrival at 0 and `settled` at 2.
+ * 1. A three-key route held 2 s has `getDown`, the first two arrivals at `PHASE`
+ *    each, the last arrival at 0 and `settled` at 2.
  * 2. A one-key route has `getDown`, its arrival at 0 and the hold.
  */
 export function test_unit_motions_floor_lie_down_phases(): void {

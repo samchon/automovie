@@ -22,8 +22,8 @@ const ROUNDING: number = 1e-12;
  *
  * Scenarios:
  *
- * 1. The entry print is 0.125 m ahead of the nominal place: local (0.1, 0,
- *    0.325), world (1.325, 0, 1.9).
+ * 1. The entry print is 0.125 m ahead of the nominal place: local (0.1, 0, 0.325),
+ *    world (1.325, 0, 1.9).
  * 2. Print 2 is a metre ahead: local (0.1, 0, 1.2), world (2.2, 0, 1.9).
  */
 export function test_unit_motions_floor_crawl_print(): void {

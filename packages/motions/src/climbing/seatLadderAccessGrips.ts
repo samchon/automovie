@@ -81,38 +81,36 @@ export function seatLadderAccessGrips(
   ): prepareHumanKnotCourse.ICourse => {
     const times: number[] = to > from ? [from, (from + to) / 2, to] : [from];
     let near: IAutoMovieQuaternion | undefined;
-    const knots: HumanKnot.IKnot[] = times.map(
-      (t: number): HumanKnot.IKnot => {
-        const bones: ReturnType<typeof poseBones> = poseBones(
-          body,
-          resolveHumanPosture.seeded(body, plan.posture(t)).pose,
-        );
-        const wrist: IAutoMovieResolvedBone = bones.get(`${side}Hand`)!;
-        const elbow: IAutoMovieResolvedBone = bones.get(`${side}LowerArm`)!;
-        const q: IAutoMovieQuaternion = wrist.worldRotation;
-        const sign: number =
-          near !== undefined &&
-          q.x * near.x + q.y * near.y + q.z * near.z + q.w * near.w < 0
-            ? -1
-            : 1;
-        near = { x: sign * q.x, y: sign * q.y, z: sign * q.z, w: sign * q.w };
-        return {
-          position: [
-            wrist.worldPosition.x,
-            wrist.worldPosition.y,
-            wrist.worldPosition.z,
-            near.x,
-            near.y,
-            near.z,
-            near.w,
-            elbow.worldPosition.x,
-            elbow.worldPosition.y,
-            elbow.worldPosition.z,
-          ],
-          dwell: 0,
-        };
-      },
-    );
+    const knots: HumanKnot.IKnot[] = times.map((t: number): HumanKnot.IKnot => {
+      const bones: ReturnType<typeof poseBones> = poseBones(
+        body,
+        resolveHumanPosture.seeded(body, plan.posture(t)).pose,
+      );
+      const wrist: IAutoMovieResolvedBone = bones.get(`${side}Hand`)!;
+      const elbow: IAutoMovieResolvedBone = bones.get(`${side}LowerArm`)!;
+      const q: IAutoMovieQuaternion = wrist.worldRotation;
+      const sign: number =
+        near !== undefined &&
+        q.x * near.x + q.y * near.y + q.z * near.z + q.w * near.w < 0
+          ? -1
+          : 1;
+      near = { x: sign * q.x, y: sign * q.y, z: sign * q.z, w: sign * q.w };
+      return {
+        position: [
+          wrist.worldPosition.x,
+          wrist.worldPosition.y,
+          wrist.worldPosition.z,
+          near.x,
+          near.y,
+          near.z,
+          near.w,
+          elbow.worldPosition.x,
+          elbow.worldPosition.y,
+          elbow.worldPosition.z,
+        ],
+        dwell: 0,
+      };
+    });
     return prepareHumanKnotCourse(knots, { kind: "fixed", times });
   };
   const schedule = (side: AutoMovieHumanSide): ISeat[] => {
@@ -197,8 +195,9 @@ export function seatLadderAccessGrips(
           : 1 - (seconds - active.to) / active.leave,
       );
       if (weight === 0) continue;
-      const c: number[] = (seconds < active.from ? active.onto : active.off)
-        .position(seconds);
+      const c: number[] = (
+        seconds < active.from ? active.onto : active.off
+      ).position(seconds);
       const wrist: IAutoMovieVector3 = { x: c[0]!, y: c[1]!, z: c[2]! };
       const turned: IAutoMovieQuaternion = Quaternion.normalize({
         x: c[3]!,

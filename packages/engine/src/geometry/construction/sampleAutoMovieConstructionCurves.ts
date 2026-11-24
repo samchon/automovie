@@ -180,29 +180,22 @@ function sampleChain(
     flagged: blamed,
   };
 
-  /**
-   * The current station's ring in metres, flat xyz, with NaN in a left-out
-   * sample; reused across stations.
-   */
+  /** The current station's ring in metres, flat xyz; reused across stations. */
   const ring: Float64Array = new Float64Array(3 * phases);
   for (let s: number = 0; s < stations.length; ++s) {
-    /** Samples of this ring that were not finite. */
-    const missing: number = sampleRing(surface, stations[s]!, ring);
+    sampleRing(surface, stations[s]!, ring);
 
     // A principal layer station publishes its whole ring as a section.
     if (ordinals[s]! >= 0) {
-      /** The ring's finite samples in phase order. */
-      const points: number[] = [];
-      for (let k: number = 0; k < phases; ++k)
-        if (!Number.isNaN(ring[3 * k]!))
-          points.push(ring[3 * k]!, ring[3 * k + 1]!, ring[3 * k + 2]!);
+      /** The ring's samples in phase order. */
+      const points: number[] = Array.from(ring);
       sections.push({
         id: `${chain.name}/section/${ordinals[s]}`,
         kind: "section",
         part: chain.name,
         closed: true,
         points,
-        flagged: blamed || missing > 0,
+        flagged: blamed,
       });
     }
 
@@ -213,19 +206,16 @@ function sampleChain(
 
       /** The rail this quarter extends. */
       const guide: IAutoMovieConstructionCurve = guides[quarter]!;
-      if (Number.isNaN(ring[at]!)) guide.flagged = true;
-      else guide.points.push(ring[at]!, ring[at + 1]!, ring[at + 2]!);
+      guide.points.push(ring[at]!, ring[at + 1]!, ring[at + 2]!);
     }
 
-    /** Sum of the ring's samples per axis; NaN when a sample was left out. */
+    /** Sum of the ring's samples per axis. */
     const sum: [number, number, number] = [0, 0, 0];
     for (let k: number = 0; k < phases; ++k) {
       sum[0] += ring[3 * k]!;
       sum[1] += ring[3 * k + 1]!;
       sum[2] += ring[3 * k + 2]!;
     }
-
-    // A mean over fewer samples would lean away from the missing side, so an incomplete ring gives no axis point.
     axis.points.push(sum[0] / phases, sum[1] / phases, sum[2] / phases);
   }
   return [...sections, ...guides, axis].filter(
@@ -302,26 +292,22 @@ function stationsOf(
 }
 
 /**
- * Evaluate one ring of a surface at uniform phases into a buffer in metres,
- * writing NaN into all three components of a sample that is not finite.
+ * Evaluate one ring of a surface at uniform phases into a buffer in metres.
  *
  * @param surface The surface, read through `point` when it has one and
  *   `jet(...).p` otherwise.
  * @param station The ring's station, mm.
  * @param ring Flat xyz buffer of three components per phase; its length sets
  *   the phase count.
- * @returns How many samples were not finite.
  */
 function sampleRing(
   surface: IAutoMovieSolidSurface,
   station: number,
   ring: Float64Array,
-): number {
+): void {
   /** Samples around the ring. */
   const phases: number = ring.length / 3;
 
-  /** Samples that were not finite. */
-  let missing: number = 0;
   for (let k: number = 0; k < phases; ++k) {
     /**
      * Phase of this sample, radians; `4 k / phases` is a whole number at each
@@ -337,14 +323,7 @@ function sampleRing(
       surface.point !== undefined
         ? surface.point(station, phase)
         : surface.jet(station, phase).p;
-
-    /** Whether all three components are finite. */
-    const finite: boolean = true;
-    if (!finite) ++missing;
     for (let axis: number = 0; axis < 3; ++axis)
-      ring[3 * k + axis] = finite
-        ? point[axis]! / AutoMovieConstructionViews.SCALE
-        : Number.NaN;
+      ring[3 * k + axis] = point[axis]! / AutoMovieConstructionViews.SCALE;
   }
-  return missing;
 }

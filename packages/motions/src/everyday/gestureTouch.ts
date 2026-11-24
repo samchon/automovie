@@ -300,8 +300,8 @@ const STEEP: number = 0.9;
 const TOUCH_OUT: number = 0.15;
 
 /**
- * The face region a self-touch kind touches: the nose bridge for
- * `pushGlasses`, the hand's temple for `scratchHead`, the asked one otherwise.
+ * The face region a self-touch kind touches: the nose bridge for `pushGlasses`,
+ * the hand's temple for `scratchHead`, the asked one otherwise.
  */
 function regionOf(
   kind: IAutoMovieMotionHumanGestureStroke.Kind,

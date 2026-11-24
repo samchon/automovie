@@ -85,8 +85,7 @@ export namespace AutoMovieSolidMeshLoop {
     } catch {
       return raw;
     }
-    let eager: boolean =
-      period !== undefined && (period <= 0);
+    let eager: boolean = period !== undefined && period <= 0;
     return (
       u: number,
       v: number,
@@ -150,12 +149,12 @@ export namespace AutoMovieSolidMeshLoop {
           // exists only when they stay inside half a period, so every
           // point's nearest lift is the one the segments read.
           const narrow: boolean =
-            (period === undefined || last - first < period / 2);
+            period === undefined || last - first < period / 2;
           state.box = [
             low,
             high,
-            narrow ? (first + last) / 2 : NaN,
-            narrow ? (last - first) / 2 : NaN,
+            narrow ? (first + last) / 2 : 0,
+            narrow ? (last - first) / 2 : Infinity,
           ];
         }
 
@@ -167,13 +166,12 @@ export namespace AutoMovieSolidMeshLoop {
         // only on a strict excess, so a tie still reads every segment.
         const box: [number, number, number, number] = state.box!;
         const gapU: number = Math.max(0, box[0] - u, u - box[1]);
-        const gapV: number = Number.isNaN(box[2])
-          ? 0
-          : Math.max(
-              0,
-              Math.abs(AutoMovieSolidCycle.shift(v, box[2], period) - box[2]) -
-                box[3],
-            );
+        // An unbounded half width leaves no phase gap.
+        const gapV: number = Math.max(
+          0,
+          Math.abs(AutoMovieSolidCycle.shift(v, box[2], period) - box[2]) -
+            box[3],
+        );
         const shear: number =
           E > 0 && G > 0 ? Math.abs(F) / Math.sqrt(E * G) : 1;
         if (
@@ -206,8 +204,8 @@ export namespace AutoMovieSolidMeshLoop {
     /** Metric segment differences, dx/dy per edge. */ deltas?: Float64Array;
     /**
      * The copied chart's box: lowest and highest station, then the middle and
-     * half width of its unwrapped phases, NaN when they span half a period or
-     * more.
+     * half width of its unwrapped phases, an Infinity half width when they span
+     * half a period or more.
      */ box?: [number, number, number, number];
   }
 
@@ -244,11 +242,7 @@ export namespace AutoMovieSolidMeshLoop {
         if (!Array.isArray(point)) return null;
         const x: unknown = Object.getOwnPropertyDescriptor(point, "0")?.value;
         const y: unknown = Object.getOwnPropertyDescriptor(point, "1")?.value;
-        if (
-          typeof x !== "number" ||
-          typeof y !== "number"
-        )
-          return null;
+        if (typeof x !== "number" || typeof y !== "number") return null;
         chart.push([x, y]);
       }
       return { kind, chart };
@@ -268,8 +262,7 @@ export namespace AutoMovieSolidMeshLoop {
             axis,
             String(k),
           )?.value;
-          if (typeof value !== "number")
-            return false;
+          if (typeof value !== "number") return false;
         }
       }
       return true;

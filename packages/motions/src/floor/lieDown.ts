@@ -383,7 +383,10 @@ export namespace lieDown {
     // A phase's exact posture at a second, every constraint solved: the
     // floor rest, the feet's pins, the rolling heel, each arm's room and a
     // folded sitting's legs. It is read only here, at the phase's knots.
-    const exact = (index: number, seconds: number): IAutoMovieMotionHumanPosture => {
+    const exact = (
+      index: number,
+      seconds: number,
+    ): IAutoMovieMotionHumanPosture => {
       const u: number = progress[index]!.progress(seconds);
       const rested: IAutoMovieMotionHumanPosture = arms(
         index,

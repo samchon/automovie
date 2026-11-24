@@ -12,14 +12,13 @@ const ROUNDING: number = 1e-12;
 
 /**
  * `pourClock` lays the pour's five authored stages end to end, each scaled by
- * the tempo, after admitting each stage to 0.2 to 3 s, their sum and its
- * scaled sum to 10 s, the tilt to 35 to 90 degrees and the gap to 0.04 to
- * 0.18 m.
+ * the tempo, after admitting each stage to 0.2 to 3 s, their sum and its scaled
+ * sum to 10 s, the tilt to 35 to 90 degrees and the gap to 0.04 to 0.18 m.
  *
  * Scenarios:
  *
- * 1. Stages of 1, 0.5, 2, 0.5 and 1 s start at 0, 1, 1.5, 3.5 and 4 s and end
- *    at 5 s.
+ * 1. Stages of 1, 0.5, 2, 0.5 and 1 s start at 0, 1, 1.5, 3.5 and 4 s and end at 5
+ *    s.
  * 2. A tempo of 1.5 stretches every start and the end by 1.5.
  * 3. A stage under 0.2 s, a scaled sum over 10 s, a tilt under 35 degrees and a
  *    gap over 0.18 m are each refused.

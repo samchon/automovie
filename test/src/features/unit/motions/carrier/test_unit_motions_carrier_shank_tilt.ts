@@ -20,15 +20,15 @@ const STRAIGHT: number = 1e-5;
 /**
  * `shankTilt` is the shank's forward lean from vertical for an ankle below a
  * hip, the knee bent forward in the facing's plane: the two-link leg's closed
- * form. For an ankle straight below the hip at a distance `D`, the shank's
- * lean is the triangle's angle at the ankle, `acos((s^2 + D^2 - t^2) / (2 s
- * D))` by the law of cosines, with `t` the thigh and `s` the shank.
+ * form. For an ankle straight below the hip at a distance `D`, the shank's lean
+ * is the triangle's angle at the ankle, `acos((s^2 + D^2 - t^2) / (2 s D))` by
+ * the law of cosines, with `t` the thigh and `s` the shank.
  *
  * Scenarios:
  *
  * 1. A straight leg under its hip leans 0 degrees.
- * 2. An ankle straight below at 90 % of the leg's length leans the law of
- *    cosines' angle forward.
+ * 2. An ankle straight below at 90 % of the leg's length leans the law of cosines'
+ *    angle forward.
  * 3. Facing the other way mirrors the knee: the same ankle leans the same, the
  *    knee now ahead of the reversed facing.
  */
@@ -55,7 +55,11 @@ export async function test_unit_motions_carrier_shank_tilt(): Promise<void> {
   const ankle: IAutoMovieVector3 = { x: 0, y: 1 - D, z: 0 };
   TestValidator.predicate(
     "the law of cosines' lean",
-    nclose(shankTilt(body, hip, ankle, { x: 0, y: 0, z: 1 }), expected, ROUNDING),
+    nclose(
+      shankTilt(body, hip, ankle, { x: 0, y: 0, z: 1 }),
+      expected,
+      ROUNDING,
+    ),
   );
 
   // 3. Facing back.

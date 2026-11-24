@@ -14,8 +14,8 @@ const ROUNDING: number = 1e-12;
  * Scenarios:
  *
  * 1. A spine at (2, 3, -1) given 0.4 of a 10-degree flexion is at (6, 3, -1).
- * 2. A chest the record leaves out takes its share from zero: 0.6 of 10 is
- *    (6, 0, 0).
+ * 2. A chest the record leaves out takes its share from zero: 0.6 of 10 is (6, 0,
+ *    0).
  */
 export function test_unit_motions_everyday_add_human_trunk_inclination(): void {
   const joints: IAutoMovieMotionHumanPosture["joints"] = { spine: [2, 3, -1] };

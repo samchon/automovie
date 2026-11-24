@@ -224,30 +224,31 @@ export namespace walkLocomoteGround {
     // from a knot course (`prepareHumanKnotCourse`, Flash and Hogan's
     // minimum-jerk path through the knots), so a read places the stances
     // under it with no root search.
-    const lowering: prepareHumanKnotCourse.ICourse = walkLocomoteLowering.prepare(
-      context.steps.duration,
-      swings,
-      (t: number): number => {
-        const feet: Feet = {
-          left: context.steps.foot("left", t),
-          right: context.steps.foot("right", t),
-        };
-        const amount: number = context.steps.amount(t);
-        return (
-          context.root(t).y -
-          ground(
-            context,
-            flights,
-            descents,
-            t,
-            feet,
-            amount,
-            context.pelvis(t, context.steps.phase(t), amount),
-            undefined,
-          ).root.y
-        );
-      },
-    );
+    const lowering: prepareHumanKnotCourse.ICourse =
+      walkLocomoteLowering.prepare(
+        context.steps.duration,
+        swings,
+        (t: number): number => {
+          const feet: Feet = {
+            left: context.steps.foot("left", t),
+            right: context.steps.foot("right", t),
+          };
+          const amount: number = context.steps.amount(t);
+          return (
+            context.root(t).y -
+            ground(
+              context,
+              flights,
+              descents,
+              t,
+              feet,
+              amount,
+              context.pelvis(t, context.steps.phase(t), amount),
+              undefined,
+            ).root.y
+          );
+        },
+      );
     return {
       settle: (
         t: number,

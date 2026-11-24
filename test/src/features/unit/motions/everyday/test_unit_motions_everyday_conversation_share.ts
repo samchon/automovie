@@ -20,8 +20,8 @@ const ROUNDING: number = 1e-12;
  *
  * Scenarios:
  *
- * 1. The faces hold 2 + 2 + 2 = 6 of the 10 s: 0.6. The point's 2 s do not
- *    count, and the face from 6 s ends where the next request begins.
+ * 1. The faces hold 2 + 2 + 2 = 6 of the 10 s: 0.6. The point's 2 s do not count,
+ *    and the face from 6 s ends where the next request begins.
  * 2. Clipped to 2 to 7 s: the first face's 1 s and the third's 1 s, 2 of 5 s.
  */
 export function test_unit_motions_everyday_conversation_share(): void {

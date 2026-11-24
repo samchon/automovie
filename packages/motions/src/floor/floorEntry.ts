@@ -266,10 +266,10 @@ export namespace floorEntry {
    * far from their hips. Where the blended angles would put a limb deeper under
    * the floor than the two ends have it, the body is raised by the difference
    * (`knockdown.prepareRest`). That rise is solved here at evenly spaced
-   * weights, as many as keep every arm within the audit's allowance between
-   * two of them (`floorArmRoom.count`), and read between them from a knot
-   * course (`prepareHumanKnotCourse`, Flash and Hogan's minimum-jerk path),
-   * so a read evaluates closed forms only.
+   * weights, as many as keep every arm within the audit's allowance between two
+   * of them (`floorArmRoom.count`), and read between them from a knot course
+   * (`prepareHumanKnotCourse`, Flash and Hogan's minimum-jerk path), so a read
+   * evaluates closed forms only.
    */
   export function between(
     body: IAutoMovieMotionHumanBody,
@@ -329,7 +329,10 @@ export namespace floorEntry {
       const rise: number =
         j === 0 || j === n
           ? 0
-          : Math.max(0, sunk(carried(w)) - (sunkFrom + (sunkTo - sunkFrom) * w));
+          : Math.max(
+              0,
+              sunk(carried(w)) - (sunkFrom + (sunkTo - sunkFrom) * w),
+            );
       knots.push({ position: [rise], dwell: 0 });
       times.push(w);
     }

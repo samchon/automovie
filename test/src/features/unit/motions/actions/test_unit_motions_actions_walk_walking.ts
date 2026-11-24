@@ -18,8 +18,8 @@ const ROUNDING: number = 1e-12;
  *
  * 1. The gait carries its Froude number.
  * 2. A slow step, Fr = 0.01, is `1.2 * 0.01^0.25 = 0.3795` hip heights.
- * 3. At Fr = 0.25, `1.2 * 0.25^0.25 = 0.849` exceeds the longest step, which
- *    caps it.
+ * 3. At Fr = 0.25, `1.2 * 0.25^0.25 = 0.849` exceeds the longest step, which caps
+ *    it.
  * 4. The swing share, the lift, the arms and the lean are the constants.
  */
 export function test_unit_motions_actions_walk_walking(): void {
@@ -47,8 +47,5 @@ export function test_unit_motions_actions_walk_walking(): void {
     [gait.swing, gait.arms, gait.lean],
     [0.8, { shoulder: 15, elbow: 22.5, swing: 7.5 }, 3],
   );
-  TestValidator.predicate(
-    "the lift",
-    nclose(gait.lift, walk.LIFT, ROUNDING),
-  );
+  TestValidator.predicate("the lift", nclose(gait.lift, walk.LIFT, ROUNDING));
 }

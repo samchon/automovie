@@ -25,27 +25,26 @@ type ISwingRates = { pitch: number; toes: number };
  * One foot of a stepping gait at an instant: the rockers of its stance on a
  * footprint (`walkFootStance`) and its swing between two reached stances.
  *
- * In swing the ankle leaves the placement and the
- * velocity its stance ended with and arrives at rest on the placement its next
- * stance begins with, on a quintic Hermite curve (the minimum-jerk profile of
- * Flash and Hogan 1985 plus the engine's `carriedRate` term for the initial
- * velocity), lifted at mid-swing on a raised-cosine bump, `sin²(π u)`, whose
- * slope is zero at both ends, so the lift adds no velocity at toe-off and the
- * foot meets the floor at rest (the heel's vertical velocity at contact is near
- * zero, Winter 1992), and raised further wherever the toe or heel would come
- * nearer the floor than the lift itself, up to `CLEARANCE`, or within
- * `CLEARANCE` of it at mid-swing. The travel, the turn and the descent of the
- * placements end early, at the share of the swing where the lift has fallen to
- * the contact height of the floor (`AutoMovieMotionHumanAuditContact.HEIGHT`,
- * half the minimum toe clearance): in terminal swing the foot comes to rest
- * over its landing and only then sets down, the heel's horizontal velocity
- * falling through terminal swing as it descends (Winter 1992), so no sole is on
- * the floor while it still travels. The toes relax over the first half and take
- * the landing's flexion over the second. At ordinary walking toe-off, the
- * lowest sole point keeps its horizontal anchor while the foot lifts to the
- * contact height. The original swing path resumes smoothly over the same
- * interval length, following the local placement correction of Kovar, Schreiner
- * and Gleicher (2002).
+ * In swing the ankle leaves the placement and the velocity its stance ended
+ * with and arrives at rest on the placement its next stance begins with, on a
+ * quintic Hermite curve (the minimum-jerk profile of Flash and Hogan 1985 plus
+ * the engine's `carriedRate` term for the initial velocity), lifted at
+ * mid-swing on a raised-cosine bump, `sin²(π u)`, whose slope is zero at both
+ * ends, so the lift adds no velocity at toe-off and the foot meets the floor at
+ * rest (the heel's vertical velocity at contact is near zero, Winter 1992), and
+ * raised further wherever the toe or heel would come nearer the floor than the
+ * lift itself, up to `CLEARANCE`, or within `CLEARANCE` of it at mid-swing. The
+ * travel, the turn and the descent of the placements end early, at the share of
+ * the swing where the lift has fallen to the contact height of the floor
+ * (`AutoMovieMotionHumanAuditContact.HEIGHT`, half the minimum toe clearance):
+ * in terminal swing the foot comes to rest over its landing and only then sets
+ * down, the heel's horizontal velocity falling through terminal swing as it
+ * descends (Winter 1992), so no sole is on the floor while it still travels.
+ * The toes relax over the first half and take the landing's flexion over the
+ * second. At ordinary walking toe-off, the lowest sole point keeps its
+ * horizontal anchor while the foot lifts to the contact height. The original
+ * swing path resumes smoothly over the same interval length, following the
+ * local placement correction of Kovar, Schreiner and Gleicher (2002).
  */
 export namespace walkFoot {
   /** What a stance ends or begins with, which a swing joins. */

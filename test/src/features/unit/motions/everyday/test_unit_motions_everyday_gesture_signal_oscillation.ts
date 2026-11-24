@@ -8,14 +8,14 @@ const ROUNDING: number = 1e-12;
 
 /**
  * `gestureSignal.oscillation` is `sin(2 pi n u)` under a window easing in over
- * the first and out over the last 15 % of the stroke on the minimum-jerk
- * share, zero at and outside the stroke's ends.
+ * the first and out over the last 15 % of the stroke on the minimum-jerk share,
+ * zero at and outside the stroke's ends.
  *
  * Scenarios:
  *
  * 1. At and outside the ends the signal is 0.
- * 2. In the window's open middle it is the bare sine: two cycles at
- *    u = 5/8 give `sin(5 pi / 2) = 1`.
+ * 2. In the window's open middle it is the bare sine: two cycles at u = 5/8 give
+ *    `sin(5 pi / 2) = 1`.
  * 3. Inside the easing it is the sine scaled by the share: at `u = 0.075`, half
  *    the easing, the share `s(1/2) = 1/2`.
  */

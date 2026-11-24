@@ -33,8 +33,8 @@ const METRES: number = 1e-12;
  * 1. At the strike the foot is `STRIKE` toes-up, its toes unflexed.
  * 2. Between the rockers it stands on its footprint, flat.
  * 3. At toe-off it is at its push pitch, the toes extended by as much.
- * 4. Over the heel rocker the heel keeps its place, and over the forefoot
- *    rocker the ball keeps its place.
+ * 4. Over the heel rocker the heel keeps its place, and over the forefoot rocker
+ *    the ball keeps its place.
  */
 export async function test_unit_motions_actions_walk_foot_stance(): Promise<void> {
   const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");

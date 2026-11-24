@@ -102,14 +102,14 @@ export namespace AutoMovieLoftParameter {
     axis: readonly [number, number],
   ): number[] {
     const out: number[] = [];
-    let previous: number = NaN;
+    let previous: number | undefined;
 
     for (const p of polygon) {
       let angle: number = Math.atan2(p[1] - axis[1], p[0] - axis[0]);
 
       // The first vertex starts in [0, 2pi); each later vertex is unwrapped
       // to the branch nearest its predecessor, so the sequence is continuous.
-      if (Number.isNaN(previous)) {
+      if (previous === undefined) {
         if (angle < 0) angle += 2 * Math.PI;
       } else {
         while (angle < previous - Math.PI) angle += 2 * Math.PI;

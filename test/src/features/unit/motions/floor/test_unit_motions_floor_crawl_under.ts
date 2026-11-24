@@ -18,8 +18,8 @@ const ROUNDING: number = 1e-12;
  *
  * Scenarios:
  *
- * 1. A left shoulder at (0.18, 1.4, 0.05) over a wrist offset (0.01, 0.03,
- *    -0.04) lays its palm at (0.17, 0, 0.09).
+ * 1. A left shoulder at (0.18, 1.4, 0.05) over a wrist offset (0.01, 0.03, -0.04)
+ *    lays its palm at (0.17, 0, 0.09).
  * 2. The right side reads its own shoulder and wrist.
  */
 export function test_unit_motions_floor_crawl_under(): void {

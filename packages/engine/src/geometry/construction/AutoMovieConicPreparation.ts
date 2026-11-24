@@ -199,11 +199,7 @@ export namespace AutoMovieConicPreparation {
         own.before.push(a);
         own.after.push(b);
       }
-      return Number.isNaN(ops.value(a)) || Number.isNaN(ops.value(b))
-        ? ops.constant(NaN)
-        : ops.value(a) <= ops.value(b)
-          ? a
-          : b;
+      return ops.value(a) <= ops.value(b) ? a : b;
     }) as [T, T, T, T];
   }
 

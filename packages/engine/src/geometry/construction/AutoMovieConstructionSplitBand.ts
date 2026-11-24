@@ -411,11 +411,13 @@ export namespace AutoMovieConstructionSplitBand {
       const before: IAutoMovieConstructionSplitBand.IStretch = previous(i);
       return within[k] === 0 && before.kind === "arc" ? before.to : NaN;
     });
-    const jets: (IAutoMovieSolidSurface.IJet | null)[] = phases.map(
-      (phi: number): IAutoMovieSolidSurface.IJet | null =>
-        Number.isNaN(phi)
-          ? null
-          : input.host.surface.jet(input.host.station, phi),
+    // A seam column reads no host jet unless it ends the arc before it.
+    const jets: (IAutoMovieSolidSurface.IJet | null)[] = owner.map(
+      (i: number, k: number): IAutoMovieSolidSurface.IJet | null =>
+        stretches[i]!.kind === "arc" ||
+        (within[k] === 0 && previous(i).kind === "arc")
+          ? input.host.surface.jet(input.host.station, phases[k]!)
+          : null,
     );
     const share = (
       s: Extract<IAutoMovieConstructionSplitBand.IStretch, { kind: "seam" }>,

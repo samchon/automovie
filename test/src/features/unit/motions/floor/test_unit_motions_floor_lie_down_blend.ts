@@ -28,11 +28,10 @@ export function test_unit_motions_floor_lie_down_blend(): void {
     roll: 0,
     joints: { hips: [hips, 0, 0] },
   });
-  const blends: ((
-    weight: number,
-  ) => IAutoMovieMotionHumanPosture["joints"])[] = lieDownBlend({
-    keys: [key(0), key(40), key(100)],
-  });
+  const blends: ((weight: number) => IAutoMovieMotionHumanPosture["joints"])[] =
+    lieDownBlend({
+      keys: [key(0), key(40), key(100)],
+    });
   TestValidator.equals("one blend between each two keys", blends.length, 2);
   TestValidator.predicate(
     "a quarter of the first",

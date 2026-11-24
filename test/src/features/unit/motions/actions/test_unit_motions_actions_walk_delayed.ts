@@ -83,11 +83,7 @@ export function test_unit_motions_actions_walk_delayed(): void {
   TestValidator.equals("the contact second", delayed.contact, 2);
 
   // 5. The reads.
-  TestValidator.equals(
-    "inside the wait",
-    delayed.posture(0.5).root.x,
-    0,
-  );
+  TestValidator.equals("inside the wait", delayed.posture(0.5).root.x, 0);
   TestValidator.predicate(
     "after the wait",
     nclose(delayed.posture(2.5).root.x, 1.5, ROUNDING),

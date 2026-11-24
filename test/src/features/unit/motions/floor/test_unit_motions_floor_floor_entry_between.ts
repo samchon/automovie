@@ -13,8 +13,8 @@ import { vclose } from "../../../internal/vclose";
 const ROUNDING: number = 1e-12;
 
 /**
- * `floorEntry.between` blends two fixed postures: the joints by the weight,
- * the hips joint on the straight line between its two places with the root
+ * `floorEntry.between` blends two fixed postures: the joints by the weight, the
+ * hips joint on the straight line between its two places with the root
  * following, and the body raised wherever the blend would sink a limb deeper
  * than its two ends, that rise solved at the blend's knots in preparation.
  *
@@ -30,10 +30,7 @@ const ROUNDING: number = 1e-12;
  */
 export async function test_unit_motions_floor_floor_entry_between(): Promise<void> {
   const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");
-  const posture = (
-    x: number,
-    elbow: number,
-  ): IAutoMovieMotionHumanPosture => ({
+  const posture = (x: number, elbow: number): IAutoMovieMotionHumanPosture => ({
     root: { x, y: 0, z: 0 },
     yaw: 0,
     pitch: 0,
@@ -49,7 +46,10 @@ export async function test_unit_motions_floor_floor_entry_between(): Promise<voi
   // 1. The ends.
   TestValidator.predicate(
     "the ends",
-    blend(0) === from && blend(-1) === from && blend(1) === to && blend(2) === to,
+    blend(0) === from &&
+      blend(-1) === from &&
+      blend(1) === to &&
+      blend(2) === to,
   );
 
   // 2 to 4. Half way.

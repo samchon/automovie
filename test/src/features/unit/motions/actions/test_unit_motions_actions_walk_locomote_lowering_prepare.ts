@@ -26,13 +26,13 @@ export function test_unit_motions_actions_walk_locomote_lowering_prepare(): void
   const read: number[] = [];
   const course: ReturnType<typeof walkLocomoteLowering.prepare> =
     walkLocomoteLowering.prepare(
-    1,
-    [{ side: "left", off: 0.2, on: 0.6 }],
-    (t: number): number => {
-      read.push(t);
-      return 0.01 * t;
-    },
-  );
+      1,
+      [{ side: "left", off: 0.2, on: 0.6 }],
+      (t: number): number => {
+        read.push(t);
+        return 0.01 * t;
+      },
+    );
   const knots: number[] = [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.8, 1];
 
   // 1. Through every knot.

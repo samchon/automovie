@@ -38,7 +38,9 @@ export function prepareHumanPostureCourse(
   const first: IAutoMovieMotionHumanPosture = knots[0]!.posture;
   const bones: AutoMovieHumanoidBone[] = [];
   for (const knot of knots)
-    for (const bone of Object.keys(knot.posture.joints) as AutoMovieHumanoidBone[])
+    for (const bone of Object.keys(
+      knot.posture.joints,
+    ) as AutoMovieHumanoidBone[])
       if (!bones.includes(bone)) bones.push(bone);
   const limbs: AutoMovieHumanLimb[] = (
     Object.keys(first.limbs) as AutoMovieHumanLimb[]
@@ -71,7 +73,14 @@ export function prepareHumanPostureCourse(
     (knot: prepareHumanPostureCourse.IKnot): number[] => {
       const p: IAutoMovieMotionHumanPosture = knot.posture;
       yaw += ((((p.yaw - yaw) % 360) + 540) % 360) - 180;
-      const out: number[] = [p.root.x, p.root.y, p.root.z, yaw, p.pitch, p.roll];
+      const out: number[] = [
+        p.root.x,
+        p.root.y,
+        p.root.z,
+        yaw,
+        p.pitch,
+        p.roll,
+      ];
       for (const bone of bones) out.push(...(p.joints[bone] ?? ZERO));
       for (const limb of limbs) {
         const goal: IAutoMovieHumanLimbGoal = p.limbs[limb]!;

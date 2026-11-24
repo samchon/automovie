@@ -10,15 +10,15 @@ const ROUNDING: number = 1e-12;
  * `HumanAttribute.draw` gives one member's value of a quantity from the group's
  * distribution, clipped to [0, 1]: the mean itself with no spread, otherwise
  * the mean plus the spread times a deviate of the member's own keyed stream, so
- * the same key draws the same value. A mean outside [0, 1] or a negative
- * spread is refused.
+ * the same key draws the same value. A mean outside [0, 1] or a negative spread
+ * is refused.
  *
  * Scenarios:
  *
  * 1. No spread gives the mean.
  * 2. The same seed, ensemble, member and name draw the same value.
- * 3. A uniform deviate lies within `sqrt(3)` spreads of the mean, and every
- *    draw within [0, 1].
+ * 3. A uniform deviate lies within `sqrt(3)` spreads of the mean, and every draw
+ *    within [0, 1].
  * 4. A mean of 1.5 and a spread of -0.1 are refused.
  */
 export function test_unit_motions_ensemble_human_attribute_draw(): void {

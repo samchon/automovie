@@ -2,15 +2,12 @@ import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   AutoMovieMotionHumanChannel,
-  IAutoMovieMotionHumanArmAngles,
   IAutoMovieMotionHumanArmCarry,
   IAutoMovieMotionHumanArmClearance,
   IAutoMovieMotionHumanArmPlanned,
   IAutoMovieMotionHumanArmTrajectory,
-  IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanPrimitive,
-  IAutoMoviePose,
   IAutoMovieQuaternion,
 } from "@automovie/interface";
 
@@ -20,7 +17,6 @@ import { HumanHandAttitude } from "../posture/HumanHandAttitude";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
-import { AutoMovieMotionHumanArmCarryCourse } from "./AutoMovieMotionHumanArmCarryCourse";
 import { AutoMovieMotionHumanArmCarryHung } from "./AutoMovieMotionHumanArmCarryHung";
 import { AutoMovieMotionHumanArmCarrySpan } from "./AutoMovieMotionHumanArmCarrySpan";
 import { AutoMovieMotionHumanArmChain } from "./AutoMovieMotionHumanArmChain";

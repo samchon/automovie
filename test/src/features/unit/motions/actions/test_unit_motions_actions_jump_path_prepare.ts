@@ -21,8 +21,8 @@ const DIFFERENCE: number = 1e-5;
  *
  * Scenarios:
  *
- * 1. At its start and end the path is at its two points, and it holds them
- *    before and after.
+ * 1. At its start and end the path is at its two points, and it holds them before
+ *    and after.
  * 2. At rest at both ends, its middle second is half way.
  * 3. Given a start velocity, its first derivative there is that velocity.
  */

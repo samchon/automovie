@@ -15,6 +15,8 @@ import type {
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { HumanPhysics } from "../law/HumanPhysics";
 import { HumanRefusal } from "../law/HumanRefusal";
+import type { HumanKnot } from "../posture/HumanKnot";
+import { prepareHumanKnotCourse } from "../posture/prepareHumanKnotCourse";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { HumanBalance } from "./HumanBalance";
@@ -70,8 +72,8 @@ export function prepareSitBalance(props: ISeatDescent): ISeatCourse {
   // the seat), the seat socket goes back only as far as keeps the centre
   // of mass where it stands over the feet, read in the world along the
   // heading so a change of the base under it does not move the mark,
-  // solved by bisection at shares of that time and read linearly between
-  // them; over the last of it the socket comes back onto the seat, which
+  // solved by bisection at shares of that time and read between them on a
+  // knot course; over the last of it the socket comes back onto the seat, which
   // it reaches at contact.
   // The weight-over-the-feet course is the balance option's
   // (`IAutoMovieMotionHumanBalance`); without it the seat socket goes
@@ -178,17 +180,26 @@ export function prepareSitBalance(props: ISeatDescent): ISeatCourse {
       },
     );
   })();
+  // The solved reaches are knots of a course on the descent's seconds
+  // (`prepareHumanKnotCourse`, Flash and Hogan's minimum-jerk path through
+  // them), so a read evaluates one quintic.
+  const course: prepareHumanKnotCourse.ICourse = prepareHumanKnotCourse(
+    reaches.map(
+      (reach: number): HumanKnot.IKnot => ({ position: [reach], dwell: 0 }),
+    ),
+    {
+      kind: "fixed",
+      times: reaches.map(
+        (_: number, index: number): number => (held * (first + index)) / shares,
+      ),
+    },
+  );
+  const kept: (at: number) => number = (at: number): number =>
+    course.position(Math.max(0, Math.min(held, at)))[0]!;
   function travel(t: number): number {
     const free: number = minimumJerk.share(t / across);
     const weight: number = HumanPhysics.weightAt(window, prefix + t);
     if (weight === 0 || t >= contact) return free;
-    const kept: (at: number) => number = (at: number): number => {
-      const x: number = (Math.max(0, Math.min(held, at)) / held) * shares;
-      const k: number = Math.floor(x);
-      const sample: number = reaches[k - first]!;
-      if (k === x) return sample;
-      return sample + (reaches[k + 1 - first]! - sample) * (x - k);
-    };
     if (t <= held) return free + weight * (Math.min(free, kept(t)) - free);
     const from: number = Math.min(minimumJerk.share(held / across), kept(held));
     return (

@@ -18,8 +18,8 @@ const QUARTER: number = 10 / 64 - 15 / 256 + 6 / 1024;
  * minimum-jerk share of the swing's time (Flash and Hogan 1985), lifted on the
  * parabola `4 h p (1 - p)`, and holds it on its print between swings.
  *
- * The left hand here has prints 0.3 m apart along x, swings of 0.4 s lifting
- * at 1 and 2 s, and a 5 cm lift; the left knee lifts 2 cm.
+ * The left hand here has prints 0.3 m apart along x, swings of 0.4 s lifting at
+ * 1 and 2 s, and a 5 cm lift; the left knee lifts 2 cm.
  *
  * Scenarios:
  *

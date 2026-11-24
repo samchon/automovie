@@ -9,8 +9,8 @@ import { TestValidator } from "@nestia/e2e";
  *
  * Scenarios:
  *
- * 1. Hips of -40 to 30 and -25 to 45 degrees of twist give 25: the right hip's
- *    25 internal, under the left's 30 external.
+ * 1. Hips of -40 to 30 and -25 to 45 degrees of twist give 25: the right hip's 25
+ *    internal, under the left's 30 external.
  * 2. A hip with no twist interval is refused.
  */
 export function test_unit_motions_actions_walk_hip_twist(): void {

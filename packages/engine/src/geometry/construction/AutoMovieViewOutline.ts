@@ -168,11 +168,10 @@ export namespace AutoMovieViewOutline {
     outline: IAutoMovieViewOutline.IOutline,
   ): number[] {
     if (outline.hermite !== undefined)
-      return AutoMovieViewHermite.critical(outline.hermite)
-        .map((x: number): number =>
+      return AutoMovieViewHermite.critical(outline.hermite).map(
+        (x: number): number =>
           AutoMovieViewParameter.station(outline.parameter, x),
-        )
-        .filter(Number.isFinite);
+      );
     const { xs, ys, curvatures } = outline.spline;
     const stations: number[] = [];
     for (let i: number = 0; i + 1 < xs.length; i++) {

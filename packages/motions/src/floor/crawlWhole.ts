@@ -107,7 +107,10 @@ export namespace crawlWhole {
     /** The `clock` `crawl.plan` prepared. */
     clock: IAutoMovieMotionClock;
 
-    /** The standing posture the crawl's base holds, its way down written over it. */
+    /**
+     * The standing posture the crawl's base holds, its way down written over
+     * it.
+     */
     standing: IAutoMovieMotionHumanPosture;
   }
 }

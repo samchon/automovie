@@ -111,9 +111,7 @@ export function walkStepsFootprints(
                 yaw: (toward + towardAt(j + 1)) / 2,
               },
               {
-                x:
-                  (side === "left" ? 1 : -1) *
-                  hipWidth[side],
+                x: (side === "left" ? 1 : -1) * hipWidth[side],
                 y: 0,
                 z: 0,
               },

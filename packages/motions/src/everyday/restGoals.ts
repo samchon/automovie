@@ -101,9 +101,8 @@ export function restGoals(
     requested.add("hips");
   // The posed surfaces the places lay a hand on, and the neck a chin rest
   // casts back onto, each posed once here when a place reads it.
-  const laid: readonly IAutoMovieMotionHumanRest.Place[] = Object.values(
-    places,
-  );
+  const laid: readonly IAutoMovieMotionHumanRest.Place[] =
+    Object.values(places);
   const anatomy: ReturnType<typeof poseBones> | undefined = laid.some(
     (place: IAutoMovieMotionHumanRest.Place): boolean =>
       place === "pocket" ||
@@ -328,13 +327,7 @@ export function restGoals(
         const rear: number = reach(back);
         const throat: IAutoMovieMotionHumanColliders.IHit | undefined =
           rear > 0
-            ? HumanColliders.cast(
-                body,
-                neck!,
-                chin.point,
-                back,
-                rear,
-              )
+            ? HumanColliders.cast(body, neck!, chin.point, back, rear)
             : undefined;
         const under: IAutoMovieVector3 =
           throat === undefined

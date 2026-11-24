@@ -14,10 +14,10 @@ const ROUNDING: number = 1e-12;
  *
  * Scenarios:
  *
- * 1. A neck at (10, -4, 20) blended a quarter of the way toward (30, 4, -20) is
- *    at (15, -2, 10).
- * 2. A head the record leaves out blends from zero: half way toward (8, 6, -2)
- *    is (4, 3, -1).
+ * 1. A neck at (10, -4, 20) blended a quarter of the way toward (30, 4, -20) is at
+ *    (15, -2, 10).
+ * 2. A head the record leaves out blends from zero: half way toward (8, 6, -2) is
+ *    (4, 3, -1).
  * 3. Weight 0 leaves the angles and 1 takes the asked ones.
  */
 export function test_unit_motions_everyday_blend_gaze_joint(): void {

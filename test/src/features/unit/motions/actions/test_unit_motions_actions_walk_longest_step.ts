@@ -10,15 +10,15 @@ import { nclose } from "../../../internal/nclose";
 const ABOUT: number = 0.02;
 
 /**
- * `walk.longestStep` is the step at which a trailing leg at the thigh's
- * largest extension and a leading leg at its flexion at initial contact
+ * `walk.longestStep` is the step at which a trailing leg at the thigh's largest
+ * extension and a leading leg at its flexion at initial contact
  * (`CONTACT_FLEXION`, 20 degrees), both straight from one hip, put the ankles
  * apart: `sin(extension) + sin(20 degrees)` hip heights, about 0.81.
  *
  * Scenarios:
  *
- * 1. The longest step less the leading leg's `sin(20 degrees)` is the sine of
- *    an extension between 20 and 40 degrees, the walking hip's range.
+ * 1. The longest step less the leading leg's `sin(20 degrees)` is the sine of an
+ *    extension between 20 and 40 degrees, the walking hip's range.
  * 2. It is about 0.81 hip heights.
  */
 export function test_unit_motions_actions_walk_longest_step(): void {

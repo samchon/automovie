@@ -34,7 +34,10 @@ export function test_unit_motions_terrain_climb_stairs_weight(): void {
       { name: "treadContact2", seconds: 2.4 },
     ]),
   );
-  TestValidator.predicate("balanced at the start", nclose(right(0), 0.5, ROUNDING));
+  TestValidator.predicate(
+    "balanced at the start",
+    nclose(right(0), 0.5, ROUNDING),
+  );
   TestValidator.predicate(
     "half way to the first toe-off",
     nclose(right(0.5), 0.75, ROUNDING),

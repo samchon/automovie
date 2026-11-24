@@ -41,8 +41,8 @@ type Resolution = Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2];
  */
 export namespace walkLocomoteLowering {
   /**
-   * The least gap between two knots of the lowering, seconds: knots nearer
-   * than a tick (`WALK_TICK`) are one.
+   * The least gap between two knots of the lowering, seconds: knots nearer than
+   * a tick (`WALK_TICK`) are one.
    */
   export const GAP: number = WALK_TICK;
 
@@ -100,9 +100,9 @@ export namespace walkLocomoteLowering {
   }
 
   /**
-   * A walk's pelvis at a second under its prepared lowering: the stances
-   * placed under the lowered hips, a swinging foot's claim kept only as the
-   * mark that it bears no stance.
+   * A walk's pelvis at a second under its prepared lowering: the stances placed
+   * under the lowered hips, a swinging foot's claim kept only as the mark that
+   * it bears no stance.
    *
    * @param context What the settling reads of the walk's plan.
    * @param t Action seconds.

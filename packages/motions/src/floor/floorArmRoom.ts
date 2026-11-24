@@ -56,9 +56,8 @@ export namespace floorArmRoom {
    * Each blend's two keys and evenly spaced blends between them are read here,
    * as many as `samples` shows keep any dip between two readings within the
    * audit's self-penetration allowance; a blend whose arms stay within their
-   * allowance at every one of those is left exactly as blended, so only a
-   * blend that carries an arm through the body pays a posture resolve per
-   * query.
+   * allowance at every one of those is left exactly as blended, so only a blend
+   * that carries an arm through the body pays a posture resolve per query.
    *
    * @param body The body.
    * @param keys Each blend's posture at a weight, in the law's key order.
@@ -85,7 +84,9 @@ export namespace floorArmRoom {
       right: ends.from.right + (ends.to.right - ends.from.right) * w,
     });
     const blends: readonly IPrepareBlendsItem[] = keys.map(
-      (keyed: (weight: number) => IAutoMovieMotionHumanPosture): IPrepareBlend => {
+      (
+        keyed: (weight: number) => IAutoMovieMotionHumanPosture,
+      ): IPrepareBlend => {
         const ends: IPrepareEnds = {
           from: rooms(body, posed(body, keyed(0), read, project)),
           to: rooms(body, posed(body, keyed(1), read, project)),

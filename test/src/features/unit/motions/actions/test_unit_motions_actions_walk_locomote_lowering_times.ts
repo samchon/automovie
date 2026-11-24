@@ -46,10 +46,15 @@ export function test_unit_motions_actions_walk_locomote_lowering_times(): void {
   const mid: number = (off + 1) / 2;
   TestValidator.predicate(
     "an event within a tick merges",
-    close(
-      walkLocomoteLowering.times(2, [{ side: "left", off, on: 1 }]),
-      [0, mid / 2, mid, (mid + 1) / 2, 1, 1.5, 2],
-    ),
+    close(walkLocomoteLowering.times(2, [{ side: "left", off, on: 1 }]), [
+      0,
+      mid / 2,
+      mid,
+      (mid + 1) / 2,
+      1,
+      1.5,
+      2,
+    ]),
   );
 
   // 3. Outside the take.

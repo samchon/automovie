@@ -244,16 +244,16 @@ export function walkReachGround(
   );
   let drop: number = solved ?? 0;
   if (solved === undefined)
-  for (let mask: number = 0; mask < 1 << fading.length; mask++) {
-    let part: number = 1;
-    share = { left: bearing.left ? 1 : 0, right: bearing.right ? 1 : 0 };
-    fading.forEach((side: AutoMovieHumanSide, i: number): void => {
-      const kept: boolean = (mask & (1 << i)) !== 0;
-      share[side] = kept ? 1 : 0;
-      part *= kept ? weights[side] : 1 - weights[side];
-    });
-    drop += part * settle();
-  }
+    for (let mask: number = 0; mask < 1 << fading.length; mask++) {
+      let part: number = 1;
+      share = { left: bearing.left ? 1 : 0, right: bearing.right ? 1 : 0 };
+      fading.forEach((side: AutoMovieHumanSide, i: number): void => {
+        const kept: boolean = (mask & (1 << i)) !== 0;
+        share[side] = kept ? 1 : 0;
+        part *= kept ? weights[side] : 1 - weights[side];
+      });
+      drop += part * settle();
+    }
   share = { left: bearing.left ? 1 : 0, right: bearing.right ? 1 : 0 };
   place(drop);
   const completed: Pick<walkReach.IGround, GroundCompleted> = walkReachFeet(

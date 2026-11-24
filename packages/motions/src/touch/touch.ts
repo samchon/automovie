@@ -422,6 +422,14 @@ export namespace touch {
         window,
         first,
         laidOn(effector, laid(first, p.target)),
+        clock,
+        (): IAutoMovieMotionHumanActionPlan =>
+          composeAutoMovieMotionHumanAction({
+            base: adjusted.base(context, clock),
+            clock,
+            primitives: stance.primitives(clock),
+            contact: "ready",
+          }),
       ),
     );
     if (shown !== null)

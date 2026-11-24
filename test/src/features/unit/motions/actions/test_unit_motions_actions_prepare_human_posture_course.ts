@@ -19,16 +19,16 @@ const QUARTER: number = 10 / 64 - 15 / 256 + 6 / 1024;
 
 /**
  * `prepareHumanPostureCourse` joins key postures solved in preparation by a
- * minimum-jerk course through them: two knots make one rest-to-rest quintic,
- * so each continuous field at a second is `a + (b - a) s(u)` with `s` the
- * minimum-jerk share, and every other field is the last knot's at or before it.
+ * minimum-jerk course through them: two knots make one rest-to-rest quintic, so
+ * each continuous field at a second is `a + (b - a) s(u)` with `s` the
+ * minimum-jerk share, and every other field is the last knot's at or before
+ * it.
  *
  * Scenarios:
  *
- * 1. Before the first knot the posture is the first's, after the last the
- *    last's.
- * 2. At the middle second the root, a joint and a joint only the second knot
- *    sets (zero in the first) are half way.
+ * 1. Before the first knot the posture is the first's, after the last the last's.
+ * 2. At the middle second the root, a joint and a joint only the second knot sets
+ *    (zero in the first) are half way.
  * 3. At a quarter of the span they are at the minimum-jerk share `s(1/4)`.
  * 4. A heading from 350 to 10 degrees turns the short way, through 360.
  * 5. A foot rotation given as `q` and `-q` stays the same rotation, normalized.

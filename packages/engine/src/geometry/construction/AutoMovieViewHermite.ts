@@ -42,7 +42,9 @@ export namespace AutoMovieViewHermite {
       AUTOMOVIE_CONSTRUCTION_RELATIVE_TOLERANCE *
       Math.max(
         ...ys.map(Math.abs),
-        ...[minimum, maximum].filter(Number.isFinite).map(Math.abs),
+        ...[minimum, maximum]
+          .filter((bound: number): boolean => Math.abs(bound) !== Infinity)
+          .map(Math.abs),
       );
     for (let i: number = 0; i < n; i++) {
       if (ys[i]! < minimum - allowance || ys[i]! > maximum + allowance)

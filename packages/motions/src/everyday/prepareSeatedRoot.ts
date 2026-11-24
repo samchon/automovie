@@ -13,8 +13,8 @@ type PrepareSeatedRootHeading = "yaw" | "pitch" | "roll";
 
 /**
  * Prepare a fixed body's seat socket under an unchanged rigid heading: its rest
- * offset is turned by the heading here, so every point yields the root that puts
- * the socket there with one subtraction.
+ * offset is turned by the heading here, so every point yields the root that
+ * puts the socket there with one subtraction.
  *
  * @param body The unchanged body/rest/socket geometry of this action.
  * @param heading Unchanged yaw, pitch and roll in degrees for this reader.

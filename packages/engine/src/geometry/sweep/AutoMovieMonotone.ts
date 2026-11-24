@@ -39,15 +39,16 @@ export namespace AutoMovieMonotone {
     }
     const segments: number = period === 0 ? n - 1 : n;
     for (let k: number = 0; k < n; ++k) {
-      const before: number =
+      const before: number | undefined =
         k > 0
           ? secant(xs, ys, n, period, k - 1)
           : period !== 0
             ? secant(xs, ys, n, period, segments - 1)
-            : NaN;
-      const after: number = k < segments ? secant(xs, ys, n, period, k) : NaN;
-      if (Number.isNaN(before)) slopes[k] = after;
-      else if (Number.isNaN(after)) slopes[k] = before;
+            : undefined;
+      const after: number | undefined =
+        k < segments ? secant(xs, ys, n, period, k) : undefined;
+      if (before === undefined) slopes[k] = after!;
+      else if (after === undefined) slopes[k] = before;
       else slopes[k] = before * after <= 0 ? 0 : (before + after) / 2;
     }
     for (let k: number = 0; k < segments; ++k) {
