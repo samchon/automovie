@@ -21,7 +21,9 @@ The main session audits the subagents' work for violations of:
 
 It audits every 10 minutes unless the user sets another interval.
 
-On a violation, it warns the subagent and orders a fix. It adds no approval step. Approvals the rules require go to the user.
+On a violation, it warns the subagent and orders a fix.
+
+It adds no approval step of its own. Approvals the rules require go to the user.
 
 ## Subagents
 
