@@ -23,6 +23,7 @@ import { computePhysicalKinematicFrames } from "./computePhysicalKinematicFrames
 import { freezePhysicalRecord } from "./freezePhysicalRecord";
 import { inPhysicalFloorBounds } from "./inPhysicalFloorBounds";
 import { physicalInputDigest } from "./physicalInputDigest";
+import { planPhysicalSimulationSteps } from "./planPhysicalSimulationSteps";
 import { preparePhysicalContactHooks } from "./preparePhysicalContactHooks";
 import { preparePhysicalCoupledTargetSchedule } from "./preparePhysicalCoupledTargetSchedule";
 import { preparePhysicalGeometry } from "./preparePhysicalGeometry";
@@ -207,6 +208,9 @@ export class AutoMoviePhysicalSimulation {
     }
     {
       const start: number = checkpointPhysicalSimulation(owned, previous);
+      const plan: planPhysicalSimulationSteps.IResult =
+        planPhysicalSimulationSteps(start, count, owned.checkpointEvery);
+      const snapshots: ReadonlySet<number> = new Set(plan.snapshots);
       const world: AutoMovieXpbdWorld = restorePhysicalSimulationCheckpoint(
         owned,
         previous,
@@ -449,7 +453,7 @@ export class AutoMoviePhysicalSimulation {
         for (const key of active.keys())
           if (!found.has(key)) active.delete(key);
         cache.frames.push(readPhysicalFrame(bound, seconds));
-        if (step % owned.checkpointEvery === 0) {
+        if (snapshots.has(step)) {
           cache.checkpoints.set(step, world.takeSnapshot());
           cache.controllerCheckpoints.set(step, {
             contactCount: cache.contacts.length,
@@ -503,7 +507,7 @@ export class AutoMoviePhysicalSimulation {
       return new AutoMoviePhysicalSimulation(
         owned,
         cache,
-        count - start,
+        plan.steps,
         diagnostics,
         fits,
       );

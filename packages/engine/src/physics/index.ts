@@ -154,6 +154,7 @@ export * from "./planPhysicalBalanceTargets";
 export * from "./planPhysicalContactTargets";
 export * from "./planPhysicalFloorSupportTargets";
 export * from "./planPhysicalRootSupportTargets";
+export * from "./planPhysicalSimulationSteps";
 export * from "./planPhysicalSupportTargets";
 export * from "./preparePhysicalContactHooks";
 export * from "./preparePhysicalDisturbanceSpan";
