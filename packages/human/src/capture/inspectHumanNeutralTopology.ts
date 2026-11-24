@@ -101,7 +101,7 @@ export function inspectHumanNeutralTopology(
         `${part} is outside its anatomical parent ${feature.parent}`,
       );
     if (
-      (part.startsWith("nose.nostril.") || part.startsWith("ear.concha.")) &&
+      part.startsWith("nose.nostril.") &&
       (node.type !== "join" || node.kind !== "diff")
     )
       diagnostics.push(`${part} does not cut its cavity`);
@@ -143,6 +143,30 @@ export function inspectHumanNeutralTopology(
   const connected = (a: string, b: string): boolean =>
     connections.has(`${a}/${b}`) || connections.has(`${b}/${a}`);
   for (const side of ["left", "right"] as const) {
+    const auricle: IAutoMovieViewPart | undefined = sourceParts.get(
+      `auricle.${side}`,
+    );
+    for (const region of [
+      "helix",
+      "antihelix",
+      "crus.helicis",
+      "crus.superior",
+      "crus.inferior",
+      "concha",
+    ] as const) {
+      const name: string = `ear.${region}.${side}`;
+      const sign: number = region === "concha" ? -1 : 1;
+      if (
+        !auricle?.reliefs?.some(
+          (field): boolean =>
+            field.name === name &&
+            field.heights.some((height: number): boolean => sign * height > 0),
+        )
+      )
+        diagnostics.push(
+          `${auricle?.name ?? side} does not contain the ${name} field`,
+        );
+    }
     const arm: string = `arm.${side}`;
     const hand: string = `hand.${side}`;
     const leg: string = `leg.${side}`;

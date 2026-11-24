@@ -26,7 +26,7 @@ One actual source attempt collected before publishing any composed result.
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
-Read by AutoMovieHumanHeadDome.attempt, AutoMovieHumanHeadEarParts.of, AutoMovieHumanHeadEarParts.part. Also types AutoMovieHumanHeadComposer.attachments, AutoMovieHumanHeadComposer.failures.
+AutoMovieHumanHeadDome.attempt supplies this record to AutoMovieHumanHeadFeatures and AutoMovieHumanHeadInnerParts. AutoMovieHumanHeadComposer retains attachments and failures.
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 

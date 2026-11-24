@@ -49,11 +49,6 @@ export namespace AutoMovieHumanHeadOriginalSources {
       ...(["left", "right"] as const).flatMap(
         (side: "left" | "right"): string[] => [
           "auricle." + side,
-          "ear.helix." + side,
-          "ear.antihelix." + side,
-          "ear.crus.superior." + side,
-          "ear.crus.inferior." + side,
-          "ear.concha." + side,
           "nose.ala." + side,
           "nose.nostril." + side,
           "globe." + side,
@@ -149,7 +144,7 @@ export namespace AutoMovieHumanHeadOriginalSources {
                 : selected,
           );
         const auricles: IAutoMovieHumanHeadFeatures.IFeature[] = complete
-          ? AutoMovieHumanHeadEarParts.of(plan, mass, ears, places?.ears, attempts)
+          ? AutoMovieHumanHeadEarParts.of(plan, mass, ears, places?.ears)
           : [];
         const inner: IAutoMovieHumanHeadFeatures.IFeature[] = needsInner
           ? AutoMovieHumanHeadInnerParts.of(
