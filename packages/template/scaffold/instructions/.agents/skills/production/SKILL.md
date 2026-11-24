@@ -1,6 +1,6 @@
 ---
 name: production
-description: Keeps a production's scope, workflow, caches, media and assembly.
+description: Keeps a production's scope, workflow, media and assembly.
 ---
 
 # Production
@@ -11,7 +11,6 @@ description: Keeps a production's scope, workflow, caches, media and assembly.
 | [Director](director.md) | Assigning work and deciding whether to accept it or return it for revision |
 | [Production workflow](workflow.md) | Following the stages for the commissioned output |
 | [Sustained runs](sustained-runs.md) | Running, observing or resuming sustained work |
-| [Stage caches](stage-caches.md) | Caching and resuming expensive stages |
 | [Media records](media-records.md) | Saving media and generation requests with their records |
 | [Captions](captions.md) | Writing and timing a film's caption tracks |
 | [Assembly and handoff](assembly.md) | Assembling the film, rendering it once and handing it off |
