@@ -32,6 +32,7 @@ export namespace FamilyConicCaptureFrame {
     stage: string,
     scope: string,
     observation?: N.Observation,
+    subject?: string,
   ): Promise<{ file: string; sha256: string }> {
     const rendered: ReturnType<typeof NodeCanvasRaster.render> =
       NodeCanvasRaster.render(
@@ -41,7 +42,7 @@ export namespace FamilyConicCaptureFrame {
         lineMode,
         label,
         undefined,
-        context?.input.selected.id,
+        subject ?? context?.input.selected.id,
         observation,
       );
     const started: number = performance.now();

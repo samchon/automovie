@@ -4,6 +4,12 @@ The basis of every number that shapes the figure or decides admission in the cod
 
 Audited on 2026-11-23 against the working tree of PR #3604 (base `9925030e437a`). Line numbers are that tree's and move with later edits.
 
+## Evidence for the replacement construction
+
+The geometry comparison starts from the CC0 MakeHuman HM08 body and its associated rig markers. The development reader pins the revision and checks the exact OBJ bytes before extracting the `body` group. The baseline stands with its arms partly abducted. Match the comparison pose to that chart, and use standing neutral clinical measurements only for cross-checking segment orientation in their published joint-relative frames. [MPFB asset license](https://github.com/makehumancommunity/mpfb2/blob/650c5c53bd6989a8ac264f31fa1d11d4a0c7bd8a/LICENSE.ASSETS.md), [Yoshida et al. 2022](https://doi.org/10.1186/s13018-022-03113-5).
+
+Wang's mannequin construction locates the underarm through the front and rear contour turns and builds the cross tangent from the supporting normal and the boundary tangent. The child may use a polar port only where its angular traversal is directed and its radial projection is transverse. When those premises fail, its proximal curves can be described by a parametric cross-tangent construction and joined to the regular distal chart. Preserve the parent's published position and tangent plane and the child's independently authored distal curves. [Wang 2005, sections 3.1 and 4.1](https://mewangcl.github.io/pubs/CADParaHuman.pdf), [Gabrielides et al., sections 3 and 4](https://users.math.uoc.gr/~mkaravel/files/papers/bransurf.pdf).
+
 ## Verdicts
 
 | Verdict | Meaning |
