@@ -1,4 +1,5 @@
 export * from "./AutoMovieMeshCrossingGeometry";
+export * from "./AutoMovieMotionBound";
 export * from "./admitAutoMovieBicubicAtlas";
 export * from "./admitSubdivisionCage";
 export * from "./assertAutoMovieDeformedTriangles";
