@@ -4,8 +4,8 @@ import type {
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanMountRider,
   IAutoMovieMotionHumanProp,
-  IAutoMovieMotionHumanPropReader,
   IAutoMovieQuaternion,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -13,8 +13,6 @@ import { HumanRefusal } from "../law/HumanRefusal";
 
 /** The axis a handle is wrapped about: its affordance frame's local +X. */
 const HANDLE: IAutoMovieVector3 = { x: 1, y: 0, z: 0 };
-/** The alternatives of `ReadPropGripContext`'s site. */
-type ReadPropGripContext = "prop" | "aim";
 
 /**
  * A named point of a prop as a hand's grip at a film second: the displayed
@@ -31,13 +29,13 @@ type ReadPropGripContext = "prop" | "aim";
  * @throws {HumanRefusal} When the prop declares no such point.
  */
 export function readPropGrip(
-  context: Pick<IAutoMovieMotionHumanActionContext, ReadPropGripContext>,
+  context: readPropGrip.IContext,
   on: string,
   id: string,
   seconds: number,
   axis: string,
 ): IAutoMovieMotionHumanMountRider.IHoldGrip {
-  const support: IAutoMovieMotionHumanPropReader = context.prop(on);
+  const support: readPropGrip.IReader = context.prop(on);
   if (!Object.hasOwn(support.prop.points, id))
     throw new HumanRefusal({
       kind: "affordance",
@@ -73,4 +71,25 @@ export function readPropGrip(
       ? {}
       : { axis: Quaternion.rotateVector(rotation, HANDLE) }),
   };
+}
+
+/** What a prop's grip is read from. */
+export namespace readPropGrip {
+  /** The action's prop readers and aim. */
+  export interface IContext {
+    /** A prop's reader, by subject id. */
+    prop(subject: string): IReader;
+
+    /** A target's displayed point and normal at a film second. */
+    aim: IAutoMovieMotionHumanActionContext["aim"];
+  }
+
+  /** What a grip reads of a prop: its points and affordances, and its frame. */
+  export interface IReader {
+    /** The prop's named points and affordances. */
+    prop: Pick<IAutoMovieMotionHumanProp, "points" | "affordances">;
+
+    /** The prop's frame at a film second. */
+    frame(seconds: number): Pick<IAutoMovieRigidTransform, "rotation">;
+  }
 }

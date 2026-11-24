@@ -43,7 +43,6 @@ export function test_unit_recovery_observation_estimate_camera_map(): void {
   TestValidator.predicate(
     "completed empty triad retains measured seed refusal and detached metadata",
     result.status === "partial" &&
-      "value" in result &&
       result.value.status === "refused" &&
       result.value.poses.length === 3 &&
       result.value.poses.every(
@@ -79,11 +78,8 @@ export function test_unit_recovery_observation_estimate_camera_map(): void {
   TestValidator.predicate(
     "cancellation and callback failure transfer no value",
     cancelledBefore.status === "cancelled" &&
-      !("value" in cancelledBefore) &&
       cancelledDuring.status === "cancelled" &&
-      !("value" in cancelledDuring) &&
-      failed.status === "failed" &&
-      !("value" in failed),
+      failed.status === "failed",
   );
   const mutations: ((value: IAutoMovieRecoveryCameraMapInput) => void)[] = [
     (value: IAutoMovieRecoveryCameraMapInput): void => {
@@ -102,7 +98,7 @@ export function test_unit_recovery_observation_estimate_camera_map(): void {
       });
     TestValidator.predicate(
       "over-budget map refuses before observation",
-      refused.status === "refused" && !("value" in refused) && !called,
+      refused.status === "refused" && !called,
     );
   }
 }

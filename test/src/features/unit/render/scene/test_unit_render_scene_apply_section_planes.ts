@@ -49,10 +49,7 @@ const materialsOf: (root: THREE.Object3D) => THREE.Material[] = (
       material?: THREE.Material | THREE.Material[];
     };
     if (holder.material === undefined) return;
-    for (const material of Array.isArray(holder.material)
-      ? holder.material
-      : [holder.material])
-      found.push(material);
+    for (const material of [holder.material].flat()) found.push(material);
   });
   return found;
 };

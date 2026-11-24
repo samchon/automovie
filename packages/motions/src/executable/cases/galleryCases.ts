@@ -9,8 +9,8 @@ import type {
 } from "@automovie/interface";
 
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
-import { galleryCaseFist } from "./galleryCaseFist";
 import { MotionBodies } from "../MotionBodies";
+import { galleryCaseFist } from "./galleryCaseFist";
 
 /** The record of `IGalleryCasesGalleryP`'s site. */
 type IGalleryCasesGalleryP = { label: string };

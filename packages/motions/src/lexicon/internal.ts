@@ -30,3 +30,6 @@ export * from "./HumanMountedWhip";
 export * from "./HumanMountedStirrups";
 export * from "./HumanBikeGuidePath";
 export * from "./HumanGait";
+export * from "./HumanCrutchWalk";
+export * from "./HumanCrutchWalkPlan";
+export * from "./HumanCrutchSit";

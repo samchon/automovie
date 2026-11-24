@@ -7,3 +7,6 @@ export * from "./HumanSupportAim";
 export * from "./checkSupportTransferDock";
 export * from "./measureSurfaceGlide";
 export * from "./pivotSurfaceFoot";
+export * from "./readPropGrip";
+export * from "./HumanSupportStepPlants";
+export * from "./HumanSurfaceBoard";

@@ -166,4 +166,3 @@ export function stairsCases(
   }
   return out;
 }
-

@@ -8,6 +8,7 @@ import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanProp,
   IAutoMovieMotionHumanSurface,
   IAutoMovieQuaternion,
   IAutoMovieRigidTransform,
@@ -98,6 +99,20 @@ export namespace HumanSupportStepPlants {
     settled: number;
   }
 
+  /** What a support's surfaces are read from: the step's start and props. */
+  export interface ISurfacesContext {
+    /** The step's start, film seconds. */
+    start: number;
+
+    /** A support's affordances and its frame at a film second. */
+    prop(subject: string): {
+      prop: Pick<IAutoMovieMotionHumanProp, "affordances">;
+      frame(
+        seconds: number,
+      ): Pick<IAutoMovieRigidTransform, "position" | "rotation">;
+    };
+  }
+
   /**
    * A support's declared surfaces in the world at a second.
    *
@@ -107,13 +122,12 @@ export namespace HumanSupportStepPlants {
    * @returns The surfaces.
    */
   export function surfaces(
-    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanSurface.ISupportStepParams>,
+    context: ISurfacesContext,
     prop: string,
     at: number,
   ): ISurface[] {
-    const frame: IAutoMovieRigidTransform = context
-      .prop(prop)
-      .frame(context.start + at);
+    const frame: Pick<IAutoMovieRigidTransform, "position" | "rotation"> =
+      context.prop(prop).frame(context.start + at);
     return (context.prop(prop).prop.affordances ?? [])
       .filter((item: IAutoMovieAffordance): boolean => item.kind === "surface")
       .map(

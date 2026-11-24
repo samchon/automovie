@@ -8,8 +8,8 @@ import { TestValidator } from "@nestia/e2e";
  *
  * Scenarios:
  *
- * 1. The left fist sets its fourteen finger and thumb joints, and nothing of
- *    the right hand.
+ * 1. The left fist sets its fourteen finger and thumb joints, and nothing of the
+ *    right hand.
  */
 export function test_unit_motions_executable_gallery_case_fist(): void {
   const fist: ReturnType<typeof galleryCaseFist> = galleryCaseFist("left");

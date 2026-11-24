@@ -36,7 +36,8 @@ export function test_unit_recovery_observation_observe_images(): void {
     result.status,
     "complete",
   );
-  if (!("value" in result)) throw new Error(result.diagnostics.join("; "));
+  if (result.status !== "complete" && result.status !== "partial")
+    throw new Error(result.diagnostics.join("; "));
   for (const view of result.value.views) {
     TestValidator.equals("every occupied row retained", view.rows.length, 400);
     TestValidator.predicate(

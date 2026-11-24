@@ -1,11 +1,6 @@
-import { buildInstancedFormation } from "@automovie/render";
+import { AutoMovieThreeKind, buildInstancedFormation } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
-import {
-  InstancedMesh,
-  Matrix4,
-  type Object3D,
-  PerspectiveCamera,
-} from "three";
+import { Matrix4, type Object3D, PerspectiveCamera } from "three";
 
 import { createFormationShadowInputs } from "../../../internal/createFormationShadowInputs";
 import { nclose } from "../../../internal/predicates";
@@ -86,7 +81,8 @@ export function test_unit_render_scene_build_instanced_formation(): void {
   const runtime: ReturnType<typeof buildInstancedFormation> =
     buildInstancedFormation(input);
   const mesh: Object3D | undefined = runtime.object.children[0];
-  if (!(mesh instanceof InstancedMesh)) throw new Error("Expected one batch");
+  if (mesh === undefined || !AutoMovieThreeKind.isInstancedMesh(mesh))
+    throw new Error("Expected one batch");
   const camera: PerspectiveCamera = new PerspectiveCamera(40, 1, 0.1, 20);
   const matrix: Matrix4 = new Matrix4();
   const sample: (seconds: number, x: number, z: number) => void = (

@@ -3,6 +3,7 @@ import type {
   IAutoMovieScene,
 } from "@automovie/interface";
 import {
+  AutoMovieThreeKind,
   type IAutoMovieModelObject,
   type IAutoMovieSceneObject,
   buildScene,
@@ -115,7 +116,7 @@ function matches(
   object: THREE.Object3D | undefined,
   frame: IAutoMovieRenderSoftPropFrame,
 ): boolean {
-  if (!(object instanceof THREE.Mesh)) return false;
+  if (object === undefined || !AutoMovieThreeKind.isMesh(object)) return false;
   const positions: ArrayLike<number> =
     object.geometry.getAttribute("position").array;
   return (

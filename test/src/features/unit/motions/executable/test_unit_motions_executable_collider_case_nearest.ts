@@ -5,8 +5,7 @@ import * as THREE from "three";
 import { nclose } from "../../../internal/nclose";
 
 /**
- * `colliderCaseNearest` is a point's distance to the nearest of some
- * triangles.
+ * `colliderCaseNearest` is a point's distance to the nearest of some triangles.
  *
  * The right triangle with legs 1 m along +X and +Y at the origin.
  *

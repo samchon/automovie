@@ -227,8 +227,6 @@ function box(name: string, x: number): THREE.Mesh {
 /** Release only the fixture's owned buffers and appearance. */
 function release(mesh: THREE.Mesh): void {
   mesh.geometry.dispose();
-  const materials: THREE.Material[] = Array.isArray(mesh.material)
-    ? mesh.material
-    : [mesh.material];
+  const materials: THREE.Material[] = [mesh.material].flat();
   for (const material of materials) material.dispose();
 }

@@ -2,6 +2,8 @@
 
 export * from "./cases/FootSlip";
 export * from "./IMotionCaptureCase";
+export * from "./IMotionCaptureProps";
+export * from "./planMotionCaptureProps";
 export * from "./cases/colliderCaseInside";
 export * from "./cases/colliderCaseNearest";
 export * from "./cases/everydayCaseKit";

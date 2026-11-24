@@ -3,7 +3,7 @@ import type {
   IAutoMovieModel,
   IAutoMovieModelPart,
 } from "@automovie/interface";
-import { buildModel } from "@automovie/render";
+import { AutoMovieThreeKind, buildModel } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
@@ -188,7 +188,7 @@ export function test_unit_render_scene_build_model_anisotropy_tangent(): void {
         );
         mesh.geometry.dispose();
         material.dispose();
-        if (mesh instanceof THREE.SkinnedMesh) mesh.skeleton.dispose();
+        if (AutoMovieThreeKind.isSkinnedMesh(mesh)) mesh.skeleton.dispose();
         for (const texture of textures) texture.dispose();
       }
     }

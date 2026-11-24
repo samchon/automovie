@@ -83,7 +83,7 @@ export function test_unit_recovery_observation_observe_sections_fixed_sections()
       lineage.push(record);
     },
   });
-  if (!("value" in observed))
+  if (observed.status !== "complete" && observed.status !== "partial")
     throw new Error("Named tetrahedron cuts must retain observations");
   TestValidator.equals(
     "selected contact remains partial",
@@ -193,7 +193,10 @@ export function test_unit_recovery_observation_observe_sections_fixed_sections()
         },
       },
     );
-  if (!("value" in curveOnly) || !("value" in exact))
+  if (
+    (curveOnly.status !== "complete" && curveOnly.status !== "partial") ||
+    (exact.status !== "complete" && exact.status !== "partial")
+  )
     throw new Error(
       "Single-plane exact lineage must retain its coefficient publication",
     );
@@ -222,7 +225,7 @@ export function test_unit_recovery_observation_observe_sections_fixed_sections()
     { ...input, axis: [0, -2, 0], coordinatesMm: [-2, -0.5, 1, -3] },
     { curveFormat: "hermite" },
   );
-  if (!("value" in reversed))
+  if (reversed.status !== "complete" && reversed.status !== "partial")
     throw new Error("Reversed physical frame must remain supported");
   TestValidator.equals(
     "reversed normal retained",
@@ -256,7 +259,7 @@ export function test_unit_recovery_observation_observe_sections_fixed_sections()
         },
       },
     );
-  if (!("value" in opened))
+  if (opened.status !== "complete" && opened.status !== "partial")
     throw new Error("Open plane observation must retain partial coefficients");
   TestValidator.equals(
     "open source component retained",
@@ -301,7 +304,7 @@ export function test_unit_recovery_observation_observe_sections_fixed_sections()
     );
     TestValidator.predicate(
       "refusal publishes no coefficients",
-      !("value" in refused),
+      refused.status !== "complete" && refused.status !== "partial",
     );
   }
   const failed: ReturnType<typeof observeAutoMovieRecoverySections<"hermite">> =
@@ -321,7 +324,7 @@ export function test_unit_recovery_observation_observe_sections_fixed_sections()
   ]);
   TestValidator.predicate(
     "observer failure publishes no value",
-    !("value" in failed),
+    failed.status !== "complete" && failed.status !== "partial",
   );
   const controller: AbortController = new AbortController();
   let delivered: number = 0;
@@ -343,7 +346,7 @@ export function test_unit_recovery_observation_observe_sections_fixed_sections()
   TestValidator.equals("cancellation stops lineage", delivered, 1);
   TestValidator.predicate(
     "cancelled collection publishes no value",
-    !("value" in cancelled),
+    cancelled.status !== "complete" && cancelled.status !== "partial",
   );
   const terminal: ReturnType<
     typeof observeAutoMovieRecoverySections<"hermite">
@@ -355,7 +358,7 @@ export function test_unit_recovery_observation_observe_sections_fixed_sections()
     },
     { curveFormat: "hermite" },
   );
-  if (!("value" in terminal))
+  if (terminal.status !== "complete" && terminal.status !== "partial")
     throw new Error("A closed source seed must publish distal observations");
   TestValidator.predicate(
     "source tetrahedron has one qualified tip",
@@ -420,7 +423,7 @@ export function test_unit_recovery_observation_observe_sections_fixed_sections()
   const unqualified: ReturnType<
     typeof observeAutoMovieRecoverySections<"hermite">
   > = observeAutoMovieRecoverySections(tube, { curveFormat: "hermite" });
-  if (!("value" in unqualified))
+  if (unqualified.status !== "complete" && unqualified.status !== "partial")
     throw new Error(
       "Open distal source must retain explicit unsupported observations",
     );

@@ -24,10 +24,10 @@ import { throwsError } from "../../../internal/throwsError";
  *
  * Scenarios:
  *
- * 1. The plan lasts `2 · 0.5 + 1` = 2 s; `broken` falls at a quarter, `relax`
- *    at three quarters.
- * 2. The tip is 0 at the start, 7.5 degrees at 0.25 s (the minimum-jerk share
- *    one half), 15 through the hold and 0 again at the end.
+ * 1. The plan lasts `2 · 0.5 + 1` = 2 s; `broken` falls at a quarter, `relax` at
+ *    three quarters.
+ * 2. The tip is 0 at the start, 7.5 degrees at 0.25 s (the minimum-jerk share one
+ *    half), 15 through the hold and 0 again at the end.
  * 3. A rigid turn about the ankles keeps the root as far from them.
  * 4. A depth past 30 degrees, or a negative hold, is refused.
  */

@@ -4,6 +4,7 @@ import type {
   IAutoMovieMotionHumanChain,
   IAutoMovieMotionHumanPerformance,
   IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanSegment,
   IAutoMoviePose,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -14,6 +15,23 @@ import { poseBones } from "../../posture/poseBones";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
 import type { humanPolygonMan } from "../humanPolygonMan";
 
+/** The part of a segment its events are read from. */
+interface IEventSegment {
+  /** Its name, for a refusal. */
+  name: IAutoMovieMotionHumanSegment["name"];
+
+  /** Film seconds it starts. */
+  start: IAutoMovieMotionHumanSegment["start"];
+
+  /** Its plan's events and duration. */
+  plan: Pick<IAutoMovieMotionHumanSegment["plan"], "events" | "duration">;
+}
+
+/** A performance's segments, all an event reader reads. */
+interface IEventPerformance {
+  /** A subject's segments in order. */
+  segments(subject: string): readonly IEventSegment[];
+}
 /**
  * The shared readers of the everyday capture cases (`everydayCases`): a
  * performance of polygon men, a performer's figure, a segment's event, the
@@ -78,9 +96,9 @@ export namespace everydayCaseKit {
 
   /** A drawn performer. */
   export function figure(
-    performance: IAutoMovieMotionHumanPerformance,
+    performance: Pick<IAutoMovieMotionHumanPerformance, "pose">,
     subject: string,
-    man: humanPolygonMan.IPolygonMan,
+    man: Pick<humanPolygonMan.IPolygonMan, "body">,
     color?: number,
   ): IMotionCaptureCase.IPerformer {
     return {
@@ -94,7 +112,7 @@ export namespace everydayCaseKit {
 
   /** The film second of an event of a person's n-th action. */
   export function event(
-    performance: IAutoMovieMotionHumanPerformance,
+    performance: IEventPerformance,
     subject: string,
     index: number,
     name: string,

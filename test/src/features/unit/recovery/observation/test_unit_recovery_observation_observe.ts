@@ -56,7 +56,10 @@ export function test_unit_recovery_observation_observe(): void {
         (record.sourceTriangleIds as number[]).fill(-1);
       },
     });
-  if (!("value" in baseline) || !("value" in observed))
+  if (
+    (baseline.status !== "complete" && baseline.status !== "partial") ||
+    (observed.status !== "complete" && observed.status !== "partial")
+  )
     throw new Error(
       "Generic tetrahedron observation must publish coefficients",
     );
@@ -117,7 +120,7 @@ export function test_unit_recovery_observation_observe(): void {
         openRecords.push(record);
       },
     });
-  if (!("value" in opened))
+  if (opened.status !== "complete" && opened.status !== "partial")
     throw new Error("Open triangle must retain its partial observation");
   TestValidator.predicate(
     "open contours deliver lineage",
@@ -182,7 +185,7 @@ export function test_unit_recovery_observation_observe(): void {
   TestValidator.equals("failed callback stops delivery", delivered, 1);
   TestValidator.predicate(
     "failed observer publishes no value",
-    !("value" in failed),
+    failed.status !== "complete" && failed.status !== "partial",
   );
   const during: AbortController = new AbortController();
   const cancelled: ReturnType<typeof observeAutoMovieRecovery> =
@@ -201,7 +204,7 @@ export function test_unit_recovery_observation_observe(): void {
   TestValidator.equals("abort stops further delivery", delivered, 2);
   TestValidator.predicate(
     "cancelled observation publishes no value",
-    !("value" in cancelled),
+    cancelled.status !== "complete" && cancelled.status !== "partial",
   );
   const preaborted: ReturnType<typeof observeAutoMovieRecovery> =
     observeAutoMovieRecovery(input, {

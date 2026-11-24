@@ -49,7 +49,6 @@ export async function test_unit_motions_sport_gymnastics_flight_prepare_lowest()
       lowest({
         ...standing,
         joints: { leftLowerLeg: [90, 0, 0], rightLowerLeg: [90, 0, 0] },
-      }) >
-        stood,
+      }) > stood,
   );
 }

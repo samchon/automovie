@@ -21,10 +21,11 @@ import { nclose } from "../../../internal/nclose";
  *
  * Scenarios:
  *
- * 1. Distress struggles for its `duration` then sinks for 2 s: asked 10 s it
- *    lasts 12, submerging at 10.
- * 2. An artistic figure's `phase` lags its figure by 0.35 s per unit: at phase
- *    1 the support scull comes 0.35 s later than at phase 0.
+ * 1. Distress struggles for its `duration`, within Pia's 20 to 60 s (1974), then
+ *    sinks for 2 s: asked 24 s it lasts 26, submerging at 24; asked 10 s it is
+ *    refused.
+ * 2. An artistic figure's `phase` lags its figure by 0.35 s per unit: at phase 1
+ *    the support scull comes 0.35 s later than at phase 0.
  * 3. A scull, a rescue, an edge exit, a fin swim and a pool start each refuse a
  *    scene without what they read, on that parameter.
  * 4. A phase outside [0, 1] is refused.
@@ -53,12 +54,12 @@ export async function test_unit_motions_sport_aquatic_plan(): Promise<void> {
   // 1. Distress.
   const distress: IAutoMovieMotionHumanActionPlan = plan({
     kind: "distress",
-    duration: 10,
+    duration: 24,
   });
   TestValidator.predicate(
     "the struggle and the sink",
-    nclose(distress.duration, 12, 1e-9) &&
-      nclose(second(distress, "submerge"), 10, 1e-9),
+    nclose(distress.duration, 26, 1e-9) &&
+      nclose(second(distress, "submerge"), 24, 1e-9),
   );
 
   // 2. The artistic lag.
@@ -83,7 +84,17 @@ export async function test_unit_motions_sport_aquatic_plan(): Promise<void> {
       refused({ kind: "finSwim" }),
       refused({ kind: "crawlStartTurn" }),
       refused({ kind: "distress", phase: 2 }),
+      refused({ kind: "distress", duration: 10 }),
     ],
-    ["support", "support", "partner", "support", "prop", "base", "phase"],
+    [
+      "support",
+      "support",
+      "partner",
+      "support",
+      "prop",
+      "base",
+      "phase",
+      "seconds",
+    ],
   );
 }

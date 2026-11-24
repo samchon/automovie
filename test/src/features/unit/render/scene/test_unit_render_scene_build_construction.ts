@@ -1,4 +1,7 @@
-import { buildAutoMovieConstruction } from "@automovie/render";
+import {
+  AutoMovieThreeKind,
+  buildAutoMovieConstruction,
+} from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
@@ -38,7 +41,7 @@ export async function test_unit_render_scene_build_construction(): Promise<void>
   const guide: THREE.Line = result.object.children[1] as THREE.Line;
   TestValidator.predicate(
     "closure remains explicit",
-    section instanceof THREE.LineLoop && !(guide instanceof THREE.LineLoop),
+    section.type === "LineLoop" && guide.type !== "LineLoop",
   );
   TestValidator.equals(
     "native points follow supplied order",
@@ -49,7 +52,8 @@ export async function test_unit_render_scene_build_construction(): Promise<void>
     "one material shared within result",
     section.material === guide.material,
   );
-  if (Array.isArray(section.material))
+  const material: THREE.Material | THREE.Material[] = section.material;
+  if (!AutoMovieThreeKind.isMaterial(material))
     throw new Error("Expected one line material");
   let disposals: number = 0;
   section.geometry.addEventListener("dispose", (): void => {
@@ -58,7 +62,7 @@ export async function test_unit_render_scene_build_construction(): Promise<void>
   guide.geometry.addEventListener("dispose", (): void => {
     disposals++;
   });
-  section.material.addEventListener("dispose", (): void => {
+  material.addEventListener("dispose", (): void => {
     disposals++;
   });
   await result.dispose();

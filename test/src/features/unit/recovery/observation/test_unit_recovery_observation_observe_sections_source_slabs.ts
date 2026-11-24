@@ -87,7 +87,10 @@ export function test_unit_recovery_observation_observe_sections_source_slabs(): 
       },
     },
   );
-  if (!("value" in observed) || !("value" in baseline))
+  if (
+    (observed.status !== "complete" && observed.status !== "partial") ||
+    (baseline.status !== "complete" && baseline.status !== "partial")
+  )
     throw new Error("A closed generic branch must retain fitted curves");
   TestValidator.equals(
     "source-slab observation leaves coefficients unchanged",
@@ -207,7 +210,7 @@ export function test_unit_recovery_observation_observe_sections_source_slabs(): 
       contactSlabs.push(record);
     },
   });
-  if (!("value" in contacted))
+  if (contacted.status !== "complete" && contacted.status !== "partial")
     throw new Error(
       "A point-contact source must retain its partial observations",
     );
@@ -267,7 +270,7 @@ export function test_unit_recovery_observation_observe_sections_source_slabs(): 
   );
   TestValidator.predicate(
     "observer failure publishes no value",
-    !("value" in failed),
+    failed.status !== "complete" && failed.status !== "partial",
   );
   const controller: AbortController = new AbortController();
   let delivered: number = 0;

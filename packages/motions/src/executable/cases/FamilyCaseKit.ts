@@ -6,6 +6,7 @@ import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPerformance,
   IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanSegment,
   IAutoMoviePose,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -18,6 +19,23 @@ import { MotionBodies } from "../MotionBodies";
 import type { humanPolygonMan } from "../humanPolygonMan";
 import { everydayVerdicts } from "./everydayVerdicts";
 
+/** The part of a segment its events are read from. */
+interface IEventSegment {
+  /** Its name, for a refusal. */
+  name: IAutoMovieMotionHumanSegment["name"];
+
+  /** Film seconds it starts. */
+  start: IAutoMovieMotionHumanSegment["start"];
+
+  /** Its plan's events and duration. */
+  plan: Pick<IAutoMovieMotionHumanSegment["plan"], "events" | "duration">;
+}
+
+/** A performance's segments, all an event reader reads. */
+interface IEventPerformance {
+  /** A subject's segments in order. */
+  segments(subject: string): readonly IEventSegment[];
+}
 /** The alternatives of `BandUnit`'s site. */
 type BandUnit = "mm" | "deg" | "s";
 
@@ -112,8 +130,8 @@ export namespace FamilyCaseKit {
    * @returns The figure.
    */
   export function figure(
-    performance: IAutoMovieMotionHumanPerformance,
-    man: humanPolygonMan.IPolygonMan,
+    performance: Pick<IAutoMovieMotionHumanPerformance, "pose">,
+    man: Pick<humanPolygonMan.IPolygonMan, "body">,
     id: string = "a",
   ): IMotionCaptureCase.IPerformer {
     return {
@@ -133,7 +151,7 @@ export namespace FamilyCaseKit {
    * @throws {Error} When no action of the subject has the event.
    */
   export function event(
-    performance: IAutoMovieMotionHumanPerformance,
+    performance: IEventPerformance,
     name: string,
     subject: string = "a",
   ): number {

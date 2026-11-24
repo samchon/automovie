@@ -9,9 +9,9 @@ import type {
 
 import { HumanChain } from "../../HumanChain";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
-import { floorCaseSpan } from "./floorCaseSpan";
 import { FamilyCaseKit } from "./FamilyCaseKit";
 import { everydayVerdicts } from "./everydayVerdicts";
+import { floorCaseSpan } from "./floorCaseSpan";
 
 /** The alternatives of `FloorCasesRisesLimb`'s site. */
 type FloorCasesRisesLimb = "leftHand" | "rightHand" | "leftKnee" | "rightKnee";

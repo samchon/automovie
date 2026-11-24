@@ -1,8 +1,8 @@
 import * as THREE from "three";
 
 /**
- * The distance from a point to the nearest of some triangles, metres: the
- * least distance to each triangle's closest point.
+ * The distance from a point to the nearest of some triangles, metres: the least
+ * distance to each triangle's closest point.
  *
  * @param p The point.
  * @param triangles The triangles.

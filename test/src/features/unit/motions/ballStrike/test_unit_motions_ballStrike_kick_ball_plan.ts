@@ -46,15 +46,15 @@ const ball = (centre: IAutoMovieVector3): IAutoMovieMotionHumanProp => ({
  * placement `kickBall.contact` gives for the ball's own centre and radius, and
  * with a speed the ball launches at the stroke along the kick.
  *
- * The average man stands at the origin facing +Z; a 0.11 m ball rests at
- * (-0.1, 0.11, 0.35), ahead of his right foot.
+ * The average man stands at the origin facing +Z; a 0.11 m ball rests at (-0.1,
+ * 0.11, 0.35), ahead of his right foot.
  *
  * Scenarios:
  *
  * 1. The plan lasts 1.05 s with its stroke at 0.45 s.
  * 2. At the stroke the right leg's goal is the contact placement's ankle.
- * 3. Kicked at 12 m/s with a 3 m/s lift, the ball launches at the stroke at
- *    (0, 3, 12) m/s.
+ * 3. Kicked at 12 m/s with a 3 m/s lift, the ball launches at the stroke at (0, 3,
+ *    12) m/s.
  * 4. A ball 2 m ahead lies beyond the leg and is refused.
  */
 export async function test_unit_motions_ballStrike_kick_ball_plan(): Promise<void> {
@@ -72,8 +72,9 @@ export async function test_unit_motions_ballStrike_kick_ball_plan(): Promise<voi
   );
   const stroke: number =
     plan.duration *
-    plan.events.find((e: IAutoMovieMotionEvent): boolean => e.name === "stroke")!
-      .share;
+    plan.events.find(
+      (e: IAutoMovieMotionEvent): boolean => e.name === "stroke",
+    )!.share;
 
   // 1. Timing.
   TestValidator.predicate(

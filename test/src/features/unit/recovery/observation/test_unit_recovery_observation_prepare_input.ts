@@ -49,7 +49,7 @@ export function test_unit_recovery_observation_prepare_input(): void {
     admitted.status,
     "complete",
   );
-  if (!("value" in admitted))
+  if (admitted.status !== "complete" && admitted.status !== "partial")
     throw new Error("Expected registered triangle admission");
   TestValidator.predicate(
     "coordinates and topology are borrowed without a second transform",

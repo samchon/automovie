@@ -1,6 +1,7 @@
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanGesture,
   IAutoMovieMotionHumanGestureStroke,
   IAutoMovieMotionHumanPosture,
 } from "@automovie/interface";
@@ -32,7 +33,10 @@ import { humanFixtureBody } from "../../../internal/fixtures/humanFixtureBody";
  */
 export async function test_unit_motions_everyday_gesture_hands(): Promise<void> {
   const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");
-  const p = { kind: "wave" } as const;
+  const p: Pick<
+    IAutoMovieMotionHumanGesture.IParams,
+    "turn" | "shape" | "aim"
+  > = {};
   const flat: gestureHands.IPrepared = gestureHands.prepare(
     body,
     "right",

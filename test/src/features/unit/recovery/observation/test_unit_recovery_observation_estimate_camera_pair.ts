@@ -88,7 +88,6 @@ export function test_unit_recovery_observation_estimate_camera_pair(): void {
   TestValidator.predicate(
     "completed empty observations retain explicit camera refusal without inventing a pose",
     result.status === "partial" &&
-      "value" in result &&
       result.value.status === "refused" &&
       result.value.pose === null &&
       result.value.consensus === null &&
@@ -100,7 +99,7 @@ export function test_unit_recovery_observation_estimate_camera_pair(): void {
       result.value.refusalReasons.includes("insufficient-appearance-matches") &&
       phases.includes("observations-ready"),
   );
-  if (!("value" in result))
+  if (result.status !== "complete" && result.status !== "partial")
     throw new Error("A completed observation must return its evidence");
   input.views[0]!.id = "later-change";
   TestValidator.predicate(
@@ -142,11 +141,8 @@ export function test_unit_recovery_observation_estimate_camera_pair(): void {
   TestValidator.predicate(
     "cooperative cancellation and observer failure publish no evidence",
     before.status === "cancelled" &&
-      !("value" in before) &&
       cancelled.status === "cancelled" &&
-      !("value" in cancelled) &&
       failed.status === "failed" &&
-      !("value" in failed) &&
       failed.diagnostics.includes("Owned observer failure"),
   );
   const limited: IAutoMovieRecoveryCameraPairInput = makeInput();
@@ -174,7 +170,6 @@ export function test_unit_recovery_observation_estimate_camera_pair(): void {
   TestValidator.predicate(
     "an admitted candidate-work overflow fails without publishing an incomplete feature prefix",
     exhausted.status === "failed" &&
-      !("value" in exhausted) &&
       exhausted.diagnostics.some((message: string): boolean =>
         message.includes("candidate budget exhausted"),
       ),

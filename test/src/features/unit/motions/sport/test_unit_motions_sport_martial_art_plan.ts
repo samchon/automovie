@@ -26,8 +26,8 @@ import { vclose } from "../../../internal/vclose";
  *
  * Scenarios:
  *
- * 1. A horse stance held 1 s lasts 2.2 s; the left foot plants from the
- *    stance's `ready` (0.6 s) to its `relax` (1.6 s), the right throughout.
+ * 1. A horse stance held 1 s lasts 2.2 s; the left foot plants from the stance's
+ *    `ready` (0.6 s) to its `relax` (1.6 s), the right throughout.
  * 2. Held, the root stands half the step out toward +X and a fifth of the thigh
  *    lower than at the start.
  * 3. A count rounding below one punch, or a negative hold, is refused.

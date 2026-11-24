@@ -1,5 +1,6 @@
 import type { IAutoMovieMark } from "@automovie/interface";
 import {
+  AutoMovieThreeKind,
   type IAutoMovieInspectionHandle,
   applyAutoMovieInspection,
 } from "@automovie/render";
@@ -171,10 +172,9 @@ export function test_unit_render_scene_apply_inspection_mark_shapes(): void {
       InspectionScene.dots(scene)[0]!.material as THREE.PointsMaterial,
     ]) {
       const shader: { vertexShader: string } = {
-        vertexShader:
-          material instanceof THREE.ShaderMaterial
-            ? material.vertexShader
-            : THREE.ShaderLib.points.vertexShader,
+        vertexShader: AutoMovieThreeKind.isShaderMaterial(material)
+          ? material.vertexShader
+          : THREE.ShaderLib.points.vertexShader,
       };
       material.onBeforeCompile(
         shader as THREE.WebGLProgramParametersWithUniforms,

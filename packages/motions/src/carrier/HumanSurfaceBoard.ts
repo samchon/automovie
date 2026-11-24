@@ -310,12 +310,21 @@ export namespace HumanSurfaceBoard {
     length: number;
   }
 
+  /** What a deck is read from: the action's start and the board's reader. */
+  export interface IDeckContext {
+    /** The action's start, film seconds. */
+    start: number;
+
+    /** The board's affordances and its frame at a film second. */
+    prop(subject: string): {
+      prop: Pick<IAutoMovieMotionHumanPropReader["prop"], "affordances">;
+      frame(seconds: number): IAutoMovieRigidTransform;
+    };
+  }
+
   /** Admit the board and use the prop's existing local affordances throughout. */
-  export function deck<Params>(
-    context: IAutoMovieMotionHumanActionContext<Params>,
-    on: string,
-  ): IDeck {
-    const prop: IAutoMovieMotionHumanPropReader = context.prop(on);
+  export function deck(context: IDeckContext, on: string): IDeck {
+    const prop: ReturnType<IDeckContext["prop"]> = context.prop(on);
     const contact = (
       id: string,
       kind: IAutoMovieAffordance["kind"],
@@ -340,10 +349,7 @@ export namespace HumanSurfaceBoard {
       surface.frame.rotation,
       UP,
     );
-    if (
-      !(width > 0 && length > 0) ||
-      Vector3.distance(normal, UP) > 1e-6
-    )
+    if (!(width > 0 && length > 0) || Vector3.distance(normal, UP) > 1e-6)
       return refuseBoard(
         on,
         "the scene prop needs a bounded horizontal deck in its own frame",

@@ -9,6 +9,7 @@ import type {
   AutoMovieHumanoidRegion,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSegment,
   IAutoMovieMotionHumanTouchEffector,
   IAutoMoviePhysicalShape,
   IAutoMoviePose,
@@ -21,6 +22,23 @@ import { HumanColliders } from "../../posture/HumanColliders";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
 import type { humanPolygonMan } from "../humanPolygonMan";
 
+/** The part of a segment its events are read from. */
+interface IEventSegment {
+  /** Its name, for a refusal. */
+  name: IAutoMovieMotionHumanSegment["name"];
+
+  /** Film seconds it starts. */
+  start: IAutoMovieMotionHumanSegment["start"];
+
+  /** Its plan's events and duration. */
+  plan: Pick<IAutoMovieMotionHumanSegment["plan"], "events" | "duration">;
+}
+
+/** A performance's segments, all an event reader reads. */
+interface IEventPerformance {
+  /** A subject's segments in order. */
+  segments(subject: string): readonly IEventSegment[];
+}
 /** The record of `IEntryBest`'s site. */
 type IEntryBest = { gap: number; at: number };
 
@@ -307,9 +325,9 @@ export namespace TouchVerdicts {
    * @returns The figure.
    */
   export function figure(
-    performance: IAutoMovieMotionHumanPerformance,
+    performance: Pick<IAutoMovieMotionHumanPerformance, "pose">,
     subject: string,
-    man: humanPolygonMan.IPolygonMan,
+    man: Pick<humanPolygonMan.IPolygonMan, "body">,
     color?: number,
   ): IMotionCaptureCase.IPerformer {
     return {
@@ -331,7 +349,7 @@ export namespace TouchVerdicts {
    * @returns Film seconds.
    */
   export function event(
-    performance: IAutoMovieMotionHumanPerformance,
+    performance: IEventPerformance,
     subject: string,
     name: string,
     index: number = 0,

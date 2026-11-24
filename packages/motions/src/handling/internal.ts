@@ -15,3 +15,4 @@ export * from "./HumanClaspClearance";
 export * from "./HumanHandoverUpright";
 export * from "./HumanPocket";
 export * from "./putDown";
+export * from "./pianoScore";

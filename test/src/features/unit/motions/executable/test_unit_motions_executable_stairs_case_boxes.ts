@@ -19,8 +19,8 @@ import { vclose } from "../../../internal/vclose";
  *
  * 1. Up: the first tread spans 0.5 to 0.78 m at 0.17 m, its block from -0.02 m;
  *    the top tread and landing span 0.78 to 1.34 m at 0.34 m.
- * 2. Down: two treads sunk below the floor and the floor block behind, from
- *    -0.36 m.
+ * 2. Down: two treads sunk below the floor and the floor block behind, from -0.36
+ *    m.
  */
 export function test_unit_motions_executable_stairs_case_boxes(): void {
   const flight = (

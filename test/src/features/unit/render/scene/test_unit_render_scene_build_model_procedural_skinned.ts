@@ -5,7 +5,11 @@ import type {
   IAutoMovieProceduralSurface,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { type IAutoMovieModelObject, buildModel } from "@automovie/render";
+import {
+  AutoMovieThreeKind,
+  type IAutoMovieModelObject,
+  buildModel,
+} from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
@@ -48,7 +52,7 @@ export function test_unit_render_scene_build_model_procedural_skinned(): void {
   const built: IAutoMovieModelObject = buildModel(model);
   let mesh: THREE.SkinnedMesh | null = null;
   built.object.traverse((object: THREE.Object3D): void => {
-    if (object instanceof THREE.SkinnedMesh) mesh = object;
+    if (AutoMovieThreeKind.isSkinnedMesh(object)) mesh = object;
   });
   const skinned: THREE.SkinnedMesh = mesh!;
 

@@ -42,7 +42,10 @@ export function test_unit_recovery_reconstruction_reconstruct_model(): void {
       input === completeInput ? "complete" : "partial",
     );
     prism.measure(result);
-    if (input === partialInput && "value" in result)
+    if (
+      input === partialInput &&
+      (result.status === "complete" || result.status === "partial")
+    )
       TestValidator.predicate(
         "unsupported independent domain remains explicit",
         result.value.unresolved.some(

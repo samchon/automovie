@@ -1,14 +1,16 @@
 import * as THREE from "three";
 
-/**
- * A fixed direction no drawn edge or face is parallel to, for the parity test.
- */
-const RAY: THREE.Vector3 = new THREE.Vector3(0.5371, 0.7193, 0.4402).normalize();
+/** A fixed direction no drawn edge or face is parallel to, for the parity test. */
+const RAY: THREE.Vector3 = new THREE.Vector3(
+  0.5371,
+  0.7193,
+  0.4402,
+).normalize();
 
 /**
- * Whether a point lies inside a closed triangle mesh, by ray parity: a ray
- * from the point crosses a closed surface an odd number of times exactly when
- * the point is inside (the Jordan curve theorem's parity rule).
+ * Whether a point lies inside a closed triangle mesh, by ray parity: a ray from
+ * the point crosses a closed surface an odd number of times exactly when the
+ * point is inside (the Jordan curve theorem's parity rule).
  *
  * @param p The point.
  * @param triangles The closed mesh's triangles, both faces counted.

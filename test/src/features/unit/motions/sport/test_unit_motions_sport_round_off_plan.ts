@@ -22,8 +22,8 @@ import { throwsError } from "../../../internal/throwsError";
  *
  * Scenarios:
  *
- * 1. A left-lead round-off lasts its default 1.2 s, is inverted at half of it,
- *    and its events run hands down, inverted, feet down, relax.
+ * 1. A left-lead round-off lasts its default 1.2 s, is inverted at half of it, and
+ *    its events run hands down, inverted, feet down, relax.
  * 2. Half way (the wheel at 180 degrees) it rolls -180 and heads -90: the first
  *    quarter made, the second not begun.
  * 3. At the end it stands unrolled, heading -180; a right lead heads +180.

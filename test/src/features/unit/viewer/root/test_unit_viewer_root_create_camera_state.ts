@@ -1,3 +1,4 @@
+import { AutoMovieThreeKind } from "@automovie/render";
 import {
   type IViewerCameraStateSnapshot,
   createViewerCameraState,
@@ -30,7 +31,7 @@ export async function test_unit_viewer_root_create_camera_state(): Promise<void>
     new THREE.PerspectiveCamera(42, 1.6, 0.1, 120),
     new THREE.OrthographicCamera(-3, 3, 2, -2, 0, 120),
   ]) {
-    if (camera instanceof THREE.PerspectiveCamera) {
+    if (AutoMovieThreeKind.isPerspectiveCamera(camera)) {
       camera.filmGauge = 50;
       camera.filmOffset = 3;
       camera.focus = 15;
@@ -41,7 +42,7 @@ export async function test_unit_viewer_root_create_camera_state(): Promise<void>
     camera.layers.set(3);
     camera.zoom = 1.4;
     camera.setViewOffset(1600, 1000, 150, 70, 900, 700);
-    if (camera instanceof THREE.PerspectiveCamera) camera.aspect = 1.4;
+    if (AutoMovieThreeKind.isPerspectiveCamera(camera)) camera.aspect = 1.4;
     camera.updateProjectionMatrix();
     camera.updateMatrixWorld(true);
     const crop: IViewerCropWindow = {
@@ -62,29 +63,28 @@ export async function test_unit_viewer_root_create_camera_state(): Promise<void>
       layers: 1 << 3,
       projection: camera.projectionMatrix.toArray(),
       view: crop,
-      lens:
-        camera instanceof THREE.PerspectiveCamera
-          ? {
-              kind: "perspective",
-              fov: 42,
-              aspect: 1.4,
-              near: 0.1,
-              far: 120,
-              zoom: 1.4,
-              filmGauge: 50,
-              filmOffset: 3,
-              focus: 15,
-            }
-          : {
-              kind: "orthographic",
-              left: -3,
-              right: 3,
-              top: 2,
-              bottom: -2,
-              near: 0,
-              far: 120,
-              zoom: 1.4,
-            },
+      lens: AutoMovieThreeKind.isPerspectiveCamera(camera)
+        ? {
+            kind: "perspective",
+            fov: 42,
+            aspect: 1.4,
+            near: 0.1,
+            far: 120,
+            zoom: 1.4,
+            filmGauge: 50,
+            filmOffset: 3,
+            focus: 15,
+          }
+        : {
+            kind: "orthographic",
+            left: -3,
+            right: 3,
+            top: 2,
+            bottom: -2,
+            near: 0,
+            far: 120,
+            zoom: 1.4,
+          },
     };
     const owner: ReturnType<typeof createViewerCameraState> =
       createViewerCameraState(camera);

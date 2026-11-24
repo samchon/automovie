@@ -5,7 +5,8 @@ import { nclose } from "../../../internal/nclose";
 
 /**
  * `HumanForceExchange.broken` is when a constant pull breaks a base, `T = ln(1
- * + e M ω² / F) / ω`, the inverse of `breaking`.
+ *
+ * - E M ω² / F) / ω`, the inverse of `breaking`.
  *
  * A 70 kg partner at ω = 3 /s on a base 0.1 m deep; `e M ω²` is 63 N.
  *

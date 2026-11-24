@@ -14,8 +14,8 @@ import { nclose } from "../../../internal/nclose";
 /**
  * `handspring.plan` wheels the body over its hands to `handspring.RELEASE`
  * (145) degrees of tip, flies arched to `handspring.LAND` (330, that is -30),
- * and lands on both feet, absorbing over the jump's `ABSORB` (0.3 s) and
- * rising over its `RISE` (0.45 s) to stand.
+ * and lands on both feet, absorbing over the jump's `ABSORB` (0.3 s) and rising
+ * over its `RISE` (0.45 s) to stand.
  *
  * The average man stands at the origin facing +Z, the left leg leading.
  *
@@ -23,10 +23,10 @@ import { nclose } from "../../../internal/nclose";
  *
  * 1. The events run hands down, release, touchdown, settled, relax; settled is
  *    `ABSORB` after touchdown and the end `RISE` after settled.
- * 2. At the release the body tips 145 degrees, at touchdown -30, and at the end
- *    it stands untipped.
- * 3. Both hands bear from hands down to the release, and both feet from
- *    touchdown to the end.
+ * 2. At the release the body tips 145 degrees, at touchdown -30, and at the end it
+ *    stands untipped.
+ * 3. Both hands bear from hands down to the release, and both feet from touchdown
+ *    to the end.
  */
 export async function test_unit_motions_sport_handspring_plan(): Promise<void> {
   // Whole body: the wheel and the flight read the full rig's mass model and

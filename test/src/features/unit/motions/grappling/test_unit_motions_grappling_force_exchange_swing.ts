@@ -18,9 +18,9 @@ const K: number = (70 * 10 * 1) / 80;
 
 /**
  * The fixed-step classical Runge-Kutta method's global error over the swing,
- * radians: fourth order, `O((ω h)⁴)` for a pendulum of rate scale `ω =
- * sqrt(K)` at the step `h` (Hairer, Nørsett and Wanner, Solving Ordinary
- * Differential Equations I, 2nd ed., 1993, §II.3).
+ * radians: fourth order, `O((ω h)⁴)` for a pendulum of rate scale `ω = sqrt(K)`
+ * at the step `h` (Hairer, Nørsett and Wanner, Solving Ordinary Differential
+ * Equations I, 2nd ed., 1993, §II.3).
  */
 const RK4: number = (Math.sqrt(K) * integrateMotionTrajectory.STEP) ** 4;
 

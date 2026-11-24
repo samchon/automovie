@@ -23,12 +23,12 @@ import { throwsError } from "../../../internal/throwsError";
  *
  * Scenarios:
  *
- * 1. A left cartwheel lasts its default 1.6 s, is inverted at half of it, and
- *    its events run hands down, inverted, feet down, relax.
- * 2. It rolls 0 at the start and -180 degrees at 0.8 s; a right cartwheel
- *    rolls +180.
- * 3. The left wheel bears first on the left foot and last on both feet to the
- *    end, and lands toward +X; the right wheel lands toward -X.
+ * 1. A left cartwheel lasts its default 1.6 s, is inverted at half of it, and its
+ *    events run hands down, inverted, feet down, relax.
+ * 2. It rolls 0 at the start and -180 degrees at 0.8 s; a right cartwheel rolls
+ *    +180.
+ * 3. The left wheel bears first on the left foot and last on both feet to the end,
+ *    and lands toward +X; the right wheel lands toward -X.
  * 4. A non-positive duration is refused.
  */
 export async function test_unit_motions_sport_cartwheel_plan(): Promise<void> {

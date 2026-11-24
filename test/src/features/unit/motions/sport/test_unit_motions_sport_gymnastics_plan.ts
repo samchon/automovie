@@ -22,8 +22,8 @@ import { throwsError } from "../../../internal/throwsError";
  *
  * Scenarios:
  *
- * 1. Held 1 s it lasts 4 s: hands down at 0.75 s, inverted at 1.5 s, the feet
- *    down at (2.5 + 4) / 2 = 3.25 s.
+ * 1. Held 1 s it lasts 4 s: hands down at 0.75 s, inverted at 1.5 s, the feet down
+ *    at (2.5 + 4) / 2 = 3.25 s.
  * 2. Both hands bear from hands down to the release.
  * 3. The default 2 s hold lasts 5 s; a negative hold is refused.
  */
@@ -51,23 +51,23 @@ export async function test_unit_motions_sport_gymnastics_plan(): Promise<void> {
   // 2. The hands.
   TestValidator.predicate(
     "the hands bear the handstand",
-    (["leftHand", "rightHand"] satisfies string[]).every((part: string): boolean =>
-      plan.contacts.some(
-        (w: IAutoMovieMotionHumanContactWindow): boolean =>
-          w.part === part &&
-          nclose(w.from * plan.duration, 0.75, 1e-9) &&
-          nclose(w.to * plan.duration, 3.25, 1e-9),
-      ),
+    (["leftHand", "rightHand"] satisfies string[]).every(
+      (part: string): boolean =>
+        plan.contacts.some(
+          (w: IAutoMovieMotionHumanContactWindow): boolean =>
+            w.part === part &&
+            nclose(w.from * plan.duration, 0.75, 1e-9) &&
+            nclose(w.to * plan.duration, 3.25, 1e-9),
+        ),
     ),
   );
 
   // 3. The default and a refusal.
   TestValidator.predicate(
     "the default hold, and none negative",
-    nclose(
-      gymnastics.plan(motionActionContext(body, {})).duration,
-      5,
-      1e-9,
-    ) && throwsError(() => gymnastics.plan(motionActionContext(body, { hold: -1 }))),
+    nclose(gymnastics.plan(motionActionContext(body, {})).duration, 5, 1e-9) &&
+      throwsError(() =>
+        gymnastics.plan(motionActionContext(body, { hold: -1 })),
+      ),
   );
 }

@@ -120,15 +120,17 @@ export function motionActionContext<P extends object>(
       acceleration: rest,
       posture,
       feet: { left: foot("left"), right: foot("right") },
-      supports: (["leftFoot", "rightFoot"] as const).map(
-        (
-          part: "leftFoot" | "rightFoot",
-        ): IAutoMovieMotionHumanEntryState.ISupport => ({
-          part,
-          kind: "plant",
-          support: { kind: "ground" },
-        }),
-      ),
+      supports:
+        options.supports ??
+        (["leftFoot", "rightFoot"] as const).map(
+          (
+            part: "leftFoot" | "rightFoot",
+          ): IAutoMovieMotionHumanEntryState.ISupport => ({
+            part,
+            kind: "plant",
+            support: { kind: "ground" },
+          }),
+        ),
       base: options.base ?? { kind: "standing" },
       holds: options.holds ?? {},
       uses: options.uses ?? {},
@@ -255,6 +257,12 @@ export namespace motionActionContext {
 
     /** The root's velocity at entry, m/s; at rest when absent. */
     velocity?: IAutoMovieVector3;
+
+    /**
+     * What bears the body at the entry: a seat for a seated performer, its prop
+     * the chair; both feet planted on the ground when absent.
+     */
+    supports?: IAutoMovieMotionHumanEntryState["supports"];
 
     /** The prop each hand holds at the entry; none when absent. */
     holds?: IAutoMovieMotionHumanEntryState["holds"];

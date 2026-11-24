@@ -33,6 +33,16 @@ export namespace AutoMovieLoftPoint {
     chain: IAutoMovieLoftChain,
     s: number,
   ): (t: number) => [number, number, number] {
+    return chain.basis === "spline" && !AutoMovieLoftSection.present(chain)
+      ? lazy(chain, s)
+      : whole(chain, s);
+  }
+
+  /** The sampler whose section and lift rows are combined whole, at once. */
+  function whole(
+    chain: IAutoMovieLoftChain,
+    s: number,
+  ): (t: number) => [number, number, number] {
     const cap: ((phi: number) => IAutoMovieLoftPhaseReading) | null =
       AutoMovieLoftCapRead.phase(chain, s);
     if (cap !== null) return (t: number): [number, number, number] => cap(t).p;
@@ -85,11 +95,7 @@ export namespace AutoMovieLoftPoint {
     s: number,
     t: number,
   ): [number, number, number] {
-    return (
-      chain.basis === "spline" && !AutoMovieLoftSection.present(chain)
-        ? lazy(chain, s)
-        : sampler(chain, s)
-    )(t);
+    return sampler(chain, s)(t);
   }
 
   /** Actual world value and phase tangent without physical station2 admission. */

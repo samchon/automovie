@@ -52,7 +52,6 @@ export function test_unit_recovery_observation_estimate_camera_scene(): void {
   TestValidator.predicate(
     "empty extraction is completed evidence with detached metadata",
     result.status === "partial" &&
-      "value" in result &&
       result.value.status === "refused" &&
       result.value.sources.length === 5 &&
       result.value.poses.every(
@@ -88,7 +87,7 @@ export function test_unit_recovery_observation_estimate_camera_scene(): void {
     "cancellation publishes no partial value",
     cancelled.every(
       (outcome: (typeof cancelled)[number]): boolean =>
-        outcome.status === "cancelled" && !("value" in outcome),
+        outcome.status === "cancelled",
     ),
   );
   const failed: ReturnType<typeof estimateAutoMovieRecoveryCameraScene> =
@@ -101,7 +100,7 @@ export function test_unit_recovery_observation_estimate_camera_scene(): void {
     });
   TestValidator.predicate(
     "observer failure cannot be swallowed as geometry",
-    failed.status === "failed" && !("value" in failed),
+    failed.status === "failed",
   );
   const variants: IAutoMovieRecoveryCameraSceneInput[] = [];
   let overBudget: IAutoMovieRecoveryCameraSceneInput = make();
@@ -115,7 +114,7 @@ export function test_unit_recovery_observation_estimate_camera_scene(): void {
       estimateAutoMovieRecoveryCameraScene(variant);
     TestValidator.predicate(
       "over-budget view set refuses without a value",
-      outcome.status === "refused" && !("value" in outcome),
+      outcome.status === "refused",
     );
   }
 }

@@ -49,7 +49,7 @@ export async function test_unit_motions_lexicon_pursuit_flee(): Promise<void> {
         to: { x: here.x, y: 0, z: here.z - metres },
       }),
     );
-  const end = (plan: IAutoMovieMotionHumanActionPlan) =>
+  const end = (plan: IAutoMovieMotionHumanActionPlan): IAutoMovieVector3 =>
     plan.posture(plan.duration).root;
   const away: number = HumanPursuit.FLIGHT * body.measure.hipHeight;
   TestValidator.predicate(

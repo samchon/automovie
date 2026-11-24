@@ -1,5 +1,6 @@
 import type { IAutoMovieInspectionRequest } from "@automovie/interface";
 import {
+  AutoMovieThreeKind,
   type IAutoMovieInspectionHandle,
   applyAutoMovieInspection,
 } from "@automovie/render";
@@ -165,16 +166,17 @@ export function test_unit_render_scene_apply_inspection_edges(): void {
   unindexed.restore();
 
   // 6. No flag changes.
-  const flags = (): boolean[] =>
-    [stage, loose].flatMap((scene: THREE.Scene) => {
+  const flags: () => boolean[] = (): boolean[] =>
+    [stage, loose].flatMap((scene: THREE.Scene): boolean[] => {
       const out: boolean[] = [];
       scene.traverse((object: THREE.Object3D): void => {
-        const material: unknown = (object as THREE.Mesh).material;
-        if (
-          material instanceof THREE.MeshBasicMaterial ||
-          material instanceof THREE.MeshLambertMaterial
-        )
-          out.push(material.wireframe);
+        if (!AutoMovieThreeKind.isMesh(object)) return;
+        for (const material of [object.material].flat())
+          if (
+            AutoMovieThreeKind.isMeshBasicMaterial(material) ||
+            AutoMovieThreeKind.isMeshLambertMaterial(material)
+          )
+            out.push(material.wireframe);
       });
       return out;
     });

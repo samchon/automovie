@@ -8,3 +8,4 @@ export * from "./composeHumanStraightenPartnerTie";
 export * from "./wardrobeHands";
 export * from "./HumanWornItem";
 export * from "./dressTurn";
+export * from "./wardrobe";
