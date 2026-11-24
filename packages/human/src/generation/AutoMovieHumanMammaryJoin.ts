@@ -1,10 +1,15 @@
-import { AutoMovieConicArc, AutoMovieLoftViewFullSource } from "@automovie/engine";
+import {
+  AutoMovieConicArc,
+  AutoMovieLoftViewFullSource,
+  AutoMovieViewAxisJet,
+} from "@automovie/engine";
 import type {
   AutoMovieVector3Tuple,
   IAutoMovieHumanMammaryJoin,
   IAutoMovieLoftSectionFrame,
   IAutoMovieLoftViewFullSource,
   IAutoMovieSolidSharedCurve,
+  IAutoMovieViewAxisJet,
   IAutoMovieViewPart,
 } from "@automovie/interface";
 
@@ -105,9 +110,7 @@ export namespace AutoMovieHumanMammaryJoin {
    */
   export const STERNUM_HALF_SHARE: number = 27.8 / 2 / 133.1;
 
-  /**
-   * Clocks of the reported course stations, one per degree and a half.
-   */
+  /** Clocks of the reported course stations, one per degree and a half. */
   const CLOCKS: number = 240;
 
   /** The person's points, as the interface states them. */
@@ -129,13 +132,12 @@ export namespace AutoMovieHumanMammaryJoin {
    * of mid-hip to suprasternale without one), measured along the skin as
    * Fujisawa et al. measure it.
    *
-   * @param host The host's complete source: a straight course with level
-   *   sections whose chart's phase 0 is the anterior median line (the
-   *   trunk's).
+   * @param host The host's complete source with level sections whose phase 0 is
+   *   the anterior median line, as on the trunk.
    * @param points The person's points.
    * @evidence contracts/development/implementation.md#principled-implementation The surface distance along the anterior median line, by the source's own definition, not the height between the two levels.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One line sampled, one cumulative length, one interpolation.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A host that is not straight and level, a phase-0 line off the median plane and a level outside the host's stations are refused with their numbers.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Refuses an unsupported host, a phase-0 line off the median plane and landmarks outside the host's stations.
    * @evidence contracts/development/implementation.md#efficient-algorithms One source point per half millimetre of the line.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The footprint and the native under-bust site read this one point.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns one point.
@@ -147,10 +149,8 @@ export namespace AutoMovieHumanMammaryJoin {
   ): V {
     const source: IAutoMovieLoftViewFullSource.IReader =
       AutoMovieLoftViewFullSource.create(host);
-    const { foot, tangent } = straight(host, source);
+    const { foot, up, station } = level(host, source.domain);
     const p = points;
-    const station = (q: V): number =>
-      source.domain[0] + dot(sub(q, [...foot.origin] as V), tangent);
     const umbilicus: V =
       p.umbilicus ??
       add(
@@ -183,7 +183,7 @@ export namespace AutoMovieHumanMammaryJoin {
       !line.every(
         (q: V): boolean =>
           Math.abs(dot(sub(q, p.suprasternale), lateral)) <=
-          1e-6 * Math.max(1, Math.abs(dot(sub(q, p.suprasternale), tangent))),
+          1e-6 * Math.max(1, Math.abs(dot(sub(q, p.suprasternale), up))),
       )
     )
       throw new Error(
@@ -278,13 +278,13 @@ export namespace AutoMovieHumanMammaryJoin {
   }
 
   /**
-   * A quarter with reaches a and b and middle weight w starts with curvature
-   * a / (2 w² b²). Keeping w a b common makes this a³ / (2 (w a b)²), independent
-   * of the adjacent reach. Their shared radial derivatives are therefore C2
-   * in physical phase. Use the geometric mean of the four reach products to
+   * A quarter with reaches a and b and middle weight w starts with curvature a
+   * / (2 w² b²). Keeping w a b common makes this a³ / (2 (w a b)²), independent
+   * of the adjacent reach. Their shared radial derivatives are therefore C2 in
+   * physical phase. Use the geometric mean of the four reach products to
    * recover the ordinary ellipse when opposite reaches agree. This is an
-   * ESTIMATE between landmarks using Farin's curvature-continuous conics
-   * (1989, doi:10.1145/62054.62056).
+   * ESTIMATE between landmarks using Farin's curvature-continuous conics (1989,
+   * doi:10.1145/62054.62056).
    */
   function prepareQuarters(
     f: IFootprint,
@@ -319,12 +319,12 @@ export namespace AutoMovieHumanMammaryJoin {
    * The exact conic derivatives map through the host chart by the chain rule.
    * Samples report stations along the breast's course.
    *
-   * @param host The host's complete source: a straight course with level
-   *   sections (the trunk).
+   * @param host The host's complete source with level sections, as on the
+   *   trunk, whose section centre can move with height.
    * @param f The footprint.
    * @evidence contracts/development/implementation.md#principled-implementation The conic's point and clock derivatives map directly through the actual level host chart and its source jets.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Prepare four quarters, project one clock, and compose the host jet.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A host that is not straight and level and a footprint point past its stations are refused with their numbers; no stored loop enters.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Refuses an unsupported host or a footprint point outside its stations. The actual station frame supplies the radial origin and its derivatives.
    * @evidence contracts/development/implementation.md#efficient-algorithms Each query reads one native conic and one host jet. The reported stations use one source point each.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Prepare the four quarters and the host source once for the declared loop.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only the prepared sources and the requested station readings escape the call.
@@ -333,11 +333,12 @@ export namespace AutoMovieHumanMammaryJoin {
   export function loop(host: IAutoMovieViewPart, f: IFootprint): ILoop {
     const source: IAutoMovieLoftViewFullSource.IReader =
       AutoMovieLoftViewFullSource.create(host);
-    const { foot, tangent } = straight(host, source);
+    const { foot, up, station, axisAt } = level(host, source.domain);
     const quarter = prepareQuarters(f);
-    const offset: V = sub(f.origin, [...foot.origin] as V);
     const u: V = [...foot.u] as V;
     const v: V = [...foot.v] as V;
+    const origin: V = axisAt(station(f.origin)).value.origin;
+    const offset: V = sub(f.origin, origin);
     const centre: number = Math.atan2(dot(offset, v), dot(offset, u));
     const centreX: number = Math.cos(centre);
     const centreY: number = Math.sin(centre);
@@ -345,10 +346,10 @@ export namespace AutoMovieHumanMammaryJoin {
       const [r, r1, r2] = AutoMovieConicArc.radius(...quarter(c));
       const ray: V = direction(f, c);
       const across: V = direction(f, c + Math.PI / 2);
-      const p: V = add(offset, scale(ray, r));
+      const p: V = add(f.origin, scale(ray, r));
       const first: V = add(scale(ray, r1), scale(across, r));
       const second: V = add(scale(ray, r2 - r), scale(across, 2 * r1));
-      const s: number = source.domain[0] + dot(p, tangent);
+      const s: number = station(p);
       if (!(s > source.domain[0] && s < source.domain[1]))
         throw new Error(
           "mammary: the footprint's point at clock " +
@@ -358,25 +359,35 @@ export namespace AutoMovieHumanMammaryJoin {
             ", outside " +
             source.domain.join(" to "),
         );
-      const x: number = dot(p, u);
-      const y: number = dot(p, v);
+      const a = axisAt(s);
+      const s1: number = dot(first, up);
+      const s2: number = dot(second, up);
+      const q: V = sub(p, a.value.origin);
+      const q1: V = sub(first, scale(a.first.origin, s1));
+      const q2: V = sub(
+        second,
+        add(scale(a.second.origin, s1 * s1), scale(a.first.origin, s2)),
+      );
+      const x: number = dot(q, u);
+      const y: number = dot(q, v);
       const square: number = x * x + y * y;
       if (!(square > 0))
-        throw new Error(`mammary: the footprint reaches the host axis at clock ${c}`);
-      const x1: number = dot(first, u);
-      const y1: number = dot(first, v);
-      const phi: number = centre + Math.atan2(
-        y * centreX - x * centreY,
-        x * centreX + y * centreY,
-      );
+        throw new Error(
+          `mammary: the footprint reaches the host axis at clock ${c}`,
+        );
+      const x1: number = dot(q1, u);
+      const y1: number = dot(q1, v);
+      const phi: number =
+        centre +
+        Math.atan2(y * centreX - x * centreY, x * centreX + y * centreY);
       const phi1: number = (x * y1 - y * x1) / square;
       const phi2: number =
-        (x * dot(second, v) - y * dot(second, u) -
-          2 * phi1 * (x * x1 + y * y1)) / square;
+        (x * dot(q2, v) - y * dot(q2, u) - 2 * phi1 * (x * x1 + y * y1)) /
+        square;
       return {
         point: [s, phi],
-        first: [dot(first, tangent), phi1],
-        second: [dot(second, tangent), phi2],
+        first: [s1, phi1],
+        second: [s2, phi2],
       };
     };
     const jetAt = (clock: number): { point: V; first: V; second: V } => {
@@ -407,28 +418,48 @@ export namespace AutoMovieHumanMammaryJoin {
   }
 
   /**
-   * The host's foot frame and course tangent, refused unless its course is
-   * straight with level sections.
+   * Resolve physical height from the section normal. AutoMovieHumanTrunkAxis
+   * keeps its basis fixed but shifts each section's centre along X.
    */
-  function straight(
+  function level(
     host: IAutoMovieViewPart,
-    source: IAutoMovieLoftViewFullSource.IReader,
-  ): { foot: IAutoMovieLoftSectionFrame; tangent: V } {
-    const [foot, head]: IAutoMovieLoftSectionFrame[] = [
-      host.axis.at(source.domain[0]),
-      host.axis.at(source.domain[1]),
-    ];
-    const run: V = sub([...head!.origin] as V, [...foot!.origin] as V);
-    const length: number = Math.hypot(...run);
-    const tangent: V = scale(run, 1 / length);
-    if (
-      Math.abs(length - (source.domain[1] - source.domain[0])) > 1e-6 ||
-      Math.abs(dot(tangent, [...foot!.u] as V)) > 1e-9
-    )
+    [bottom, top]: IAutoMovieLoftViewFullSource.IReader["domain"],
+  ): {
+    foot: IAutoMovieLoftSectionFrame;
+    up: V;
+    station: (point: V) => number;
+    axisAt: (s: number) => IAutoMovieViewAxisJet.IJet;
+  } {
+    const { axis } = host;
+    const foot = axis.at(bottom);
+    const head = axis.at(top);
+    const rise: V = sub(head.origin, foot.origin);
+    const normal: V = cross(foot.v, foot.u);
+    const up: V = dot(normal, rise) < 0 ? scale(normal, -1) : normal;
+    const station = (point: V): number =>
+      bottom + dot(sub(point, foot.origin), up);
+    const parallel = (frame: IAutoMovieLoftSectionFrame): boolean =>
+      Math.hypot(...sub(frame.u, foot.u), ...sub(frame.v, foot.v)) <= 1e-9;
+    if (!(Math.abs(station(head.origin) - top) <= 1e-6 && parallel(head)))
       throw new Error(
-        "mammary: the host's course is not straight with level sections",
+        "mammary: the host needs level sections in physical station",
       );
-    return { foot: foot!, tangent };
+    const axisAt = (s: number): IAutoMovieViewAxisJet.IJet => {
+      const jet = axis.jet?.(s);
+      const frame = jet?.value ?? axis.at(s);
+      if (!(Math.abs(station(frame.origin) - s) <= 1e-6 && parallel(frame)))
+        throw new Error(
+          `mammary: the host section at ${s} is outside its level chart`,
+        );
+      if (jet != null) return jet;
+      const straight: V = add(foot.origin, scale(up, s - bottom));
+      if (!(Math.hypot(...sub(frame.origin, straight)) <= 1e-6))
+        throw new Error(
+          `mammary: the moving host section at ${s} needs an axis jet`,
+        );
+      return AutoMovieViewAxisJet.fixed(frame, up, [0, 0, 0]);
+    };
+    return { foot, up, station, axisAt };
   }
 
   function add(a: V, b: V): V {

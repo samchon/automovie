@@ -1,3 +1,4 @@
+import { AutoMovieViewAxisJet } from "@automovie/engine";
 import {
   AutoMovieHumanConicLoft,
   AutoMovieHumanConicSection,
@@ -37,9 +38,12 @@ import type {
  *    121.38 mm.
  * 3. The footprint's extremes stand at those reaches: up at clock 0, `+v` at a
  *    quarter turn.
- * 4. Off-grid loop points on the tube keep their exact footprint height and
- *    radial direction. Both clock derivatives match central differences, and
- *    the projected chart's 2-jet is continuous at all four uneven reaches.
+ * 4. Off-grid loop points on the tube keep their exact footprint height and radial
+ *    direction. Both clock derivatives match central differences, and the
+ *    projected chart's 2-jet is continuous at all four uneven reaches.
+ * 5. Level sections with a moving origin keep these same radial projections. The
+ *    fold is still placed by median surface distance, along the parabola formed
+ *    by the anterior tube wall.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls `AutoMovieHumanMammaryJoin.footprint`, `at` and `loop` on a made person and a made host.
  * @evidence contracts/development/testing.md#independent-expectations Each reach is hand arithmetic from the made points; a point dropped on a tube about `Y` along its radius keeps its height and its direction from the axis.
@@ -173,17 +177,15 @@ export function test_human_mammary_footprint(): void {
     const b = loop.at(clock + h);
     const { first, second } = loop.at(clock);
     const gap: number = Math.hypot(
-      ...first.map((value, i) =>
-        (b.point[i]! - a.point[i]!) / (2 * h) - value,
-      ),
+      ...first.map((value, i) => (b.point[i]! - a.point[i]!) / (2 * h) - value),
     );
     if (!(gap <= 1e-3 * Math.max(1, Math.hypot(...first))))
       failures.push(
         `loop point ${k}'s first derivative differs from its central difference by ${gap}`,
       );
     const accelerationGap: number = Math.hypot(
-      ...second.map((value, i) =>
-        (b.first[i]! - a.first[i]!) / (2 * h) - value,
+      ...second.map(
+        (value, i) => (b.first[i]! - a.first[i]!) / (2 * h) - value,
       ),
     );
     if (!(accelerationGap <= 1e-3 * Math.max(1, Math.hypot(...second))))
@@ -208,6 +210,68 @@ export function test_human_mammary_footprint(): void {
           failures.push(`quarter ${k} has a sided host ${key} jump of ${gap}`);
       }
     }
+  }
+
+  const lateral = (s: number): number => (s * s) / 10000;
+  const axisAt = (s: number): IAutoMovieLoftSectionFrame => ({
+    ...host.axis.at(s),
+    origin: [lateral(s), 800 + s, 0],
+  });
+  const moving: IAutoMovieViewPart = {
+    ...host,
+    axis: {
+      at: axisAt,
+      jet: (s) =>
+        AutoMovieViewAxisJet.fixed(
+          axisAt(s),
+          [s / 5000, 1, 0],
+          [1 / 5000, 0, 0],
+        ),
+    },
+  };
+  const arc = (s: number): number =>
+    (s * Math.hypot(1, s / 5000) + 5000 * Math.asinh(s / 5000)) / 2;
+  const fold = AutoMovieHumanMammaryJoin.foldPoint(moving, points);
+  const foldStation: number = fold[1] - 800;
+  const fraction: number =
+    (arc(600) - arc(foldStation)) / (arc(600) - arc(250));
+  if (!(Math.abs(fraction - 0.59) <= 1e-8))
+    failures.push(`moving tube fold is at ${fraction} of the median arc`);
+
+  const shifted = AutoMovieHumanMammaryJoin.loop(moving, f);
+  for (const clock of [0.13, 1.85, 3.58, 5.47]) {
+    const { point, first, second } = shifted.at(clock);
+    const line = AutoMovieHumanMammaryJoin.at(f, clock);
+    const x: number = line[0] - lateral(line[1] - 800);
+    const z: number = line[2];
+    const factor: number = 150 / Math.hypot(x, z);
+    const expectedPoint = [
+      lateral(line[1] - 800) + x * factor,
+      line[1],
+      z * factor,
+    ];
+    const gap: number = Math.hypot(
+      ...point.map((v, i) => v - expectedPoint[i]!),
+    );
+    if (!(gap <= 1e-6))
+      failures.push(`moving tube point ${clock} misses by ${gap} mm`);
+    const h: number = 5e-6;
+    const before = shifted.at(clock - h);
+    const after = shifted.at(clock + h);
+    const velocityError: number = Math.hypot(
+      ...first.map(
+        (v, i) => (after.point[i]! - before.point[i]!) / (2 * h) - v,
+      ),
+    );
+    const accelerationError: number = Math.hypot(
+      ...second.map(
+        (v, i) => (after.first[i]! - before.first[i]!) / (2 * h) - v,
+      ),
+    );
+    if (!(velocityError <= 1e-6 && accelerationError <= 1e-6))
+      failures.push(
+        `moving tube derivatives at ${clock} miss by ${velocityError} and ${accelerationError}`,
+      );
   }
   if (failures.length > 0)
     throw new Error("mammary footprint:\n" + failures.join("\n"));
