@@ -10,6 +10,10 @@ import { StationeryDraw } from "./StationeryDraw";
 /**
  * Loose paper sheet or folding map with a shared writing-surface contract.
  *
+ * A flat sheet's grip edge lies toward model `+Z` and its head edge toward
+ * model `-Z`, so `face` reads with model `-Z` as its top. A folded map's `face`
+ * rides its `fold`.
+ *
  * @param params The optional scene ID, paper format and any fixed dimension in
  *   metres or kilograms. The default format is a single sheet.
  * @param seed The seed for the recorded recipe. Without a seed, the draw uses

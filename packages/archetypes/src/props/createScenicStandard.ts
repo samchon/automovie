@@ -18,7 +18,10 @@ const SCENIC: string =
  * A carried processional standard with a banner panel or a round sign. The
  * staff starts at local ground and points up. The scene can mount a hand on
  * `grip` along the exposed shaft and use `face` as a framing point. The panel
- * keeps a fixed silhouette through the authored carry.
+ * keeps a fixed silhouette through the authored carry. The head is mounted
+ * ahead of the staff, its back on the staff's front. `face` spans the head's
+ * `headSpan` square on its front, read with model `+Y` up; on a roundel the
+ * square's corners lie outside the disc, so content placed there overhangs it.
  *
  * @param params The silhouette and any fixed set dimensions.
  * @param seed The seed for the remaining dimensions.
@@ -63,7 +66,11 @@ export function createScenicStandard(
   const faceTop: number = dimensions.length - shaftRadius;
   const faceCenter: number = faceTop - faceRadius;
   const clearShaft: number = faceTop - dimensions.headSpan;
-  const front: number = dimensions.faceDepth / 2;
+
+  // The head is mounted ahead of the staff, its back on the staff's front,
+  // so the staff never shows across the face.
+  const middle: number = shaftRadius + dimensions.faceDepth / 2;
+  const front: number = shaftRadius + dimensions.faceDepth;
   builder.rod(
     "shaft",
     shaftRadius,
@@ -80,14 +87,14 @@ export function createScenicStandard(
     builder.box(
       "panel",
       vector(dimensions.headSpan, dimensions.headSpan, dimensions.faceDepth),
-      vector(0, faceCenter, 0),
+      vector(0, faceCenter, middle),
       { color: "#885149" },
     );
   } else
     builder.rod(
       "panel",
       faceRadius,
-      vector(0, faceCenter, -front),
+      vector(0, faceCenter, shaftRadius),
       vector(0, faceCenter, front),
       { color: "#a77649" },
     );
@@ -114,6 +121,8 @@ export function createScenicStandard(
       vector(1, 0, 0),
     ),
     extent: null,
+    width: dimensions.headSpan,
+    depth: dimensions.headSpan,
   });
   return builder.build(dimensions.mass);
 }

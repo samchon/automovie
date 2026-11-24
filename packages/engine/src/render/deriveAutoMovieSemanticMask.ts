@@ -14,10 +14,12 @@ import {
 } from "@automovie/interface";
 
 import { assertAutoMovieSemanticMaskCapacity } from "./assertAutoMovieSemanticMaskCapacity";
+import { autoMovieFlameNodeName } from "./autoMovieFlameNodeName";
 import { autoMovieFluidSurfaceNodeName } from "./autoMovieFluidSurfaceNodeName";
 import { autoMoviePlantingNodeName } from "./autoMoviePlantingNodeName";
 import { autoMovieRenderHash32 } from "./autoMovieRenderHash32";
 import { autoMovieSoftBodyNodeName } from "./autoMovieSoftBodyNodeName";
+import { autoMovieSurfaceGraphicNodeName } from "./autoMovieSurfaceGraphicNodeName";
 import { compareAutoMovieRenderIds } from "./compareAutoMovieRenderIds";
 import { AUTOMOVIE_SEMANTIC_MASK_COLORS } from "./constants/AUTOMOVIE_SEMANTIC_MASK_COLORS";
 import { AUTOMOVIE_SEMANTIC_MASK_MAX_ENTRIES } from "./constants/AUTOMOVIE_SEMANTIC_MASK_MAX_ENTRIES";
@@ -55,6 +57,11 @@ const SEMANTIC_MASK_PROTOCOL: string = "automovie.semantic-mask.v2";
  * joined by the names their own viewer builders assign; without those names
  * every one of them would paint the reserved background and a segmentation
  * consumer would read a curtain, a fern bed and a pond as nothing at all.
+ *
+ * A surface graphic and a flame are joined by their viewer objects' names,
+ * which are also their ids, `surface-graphic:<node>/<surface>` and
+ * `flame:<node>/<cue>`, and each is owned by its prop's node, so a screen's
+ * face or a candle's flame resolves to itself first and then the prop.
  *
  * Throws when the subject declares more entities than one bounded mask can
  * address. Silently dropping the excess would make a mask that segments a
@@ -234,6 +241,34 @@ const collectClaims: (subject: IAutoMovieRenderSubject) => IClaim[] = (
       nodes: [autoMoviePlantingNodeName(planting.cluster.id)],
       slot: null,
     });
+  // A surface graphic paints its whole face under its own id, whatever its
+  // layers hold, so a regional prompt can target the screen or the sign.
+  for (const track of subject.surfaceGraphics ?? []) {
+    const name: string = autoMovieSurfaceGraphicNodeName(
+      track.node,
+      track.surface,
+    );
+    claims.push({
+      id: name,
+      kind: "surface-graphic",
+      label: null,
+      owner: `node:${track.node}`,
+      nodes: [name],
+      slot: null,
+    });
+  }
+  // A flame is its own drawable, owned by the prop it burns on.
+  for (const cue of subject.flames ?? []) {
+    const name: string = autoMovieFlameNodeName(cue.node, cue.id);
+    claims.push({
+      id: name,
+      kind: "flame",
+      label: cue.size.kind,
+      owner: `node:${cue.node}`,
+      nodes: [name],
+      slot: null,
+    });
+  }
   return claims;
 };
 

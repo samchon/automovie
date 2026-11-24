@@ -1,17 +1,17 @@
 # src/production/sound/IAutoMovieProductionPhonemesToVisemes.ts#IAutoMovieProductionPhonemesToVisemes.IProps
 
+## @evidence contracts/development/common.md#meaningful-documentation
+
+States the equal-share rule, the table, the refusals and which checks belong to admission.
+
 ## @evidence contracts/development/design.md#principled-representation
 
-Chunk endpoints use mono source sample indices and the target uses [startFrame, endFrame) film frames. Ratios fit sample timing into that span; no sample rate is required because only relative source position matters.
+The chunks alone: timing is on the samples, so no frame rate or line span is needed.
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
-productionPhonemesToVisemes lowers adopted speech chunks to vowel/rest intervals, preserving input chunk order and grouping multiple tokens when fewer frames are available.
+One member, read by the mapper.
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 
-Nonpositive duration or sourceSamples returns no intervals; no tokens yields one full-span rest. Other numeric validity/order is a caller premise, and gaps between timed chunks are not automatically filled.
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Adopted phoneme sample timing fitted to one film-frame dialogue span. Chunk endpoints use mono source sample indices and the target uses [startFrame, endFrame) film frames. Ratios fit sample timing into that span; no sample rate is required because only relative source position matters.
+Rates and span are not accepted here, so timing cannot depend on film placement.

@@ -16,23 +16,39 @@ import { restoreAutoMovieRenderModeOnce } from "./restoreAutoMovieRenderModeOnce
 import { restoreAutoMovieRenderModeState } from "./restoreAutoMovieRenderModeState.js";
 
 /**
- * Swap every mesh material for `make()`'s, restoring the originals and
- * disposing the created overrides.
+ * Swap every mesh material for `make`'s, restoring the originals and disposing
+ * the created overrides.
+ *
+ * `make` is called once per mesh with the material it replaces, so a pass that
+ * reads the original, such as `albedo` reading its base colour, can build from
+ * it; a pass that draws every mesh alike ignores the argument. It returns one
+ * material, or one per slot of a material group. Every material it returns is
+ * owned by the pass and disposed on restore.
  *
  * A formation's animated instance meshes carry their cycle on themselves, and
  * the override inherits it: a guide pass that kept the rest pose while the
  * beauty pass marched would describe a film nobody is going to see. A
  * dual-quaternion skin's override takes the same skinning patch for the same
  * reason.
+ *
+ * `keep`, when given, names meshes the pass draws with their own materials,
+ * such as the surface graphics the `graphics` pass shows as beauty draws them;
+ * they are neither swapped nor restored.
  */
 export const overrideAutoMovieRenderModeMaterials: (
   scene: THREE.Scene,
   mode: AutoMovieGuidePass,
-  make: () => THREE.Material,
+  make: (
+    original: THREE.Material | THREE.Material[],
+  ) => THREE.Material | THREE.Material[],
+  keep?: (mesh: THREE.Mesh) => boolean,
 ) => IAutoMovieRenderModeHandle = (
   scene: THREE.Scene,
   mode: AutoMovieGuidePass,
-  make: () => THREE.Material,
+  make: (
+    original: THREE.Material | THREE.Material[],
+  ) => THREE.Material | THREE.Material[],
+  keep?: (mesh: THREE.Mesh) => boolean,
 ): IAutoMovieRenderModeHandle => {
   guardAutoMovieRenderModeRetirement(scene);
   const swaps: {
@@ -58,13 +74,22 @@ export const overrideAutoMovieRenderModeMaterials: (
   };
   try {
     for (const mesh of collectAutoMovieRenderModeMeshes(scene)) {
+      if (keep?.(mesh) === true) continue;
       const original: THREE.Material | THREE.Material[] = mesh.material;
-      const override: THREE.Material = make();
-      overrides.add(override);
+      const override: THREE.Material | THREE.Material[] = make(original);
+      const made: THREE.Material[] = Array.isArray(override)
+        ? override
+        : [override];
+
+      // Every made material is owned before any patch can throw.
+      for (const material of made) overrides.add(material);
       swaps.push({ mesh, original });
       const cycle: ReturnType<typeof formationCycleOf> = formationCycleOf(mesh);
-      if (cycle !== null) applyFormationCycleMaterial(override, cycle);
-      if (dualQuaternionSkinningOf(mesh)) applyDualQuaternionSkinning(override);
+      const dual: boolean = dualQuaternionSkinningOf(mesh);
+      for (const material of made) {
+        if (cycle !== null) applyFormationCycleMaterial(material, cycle);
+        if (dual) applyDualQuaternionSkinning(material);
+      }
       mesh.material = override;
     }
   } catch (error) {

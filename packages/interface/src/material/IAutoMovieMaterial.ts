@@ -1,6 +1,8 @@
 import type { IAutoMovieColor } from "../color/IAutoMovieColor";
 import type { AutoMovieTextureBinding } from "./AutoMovieTextureBinding";
 import type { IAutoMovieMaterialOverlay } from "./IAutoMovieMaterialOverlay";
+import type { IAutoMovieMaterialWear } from "./IAutoMovieMaterialWear";
+import type { IAutoMovieProceduralSurface } from "./IAutoMovieProceduralSurface";
 
 /**
  * A physically-based (PBR) surface material: the "what it's made of and how it
@@ -207,4 +209,20 @@ export interface IAutoMovieMaterial {
    * overlay shader is installed.
    */
   overlays?: IAutoMovieMaterialOverlay[];
+
+  /**
+   * Seeded solid-texture colour, roughness and relief generated in code, for a
+   * surface with no sourced image. It replaces `baseColor` and `roughness`
+   * wherever it applies, and engine model admission refuses it together with
+   * `baseColorTexture` or `metallicRoughnessTexture`. Omitted, the surface is
+   * uniform.
+   */
+  procedural?: IAutoMovieProceduralSurface;
+
+  /**
+   * Edge wear and crease grime placed per fragment by the distance to the
+   * mesh's feature edges, measured at bind pose. Omitted, the surface is
+   * uniform from edge to cavity.
+   */
+  wear?: IAutoMovieMaterialWear;
 }

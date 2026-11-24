@@ -2,7 +2,7 @@
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-Names both output channels, the presented span and the evidence returned.
+Names both output channels, the presented span, the optional loudness meter and the evidence returned.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

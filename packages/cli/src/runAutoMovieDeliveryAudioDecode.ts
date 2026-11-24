@@ -1,4 +1,7 @@
-import type { IAutoMovieDeliveryContentAudit } from "@automovie/interface";
+import type {
+  IAutoMovieDeliveryContentAudit,
+  IAutoMovieLoudnessMeter,
+} from "@automovie/interface";
 
 import { decodeAutoMovieDeliveryAudio } from "./decodeAutoMovieDeliveryAudio";
 import { planAutoMovieDeliveryAudioDecode } from "./planAutoMovieDeliveryAudioDecode";
@@ -16,6 +19,8 @@ import { runAutoMovieFfmpeg } from "./runAutoMovieFfmpeg";
  * @param thresholds The audio silence threshold and minimum duration.
  * @param run The established FFmpeg process owner with separate output
  *   consumers.
+ * @param meter Creates the render's loudness meter, when the decoded loudness
+ *   and true peak are measured.
  * @returns Audio evidence or a reason decoded content is uncovered.
  */
 export async function runAutoMovieDeliveryAudioDecode(
@@ -24,6 +29,7 @@ export async function runAutoMovieDeliveryAudioDecode(
   streamIndex: number,
   thresholds: IAutoMovieDeliveryContentAudit.IThresholds["silence"],
   run: typeof runAutoMovieFfmpeg,
+  meter?: (channels: 1 | 2) => IAutoMovieLoudnessMeter,
 ): Promise<IAutoMovieDeliveryContentAudit.Stream> {
   const track = await readAutoMovieDeliveryAudioTrack(path, streamIndex);
   if (track.status === "uncovered") return track;
@@ -34,5 +40,6 @@ export async function runAutoMovieDeliveryAudioDecode(
     thresholds,
     run,
     track,
+    meter,
   );
 }

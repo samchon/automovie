@@ -6,11 +6,11 @@ Sums beam, isotropic-sky and point-luminaire illuminance at each cell centre, wi
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-One function owns sampling, metrics and sealing with a private helper per light component; request checking and frame resolution live in `resolveAutoMovieDaylightRequest`, and directions, occlusion, metric building and sealing are shared analysis helpers.
+One function owns sampling, metrics and sealing, with a private helper for the beam component, the luminaire component from `autoMovieArtificialIlluminance`, the sky term from `autoMovieSkyIlluminance`, which the illuminance meter shares, and the settings text from `autoMovieDaylightSettings`; request checking and frame resolution live in `resolveAutoMovieDaylightRequest`, and directions, occlusion, metric building and sealing are shared analysis helpers.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
-An unimplemented sky returns an `unsupported` run and ground reflection is an `unsupported` metric; the 1e-12 epsilon guards only a fitting coincident with a sample point, and no study or fixture is special-cased.
+An unimplemented sky returns an `unsupported` run and ground reflection is an `unsupported` metric; the luminaire helper's 1e-12 epsilon guards only a fitting coincident with a sample point, and no study or fixture is special-cased.
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

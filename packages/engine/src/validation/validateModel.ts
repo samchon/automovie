@@ -38,6 +38,8 @@ import { validateJointConstraint } from "./validateJointConstraint";
 import { validateLookAt } from "./validateLookAt";
 import { validateMaterialLobes } from "./validateMaterialLobes";
 import { validateMaterialOverlays } from "./validateMaterialOverlays";
+import { validateMaterialProcedural } from "./validateMaterialProcedural";
+import { validateMaterialWear } from "./validateMaterialWear";
 import { validateMesh } from "./validateMesh";
 import { validateModelImages } from "./validateModelImages";
 import { validateProfileCapabilities } from "./validateProfileCapabilities";
@@ -317,6 +319,14 @@ export const validateModel: (
       partsPath: `${path}.parts`,
       collector,
     });
+    validateMaterialProcedural({
+      material: m,
+      path: mp,
+      parts: model.parts,
+      partsPath: `${path}.parts`,
+      collector,
+    });
+    validateMaterialWear(m.wear, `${mp}.wear`, collector);
     collector.range(`${mp}.metallic`, m.metallic, 0, 1, "metallic");
     collector.range(`${mp}.roughness`, m.roughness, 0, 1, "roughness");
     collector.range(`${mp}.opacity`, m.opacity, 0, 1, "opacity");

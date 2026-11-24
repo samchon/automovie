@@ -29,13 +29,14 @@ import { scaleAutoMovieCaptureLabels } from "./scaleAutoMovieCaptureLabels.js";
  * Each cell is drawn in plan order, one at a time. A drawn still gets its
  * labels stamped at their anchors, at a scale that keeps a label's font pixel
  * at least one sheet pixel after the still is reduced into its cell, and is
- * written as `<cell name>.png` with its content hash. A cell whose draw throws,
- * or returns a picture that is not the subject's raster, is recorded with the
+ * written as `<cell name>.png` with its content hash, RGB except a `graphics`
+ * still, which keeps its straight alpha as RGBA. A cell whose draw throws, or
+ * returns a picture that is not the subject's raster, is recorded with the
  * cause and stands on the sheet as a marked cell, and the run continues. Sheets
- * are written as `sheet-001.png` onwards as each fills. With a `compare` round,
- * `compareAutoMovieCaptureRounds` follows at `match`. Diagnostics supplied by
- * the drawn cells are reduced in film time for the record. The record comes
- * last.
+ * are written as `sheet-001.png` onwards as each fills. Diagnostics supplied by
+ * the drawn cells are reduced in film time for the record. With a `compare`
+ * round, `compareAutoMovieCaptureRounds` follows at `match` and diffs those
+ * findings against the earlier record's. The record comes last.
  *
  * Files are touched in the order `AutoMovieCaptureFolder` states: the host
  * opens the folder for the plan's round and compared round, which checks both
@@ -166,7 +167,13 @@ export async function runAutoMovieCapture(
     for (const label of drawing.labels)
       stampAutoMovieRasterLabel(picture, label.text, labelScale, label);
     const file: string = `${cell.name}.png`;
-    await folder.write(file, await encodeAutoMovieRasterPng(picture));
+    // The graphics plate keeps its straight alpha as the compositing matte.
+    await folder.write(
+      file,
+      await encodeAutoMovieRasterPng(picture, {
+        alpha: cell.pass === "graphics",
+      }),
+    );
     rows.push({
       ...fixed,
       ...place,
@@ -182,7 +189,18 @@ export async function runAutoMovieCapture(
     sheet = await full(sheet, cell, folder, sheets, sheetNames, plan);
   }
 
-  // The comparison, then the record.
+  // The findings, which the comparison diffs, then the comparison, then the record.
+  const diagnostics: IAutoMovieInspectionDiagnostics.IAudit | undefined =
+    packets.length === 0
+      ? undefined
+      : reduceAutoMovieInspectionEpisodes(
+          packets.sort(
+            (
+              left: IAutoMovieInspectionDiagnostics,
+              right: IAutoMovieInspectionDiagnostics,
+            ): number => left.time.filmSeconds - right.time.filmSeconds,
+          ),
+        );
   const comparison: IAutoMovieCaptureComparison | null =
     request.compare === null
       ? null
@@ -194,6 +212,7 @@ export async function runAutoMovieCapture(
           tolerance: request.tolerance,
           budget: request.budget,
           raster: { width: subject.width, height: subject.height },
+          ...(diagnostics === undefined ? {} : { diagnostics }),
         });
   return folder.close({
     subject: {
@@ -214,18 +233,7 @@ export async function runAutoMovieCapture(
     comparison,
     video: props.video ?? null,
     section: props.section ?? null,
-    ...(packets.length === 0
-      ? {}
-      : {
-          diagnostics: reduceAutoMovieInspectionEpisodes(
-            packets.sort(
-              (
-                left: IAutoMovieInspectionDiagnostics,
-                right: IAutoMovieInspectionDiagnostics,
-              ): number => left.time.filmSeconds - right.time.filmSeconds,
-            ),
-          ),
-        }),
+    ...(diagnostics === undefined ? {} : { diagnostics }),
   });
 }
 

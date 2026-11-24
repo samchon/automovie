@@ -10,14 +10,17 @@ import { assertAutoMovieSceneShadowProfile } from "./assertAutoMovieSceneShadowP
 import { guardAutoMovieRenderModeRetirement } from "./guardAutoMovieRenderModeRetirement.js";
 import { guardAutoMovieSceneShadowRetirement } from "./guardAutoMovieSceneShadowRetirement.js";
 import { invalidateAutoMovieSceneShadowPrograms } from "./invalidateAutoMovieSceneShadowPrograms.js";
+import { readAutoMovieSceneMedium } from "./medium/readAutoMovieSceneMedium.js";
 import { resetAutoMovieSceneShadowTargets } from "./resetAutoMovieSceneShadowTargets.js";
 import { restoreAutoMovieRenderModeState } from "./restoreAutoMovieRenderModeState.js";
 
 /**
- * Draw a scene sample under reversible environment and material-pass owners.
- * Both owners are restored independently, even after drawing or one restore
- * fails. The primary failure remains first rather than being replaced by a
- * secondary restoration error. Caller-owned scene and renderer are retained.
+ * Draw a scene sample under reversible environment and material-pass owners. A
+ * beauty pass of a scene carrying a medium is refused before anything changes,
+ * because the medium is drawn only in a film's linear target. Both owners are
+ * restored independently, even after drawing or one restore fails. The primary
+ * failure remains first rather than being replaced by a secondary restoration
+ * error. Caller-owned scene and renderer are retained.
  */
 export const renderAutoMovieScenePass: (
   renderer: THREE.WebGLRenderer,
@@ -34,6 +37,12 @@ export const renderAutoMovieScenePass: (
   pass: AutoMovieGuidePass,
   delivery?: IAutoMovieSceneEnvironment["toneMapping"],
 ): void => {
+  // A medium is marched only in a film's linear target, which this pass lacks;
+  // structural passes ignore it, as they ignore fog.
+  if (pass === "beauty" && readAutoMovieSceneMedium(scene) !== null)
+    throw new Error(
+      "renderAutoMovieScenePass draws no participating medium; draw a scene with a medium through the film response stage with optics",
+    );
   guardAutoMovieSceneShadowRetirement(scene, renderer);
   guardAutoMovieRenderModeRetirement(scene);
   const priorShadows: { enabled: boolean; type: THREE.ShadowMapType } = {

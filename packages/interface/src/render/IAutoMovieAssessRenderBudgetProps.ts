@@ -4,6 +4,7 @@ import type {
 } from "../index.js";
 import type { IAutoMovieCompiledShotSource } from "../production/IAutoMovieCompiledShotSource.js";
 import type { IAutoMovieRenderBudget } from "./IAutoMovieRenderBudget.js";
+import type { IAutoMovieRenderFilm } from "./IAutoMovieRenderFilm.js";
 import type { IAutoMovieRenderTargetAsset } from "./IAutoMovieRenderTargetAsset.js";
 import type { IAutoMovieRenderTargetRenderer } from "./IAutoMovieRenderTargetRenderer.js";
 import type { IAutoMovieRenderTargetSettings } from "./IAutoMovieRenderTargetSettings.js";
@@ -44,4 +45,10 @@ export interface IAutoMovieAssessRenderBudgetProps {
    * capture host.
    */
   textureResidency?: IAutoMovieRenderTextureResidency;
+  /**
+   * The film's optics and shading at its most demanding second, whose film
+   * stage targets are measured at `settings`' raster; absent for a shot drawn
+   * without optics.
+   */
+  film?: IAutoMovieRenderFilm;
 }

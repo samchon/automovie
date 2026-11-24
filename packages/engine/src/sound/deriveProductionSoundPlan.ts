@@ -8,6 +8,7 @@ import {
   IAutoMovieFilmTimeline,
   IAutoMovieFilmTimelineSegment,
   IAutoMovieFormationBounds,
+  type IAutoMovieProductionDialogueLine,
   IAutoMovieProductionSoundCue,
   IAutoMovieProductionSoundEvent,
   IAutoMovieProductionSoundPlan,
@@ -31,6 +32,7 @@ import { transformFormationBounds } from "../transformFormationBounds";
 import { transformFormationPoint } from "../transformFormationPoint";
 import { assertProductionScoreDucking } from "./assertProductionScoreDucking";
 import { deriveAutoMovieSoundPropagation } from "./deriveAutoMovieSoundPropagation";
+import { productionCaptionDialogueLine } from "./productionCaptionDialogueLine";
 import { resolveProductionSoundEventCues } from "./resolveProductionSoundEventCues";
 
 /**
@@ -203,21 +205,10 @@ export const deriveProductionSoundPlan: (
     events,
     cues,
     dialogue: props.timeline.tracks.captions.map(
-      (line: {
-        id: string;
-        text: string;
-        language: string;
-        speaker?: string | undefined;
-        startFrame: number;
-        endFrame: number;
-      }): {
-        id: string;
-        text: string;
-        language: string;
-        speaker?: string | undefined;
-        startFrame: number;
-        endFrame: number;
-      } => ({ ...line }),
+      (
+        caption: IAutoMovieFilmTimeline["tracks"]["captions"][number],
+      ): IAutoMovieProductionDialogueLine =>
+        productionCaptionDialogueLine(props, caption),
     ),
   };
 };

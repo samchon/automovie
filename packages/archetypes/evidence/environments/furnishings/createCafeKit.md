@@ -2,7 +2,7 @@
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-Uses the measured local extents of a service counter, dining table and dining seat. Two chairs face inward with their front of occupancy at the table's two Z edges. The counter occupies the back wall and the common aisle planner reserves its approach.
+Uses the measured local extents of a service counter, dining table and dining seat. Two chairs face inward with their front of occupancy at the table's two Z edges. The counter is a wall piece centred on the -Z wall, and its front clearance, as deep as the aisle, reserves its approach.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 

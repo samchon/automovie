@@ -87,11 +87,14 @@ export function createMotorcycle(
   const seat: IAutoMovieVector3 = v(0, d.seatHeight, -half * 0.35);
   const board: IAutoMovieVector3 = v(0, d.footrestHeight, seat.z + 0.45);
 
-  // The body under the seat: a motorcycle's fills the frame between the wheels; a scooter's stops at the floorboard's rear edge and comes down to its underside, so the space over the board is open.
+  // The body under the seat: a motorcycle's fills the frame between the wheels down to the rear axle, or lower to the foot pegs' underside where the pegs hang below the axle, so each peg's inner end stays on the frame; a scooter's stops at the floorboard's rear edge and comes down to its underside, so the space over the board is open.
   const rear: number = -0.05 - d.wheelbase * 0.35;
   const front: number =
     kind === "scooter" ? board.z - 0.2 : -0.05 + d.wheelbase * 0.35;
-  const under: number = kind === "scooter" ? board.y - 0.03 : radius;
+  const under: number =
+    kind === "scooter"
+      ? board.y - 0.03
+      : Math.min(radius, d.footrestHeight - 2 * createMotorcycle.PEG);
   const top: number = d.seatHeight - 0.06;
   builder.box(
     "body",
@@ -199,9 +202,9 @@ export function createMotorcycle(
       );
       builder.rod(
         `peg-${sign === 1 ? "left" : "right"}`,
-        0.012,
-        v(sign * 0.15, peg.y - 0.012, peg.z),
-        v(sign * 0.3, peg.y - 0.012, peg.z),
+        createMotorcycle.PEG,
+        v(sign * 0.15, peg.y - createMotorcycle.PEG, peg.z),
+        v(sign * 0.3, peg.y - createMotorcycle.PEG, peg.z),
         { color: "#55595f" },
       );
       builder.affordance({
@@ -229,6 +232,12 @@ export namespace createMotorcycle {
     width: 0.3,
     depth: 0.35,
   };
+
+  /**
+   * A foot peg's radius, metres: typical, not read at a source. The peg's top
+   * is the footrest height, so its underside stands two radii lower.
+   */
+  export const PEG: number = 0.012;
 
   /**
    * The affordance ids:

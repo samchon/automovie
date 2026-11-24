@@ -34,8 +34,10 @@ export interface IAutoMovieEnvironmentContext {
 
   /**
    * World direction the site calls north; finite and non-zero, need not be
-   * normalized. No solver reads it yet: it is validated and digested into
-   * daylight settings only.
+   * normalized. `autoMovieSunDirection` projects it onto the ground plane to
+   * orient a sun position from `solveAutoMovieSunPosition`, and refuses a north
+   * parallel to the ground's up; the daylight study only digests it into its
+   * settings.
    */
   north: IAutoMovieVector3;
 

@@ -1,6 +1,7 @@
 import type { IAutoMovieAcousticResponseProfile } from "./IAutoMovieAcousticResponseProfile";
 import type { IAutoMovieProductionDialogueLine } from "./IAutoMovieProductionDialogueLine";
 import type { IAutoMovieProductionFrameRate } from "./IAutoMovieProductionFrameRate";
+import type { IAutoMovieProductionRoomTone } from "./IAutoMovieProductionRoomTone";
 import type { IAutoMovieProductionSoundCue } from "./IAutoMovieProductionSoundCue";
 import type { IAutoMovieProductionSoundEvent } from "./IAutoMovieProductionSoundEvent";
 import type { IAutoMovieSoundPropagationProfile } from "./IAutoMovieSoundPropagationProfile";
@@ -71,4 +72,7 @@ export interface IAutoMovieProductionSoundPlan {
 
   /** Ordered dialogue/caption placements. */
   dialogue: IAutoMovieProductionDialogueLine[];
+
+  /** Optional room-tone beds on the ambience bus; omission adds none. */
+  roomTone?: IAutoMovieProductionRoomTone[];
 }

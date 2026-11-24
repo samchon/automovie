@@ -7,6 +7,7 @@ import {
   IAutoMovieMaterial,
   IAutoMovieModel,
   type IAutoMovieSceneEnvironmentUse,
+  type IAutoMovieSurfaceGraphicImageUse,
   type IAutoMovieTextureClosureInput,
   type IAutoMovieTextureImageFacts,
   IAutoMovieTextureReference,
@@ -35,11 +36,12 @@ const ENVIRONMENT_MEDIA: ReadonlySet<AutoMovieTextureMediaType> = new Set([
 ]);
 
 /**
- * Cross-check every sampled material/environment image with manifest
- * registration, production consumer authorization, media/edge facts and
- * consistent color intent. A binding that names an image its model carries
- * skips the ledger, which holds project files only, and joins the colour-intent
- * check under that model.
+ * Cross-check every sampled material, environment and surface-graphic image
+ * with manifest registration, production consumer authorization, media/edge
+ * facts and consistent color intent. A binding or surface image that names an
+ * image its model carries skips the ledger, which holds project files only, and
+ * joins the colour-intent check under that model; a surface image that resolves
+ * nowhere is refused as unregistered.
  */
 export const validateTextureAssets: (
   props: IAutoMovieTextureClosureInput,
@@ -148,6 +150,37 @@ export const validateTextureAssets: (
     },
   );
 
+  // A surface graphic's image is a colour picture: a carried image of the
+  // prop's model needs no ledger row, and any other id is a project file.
+  const carriedBy: Map<string, Set<string>> = new Map(
+    props.models.map((model: IAutoMovieModel): [string, Set<string>] => [
+      model.id,
+      new Set(
+        (model.images ?? []).map((image: IAutoMovieImage): string => image.id),
+      ),
+    ]),
+  );
+  (props.surfaceImages ?? []).forEach(
+    (use: IAutoMovieSurfaceGraphicImageUse, useIndex: number): void => {
+      const path: string = `$input.surfaceImages[${useIndex}].asset`;
+      if (carriedBy.get(use.model)?.has(use.asset) === true) {
+        intend(`image "${use.asset}" of model "${use.model}"`, path, "srgb");
+        return;
+      }
+      claim("surface-graphic", use.shot, use.asset);
+      intend(`texture asset "${use.asset}"`, path, "srgb");
+      checkAsset({
+        asset: use.asset,
+        path,
+        consumer: { kind: "surface-graphic", id: use.shot },
+        media: MATERIAL_MEDIA,
+        out,
+        input: props,
+        records,
+      });
+    },
+  );
+
   // The same bytes cannot be both a colour and a measurement.
   for (const [subject, slots] of intents) {
     const distinct: Set<string> = new Set(slots.values());
@@ -168,7 +201,8 @@ export const validateTextureAssets: (
         if (use.production !== props.production) return;
         if (
           use.consumer.kind !== "material-texture" &&
-          use.consumer.kind !== "scene-environment"
+          use.consumer.kind !== "scene-environment" &&
+          use.consumer.kind !== "surface-graphic"
         )
           return;
         const key: string = `${use.consumer.kind}\0${use.consumer.id}`;
@@ -255,7 +289,10 @@ const environmentIntent: (
 const checkAsset: (props: {
   asset: string;
   path: string;
-  consumer: { kind: "material-texture" | "scene-environment"; id: string };
+  consumer: {
+    kind: "material-texture" | "scene-environment" | "surface-graphic";
+    id: string;
+  };
   media: ReadonlySet<AutoMovieTextureMediaType>;
   out: IAutoMovieViolationCollector;
   input: IAutoMovieTextureClosureInput;
@@ -263,7 +300,10 @@ const checkAsset: (props: {
 }) => void = (props: {
   asset: string;
   path: string;
-  consumer: { kind: "material-texture" | "scene-environment"; id: string };
+  consumer: {
+    kind: "material-texture" | "scene-environment" | "surface-graphic";
+    id: string;
+  };
   media: ReadonlySet<AutoMovieTextureMediaType>;
   out: IAutoMovieViolationCollector;
   input: IAutoMovieTextureClosureInput;

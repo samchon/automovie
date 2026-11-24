@@ -122,14 +122,22 @@ export namespace createLight {
   /**
    * A lantern's parts no source read sizes, metres, provisional estimates:
    * `fount`, the burner's height over the floor, where the globe stands and the
-   * flame burns; `wire`, the bail's wire across, the hooked grip's aperture.
-   * The search 'Dietz No. 20 Junior lantern fount height inches dimensions
-   * bail' found the lantern's height, base, globe, fount capacity and a bail-up
-   * height, neither of these.
+   * flame burns; `wire`, the bail's wire across, the hooked grip's aperture;
+   * `globe`, the clear glass globe's opacity, a look estimate low enough that
+   * the flame inside reads through it, drawn as blended glass rather than
+   * transmission because a transmission material samples only opaque objects
+   * and would hide the additive flame. The search 'Dietz No. 20 Junior lantern
+   * fount height inches dimensions bail' found the lantern's height, base,
+   * globe, fount capacity and a bail-up height, neither of these.
    */
-  export const LANTERN_ESTIMATES: Readonly<{ fount: number; wire: number }> = {
+  export const LANTERN_ESTIMATES: Readonly<{
+    fount: number;
+    wire: number;
+    globe: number;
+  }> = {
     fount: 0.09,
     wire: 0.003,
+    globe: 0.15,
   };
 
   /**

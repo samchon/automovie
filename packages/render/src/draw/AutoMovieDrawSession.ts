@@ -4,6 +4,7 @@ import type {
   IAutoMovieCaptureDrawing,
   IAutoMovieCapturePlan,
   IAutoMovieCaptureSubject,
+  IAutoMovieDialogueMouthTrack,
   IAutoMovieDrawCall,
   IAutoMovieDrawDescription,
   IAutoMovieDrawResult,
@@ -28,7 +29,8 @@ import { stampAutoMovieDrawLegend } from "./stampAutoMovieDrawLegend.js";
  *
  * Every picture a host saves comes through `draw`, `drawing` or `frame`, which
  * call the page's draw function and decode what it returns; the session never
- * screenshots the page and injects no style into it. Each call is bounded by
+ * screenshots the page and injects no style into it. `speak` hands the subject
+ * the film's dialogue mouths before the first picture. Each call is bounded by
  * the session's timeout, so a subject that never reports ready fails the call
  * with the cell or frame it was drawing instead of holding the host forever.
  * Calls must not overlap.
@@ -157,6 +159,32 @@ export class AutoMovieDrawSession {
   }
 
   /**
+   * Hand the page's subject the film's dialogue mouths over `track`, before the
+   * first picture; every later picture carries the mouths the subject read.
+   *
+   * It rejects when the page's call throws or does not answer within the
+   * timeout.
+   */
+  public async speak(track: IAutoMovieDialogueMouthTrack): Promise<void> {
+    await bounded(
+      this.timeout,
+      `Handing the dialogue mouths to subject "${this.subject.name}"`,
+      this.page.evaluate(
+        (arg: {
+          name: string;
+          track: IAutoMovieDialogueMouthTrack;
+        }): Promise<void> =>
+          (
+            (globalThis as unknown as Record<string, unknown>)[arg.name] as {
+              speak(track: IAutoMovieDialogueMouthTrack): Promise<void>;
+            }
+          ).speak(arg.track),
+        { name: AUTO_MOVIE_DRAW_GLOBALS.draw, track },
+      ),
+    );
+  }
+
+  /**
    * Draw one call and decode its picture.
    *
    * It rejects when the page's draw throws, when it does not answer within the
@@ -217,12 +245,15 @@ export class AutoMovieDrawSession {
 
   /**
    * Draw one delivered frame in every given pass through the subject's own
-   * camera, at its raster, one draw call per pass in the order given.
+   * camera, at its raster, one draw call per pass in the order given. With
+   * `background` `transparent` the page draws over a transparent background and
+   * returns straight alpha.
    */
   public async frame(
     seconds: number,
     passes: readonly AutoMovieInspectionShade[],
     inspectionDiagnostics?: IAutoMovieDrawCall["inspectionDiagnostics"],
+    background?: IAutoMovieDrawCall["background"],
   ): Promise<IAutoMovieDrawnPass[]> {
     const plain: IAutoMovieInspectionRequest = parseAutoMovieInspectionRequest(
       (): undefined => undefined,
@@ -241,6 +272,7 @@ export class AutoMovieDrawSession {
           ...(inspectionDiagnostics === undefined
             ? {}
             : { inspectionDiagnostics }),
+          ...(background === undefined ? {} : { background }),
         },
         `Frame at ${seconds} s in pass ${pass}`,
       );
@@ -250,6 +282,10 @@ export class AutoMovieDrawSession {
         ...(result.diagnostics === undefined
           ? {}
           : { diagnostics: result.diagnostics }),
+        ...(result.semanticMask === undefined
+          ? {}
+          : { semanticMask: result.semanticMask }),
+        ...(result.mouths === undefined ? {} : { mouths: result.mouths }),
       });
     }
     return pictures;

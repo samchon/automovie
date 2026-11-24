@@ -8,9 +8,11 @@ import type { IAutoMovieRenderFrameFormat } from "./IAutoMovieRenderFrameFormat"
  * The pipeline: `N = round(duration * frameFormat.fps)` frames, sampled at `t =
  * i / frameFormat.fps` (rational, not accumulated, for determinism), each
  * rendered headless to an sRGB image, then encoded by `ffmpeg -framerate fps
- * -c:v libx264 -pix_fmt yuv420p -crf crf -r fps -s widthxheight -movflags
- * +faststart`. The encoder never tone maps; the curve is a renderer setting
- * applied before capture.
+ * -c:v libx264 -pix_fmt yuv420p -crf crf -bf 0 -vf scale=w=width:h=height:
+ * out_color_matrix=bt709:out_range=full -color_primaries bt709 -color_trc
+ * iec61966-2-1 -colorspace bt709 -color_range pc -r fps -movflags +faststart`:
+ * BT.709 full-range samples tagged as such, with no B-frames. The encoder never
+ * tone maps; the curve is a renderer setting applied before capture.
  */
 export interface IAutoMovieRenderSpec {
   /** Id of the shot or sequence to render. */
@@ -46,9 +48,9 @@ export interface IAutoMovieRenderSpec {
   pixelFormat: "yuv420p";
 
   /**
-   * Libx264 CRF quality factor, passed to ffmpeg unchecked. The caller supplies
-   * a supported encoder value; this field alone does not certify perceptual
-   * quality or repeatable encoded bytes across encoder versions.
+   * The libx264 CRF quality factor, passed to ffmpeg unchecked. The caller
+   * supplies a supported encoder value; this field alone does not certify
+   * perceptual quality or repeatable encoded bytes across encoder versions.
    */
   crf: number;
 }

@@ -2,7 +2,7 @@
 
 ## @evidence contracts/development/design.md#principled-representation
 
-An incoming entry identifies the outgoing and incoming shots and one transition interval on the global output clock.
+An incoming entry identifies the outgoing and incoming shots and one transition interval on the global output clock; a fade's black midpoint follows from the interval as `IAutoMovieTransition` defines it.
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
@@ -14,4 +14,4 @@ Transition kind and duration are the authored values resolved by the timeline, w
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-Members state incoming entry indexing, endpoints, kind and the start, end and overlap duration in seconds.
+Members state incoming entry indexing, endpoints, what each kind does across the span, and the start, end and overlap duration in seconds.

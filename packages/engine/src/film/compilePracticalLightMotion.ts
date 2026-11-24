@@ -36,9 +36,12 @@ const SPOT_FORWARD: IAutoMovieVector3 = { x: 0, y: 0, z: -1 };
  * Emit linear position and spot rotation tracks for resolveShotLighting.
  * Alignment is exact at the bake samples and interpolated between samples.
  * Intensity switches at exact interval boundaries independently of frame
- * spacing. A moving prop requires explicit sample times. performShot calls this
- * compiler after collecting coupling and authored object clips, then passes the
- * serializable result through the existing shot light-motion path.
+ * spacing. A light whose source is a flame carries the flame's flicker instead:
+ * one `step` intensity track on the flame's key grid, `I_on · A(t) / Ā` inside
+ * `on` and 0 outside, whether or not `on` is given. A moving prop requires
+ * explicit sample times. performShot calls this compiler after collecting
+ * coupling and authored object clips, then passes the serializable result
+ * through the existing shot light-motion path.
  */
 export function compilePracticalLightMotion(
   input: IAutoMovieCompilePracticalLightMotion,
@@ -137,7 +140,21 @@ export function compilePracticalLightMotion(
     tracks.push(
       practicalTrack(light.id, "rotation", times, rotations, "linear"),
     );
-  if (on !== undefined) {
+  if (input.flicker !== undefined) {
+    // The flame's own grid carries the flicker and the switching together.
+    const { times: keys, areas, inside, mean } = input.flicker;
+    tracks.push(
+      practicalTrack(
+        light.id,
+        "intensity",
+        keys,
+        areas.map((area: number, index: number): number =>
+          inside[index] ? (light.intensity * area) / mean : 0,
+        ),
+        "step",
+      ),
+    );
+  } else if (on !== undefined) {
     const [start, end]: typeof on = on;
     tracks.push(
       practicalTrack(

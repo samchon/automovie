@@ -270,7 +270,9 @@ export namespace StationeryDraw {
   }
 
   /**
-   * Register the edge pinch and working face of a writing surface.
+   * Register the edge pinch and working face of a writing surface. The grip
+   * lies on the near edge at `+Z`, so the face's top, its head or clip end, is
+   * toward `-Z`, the face frame's own `-Z`.
    *
    * @param builder The prop under construction.
    * @param dimensions The panel width, length and thickness in metres.

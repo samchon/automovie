@@ -3,6 +3,7 @@ import type { IAutoMovieStage } from "../authoring/IAutoMovieStage";
 import type { IAutoMovieTransform } from "../geometry/IAutoMovieTransform";
 import type { IAutoMovieEngineShotRuntime } from "../production/IAutoMovieEngineShotRuntime";
 import type { IAutoMovieWorldDesign } from "../production/IAutoMovieWorldDesign";
+import type { IAutoMovieSetPieceSupport } from "./IAutoMovieSetPieceSupport";
 
 /**
  * A prepared place's scene placements, compile runtime records and named
@@ -35,4 +36,11 @@ export interface IAutoMovieEnvironment {
    * admission.
    */
   builtEnvironments: readonly IAutoMovieBuiltEnvironment[];
+
+  /**
+   * How every staged set piece is supported, one finding per piece in stage
+   * order. Reported, never refused: a hanging lamp or a flying prop can be
+   * intended.
+   */
+  support: readonly IAutoMovieSetPieceSupport[];
 }

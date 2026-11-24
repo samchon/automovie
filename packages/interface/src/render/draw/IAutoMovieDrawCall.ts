@@ -42,4 +42,19 @@ export interface IAutoMovieDrawCall {
    * the delivered picture free of review overlays.
    */
   inspectionDiagnostics?: "delivery";
+
+  /**
+   * `transparent` draws the `beauty` pass over a transparent background: the
+   * scene's own backdrop is left undrawn, the target is cleared to alpha 0, and
+   * the picture comes back with straight alpha, every mesh drawn as the subject
+   * built it. A subject with `optics` keeps its camera response, which the film
+   * response stage gives to straight colour while alpha passes it unchanged;
+   * its glare spreads alpha with light and a medium adds its own opacity, as
+   * render's `AutoMovieFilmAlpha` states. A transition's fade falls to alpha 0.
+   * Absent draws the opaque picture.
+   *
+   * The page refuses it for any other pass, whose black background is part of
+   * its convention.
+   */
+  background?: "transparent";
 }

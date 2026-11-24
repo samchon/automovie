@@ -55,7 +55,8 @@ const BANDS: Readonly<Record<Dimension, IAutoMovieArchetypeBand>> = {
  * A wide parade banner carried as one rigid prop by two performers. The pole
  * bases sit at local Y zero and the panel faces +Z. Use leftGrip on the
  * negative-X pole and rightGrip on the positive-X pole as separate carrier
- * sites on the same motion prop. The face site marks the panel center.
+ * sites on the same motion prop. The face site marks the panel center and spans
+ * the panel's front, read with model `+Y` up.
  *
  * @param params Fixed set dimensions in metres and kilograms, and an optional
  *   scene-unique id.
@@ -135,6 +136,8 @@ export function createScenicParadeBanner(
       Vector3.create(1, 0, 0),
     ),
     extent: null,
+    width,
+    depth: panelHeight,
   });
   return builder.build(mass);
 }

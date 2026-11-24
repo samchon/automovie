@@ -21,6 +21,13 @@ import { restoreAutoMovieRenderModeState } from "./restoreAutoMovieRenderModeSta
  * use a straight target for that product. Native sRGB destinations receive the
  * canonical inverse transfer before their automatic encoding, preserving the
  * display-byte domain rather than applying another view transform.
+ *
+ * The two sources mix as associated colour, colour times alpha, with alpha at
+ * the same weight, and return to straight colour, as
+ * `mixAutoMovieStraightAlpha` does on bytes: a transparent source's black then
+ * darkens no half-covered edge, and two opaque sources mix exactly as straight
+ * colour. A fade mixes toward opaque black, or with `transparent` toward a
+ * fully transparent pixel, so only alpha falls.
  */
 export class AutoMovieDisplayCompositor {
   private readonly sources: THREE.FramebufferTexture[];
@@ -57,6 +64,7 @@ export class AutoMovieDisplayCompositor {
         incoming: { value: this.sources[1] },
         alpha: { value: 0 },
         fade: { value: false },
+        fadeTransparent: { value: false },
         copyBacking: { value: false },
         sourcePremultiplied: { value: false },
         outputPremultiplied: { value: false },
@@ -68,7 +76,8 @@ export class AutoMovieDisplayCompositor {
         void main() { vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`,
       fragmentShader: `precision highp float;
         uniform highp sampler2D outgoing; uniform highp sampler2D incoming;
-        uniform float alpha; uniform bool fade; uniform bool copyBacking;
+        uniform float alpha; uniform bool fade; uniform bool fadeTransparent;
+        uniform bool copyBacking;
         uniform bool sourcePremultiplied; uniform bool outputPremultiplied;
         uniform bool outputSRGB;
         varying vec2 vUv;
@@ -81,8 +90,12 @@ export class AutoMovieDisplayCompositor {
           vec4 first = texture2D(outgoing, vUv);
           if (copyBacking) { gl_FragColor = first; return; }
           first = straight(first);
-          vec4 second = fade ? vec4(0.0, 0.0, 0.0, 255.0) : straight(texture2D(incoming, vUv));
-          vec4 result = floor(clamp(mix(first, second, alpha), 0.0, 255.0) + 0.5) / 255.0;
+          vec4 second = fade ? vec4(0.0, 0.0, 0.0, fadeTransparent ? 0.0 : 255.0) : straight(texture2D(incoming, vUv));
+          // Mix associated colour and alpha at one weight, then return to
+          // straight colour; for two opaque bytes this is the straight mix.
+          vec4 mixed = mix(vec4(first.rgb * first.a / 255.0, first.a), vec4(second.rgb * second.a / 255.0, second.a), alpha);
+          vec4 unassociated = mixed.a > 0.0 ? vec4(mixed.rgb * 255.0 / mixed.a, mixed.a) : vec4(0.0);
+          vec4 result = floor(clamp(unassociated, 0.0, 255.0) + 0.5) / 255.0;
           if (outputPremultiplied) result.rgb *= result.a;
           if (outputSRGB) result = sRGBTransferEOTF(result);
           gl_FragColor = result;
@@ -161,6 +174,7 @@ export class AutoMovieDisplayCompositor {
     outgoing: () => void,
     incoming: (() => void) | null,
     alpha: number,
+    transparent: boolean = false,
   ): void {
     this.assertOpen();
     const target: ReturnType<THREE.WebGLRenderer["getRenderTarget"]> =
@@ -208,6 +222,7 @@ export class AutoMovieDisplayCompositor {
       uniforms.incoming!.value = this.sources[1];
       uniforms.alpha!.value = alpha;
       uniforms.fade!.value = incoming === null;
+      uniforms.fadeTransparent!.value = transparent;
       uniforms.copyBacking!.value = false;
       uniforms.sourcePremultiplied!.value = premultiplied;
       uniforms.outputPremultiplied!.value = target === null && premultiplied;

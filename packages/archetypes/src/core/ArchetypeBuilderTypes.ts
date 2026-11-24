@@ -40,10 +40,11 @@ export namespace ArchetypeBuilderTypes {
     color?: string;
 
     /**
-     * Zero for an explicitly transparent collision and mass proxy. The default
-     * surface is opaque.
+     * Opacity in [0, 1]: zero for an explicitly transparent collision and mass
+     * proxy, a value below one for a blended translucent surface such as a
+     * lantern's glass globe. The default surface is opaque.
      */
-    opacity?: 0;
+    opacity?: number;
 
     /**
      * The part's density relative to the other parts, positive; 1 when absent.

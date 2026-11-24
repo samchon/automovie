@@ -76,10 +76,12 @@ export namespace createStreetFixture {
    * - `nut`: a hydrant's operating nut, a knob turned about `+Y`.
    * - `pumper`, `hoseLeft`, `hoseRight`: a hydrant's pumper nozzle face on `+Z`
    *   and hose nozzle faces on `+X` and `-X`, sockets a hose couples to.
+   * - `face`: a sign's front, a surface a production letters.
    */
   export type Affordance =
     | "top"
     | "post"
+    | "face"
     | "nut"
     | "pumper"
     | "hoseLeft"

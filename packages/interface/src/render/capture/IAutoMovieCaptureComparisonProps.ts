@@ -1,3 +1,4 @@
+import type { IAutoMovieInspectionDiagnostics } from "../inspection/IAutoMovieInspectionDiagnostics.js";
 import type { IAutoMovieCaptureBudget } from "./IAutoMovieCaptureBudget.js";
 import type { IAutoMovieCaptureCellRecord } from "./IAutoMovieCaptureCellRecord";
 import type { IAutoMovieCaptureFolder } from "./IAutoMovieCaptureFolder.js";
@@ -24,6 +25,12 @@ export interface IAutoMovieCaptureComparisonProps {
 
   /** Largest channel difference in bytes counted as unchanged. */
   tolerance: number;
+
+  /**
+   * This round's findings and coverage, reduced before the comparison; absent
+   * when no drawn cell supplied diagnostics.
+   */
+  diagnostics?: IAutoMovieInspectionDiagnostics.IAudit;
 
   /** The reader the comparison sheets are laid out for. */
   budget: IAutoMovieCaptureBudget;

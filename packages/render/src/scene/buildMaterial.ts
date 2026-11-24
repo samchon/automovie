@@ -9,6 +9,7 @@ import { IAutoMovieTextureResolver } from "./IAutoMovieTextureResolver.js";
 import { constructAutoMovieOwnedResources } from "./constructAutoMovieOwnedResources.js";
 import { applyDetailNormal } from "./detailNormalShading/index.js";
 import { applyMaterialOverlays } from "./materialOverlayShading/index.js";
+import { applyProceduralSurface } from "./proceduralShading/index.js";
 import { resolveAutoMovieMaterialTexture } from "./resolveAutoMovieMaterialTexture.js";
 import { applySubsurfaceShading } from "./subsurfaceShading/index.js";
 
@@ -17,7 +18,8 @@ import { applySubsurfaceShading } from "./subsurfaceShading/index.js";
  * each optional lobe to the `MeshPhysicalMaterial` property of the same glTF
  * meaning and leaving an omitted lobe at its neutral value. It carries the
  * material's name, or its id when unnamed, as the glTF export does, so a
- * preview can recognise a finish by it. A fully transparent blended surface
+ * preview can recognise a finish by it. A procedural surface is evaluated per
+ * fragment by `applyProceduralSurface`. A fully transparent blended surface
  * with no transmission skips color, depth and shadow draws. The producer owns
  * its new material before resolving texture bindings. Setup failure retires
  * that material and preserves cleanup causes; resolver textures and shared
@@ -79,6 +81,8 @@ export const buildMaterial: (
         );
       if (material.subsurfaceRadius !== undefined)
         applySubsurfaceShading(std, material.subsurfaceRadius);
+      if (material.procedural !== undefined)
+        applyProceduralSurface(std, material.procedural);
       std.map = resolveAutoMovieMaterialTexture(
         material.baseColorTexture,
         "srgb",

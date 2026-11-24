@@ -1,5 +1,7 @@
 import type { IAutoMovieInspectionDiagnostics } from "@automovie/interface";
 
+import { compareAutoMovieInspectionFindings } from "./compareAutoMovieInspectionFindings.js";
+
 /** An episode while its end and worst witness can still advance. */
 type IMutableEpisode = {
   -readonly [K in keyof IAutoMovieInspectionDiagnostics.IEpisode]: IAutoMovieInspectionDiagnostics.IEpisode[K];
@@ -222,7 +224,10 @@ function appendEpisodes(
       ? adjacent?.episodes.get(key)
       : undefined;
     if (previous !== undefined) {
-      if (worse(finding, previous.worst.finding)) previous.worst = observation;
+      if (
+        compareAutoMovieInspectionFindings(finding, previous.worst.finding) > 0
+      )
+        previous.worst = observation;
       previous.last = packet.time;
       ++previous.samples;
       current.set(key, previous);
@@ -262,18 +267,4 @@ function sameCoverage(
   if (previous.status === "checked" || current.status === "checked")
     return true;
   return previous.reason === current.reason;
-}
-
-/** Order witnesses by confidence, category and the checker's comparable rank. */
-function worse(
-  current: IAutoMovieInspectionDiagnostics.IFinding,
-  previous: IAutoMovieInspectionDiagnostics.IFinding,
-): boolean {
-  if (current.confidence !== previous.confidence)
-    return current.confidence === "confirmed";
-  if (current.category !== previous.category)
-    return current.category === "error";
-  return (
-    (current.witness.rank ?? -Infinity) > (previous.witness.rank ?? -Infinity)
-  );
 }

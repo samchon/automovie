@@ -51,6 +51,13 @@ export interface IAutoMovieTerrainRecipe {
   trees?: Readonly<Record<string, IAutoMovieTerrainRecipe.ITrees>>;
 
   /**
+   * Named woods planted over an outline, keyed by stable identifiers. Unlike a
+   * tree disk, a wood removes only the trees whose trunks would reach a pad,
+   * path, hole or water, so a trail may cross it.
+   */
+  woods?: Readonly<Record<string, IAutoMovieTerrainRecipe.IWoods>>;
+
+  /**
    * Named local points at which to place another item's frame on the finished
    * walkable ground.
    */
@@ -95,6 +102,38 @@ export namespace IAutoMovieTerrainRecipe {
         amplitude: number;
         /** Distance in metres over which a wave repeats, strictly positive. */
         wavelength: number;
+      }
+    | {
+        /**
+         * Seeded fractal gradient noise around a mean height, which does not
+         * repeat. The terrain module samples the engine's two-dimensional
+         * fractal noise at local plan coordinates divided by `wavelength`,
+         * seeded from the environment seed and the id `"terrain"`.
+         */
+        kind: "noise";
+        /** Mean offset in metres from the module origin. The default is zero. */
+        height?: number;
+        /**
+         * Greatest vertical deviation from the mean in metres, strictly
+         * positive. The ground stays within the mean plus or minus this.
+         */
+        amplitude: number;
+        /**
+         * Wavelength of the first, coarsest octave in metres, strictly
+         * positive.
+         */
+        wavelength: number;
+        /**
+         * Number of octaves, an integer from 1 to 8; each halves the previous
+         * wavelength. The default is 4. More octaves add finer detail and need
+         * a finer height lattice.
+         */
+        octaves?: number;
+        /**
+         * Amplitude ratio between successive octaves, strictly between 0 and 1.
+         * The default is 0.5.
+         */
+        roughness?: number;
       };
 
   /** A hard level area with a graded exterior shoulder. */
@@ -173,6 +212,43 @@ export namespace IAutoMovieTerrainRecipe {
     /** Integer count from one to 100,000. */
     count: number;
     /** Positive scale for the shared tree silhouette. The default is one. */
+    scale?: number;
+  }
+
+  /**
+   * A terrain-following wood planted over an outline by jittered grid sampling.
+   *
+   * The terrain module lays cells of side `1.5 * spacing` over the outline and
+   * jitters one site in each inside a centred square of side `0.5 * spacing`,
+   * so no two trunks stand closer than `spacing`. It keeps a site only when the
+   * site lies inside `outline`, its trunk disk lies on parcel land, and the
+   * disk reaches no pad, path, hole or water. Jitter, species and order are
+   * drawn from the environment seed and the wood's name.
+   */
+  export interface IWoods {
+    /**
+     * Simple local XZ ring strictly inside the parcel. The first vertex is not
+     * repeated at the end.
+     */
+    outline: readonly Point[];
+
+    /** Least trunk-to-trunk distance in metres, strictly positive. */
+    spacing: number;
+
+    /**
+     * Integer number of trees from 1 to 100,000, kept as the first accepted
+     * sites in seeded order. Omission plants every accepted site. A count above
+     * the accepted sites is refused with the number that fit.
+     */
+    count?: number;
+
+    /**
+     * Positive selection weights by species. The default is `{ whiteOak: 1 }`.
+     * The clearance test uses the largest trunk among the weighted species.
+     */
+    species?: Readonly<Partial<Record<"whiteOak" | "douglasFir", number>>>;
+
+    /** Positive scale for every tree silhouette. The default is one. */
     scale?: number;
   }
 }

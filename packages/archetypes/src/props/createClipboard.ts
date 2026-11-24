@@ -6,6 +6,9 @@ import { StationeryDraw } from "./StationeryDraw";
 /**
  * Clipboard with a grip on its near edge and a level writing surface.
  *
+ * The near edge lies toward model `+Z` and the clip end toward model `-Z`, so
+ * `face` reads with model `-Z` as its top.
+ *
  * @param params The optional scene ID and Esselte model.
  * @param seed The seed for the recorded recipe. Without a seed, the draw uses
  *   the original defaults.

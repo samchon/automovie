@@ -17,6 +17,7 @@ import { applyTransform } from "./applyTransform.js";
 import { buildLight } from "./buildLight.js";
 import { buildSceneSoftProps } from "./buildSceneSoftProps.js";
 import { buildSpaceObject } from "./buildSpace.js";
+import { applySceneMedium } from "./medium/applySceneMedium.js";
 import { restoreAutoMovieRenderModeState } from "./restoreAutoMovieRenderModeState.js";
 
 /**
@@ -119,6 +120,7 @@ export const buildScene: (
   // The atmosphere is a scene property, not an object: it takes no top-level
   // child, so the mask palette's child indices are untouched by declaring it.
   applySceneFog(root, scene.fog);
+  applySceneMedium(root, scene.medium);
   applySceneEnvironment(root, scene.environment, environmentTexture);
 
   applyAutoMovieShadowParticipation(root);

@@ -1,3 +1,5 @@
+import type { IAutoMoviePlaybackTimeline } from "../../production/IAutoMoviePlaybackTimeline.js";
+import type { IAutoMovieFilmSound } from "../../production/sound/IAutoMovieFilmSound.js";
 import type { IAutoMovieDeliveryContentAudit } from "../delivery/IAutoMovieDeliveryContentAudit.js";
 import type { IAutoMovieInspectionDrawable } from "../inspection/IAutoMovieInspectionDrawable.js";
 import type { IAutoMovieCaptureInstant } from "./IAutoMovieCaptureInstant.js";
@@ -38,6 +40,19 @@ export interface IAutoMovieCaptureSubject {
    * declared.
    */
   delivery?: IAutoMovieDeliveryContentAudit.IIntent;
+
+  /**
+   * The film's adopted sound list, which the delivery host mixes into the
+   * soundtrack it encodes, when declared.
+   */
+  sound?: IAutoMovieFilmSound;
+
+  /**
+   * The film's cut on the output clock, its sequence entries with their starts
+   * and played spans, which the delivery host records against the frames it
+   * draws; absent when the subject has no sequence.
+   */
+  cut?: IAutoMoviePlaybackTimeline;
 
   /**
    * Names a named view may take: the subject's own views and the named

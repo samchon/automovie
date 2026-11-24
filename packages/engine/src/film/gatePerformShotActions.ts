@@ -111,6 +111,16 @@ export function gatePerformShotActions(
         `a focal length must be a finite number > 0 mm, but was ${describeInvalidValue(action.focalLength)}`,
         action.focalLength,
       );
+    if (
+      action.fNumber !== undefined &&
+      (!Number.isFinite(action.fNumber) || !(action.fNumber > 0))
+    )
+      context.out.push(
+        "range",
+        `${path}.fNumber`,
+        `a lens stop must be a finite f-number > 0, but was ${describeInvalidValue(action.fNumber)}`,
+        action.fNumber,
+      );
     if (typeof action.actor !== "string")
       context.out.push(
         "type",

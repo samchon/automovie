@@ -66,6 +66,8 @@ export function describeAutoMovieDrawScene(
     width: scene.width,
     height: scene.height,
     ...(scene.delivery === undefined ? {} : { delivery: scene.delivery }),
+    ...(scene.sound === undefined ? {} : { sound: scene.sound }),
+    ...(scene.cut === undefined ? {} : { cut: scene.cut }),
     views: [
       ...Object.keys(scene.views ?? {}),
       ...autoMovieViewerNamedViewpoints().map(

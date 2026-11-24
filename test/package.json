@@ -43,8 +43,6 @@
     "@nestia/e2e": "catalog:samchon",
     "automovie": "workspace:^",
     "h264-mp4-encoder": "catalog:media",
-    "kokoro-js": "catalog:media",
-    "libopus-wasm": "catalog:media",
     "onnxruntime-node": "catalog:media",
     "pngjs": "catalog:media",
     "three": "catalog:three",

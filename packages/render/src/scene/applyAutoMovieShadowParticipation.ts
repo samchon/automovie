@@ -21,12 +21,13 @@ import { SPACE_GROUP_NAME } from "./buildSpace.js";
  *
  * The requirement asks for caster and receiver to be **distinguished** rather
  * than blanket-enabled, and the product knows the difference at exactly one
- * place, which is here. A model's parts are solids: they cast and they receive.
- * The standable surfaces under {@link SPACE_GROUP_NAME} are open patches for
- * structural guides and optional flat color. They neither cast nor receive. A
- * volume-free patch casting onto its own plane produces depth acne, and its
- * basic material has no shadow response. Objects without geometry are
- * untouched.
+ * place, which is here. A model's parts are solids: they cast and they receive,
+ * except that a mesh with a blended (transparent) material receives but does
+ * not cast, since a shadow map draws it fully opaque. The standable surfaces
+ * under {@link SPACE_GROUP_NAME} are open patches for structural guides and
+ * optional flat color. They neither cast nor receive. A volume-free patch
+ * casting onto its own plane produces depth acne, and its basic material has no
+ * shadow response. Objects without geometry are untouched.
  *
  * Exported, and separate from {@link buildScene}, for the reason
  * {@link applySceneFog} is: a host that assembles its own scene graph — a
@@ -60,7 +61,15 @@ export const applyAutoMovieShadowParticipation: (
     // rather than not at all.
     if ((object as THREE.Mesh).isMesh !== true) return;
     const patch: boolean = ground.has(object);
-    object.castShadow = !patch;
+    // A blended surface (a lantern's glass globe, a flame, a screen's graphic)
+    // would cast a fully opaque shadow, because the shadow map ignores
+    // opacity, and would shut its own light in; it casts none.
+    const material: THREE.Material | THREE.Material[] = (object as THREE.Mesh)
+      .material;
+    const blended: boolean = (
+      Array.isArray(material) ? material : [material]
+    ).some((entry: THREE.Material): boolean => entry.transparent);
+    object.castShadow = !patch && !blended;
     object.receiveShadow = !patch;
   });
 };

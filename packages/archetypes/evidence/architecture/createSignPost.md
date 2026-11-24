@@ -2,7 +2,7 @@
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-The sign faces +Z, and its measured lower edge bounds the upright post contact.
+The sign faces +Z, and its measured lower edge bounds the upright post contact. The blank is the regular octagon of the R1-1 sign, its flats at the measured size, and its face carries the reading frame surfaces share and the octagon as its outline.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 

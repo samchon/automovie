@@ -158,6 +158,7 @@ const frameSamples: (
                 shot: sample.blend.shot,
                 shotTimeSeconds: sample.blend.time,
                 alpha: sample.blend.alpha,
+                kind: sample.blend.kind,
               },
       };
     },

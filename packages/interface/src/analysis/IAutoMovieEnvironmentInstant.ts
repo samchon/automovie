@@ -3,9 +3,10 @@ import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 /**
  * One moment of sun and sky, exactly as the production declares it.
  *
- * The production supplies sun direction and illuminance from its own source.
- * Current analysis consumes those values; this repository implements no
- * solar-position derivation from coordinates and calendar time.
+ * The production derives the sun direction from the site and the story's time
+ * with `solveAutoMovieSunPosition` and `autoMovieSunDirection`, so the instant
+ * and the staged sun light share one solar position. Illuminance stays declared
+ * by the production from its own source; no sky model computes it.
  */
 export interface IAutoMovieEnvironmentInstant {
   /** Non-blank stable instant identity, unique within the context. */
@@ -17,7 +18,10 @@ export interface IAutoMovieEnvironmentInstant {
   /** Ordering key in seconds from the production's own epoch; finite. */
   time: number;
 
-  /** World direction from the site toward the sun; finite and non-zero. */
+  /**
+   * World direction from the site toward the sun; finite and non-zero.
+   * `autoMovieSunDirection` computes it from a solved sun position.
+   */
   sun: IAutoMovieVector3;
 
   /**

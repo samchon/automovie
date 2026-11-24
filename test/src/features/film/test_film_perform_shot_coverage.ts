@@ -123,9 +123,12 @@ const firstKey: (
  * Coverage compiles alternate cameras without changing the singular hero take.
  *
  * Scenarios:
+ *
  * 1. Check one static alternate, its channels/intent and hand-derived framed pose.
  * 2. Preserve blocking order and push-in endpoints for two alternates.
- * 3. Keep omitted/empty/unblocked coverage empty with an unchanged hero, and refuse invalid camera/framing/move/subject inputs while accepting point targets.
+ * 3. Keep omitted/empty/unblocked coverage empty with an unchanged hero, and
+ *    refuse invalid camera/framing/move/subject inputs while accepting point
+ *    targets.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Runs performShot and reads alternate identities, channels, pose, intents and located coverage faults, catching rival-camera election, wrong staged bearing or missing input gates. Hero equality is replay invariance, not a repository arrangement check.
  * @evidence contracts/development/testing.md#independent-expectations The fixture rig height 1.2, medium factors .72/.62 and 90-degree field of view determine aim .864 and framed distance .372; push-in endpoints are 1.25 and .8 times that distance. Expected poses use numerical closeness; comparison of repeated hero output checks coverage independence rather than an independent hero-solve oracle.
@@ -225,9 +228,9 @@ export function test_film_perform_shot_coverage(): void {
   );
   const dolly: IAutoMovieClip = several.shot.coverage![1]!.cameraMotion!;
   TestValidator.equals(
-    "a push-in alternate keys the dolly",
+    "a push-in alternate keys the dolly at every 24 fps frame",
     dolly.tracks[0]!.times.length,
-    9,
+    49,
   );
   TestValidator.predicate(
     "the dolly starts at 1.25× the framed distance",
@@ -239,7 +242,7 @@ export function test_film_perform_shot_coverage(): void {
   );
   TestValidator.predicate(
     "the dolly settles at 0.8× the framed distance",
-    vclose(firstKey(dolly.tracks[0]!.values, 8), {
+    vclose(firstKey(dolly.tracks[0]!.values, 48), {
       x: -0.2976,
       y: 0.864,
       z: 0,

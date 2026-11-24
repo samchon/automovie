@@ -1,5 +1,7 @@
+import type { IAutoMovieFlameCue } from "../cinematics/IAutoMovieFlameCue";
 import type { IAutoMoviePolygonBodyCue } from "../cinematics/IAutoMoviePolygonBodyCue";
 import type { IAutoMoviePracticalSurfaceTrack } from "../cinematics/IAutoMoviePracticalSurfaceTrack";
+import type { IAutoMovieSurfaceGraphicTrack } from "../cinematics/IAutoMovieSurfaceGraphicTrack";
 import type { IAutoMovieScript } from "../harness/IAutoMovieScript";
 import type { IAutoMovieBlocking } from "./IAutoMovieBlocking";
 import type { IAutoMoviePerformance } from "./IAutoMoviePerformance";
@@ -42,6 +44,12 @@ export interface IAutoMovieShotProgram {
 
   /** Shot-local material changes on staged prop parts, admitted by performShot. */
   practicalSurfaces?: readonly IAutoMoviePracticalSurfaceTrack[];
+
+  /** Pictures on `surface` affordances of staged props, admitted by performShot. */
+  surfaceGraphics?: readonly IAutoMovieSurfaceGraphicTrack[];
+
+  /** Flames at staged props' flame frames, admitted by performShot. */
+  flames?: readonly IAutoMovieFlameCue[];
 
   /**
    * Polygon body changes at source-shot times, admitted by performShot against

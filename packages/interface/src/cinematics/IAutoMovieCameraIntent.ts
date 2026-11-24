@@ -41,4 +41,10 @@ export interface IAutoMovieCameraIntent {
    * the action named none.
    */
   focalLength: number | null;
+
+  /**
+   * The lens stop, finite and `> 0`, present exactly when the action authored
+   * `fNumber`. `resolveAutoMovieLensAt` reads it with `focus` and `focusPull`.
+   */
+  fNumber?: number;
 }

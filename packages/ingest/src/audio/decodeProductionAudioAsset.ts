@@ -1,5 +1,7 @@
 import type { IAutoMovieDecodedProductionAudioAsset } from "@automovie/interface";
 
+import { resampleProductionAudio } from "./resampleProductionAudio";
+
 /**
  * Decode one complete supported RIFF/WAVE file into finite mono samples at a
  * requested rate.
@@ -34,11 +36,11 @@ import type { IAutoMovieDecodedProductionAudioAsset } from "@automovie/interface
  *
  * PCM codes scale by 1/32768, so -32768 reads as exactly -1 and 32767 just
  * under 1. Stereo folds to the mean of its two channels. A source at another
- * rate is resampled by linear interpolation between neighboring source samples,
- * holding the last sample past the end, to `round(frames * rate / sourceRate)`
- * samples, which may round to zero for a short source and a low target rate. No
- * low-pass filter runs first, so downsampling a source with content above the
- * target Nyquist frequency aliases it.
+ * rate is converted by band-limited windowed-sinc interpolation with fixed
+ * coefficients (`resampleProductionAudio`, after Smith and Gossett, ICASSP
+ * 1984) to `round(frames * rate / sourceRate)` samples, which may round to zero
+ * for a short source and a low target rate; its low-pass leaves no images when
+ * upsampling and folds no alias when downsampling.
  *
  * Field admission refusals throw `Audio asset "<path>" [<reason>] <message>`,
  * where the reason names the field, such as `riff-size`, `block-align`, or
@@ -317,7 +319,7 @@ export const decodeProductionAudioAsset: (
   }
   const resampling: boolean = sourceSampleRate !== props.sampleRate;
   const samples: Float32Array = resampling
-    ? resampleMono(mono, sourceSampleRate, props.sampleRate)
+    ? resampleProductionAudio(mono, sourceSampleRate, props.sampleRate)
     : mono;
   return {
     sourceSampleRate,
@@ -396,28 +398,6 @@ const fail: (asset: string, reason: string, message: string) => never = (
   message: string,
 ): never => {
   throw new Error(`Audio asset "${asset}" [${reason}] ${message}`);
-};
-
-const resampleMono: (
-  source: Float32Array,
-  from: number,
-  to: number,
-) => Float32Array = (
-  source: Float32Array,
-  from: number,
-  to: number,
-): Float32Array => {
-  const length: number = Math.round((source.length * to) / from);
-  const output: Float32Array = new Float32Array(length);
-  const step: number = from / to;
-  for (let index: number = 0; index < length; ++index) {
-    const position: number = index * step;
-    const left: number = Math.floor(position);
-    const right: number = Math.min(source.length - 1, left + 1);
-    const weight: number = position - left;
-    output[index] = source[left]! * (1 - weight) + source[right]! * weight;
-  }
-  return output;
 };
 
 const asciiTag: (bytes: Uint8Array, offset: number) => string = (

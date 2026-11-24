@@ -1,6 +1,7 @@
 import {
   foldRoot,
-  playbackCursor,
+  playbackLayersAt,
+  playbackShownLayer,
   projectToNdc,
   resolveCameraAt,
   resolvePoseKeypoints,
@@ -13,7 +14,7 @@ import type {
   IAutoMovieDeliveryCrop,
   IAutoMovieMotion,
   IAutoMoviePlanPoseKeypointSidecarProps,
-  IAutoMoviePlaybackSample,
+  IAutoMoviePlaybackLayer,
   IAutoMoviePlaybackTimeline,
   IAutoMoviePose,
   IAutoMoviePoseKeypointActor,
@@ -33,15 +34,17 @@ import { shotBeat } from "./shotBeat.js";
  * Plan the pose-keypoint sidecar of one sequence render.
  *
  * The cut is laid on the output clock by `sequenceTimeline`, the output frames
- * are the `frameTimes` schedule the render captures at `fps`, and a forward
- * `playbackCursor` finds the live shot and its shot-local time on each frame.
- * Every performance of that shot whose motion, skeleton and scene node resolve
- * is sampled at `max(0, time - startOffset)`, and its joints are projected
- * through the shot's camera by `resolvePoseKeypoints` with the given aspect and
- * crop. A frame whose scene or camera does not resolve, and a performance
- * without a motion or with an unresolved reference, contribute no keypoints
- * rather than throwing, so the sidecar still covers every output frame; an
- * unresolved cut shot is refused by the timeline builder.
+ * are the `frameTimes` schedule the render captures at `fps`, and on each frame
+ * `playbackShownLayer` of `playbackLayersAt` finds the shot the picture shows
+ * most of and its shot-local time: inside a fade or a dissolve the outgoing
+ * shot before the midpoint and the incoming one from it. Every performance of
+ * that shot whose motion, skeleton and scene node resolve is sampled at `max(0,
+ * time - startOffset)`, and its joints are projected through the shot's camera
+ * by `resolvePoseKeypoints` with the given aspect and crop. A frame whose scene
+ * or camera does not resolve, and a performance without a motion or with an
+ * unresolved reference, contribute no keypoints rather than throwing, so the
+ * sidecar still covers every output frame; an unresolved cut shot is refused by
+ * the timeline builder.
  *
  * When the scene declares fog, each actor also carries the fog transmittance at
  * the camera depth of its world root, its staged placement with the sampled
@@ -100,13 +103,11 @@ export const planPoseKeypointSidecar: (
     crop: props.crop,
   };
   const stagingByShot: Map<string, IShotStaging | null> = new Map();
-  const cursor: (seconds: number) => IAutoMoviePlaybackSample = playbackCursor(
-    props.sequence,
-    timeline,
-  );
   const frames: IAutoMoviePoseKeypointFrame[] = times.map(
     (time: number, frame: number): IAutoMoviePoseKeypointFrame => {
-      const sample: IAutoMoviePlaybackSample = cursor(time);
+      const sample: IAutoMoviePlaybackLayer = playbackShownLayer(
+        playbackLayersAt(props.sequence, timeline, time),
+      );
       // sequenceTimeline already threw for any entry whose shot was not
       // provided, so every cursor sample names a known shot.
       const shot: IAutoMovieShot = shotById.get(sample.shot)!;

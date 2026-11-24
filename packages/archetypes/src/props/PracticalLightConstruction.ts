@@ -201,8 +201,12 @@ export namespace PracticalLightConstruction {
     const hang: number = d.bail! - wire / 2;
     const color: string = "#9c2a22";
     builder.rod("fount", half, v(0, 0, 0), v(0, foot, 0), { color });
+    // Blended glass: the flame inside draws first at render order -1 and the
+    // globe's tint blends over it; the globe casts no shadow, so the light
+    // inside it lights the room.
     builder.rod("globe", d.shade! / 2, v(0, foot, 0), v(0, crown, 0), {
       color: "#e8eef0",
+      opacity: createLight.LANTERN_ESTIMATES.globe,
     });
     builder.rod(
       "cap",

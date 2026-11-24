@@ -5,7 +5,9 @@ import type { IAutoMovieRenderSpec } from "@automovie/interface";
  * spec's H.264 MP4.
  *
  * The vector is `-y -framerate <fps> -i <inputPattern> -c:v libx264 -pix_fmt
- * <pixelFormat> -crf <crf> -r <fps> -s <width>x<height> -movflags +faststart
+ * <pixelFormat> -crf <crf> -bf 0 -vf scale=w=<width>:h=<height>:
+ * out_color_matrix=bt709:out_range=full -color_primaries bt709 -color_trc
+ * iec61966-2-1 -colorspace bt709 -color_range pc -r <fps> -movflags +faststart
  * <outputPath>`: input and output rates fixed to `frameFormat.fps`, the spec's
  * pixel format and CRF, the output raster pinned to `frameFormat` so the video
  * matches the pose-keypoint sidecar's aspect whatever the capture viewport was,
@@ -15,13 +17,15 @@ import type { IAutoMovieRenderSpec } from "@automovie/interface";
  *
  * Nothing here tone maps: the frames arrive as sRGB images and the curve that
  * produced them is a renderer setting of the capture host, owned by the scene's
- * `environment` with the spec's `toneMapping` as the delivery default. No
- * colour matrix, range or colour description is passed either, so ffmpeg
- * converts the RGB frames with its default matrix and range and the stream
- * carries no colour tag; the delivery profile's sRGB declaration is not
- * produced by this vector. `fps` is written as its decimal string, so a
- * non-integer rate reaches ffmpeg as that decimal rather than as a reduced
- * rational.
+ * `environment` with the spec's `toneMapping` as the delivery default. The one
+ * `scale` filter converts those RGB samples to YUV with the BT.709 matrix at
+ * full range, and the stream and the MP4 `colr` box are tagged with what the
+ * samples now are: BT.709 primaries (1), the sRGB transfer (13), the BT.709
+ * matrix (1) and full range, the delivery profile's sRGB declaration. `-bf 0`
+ * turns B-frames off, so every sample is presented in decode order from
+ * composition time zero, which the delivery profile requires. `fps` is written
+ * as its decimal string, so a non-integer rate reaches ffmpeg as that decimal
+ * rather than as a reduced rational.
  */
 export const ffmpegArgs: (
   spec: IAutoMovieRenderSpec,
@@ -43,10 +47,20 @@ export const ffmpegArgs: (
   spec.pixelFormat,
   "-crf",
   `${spec.crf}`,
+  "-bf",
+  "0",
+  "-vf",
+  `scale=w=${spec.frameFormat.width}:h=${spec.frameFormat.height}:out_color_matrix=bt709:out_range=full`,
+  "-color_primaries",
+  "bt709",
+  "-color_trc",
+  "iec61966-2-1",
+  "-colorspace",
+  "bt709",
+  "-color_range",
+  "pc",
   "-r",
   `${spec.frameFormat.fps}`,
-  "-s",
-  `${spec.frameFormat.width}x${spec.frameFormat.height}`,
   "-movflags",
   "+faststart",
   outputPath,

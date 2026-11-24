@@ -13,6 +13,7 @@ import { AutoMovieRasterSheet } from "../picture/AutoMovieRasterSheet.js";
 import { compareAutoMovieRasters } from "../picture/compareAutoMovieRasters.js";
 import { decodeAutoMovieRasterPng } from "../picture/decodeAutoMovieRasterPng.js";
 import { encodeAutoMovieRasterPng } from "../picture/encodeAutoMovieRasterPng.js";
+import { diffAutoMovieCaptureFindings } from "./diffAutoMovieCaptureFindings.js";
 import { markAutoMovieCaptureCell } from "./markAutoMovieCaptureCell.js";
 import { planAutoMovieCaptureLayout } from "./planAutoMovieCaptureLayout.js";
 
@@ -32,6 +33,10 @@ import { planAutoMovieCaptureLayout } from "./planAutoMovieCaptureLayout.js";
  * laid side by side without a difference image. A cell either capture failed to
  * draw, a cell only one capture holds and a measured pair whose rasters differ
  * are unmatched, each with the cause.
+ *
+ * The findings of the two rounds are compared by diffAutoMovieCaptureFindings,
+ * from the earlier record's diagnostics and this round's, which the caller
+ * reduces first.
  *
  * Each entry takes three consecutive cells of the comparison sheets, the
  * earlier still, this capture's still and the difference image, with a marked
@@ -225,6 +230,10 @@ export async function compareAutoMovieCaptureRounds(
     tolerance: props.tolerance,
     entries,
     sheets,
+    findings: diffAutoMovieCaptureFindings({
+      earlier: earlier.diagnostics,
+      current: props.diagnostics,
+    }),
   };
 }
 

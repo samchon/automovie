@@ -123,6 +123,7 @@ export function createAutoMovieDeliveryAudioLog() {
         sampleRate,
         continuous,
         ...(padding === 0 ? {} : { trailingPadding: padding }),
+        ...(pcm.loudness === undefined ? {} : { loudness: pcm.loudness }),
         observations:
           continuous && overrun < lastSamples
             ? pcm.silent.map(

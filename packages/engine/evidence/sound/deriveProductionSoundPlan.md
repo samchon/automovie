@@ -6,15 +6,15 @@ Event trim joins use the film frame clock and optional adopted cues resolve agai
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-The plan owner joins current shot contract/compiled source and camera sampling, while propagation is optional receipt derivation; acousticProfile is copied into the plan but does not derive per-event acoustic responses here.
+The plan owner joins current shot contract/compiled source and camera sampling, while propagation is optional receipt derivation and each caption lowers to its dialogue line through `productionCaptionDialogueLine`; acousticProfile is copied into the plan but does not derive per-event acoustic responses here.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
-Unknown individual subjects are skipped if another resolves, but zero total resolved mass throws. Missing compiled evidence/camera/events throws, and finite assumptions do not establish byte provenance or universal cross-host transcendental identity.
+Unknown individual subjects are skipped if another resolves, but zero total resolved mass throws. Missing compiled evidence/camera/events throws, a caption ending before its speech or a speech span past the film throws, and finite assumptions do not establish byte provenance or universal cross-host transcendental identity.
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-Documents event/cue/dialogue clocks, spatial approximation and fresh arrays; static resolved camera positions can be borrowed in event.listener, so the plan is not deeply immutable. Production delivery validation consumes this planner to compare expected plans.
+Documents event/cue/dialogue clocks, the speech span of a caption with a sample count and its refusals, spatial approximation and fresh arrays; static resolved camera positions can be borrowed in event.listener, so the plan is not deeply immutable. Production delivery validation consumes this planner to compare expected plans.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 

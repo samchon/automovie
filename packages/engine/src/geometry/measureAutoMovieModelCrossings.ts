@@ -5,14 +5,12 @@ import type {
   IAutoMovieModel,
   IAutoMovieModelCrossing,
   IAutoMovieModelPart,
-  IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { autoMovieModelPartMatrices } from "../autoMovieModelPartMatrices";
-import { transformAutoMovieDrawingPoint } from "../drawing/transformAutoMovieDrawingPoint";
 import { measureAutoMovieMeshCrossings } from "./measureAutoMovieMeshCrossings";
+import { placeAutoMovieModelPartMesh } from "./placeAutoMovieModelPartMesh";
 import { realizeAutoMovieGeometry } from "./realizeAutoMovieGeometry";
-import { triangleIndicesOf } from "./triangleIndicesOf";
 
 /**
  * Report every pair of a model's mesh parts whose surfaces cross, measured
@@ -62,10 +60,10 @@ export function measureAutoMovieModelCrossings(
   for (const part of model.parts) {
     if (part.geometry.type !== "mesh" && part.geometry.type !== "bicubic-atlas")
       continue;
-    const mesh: IAutoMovieMesh = place(
+    const mesh: IAutoMovieMesh = placeAutoMovieModelPartMesh(
       realizeAutoMovieGeometry(part.geometry).mesh,
       matrices.get(part) ?? null,
-      part.id,
+      `model crossing part "${part.id}"`,
     );
     parts.push({ id: part.id, mesh, ...bounds(mesh) });
   }
@@ -139,30 +137,6 @@ interface IPlacedPart {
   /** Componentwise maximum of the placed positions. */
   high: number[];
 }
-
-/** A mesh with its positions carried into the model frame. */
-const place: (
-  mesh: IAutoMovieMesh,
-  matrix: number[] | null,
-  id: string,
-) => IAutoMovieMesh = (
-  mesh: IAutoMovieMesh,
-  matrix: number[] | null,
-  id: string,
-): IAutoMovieMesh => {
-  triangleIndicesOf(mesh, `model crossing part "${id}"`);
-  if (matrix === null) return mesh;
-  const positions: number[] = [];
-  for (let at: number = 0; at < mesh.positions.length; at += 3) {
-    const point: IAutoMovieVector3 = transformAutoMovieDrawingPoint(matrix, {
-      x: mesh.positions[at]!,
-      y: mesh.positions[at + 1]!,
-      z: mesh.positions[at + 2]!,
-    });
-    positions.push(point.x, point.y, point.z);
-  }
-  return { ...mesh, positions };
-};
 
 /** The componentwise extrema of a mesh's positions. */
 const bounds: (mesh: IAutoMovieMesh) => {

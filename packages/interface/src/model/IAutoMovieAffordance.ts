@@ -39,6 +39,11 @@ export interface IAutoMovieAffordance {
    * The contact frame in the model's local space: `translation` is where the
    * contact sits, `rotation` orients it (`+Y` out of a stack-top face, out of a
    * socket mouth). Seating aligns two of these frames coincident.
+   *
+   * A `surface` that shows a picture, a sign, a board or a label lies on the
+   * model's outer surface, and a reader on its `+Y` side reads it with local
+   * `+X` to the right and local `-Z` toward the face's top. Surface graphics
+   * are laid out in this reading frame.
    */
   frame: IAutoMovieTransform;
 
@@ -119,6 +124,16 @@ export interface IAutoMovieAffordance {
    * positive; other kinds ignore it.
    */
   width?: number;
+
+  /**
+   * The drawable outline of a graphic-bearing `surface` in its frame's XZ
+   * plane, metres, y ignored: a simple polygon of at least three points inside
+   * the `width` × `depth` rectangle centred on the frame, such as a STOP sign's
+   * octagon on its square face. Surface graphics are clipped to it in every
+   * pass, so nothing paints where the face has no surface. Absent, the outline
+   * is that whole rectangle. Other kinds must leave it absent.
+   */
+  outline?: IAutoMovieVector3[];
 
   /**
    * An `aperture`'s clear height along `+Y` from the frame, metres, positive;

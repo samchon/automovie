@@ -24,15 +24,27 @@ export interface IAutoMovieSceneEnvironment {
   /** Finite world-Y rotation of the environment in degrees. */
   rotationDeg: number;
 
-  /** Positive renderer exposure multiplier. */
+  /**
+   * Positive renderer exposure multiplier for the compiled-scene pass
+   * (`renderAutoMovieScenePass`) and its render budget projection.
+   *
+   * On the draw path, which delivers a production's film, the draw scene's
+   * `optics` owns exposure instead (see {@link IAutoMovieFilmOptics}); this
+   * value does not reach a drawn frame there.
+   */
   exposure: number;
 
   /**
-   * Beauty-pass tone mapping; structural passes always bypass it.
+   * Beauty-pass tone mapping of the compiled-scene pass
+   * (`renderAutoMovieScenePass`) and its render budget projection; structural
+   * passes always bypass it.
    *
    * Authoritative over {@link IAutoMovieRenderSpec.toneMapping} for every scene
    * that declares an environment: the curve belongs with the exposure and image
-   * lighting it is chosen against, and one render spec spans many scenes.
+   * lighting it is chosen against, and one render spec spans many scenes. On
+   * the draw path the draw scene's `optics` owns the curve instead, because
+   * that pass renders into a linear target and applies the film's response
+   * last.
    */
   toneMapping: "none" | "acesFilmic";
 

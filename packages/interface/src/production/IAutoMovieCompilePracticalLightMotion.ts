@@ -47,4 +47,26 @@ export interface IAutoMovieCompilePracticalLightMotion {
    * Omit to preserve staged intensity across the shot, including its endpoint.
    */
   on?: readonly [start: number, end: number];
+
+  /**
+   * The flame this light's source shows, from `compileAutoMovieFlameFlicker`:
+   * key times, the silhouette area at each, which keys lie inside `on`, and the
+   * mean area over those keys. Present, the light always gets a `step`
+   * intensity track on exactly these keys, holding `intensity · area / mean`
+   * inside `on` and 0 elsewhere, so the light flickers with the flame and
+   * averages its on-state intensity. Omit for a steady light.
+   */
+  flicker?: {
+    /** Strictly increasing key times in [0, duration], seconds. */
+    times: readonly number[];
+
+    /** Flame silhouette area at each key, square metres. */
+    areas: readonly number[];
+
+    /** Whether each key lies inside `on`, or every key when `on` is omitted. */
+    inside: readonly boolean[];
+
+    /** Mean area over the inside keys, square metres, positive. */
+    mean: number;
+  };
 }

@@ -227,9 +227,15 @@ export class AutoMovieCaptureHost {
    * the request against what it describes, and draw every cell into the folder
    * at `out`.
    *
-   * The revision recorded is the production's git commit. It rejects what the
-   * planner or the folder refuses before anything is drawn, and a page that
-   * installs no draw function; the page is closed on every outcome.
+   * A subject with a sound list is first handed its dialogue mouths: its lines
+   * are read from the production root, admitted on the clock
+   * `autoMovieVideoFrameRate` gives its frame rate, and planned by
+   * `planAutoMovieDialogueMouths`, as the delivery render plans them, so a
+   * still shows the mouth the delivered frame at the same second shows. A line
+   * the admission refuses fails the capture. The revision recorded is the
+   * production's git commit. It rejects what the planner or the folder refuses
+   * before anything is drawn, and a page that installs no draw function; the
+   * page is closed on every outcome.
    */
   public async capture(props: {
     /** The request, as `parseAutoMovieCapturePlanRequest` read it. */
@@ -253,6 +259,30 @@ export class AutoMovieCaptureHost {
       props: props.props,
     });
     try {
+      // A film with a sound list speaks in its stills as in its delivered
+      // frames: the same lines on the same clock give the same mouths.
+      const { sound, fps, durationSeconds } = session.subject;
+      if (sound !== undefined) {
+        const [numerator, denominator]: readonly [number, number] =
+          render.autoMovieVideoFrameRate(fps);
+        const frameRate: { numerator: number; denominator: number } = {
+          numerator,
+          denominator,
+        };
+        await session.speak(
+          render.planAutoMovieDialogueMouths({
+            lines: await render.admitAutoMovieFilmDialogue({
+              sound,
+              frameRate,
+              totalFrames: Math.round(durationSeconds * fps),
+              read: (file: string): Promise<Uint8Array> =>
+                fs.readFile(path.resolve(this.root, file)),
+            }),
+            speakers: sound.speakers,
+            frameRate,
+          }),
+        );
+      }
       const plan: IAutoMovieCapturePlan = render.planAutoMovieCapture({
         request: props.request,
         subject: session.subject,

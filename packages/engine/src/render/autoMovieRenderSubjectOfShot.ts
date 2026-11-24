@@ -27,5 +27,8 @@ export const autoMovieRenderSubjectOfShot: (
   softBodies: props.softBodies ?? [],
   plantings: props.plantings ?? [],
   textures: props.textures ?? [],
+  surfaceGraphics: props.compiled.shot.surfaceGraphics ?? [],
+  fonts: props.compiled.shot.fonts ?? [],
+  flames: props.compiled.shot.flames ?? [],
   textureResidency: props.textureResidency,
 });

@@ -1,4 +1,7 @@
-import type { IAutoMovieDeliveryContentAudit } from "@automovie/interface";
+import type {
+  IAutoMovieDeliveryContentAudit,
+  IAutoMovieLoudnessMeter,
+} from "@automovie/interface";
 
 import { planAutoMovieDeliveryDecode } from "./planAutoMovieDeliveryDecode";
 import { readAutoMovieDeliveryDecode } from "./readAutoMovieDeliveryDecode";
@@ -17,6 +20,8 @@ type Audit = IAutoMovieDeliveryContentAudit.IProps;
  * @param expected The commissioned frame count and rational frame rate.
  * @param thresholds Effective video detector and silence thresholds.
  * @param run Process owner with separate binary and text output channels.
+ * @param meter Creates the render's loudness meter, when the decoded audio's
+ *   loudness and true peak are measured.
  * @returns Native evidence, absence or reasoned uncovered status per stream.
  */
 export async function runAutoMovieDeliveryDecode(
@@ -25,6 +30,7 @@ export async function runAutoMovieDeliveryDecode(
   expected: Pick<Audit["expected"], "frameCount" | "frameRate">,
   thresholds: Audit["thresholds"],
   run: typeof runAutoMovieFfmpeg = runAutoMovieFfmpeg,
+  meter?: (channels: 1 | 2) => IAutoMovieLoudnessMeter,
 ): Promise<Audit["streams"]> {
   try {
     const log = await run(
@@ -41,6 +47,7 @@ export async function runAutoMovieDeliveryDecode(
             decoded.audioIndex,
             thresholds.silence,
             run,
+            meter,
           );
     return { video: decoded.video, audio };
   } catch (error) {

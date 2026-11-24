@@ -64,6 +64,16 @@ export type IAutoMovieAssetConsumer =
     }
   | {
       /**
+       * Licensed TrueType font file a shot's `"asset"` font source names. Its
+       * provenance must carry `license`, which font admission requires.
+       */
+      kind: "font";
+
+      /** Exact font source id. */
+      id: string;
+    }
+  | {
+      /**
        * Observed plan, section, elevation, detail, or generated design study.
        *
        * The observation document owns this byte use; several buildings may cite
@@ -74,6 +84,16 @@ export type IAutoMovieAssetConsumer =
       kind: "design-reference";
 
       /** Exact design-reference document id observing these bytes. */
+      id: string;
+    }
+  | {
+      /**
+       * Still image a surface graphic's `image` layer shows on a prop's face in
+       * one compiled shot.
+       */
+      kind: "surface-graphic";
+
+      /** Exact shot id whose surface graphics name this image. */
       id: string;
     }
   | IAutoMovieMotionResourceConsumer

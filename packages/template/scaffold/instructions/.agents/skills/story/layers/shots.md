@@ -6,7 +6,7 @@ Choose continuous views and cuts by conventional film grammar. Motion staging re
 
 Choose the view for what the audience needs to follow. A wide shot can show one person's movement opening space for another. A closer view can reveal a choice the wide conceals. Re-establish the layout when the audience needs its bearings.
 
-Set camera height, point of view and movement for the action and the delivered aspect ratio. Decide a lens where its perspective matters. Check which participant, cue or response the frame reveals or withholds.
+Set camera height, point of view and movement for the action and the delivered aspect ratio. Decide a lens where its perspective matters, and a stop where depth of field matters: a low f-number separates a subject from its background and makes a focus pull visible. Check which participant, cue or response the frame reveals or withholds.
 
 ## Continuity across a cut
 

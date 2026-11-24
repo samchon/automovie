@@ -1,4 +1,5 @@
-import { Vector3 } from "@automovie/engine";
+import { Vector3, deriveAutoMovieSeed } from "@automovie/engine";
+import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
   ArchetypeDraw,
@@ -9,6 +10,7 @@ import {
   AutoMovieArchetypeFrame,
   type IAutoMovieArchetypeBand,
 } from "../core";
+import { irregularRockForm } from "./irregularRockForm";
 
 /** The Udden-Wentworth size classes, read in a university textbook. */
 const WENTWORTH: string =
@@ -22,19 +24,26 @@ const GRANITE: string =
  * A loose stone: a cobble a hand picks up, or a boulder a person sits on, hides
  * behind or climbs.
  *
- * It rests on the ground on its lowest point at the origin, a ball of the drawn
- * diameter. Its mass is its volume at the drawn specific gravity, so a bigger
- * stone is heavier by the cube of its size. A cobble's `grip` closes one hand
- * round it from `-X`; a boulder's `top` is its highest point, facing up, where
- * a person sits or stands, and its `side` its `+Z` face at mid-height, facing
- * out, where one leans or crouches behind it. Its surface is stone, granite's,
- * and it rests on that stone, so its body's friction is stone's on concrete.
+ * By default its form is `irregular`: one seeded convex hull
+ * ({@link irregularRockForm}) resting on a flat base at the origin, its largest
+ * horizontal extent along X and equal to the drawn diameter. `form: "ball"`
+ * draws the earlier form, a ball of the drawn diameter resting on its lowest
+ * point at the origin. Its mass is its volume at the drawn specific gravity, so
+ * a bigger stone is heavier by the cube of its size. A cobble's `grip` closes
+ * one hand round it from `-X` at its centroid, with an aperture of its whole X
+ * extent; a boulder's `top` is its highest point, facing up, where a person
+ * sits or stands, and its `side` is where a `+Z` ray at half height leaves it,
+ * facing out, where one leans or crouches behind it. Its surface is stone,
+ * granite's, and it rests on that stone, so its body's friction is stone's on
+ * concrete.
  *
- * @param params The kind and any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band;
- *   absent, each takes the middle of its band.
+ * @param params The kind, the form and any dimension the author fixes.
+ * @param seed The seed that draws every dimension left free inside its band and
+ *   the irregular form; absent, each dimension takes the middle of its band and
+ *   the form is seed 0's.
  * @returns The stone.
- * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
+ * @throws {AutoMovieArchetypeRefusal} For a kind or form it does not make, or a
+ *   fixed dimension outside its band.
  */
 export function createRock(
   params: createRock.IParams,
@@ -67,17 +76,40 @@ export function createRock(
   });
   const v: typeof Vector3.create = Vector3.create;
   const r: number = d.diameter / 2;
-  builder.ball("stone", r, v(0, r, 0), { color: "#7d7a74", surface: "stone" });
+  const look: { color: string; surface: "stone" } = {
+    color: "#7d7a74",
+    surface: "stone",
+  };
+  let grip: IAutoMovieVector3 = v(0, r, 0);
+  let top: IAutoMovieVector3 = v(0, d.diameter, 0);
+  let side: IAutoMovieVector3 = v(0, r, r);
+  let volume: number = (Math.PI / 6) * d.diameter ** 3;
+  const shape: createRock.Form = ArchetypeDraw.choice(
+    "rock",
+    "form",
+    params.form ?? "irregular",
+    createRock.FORMS,
+  );
+  if (shape === "irregular") {
+    const form: ReturnType<typeof irregularRockForm> = irregularRockForm(
+      deriveAutoMovieSeed(
+        deriveAutoMovieSeed(String(seed ?? 0), "archetype", "rock"),
+        "form",
+      ),
+      d.diameter,
+    );
+    builder.convex("stone", form.cell, v(0, 0, 0), look);
+    grip = form.cell.centroid;
+    top = form.top;
+    side = form.side;
+    volume = form.cell.volume;
+  } else builder.ball("stone", r, v(0, r, 0), look);
   if (kind === "cobble")
     builder.affordance({
       id: "grip",
       kind: "handle",
       symmetry: "round",
-      frame: AutoMovieArchetypeFrame.facing(
-        v(0, r, 0),
-        v(-1, 0, 0),
-        v(0, 1, 0),
-      ),
+      frame: AutoMovieArchetypeFrame.facing(grip, v(-1, 0, 0), v(0, 1, 0)),
       extent: null,
       grip: "power",
       aperture: d.diameter,
@@ -86,21 +118,19 @@ export function createRock(
     builder.affordance({
       id: "top",
       kind: "surface",
-      frame: AutoMovieArchetypeFrame.upright(v(0, d.diameter, 0)),
+      frame: AutoMovieArchetypeFrame.upright(top),
       extent: null,
     });
     builder.affordance({
       id: "side",
       kind: "surface",
-      frame: AutoMovieArchetypeFrame.facing(v(0, r, r), v(0, 0, 1), v(1, 0, 0)),
+      frame: AutoMovieArchetypeFrame.facing(side, v(0, 0, 1), v(1, 0, 0)),
       extent: null,
     });
   }
 
-  // Its mass: the sphere's volume times its specific gravity times water's 1000 kg per cubic metre.
-  return builder.build((Math.PI / 6) * d.diameter ** 3 * d.gravity * 1000, {
-    rests: "stone",
-  });
+  // Its mass: its volume times its specific gravity times water's 1000 kg per cubic metre.
+  return builder.build(volume * d.gravity * 1000, { rests: "stone" });
 }
 
 /** Companion types, constants and bands of {@link createRock}. */
@@ -110,6 +140,12 @@ export namespace createRock {
 
   /** Every kind, for a caller that reads one at run time. */
   export const KINDS: readonly Kind[] = ["cobble", "boulder"];
+
+  /** The drawn forms: a seeded irregular convex stone, or the earlier ball. */
+  export type Form = "ball" | "irregular";
+
+  /** Every form, for a caller that reads one at run time. */
+  export const FORMS: readonly Form[] = ["ball", "irregular"];
 
   /**
    * The affordance ids:
@@ -143,6 +179,12 @@ export namespace createRock {
   export interface IParams extends Partial<Record<Dimension, number>> {
     /** Which class. */
     kind: Kind;
+
+    /**
+     * The drawn form: `irregular`, a seeded convex stone on a flat base, by
+     * default; or `ball`, the earlier sphere resting on one point.
+     */
+    form?: Form;
 
     /** The model's id, unique in a scene; `rock` when absent. */
     id?: string;

@@ -1,8 +1,10 @@
 import type { IAutoMovieBlocking } from "../authoring/IAutoMovieBlocking";
 import type { IAutoMoviePerformance } from "../authoring/IAutoMoviePerformance";
 import type { IAutoMovieCameraClearanceRuntime } from "../cinematics/IAutoMovieCameraClearanceRuntime";
+import type { IAutoMovieFlameCue } from "../cinematics/IAutoMovieFlameCue";
 import type { IAutoMoviePolygonBodyCue } from "../cinematics/IAutoMoviePolygonBodyCue";
 import type { IAutoMoviePracticalSurfaceTrack } from "../cinematics/IAutoMoviePracticalSurfaceTrack";
+import type { IAutoMovieSurfaceGraphicTrack } from "../cinematics/IAutoMovieSurfaceGraphicTrack";
 import type { IAutoMovieClip } from "../core/IAutoMovieClip";
 import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 import type { IAutoMovieActionTarget } from "../harness/IAutoMovieActionTarget";
@@ -15,9 +17,11 @@ import type { IAutoMovieRestFrame } from "../pose/IAutoMovieRestFrame";
 import type { AutoMovieHumanoidBone } from "../skeleton/AutoMovieHumanoidBone";
 import type { IAutoMovieJointAxes } from "../skeleton/IAutoMovieJointAxes";
 import type { IAutoMovieSkeleton } from "../skeleton/IAutoMovieSkeleton";
+import type { IAutoMovieFontSource } from "../typography/IAutoMovieFontSource";
 import type { IAutoMovieCompiledFormation } from "./IAutoMovieCompiledFormation";
 import type { IAutoMovieFormationMotion } from "./IAutoMovieFormationMotion";
 import type { IAutoMoviePracticalLightBinding } from "./IAutoMoviePracticalLightBinding";
+import type { IAutoMovieProductionFrameRate } from "./IAutoMovieProductionFrameRate";
 import type { IAutoMovieStagedSet } from "./IAutoMovieStagedSet";
 
 /**
@@ -79,9 +83,11 @@ export interface IAutoMoviePerformShotProps {
   formationMotions?: readonly IAutoMovieFormationMotion[];
 
   /**
-   * Delivery raster for the horizontal half of the framing fit. Omitted, or
-   * with a non-positive side, a wide subject is fitted to a square frame, which
-   * stands back far enough for any raster of that height.
+   * Delivery raster and clock. The raster sets the horizontal half of the
+   * framing fit: omitted, or with a non-positive side, a wide subject is fitted
+   * to a square frame, which stands back far enough for any raster of that
+   * height. The clock sets the frames moving camera paths are keyed at:
+   * omitted, the camera compiler keys at 24 frames per second.
    */
   frameFormat?: {
     /**
@@ -95,6 +101,17 @@ export interface IAutoMoviePerformShotProps {
      * non-positive-side fallback applies.
      */
     height: number;
+
+    /**
+     * Delivery frames per second. Omitted, the camera compiler's 24 fps
+     * fallback applies. Without `frameRate` it must be a positive safe integer;
+     * with it, it must equal that rate's quotient. A violation of either is
+     * reported at `$input.frameFormat.fps`.
+     */
+    fps?: number;
+
+    /** Exact delivery frame rate when `fps` is fractional; read only with `fps`. */
+    frameRate?: IAutoMovieProductionFrameRate;
   };
 
   /**
@@ -161,6 +178,27 @@ export interface IAutoMoviePerformShotProps {
    * appearance alone.
    */
   practicalSurfaces?: readonly IAutoMoviePracticalSurfaceTrack[];
+
+  /**
+   * Pictures on `surface` affordances of placed props. Nonempty input requires
+   * the corresponding generated rigid models in models. Omit for no surface
+   * graphic.
+   */
+  surfaceGraphics?: readonly IAutoMovieSurfaceGraphicTrack[];
+
+  /**
+   * Flames at placed props' flame frames. Nonempty input requires the props'
+   * models in models; a cue naming a practical light binding flickers that
+   * binding's intensity track. Omit for no flame.
+   */
+  flames?: readonly IAutoMovieFlameCue[];
+
+  /**
+   * Font sources the surface graphics' text layers may name, admitted from what
+   * the records state and carried onto `shot.fonts`. Omit when no layer letters
+   * text.
+   */
+  fonts?: readonly IAutoMovieFontSource[];
 
   /**
    * Polygon body changes keyed by staged node and rig bone, timed in

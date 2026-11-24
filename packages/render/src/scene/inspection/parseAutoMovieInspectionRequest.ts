@@ -32,6 +32,8 @@ const SHADES: Record<AutoMovieInspectionShade, true> = {
   normal: true,
   outline: true,
   pose: true,
+  albedo: true,
+  graphics: true,
   clay: true,
   faces: true,
 };
@@ -49,7 +51,7 @@ const SHADES: Record<AutoMovieInspectionShade, true> = {
  * | Key             | Text                                                                                                                                                                     | Absent             |
  * | --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------ |
  * | `parts`, `hide` | Path patterns separated by commas                                                                                                                                        | No pattern         |
- * | `shade`         | `beauty`, `depth`, `mask`, `normal`, `outline`, `pose`, `clay` or `faces`                                                                                                | `beauty`           |
+ * | `shade`         | `beauty`, `depth`, `mask`, `normal`, `outline`, `pose`, `albedo`, `clay` or `faces`                                                                                      | `beauty`           |
  * | `surface`       | A switch                                                                                                                                                                 | On                 |
  * | `marks`         | Kind patterns separated by commas, such as `curve/section,defect`                                                                                                        | No mark            |
  * | `sliver`        | A positive aspect limit                                                                                                                                                  | No sliver measured |

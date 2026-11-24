@@ -5,7 +5,10 @@ import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
  * frame.
  */
 export interface IAutoMovieCameraInspection {
-  /** Conservative framing grade for the full placed, camera-visible extent. */
+  /**
+   * Conservative framing grade of the full placed, camera-visible extent: whole
+   * exclusion, a crossed frame side, or possible overlap inside the frame.
+   */
   framing: IAutoMovieCameraInspection.Framing;
 
   /** Source-authored maximum occluded fraction, inclusive and in [0, 1]. */
@@ -21,13 +24,15 @@ export interface IAutoMovieCameraInspection {
 /** Related observations and grades for a single subject and frame. */
 export namespace IAutoMovieCameraInspection {
   /**
-   * Bounds exclusion by a side or depth plane, possible overlap, or missing
+   * Bounds exclusion by a side or depth plane, bounds crossing a side plane of
+   * the frame, possible overlap inside all four side planes, or missing
    * evidence.
    */
   export type Framing =
     | "outside"
     | "before-near"
     | "past-far"
+    | "crosses-side"
     | "possible"
     | "unavailable";
 
@@ -64,7 +69,10 @@ export namespace IAutoMovieCameraInspection {
 
   /** Independent framing and occlusion grades. */
   export interface IResult {
-    /** Complete exclusion, possible overlap, or unavailable bounds. */
+    /**
+     * Complete exclusion, a crossed side of the frame, possible overlap inside
+     * it, or unavailable bounds.
+     */
     framing: Framing;
 
     /** Evidence of coverage only under the stated method. */

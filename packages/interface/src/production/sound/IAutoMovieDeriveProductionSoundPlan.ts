@@ -97,5 +97,18 @@ export namespace IAutoMovieDeriveProductionSoundPlan {
      * Callers include it in any aggregate mix input fingerprint they compute.
      */
     scoreDucking?: IAutoMovieProductionSoundPlan["scoreDucking"];
+
+    /**
+     * Optional map from a caption id to the sample count of its adopted speech
+     * at the plan's 48 kHz rate, `round(sourceSamples × 48000 /
+     * sourceSampleRate)` from the line's admitted receipt.
+     *
+     * A caption with an entry becomes a dialogue line over its speech span. Its
+     * caption must end on or after the speech end frame and is refused, naming
+     * both frames, when it ends earlier; a speech span past the film's last
+     * frame is refused, naming the line. A caption without an entry carries no
+     * speech and keeps its caption window.
+     */
+    speechSamples?: ReadonlyMap<string, number> | undefined;
   };
 }

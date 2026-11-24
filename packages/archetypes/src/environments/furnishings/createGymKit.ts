@@ -42,28 +42,30 @@ export function createGymKit(
     const weightBox: IAutoMoviePropBox = furnishRoom.measure(dumbbell);
     return furnishRoom(context, {
       layout: params,
-      count: params.stations,
-      capacity: "stations",
-      prefix: "bench",
-      group: [
-        { role: "", model: bench, bounds: benchBox, x: 0, z: 0, heading: 0 },
-        {
-          role: "dumbbell-left",
-          model: dumbbell,
-          bounds: weightBox,
-          x: benchBox.max.x - weightBox.min.x,
-          z: 0,
-          heading: 0,
-        },
-        {
-          role: "dumbbell-right",
-          model: dumbbell,
-          bounds: weightBox,
-          x: benchBox.min.x - weightBox.max.x,
-          z: 0,
-          heading: 0,
-        },
-      ],
+      grid: {
+        count: params.stations,
+        capacity: "stations",
+        prefix: "bench",
+        group: [
+          { role: "", model: bench, bounds: benchBox, x: 0, z: 0, heading: 0 },
+          {
+            role: "dumbbell-left",
+            model: dumbbell,
+            bounds: weightBox,
+            x: benchBox.max.x - weightBox.min.x,
+            z: 0,
+            heading: 0,
+          },
+          {
+            role: "dumbbell-right",
+            model: dumbbell,
+            bounds: weightBox,
+            x: benchBox.min.x - weightBox.max.x,
+            z: 0,
+            heading: 0,
+          },
+        ],
+      },
     });
   };
 }

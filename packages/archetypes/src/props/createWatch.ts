@@ -6,6 +6,9 @@ import { WornPropDraw } from "./WornPropDraw";
 /**
  * Wristwatch resting dial up with a straight band.
  *
+ * The band runs along model Z. The dial's 12 o'clock lies toward model `-Z`, so
+ * `face` reads with model `-Z` as its top.
+ *
  * @param params The optional scene ID and any fixed free dimension in metres or
  *   kilograms.
  * @param seed The seed for the recorded recipe. Without a seed, the draw uses

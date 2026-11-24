@@ -2,11 +2,11 @@
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-Documents exact-time reads, placement order and disposal ownership.
+Documents exact-time reads, that each read describes the placement just made, placement order and disposal ownership.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-The draw host already seeks at the capture cell's second, so this adapter hands that same second to the surface producer and never interpolates particle data.
+The draw host already places the capture cell's second, so this adapter reads the surface producer right after each placement, `seekShot`'s included, with that output second, and the producer describes the placement just made, as every reader of a draw subject does; it never interpolates particle data.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 

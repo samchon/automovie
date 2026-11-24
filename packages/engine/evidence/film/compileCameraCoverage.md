@@ -18,7 +18,7 @@ States what a coverage take is, which camera parameterizes the solve, the intent
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
-One `compileCameraMove` call, whose cost is answered there, plus one linear pass over the entries for the intents.
+One `compileCameraMove` call with the take's aspect and delivery rate, whose cost is answered there, plus one linear pass over the entries for the intents.
 
 ## @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work
 

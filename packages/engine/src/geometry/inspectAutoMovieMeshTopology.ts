@@ -1,12 +1,10 @@
 import {
   IAutoMovieMesh,
   type IAutoMovieMeshTopology,
-  type IAutoMovieResolvedPhysicalVertices,
 } from "@automovie/interface";
 
-import { MESH_WELD_GRID } from "../constants/MESH_WELD_GRID";
-import { resolveAutoMovieMeshPhysicalVertices } from "../math/resolveAutoMovieMeshPhysicalVertices";
-import { triangleIndicesOf } from "./triangleIndicesOf";
+import { createMeshEdgeKey } from "../math/createMeshEdgeKey";
+import { weldAutoMovieMeshCorners } from "./weldAutoMovieMeshCorners";
 
 /**
  * Measure a mesh's triangle topology and signed volume from its actual buffers
@@ -45,39 +43,27 @@ export const inspectAutoMovieMeshTopology: (
     countNonFinite(mesh.uvs) +
     countNonFinite(mesh.colors ?? null) +
     countNonFinite(mesh.reliefWeights ?? null);
-  const indices: number[] = triangleIndicesOf(mesh, "mesh topology");
-  const physical: IAutoMovieResolvedPhysicalVertices | undefined =
-    mesh.physicalVertices === undefined
-      ? undefined
-      : resolveAutoMovieMeshPhysicalVertices(mesh);
-  const key: (at: number) => string = (at: number): string =>
-    [0, 1, 2]
-      .map((axis: number): number =>
-        Math.round(mesh.positions[at * 3 + axis]! * MESH_WELD_GRID),
-      )
-      .join(",");
-  const edges: Map<string, number> = new Map();
-  const degenerateTriangles: number[] = [];
+  const {
+    indices,
+    corners,
+    degenerate: degenerateTriangles,
+    identities,
+  }: weldAutoMovieMeshCorners.IResult = weldAutoMovieMeshCorners(
+    mesh,
+    "mesh topology",
+  );
+  const edgeKey: (from: number, to: number) => number | string =
+    createMeshEdgeKey(identities);
+  const edges: Map<number | string, number> = new Map();
   for (let index: number = 0; index < indices.length; index += 3) {
-    const coordinateCorners: string[] = [0, 1, 2].map(
-      (corner: number): string => key(indices[index + corner]!),
-    );
-    if (new Set(coordinateCorners).size < 3) {
-      degenerateTriangles.push(index / 3);
-      continue;
-    }
-    const corners: string[] =
-      physical === undefined
-        ? coordinateCorners
-        : [0, 1, 2].map((corner: number): string =>
-            String(physical.vertices[indices[index + corner]!]),
-          );
+    if (corners[index]! < 0) continue;
     for (let edge: number = 0; edge < 3; ++edge) {
-      // The degenerate skip above leaves three distinct corner keys, so the
-      // two ends of an edge can never compare equal here.
-      const name: string = [corners[edge]!, corners[(edge + 1) % 3]!]
-        .sort((left: string, right: string): number => (left < right ? -1 : 1))
-        .join("|");
+      const from: number = corners[index + edge]!;
+      const to: number = corners[index + ((edge + 1) % 3)]!;
+      const name: number | string = edgeKey(
+        Math.min(from, to),
+        Math.max(from, to),
+      );
       edges.set(name, (edges.get(name) ?? 0) + 1);
     }
   }

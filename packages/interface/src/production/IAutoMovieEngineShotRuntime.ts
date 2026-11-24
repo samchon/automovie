@@ -11,6 +11,7 @@ import type { IAutoMovieRestFrame } from "../pose/IAutoMovieRestFrame";
 import type { AutoMovieHumanoidBone } from "../skeleton/AutoMovieHumanoidBone";
 import type { IAutoMovieJointAxes } from "../skeleton/IAutoMovieJointAxes";
 import type { IAutoMovieSkeleton } from "../skeleton/IAutoMovieSkeleton";
+import type { IAutoMovieFontSource } from "../typography/IAutoMovieFontSource";
 import type { IAutoMovieCompiledFormation } from "./IAutoMovieCompiledFormation";
 import type { IAutoMovieFormationDesign } from "./IAutoMovieFormationDesign";
 import type { IAutoMovieFormationMotion } from "./IAutoMovieFormationMotion";
@@ -52,12 +53,17 @@ export interface IAutoMovieEngineShotRuntime {
 
   /**
    * Delivery raster in pixels, used to project required camera subjects at the
-   * opening, review and closing times and to fit framing horizontally.
+   * opening, review and closing times and to fit framing horizontally, and the
+   * delivery clock moving camera paths are keyed at. Without `fps`, camera
+   * paths are keyed at 24 frames per second.
    */
   frameFormat: Pick<
     IAutoMovieProductionDesign["frameFormat"],
     "width" | "height"
-  >;
+  > &
+    Partial<
+      Pick<IAutoMovieProductionDesign["frameFormat"], "fps" | "frameRate">
+    >;
 
   /**
    * Geometry revision and fixed inspection clock for camera-body clearance.
@@ -111,6 +117,12 @@ export interface IAutoMovieEngineShotRuntime {
    * lightMotions. Omit when no practical source follows a prop.
    */
   practicalLights?: readonly IAutoMoviePracticalLightBinding[];
+
+  /**
+   * Font sources the shot's text layers may name, carried onto `shot.fonts`.
+   * Omit when no surface graphic letters text.
+   */
+  fonts?: readonly IAutoMovieFontSource[];
 
   /**
    * The shot's own object clips, carried onto the compiled shot's

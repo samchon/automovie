@@ -7,8 +7,6 @@ import {
   BufferAttribute,
   Camera,
   Frustum,
-  InterleavedBufferAttribute,
-  Material,
   Matrix4,
   Mesh,
   Plane,
@@ -18,6 +16,7 @@ import {
 
 import { AutoMovieSkinnedMesh } from "../AutoMovieSkinnedMesh.js";
 import { readAutoMovieDisplayedBox } from "./readAutoMovieDisplayedBox.js";
+import { readAutoMovieDrawnRanges } from "./readAutoMovieDrawnRanges.js";
 
 /** The delivery camera and a required subject's admitted meshes. */
 interface IProps {
@@ -41,18 +40,6 @@ interface IProps {
 
   /** Largest number of drawn triangles this call may examine. */
   triangleBudget: number;
-}
-
-/** One drawn index range of a mesh and the material it is drawn with. */
-interface IRange {
-  /** First index or vertex, inclusive. */
-  start: number;
-
-  /** Last index or vertex, exclusive. */
-  end: number;
-
-  /** Material Three binds for the range. */
-  material: Material;
 }
 
 /**
@@ -129,7 +116,11 @@ export function measureAutoMovieCameraNearClip(
     };
 
   // 1. Keep meshes whose world box can reach in front of the near plane in view.
-  const selected: { mesh: Mesh; ranges: IRange[]; slack: number }[] = [];
+  const selected: {
+    mesh: Mesh;
+    ranges: readAutoMovieDrawnRanges.IRange[];
+    slack: number;
+  }[] = [];
   let triangles: number = 0;
   for (const mesh of meshes) {
     if (mesh instanceof AutoMovieSkinnedMesh) mesh.computeBoundingBox();
@@ -142,7 +133,8 @@ export function measureAutoMovieCameraNearClip(
     if (local === null || local.isEmpty()) continue;
     world.copy(local).applyMatrix4(mesh.matrixWorld);
     if (excluded(world)) continue;
-    const ranges: IRange[] = drawnRanges(mesh);
+    const ranges: readAutoMovieDrawnRanges.IRange[] =
+      readAutoMovieDrawnRanges(mesh);
     for (const range of ranges)
       triangles += Math.floor((range.end - range.start) / 3);
     if (triangles > triangleBudget)
@@ -292,29 +284,6 @@ export namespace measureAutoMovieCameraNearClip {
         /** Why the check cannot run. */
         reason: string;
       };
-}
-
-/** Index ranges Three draws for the mesh, by visible material. */
-function drawnRanges(mesh: Mesh): IRange[] {
-  const position: BufferAttribute | InterleavedBufferAttribute =
-    mesh.geometry.getAttribute("position");
-  const total: number = mesh.geometry.index?.count ?? position.count;
-  const start: number = Math.max(0, mesh.geometry.drawRange.start);
-  const end: number = Math.min(total, start + mesh.geometry.drawRange.count);
-  const material: Material | Material[] = mesh.material;
-  if (!Array.isArray(material))
-    return material.visible && start < end ? [{ start, end, material }] : [];
-
-  // Three draws a multi-material mesh only through its groups.
-  const ranges: IRange[] = [];
-  for (const group of mesh.geometry.groups) {
-    const chosen: Material | undefined = material[group.materialIndex ?? 0];
-    const from: number = Math.max(start, group.start);
-    const to: number = Math.min(end, group.start + group.count);
-    if (chosen !== undefined && chosen.visible && from < to)
-      ranges.push({ start: from, end: to, material: chosen });
-  }
-  return ranges;
 }
 
 /** Signed distance from the plane to the box corner deepest against its normal. */

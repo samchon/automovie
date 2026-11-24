@@ -1,78 +1,72 @@
 import { Quaternion, computeModelRestExtent } from "@automovie/engine";
 import type {
+  AutoMovieFurnishingWall,
   IAutoMovieEnvironmentContribution,
   IAutoMovieEnvironmentModule,
   IAutoMovieFurnishingLayout,
   IAutoMovieModel,
   IAutoMoviePropBox,
   IAutoMoviePropSpec,
-  IAutoMovieQuaternion,
   IAutoMovieStageSetPiece,
   IAutoMovieTransform,
   IAutoMovieVector3,
+  IAutoMovieWallMount,
 } from "@automovie/interface";
 
 import { AutoMovieArchetypeFrame } from "../../core/AutoMovieArchetypeFrame";
+import { FurnishingRect } from "./FurnishingRect";
 import { createEnvironmentProp } from "./createEnvironmentProp";
+import { resolveFurnishingPieces } from "./resolveFurnishingPieces";
 
-/** XZ occupancy in the room frame, in metres. */
-interface IRect {
-  /** Lower X edge. */
-  minX: number;
-
-  /** Upper X edge. */
-  maxX: number;
-
-  /** Lower Z edge. */
-  minZ: number;
-
-  /** Upper Z edge. */
-  maxZ: number;
-}
-
-/** The resolved model origin and occupied footprint in the room frame. */
-interface IPlacement {
-  /** The model selected by this role. */
-  item: furnishRoom.IItem;
-
-  /** Model origin on X, in metres. */
-  x: number;
-
-  /** Model origin on Z, in metres. */
-  z: number;
-
-  /** Unit yaw used for both the box and the staged transform. */
-  rotation: IAutoMovieQuaternion;
-
-  /** Box of the turned model, translated into the room frame. */
-  rect: IRect;
-}
+/** Room-frame point on each wall's inner face and its unit normal into the room. */
+const WALL_FACES: Readonly<
+  Record<
+    AutoMovieFurnishingWall,
+    (
+      width: number,
+      depth: number,
+    ) => readonly [point: IAutoMovieVector3, normal: IAutoMovieVector3]
+  >
+> = {
+  "-z": (_w: number, d: number) => [
+    { x: 0, y: 0, z: -d / 2 },
+    { x: 0, y: 0, z: 1 },
+  ],
+  "+z": (_w: number, d: number) => [
+    { x: 0, y: 0, z: d / 2 },
+    { x: 0, y: 0, z: -1 },
+  ],
+  "-x": (w: number) => [
+    { x: -w / 2, y: 0, z: 0 },
+    { x: 1, y: 0, z: 0 },
+  ],
+  "+x": (w: number) => [
+    { x: w / 2, y: 0, z: 0 },
+    { x: -1, y: 0, z: 0 },
+  ],
+};
 
 /**
- * The 915 mm walking width in U.S. Access Board §403.5.1
- * (https://www.access-board.gov/ada/chapter/ch04/), used here as a layout
- * default.
- */
-const DEFAULT_AISLE: number = 0.915;
-
-/** Bearing and box-coordinate tolerance in metres, as in prop placement. */
-const EPSILON: number = 1e-9;
-
-/**
- * Place a room-scale kit on a grid of repeated prop groups and any fixed roles.
+ * Furnish a rectangular room with related pieces and a grid of repeated prop
+ * groups.
  *
- * Models keep their measured underside on the floor. The room and clearance
- * checks run in the host frame, so a yawed room does not enlarge its furniture
- * footprints for fit. A slot reserves the full box of its group, with an aisle
- * between slots and at the room edge. Named keep-outs and prop overrides are
- * placed first. Authored overrides stay where given when a different seed
- * changes a prototype's dimensions. An infeasible layout names the role or
- * capacity that failed and never stages a partial kit.
+ * The room checks run in the host frame, so a yawed room does not enlarge its
+ * furniture footprints for fit. Named keep-outs are blocked first, then
+ * overrides of grid roles are claimed where given, then the related pieces
+ * resolve in record order (`resolveFurnishingPieces`), reserving their
+ * clearances. A grid slot reserves the full box of its group, with an aisle
+ * between slots and at the room edge, and takes the first slot clear of every
+ * blocked rectangle. Models keep their measured underside on the floor unless a
+ * wall relation hangs them higher. Authored overrides stay where given when a
+ * different seed changes a prototype's dimensions. An infeasible layout names
+ * the role or capacity that failed and never stages a partial room.
  *
  * @param context The room's resolved world frame and occurrence id.
- * @param params The useful room, repeatable model group and any fixed item.
- * @returns Models, prop specs, stage placements and each role's anchors.
- * @throws If room input, capacity, clearances or overrides cannot be satisfied.
+ * @param params The useful room, related pieces and any repeated group.
+ * @returns Models, prop specs, stage placements, each role's anchors and the
+ *   wall each wall piece stands on.
+ * @throws If room input, capacity, relations, clearances or overrides cannot be
+ *   satisfied.
  */
 export function furnishRoom(
   context: IAutoMovieEnvironmentModule.IContext,
@@ -80,7 +74,7 @@ export function furnishRoom(
 ): IAutoMovieEnvironmentContribution {
   const layout: IAutoMovieFurnishingLayout = params.layout;
   const [width, depth] = layout.room;
-  const aisle: number = layout.aisle ?? DEFAULT_AISLE;
+  const aisle: number = layout.aisle ?? furnishRoom.DEFAULT_AISLE;
   if (
     ![width, depth, aisle].every(
       (n: number): boolean => Number.isFinite(n) && n > 0,
@@ -89,37 +83,190 @@ export function furnishRoom(
     throw new Error(
       `${context.id} room and aisle need positive finite dimensions`,
     );
-  if (!Number.isSafeInteger(params.count) || params.count < 1)
-    throw new Error(
-      `${context.id} ${params.capacity} needs a positive integer`,
-    );
+  const grid: furnishRoom.IGrid | undefined = params.grid;
+  if (
+    grid !== undefined &&
+    (!Number.isSafeInteger(grid.count) || grid.count < 1)
+  )
+    throw new Error(`${context.id} ${grid.capacity} needs a positive integer`);
 
-  const room: IRect = {
+  const room: FurnishingRect.IRect = {
     minX: -width / 2,
     maxX: width / 2,
     minZ: -depth / 2,
     maxZ: depth / 2,
   };
-  const blocked: Map<string, IRect> = new Map();
+  const blocked: Map<string, FurnishingRect.IRect> = new Map();
   for (const [id, [x, z, w, d]] of Object.entries(layout.keepClear ?? {})) {
-    const box: IRect = { minX: x, maxX: x + w, minZ: z, maxZ: z + d };
-    if (!(box.maxX > x && box.maxZ > z && within(box, room)))
+    const box: FurnishingRect.IRect = {
+      minX: x,
+      maxX: x + w,
+      minZ: z,
+      maxZ: z + d,
+    };
+    if (!(box.maxX > x && box.maxZ > z && FurnishingRect.within(box, room)))
       throw new Error(
         `${context.id} keepClear.${id} needs a positive rectangle within the room`,
       );
     blocked.set(`keepClear.${id}`, box);
   }
 
-  const prototype: IPlacement[] = params.group.map(
-    (item: furnishRoom.IItem): IPlacement =>
-      locate(item, item.x, item.z, item.heading),
+  // The repeated group at its own origin, and every grid role it fills.
+  const prototype: IGroupPart[] = (grid?.group ?? []).map(
+    (item: furnishRoom.IItem): IGroupPart => ({
+      role: item.role,
+      placement: FurnishingRect.locate(
+        item.model,
+        item.bounds,
+        item.x,
+        item.z,
+        item.heading,
+      ),
+    }),
   );
-  const group: IRect = {
-    minX: Math.min(...prototype.map((p: IPlacement): number => p.rect.minX)),
-    maxX: Math.max(...prototype.map((p: IPlacement): number => p.rect.maxX)),
-    minZ: Math.min(...prototype.map((p: IPlacement): number => p.rect.minZ)),
-    maxZ: Math.max(...prototype.map((p: IPlacement): number => p.rect.maxZ)),
+  const gridRoles: Map<string, IGroupPart> = new Map();
+  for (let index: number = 1; index <= (grid?.count ?? 0); ++index)
+    for (const part of prototype)
+      gridRoles.set(roleAt(grid!.prefix, index, part.role), part);
+
+  const pieces: Readonly<Record<string, resolveFurnishingPieces.IPiece>> =
+    params.pieces ?? {};
+  const placed: Map<string, FurnishingRect.IPlacement> = new Map();
+  for (const [role, override] of Object.entries(layout.overrides ?? {})) {
+    if (Object.hasOwn(pieces, role)) continue;
+    const original: IGroupPart | undefined = gridRoles.get(role);
+    if (original === undefined)
+      throw new Error(
+        `${context.id} overrides.${role} names no furnished prop`,
+      );
+    if (
+      ![override.at[0], override.at[1], override.heading ?? 0].every(
+        Number.isFinite,
+      )
+    )
+      throw new Error(
+        `${context.id} overrides.${role} needs a finite position and heading`,
+      );
+    const candidate: FurnishingRect.IPlacement = FurnishingRect.locate(
+      original.placement.model,
+      original.placement.bounds,
+      override.at[0],
+      override.at[1],
+      override.heading ?? 0,
+    );
+    FurnishingRect.claim(
+      context.id,
+      `overrides.${role}`,
+      candidate,
+      room,
+      blocked,
+    );
+    placed.set(role, candidate);
+  }
+
+  const related: resolveFurnishingPieces.IResult = resolveFurnishingPieces({
+    id: context.id,
+    room,
+    aisle,
+    overrides: layout.overrides,
+    pieces,
+    blocked,
+  });
+  if (grid !== undefined)
+    placeGrid(context.id, grid, prototype, room, aisle, blocked, placed);
+
+  const anchors: Record<string, IAutoMovieTransform> = {};
+  const models: IAutoMovieModel[] = [];
+  const set: IAutoMovieStageSetPiece[] = [];
+  const props: IAutoMoviePropSpec[] = [];
+  const mounts: IAutoMovieWallMount[] = [];
+  const uses: Map<IAutoMovieModel, IAutoMovieEnvironmentModule> = new Map();
+  for (const role of [...related.placed.keys(), ...gridRoles.keys()]) {
+    const p: FurnishingRect.IPlacement = (related.placed.get(role) ??
+      placed.get(role))!;
+    const frame: IAutoMovieTransform = AutoMovieArchetypeFrame.move(
+      context.frame,
+      {
+        translation: { x: p.x, y: p.y, z: p.z },
+        rotation: p.rotation,
+        scale: AutoMovieArchetypeFrame.UNIT,
+      },
+    );
+    let use: IAutoMovieEnvironmentModule | undefined = uses.get(p.model);
+    if (use === undefined) {
+      use = createEnvironmentProp({ model: p.model });
+      uses.set(p.model, use);
+    }
+    const built: IAutoMovieEnvironmentContribution = use({
+      ...context,
+      id: `${context.id}/${role}`,
+      frame,
+    });
+    models.push(...(built.models ?? []));
+    set.push(...(built.set ?? []));
+    props.push(...(built.props ?? []));
+    anchors[role] = frame;
+    for (const [name, target] of Object.entries(built.anchors ?? {}))
+      anchors[`${role}/${name}`] = target;
+    const wall: AutoMovieFurnishingWall | undefined = related.walls.get(role);
+    if (wall !== undefined) {
+      const [point, normal] = WALL_FACES[wall](width, depth);
+      mounts.push({
+        node: `${context.id}/${role}`,
+        wall: `${context.id}/walls/${wall}`,
+        point: AutoMovieArchetypeFrame.point(context.frame, point),
+        normal: Quaternion.rotateVector(context.frame.rotation, normal),
+      });
+    }
+  }
+  return {
+    anchors,
+    models,
+    set,
+    props,
+    ...(mounts.length !== 0 ? { mounts } : {}),
   };
+}
+
+/** One member of the repeated group, placed at the group's own origin. */
+interface IGroupPart {
+  /** Local role suffix; empty selects the group role. */
+  role: string;
+
+  /** The member's placement relative to the group origin. */
+  placement: FurnishingRect.IPlacement;
+}
+
+/**
+ * Fill the grid's missing roles slot by slot: a slot is taken when the whole
+ * group box fits the room and every missing member's box enters no blocked
+ * rectangle.
+ */
+function placeGrid(
+  id: string,
+  grid: furnishRoom.IGrid,
+  prototype: readonly IGroupPart[],
+  room: FurnishingRect.IRect,
+  aisle: number,
+  blocked: ReadonlyMap<string, FurnishingRect.IRect>,
+  placed: Map<string, FurnishingRect.IPlacement>,
+): void {
+  const group: FurnishingRect.IRect = {
+    minX: Math.min(
+      ...prototype.map((p: IGroupPart): number => p.placement.rect.minX),
+    ),
+    maxX: Math.max(
+      ...prototype.map((p: IGroupPart): number => p.placement.rect.maxX),
+    ),
+    minZ: Math.min(
+      ...prototype.map((p: IGroupPart): number => p.placement.rect.minZ),
+    ),
+    maxZ: Math.max(
+      ...prototype.map((p: IGroupPart): number => p.placement.rect.maxZ),
+    ),
+  };
+  const width: number = room.maxX - room.minX;
+  const depth: number = room.maxZ - room.minZ;
   const groupWidth: number = group.maxX - group.minX;
   const groupDepth: number = group.maxZ - group.minZ;
   const pitchX: number = groupWidth + aisle;
@@ -134,92 +281,15 @@ export function furnishRoom(
   );
   const capacity: number = columns * rows;
   if (!Number.isSafeInteger(capacity))
-    throw new Error(
-      `${context.id} room is too large to index its furnishing grid`,
-    );
-  if (capacity < params.count)
-    throw capacityError(context.id, params.capacity, params.count, capacity);
-
-  const roles: Map<string, IPlacement> = new Map();
-  if (params.fixed !== undefined)
-    roles.set(
-      params.fixed.role,
-      locate(
-        params.fixed,
-        params.fixed.x,
-        params.fixed.z,
-        params.fixed.heading,
-      ),
-    );
-  for (let index: number = 1; index <= params.count; ++index)
-    for (const part of prototype)
-      roles.set(roleAt(params.prefix, index, part.item.role), part);
-
-  const placed: Map<string, IPlacement> = new Map();
-  for (const [role, override] of Object.entries(layout.overrides ?? {})) {
-    const original: IPlacement | undefined = roles.get(role);
-    if (original === undefined)
-      throw new Error(
-        `${context.id} overrides.${role} names no furnished prop`,
-      );
-    if (
-      ![override.at[0], override.at[1], override.heading ?? 0].every(
-        Number.isFinite,
-      )
-    )
-      throw new Error(
-        `${context.id} overrides.${role} needs a finite position and heading`,
-      );
-    const candidate: IPlacement = locate(
-      original.item,
-      override.at[0],
-      override.at[1],
-      override.heading ?? 0,
-    );
-    claim(context.id, `overrides.${role}`, candidate, room, blocked);
-    placed.set(role, candidate);
-  }
-  if (params.fixed !== undefined && !placed.has(params.fixed.role)) {
-    const candidate: IPlacement = roles.get(params.fixed.role)!;
-    claim(context.id, params.fixed.role, candidate, room, blocked);
-    placed.set(params.fixed.role, candidate);
-  }
-  if (params.fixed !== undefined) {
-    // Preserve at least one clear approach along the service side of the counter.
-    const counter: IPlacement = placed.get(params.fixed.role)!;
-    const { min, max } = counter.item.bounds;
-    const centre: number = (min.x + max.x) / 2;
-    const halfWidth: number = Math.max(max.x - min.x, aisle) / 2;
-    const approach: IRect = shift(
-      project(
-        {
-          minX: centre - halfWidth,
-          maxX: centre + halfWidth,
-          minZ: max.z,
-          maxZ: max.z + aisle,
-        },
-        counter.rotation,
-      ),
-      counter.x,
-      counter.z,
-    );
-    if (!within(approach, room))
-      throw new Error(
-        `${context.id} ${params.fixed.role} approach is outside the usable room`,
-      );
-    for (const [role, override] of placed)
-      if (role !== params.fixed.role && overlaps(override.rect, approach))
-        throw new Error(
-          `${context.id} overrides.${role} blocks ${params.fixed.role} approach`,
-        );
-    blocked.set(`${params.fixed.role}/approach`, approach);
-  }
+    throw new Error(`${id} room is too large to index its furnishing grid`);
+  if (capacity < grid.count)
+    throw capacityError(id, grid.capacity, grid.count, capacity);
 
   let slot: number = 0;
-  for (let index: number = 1; index <= params.count; ++index) {
-    const missing: IPlacement[] = prototype.filter(
-      (p: IPlacement): boolean =>
-        !placed.has(roleAt(params.prefix, index, p.item.role)),
+  for (let index: number = 1; index <= grid.count; ++index) {
+    const missing: IGroupPart[] = prototype.filter(
+      (p: IGroupPart): boolean =>
+        !placed.has(roleAt(grid.prefix, index, p.role)),
     );
     if (missing.length === 0) continue;
 
@@ -229,63 +299,30 @@ export function furnishRoom(
         room.minX + aisle + (slot % columns) * pitchX - group.minX;
       const z: number =
         room.minZ + aisle + Math.floor(slot / columns) * pitchZ - group.minZ;
-      const occupied: IRect = shift(group, x, z);
+      const occupied: FurnishingRect.IRect = FurnishingRect.shift(group, x, z);
       if (
-        within(occupied, room) &&
+        FurnishingRect.within(occupied, room) &&
         missing.every(
-          (p: IPlacement): boolean =>
-            obstruction(shift(p.rect, x, z), blocked) === undefined,
+          (p: IGroupPart): boolean =>
+            FurnishingRect.obstruction(
+              FurnishingRect.shift(p.placement.rect, x, z),
+              blocked,
+            ) === undefined,
         )
       )
         offset = [x, z];
     }
     if (offset === null)
-      throw capacityError(context.id, params.capacity, params.count, index - 1);
-    for (const part of missing) {
-      const [x, z] = offset;
-      placed.set(roleAt(params.prefix, index, part.item.role), {
-        item: part.item,
-        x: part.x + x,
-        z: part.z + z,
-        rotation: part.rotation,
-        rect: shift(part.rect, x, z),
+      throw capacityError(id, grid.capacity, grid.count, index - 1);
+    const [x, z] = offset;
+    for (const part of missing)
+      placed.set(roleAt(grid.prefix, index, part.role), {
+        ...part.placement,
+        x: part.placement.x + x,
+        z: part.placement.z + z,
+        rect: FurnishingRect.shift(part.placement.rect, x, z),
       });
-    }
   }
-
-  const anchors: Record<string, IAutoMovieTransform> = {};
-  const models: IAutoMovieModel[] = [];
-  const set: IAutoMovieStageSetPiece[] = [];
-  const props: IAutoMoviePropSpec[] = [];
-  const uses: Map<IAutoMovieModel, IAutoMovieEnvironmentModule> = new Map();
-  for (const role of roles.keys()) {
-    const p: IPlacement = placed.get(role)!;
-    const frame: IAutoMovieTransform = AutoMovieArchetypeFrame.move(
-      context.frame,
-      {
-        translation: { x: p.x, y: -p.item.bounds.min.y, z: p.z },
-        rotation: p.rotation,
-        scale: AutoMovieArchetypeFrame.UNIT,
-      },
-    );
-    let use: IAutoMovieEnvironmentModule | undefined = uses.get(p.item.model);
-    if (use === undefined) {
-      use = createEnvironmentProp({ model: p.item.model });
-      uses.set(p.item.model, use);
-    }
-    const built: IAutoMovieEnvironmentContribution = use({
-      ...context,
-      id: `${context.id}/${role}`,
-      frame,
-    });
-    models.push(...(built.models ?? []));
-    set.push(...(built.set ?? []));
-    props.push(...(built.props ?? []));
-    anchors[role] = frame;
-    for (const [name, target] of Object.entries(built.anchors ?? {}))
-      anchors[`${role}/${name}`] = target;
-  }
-  return { anchors, models, set, props };
 }
 
 /**
@@ -294,108 +331,6 @@ export function furnishRoom(
  */
 function roleAt(prefix: string, index: number, part: string): string {
   return part === "" ? `${prefix}-${index}` : `${prefix}-${index}/${part}`;
-}
-
-/**
- * Place a local occupied box at the given heading and translation and project
- * it onto XZ.
- */
-function locate(
-  item: furnishRoom.IItem,
-  x: number,
-  z: number,
-  heading: number,
-): IPlacement {
-  const rotation: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
-    { x: 0, y: 1, z: 0 },
-    heading % 360,
-  );
-  return {
-    item,
-    x,
-    z,
-    rotation,
-    rect: shift(
-      project(
-        {
-          minX: item.bounds.min.x,
-          maxX: item.bounds.max.x,
-          minZ: item.bounds.min.z,
-          maxZ: item.bounds.max.z,
-        },
-        rotation,
-      ),
-      x,
-      z,
-    ),
-  };
-}
-
-/** Enclose the four corners of a yawed rectangle in the room frame. */
-function project(box: IRect, rotation: IAutoMovieQuaternion): IRect {
-  const corners: IAutoMovieVector3[] = [];
-  for (const x of [box.minX, box.maxX])
-    for (const z of [box.minZ, box.maxZ])
-      corners.push(Quaternion.rotateVector(rotation, { x, y: 0, z }));
-  return {
-    minX: Math.min(...corners.map((p: IAutoMovieVector3): number => p.x)),
-    maxX: Math.max(...corners.map((p: IAutoMovieVector3): number => p.x)),
-    minZ: Math.min(...corners.map((p: IAutoMovieVector3): number => p.z)),
-    maxZ: Math.max(...corners.map((p: IAutoMovieVector3): number => p.z)),
-  };
-}
-
-/** Translate an occupied XZ rectangle. */
-function shift(box: IRect, x: number, z: number): IRect {
-  return {
-    minX: box.minX + x,
-    maxX: box.maxX + x,
-    minZ: box.minZ + z,
-    maxZ: box.maxZ + z,
-  };
-}
-
-/** Touching two rectangles is allowed within the common metre tolerance. */
-function overlaps(a: IRect, b: IRect): boolean {
-  return (
-    Math.min(a.maxX, b.maxX) - Math.max(a.minX, b.minX) > EPSILON &&
-    Math.min(a.maxZ, b.maxZ) - Math.max(a.minZ, b.minZ) > EPSILON
-  );
-}
-
-/** Check the whole occupied box against the recipient bounds. */
-function within(box: IRect, room: IRect): boolean {
-  return (
-    box.minX >= room.minX - EPSILON &&
-    box.maxX <= room.maxX + EPSILON &&
-    box.minZ >= room.minZ - EPSILON &&
-    box.maxZ <= room.maxZ + EPSILON
-  );
-}
-
-/** Name the first occupied or reserved rectangle entered by this box. */
-function obstruction(
-  box: IRect,
-  blocked: ReadonlyMap<string, IRect>,
-): string | undefined {
-  for (const [id, other] of blocked) if (overlaps(box, other)) return id;
-  return undefined;
-}
-
-/** Accept a fixed or overridden position only when its proxy fits. */
-function claim(
-  id: string,
-  role: string,
-  placed: IPlacement,
-  room: IRect,
-  blocked: Map<string, IRect>,
-): void {
-  if (!within(placed.rect, room))
-    throw new Error(`${id} ${role} is outside the usable room`);
-  const conflict: string | undefined = obstruction(placed.rect, blocked);
-  if (conflict !== undefined)
-    throw new Error(`${id} ${role} overlaps ${conflict}`);
-  blocked.set(role, placed.rect);
 }
 
 /**
@@ -413,20 +348,27 @@ function capacityError(
   );
 }
 
-/** The room planner's kit input and common proxy measurement. */
+/**
+ * The planner's default aisle, its item, grid and parameter records, and its
+ * rest-box measure.
+ */
 export namespace furnishRoom {
   /**
-   * One prop prototype positioned in the repeated group or the room itself.
+   * The 915 mm walking width in U.S. Access Board §403.5.1
+   * (https://www.access-board.gov/ada/chapter/ch04/), used here as a layout
+   * default and not as a compliance claim.
+   */
+  export const DEFAULT_AISLE: number = 0.915;
+
+  /**
+   * One prop prototype positioned in the repeated group.
    *
    * The rest bounds describe the model's occupied extents before the authored
    * yaw and translation. Their lower Y determines how far to lift the model's
    * origin from the floor.
    */
   export interface IItem {
-    /**
-     * Fixed role, or suffix appended to the group's role. Empty selects the
-     * group role.
-     */
+    /** Suffix appended to the group's role. Empty selects the group role. */
     role: string;
 
     /** Renderable rigid model with its authored affordances. */
@@ -435,43 +377,47 @@ export namespace furnishRoom {
     /** Measured model-local bounds, in metres. */
     bounds: IAutoMoviePropBox;
 
-    /** X metres in the group or host room. */
+    /** X metres in the group. */
     x: number;
 
-    /** Z metres in the group or host room. */
+    /** Z metres in the group. */
     z: number;
 
     /** Rotation about local +Y in degrees. */
     heading: number;
   }
 
-  /**
-   * One repeatable furniture layout and optional fixed service item.
-   *
-   * The group is nonempty and its positions are relative to one grid point. The
-   * fixed item stands in room coordinates.
-   */
-  export interface IParams {
-    /** Room and override declarations. */
-    layout: IAutoMovieFurnishingLayout;
-
+  /** A repeated group laid on the room's grid. */
+  export interface IGrid {
     /** Positive integer number of repeated groups. */
     count: number;
 
-    /** Name by which the kit exposes the capacity parameter. */
+    /** Name by which the kit exposes the count parameter. */
     capacity: string;
 
     /** Role prefix for the repeated groups. */
     prefix: string;
 
-    /** Props in one repeated group, named by local suffix. */
+    /**
+     * Nonempty props of one group, positioned relative to one grid point and
+     * named by local suffix.
+     */
     group: readonly IItem[];
+  }
+
+  /** The room, its related pieces and any repeated group. */
+  export interface IParams {
+    /** Room and override declarations. */
+    layout: IAutoMovieFurnishingLayout;
 
     /**
-     * Optional service prop in room coordinates, with an aisle across its local
-     * +Z face.
+     * Pieces placed by relation, by role, resolved in record order before the
+     * grid.
      */
-    fixed?: IItem;
+    pieces?: Readonly<Record<string, resolveFurnishingPieces.IPiece>>;
+
+    /** The repeated group, when the room has one. */
+    grid?: IGrid;
   }
 
   /**

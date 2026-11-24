@@ -11,7 +11,11 @@ export interface IAutoMovieSequenceRenderTransitionSpan {
   /** Incoming shot id. */
   to: string;
 
-  /** Transition style copied from the sequence entry. */
+  /**
+   * Transition style copied from the sequence entry: `crossDissolve` mixes the
+   * two shots across the span, and `fade` dips through black, black at the
+   * span's midpoint `start + duration / 2`.
+   */
   kind: IAutoMovieTransition["kind"];
 
   /** Inclusive global output second where the transition begins. */

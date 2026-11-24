@@ -1,6 +1,7 @@
 import {
   Quaternion,
   Transform,
+  environmentSupportReport,
   mergeAutoMovieSpaces,
   mergeAutoMovieSubjectContributions,
   validatePropPlacements,
@@ -14,6 +15,7 @@ import type {
   IAutoMovieEnvironmentContribution,
   IAutoMovieEnvironmentItem,
   IAutoMovieEnvironmentRecipe,
+  IAutoMovieEnvironmentSupportReport,
   IAutoMovieModel,
   IAutoMoviePropSpec,
   IAutoMovieSpace,
@@ -22,6 +24,7 @@ import type {
   IAutoMovieTransform,
   IAutoMovieValidation,
   IAutoMovieVector3,
+  IAutoMovieWallMount,
 } from "@automovie/interface";
 
 import { AutoMovieArchetypeFrame } from "../core/AutoMovieArchetypeFrame";
@@ -36,7 +39,9 @@ import { requireEnvironmentFrame } from "./requireEnvironmentFrame";
  *
  * @param recipe Named items, optional seed and optional rigid world frame.
  * @returns The stage set and space, compile runtime records, architectural
- *   records and named world frames.
+ *   records, named world frames and the support of every set piece, judged
+ *   against the merged space, the other pieces, the walls furnishing relations
+ *   hung pieces on and each building's own sweep at its placement height.
  * @throws For malformed identity or placement, missing or cyclic references,
  *   conflicting emitted identities or invalid support or prop declarations.
  */
@@ -180,13 +185,21 @@ export function createEnvironment(
   const anchors: Array<readonly [string, IAutoMovieTransform]> = [];
   const contributions: IAutoMovieEnvironmentContribution[] = [];
   const objectMotions: IAutoMovieClip[] = [];
+  const mounts: IAutoMovieWallMount[] = [];
+  const buildings: IAutoMovieEnvironmentSupportReport.IBuilding[] = [];
   for (const key of items.keys()) {
     const item: IAutoMovieEnvironmentContribution = resolve(key, itemPath(key));
-    anchors.push([key, place(key, itemPath(key))]);
+    const frame: IAutoMovieTransform = place(key, itemPath(key));
+    anchors.push([key, frame]);
     for (const [name, value] of Object.entries(item.anchors ?? {}))
       anchors.push([`${key}/${name}`, value]);
     contributions.push(item);
     for (const clip of item.objectMotions ?? []) objectMotions.push(clip);
+    mounts.push(...(item.mounts ?? []));
+
+    // A building's sweep grounds its bodies at its own placement height.
+    for (const environment of item.builtEnvironments ?? [])
+      buildings.push({ environment, groundY: frame.translation.y });
   }
 
   const merged: IAutoMovieSubjectContribution =
@@ -282,6 +295,14 @@ export function createEnvironment(
     },
     anchors: Object.fromEntries(anchors),
     builtEnvironments,
+    support: environmentSupportReport({
+      set,
+      models: [...models.values()],
+      props,
+      ...(space !== undefined ? { space } : {}),
+      mounts,
+      buildings,
+    }),
   };
 }
 

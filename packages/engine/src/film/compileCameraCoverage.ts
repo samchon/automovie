@@ -31,6 +31,7 @@ export function compileCameraCoverage(
       entries: props.entries,
       shotDuration: props.shotDuration,
       aspect: props.aspect,
+      frameRate: props.frameRate,
     }),
     cameraIntent: props.entries.map(
       (entry: IAutoMovieCameraCoverageEntry): IAutoMovieCameraIntent =>

@@ -1,20 +1,15 @@
 import type {
   AutoMovieRenderMetric,
-  IAutoMovieAreaLight,
   IAutoMovieCompiledInstanceSet,
-  IAutoMovieConstraintViolation,
-  IAutoMovieLight,
   IAutoMovieMaterial,
   IAutoMovieMeasureRenderInventory,
   IAutoMovieModel,
-  IAutoMovieModelPart,
   IAutoMovieRenderAnalysisGap,
   IAutoMovieRenderInventory,
   IAutoMovieRenderModelCost,
   IAutoMovieRenderOwnerCost,
   IAutoMovieRenderSubject,
   IAutoMovieRenderTargetSettings,
-  IAutoMovieRenderTextureCost,
   IAutoMovieRenderTotals,
   IAutoMovieRenderWaterBody,
   IAutoMovieSemanticMask,
@@ -25,25 +20,29 @@ import type {
 /**
  * Orchestrate conservative one-frame render costs for budgets and reports.
  * Create one model cache and resource closure, then count staged populations
- * and simulated drawables in order. Resolve materials/textures and resident
- * geometry only after both phases have named their resources. Finally add
- * light, outline and background passes before sorting attribution rows and
- * emitting the report. Each phase continues the previous counts without
- * reordering floating-point addition. Owned caches and owner rows are mutable;
- * the input subject is not. Null totals preserve declared analysis gaps rather
- * than treating unknowns as zero. Display geometry, resource bytes and
- * whole-frame pass costs differ, so changing one requires checking its consumer
- * in the viewer and budget report.
+ * and simulated drawables in order. Resolve materials/textures
+ * (`measureRenderTextures`) and resident geometry
+ * (`measureRenderGeometryBytes`) only after both phases have named their
+ * resources. Measure a directly rendered film's stage targets and the passes it
+ * adds over the opaque frame (`measureAutoMovieRenderFilmStage`), then add
+ * light, shadow, outline, feed and background passes (`measureRenderPasses`)
+ * before sorting attribution rows and emitting the report. Each phase continues
+ * the previous counts without reordering floating-point addition. Owned caches
+ * and owner rows are mutable; the input subject is not. Null totals preserve
+ * declared analysis gaps rather than treating unknowns as zero. Display
+ * geometry, resource bytes and whole-frame pass costs differ, so changing one
+ * requires checking its consumer in the viewer and budget report.
  */
 
 import { autoMovieSemanticMaskNodeIndex } from "./autoMovieSemanticMaskNodeIndex";
 import { compareAutoMovieRenderIds } from "./compareAutoMovieRenderIds";
-import { measureAutoMovieRenderTextureClosure } from "./measureAutoMovieRenderTextureClosure";
+import { measureAutoMovieRenderFilmStage } from "./measureAutoMovieRenderFilmStage";
+import { measureRenderGeometryBytes } from "./measureRenderGeometryBytes";
+import { measureRenderPasses } from "./measureRenderPasses";
 import { measureRenderPopulation } from "./measureRenderPopulation";
 import { measureRenderSimulation } from "./measureRenderSimulation";
+import { measureRenderTextures } from "./measureRenderTextures";
 import { resolveAutoMovieMaterial } from "./resolveAutoMovieMaterial";
-import { resolveAutoMovieShadowProfile } from "./resolveAutoMovieShadowProfile";
-import { sumAutoMovieRenderTextureAllocations } from "./sumAutoMovieRenderTextureAllocations";
 
 /**
  * Measure what one frame of a subject commits the renderer to.
@@ -288,249 +287,55 @@ export const measureAutoMovieRenderInventory: (
   } = simulation;
 
   // --- materials and textures ----------------------------------------------
-  const shadowProfile:
-    | {
-        success: false;
-        violations: IAutoMovieConstraintViolation[];
-        enabled?: undefined;
-        type?: undefined;
-        casters?: undefined;
-      }
-    | {
-        success: true;
-        enabled: boolean;
-        type: "pcf" | "vsm";
-        casters: { light: string; depthFaces: number; filterDraws: number }[];
-        violations?: undefined;
-      } = resolveAutoMovieShadowProfile({
-    lights: subject.scene.lights,
-    shadows:
-      subject.scene.environment?.shadows ??
-      (props.settings === undefined
-        ? undefined
-        : {
-            enabled: props.settings.shadows,
-            type:
-              props.settings.shadowType === "none"
-                ? "pcf"
-                : props.settings.shadowType,
-          }),
+  const {
+    casters,
+    textures,
+    textureBytes,
+    textureAllocations,
+  }: measureRenderTextures.IResult = measureRenderTextures({
+    subject,
+    ...(props.settings === undefined ? {} : { settings: props.settings }),
+    byId,
+    drawnModels,
+    materials,
+    defaultMaterials,
+    add,
+    gaps,
   });
-  if (!shadowProfile.success)
-    throw new Error(
-      "Unsupported shadow profile: " + JSON.stringify(shadowProfile.violations),
-    );
-  const casters: { light: string; depthFaces: number; filterDraws: number }[] =
-    shadowProfile.casters;
-  for (const id of drawnModels) {
-    const definition: IAutoMovieModel = byId.get(id)!;
-    for (const part of definition.parts) {
-      if (part.material === null) continue;
-      const material: IAutoMovieMaterial | undefined =
-        definition.materials.find(
-          (candidate: IAutoMovieMaterial): boolean =>
-            candidate.id === part.material,
-        );
-      if (material !== undefined && !materials.has(material.id))
-        materials.set(material.id, material);
-    }
-  }
-  for (const material of materials.values())
-    add(
-      `material:${material.id}`,
-      `models[].materials["${material.id}"]`,
-      "materials",
-      1,
-    );
-  const textures: IAutoMovieRenderTextureCost[] =
-    measureAutoMovieRenderTextureClosure({
-      materials: materials.values(),
-      sources: subject.textures ?? [],
-      environment: subject.scene.environment?.image ?? null,
-      defaultPbr:
-        defaultMaterials > (subject.effects ?? []).length ||
-        [...drawnModels].some(
-          (id: string): boolean => byId.get(id)!.parts.length !== 0,
-        ),
-      residency: subject.textureResidency,
-      shadowCasters: casters,
-      areaLights: subject.scene.lights.some(
-        (light: IAutoMovieLight): light is IAutoMovieAreaLight =>
-          light.type === "area",
-      ),
-    });
-  const missing: IAutoMovieRenderTextureCost[] = textures.filter(
-    (texture: IAutoMovieRenderTextureCost): boolean => texture.bytes === null,
-  );
-  const textureBytes: number | null = sumBytes(textures);
-  const textureAllocations: number | null =
-    sumAutoMovieRenderTextureAllocations(textures);
-  for (const texture of textures) {
-    const owner: string =
-      texture.asset === null
-        ? texture.runtime === "data-texture"
-          ? `runtime-texture:${JSON.stringify(texture.runtimeOwners)}`
-          : `renderer:${texture.runtime}`
-        : `texture:${texture.asset}`;
-    const path: string =
-      texture.asset === null
-        ? texture.runtime === "data-texture"
-          ? `renderer.runtimeTextures[${JSON.stringify(texture.runtimeOwners)}]`
-          : `renderer.${texture.runtime}`
-        : `assets["${texture.asset}"]`;
-    if (texture.bytes !== null)
-      add(
-        owner,
-        path,
-        "textureBytes",
-        texture.bytes,
-        texture.asset === null ? "runtime" : "own",
-      );
-    if (texture.allocations !== null)
-      add(
-        owner,
-        path,
-        "textures",
-        texture.allocations ?? 1,
-        texture.asset === null ? "runtime" : "own",
-      );
-  }
-  if (missing.length !== 0)
-    gaps.push({
-      metric: "textureBytes",
-      status: "not-run",
-      reason: `${missing.length} resident texture representation(s) have no safe decoded upload bound, starting with "${textureDiagnosticName(missing[0]!)}"`,
-      remedy:
-        "pass every resident source's decoded dimensions, upload format, sampling/mipmap facts and retained context extents from the capture host",
-    });
-  else if (textureBytes === null)
-    gaps.push({
-      metric: "textureBytes",
-      status: "not-run",
-      reason:
-        "the combined resident texture representations exceed safe integer storage",
-      remedy:
-        "reduce resident upload dimensions or representation count before measuring the budget",
-    });
-  if (textureAllocations === null)
-    gaps.push({
-      metric: "textures",
-      status: "not-run",
-      reason: `the resident allocation population is uncertified or unsafe for ${textures.map(textureDiagnosticName).join(", ")}`,
-      remedy:
-        "supply actual host allocation authority and safe aggregate counts; current manual-mip properties cannot certify native sharing",
-    });
 
   // --- geometry memory ------------------------------------------------------
-  let geometryBytes: number = groundBytes + simulatedBytes;
-  for (const id of [...drawnModels].sort(compareAutoMovieRenderIds)) {
-    const cost: IAutoMovieRenderModelCost = costs.get(id)!;
-    if (flattenedModels.has(id)) {
-      // Flattening mixed RGB/bare parts gives every vertex a white-default RGB
-      // triple. Count that resident padding once per prototype, not per slot.
-      const coloredComponents: number = byId
-        .get(id)!
-        .parts.reduce(
-          (sum: number, part: IAutoMovieModelPart): number =>
-            sum +
-            (part.geometry.type === "mesh" &&
-            part.geometry.mesh.colors !== undefined
-              ? part.geometry.mesh.positions.length
-              : 0),
-          0,
-        );
-      if (coloredComponents !== 0)
-        cost.geometryBytes +=
-          (cost.vertices * 3 - coloredComponents) *
-          Float32Array.BYTES_PER_ELEMENT;
-      // and mixed weighted/bare parts every vertex a relief factor of one
-      const weightedVertices: number = byId
-        .get(id)!
-        .parts.reduce(
-          (sum: number, part: IAutoMovieModelPart): number =>
-            sum +
-            (part.geometry.type === "mesh" &&
-            part.geometry.mesh.reliefWeights !== undefined
-              ? part.geometry.mesh.positions.length / 3
-              : 0),
-          0,
-        );
-      if (weightedVertices !== 0)
-        cost.geometryBytes +=
-          (cost.vertices - weightedVertices) * Float32Array.BYTES_PER_ELEMENT;
-    }
-    geometryBytes += cost.geometryBytes;
-    add(`model:${id}`, `models["${id}"]`, "geometryBytes", cost.geometryBytes);
-  }
+  const geometryBytes: number = measureRenderGeometryBytes({
+    base: groundBytes + simulatedBytes,
+    byId,
+    drawnModels,
+    flattenedModels,
+    costs,
+    add,
+  });
 
-  // --- lights and shadow maps ----------------------------------------------
-  for (const light of subject.scene.lights) {
-    add(`light:${light.id}`, `scene.lights["${light.id}"]`, "lights", 1);
-  }
-  // Depth faces repeat the conservative geometry closure; each VSM filtering
-  // draw submits one fullscreen triangle. One light still owns one map. A pass
-  // row is marked as one: its cost is by construction the sum of every drawable
-  // before it, so the report has to keep it in the total and state the caster
-  // separately without ranking that aggregate as the owner's own complexity.
-  const shadowMaps: number = casters.length;
-  const opaqueDraws: number = drawCalls;
-  const opaqueTriangles: number = triangles;
-  for (const caster of casters) {
-    const shadowDraws: number =
-      opaqueDraws * caster.depthFaces + caster.filterDraws;
-    const shadowTriangles: number =
-      opaqueTriangles * caster.depthFaces + caster.filterDraws;
-    drawCalls += shadowDraws;
-    triangles += shadowTriangles;
-    add(
-      `light:${caster.light}`,
-      `scene.lights["${caster.light}"]`,
-      "shadowMaps",
-      1,
-    );
-    add(
-      `light:${caster.light}`,
-      `scene.lights["${caster.light}"]`,
-      "drawCalls",
-      shadowDraws,
-      "pass",
-    );
-    add(
-      `light:${caster.light}`,
-      `scene.lights["${caster.light}"]`,
-      "triangles",
-      shadowTriangles,
-      "pass",
-    );
-  }
-  // Outline is another complete geometry pass. With no shadow caster it is
-  // the frame-wide peak; with one it ties the beauty shadow pass, and with
-  // several the shadow pass is already the larger conservative bound.
-  if (casters.length === 0) {
-    drawCalls += opaqueDraws;
-    triangles += opaqueTriangles;
-    add(
-      "render-pass:outline",
-      "render.pass.outline",
-      "drawCalls",
-      opaqueDraws,
-      "pass",
-    );
-    add(
-      "render-pass:outline",
-      "render.pass.outline",
-      "triangles",
-      opaqueTriangles,
-      "pass",
-    );
-  }
-  const image: string | null = subject.scene.environment?.image ?? null;
-  if (image !== null) {
-    drawCalls += 1;
-    triangles += 2;
-    add(`texture:${image}`, "scene.environment.image", "drawCalls", 1);
-    add(`texture:${image}`, "scene.environment.image", "triangles", 2);
-  }
+  // --- film stage targets and passes, over the opaque frame -----------------
+  const film: measureAutoMovieRenderFilmStage.IResult =
+    measureAutoMovieRenderFilmStage({
+      subject,
+      ...(props.settings === undefined ? {} : { settings: props.settings }),
+      drawCalls,
+      triangles,
+      casters,
+      add,
+      gaps,
+    });
+
+  // --- lights, shadow maps, outline, feeds and background -------------------
+  const passes: measureRenderPasses.IResult = measureRenderPasses({
+    subject,
+    casters,
+    drawCalls,
+    triangles,
+    add,
+  });
+  const { shadowMaps, feeds }: measureRenderPasses.IResult = passes;
+  drawCalls = passes.drawCalls;
+  triangles = passes.triangles;
 
   const nodes: number =
     subject.scene.nodes.length + (space === null ? 0 : 1) + simulatedNodes;
@@ -539,12 +344,19 @@ export const measureAutoMovieRenderInventory: (
   // that reads complete while missing a fern bed.
   const partial: boolean = unmeasured.length !== 0;
   const totals: IAutoMovieRenderTotals = {
-    triangles: partial ? null : triangles,
+    triangles:
+      partial || film.triangles === null ? null : triangles + film.triangles,
     vertices: partial ? null : vertices,
-    drawCalls,
+    drawCalls: film.drawCalls === null ? null : drawCalls + film.drawCalls,
     materials: materials.size + defaultMaterials,
-    textures: textureAllocations,
-    textureBytes,
+    textures:
+      textureAllocations === null || film.targets === null
+        ? null
+        : textureAllocations + feeds.targets + film.targets,
+    textureBytes:
+      textureBytes === null || film.bytes === null
+        ? null
+        : textureBytes + feeds.bytes + film.bytes,
     geometryBytes: partial ? null : geometryBytes,
     lights: subject.scene.lights.length,
     shadowMaps,
@@ -623,24 +435,3 @@ export const measureAutoMovieRenderInventory: (
     gaps,
   };
 };
-const sumBytes: (
-  textures: readonly IAutoMovieRenderTextureCost[],
-) => number | null = (
-  textures: readonly IAutoMovieRenderTextureCost[],
-): number | null => {
-  let sum: number = 0;
-  for (const texture of textures) {
-    if (texture.bytes === null) return null;
-    sum += texture.bytes;
-    if (!Number.isSafeInteger(sum)) return null;
-  }
-  return sum;
-};
-
-/** A source or generating runtime stays named even when its cost is unknown. */
-const textureDiagnosticName: (
-  texture: IAutoMovieRenderTextureCost,
-) => string | undefined = (
-  texture: IAutoMovieRenderTextureCost,
-): string | undefined =>
-  texture.asset ?? texture.runtimeOwners?.join(", ") ?? texture.variant;

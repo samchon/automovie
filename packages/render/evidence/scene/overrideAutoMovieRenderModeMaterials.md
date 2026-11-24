@@ -2,7 +2,7 @@
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-Collects actual render-mode meshes, records originals and each returned owned override before cycle and dual-quaternion skinning patching, then independently restores all swaps and retires distinct overrides on setup/refinalization failure.
+Collects actual render-mode meshes, skips those an optional `keep` names, so the graphics pass leaves its surface graphics as beauty draws them, hands each factory call the original it replaces (a material or a material group, so a pass such as albedo can read its base colour), records originals and every returned owned override, one per group slot, before cycle and dual-quaternion skinning patching, then independently restores all swaps and retires distinct overrides on setup/refinalization failure.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
@@ -14,7 +14,7 @@ Current factories must return caller-transferred owned overrides, not borrowed s
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-Documentation explains fresh override ownership, original-material restoration, animated-cycle and dual-quaternion skinning inheritance and failure-safe teardown without claiming guide appearance.
+Documentation explains the factory's original-material argument and group result, the kept meshes, fresh override ownership, original-material restoration, animated-cycle and dual-quaternion skinning inheritance and failure-safe teardown without claiming guide appearance.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 

@@ -36,7 +36,7 @@ States which seats each class has.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-Each seat is a cushion whose `seat` affordance sits on its front edge facing forward, laid out from its seating reference point: the front pair's the layout's, the rear bench's `REAR_SGRP` ahead of the rear doors' trailing edge, which lies `REAR_DOOR` behind the front doors, at the front seats' height (a provisional value, see `HIP`); its back turns about the cushion's rear edge with `+Y` along `-X`, so a positive travel tips its top back toward `-Z`, by up to `recline`.
+Each seat is a cushion whose `seat` affordance sits on its front edge facing forward, laid out from its seating reference point: the front pair's the layout's, the rear bench's `REAR_SGRP` ahead of the rear doors' trailing edge, which lies `REAR_DOOR` behind the front doors, at the front seats' height (a provisional value, see `HIP`); its back turns about the cushion's rear edge with `+Y` along `-X`, so a positive travel tips its top back toward `-Z`, by up to `recline`. A back whose `recline` is 0, the band's lower end, has no hinge, since a hinge's travel must be positive.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 

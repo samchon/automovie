@@ -2,28 +2,28 @@
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-Measures the oriented proxy footprint in the room frame. A repeating lattice starts at the minimum XZ edges with one aisle of perimeter inset. Each cell translates a group box so neighboring boxes have the stated aisle width. Only generated items within the cell are checked against its fixed-role boxes and reserved areas. Model rest bounds give the local Y offset for floor contact.
+Measures the oriented rest box of every model in the room frame. Keep-outs are blocked first, overrides of grid roles claimed next, then related pieces resolve with their clearances. A repeating lattice starts at the minimum XZ edges with one aisle of perimeter inset; each cell translates the group box so neighbouring boxes have the stated aisle, and a slot is taken only when every missing member clears every blocked rectangle. Each staged frame lifts the origin to the placement's Y, the underside on the floor unless a wall relation hangs it. Each wall piece's wall becomes a mount: the inner face's room point and inward normal moved into the world by the room frame.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-Places and validates the room layout before calling the common prop adapter. Kit producers supply equipment geometry and relative arrangement. The same fit, identity and staging logic serves both producers.
+Plan geometry lives in `FurnishingRect` and relations in `resolveFurnishingPieces`; this function validates the room, orders the claims, fills the grid and stages every role through the common prop adapter. Kit producers supply models and relations.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
-Grid spacing uses conservative group boxes. The 915 mm default is from the U.S. Access Board's accessible-route width, not a compliance assertion. The 1e-9 m contact tolerance follows the engine's authored prop relations. It does not move explicit overrides or solve continuous actor clearance.
-
-## @evidence contracts/development/implementation.md#efficient-algorithms
-
-Measures each prototype before this call and projects its room-local box once per default orientation. Grid slots are considered at most once. Each considered slot checks the fixed and override count and the named keep-outs. Output work grows with the number of staged items and their affordances.
-
-## @evidence contracts/development/implementation.md#reuse-equivalent-work
-
-Instances share the production's model prototypes, measured bounds and candidate grid arithmetic. Per-occurrence ids, support frames and stage placements are rebuilt from the authoring inputs.
-
-## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
-
-Reservation, prototype and occupancy maps live only for the call. The returned records are bounded by the requested group count, fixed props and model affordances. No external resources are held.
+Grid spacing uses conservative group boxes. The 915 mm default is the U.S. Access Board's accessible-route width, used as a layout default and not a compliance claim. Explicit overrides are never moved, and continuous actor clearance is not solved.
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States frame, floor contact, slot and aisle policy, priority of keep-outs and overrides, errors and emitted records.
+States the claim order, floor seating, slot and aisle policy, overrides, refusals and emitted records including mounts.
+
+## @evidence contracts/development/implementation.md#efficient-algorithms
+
+Each prototype is measured before the call and projected once. Grid slots are considered at most once, each checking the blocked rectangles. Output work grows with the staged roles and their affordances.
+
+## @evidence contracts/development/implementation.md#reuse-equivalent-work
+
+Instances share their model prototypes, measured boxes and one prop adapter per model; per-occurrence ids, frames and mounts are rebuilt from the inputs.
+
+## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
+
+The blocked and placement maps live for the call. The returned records are bounded by the pieces, the requested group count and the model affordances. No external resource is held.

@@ -131,5 +131,18 @@ export const appendCameraIntentArtifact: (
         violations,
         false,
       );
+
+    // The input gate refuses a non-positive or non-finite stop; the artifact
+    // must agree.
+    if (intent.fNumber !== undefined)
+      validateRange(
+        intent.fNumber,
+        `${intentPath}.fNumber`,
+        0,
+        Infinity,
+        "camera intent f-number",
+        violations,
+        false,
+      );
   }
 };

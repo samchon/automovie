@@ -4,10 +4,11 @@ import type {
   IAutoMovieInspectionDiagnostics,
   IAutoMovieSubjectBox,
 } from "@automovie/interface";
-import type { Object3D } from "three";
+import type { Mesh, Object3D } from "three";
 
 import type { IAutoMovieDrawScene } from "../../draw/IAutoMovieDrawScene.js";
 import { listAutoMovieCameraSubjectMeshes } from "./listAutoMovieCameraSubjectMeshes.js";
+import { measureAutoMovieCameraFrameEdge } from "./measureAutoMovieCameraFrameEdge.js";
 import { measureAutoMovieCameraNearClip } from "./measureAutoMovieCameraNearClip.js";
 import { measureAutoMovieCameraOcclusionPixels } from "./measureAutoMovieCameraOcclusionPixels.js";
 import { observeAutoMovieCameraInspection } from "./observeAutoMovieCameraInspection.js";
@@ -38,8 +39,10 @@ const PREVIEW_RAY_TRIANGLE_BUDGET: number = 3_000;
 
 /**
  * Viewer-only cap, per painted frame and shared by its subjects, on drawn
- * triangles the near-plane clip examines. Only meshes whose box reaches in
- * front of the near plane in view pay.
+ * triangles the near-plane clip and then the frame-edge cut examine. Only
+ * meshes whose box reaches in front of the near plane in view pay for the
+ * first, and only subjects whose bounds cross a side of the frame for the
+ * second.
  */
 const PREVIEW_NEAR_CLIP_TRIANGLE_BUDGET: number = 200_000;
 
@@ -82,6 +85,10 @@ const FRAMING_FAILURES: Readonly<
  * camera check without a budget, and they audit authored pixel coverage with
  * the host renderer, so they leave nothing deferred. A check that cannot run on
  * the subject at all is `unsupported` in every host.
+ *
+ * A subject whose bounds cross a side of the frame gets an optional
+ * `camera-frame-edge` check: a cut by the frame edge is often the intended
+ * composition, so it is a `frame-edge-cut` warning that never blocks delivery.
  *
  * @param props The placed sample and the requirements active at its time.
  * @returns Findings and one coverage row per check and requirement.
@@ -150,7 +157,11 @@ export function observeAutoMoviePlacedCamera(props: {
       continue;
     }
     coverage.push({ ...framing, status: "checked" });
-    if (grade !== "possible") {
+    if (
+      grade === "outside" ||
+      grade === "before-near" ||
+      grade === "past-far"
+    ) {
       const failure: { code: string; description: string } =
         FRAMING_FAILURES[grade];
       findings.push({
@@ -178,13 +189,14 @@ export function observeAutoMoviePlacedCamera(props: {
       key: path,
       required: true,
     };
+    const meshes: Mesh[] | undefined =
+      target === undefined || sample.scene.overrideMaterial !== null
+        ? undefined
+        : listAutoMovieCameraSubjectMeshes(target, sample.camera);
     const clip: measureAutoMovieCameraNearClip.IResult =
       measureAutoMovieCameraNearClip({
         camera: sample.camera,
-        meshes:
-          target === undefined || sample.scene.overrideMaterial !== null
-            ? undefined
-            : listAutoMovieCameraSubjectMeshes(target, sample.camera),
+        meshes,
         ...(targetBounds === undefined ? {} : { bounds: targetBounds }),
         triangleBudget: clipTriangles,
       });
@@ -217,6 +229,33 @@ export function observeAutoMoviePlacedCamera(props: {
           ],
         },
       });
+
+    // A frame side may cut a subject still in frame; the surface work shares
+    // the near clip's triangle allowance, so one budget bounds both checks.
+    const edge: IRow = {
+      check: "camera-frame-edge",
+      key: path,
+      required: false,
+    };
+    if (grade === "possible") coverage.push({ ...edge, status: "checked" });
+    else
+      coverage.push(
+        reportFrameEdge(
+          findings,
+          edge,
+          measureAutoMovieCameraFrameEdge({
+            camera: sample.camera,
+            meshes,
+            ...(targetBounds === undefined ? {} : { bounds: targetBounds }),
+            triangleBudget:
+              clip.status === "over-budget"
+                ? 0
+                : clip.status === "unmeasured"
+                  ? clipTriangles
+                  : clipTriangles - clip.triangles,
+          }),
+        ),
+      );
     if (
       maxOcclusionRatio !== undefined &&
       (!Number.isFinite(maxOcclusionRatio) ||
@@ -369,4 +408,89 @@ function reportPixels(
       ],
     },
   });
+}
+
+/**
+ * Report a cut by the frame's sides as a warning and return its coverage row.
+ *
+ * A cut confirmed on an opaque drawn surface is `confirmed`; one seen only on a
+ * transparent surface, or inferred from bounds the surface could not check, is
+ * a `candidate`. A budget stop leaves the row `deferred` and an unreadable
+ * surface leaves it `unsupported`, each with its candidate.
+ */
+function reportFrameEdge(
+  findings: IAutoMovieInspectionDiagnostics.IFinding[],
+  row: IRow,
+  result: measureAutoMovieCameraFrameEdge.IResult,
+): IAutoMovieInspectionDiagnostics.ICoverage {
+  if (result.status === "unmeasured")
+    return { ...row, status: "unsupported", reason: result.reason };
+  if (result.status === "inside" || result.surface.status === "clear")
+    return { ...row, status: "checked" };
+  const { crossings, surface } = result;
+  const extents: number[] = crossings.flatMap(
+    (crossing: measureAutoMovieCameraFrameEdge.ICrossing): number[] =>
+      crossing.extent === undefined ? [] : [crossing.extent],
+  );
+  const sides: string = crossings
+    .map(
+      (crossing: measureAutoMovieCameraFrameEdge.ICrossing): string =>
+        crossing.side,
+    )
+    .join(" ");
+  const confirmed: boolean = surface.status === "cut" && surface.opaque;
+  findings.push({
+    check: row.check,
+    key: row.key,
+    code: "frame-edge-cut",
+    paths: [row.key],
+    category: "warning",
+    confidence: confirmed ? "confirmed" : "candidate",
+    message: `Required subject ${row.key} ${confirmed ? "is" : "may be"} cut by the ${sides.replaceAll(" ", " and ")} ${crossings.length > 1 ? "edges" : "edge"} of the delivery frame.`,
+    witness: {
+      rank: Math.max(...extents),
+      measurements: [
+        { name: "crossed-sides", value: sides, unit: "sides" },
+        ...crossings.flatMap(
+          (
+            crossing: measureAutoMovieCameraFrameEdge.ICrossing,
+          ): IAutoMovieInspectionDiagnostics.IMeasurement[] =>
+            crossing.extent === undefined
+              ? []
+              : [
+                  {
+                    name: `${crossing.side}-edge-extent`,
+                    value: crossing.extent,
+                    unit: "normalized device units",
+                  },
+                ],
+        ),
+        ...(surface.status === "cut"
+          ? [
+              {
+                name: "frame-edge-triangles",
+                value: surface.triangles,
+                unit: "triangles",
+              },
+              ...(surface.fraction === undefined
+                ? []
+                : [
+                    {
+                      name: "visible-fraction-by-projected-surface-area",
+                      value: surface.fraction,
+                      unit: "fraction",
+                    },
+                  ]),
+            ]
+          : []),
+      ],
+    },
+  });
+  return surface.status === "cut"
+    ? { ...row, status: "checked" }
+    : {
+        ...row,
+        status: surface.status === "over-budget" ? "deferred" : "unsupported",
+        reason: surface.reason,
+      };
 }

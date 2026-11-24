@@ -50,35 +50,44 @@ export function createCafeKit(
     const chairBox: IAutoMoviePropBox = furnishRoom.measure(chair);
     return furnishRoom(context, {
       layout: params,
-      count: params.tables,
-      capacity: "tables",
-      prefix: "table",
-      group: [
-        { role: "", model: table, bounds: tableBox, x: 0, z: 0, heading: 0 },
-        {
-          role: "chair-near",
-          model: chair,
-          bounds: chairBox,
-          x: 0,
-          z: tableBox.max.z + chairBox.max.z,
-          heading: 180,
+      pieces: {
+        // The counter centred on the back wall, with an approach as deep as
+        // the aisle and at least as wide across its service side.
+        counter: {
+          model: counter,
+          bounds: counterBox,
+          place: {
+            kind: "wall",
+            wall: "-z",
+            offset:
+              (params.room[0] - (counterBox.max.x - counterBox.min.x)) / 2,
+          },
+          clear: [{ depth: params.aisle ?? furnishRoom.DEFAULT_AISLE }],
         },
-        {
-          role: "chair-far",
-          model: chair,
-          bounds: chairBox,
-          x: 0,
-          z: tableBox.min.z - chairBox.max.z,
-          heading: 0,
-        },
-      ],
-      fixed: {
-        role: "counter",
-        model: counter,
-        bounds: counterBox,
-        x: -(counterBox.min.x + counterBox.max.x) / 2,
-        z: -params.room[1] / 2 - counterBox.min.z,
-        heading: 0,
+      },
+      grid: {
+        count: params.tables,
+        capacity: "tables",
+        prefix: "table",
+        group: [
+          { role: "", model: table, bounds: tableBox, x: 0, z: 0, heading: 0 },
+          {
+            role: "chair-near",
+            model: chair,
+            bounds: chairBox,
+            x: 0,
+            z: tableBox.max.z + chairBox.max.z,
+            heading: 180,
+          },
+          {
+            role: "chair-far",
+            model: chair,
+            bounds: chairBox,
+            x: 0,
+            z: tableBox.min.z - chairBox.max.z,
+            heading: 0,
+          },
+        ],
       },
     });
   };

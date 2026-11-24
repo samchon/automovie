@@ -143,23 +143,36 @@ const hipsX: (
   )!.x;
 
 /**
- * `planPoseKeypointSidecar` (#1168) resolves a live shot and projects supported performing actors' named joints on each output frame. The selected moving actor changes between the two sampled frames, while the still actor stays centered; caption output uses run-length spans.
+ * `planPoseKeypointSidecar` (#1168) resolves a live shot and projects supported
+ * performing actors' named joints on each output frame. The selected moving
+ * actor changes between the two sampled frames, while the still actor stays
+ * centered; caption output uses run-length spans.
  *
  * Scenarios (camera at origin looking down −Z, fovY 60; fps 2, 1 s → 2 frames):
  *
- * 1. A still actor 5 m down −Z yields 2 frames of beat "b1", one actor "hero", hips centered (x = 0.5) on both frames.
- * 2. A travelling actor (root x 0→2) moves between frames: frame 0 centered, frame 1 right of center.
- * 3. `startOffset` delays the clip: with offset 0.5 the travelling actor is still centered on frame 1 (its clip has only just started).
- * 4. A missing scene or camera yields empty actors; a held (null-motion) performance, a missing motion, a missing node, and a missing skeleton are each skipped: never a throw.
+ * 1. A still actor 5 m down −Z yields 2 frames of beat "b1", one actor "hero",
+ *    hips centered (x = 0.5) on both frames.
+ * 2. A travelling actor (root x 0→2) moves between frames: frame 0 centered, frame
+ *    1 right of center.
+ * 3. `startOffset` delays the clip: with offset 0.5 the travelling actor is still
+ *    centered on frame 1 (its clip has only just started).
+ * 4. A missing scene or camera yields empty actors; a held (null-motion)
+ *    performance, a missing motion, a missing node, and a missing skeleton are
+ *    each skipped: never a throw.
  * 5. An unprefixed shot id passes through as the beat id.
  * 6. Serialization is deterministic bytes and round-trips via JSON.parse.
- * 7. Zero/non-finite fps and a zero-frame runtime throw, aligned with the render/caption planners.
+ * 7. Zero/non-finite fps and a zero-frame runtime throw, aligned with the
+ *    render/caption planners.
+ * 8. Through a one-second cross dissolve from shot b1, its actor left of centre,
+ *    to shot b2, its actor right of centre, at 4 fps: before the midpoint the
+ *    frames name b1 and its actor, the outgoing shot the picture shows most of;
+ *    from the midpoint, the tie included, they name b2.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Plans real per-frame keypoints and serialization, checking centered roots, travel, delayed clips, crop inclusion, missing-reference skips and zero-frame refusal.
  * @evidence contracts/development/testing.md#independent-expectations A camera facing -Z and a root on its optical axis give x=0.5; cropping the right half maps that point to zero, while motion and delay supply the hand-derived sample decisions. Vertical crop parity and JSON roundtrip are consistency checks, not independent full FK or perspective oracles.
- * @evidence contracts/development/testing.md#distinguishing-cases Still/moving/delayed actors, exact crop edge, missing scene/camera/node/motion/skeleton, null motion, bare shot id and invalid clocks preserve their branches; no blended-image or occlusion claim is made.
+ * @evidence contracts/development/testing.md#distinguishing-cases Still/moving/delayed actors, exact crop edge, missing scene/camera/node/motion/skeleton, null motion, bare shot id, invalid clocks and both halves of a dissolve preserve their branches; a sidecar that followed the live entry inside the dissolve fails; no blended-image or occlusion claim is made.
  * @evidence contracts/development/testing.md#execution-ownership The exported test_render_pose_keypoint_sidecar owns its cases. Portable timeline, Engine sampling/projection and JSON output through this discoverable unit, without a viewport, image capture or GPU.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 7 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A still actor 5 m down −Z yields 2 frames of beat "b1", one actor "hero", hips centered (x = 0.5) on both frames.).
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 8 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A still actor 5 m down −Z yields 2 frames of beat "b1", one actor "hero", hips centered (x = 0.5) on both frames.).
  */
 export function test_render_pose_keypoint_sidecar(): void {
   // 1. still actor.
@@ -370,5 +383,46 @@ export function test_render_pose_keypoint_sidecar(): void {
         }),
       "at least one frame",
     ),
+  );
+
+  // 8. The shot the picture shows most of, through a cross dissolve.
+  const dissolved: IAutoMoviePoseKeypointSidecar = planPoseKeypointSidecar({
+    sequence: {
+      ...sequence,
+      shots: [
+        { shot: "shot:b1", trim: null, transition: null },
+        {
+          shot: "shot:b2",
+          trim: null,
+          transition: { kind: "crossDissolve", duration: 1 },
+        },
+      ],
+    },
+    shots: [
+      shot({ duration: 2 }),
+      shot({
+        id: "shot:b2",
+        duration: 2,
+        performances: [{ node: "hero", motion: "m2", startOffset: 0 }],
+      }),
+    ],
+    scenes: [scene],
+    motions: [travel(-1, -1), { ...travel(1, 1), id: "m2" }],
+    skeletons: [skeleton],
+    fps: 4,
+  });
+  TestValidator.predicate(
+    "a dissolve's frames name the outgoing shot before the midpoint and the incoming one from it",
+    dissolved.frameCount === 12 &&
+      [3, 4, 5].every(
+        (frame: number): boolean =>
+          dissolved.frames[frame]!.beat === "b1" &&
+          hipsX(dissolved.frames, frame) < 0.5,
+      ) &&
+      [6, 7, 8].every(
+        (frame: number): boolean =>
+          dissolved.frames[frame]!.beat === "b2" &&
+          hipsX(dissolved.frames, frame) > 0.5,
+      ),
   );
 }

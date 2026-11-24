@@ -73,7 +73,9 @@ interface IScreen {
 /**
  * An ATM's 15 in touchscreen, from NCR's guide: its height from the base and
  * depth from the shelf's front, millimetres (pp. 14-15), on the keypad's centre
- * line as drawn.
+ * line as drawn, and its 381 mm diagonal. The depth is the source value of the
+ * screen's recess; the model draws the screen on the cabinet's front face
+ * instead.
  */
 const SCREEN: Readonly<IScreen> = {
   height: 1126,
@@ -85,20 +87,28 @@ const SCREEN: Readonly<IScreen> = {
 interface IEstimates {
   /** The `shelf` entry. */
   shelf: number;
+
+  /** The `aspect` entry. */
+  aspect: number;
 }
 
 /**
- * The construction sizes no source read gives, metres, each an estimate no act
- * reads and no band declares: `shelf`, an ATM shelf's thickness.
+ * The construction values no source read gives, each an estimate no act reads
+ * and no band declares: `shelf`, an ATM shelf's thickness in metres; `aspect`,
+ * the screen's width over its height, 4:3, the shape of a 1024 × 768 panel,
+ * since NCR's guide gives the diagonal and no aspect.
  */
-const ESTIMATES: Readonly<IEstimates> = { shelf: 0.03 };
+const ESTIMATES: Readonly<IEstimates> = { shelf: 0.03, aspect: 4 / 3 };
 
 /**
  * A cash machine with a shelf, keypad button, card, cash and receipt sockets
  * and an exposed touchscreen.
  *
  * The shelf and fascia controls retain their measured NCR installation
- * locations. The cabinet rests on the floor at the origin and faces +Z.
+ * locations. The cabinet rests on the floor at the origin and faces +Z. The
+ * touchscreen keeps its read height and lies on the cabinet's front face, read
+ * with model `+Y` up: the real screen sits recessed behind the fascia, and the
+ * coarse cabinet box has no recess, so the recess is dropped.
  *
  * @param params The scene identifier and any dimensions to fix inside their
  *   bands.
@@ -125,7 +135,8 @@ export function createAtm(
  * height above the key, to the side its clock position names, the key on the
  * centre line. `key5` is the No. 5 key, a button pressed along `-Z`;
  * `cardReader`, `cash` and `receipt` are the slots, sockets whose `+Y` points
- * out of the fascia; `screen` the touchscreen, a surface.
+ * out of the fascia; `screen` the touchscreen, a surface on the cabinet's front
+ * face sized from its diagonal and {@link ESTIMATES}' aspect.
  *
  * @param builder The builder to fill.
  * @param width The fascia's width, metres.
@@ -181,16 +192,19 @@ function fascia(
           },
     );
   }
+  // The diagonal splits by the aspect: width = d·a/√(1+a²), height = d/√(1+a²).
+  const diagonal: number = Math.hypot(ESTIMATES.aspect, 1);
   builder.affordance({
     id: "screen",
     kind: "surface",
     frame: AutoMovieArchetypeFrame.facing(
-      v(0, SCREEN.height * mm, front - SCREEN.depth * mm),
+      v(0, SCREEN.height * mm, depth / 2),
       v(0, 0, 1),
       v(1, 0, 0),
     ),
     extent: null,
-    width: SCREEN.size * mm,
+    width: ((SCREEN.size * ESTIMATES.aspect) / diagonal) * mm,
+    depth: (SCREEN.size / diagonal) * mm,
   });
 }
 

@@ -2,6 +2,7 @@ import type { IAutoMovieStage } from "../authoring/IAutoMovieStage";
 import type { IAutoMovieCamera } from "./IAutoMovieCamera";
 import type { IAutoMovieFog } from "./IAutoMovieFog";
 import type { IAutoMovieLight } from "./IAutoMovieLight";
+import type { IAutoMovieMedium } from "./IAutoMovieMedium";
 import type { IAutoMovieSceneEnvironment } from "./IAutoMovieSceneEnvironment";
 import type { IAutoMovieSceneNode } from "./IAutoMovieSceneNode";
 import type { IAutoMovieSpace } from "./IAutoMovieSpace";
@@ -69,4 +70,15 @@ export interface IAutoMovieScene {
    * channels.
    */
   fog?: IAutoMovieFog | null;
+
+  /**
+   * The scene's physical haze ({@link IAutoMovieMedium}), which dims what lies
+   * behind it and scatters the scene's lights toward the camera. Absent or
+   * `null` means none. A scene carries a fog or a medium, never both; staging
+   * refuses both. `applySceneMedium` attaches it to a built scene, and a
+   * directly rendered film draws it in its linear beauty target, so a draw
+   * scene with a medium must supply `optics`, and `renderAutoMovieScenePass`,
+   * which has no linear target, refuses it.
+   */
+  medium?: IAutoMovieMedium | null;
 }

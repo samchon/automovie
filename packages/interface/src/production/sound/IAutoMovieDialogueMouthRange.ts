@@ -1,13 +1,16 @@
-import type { IAutoMovieProductionViseme } from "../IAutoMovieProductionViseme";
+import type { AutoMovieViseme } from "../AutoMovieViseme";
 
-/** One half-open mouth interval on the film-global emission clock. */
+/**
+ * One phoneme's viseme over a half-open interval on the film-global emission
+ * clock, in frames that may be fractional.
+ */
 export interface IAutoMovieDialogueMouthRange {
-  /** Inclusive film-global emission frame. */
+  /** Inclusive start on the emission clock, in film frames; may be fractional. */
   startFrame: number;
 
-  /** Exclusive film-global emission frame. */
+  /** Exclusive end on the emission clock, in film frames; after `startFrame`. */
   endFrame: number;
 
-  /** Derived mouth preset or explicit rest. */
-  viseme: IAutoMovieProductionViseme["viseme"];
+  /** The phoneme's viseme, or `sil` for a pause between phonemes. */
+  viseme: AutoMovieViseme;
 }

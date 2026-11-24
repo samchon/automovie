@@ -13,14 +13,22 @@ import {
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
+import { filmResponseRendererFields } from "../internal/filmResponseRendererFields";
+
 /**
- * An opted-in subject keeps an inspection that leaves the observed scene unchanged, and restores one that changes it before each observation.
+ * An opted-in subject keeps an inspection that leaves the observed scene
+ * unchanged, and restores one that changes it before each observation.
  *
  * Scenarios:
  *
- * 1. Under the default request, three painted seconds render with one and the same inspection overlay group, so the inspection is applied once, and each observation sees the prop on its own layer.
- * 2. After a request that hides the prop, each of two observations still sees the prop on its own layer, and each painted second renders with a newly applied overlay group with the prop off every layer.
- * 3. Returning to a request that changes nothing applies it once more, then keeps it across the following seconds.
+ * 1. Under the default request, three painted seconds render with one and the same
+ *    inspection overlay group, so the inspection is applied once, and each
+ *    observation sees the prop on its own layer.
+ * 2. After a request that hides the prop, each of two observations still sees the
+ *    prop on its own layer, and each painted second renders with a newly
+ *    applied overlay group with the prop off every layer.
+ * 3. Returning to a request that changes nothing applies it once more, then keeps
+ *    it across the following seconds.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Runs the public mount with a real scene, a recording renderer and an opted-in subject, and reads the scene at the observation and at the render.
  * @evidence contracts/development/testing.md#independent-expectations The prop's own layer mask is three.js's default 1, and `hide` takes it off every layer as the inspection documents.
@@ -69,6 +77,7 @@ export async function test_inspector_scene_reapplication(): Promise<void> {
       frame = undefined;
     },
     createRenderer: (): IAutoMovieInspectorSceneHost.IRenderer => ({
+      ...filmResponseRendererFields(),
       localClippingEnabled: false,
       setPixelRatio: (): void => {},
       setSize: (): void => {},

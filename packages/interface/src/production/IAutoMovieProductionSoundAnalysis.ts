@@ -3,8 +3,11 @@
  * windows observe combined energy rather than isolating individual emitters.
  */
 export interface IAutoMovieProductionSoundAnalysis {
-  /** Analysis schema. */
-  version: 1;
+  /**
+   * Analysis schema; version 2 adds `truePeakDbtp` and counts
+   * `clippingSamples`.
+   */
+  version: 2;
 
   /** Fixed output PCM clock. */
   sampleRate: 48_000;
@@ -15,8 +18,18 @@ export interface IAutoMovieProductionSoundAnalysis {
   /** Runtime derived from the PCM clock. */
   runtimeSeconds: number;
 
-  /** ITU-R BS.1770 K-weighted, gated integrated loudness in LUFS. */
+  /**
+   * ITU-R BS.1770-5 K-weighted, gated integrated loudness in LUFS, measured by
+   * engine's `createAutoMovieLoudnessMeter`; null when no block passes the −70
+   * LUFS absolute gate.
+   */
   integratedLoudness: number | null;
+
+  /**
+   * ITU-R BS.1770-5 Annex 2 true peak from 4× oversampling, in dBTP; null for
+   * digital silence.
+   */
+  truePeakDbtp: number | null;
 
   /** Absolute post-limiter sample peak. */
   samplePeak: number;

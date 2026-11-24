@@ -1,3 +1,5 @@
+import type { IAutoMovieLoudnessIntent } from "../../production/sound/IAutoMovieLoudnessIntent.js";
+
 /** Timing and content evidence from decoding one hashed delivery artifact. */
 export namespace IAutoMovieDeliveryContentAudit {
   /**
@@ -104,6 +106,16 @@ export namespace IAutoMovieDeliveryContentAudit {
          * the observations.
          */
         trailingPadding?: number;
+        /**
+         * Audio only: BS.1770-5 integrated loudness in LUFS and true peak in
+         * dBTP of the presented decoded samples, measured by engine's
+         * `createAutoMovieLoudnessMeter`; each is null when the samples have
+         * none. Absent when the host did not measure it.
+         */
+        loudness?: {
+          integratedLufs: number | null;
+          truePeakDbtp: number | null;
+        };
         observations: readonly IObservation[];
       };
 
@@ -132,6 +144,13 @@ export namespace IAutoMovieDeliveryContentAudit {
     allowances?: readonly IAllowance[];
     /** Detector settings, when the production supplies its own policy. */
     thresholds?: IThresholds;
+    /**
+     * Loudness targets of the soundtrack. The render mixes a sound list to
+     * them, or to EBU R 128 without them, and the delivery audit checks the
+     * decoded delivered audio against the targets the mix applied, or against
+     * these when the production supplies its own soundtrack.
+     */
+    loudness?: IAutoMovieLoudnessIntent;
   }
 
   /** The complete evidence and commissioned presentation for a single audit. */
@@ -154,6 +173,15 @@ export namespace IAutoMovieDeliveryContentAudit {
        */
       contentRequired?: boolean;
       allowances?: readonly IAllowance[];
+      /**
+       * Loudness targets the decoded audio must meet; absent, loudness and true
+       * peak are reported with the stream but not checked. A decoded audio
+       * stream without a `loudness` measurement then blocks.
+       */
+      loudness?: Pick<
+        IAutoMovieLoudnessIntent,
+        "integratedLufs" | "toleranceLu" | "maximumTruePeakDbtp"
+      >;
     };
     /**
      * The detector settings both the delivery and the reference were measured
@@ -207,6 +235,31 @@ export namespace IAutoMovieDeliveryContentAudit {
         blocking: boolean;
         media: Media;
         streamIndex?: number;
+        reason: string;
+      }
+    | {
+        /** Integrated loudness outside the tolerance, or not measured. */
+        kind: "loudness";
+        blocking: true;
+        media: "audio";
+        streamIndex: number;
+        /**
+         * Measured LUFS, or null when no block passed the absolute gate or
+         * nothing was measured.
+         */
+        measuredLufs: number | null;
+        targetLufs: number;
+        toleranceLu: number;
+        reason: string;
+      }
+    | {
+        /** True peak over the maximum. */
+        kind: "true-peak";
+        blocking: true;
+        media: "audio";
+        streamIndex: number;
+        measuredDbtp: number;
+        maximumDbtp: number;
         reason: string;
       };
 

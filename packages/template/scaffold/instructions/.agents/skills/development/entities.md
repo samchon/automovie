@@ -24,6 +24,20 @@ An affordance defines where and how an action meets an object. Pass it to the in
 
 If no archetype exists, build a coarse form with the required affordances, mass and articulations.
 
+### Flames, screens and lettering
+
+<!-- @source `IAutoMovieFlameCue`, `IAutoMovieSurfaceGraphicTrack`, `IAutoMovieSurfaceGraphicLayer` and `IAutoMovieFontSource` in `@automovie/interface`, with `prepareAutoMovieFlames` and `prepareAutoMovieSurfaceGraphics` in `@automovie/render`. -->
+
+Show what a prop declares. At a lit candle's, lantern's, torch's, lighter's or fire ring's flame frame, author a flame cue on the shot and bind it to the practical light that frame motivates. The light then flickers with the flame, and the flame's brightness follows the light's intensity. An unbound flame states its own luminance and colour.
+
+Put pictures and text on a prop's `screen` or `face` surface with a surface-graphics track. Give an emissive screen the luminance of a white pixel in cd/m², and give print `printed` emission so the scene lights it. Show another staged camera's view with a feed layer. A face that is not a rectangle, such as a STOP sign's octagon, declares its `outline`, and every pass clips the graphics to it.
+
+Letter only from a font source the shot lists: a font the production synthesizes in its own code, or a licensed font file it holds as a project asset, recorded under [media records](../production/media-records.md#fonts-and-stills). For raised letters, such as channel letters over a storefront, decode the font in production code and build the lettering mesh as a set piece.
+
+A book's face and a folded sheet carry no graphic, because a surface that rides an articulation is refused.
+
+The film draws only what it mounts. After building a shot's scene, mount its flames with `prepareAutoMovieFlames` and its surface graphics with `prepareAutoMovieSurfaceGraphics`, and call each one's `apply` at the shot-local second in `seek`. A shot with a feed layer also needs the film's `beforeDraw` to call the graphics' `renderFeeds` with the film's `optics` at that second. Without the call the screen shows an empty picture, and without the optics it shows raw scene light. Dispose both with the film.
+
 ### Everything else
 
 Identify other subjects with the simplest [coarse form](../3d-modeling/coarse-forms.md).

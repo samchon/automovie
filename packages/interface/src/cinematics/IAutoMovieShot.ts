@@ -1,12 +1,15 @@
 import type { IAutoMovieClip } from "../core/IAutoMovieClip";
 import type { IAutoMovieCameraClearanceReport } from "../scene/IAutoMovieCameraClearanceReport";
+import type { IAutoMovieFontSource } from "../typography/IAutoMovieFontSource";
 import type { IAutoMovieCameraIntent } from "./IAutoMovieCameraIntent";
 import type { IAutoMovieEditorialMarker } from "./IAutoMovieEditorialMarker";
+import type { IAutoMovieFlameCue } from "./IAutoMovieFlameCue";
 import type { IAutoMovieInteractionEvent } from "./IAutoMovieInteractionEvent";
 import type { IAutoMoviePolygonBodyCue } from "./IAutoMoviePolygonBodyCue";
 import type { IAutoMoviePracticalSurfaceTrack } from "./IAutoMoviePracticalSurfaceTrack";
 import type { IAutoMovieShotCoverage } from "./IAutoMovieShotCoverage";
 import type { IAutoMovieShotPerformance } from "./IAutoMovieShotPerformance";
+import type { IAutoMovieSurfaceGraphicTrack } from "./IAutoMovieSurfaceGraphicTrack";
 
 /**
  * A shot: one continuous take (a scene, the camera that frames it, the camera's
@@ -74,6 +77,26 @@ export interface IAutoMovieShot {
    * part. Omission or an empty list leaves the staged appearance in force.
    */
   practicalSurfaces?: readonly IAutoMoviePracticalSurfaceTrack[];
+
+  /**
+   * Pictures shown on `surface` affordances of placed props. At most one per
+   * node and surface. Omission or an empty list shows no surface graphic.
+   */
+  surfaceGraphics?: readonly IAutoMovieSurfaceGraphicTrack[];
+
+  /**
+   * Flames burning at placed props' flame frames, unique by id. A flame bound
+   * to a practical light flickers that light's intensity track in
+   * `lightMotions`. Omission or an empty list draws no flame.
+   */
+  flames?: readonly IAutoMovieFlameCue[];
+
+  /**
+   * Font sources the surface graphics' text layers name, unique by id. `render`
+   * decodes every listed source before it draws a frame of the shot and refuses
+   * the shot when one fails. Omitted when no layer letters text.
+   */
+  fonts?: readonly IAutoMovieFontSource[];
 
   /**
    * Polygon body changes in source-shot time. Each subject and bone pair may

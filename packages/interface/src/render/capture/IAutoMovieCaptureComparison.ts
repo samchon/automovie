@@ -1,9 +1,10 @@
 import type { IAutoMovieCaptureCellComparison } from "./IAutoMovieCaptureCellComparison.js";
+import type { IAutoMovieCaptureFindingDiff } from "./IAutoMovieCaptureFindingDiff.js";
 
 /**
- * How one capture compared against an earlier round, cell by cell, as
- * `compareAutoMovieCaptureRounds` writes it to `comparison.json` and the record
- * keeps it.
+ * How one capture compared against an earlier round, cell by cell and finding
+ * by finding, as `compareAutoMovieCaptureRounds` writes it to `comparison.json`
+ * and the record keeps it.
  *
  * `.agents/skills/visual-debugging/comparison.md` pairs two cells only when
  * everything but the compared thing agrees, and reports a cell one capture
@@ -35,4 +36,11 @@ export interface IAutoMovieCaptureComparison {
    * the earlier still, this capture's still and their difference.
    */
   sheets: string[];
+
+  /**
+   * This round's inspection findings against the earlier round's, with the
+   * round outcome its errors decide. Pixel defects only the stills show stay
+   * with the cell entries and a person.
+   */
+  findings: IAutoMovieCaptureFindingDiff;
 }

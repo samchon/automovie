@@ -8,8 +8,10 @@ import {
 } from "../core";
 import { CAR_BANDS } from "./CAR_BANDS";
 import { CAR_MODELS } from "./CAR_MODELS";
+import type { CarAffordance } from "./CarAffordance";
 import { CarBody } from "./CarBody";
 import { CarCabin } from "./CarCabin";
+import type { CarDimension } from "./CarDimension";
 import { CarRear } from "./CarRear";
 
 /**
@@ -333,154 +335,16 @@ export namespace createCar {
   }
 
   /**
-   * The affordance ids; a class lacks the ids of the parts it does not have:
-   *
-   * - `driverDoor`, `passengerDoor`, and on a sedan, a hatchback and a pickup
-   *   `rearLeftDoor`, `rearRightDoor`: the side doors' hinges at their front
-   *   edges; a positive travel swings a door outward.
-   * - `driverDoorHandle`, `passengerDoorHandle`, `rearLeftDoorHandle`,
-   *   `rearRightDoorHandle`: the outside handles, each riding its door.
-   * - `driverAperture`, `passengerAperture`, `rearLeftAperture`,
-   *   `rearRightAperture`: the door openings, passed through into the car.
-   * - `driverWindow`, `passengerWindow`, `rearLeftWindow`, `rearRightWindow`:
-   *   each door's glass, sliding down into it, riding the door; and
-   *   `driverWindowOpening` and the rest, the opening above the glass, its
-   *   threshold riding the glass's top edge, clear to `height` with the glass
-   *   fully down.
-   * - `driverSeat`, `passengerSeat`, and except in a van `rearSeat`: the seats,
-   *   facing forward; `driverSeatBack` and the rest, each back's reclining
-   *   hinge, a positive travel tipping it back.
-   * - `wheel`: the steering wheel, its axis toward the driver; its travel is half
-   *   the lock-to-lock turn to either side, positive to the left.
-   * - `frontLeftWheel`, `frontRightWheel`: the front road wheels' steering, each
-   *   about the upright through its centre, positive to the left, following
-   *   `wheel` by its Ackermann angle (`ackermann`), so the inner wheel of a
-   *   turn steers more than the outer; a `wheel` articulation because a road
-   *   wheel steers to either side of straight, which a `knob`'s range from 0
-   *   does not allow.
-   * - `frontLeftSpin`, `frontRightSpin`, `rearLeftSpin`, `rearRightSpin`: each
-   *   road wheel's roll about its axle, a positive travel rolling it forward,
-   *   the front pair riding their steering.
-   * - `rightSteeringGrip`: the steering wheel's right rim, carried by the wheel's
-   *   turn.
-   * - `driverLeftRest`, `passengerLeftRest`, `passengerRightRest`: named sole
-   *   contact points on the front cabin floor.
-   * - `accelerator`: the accelerator pedal under the driver's right foot.
-   * - `bonnet`: the bonnet's hinge at its rear edge; a positive travel lifts its
-   *   front.
-   * - `boot`, `load`: a sedan's boot lid or a hatchback's tailgate, a positive
-   *   travel lifting it, and the boot's floor.
-   * - `slidingDoor`, `slidingAperture`, `cargo`: a van's sliding side door on the
-   *   kerb side, running back along `+X` of its frame, the opening it clears,
-   *   and the cargo floor.
-   * - `tailgate`, `bed`: a pickup's tailgate, a positive travel lowering it, and
-   *   the bed's floor.
+   * The affordance ids, door hinges to cargo floors; a class lacks the ids of
+   * the parts it does not have ({@link CarAffordance}).
    */
-  export type Affordance =
-    | "driverDoor"
-    | "passengerDoor"
-    | "rearLeftDoor"
-    | "rearRightDoor"
-    | "driverDoorHandle"
-    | "passengerDoorHandle"
-    | "rearLeftDoorHandle"
-    | "rearRightDoorHandle"
-    | "driverAperture"
-    | "passengerAperture"
-    | "rearLeftAperture"
-    | "rearRightAperture"
-    | "driverWindow"
-    | "passengerWindow"
-    | "rearLeftWindow"
-    | "rearRightWindow"
-    | "driverWindowOpening"
-    | "passengerWindowOpening"
-    | "rearLeftWindowOpening"
-    | "rearRightWindowOpening"
-    | "driverSeat"
-    | "passengerSeat"
-    | "rearSeat"
-    | "driverSeatBack"
-    | "passengerSeatBack"
-    | "rearSeatBack"
-    | "wheel"
-    | "frontLeftWheel"
-    | "frontRightWheel"
-    | "frontLeftSpin"
-    | "frontRightSpin"
-    | "rearLeftSpin"
-    | "rearRightSpin"
-    | "rightSteeringGrip"
-    | "driverLeftRest"
-    | "passengerLeftRest"
-    | "passengerRightRest"
-    | "accelerator"
-    | "bonnet"
-    | "boot"
-    | "load"
-    | "slidingDoor"
-    | "slidingAperture"
-    | "cargo"
-    | "tailgate"
-    | "bed";
+  export type Affordance = CarAffordance;
 
   /**
    * The free dimensions, metres unless stated; a class lacks those of the parts
-   * it does not have:
-   *
-   * - `length`, `width`, `height`, `wheelbase`: the car's overall sizes.
-   * - `wheelDiameter`: a road wheel with its tyre.
-   * - `seatHeight`: the seating reference point above the heel's rest, SAE
-   *   J1100's H30.
-   * - `steeringDiameter`: the steering wheel's rim.
-   * - `steeringAngle`: the steering wheel's plane from upright, degrees.
-   * - `steeringRatio`: steering wheel turn over road wheel turn, a ratio.
-   * - `lockTurns`: steering wheel turns from lock to lock, a count.
-   * - `doorSwing`: a side door's widest opening, degrees.
-   * - `pedalTravel`: how far a pedal is pressed.
-   * - `bonnetSwing`: the bonnet's widest opening, degrees.
-   * - `recline`: how far a seat back reclines from its upright setting, degrees.
-   * - `bootSwing`: a boot lid's or tailgate's widest opening, degrees; a sedan
-   *   and a hatchback.
-   * - `sideDoorWidth`, `sideDoorHeight`: a van's sliding door opening;
-   *   `sideStep`: the step at it, the van's cabin floor; `cargoFloor`: the
-   *   cargo floor's height; `loadLength`: the cargo floor's length to the
-   *   bulkhead.
-   * - `bedLength`, `bedWidth`, `bedDepth`, `bedFloor`: a pickup bed's floor
-   *   length, inside width and depth, and its floor's height; its rail, at the
-   *   floor's height plus its depth, is the pickup's belt line.
-   * - `frontOverhang`: the front of the car to the front wheels' centre, where a
-   *   model's source gives it; otherwise the layout takes the measured sedan's
-   *   share (`OVERHANG`).
-   * - `mass`: kerb mass, kilograms.
+   * it does not have ({@link CarDimension}).
    */
-  export type Dimension =
-    | "length"
-    | "width"
-    | "height"
-    | "wheelbase"
-    | "wheelDiameter"
-    | "seatHeight"
-    | "steeringDiameter"
-    | "steeringAngle"
-    | "steeringRatio"
-    | "lockTurns"
-    | "doorSwing"
-    | "pedalTravel"
-    | "bonnetSwing"
-    | "recline"
-    | "bootSwing"
-    | "sideDoorWidth"
-    | "sideDoorHeight"
-    | "sideStep"
-    | "cargoFloor"
-    | "loadLength"
-    | "bedLength"
-    | "bedWidth"
-    | "bedDepth"
-    | "bedFloor"
-    | "frontOverhang"
-    | "mass";
+  export type Dimension = CarDimension;
 
   /** Each dimension's unit, which its band and any model's figure for it share. */
   export const UNITS: Readonly<

@@ -6,7 +6,7 @@ import type { AutoMovieGuidePass } from "@automovie/interface";
  *
  * The `interface` package holds only types, so the value list lives here.
  *
- * The six lowercase names enumerate the current closed guide-pass union in
+ * The eight lowercase names enumerate the current closed guide-pass union in
  * deterministic declaration order; the readonly element type rejects a value
  * outside that union. This registry supplies pass admission and default capture
  * ordering without putting runtime values in the pure-type interface, and names
@@ -14,7 +14,7 @@ import type { AutoMovieGuidePass } from "@automovie/interface";
  *
  * The fixed registry chooses no processing algorithm. Pass validators and
  * output planners share this module-owned array for the process lifetime; it
- * retains six names without a renderer or captured frame.
+ * retains eight names without a renderer or captured frame.
  */
 export const AUTOMOVIE_GUIDE_PASSES: readonly AutoMovieGuidePass[] = [
   "beauty",
@@ -23,4 +23,6 @@ export const AUTOMOVIE_GUIDE_PASSES: readonly AutoMovieGuidePass[] = [
   "normal",
   "outline",
   "pose",
+  "albedo",
+  "graphics",
 ];

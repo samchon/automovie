@@ -7,3 +7,4 @@ export * from "./isAutoMovieExternalModelIngestProfile";
 export * from "./inspectAutoMovieExternalModelBytes";
 export * from "./adoptAutoMovieExternalMotion";
 export * from "./decodeAutoMoviePpmImage";
+export * from "./font";
