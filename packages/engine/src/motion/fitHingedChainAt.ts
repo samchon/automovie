@@ -5,15 +5,19 @@ import type {
   IAutoMovieJointAxes,
   IAutoMovieJointPose,
   IAutoMovieQuaternion,
+  IAutoMovieResolvedJointAngles,
+  IAutoMovieRestFrame,
   IAutoMovieSeededChainFit,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { alternateRigJointAngles } from "../kinematics/alternateRigJointAngles";
 import { decomposeJointRotationOnBasis } from "../kinematics/decomposeJointRotationOnBasis";
 import { hingedArmSwivel } from "../kinematics/hingedArmSwivel";
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { getConstraint } from "../rom/getConstraint";
+import { toClinicalAngle } from "../rom/toClinicalAngle";
 import { basisOf } from "./basisOf";
 import { orientChainEffector } from "./orientChainEffector";
 import { prepareHingedChainAt } from "./prepareHingedChainAt";
@@ -158,7 +162,7 @@ function freeEffector(
   props: IAutoMovieFitChainToTargetProps,
   at: prepareHingedChainAt.IPrepared,
   posed: ReturnType<ReturnType<typeof hingedArmSwivel.pose>>,
-): IAutoMovieJointPose | null {
+): IEffector | null {
   if (props.effectorRotation === undefined) return null;
   const effector: IAutoMovieFitChainToTargetProps["chain"]["effector"] =
     props.chain.effector;
@@ -182,17 +186,70 @@ function freeEffector(
     (b: IAutoMovieBone): boolean => b.bone === effector,
   );
   return {
-    bone: effector,
-    ...decomposeJointRotationOnBasis(
-      local,
-      basis,
-      props.restFrames?.[effector],
-      {
-        bone: effector,
-        constraint: getConstraint(effector, bone?.constraint ?? null),
-      },
-    ),
+    pose: {
+      bone: effector,
+      ...decomposeJointRotationOnBasis(
+        local,
+        basis,
+        props.restFrames?.[effector],
+        {
+          bone: effector,
+          constraint: getConstraint(effector, bone?.constraint ?? null),
+        },
+      ),
+    },
+    charts: charts(effector, local, basis, props.restFrames?.[effector]),
   };
+}
+
+/** The end joint's angles and both their Euler charts. */
+interface IEffector {
+  /** The reading the end joint's domain chooses. */
+  pose: IAutoMovieJointPose;
+
+  /** The principal and the alternate chart. */
+  charts: fitHingedChainAt.Charts;
+}
+
+/**
+ * A joint rotation's two Euler readings, clinical degrees: the principal chart
+ * and the other triple that composes to the same rotation
+ * (`alternateRigJointAngles`), each lifted through the joint's rest frame as
+ * the decomposition lifts its own (`toClinicalAngle`). These are the two
+ * families of solutions Tolani, Goswami and Badler 2000 (section 3.3) find for
+ * the root's and the end joint's angles.
+ */
+function charts(
+  bone: IAutoMovieJointPose["bone"],
+  q: IAutoMovieQuaternion,
+  basis: IAutoMovieJointAxes,
+  frame: IAutoMovieRestFrame | undefined,
+): fitHingedChainAt.Charts {
+  const rig: IAutoMovieResolvedJointAngles = decomposeJointRotationOnBasis(
+    q,
+    basis,
+  );
+  // Right-handedness of the basis, as the decomposition reads it.
+  const handed: 1 | -1 =
+    Vector3.dot(basis.twist, Vector3.cross(basis.flexion, basis.abduction)) >= 0
+      ? 1
+      : -1;
+  const other: IAutoMovieResolvedJointAngles = alternateRigJointAngles(
+    rig,
+    basis.rotationOrder === "flexion-abduction-twist"
+      ? undefined
+      : basis.twistPlacement,
+    handed,
+  );
+  function lifted(angles: IAutoMovieResolvedJointAngles): IAutoMovieJointPose {
+    return {
+      bone,
+      flexion: toClinicalAngle(angles.flexion, frame?.flexion),
+      abduction: toClinicalAngle(angles.abduction, frame?.abduction),
+      twist: toClinicalAngle(angles.twist, frame?.twist),
+    };
+  }
+  return [lifted(rig), lifted(other)];
 }
 
 /** Companion types of `fitHingedChainAt`. */
@@ -252,7 +309,21 @@ export namespace fitHingedChainAt {
       hingedArmSwivel.pose(at.chain, at.branches[index]!.theta)(swivel);
     const [upper, lower]: readonly [IAutoMovieJointPose, IAutoMovieJointPose] =
       decomposed(props, at, posed);
-    return { upper, lower, effector: freeEffector(props, at, posed) };
+    const effector: IEffector | null = freeEffector(props, at, posed);
+    return {
+      upper,
+      lower,
+      effector: effector?.pose ?? null,
+      charts: {
+        upper: charts(
+          props.chain.upper,
+          posed.upper,
+          at.upperBasis,
+          props.restFrames?.[props.chain.upper],
+        ),
+        effector: effector?.charts ?? null,
+      },
+    };
   }
 
   /**
@@ -274,5 +345,25 @@ export namespace fitHingedChainAt {
      * distally; null without a requested effector rotation.
      */
     effector: IAutoMovieJointPose | null;
+
+    /**
+     * Both Euler charts of the root and the end joint (Tolani, Goswami and
+     * Badler 2000, section 3.3: two families of solutions for each, so four
+     * combinations), each read without a range: the principal and the
+     * alternate, in that order.
+     */
+    charts: ICharts;
+  }
+
+  /** A joint's two Euler readings: the principal chart, then the alternate. */
+  export type Charts = readonly [IAutoMovieJointPose, IAutoMovieJointPose];
+
+  /** The root's and the end joint's two Euler readings. */
+  export interface ICharts {
+    /** The root joint's (theta_1 to theta_3). */
+    upper: Charts;
+
+    /** The end joint's (theta_5 to theta_7); null without an effector rotation. */
+    effector: Charts | null;
   }
 }

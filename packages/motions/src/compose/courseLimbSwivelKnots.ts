@@ -3,6 +3,8 @@ import type {
   IAutoMovieSwivelSeed,
 } from "@automovie/interface";
 
+import { HumanMinimumJerkSpline } from "../posture/HumanMinimumJerkSpline";
+
 /**
  * The knots of a swivel course (`courseLimbSwivels.swivels`): the limbs'
  * swivels and branches fitted at its seconds and the seeds a second between two
@@ -32,57 +34,158 @@ export namespace courseLimbSwivelKnots {
   }
 
   /**
+   * One limb's swivel, and forearm twist where every knot of its run gives one,
+   * at a knot of the minimum-jerk path through its run of knots: the unwrapped
+   * values and their velocities and accelerations.
+   */
+  export interface IRate {
+    /** The swivel, unwrapped along the run, then the twist where given, degrees. */
+    values: readonly number[];
+
+    /** Their velocities, degrees per second. */
+    velocities: readonly number[];
+
+    /** Their accelerations, degrees per second squared. */
+    accelerations: readonly number[];
+  }
+
+  /** Each limb's rate at one knot; absent where the limb has no run there. */
+  export type Rates = ReadonlyMap<AutoMovieHumanLimb, IRate>;
+
+  /**
+   * Each knot's limb rates on the minimum-jerk path through the knots (Flash
+   * and Hogan 1985, J Neurosci 5:1688, `HumanMinimumJerkSpline`): for each
+   * limb, every run of consecutive knots that fit it on one branch is one path,
+   * a quintic between each two knots whose position, velocity and acceleration
+   * (and jerk and snap) carry across each interior knot, at rest at the run's
+   * two ends, the model's boundary conditions. The swivel is unwrapped along
+   * the run, each step its shortest turn; the forearm's twist is a second
+   * coordinate of a run whose every knot gives one. Prepared once over all the
+   * knots.
+   *
+   * @param knots The knots, in order.
+   * @param limbs The coursed limbs.
+   * @returns Each knot's rates, in the knots' order.
+   */
+  export function rates(
+    knots: readonly ISwivelKnot[],
+    limbs: readonly AutoMovieHumanLimb[],
+  ): Rates[] {
+    const out: Map<AutoMovieHumanLimb, IRate>[] = knots.map(
+      (): Map<AutoMovieHumanLimb, IRate> => new Map(),
+    );
+    for (const limb of limbs) {
+      let first: number = 0;
+      while (first < knots.length) {
+        const start: IAutoMovieSwivelSeed | undefined =
+          knots[first]!.seeds.get(limb);
+        if (start === undefined) {
+          ++first;
+          continue;
+        }
+        // The run: the knots after `first` that fit the limb on its branch.
+        let last: number = first;
+        while (last + 1 < knots.length) {
+          const next: IAutoMovieSwivelSeed | undefined =
+            knots[last + 1]!.seeds.get(limb);
+          if (next === undefined || next.branch !== start.branch) break;
+          ++last;
+        }
+        const run: readonly ISwivelKnot[] = knots.slice(first, last + 1);
+        const twisted: boolean = run.every(
+          (k: ISwivelKnot): boolean => k.seeds.get(limb)!.twist !== undefined,
+        );
+        const values: number[][] = [];
+        for (const k of run) {
+          const seed: IAutoMovieSwivelSeed = k.seeds.get(limb)!;
+          const before: number[] | undefined = values.at(-1);
+          const turn: number =
+            before === undefined ? 0 : seed.swivel - before[0]!;
+          const swivel: number =
+            before === undefined
+              ? seed.swivel
+              : before[0]! + turn - 360 * Math.round(turn / 360);
+          values.push(twisted ? [swivel, seed.twist!] : [swivel]);
+        }
+        const derived: HumanMinimumJerkSpline.IDerivatives =
+          HumanMinimumJerkSpline.derivatives(
+            run.map((k: ISwivelKnot): number => k.seconds),
+            values,
+          );
+        values.forEach((value: number[], i: number): void => {
+          out[first + i]!.set(limb, {
+            values: value,
+            velocities: derived.velocities[i]!,
+            accelerations: derived.accelerations[i]!,
+          });
+        });
+        first = last + 1;
+      }
+    }
+    return out;
+  }
+
+  /**
    * The seeds a second between two knots takes: each limb both knots fit on one
-   * branch at its shortest-turn interpolation of their swivels, the forearm's
-   * twist carried between them too; a limb whose branch changes or whose goal
-   * ends inside the interval at the earlier knot's seed; and a limb whose goal
-   * begins inside it (the plan writes it none at the earlier knot) at the later
-   * knot's, the arm its goal starts from there.
+   * branch on the minimum-jerk path through its run (`rates`), the quintic
+   * Hermite of the two knots' values, velocities and accelerations
+   * (`HumanMinimumJerkSpline.quintic`), so the course's value, velocity and
+   * acceleration at a knot equal its limits from either side; a limb whose
+   * branch changes or whose goal ends inside the interval at the earlier knot's
+   * seed; and a limb whose goal begins inside it (the plan writes it none at
+   * the earlier knot) at the later knot's, the arm its goal starts from there.
    *
    * @param seconds The second, from the plan's start.
    * @param a The earlier knot.
    * @param b The later knot.
+   * @param from The earlier knot's rates.
+   * @param to The later knot's rates.
    * @returns Each limb's seed at the second.
    */
   export function between(
     seconds: number,
     a: ISwivelKnot,
     b: ISwivelKnot,
+    from: Rates,
+    to: Rates,
   ): ReadonlyMap<AutoMovieHumanLimb, IAutoMovieSwivelSeed> {
+    const h: number = b.seconds - a.seconds;
     const share: number =
-      b.seconds > a.seconds
-        ? Math.min(
-            1,
-            Math.max(0, (seconds - a.seconds) / (b.seconds - a.seconds)),
-          )
-        : 0;
+      h > 0 ? Math.min(1, Math.max(0, (seconds - a.seconds) / h)) : 0;
     const out: Map<AutoMovieHumanLimb, IAutoMovieSwivelSeed> = new Map();
-    for (const [limb, from] of a.seeds) {
-      const to: IAutoMovieSwivelSeed | undefined = b.seeds.get(limb);
-      if (to === undefined || to.branch !== from.branch) {
-        out.set(limb, from);
+    for (const [limb, seed] of a.seeds) {
+      const next: IAutoMovieSwivelSeed | undefined = b.seeds.get(limb);
+      const p: IRate | undefined = from.get(limb);
+      const q: IRate | undefined = to.get(limb);
+      if (
+        next === undefined ||
+        next.branch !== seed.branch ||
+        p === undefined ||
+        q === undefined
+      ) {
+        out.set(limb, seed);
         continue;
       }
-      const turn: number = to.swivel - from.swivel;
-      const unwrapped: number = turn - 360 * Math.round(turn / 360);
-      // The forearm's twist is carried between the knots too, so the
-      // placement between them continues it (`IAutoMovieSwivelSeed.twist`).
-      const twist: number | undefined =
-        from.twist === undefined
-          ? undefined
-          : to.twist === undefined
-            ? from.twist
-            : from.twist + (to.twist - from.twist) * share;
+      const at: number[] = HumanMinimumJerkSpline.quintic(
+        p.values,
+        q.values,
+        p.velocities,
+        q.velocities,
+        p.accelerations,
+        q.accelerations,
+        h,
+        share,
+      );
       out.set(limb, {
-        swivel: from.swivel + unwrapped * share,
-        branch: from.branch,
-        ...(twist === undefined ? {} : { twist }),
+        swivel: at[0]!,
+        branch: seed.branch,
+        ...(at.length > 1 ? { twist: at[1]! } : {}),
       });
     }
     // A limb whose goal begins inside the interval takes the later knot's
     // placement.
-    for (const [limb, to] of b.seeds)
-      if (!out.has(limb) && a.held?.has(limb) === false) out.set(limb, to);
+    for (const [limb, next] of b.seeds)
+      if (!out.has(limb) && a.held?.has(limb) === false) out.set(limb, next);
     return out;
   }
 }

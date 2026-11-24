@@ -3,6 +3,7 @@ import type {
   AutoMovieHumanDigit,
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
+  IAutoMovieAffordance,
   IAutoMovieHumanDigitGoal,
   IAutoMovieHumanEffectorPointLimit,
   IAutoMovieHumanLimbGoal,
@@ -15,6 +16,7 @@ import type {
   IAutoMovieMotionHumanHeldWork,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanPrimitive,
+  IAutoMovieMotionHumanPropReader,
   IAutoMovieMotionPropDrive,
   IAutoMovieMotionPropHold,
   IAutoMovieQuaternion,
@@ -70,13 +72,18 @@ const LEVEL: number = 10;
  * place (as `putDown` places a prop). The hand reaches the place in the
  * transport movement time over its travel (`AutoMovieMotionHumanTiming`) and
  * stays there, so the hold that persists afterwards carries the prop with the
- * trunk through a walk. The drives run over the work's `seconds` after the
- * transport, each from the performance's travel at the start. Events: the
- * clock's `strokeStart` and `strokeEnd`.
+ * trunk through a walk. A take with no place is reached the same way: the wrist
+ * first carries the held prop's take socket onto the prop it takes, the hand
+ * keeping its attitude, as a reach to grasp transports the grasping point to
+ * the object before the grip closes on it (Jeannerod 1984, J Mot Behav 16:235,
+ * the transport and grasp components). The drives run over the work's `seconds`
+ * after the transport, each from the performance's travel at the start. Events:
+ * the clock's `strokeStart` and `strokeEnd`.
  *
  * Refusals: a work that neither drives, moves nor takes; a hand that does not
- * hold the prop; a place beyond the arm; an articulation the prop does not
- * declare or a travel outside its range; a socket the prop lacks.
+ * hold the prop; a place, or a prop to take, beyond the arm; an articulation
+ * the prop does not declare or a travel outside its range; a socket the prop
+ * lacks.
  */
 export const workHeld: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanHeldWork.IParams> =
   {
@@ -147,7 +154,11 @@ function plan(
       fix: "carry the prop to its place first, then push",
     });
   const goal: IGoal | undefined =
-    p.at === undefined ? undefined : place(context, p.prop, side, p.at);
+    p.at !== undefined
+      ? place(context, p.prop, side, p.at)
+      : p.take !== undefined
+        ? taking(context, p.prop, side, p.take)
+        : undefined;
   const push: workHeldPush.IPush | undefined =
     p.push === undefined
       ? undefined
@@ -239,10 +250,8 @@ function place(
     { x: side === "left" ? at.out : -at.out, y: at.up, z: at.forward },
   );
   const bone: AutoMovieHumanoidBone = `${side}Hand`;
-  const hand: IAutoMovieResolvedBone = poseBones(
-    context.body,
-    context.entry.pose,
-  ).get(bone)!;
+  const hand: IAutoMovieResolvedBone = poseBones(context.body, context.entry.pose)
+    .get(bone)!;
   const prop: IAutoMovieRigidTransform = context
     .prop(subject)
     .frame(context.entry.seconds);
@@ -332,8 +341,71 @@ function place(
   };
 }
 
-/** The holding arm carried to the place and kept there. */
-function arm(
+/**
+ * The wrist that brings the held prop's take socket onto the prop it takes, the
+ * hand keeping its attitude: the transport component of a reach to grasp, which
+ * carries the grasping point to the object before the grip closes on it
+ * (Jeannerod 1984, "The timing of natural prehension movements", J Mot Behav
+ * 16:235), the grasping point here the held prop's socket, which rides the
+ * wrist rigidly (`writeWith`: the wrist goal is the point less the lever).
+ * Refused where the socket is not on the held prop or the wrist lies beyond the
+ * arm.
+ */
+function taking(
+  context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanHeldWork.IParams>,
+  subject: string,
+  side: AutoMovieHumanSide,
+  take: IAutoMovieMotionHumanHeldWork.IMount,
+): IGoal {
+  const reader: IAutoMovieMotionHumanPropReader = context.prop(subject);
+  const socket: IAutoMovieAffordance | undefined =
+    reader.prop.affordances?.find(
+      (a: IAutoMovieAffordance): boolean => a.id === take.point,
+    );
+  if (socket === undefined)
+    throw new HumanRefusal({
+      kind: "affordance",
+      axis: "point",
+      value: take.point,
+      feasible: {
+        kind: "alternatives",
+        values: (reader.prop.affordances ?? []).map(
+          (a: IAutoMovieAffordance): string => a.id,
+        ),
+      },
+      reason: `${subject} has no contact called ${take.point}`,
+      fix: "name a contact the receiving prop declares",
+    });
+  const hand: IAutoMovieResolvedBone = poseBones(context.body, context.entry.pose)
+    .get(`${side}Hand`)!;
+  const frame: IAutoMovieRigidTransform = reader.frame(context.entry.seconds);
+  const point: IAutoMovieVector3 = Vector3.add(
+    frame.position,
+    Quaternion.rotateVector(frame.rotation, socket.frame.translation),
+  );
+  const rotation: IAutoMovieQuaternion = hand.worldRotation;
+  const contact: IAutoMovieVector3 = Quaternion.rotateVector(
+    Quaternion.inverse(rotation),
+    Vector3.subtract(point, hand.worldPosition),
+  );
+  const target: IAutoMovieVector3 = context
+    .prop(take.prop)
+    .frame(context.entry.seconds).position;
+  const wrist: IAutoMovieVector3 = Vector3.subtract(
+    target,
+    Quaternion.rotateVector(rotation, contact),
+  );
+  writeWith.reach(context, side, [wrist], { x: 0, y: 0, z: 0 });
+  return {
+    wrist,
+    rotation,
+    contact,
+    limits: [],
+    travel: Vector3.length(Vector3.subtract(wrist, hand.worldPosition)),
+  };
+}
+
+/** The holding arm carried to the place and kept there. */ function arm(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanHeldWork.IParams>,
   side: AutoMovieHumanSide,
   clock: IAutoMovieMotionClock,

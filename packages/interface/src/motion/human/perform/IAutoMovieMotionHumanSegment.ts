@@ -262,24 +262,35 @@ export namespace IAutoMovieMotionHumanSegment {
      */
     riding?: boolean;
 
-    /** The holding arm relative to the chest, captured when the carry starts. */
+    /** The holding arm in its frame, captured when the carry starts. */
     carry?: IAutoMovieMotionHumanSegment.ICarry;
   }
 
+  /** The bone a carried hold's hand is held in the frame of (`ICarry.frame`). */
+  export type CarryFrame = AutoMovieHumanoidBone;
+
   /**
    * A holding arm as its action left it, which the carry keeps: the hand's
-   * frame and the elbow in the chest's frame, and the arm's own solution
+   * frame and the elbow in its frame bone's frame, and the arm's own solution
    * (`IAutoMovieHumanLimbGoal.reference`), so the carried arm stays in the
    * configuration it took hold in.
    */
   export interface ICarry {
-    /** The hand joint in the chest's frame, metres. */
+    /**
+     * The bone whose frame the carry is held in, the moving frame of its pose
+     * goal (MoveIt's `mobile_frame_` constraints): the bone the goal of the
+     * action that took hold rode, or the hips, the root body, for a goal in the
+     * world.
+     */
+    frame: CarryFrame;
+
+    /** The hand joint in that bone's frame, metres. */
     position: IAutoMovieVector3;
 
-    /** The hand's rotation in the chest's frame. */
+    /** The hand's rotation in that bone's frame. */
     rotation: IAutoMovieQuaternion;
 
-    /** The elbow in the chest's frame, metres: the carry's bend hint. */
+    /** The elbow in that bone's frame, metres: the carry's bend hint. */
     elbow: IAutoMovieVector3;
 
     /** The arm's solution there. */

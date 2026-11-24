@@ -9,6 +9,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { courseArmGoal } from "../compose/courseArmGoal";
 import { HumanLimbFit } from "../posture/HumanLimbFit";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
@@ -23,9 +24,10 @@ type CarriesResult = "leftArm" | "rightArm";
 type CarriesItemResult = "leftArm" | "rightArm";
 
 /**
- * The carry of a prop an earlier action left held: the holding arm's place
- * relative to the chest, captured where its action ended, and the arm goals
- * that keep it there on a later pose.
+ * The carry of a prop an earlier action left held: the holding arm's place in
+ * the frame the action that took hold placed the hand in, captured where that
+ * action ended, and the arm goals that keep it there on a later pose, a port of
+ * MoveIt's pose constraints in a moving link's frame (`carries`).
  */
 export namespace HumanSegmentCarry {
   /**
@@ -81,11 +83,22 @@ export namespace HumanSegmentCarry {
   }
 
   /**
-   * The arm goals that carry held props: each holding hand rides the chest with
-   * the offset it had when its action ended, the trunk-relative goal of a
-   * carried object, attached to the chest (`on`) so the resolver carries it
-   * into the world by the chest of whichever pose it fits, the evaluation's and
-   * the planted refit's after the displayed clamp alike.
+   * The arm goals that carry held props: each holding hand's pose goal in a
+   * moving link's frame, as MoveIt states a pose constraint in a robot link's
+   * frame (moveit/moveit@fdb79acafb24, BSD-3-Clause,
+   * moveit_core/kinematic_constraints/src/kinematic_constraint.cpp: a
+   * `PositionConstraint` or `OrientationConstraint` whose frame is not fixed is
+   * a `mobile_frame_`, its region placed on every state at
+   * `state.getFrameTransform(constraint_frame_id_) * constraint_region_pose_`
+   * and its rotation at `state.getFrameTransform(desired_rotation_frame_id_)
+   * .linear() * desired_rotation_matrix_`). The goal is the hand as it lay in
+   * its frame's bone (`ICarry.frame`) when its action ended, captured as a
+   * planning scene stores a body attached to a link
+   * (moveit_core/planning_scene/src/planning_scene.cpp,
+   * `getGlobalLinkTransform(link).inverse() * pose`), and is attached to that
+   * bone (`on`), so the resolver places it by that bone of whichever pose it
+   * fits, the evaluation's and the planted refit's after the displayed clamp
+   * alike.
    *
    * @param person The person.
    * @param holds The holds to carry.
@@ -106,9 +119,9 @@ export namespace HumanSegmentCarry {
       resolution === undefined
         ? undefined
         : prepareHumanPoseResolution(resolution);
-    // Attached to the chest (`on`), the goal is carried into the world by
-    // the chest of the pose being fitted, whatever placed it: the evaluation
-    // and the planted refit after its clamp alike.
+    // Attached to its frame's bone (`on`), the goal is carried into the
+    // world by that bone of the pose being fitted, whatever placed it: the
+    // evaluation and the planted refit after its clamp alike.
     return holds.map(
       (
         h: IAutoMovieMotionHumanSegment.IHeld,
@@ -120,7 +133,7 @@ export namespace HumanSegmentCarry {
             point: h.carry.position,
             rotation: h.carry.rotation,
             bend: h.carry.elbow,
-            on: "chest",
+            on: h.carry.frame,
             reference: h.carry.reference,
             planted: true,
           },
@@ -140,8 +153,14 @@ export namespace HumanSegmentCarry {
   }
 
   /**
-   * A holding arm relative to the chest at the end of the action that took
-   * hold.
+   * A holding arm in its frame at the end of the action that took hold, the
+   * attach of `carries`. The link the attach names is the bone the action's own
+   * goal for that arm rode there (`on`, read from the plan's goals,
+   * `courseArmGoal.goals`, where the arm is coursed); a goal laid in the world
+   * names none and rides the frame rigidly attached to the robot's root body,
+   * the hips (REP 120, "Coordinate Frames for Humanoid Robots", public domain:
+   * `base_link` "is rigidly attached to the robot root body", the waist
+   * recommended as that body).
    */
   function capture(
     person: IAutoMovieMotionHumanSegment.IPerson,
@@ -156,29 +175,36 @@ export namespace HumanSegmentCarry {
       at,
       prepared,
     );
+    const goal: IAutoMovieHumanLimbGoal | undefined = courseArmGoal
+      .goals(held.source.plan)
+      .posture(at - held.source.start).limbs[
+      held.side === "left" ? "leftArm" : "rightArm"
+    ];
+    const frame: IAutoMovieMotionHumanSegment.CarryFrame = goal?.on ?? "hips";
     const map: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = bones(
       person,
       pose,
       resolution,
       new Set<AutoMovieHumanoidBone>([
-        "chest",
+        frame,
         `${held.side}Hand`,
         `${held.side}LowerArm`,
       ]),
     );
-    const chest: IAutoMovieResolvedBone = map.get("chest")!;
+    const anchor: IAutoMovieResolvedBone = map.get(frame)!;
     const hand: IAutoMovieResolvedBone = map.get(`${held.side}Hand`)!;
     const inverse: IAutoMovieQuaternion = Quaternion.inverse(
-      chest.worldRotation,
+      anchor.worldRotation,
     );
     const local: (point: IAutoMovieVector3) => IAutoMovieVector3 = (
       point: IAutoMovieVector3,
     ): IAutoMovieVector3 =>
       Quaternion.rotateVector(
         inverse,
-        Vector3.subtract(point, chest.worldPosition),
+        Vector3.subtract(point, anchor.worldPosition),
       );
     return {
+      frame,
       position: local(hand.worldPosition),
       rotation: Quaternion.normalize(
         Quaternion.multiply(inverse, hand.worldRotation),

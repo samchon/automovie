@@ -74,8 +74,8 @@ export function readHumanSegmentLeaf(
   // An observation of some bones reads only the channels their frames hang
   // from (`demandedHumanChannels`), so the plan evaluates no writer of a
   // part the observation does not show (a trunk read never runs an arm's
-  // course, nor through it a partner's): the demand-driven evaluation of
-  // required bones (Unreal Engine `FBoneContainer`).
+  // course, nor through it a partner's): the demand-driven evaluation of an
+  // animation graph's required bones.
   const channels: readonly AutoMovieMotionHumanChannel[] | undefined =
     observed === undefined ? undefined : demandedHumanChannels(observed);
   const raw: IAutoMovieMotionHumanPosture =

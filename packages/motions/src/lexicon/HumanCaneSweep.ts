@@ -1,4 +1,9 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import {
+  Quaternion,
+  Vector3,
+  minimumJerk,
+  rotationBetween,
+} from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieMotionHumanChannel,
@@ -85,15 +90,22 @@ interface ITouch {
  * Between two touches the tip crosses on a minimum-jerk share, lifted at most
  * `LIFT` (two-point) or sliding on the floor (constant contact); before the
  * first touch and after the last it rests on that touch's place. At every
- * second the tip's reach ahead is solved so the cane's grip-to-tip length spans
- * from the hand to the tip, and the cane's shaft points from the tip to the
- * hand; the hand that holds it is placed for that frame
- * (`HumanWornItem.holding`) and laid as one course (`courseArmGoal`), under a
- * grip window on the cane that keeps it in the hand and a hold that leaves it
- * there; the hand it drives keeps that hold's grip, the fingers it held the
- * cane with as the sweep was entered. Each touch is a waypoint of the arm's
- * course (`courseArmGoal.knotted`). Events: `touch<n>`. A cane too short to
- * reach the floor ahead, or a walk with no landing in the span, is refused.
+ * second the tip's reach ahead is solved so the hand's grip, held on the cane
+ * as the cane was taken up, spans from the midline to the tip, the cane swung
+ * onto that line and turned about it so the thumb's side points as near up as
+ * it can: the handshake grip (Washington State School for the Blind, "White
+ * Cane Technique - 2 Point Touch": the cane held "almost like ... shaking
+ * hands", the index finger out), whose sweep comes from the wrist side to side
+ * and never from rolling it (Guide Dogs UK, "Touch technique with your long
+ * cane": "All the movement should be from your wrist. It should be a
+ * side-to-side movement rather than a rolling movement"); the hand that holds
+ * it is placed for that frame (`HumanWornItem.holding`) and laid as one course
+ * (`courseArmGoal`), under a grip window on the cane that keeps it in the hand
+ * and a hold that leaves it there; the hand it drives keeps that hold's grip,
+ * the fingers it held the cane with as the sweep was entered. Each touch is a
+ * waypoint of the arm's course (`courseArmGoal.knotted`). Events: `touch<n>`. A
+ * cane too short to reach the floor ahead, or a walk with no landing in the
+ * span, is refused.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the hand's place, how steps are read, the touch rule, the crossing, the cane's frame, the course with its touch waypoints, the hold's grip the driven hand keeps, the events and the refusals.
  */
@@ -134,7 +146,24 @@ function planHumanCaneSweep(
     return found.frame.translation;
   };
   const tipLocal: IAutoMovieVector3 = site("tip");
-  const length: number = Vector3.distance(site("grip"), tipLocal);
+  // The hand on the cane as it took the cane up (`held.frame`, the cane in
+  // the hand's grip frame): the grip socket's place and the hand's attitude
+  // in the cane's frame, and the socket's distance to the tip.
+  const inHand: IAutoMovieQuaternion = Quaternion.inverse(held.frame.rotation);
+  const gripLocal: IAutoMovieVector3 = Vector3.scale(
+    Quaternion.rotateVector(inHand, held.frame.position),
+    -1,
+  );
+  const length: number = Vector3.distance(gripLocal, tipLocal);
+  const shaft: IAutoMovieVector3 = Vector3.normalize(
+    Vector3.subtract(gripLocal, tipLocal),
+  );
+  // The hand's thumb side, the rig hand's +Z, in the cane's frame.
+  const thumb: IAutoMovieVector3 = Quaternion.rotateVector(inHand, {
+    x: 0,
+    y: 0,
+    z: 1,
+  });
   const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
   const wide: number = m.shoulderHalfWidth + m.upperArmRadius + BEYOND;
 
@@ -168,7 +197,8 @@ function planHumanCaneSweep(
       fix: "sweep over a walk of at least one step",
     });
 
-  // The cane's frame at a second: the hand's place and the tip's.
+  // The cane's frame at a second: the hand's grip at the midline, the tip at
+  // its touch, and the cane turned about its shaft so the thumb stays on top.
   const frameAt = (seconds: number): IAutoMovieRigidTransform => {
     const posture: IAutoMovieMotionHumanPosture = carrier.posture(seconds);
     const frame: IAutoMovieMotionHumanFrame = {
@@ -218,9 +248,32 @@ function planHumanCaneSweep(
       ),
       Vector3.scale(left, lateral),
     );
-    const rotation: IAutoMovieQuaternion = HumanHand.align(
-      { normal: { x: 0, y: 1, z: 0 }, forward: { x: 0, y: 0, z: 1 } },
-      { normal: Vector3.normalize(Vector3.subtract(hand, tip)), forward },
+    // The shaft from the tip to the grip, turned onto the world's tip-to-hand
+    // line by the shortest arc (the swing of a swing-twist decomposition,
+    // Dobrowolski 2015, arXiv:1506.05481, section 2.1), then turned about
+    // that line so the thumb's side points as near up as it can: the
+    // handshake grip, the sweep made by the wrist side to side and never by
+    // rolling it.
+    const line: IAutoMovieVector3 = Vector3.normalize(
+      Vector3.subtract(hand, tip),
+    );
+    const swung: IAutoMovieQuaternion = rotationBetween(shaft, line);
+    const up: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
+    const across = (v: IAutoMovieVector3): IAutoMovieVector3 =>
+      Vector3.subtract(v, Vector3.scale(line, Vector3.dot(v, line)));
+    const turned: IAutoMovieVector3 = across(
+      Quaternion.rotateVector(swung, thumb),
+    );
+    const above: IAutoMovieVector3 = across(up);
+    const roll: number = Math.atan2(
+      Vector3.dot(Vector3.cross(turned, above), line),
+      Vector3.dot(turned, above),
+    );
+    const rotation: IAutoMovieQuaternion = Quaternion.normalize(
+      Quaternion.multiply(
+        Quaternion.fromAxisAngle(line, (roll * 180) / Math.PI),
+        swung,
+      ),
     );
     return {
       position: Vector3.subtract(
@@ -230,7 +283,6 @@ function planHumanCaneSweep(
       rotation,
     };
   };
-
   const duration: number = p.duration;
   const limb: courseArmGoal.Limb = side === "left" ? "leftArm" : "rightArm";
 
@@ -318,15 +370,22 @@ function planHumanCaneSweep(
  * Between two touches the tip crosses on a minimum-jerk share, lifted at most
  * `LIFT` (two-point) or sliding on the floor (constant contact); before the
  * first touch and after the last it rests on that touch's place. At every
- * second the tip's reach ahead is solved so the cane's grip-to-tip length spans
- * from the hand to the tip, and the cane's shaft points from the tip to the
- * hand; the hand that holds it is placed for that frame
- * (`HumanWornItem.holding`) and laid as one course (`courseArmGoal`), under a
- * grip window on the cane that keeps it in the hand and a hold that leaves it
- * there; the hand it drives keeps that hold's grip, the fingers it held the
- * cane with as the sweep was entered. Each touch is a waypoint of the arm's
- * course (`courseArmGoal.knotted`). Events: `touch<n>`. A cane too short to
- * reach the floor ahead, or a walk with no landing in the span, is refused.
+ * second the tip's reach ahead is solved so the hand's grip, held on the cane
+ * as the cane was taken up, spans from the midline to the tip, the cane swung
+ * onto that line and turned about it so the thumb's side points as near up as
+ * it can: the handshake grip (Washington State School for the Blind, "White
+ * Cane Technique - 2 Point Touch": the cane held "almost like ... shaking
+ * hands", the index finger out), whose sweep comes from the wrist side to side
+ * and never from rolling it (Guide Dogs UK, "Touch technique with your long
+ * cane": "All the movement should be from your wrist. It should be a
+ * side-to-side movement rather than a rolling movement"); the hand that holds
+ * it is placed for that frame (`HumanWornItem.holding`) and laid as one course
+ * (`courseArmGoal`), under a grip window on the cane that keeps it in the hand
+ * and a hold that leaves it there; the hand it drives keeps that hold's grip,
+ * the fingers it held the cane with as the sweep was entered. Each touch is a
+ * waypoint of the arm's course (`courseArmGoal.knotted`). Events: `touch<n>`. A
+ * cane too short to reach the floor ahead, or a walk with no landing in the
+ * span, is refused.
  */
 export const HumanCaneSweep: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanCaneSweep> =
   {

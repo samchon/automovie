@@ -5,6 +5,7 @@ import {
   clampJointToSkeleton,
   fitHingedChainAt,
   getConstraint,
+  nearestAngleAlias,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanLimb,
@@ -46,20 +47,26 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
  * three angles and theta_5 to theta_7 the wrist's, read as one spherical joint
  * relative to the hinge-only forearm (`HumanLimbAt.free`): the hand's flexion
  * and abduction and the distal twist, which the rig takes in the forearm, so
- * the twist's range is the forearm's. Because the unconstrained minimum may
- * leave a joint past its range (section 3.3: the inverse kinematics is solved
- * "at the expense of possibly violating the joint limits"), the problem solved
- * is Table 3's (p. 379): F subject to every angle within its range, a
- * two-variable problem with nonlinear inequality constraints, solved by the
- * trajopt sequential convex optimiser (`HumanSequentialConvex`, a port of
- * `sco::BasicTrustRegionSQP`, Schulman et al. 2014), in radians so that sco's
- * parameters apply in its own units. Where the minimum is interior it is the
- * unconstrained one. The search starts at the swivel the arm's fit of the asked
- * attitude chooses from the law's elbow hint (sections 3.2.2 and 3.2.4: the
- * feasible swivel nearest the desired one) and at no turn, and keeps that fit's
- * bend branch. The angles at the solution are checked against the rig's own
- * ranges (`clampJointToSkeleton`, which also reads coupled limits) within the
- * range tolerance (`ROM_TOLERANCE`): met, the attitude turned by psi is taken;
+ * the twist's range is the forearm's. The shoulder's and the wrist's angles
+ * each have two families of solutions, the two Euler charts of one rotation
+ * (`fitHingedChainAt.free`'s `charts`), so, as the paper does, four problems
+ * are solved, one for each combination, and the least F among those meeting the
+ * limits is taken. The flow is the paper's own (Tables 2 and 3, p. 379): a
+ * reachable goal with partial orientation and the limits on is solved by F's
+ * unconstrained minimum over the two variables ("only involves two variables
+ * with no constraints", section 3.3), taken where it meets the limits; since
+ * that minimum is found "at the expense of possibly violating the joint
+ * limits", a goal whose minimum does not is solved as Table 3's, F subject to
+ * every angle within its range, a two-variable problem with nonlinear
+ * inequality constraints. Both are solved by the trajopt sequential convex
+ * optimiser (`HumanSequentialConvex`, a port of `sco::BasicTrustRegionSQP`,
+ * Schulman et al. 2014), in radians so that sco's parameters apply in its own
+ * units. The search starts at the swivel the arm's fit of the asked attitude
+ * chooses from the law's elbow hint (sections 3.2.2 and 3.2.4: the feasible
+ * swivel nearest the desired one) and at no turn, and keeps that fit's bend
+ * branch. The angles at the solution are checked against the rig's own ranges
+ * (`clampJointToSkeleton`, which also reads coupled limits) within the range
+ * tolerance (`ROM_TOLERANCE`): met, the attitude turned by psi is taken;
  * otherwise the attitude is refused naming the joint, its axis and how far past
  * its range it goes, never clamped in silence. The choice is made once where
  * the law plans, never per read.
@@ -182,9 +189,13 @@ export namespace AutoMovieMotionHumanArmReach {
       );
 
     // The angles at a swivel and turn, in the fit's frame (a left arm's in
-    // its mirror image, so read against the right arm's ranges).
+    // its mirror image, so read against the right arm's ranges), on one of
+    // the four combinations of the root's and the wrist's two families of
+    // solutions (section 3.3), each angle read at its full-turn alias nearest
+    // its range, as the rig reads a chart (`nearestAngleAlias`).
     const branch: number = seed.branch;
-    function angles(x: readonly number[]): fitHingedChainAt.IFree {
+    const ranges: IRanges = rangesOf(request.body);
+    function angles(x: readonly number[], family: IFamily): IFreeAngles {
       const free: fitHingedChainAt.IFree | null = HumanLimbAt.free(
         request.body,
         fitted.pose,
@@ -193,54 +204,159 @@ export namespace AutoMovieMotionHumanArmReach {
         x[0]!,
         branch,
       );
-      if (free === null || free.effector === null)
+      if (free === null || free.charts.effector === null)
         throw new Error(`The ${limb} has no wrist to turn`);
-      return free;
+      return {
+        upper: aliased(free.charts.upper[family.upper], ranges.upper),
+        lower: free.lower,
+        effector: aliased(free.charts.effector[family.effector], {
+          flexion: ranges.hand?.flexion ?? null,
+          abduction: ranges.hand?.abduction ?? null,
+          twist: ranges.lower?.twist ?? null,
+        }),
+      };
     }
-    const ranges: IRanges = rangesOf(request.body);
 
-    // Table 3's problem (p. 379) in radians, the units trajopt's sco
-    // parameters are stated in (its joints are radians), so they apply
-    // unchanged: the variables are the swivel and the turn, F (section 3.3)
-    // each angle's squared distance from the middle of its range, and one
-    // vector constraint holding every angle within its range.
+    // Table 2's and Table 3's problems (p. 379) in radians, the units
+    // trajopt's sco parameters are stated in (its joints are radians), so
+    // they apply unchanged: the variables are the swivel and the turn, F
+    // (section 3.3) each angle's squared distance from the middle of its
+    // range, and, for Table 3, one vector constraint holding every angle
+    // within its range: each joint axis's displacement by the rig's own
+    // clamp (`clampJointToSkeleton`, coupled limits included), the very
+    // limits the solution is checked against.
+    const clamps: IClamps = clampsOf(request.body);
+    const start: Vector = [seed.swivel * RADIAN, 0];
     function degrees(x: Vector): Vector {
       return [x[0]! / RADIAN, x[1]! / RADIAN];
     }
-    function objective(x: Vector): number {
-      let sum: number = 0;
-      for (const [value, range] of terms(angles(degrees(x)), ranges))
-        sum += ((value - (range.min + range.max) / 2) * RADIAN) ** 2;
-      return sum;
-    }
-    // The constraint: each joint axis's displacement by the rig's own clamp
-    // (`clampJointToSkeleton`, coupled limits included), radians, at most 0:
-    // the very limits the solution is checked against.
-    const clamps: IClamps = clampsOf(request.body);
-    function within(x: Vector): Vector {
-      return displaced(angles(degrees(x)), clamps).map(
-        (d: IDisplaced): number => d.degrees * RADIAN,
+    function minimum(family: IFamily, limited: boolean): ICandidate {
+      function objective(x: Vector): number {
+        let sum: number = 0;
+        for (const [value, range] of terms(angles(degrees(x), family), ranges))
+          sum += ((value - (range.min + range.max) / 2) * RADIAN) ** 2;
+        return sum;
+      }
+      function within(x: Vector): Vector {
+        return displaced(angles(degrees(x), family), clamps).map(
+          (d: IDisplaced): number => d.degrees * RADIAN,
+        );
+      }
+      const solved: Solved = HumanSequentialConvex.minimise(
+        HumanSequentialConvexFunctions.problem({
+          costs: [{ f: objective, full: true }],
+          constraints: limited ? [{ g: within, equality: false }] : [],
+          low: [-Infinity, -Infinity],
+          high: [Infinity, Infinity],
+        }),
+        start,
+        HumanSequentialConvex.DEFAULTS,
       );
+      const solution: Vector = degrees(solved.x);
+      const turn: number = solution[1]!;
+      return {
+        result: { rotation: turned(turn), turn },
+        past: beyond(request.side, displaced(angles(solution, family), clamps)),
+        f: objective(solved.x),
+      };
     }
-    const solved: Solved = HumanSequentialConvex.minimise(
-      HumanSequentialConvexFunctions.problem({
-        costs: [{ f: objective, full: true }],
-        constraints: [{ g: within, equality: false }],
-        low: [-Infinity, -Infinity],
-        high: [Infinity, Infinity],
-      }),
-      [seed.swivel * RADIAN, 0],
-      HumanSequentialConvex.DEFAULTS,
+
+    // Section 3.3: "there are two different families of solutions for
+    // theta_1 and theta_5, ... four optimization problems that must be
+    // solved, one for each combination of the two families". Table 2 (p.
+    // 379), a reachable goal with the limits on: F's unconstrained minimum
+    // ("two variables with no constraints"), the least F of the four that
+    // meets the limits; Table 3, the goal unsolvable so, only where none
+    // does: F under the limits as constraints, again the least of the four
+    // that meets them; else the one least past its range, refused.
+    const unconstrained: ICandidate[] = FAMILIES.map(
+      (family: IFamily): ICandidate => minimum(family, false),
     );
-    const solution: Vector = degrees(solved.x);
-    const turn: number = solution[1]!;
-    return {
-      result: { rotation: turned(turn), turn },
-      past: beyond(request.side, displaced(angles(solution), clamps)),
-    };
+    const free: ICandidate | null = least(unconstrained);
+    if (free !== null) return free;
+    const limited: ICandidate[] = FAMILIES.map(
+      (family: IFamily): ICandidate => minimum(family, true),
+    );
+    return (
+      least(limited) ??
+      limited.reduce(
+        (a: ICandidate, b: ICandidate): ICandidate =>
+          b.past!.degrees < a.past!.degrees ? b : a,
+      )
+    );
   }
 }
 
+/** One combination of the root's and the wrist's families of solutions. */
+interface IFamily {
+  /** The root's chart: 0 the principal, 1 the alternate. */
+  upper: 0 | 1;
+
+  /** The wrist's chart: 0 the principal, 1 the alternate. */
+  effector: 0 | 1;
+}
+
+/** The four combinations of the two joints' two families (section 3.3). */
+const FAMILIES: readonly IFamily[] = [
+  { upper: 0, effector: 0 },
+  { upper: 0, effector: 1 },
+  { upper: 1, effector: 0 },
+  { upper: 1, effector: 1 },
+];
+
+/** One family's solution: the choice, its limit check and its F. */
+interface ICandidate extends IResolved {
+  /** F at the solution, radians squared. */
+  f: number;
+}
+
+/** The candidate of least F that meets the limits; null when none does. */
+function least(candidates: readonly ICandidate[]): ICandidate | null {
+  let found: ICandidate | null = null;
+  for (const c of candidates)
+    if (c.past === null && (found === null || c.f < found.f)) found = c;
+  return found;
+}
+
+/** The free angles of one family: the root, the hinge and the wrist. */
+interface IFreeAngles {
+  /** The root joint. */
+  upper: IAutoMovieJointPose;
+
+  /** The mid joint, its hinge only. */
+  lower: IAutoMovieJointPose;
+
+  /** The end joint, its twist the distal twist the forearm takes. */
+  effector: IAutoMovieJointPose;
+}
+
+/** Each axis's range a chart is read against; null for an immobile axis. */
+interface IAxisRanges {
+  /** The flexion's. */
+  flexion: Range;
+
+  /** The abduction's. */
+  abduction: Range;
+
+  /** The twist's. */
+  twist: Range;
+}
+
+/** A chart read at each angle's full-turn alias nearest its axis's range. */
+function aliased(
+  joint: IAutoMovieJointPose,
+  ranges: IAxisRanges | null,
+): IAutoMovieJointPose {
+  function near(value: Angle, range: Range): number {
+    return nearestAngleAlias(value ?? 0, range ?? null);
+  }
+  return {
+    ...joint,
+    flexion: near(joint.flexion, ranges?.flexion),
+    abduction: near(joint.abduction, ranges?.abduction),
+    twist: near(joint.twist, ranges?.twist),
+  };
+}
 /** Tolani's choice: the attitude and, where one lies past its range, the joint. */
 interface IResolved {
   /** The attitude at the minimum. */
@@ -308,7 +424,7 @@ function rangesOf(body: IAutoMovieMotionHumanBody): IRanges {
  * abduction and the distal twist against the forearm's twist range; an axis
  * with no range (an immobile one) is no term.
  */
-function terms(free: fitHingedChainAt.IFree, ranges: IRanges): Term[] {
+function terms(free: IFreeAngles, ranges: IRanges): Term[] {
   const out: Term[] = [];
   function add(value: Angle, range: Range): void {
     if (range !== null && range !== undefined) out.push([value ?? 0, range]);
@@ -316,9 +432,9 @@ function terms(free: fitHingedChainAt.IFree, ranges: IRanges): Term[] {
   add(free.upper.flexion, ranges.upper?.flexion);
   add(free.upper.abduction, ranges.upper?.abduction);
   add(free.upper.twist, ranges.upper?.twist);
-  add(free.effector?.flexion, ranges.hand?.flexion);
-  add(free.effector?.abduction, ranges.hand?.abduction);
-  add(free.effector?.twist, ranges.lower?.twist);
+  add(free.effector.flexion, ranges.hand?.flexion);
+  add(free.effector.abduction, ranges.hand?.abduction);
+  add(free.effector.twist, ranges.lower?.twist);
   return out;
 }
 
@@ -378,11 +494,8 @@ function clampsOf(body: IAutoMovieMotionHumanBody): IClamps {
  * shoulder, the forearm with the wrist's distal twist, and the hand without it,
  * in that order, three axes each.
  */
-function displaced(
-  free: fitHingedChainAt.IFree,
-  clamps: IClamps,
-): IDisplaced[] {
-  const effector: IAutoMovieJointPose = free.effector!;
+function displaced(free: IFreeAngles, clamps: IClamps): IDisplaced[] {
+  const effector: IAutoMovieJointPose = free.effector;
   const joints: readonly IJoint[] = [
     {
       part: "UpperArm",

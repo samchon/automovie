@@ -32,11 +32,11 @@ Four scalar side states end with the call. The returned fresh array borrows the 
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States chest-relative capture, displayed arm goals, held records and the optional borrowed FK source and lifetime.
+States the port (MoveIt's pose constraints in a moving link's frame, the goal captured as a planning scene attaches a body to a link), the frame (the bone the placing action's goal rode, or the root body for a goal in the world, after REP 120), the displayed arm goals, held records and the optional borrowed FK source and lifetime.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-Captures the actual displayed source hand/elbow relative to its chest and returns that rigid relation attached to the chest, so every fit of the goal composes it with the chest of the pose it fits; a world goal placed from one pose's chest would be missed by a refit on a pose the clamp moved. Every capture still evaluates the source pose; borrowed FK shares only exactly equal scalar prerequisites under the same unchanged skeleton topology.
+A port of MoveIt's pose constraints in a moving frame (moveit/moveit@fdb79acafb24efd9e138b0d309fb2463186d4ab2, BSD-3-Clause, attributed in the doc comment): moveit_core/kinematic_constraints/src/kinematic_constraint.cpp makes a `PositionConstraint` or `OrientationConstraint` whose frame is not fixed a `mobile_frame_`, and on every state places its region at `state.getFrameTransform(constraint_frame_id_) * constraint_region_pose_` and its rotation at `state.getFrameTransform(desired_rotation_frame_id_).linear() * desired_rotation_matrix_`. Here the carried hand's goal is attached to its frame bone (`on`), which every fit composes with that bone of the pose it fits. The goal's value is captured as `PlanningScene::processAttachedCollisionObjectMsg` (moveit_core/planning_scene/src/planning_scene.cpp) stores a body attached to a link, `object_pose_in_link = robot_state_->getGlobalLinkTransform(link_model).inverse() * obj_in_world->pose_`: the actual displayed source hand (and elbow) times the inverse of its frame bone's world transform at the source's end. The frame is the bone the action's own goal for the arm rode at its end (`on`, read from the action's goals, `courseArmGoal.goals`, where the arm is coursed); a goal laid in the world names none, and rides the frame REP 120 (public domain) rigidly attaches to the robot's root body, the waist, here the hips, which is this port's own mapping (MoveIt would keep a world-frame constraint in the world, which a walker leaves). One rule for every hold, with no per-law field. Every capture still evaluates the source pose; borrowed FK shares only exactly equal scalar prerequisites under the same unchanged skeleton topology.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
@@ -48,7 +48,7 @@ No hold, source pose, capture, hand transform or fit is skipped; standalone call
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
-For H holds, O(H) record copies and no current FK (the fit places the chest it already resolves); each of M uncaptured holds adds its complete source-pose evaluation and demanded chest/hand/elbow FK. Ordered joint admission remains, while unrelated world-bone outputs are omitted. A supplied parent shares exact math; speedup is unmeasured.
+For H holds, O(H) record copies and no current FK (the fit places the frame bone it already resolves); each of M uncaptured holds adds its complete source-pose evaluation, one read of its action's goals at the capture instant and demanded frame/hand/elbow FK. Ordered joint admission remains, while unrelated world-bone outputs are omitted. A supplied parent shares exact math; speedup is unmeasured.
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 

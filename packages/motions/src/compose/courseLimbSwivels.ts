@@ -102,11 +102,13 @@ export namespace courseLimbSwivels {
    * other limbs a knot's resolve fits (a seated leg on its rest) continue the
    * knot before's fits too, so no knot after the first sweeps any limb. Where a
    * continued arm's admitted arc vanishes, its fit refuses (`HumanLimbFit`)
-   * rather than jumping. A second between two knots takes their interpolation
-   * (`courseLimbSwivelKnots.between`). The goals stay the displayed ones; only
-   * the branch, swivel and twist come from the course, so no read searches. The
-   * knots are made in order the first time a read reaches them and kept, so the
-   * course is the same in any reading order.
+   * rather than jumping. A second between two knots lies on the minimum-jerk
+   * path through the knots (Flash and Hogan 1985: a quintic between each two
+   * whose position, velocity and acceleration carry across each knot,
+   * `courseLimbSwivelKnots.rates` and `between`). The goals stay the displayed
+   * ones; only the branch, swivel and twist come from the course, so no read
+   * searches. The knots are made in order the first time a read reaches them
+   * and kept, so the course is the same in any reading order.
    *
    * @param props The posture reader, the limbs, the span and the knotted
    *   instants.
@@ -269,11 +271,19 @@ export namespace courseLimbSwivels {
         );
       return knots[i]!;
     };
+    // The minimum-jerk path through the knots (`courseLimbSwivelKnots.rates`,
+    // Flash and Hogan 1985) is prepared over all of them the first time a
+    // second between two is read.
+    let rates: courseLimbSwivelKnots.Rates[] | undefined;
     return (
       seconds: number,
     ): ReadonlyMap<AutoMovieHumanLimb, IAutoMovieSwivelSeed> => {
       const at: number = Math.min(Math.max(seconds, span.start), span.end);
       if (times.length === 1) return knot(0).seeds;
+      rates ??= courseLimbSwivelKnots.rates(
+        times.map((_: number, i: number): ISwivelKnot => knot(i)),
+        limbs,
+      );
       let low: number = 0;
       let high: number = times.length - 1;
       while (high - low > 1) {
@@ -281,7 +291,13 @@ export namespace courseLimbSwivels {
         if (times[middle]! <= at) low = middle;
         else high = middle;
       }
-      return courseLimbSwivelKnots.between(at, knot(low), knot(high));
+      return courseLimbSwivelKnots.between(
+        at,
+        knot(low),
+        knot(high),
+        rates[low]!,
+        rates[high]!,
+      );
     };
   }
 
