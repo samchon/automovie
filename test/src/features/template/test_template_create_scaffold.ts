@@ -112,20 +112,39 @@ export function test_template_create_scaffold(): void {
     false,
   );
 
-  const guide: string = ".agents/skills/story/layers/notation.md";
-  const manuscript: string = fs.readFileSync(
-    path.join(ROOT, "packages/template/scaffold/instructions", guide),
-    "utf8",
-  );
-  const installed: string = manuscript
-    .replaceAll("\r\n", "\n")
-    .split("\n\n")
-    .filter(
-      (paragraph: string): boolean => !paragraph.startsWith("<!-- @source "),
-    )
-    .join("\n\n");
-  TestValidator.equals("production guide", production[guide], installed);
-  TestValidator.equals("workspace guide", workspace[guide], installed);
+  for (const guide of [
+    ".agents/skills/story/layers/notation.md",
+    ".agents/skills/evidence/configuration.md",
+    ".agents/skills/motion/catalog-cases.md",
+    ".agents/skills/contracts/development/composition.md",
+  ]) {
+    const manuscript: string = fs.readFileSync(
+      path.join(ROOT, "packages/template/scaffold/instructions", guide),
+      "utf8",
+    );
+    const installed: string = manuscript
+      .replaceAll("\r\n", "\n")
+      .split("\n\n")
+      .filter(
+        (paragraph: string): boolean => !paragraph.startsWith("<!-- @source "),
+      )
+      .join("\n\n");
+    TestValidator.equals(
+      `production guide ${guide}`,
+      production[guide],
+      installed,
+    );
+    TestValidator.equals(
+      `workspace guide ${guide}`,
+      workspace[guide],
+      installed,
+    );
+    TestValidator.equals(
+      `workspace member guide ${guide}`,
+      guide in member,
+      false,
+    );
+  }
 
   // 3. Evidence configuration.
   TestValidator.equals(

@@ -8,7 +8,7 @@ Pair each source module with the document it realizes by path. Apply the shared 
 | --- | --- |
 | `src/entities/<kind>/<subject>/` | One subject |
 | `src/composition/scenes/<film>/<scene>/` | One screenplay scene file's composition |
-| `src/composition/scenes/catalog/<module>/` | One module's catalog case |
+| `src/composition/scenes/catalog/<module>/` | One module's case when using a separate review catalog |
 | `src/composition/films/<film>.ts` | One delivered video |
 | `src/composition/films/catalog.ts` | The review catalog, never delivered |
 | `src/laws/<discipline>/` | Registered rows and laws, when a film needs one |
@@ -32,7 +32,7 @@ An entity realizes its settings or brief record's facts and the research its mea
 
 A scene realizes its screenplay file, sections and beats. A film owns scene order, transitions, titles and subtitles. A direct 3D film also owns its camera response, grade included, its sound list and its loudness record. A film's delivered render implements the [delivery profile](../production/project-context.md#the-delivery-profile), and a [channel render](../video/requests.md#inputs) departs from it. Apply the [composition contract](../contracts/development/composition.md) to the screenplay's scenes, the [films contract](../contracts/development/films.md) to its films, and the [catalog contract](../contracts/development/catalog.md) to the catalog.
 
-A catalog case takes the parameters of the behavior or entity state it exhibits. The catalog film gives the case its interval.
+A catalog case exports a function or public method from its implementation module and takes the parameters of the behavior or entity state it exhibits. The catalog film exports its composition and gives the case its interval.
 
 Every film is registered in `src/composition/films/index.ts`.
 

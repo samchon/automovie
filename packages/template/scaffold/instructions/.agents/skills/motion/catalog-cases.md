@@ -1,12 +1,12 @@
 # Catalog cases
 
-Before using an entity or reusable motion module in a film, inspect its capability in the [registered catalog film](../development/source-layout.md#scenes-and-films). Give each case a labeled interval. Use parameters to exercise variants.
+Inspect the capability in the scene interval that uses it. Use a separate case for a standalone commission, a reusable custom law or conditions that need an independent check. When keeping a catalog, register its separate cases in the [catalog film](../development/source-layout.md#scenes-and-films). Give them labeled intervals and use parameters to exercise variants.
 
 ## Capture and review
 
 Play the complete case with the relevant body, load, support, surface and partner. When the action can miss, test that its contact-dependent effects occur only on contact. Capture with the README command and use joint marks where available. Apply [motion judgment](judgment.md) against the subject record and, for skilled practice, the observed exchange.
 
-Resolve a case once on load. Audit it separately from loading, playback and capture. Reuse its report only with the same inputs and package versions.
+Resolve a case once on load. Audit it separately from loading, playback and capture. Reuse its report with the same inputs and package versions.
 
 ## What each case owes
 
@@ -22,4 +22,4 @@ Follow [testing](../development/testing.md#motion-checks) for production code an
 
 ## Record
 
-In `docs/acceptance/catalog.md`, record the revision, inputs, tested conditions and inspected interval. Reuse an accepted case within those conditions. Replay affected cases after a repair and check any new condition before use.
+Record the revision, inputs, tested conditions and inspected interval in the scene review or, for a catalog, in `docs/acceptance/catalog.md`. Reuse an accepted result within those conditions. Replay affected intervals after a repair and check any new condition before use.

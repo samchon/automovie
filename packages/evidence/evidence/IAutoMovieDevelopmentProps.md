@@ -6,12 +6,12 @@ One stage per contract mirrors the scaffold's development contracts, so a commis
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
-Three optional fields with the narrative stage vocabulary; folders, populations and references belong to the claim factory.
+Four optional fields use the narrative stage vocabulary. Folders, populations and references belong to the claim factory.
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 
-No stage is implied by file presence; an absent field is disabled.
+An omitted catalog setting preserves a catalog already present when composition is selected. An explicit setting controls the catalog independently. The other stages require explicit selection.
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-The comment names each stage's respondents, the scene and film citations and the disabled default.
+The comment names each stage's respondents, the scene and film citations and the catalog's independent selection and compatibility default.
