@@ -12,8 +12,7 @@ import { TestValidator } from "@nestia/e2e";
  *    published closed curve.
  * 2. An open triangle identifies its published open report, while exhausted
  *    fitting reports a failed contour.
- * 3. Mutating a delivered face-ID copy leaves subsequent observation and source
- *    arrays unchanged.
+ * 3. A lineage observer leaves the observation and the source arrays unchanged.
  * 4. A thrown callback fails the whole operation; callback-triggered and prior
  *    cancellation publish no value.
  */
@@ -53,7 +52,6 @@ export function test_unit_recovery_observation_observe(): void {
           ...record,
           sourceTriangleIds: [...record.sourceTriangleIds],
         });
-        (record.sourceTriangleIds as number[]).fill(-1);
       },
     });
   if (

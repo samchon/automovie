@@ -135,7 +135,7 @@ export async function test_unit_motions_handling_receive(): Promise<void> {
       rotation: Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 180),
     },
   };
-  const taking: IAutoMovieMotionHumanReceive = {
+  const taking: IAutoMovieMotionHumanReceive.IParams = {
     prop: "mug",
     partner: "a",
     handle,

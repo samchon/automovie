@@ -1,6 +1,9 @@
 import { autoMovieSectionPlanesKeepPoint } from "@automovie/engine";
 import type { IAutoMovieSectionPlane } from "@automovie/interface";
-import { applyAutoMovieSectionPlanes } from "@automovie/render";
+import {
+  AutoMovieThreeKind,
+  applyAutoMovieSectionPlanes,
+} from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
@@ -45,11 +48,13 @@ const materialsOf: (root: THREE.Object3D) => THREE.Material[] = (
 ): THREE.Material[] => {
   const found: THREE.Material[] = [];
   root.traverse((object: THREE.Object3D<THREE.Object3DEventMap>): void => {
-    const holder: { material?: THREE.Material | THREE.Material[] } = object as {
-      material?: THREE.Material | THREE.Material[];
-    };
-    if (holder.material === undefined) return;
-    for (const material of [holder.material].flat()) found.push(material);
+    if (
+      !AutoMovieThreeKind.isMesh(object) &&
+      !AutoMovieThreeKind.isLine(object) &&
+      !AutoMovieThreeKind.isPoints(object)
+    )
+      return;
+    for (const material of [object.material].flat()) found.push(material);
   });
   return found;
 };

@@ -2,7 +2,7 @@ import { AutoMovieFilmResponseStage } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
-import { createFilmResponseRendererDouble } from "./createFilmResponseRendererDouble";
+import { createFilmResponseRendererDouble } from "../../../draw/createFilmResponseRendererDouble";
 
 /**
  * The film response stage carries alpha through its final pass only for a
@@ -18,14 +18,8 @@ import { createFilmResponseRendererDouble } from "./createFilmResponseRendererDo
  *    frame's alpha mode.
  * 4. Every draw renders the scene into the linear target and the response into the
  *    canvas, the same two renders whatever the mode.
- *
- * @evidence contracts/development/testing.md#behavioral-verification Runs the stage with optics over the recording renderer and reads the final program's `uAlpha`, the uniform its shader branches on; a stage that ignored `alpha`, kept the last mode or drew a different pass list for a transparent picture fails.
- * @evidence contracts/development/testing.md#independent-expectations The contract of `AutoMovieFilmAlpha`: absent is opaque, either mode carries alpha; the two renders are the stage's documented steps 1 and 3 for optics without glare or overlays.
- * @evidence contracts/development/testing.md#distinguishing-cases Opaque, both alpha modes and the return to opaque; the shader's bytes, the glare's and the medium's alpha are observed by the SwiftShader capture, and absent optics by `test_draw_film_optics_absent`.
- * @evidence contracts/development/testing.md#execution-ownership A portable unit discovered as `test_draw_film_optics_alpha`; the renderer is an in-memory double and no GPU starts.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each naming the input and the behavior it pins.
  */
-export function test_draw_film_optics_alpha(): void {
+export function test_unit_render_scene_film_response_stage_film_optics_alpha(): void {
   const scene: THREE.Scene = new THREE.Scene();
   scene.add(
     new THREE.Mesh(new THREE.BoxGeometry(), new THREE.MeshBasicMaterial()),

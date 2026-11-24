@@ -1,7 +1,7 @@
 import { createAutoMovieMeshDeformer } from "@automovie/engine";
 import type {
   IAutoMovieMesh,
-  IAutoMovieMeshDeformationInfluence,
+  IAutoMovieMeshDeformationField,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -52,7 +52,7 @@ export function test_unit_engine_geometry_mesh_deformer(): void {
   }
   for (const radius of [1, 1e-200, 1e160])
     for (const amount of [0, 0.1]) {
-      const influence: IAutoMovieMeshDeformationInfluence = {
+      const influence: IAutoMovieMeshDeformationField = {
         center: { x: 0, y: 0, z: 0 },
         radius: { x: radius, y: radius, z: radius },
         displacement: { x: 0, y: 0, z: amount * radius },

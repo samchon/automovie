@@ -199,27 +199,13 @@ export function test_unit_render_film_plan_production_render_job(): void {
     {
       totalFrames: 48,
       chunks: [
-        ["feature", "feature", "beauty", 0, 0, 20],
-        ["feature", "feature", "beauty", 1, 20, 40],
-        ["feature", "feature", "beauty", 2, 40, 48],
-        ["depth", "guide-pass", "depth", 0, 0, 20],
-        ["depth", "guide-pass", "depth", 1, 20, 40],
-        ["depth", "guide-pass", "depth", 2, 40, 48],
-      ].map(
-        ([deliverable, kind, pass, index, start, end]: (string | number)[]): {
-          slot: string;
-          kind: "feature" | "guide-pass";
-          pass: "beauty" | "depth";
-          range: number[];
-          frames: number;
-        } => ({
-          slot: `production:final:${deliverable}:${pass}:${index}`,
-          kind: kind as "feature" | "guide-pass",
-          pass: pass as "beauty" | "depth",
-          range: [start as number, end as number],
-          frames: (end as number) - (start as number),
-        }),
-      ),
+        chunk("feature", "feature", "beauty", 0, 0, 20),
+        chunk("feature", "feature", "beauty", 1, 20, 40),
+        chunk("feature", "feature", "beauty", 2, 40, 48),
+        chunk("depth", "guide-pass", "depth", 0, 0, 20),
+        chunk("depth", "guide-pass", "depth", 1, 20, 40),
+        chunk("depth", "guide-pass", "depth", 2, 40, 48),
+      ],
     },
   );
   TestValidator.equals(
@@ -379,4 +365,28 @@ export function test_unit_render_film_plan_production_render_job(): void {
     },
     { exact: 1, short: true, missing: true, unsourcedShot: true },
   );
+}
+
+/** The expected summary of one planned chunk of `end - start` frames. */
+function chunk(
+  deliverable: string,
+  kind: "feature" | "guide-pass",
+  pass: "beauty" | "depth",
+  index: number,
+  start: number,
+  end: number,
+): {
+  slot: string;
+  kind: "feature" | "guide-pass";
+  pass: "beauty" | "depth";
+  range: number[];
+  frames: number;
+} {
+  return {
+    slot: `production:final:${deliverable}:${pass}:${index}`,
+    kind,
+    pass,
+    range: [start, end],
+    frames: end - start,
+  };
 }

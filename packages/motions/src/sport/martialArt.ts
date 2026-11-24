@@ -294,8 +294,15 @@ export namespace martialArt {
       };
       for (const side of ["left", "right"] as const) {
         const outward: number = side === "left" ? 1 : -1;
+        // The chamber stands outside both the shoulder's line and the
+        // flank, the chest's half breadth, by a forearm diameter.
         const chamberOffset: IAutoMovieVector3 = {
-          x: outward * (m.upperArmRadius + m.forearmRadius),
+          x:
+            outward *
+            Math.max(
+              m.upperArmRadius + m.forearmRadius,
+              m.chestBreadth / 2 + 2 * m.forearmRadius - m.shoulderHalfWidth,
+            ),
           y: m.waistHeight - m.shoulderHeight,
           z:
             AutoMovieMotionHumanTargetGrid.DISTANCES.close *
@@ -337,10 +344,10 @@ export namespace martialArt {
                   `${side}UpperArm`,
                   resolution,
                 );
-              const chamber: IAutoMovieVector3 = HumanFrame.point(
-                { ...axes, origin: shoulder },
-                chamberOffset,
-              );
+              const local: IAutoMovieMotionHumanFrame = {
+                ...axes,
+                origin: shoulder,
+              };
               const aim: IAutoMovieVector3 = HumanFrame.point(
                 {
                   origin: { x: posture.root.x, y: 0, z: posture.root.z },
@@ -356,17 +363,29 @@ export namespace martialArt {
               );
               const phase: number = extended(side, s);
 
-              // A shallow outward arc clears the flank as the forearm turns
-              // out of or back into chamber. Its endpoint is the same midline.
-              return {
-                point: Vector3.add(
-                  Vector3.lerp(chamber, aim, phase),
-                  HumanFrame.point(axes, {
-                    x: outward * m.forearmRadius * 2 * phase * (1 - phase),
-                    y: 0,
-                    z: 0,
-                  }),
+              // The fist drives straight ahead along the flank, the elbow
+              // brushing the side, and turns in to the midline only once it
+              // stands clear of the chest's front (half the chest's depth
+              // and a forearm diameter ahead of the shoulder joint), so the
+              // forearm never crosses the trunk.
+              const from: IAutoMovieVector3 = chamberOffset;
+              const to: IAutoMovieVector3 = HumanFrame.local(local, aim);
+              const front: number = Math.min(
+                1,
+                Math.max(
+                  0,
+                  (m.chestDepth / 2 + 2 * m.forearmRadius - from.z) /
+                    (to.z - from.z),
                 ),
+              );
+              const turn: number =
+                phase <= front ? 0 : ease((phase - front) / (1 - front));
+              return {
+                point: HumanFrame.point(local, {
+                  x: from.x + (to.x - from.x) * turn,
+                  y: from.y + (to.y - from.y) * phase,
+                  z: from.z + (to.z - from.z) * phase,
+                }),
                 facing: HumanFrame.point(axes, { x: 0, y: 0, z: 1 }),
               };
             },

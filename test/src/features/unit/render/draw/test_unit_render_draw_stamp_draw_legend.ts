@@ -6,24 +6,25 @@ import { stampAutoMovieDrawLegend } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * A still's legend goes in the corner where it hides the fewest drawn pixels, any of the four corners now that the sheet's caption sits under the cell, with a swatch of each kind's colour and its text beside it.
+ * A still's legend goes in the corner where it hides the fewest drawn pixels,
+ * any of the four corners now that the sheet's caption sits under the cell,
+ * with a swatch of each kind's colour and its text beside it.
  *
  * Scenarios:
  *
- * 1. On an empty 100 by 60 grey picture, a legend of two kinds at scale 1 stacks in the bottom-left corner: swatches 9 pixels square at rows 42 and 51, texts anchored at x 9.
- * 2. With a figure drawn in the bottom-left corner, the same legend moves to the bottom-right corner, leaving the figure's pixels untouched.
+ * 1. On an empty 100 by 60 grey picture, a legend of two kinds at scale 1 stacks
+ *    in the bottom-left corner: swatches 9 pixels square at rows 42 and 51,
+ *    texts anchored at x 9.
+ * 2. With a figure drawn in the bottom-left corner, the same legend moves to the
+ *    bottom-right corner, leaving the figure's pixels untouched.
  * 3. With figures in both bottom corners, it moves to the top-right corner.
- * 4. With figures in three corners, it moves to the top-left corner, open since captions moved under the cell.
- * 5. With every corner drawn, the bottom-left corner is kept as the first choice among equals.
+ * 4. With figures in three corners, it moves to the top-left corner, open since
+ *    captions moved under the cell.
+ * 5. With every corner drawn, the bottom-left corner is kept as the first choice
+ *    among equals.
  * 6. An empty legend paints nothing and returns nothing.
- *
- * @evidence contracts/development/testing.md#behavioral-verification Stamps legends on hand-made pictures and reads the returned anchors and the painted pixels; a legend fixed to one corner, placed over a drawn figure, a corner skipped though free, or painting without a legend fails.
- * @evidence contracts/development/testing.md#independent-expectations Positions follow from the label stamp's box height of nine font pixels and the picture sizes written here; the figures are drawn by this test, so which corners hold drawn pixels is known without the function.
- * @evidence contracts/development/testing.md#distinguishing-cases Empty, one, two, three and every corner drawn, and an empty legend. How a cell's drawing carries the legend is owned by `test_draw_cell_call`.
- * @evidence contracts/development/testing.md#execution-ownership A portable unit discovered as `test_draw_legend_corner`; pictures are in memory and no browser starts.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 6 numbered scenarios it runs, each naming the input and the behavior it pins.
  */
-export function test_draw_legend_corner(): void {
+export function test_unit_render_draw_stamp_draw_legend(): void {
   const legend: { label: string; color: number; count: number }[] = [
     { label: "trail", color: 0x3070c0, count: 1 },
     { label: "drift", color: 0x7b4fa8, count: 2 },

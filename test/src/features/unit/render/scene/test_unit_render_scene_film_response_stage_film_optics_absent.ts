@@ -2,7 +2,7 @@ import { AutoMovieFilmResponseStage } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
-import { createFilmResponseRendererDouble } from "./createFilmResponseRendererDouble";
+import { createFilmResponseRendererDouble } from "../../../draw/createFilmResponseRendererDouble";
 
 /**
  * A subject without optics draws exactly as before the film response stage
@@ -15,14 +15,8 @@ import { createFilmResponseRendererDouble } from "./createFilmResponseRendererDo
  *    stage makes one render call, of the scene, into the canvas, under that
  *    curve and exposure, with the scene's overlays visible in the same draw.
  * 2. The host's state is untouched afterwards and no target was ever set.
- *
- * @evidence contracts/development/testing.md#behavioral-verification Runs the stage with absent optics over a recording renderer; a stage that drew into a target, changed the curve or exposure, split the overlays or drew twice fails, which is what would change the frame hashes of a film without optics.
- * @evidence contracts/development/testing.md#independent-expectations The expected call is the draw host's own single `renderer.render` before optics existed, so the same picture is drawn.
- * @evidence contracts/development/testing.md#distinguishing-cases Absent optics only; the present case is owned by `test_draw_film_optics_exposure` and `test_draw_film_optics_owner`. That structural passes never ask for optics is the draw host's branch, observed in real captures.
- * @evidence contracts/development/testing.md#execution-ownership A portable unit discovered as `test_draw_film_optics_absent`; the renderer is an in-memory double and no GPU starts.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 2 numbered scenarios it runs, each naming the input and the behavior it pins.
  */
-export function test_draw_film_optics_absent(): void {
+export function test_unit_render_scene_film_response_stage_film_optics_absent(): void {
   const scene: THREE.Scene = new THREE.Scene();
   const mark: THREE.LineSegments = new THREE.LineSegments(
     new THREE.BufferGeometry(),

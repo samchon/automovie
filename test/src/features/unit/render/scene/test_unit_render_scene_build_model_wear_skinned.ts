@@ -75,9 +75,10 @@ export function test_unit_render_scene_build_model_wear_skinned(): void {
   );
 
   // 2. Edges measured at bind pose.
-  const record: IAutoMovieMesh = (
-    model.parts[0]!.geometry as { type: "mesh"; mesh: IAutoMovieMesh }
-  ).mesh;
+  const source: (typeof model.parts)[number]["geometry"] =
+    model.parts[0]!.geometry;
+  if (source.type !== "mesh") throw new Error("Expected a mesh part");
+  const record: IAutoMovieMesh = source.mesh;
   const expected: IAutoMovieMeasureFeatureEdges.IResult =
     measureAutoMovieFeatureEdges({
       positions: new Float32Array(record.positions),

@@ -292,7 +292,9 @@ export function MartialArtStancePhrase(
           );
 
           // A guard holds one site from the lead step to the return; the
-          // weight raises and lowers it.
+          // weight raises and lowers it. The fist stands at least its own
+          // depth, a forearm diameter, clear of the chest's front, which
+          // lies half the chest's depth ahead of the shoulder joints.
           if (guard !== undefined) {
             const held: MartialArtStanceForms.IGuardSite =
               side === lead ? guard.lead : guard.rear;
@@ -300,7 +302,10 @@ export function MartialArtStancePhrase(
               point: HumanFrame.point(frame, {
                 x: -outward * held.inward * m.shoulderHalfWidth,
                 y: held.up * m.upperArm,
-                z: held.forward * arm,
+                z: Math.max(
+                  held.forward * arm,
+                  m.chestDepth / 2 + 2 * m.forearmRadius,
+                ),
               }),
               facing,
             };

@@ -11,7 +11,7 @@ import {
 } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
-import { nclose, throwsError } from "../internal/predicates";
+import { nclose, throwsError } from "../../../internal/predicates";
 
 /** An authored empty-motion shot of the given id and length. */
 function shot(id: string, duration: number): IAutoMovieShot {
@@ -70,14 +70,8 @@ const SEEK_SHOT: NonNullable<
  * 5. Without `seekShot`, the dissolve's midpoint and the fade's first quarter are
  *    refused naming the subject, the entry and `seekShot`; the fade's third
  *    quarter, which draws only the live shot, is planned.
- *
- * @evidence contracts/development/testing.md#behavioral-verification Calls `planAutoMovieDrawLayers` on laid-out cuts and asserts null, the layers' shots and weights, and the refusal; a plan that drew every frame through the compositor, dropped the outgoing shot or drew a hard cut without `seekShot` fails.
- * @evidence contracts/development/testing.md#independent-expectations The cut is hand-laid, A from 0 to 3 s and B from 2 s; the weights follow from the dissolve's linear mix and the fade's dip by hand.
- * @evidence contracts/development/testing.md#distinguishing-cases No sequence, outside and inside each kind, both halves of a fade, and with and without `seekShot`; the weights' arithmetic belongs to `test_film_playback_layers` and the composite to `test_draw_transition_composite`.
- * @evidence contracts/development/testing.md#execution-ownership A portable unit discovered as `test_draw_transition_plan`; the subjects are plain records and nothing is drawn.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each naming the input and the behavior it pins.
  */
-export function test_draw_transition_plan(): void {
+export function test_unit_render_draw_plan_draw_layers(): void {
   const placed: (
     kind: "crossDissolve" | "fade",
   ) => ReturnType<typeof cut> & Pick<IAutoMovieDrawScene, "seekShot"> = (

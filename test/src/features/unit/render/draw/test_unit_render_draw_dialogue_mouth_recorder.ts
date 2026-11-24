@@ -6,7 +6,7 @@ import type {
 import { AutoMovieDialogueMouthRecorder } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
-import { nclose } from "../internal/predicates";
+import { nclose } from "../../../internal/predicates";
 
 /**
  * The draw page records the dialogue mouth its subject read for each actor, so
@@ -22,14 +22,8 @@ import { nclose } from "../internal/predicates";
  *    read at frame 11 (6 mm) and then frame 12 (12 mm) records 12 mm.
  * 4. Changing a returned or reported weight leaves the record unchanged.
  * 5. `clear` empties the record before the next placement.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Lists each read and the record it must leave.
- * @evidence contracts/development/testing.md#behavioral-verification Reads through `AutoMovieDialogueMouthRecorder.mouths` and observes `drawn` and `clear`. A recorder that keeps the first read, merges forms the subject did not read, shares its record with the caller or never forgets fails.
- * @evidence contracts/development/testing.md#independent-expectations The jaw values are the hand-written track's openings for frames 11 and 12; the envelope weights are 6 / 12 of the maximum speech opening as `aa`.
- * @evidence contracts/development/testing.md#distinguishing-cases Pairs the two forms, two actors, a repeated and a single read, and a cleared and a filled record; the sampled values belong to `test_engine_dialogue_mouth_sample` and the page's use of the record to `test_draw_drawn_video_mouths`.
- * @evidence contracts/development/testing.md#execution-ownership Portable in-memory unit test entered through `test_draw_dialogue_mouth_recorder`; no page or renderer is created.
  */
-export function test_draw_dialogue_mouth_recorder(): void {
+export function test_unit_render_draw_dialogue_mouth_recorder(): void {
   const track: IAutoMovieDialogueMouthTrack = {
     fps: 24,
     lines: [

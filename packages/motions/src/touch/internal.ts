@@ -25,3 +25,4 @@ export * from "./touch";
 export * from "./selfAction";
 export * from "./kiss";
 export * from "./highFive";
+export * from "./lungeGrab";

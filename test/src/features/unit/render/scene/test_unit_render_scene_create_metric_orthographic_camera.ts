@@ -95,7 +95,9 @@ export function test_unit_render_scene_create_metric_orthographic_camera(): void
       );
     }
   }
-  for (const input of [
+  const inputs: Parameters<
+    typeof createAutoMovieMetricOrthographicCamera
+  >[0][] = [
     { ...base, pixelPitchMeters: 0 },
     { ...base, farMeters: base.nearMeters },
     { ...base, pixelPitchMeters: 1e308 },
@@ -103,12 +105,13 @@ export function test_unit_render_scene_create_metric_orthographic_camera(): void
       ...base,
       width: 2,
       height: 2,
-      principalPointPx: [1, 1] as [number, number],
+      principalPointPx: [1, 1],
       pixelPitchMeters: 1e110,
       nearMeters: 1,
       farMeters: 1e110,
     },
-  ]) {
+  ];
+  for (const input of inputs) {
     let refused: boolean = false;
     try {
       createAutoMovieMetricOrthographicCamera(input);

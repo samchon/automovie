@@ -3,23 +3,26 @@ import { planAutoMovieCaptureFrames } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * Around every event and cut a capture plans the subject's own consecutive frames at its frame rate, merged once each with the even samples in time order, for a drawn scene and a video file alike.
+ * Around every event and cut a capture plans the subject's own consecutive
+ * frames at its frame rate, merged once each with the even samples in time
+ * order, for a drawn scene and a video file alike.
  *
  * Scenarios:
  *
- * 1. A 30 fps subject of four seconds sampled at 5 per second with one event at 2.0 s and a window of 3 frames plans frames 57 to 63 each once, merged in order with the even samples every 6 frames, and records the window unclipped.
- * 2. An event at 0.05 s and one at 3.98 s are cut at frame 0 and frame 119, and the windows say they were clipped.
- * 3. Two cuts at 1.0 s and 2.5 s plan the frames around both, recorded as `cut` windows after the events.
- * 4. No cut plans no cut window, and a window of 0 plans only the frame nearest the event.
- * 5. Explicit seconds keep an off-grid second without a frame and an on-grid second as its frame.
- *
- * @evidence contracts/development/testing.md#behavioral-verification Plans times through the public planner and reads the frame indices and windows; a planner that sampled events at a fixed fraction of a second, repeated a frame, left the frames out of order or let a window leave the subject fails.
- * @evidence contracts/development/testing.md#independent-expectations Frames are seconds times 30 worked by hand: 2.0 s is frame 60, so a window of 3 is 57 to 63; the subject's last frame is 4 × 30 - 1 = 119; even samples at 5 per second fall every 6 frames.
- * @evidence contracts/development/testing.md#distinguishing-cases An interior event against events at both bounds, cuts against none, a zero window, and on-grid against off-grid explicit seconds. Refusals of instants outside the subject are owned by `test_capture_plan_refusals`.
- * @evidence contracts/development/testing.md#execution-ownership A portable unit discovered as `test_capture_frame_windows`; it plans in memory.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each naming the input and the behavior it pins.
+ * 1. A 30 fps subject of four seconds sampled at 5 per second with one event at
+ *    2.0 s and a window of 3 frames plans frames 57 to 63 each once, merged in
+ *    order with the even samples every 6 frames, and records the window
+ *    unclipped.
+ * 2. An event at 0.05 s and one at 3.98 s are cut at frame 0 and frame 119, and
+ *    the windows say they were clipped.
+ * 3. Two cuts at 1.0 s and 2.5 s plan the frames around both, recorded as `cut`
+ *    windows after the events.
+ * 4. No cut plans no cut window, and a window of 0 plans only the frame nearest
+ *    the event.
+ * 5. Explicit seconds keep an off-grid second without a frame and an on-grid
+ *    second as its frame.
  */
-export function test_capture_frame_windows(): void {
+export function test_unit_render_capture_plan_capture_frames(): void {
   const frames: (times: IAutoMovieCaptureTime[]) => (number | null)[] = (
     times: IAutoMovieCaptureTime[],
   ): (number | null)[] =>

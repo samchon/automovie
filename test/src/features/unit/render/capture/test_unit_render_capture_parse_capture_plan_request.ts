@@ -2,25 +2,30 @@ import type { IAutoMovieCapturePlanRequest } from "@automovie/interface";
 import { parseAutoMovieCapturePlanRequest } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
-import { throwsError } from "../internal/throwsError";
+import { throwsError } from "../../../internal/throwsError";
 
 /**
- * A value the grammar cannot read stops the request naming the key, the text and what is accepted, and two keys that ask for the same thing twice stop it naming both.
+ * A value the grammar cannot read stops the request naming the key, the text
+ * and what is accepted, and two keys that ask for the same thing twice stop it
+ * naming both.
  *
  * Scenarios:
  *
- * 1. Each capture key with an unreadable value (a word for a number, a negative or fractional count, a zero rate, a cut threshold above 100, `to` before `from`, `smallest` above `longest`, an unknown reduction, a round name with a slash, an empty view list, a malformed view, an unknown pass, a repeated view or pass, a tolerance above 255) is refused with the key and the text in the message.
- * 2. `at` beside `from`, `passes` beside `shade`, `margin` without `sweep`, `tolerance` without `compare` and a round compared with itself are refused.
- * 3. An inspection key with an unreadable value is refused by the inspection reader the grammar composes.
- * 4. The boundary values `from=0`, `window=0`, `tolerance=255`, `smallest` equal to `longest` and `margin=0` are read.
- *
- * @evidence contracts/development/testing.md#behavioral-verification Parses each malformed text through the public reader and checks the refusal names the key and the text; a reader that fell back to a default or a refusal that named neither fails.
- * @evidence contracts/development/testing.md#independent-expectations Each malformed value breaks a range the reader's documented table states; the boundary values are the table's own limits and must be accepted.
- * @evidence contracts/development/testing.md#distinguishing-cases Every capture key with a value just outside its range against the limit itself, exclusive key pairs, and one inspection key. Unknown keys are owned by `test_capture_request_unknown_key`; whether a view exists for a subject is owned by the plan's tests.
- * @evidence contracts/development/testing.md#execution-ownership A portable unit discovered as `test_capture_request_malformed_value`; it starts no host.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each naming the input and the behavior it pins.
+ * 1. Each capture key with an unreadable value (a word for a number, a negative or
+ *    fractional count, a zero rate, a cut threshold above 100, `to` before
+ *    `from`, `smallest` above `longest`, an unknown reduction, a round name
+ *    with a slash, an empty view list, a malformed view, an unknown pass, a
+ *    repeated view or pass, a tolerance above 255) is refused with the key and
+ *    the text in the message.
+ * 2. `at` beside `from`, `passes` beside `shade`, `margin` without `sweep`,
+ *    `tolerance` without `compare` and a round compared with itself are
+ *    refused.
+ * 3. An inspection key with an unreadable value is refused by the inspection
+ *    reader the grammar composes.
+ * 4. The boundary values `from=0`, `window=0`, `tolerance=255`, `smallest` equal
+ *    to `longest` and `margin=0` are read.
  */
-export function test_capture_request_malformed_value(): void {
+export function test_unit_render_capture_parse_capture_plan_request(): void {
   const refuses: (text: string, fragments: string[]) => boolean = (
     text: string,
     fragments: string[],

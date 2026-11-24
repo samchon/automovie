@@ -18,14 +18,8 @@ import { TestValidator } from "@nestia/e2e";
  *    kernel keeps at most 12 taps a side besides its centre, since the chosen
  *    level leaves a deviation below four level pixels, so the cost per level
  *    pixel stays bounded whatever the raster.
- *
- * @evidence contracts/development/testing.md#behavioral-verification Applies the plan the GPU passes execute, simulated along each axis: the box pyramid, the separable taps and the bilinear read back; a plan that ignored the pyramid's own blur, left weights unnormalized or picked a level too shallow fails.
- * @evidence contracts/development/testing.md#independent-expectations The centre value is the issue's closed form from the continuous Gaussians, 0.6 / (2π × 1.44²) + 0.3 / (2π × 7.2²) + 0.1 / (2π × 36²); energy conservation is the contract's `(1 − s) × input + s × kernel ∗ input`. The simulation assumes levels that halve exactly, which the 720-row pyramid does not at its deepest level, so a sub-pixel misalignment of the GPU's widest kernel is not observed here.
- * @evidence contracts/development/testing.md#distinguishing-cases The narrow kernel at full resolution and the wide ones at deeper levels, and two raster heights. The response steps around the glare are owned by `test_draw_film_optics_exposure`; the GPU pixels are a real capture's.
- * @evidence contracts/development/testing.md#execution-ownership A portable unit discovered as `test_draw_film_optics_glare`; it runs CPU arithmetic only.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each naming the input and the behavior it pins.
  */
-export function test_draw_film_optics_glare(): void {
+export function test_unit_render_scene_plan_film_glare(): void {
   const kernels: planAutoMovieFilmGlare.IKernel[] = planAutoMovieFilmGlare(720);
 
   // 1. Normalized taps.

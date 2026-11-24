@@ -1,29 +1,31 @@
 import { AutoMovieCaptureFolder } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
-import { rejectsError } from "../internal/rejectsError";
-import { createCaptureMemory } from "./createCaptureMemory";
+import { createCaptureMemory } from "../../../capture/createCaptureMemory";
+import { rejectsError } from "../../../internal/rejectsError";
 
 /**
- * A capture folder owns exactly the files its record lists: it refuses a folder holding anything else without touching it, replaces what an earlier or interrupted capture owns, and writes only names it claimed.
+ * A capture folder owns exactly the files its record lists: it refuses a folder
+ * holding anything else without touching it, replaces what an earlier or
+ * interrupted capture owns, and writes only names it claimed.
  *
  * Scenarios:
  *
- * 1. A root holding a file no record lists is refused naming the file, and nothing is deleted or written.
+ * 1. A root holding a file no record lists is refused naming the file, and nothing
+ *    is deleted or written.
  * 2. A root holding only a `rounds` folder opens, and the kept rounds stay.
- * 3. A folder whose `running` record lists two files, only one of which exists, opens and deletes the one, so an interrupted capture is replaced instead of refused.
- * 4. A round's folder holding a file no record lists is refused, and a `rounds` entry inside a round is not owned.
- * 5. A compared round that does not exist, or whose record is still running, is refused before the previous capture's files are deleted.
+ * 3. A folder whose `running` record lists two files, only one of which exists,
+ *    opens and deletes the one, so an interrupted capture is replaced instead
+ *    of refused.
+ * 4. A round's folder holding a file no record lists is refused, and a `rounds`
+ *    entry inside a round is not owned.
+ * 5. A compared round that does not exist, or whose record is still running, is
+ *    refused before the previous capture's files are deleted.
  * 6. A record that is not JSON is refused naming its path.
- * 7. A claim of a path with a separator, a relative step or the record's own name is refused, and a write of an unclaimed name is refused.
- *
- * @evidence contracts/development/testing.md#behavioral-verification Opens folders through the public class over seeded in-memory storage and reads the refusals, the remaining files and the calls; a folder that deleted foreign files, kept an interrupted capture's leftovers, or deleted before confirming the compared round fails.
- * @evidence contracts/development/testing.md#independent-expectations Ownership is the record's file list, as the class documents; every seeded file is written by this test, so which must remain is known by hand.
- * @evidence contracts/development/testing.md#distinguishing-cases A foreign file against an owned one, the root's `rounds` against a round's, complete against running records, a missing compared round against a present one, and valid against escaping names. The full order of a run is owned by `test_capture_run_order`.
- * @evidence contracts/development/testing.md#execution-ownership A portable unit discovered as `test_capture_folder_ownership`; it touches only in-memory storage.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 7 numbered scenarios it runs, each naming the input and the behavior it pins.
+ * 7. A claim of a path with a separator, a relative step or the record's own name
+ *    is refused, and a write of an unclaimed name is refused.
  */
-export async function test_capture_folder_ownership(): Promise<void> {
+export async function test_unit_render_capture_capture_folder(): Promise<void> {
   const complete: (files: string[]) => string = (files: string[]): string =>
     JSON.stringify({ state: "complete", files, rows: [] });
 

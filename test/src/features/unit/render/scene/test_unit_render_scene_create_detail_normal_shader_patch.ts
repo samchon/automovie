@@ -48,7 +48,7 @@ export function test_unit_render_scene_create_detail_normal_shader_patch(): void
   );
   TestValidator.predicate(
     "strength stays the registered value",
-    nclose(shader.uniforms.detailNormalScale!.value as number, 0.75, 0),
+    nclose(shader.uniforms.detailNormalScale!.value, 0.75, 0),
   );
   texture.dispose();
 }

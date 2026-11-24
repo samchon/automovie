@@ -16,7 +16,7 @@ import { TestValidator } from "@nestia/e2e";
 export function test_unit_render_scene_apply_material_shader_patches(): void {
   const state: { rendererState: { owner: string }; edits: string[] } = {
     rendererState: { owner: "caller" },
-    edits: [] as string[],
+    edits: [],
   };
   const callerState: { owner: string } = state.rendererState;
   applyMaterialShaderPatches(

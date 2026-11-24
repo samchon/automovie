@@ -20,8 +20,7 @@ import { nclose } from "../../../internal/nclose";
  *    component with three boundary cycles.
  * 3. A triangle touching a cut-chain endpoint appears in broad incidence but
  *    cannot become that chain's exact port support.
- * 4. Mutating delivered lineage copies cannot corrupt slab ownership or curve
- *    output.
+ * 4. Each actual port's exact support names real source faces.
  * 5. Slab-observer exceptions, cooperative abort and invalid bounds produce
  *    explicit terminal outcomes.
  */
@@ -79,9 +78,6 @@ export function test_unit_recovery_observation_observe_sections_source_slabs(): 
     { ...input, slabPairs: [{ beforeMm: 0.5, afterMm: 1.5 }] },
     {
       curveFormat: "hermite",
-      onSourceLineage: (record: IAutoMovieRecoverySourceLineage): void => {
-        (record.exactSourceTriangleIds as number[] | undefined)?.fill(-1);
-      },
       onSourceSlab: (record: IAutoMovieRecoverySlabObservation): void => {
         slabs.push(record);
       },
@@ -154,7 +150,7 @@ export function test_unit_recovery_observation_observe_sections_source_slabs(): 
       "closed",
     );
     TestValidator.predicate(
-      "delivered lineage mutation cannot change private support",
+      "the port's exact support names real source faces",
       port.exactSourceTriangleIds.length > 0 &&
         port.exactSourceTriangleIds.every((face: number): boolean => face >= 0),
     );

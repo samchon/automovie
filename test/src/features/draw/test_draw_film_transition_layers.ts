@@ -305,7 +305,7 @@ const OPTICS: IAutoMovieFilmOptics = {
 /** One planned picture over a recording subject and beauty owner. */
 interface IPicture {
   /** The picture under test. */
-  film: AutoMovieDrawFilm;
+  film: AutoMovieDrawFilm<AutoMovieDrawFilm.IRenderer>;
 
   /** The recording subject. */
   subject: createRecordedFilmSubject.IDouble;

@@ -3,8 +3,8 @@ import type { IMaterialShaderSource } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
-import { compileMaterialShaderSource } from "../internal/compileMaterialShaderSource";
-import { createFilmResponseRendererDouble } from "./createFilmResponseRendererDouble";
+import { createFilmResponseRendererDouble } from "../../../draw/createFilmResponseRendererDouble";
+import { compileMaterialShaderSource } from "../../../internal/compileMaterialShaderSource";
 
 /**
  * Occlusion changes only indirect light: the patched lit materials multiply
@@ -30,14 +30,8 @@ import { createFilmResponseRendererDouble } from "./createFilmResponseRendererDo
  *
  * Pixels of a directional-lit scene drawn with and without occlusion are
  * compared on a real GPU under the visual-debugging skill.
- *
- * @evidence contracts/development/testing.md#behavioral-verification Runs the stage over a recording renderer and the patch over three's own physical program; a multiply placed before direct light, an always-on gate or a patched unlit material fails.
- * @evidence contracts/development/testing.md#independent-expectations Three's chunk order places `aomap_fragment` after the light loop; with no image lighting the indirect terms are zero, so a multiply of them cannot change the frame.
- * @evidence contracts/development/testing.md#distinguishing-cases Lit and unlit materials, inside and outside the beauty callback, occlusion against no members; the estimator is owned by `test_draw_film_occlusion_crease`, ordering by `test_draw_film_occlusion_order`.
- * @evidence contracts/development/testing.md#execution-ownership A portable unit discovered as `test_draw_film_occlusion_direct`; the renderer is an in-memory double and no GPU starts.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each naming the input and the behavior it pins.
  */
-export function test_draw_film_occlusion_direct(): void {
+export function test_unit_render_scene_film_indirect_stage(): void {
   const lit: THREE.MeshStandardMaterial = new THREE.MeshStandardMaterial();
   const unlit: THREE.MeshBasicMaterial = new THREE.MeshBasicMaterial();
   const scene: THREE.Scene = new THREE.Scene();
@@ -54,7 +48,7 @@ export function test_draw_film_occlusion_direct(): void {
     });
   const stage: AutoMovieFilmIndirectStage = new AutoMovieFilmIndirectStage();
   const gate: () => number = (): number =>
-    stage.uniforms.uFilmOcclusionOn!.value as number;
+    stage.uniforms.uFilmOcclusionOn!.value;
   let inside: number = -1;
   stage.draw(
     {

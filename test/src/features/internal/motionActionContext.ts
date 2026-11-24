@@ -103,6 +103,25 @@ export function motionActionContext<P extends object>(
       };
       return { ...prop, frame };
     }
+    // A prop worn on this performer rides its bone the same way, at its worn
+    // offset in that bone's frame.
+    const worn: IAutoMovieMotionHumanProp["worn"] = prop.worn;
+    if (worn !== undefined && worn.subject === subject) {
+      const bone: IAutoMovieResolvedBone = bones.get(worn.bone)!;
+      return {
+        ...prop,
+        frame: {
+          position: Vector3.add(
+            bone.worldPosition,
+            Quaternion.rotateVector(bone.worldRotation, worn.offset.position),
+          ),
+          rotation: Quaternion.multiply(
+            bone.worldRotation,
+            worn.offset.rotation,
+          ),
+        },
+      };
+    }
     return prop;
   };
   const props = (name: string): IAutoMovieMotionHumanProp =>

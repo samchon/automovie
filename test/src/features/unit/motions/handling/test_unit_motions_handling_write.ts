@@ -12,6 +12,7 @@ import type {
 } from "@automovie/interface";
 import {
   HumanHand,
+  HumanRefusal,
   poseBones,
   resolveHumanPosture,
   stand,
@@ -151,11 +152,66 @@ export async function test_unit_motions_handling_write(): Promise<void> {
     "on the sheet",
     Vector3.distance(nib, surface) <= BOUND,
   );
-  // The pen stays in the hand through the trace and the return.
-  TestValidator.predicate(
-    "the pen held throughout",
-    (plan.holds ?? []).some(
-      (h) => h.side === "right" && h.prop === "pen" && h.from === 0,
+  // The trace ends at the polyline's last point, sqrt(2) edges from its first
+  // in any frame the sheet is turned to, the pen riding the hand rigidly.
+  const ends: number =
+    plan.duration *
+    plan.events.find(
+      (e: IAutoMovieMotionEvent): boolean => e.name === "strokeEnd",
+    )!.share;
+  const last: IAutoMovieResolvedBone = poseBones(
+    body,
+    resolveHumanPosture(body, plan.posture(ends)),
+  ).get("rightHand")!;
+  const traced: IAutoMovieVector3 = Vector3.add(
+    last.worldPosition,
+    Quaternion.rotateVector(
+      last.worldRotation,
+      Vector3.add(
+        offset.position,
+        Quaternion.rotateVector(offset.rotation, tip),
+      ),
     ),
   );
+  TestValidator.predicate(
+    "the corner traced",
+    Math.abs(Vector3.distance(nib, traced) - Math.SQRT2 * EDGE) <= 2 * BOUND,
+  );
+  // The same nib riding a slider of the pen moves by a mechanism: refused.
+  const riding: NonNullable<IAutoMovieMotionHumanProp["affordances"]> = [
+    { ...pen.affordances![0]!, rides: "slide" },
+    {
+      id: "slide",
+      kind: "slider",
+      frame: Transform.identity(),
+      extent: null,
+      travel: EDGE,
+    },
+  ];
+  let refused: boolean = false;
+  try {
+    write.plan(
+      motionActionContext(body, params, {
+        posture: carrying,
+        props: [
+          {
+            ...pen,
+            affordances: riding,
+            articulate: (): IAutoMovieMotionHumanProp.IPosed => ({
+              affordances: riding,
+            }),
+          },
+          paper,
+        ],
+        holds: { right: "pen" },
+        carried: { right: offset },
+      }),
+    );
+  } catch (error: unknown) {
+    refused =
+      error instanceof HumanRefusal &&
+      error.kind === "affordance" &&
+      error.axis === "tip";
+  }
+  TestValidator.predicate("an articulated nib", refused);
 }

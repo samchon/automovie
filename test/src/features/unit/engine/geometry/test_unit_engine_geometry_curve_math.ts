@@ -1,5 +1,8 @@
 import { AutoMovieCurveMath64 as C } from "@automovie/engine";
-import type { AutoMovieVector3Tuple } from "@automovie/interface";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieCurveMath64,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose, throwsError } from "../../../internal/predicates";
@@ -35,7 +38,7 @@ export function test_unit_engine_geometry_curve_math(): void {
     y,
     z,
   ];
-  const line: AutoMovieVector3Tuple[] = [
+  const line: IAutoMovieCurveMath64.Span = [
     p(0, 0, 0),
     p(1, 0, 0),
     p(2, 0, 0),
