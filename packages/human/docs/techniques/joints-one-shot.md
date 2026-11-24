@@ -46,6 +46,10 @@ Prepare fixed course frames, station indices, phase rays, cut interpolation fact
 
 Matched three-reading measurements reduced the first hand derivative from 5.416 to 2.784 seconds and its section builds from 7,635 to 2,479. The corresponding leg derivative changed from 7.432 to 3.869 seconds and from 16,495 to 5,087 section builds. The measurements cover the solver and its preparation through the short profile.
 
+The neutral assembly profile found a separate cost in the hand's production root search. Each trial evaluated 388 radius 2-jets to check its entire section and then read one radial value for the exit bracket. The source admits positive-weight conics and convex cubic end supports at preparation. Each speculative trial requires one finite positive radius at its requested phase. Each completed bracket still runs the same four-quarter numerical inspection before publishing the section jets. The oblique-root regression passed before and after. Its scenario time was 1905 ms before and 240 ms after on the same checkout with concurrent campaign work. [Hansford, Barnhill and Farin 1994, §2.1](https://www.farinhansford.com/dianne/materials/HansfordBarnhillFarin.pdf), [Habib and Sakai 2001](https://www.jams.or.jp/scm/contents/Vol-5-5/5-41.pdf).
+
+The shoulder and lower-limb strip readers prepare the three or four station rings of their existing difference stencil, then read every meridian from these explicit rings. The trunk prepares its unchanged independent tape values once for the two passes and their hip trials. Each trial still constructs its candidate-dependent shoulder and coupled leg sources.
+
 ## Acceptance order
 
 1. Run the 60-degree signed-port case. Fit the public shoulder and check its complete attachments, topology and matched-camera shape.

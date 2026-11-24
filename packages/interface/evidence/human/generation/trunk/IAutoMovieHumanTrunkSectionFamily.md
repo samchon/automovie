@@ -26,7 +26,7 @@ One named measurement plane and its caller-owned four-support source.
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
-Returned by AutoMovieHumanTrunkSectionFamily.define, AutoMovieHumanTrunkSectionFamily.at. Read by AutoMovieHumanTrunkLegs.trial, AutoMovieHumanTrunkSectionFamily.define, AutoMovieHumanTrunkSectionFamily.at. Also types AutoMovieHumanTrunkBuild.sections, AutoMovieHumanTrunkBuild.plane.
+Returned by `AutoMovieHumanTrunkSectionFamily.at`, `define` and `prepare`. The trunk build passes the prepared family to both trunk definitions and every coupled leg trial. Each trial reads its own candidate shoulder on the original support box.
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 
@@ -42,7 +42,7 @@ The actual independent scalar constraint result, including its unchanged admissi
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
-Also types AutoMovieHumanTrunkSectionFamily.resolved, AutoMovieHumanTrunkViewPart.solved.
+Types the independent tape result prepared for the trunk passes and read by `AutoMovieHumanTrunkViewPart`.
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 

@@ -164,7 +164,7 @@ export namespace AutoMovieHumanTrunkBuild {
     const sections: ReadonlyMap<
       string,
       IAutoMovieHumanTrunkSectionFamily.IPlane
-    > = AutoMovieHumanTrunkSectionFamily.define(input.views);
+    > = AutoMovieHumanTrunkSectionFamily.prepare(input.views);
     const diagnostics: IAutoMovieLoftContract.IDiagnostic[] = [];
     const sources: IAutoMovieHumanNamedSource[] = [];
     const out: (

@@ -71,7 +71,9 @@ export namespace AutoMovieHumanLegChain {
    * @param side The leg's side.
    * @param inputs Tape measures in calibration millimetres.
    * @param skeleton The bind skeleton the leg is lofted on.
-   * @param diagnostics The list a broken contract is recorded in; the chain is still made, its broken rows replaced by their valid neighbours and a broken relief left out.
+   * @param diagnostics The list a broken contract is recorded in; the chain is
+   *   still made, its broken rows replaced by their valid neighbours and a
+   *   broken relief left out.
    */
   export function of(
     calibration: IAutoMovieHumanBodyCalibration,
@@ -227,34 +229,19 @@ export namespace AutoMovieHumanLegChain {
     // The root strip from the trunk's crotch ring, with the trunk's jet, to the
     // law's own section at the crotch reach, with the law's own jet there.
     const reach: number = law.crotchReach;
-    const own: Map<number, Vec3[]> = new Map<number, Vec3[]>();
     const ownAt: (run: number) => Vec3[] = (run: number): Vec3[] => {
-      let found: Vec3[] | undefined = own.get(run);
-      if (found === undefined) {
-        const s: number = law.top - run;
-        own.set(
-          run,
-          (found = AutoMovieHumanLegSectionLaw.points(
-            law,
-            s,
-            AutoMovieHumanLegAxis.frameAt(frames, s),
-            centre(s),
-          )),
-        );
-      }
-      return found;
+      const s: number = law.top - run;
+      return AutoMovieHumanLegSectionLaw.points(
+        law,
+        s,
+        AutoMovieHumanLegAxis.frameAt(frames, s),
+        centre(s),
+      );
     };
     const strip: IAutoMovieHumanLimbRootStrip.IStrip =
       AutoMovieHumanLimbRootStrip.strip({
         start: AutoMovieHumanLegCrotchRoot.start(root),
-        end: ownAt(reach).map(
-          (_: Vec3, m: number): IAutoMovieHumanLimbRootStrip.IJet =>
-            AutoMovieHumanLimbRootStrip.jet(
-              (run: number): Vec3 => ownAt(run)[m]!,
-              reach,
-              CURVE_STEP,
-            ),
-        ),
+        end: AutoMovieHumanLimbRootStrip.centredRing(ownAt, reach, CURVE_STEP),
       });
 
     // The root strip from the foot's ankle ring, which the foot owns, with the
@@ -264,40 +251,19 @@ export namespace AutoMovieHumanLegChain {
       (c: IAutoMovieLoftChain): boolean => c.name === `foot.${side}`,
     )!;
     const footTop: number = foot.layers[foot.layers.length - 1]!.y;
-    const footRows: Map<number, Vec3[]> = new Map<number, Vec3[]>();
-    const footAt: (run: number) => Vec3[] = (run: number): Vec3[] => {
-      let found: Vec3[] | undefined = footRows.get(run);
-      if (found === undefined)
-        footRows.set(
-          run,
-          (found = AutoMovieLoftChain.ring(
-            foot,
-            footTop + run,
-            AutoMovieHumanLegSampling.PHASES,
-          ).map((p: Vec3): Vec3 => [p[0], p[1], sign * p[2]])),
-        );
-      return found;
-    };
+    const footAt = (run: number): Vec3[] =>
+      AutoMovieLoftChain.ring(
+        foot,
+        footTop + run,
+        AutoMovieHumanLegSampling.PHASES,
+      ).map((p: Vec3): Vec3 => [p[0], p[1], sign * p[2]]);
     const ankleReach: number = law.ankleReach;
     const upAt: (run: number) => Vec3[] = (run: number): Vec3[] =>
       ownAt(law.top - law.bottom - run);
     const footJets: IAutoMovieHumanLimbRootStrip.IJet[] =
-      AutoMovieHumanLegSampling.PHASES.map(
-        (_: number, m: number): IAutoMovieHumanLimbRootStrip.IJet =>
-          AutoMovieHumanLimbRootStrip.edge(
-            (run: number): Vec3 => footAt(run)[m]!,
-            0,
-            -ANKLE_STEP,
-          ),
-      );
-    const ankleEnds: IAutoMovieHumanLimbRootStrip.IJet[] = upAt(ankleReach).map(
-      (_: Vec3, m: number): IAutoMovieHumanLimbRootStrip.IJet =>
-        AutoMovieHumanLimbRootStrip.jet(
-          (run: number): Vec3 => upAt(run)[m]!,
-          ankleReach,
-          CURVE_STEP,
-        ),
-    );
+      AutoMovieHumanLimbRootStrip.edgeRing(footAt, 0, -ANKLE_STEP);
+    const ankleEnds: IAutoMovieHumanLimbRootStrip.IJet[] =
+      AutoMovieHumanLimbRootStrip.centredRing(upAt, ankleReach, CURVE_STEP);
 
     // Each column starts where the ray from the ankle ring's centre through the
     // leg's own point crosses the ring: the foot's own phases need not run in
@@ -485,23 +451,23 @@ export namespace AutoMovieHumanLegChain {
   export const STEP: number = 0.05;
 
   /**
-   * Station step of the one-sided differences of the foot's chain under its
-   * top ring, mm: three steps span under a millimetre, inside the foot's last
+   * Station step of the one-sided differences of the foot's chain under its top
+   * ring, mm: three steps span under a millimetre, inside the foot's last
    * station span, where its station spline is one cubic.
    */
   export const ANKLE_STEP: number = 0.25;
 
   /**
    * Station step of the rings' one-sided second differences, mm: ten section
-   * steps, so the second difference stands well over the section's own
-   * rounding and stays within the first millimetre past each ring.
+   * steps, so the second difference stands well over the section's own rounding
+   * and stays within the first millimetre past each ring.
    */
   export const CURVE_STEP: number = 10 * STEP;
 
   /**
    * The stations that keep the layer contract: finite and each at least the
-   * least layer gap over the last one kept. When the list breaks it, the
-   * broken rows are left out and the contract's message is recorded once.
+   * least layer gap over the last one kept. When the list breaks it, the broken
+   * rows are left out and the contract's message is recorded once.
    *
    * @param producer The chain, for the message.
    * @param stations The placed stations, mm.
@@ -544,9 +510,9 @@ export namespace AutoMovieHumanLegChain {
   }
 
   /**
-   * Layers with each broken one replaced by its nearest valid neighbour's
-   * row at its own station: the base row rule of the totality contract, so a
-   * broken layer leaves a flat band and never an undefined surface.
+   * Layers with each broken one replaced by its nearest valid neighbour's row
+   * at its own station: the base row rule of the totality contract, so a broken
+   * layer leaves a flat band and never an undefined surface.
    *
    * @param built The layers, a broken one as null.
    * @param stations Their stations, mm.

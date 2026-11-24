@@ -19,9 +19,9 @@ import { AutoMovieHumanLegVector } from "./AutoMovieHumanLegVector";
 const { fifth, norm, sub } = AutoMovieHumanLegVector;
 
 /**
- * The crotch ring a leg takes: the trunk owns the bottom ring, and the leg takes
- * the arc of it that is its own, with the trunk's jet down across it, which the
- * leg's root strip copies (`AutoMovieHumanLimbRootStrip`).
+ * The crotch ring a leg takes: the trunk owns the bottom ring, and the leg
+ * takes the arc of it that is its own, with the trunk's jet down across it,
+ * which the leg's root strip copies (`AutoMovieHumanLimbRootStrip`).
  *
  * The arc runs from the front pinch round the outside to the rear pinch, and
  * the slit between the thighs closes it, its corners rounded
@@ -82,7 +82,10 @@ export namespace AutoMovieHumanLegCrotchRoot {
     );
   }
 
-  /** The arc of the trunk's bottom ring that a leg takes, world, in its own phase order. */
+  /**
+   * The arc of the trunk's bottom ring that a leg takes, world, in its own
+   * phase order.
+   */
   export function ring(
     calibration: IAutoMovieHumanBodyCalibration,
     side: "left" | "right",
@@ -104,7 +107,8 @@ export namespace AutoMovieHumanLegCrotchRoot {
    * @param calibration Calibration holding `trunk` and the event.
    * @param side The leg's side.
    * @param sign 1 for the left leg, -1 for the right's reflection.
-   * @param centre Centre the ring's phases are read about, `[x, z]`: the law's own last centre.
+   * @param centre Centre the ring's phases are read about, `[x, z]`: the law's
+   *   own last centre.
    */
   export function of(
     calibration: IAutoMovieHumanBodyCalibration,
@@ -121,35 +125,15 @@ export namespace AutoMovieHumanLegCrotchRoot {
 
     // The trunk's rings a run down from its bottom ring: a negative run reads
     // the trunk above it, where it exists.
-    const rows: Map<number, AutoMovieVector3Tuple[]> = new Map<
-      number,
-      AutoMovieVector3Tuple[]
-    >();
-    const row: (run: number) => AutoMovieVector3Tuple[] = (
-      run: number,
-    ): AutoMovieVector3Tuple[] => {
-      let found: AutoMovieVector3Tuple[] | undefined = rows.get(run);
-      if (found === undefined)
-        rows.set(
-          run,
-          (found = AutoMovieLoftChain.ring(trunk, y - run, ringPhases).map(
-            (p: AutoMovieVector3Tuple): AutoMovieVector3Tuple => [
-              p[0],
-              p[1],
-              sign * p[2],
-            ],
-          )),
-        );
-      return found;
-    };
-    const jets: IAutoMovieHumanLimbRootStrip.IJet[] = ringPhases.map(
-      (_: number, i: number): IAutoMovieHumanLimbRootStrip.IJet =>
-        AutoMovieHumanLimbRootStrip.edge(
-          (run: number): AutoMovieVector3Tuple => row(run)[i]!,
-          0,
-          -TRUNK_STEP,
-        ),
-    );
+    const jets: IAutoMovieHumanLimbRootStrip.IJet[] =
+      AutoMovieHumanLimbRootStrip.edgeRing(
+        (run) =>
+          AutoMovieLoftChain.ring(trunk, y - run, ringPhases).map(
+            (p): AutoMovieVector3Tuple => [p[0], p[1], sign * p[2]],
+          ),
+        0,
+        -TRUNK_STEP,
+      );
     const here: AutoMovieVector3Tuple[] = jets.map(
       (j: IAutoMovieHumanLimbRootStrip.IJet): AutoMovieVector3Tuple => j.point,
     );
