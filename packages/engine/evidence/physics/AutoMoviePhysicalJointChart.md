@@ -54,11 +54,11 @@ States both triples and the choice.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-A Tait-Bryan chart covers each rotation twice away from the aligned case; the joint's ranges pick the branch its coordinates live on.
+A Tait-Bryan chart covers each rotation twice away from the aligned case; the joint's ranges pick the branch its coordinates live on. An angle and the same angle a whole turn away are one rotation, so each angle is read at the turn nearest its range, and a half turn on a range ending at -pi does not depend on the sign rounding gave it.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-Extract, form the twin, compare two distances.
+Extract, form the twin, take each angle at its turn nearest the range, compare two distances.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
