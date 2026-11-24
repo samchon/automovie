@@ -10,6 +10,9 @@ interface ISummary {
   /** The identity, with this round's category. */
   identity: Omit<IAutoMovieCaptureFindingDiff.IIdentity, "category">;
 
+  /** Address of the coverage shared by the findings of this obligation. */
+  obligation: string;
+
   /** The worst observation across the identity's episodes. */
   worst: IAutoMovieInspectionDiagnostics.IObservation;
 
@@ -51,9 +54,11 @@ interface ISpan {
  * frames, because consecutive frames leave no unsampled time between them;
  * ranges apart by a gap do not. Otherwise the identity is `unmatched`, with the
  * other round's status over the first interval it did not check, or
- * `not-sampled` when no coverage row of that round reaches into it. An identity
- * both rounds have is `carried`, and its change compares the two worst
- * observations.
+ * `not-sampled` when no coverage span reaches all of it and no open coverage
+ * reaches into it. An identity both rounds have is `carried` only if both
+ * audits checked every interval of both rounds. Its change compares the two
+ * worst observations. With insufficient coverage it stays `unmatched` and
+ * retains both witnesses.
  *
  * The outcome reads errors only: `worse` when an error is new or carried worse,
  * `better` when none is new, carried worse or unmatched and one is fixed or
@@ -84,28 +89,39 @@ export function diffAutoMovieCaptureFindings(props: {
   // Summarize both rounds, then walk this round's identities before the earlier-only ones.
   const before: Map<string, ISummary> = summarize(earlier);
   const now: Map<string, ISummary> = summarize(current);
+  const obligations: Set<string> = new Set();
+  for (const summary of before.values()) obligations.add(summary.obligation);
+  for (const summary of now.values()) obligations.add(summary.obligation);
+  const earlierSpans: Map<string, ISpan[]> = indexCoverage(
+    earlier,
+    obligations,
+  );
+  const currentSpans: Map<string, ISpan[]> = indexCoverage(
+    current,
+    obligations,
+  );
+
   const entries: IAutoMovieCaptureFindingDiff.IEntry[] = [];
   for (const [key, summary] of now) {
     const old: ISummary | undefined = before.get(key);
+    const coveredEarlier: readonly ISpan[] =
+      earlierSpans.get(summary.obligation) ?? [];
     entries.push(
       old === undefined
-        ? lone(summary, earlier, "current")
-        : {
-            ...identityOf(old, summary),
-            state: "carried",
-            change: changeOf(
-              compareAutoMovieInspectionFindings(
-                summary.worst.finding,
-                old.worst.finding,
-              ),
-            ),
-            earlier: old.worst,
-            current: summary.worst,
-          },
+        ? lone(summary, coveredEarlier, "current")
+        : carried(
+            old,
+            summary,
+            coveredEarlier,
+            currentSpans.get(summary.obligation) ?? [],
+          ),
     );
   }
   for (const [key, summary] of before)
-    if (!now.has(key)) entries.push(lone(summary, current, "earlier"));
+    if (!now.has(key))
+      entries.push(
+        lone(summary, currentSpans.get(summary.obligation) ?? [], "earlier"),
+      );
 
   // Errors alone decide the outcome.
   const errors: IAutoMovieCaptureFindingDiff.IEntry[] = entries.filter(
@@ -167,6 +183,7 @@ function summarize(
     if (summary === undefined) {
       output.set(key, {
         identity,
+        obligation: obligationKey(identity.scope, identity),
         worst: episode.worst,
         intervals: [interval],
       });
@@ -181,19 +198,48 @@ function summarize(
   return output;
 }
 
+/** Compare two worst witnesses only across mutually checked episode spans. */
+function carried(
+  old: ISummary,
+  now: ISummary,
+  earlier: readonly ISpan[],
+  current: readonly ISpan[],
+): IAutoMovieCaptureFindingDiff.IEntry {
+  const identity: IAutoMovieCaptureFindingDiff.IIdentity = identityOf(old, now);
+  const observations: {
+    earlier: IAutoMovieInspectionDiagnostics.IObservation;
+    current: IAutoMovieInspectionDiagnostics.IObservation;
+  } = { earlier: old.worst, current: now.worst };
+
+  // The current round is the first place to recheck a missing span.
+  const cause: IAutoMovieCaptureFindingDiff.Cause | undefined =
+    firstUncovered(current, old, now) ?? firstUncovered(earlier, old, now);
+  if (cause !== undefined)
+    return { ...identity, ...observations, state: "unmatched", cause };
+
+  const order: number = compareAutoMovieInspectionFindings(
+    now.worst.finding,
+    old.worst.finding,
+  );
+  return {
+    ...identity,
+    ...observations,
+    state: "carried",
+    change: changeOf(order),
+  };
+}
+
 /** Classify an identity only one round has against the other round's coverage. */
 function lone(
   summary: ISummary,
-  other: IAutoMovieInspectionDiagnostics.IAudit,
+  other: readonly ISpan[],
   holder: "earlier" | "current",
 ): IAutoMovieCaptureFindingDiff.IEntry {
   const identity: IAutoMovieCaptureFindingDiff.IIdentity = identityOf(summary);
-  const spans: ISpan[] = spansOf(other, summary.identity);
-  let cause: IAutoMovieCaptureFindingDiff.Cause | undefined;
-  for (const [from, to] of summary.intervals) {
-    cause = causeOver(spans, from, to);
-    if (cause !== undefined) break;
-  }
+  const cause: IAutoMovieCaptureFindingDiff.Cause | undefined = firstUncovered(
+    other,
+    summary,
+  );
   if (cause !== undefined)
     return holder === "earlier"
       ? {
@@ -213,6 +259,23 @@ function lone(
   return holder === "earlier"
     ? { ...identity, state: "fixed", earlier: summary.worst, current: null }
     : { ...identity, state: "new", earlier: null, current: summary.worst };
+}
+
+/** Read one audit's first uncovered span among episodes of the same identity. */
+function firstUncovered(
+  spans: readonly ISpan[],
+  ...summaries: ISummary[]
+): IAutoMovieCaptureFindingDiff.Cause | undefined {
+  for (const summary of summaries)
+    for (const [from, to] of summary.intervals) {
+      const cause: IAutoMovieCaptureFindingDiff.Cause | undefined = causeOver(
+        spans,
+        from,
+        to,
+      );
+      if (cause !== undefined) return cause;
+    }
+  return undefined;
 }
 
 /**
@@ -239,29 +302,23 @@ function changeOf(order: number): "worse" | "better" | "same" {
 }
 
 /**
- * The round's coverage of one obligation, merged across consecutive output
- * frames of one status.
+ * Index relevant coverage once in the audit's first-observation order, merging
+ * consecutive output frames of one status for each obligation.
  */
-function spansOf(
+function indexCoverage(
   audit: IAutoMovieInspectionDiagnostics.IAudit,
-  identity: Pick<ISummary["identity"], "scope" | "check" | "key">,
-): ISpan[] {
-  const ranges: IAutoMovieInspectionDiagnostics.ICoverageRange[] =
-    audit.coverage
-      .filter(
-        (range: IAutoMovieInspectionDiagnostics.ICoverageRange): boolean =>
-          range.scope === identity.scope &&
-          range.coverage.check === identity.check &&
-          range.coverage.key === identity.key,
-      )
-      .sort(
-        (
-          left: IAutoMovieInspectionDiagnostics.ICoverageRange,
-          right: IAutoMovieInspectionDiagnostics.ICoverageRange,
-        ): number => left.first.filmSeconds - right.first.filmSeconds,
-      );
-  const spans: ISpan[] = [];
-  for (const range of ranges) {
+  obligations: ReadonlySet<string>,
+): Map<string, ISpan[]> {
+  const indexed: Map<string, ISpan[]> = new Map();
+  if (obligations.size === 0) return indexed;
+  for (const range of audit.coverage) {
+    const key: string = obligationKey(range.scope, range.coverage);
+    if (!obligations.has(key)) continue;
+    let spans: ISpan[] | undefined = indexed.get(key);
+    if (spans === undefined) {
+      spans = [];
+      indexed.set(key, spans);
+    }
     const last: ISpan | undefined = spans.at(-1);
     const frame: number | undefined = range.first.outputFrame;
     if (
@@ -282,7 +339,15 @@ function spansOf(
       status: range.coverage.status,
     });
   }
-  return spans;
+  return indexed;
+}
+
+/** Address an obligation without delimiter ambiguities in its owner fields. */
+function obligationKey(
+  scope: string,
+  row: Pick<IAutoMovieInspectionDiagnostics.ICoverage, "check" | "key">,
+): string {
+  return JSON.stringify([scope, row.check, row.key]);
 }
 
 /**

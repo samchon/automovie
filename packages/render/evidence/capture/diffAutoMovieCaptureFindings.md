@@ -6,23 +6,23 @@ States the identity, the severity order and its owner, how intervals are read, w
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-An episode keeps its first and worst observations and its last sample, not every sample time, so an identity's intervals are its episodes' spans. A sample holds each identity once within a scope, so the five-field identity pairs findings across rounds. Absence is a fix or a new finding only where the other round checked the obligation over the whole span; consecutive output frames leave no unsampled time, so coverage ranges merge across them, and a gap between samples does not. Severity uses compareAutoMovieInspectionFindings, the order the reducer keeps the worst witness by.
+An episode keeps the first and worst observations and the last sample clock, so its span supplies the interval the comparison needs. The five-field identity pairs findings within the same continuity occurrence. A missing finding counts as fixed or new once the other round checked all its intervals. A shared identity needs checked coverage of both rounds' intervals in each audit. Coverage ranges merge across consecutive output frames and preserve gaps. When coverage suffices, compareAutoMovieInspectionFindings applies the reducer's severity order to the two worst witnesses.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-Summarize each round by identity, classify this round's identities and then the earlier-only ones, then read the outcome from the errors.
+Summarize each round by identity, index the coverage of the involved obligations, classify this round's identities and then the earlier-only ones, and read the outcome from the errors. Both classifications share the interval coverage test.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
-A finding absent because the other round deferred, could not run, excluded or never sampled its obligation is unmatched with that cause, and an unmatched error keeps the round from being better; a record without diagnostics omits the diff instead of reporting an unchanged round.
+A missing or shared finding with insufficient coverage is unmatched with its cause and retains the witnesses available in both audits. An unmatched error keeps the round from being better. A record without diagnostics omits the diff.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
-Linear in the episodes of both rounds for the summaries; each lone identity scans its obligation's coverage ranges once and sorts them.
+Summarizing scans the episodes once per round. When there are findings, each audit's coverage is scanned once into an index for the relevant obligations, coalescing ranges in the audit's recorded order. Each interval test scans only the spans for its obligation and stops on the first uncovered interval.
 
-## @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work
+## @evidence contracts/development/implementation.md#reuse-equivalent-work
 
-Each round's audit is summarized once per call.
+The in-call span index serves all findings that share the same audit, scope, check and key. Each invocation builds the index from its supplied snapshots.
 
 ## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
 

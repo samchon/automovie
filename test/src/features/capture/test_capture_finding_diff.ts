@@ -59,12 +59,22 @@ type ISample = Pick<IAutoMovieInspectionDiagnostics, "findings" | "coverage">;
  *     entry at the rank 0.3 observation.
  * 11. An earlier record without diagnostics gives no finding diff and names the
  *     earlier round as lacking them.
+ * 12. Two observations of one identity at disjoint times are unmatched and keep
+ *     both observations.
+ * 13. Rechecking only the milder of two earlier episodes is unmatched.
+ * 14. A real improvement is kept, but a carried error with deferred coverage
+ *     prevents the round from counting as better.
+ * 15. A finding at the same film second in a different occurrence gives two
+ *     unmatched entries.
+ * 16. A rebuilt round that covers both moments still needs the earlier round to
+ *     have observed the rebuilt finding's interval.
+ * 17. Equal ranks at the same checked sample leave the finding unchanged.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Runs real rounds through the public planner, folder and run against in-memory storage with drawn cells that supply diagnostics packets, and reads the finding diff in each later record; a diff that calls an unchecked absence fixed, orders rank before confidence, ranks an absent rank above a present one, lets warnings or unmatched errors move the outcome, or splits one identity across its episodes fails.
- * @evidence contracts/development/testing.md#independent-expectations Every finding, rank and coverage row is chosen here, so each state follows by hand from the rules issue #4046 states: the reducer's order of confidence, category, then rank with an absent rank lowest, and fixed or new only over checked intervals. Cells at 1 s and 2 s fall on output frames 10 and 20, which are not consecutive, so they form two episodes and two coverage ranges.
- * @evidence contracts/development/testing.md#distinguishing-cases A fix next to an unchecked and an unsampled absence, a rank increase, a confidence change against a rank decrease, a rank appearing, a new error next to a new warning, a split identity and a record without diagnostics. Pixel pairing is owned by `test_capture_round_comparison` and episode grouping by `test_inspection_diagnostic_episodes`.
+ * @evidence contracts/development/testing.md#behavioral-verification Runs real rounds through the public planner, folder and run against in-memory storage with drawn cells that supply diagnostics packets, and reads the diff from the completed comparison. It observes comparison of recorded witnesses instead of calculating the result in the test harness.
+ * @evidence contracts/development/testing.md#independent-expectations Every finding, rank and coverage row is chosen here, so each state follows from the severity order and which seconds each round actually checks. At 10 fps, 1 s and 2 s fall on frames 10 and 20, which are distinct episodes. A checked sample at 1 s cannot prove a reduction of an error last measured at 2 s.
+ * @evidence contracts/development/testing.md#distinguishing-cases Contrasts missing with checked observations, comparable with disjoint, partially checked and changed occurrences, and one genuine improvement with and without an unmatched error. It also covers confidence order, missing rank, warnings and an absent audit. Pixel pairing is owned by `test_capture_round_comparison` and episode grouping by `test_inspection_diagnostic_episodes`.
  * @evidence contracts/development/testing.md#execution-ownership A portable unit discovered as `test_capture_finding_diff`; it draws in memory.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 11 numbered scenarios it runs, each naming the input and the state or outcome it pins.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists each scenario, its input and the state or outcome it pins.
  */
 export async function test_capture_finding_diff(): Promise<void> {
   const memory: createCaptureMemory.IMemory = createCaptureMemory();
@@ -74,9 +84,11 @@ export async function test_capture_finding_diff(): Promise<void> {
   const capture: (
     text: string,
     sample: ((seconds: number) => ISample) | null,
+    scope?: string,
   ) => Promise<IAutoMovieCaptureFindingDiff | undefined> = async (
     text: string,
     sample: ((seconds: number) => ISample) | null,
+    scope: string = "shot",
   ): Promise<IAutoMovieCaptureFindingDiff | undefined> => {
     const plan: IAutoMovieCapturePlan = planAutoMovieCapture({
       request: parseAutoMovieCapturePlanRequest(new URLSearchParams(text)),
@@ -96,7 +108,7 @@ export async function test_capture_finding_diff(): Promise<void> {
             ? {}
             : {
                 diagnostics: {
-                  scope: "shot",
+                  scope,
                   time: { filmSeconds: cell.time.seconds },
                   ...sample(cell.time.seconds),
                 },
@@ -319,5 +331,104 @@ export async function test_capture_finding_diff(): Promise<void> {
     "a record without diagnostics omits the diff and names it",
     await capture("at=1&round=o2&compare=o1", fixed([], [row("a")])),
     { state: "omitted", lacking: ["earlier"] },
+  );
+
+  // 12. A lower rank at a different time is not a measured improvement.
+  await capture("at=1&round=t1", fixed([finding("a", 0.3)], [row("a")]));
+  const disjoint: IAutoMovieCaptureFindingDiff | undefined = await capture(
+    "at=2&round=t2&compare=t1",
+    fixed([finding("a", 0.1)], [row("a")]),
+  );
+  TestValidator.equals(
+    "carried observations at disjoint times are unmatched",
+    states(disjoint),
+    ["same", ["a:unmatched:not-sampled"]],
+  );
+  const unmatched: IAutoMovieCaptureFindingDiff.IEntry | undefined =
+    disjoint?.state === "compared" ? disjoint.entries[0] : undefined;
+  TestValidator.equals(
+    "both observations remain available",
+    [
+      unmatched?.earlier?.time.filmSeconds,
+      unmatched?.current?.time.filmSeconds,
+    ],
+    [1, 2],
+  );
+
+  // 13. A common sample cannot establish what happened at an omitted episode.
+  const partial: IAutoMovieCaptureFindingDiff | undefined = await capture(
+    "at=1&round=p3&compare=p1",
+    fixed([finding("a", 0.05)], [row("a")]),
+  );
+  TestValidator.equals(
+    "omitting the earlier worst episode does not improve the round",
+    states(partial),
+    ["same", ["a:unmatched:not-sampled"]],
+  );
+  const omittedWorst: IAutoMovieCaptureFindingDiff.IEntry | undefined =
+    partial?.state === "compared" ? partial.entries[0] : undefined;
+  TestValidator.equals(
+    "the omitted earlier witness still points at two seconds",
+    omittedWorst?.earlier?.time.filmSeconds,
+    2,
+  );
+
+  // 14. Returning a finding in a deferred sample does not check its obligation.
+  await capture(
+    "at=1&round=q1",
+    fixed([finding("a", 0.3), finding("b", 0.3)], [row("a"), row("b")]),
+  );
+  TestValidator.equals(
+    "a deferred carried error prevents an otherwise real improvement",
+    states(
+      await capture(
+        "at=1&round=q2&compare=q1",
+        fixed(
+          [finding("a", 0.1), finding("b", 0.1)],
+          [row("a"), row("b", "deferred")],
+        ),
+      ),
+    ),
+    ["same", ["a:carried:better", "b:unmatched:deferred"]],
+  );
+
+  // 15. Equal film seconds in different occurrences cannot establish coverage.
+  TestValidator.equals(
+    "an occurrence change leaves both observations unmatched",
+    states(
+      await capture(
+        "at=1&round=t3&compare=t1",
+        fixed([finding("a", 0.1)], [row("a")]),
+        "another-shot",
+      ),
+    ),
+    ["same", ["a:unmatched:not-sampled", "a:unmatched:not-sampled"]],
+  );
+
+  // 16. The old round must also cover the moments this round observed.
+  TestValidator.equals(
+    "earlier coverage is required even when the rebuilt round covered both moments",
+    states(
+      await capture(
+        "at=1,2&round=t4&compare=t1",
+        (seconds: number): ISample => ({
+          findings: seconds === 2 ? [finding("a", 0.1)] : [],
+          coverage: [row("a")],
+        }),
+      ),
+    ),
+    ["same", ["a:unmatched:not-sampled"]],
+  );
+
+  // 17. The same checked rank does not change the round.
+  TestValidator.equals(
+    "equal ranks at the same checked sample are carried unchanged",
+    states(
+      await capture(
+        "at=1&round=t5&compare=t1",
+        fixed([finding("a", 0.3)], [row("a")]),
+      ),
+    ),
+    ["same", ["a:carried:same"]],
   );
 }
