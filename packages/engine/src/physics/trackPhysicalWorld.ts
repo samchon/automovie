@@ -213,8 +213,7 @@ export function trackPhysicalWorld(
     const authored:
       | NonNullable<Parameters<typeof AdvanceBalance>[0]["command"]>
       | undefined =
-      body.balance?.pattern.limbs.length === 2 ||
-      body.balance?.pattern.limbs.length === 4
+      body.balance
         ? ((): NonNullable<Parameters<typeof AdvanceBalance>[0]["command"]> => {
             const now: ReturnType<typeof physicalAuthoredCenter> =
               physicalAuthoredCenter(body.profile, authoredGoals);
@@ -428,28 +427,16 @@ export function trackPhysicalWorld(
           }
         : {}),
 
-      // A two-support body balances by IHMC's capture-point feedback
-      // controller, its state kept with the recovery's
-      // (`physicalBipedPressure`), and a four-support body by IHMC's DCM
-      // controller (`physicalQuadFrame.pivot`), each at the rate its plan ran
-      // at.
-      ...(assessment &&
-      (body.supportTracking?.pattern ?? body.balance?.pattern)?.limbs.length ===
-        2
+      // A balancing body, whatever its contacts, balances by IHMC's
+      // capture-point feedback controller on their hull, its state kept with
+      // the recovery's (`physicalBipedPressure`).
+      ...(assessment
         ? {
             icp: (assessment.state.icp ??= {
               ...physicalIcpController.create(),
               key: "",
             }),
-            ...(assessment.state.plan
-              ? { phase: assessment.state.plan.phase }
-              : {}),
           }
-        : {}),
-      ...(assessment &&
-      (body.supportTracking?.pattern ?? body.balance?.pattern)?.limbs.length ===
-        4
-        ? { dcm: true }
         : {}),
       ...(assessment?.state.desired
         ? { desired: assessment.state.desired }

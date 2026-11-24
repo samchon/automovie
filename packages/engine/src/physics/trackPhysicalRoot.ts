@@ -78,13 +78,12 @@ export function trackPhysicalRoot(
       body.id,
     )!;
 
-    // The biped's capture-point controller is initialized whenever its
-    // walking state changes, as IHMC initializes it on every new ICP plan
+    // The capture-point controller is initialized whenever its walking state
+    // changes, as IHMC initializes it on every new ICP plan
     // (`LinearMomentumRateControlModule.updateICPControllerState` l.530-538,
-    // `ICPController.initialize` l.232-236): here, when the swinging limbs or
-    // the transfer to standing change (`physicalBipedDesired`).
-    const key: string =
-      swinging.join("+") + (input.phase === "toStanding" ? "|toStanding" : "");
+    // `ICPController.initialize` l.232-236): here, when the swinging limbs
+    // change.
+    const key: string = swinging.join("+");
     const icp: physicalIcpController.IState | undefined = input.icp
       ? input.icp.key === key
         ? input.icp
@@ -112,9 +111,6 @@ export function trackPhysicalRoot(
               ...(input.desired ? { desired: input.desired } : {}),
             },
           }
-        : {}),
-      ...(input.dcm
-        ? { dcm: input.desired ? { desired: input.desired } : {} }
         : {}),
       ...(input.omega !== undefined ? { omega: input.omega } : {}),
       ...(input.pushed !== undefined ? { pushed: input.pushed } : {}),
@@ -356,32 +352,23 @@ export namespace trackPhysicalRoot {
      * (`physicalRootDemand.integrate`).
      */ integral?: physicalStanceBalance.IIntegral;
     /**
-     * A biped's capture-point feedback controller's persisted state and the
-     * walking state it last ran in, advanced in place
-     * (`physicalBipedPressure`).
+     * The capture-point feedback controller's persisted state and the walking
+     * state it last ran in, advanced in place (`physicalBipedPressure`).
      */ icp?: physicalIcpController.IState & {
       key: string;
     };
-    /**
-     * Whether a four-support body balances by IHMC's DCM controller
-     * (`physicalQuadFrame.pivot`) toward `desired`.
-     */ dcm?: boolean;
     /**
      * The pendulum's rate the plan ran at this substep, per second
      * (`IAutoMoviePhysicalRecoveryState.omega`), if it set one.
      */ omega?: number;
     /**
-     * A biped's planned capture point or a quadruped's DCM setpoint and their
-     * rate this substep, world x and z (`physicalBipedPlan`,
-     * `physicalQuadPlan`); absent for the authored centre of mass's at rest.
+     * The planned capture point and its rate this substep, world x and z
+     * (`physicalBalancePlan`); absent for the authored centre of mass's at
+     * rest.
      */ desired?: {
       position: { x: number; z: number };
       velocity: { x: number; z: number };
     };
-    /** A biped's recovery plan's phase, if one runs (`physicalBipedDesired`). */ phase?:
-      | "single"
-      | "toStanding"
-      | "standing";
     /** Whether an external push lands on the body this control frame. */ pushed?: boolean;
     /** Declared gravity-compensation moment about the root. */ gravity: IAutoMovieVector3;
     /** Internal Cartesian moments accumulate into bounded joint motors. */ actuation?: Map<

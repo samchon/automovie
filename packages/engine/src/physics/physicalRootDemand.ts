@@ -43,11 +43,9 @@ import { physicalSupportFootprint } from "./physicalSupportFootprint";
  * realized centre of pressure from the actual contact points weighted by their
  * normal impulses (Stephens 2011, Eq. 5.31), frozen while the command is
  * clamped, a push lands, a limb swings or a foot is not fully in, and reset
- * when the swinging limbs change. A two-support body's centre of pressure and
- * pivot are IHMC's capture-point controller's (`physicalBipedPressure`) and a
- * four-support body's its DCM controller's virtual repellent point
- * (`physicalQuadFrame.pivot`), each at the rate its plan ran at; neither keeps
- * the integral.
+ * when the swinging limbs change. A balancing body's centre of pressure and
+ * pivot are IHMC's capture-point controller's (`physicalBipedPressure`) on its
+ * planted contacts, whatever their number, which keeps no integral.
  *
  * @param input The simulation's settings, the simulated body, its segments and
  *   root body, the root's bone, intent, goal and tracking strength, the stance
@@ -79,12 +77,6 @@ export function physicalRootDemand(input: {
   integral?: Readonly<physicalStanceBalance.IIntegral>;
   icp?: {
     state: physicalIcpController.IState;
-    desired?: {
-      position: { x: number; z: number };
-      velocity: { x: number; z: number };
-    };
-  };
-  dcm?: {
     desired?: {
       position: { x: number; z: number };
       velocity: { x: number; z: number };
@@ -212,10 +204,9 @@ export function physicalRootDemand(input: {
             ? { intended: rootIntent.pose.rotation }
             : {}),
           strength: input.strength,
-          ...(integral && !input.icp && !input.dcm
+          ...(integral && !input.icp
             ? { bias: { x: integral.bias.x, y: 0, z: integral.bias.z } }
             : {}),
-          ...(input.dcm ? { dcm: input.dcm } : {}),
           ...(input.omega !== undefined ? { omega: input.omega } : {}),
           ...(input.icp
             ? {
@@ -264,12 +255,10 @@ export function physicalRootDemand(input: {
     force: { ...stance.force },
     torque: { ...stance.torque },
   });
-  // The biped's controller carries its own integrator
-  // (`physicalAngularMomentumIntegrator`) in place of this integral, and the
-  // quadruped's DCM controller none, its integral gain zero
-  // (`physicalQuadrupedDcmController`).
+  // The capture-point controller carries its own integrator
+  // (`physicalAngularMomentumIntegrator`) in place of this integral.
   const next: physicalStanceBalance.IIntegral | undefined =
-    integral && !stance.icp && !input.dcm
+    integral && !stance.icp
       ? physicalRootDemand.integrate({
           integral,
           stance,

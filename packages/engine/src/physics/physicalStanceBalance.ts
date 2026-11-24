@@ -16,7 +16,6 @@ import { PhysicalRotationVector } from "./PhysicalRotationVector";
 import { physicalBipedPressure } from "./physicalBipedPressure";
 import type { physicalIcpController } from "./physicalIcpController";
 import { physicalLegCapacity } from "./physicalLegCapacity";
-import { physicalQuadFrame } from "./physicalQuadFrame";
 import { physicalSupportFootprint } from "./physicalSupportFootprint";
 import { physicalSupportPoint } from "./physicalSupportPoint";
 
@@ -226,20 +225,6 @@ export namespace physicalStanceBalance {
     };
 
     /**
-     * IHMC's DCM controller for a four-support body (`physicalQuadFrame
-     * .pivot`): the plan's DCM setpoint and rate, world x and z, absent for the
-     * authored centre of mass's at rest. With it the controller's virtual
-     * repellent point is the centre of pressure and pivot, and the law, the
-     * allocation, the bias and the trunk's horizontal moment are not used.
-     */
-    dcm?: {
-      desired?: {
-        position: { x: number; z: number };
-        velocity: { x: number; z: number };
-      };
-    };
-
-    /**
      * The pendulum's rate the controller runs at, per second
      * (`IAutoMoviePhysicalRecoveryState.omega`); absent, sqrt(g / h) at the
      * authored centre of mass's height over the floor.
@@ -339,19 +324,6 @@ export namespace physicalStanceBalance {
    * develop l.39).
    */
   export const CENTER_OF_PRESSURE_WEIGHT: number = 15.0;
-
-  /**
-   * The quadruped's linear momentum rate weight, (5, 5, 2.5) in IHMC's x, y and
-   * z, world x and z horizontal and y up; its momentum command selects the
-   * linear rows only and it gives no centre of pressure command (201903
-   * `QuadrupedMomentumRateOfChangeModule` l.36, l.68; the generic quadruped's
-   * parameter file leaves the weight at its default).
-   */
-  export const QUADRUPED_MOMENTUM_WEIGHT: Readonly<IAutoMovieVector3> = {
-    x: 5.0,
-    y: 2.5,
-    z: 5.0,
-  };
 
   /**
    * The demand of one step.
@@ -542,28 +514,10 @@ export namespace physicalStanceBalance {
           floor,
         })
       : undefined;
-    // A four-support body's are IHMC's DCM controller's virtual repellent
-    // point (`physicalQuadFrame.pivot`).
-    const vrp: IAutoMovieVector3 | undefined = input.dcm
-      ? physicalQuadFrame.pivot({
-          ...(input.dcm.desired ? { desired: input.dcm.desired } : {}),
-          authored: {
-            x: input.center.x + input.velocity.x / omega,
-            y: floor,
-            z: input.center.z + input.velocity.z / omega,
-          },
-          center,
-          velocity,
-          omega,
-          floor,
-        })
-      : undefined;
     const { pressure, pivot, clamped, strategy }: ReturnType<typeof allocate> =
       icp
         ? { pressure: icp.pressure, pivot: icp.pivot, clamped: !icp.converged }
-        : vrp
-          ? { pressure: vrp, pivot: vrp, clamped: false }
-          : allocate({
+        : allocate({
               capture,
               reference,
               command,
@@ -624,7 +578,7 @@ export namespace physicalStanceBalance {
     // (`physicalRootDemand.external`, `physicalCentroidalTask`).
     const most: number = body.maximumRootForce * input.strength;
     const force: IAutoMovieVector3 =
-      (icp || vrp) && Vector3.length(aimed) > most
+      icp && Vector3.length(aimed) > most
         ? Vector3.scale(aimed, most / Vector3.length(aimed))
         : aimed;
     const reaction: IAutoMovieVector3 = {
@@ -651,9 +605,7 @@ export namespace physicalStanceBalance {
             : {}),
           ...pressureCommand(outlines, input.planted, icp.pressure),
         }
-      : vrp
-        ? { force: QUADRUPED_MOMENTUM_WEIGHT }
-        : undefined;
+      : undefined;
     return {
       force,
       torque,
