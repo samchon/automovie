@@ -17,7 +17,8 @@ The main session audits periodically and after the fact:
 
 - it checks the work against the user's orders and decisions and the skills' rules;
 - it warns on each violation and orders its correction;
-- it approves nothing in advance, and subagents never ask it for permission.
+- it adds no approval step of its own for routine work;
+- what the project's rules reserve for approval, such as destructive or outward-facing actions and the user's decisions, still goes to the user.
 
 ## Agents
 
