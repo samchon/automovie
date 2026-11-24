@@ -17,12 +17,14 @@ type V3 = [number, number, number];
  * 3. A host that ends on the outline stands at zero: the reported greatest distance is under 1e-8 mm, and each seam's forks on the ring are the phases at which the ring's lobes meet, `0.01 +- pi / 4` and `0.01 +- 3 pi / 4`, within 1e-9 rad.
  * 4. A round ring is refused with its distance: the circle of radius 24.5 stands `24.5 - 9 = 15.5` mm from `B`'s lobe wherever that lobe is its nearest, and a little more beside a fork, where the fork is nearer than either lobe's foot; the refusal names a greatest distance between 15.5 and 15.52 mm and the band's length 6.
  * 5. A ring within the band's length is admitted and reported: the outline scaled by 1.1 about the origin stands up to more than 0.5 mm and less than 6 mm off, and the report's greatest distance is at least its mean.
+ * 6. A terminal ring with a fixed-station point reader requires one preparation and one read per uniform sample. Both seam searches and the outline-distance check use those same physical samples.
+ * 7. Shrinking the outline host by one tenth along the chord axis leaves the composed forks outside the host chord. The same cylindrical skin law is read at interior shares of the exact shorter chord, without passing any external points to the seam.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls `AutoMovieConstructionSplitCompose.derive` on made closed-form skins and rings and reads its valleys, seam phases and host report. It catches a valley left on the chord, read from the wrong arc or the wrong plane, knots that ignore a child's angle, spacing or size, a host ring spanned silently and a distance measured to a covered arc.
  * @evidence contracts/development/testing.md#independent-expectations The crossing of two sections, the cylinder's cut by the bisector plane, the outline's polar radius and the circle's distance to a lobe are solved here by hand from the fixture; none reads the operator's cuts.
  * @evidence contracts/development/testing.md#distinguishing-cases Three changed values against the base; a ring on the outline against a round one and a scaled one; a derived valley against a straight chord.
  * @evidence contracts/development/testing.md#execution-ownership A discoverable synchronous CPU unit reached by `--include construction_compose_valley`; it evaluates made closed forms in process and starts no host, browser or GPU.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each naming its input, its closed form and its bound.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists each numbered case, its geometric input, and its closed form or sampling expectation.
  */
 export function test_construction_compose_valley(): void {
   const failures: string[] = [];
@@ -73,18 +75,44 @@ export function test_construction_compose_valley(): void {
     }
     return [r * Math.cos(Math.PI + polar + (Math.PI - 2 * polar) * f), r * Math.sin(Math.PI + polar + (Math.PI - 2 * polar) * f)];
   };
-  const derive = (r: number, s: number, b: number, at: (phi: number) => [number, number]): IAutoMovieConstructionSplitCompose.IDerived | string => {
+  const derive = (
+    r: number,
+    s: number,
+    b: number,
+    at: (phi: number) => [number, number],
+    observed?: { preparations: number; uniform: number; jets: number },
+  ): IAutoMovieConstructionSplitCompose.IDerived | string => {
+    const phases: Set<number> = new Set(
+      Array.from({ length: 8 * n }, (_, k: number): number => (turn * k) / (8 * n)),
+    );
+    const point = (phi: number): V3 => {
+      const [x, y] = at(phi);
+      return [x, y, 0];
+    };
     const host: IAutoMovieSolidSurface = {
       name: "host",
       orientation: 1,
       period: turn,
-      jet: (_: number, phi: number): IAutoMovieSolidSurface.IJet => ({
-        p: [at(phi)[0], at(phi)[1], 0],
-        u: [0, 0, -1],
-        v: [0, 0, 0],
-        uu: [0, 0, 0],
-        uv: [0, 0, 0],
-        vv: [0, 0, 0],
+      jet: (_: number, phi: number): IAutoMovieSolidSurface.IJet => {
+        if (observed !== undefined) ++observed.jets;
+        return {
+          p: point(phi),
+          u: [0, 0, -1],
+          v: [0, 0, 0],
+          uu: [0, 0, 0],
+          uv: [0, 0, 0],
+          vv: [0, 0, 0],
+        };
+      },
+      ...(observed === undefined ? {} : {
+        pointAt: (station: number): ((phase: number) => V3) => {
+          if (station !== 0) throw new Error(`unexpected host scope: ${station}`);
+          ++observed.preparations;
+          return (phase: number): V3 => {
+            if (phases.has(phase)) ++observed.uniform;
+            return point(phase);
+          };
+        },
       }),
     };
     return AutoMovieConstructionSplitCompose.derive({
@@ -145,6 +173,39 @@ export function test_construction_compose_valley(): void {
   });
   if (typeof scaled === "string") failures.push(`scaled ring: ${scaled}`);
   else if (!(scaled.host.max > 0.5 && scaled.host.max < 6 && scaled.host.max >= scaled.host.mean && scaled.host.mean > 0)) failures.push(`scaled ring: greatest ${scaled.host.max} mm, mean ${scaled.host.mean} mm`);
+
+  const observed: { preparations: number; uniform: number; jets: number } = {
+    preparations: 0,
+    uniform: 0,
+    jets: 0,
+  };
+  const prepared: IAutoMovieConstructionSplitCompose.IDerived | string =
+    derive(9, 15, 0.3, outline(9, 15, 0.3), observed);
+  if (typeof prepared === "string" || prepared.host.max > 1e-8 || prepared.seams.length !== 2)
+    failures.push(`prepared host ring changed the physical composition: ${prepared}`);
+  if (observed.preparations !== 1 || observed.jets !== 0 || observed.uniform !== 8 * n)
+    failures.push(`fixed host ring: ${JSON.stringify(observed)}`);
+
+  const original = outline(9, 15, 0.3);
+  const reduction: number = 0.9;
+  const narrow: IAutoMovieConstructionSplitCompose.IDerived | string = derive(9, 15, 0.3, (phi: number): [number, number] => {
+    const [px, py]: [number, number] = original(phi);
+    return [px, reduction * py];
+  });
+  if (typeof narrow === "string") failures.push(`narrow ring: ${narrow}`);
+  else {
+    const x: number = fork(15, 0.3);
+    const y: number = reduction * Math.sqrt(81 - x * x);
+    for (const knots of narrow.valleys) {
+      if (knots.length !== n / 4 - 1) failures.push(`narrow ring: ${knots.length} knots, not ${n / 4 - 1}`);
+      knots.forEach(([along, depth]: [number, number], i: number): void => {
+        const share: number = (2 * y * (i + 1)) / (n / 4);
+        const exact: number = (Math.sqrt(81 - (share - y) ** 2) - x) / Math.sin(0.15);
+        if (!(Math.abs(along - share) <= 1e-8 && Math.abs(depth - exact) <= 1e-8))
+          failures.push(`narrow ring: knot ${along}, ${depth} mm; expected ${share}, ${exact} mm`);
+      });
+    }
+  }
 
   if (failures.length !== 0) throw new Error("test_construction_compose_valley:\n" + failures.join("\n"));
 }

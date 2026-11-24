@@ -532,6 +532,13 @@ export namespace AutoMovieConstructionSplitBand {
     );
     if (outward === null)
       return "the host's tangent plane at the loop's start is degenerate";
+    // On every open arc the clock advances with the owner's phase. The
+    // station into the strip has the host's outgoing station sign. A fork
+    // blends two one-sided clock tangents in the sampled strip, so its cubic
+    // derivative cannot determine the sign of the whole annulus.
+    const orientation: 1 | -1 = input.host.into === 1
+      ? input.host.surface.orientation
+      : input.host.surface.orientation === 1 ? -1 : 1;
     const made: IAutoMovieConstructionSplitBand.IStrip | string = strip(
       input.name,
       loop,
@@ -543,6 +550,7 @@ export namespace AutoMovieConstructionSplitBand {
       "common",
       [],
       trace,
+      orientation,
     );
     return typeof made === "string" ? made : { ...made, phases };
   }
@@ -561,6 +569,7 @@ export namespace AutoMovieConstructionSplitBand {
    * @param ribbons Whether every column takes the band's one common ribbon scale, or its own (`column`).
    * @param profiles A port band's cross profiles, their depths in mm (`IAutoMovieConstructionBandProfile64`); absent, none.
    * @param trace Optional nonthrowing observer of actual columns/common factor/local passes. Its ribbon derivatives use the normalized cross parameter.
+   * @param orientation Exact sign of the chart when it is inherited from an owner arc.
    * @returns The strip, or the refusal.
    */
   export function strip(
@@ -574,6 +583,7 @@ export namespace AutoMovieConstructionSplitBand {
     ribbons: "common" | "column" = "common",
     profiles: readonly IAutoMovieConstructionBandProfile64[] = [],
     trace?: IAutoMovieConstructionSplitBandTrace.Sink,
+    orientation?: 1 | -1,
   ): IAutoMovieConstructionSplitBand.IStrip | string {
     const n: number = loop.length;
     const childPhases: number[] | string = PortCurve.correspondence(
@@ -791,7 +801,7 @@ export namespace AutoMovieConstructionSplitBand {
     );
 
     const plain: { chain: IAutoMovieLoftChain; length: number } | null =
-      AutoMovieSolidBlendChain.strip(name, scaled, outward);
+      AutoMovieSolidBlendChain.strip(name, scaled, outward, [], orientation);
     const flat: IAutoMovieSolidSurface | null =
       plain === null ? null : AutoMovieSolidChain.surface(plain.chain);
     const published: { chain: IAutoMovieLoftChain; length: number } | null =
@@ -802,6 +812,7 @@ export namespace AutoMovieConstructionSplitBand {
             scaled,
             outward,
             sections(flat, plain.length, n, profiles),
+            orientation,
           );
     if (published === null) {
       const reason: string =

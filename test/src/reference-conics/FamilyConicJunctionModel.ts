@@ -41,6 +41,8 @@ export namespace FamilyConicJunctionModel {
     plane: Junction.IPlane;
     /** Exact compose's phase count. */
     count: number;
+    /** Fit-only clearance left inside the physical host rail, millimetres. */
+    hostRailReserve?: number;
     /** Children in composed order. */
     children: readonly IChild[];
     /** Host's face, its authoritative unreflected family, and its terminal station in millimetres. */
@@ -60,7 +62,7 @@ export namespace FamilyConicJunctionModel {
    * Pair and host rows use active-segment distance differentials (Schulman et al. 2014).
    * Grouped columns move one ordinate of each independent stock (Curtis, Powell and Reid 1974).
    */
-  export function prepare({ name, plane, count, children, host, fields, seeds, stockAt, log = () => {} }: IRequest) {
+  export function prepare({ name, plane, count, hostRailReserve = 0, children, host, fields, seeds, stockAt, log = () => {} }: IRequest) {
     type P = [number, number];
     const family = (families: ReadonlyMap<string, K.IStored>, face: string, stock: string): K.IStored => {
       const own: K.IStored | undefined = families.get(stock) ?? (host.stock === stock ? host.family : undefined);
@@ -248,7 +250,7 @@ export namespace FamilyConicJunctionModel {
       const host: Rows["host"] = read.host.map((h: P, index: number) => {
         const near = Junction.onOutline(h, segments), g = near.segment;
         const u: P = near.distance > 0 ? [(h[0] - near.at[0]) / near.distance, (h[1] - near.at[1]) / near.distance] : [0, 0];
-        return { value: near.distance - railMm, c: g?.c ?? -1, k: g?.k0 ?? -1, k1: g?.k1 ?? -1, t: near.t, u, h: index };
+        return { value: near.distance - railMm + hostRailReserve, c: g?.c ?? -1, k: g?.k0 ?? -1, k1: g?.k1 ?? -1, t: near.t, u, h: index };
       });
       // The seams' nesting on the host's end ring, the split's own test (`AutoMovieConstructionSplitCompose.derive`), as rows: each margin
       // in mm along the ring at its mean radius (its girth over the turn), minus, so a row is satisfied at or below zero as the others.

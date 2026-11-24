@@ -3037,6 +3037,8 @@ export namespace FamilyConicFit {
       transfer: (point: readonly number[]) => number[] | null;
       certify: (point: readonly number[]) => { admitted: boolean; receipt: Proof };
       initial?: GroupTrial;
+      /** Certify only the final complete feasible point when publication is atomic. */
+      finalOnly?: boolean;
     },
     convergence?: { tolerance: number; steps: number },
   ): IGroupFit<Proof> | string {
@@ -3066,7 +3068,8 @@ export namespace FamilyConicFit {
     };
     // The last state that passed the complete physical seal. Once sealed, the fit goes on minimizing the measured objective under the
     // same constraints (restoration alone degrades the fit: Gould, Loh and Robinson, SIAM J. Optim. 2015); each accepted step is sealed
-    // again, and a feasible step the seal refuses ends the fit on the last sealed state.
+    // again, and a feasible step the seal refuses ends the fit on the last sealed state. Atomic publication
+    // can use the same nonlinear acceptance path and certify its final result once, with the earlier stock kept out of the fit.
     let sealed: { values: number[]; reading: IGroupReading; proof: Proof } | undefined;
     let unsealed: boolean = false;
     const prepare = (accepted?: IGroupReading, differentiate: boolean = true, scope?: GroupTrial):
@@ -3085,7 +3088,7 @@ export namespace FamilyConicFit {
             plain = geometry(values, false).reading;
             if (typeof plain === "string") return { reading: plain };
           }
-          if (plain.outline?.kind === "formed" && plain.incidence <= tolerance) {
+          if (staged.finalOnly !== true && plain.outline?.kind === "formed" && plain.incidence <= tolerance) {
             const verdict = staged.certify(values);
             seal = verdict.receipt;
             if (verdict.admitted) {
@@ -3295,6 +3298,13 @@ export namespace FamilyConicFit {
         (unsealed ? "the next feasible state did not pass the seal" : stopped);
       return { values: sealed.values, iteration, objective: sealed.reading.objective, incidence: sealed.reading.incidence, stopped,
         timings, steps, outlineRefusal: null, seal: sealed.proof };
+    }
+    if (staged?.finalOnly === true && current.outline?.kind === "formed" && current.incidence <= tolerance) {
+      const started: number = performance.now();
+      const verdict = staged.certify(values);
+      currentSeal = verdict.receipt;
+      observe?.({ action: "physical seal", state: verdict.admitted ? "passed" : "refused", objective: current.objective,
+        phaseMs: performance.now() - started });
     }
     return { values, iteration, objective: current.objective, incidence: current.incidence, stopped, timings, steps, seal: currentSeal,
       outlineRefusal: current.outline?.kind === "refused" ? current.outline.detail : null };

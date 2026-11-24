@@ -48,6 +48,16 @@ export namespace FamilyConicFanFit {
     /** Maximum accepted group updates. */
     updates: number;
     /** Maximum accepted raw restoration updates. */
+    /**
+     * Optional relative objective and predicted-decrease exit on feasible
+     * steps.
+     */
+    convergence?: { tolerance: number; steps: number };
+
+    /** Certify the terminal feasible state once when the publisher keeps the prior stock. */
+    finalOnly?: boolean;
+    /** Clearance of the fitted polygon from the exact host rail, millimetres. */
+    hostRailReserve?: number;
     restorationUpdates: number;
     /** Realization chord length in metres. */
     chord: number;
@@ -269,6 +279,7 @@ export namespace FamilyConicFanFit {
           into: 1,
         }),
       ),
+      hostRailReserve: options.hostRailReserve,
       host: {
         face: host,
         stock: host,
@@ -445,7 +456,13 @@ export namespace FamilyConicFanFit {
       options.updates,
       options.observe,
       screen,
-      { transfer: () => null, certify: seal, initial: starting() },
+      {
+        transfer: () => null,
+        certify: seal,
+        initial: starting(),
+        finalOnly: options.finalOnly,
+      },
+      options.convergence,
     );
     return typeof result === "string"
       ? result

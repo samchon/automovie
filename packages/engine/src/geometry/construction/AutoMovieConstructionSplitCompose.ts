@@ -215,7 +215,8 @@ export namespace AutoMovieConstructionSplitCompose {
     const valleys: [number, number][][] = [];
     for (const [j, seam] of composition.seams.entries()) {
       const A: Vec3 = ring(seams[j]![0]);
-      const e1: Vec3 | null = unit(sub(ring(seams[j]![1]), A));
+      const B: Vec3 = ring(seams[j]![1]);
+      const e1: Vec3 | null = unit(sub(B, A));
       if (e1 === null) return `seam ${j}'s forks on the host's end ring coincide`;
       const across: Vec3 | null = unit(sub(seam.heading, scale(e1, dot(seam.heading, e1))));
       if (across === null) return `seam ${j}'s bisector runs along its chord on the host's end ring`;
@@ -254,18 +255,23 @@ export namespace AutoMovieConstructionSplitCompose {
       const [lower, upper]: [((along: number) => number) | string, ((along: number) => number) | string] = [depth(j, 0), depth(j + 1, 1)];
       if (typeof lower === "string") return lower;
       if (typeof upper === "string") return upper;
-      const knots: [number, number][] = [];
+      // Only the common along-chord domain is represented by this seam. An
+      // internal composed fork remains a depth-zero knot. An external fork
+      // belongs to the child outline; the actual host fork owns the seam's
+      // end and tangent there. Read the skin at new interior stations instead
+      // of carrying a point beyond the host chord or clamping its position.
+      const chord: number = place(B)[0];
+      const from: number = Math.max(0, Math.min(...ends));
+      const to: number = Math.min(chord, Math.max(...ends));
+      if (!(from < to)) return `seam ${j}'s composed and host chords do not overlap`;
+      // A fork within 1e-9 mm is the ring's own to the two solves' roundoff.
+      const knots: [number, number][] = from > 1e-9 ? [[from, 0]] : [];
       for (let i: number = 1; i < q; ++i) {
-        const along: number = ends[0] + ((ends[1] - ends[0]) * i) / q;
+        const along: number = from + ((to - from) * i) / q;
         knots.push([along, Math.max(lower(along), upper(along))]);
       }
-      // Where the host's ring is not the outline its forks stand outside the composition's on the same line, and the seam runs
-      // through the composition's forks too; a fork within 1e-9 mm of the ring's, rounding of the two solves, is the ring's own.
-      const chord: number = place(ring(seams[j]![1]))[0];
-      const forks: [number, number][] = seam.forks.map((f: IAutoMovieConstructionComposedEnd.IFork): [number, number] => place(f.point));
-      const ordered: [number, number][] = [forks[0]!, ...knots, forks[1]!];
-      if (!(ends[0] < ends[1])) ordered.reverse();
-      valleys.push(ordered.filter(([along]: [number, number], k: number): boolean => (k !== 0 && k !== ordered.length - 1) || (along > 1e-9 && along < chord - 1e-9)));
+      if (to < chord - 1e-9) knots.push([to, 0]);
+      valleys.push(knots);
     }
 
     // Each child's rail: the end plane and its seam planes, each moved along the child's axis by its rail distance, so the rail is the

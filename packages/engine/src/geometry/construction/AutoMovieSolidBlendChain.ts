@@ -202,6 +202,7 @@ export namespace AutoMovieSolidBlendChain {
    * @param columns The ribbon pairs at uniform phases `2 pi k / n`, `n` a multiple of 4 of at least 8.
    * @param outward The start surface's outward normal at column 0.
    * @param inner Interior cross sections in increasing share `t` in `(0, 1)`, each with one jet per column; absent, none.
+   * @param orientation Optional exact chart orientation inherited from an oriented owner arc.
    * @returns The chain and its station span `L`, mm, or null for a nonpositive or nonfinite span or an unusable orientation anchor.
    */
   export function strip(
@@ -209,6 +210,7 @@ export namespace AutoMovieSolidBlendChain {
     columns: IAutoMovieSolidBlendChain.IStripColumns,
     outward: AutoMovieVector3Tuple,
     inner: IAutoMovieSolidBlendChain.IStripInner = [],
+    orientation?: 1 | -1,
   ): IAutoMovieSolidBlendChain.IStripResult {
     const count: number = columns.length;
 
@@ -333,6 +335,7 @@ export namespace AutoMovieSolidBlendChain {
     // Its rail continues the start surface's oriented surface. A regular
     // connected strip keeps that sign; one anchor is not a global
     // certificate for the periodic interpolation between columns.
+    if (orientation !== undefined) return { chain: { ...chain, orientation }, length: L };
     const edge: IAutoMovieLoftSurfaceJet = AutoMovieLoftJet.at(chain, 0, 0);
     const facing: number = AutoMovieSolidVector.dot(
       AutoMovieSolidVector.cross(edge.s, edge.t),
