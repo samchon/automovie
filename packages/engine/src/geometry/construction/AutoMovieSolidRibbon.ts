@@ -49,7 +49,16 @@ export namespace AutoMovieSolidRibbon {
     dv: number,
     a: number,
   ): IAutoMovieBlendCrossJet {
-    const j: IAutoMovieSolidSurface.IJet = surface.jet(u, v);
+    return fromJet(surface.jet(u, v), du, dv, a);
+  }
+
+  /** Read the same cross ribbon when the actual source jet is already available. */
+  export function fromJet(
+    j: IAutoMovieSolidSurface.IJet,
+    du: number,
+    dv: number,
+    a: number,
+  ): IAutoMovieBlendCrossJet {
     return {
       point: j.p,
       first: combine([

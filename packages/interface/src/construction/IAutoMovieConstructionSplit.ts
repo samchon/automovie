@@ -163,10 +163,8 @@ export namespace IAutoMovieConstructionSplit {
     /**
      * In a split into more than two (`outer`), whether each band leaves the host's arc square to the end ring: along the chart line
      * `(into, -into (S_u . S_v) / (S_v . S_v))`, whose image is square to the ring in the host's tangent plane, with the host's own 2-jet
-     * along that line, so the band stays G2 to the host. Absent or false, along the host's station line, whose image leans along the ring
-     * wherever the host's points slide round it with the station (a section changing shape under a polar phase): on f1's foot the
-     * station lines at the end ring swung by 40 degrees within 0.07 rad of phase round the top of the big toe's root, and the big toe's
-     * band pleated there. The first seam with a profile gives the split's, as it gives `corner`.
+     * along that line, so the band stays G2 to the host. Absent or false, use the host's station line. Its tangential component
+     * varies as the host's section changes shape. The first seam with a profile gives this setting and `corner`.
      */
     square?: boolean;
 

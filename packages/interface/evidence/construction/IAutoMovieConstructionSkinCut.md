@@ -10,7 +10,7 @@ One generating curve for a shared boundary: the skin's own intersection with a d
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
-The plane record, the input, the built cut with one reader and its station bounds, and one builder.
+The plane record and input describe one cut. The cut publishes its station-jet reader, optional point reader and station bounds.
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 
@@ -56,16 +56,16 @@ States each field's unit and role.
 
 ## @evidence contracts/development/design.md#principled-representation
 
-The curve's station with two derivatives at any phase, and the stations it spans at its admitted phases.
+The curve's station with two derivatives at any phase, its world point there when provided, and its station bounds at admitted phases.
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
-One reader and one interval.
+Both reads address the same cut by phase. One interval records the sampled station extent.
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 
-The reader solves the residual on the skin at the phase asked; it interpolates no stored station.
+Both readers solve the residual on the skin at the supplied phase and require the same directed crossing.
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States the reader's result and the interval's source.
+States the station-jet and point units, their shared root and the interval's source.

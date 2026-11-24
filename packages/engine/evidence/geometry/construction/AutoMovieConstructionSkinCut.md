@@ -10,7 +10,7 @@ One generating curve for a shared boundary: the skin's own intersection with a d
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
-The plane record, the input, the built cut with one reader and its station bounds, and one builder.
+The plane record, the input, and one cut with station-jet and position reads.
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 
@@ -24,7 +24,7 @@ The curve is the zero set of the planes' minimum, or smooth minimum, on the skin
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-Residual, bracketed root, admitted table, then one reader.
+Residual, bracketed root, admitted table, and one crossing check for both reads.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
@@ -36,11 +36,11 @@ States the bracketing, the reader's start and fallback, and the refusals.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
-Building reads `samples` phases over the stations plus one bisection each; a reading takes a few Newton steps, one skin jet each.
+Building reads `samples` phases over the stations plus one bisection each. Newton iterations and point reads consume only the first derivative along station. The station-jet reader computes the full residual derivatives once at the admitted root.
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 
-The admitted roots start every later reading.
+The admitted roots start both readers. They solve the same equation and share the axial transversality check.
 
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 

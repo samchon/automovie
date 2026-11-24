@@ -15,6 +15,7 @@ import type {
 import { AutoMovieConstructionLocalScaleMinorant as Minorant } from "./AutoMovieConstructionLocalScaleMinorant";
 import { AutoMovieConstructionPortCurve as PortCurve } from "./AutoMovieConstructionPortCurve";
 import { AutoMovieConstructionSplitBandTrace as Trace } from "./AutoMovieConstructionSplitBandTrace";
+import { AutoMovieConstructionSplitRailClock as RailClock } from "./AutoMovieConstructionSplitRailClock";
 import { AutoMovieSolidBlendChain } from "./AutoMovieSolidBlendChain";
 import { AutoMovieSolidChain } from "./AutoMovieSolidChain";
 import { AutoMovieSolidRibbon } from "./AutoMovieSolidRibbon";
@@ -33,6 +34,10 @@ const { add, combine, cross, dot, norm, scale, sub, unit } =
  * The child's phase at each column is the one whose rail point stands at the loop point's angle about the rail ring's centroid, in the ring's Newell plane. It is admitted only when the ring's angle and the loop's angle both turn once, strictly monotonically, round that centroid (construction.md, Tree: measure monotonicity before choosing a parameter); otherwise the band is refused with the reason.
  */
 export namespace AutoMovieConstructionSplitBand {
+  /** Clock range over one physical reach, without overlapping the opposite fork turn. */
+  export function cornerOf(reach: number, length: number, clock: number): number {
+    return Math.min(clock / 2, reach * clock / length);
+  }
   /**
    * The rail's station on a side at a phase: its curve's when it has one, else its one station.
    *
@@ -375,14 +380,15 @@ export namespace AutoMovieConstructionSplitBand {
       s: Extract<IAutoMovieConstructionSplitBand.IStretch, { kind: "seam" }>,
       j: number,
     ): number => (s.forward ? j / s.columns : 1 - j / s.columns);
+    const seamAt: (IAutoMovieConstructionSplitSeam.IPoint | null)[] = owner.map((i, k) => {
+      const s: IAutoMovieConstructionSplitBand.IStretch = stretches[i]!;
+      return jets[k] === null && s.kind === "seam" ? s.curve.at(share(s, within[k]!)) : null;
+    });
     const loop: AutoMovieVector3Tuple[] = owner.map(
-      (i: number, k: number): AutoMovieVector3Tuple => {
+      (_: number, k: number): AutoMovieVector3Tuple => {
         const jet: IAutoMovieSolidSurface.IJet | null = jets[k]!;
         if (jet !== null) return [jet.p[0]!, jet.p[1]!, jet.p[2]!];
-        const s: IAutoMovieConstructionSplitBand.IStretch = stretches[i]!;
-        return s.kind === "seam"
-          ? s.curve.at(share(s, within[k]!)).point
-          : [NaN, NaN, NaN];
+        return seamAt[k]?.point ?? [NaN, NaN, NaN];
       },
     );
     const centroid: AutoMovieVector3Tuple = scale(
@@ -417,9 +423,14 @@ export namespace AutoMovieConstructionSplitBand {
       )
     )
       return "a seam plane holds the direction toward the band's loop";
-    const turn = (d: number): number => {
-      if (!(d < input.corner)) return 0;
-      const x: number = d / input.corner;
+    const lengths: number[] = stretches.map((): number => 0);
+    for (let k: number = 0; k < n; ++k)
+      lengths[owner[k]!]! += norm(sub(loop[(k + 1) % n]!, loop[k]!));
+    const corners: number[] = stretches.map((s, i): number => input.cornerReach === undefined ? input.corner :
+      cornerOf(input.cornerReach, s.kind === "seam" ? s.curve.length : lengths[i]!, s.columns * step));
+    const turn = (d: number, width: number): number => {
+      if (!(d < width)) return 0;
+      const x: number = d / width;
       return 1 - x * x * x * (10 - 15 * x + 6 * x * x);
     };
     // The ribbons' reach toward each fork (`IAutoMovieConstructionSplit.IProfile.reach`): first derivative by the share, second by its
@@ -435,6 +446,7 @@ export namespace AutoMovieConstructionSplitBand {
             turn(
               Math.min(within[k]!, stretches[owner[k]!]!.columns - within[k]!) *
                 step,
+              corners[owner[k]!]!,
             ));
       return {
         point: made.point,
@@ -449,10 +461,8 @@ export namespace AutoMovieConstructionSplitBand {
       const toEnd: number = (s.columns - within[k]!) * step;
       const jet: IAutoMovieSolidSurface.IJet | null = jets[k]!;
       if (jet === null && s.kind === "seam") {
-        const reading: IAutoMovieConstructionSplitSeam.IPoint = s.curve.at(
-          share(s, within[k]!),
-        );
-        const angle: number = (Math.PI / 4) * turn(Math.min(fromStart, toEnd));
+        const reading: IAutoMovieConstructionSplitSeam.IPoint = seamAt[k]!;
+        const angle: number = (Math.PI / 4) * turn(Math.min(fromStart, toEnd), corners[i]!);
         const along: AutoMovieVector3Tuple = scale(
           reading.tangent,
           s.forward ? 1 : -1,
@@ -461,11 +471,21 @@ export namespace AutoMovieConstructionSplitBand {
           along,
           fromStart <= toEnd ? 1 : -1,
         );
+        let transverse: AutoMovieVector3Tuple = ruling[i]!;
+        if (input.cornerReach !== undefined && s.forks !== undefined) {
+          const a: number = turn(s.forward ? fromStart : toEnd, corners[i]!);
+          const b: number = turn(s.forward ? toEnd : fromStart, corners[i]!);
+          const sign: number = Math.sign(dot(transverse, s.curve.normal));
+          const common: AutoMovieVector3Tuple = combine([[sign * (1 - a - b), s.curve.normal], [sign * a, s.forks[0].across], [sign * b, s.forks[1].across]]);
+          const projected: AutoMovieVector3Tuple | null = unit(sub(common, scale(along, dot(common, along))));
+          if (projected === null) return `column ${k}: the shared seam has no transverse tangent direction`;
+          transverse = projected;
+        }
         return {
           point: loop[k]!,
           first: scale(
             add(
-              scale(ruling[i]!, Math.cos(angle)),
+              scale(transverse, Math.cos(angle)),
               scale(away, Math.sin(angle)),
             ),
             L,
@@ -501,13 +521,36 @@ export namespace AutoMovieConstructionSplitBand {
           ? (i - 1 + stretches.length) % stretches.length
           : (i + 1) % stretches.length
         : i;
-      const w: number = turn(d);
+      const w: number = turn(d, corners[i]!);
       const lateral: AutoMovieVector3Tuple | null = ruling[seamIndex] ?? null;
       if (w === 0 || lateral === null) return own;
       const ahead: AutoMovieVector3Tuple | null = unit(own.first);
       const normal: AutoMovieVector3Tuple | null = unit(cross(jet.u, jet.v));
       if (ahead === null || normal === null)
         return `column ${k}: the host's tangent plane is degenerate`;
+      const shared = stretches[seamIndex];
+      if (shared?.kind === "seam" && shared.forks !== undefined) {
+        const entering = onArc ? fromStart > toEnd : true;
+        const end = entering === shared.forward ? 0 : 1;
+        const fork = shared.forks[end];
+        const toward = dot(lateral, shared.curve.normal) > 0 ? 1 : -1;
+        const seamAway: AutoMovieVector3Tuple = scale(fork.tangent, end === 0 ? 1 : -1);
+        const arc = s.kind === "arc" ? s : previous(i);
+        // A measured fork has two actual incident boundary rays. Their
+        // normalized sum is the inward angle bisector of that sector in
+        // the shared tangent plane, even when the divider's plane turns.
+        const arcAway: AutoMovieVector3Tuple | null = input.guidedRail === undefined || arc.kind !== "arc"
+          ? scale(fork.across, toward)
+          : unit(scale(jet.v, Math.sign(arc.to - arc.from) * (entering ? -1 : 1)));
+        if (arcAway === null) return `column ${k}: the fork's parent arc is not regular`;
+        const germ: AutoMovieVector3Tuple = add(seamAway, arcAway);
+        const projected = sub(germ, scale(normal, dot(germ, normal)));
+        const direction = unit(projected);
+        const cross = direction === null ? null : unit(add(scale(ahead, 1 - w), scale(direction, w)));
+        if (cross === null)
+          return `column ${k}: the parent fork germ has no continuing tangent in this chart`;
+        return {point: own.point, first: scale(cross, L), second: scale(own.second, 1 - w)};
+      }
       const side: AutoMovieVector3Tuple | null = unit(
         sub(
           sub(lateral, scale(normal, dot(lateral, normal))),
@@ -551,6 +594,39 @@ export namespace AutoMovieConstructionSplitBand {
       [],
       trace,
       orientation,
+      input.guidedRail,
+      input.lineDemand === undefined ? undefined : (column, line): void => {
+        const phase: number = phases[column]!;
+        input.lineDemand?.({ ...line, ...(Number.isFinite(phase) ? { parentPhase: phase } : {}) });
+      },
+      input.lineProbe === undefined ? undefined : (k, phase, start, end): void => {
+        const s: IAutoMovieConstructionSplitBand.IStretch = stretches[owner[k]!]!;
+        const angular: AutoMovieVector3Tuple | undefined = jets[k]?.v ?? (s.kind === "seam" && seamAt[k] !== null
+          ? scale(seamAt[k]!.tangent, s.forward ? 1 : -1)
+          : undefined);
+        const normal: AutoMovieVector3Tuple | null = angular === undefined ? null : unit(scale(cross(start.first, angular), orientation));
+        input.lineProbe?.(input.name, k, phase, { ...start, normal }, end);
+      },
+      input.guidedRail === undefined ? undefined : (k, start, target): AutoMovieVector3Tuple => {
+        const tangent: AutoMovieVector3Tuple | undefined = seamAt[k]?.tangent;
+        const chord: AutoMovieVector3Tuple = sub(target, start.point);
+        if (tangent === undefined) return start.first;
+        const across: AutoMovieVector3Tuple | null = unit(sub(start.first, scale(tangent, dot(start.first, tangent))));
+        if (across === null) return start.first;
+        const normal: AutoMovieVector3Tuple = cross(across, tangent);
+        const along: AutoMovieVector3Tuple | null = unit(sub(chord, scale(normal, dot(chord, normal))));
+        if (along === null) return start.first;
+        // The bisector maximizes the smaller angular margin of the two
+        // admissible half-planes: inward from the shared seam and forward
+        // toward the actual child point. It stays in the same tangent plane.
+        const bisector: AutoMovieVector3Tuple | null = unit(add(across, along));
+        const own: AutoMovieVector3Tuple | null = unit(start.first);
+        if (bisector === null || own === null) return start.first;
+        const count: number = stretches[owner[k]!]!.columns;
+        const near: number = turn(Math.min(within[k]!, count - within[k]!) * step, corners[owner[k]!]!);
+        const direction: AutoMovieVector3Tuple | null = unit(add(scale(own, near), scale(bisector, 1 - near)));
+        return direction === null ? start.first : scale(direction, norm(start.first));
+      },
     );
     return typeof made === "string" ? made : { ...made, phases };
   }
@@ -570,6 +646,10 @@ export namespace AutoMovieConstructionSplitBand {
    * @param profiles A port band's cross profiles, their depths in mm (`IAutoMovieConstructionBandProfile64`); absent, none.
    * @param trace Optional nonthrowing observer of actual columns/common factor/local passes. Its ribbon derivatives use the normalized cross parameter.
    * @param orientation Exact sign of the chart when it is inherited from an owner arc.
+   * @param guidedRail Explicit fork marks and the prepared physical child rail.
+   * @param behind Optional observer of a matched cross line that the geometry refused.
+   * @param probe Optional read of each original line before correspondence admission.
+   * @param direct Optional same-plane start direction toward this child point.
    * @returns The strip, or the refusal.
    */
   export function strip(
@@ -584,12 +664,17 @@ export namespace AutoMovieConstructionSplitBand {
     profiles: readonly IAutoMovieConstructionBandProfile64[] = [],
     trace?: IAutoMovieConstructionSplitBandTrace.Sink,
     orientation?: 1 | -1,
+    guidedRail?: IAutoMovieConstructionSplitBand.IGuidedRail,
+    behind?: (column: number, line: IAutoMovieConstructionSplitBand.ILineDemand) => void,
+    probe?: (column: number, phase: number, start: IAutoMovieBlendCrossJet, end: IAutoMovieConstructionSplitBand.ILineEnd) => void,
+    direct?: (column: number, start: IAutoMovieBlendCrossJet, target: AutoMovieVector3Tuple) => AutoMovieVector3Tuple,
   ): IAutoMovieConstructionSplitBand.IStrip | string {
     const n: number = loop.length;
-    const childPhases: number[] | string = PortCurve.correspondence(
+    let childPhases: number[] | string = PortCurve.correspondence(
       child,
       loop,
       correspondence,
+      guidedRail,
     );
     if (typeof childPhases === "string") {
       if (trace !== undefined)
@@ -601,20 +686,35 @@ export namespace AutoMovieConstructionSplitBand {
         });
       return childPhases;
     }
+    const continuation = (phase: number) => {
+      const far: IAutoMovieSolidSurface.IJet = child.surface.jet(railAt(child, phase), phase);
+      return { far, first: scale(far.u, child.into) };
+    };
+    if (guidedRail !== undefined) {
+      const starts: IAutoMovieBlendCrossJet[] = [];
+      for (let k: number = 0; k < loop.length; ++k) {
+        const ribbon: IAutoMovieBlendCrossJet | string = near(k, 1);
+        if (typeof ribbon === "string") return ribbon;
+        starts.push(ribbon);
+      }
+      childPhases = RailClock.regularize(childPhases, guidedRail.marks, starts, (phase) => {
+        const read = continuation(phase);
+        return { point: read.far.p, first: read.first,
+          normal: probe === undefined ? null : unit(scale(cross(read.far.u, read.far.v), child.surface.orientation)) };
+      }, behind, probe === undefined ? undefined : (k, phase, end): void => probe(k, phase, starts[k]!, end),
+      direct === undefined ? undefined : (k, target): AutoMovieVector3Tuple => direct(k, starts[k]!, target));
+      if (typeof childPhases === "string") return childPhases;
+    }
 
     const columns: {
       start: IAutoMovieBlendCrossJet;
       end: IAutoMovieBlendCrossJet;
     }[] = [];
     for (let k: number = 0; k < n; ++k) {
-      const station: number = railAt(child, childPhases[k]!);
-      const far: IAutoMovieSolidSurface.IJet = child.surface.jet(
-        station,
-        childPhases[k]!,
-      );
+      const { far, first } = continuation(childPhases[k]!);
       const chord: AutoMovieVector3Tuple = sub(far.p, loop[k]!);
       const L: number = norm(chord);
-      const childSpeed: number = norm(far.u);
+      const childSpeed: number = norm(first);
       if (!(Number.isFinite(L) && L > 0 && childSpeed > 0)) {
         const reason: string = `column ${k}: the loop point and the child's rail point coincide or the child's station speed vanishes`;
         if (trace !== undefined)
@@ -626,25 +726,19 @@ export namespace AutoMovieConstructionSplitBand {
           });
         return reason;
       }
-      const start: IAutoMovieBlendCrossJet | string = near(k, L);
-      if (typeof start === "string") {
+      const beginning: IAutoMovieBlendCrossJet | string = near(k, L);
+      if (typeof beginning === "string") {
         if (trace !== undefined)
           Trace.emit(trace, {
             kind: "refusal",
             stage: "columns",
-            reason: start,
+            reason: beginning,
             pass: null,
           });
-        return start;
+        return beginning;
       }
-      const own: IAutoMovieBlendCrossJet = AutoMovieSolidRibbon.of(
-        child.surface,
-        station,
-        childPhases[k]!,
-        child.into,
-        0,
-        L / childSpeed,
-      );
+      const start: IAutoMovieBlendCrossJet = direct === undefined ? beginning : { ...beginning, first: direct(k, beginning, far.p) };
+      const own: IAutoMovieBlendCrossJet = AutoMovieSolidRibbon.fromJet(far, child.into, 0, L / childSpeed);
       const w: number = weight((2 * Math.PI * k) / n, crease);
       const end: IAutoMovieBlendCrossJet =
         w === 0

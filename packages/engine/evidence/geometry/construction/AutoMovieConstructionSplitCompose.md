@@ -96,11 +96,11 @@ States each step and the refusals.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
-Per child two cuts; per seam one pass round the ring at eight samples per band column and two bisections.
+One terminal ring preparation supplies eight point samples per band column. Per seam, test signed distances of those same points, bisect the two crossings and read the valley from the children's bounded cuts.
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 
-Each seam plane serves its host forks and both neighbours' rails.
+The terminal ring samples serve each seam bracket and the outline-distance check. Each seam plane serves its host forks and both neighbours' rails. The valley's position queries read that cut's admitted intersection without the station curve's derivatives.
 
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 

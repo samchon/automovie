@@ -259,7 +259,7 @@ export namespace AutoMovieConstructionPortBand {
   const SIGMA_END: number = 0.4;
 
   /** The cross parameter `sigma(s) = s (1 + 3 s) / (1 + 3 s + 6 s^2)` with its first and second derivatives; its denominator has no real root. */
-  function sigma(s: number): [number, number, number] {
+  export function sigma(s: number): [number, number, number] {
     const N: number = s + 3 * s * s;
     const N1: number = 1 + 6 * s;
     const D: number = 1 + 3 * s + 6 * s * s;

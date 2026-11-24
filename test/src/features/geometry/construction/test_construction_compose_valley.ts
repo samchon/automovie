@@ -1,5 +1,6 @@
 import type {
   IAutoMovieConstructionSplitCompose,
+  IAutoMovieConstructionSplitSeam,
   IAutoMovieSolidSurface,
 } from "@automovie/interface";
 import { AutoMovieConstructionSplitCompose } from "@automovie/engine";
@@ -138,7 +139,7 @@ export function test_construction_compose_valley(): void {
     let off: number = 0;
     for (const knots of made.valleys) {
       if (knots.length !== n / 4 - 1) failures.push(`${what}: ${knots.length} knots, not ${n / 4 - 1}`);
-      knots.forEach(([along, depth]: [number, number], i: number): void => {
+      knots.forEach(([along, depth]: IAutoMovieConstructionSplitSeam.Knot, i: number): void => {
         const place: number = (2 * y * (i + 1)) / (n / 4);
         off = Math.max(off, Math.abs(along - place), Math.abs(depth - (Math.sqrt(r * r - (place - y) ** 2) - x) / Math.sin(b / 2)));
       });
@@ -198,7 +199,7 @@ export function test_construction_compose_valley(): void {
     const y: number = reduction * Math.sqrt(81 - x * x);
     for (const knots of narrow.valleys) {
       if (knots.length !== n / 4 - 1) failures.push(`narrow ring: ${knots.length} knots, not ${n / 4 - 1}`);
-      knots.forEach(([along, depth]: [number, number], i: number): void => {
+      knots.forEach(([along, depth]: IAutoMovieConstructionSplitSeam.Knot, i: number): void => {
         const share: number = (2 * y * (i + 1)) / (n / 4);
         const exact: number = (Math.sqrt(81 - (share - y) ** 2) - x) / Math.sin(0.15);
         if (!(Math.abs(along - share) <= 1e-8 && Math.abs(depth - exact) <= 1e-8))

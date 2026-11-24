@@ -29,7 +29,7 @@ type V3 = [number, number, number];
  * 9. Refusals by name, each one diagnostic that leaves the host alone: children 20 mm apart (`cross 0 times`); children whose stations start past the end plane (`not admitted in the end plane`); children that do not lean, so their skins never part (`never enters`); a host whose ring, of half extents 34 and 16 mm, stands farther from the outline than the rail (`from the composed outline`).
  * 10. A split in two under `compose`: `f.0` and `f.2` about `(+-0.0075, 0, -0.03)` on a host of half extents 17 mm and `sqrt(81 - (7.5 cos b)^2)`; no diagnostic; both forks stand at `x = 0`; the seam's columns lie in the plane `x = 0` within 1e-6 mm, within 0.3 mm of `f.0`'s skin there (`y^2 + (d sin b + 7.5 cos b)^2 = 81` at the depth `d`) and reach 0.9 of its depth `(9 - 7.5 cos b) / sin b`; `band.f.0`'s end edge lies on the zero set of the smooth minimum of its end plane and seam plane distances within 1e-7 mm.
  * 12. A composed split whose host is a composed split's child, as a palm that parts from a wrist and is itself parted into fingers: the split in two of scenario 10 with `f.0` carrying a second composed split at its far end, 60 mm along its axis, into `g.0` and `g.1`, cylinders of radius 7 about the points 3.5 mm either side of `f.0`'s axis along its first section axis, leaning 0.3 rad apart from it either way. No diagnostic; the faces hold both splits' bands; the outer forks still stand at `x = 0`; the two sections `((U -+ 3.5) cos 0.3)^2 + V^2 = 49` cross in `f.0`'s end plane on the line `U = 0`, so the inner seam plane is that line's plane through `f.0`'s axis and the inner forks stand where it meets `f.0`'s end ring, on the axis in the first section axis and 9 mm either side along the second, within 1e-6 mm.
- * 11. A declared `cut` without `compose`: `f.1`'s rail cut by the plane through its facing end frame's point `(0, 0, 0.018)` with the normal `(0.3, 0, 1)` in that frame (third axis into the child) puts `band.f.1`'s end edge on that plane within 1e-7 mm at columns and between them. Red control, the station rail of the same tree: the end edge stands more than 2 mm off the plane.
+ * 11. Declared cuts without `compose`: each rail is cut by the plane through its facing end frame's point `(0, 0, 0.018)` with normal `(0.3, 0, 1)` in that frame (third axis into the child). The middle band's end edge is on its plane within 1e-7 mm at columns and between them. The two bands on the first curved authored seam read the same points and opposite tangents between columns. Red control, the station rail of the same tree: the end edge stands more than 2 mm off the plane.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Realizes made trees with `realizeAutoMovieConstruction` and reads the bands' realized surfaces, the skin mesh and the diagnostics. It catches forks left at their authored phases, a seam left on its chord or ruled in the end plane, a seam each band interpolates for itself, a rail left on a station ring or interpolated between columns, a composition that ignores a child's frame, a host ring spanned silently and a refused composition that leaves a partial split.
  * @evidence contracts/development/testing.md#independent-expectations The crossing of a leaning cylinder's section with a circle, the bisector of two axes by its half angle, a cylinder's cut by a plane, the planes moved along an axis and their minimum are written here from the fixture's closed forms; watertightness is the manifold rule. Oracle limit: between its valley knots the seam is the spline through them, so its distance from the cylinder is bounded, not zero.
@@ -86,7 +86,7 @@ export function test_construction_split_compose(): void {
       // child's facing end, the same 6 mm past the end plane.
       rail: (o.compose === null ? 12 + RAIL : RAIL) / 1000,
       correspondence: "length",
-      ...(o.cut !== undefined && name === "f.1" ? { cut: o.cut } : {}),
+      ...(o.cut === undefined ? {} : { cut: o.cut }),
     });
     return {
       type: "split",
@@ -370,7 +370,7 @@ export function test_construction_split_compose(): void {
 
   // 11. A declared cut without compose.
   const declared: IAutoMovieConstructionSplit.ICut = { frame: "part", planes: [{ point: [0, 0, 0.018], normal: [0.3, 0, 1] }] };
-  const cut: IAutoMovieConstructionRealization.IRealization = realize(split({ lean: b, compose: null, host: roomy, cut: declared }));
+  const cut: IAutoMovieConstructionRealization.IRealization = realize(split({ lean: b, compose: null, host: roomy, profile: { knots: [[0.012, 0.006]], corner: 0.3 }, cut: declared }));
   // In the kernel's millimetres: f.1's facing end stands 12 mm above the end plane, at z = -18, its third axis -z, so the plane passes
   // through (0, 0, -36) with the normal (0.3, 0, -1) / |.|.
   const away = (p: readonly number[]): number => Math.abs(dot([0.3, 0, -1], [p[0]!, p[1]!, p[2]! + 36])) / Math.hypot(0.3, 1);
@@ -378,6 +378,25 @@ export function test_construction_split_compose(): void {
   else {
     const off: number = Math.max(...clocks.map((c: number): number => away(end(cut, "band.f.1", c))));
     if (!(off <= 1e-7)) failures.push(`cut: band.f.1's end edge stands ${off} mm off the declared plane`);
+    const shared = apart(cut);
+    if (!(shared.point <= 1e-9 && shared.tangent <= 1e-9))
+      failures.push(`authored cut's shared seam: ${shared.point} mm point gap, ${shared.tangent} tangent gap between columns`);
+    const outer = ConstructionRead.surface(cut, "band.f.0");
+    const middle = ConstructionRead.surface(cut, "band.f.1");
+    const outward = (face: IAutoMovieSolidSurface, clock: number): V3 => {
+      const j = face.jet(0, clock);
+      const a = j.u;
+      const b = j.v;
+      const n: V3 = [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
+      return n.map((x): number => face.orientation * x / Math.hypot(...n)) as V3;
+    };
+    const gap = Math.max(...Array.from({length: n - 1}, (_, k): number => {
+      const t = (k + 1) / n;
+      const a = outward(outer, turn * (1 - t / 4));
+      const b = outward(middle, turn * (1 + t) / 4);
+      return Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]);
+    }));
+    if (!(gap <= 1e-9)) failures.push(`authored cut's two directed seam normals differ by ${gap}`);
   }
   if (plain.diagnostics.length === 0) {
     const off: number = Math.max(...clocks.map((c: number): number => away(end(plain, "band.f.1", c))));

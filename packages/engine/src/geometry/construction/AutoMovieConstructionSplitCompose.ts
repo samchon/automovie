@@ -100,6 +100,53 @@ export namespace AutoMovieConstructionSplitCompose {
   }
 
   /**
+   * The nested fork phases where ordered physical divider planes cross the
+   * parent's own ring. Positive plane sides face the higher-index children.
+   */
+  export function forks(
+    ring: (phase: number) => Vec3,
+    planes: readonly IAutoMovieConstructionSkinCut.IPlane[],
+    ringSamples: readonly Vec3[],
+  ): [number, number][] | string {
+    const turn: number = 2 * Math.PI;
+    const m: number = ringSamples.length;
+    const seams: [number, number][] = [];
+    for (const [j, plane] of planes.entries()) {
+      const distance = (point: Vec3): number => dot(plane.normal, sub(point, plane.point));
+      const values: number[] = ringSamples.map(distance);
+      const falls: number[] = [];
+      const rises: number[] = [];
+      for (let k: number = 0; k < m; ++k) {
+        const [here, next]: [number, number] = [values[k]!, values[(k + 1) % m]!];
+        if (here > 0 === next > 0) continue;
+        let [lo, hi]: [number, number] = [(turn * k) / m, (turn * (k + 1)) / m];
+        for (let step: number = 0; step < 200; ++step) {
+          const mid: number = (lo + hi) / 2;
+          if (mid === lo || mid === hi) break;
+          if (distance(ring(mid)) > 0 === here > 0) lo = mid;
+          else hi = mid;
+        }
+        (here > 0 ? falls : rises).push(hi);
+      }
+      if (falls.length !== 1 || rises.length !== 1)
+        return `seam ${j}'s plane crosses the host's end ring ${falls.length + rises.length} times, not twice`;
+      let a: number = falls[0]!;
+      if (j > 0) {
+        const before: [number, number] = seams[j - 1]!;
+        a -= turn * Math.ceil((a - before[0]) / turn);
+        if (a === before[0]) a -= turn;
+      } else if (a > Math.PI) a -= turn;
+      let b: number = rises[0]!;
+      b += turn * Math.ceil((a - b) / turn);
+      if (b === a) b += turn;
+      if (j > 0 && !(b > seams[j - 1]![1] && seams[j - 1]![0] - a < turn && b < a + turn))
+        return `seam ${j}'s forks on the host's end ring, phases [${a}, ${b}], do not enclose seam ${j - 1}'s [${seams[j - 1]![0]}, ${seams[j - 1]![1]}]`;
+      seams.push([a, b]);
+    }
+    return seams;
+  }
+
+  /**
    * Derive a composed end (`IAutoMovieConstructionSplit.ICompose`), or the refusal.
    *
    * Each child's section is its skin cut by the end plane; the composition gives each pair's forks and seam plane
@@ -109,11 +156,13 @@ export namespace AutoMovieConstructionSplitCompose {
    *
    * @param input The declaration, the host's ring and frame, the children and the band's columns.
    * @param prepared The engine's own previously prepared cuts on these same sources and physical plane.
+   * @param observed An independent material seam on the exact plane, or absent to derive it from the composite children's cuts.
    * @returns The derived members, or the refusal.
    */
   export function derive(
     input: IAutoMovieConstructionSplitCompose.IInput,
     prepared?: readonly IAutoMovieConstructionSplitCompose.ISection[],
+    observed?: IAutoMovieConstructionSplitCompose.Valley,
   ): IAutoMovieConstructionSplitCompose.IDerived | string {
     const { compose, host, children, count }: typeof input = input;
     const S: number = AutoMovieConstructionViews.SCALE;
@@ -141,52 +190,28 @@ export namespace AutoMovieConstructionSplitCompose {
     });
     if (typeof composition === "string") return composition;
 
-    // Each seam's forks on the host's ring: where its plane crosses the ring.
-    const ring = (phi: number): Vec3 => {
-      const p: readonly number[] = host.surface.jet(host.station, phi).p;
-      return [p[0]!, p[1]!, p[2]!];
-    };
+    // The same terminal points bracket every seam and measure outline clearance.
+    const ring: (phi: number) => Vec3 = host.surface.pointAt?.(host.station) ??
+      ((phi: number): Vec3 =>
+        host.surface.point?.(host.station, phi) ?? host.surface.jet(host.station, phi).p);
     const m: number = 8 * count;
-    const seams: [number, number][] = [];
-    for (const [j, seam] of composition.seams.entries()) {
-      const side = (phi: number): number => dot(seam.normal, sub(ring(phi), seam.forks[0].point));
-      const values: number[] = Array.from({ length: m }, (_: unknown, k: number): number => side((turn * k) / m));
-      const falls: number[] = [];
-      const rises: number[] = [];
-      for (let k: number = 0; k < m; ++k) {
-        const [here, next]: [number, number] = [values[k]!, values[(k + 1) % m]!];
-        if (here > 0 === next > 0) continue;
-        let [lo, hi]: [number, number] = [(turn * k) / m, (turn * (k + 1)) / m];
-        for (let step: number = 0; step < 200; ++step) {
-          const mid: number = (lo + hi) / 2;
-          if (mid === lo || mid === hi) break;
-          if (side(mid) > 0 === here > 0) lo = mid;
-          else hi = mid;
-        }
-        (here > 0 ? falls : rises).push(hi);
-      }
-      if (falls.length !== 1 || rises.length !== 1)
-        return `seam ${j}'s plane crosses the host's end ring ${falls.length + rises.length} times, not twice`;
-      let a: number = falls[0]!;
-      if (j > 0) {
-        const before: [number, number] = seams[j - 1]!;
-        a -= turn * Math.ceil((a - before[0]) / turn);
-        if (a === before[0]) a -= turn;
-      } else if (a > Math.PI) a -= turn;
-      let b: number = rises[0]!;
-      b += turn * Math.ceil((a - b) / turn);
-      if (b === a) b += turn;
-      if (j > 0 && !(b > seams[j - 1]![1] && seams[j - 1]![0] - a < turn && b < a + turn))
-        return `seam ${j}'s forks on the host's end ring, phases [${a}, ${b}], do not enclose seam ${j - 1}'s [${seams[j - 1]![0]}, ${seams[j - 1]![1]}]`;
-      seams.push([a, b]);
-    }
+    const ringSamples: Vec3[] = Array.from(
+      { length: m },
+      (_: unknown, k: number): Vec3 => ring((turn * k) / m),
+    );
+    const seams = forks(
+      ring,
+      composition.seams.map((seam): IAutoMovieConstructionSkinCut.IPlane => ({point: seam.forks[0].point, normal: seam.normal})),
+      ringSamples,
+    );
+    if (typeof seams === "string") return seams;
 
     // The host's end ring against the composed outline, in the end plane: a band spans what stands between them, so a ring farther
     // from the outline than the shortest band is long is refused; beyond that the band's columns would run more across the children
     // than along them.
     let [most, sum]: [number, number] = [0, 0];
-    for (let k: number = 0; k < m; ++k) {
-      const d: number = composition.outline.distance(ring((turn * k) / m));
+    for (const point of ringSamples) {
+      const d: number = composition.outline.distance(point);
       most = Math.max(most, d);
       sum += d;
     }
@@ -203,7 +228,7 @@ export namespace AutoMovieConstructionSplitCompose {
       return planes;
     };
     const bounds: IAutoMovieConstructionSkinCut.ICut[] = [];
-    for (const [i, child] of children.entries()) {
+    for (const [i, child] of (observed === undefined ? children : []).entries()) {
       const made: IAutoMovieConstructionSkinCut.ICut | string = SkinCut.create({ surface: child.surface, planes: wedge(i, [0, 0, 0]), into: child.into, stations: child.stations, samples: count });
       if (typeof made === "string") return `the child face ${child.name}'s boundary in the composition: ${made}`;
       bounds.push(made);
@@ -212,7 +237,7 @@ export namespace AutoMovieConstructionSplitCompose {
     // Each seam's valley: where the union of the two children crosses the seam plane, the deeper of the two children's own cuts by
     // that plane at each place along the chord between the forks, read at the seam's inner columns' shares of that chord.
     const q: number = count / 4;
-    const valleys: [number, number][][] = [];
+    const valleys: IAutoMovieConstructionSplitCompose.IDerived["valleys"] = [];
     for (const [j, seam] of composition.seams.entries()) {
       const A: Vec3 = ring(seams[j]![0]);
       const B: Vec3 = ring(seams[j]![1]);
@@ -221,6 +246,12 @@ export namespace AutoMovieConstructionSplitCompose {
       const across: Vec3 | null = unit(sub(seam.heading, scale(e1, dot(seam.heading, e1))));
       if (across === null) return `seam ${j}'s bisector runs along its chord on the host's end ring`;
       const e2: Vec3 = dot(across, end.normal) < 0 ? scale(across, -1) : across;
+      if (observed !== undefined) {
+        const found: ReturnType<IAutoMovieConstructionSplitCompose.Valley> = observed({ index: j, ends: [A, B], axes: [e1, e2], sides: [composition.centres[j]!, composition.centres[j + 1]!], count });
+        if (typeof found === "string") return `seam ${j}'s observed valley: ${found}`;
+        valleys.push(found);
+        continue;
+      }
       const place = (p: readonly number[]): [number, number] => {
         const d: Vec3 = sub([p[0]!, p[1]!, p[2]!], A);
         return [dot(d, e1), dot(d, e2)];
@@ -238,7 +269,14 @@ export namespace AutoMovieConstructionSplitCompose {
         // The arc from fork 0 to fork 1 that no lobe holds, by increasing or by decreasing phase.
         const up: number = pa + ((((pb - pa) % turn) + turn) % turn);
         const to: number = free((pa + up) / 2) ? up - turn : up;
-        const at = (psi: number): [number, number] => place(child.surface.jet(bounds[i]!.at(psi)[0], psi).p);
+        const boundary: IAutoMovieConstructionSkinCut.ICut = bounds[i]!;
+        const at = (psi: number): [number, number] => {
+          if (boundary.point !== undefined) return place(boundary.point(psi));
+          const station: number = boundary.at(psi)[0];
+          return place(
+            child.surface.point?.(station, psi) ?? child.surface.jet(station, psi).p,
+          );
+        };
         if (!(Math.sign(at(to)[0] - at(pa)[0]) === Math.sign(ends[1] - ends[0])))
           return `the child face ${child.name}'s cut by seam ${j}'s plane does not run from fork to fork`;
         return (along: number): number => {
@@ -277,9 +315,11 @@ export namespace AutoMovieConstructionSplitCompose {
     // Each child's rail: the end plane and its seam planes, each moved along the child's axis by its rail distance, so the rail is the
     // child's boundary in the composition moved along its stations.
     const cuts: IAutoMovieConstructionSkinCut.ICut[] = [];
+    const railPlanes: IAutoMovieConstructionSplitCompose.IDerived["railPlanes"] = [];
     for (const [i, child] of children.entries()) {
       const shift: Vec3 = scale(sections[i]!.axis, child.rail);
       const planes: IAutoMovieConstructionSkinCut.IPlane[] = wedge(i, shift);
+      railPlanes.push({ shift, planes: planes.map((plane, k) => ({ label: k === 0 ? 0 : i === 0 ? 1 : i + k - 1, plane })) });
       const made: IAutoMovieConstructionSkinCut.ICut | string = SkinCut.create({
         surface: child.surface,
         planes,
@@ -297,6 +337,7 @@ export namespace AutoMovieConstructionSplitCompose {
       valleys,
       host: { max: most, mean: sum / m },
       cuts,
+      railPlanes,
       composition,
     };
   }

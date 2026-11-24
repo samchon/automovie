@@ -1,13 +1,24 @@
 import type { AutoMovieVector3Tuple } from "../geometry/AutoMovieVector3Tuple";
 import type { IAutoMovieSolidSurface } from "./IAutoMovieSolidSurface";
 
-/**
- * Shared world-space seam geometry between split bands.
- */
+/** Shared world-space seam geometry between split bands. */
 export namespace IAutoMovieConstructionSplitSeam {
+  /** A measured knot in along-chord, outward-depth and optional lateral millimetres. */
+  export type Knot = [along: number, depth: number, lateral?: number];
+
   /**
-   * One reading of the seam.
+   * The exact seam tangent and directed cross vector in the parent's tangent
+   * plane at one fork.
    */
+  export interface IFork {
+    /** Unit transverse vector toward the seam plane's positive side. */
+    across: AutoMovieVector3Tuple;
+
+    /** Unit tangent in the shared seam's original order. */
+    tangent: AutoMovieVector3Tuple;
+  }
+
+  /** One reading of the seam. */
   export interface IPoint {
     /** The seam's point, mm. */
     point: AutoMovieVector3Tuple;
@@ -15,8 +26,17 @@ export namespace IAutoMovieConstructionSplitSeam {
     /** Its unit tangent, toward the seam's second end. */
     tangent: AutoMovieVector3Tuple;
 
-    /** Curvature vector in inverse millimetres, the second derivative in seam arclength. */
+    /**
+     * Curvature vector in inverse millimetres, the second derivative in seam
+     * arclength.
+     */
     bend: AutoMovieVector3Tuple;
+
+    /**
+     * Derivative of the curvature vector in arclength, when explicitly
+     * requested.
+     */
+    bendRate?: AutoMovieVector3Tuple;
   }
 
   /**
@@ -28,10 +48,17 @@ export namespace IAutoMovieConstructionSplitSeam {
     /** The first end (host phase `a`) and the second (phase `b`), mm. */
     ends: [AutoMovieVector3Tuple, AutoMovieVector3Tuple];
 
-    /** The seam plane's unit normal, `e1 x e2` (`e1` along the chord from the first end, `e2` the end normal square to it); unoriented toward either band. */
+    /**
+     * The seam plane's unit normal, `e1 x e2` (`e1` along the chord from the
+     * first end, `e2` the end normal square to it); unoriented toward either
+     * band.
+     */
     normal: AutoMovieVector3Tuple;
 
-    /** Length in millimetres: exact chord length for straight seams, per-span quadrature estimate for curved seams. */
+    /**
+     * Length in millimetres: exact chord length for straight seams, per-span
+     * quadrature estimate for curved seams.
+     */
     length: number;
 
     /**
@@ -41,45 +68,79 @@ export namespace IAutoMovieConstructionSplitSeam {
      * and a curved seam's fallback tangent are retained shared vectors.
      *
      * @param t The share of the length from the first end, in `[0, 1]`.
+     * @param withBendRate Request the cubic's piecewise third arclength
+     *   derivative.
      */
-    at(t: number): IAutoMovieConstructionSplitSeam.IPoint;
+    at(
+      t: number,
+      withBendRate?: boolean,
+    ): IAutoMovieConstructionSplitSeam.IPoint;
   }
 
   /**
-   * Borrowed geometry and authored plane knots for one curved split seam.
-   * The builder reads endpoint jets synchronously, copies their positions and
+   * Borrowed geometry and authored plane knots for one curved split seam. The
+   * builder reads endpoint jets synchronously, copies their positions and
    * retains its solved spline data; it does not mutate the input. A geometric
-   * admission failure returns a reason string; source callback throws propagate.
+   * admission failure returns a reason string; source callback throws
+   * propagate.
    */
   export type ICreateInput = {
-    /** Borrowed host surface supplying both fork positions and endpoint tangent planes in world millimetres. */
+    /**
+     * Borrowed host surface supplying both fork positions and endpoint tangent
+     * planes in world millimetres.
+     */
     host: IAutoMovieSolidSurface;
 
     /** Physical host station of both forks, millimetres. */
     station: number;
 
-    /** Sign of host station motion leaving its kept end; orients the seam endpoint tangents. */
+    /**
+     * Sign of host station motion leaving its kept end; orients the seam
+     * endpoint tangents.
+     */
     into: 1 | -1;
 
-    /** First and second host phases of the forks, radians, in the order the returned seam traverses them. */
+    /**
+     * First and second host phases of the forks, radians, in the order the
+     * returned seam traverses them.
+     */
     seam: [number, number];
 
-    /** Host end's outward direction; its projection perpendicular to the chord fixes the default seam plane and its outward side. */
+    /**
+     * Host end's outward direction; its projection perpendicular to the chord
+     * fixes the default seam plane and its outward side.
+     */
     normal: AutoMovieVector3Tuple;
 
-    /** Interior [along-chord, outward-depth] positions in millimetres; empty is allowed. Along lies in [0,chordLength], depth is any finite value, and neighbors including the implicit endpoints must differ. Traversal order is retained even when along decreases. */
-    knots: readonly (readonly [number, number])[];
+    /**
+     * Interior [along-chord, outward-depth, lateral] positions in millimetres; empty is
+     * allowed. Along lies in [0,chordLength], depth is any finite value, and
+     * neighbors including the implicit endpoints must differ. Traversal order
+     * is retained even when along decreases. A missing lateral coordinate is zero.
+     */
+    knots: readonly Readonly<Knot>[];
 
-    /** Optional world direction replacing normal for the seam plane; projected perpendicular to the chord and oriented toward normal. An unusable projection returns a refusal string. */
+    /**
+     * Optional world direction replacing normal for the seam plane; projected
+     * perpendicular to the chord and oriented toward normal. An unusable
+     * projection returns a refusal string.
+     */
     heading?: AutoMovieVector3Tuple;
+
+    /** Resolve spatial endpoint tangents from the owned parent plane and the measured interior. */
+    observed?: boolean;
   };
 
   /**
-   * The straight chord between the seam's forks read as a seam, in the same plane a curved one stands in, for a split into more than two
-   * whose seam declares no profile.
+   * The straight chord between the seam's forks read as a seam, in the same
+   * plane a curved one stands in, for a split into more than two whose seam
+   * declares no profile.
    */
   export type IStraightInput = {
-    /** Borrowed host surface supplying the straight seam's fork positions in world millimetres. */
+    /**
+     * Borrowed host surface supplying the straight seam's fork positions in
+     * world millimetres.
+     */
     host: IAutoMovieSolidSurface;
 
     /** Physical host station at which both fork positions are read, millimetres. */
@@ -88,10 +149,16 @@ export namespace IAutoMovieConstructionSplitSeam {
     /** Ordered first and second fork phases on the host, radians. */
     seam: [number, number];
 
-    /** Host end direction used with the chord to establish the straight seam's plane; a collapsed chord or unusable plane yields a refusal string. */
+    /**
+     * Host end direction used with the chord to establish the straight seam's
+     * plane; a collapsed chord or unusable plane yields a refusal string.
+     */
     normal: AutoMovieVector3Tuple;
 
-    /** Optional plane direction in world coordinates, projected square to the chord and oriented by the end normal. */
+    /**
+     * Optional plane direction in world coordinates, projected square to the
+     * chord and oriented by the end normal.
+     */
     heading?: AutoMovieVector3Tuple;
   };
 }

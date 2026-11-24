@@ -1,6 +1,8 @@
 import type { IAutoMovieConstructionDiagnostic } from "./IAutoMovieConstructionDiagnostic";
 import type { IAutoMovieConstructionProfileSource } from "./IAutoMovieConstructionProfileSource";
 import type { IAutoMovieConstructionSharedLoop } from "./IAutoMovieConstructionSharedLoop";
+import type { IAutoMovieConstructionSplitBand } from "./IAutoMovieConstructionSplitBand";
+import type { IAutoMovieConstructionSplitCompose } from "./IAutoMovieConstructionSplitCompose";
 import type { IAutoMovieLoftChain } from "./IAutoMovieLoftChain";
 import type { IAutoMoviePreparedConstructionProfile } from "./IAutoMoviePreparedConstructionProfile";
 import type { IAutoMovieSolidBlendChain } from "./IAutoMovieSolidBlendChain";
@@ -32,6 +34,19 @@ export namespace IAutoMovieConstructionRealization {
 
     /** Original shared chart loops named by explicit join keys. Entries borrow immutable sources from this same invocation. */
     loopSources?: ReadonlyMap<string, IAutoMovieConstructionSharedLoop.ISource>;
+
+    /** Optional observed seam curve by composed split name. Each called source owns the full set of seams in that split. */
+    splitValleys?: ReadonlyMap<string, IAutoMovieConstructionSplitCompose.Valley>;
+
+    /** Optional nonplanar terminal chart curve by fan split name, scoped to its native parent. */
+    splitParentCuts?: ReadonlyMap<string, IAutoMovieConstructionSplitCompose.ParentCut>;
+
+    /** Optional pre-admission source cross lines by fan split name. */
+    splitLineProbes?: ReadonlyMap<string, IAutoMovieConstructionSplitBand.LineProbe>;
+
+
+    /** Independent native rail stations by fan split and child face, millimetres. */
+    splitChildRails?: ReadonlyMap<string, ReadonlyMap<string, number>>;
   }
 
   /**

@@ -6,6 +6,7 @@ import type {
 } from "@automovie/interface";
 import {
   AutoMovieConstructionSkinCut,
+  AutoMovieConstructionPortField,
   AutoMovieConstructionSplitEdge,
   AutoMovieSolidBlendChain,
   AutoMovieSolidChain,
@@ -25,12 +26,15 @@ type V3 = [number, number, number];
  * 4. Round: with the rounding 1 mm the smooth minimum `-ln(sum exp(-g_i))` of the two distances, evaluated here from the planes, vanishes on the rail within 1e-9 at 97 phases; the rail stands above the sharp one by at most `ln 2` in distance and by under 1e-6 mm opposite the edge; and across the wedge's edge its derivative agrees with the central difference of its stations within 1e-4 mm per radian, where the sharp rail's differs by more than 5 (its slope jumps by `9 sin v / tan 0.2 = 20.2`).
  * 5. Refusals by name: a second plane parallel to the axis (`(-1, 0, 0)` through `(7, 0, 0)`) is refused because the skin never enters the cut; an end plane before the facing end (`u >= -20`) because the skin is already inside it; no plane.
  * 6. A band carried onto the rail (`AutoMovieConstructionSplitEdge.carried`): a 32-column strip from the circle of radius 14 at `z = 0` to scenario 1's rail, its end ribbons the cylinder's station direction. Red control, the column strip: midway between columns its end edge stands off the rail's curve by more than 1e-5 mm somewhere. Carried: at 64 mid-column and quarter-column clocks its end edge is the cylinder's point on the rail within 1e-9 mm, its start edge and its cross derivative at both edges are the strip's own within 1e-9, and the clock and rail readers invert each other within 1e-9 rad.
+ * 7. A prepared point reader supplies scalar bracket signs on the same tilted cylinder. It retains the jet-only root and derivatives and prepares each declared station once.
+ * 8. Uneven but directed columns take a C2 advancing phase map even when their unconstrained cubic reverses. Reversing two actual columns still refuses.
+ * 9. The point reader lands on the closed-form tilted rail without reading any second derivatives.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Builds cuts with `AutoMovieConstructionSkinCut.create` on a made closed-form skin and reads `at`; builds a strip with `AutoMovieSolidBlendChain.strip` and carries it with `AutoMovieConstructionSplitEdge.carried`. It catches a wrong root, a wrong implicit derivative, a wedge that takes the wrong plane, a rounding that leaves the wedge, an admitted cut with no crossing, and a band whose end edge is interpolated between columns.
  * @evidence contracts/development/testing.md#independent-expectations Every expectation is the cylinder's and the planes' closed form written here: the plane's equation solved for the station, its derivatives by hand, the wedge as the larger of two stations, the smooth minimum from the two plane distances, and the rail's point as the cylinder at that station; none reads the operator's own residual.
  * @evidence contracts/development/testing.md#distinguishing-cases One plane against two; sharp against rounded at the same edge; an offset pair against a station ring; a strip against the same strip carried; three refusals with distinct causes.
  * @evidence contracts/development/testing.md#execution-ownership A discoverable synchronous CPU unit reached by `--include construction_skin_cut`; it evaluates made closed forms in process and starts no host, browser or GPU.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 6 numbered scenarios it runs, each naming its input, its closed form and its bound.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the numbered scenarios, each naming its input, its closed form and its bound.
  */
 export function test_construction_skin_cut(): void {
   const failures: string[] = [];
@@ -62,6 +66,59 @@ export function test_construction_skin_cut(): void {
     normal: [Math.sin(t), 0, Math.cos(t)],
   });
   const one: IAutoMovieConstructionSkinCut.ICut | string = cut([tilted(0)]);
+  let preparations: number = 0;
+  let pointReads: number = 0;
+  let secondReads: number = 0;
+  const point = (u: number, v: number): V3 => {
+    ++pointReads;
+    return [r * Math.cos(v), r * Math.sin(v), u];
+  };
+  const prepared: IAutoMovieConstructionSkinCut.ICut | string = AutoMovieConstructionSkinCut.create({
+    surface: {
+      ...cylinder,
+      point,
+      jet: (u: number, v: number): IAutoMovieSolidSurface.IJet => {
+        const jet: IAutoMovieSolidSurface.IJet = cylinder.jet(u, v);
+        return {
+          ...jet,
+          get vv(): V3 {
+            ++secondReads;
+            return jet.vv;
+          },
+        };
+      },
+      pointAt: (u: number): ((v: number) => V3) => {
+        ++preparations;
+        return (v: number): V3 => point(u, v);
+      },
+    },
+    planes: [tilted(0)],
+    into: 1,
+    stations,
+    samples: 32,
+  });
+  if (typeof prepared === "string" || preparations !== stations.length || pointReads <= 32)
+    failures.push("prepared cut did not use one point reader per declared station for its scalar signs");
+  else if (typeof one !== "string") {
+    const railPoint: ((phase: number) => V3) | undefined = prepared.point;
+    if (railPoint === undefined) failures.push("the cut has no first-order rail point reader");
+    else {
+      const before: number = secondReads;
+      for (const phase of phases) {
+        const [x, y, z]: V3 = railPoint(phase);
+        const expected: number = 12 - r * Math.tan(t) * Math.cos(phase);
+        if (Math.hypot(x - r * Math.cos(phase), y - r * Math.sin(phase), z - expected) > 1e-10)
+          failures.push(`the reduced rail point misses its closed form at ${phase} rad`);
+      }
+      if (secondReads !== before)
+        failures.push(`position reads consumed ${secondReads - before} second derivatives`);
+    }
+    for (const phase of phases) {
+      const exact: [number, number, number] = one.at(phase);
+      if (prepared.at(phase).some((value, i): boolean => Math.abs(value - exact[i]!) > 1e-10))
+        failures.push(`point-only bracketing changed the tilted plane's root or jet at ${phase} rad`);
+    }
+  }
   if (typeof one === "string") failures.push(`one plane: ${one}`);
   else {
     let [e0, e1, e2]: [number, number, number] = [0, 0, 0];
@@ -171,6 +228,34 @@ export function test_construction_skin_cut(): void {
         if (!(start <= 1e-9 && cross <= 1e-9)) failures.push(`carried: the start edge moved by ${start} mm and the cross derivatives by ${cross}`);
         if (!(inverse <= 1e-9)) failures.push(`carried: clock and rail invert each other within ${inverse} rad`);
       }
+
+      const clustered: number[] = childPhases.map(
+        (v, k): number => k === 1 ? v + (0.99 * turn) / n : v,
+      );
+      const unconstrained = AutoMovieConstructionPortField.periodic(
+        clustered.map((v, k): number => v - childPhases[k]!),
+      );
+      if (!(unconstrained.slopes[0] < -1))
+        failures.push("control columns do not expose the periodic cubic reversal");
+      const advancing = AutoMovieConstructionSplitEdge.carried(
+        strip, made.length, cylinder, one.at, clustered,
+      );
+      if (typeof advancing === "string") failures.push(`directed uneven columns: ${advancing}`);
+      else {
+        let previous: number = advancing.rail(0)[1];
+        for (let k: number = 1; k <= 8 * n; ++k) {
+          const clock: number = (turn * k) / (8 * n);
+          const phase: number = advancing.rail(clock)[1];
+          if (!(phase > previous)) failures.push(`phase reverses at ${clock} rad`);
+          if (k % 8 === 0 && Math.abs(phase - (clustered[k / 8] ?? turn)) > 1e-12)
+            failures.push(`phase left the source column at ${clock} rad`);
+          previous = phase;
+        }
+      }
+      const reversed: number[] = [...clustered];
+      reversed[1] = clustered[2]! + (turn / n) / 10;
+      if (typeof AutoMovieConstructionSplitEdge.carried(strip, made.length, cylinder, one.at, reversed) !== "string")
+        failures.push("a reversed source column was accepted by a phase interpolation");
     }
   }
 

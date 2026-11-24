@@ -411,6 +411,10 @@ export function realizeAutoMovieConstruction(
           state,
           walk,
           report,
+          props.splitValleys?.get(node.name),
+          props.splitParentCuts?.get(node.name),
+          props.splitLineProbes?.get(node.name),
+          props.splitChildRails?.get(node.name),
         );
       case "port":
         return AutoMovieConstructionPortRealize(

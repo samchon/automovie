@@ -48,14 +48,15 @@ export namespace AutoMovieConstructionSkinCut {
     ];
     const round: number | undefined = input.round;
 
+    /** A plane's signed distance to an actual skin point. */
+    const distance = (plane: IAutoMovieConstructionSkinCut.IPlane, p: readonly number[]): number =>
+      plane.normal[0] * (p[0]! - plane.point[0]) +
+      plane.normal[1] * (p[1]! - plane.point[1]) +
+      plane.normal[2] * (p[2]! - plane.point[2]);
+
     /** The region's function at a point with each plane's weight in its gradient. */
     const field = (p: readonly number[]): { value: number; weights: number[] } => {
-      const g: number[] = planes.map(
-        (plane: IAutoMovieConstructionSkinCut.IPlane): number =>
-          plane.normal[0] * (p[0]! - plane.point[0]) +
-          plane.normal[1] * (p[1]! - plane.point[1]) +
-          plane.normal[2] * (p[2]! - plane.point[2]),
-      );
+      const g: number[] = planes.map((plane): number => distance(plane, p));
       const least: number = Math.min(...g);
       if (round === undefined) {
         const first: number = g.indexOf(least);
@@ -65,13 +66,30 @@ export namespace AutoMovieConstructionSkinCut {
       const sum: number = e.reduce((a: number, b: number): number => a + b, 0);
       return { value: least - round * Math.log(sum), weights: e.map((x: number): number => x / sum) };
     };
-    const residual = (u: number, psi: number): number => field(surface.jet(u, psi).p).value;
+    /** The same region, evaluated without derivative weights on the sign path. */
+    const signed = (p: Vec3): number =>
+      round === undefined
+        ? Math.min(...planes.map((plane): number => distance(plane, p)))
+        : field(p).value;
+    const point = (u: number, psi: number): Vec3 =>
+      surface.point?.(u, psi) ?? surface.jet(u, psi).p;
+    const fixed: ((psi: number) => Vec3)[] = ordered.map(
+      (u): ((psi: number) => Vec3) =>
+        surface.pointAt?.(u) ?? ((psi: number): Vec3 => point(u, psi)),
+    );
+    const residual = (u: number, psi: number): number => signed(point(u, psi));
 
-    /** The residual's first and second partial derivatives on the skin at a chart point. */
-    const partials = (
+    /** The source jet and first differential of the plane field at a chart point. */
+    const sample = (
       u: number,
       psi: number,
-    ): { F: number; Fu: number; Fv: number; Fuu: number; Fuv: number; Fvv: number } => {
+    ): {
+      jet: IAutoMovieSolidSurface.IJet;
+      F: number;
+      Fu: number;
+      gradient: Vec3;
+      weights: number[];
+    } => {
       const j: IAutoMovieSolidSurface.IJet = surface.jet(u, psi);
       const { value, weights }: { value: number; weights: number[] } = field(j.p);
       let grad: Vec3 = [0, 0, 0];
@@ -82,32 +100,17 @@ export namespace AutoMovieConstructionSkinCut {
           grad[2] + weights[i]! * plane.normal[2],
         ];
       });
-      const Q = (a: Vec3, b: Vec3): number => {
-        if (round === undefined) return 0;
-        let sum: number = 0;
-        planes.forEach((plane: IAutoMovieConstructionSkinCut.IPlane, i: number): void => {
-          sum += weights[i]! * dot(plane.normal, a) * dot(plane.normal, b);
-        });
-        return -(sum - dot(grad, a) * dot(grad, b)) / round;
-      };
-      return {
-        F: value,
-        Fu: dot(grad, j.u),
-        Fv: dot(grad, j.v),
-        Fuu: Q(j.u, j.u) + dot(grad, j.uu),
-        Fuv: Q(j.u, j.v) + dot(grad, j.uv),
-        Fvv: Q(j.v, j.v) + dot(grad, j.vv),
-      };
+      return { jet: j, F: value, Fu: dot(grad, j.u), gradient: grad, weights };
     };
 
     /** The first root from the facing end by the stations' bracket and bisection, or why there is none. */
     const bracketed = (psi: number): number | string => {
       let before: number = ordered[0]!;
-      if (!(residual(before, psi) < 0))
+      if (!(signed(fixed[0]!(psi)) < 0))
         return `at phase ${psi} rad the skin is already inside the cut at the end that faces the band`;
       for (let i: number = 1; i < ordered.length; ++i) {
         const here: number = ordered[i]!;
-        if (residual(here, psi) > 0) {
+        if (signed(fixed[i]!(psi)) > 0) {
           let [lo, hi]: [number, number] = [before, here];
           for (let step: number = 0; step < 200; ++step) {
             const mid: number = (lo + hi) / 2;
@@ -128,7 +131,7 @@ export namespace AutoMovieConstructionSkinCut {
       const psi: number = (turn * k) / m;
       const root: number | string = bracketed(psi);
       if (typeof root === "string") return root;
-      if (!(into * partials(root, psi).Fu > 0))
+      if (!(into * sample(root, psi).Fu > 0))
         return `at phase ${psi} rad the skin is tangent to the cut`;
       table.push(root);
     }
@@ -140,7 +143,7 @@ export namespace AutoMovieConstructionSkinCut {
       const f: number = x - k;
       let u: number = table[k]! * (1 - f) + table[(k + 1) % m]! * f;
       for (let step: number = 0; step < 24; ++step) {
-        const { F, Fu }: { F: number; Fu: number } = partials(u, psi);
+        const { F, Fu }: ReturnType<typeof sample> = sample(u, psi);
         if (!(into * Fu > 0)) break;
         const next: number = u - F / Fu;
         if (!(next >= low && next <= high)) break;
@@ -151,15 +154,33 @@ export namespace AutoMovieConstructionSkinCut {
       if (typeof root === "string") throw new AutoMovieLoftAdmissionError(`${surface.name}'s cut: ${root}`);
       return root;
     };
+    /** Keep the same exact root and transversality check for both readers. */
+    const crossing = (psi: number): { u: number; read: ReturnType<typeof sample> } => {
+      const u: number = solve(psi);
+      const read: ReturnType<typeof sample> = sample(u, psi);
+      if (!(into * read.Fu > 0))
+        throw new AutoMovieLoftAdmissionError(`${surface.name}'s cut: at phase ${psi} rad the skin is tangent to the cut`);
+      return { u, read };
+    };
     return {
       reach: [Math.min(...table), Math.max(...table)],
+      point: (psi: number): Vec3 => crossing(psi).read.jet.p,
       at: (psi: number): [number, number, number] => {
-        const u: number = solve(psi);
-        const d: { Fu: number; Fv: number; Fuu: number; Fuv: number; Fvv: number } = partials(u, psi);
-        if (!(into * d.Fu > 0))
-          throw new AutoMovieLoftAdmissionError(`${surface.name}'s cut: at phase ${psi} rad the skin is tangent to the cut`);
-        const first: number = -d.Fv / d.Fu;
-        return [u, first, -(d.Fvv + 2 * d.Fuv * first + d.Fuu * first * first) / d.Fu];
+        const { u, read }: ReturnType<typeof crossing> = crossing(psi);
+        const { jet, Fu, gradient, weights }: ReturnType<typeof sample> = read;
+        const Q = (a: Vec3, b: Vec3): number => {
+          if (round === undefined) return 0;
+          let sum: number = 0;
+          planes.forEach((plane: IAutoMovieConstructionSkinCut.IPlane, i: number): void => {
+            sum += weights[i]! * dot(plane.normal, a) * dot(plane.normal, b);
+          });
+          return -(sum - dot(gradient, a) * dot(gradient, b)) / round;
+        };
+        const Fuu: number = Q(jet.u, jet.u) + dot(gradient, jet.uu);
+        const Fuv: number = Q(jet.u, jet.v) + dot(gradient, jet.uv);
+        const Fvv: number = Q(jet.v, jet.v) + dot(gradient, jet.vv);
+        const first: number = -dot(gradient, jet.v) / Fu;
+        return [u, first, -(Fvv + 2 * Fuv * first + Fuu * first * first) / Fu];
       },
     };
   }

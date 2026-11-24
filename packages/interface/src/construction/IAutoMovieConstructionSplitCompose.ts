@@ -2,6 +2,7 @@ import type { AutoMovieVector3Tuple } from "../geometry/AutoMovieVector3Tuple";
 import type { IAutoMovieConstructionComposedEnd } from "./IAutoMovieConstructionComposedEnd";
 import type { IAutoMovieConstructionSkinCut } from "./IAutoMovieConstructionSkinCut";
 import type { IAutoMovieConstructionSplit } from "./IAutoMovieConstructionSplit";
+import type { IAutoMovieConstructionSplitSeam } from "./IAutoMovieConstructionSplitSeam";
 import type { IAutoMovieSolidSurface } from "./IAutoMovieSolidSurface";
 
 /**
@@ -9,6 +10,30 @@ import type { IAutoMovieSolidSurface } from "./IAutoMovieSolidSurface";
  * planes written in a named frame, and from a composed end the forks on the host's ring, the seam planes and every child's rail.
  */
 export namespace IAutoMovieConstructionSplitCompose {
+  /** The exact physical plane of one composition seam, supplied to a material observation. */
+  export interface IValleyFrame {
+    /** The lower consecutive child's index. */
+    index: number;
+
+    /** Host forks in world millimetres, in seam traversal order. */
+    ends: [AutoMovieVector3Tuple, AutoMovieVector3Tuple];
+
+    /** The unit along-chord and outward depth directions. */
+    axes: [AutoMovieVector3Tuple, AutoMovieVector3Tuple];
+
+    /** The adjacent children's length-averaged cut centres in the terminal plane, millimetres. */
+    sides: [AutoMovieVector3Tuple, AutoMovieVector3Tuple];
+
+    /** The band's column count. */
+    count: number;
+  }
+
+  /** Observe the seam's interior knots in millimetres, or refuse the source. */
+  export type Valley = (frame: IValleyFrame) => IAutoMovieConstructionSplitSeam.Knot[] | string;
+
+  /** The original parent loop's physical station and its phase derivatives, in mm and radians. */
+  export type ParentCut = (phase: number) => [number, number, number];
+
   /**
    * An orthonormal frame in kernel coordinates.
    */
@@ -60,16 +85,25 @@ export namespace IAutoMovieConstructionSplitCompose {
     headings: AutoMovieVector3Tuple[];
 
     /**
-     * Each seam's valley as the seam's knots `[along, depth]`, mm, in the seam's own plane coordinates from its first fork on the host's
-     * ring (`AutoMovieConstructionSplitSeam.create`): at each place along the chord the deeper of the two children's cuts by the seam plane.
+     * Each seam's valley as the seam's knots `[along, depth, lateral?]`, mm, in the seam's local frame from its first fork on the host's
+     * ring (`AutoMovieConstructionSplitSeam.create`). The input material observation can own the interior samples. Otherwise each
+     * depth is the deeper of the two children's cuts by the seam plane over their common chord.
      */
-    valleys: [number, number][][];
+    valleys: IAutoMovieConstructionSplitSeam.Knot[][];
 
     /** How far the host's end ring stands from the composed outline in the end plane, mm: the greatest and the mean over the ring's samples. */
     host: { max: number; mean: number };
 
     /** Each child's rail. */
     cuts: IAutoMovieConstructionSkinCut.ICut[];
+
+    /** Shifted carrying planes by child, labelled 0 for the host and 1 + seam index. */
+    railPlanes: {
+      /** The physical shift from the source junction to the child rail, mm. */
+      shift: AutoMovieVector3Tuple;
+      /** The host and adjacent seam planes with their loop labels. */
+      planes: { label: number; plane: IAutoMovieConstructionSkinCut.IPlane }[];
+    }[];
 
     /** The composition the rest was derived from. */
     composition: IAutoMovieConstructionComposedEnd.IComposition;

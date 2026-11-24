@@ -4,6 +4,8 @@
 
 The host's ring, the chord and the rails are evaluated once and handed to every face that bounds them, as a continuation's ring and a join's rails are (`AutoMovieConstructionRing`, `AutoMovieSolidBodyMerge`), so the faces meet vertex for vertex; rollback is the realization's checkpoint.
 
+When a fan's curved seam and cut rails carry exact boundary curves, both incident branches also read the same transverse tangent plane through its fork and interior source values (`AutoMovieConstructionSplitConormal`).
+
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
 Admission, band construction, then one mutation block of vertices and cycles.

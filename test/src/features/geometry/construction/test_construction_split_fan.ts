@@ -519,6 +519,36 @@ export function test_construction_split_fan(): void {
     failures.push(
       `square: arc columns lean along the loop by a cosine of ${leaning} on the station line and ${squared} square to the ring`,
     );
+
+  // The measured graph moves longitudinally around its original parent.
+  const rho = (phase: number): [number, number, number] => [28 + Math.cos(phase), -Math.sin(phase), -Math.cos(phase)];
+  const moved: IAutoMovieConstructionRealization.IRealization = realizeAutoMovieConstruction(
+    { name: "moved", root: split({ outer }) },
+    { chord: 1e-4, splitParentCuts: new Map([["split.fan", rho]]) },
+  );
+  if (moved.diagnostics.length !== 0) failures.push(`measured parent graph: ${ConstructionRead.diagnostics(moved)}`);
+  else {
+    const source: IAutoMovieSolidSurface = ConstructionRead.surface(moved, "trunk");
+    const band: IAutoMovieSolidSurface = ConstructionRead.surface(moved, "band.f.0");
+    const rate: number = 2 * t / (3 * turn / 4);
+    for (const k of [0.5, 5.5, 15.5, 23.5]) {
+      const clock: number = turn * k / n;
+      const phase: number = -t + rate * clock;
+      const [station, first, second]: [number, number, number] = rho(phase);
+      const expected: IAutoMovieSolidSurface.IJet = source.jet(station, phase);
+      const actual: IAutoMovieSolidSurface.IJet = band.jet(0, clock);
+      const point: number = Math.hypot(...actual.p.map((p, i): number => p - expected.p[i]!));
+      const tangent: number = Math.hypot(...actual.v.map((p, i): number => p - rate * (expected.v[i]! + first * expected.u[i]!)));
+      const curvature: number = Math.hypot(...actual.vv.map((p, i): number => p - rate * rate * (
+        expected.vv[i]! + 2 * first * expected.uv[i]! + first * first * expected.uu[i]! + second * expected.u[i]!
+      )));
+      if (Math.max(point, tangent, curvature) > 1e-8)
+        failures.push(`measured parent graph at clock ${clock}: position ${point}, tangent ${tangent}, second ${curvature}`);
+    }
+    const cycle = moved.body.faces.find(({ chain }): boolean => chain === "trunk")?.cycles.find(({ kind }): boolean => kind === "end");
+    if (!cycle?.chart.every(([station, phase]): boolean => station === rho(phase)[0]))
+      failures.push("measured parent graph did not publish native chart stations");
+  }
   // 6. Red: without its further seam the tree has two bands.
   const red: IAutoMovieConstructionRealization.IRealization = realize(
     split({ children: [child("f.0", 0.0165), child("f.2", -0.0165)] }),

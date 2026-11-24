@@ -31,6 +31,8 @@ export * from "./AutoMovieConstructionSkinCut";
 export * from "./AutoMovieConstructionComposedEnd";
 export * from "./AutoMovieConstructionSplitEdge";
 export * from "./AutoMovieConstructionSplitCompose";
+export * from "./AutoMovieConstructionSplitContinuation";
+export * from "./AutoMovieConstructionSplitFork";
 export * from "./AutoMovieConstructionSplitBand";
 export * from "./AutoMovieConstructionSplitBandTrace";
 export * from "./AutoMovieConstructionSplitRealize";
