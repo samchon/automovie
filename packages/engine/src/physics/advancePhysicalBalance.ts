@@ -14,16 +14,19 @@ import type { AutoMovieXpbdWorld } from "./AutoMovieXpbdWorld";
 import type { IAutoMoviePhysicalBalanceTrace } from "./IAutoMoviePhysicalBalanceTrace";
 import { accumulatePhysicalMotorTorques } from "./accumulatePhysicalMotorTorques";
 import { collectPhysicalSupports } from "./collectPhysicalSupports";
+import { physicalAuthoredCapture } from "./physicalAuthoredCapture";
 import { physicalBalanceHandoff } from "./physicalBalanceHandoff";
 import { physicalBalanceRamp } from "./physicalBalanceRamp";
 import { physicalBalanceSense } from "./physicalBalanceSense";
 import { physicalBalanceSettle } from "./physicalBalanceSettle";
 import { physicalBalanceStance } from "./physicalBalanceStance";
 import { physicalBalanceSwing } from "./physicalBalanceSwing";
+import { physicalBipedDesired } from "./physicalBipedDesired";
 import { physicalBipedPlan } from "./physicalBipedPlan";
 import { physicalBipedTouchdown } from "./physicalBipedTouchdown";
 import { physicalQuadPlan } from "./physicalQuadPlan";
 import { physicalQuadTouchdown } from "./physicalQuadTouchdown";
+import type { preparePhysicalDisturbanceSpan } from "./preparePhysicalDisturbanceSpan";
 
 /**
  * Advance one body's generic recovery controller from actual floor manifolds.
@@ -45,8 +48,8 @@ import { physicalQuadTouchdown } from "./physicalQuadTouchdown";
  * does this machine: a two-support body's touchdown and plan are the walking
  * controller's push recovery from IHMC 201903 (`physicalBipedTouchdown`,
  * `physicalBipedPlan`), and a four-support body's are its quadruped step
- * controller (`physicalQuadTouchdown`, `physicalQuadPlan`). Either lifts a
- * foot as its step begins, with no unloading.
+ * controller (`physicalQuadTouchdown`, `physicalQuadPlan`). Either lifts a foot
+ * as its step begins, with no unloading.
  */
 export function advancePhysicalBalance(input: {
   /** Active solver, read before this step's integration. */ world: AutoMovieXpbdWorld;
@@ -87,6 +90,10 @@ export function advancePhysicalBalance(input: {
    * biped's recovery plan stands in for it.
    */ command?: physicalBalanceSense.IInput["command"];
   /** Where the phases record their events and readings, if anywhere. */ trace?: IAutoMoviePhysicalBalanceTrace[];
+  /**
+   * On the substep after a stated disturbance's first push, its later pushes,
+   * whose response a biped prepares now.
+   */ disturbance?: { pushes: readonly preparePhysicalDisturbanceSpan.IPush[] };
 }): IAutoMovieAdvancePhysicalBalance.IResult {
   const supports: readonly IAutoMovieCollectPhysicalSupports.ISupport[] =
     input.supports ??
@@ -108,17 +115,25 @@ export function advancePhysicalBalance(input: {
   const trace: { trace?: IAutoMoviePhysicalBalanceTrace[] } = input.trace
     ? { trace: input.trace }
     : {};
-  const handed: IAutoMoviePhysicalRecoveryState = physicalBalanceHandoff({
+  const biped: boolean = sense.limbs.length === 2;
+  const handoff: IAutoMoviePhysicalRecoveryState = physicalBalanceHandoff({
     state: input.state,
     ...(input.unavailable ? { unavailable: input.unavailable } : {}),
     seconds: input.seconds,
     ...trace,
   });
 
+  // A stated disturbance's first push: a biped's response prepared once from
+  // the state just after it, its inputs recorded for a resume
+  // (`preparePhysicalDisturbanceSpan`); the caller plays it.
+  const handed: IAutoMoviePhysicalRecoveryState =
+    biped && input.disturbance
+      ? { ...handoff, span: disturbance(handoff, sense, input.disturbance) }
+      : handoff;
+
   // A two-support body runs IHMC's walking controller's push recovery, a
   // four-support body the quadruped's, as IHMC keeps the two controllers
   // apart.
-  const biped: boolean = sense.limbs.length === 2;
   const landed: IAutoMoviePhysicalRecoveryState = biped
     ? physicalBipedTouchdown({ state: handed, sense, ...trace })
     : physicalQuadTouchdown({ state: handed, sense, ...trace });
@@ -169,6 +184,59 @@ export function advancePhysicalBalance(input: {
     state: input.state,
     goals: settled.goals,
     ...(swing.path ? { swing: swing.path } : {}),
+  };
+}
+
+/**
+ * A biped's disturbance response's inputs from the state just after its first
+ * push: the centre of mass and its velocity, the pendulum's rate the plan holds
+ * (`physicalBipedPlan.omega`), the planted feet as the planner reads them
+ * (`physicalBipedDesired.foot`, each on its side), the authored capture point
+ * and rate (`physicalAuthoredCapture`), the later pushes and the policy's step
+ * range and reaction time.
+ */
+function disturbance(
+  state: IAutoMoviePhysicalRecoveryState,
+  sense: physicalBalanceSense.ISense,
+  stated: { pushes: readonly preparePhysicalDisturbanceSpan.IPush[] },
+): NonNullable<IAutoMoviePhysicalRecoveryState["span"]> {
+  const omega: number = state.omega ?? physicalBipedPlan.omega(sense, state);
+  const authored: physicalAuthoredCapture.IDesired = physicalAuthoredCapture(
+    sense,
+    state,
+    omega,
+  );
+  return {
+    seconds: sense.seconds,
+    center: { ...sense.center },
+    velocity: { ...sense.velocity },
+    omega,
+    mass: sense.profile.mass,
+    gravity: sense.gravity,
+    feet: sense.limbs.map(
+      (
+        limb: physicalBalanceSense.ILimb,
+      ): physicalBipedDesired.IPlan["feet"][number] =>
+        physicalBipedDesired.foot(
+          sense,
+          state,
+          limb.bone,
+          physicalBipedDesired.side(sense, limb.bone),
+        ),
+    ),
+    authored: {
+      position: { ...authored.position },
+      velocity: { ...authored.velocity },
+    },
+    pushes: stated.pushes.map((push: preparePhysicalDisturbanceSpan.IPush) => ({
+      seconds: push.seconds,
+      velocity: { ...push.velocity },
+    })),
+    maximumStep: sense.policy.maximumStep,
+    ...(sense.policy.reactionSeconds !== undefined
+      ? { reactionSeconds: sense.policy.reactionSeconds }
+      : {}),
+    floor: sense.floor,
   };
 }
 

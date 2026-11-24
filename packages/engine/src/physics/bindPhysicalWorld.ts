@@ -21,12 +21,12 @@ import { physicalHullErode } from "./physicalHullErode";
 import { samplePhysicalTarget } from "./samplePhysicalTarget";
 
 /**
- * Create the world's bodies, colliders and joints for every admitted body,
- * or reconnect a restored world's in creation order. A segment is dynamic
- * when its first target selects it, kinematic otherwise; it carries the
- * profile's mass properties. A compliant material's shape is a sensor with
- * a solid inner core eroded by its maximum compression. The floor is a
- * stationary kinematic box with friction 0.7.
+ * Create the world's bodies, colliders and joints for every admitted body, or
+ * reconnect a restored world's in creation order. A segment is dynamic when its
+ * first target selects it, kinematic otherwise; it carries the profile's mass
+ * properties. A compliant material's shape is a sensor with a solid inner core
+ * eroded by its maximum compression. The floor is a stationary kinematic box
+ * with friction 0.7.
  */
 export function bindPhysicalWorld(
   world: AutoMovieXpbdWorld,
@@ -51,6 +51,7 @@ export function bindPhysicalWorld(
     handoffs: new Map(),
     ownership: [],
     supportWrenches: [],
+    spans: new Map(),
 
     planned: new Map(),
     supportPlanned: new Map(),

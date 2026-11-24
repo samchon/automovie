@@ -144,10 +144,10 @@ export interface IAutoMoviePhysicalRecoveryState {
    * its side, its sole frame as the plan was made (origin and forward unit
    * direction, world x and z) and its contact outline in that frame (x forward,
    * y left), the support then the footstep in single support, both feet
-   * otherwise; and the pendulum's rate per second, the step's support side,
-   * the last planned capture point of single support and the centre of mass
-   * at the landing, or the capture point and rate the re-plan starts from and
-   * ends at, each world x and z, as the phase needs.
+   * otherwise; and the pendulum's rate per second, the step's support side, the
+   * last planned capture point of single support and the centre of mass at the
+   * landing, or the capture point and rate the re-plan starts from and ends at,
+   * each world x and z, as the phase needs.
    */ plan?: {
     phase: "single" | "toStanding" | "standing";
     since: number;
@@ -174,6 +174,42 @@ export interface IAutoMoviePhysicalRecoveryState {
     };
   };
   /**
+   * A biped's response to a stated disturbance, prepared once at its first push
+   * (`preparePhysicalDisturbanceSpan`): the branch point's inputs only, from
+   * which the response is prepared again once on a resume. The push's time,
+   * local seconds; the centre of mass and its velocity just after it, world
+   * metres and metres per second; the pendulum's rate, per second; the mass,
+   * kilograms, and gravity's magnitude; the planted feet, each its endpoint
+   * bone, side, sole frame (world x and z) and outline in that frame (x
+   * forward, y left); the authored capture point and rate; the later pushes,
+   * each its time and velocity jump; the longest step and reaction time; and
+   * the floor's height.
+   */ span?: {
+    seconds: number;
+    center: IAutoMovieVector3;
+    velocity: IAutoMovieVector3;
+    omega: number;
+    mass: number;
+    gravity: number;
+    feet: {
+      bone: string;
+      side: "left" | "right";
+      frame: {
+        origin: { x: number; z: number };
+        forward: { x: number; z: number };
+      };
+      polygon: { x: number; y: number }[];
+    }[];
+    authored: {
+      position: { x: number; z: number };
+      velocity: { x: number; z: number };
+    };
+    pushes?: { seconds: number; velocity: IAutoMovieVector3 }[];
+    maximumStep: number;
+    reactionSeconds?: number;
+    floor: number;
+  };
+  /**
    * The biped's capture-point feedback controller (IHMC `ICPController`): its
    * last centre-of-pressure feedback and pivot offset, world x and z metres as
    * x and y, its smart integrator's stuck flag and integral, whether it was
@@ -191,18 +227,17 @@ export interface IAutoMoviePhysicalRecoveryState {
   /**
    * A two-support body's pendulum rate, per second (IHMC's omega0): sqrt(g /
    * z0) at the authored centre of mass's height over the floor when its
-   * controller first ran, then held for the run, as IHMC sets it once per
-   * robot from its nominal height.
+   * controller first ran, then held for the run, as IHMC sets it once per robot
+   * from its nominal height.
    */ omega?: number;
   /**
    * A four-support body's stepping gait (IHMC 201903's quadruped step
-   * controller), present from a recovery trigger until its steps are done:
-   * each support bone's quadrant; the xGait stream; the DCM planner; the step
+   * controller), present from a recovery trigger until its steps are done: each
+   * support bone's quadrant; the xGait stream; the DCM planner; the step
    * adjustment; each quadrant's foot, whether its first trigger is still to
    * come, when it last entered its present state, local seconds, and its
-   * touchdown trigger; and when
-   * the gait was halted, if it was. Points are IHMC's z-up world frame, x the
-   * world z, y the world x and z up, metres.
+   * touchdown trigger; and when the gait was halted, if it was. Points are
+   * IHMC's z-up world frame, x the world z, y the world x and z up, metres.
    */ gait?: IAutoMoviePhysicalRecoveryState.IGait;
   /**
    * The centre-of-pressure integral: its bias, world metres, the low-passed

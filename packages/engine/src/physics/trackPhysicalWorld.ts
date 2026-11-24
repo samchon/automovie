@@ -32,10 +32,12 @@ import { physicalGravityTorques } from "./physicalGravityTorques";
 import { physicalIcpController } from "./physicalIcpController";
 import { physicalJointEffort } from "./physicalJointEffort";
 import { physicalRecoverySwing } from "./physicalRecoverySwing";
+import { physicalSpanPose } from "./physicalSpanPose";
 import { physicalStanceJointTarget } from "./physicalStanceJointTarget";
 import { physicalSupportPoint } from "./physicalSupportPoint";
 import { physicalSwingReference } from "./physicalSwingReference";
 import { physicalTrackingWithdrawn } from "./physicalTrackingWithdrawn";
+import type { preparePhysicalDisturbanceSpan } from "./preparePhysicalDisturbanceSpan";
 import { readPhysicalScene } from "./readPhysicalScene";
 import { releasePhysicalTracking } from "./releasePhysicalTracking";
 import { samplePhysicalAuthoredTargets } from "./samplePhysicalAuthoredTargets";
@@ -66,7 +68,7 @@ export function trackPhysicalWorld(
     | Record<string, Record<string, IAutoMovieRigidTransform>>
     | undefined;
   for (const body of input.bodies) {
-    const target: IAutoMoviePhysicalSimulationInput.ITarget =
+    const sampled: IAutoMoviePhysicalSimulationInput.ITarget =
       samplePhysicalTrackingTarget(
         body,
         body.targets[step]!,
@@ -74,6 +76,17 @@ export function trackPhysicalWorld(
         seconds,
         bound.contactReleased,
       );
+
+    // A biped's prepared disturbance response plays between its branch
+    // points: the body is authored from it, every segment kinematic
+    // (`preparePhysicalDisturbanceSpan`, `physicalSpanPose`).
+    const played: preparePhysicalDisturbanceSpan.ISample | undefined =
+      body.mode.kind === "kinematic"
+        ? undefined
+        : physicalSpanPose.play(bound, body, recovery[body.id], seconds);
+    const target: IAutoMoviePhysicalSimulationInput.ITarget = played
+      ? { ...sampled, dynamicSegments: physicalSpanPose.KINEMATIC }
+      : sampled;
     // Fully dynamic withdrawal has no authored pose authority. Retain native
     // contacts, passive constraints and force cleanup without rebuilding goals.
     if (
@@ -98,12 +111,22 @@ export function trackPhysicalWorld(
       seconds,
       input.rate,
     );
+    if (!played)
+      physicalSpanPose.hand(
+        bound,
+        body,
+        recovery[body.id],
+        authoredGoals,
+        seconds,
+      );
     const root: IAutoMoviePhysicalSegment = bound.order.get(body.id)![0]!;
     const earlyFit: boolean =
       body.mode.kind === "kinematic" ||
       target.dynamicSegments !== undefined ||
       hasPhysicalHandoff(bound.handoffs.get(body.id));
-    const goals: typeof authoredGoals = { ...authoredGoals };
+    const goals: typeof authoredGoals = played
+      ? physicalSpanPose({ body, goals: authoredGoals, sample: played })
+      : { ...authoredGoals };
     const rootIntent: IAutoMovieSamplePhysicalTarget.IResult = structuredClone(
       authoredGoals[root.bone]!,
     );
@@ -192,9 +215,7 @@ export function trackPhysicalWorld(
       | undefined =
       body.balance?.pattern.limbs.length === 2 ||
       body.balance?.pattern.limbs.length === 4
-        ? ((): NonNullable<
-            Parameters<typeof AdvanceBalance>[0]["command"]
-          > => {
+        ? ((): NonNullable<Parameters<typeof AdvanceBalance>[0]["command"]> => {
             const now: ReturnType<typeof physicalAuthoredCenter> =
               physicalAuthoredCenter(body.profile, authoredGoals);
             const before: ReturnType<typeof physicalAuthoredCenter> =
@@ -282,6 +303,7 @@ export function trackPhysicalWorld(
             floor: input.floor,
             actuation,
             supports: balanceSupports,
+            ...disturbance(input, body, seconds),
           })
         : undefined;
     const balance: number = assessment?.rootStrength ?? 1;
@@ -704,3 +726,43 @@ function plantedPoses(
 
 /** No balance posture is excluded when that controller is inactive. */
 const NO_POSTURE: ReadonlySet<string> = new Set();
+
+/**
+ * On the substep after one of a body's stated pushes, the pushes after it, each
+ * its instant and the centre of mass's velocity jump, the impulse over the mass
+ * (`preparePhysicalDisturbanceSpan`); a push is applied on its cache interval's
+ * first substep, so its effect is first read on the second.
+ */
+function disturbance(
+  input: IAutoMoviePhysicalSimulationInput.IInput,
+  body: IAutoMoviePhysicalSimulationInput.IBody,
+  seconds: number,
+): { disturbance?: { pushes: preparePhysicalDisturbanceSpan.IPush[] } } {
+  const substeps: number = input.substeps!;
+  const rate: number = input.rate * substeps;
+  const tick: number = Math.round(seconds * rate);
+  const scale: number =
+    body.mode.kind === "exaggerated" ? body.mode.impulse : 1;
+  const pushes = input.impulses.filter(
+    (impulse: (typeof input.impulses)[number]): boolean =>
+      impulse.body === body.id && Vector3.length(impulse.impulse) > 0,
+  );
+  const read = (impulse: (typeof pushes)[number]): number =>
+    (impulse.step - 1) * substeps + 2;
+  const now = pushes.find(
+    (impulse: (typeof pushes)[number]): boolean => read(impulse) === tick,
+  );
+  if (!now) return {};
+  return {
+    disturbance: {
+      pushes: pushes
+        .filter(
+          (impulse: (typeof pushes)[number]): boolean => read(impulse) > tick,
+        )
+        .map((impulse: (typeof pushes)[number]) => ({
+          seconds: read(impulse) / rate,
+          velocity: Vector3.scale(impulse.impulse, scale / body.profile.mass),
+        })),
+    },
+  };
+}

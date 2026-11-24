@@ -7,6 +7,7 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import { physicalBipedPlan } from "./physicalBipedPlan";
+import { physicalBipedTouchdown } from "./physicalBipedTouchdown";
 import { physicalIcpController } from "./physicalIcpController";
 import { physicalIcpPlanner } from "./physicalIcpPlanner";
 import { physicalIcpPlannerTools as Tools } from "./physicalIcpPlannerTools";
@@ -14,52 +15,68 @@ import { physicalPlanarPolygon as Polygon } from "./physicalPlanarPolygon";
 import { physicalPushRecovery as Recovery } from "./physicalPushRecovery";
 
 /**
- * A biped's response to a push, prepared once for the span: IHMC 201903's push
- * recovery and capture-point plans laid from the state just after the push,
- * every moving span a closed-form curve between the few branch points where the
- * response changes, and `sample(t)` a pure evaluation at any time in any
- * order.
+ * A biped's response to a stated disturbance, prepared once for the span: IHMC
+ * 201903's push recovery and capture-point plans laid from the state just after
+ * the first push, every moving span a closed-form curve between the few branch
+ * points where the response changes, and `sample(t)` a pure evaluation at any
+ * time in any order.
  *
- * Branch points: the push; the step's trigger, when the capture point lies
- * outside the support and over `ICP_ERROR_THRESHOLD` from its plan
- * (`physicalPushRecovery.doubleSupport`), after the policy's reaction time; the
- * touchdown, the swing time later (`physicalBipedPlan.SWING_TIME`); the
- * standing state, once the transfer to standing is done; and the end of the
- * standing cubic.
+ * Branch points, and what each does as the reference's states do:
+ *
+ * - A push: the centre of mass's velocity jumps by the push's impulse over the
+ *   mass, the capture point by that over omega. In double support the push
+ *   recovery's fall test runs (`physicalPushRecovery.doubleSupport`), and a
+ *   fall triggers a step the policy's reaction time after the capture point
+ *   left the support; in single support the footstep is checked again against
+ *   the capture region with the swing time left and, when it moves, the plan is
+ *   made again from then (`WalkingSingleSupportState` l.136-163) and the swing
+ *   foot's cubic re-aimed from where it is.
+ * - The trigger: the footstep in the support foot's one-step capture region
+ *   (`physicalPushRecovery.checkAndUpdate`, as `physicalBipedPlan` checks it)
+ *   and the single-support plan to it (`physicalIcpPlanner.singleSupport`).
+ * - The touchdown, the swing time after the trigger
+ *   (`physicalBipedPlan.SWING_TIME`): the transfer to standing
+ *   (`physicalIcpPlanner.toStanding`), done once its duration has run and the
+ *   capture point is within `maxErrorToStanding` of its hold
+ *   (`TransferToStandingState.isDone`), found in closed form from the error's
+ *   decay.
+ * - Standing: the cubic to the authored capture point
+ *   (`physicalIcpPlanner.standing`), and at its end the authored capture point
+ *   at rest.
  *
  * Between them each plan's capture point xi_d is a chain of closed forms read
- * off the built plan on fixed soles (`physicalIcpPlanner`): an exponential from
- * a constant pivot, q + r e^(omega t), or a cubic, a0 + a1 t + a2 t^2 + a3 t^3,
- * the single-support segments and the double-support cubics; the authored
- * capture point at rest is a constant. The ICP controller acts on the error e =
- * xi - xi_d (`physicalIcpController`, Zulu's gains):
+ * off the built plan on fixed soles: an exponential from a constant pivot, q +
+ * r e^(omega t), or a cubic, a0 + a1 t + a2 t^2 + a3 t^3. The ICP controller
+ * acts on the error e = xi - xi_d (`physicalIcpController`, Zulu's gains):
  *
  * - Its proportional law, the pivot xi_d - xi_d' / omega + (1 + K_p) e, gives
  *   e(t) = e0 e^(-omega K_p t) along and across the plan's motion, split at
  *   each piece's start, a plan at rest taking the across gain both ways.
  * - Its centre-of-pressure constraint: while that pivot lies outside the support,
  *   the program holds it on the support, the projection of the unconstrained
- *   one taken as the piece starts, and the capture point is xi(t) = cmp + (xi0
- *
- *   - Cmp) e^(omega t) (`CapturePointTools .computeDesiredCapturePointPosition`)
- *       until the unconstrained pivot comes back inside, found in closed form
- *       where xi_d has a constant pivot, its path then a line; over a cubic it
- *       is held to the cubic's end.
+ *   one taken as the piece starts, and xi(t) = cmp + (xi0 - cmp) e^(omega t)
+ *   (`CapturePointTools.computeDesiredCapturePointPosition`) until the
+ *   unconstrained pivot comes back inside, found in closed form where xi_d has
+ *   a constant pivot, its path then a line; over a cubic it is held to the
+ *   cubic's end.
  *
  * The centre of mass follows c' = omega (xi - c) in closed form on each piece:
  * a constant pivot's response (`CoMIntegrationTools
  * .integrateCoMPositionWithConstantCMP`), a cubic's
  * (`integrateCoMPositionOverPolynomial`), and an error term b e^(-lambda t)'s,
  * b omega / (omega - lambda) e^(-lambda t), with the homogeneous e^(-omega t)
- * term carrying the piece's initial value.
+ * term carrying the piece's initial value. The ground's reaction is the
+ * pendulum's: m omega^2 (c - cmp) across the floor and the weight up, at the
+ * pivot, shared between two planted feet by the pivot's place along the line
+ * between them.
  *
- * The swing foot follows the planner's velocity-constrained cubic from its
- * place to the footstep at rest at both ends (`physicalIcpPlannerTools
- * .cubic`), on the floor as the recovery step's clearance is zero.
+ * A swing foot follows the planner's velocity-constrained cubic to its footstep
+ * at rest (`physicalIcpPlannerTools.cubic`), on the floor as the recovery
+ * step's clearance is zero.
  *
  * Points are world floor points (x, z), metres; times local seconds.
  *
- * @param input The state just after the push.
+ * @param input The state just after the first push and the pushes after it.
  * @returns The prepared span.
  */
 export function preparePhysicalDisturbanceSpan(
@@ -67,16 +84,6 @@ export function preparePhysicalDisturbanceSpan(
 ): preparePhysicalDisturbanceSpan.ISpan {
   const { omega } = input;
   const t0: number = input.seconds;
-  const xi0: Tools.IFloor = {
-    x: input.center.x + input.velocity.x / omega,
-    z: input.center.z + input.velocity.z / omega,
-  };
-  const c0: Tools.IFloor = { x: input.center.x, z: input.center.z };
-  const both: Polygon.IPoint[] = Polygon.hull(
-    input.feet.flatMap((foot: Foot): Polygon.IPoint[] =>
-      outline(foot).map(toLocal),
-    ),
-  );
   const authored: Tools.IState = {
     position: { ...input.authored.position },
     velocity: { ...input.authored.velocity },
@@ -85,239 +92,411 @@ export function preparePhysicalDisturbanceSpan(
   const branches: preparePhysicalDisturbanceSpan.IBranch[] = [
     { kind: "push", seconds: t0 },
   ];
-  const fall: { state: Recovery.IState; swing?: string } =
-    Recovery.doubleSupport({
-      state: Recovery.initial(),
-      capture: toLocal(xi0),
-      desired: toLocal(authored.position),
-      support: both,
-      feet: input.feet.map((foot: Foot) => ({
-        bone: foot.bone,
-        centroid: Polygon.centroid(Polygon.hull(outline(foot).map(toLocal))),
-      })),
-      dt: physicalBipedPlan.CONTROL_DT,
-      period: physicalBipedPlan.CONTROL_DT,
-    });
+  const pushes: preparePhysicalDisturbanceSpan.IPush[] = [
+    ...(input.pushes ?? []),
+  ]
+    .filter((push): boolean => push.seconds > t0)
+    .sort((a, b): number => a.seconds - b.seconds);
+  const reaction: number = Math.max(0, input.reactionSeconds ?? 0);
+  const tolerance: number = physicalIcpPlanner.DEFAULTS.maxErrorToStanding;
+  const across: number = physicalIcpController.ZULU.kpOrthogonal;
 
-  // No step: the controller returns the capture point to the authored one.
-  if (fall.swing === undefined) {
-    follow(pieces, {
-      phase: "double",
-      reference: constant(t0, authored.position),
-      support: both,
-      start: t0,
-      end: Number.POSITIVE_INFINITY,
-      xi: xi0,
-      c: c0,
+  // The feet: where each stands from when, each swing's cubic, and which
+  // stand on the floor from when.
+  const placed: Map<string, Foot> = new Map(
+    input.feet.map((foot: Foot): [string, Foot] => [foot.bone, foot]),
+  );
+  const swings: ISwing[] = [];
+  const contacts: { start: number; bones: string[] }[] = [
+    { start: t0, bones: input.feet.map((foot: Foot): string => foot.bone) },
+  ];
+  const planted = (): Foot[] =>
+    contacts[contacts.length - 1]!.bones.map(
+      (bone: string): Foot => placed.get(bone)!,
+    );
+  const supportOf = (feet: readonly Foot[]): Polygon.IPoint[] =>
+    Polygon.hull(
+      feet.flatMap((foot: Foot): Polygon.IPoint[] =>
+        outline(foot).map(toLocal),
+      ),
+    );
+  const soles = (): physicalIcpPlanner.ISoles => {
+    const feet: Foot[] = [...placed.values()];
+    const left: Foot =
+      feet.find((foot: Foot): boolean => foot.side === "left") ?? feet[0]!;
+    const right: Foot =
+      feet.find((foot: Foot): boolean => foot.side === "right") ?? feet[1]!;
+    return { left: left.frame, right: right.frame };
+  };
+
+  let state: IState = {
+    xi: {
+      x: input.center.x + input.velocity.x / omega,
+      z: input.center.z + input.velocity.z / omega,
+    },
+    c: { x: input.center.x, z: input.center.z },
+  };
+  let t: number = t0;
+  let mode: IPiece["phase"] = "double";
+  let reference: IReference = constant(t0, authored.position);
+  let outside: number | undefined;
+  let recovery: Recovery.IState = Recovery.initial();
+  let trigger: { at: number; swing: string } | undefined;
+  let step:
+    | {
+        support: Foot;
+        swing: Foot;
+        target: Tools.IFloor;
+        touchdown: number;
+        plan: physicalIcpPlanner.ISinglePlan;
+        viable: boolean;
+      }
+    | undefined;
+  let hold:
+    | { reference: IReference; done: number; checked: boolean }
+    | undefined;
+  let standingEnd: number | undefined;
+  let footstep: preparePhysicalDisturbanceSpan.ISpan["footstep"];
+
+  // The push recovery's double-support fall test at a branch point.
+  const test = (): void => {
+    if (mode === "single") return;
+    const feet: Foot[] = planted();
+    const fall: { state: Recovery.IState; swing?: string } =
+      Recovery.doubleSupport({
+        state: recovery,
+        capture: toLocal(state.xi),
+        desired: toLocal(evaluate(reference, t, omega).position),
+        support: supportOf(feet),
+        feet: feet.map((foot: Foot) => ({
+          bone: foot.bone,
+          centroid: Polygon.centroid(supportOf([foot])),
+        })),
+        dt: physicalBipedPlan.CONTROL_DT,
+        period: physicalBipedPlan.CONTROL_DT,
+      });
+    recovery = fall.state;
+    if (fall.swing === undefined) {
+      outside = undefined;
+      trigger = undefined;
+      return;
+    }
+    outside ??= t;
+    trigger = { at: Math.max(t, outside + reaction), swing: fall.swing };
+  };
+
+  // The footstep in the support foot's one-step capture region with a swing
+  // time left (`physicalBipedPlan.check`).
+  const place = (
+    support: Foot,
+    swing: Foot,
+    from: Tools.IFloor,
+    remaining: number,
+  ): {
+    target: Tools.IFloor;
+    viable: boolean;
+    adjusted: boolean;
+    preferred: number;
+  } => {
+    const frame: Polygon.IFrame = support.frame;
+    const ys: number[] = support.polygon.map(
+      (p: Polygon.IPoint): number => p.y,
+    );
+    const swinging: Polygon.IPoint = Polygon.local(frame, swing.frame.origin);
+    const region: Recovery.IRegion = {
+      support: swinging.y > 0 ? "right" : "left",
+      capture: Polygon.local(frame, state.xi),
+      omega,
+      foot: Polygon.hull(support.polygon),
+      footWidth: Math.max(...ys) - Math.min(...ys),
+      range: input.maximumStep,
+    };
+    const checked: ReturnType<typeof Recovery.checkAndUpdate> =
+      Recovery.checkAndUpdate({
+        state: recovery,
+        remaining,
+        dt: physicalBipedPlan.CONTROL_DT,
+        period: physicalBipedPlan.CONTROL_DT,
+        region,
+        position: Polygon.local(frame, from),
+        outline: Polygon.hull(
+          outline({ ...swing, frame: { ...swing.frame, origin: from } }).map(
+            (p: Tools.IFloor): Polygon.IPoint => Polygon.local(frame, p),
+          ),
+        ),
+      });
+    recovery = checked.state;
+    return {
+      target: Polygon.world(frame, checked.position),
+      viable: checked.region.length > 0,
+      adjusted: checked.adjusted,
+      preferred: Recovery.preferredSwingTime({
+        remaining,
+        dt: physicalBipedPlan.CONTROL_DT,
+        region,
+      }),
+    };
+  };
+
+  // The single-support plan from a time to a footstep.
+  const plan = (
+    support: Foot,
+    swing: Foot,
+    target: Tools.IFloor,
+    duration: number,
+  ) => {
+    const landing: Foot = {
+      ...swing,
+      frame: { origin: target, forward: swing.frame.forward },
+    };
+    return physicalIcpPlanner.singleSupport({
+      support,
+      footstep: landing,
+      omega,
+      parameters: { swing: duration },
+    });
+  };
+
+  test();
+  for (let guard: number = 0; guard < 256; ++guard) {
+    const push: number = pushes[0]?.seconds ?? Number.POSITIVE_INFINITY;
+    const event: number =
+      mode === "single"
+        ? step!.touchdown
+        : trigger !== undefined
+          ? trigger.at
+          : hold !== undefined
+            ? hold.done
+            : (standingEnd ?? Number.POSITIVE_INFINITY);
+    const next: number = Math.min(push, event);
+    state = follow(pieces, {
+      phase: mode,
+      reference,
+      support: supportOf(planted()),
+      start: t,
+      end: next,
+      xi: state.xi,
+      c: state.c,
       omega,
     });
-    branches.push({ kind: "end", seconds: t0 });
-    return span(pieces, branches, undefined, input, () =>
+    if (!Number.isFinite(next)) break;
+    t = next;
+
+    // A push: the velocity's jump, then the state's own test.
+    if (push <= event) {
+      const jump: IAutoMovieVector3 = pushes.shift()!.velocity;
+      state = {
+        xi: { x: state.xi.x + jump.x / omega, z: state.xi.z + jump.z / omega },
+        c: state.c,
+      };
+      branches.push({ kind: "push", seconds: t });
+      if (mode !== "single") {
+        test();
+        continue;
+      }
+      const s = step!;
+      recovery = Recovery.singleSupport({
+        state: recovery,
+        capture: toLocal(state.xi),
+        desired: toLocal(evaluate(reference, t, omega).position),
+      });
+      const from: Tools.IState = swingAt(swings, s.swing.bone, t);
+      const moved = place(s.support, s.swing, from.position, s.touchdown - t);
+      if (!moved.adjusted) continue;
+      s.target = moved.target;
+      s.viable = moved.viable;
+      s.plan = plan(s.support, s.swing, s.target, s.touchdown - t);
+      reference = segmented(t, s.plan);
+      swings.push({
+        bone: s.swing.bone,
+        start: t,
+        end: s.touchdown,
+        from,
+        to: s.target,
+      });
+      footstep = { bone: s.swing.bone, position: s.target, viable: s.viable };
+      continue;
+    }
+
+    // The trigger: the step out of a fall.
+    if (mode !== "single" && trigger !== undefined && t >= trigger.at) {
+      const swing: Foot = placed.get(trigger.swing)!;
+      const support: Foot = planted().find(
+        (foot: Foot): boolean => foot.bone !== swing.bone,
+      )!;
+      recovery = Recovery.fall(recovery);
+      const placedAt = place(
+        support,
+        swing,
+        swing.frame.origin,
+        physicalBipedPlan.SWING_TIME,
+      );
+
+      // The swing sped up to the time the capture region prefers, no shorter
+      // than a recovery's minimum (`WalkingSingleSupportState
+      // .requestSwingSpeedUpIfNeeded` l.364-381, `hasMinimumTimePassed`
+      // l.405-414).
+      const duration: number =
+        placedAt.preferred > 0
+          ? Math.max(
+              physicalBipedTouchdown.MINIMUM_SWING_TIME,
+              Math.min(physicalBipedPlan.SWING_TIME, placedAt.preferred),
+            )
+          : physicalBipedPlan.SWING_TIME;
+      step = {
+        support,
+        swing,
+        target: placedAt.target,
+        touchdown: t + duration,
+        plan: plan(support, swing, placedAt.target, duration),
+        viable: placedAt.viable,
+      };
+      footstep = {
+        bone: swing.bone,
+        position: placedAt.target,
+        viable: placedAt.viable,
+      };
+      swings.push({
+        bone: swing.bone,
+        start: t,
+        end: step.touchdown,
+        from: { position: swing.frame.origin, velocity: { x: 0, z: 0 } },
+        to: placedAt.target,
+      });
+      contacts.push({ start: t, bones: [support.bone] });
+      branches.push({ kind: "trigger", seconds: t, bone: swing.bone });
+      reference = segmented(t, step.plan);
+      mode = "single";
+      trigger = undefined;
+      outside = undefined;
+      hold = undefined;
+      standingEnd = undefined;
+      continue;
+    }
+
+    // The touchdown: the transfer to standing.
+    if (mode === "single") {
+      const s = step!;
+      const landing: Foot = {
+        ...s.swing,
+        frame: { origin: s.target, forward: s.swing.frame.forward },
+      };
+      placed.set(landing.bone, landing);
+      contacts.push({ start: t, bones: [s.support.bone, landing.bone] });
+      branches.push({ kind: "touchdown", seconds: t, bone: landing.bone });
+      const last: Tools.IFloor = evaluate(reference, t, omega).position;
+      const left: Foot = s.support.side === "left" ? s.support : landing;
+      const right: Foot = s.support.side === "left" ? landing : s.support;
+      reference = transfer(
+        t,
+        physicalIcpPlanner.toStanding({
+          feet: { left, right },
+          support: s.support.side,
+          desired: last,
+          center: state.c,
+        }),
+        soles(),
+      );
+      hold = {
+        reference,
+        done: t + physicalIcpPlanner.DEFAULTS.finalTransfer,
+        checked: false,
+      };
+      mode = "toStanding";
+      step = undefined;
+      recovery = Recovery.reset(recovery);
+      test();
+      continue;
+    }
+
+    // The transfer to standing's exit test, then its exit.
+    if (hold !== undefined) {
+      const point: Tools.IFloor = evaluate(hold.reference, t, omega).position;
+      const error: number = Math.hypot(
+        state.xi.x - point.x,
+        state.xi.z - point.z,
+      );
+      if (!hold.checked && !(error < tolerance)) {
+        hold.checked = true;
+        hold.done = t + Math.log(error / tolerance) / (omega * across);
+        continue;
+      }
+      reference = transfer(
+        t,
+        physicalIcpPlanner.standing({
+          soles: soles(),
+          from: { position: point, velocity: { x: 0, z: 0 } },
+          to: authored,
+        }),
+        soles(),
+      );
+      branches.push({ kind: "standing", seconds: t });
+      standingEnd = t + physicalIcpPlanner.DEFAULTS.finalTransfer;
+      mode = "standing";
+      recovery = Recovery.reset(recovery);
+      hold = undefined;
+      test();
+      continue;
+    }
+
+    // The standing cubic's end: the authored capture point at rest.
+    branches.push({ kind: "end", seconds: t });
+    reference = constant(t, authored.position);
+    mode = "after";
+    standingEnd = undefined;
+    test();
+  }
+
+  // The response's settling: the last piece's error within the tolerance of
+  // its plan, from its decay.
+  const last: IPiece = pieces[pieces.length - 1]!;
+  const residual: number = last.errors.reduce(
+    (sum: number, error): number => sum + Math.hypot(error.b.x, error.b.z),
+    0,
+  );
+  const settled: number = Math.max(
+    t,
+    residual > tolerance
+      ? last.start + Math.log(residual / tolerance) / (omega * across)
+      : last.start,
+  );
+  if (!branches.some((branch): boolean => branch.kind === "end"))
+    branches.push({ kind: "end", seconds: settled });
+  return span({
+    pieces,
+    branches,
+    footstep,
+    input,
+    until: settled,
+    feet: (seconds: number): Record<string, Tools.IFloor> =>
       Object.fromEntries(
         input.feet.map((foot: Foot): [string, Tools.IFloor] => [
           foot.bone,
-          foot.frame.origin,
+          swings.some(
+            (swing: ISwing): boolean =>
+              swing.bone === foot.bone && swing.start < seconds,
+          )
+            ? swingAt(swings, foot.bone, seconds).position
+            : foot.frame.origin,
         ]),
       ),
-    );
-  }
-
-  // The reaction: the controller still on both feet.
-  const trigger: number = t0 + Math.max(0, input.reactionSeconds ?? 0);
-  const reacted: IState = follow(pieces, {
-    phase: "double",
-    reference: constant(t0, authored.position),
-    support: both,
-    start: t0,
-    end: trigger,
-    xi: xi0,
-    c: c0,
-    omega,
+    contacts: (seconds: number): string[] => {
+      let bones: string[] = contacts[0]!.bones;
+      for (const contact of contacts)
+        if (contact.start <= seconds) bones = contact.bones;
+      return bones;
+    },
   });
-  const swing: Foot = input.feet.find(
-    (foot: Foot): boolean => foot.bone === fall.swing,
-  )!;
-  const support: Foot = input.feet.find(
-    (foot: Foot): boolean => foot.bone !== fall.swing,
-  )!;
-
-  // The footstep in the support foot's one-step capture region over the swing
-  // time (`physicalBipedPlan.check`).
-  const frame: Polygon.IFrame = support.frame;
-  const footWidth: number =
-    Math.max(...support.polygon.map((p: Polygon.IPoint): number => p.y)) -
-    Math.min(...support.polygon.map((p: Polygon.IPoint): number => p.y));
-  const swinging: Polygon.IPoint = Polygon.local(frame, swing.frame.origin);
-  const checked: ReturnType<typeof Recovery.checkAndUpdate> =
-    Recovery.checkAndUpdate({
-      state: Recovery.fall(fall.state),
-      remaining: physicalBipedPlan.SWING_TIME,
-      dt: physicalBipedPlan.CONTROL_DT,
-      period: physicalBipedPlan.CONTROL_DT,
-      region: {
-        support: swinging.y > 0 ? "right" : "left",
-        capture: Polygon.local(frame, reacted.xi),
-        omega,
-        foot: Polygon.hull(support.polygon),
-        footWidth,
-        range: input.maximumStep,
-      },
-      position: swinging,
-      outline: Polygon.hull(
-        outline(swing).map(
-          (p: Tools.IFloor): Polygon.IPoint => Polygon.local(frame, p),
-        ),
-      ),
-    });
-  const target: Tools.IFloor = Polygon.world(frame, checked.position);
-  const landing: Foot = {
-    ...swing,
-    frame: { origin: target, forward: swing.frame.forward },
-  };
-  const footstep: NonNullable<
-    preparePhysicalDisturbanceSpan.ISpan["footstep"]
-  > = { bone: swing.bone, position: target, viable: checked.region.length > 0 };
-  branches.push({ kind: "trigger", seconds: trigger, bone: swing.bone });
-
-  // Single support on the support foot: the plan from it to the footstep.
-  const soles: physicalIcpPlanner.ISoles =
-    support.side === "left"
-      ? { left: support.frame, right: landing.frame }
-      : { left: landing.frame, right: support.frame };
-  const single: physicalIcpPlanner.ISinglePlan =
-    physicalIcpPlanner.singleSupport({ support, footstep: landing, omega });
-  const touchdown: number = trigger + physicalBipedPlan.SWING_TIME;
-  const stepped: IState = follow(pieces, {
-    phase: "single",
-    reference: segmented(trigger, single),
-    support: Polygon.hull(outline(support).map(toLocal)),
-    start: trigger,
-    end: touchdown,
-    xi: reacted.xi,
-    c: reacted.c,
-    omega,
-  });
-  branches.push({ kind: "touchdown", seconds: touchdown, bone: swing.bone });
-
-  // The transfer to standing holds the centre of mass projected onto the
-  // support, done once its duration has run and the capture point is within
-  // `maxErrorToStanding` of it (`TransferToStandingState.isDone`).
-  const planted: Polygon.IPoint[] = Polygon.hull(
-    [support, landing].flatMap((foot: Foot): Polygon.IPoint[] =>
-      outline(foot).map(toLocal),
-    ),
-  );
-  const last: Tools.IFloor = physicalIcpPlanner(
-    single,
-    physicalBipedPlan.SWING_TIME,
-    soles,
-  ).position;
-  const hold: physicalIcpPlanner.ITransferPlan = physicalIcpPlanner.toStanding({
-    feet:
-      support.side === "left"
-        ? { left: support, right: landing }
-        : { left: landing, right: support },
-    support: support.side,
-    desired: last,
-    center: stepped.c,
-  });
-  const holding: IReference = transfer(touchdown, hold, soles);
-  const done: number = touchdown + physicalIcpPlanner.DEFAULTS.finalTransfer;
-  const held: IState = follow(pieces, {
-    phase: "toStanding",
-    reference: holding,
-    support: planted,
-    start: touchdown,
-    end: done,
-    xi: stepped.xi,
-    c: stepped.c,
-    omega,
-  });
-  const point: Tools.IFloor = evaluate(holding, done, omega).position;
-  const error: number = Math.hypot(held.xi.x - point.x, held.xi.z - point.z);
-  const tolerance: number = physicalIcpPlanner.DEFAULTS.maxErrorToStanding;
-  const standing: number =
-    error < tolerance
-      ? done
-      : done +
-        Math.log(error / tolerance) /
-          (omega * physicalIcpController.ZULU.kpOrthogonal);
-  const settled: IState =
-    standing > done
-      ? follow(pieces, {
-          phase: "toStanding",
-          reference: holding,
-          support: planted,
-          start: done,
-          end: standing,
-          xi: held.xi,
-          c: held.c,
-          omega,
-        })
-      : held;
-  branches.push({ kind: "standing", seconds: standing });
-
-  // Standing: the cubic from the hold to the authored capture point, then the
-  // authored capture point itself.
-  const cubicPlan: physicalIcpPlanner.ITransferPlan =
-    physicalIcpPlanner.standing({
-      soles,
-      from: { position: point, velocity: { x: 0, z: 0 } },
-      to: authored,
-    });
-  const end: number = standing + physicalIcpPlanner.DEFAULTS.finalTransfer;
-  const stood: IState = follow(pieces, {
-    phase: "standing",
-    reference: transfer(standing, cubicPlan, soles),
-    support: planted,
-    start: standing,
-    end,
-    xi: settled.xi,
-    c: settled.c,
-    omega,
-  });
-  branches.push({ kind: "end", seconds: end });
-  follow(pieces, {
-    phase: "after",
-    reference: constant(end, authored.position),
-    support: planted,
-    start: end,
-    end: Number.POSITIVE_INFINITY,
-    xi: stood.xi,
-    c: stood.c,
-    omega,
-  });
-
-  // The feet: the support planted, the swing foot on its cubic.
-  const lift: Tools.IFloor = swing.frame.origin;
-  return span(pieces, branches, footstep, input, (seconds: number) => ({
-    [support.bone]: support.frame.origin,
-    [swing.bone]:
-      seconds <= trigger
-        ? lift
-        : seconds >= touchdown
-          ? target
-          : Tools.cubic(
-              {
-                duration: physicalBipedPlan.SWING_TIME,
-                initial: lift,
-                initialVelocity: { x: 0, z: 0 },
-                final: target,
-                finalVelocity: { x: 0, z: 0 },
-              },
-              seconds - trigger,
-            ).position,
-  }));
 }
 
 /** The span's input, branch points, sample and result. */
 export namespace preparePhysicalDisturbanceSpan {
-  /** The state just after the push. */
+  /** The state just after the first push and the pushes after it. */
   export interface IInput {
-    /** The push's time, local seconds. */
+    /** The first push's time, local seconds. */
     seconds: number;
 
-    /** The centre of mass just after the push, world metres. */
+    /** The centre of mass just after it, world metres. */
     center: IAutoMovieVector3;
 
     /** Its velocity, metres per second, the push's impulse over the mass added. */
@@ -325,6 +504,12 @@ export namespace preparePhysicalDisturbanceSpan {
 
     /** The pendulum's rate, per second (IHMC's omega0). */
     omega: number;
+
+    /** The body's mass, kilograms. */
+    mass: number;
+
+    /** Gravity's magnitude, metres per second squared. */
+    gravity: number;
 
     /**
      * The two planted feet: each its endpoint bone, its side, its sole frame
@@ -339,6 +524,9 @@ export namespace preparePhysicalDisturbanceSpan {
       velocity: { x: number; z: number };
     };
 
+    /** The pushes after the first, each its time and velocity jump. */
+    pushes?: readonly IPush[];
+
     /** The policy's longest step, metres. */
     maximumStep: number;
 
@@ -347,6 +535,15 @@ export namespace preparePhysicalDisturbanceSpan {
 
     /** The floor's height, metres. */
     floor: number;
+  }
+
+  /** A later push of the stated disturbance. */
+  export interface IPush {
+    /** When, local seconds. */
+    seconds: number;
+
+    /** The centre of mass's velocity jump, metres per second. */
+    velocity: IAutoMovieVector3;
   }
 
   /** A planted foot. */
@@ -404,6 +601,15 @@ export namespace preparePhysicalDisturbanceSpan {
 
     /** Each foot's endpoint on the floor, world metres, by bone. */
     feet: Record<string, IAutoMovieVector3>;
+
+    /**
+     * The ground's reaction, newtons, at the pivot on the floor: m omega^2 (c -
+     * cmp) across and the weight up.
+     */
+    reaction: { point: IAutoMovieVector3; force: IAutoMovieVector3 };
+
+    /** Each planted foot's share of the reaction, by bone, summing to one. */
+    loads: Record<string, number>;
   }
 
   /** The prepared span. */
@@ -411,12 +617,18 @@ export namespace preparePhysicalDisturbanceSpan {
     /** Its branch points in time order. */
     branches: IBranch[];
 
-    /** The recovery step's foot and footstep, if it steps. */
+    /** The last recovery step's foot and footstep, if it steps. */
     footstep?: {
       bone: string;
       position: { x: number; z: number };
       viable: boolean;
     };
+
+    /**
+     * When the response has settled within `maxErrorToStanding` of its plan
+     * after its last branch point, local seconds.
+     */
+    until: number;
 
     /**
      * The response at a time: pure, in any order; before the push, the state
@@ -908,18 +1120,65 @@ function reentry(
   return form.start + Math.log(lower) / omega;
 }
 
+/** A swing foot's cubic to its footstep. */
+interface ISwing {
+  /** The swinging foot's endpoint bone. */
+  bone: string;
+
+  /** When the cubic starts and lands, local seconds. */
+  start: number;
+
+  /** When it lands. */
+  end: number;
+
+  /** Where and how fast the foot is as the cubic starts. */
+  from: Tools.IState;
+
+  /** The footstep. */
+  to: Tools.IFloor;
+}
+
+/** A swing foot's place and rate at a time on its latest cubic. */
+function swingAt(
+  swings: readonly ISwing[],
+  bone: string,
+  seconds: number,
+): Tools.IState {
+  let swing: ISwing | undefined;
+  for (const candidate of swings)
+    if (candidate.bone === bone && candidate.start <= seconds)
+      swing = candidate;
+  if (swing === undefined) throw new Error(`No swing of ${bone}.`);
+  if (seconds >= swing.end)
+    return { position: swing.to, velocity: { x: 0, z: 0 } };
+  return Tools.cubic(
+    {
+      duration: swing.end - swing.start,
+      initial: swing.from.position,
+      initialVelocity: swing.from.velocity,
+      final: swing.to,
+      finalVelocity: { x: 0, z: 0 },
+    },
+    seconds - swing.start,
+  );
+}
+
 /** The span from its pieces. */
-function span(
-  pieces: readonly IPiece[],
-  branches: preparePhysicalDisturbanceSpan.IBranch[],
-  footstep: preparePhysicalDisturbanceSpan.ISpan["footstep"],
-  input: preparePhysicalDisturbanceSpan.IInput,
-  feet: (seconds: number) => Record<string, Tools.IFloor>,
-): preparePhysicalDisturbanceSpan.ISpan {
-  const { omega } = input;
+function span(input: {
+  pieces: readonly IPiece[];
+  branches: preparePhysicalDisturbanceSpan.IBranch[];
+  footstep: preparePhysicalDisturbanceSpan.ISpan["footstep"];
+  input: preparePhysicalDisturbanceSpan.IInput;
+  until: number;
+  feet: (seconds: number) => Record<string, Tools.IFloor>;
+  contacts: (seconds: number) => string[];
+}): preparePhysicalDisturbanceSpan.ISpan {
+  const { pieces } = input;
+  const { omega, mass, gravity, floor } = input.input;
   return {
-    branches,
-    ...(footstep ? { footstep } : {}),
+    branches: input.branches,
+    ...(input.footstep ? { footstep: input.footstep } : {}),
+    until: input.until,
     sample: (seconds: number): preparePhysicalDisturbanceSpan.ISample => {
       const piece: IPiece | undefined =
         pieces.find((p: IPiece): boolean => seconds < p.end) ??
@@ -928,26 +1187,60 @@ function span(
       const at: number = Math.max(piece.start, seconds);
       const xi: Tools.IState = capture(piece, at, omega);
       const c: Tools.IFloor = center(piece, at, omega);
+      const cmp: Tools.IFloor = add(xi.position, xi.velocity, -1 / omega);
+      const feet: Record<string, Tools.IFloor> = input.feet(seconds);
+      const planted: string[] = input.contacts(seconds);
+
+      // The pivot's share along the line between two planted feet.
+      const loads: Record<string, number> = {};
+      if (planted.length === 1) loads[planted[0]!] = 1;
+      else if (planted.length >= 2) {
+        const a: Tools.IFloor = feet[planted[0]!]!;
+        const b: Tools.IFloor = feet[planted[1]!]!;
+        const line: Tools.IFloor = add(b, a, -1);
+        const length: number = line.x * line.x + line.z * line.z;
+        const share: number =
+          length > 0
+            ? Math.max(
+                0,
+                Math.min(
+                  1,
+                  ((cmp.x - a.x) * line.x + (cmp.z - a.z) * line.z) / length,
+                ),
+              )
+            : 0.5;
+        loads[planted[0]!] = 1 - share;
+        loads[planted[1]!] = share;
+      }
       return {
         phase: piece.phase,
         saturated: piece.saturated,
         capture: xi.position,
         captureVelocity: xi.velocity,
-        pivot: add(xi.position, xi.velocity, -1 / omega),
-        center: { x: c.x, y: input.center.y, z: c.z },
+        pivot: cmp,
+        center: { x: c.x, y: input.input.center.y, z: c.z },
         centerVelocity: {
           x: omega * (xi.position.x - c.x),
           y: 0,
           z: omega * (xi.position.z - c.z),
         },
         feet: Object.fromEntries(
-          Object.entries(feet(seconds)).map(
+          Object.entries(feet).map(
             ([bone, p]: [string, Tools.IFloor]): [
               string,
               IAutoMovieVector3,
-            ] => [bone, { x: p.x, y: input.floor, z: p.z }],
+            ] => [bone, { x: p.x, y: floor, z: p.z }],
           ),
         ),
+        reaction: {
+          point: { x: cmp.x, y: floor, z: cmp.z },
+          force: {
+            x: mass * omega * omega * (c.x - cmp.x),
+            y: mass * gravity,
+            z: mass * omega * omega * (c.z - cmp.z),
+          },
+        },
+        loads,
       };
     },
   };

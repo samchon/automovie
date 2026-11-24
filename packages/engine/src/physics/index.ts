@@ -156,6 +156,7 @@ export * from "./physicalShapeSegmentDistance";
 export * from "./physicalShapeSpan";
 export * from "./physicalShapeSurfaceAnchor";
 export * from "./physicalSingularBudget";
+export * from "./physicalSpanPose";
 export * from "./physicalStanceBalance";
 export * from "./physicalStanceJointTarget";
 export * from "./physicalStanceSeat";
