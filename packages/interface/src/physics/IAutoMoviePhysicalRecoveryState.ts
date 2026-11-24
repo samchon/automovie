@@ -103,35 +103,9 @@ export interface IAutoMoviePhysicalRecoveryState {
     }
   >;
   /**
-   * The biped push recovery's flags (IHMC 201903 `PushRecoveryControlModule`):
-   * whether a footstep has been projected into the capture region this swing,
-   * whether the swing recovers from a fall out of double support, whether the
-   * capture point has been back near its plan for the safe window (a filtered
-   * value and its count of controller updates), and whether its error from the
-   * plan exceeds the threshold.
-   */ push?: {
-    recovering: boolean;
-    fall: boolean;
-    safe: { value: boolean; count: number };
-    large: boolean;
-  };
-  /**
-   * Each support limb's foot switch (IHMC `WrenchBasedFootSwitch`), by endpoint
-   * bone: its low-force, centre-of-pressure and touchdown filters, each a
-   * filtered value and its count of controller updates.
-   */ switches?: Record<
-    string,
-    {
-      low: { value: boolean; count: number };
-      cop: { value: boolean; count: number };
-      hit: { value: boolean; count: number };
-    }
-  >;
-  /**
-   * The biped's planned capture point this substep and its rate, world x and z,
-   * metres and metres per second, which its push recovery and its capture-point
-   * controller read: the recovery plan's while one runs, else the authored
-   * motion's.
+   * The body's planned capture point this substep and its rate, world x and z,
+   * metres and metres per second, which its capture-point controller reads: the
+   * authored motion's.
    */ desired?: {
     position: { x: number; z: number };
     velocity: { x: number; z: number };
@@ -174,7 +148,7 @@ export interface IAutoMoviePhysicalRecoveryState {
     };
   };
   /**
-   * A biped's response to a stated disturbance, prepared once at its first push
+   * A body's response to a stated disturbance, prepared once at its first push
    * (`preparePhysicalDisturbanceSpan`): the branch point's inputs only, from
    * which the response is prepared again once on a resume. The push's time,
    * local seconds; the centre of mass and its velocity just after it, world
@@ -225,20 +199,11 @@ export interface IAutoMoviePhysicalRecoveryState {
     key: string;
   };
   /**
-   * A two-support body's pendulum rate, per second (IHMC's omega0): sqrt(g /
+   * The body's pendulum rate, per second (IHMC's omega0): sqrt(g /
    * z0) at the authored centre of mass's height over the floor when its
    * controller first ran, then held for the run, as IHMC sets it once per robot
    * from its nominal height.
    */ omega?: number;
-  /**
-   * A four-support body's stepping gait (IHMC 201903's quadruped step
-   * controller), present from a recovery trigger until its steps are done: each
-   * support bone's quadrant; the xGait stream; the DCM planner; the step
-   * adjustment; each quadrant's foot, whether its first trigger is still to
-   * come, when it last entered its present state, local seconds, and its
-   * touchdown trigger; and when the gait was halted, if it was. Points are
-   * IHMC's z-up world frame, x the world z, y the world x and z up, metres.
-   */ gait?: IAutoMoviePhysicalRecoveryState.IGait;
   /**
    * The centre-of-pressure integral: its bias, world metres, the low-passed
    * horizontal centre-of-mass acceleration and the last velocity it was read
@@ -251,120 +216,4 @@ export interface IAutoMoviePhysicalRecoveryState {
     swing?: string;
     command?: { x: number; z: number };
   };
-}
-
-export namespace IAutoMoviePhysicalRecoveryState {
-  /** A quadruped leg, named as IHMC's `RobotQuadrant`. */
-  export type Quadrant = "frontLeft" | "frontRight" | "hindRight" | "hindLeft";
-
-  /** A point in IHMC's z-up world frame, metres. */
-  export interface IPoint {
-    /** Horizontal, the world's z, metres. */
-    x: number;
-
-    /** Horizontal, the world's x, metres. */
-    y: number;
-
-    /** Up, the world's y, metres. */
-    z: number;
-  }
-
-  /**
-   * A quadruped step (IHMC `QuadrupedTimedStep`): the leg, its touchdown goal,
-   * its ground clearance, metres, and its lift-off and touchdown, local
-   * seconds.
-   */
-  export interface IStep {
-    /** The swinging leg. */
-    quadrant: Quadrant;
-
-    /** The touchdown position. */
-    goal: IPoint;
-
-    /** The swing's clearance over the ground, metres. */
-    groundClearance: number;
-
-    /** Lift-off, local seconds. */
-    start: number;
-
-    /** Touchdown, local seconds. */
-    end: number;
-  }
-
-  /** A four-support body's stepping gait; see the state's `gait`. */
-  export interface IGait {
-    /** Each support bone's quadrant. */
-    quadrants: Record<string, Quadrant>;
-
-    /**
-     * The xGait stream (IHMC `QuadrupedXGaitStepStream`): its settings, metres
-     * and seconds, the phase shift in degrees; its rectangle's centre, metres,
-     * and heading, radians; each end's latest lifted step; and the preview.
-     */
-    stream: {
-      settings: {
-        stanceLength: number;
-        stanceWidth: number;
-        stepGroundClearance: number;
-        stepDuration: number;
-        endDoubleSupportDuration: number;
-        endPhaseShift: number;
-      };
-      rectangle: { x: number; y: number; yaw: number };
-      current: { front: IStep; hind: IStep };
-      planned: IStep[];
-    };
-
-    /**
-     * The DCM planner (IHMC `DCMPlanner`): whether it stands, its contact
-     * phases, each its interval, local seconds, which legs stand and each
-     * sole's position, and its transition from the setpoint at stepping's
-     * entry, if any: its interval and both ends' DCM and rate.
-     */
-    dcm: {
-      standing: boolean;
-      phases: {
-        start: number;
-        end: number;
-        contact: Record<Quadrant, boolean>;
-        soles: Record<Quadrant, IPoint>;
-      }[];
-      transition: {
-        start: number;
-        end: number;
-        position: IPoint;
-        velocity: IPoint;
-        finalPosition: IPoint;
-        finalVelocity: IPoint;
-      } | null;
-    };
-
-    /**
-     * The step adjustment (IHMC `QuadrupedStepAdjustmentController`), each
-     * leg's target and applied adjustment, metres, the target not a number
-     * until its step is first updated, and whether its rate limiter has run.
-     */
-    adjustment: Record<
-      Quadrant,
-      { instantaneous: IPoint; limited: IPoint; called: boolean }
-    >;
-
-    /**
-     * Each leg's foot module (IHMC `QuadrupedFootControlModule`): whether its
-     * first trigger is still to come, when it entered its present support or
-     * swing state, local seconds, and its swing's touchdown trigger, a filtered
-     * value and its count of controller updates.
-     */
-    feet: Record<
-      Quadrant,
-      {
-        first: boolean;
-        since: number;
-        trigger: { value: boolean; count: number };
-      }
-    >;
-
-    /** When the gait was halted, local seconds, if it was. */
-    halt?: number;
-  }
 }

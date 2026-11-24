@@ -12,10 +12,7 @@ import type {
  * back into the controller.
  */
 export type IAutoMoviePhysicalBalanceTrace =
-  | IAutoMoviePhysicalBalanceTrace.ITrigger
-  | IAutoMoviePhysicalBalanceTrace.ILift
-  | IAutoMoviePhysicalBalanceTrace.ILanded
-  | IAutoMoviePhysicalBalanceTrace.IEnded
+  | IAutoMoviePhysicalBalanceTrace.ICancelled
   | IAutoMoviePhysicalBalanceTrace.IAssess
   | IAutoMoviePhysicalBalanceTrace.ISwing
   | IAutoMoviePhysicalBalanceTrace.IRoot;
@@ -30,68 +27,10 @@ export namespace IAutoMoviePhysicalBalanceTrace {
     z: number;
   }
 
-  /** A recovery triggered; stepping is the prepared span's (`preparePhysicalDisturbanceSpan`). */
-  export interface ITrigger {
+  /** Steps under way ended as authored motion took an endpoint back (`physicalBalanceHandoff`). */
+  export interface ICancelled {
     /** The kind. */
-    kind: "trigger";
-    /** The substep's local seconds. */
-    seconds: number;
-    /** The stepping limb's endpoint bone, or the first gait step's. */
-    bone: string;
-    /** The capture point. */
-    capture: IPoint;
-    /** How far the capture point is past the shrunken support, if measured. */
-    beyond?: number;
-    /** Since when the capture point has been outside, local seconds. */
-    since?: number;
-    /** The step's target for the footprint's middle. */
-    target: IPoint;
-    /** The step's time, seconds, if the step set one. */
-    duration?: number;
-    /** Whether the step captures. */
-    viable: boolean;
-    /** Whether the trunk's tilt asked for the step. */
-    tipping: boolean;
-    /** The last commanded centre of pressure, if any. */
-    pressure?: IPoint;
-  }
-
-  /** A step's limb lifted as its step began, in the prepared span. */
-  export interface ILift {
-    /** The kind. */
-    kind: "lift";
-    /** The substep's local seconds. */
-    seconds: number;
-    /** The limb. */
-    bone: string;
-    /** Its low-passed measured load at lift-off, newtons. */
-    load: number;
-    /** Its bearing share at lift-off. */
-    bearing: number;
-  }
-
-  /** A swinging limb landed, in the prepared span. */
-  export interface ILanded {
-    /** The kind. */
-    kind: "landed";
-    /** The substep's local seconds. */
-    seconds: number;
-    /** The limb. */
-    bone: string;
-    /** Whether it touched down before its swing's end. */
-    early: boolean;
-    /** Its endpoint where it landed. */
-    position: IAutoMovieVector3;
-  }
-
-  /**
-   * Steps under way ended without a landing: the landing timed out, or
-   * authored motion took an endpoint back
-   * (`physicalBalanceHandoff`).
-   */
-  export interface IEnded {
-    /** The kind. */
-    kind: "failed" | "cancelled";
+    kind: "cancelled";
     /** The substep's local seconds. */
     seconds: number;
     /** The limbs whose steps ended. */
