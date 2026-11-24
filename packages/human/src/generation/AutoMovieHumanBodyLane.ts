@@ -201,7 +201,7 @@ export namespace AutoMovieHumanBodyLane {
     let opening: ReturnType<
       typeof AutoMovieHumanArmscyeOpening.production
     > | null = null;
-    if (shoulder !== undefined && torso != null) {
+    if (shoulder !== undefined && torso !== undefined && torso !== null) {
       try {
         opening = AutoMovieHumanArmscyeOpening.production(torso, shoulder);
       } catch (error: unknown) {

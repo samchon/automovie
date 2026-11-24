@@ -26,7 +26,7 @@ export function inspectHumanArmscyeRegion(
     .filter(({ name }): boolean => name === trunk.trunk?.name)
     .at(-1)?.result.part;
   const datum = input.trunk.views.shoulder;
-  if (torso == null || datum === undefined)
+  if (torso === undefined || torso === null || datum === undefined)
     throw new Error(
       `The production torso is missing: ${JSON.stringify(trunk.diagnostics)}`,
     );
