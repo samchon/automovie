@@ -35,6 +35,19 @@ const ANGLE_ROUNDOFF: number = 1e-9;
  */
 const BEARING: number = 0.006;
 
+/**
+ * The stance knee flexion the body is lowered to at this handoff, radians. A
+ * standing leg within a few millimetres of full extension is singular: its
+ * joint torques cannot shift vertical load, and balance control by contact
+ * force needs that, so balancing legs stand with bent knees. 30 degrees
+ * keeps each leg's two-link Jacobian conditioned (condition number about 9
+ * for equal thigh and shank) and is the most the ankle allows: the shank
+ * leans half the knee's flexion, on top of the sole plant's 16 degrees of
+ * dorsiflexion, within the loaded ankle's 39 degrees (`ANKLE_DORSIFLEXION`)
+ * with 8 degrees to spare.
+ */
+const KNEE: number = Math.PI / 6;
+
 /** Segment frames borrowed for one standing transfer. */
 type Poses = Readonly<Record<string, IAutoMovieRigidTransform>>;
 
@@ -65,7 +78,9 @@ type IVertex = HumanPhysicalSolePlant.IVertex;
  * cannot reach that ankle from the authored pelvis, so the body above the
  * feet is set straight down by the drop the most demanding leg needs to
  * stand its knee a shank's length from its planted ankle, about 41 mm
- * (m-average; 46 mm m-tall, 34 mm f-small). That leg turns only its shank,
+ * (m-average; 46 mm m-tall, 34 mm f-small), and then further by what bends a
+ * straight leg's knee 30 degrees (`KNEE`): a nearly straight leg is singular
+ * for balance by contact force, which must shift load by joint torque. That leg turns only its shank,
  * by about 2 degrees, keeping its thigh; in a symmetric stance both legs do.
  * A leg the drop brings nearer its ankle than that, as the unloaded leg of a
  * weight shift, also bends its knee forward in the plane of its own bend,
@@ -222,6 +237,7 @@ export function fitHumanPhysicalStandingPose(
           z: flexion.axis === "z" ? 1 : 0,
         }),
       );
+
     if (placed === undefined)
       return { kind: "unresolved", reason: "support-geometry" };
     const planted: Poses = { ...targets, [foot]: placed };
@@ -272,12 +288,15 @@ export function fitHumanPhysicalStandingPose(
   // (`HumanPhysicalSolePlant.swing`). A nearly straight standing knee gives a
   // joint solver no first-order way along the leg, so this seed is built here
   // and the solver refines it in native axes.
-  const drop: number = Math.max(
-    0,
-    ...plans.map((plan: (typeof plans)[number]): number =>
-      HumanPhysicalSolePlant.lowering(profile, targets, plan.side, plan.foot),
-    ),
-  );
+  // The body then goes down further, by what bends a straight leg's knee to
+  // `KNEE`; each leg bends forward in its own plane to reach its ankle.
+  const drop: number =
+    Math.max(
+      0,
+      ...plans.map((plan: (typeof plans)[number]): number =>
+        HumanPhysicalSolePlant.lowering(profile, targets, plan.side, plan.foot),
+      ),
+    ) + flexion(profile, targets);
   if (!Number.isFinite(drop)) return { kind: "unresolved", reason: "fit" };
   for (const bone of Object.keys(seeded))
     seeded[bone] = {
@@ -438,4 +457,34 @@ function support(
     if (!heel || !front) return undefined;
   }
   return base;
+}
+
+/**
+ * How far a straight leg's hip must come down for its knee to bend by `KNEE`:
+ * L1 + L2 - sqrt(L1^2 + L2^2 + 2 L1 L2 cos KNEE), with the thigh and shank
+ * lengths read between the hip, knee and ankle anchors of the left leg.
+ */
+function flexion(profile: IAutoMoviePhysicalProfile, targets: Poses): number {
+  const anchor = (child: string): IAutoMovieVector3 | undefined => {
+    const joint: IAutoMoviePhysicalJoint | undefined = profile.joints.find(
+      (candidate: IAutoMoviePhysicalJoint): boolean =>
+        candidate.child === child,
+    );
+    return joint && targets[joint.parent]
+      ? physicalSupportPoint(targets[joint.parent]!, joint.parentFrame.position)
+      : undefined;
+  };
+  const hip: IAutoMovieVector3 | undefined = anchor("leftUpperLeg");
+  const knee: IAutoMovieVector3 | undefined = anchor("leftLowerLeg");
+  const ankle: IAutoMovieVector3 | undefined = anchor("leftFoot");
+  if (!hip || !knee || !ankle) return 0;
+  const thigh: number = Vector3.length(Vector3.subtract(knee, hip));
+  const shank: number = Vector3.length(Vector3.subtract(ankle, knee));
+  return (
+    thigh +
+    shank -
+    Math.sqrt(
+      thigh * thigh + shank * shank + 2 * thigh * shank * Math.cos(KNEE),
+    )
+  );
 }

@@ -52,8 +52,18 @@ export function planPhysicalFloorSupportTargets(
     )
   )
     throw new Error("Invalid floor-support fitting policy");
-  let targets: Record<string, IAutoMovieRigidTransform> = structuredClone(
-    input.targets,
+  // Owned copies of each pose's two vectors, the generic serializer's result
+  // without its cost.
+  let targets: Record<string, IAutoMovieRigidTransform> = Object.fromEntries(
+    Object.entries(input.targets).map(
+      ([bone, pose]: [string, IAutoMovieRigidTransform]): [
+        string,
+        IAutoMovieRigidTransform,
+      ] => [
+        bone,
+        { position: { ...pose.position }, rotation: { ...pose.rotation } },
+      ],
+    ),
   );
   const goals: Record<string, IAutoMovieVector3> = Object.fromEntries(
     input.pattern.limbs.map(
@@ -61,10 +71,10 @@ export function planPhysicalFloorSupportTargets(
         limb: IAutoMovieFootfallPattern["limbs"][number],
       ): [string, IAutoMovieVector3] => [
         limb.bone,
-        structuredClone(
-          input.goals[limb.bone] ??
-            physicalSupportPoint(targets[limb.bone]!, limb.localPoint),
-        ),
+        {
+          ...(input.goals[limb.bone] ??
+            physicalSupportPoint(targets[limb.bone]!, limb.localPoint)),
+        },
       ],
     ),
   );

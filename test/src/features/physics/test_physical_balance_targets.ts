@@ -107,21 +107,22 @@ export async function test_physical_balance_targets(): Promise<void> {
   }
   assert.equal(JSON.stringify({ targets, actual, goals }), before);
   const input: IAutoMoviePhysicalSimulationInput.IInput =
-    createPhysicalBalanceInput(profile, "internal", 0, 1.2);
+    createPhysicalBalanceInput(profile, "internal", 0, 3 / 120);
   // Continuation identity does not depend on the episode length or the
-  // native substep count, so the shortest checkpointed run exercises it.
-  input.duration = 0.1;
-  input.maximumSteps = 12;
-  input.substeps = 4;
-  input.checkpointEvery = 4;
+  // native substep count, so the shortest checkpointed run exercises it:
+  // three steps of one substep, a checkpoint at each, the edit on the last.
+  input.duration = 3 / 120;
+  input.maximumSteps = 3;
+  input.substeps = 1;
+  input.checkpointEvery = 1;
   input.impulses = [];
-  input.bodies[0]!.targets = input.bodies[0]!.targets.slice(0, 13);
+  input.bodies[0]!.targets = input.bodies[0]!.targets.slice(0, 4);
   const baseline: IAutoMoviePhysicalSimulation =
     await Simulation.compute(input);
   const edited: IAutoMoviePhysicalSimulationInput.IInput =
     structuredClone(input);
   edited.impulses.push({
-    step: 10,
+    step: 3,
     body: profile.id,
     bone: "body",
     point: profile.centerOfMass,
@@ -132,7 +133,7 @@ export async function test_physical_balance_targets(): Promise<void> {
     edited,
     baseline,
   );
-  assert.equal(resumed.recomputedSteps, 4);
+  assert.equal(resumed.recomputedSteps, 1);
   for (const field of [
     "frames",
     "contacts",
@@ -144,7 +145,7 @@ export async function test_physical_balance_targets(): Promise<void> {
       JSON.stringify(cold.cache[field]),
     );
   assert.ok(
-    baseline.cache.controllerCheckpoints.get(8)!.balanceTargets?.[profile.id]
+    baseline.cache.controllerCheckpoints.get(2)!.balanceTargets?.[profile.id]
       ?.from,
   );
 }

@@ -30,7 +30,7 @@ export namespace IAutoMovieSamplePhysicalRecoveryGoal {
   /**
    * Requested support point and analytic velocity on a recovery swing.
    *
-   * point is world metres and velocity world m/s; X/Z follow quintic endpoint interpolation, Y adds sine clearance to the authored vertical baseline. samplePhysicalRecoveryGoal allocates both vectors; neither is a measurement of a native body or a landing receipt. Outside the swing the horizontal rate and added clearance rate are zero, while the authored vertical velocity remains. The caller owns admission of the swing and baseline.
+   * point is world metres and velocity world m/s; X/Z follow quintic endpoint interpolation, Y adds a clearance h 16 (p (1 - p))^2, at rest at both ends, to the authored vertical baseline. samplePhysicalRecoveryGoal allocates both vectors; neither is a measurement of a native body or a landing receipt. Outside the swing the horizontal rate and added clearance rate are zero, while the authored vertical velocity remains. The caller owns admission of the swing and baseline.
    */
   export type IResult = {
     /** Requested world support endpoint in metres, combining swing X/Z and authored Y plus clearance. */
@@ -38,5 +38,8 @@ export namespace IAutoMovieSamplePhysicalRecoveryGoal {
 
     /** Requested world support velocity in m/s from the same trajectory and clock; not a measured native velocity. */
     velocity: IAutoMovieVector3;
+
+    /** The swing's own acceleration in m/s^2 from the same trajectory and clock, the authored baseline's left out; zero outside the swing. */
+    acceleration: IAutoMovieVector3;
   };
 }

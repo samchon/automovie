@@ -2,12 +2,10 @@ import {
   type AutoMovieXpbdBody,
   type AutoMovieXpbdCollider,
   AutoMovieXpbdWorld,
-  advancePhysicalBalance as Balance,
   collectPhysicalSupports,
 } from "@automovie/engine";
 import type {
   IAutoMovieCollectPhysicalSupports,
-  IAutoMoviePhysicalRecoveryState,
   IAutoMoviePhysicalProfile as P,
   IAutoMovieFootfallPattern as Pattern,
   IAutoMovieContactReceipt as Receipt,
@@ -19,13 +17,19 @@ import { PhysicalFixtures } from "../internal/PhysicalFixtures";
 /** Contact depth the world leaves uncorrected in these cases, metres. */
 const ALLOWED: number = 1e-5;
 
-/** Touching constraints remain available for allocation; only actual positive load confirms a landing.
+/**
+ * Touching constraints remain available for allocation, and only actual
+ * positive load marks a support loaded, the reading a landing is judged on.
  *
  * Scenarios:
- * 1. A real upward force exactly offsets gravity, leaving a sphere resting half the allowed error deep with zero floor impulse.
- * 2. Removing that force produces a positive floor impulse and confirms the same reached, slow landing.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Steps a real solver world and asserts `collectPhysicalSupports` and the landing record `advancePhysicalBalance` writes, through node:assert after each step. A collector that dropped a touching unloaded contact, or a balance that confirmed a landing without load, fails.
+ * 1. A real upward force exactly offsets gravity, leaving a sphere resting half
+ *    the allowed error deep with zero floor impulse: the support is collected,
+ *    unloaded.
+ * 2. Removing that force produces a positive floor impulse: the same support is
+ *    loaded.
+ *
+ * @evidence contracts/development/testing.md#behavioral-verification Steps a real solver world and asserts `collectPhysicalSupports` through node:assert after each step. A collector that dropped a touching unloaded contact, or marked it loaded without load, fails.
  * @evidence contracts/development/testing.md#independent-expectations The solver corrects only depth beyond its allowed error, so a sphere at rest half that deep touches with no impulse; one free substep of gravity sinks it a further g h^2 = 1.06e-5 m, past the allowed error, so the floor must push. Both follow from the declared settings and Newton's law, not from the implementation's output.
  * @evidence contracts/development/testing.md#distinguishing-cases Covers the touching-unloaded and the touching-loaded state of the same contact on consecutive substeps; swing planning belongs to the balance tests.
  * @evidence contracts/development/testing.md#execution-ownership Portable in-memory unit test entered through the discoverable function `test_physical_landing_authority`, which owns the cases delegated to `PhysicalFixtures`; it registers no dynamic cases and starts no process, browser, viewer, render or GPU host.
@@ -103,20 +107,7 @@ export async function test_physical_landing_authority(): Promise<void> {
       { body: "floor", bone: "floor", shape: "floor", material: "floor" },
     ],
   ]);
-  const state: IAutoMoviePhysicalRecoveryState = {
-    last: "recovery",
-    steps: [],
-    offsets: {},
-    swing: {
-      bone: "root",
-      kind: "swing",
-      start: 0,
-      end: 1 / 960,
-      from: { point: [0, 0], yaw: 0, pitch: 0, clearance: 0 },
-      to: { point: [0, 0], yaw: 0, pitch: 0, clearance: 0 },
-    },
-  };
-  state.steps.push(structuredClone(state.swing!));
+
   rigid.addForce({ x: 0, y: 9.81, z: 0 });
   for (const tick of [1, 2]) {
     if (tick === 2) rigid.resetForces();
@@ -141,36 +132,6 @@ export async function test_physical_landing_authority(): Promise<void> {
         (point: IAutoMovieCollectPhysicalSupports.IPoint): boolean =>
           point.carrier === "root",
       ),
-    );
-    Balance({
-      world,
-      body: "assembly",
-      profile,
-      segments: new Map([["root", rigid]]),
-      colliders,
-      contacts: [],
-      policy: {
-        pattern,
-        maximumStep: 0.5,
-        margin: 0,
-        duration: 1 / 960,
-        height: 0.1,
-        stiffness: 100,
-        damping: 10,
-        maximumForce: 100,
-      },
-      state,
-      targets: { root: profile.segments[0]!.neutral },
-      supports,
-      seconds: tick / 960,
-      dt: 1 / 960,
-      gravity: 9.81,
-      floor: 0,
-    });
-    assert.equal((state.landings ?? []).length, tick - 1);
-    assert.equal(
-      state.steps[0]!.resolved?.status,
-      tick === 1 ? undefined : "landed",
     );
   }
 }

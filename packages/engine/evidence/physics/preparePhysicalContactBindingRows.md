@@ -18,7 +18,7 @@ Keeps the admitted collider shape selectors, compression, weighting and geometry
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
-Row keys limit probes to moving dependencies. The memoized scalar owners share a geometry reading when their endpoints agree.
+Row keys limit probes to moving dependencies. Each row reads its geometry directly at the poses it is given: one contact or projection query per evaluation, and one contact query at the accepted poses per linearization.
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 

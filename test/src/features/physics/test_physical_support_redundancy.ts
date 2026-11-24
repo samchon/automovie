@@ -1,5 +1,6 @@
 import {
   Quaternion,
+  Vector3,
   physicalSupportPoint,
   setPhysicalTargetJointRotation,
   warmPhysicalSupportTargets,
@@ -21,8 +22,8 @@ import { vclose } from "../internal/vclose";
 /** A warm support seed keeps the previous fit's task-space choice while its support-task null space returns to the authored posture.
  *
  * Scenarios:
- * 1. Null-space carry: a straight four-support leg whose previous fit hides an x-axis zig-zag (hip +α, knee −2α, ankle +α) that leaves the endpoint fixed to first order. The pivot heights 1, 0.55 and 0.1 m make Σ αᵢ(hᵢ − y) vanish for the endpoint at 0.05 m, so the analytic null direction is independent of the solver. At the bent seed the endpoint-height row has a singular value of order α but a task effect of order α², so the seed returns to the authored coordinates. Red: a seed that transports the whole previous correction, or a rank-cutoff projection, keeps a knee offset of order α.
- * 2. Task-space carry: a previous hip rotation that moves the endpoint keeps that endpoint to second order, while the seed differs from the previous fit because the hip rotation's null component returns. Red: projecting the whole difference to authored moves the endpoint by about 1.9 mm.
+ * 1. Null-space carry: a bent-knee four-support leg whose previous fit hides an x-axis zig-zag that leaves the endpoint fixed to first order: the cross product of the endpoint's y and z rows over the hip, knee and ankle pivots read from the fixture's joint anchors, so the analytic null direction is independent of the solver, scaled to α at its largest. The seed returns to the authored coordinates. Red: a seed that transports the whole previous correction keeps an offset of order α.
+ * 2. Task-space carry: a previous hip rotation that moves the endpoint keeps that endpoint within the fit's 1 mm tolerance, the budget the returned directions' linearized effects may spend, while the seed differs from the previous fit because the hip rotation's null component returns. Red: projecting the whole difference to authored moves the endpoint by about 1.8 mm.
  * 3. Non-redundant carry: when only the hip's two coordinates are fitted, no null space exists and a task-moving previous hip rotation is retained exactly, preserving the chosen bend branch.
  * 4. Tolerance budget: a 0.5 mrad previous hip rotation moves the endpoint by about 0.48 mm, within the fit's 1 mm tolerance, so returning it is cheaper than the fit already accepts and the seed returns fully to authored. Red: a rank cutoff keeps it because its singular value is large.
  *
@@ -74,12 +75,36 @@ export function test_physical_support_redundancy(): void {
   const chain: readonly string[] = ["upper-0", "lower-0", "support-0"];
 
   // 1. A pure first-order null-space zig-zag returns to the authored posture.
+  // The x-axis rotations' endpoint rows from the fixture's own pivots: an
+  // x-axis turn theta at pivot p moves the endpoint e by theta (0, -(e - p).z,
+  // (e - p).y), so the null direction is the cross product of the y and z
+  // rows over the three joints, scaled to alpha at its largest.
   const alpha: number = 0.005;
-  const zigzag: Record<string, IAutoMovieRigidTransform> = pose({
-    "upper-0": alpha,
-    "lower-0": -2 * alpha,
-    "support-0": alpha,
+  const tip: IAutoMovieRigidTransform["position"] = endpoint(authored);
+  const pivots: IAutoMovieRigidTransform["position"][] = chain.map((bone) => {
+    const joint: IAutoMoviePhysicalJoint = joints.get(bone)!;
+    const parent: IAutoMovieRigidTransform = authored[joint.parent]!;
+    return Vector3.add(
+      parent.position,
+      Quaternion.rotateVector(parent.rotation, joint.parentFrame.position),
+    );
   });
+  const rowY: number[] = pivots.map((p) => -(tip.z - p.z));
+  const rowZ: number[] = pivots.map((p) => tip.y - p.y);
+  const direction: number[] = [
+    rowY[1]! * rowZ[2]! - rowY[2]! * rowZ[1]!,
+    rowY[2]! * rowZ[0]! - rowY[0]! * rowZ[2]!,
+    rowY[0]! * rowZ[1]! - rowY[1]! * rowZ[0]!,
+  ];
+  const largest: number = Math.max(...direction.map(Math.abs));
+  const zigzag: Record<string, IAutoMovieRigidTransform> = pose(
+    Object.fromEntries(
+      chain.map((bone, i): [string, number] => [
+        bone,
+        (alpha * direction[i]!) / largest,
+      ]),
+    ),
+  );
   const returned: Record<string, IAutoMovieRigidTransform> = warm(
     zigzag,
     chain,
@@ -106,9 +131,18 @@ export function test_physical_support_redundancy(): void {
     "the previous task-space endpoint is meaningfully away from authored",
     !vclose(endpoint(hip), endpoint(authored), 1e-3),
   );
+  // The returned directions' linearized effects stay within the fit's 1 mm
+  // tolerance (`resolvePhysicalSupportRedundancy`), so the seed keeps the
+  // endpoint within that budget and second order, short of the 1.8 mm a full
+  // return of the hip would move it.
   TestValidator.predicate(
-    "task-space hip correction keeps its endpoint to second order",
-    vclose(endpoint(kept), endpoint(hip), 1e-5),
+    "task-space hip correction keeps its endpoint within the fit tolerance",
+    Math.hypot(
+      endpoint(kept).x - endpoint(hip).x,
+      endpoint(kept).y - endpoint(hip).y,
+      endpoint(kept).z - endpoint(hip).z,
+    ) <=
+      1e-3 + 1e-5,
   );
   TestValidator.predicate(
     "the hip correction's null component returns toward authored",

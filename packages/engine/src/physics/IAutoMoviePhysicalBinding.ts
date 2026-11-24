@@ -4,6 +4,7 @@ import type {
   IAutoMoviePhysicalJoint,
   IAutoMoviePhysicalOwnershipEvent,
   IAutoMoviePhysicalProfile,
+  IAutoMoviePhysicalRecoveryState,
   IAutoMoviePhysicalSegment,
   IAutoMoviePhysicalSupportWrench,
   IAutoMoviePhysicalTargetInterval,
@@ -15,16 +16,21 @@ import type {
 import type { AutoMovieXpbdBody } from "./AutoMovieXpbdBody";
 import type { AutoMovieXpbdJoint } from "./AutoMovieXpbdJoint";
 import type { IPhysicalCoupledTargetRun } from "./IPhysicalCoupledTargetRun";
+import type { preparePhysicalDisturbanceSpan } from "./preparePhysicalDisturbanceSpan";
 
 /**
- * Solver handles are transient and rebuilt in creation order after snapshot restore.
+ * Solver handles are transient and rebuilt in creation order after snapshot
+ * restore.
  */
 export interface IAutoMoviePhysicalBinding {
   /** Admitted immutable providers shared by fits within this run. */ profiles: Record<
     string,
     IAutoMoviePhysicalProfile
   >;
-  /** Immobile position-kinematic floor; omitted only while the binding is being constructed. */ floor?: AutoMovieXpbdBody;
+  /**
+   * Immobile position-kinematic floor; omitted only while the binding is being
+   * constructed.
+   */ floor?: AutoMovieXpbdBody;
   /** Scene/body segment keys to live rigid bodies. */ bodies: Map<
     string,
     AutoMovieXpbdBody
@@ -47,14 +53,33 @@ export interface IAutoMoviePhysicalBinding {
     string,
     Set<string>
   >;
-  /** Serialized relative pose/velocity corrections during return to authored motion. */ handoffs: Map<
-    string,
-    Record<string, IAutoMoviePhysicalHandoff>
-  >;
+  /**
+   * Serialized relative pose/velocity corrections during return to authored
+   * motion.
+   */ handoffs: Map<string, Record<string, IAutoMoviePhysicalHandoff>>;
   /** Actual ownership transitions, shared with the replay cache. */ ownership: IAutoMoviePhysicalOwnershipEvent[];
-  /** Virtual requested/allocated support demand, never a measured solver impulse. */ supportWrenches: IAutoMoviePhysicalSupportWrench[];
+  /**
+   * Virtual requested/allocated support demand, never a measured solver
+   * impulse.
+   */ supportWrenches: IAutoMoviePhysicalSupportWrench[];
+  /**
+   * Each body's prepared disturbance response and the recorded inputs it was
+   * prepared from (`preparePhysicalDisturbanceSpan`), held until a new span
+   * replaces it; rebuilt from the inputs after a restore.
+   */ spans: Map<
+    string,
+    {
+      input: NonNullable<IAutoMoviePhysicalRecoveryState["span"]>;
+      span: preparePhysicalDisturbanceSpan.ISpan;
+      handed?: boolean;
+      started?: boolean;
+    }
+  >;
 
-  /** At most one transient set of recovery motor goals per body and cached interval. */ planned: Map<
+  /**
+   * At most one transient set of recovery motor goals per body and cached
+   * interval.
+   */ planned: Map<
     string,
     IAutoMoviePhysicalTargetInterval.IPlan & {
       rootDrop: number;
@@ -62,10 +87,10 @@ export interface IAutoMoviePhysicalBinding {
       fromRootDrop: number;
     }
   >;
-  /** Actual-root support motor targets, rebuilt once per interval and after checkpoint restore. */ supportPlanned: Map<
-    string,
-    IAutoMoviePhysicalTargetInterval.IPlan
-  >;
+  /**
+   * Actual-root support motor targets, rebuilt once per interval and after
+   * checkpoint restore.
+   */ supportPlanned: Map<string, IAutoMoviePhysicalTargetInterval.IPlan>;
   /** Reused per-body segment maps; no solver bodies escape the run. */ segments: Map<
     string,
     Map<string, AutoMovieXpbdBody>
@@ -107,9 +132,12 @@ export interface IAutoMoviePhysicalBinding {
     string,
     IAutoMovieSamplePhysicalAuthoredTargets.IPlan
   >;
-  /** Fitted interval endpoints; solver substeps interpolate one coherent moving reference instead of holding its first sample. */ contactTargets: Map<
-    string,
-    IAutoMoviePhysicalTargetInterval.IPlan
-  >;
-  /** Admitted coupled groups and their report sink; omitted when no target declares a group. */ coupling?: IPhysicalCoupledTargetRun;
+  /**
+   * Fitted interval endpoints; solver substeps interpolate one coherent moving
+   * reference instead of holding its first sample.
+   */ contactTargets: Map<string, IAutoMoviePhysicalTargetInterval.IPlan>;
+  /**
+   * Admitted coupled groups and their report sink; omitted when no target
+   * declares a group.
+   */ coupling?: IPhysicalCoupledTargetRun;
 }

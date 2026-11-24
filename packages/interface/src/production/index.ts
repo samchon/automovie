@@ -6,7 +6,6 @@ export type { AutoMovieGrammarStyleIntent } from "./AutoMovieGrammarStyleIntent"
 export type { AutoMovieProductionPngColor } from "./AutoMovieProductionPngColor";
 export type { AutoMovieSubjectKind } from "./AutoMovieSubjectKind";
 export type { AutoMovieViseme } from "./AutoMovieViseme";
-export type * from "./cache";
 export type * from "./capture";
 export type * from "./effect";
 export type { IAutoMovieAcousticResponseProfile } from "./IAutoMovieAcousticResponseProfile";

@@ -54,12 +54,18 @@ export function test_physical_model_provider(): void {
     Math.abs(overridden.mass - profile.mass - 1) < 1e-10 &&
       overridden.segments[0]!.mass === replacement.mass,
   );
+  // The fixture's legs bend their knees by pi / 4, each 0.45 m link leaning
+  // pi / 8, so the body and hips stand d = 0.9 (1 - cos(pi / 8)) lower: the
+  // 4 kg body at 1.05 - d, each leg's 0.4 kg thigh at 0.775 - 0.75 d, 0.4 kg
+  // shank at 0.325 - d / 4 and 0.2 kg foot at 0.05 put the 8 kg centre at
+  // (6 - 5.6 d) / 8 = 0.75 - 0.7 d, on the symmetric plan's axis.
   const four: P = Fixtures.quadrupod();
+  const d: number = 0.9 * (1 - Math.cos(Math.PI / 8));
   TestValidator.predicate(
     "independent primitive assembly totals",
     validatePhysicalProfile(four).length === 0 &&
       Math.abs(four.mass - 8) < 1e-12 &&
-      vclose(four.centerOfMass, { x: 0, y: 0.75, z: 0 }, 1e-12),
+      vclose(four.centerOfMass, { x: 0, y: 0.75 - 0.7 * d, z: 0 }, 1e-12),
   );
   const analytic: IAutoMovieModel = makeProp([
     primitivePart("base", { type: "box", width: 1, height: 1, depth: 1 }),

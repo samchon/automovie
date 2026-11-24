@@ -23,8 +23,10 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieHumanBodyAnatomy } from "../generation/AutoMovieHumanBodyAnatomy";
+import { AutoMovieHumanSex } from "../typings/AutoMovieHumanSex";
 import { AutoMovieHumanCanonicalBind } from "./AutoMovieHumanCanonicalBind";
 import { AutoMovieHumanCanonicalProfile as Profile } from "./AutoMovieHumanCanonicalProfile";
+import type { AutoMovieHumanJointStrength } from "./AutoMovieHumanJointStrength";
 
 /**
  * A Human's polygon man on the engine's canonical humanoid rig, so a motion
@@ -127,7 +129,14 @@ export namespace AutoMovieHumanCanonicalBody {
         tip: b.tip === null ? null : Vector3.scale(vector(b.tip), scale),
         radius: radius(b.bone),
       })),
-      options,
+      {
+        ...options,
+        person: {
+          male: AutoMovieHumanBodyAnatomy.sexOf(params) === AutoMovieHumanSex.Male,
+          height: measures.stature / 1000,
+          mass: options.mass,
+        },
+      },
     );
   }
 
@@ -253,7 +262,7 @@ interface IBind {
 /** Reflect bind joints into the canonical frame, straighten them into the T-pose, floor them and build the rig and profile. */
 function canonical(
   bind: readonly IBind[],
-  options: { mass: number; id: string },
+  options: { mass: number; id: string; person: AutoMovieHumanJointStrength.IPerson },
 ): IAutoMovieHumanCanonicalBody.IBody {
   const children: Map<string, string[]> = new Map();
   for (const bone of bind)
@@ -480,6 +489,7 @@ function canonical(
       ),
       options.mass,
       options.id,
+      options.person,
     ),
     joints: bind.map((bone: IBind): IAutoMovieHumanCanonicalBody.IJoint => {
       const p: IAutoMovieVector3 = position.get(bone.bone)!;

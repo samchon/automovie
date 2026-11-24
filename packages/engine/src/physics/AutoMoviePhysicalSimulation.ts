@@ -17,17 +17,20 @@ import type { IPhysicalCoupledTargetSchedule } from "./IPhysicalCoupledTargetSch
 import { admitPhysicalSimulation } from "./admitPhysicalSimulation";
 import { assertPhysicalReturnPath } from "./assertPhysicalReturnPath";
 import { bindPhysicalWorld } from "./bindPhysicalWorld";
+import { capturePhysicalSimulationCheckpoint } from "./capturePhysicalSimulationCheckpoint";
 import { checkpointPhysicalSimulation } from "./checkpointPhysicalSimulation";
 import { collectPhysicalContacts } from "./collectPhysicalContacts";
 import { computePhysicalKinematicFrames } from "./computePhysicalKinematicFrames";
 import { freezePhysicalRecord } from "./freezePhysicalRecord";
 import { inPhysicalFloorBounds } from "./inPhysicalFloorBounds";
 import { physicalInputDigest } from "./physicalInputDigest";
+import { planPhysicalSimulationSteps } from "./planPhysicalSimulationSteps";
 import { preparePhysicalContactHooks } from "./preparePhysicalContactHooks";
 import { preparePhysicalCoupledTargetSchedule } from "./preparePhysicalCoupledTargetSchedule";
 import { preparePhysicalGeometry } from "./preparePhysicalGeometry";
 import { readPhysicalFrame } from "./readPhysicalFrame";
 import { recordPhysicalContact } from "./recordPhysicalContact";
+import { recordPhysicalSpanContacts } from "./recordPhysicalSpanContacts";
 import { restorePhysicalSimulationCheckpoint } from "./restorePhysicalSimulationCheckpoint";
 import { samplePhysicalTracking } from "./samplePhysicalTracking";
 import { samplePhysicalTrackingTarget } from "./samplePhysicalTrackingTarget";
@@ -38,9 +41,10 @@ import { yieldPhysicalSimulation } from "./yieldPhysicalSimulation";
 
 /**
  * Precompute fixed-step physics, then replay by time. Inputs are sampled bytes,
- * not callbacks hidden behind a cache key. The run steps its own in-house extended position-based dynamics world, which lives only for the run.
- * A late edit reuses a checkpoint only after every earlier input matches;
- * changed geometry, solver settings or modes require a complete restart.
+ * not callbacks hidden behind a cache key. The run steps its own in-house
+ * extended position-based dynamics world, which lives only for the run. A late
+ * edit reuses a checkpoint only after every earlier input matches; changed
+ * geometry, solver settings or modes require a complete restart.
  */
 export class AutoMoviePhysicalSimulation {
   /** Own the immutable input snapshot needed to verify checkpoint equivalence. */
@@ -53,7 +57,10 @@ export class AutoMoviePhysicalSimulation {
     public readonly recomputedSteps: number,
     /** Pre-solve PD demands exceeding the enforced motor torque cap. */
     public readonly tracking: IAutoMoviePhysicalSimulationInput.IDiagnostic[],
-    /** Converged coupled-group target fits by output step and group id; omitted when no target declares a group. */
+    /**
+     * Converged coupled-group target fits by output step and group id; omitted
+     * when no target declares a group.
+     */
     public readonly coupledTargetFits?: IAutoMoviePhysicalCoupledTargetFit.ISeries,
   ) {}
 
@@ -122,12 +129,13 @@ export class AutoMoviePhysicalSimulation {
    * Compute or resume a complete film from an admitted input snapshot.
    *
    * An equal full identity returns previous unchanged. Otherwise a compatible
-   * unchanged prefix can resume from a solver/controller/balance checkpoint; fully kinematic inputs generate frames without a dynamics world.
-   * Progress reports completed intervals synchronously. Cancellation or an
-   * error rejects rather than returning a partial successful performance.
-   * Each declared coupled group fits its members against one snapshot. The
-   * result keeps every converged report, and a resumed run keeps the reports
-   * of its reused prefix. A failed group throws its typed error.
+   * unchanged prefix can resume from a solver/controller/balance checkpoint;
+   * fully kinematic inputs generate frames without a dynamics world. Progress
+   * reports completed intervals synchronously. Cancellation or an error rejects
+   * rather than returning a partial successful performance. Each declared
+   * coupled group fits its members against one snapshot. The result keeps every
+   * converged report, and a resumed run keeps the reports of its reused prefix.
+   * A failed group throws its typed error.
    */
   public static async compute(
     input: IAutoMoviePhysicalSimulationInput.IInput,
@@ -201,6 +209,9 @@ export class AutoMoviePhysicalSimulation {
     }
     {
       const start: number = checkpointPhysicalSimulation(owned, previous);
+      const plan: planPhysicalSimulationSteps.IResult =
+        planPhysicalSimulationSteps(start, count, owned.checkpointEvery);
+      const snapshots: ReadonlySet<number> = new Set(plan.snapshots);
       const world: AutoMovieXpbdWorld = restorePhysicalSimulationCheckpoint(
         owned,
         previous,
@@ -412,6 +423,17 @@ export class AutoMoviePhysicalSimulation {
             active,
             found,
           );
+          recordPhysicalSpanContacts({
+            settings: owned,
+            bound,
+            recovery: cache.recovery,
+            instant,
+            seconds,
+            step,
+            contacts: cache.contacts,
+            active,
+            found,
+          });
           for (const key of found) {
             const receipt: IAutoMovieContactReceipt = active.get(key)!;
             if (receipt.a.body === "floor" || receipt.b.body === "floor")
@@ -432,45 +454,15 @@ export class AutoMoviePhysicalSimulation {
         for (const key of active.keys())
           if (!found.has(key)) active.delete(key);
         cache.frames.push(readPhysicalFrame(bound, seconds));
-        if (step % owned.checkpointEvery === 0) {
-          cache.checkpoints.set(step, world.takeSnapshot());
-          cache.controllerCheckpoints.set(step, {
-            contactCount: cache.contacts.length,
-            episodes: [...active.values()].map(
-              (
-                value: IAutoMovieContactReceipt,
-              ): {
-                receipt: Omit<IAutoMovieContactReceipt, "samples">;
-                sampleCount: number;
-              } => {
-                const { samples, ...receipt }: IAutoMovieContactReceipt = value;
-                return {
-                  receipt: structuredClone(receipt),
-                  sampleCount: samples!.length,
-                };
-              },
-            ),
-            active: [...active].map(
-              ([key, receipt]: [string, IAutoMovieContactReceipt]): [
-                string,
-                string,
-              ] => [key, receipt.id],
-            ),
-            softened: [...softened],
-            released: [...bound.released],
-            contactReleased: [...bound.contactReleased],
-            balanceTargets: structuredClone(Object.fromEntries(bound.planned)),
-            supportTargets: structuredClone(
-              Object.fromEntries(bound.supportPlanned),
-            ),
-            contactTargets: structuredClone(
-              Object.fromEntries(bound.contactTargets),
-            ),
-            handoffs: structuredClone(Object.fromEntries(bound.handoffs)),
-            ownershipCount: cache.ownership.length,
+        if (snapshots.has(step))
+          capturePhysicalSimulationCheckpoint({
+            cache,
+            world,
+            bound,
+            active,
+            softened,
+            step,
           });
-          cache.balanceCheckpoints.set(step, structuredClone(cache.recovery));
-        }
         if (step % owned.yieldEvery === 0 || step === count)
           await yieldPhysicalSimulation(
             step,
@@ -486,7 +478,7 @@ export class AutoMoviePhysicalSimulation {
       return new AutoMoviePhysicalSimulation(
         owned,
         cache,
-        count - start,
+        plan.steps,
         diagnostics,
         fits,
       );
