@@ -6,7 +6,7 @@ Holds the four facts an `mp4a` sample entry stores in its AudioSpecificConfig (I
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
-`interface` owns it; the CLI delivery probe fills it and `assertProductionAacProfile` reads it through `IAutoMovieProductionAudioProbe.sampleEntry`. It keeps only what the profile compares; bit rate, buffer size and other decoder-configuration fields are not facts the profile checks.
+The interface package owns it; the CLI delivery probe fills it and `assertProductionAacProfile` reads it through `IAutoMovieProductionAudioProbe.sampleEntry`. It keeps only what the profile compares; bit rate, buffer size and other decoder-configuration fields are not facts the profile checks.
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 

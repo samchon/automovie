@@ -14,4 +14,4 @@ Written by the join and read by the coarticulation sampler.
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 
-`sil` marks a pause inside the line instead of a separate rest record.
+The `sil` value marks a pause inside the line instead of a separate rest record.

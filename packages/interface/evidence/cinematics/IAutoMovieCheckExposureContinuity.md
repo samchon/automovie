@@ -32,7 +32,7 @@ Every field is read by the checker.
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 
-`change` is an optional flag with one meaning; absent and false are the same.
+The `change` member is an optional flag with one meaning; absent and false are the same.
 
 # src/cinematics/IAutoMovieCheckExposureContinuity.ts#IAutoMovieCheckExposureContinuity.IFinding
 

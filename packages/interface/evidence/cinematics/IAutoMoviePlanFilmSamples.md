@@ -32,4 +32,4 @@ The host reads `seconds` and `eye`; `point` is read by the permutation check the
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 
-`point` and `eye` are null together, without a lens; one nullable pair rather than a union keeps every sample one shape in the drawing loop.
+The `point` and `eye` members are null together, without a lens; one nullable pair rather than a union keeps every sample one shape in the drawing loop.

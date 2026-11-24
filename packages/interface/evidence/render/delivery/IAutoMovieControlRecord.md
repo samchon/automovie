@@ -6,7 +6,7 @@ One record per render attempt's control folder: the film's name, revision and ba
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
-`renderAutoMovieVideo` writes it as `controls/record.json`; a production's request record and manifest name the file and its digest. Revision and backend are the report's own values, so a reader matches the two files without a second source.
+The renderer `renderAutoMovieVideo` writes it as `controls/record.json`; a production's request record and manifest name the file and its digest. Revision and backend are the report's own values, so a reader matches the two files without a second source.
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 

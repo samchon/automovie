@@ -28,7 +28,7 @@ Every member is read by the projection.
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 
-`ArrayLike` lets read-back buffers pass without copying.
+The `ArrayLike` input lets read-back buffers pass without copying.
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

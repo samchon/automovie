@@ -6,7 +6,7 @@ The indirect shading a film asks for at one second, beside its optics; each memb
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
-`interface` owns it; the engine admits it, render's `AutoMovieFilmIndirectStage` reads it through `IAutoMovieDrawScene.shading`, and the scaffold's `IFilmProduction.shading` returns it.
+The interface package owns it; the engine admits it, render's `AutoMovieFilmIndirectStage` reads it through `IAutoMovieDrawScene.shading`, and the scaffold's `IFilmProduction.shading` returns it.
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 

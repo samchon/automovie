@@ -6,7 +6,7 @@ Exposure is stated as EV100, the unit a light meter and #4077's incident meter s
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
-`interface` owns the contract; the engine admits it and computes its closed forms, and render's film response stage, the draw host and the inspector read it through `IAutoMovieDrawScene.optics`. The curve reuses `IAutoMovieSceneEnvironment["toneMapping"]`, so one curve name means one curve in both passes. The final pass reads the response fields; the draw host reads samples, shutter and lens through `planAutoMovieFilmSamples`, and the film fills lens from `resolveAutoMovieLensAt`.
+The interface package owns the contract; the engine admits it and computes its closed forms, and render's film response stage, the draw host and the inspector read it through `IAutoMovieDrawScene.optics`. The curve reuses `IAutoMovieSceneEnvironment["toneMapping"]`, so one curve name means one curve in both passes. The final pass reads the response fields; the draw host reads samples, shutter and lens through `planAutoMovieFilmSamples`, and the film fills lens from `resolveAutoMovieLensAt`.
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 

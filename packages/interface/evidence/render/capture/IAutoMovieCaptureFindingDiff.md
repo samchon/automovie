@@ -14,7 +14,7 @@ Written by `diffAutoMovieCaptureFindings` into the comparison and read by the re
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 
-`lacking` names each record without diagnostics rather than collapsing them into a flag.
+The `lacking` member names each record without diagnostics rather than collapsing them into a flag.
 
 # src/render/capture/IAutoMovieCaptureFindingDiff.ts#IAutoMovieCaptureFindingDiff.Cause
 
