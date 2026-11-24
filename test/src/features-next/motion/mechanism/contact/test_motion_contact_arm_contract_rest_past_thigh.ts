@@ -13,21 +13,36 @@ import { armCourseContract } from "../../../internal/armCourseContract";
 import { motionActionUnit } from "../../../internal/motionActionUnit";
 
 /**
- * The arm planner's contract on its first canonical case: from the hanging
- * rest to a site past the thigh. A standing performer lays the left palm on
- * the front of its own left thigh, so the course leaves the rest beside the
- * thigh and must pass round it to reach the site ahead of it (`touch`, the
- * planner's public seam),
- * whatever the planner's algorithm, on the average man and the small woman.
+ * The arm planner's contract on its first canonical case: from the hanging rest
+ * to a site past the thigh. A standing performer lays the left palm on the
+ * front of its own left thigh, so the course leaves the rest beside the thigh
+ * and must pass round it to reach the site ahead of it (`touch`, the planner's
+ * public seam), whatever the planner's algorithm, on the average man and the
+ * small woman.
+ *
+ * The site is the thigh's front, not the knee, because the knee is a refusal by
+ * the touch contract. A standing touch reaches a region beyond the standing arm
+ * by leaning the trunk at most the standing lean's limit, 45 degrees
+ * (`AutoMovieMotionHumanReach.LEAN_LIMIT`), with the feet planted and the legs
+ * as they stand, and refuses a region still out of reach there
+ * (`IAutoMovieMotionHumanTouch`, `IAutoMovieMotionHumanTouchStance`). By the
+ * body's measures the knee is out of reach at that lean. The shoulder stays at
+ * least `(shoulderHeight - hipHeight) cos 45` above the hip joints and the knee
+ * lies a thigh below them: a drop of 752 mm on the average man and 622 mm on
+ * the small woman. Even with the elbow locked, the palm reaches at most the
+ * upper arm, the forearm and the palm socket's offset from the wrist: 621 and
+ * 506 mm. The front of the thigh lies within the standing arm, and the course
+ * still has to pass round the thigh to reach it.
  *
  * Scenarios:
+ *
  * 1. At the touch's `ready` the palm lies on the thigh's front region within the
  *    touch contract's 10 mm.
- * 2. The course stays clear by the audit's bounds: no part of the body more
- *    than 10 mm in another, nothing 5 mm under the floor.
+ * 2. The course stays clear by the audit's bounds: no part of the body more than
+ *    10 mm in another, nothing 5 mm under the floor.
  * 3. The course is continuous: no jump, out-and-back spike or snap.
- * 4. The course keeps the audit's speed, and the left wrist stays within
- *    30 m/s read at ten times the film rate.
+ * 4. The course keeps the audit's speed, and the left wrist stays within 30 m/s
+ *    read at ten times the film rate.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the canonical case, the seam, the bodies and every bound.
  * @evidence contracts/development/testing.md#behavioral-verification Performs the touch through the public chain and reads the displayed palm against the displayed thigh region, the displayed wrist's speed and the verdict report over the touch; a palm short of the thigh, an arm through the thigh or trunk, a jump or snap or an impossible speed fails, and no planner row, knot or iteration is read.

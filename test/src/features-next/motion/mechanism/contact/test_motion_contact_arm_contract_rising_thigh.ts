@@ -2,8 +2,8 @@ import { createSeat } from "@automovie/archetypes";
 import { Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanSegment,
   IAutoMovieMotionHumanSeated,
+  IAutoMovieMotionHumanSegment,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import { HumanChain, HumanObject, HumanPerformance } from "@automovie/motions";
@@ -29,18 +29,25 @@ interface IPlaced {
 /**
  * The arm planner's contract on its third canonical case: a seated hand onto a
  * rising thigh. A performer seated on a dining chair rises; the rise lays the
- * hands on the thighs, which move as the trunk flexes over them, and the
- * hands leave them after seat-off (`rise`, the planner's public seam), whatever
- * the planner's algorithm, on the average man and the small woman.
+ * hands on the thighs, which move as the trunk flexes over them, and the hands
+ * leave them after seat-off (`rise`, the planner's public seam), whatever the
+ * planner's algorithm, on the average man and the small woman.
  *
  * Scenarios:
+ *
  * 1. At `seatOff` each palm lies on its own thigh: within the thigh's measured
- *    radius of the thigh's axis, from the hip joint to the knee, plus the
- *    touch contract's 10 mm.
+ *    radius of the thigh's axis, from the hip joint to the knee, plus the touch
+ *    contract's 10 mm. The thigh's surface is the body's own: its collision
+ *    radius (`IAutoMovieBodyMeasure.thighRadius`) about the thigh segment from
+ *    the hip joint centre to the knee, as the measure defines it. A palm laid
+ *    on that surface lies within that radius of the axis. The nearest of all
+ *    the body's colliders is no reading of this: the hand's own collider holds
+ *    its palm socket, so that query names the hand at 0 mm in every pose and
+ *    cannot tell a palm on the thigh from one off it.
  * 2. The courses stay clear by the audit's bounds.
  * 3. The courses are continuous: no jump, out-and-back spike or snap.
- * 4. The courses keep the audit's speed, and each wrist stays within 30 m/s
- *    read at ten times the film rate.
+ * 4. The courses keep the audit's speed, and each wrist stays within 30 m/s read
+ *    at ten times the film rate.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the canonical case, the seam, the bodies and every bound.
  * @evidence contracts/development/testing.md#behavioral-verification Performs sit > rise through the public chain and reads the displayed palms against the displayed thighs' axes at seat-off, the displayed wrists' speed and the verdict report over the rise; a hand off its thigh, an arm through the thigh or trunk, a jump or snap or an impossible speed fails, and no planner internal is read.

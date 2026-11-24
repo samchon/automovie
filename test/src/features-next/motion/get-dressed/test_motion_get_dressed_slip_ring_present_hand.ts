@@ -2,6 +2,7 @@ import { Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
+  IAutoMovieHumanoidSurfaces,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanSegment,
   IAutoMovieResolvedBone,
@@ -33,10 +34,15 @@ import { slipRingScene } from "../../internal/slipRingScene";
  * 1. The upper arm hangs: the elbow lies the upper arm's length below the
  *    shoulder, within the touch contract's 10 mm.
  * 2. The forearm lies level: the palm lies at the elbow's height, within 10 mm.
- * 3. The palm lies ahead of the elbow, read level, at least the forearm's
- *    length and at most the forearm and the whole hand, within 10 mm: the
- *    level forearm puts the wrist a forearm ahead of the elbow, and the palm
- *    lies on the hand beyond it.
+ * 3. The palm lies ahead of the elbow, read level, the forearm's length and the
+ *    palm socket's reach along the fingers from the wrist, within 10 mm: the
+ *    level forearm puts the wrist a forearm ahead of the elbow, and the hand
+ *    held out fingers forward lays the palm socket in line beyond it. The palm
+ *    socket is the body's own surface, read on its rest frame
+ *    (`body.surfaces.sockets`), 44 mm along the fingers on the average man and
+ *    38 mm on the small woman. It is not half the hand: the hand measure runs
+ *    from the wrist to the middle fingertip (`IAutoMovieBodyMeasure.hand`), so
+ *    half of it (96 and 82 mm) is no place the body defines for its palm.
  * 4. The palm lies between the midline and the shoulder on its own side, within 10
  *    mm outside that band.
  * 5. The palm stays there from `ready` to `relax`, within 10 mm.
@@ -46,7 +52,7 @@ import { slipRingScene } from "../../internal/slipRingScene";
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the original and step it decomposes, the entry, the bodies, the hands and every bound.
  * @evidence contracts/development/testing.md#behavioral-verification Performs the presentation alone and reads the displayed shoulder, elbow, hips and palm at its events and the verdict report over its span; an upper arm raised or swung, a forearm tilted, a palm short or far out, drifting while held or a finding in the presentation fails.
- * @evidence contracts/development/testing.md#independent-expectations The arm's place is the presentHand contract's, read from the body's measured upper arm, forearm, hand and shoulder half width (`IAutoMovieBodyMeasure`) on the displayed joints; the bound is the touch contract's 10 mm; the inward share is the law's own, so only its band from the midline to the shoulder is asserted.
+ * @evidence contracts/development/testing.md#independent-expectations The arm's place is the presentHand contract's, read from the body's measured upper arm, forearm and shoulder half width (`IAutoMovieBodyMeasure`) and its own palm socket on its rest frame (`body.surfaces.sockets`) against the displayed joints; the bound is the touch contract's 10 mm; the inward share is the law's own, so only its band from the midline to the shoulder is asserted.
  * @evidence contracts/development/testing.md#distinguishing-cases Two bodies of opposite stature presenting opposite hands; the ring's slip onto the presented hand is `test_motion_get_dressed_slip_ring_slip`'s.
  * @evidence contracts/development/testing.md#execution-ownership In-memory performances through the public chain, entered through `test_motion_get_dressed_slip_ring_present_hand`.
  */
@@ -130,14 +136,17 @@ function present(
     Math.abs(at.y - elbow.y) <= grip,
   );
 
-  // 3. The level reach from the elbow, ahead of it.
+  // 3. The level reach from the elbow, ahead of it: the forearm and the palm
+  // socket's reach along the fingers, read on the body's rest frame.
+  const socket: IAutoMovieHumanoidSurfaces.IFrame =
+    b.surfaces.sockets[hand === "left" ? "palmLeft" : "palmRight"];
+  const along: number = Vector3.dot(socket.point, socket.forward!);
+  const expected: number = b.measure.forearm + along;
   const level: IAutoMovieVector3 = { ...Vector3.subtract(at, elbow), y: 0 };
   const reached: number = Vector3.length(level);
   checks.check(
-    `${label}: the palm lies a forearm and a hand ahead of the elbow, read level (${(reached * 1000).toFixed(0)} mm, the forearm ${(b.measure.forearm * 1000).toFixed(0)} and the hand ${(b.measure.hand * 1000).toFixed(0)}, ${(Vector3.dot(level, forward) * 1000).toFixed(0)} mm of it ahead)`,
-    reached >= b.measure.forearm - grip &&
-      reached <= b.measure.forearm + b.measure.hand + grip &&
-      Vector3.dot(level, forward) > 0,
+    `${label}: the palm lies the forearm and the palm socket's reach ahead of the elbow, read level (${(reached * 1000).toFixed(0)} mm of ${(expected * 1000).toFixed(0)}, ${(Vector3.dot(level, forward) * 1000).toFixed(0)} mm of it ahead)`,
+    Math.abs(reached - expected) <= grip && Vector3.dot(level, forward) > 0,
   );
 
   // 4. Inward of the shoulder's half width.
