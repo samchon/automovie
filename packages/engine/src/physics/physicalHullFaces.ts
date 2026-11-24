@@ -222,17 +222,16 @@ const REFLECTIONS: WeakMap<
  */
 export namespace physicalHullFaces {
   /**
-   * Prepare the supporting hull for one fixed point set and the caller's
-   * subsequent proximity and mass reads. The result borrows its input
-   * vertices, which must remain unchanged for this request.
+   * Prepare the supporting hull for one fixed point set. The shared hull
+   * builder runs Quickhull on the supplied coordinates and applies the same
+   * supporting-plane admission and ordered reductions as `physicalHullFaces`.
+   * The caller keeps the resulting hull for proximity and mass reads, which
+   * can use its supporting planes directly.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the fixed metre input, returned supporting geometry and borrowed vertices.
-   * @evidence contracts/development/implementation.md#principled-implementation Uses the existing Quickhull and the same supporting-plane admission and ordered reductions.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The shared hull builder serves both entries and prepares one complete numerical record.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Recomputes actual support of the supplied points without stored topology or unchecked face identities.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One supporting hull per scoped point set, with the existing search and ordered reduction costs.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The supplied hull can serve both distance and mass reads without reconstructing supporting planes.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned object and its borrowed vertices belong to the caller. This entry writes no global state.
+   * @param points Shape-local metres. Keep the coordinates unchanged while
+   *   using the returned hull.
+   * @returns One complete supporting hull with vertices borrowed from the
+   *   supplied points. The hull's lifetime belongs to the caller.
    */
   export function prepare(
     points: readonly IAutoMovieVector3[],
