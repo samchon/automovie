@@ -132,16 +132,17 @@ export namespace HumanArmTrajectoryStretch {
    * is read at the knots and through every frame between them
    * (`HumanArmTrajectoryEvaluate`), so the solve's own last reading admits or
    * refuses the path played at every instant. Where that reading fails on the
-   * course between knots (a swept reading), the knots lack the freedom to route
-   * the course there: each interval one of whose sweeps fails is split at its
-   * middle frame, and the path is solved on, warm, from its own solution
-   * carried onto the knots (`HumanArmRefine.hermite`) at the penalty it
-   * reached, every other interval as it was (trajopt subdivides only the
-   * interval its longest valid segment exceeds; Schulman et al. 2013, section
-   * V). A failure at the knots themselves is the problem's, and no knot is
-   * added for it. Each pass halves the intervals it splits and an interval of
-   * one frame is never split, so the passes are at most the base-two logarithm
-   * of the longest interval's frames.
+   * course between knots (a swept reading, or any term at a frame strictly
+   * between two knots), the knots lack the freedom to route the course there:
+   * each such interval is split at its middle frame, and the path is solved on,
+   * warm, from its own solution carried onto the knots
+   * (`HumanArmRefine.hermite`) at the penalty it reached, every other interval
+   * as it was (trajopt subdivides only the interval its longest valid segment
+   * exceeds; Schulman et al. 2013, section V). A failure at the knots
+   * themselves is the problem's, and no knot is added for it. Each pass halves
+   * the intervals it splits and an interval of one frame is never split, so the
+   * passes are at most the base-two logarithm of the longest interval's
+   * frames.
    *
    * @param grid The grid.
    * @param from The knots the seed stands on.
@@ -160,14 +161,14 @@ export namespace HumanArmTrajectoryStretch {
       HumanArmOptimiser.optimise(at.context, seed, penalty, grid.fine);
     while (
       solved.evaluation.worst.value > M.TOLERANCE &&
-      solved.evaluation.worst.term === "swept" &&
       !at.context.still &&
       grid.fine.n > at.context.n
     ) {
       const knots: number[] = at.knots;
-      // Each interval one of whose sweeps fails past the tolerance: the
-      // reading keeps an interval's sweeps by its first knot. One of a single
-      // frame cannot be split.
+      // Each interval whose course fails between its knots past the
+      // tolerance: one of whose sweeps fails (the reading keeps an
+      // interval's sweeps by its first knot), or one with a failing frame
+      // strictly inside it. One of a single frame cannot be split.
       const affected: Set<number> = new Set();
       knots.forEach((g: number, i: number): void => {
         if (i + 1 >= knots.length || knots[i + 1]! - g < 2) return;
@@ -175,6 +176,8 @@ export namespace HumanArmTrajectoryStretch {
           for (const sweep of arm[g] ?? [])
             if (1000 * (sweep.lower - sweep.clear) > M.TOLERANCE)
               affected.add(i);
+        for (let h: number = g + 1; h < knots[i + 1]!; ++h)
+          if (solved.evaluation.failing[h]) affected.add(i);
       });
       if (affected.size === 0) break;
       const next: IKnots = on(grid, HumanArmRefine.split(knots, [...affected]));

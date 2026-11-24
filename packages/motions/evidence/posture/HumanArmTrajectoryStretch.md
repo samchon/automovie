@@ -120,11 +120,11 @@ States the solve, what it reads, when an interval is split and the passes' bound
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-TrajOpt's penalty SCP on knots, whose reading of the knots and the course between them through every frame played is the admission; where the course between knots fails, the knots lack freedom there, so the intervals whose sweeps fail are split and the path solved on, warm, from its own solution at the penalty reached (trajopt subdivides only an interval past its longest valid segment; Schulman et al. 2013, section V).
+TrajOpt's penalty SCP on knots, whose reading of the knots and the course between them through every frame played is the admission; where the course between knots fails, the knots lack freedom there, so the intervals whose sweeps fail, or that hold a failing frame strictly between their knots, are split and the path solved on, warm, from its own solution at the penalty reached (trajopt subdivides only an interval past its longest valid segment; Schulman et al. 2013, section V).
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-One optimisation, then splits of the intervals a swept miss lies in, read from the evaluation's own sweeps, each pass continuing the last.
+One optimisation, then splits of the intervals a swept miss or a failing frame between knots lies in, read from the evaluation's own sweeps and failing frames, each pass continuing the last.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
