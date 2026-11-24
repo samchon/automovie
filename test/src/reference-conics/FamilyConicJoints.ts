@@ -19,8 +19,6 @@ import {
   realizeAutoMovieConstruction,
 } from "@automovie/engine";
 import {
-  AutoMovieHumanBreastConnection,
-  AutoMovieHumanReferenceOutlines,
   AutoMovieHumanChainTopology,
   AutoMovieHumanConicLoft as H,
   AutoMovieHumanF1,
@@ -1147,61 +1145,6 @@ namespace FamilyConicJoints {
       part: attempt(() => dividerCuts(source(part), source(host), side, joinCount(name))),
       host: attempt(() => dividerCuts(source(host), source(part), side, joinCount(name))),
     });
-    const readFootprint = () => attempt(() => {
-      const prior = AutoMovieHumanReferenceOutlines.BREAST_FOOTPRINT;
-      let low = Infinity, high = -Infinity;
-      for (let k = 1; k < reference.all.positions.length; k += 3) {
-        const y = reference.all.positions[k]!;
-        low = Math.min(low, y);
-        high = Math.max(high, y);
-      }
-      const height = high - low;
-      if (!(Number.isFinite(height) && height > 0)) throw new Error("the original stature is unavailable");
-      const extent: [number, number, number, number] = [prior.values.up, prior.values.lateral, prior.values.down, prior.values.medial]
-        .map((ratio): number => height * ratio) as [number, number, number, number];
-      const host = source(figure.body.trunk.name), target = figure.point("breastTip");
-      const chord = attempt(() => {
-        const read = AutoMovieHumanBreastConnection.create({ trunk: host, target, footprint: extent, shoulder: Math.SQRT2 - 1, lateral: 1 });
-        if (typeof read === "string") throw new Error(read);
-        const relocate = AutoMovieHumanF1Divide.anteriorFeet(host, 1e-3);
-        const feet = Array.from({ length: 2 * read.phases }, (_, k) => {
-          const at = Math.PI * k / read.phases;
-          return { at, held: k % 2 !== 0, contact: attempt(() => {
-            const contact = read.contact(at);
-            if (typeof contact === "string") throw new Error(contact);
-            if (!(contact.point[2] > 0)) throw new Error("the original footprint leaves the authored world half");
-            const { front } = contact.chord;
-            return { point: contact.point, front, relocated: attempt(() => relocate(contact.point)) };
-          }) };
-        });
-        return { rootInterval: read.rootInterval, phases: read.phases, feet };
-      });
-      const stock = originalFigure.reference(originalFigure.body.breast.name);
-      const root: R.V = figure.point("breastRoot");
-      const axis: R.V | null = V3.unit(V3.sub(target, root));
-      if (axis === null) throw new Error("the projected footprint has no registered root-to-tip direction");
-      const actualHost = AutoMovieLoftViewFullSource.create(host);
-      const projected = chord.kind === "observed" ? chord.value.feet.flatMap(({ at, held, contact }) => {
-        if (contact.kind !== "observed" || contact.value.relocated.kind !== "observed") return [];
-        const world: R.V = actualHost.point(...contact.value.relocated.value.address);
-        return [{ at, held, station: V3.dot(V3.sub(world, root), axis) }];
-      }) : [];
-      const cap = stock.tips?.[1] ?? null;
-      const capStart: number | null = cap === null ? null : figure.station(stock.name, cap.from);
-      const storedStart: number = figure.station(stock.name, stock.knots[0]!);
-      const covered = projected.filter(({ station }): boolean => station >= storedStart &&
-        (capStart === null || station < capStart));
-      const material = { root, firstStored: stock.knots[0], lastStored: stock.knots.at(-1), retainedCap: cap,
-        projected, capStart, reachesProtectedCap: capStart === null ? null :
-          projected.filter((point): boolean => point.station >= capStart).length,
-        sourceCoverage: {
-          storedStart, regularTraining: covered.filter((row): boolean => !row.held).length,
-          regularHeld: covered.filter((row): boolean => row.held).length,
-          beforeStock: projected.filter(({ station }): boolean => station < storedStart).length,
-        },
-        support: "The independent footprint and historical cap do not establish a measured proximal stock interval." };
-      return { population: prior.people, statureMm: height, footprintMm: extent, chord, material };
-    });
     const breast = materialOnly ? { kind: "held" as const } : attempt(() => {
       const origin: R.V = figure.point("breastRoot");
       const tip: R.V = figure.point("breastTip");
@@ -1302,7 +1245,7 @@ namespace FamilyConicJoints {
           ear: { independent: attempt(() => earAttachment(reference, frame("ear"))),
             baseline: readSide("root." + figure.body.ear.name, baseline),
             actual: readSide("root." + figure.body.ear.name) },
-          mammary: { independent: readFootprint(), baseline: readSide("mammary." + figure.body.breast.name, baseline),
+          mammary: { baseline: readSide("mammary." + figure.body.breast.name, baseline),
             actual: readSide("mammary." + figure.body.breast.name) },
         },
       };
@@ -1447,12 +1390,11 @@ namespace FamilyConicJoints {
       if (found.length !== 1) throw new Error("the ordinary source has " + found.length + " paired contact declarations for " + name);
       return found[0]!;
     });
-    const footprint = readFootprint();
     const sideSources = {
       thumb: { source: thumb.kind, contact: contact("web.finger.thumb") },
       armscye: { source: arm.kind, contact: contact("armscye." + figure.body.arm.name) },
       ear: { source: ears.kind, contact: contact("root." + figure.body.ear.name) },
-      mammary: { source: breast.kind, footprint, contact: contact("mammary." + figure.body.breast.name) },
+      mammary: { source: breast.kind, contact: contact("mammary." + figure.body.breast.name) },
     };
     await fs.writeFile(out, JSON.stringify({
       unit: "mm",

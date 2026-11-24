@@ -1,3 +1,4 @@
+import { AutoMovieHumanLoftStations } from "../../lofting/AutoMovieHumanLoftStations";
 import { AutoMovieHumanConicRecentre } from "./AutoMovieHumanConicRecentre";
 import { AutoMovieHumanConicSection } from "./AutoMovieHumanConicSection";
 import {
@@ -106,11 +107,10 @@ export namespace AutoMovieHumanConicLoft {
   };
 
   /**
-   * Largest distance between two neighbouring phases of a part's rings at its widest section, mm; a part has at least 48 phases. With 128
-   * phases for every part the trunk's stood 4 mm apart at the head and 9 mm at the hips, wider than its relief nets' 2.5 to 3 mm, which showed
-   * as steps, while a finger's stood half a millimetre apart.
+   * Maximum mean distance between adjacent phases at the widest section, in
+   * millimetres. Use the body pitch and retain the minimum angular resolution.
    */
-  const PHASE_MM: number = 4;
+  const PHASE_MM: number = AutoMovieHumanLoftStations.BODY_PITCH_MM;
 
   /**
    * The part's course as the engine reads it, its chart turned by the part's roll and its origin on the part's origin line.

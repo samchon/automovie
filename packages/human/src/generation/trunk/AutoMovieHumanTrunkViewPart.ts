@@ -12,6 +12,7 @@ import type {
   IAutoMovieViewPart,
 } from "@automovie/interface";
 
+import { AutoMovieHumanTrunkRows } from "../AutoMovieHumanTrunkRows";
 import { AutoMovieHumanSiteViewPart } from "../limb/AutoMovieHumanSiteViewPart";
 import { AutoMovieHumanTrunkAxis } from "./AutoMovieHumanTrunkAxis";
 import { AutoMovieHumanTrunkConnection } from "./AutoMovieHumanTrunkConnection";
@@ -59,8 +60,8 @@ export namespace AutoMovieHumanTrunkViewPart {
   /** Uniform phases of the chain's rings: two per control point. */
   export const SAMPLES: number = 512;
 
-  /** Widest spacing between layers, mm: `AutoMovieHumanTrunkRows.MAX_GAP`, under the reference's densest mean section gap of 3.9 mm. */
-  export const GAP: number = 3.5;
+  /** Maximum distance between layers in millimetres, from the shared trunk row rule. */
+  export const GAP: number = AutoMovieHumanTrunkRows.MAX_GAP;
 
   /**
    * Build the trunk base from its views.
