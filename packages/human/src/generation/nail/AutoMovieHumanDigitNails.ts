@@ -205,7 +205,7 @@ export namespace AutoMovieHumanDigitNails {
       throw new Error("nail: no proportion row for " + digit);
     const margin = setup.groove === undefined ? null : measuredGroove(setup.groove, segment);
     const row: IAutoMovieHumanDigitNails.IRow =
-      margin?.fold == null ? clinical : {
+      margin === null || margin.fold === null ? clinical : {
         ...clinical,
         proportions: {
           ...clinical.proportions,

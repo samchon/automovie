@@ -59,6 +59,7 @@ export function measureAutoMovieCurveLength64(
   };
 }
 
+/** Prepare the source addresses that the length measurement will read. */
 export namespace measureAutoMovieCurveLength64 {
   /** Declare one fixed piece's endpoint and interior addresses before measuring. */
   export function parameters(

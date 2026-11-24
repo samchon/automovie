@@ -26,7 +26,7 @@ export function preserveFamilyConicDistalSection(
 ): IAutoMovieLoftSectionConnect.IOriginal {
   const reader = (view: IAutoMovieViewPart) => {
     const prepared = Source.create(view);
-    if (prepared?.source == null)
+    if (prepared === null || prepared.source === null)
       throw new AutoMovieLoftAdmissionError(
         `No native cap field for ${view.name}`,
       );
