@@ -36,7 +36,7 @@ export function readPhysicalHullFacesPoint(
   if (!hull.faces.length) throw new Error("A hull must span a volume");
   const flat: IAutoMoviePhysicalHullFaces.IFlat =
     hull.flat ?? physicalHullFlat(hull);
-  const planes: Float64Array = flat.planes;
+  const planes: number[] = flat.planes;
   const count: number = hull.faces.length;
   const distances: Float64Array = new Float64Array(count);
   const px: number = p.x;
@@ -69,7 +69,7 @@ export function readPhysicalHullFacesPoint(
       normal: outward,
     };
   }
-  const edges: Float64Array = flat.edges;
+  const edges: number[] = flat.edges;
   let least: number = Infinity;
   let bx: number = 0;
   let by: number = 0;

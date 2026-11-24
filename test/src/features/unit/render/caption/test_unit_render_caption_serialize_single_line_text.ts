@@ -8,7 +8,7 @@ import { TestValidator } from "@nestia/e2e";
  * Scenarios:
  *
  * 1. "a\nb\tc" reads "a b c".
- * 2. "<b>&</b>" reads "&lt;b&gt;&amp;&lt;/b&gt;".
+ * 2. "<b>&</b>" reads "<b>&</b>".
  */
 export function test_unit_render_caption_serialize_single_line_text(): void {
   TestValidator.equals(

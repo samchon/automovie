@@ -13,6 +13,7 @@ import {
 import { productionFrameBoundaryToGridTick } from "../film/productionFrameBoundaryToGridTick";
 import { productionFrameIntervalToGridTicks } from "../film/productionFrameIntervalToGridTicks";
 import { resolveProductionFrameRate } from "../film/resolveProductionFrameRate";
+import { overflowsBinary64 } from "../math/overflowsBinary64";
 import { createAutoMovieRandom } from "../random/createAutoMovieRandom";
 import { deriveAutoMovieSeed } from "../random/deriveAutoMovieSeed";
 import { analyzeProductionSound } from "./analyzeProductionSound";
@@ -146,8 +147,8 @@ export const renderProductionSound: (
     const gain: number = 10 ** (levelled.gainDb / 20);
     for (let index: number = 0; index < source.length; ++index) {
       const value: number = source[index]! * fade(index) * gain;
-      pcm[(start + index) * 2] += value;
-      pcm[(start + index) * 2 + 1] += value;
+      accumulate(pcm, (start + index) * 2, value);
+      accumulate(pcm, (start + index) * 2 + 1, value);
     }
   }
   assertFiniteProductionPcm(pcm, "generated production mix");
@@ -238,8 +239,8 @@ const mixEvent: (
       filtered *
       (propagation?.distanceGain ?? event.attenuation) *
       event.densityGain;
-    pcm[(start + index) * 2] += value * left;
-    pcm[(start + index) * 2 + 1] += value * right;
+    accumulate(pcm, (start + index) * 2, value * left);
+    accumulate(pcm, (start + index) * 2 + 1, value * right);
   }
 };
 
@@ -308,8 +309,8 @@ const mixCue: (
     }
     const scoreGain: number = scoreEnvelope?.[start + index] ?? 1;
     const value: number = signal * cue.gain * fade * scoreGain;
-    pcm[(start + index) * 2] += value;
-    pcm[(start + index) * 2 + 1] += value;
+    accumulate(pcm, (start + index) * 2, value);
+    accumulate(pcm, (start + index) * 2 + 1, value);
   }
 };
 
@@ -410,3 +411,19 @@ const seededNoise: (stream: IAutoMovieRandom, index: number) => number = (
   stream: IAutoMovieRandom,
   index: number,
 ): number => (2 * stream.float(index) - 1) * 0.999999;
+
+/**
+ * Add one value to the Float32 mix, refusing the sum where it leaves the
+ * Float32 range: the limiter downstream would otherwise read an infinity.
+ */
+function accumulate(
+  pcm: Float32Array<ArrayBufferLike>,
+  at: number,
+  value: number,
+): void {
+  pcm[at] += value;
+  if (overflowsBinary64(pcm[at]!))
+    throw new Error(
+      `Production sound generated production mix overflows the Float32 range at index ${at}.`,
+    );
+}

@@ -21,5 +21,9 @@ export function test_unit_render_caption_canonicalize_text(): void {
     canonicalizeAutoMovieCaptionText("a\u0000b\u007fc"),
     "a b c",
   );
-  TestValidator.equals("a tab", canonicalizeAutoMovieCaptionText("a\tb"), "a\tb");
+  TestValidator.equals(
+    "a tab",
+    canonicalizeAutoMovieCaptionText("a\tb"),
+    "a\tb",
+  );
 }

@@ -27,6 +27,7 @@ const grip = (
   kind: "grip",
   from: 0,
   to: 1,
+  support: { kind: "ground" },
 });
 
 /**

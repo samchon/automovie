@@ -41,8 +41,8 @@ export namespace IAutoMoviePhysicalHullFaces {
    * the start; `starts` bounds each face's edges.
    */
   export interface IFlat {
-    /** Four numbers per face: the normal and the offset. */ planes: Float64Array;
-    /** Each face's first edge, and the count of edges at the end. */ starts: Int32Array;
-    /** Eleven numbers per edge. */ edges: Float64Array;
+    /** Four numbers per face: the normal and the offset. */ planes: number[];
+    /** Each face's first edge, and the count of edges at the end. */ starts: number[];
+    /** Eleven numbers per edge. */ edges: number[];
   }
 }

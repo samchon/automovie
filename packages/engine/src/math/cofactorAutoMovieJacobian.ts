@@ -41,9 +41,9 @@ export function cofactorAutoMovieJacobian(
     jacobian[5],
     jacobian[8],
   );
-  const bc: IAutoMovieVector3 = crossed(b, c);
-  const ca: IAutoMovieVector3 = crossed(c, a);
-  const ab: IAutoMovieVector3 = crossed(a, b);
+  const bc: IAutoMovieVector3 = Vector3.cross(b, c);
+  const ca: IAutoMovieVector3 = Vector3.cross(c, a);
+  const ab: IAutoMovieVector3 = Vector3.cross(a, b);
   const determinant: number = representable(
     representable(representable(a.x * bc.x) + representable(a.y * bc.y)) +
       representable(a.z * bc.z),
@@ -58,19 +58,7 @@ export function cofactorAutoMovieJacobian(
   };
 }
 
-/** The cross product, each product and difference refused where it overflows. */
-function crossed(
-  p: IAutoMovieVector3,
-  q: IAutoMovieVector3,
-): IAutoMovieVector3 {
-  return {
-    x: representable(representable(p.y * q.z) - representable(p.z * q.y)),
-    y: representable(representable(p.z * q.x) - representable(p.x * q.z)),
-    z: representable(representable(p.x * q.y) - representable(p.y * q.x)),
-  };
-}
-
-/** One product, sum or difference, refused where it overflows binary64. */
+/** One product or sum of the determinant, refused where it overflows binary64. */
 function representable(result: number): number {
   if (overflowsBinary64(result))
     throw new Error(

@@ -15,19 +15,24 @@ import type {
 export function physicalHullFlat(
   hull: Pick<IAutoMoviePhysicalHullFaces.IHull, "faces">,
 ): IAutoMoviePhysicalHullFaces.IFlat {
-  const planes: Float64Array = new Float64Array(4 * hull.faces.length);
-  const starts: Int32Array = new Int32Array(hull.faces.length + 1);
+  const planes: number[] = new Array<number>(4 * hull.faces.length).fill(0);
+  const starts: number[] = new Array<number>(hull.faces.length + 1).fill(0);
   const total: number = hull.faces.reduce(
     (sum: number, face: IAutoMoviePhysicalHullFaces.IFace): number =>
       sum + face.loop.length,
     0,
   );
-  const edges: Float64Array = new Float64Array(physicalHullFlat.EDGE * total);
+  const edges: number[] = new Array<number>(physicalHullFlat.EDGE * total).fill(
+    0,
+  );
   let e: number = 0;
   hull.faces.forEach(
     (face: IAutoMoviePhysicalHullFaces.IFace, f: number): void => {
       const n: IAutoMovieVector3 = face.normal;
-      planes.set([n.x, n.y, n.z, face.offset], 4 * f);
+      planes[4 * f] = n.x;
+      planes[4 * f + 1] = n.y;
+      planes[4 * f + 2] = n.z;
+      planes[4 * f + 3] = face.offset;
       starts[f] = e;
       face.loop.forEach((from: IAutoMovieVector3, i: number): void => {
         const to: IAutoMovieVector3 = face.loop[(i + 1) % face.loop.length]!;
@@ -37,22 +42,21 @@ export function physicalHullFlat(
         const mx: number = n.y * ez - n.z * ey;
         const my: number = n.z * ex - n.x * ez;
         const mz: number = n.x * ey - n.y * ex;
-        edges.set(
-          [
-            from.x,
-            from.y,
-            from.z,
-            ex,
-            ey,
-            ez,
-            ex * ex + ey * ey + ez * ez,
-            mx,
-            my,
-            mz,
-            mx * from.x + my * from.y + mz * from.z,
-          ],
-          physicalHullFlat.EDGE * e,
-        );
+        const row: number[] = [
+          from.x,
+          from.y,
+          from.z,
+          ex,
+          ey,
+          ez,
+          ex * ex + ey * ey + ez * ez,
+          mx,
+          my,
+          mz,
+          mx * from.x + my * from.y + mz * from.z,
+        ];
+        for (let k: number = 0; k < row.length; k++)
+          edges[physicalHullFlat.EDGE * e + k] = row[k]!;
         e++;
       });
     },

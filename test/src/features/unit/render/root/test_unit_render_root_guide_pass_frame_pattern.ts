@@ -11,7 +11,11 @@ import { TestValidator } from "@nestia/e2e";
  * 2. Mask as webp padded to 3: frame_%03d.mask.webp.
  */
 export function test_unit_render_root_guide_pass_frame_pattern(): void {
-  TestValidator.equals("beauty", guidePassFramePattern("beauty"), "frame_%05d.png");
+  TestValidator.equals(
+    "beauty",
+    guidePassFramePattern("beauty"),
+    "frame_%05d.png",
+  );
   TestValidator.equals(
     "mask as webp",
     guidePassFramePattern("mask", "webp", 3),

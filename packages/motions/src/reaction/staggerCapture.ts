@@ -8,6 +8,7 @@ import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTimin
 import { HumanFoot } from "../posture/HumanFoot";
 import type { StaggerPendulum } from "./StaggerPendulum";
 import { staggerBounds } from "./staggerBounds";
+import { staggerCaptureDistance } from "./staggerCaptureDistance";
 
 /** The record of `IStaggerCaptureResult`'s site. */
 type IStaggerCaptureResult = {
@@ -90,15 +91,13 @@ export function staggerCapture(
       (AutoMovieMotionHumanTiming.seconds(REACTION) +
         AutoMovieMotionHumanTiming.seconds(TRANSFER)) +
     shortest;
-  const q: number = Math.exp(-w * shortest);
-  const later: (n: number) => number = (n: number): number =>
-    n <= 0 ? reach : reach + (longest * q * (1 - q ** n)) / (1 - q);
-  const distance: (steps: number) => number = (steps: number): number =>
-    steps <= 0
-      ? reach
-      : reach +
-        (longest - reach + later(steps - 1)) *
-          Math.exp(-w * Math.max(0, first));
+  const distance: (steps: number) => number = staggerCaptureDistance({
+    w,
+    reach,
+    longest,
+    step: shortest,
+    first,
+  });
 
   // The push's own distance: its extrapolated centre of mass from the
   // nearer entry ankle, and the fewest steps whose distance covers it.

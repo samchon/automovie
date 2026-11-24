@@ -2,8 +2,8 @@ import { serializeAutoMovieWebVttIdentifier } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `serializeAutoMovieWebVttIdentifier` returns an admitted identifier as is
- * and throws for one WebVTT cannot carry.
+ * `serializeAutoMovieWebVttIdentifier` returns an admitted identifier as is and
+ * throws for one WebVTT cannot carry.
  *
  * Scenarios:
  *
