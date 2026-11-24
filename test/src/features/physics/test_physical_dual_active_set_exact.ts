@@ -1,7 +1,7 @@
 import { solveXpbdDualActiveSet } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
-import fs from "fs";
-import path from "path";
+import fs from "node:fs";
+import path from "node:path";
 
 import { repositoryRoot } from "../internal/repositoryRoot";
 
