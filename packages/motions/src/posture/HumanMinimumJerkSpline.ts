@@ -145,7 +145,7 @@ export namespace HumanMinimumJerkSpline {
     const m: number = times.length;
     const d: number = x[0]?.length ?? 0;
     const size: number = 2 * m;
-    const span = (k: number): number => {
+    const span: (k: number) => number = (k: number): number => {
       // The interval from point k to point k + 1, across the period at the end.
       const next: number = k + 1 < m ? times[k + 1]! : times[0]! + period;
       return next - times[k]!;
@@ -161,7 +161,11 @@ export namespace HumanMinimumJerkSpline {
       const after: number = (k + 1) % m;
       const hl: number = span(before);
       const hr: number = span(k);
-      const add = (row: number, point: number, block: Pair): void => {
+      const add: (row: number, point: number, block: Pair) => void = (
+        row: number,
+        point: number,
+        block: Pair,
+      ): void => {
         matrix[row]![2 * point] = matrix[row]![2 * point]! + block[0];
         matrix[row]![2 * point + 1] = matrix[row]![2 * point + 1]! + block[1];
       };

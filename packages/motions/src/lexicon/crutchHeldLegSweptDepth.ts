@@ -24,7 +24,7 @@ export function crutchHeldLegSweptDepth(
   steps.forEach((step: crutchHeldLeg.IStep, k: number): void => {
     const low: number = step.from;
     const high: number = steps[k + 1]?.from ?? Infinity;
-    const sdf = (u: number): number => {
+    const sdf: (u: number) => number = (u: number): number => {
       const ahead: number = a[0] + u * (b[0] - a[0]);
       const height: number = a[1] + u * (b[1] - a[1]);
       const dz: number = Math.max(low - ahead, 0, ahead - high);

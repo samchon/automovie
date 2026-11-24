@@ -104,7 +104,12 @@ export function crutchHeldLeg(
         : [],
   );
   // The leg's joint angles written into a posture at a share of the fold.
-  const posed = (
+  const posed: (
+    base: IAutoMovieMotionHumanPosture,
+    from: crutchHeldLeg.IRaised,
+    angles: readonly number[],
+    s: number,
+  ) => IAutoMovieMotionHumanPosture = (
     base: IAutoMovieMotionHumanPosture,
     from: crutchHeldLeg.IRaised,
     angles: readonly number[],
@@ -138,7 +143,9 @@ export function crutchHeldLeg(
     };
   };
   // The body's segments placed for a posture, as the audit places them.
-  const segments = (
+  const segments: (
+    posture: IAutoMovieMotionHumanPosture,
+  ) => IAutoMovieMotionHumanColliders.IPlaced[] = (
     posture: IAutoMovieMotionHumanPosture,
   ): IAutoMovieMotionHumanColliders.IPlaced[] =>
     HumanColliders.placed(
@@ -148,7 +155,9 @@ export function crutchHeldLeg(
   // How deep each of the leg's segments lies in each other segment of the
   // body the audit reads it against, past its reference depth and the
   // audit's allowance (`Tangle.excess`, `HumanAuditModel.ALLOWANCE`).
-  const tangles = (
+  const tangles: (
+    placed: readonly IAutoMovieMotionHumanColliders.IPlaced[],
+  ) => number[] = (
     placed: readonly IAutoMovieMotionHumanColliders.IPlaced[],
   ): number[] => {
     // Each segment read in is prepared once for this placement.
@@ -165,7 +174,9 @@ export function crutchHeldLeg(
     );
   };
   // The leg's probes in the world, as the audit places them.
-  const probes = (
+  const probes: (
+    placed: readonly IAutoMovieMotionHumanColliders.IPlaced[],
+  ) => IAutoMovieVector3[] = (
     placed: readonly IAutoMovieMotionHumanColliders.IPlaced[],
   ): IAutoMovieVector3[] => {
     return parts.flatMap((i: number): IAutoMovieVector3[] =>
@@ -180,13 +191,19 @@ export function crutchHeldLeg(
   };
   // A probe's (or a probe's swept chord's) distance from the levels beneath,
   // less the swing's clearance.
-  const clear = (
+  const clear: (
+    seconds: number,
+    a: IAutoMovieVector3,
+    b: IAutoMovieVector3,
+  ) => number = (
     seconds: number,
     a: IAutoMovieVector3,
     b: IAutoMovieVector3,
   ): number => {
     if (props.stairs !== undefined) {
-      const along = (p: IAutoMovieVector3): number =>
+      const along: (p: IAutoMovieVector3) => number = (
+        p: IAutoMovieVector3,
+      ): number =>
         Vector3.dot(
           Vector3.subtract(p, props.stairs!.origin),
           props.stairs!.forward,
@@ -201,11 +218,13 @@ export function crutchHeldLeg(
     }
     return Math.min(a.y, b.y) - props.floor!(seconds) - walkFoot.CLEARANCE;
   };
-  const plan = (from: crutchHeldLeg.IRaised): number[][] => {
+  const plan: (from: crutchHeldLeg.IRaised) => number[][] = (
+    from: crutchHeldLeg.IRaised,
+  ): number[][] => {
     const bases: IAutoMovieMotionHumanPosture[] = knots.map(
       (t: number): IAutoMovieMotionHumanPosture => read(t),
     );
-    const share = (t: number): number =>
+    const share: (t: number) => number = (t: number): number =>
       minimumJerk(Math.min(1, (t - lifted) / (held - lifted))).s;
     const first: number[] = [
       from.upper[0],
@@ -222,9 +241,14 @@ export function crutchHeldLeg(
         from.lower[0] + (props.knee - from.lower[0]) * s,
       ];
     });
-    const angles = (x: F.Vector, j: number): number[] =>
-      j === 0 ? first : [...x.slice(4 * (j - 1), 4 * j)];
-    const at = (
+    const angles: (x: F.Vector, j: number) => number[] = (
+      x: F.Vector,
+      j: number,
+    ): number[] => (j === 0 ? first : [...x.slice(4 * (j - 1), 4 * j)]);
+    const at: (
+      x: F.Vector,
+      j: number,
+    ) => IAutoMovieMotionHumanColliders.IPlaced[] = (
       x: F.Vector,
       j: number,
     ): IAutoMovieMotionHumanColliders.IPlaced[] =>
